@@ -93,6 +93,7 @@ import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
 import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
 import com.sun.tools.javac.tree.JCTree.JCModifiers;
 import com.sun.tools.javac.tree.JCTree.JCModuleDecl;
+import com.sun.tools.javac.tree.JCTree.JCModuleImport;
 import com.sun.tools.javac.tree.JCTree.JCNewArray;
 import com.sun.tools.javac.tree.JCTree.JCNewClass;
 import com.sun.tools.javac.tree.JCTree.JCOpens;
@@ -192,6 +193,9 @@ class JavacConverter {
 			res.setModule(convert(javacCompilationUnit.getModuleDecl()));
 		}
 		javacCompilationUnit.getImports().stream().filter(imp -> imp instanceof JCImport).map(jc -> convert((JCImport)jc)).forEach(res.imports()::add);
+		if (this.ast.apiLevel >= AST.JLS23_INTERNAL) {
+			javacCompilationUnit.getImports().stream().filter(imp -> imp instanceof JCModuleImport).map(jc -> convert((JCModuleImport)jc)).forEach(res.imports()::add);
+		}
 		javacCompilationUnit.getTypeDecls().stream()
 			.map(n -> convertBodyDeclaration(n, res))
 			.filter(Objects::nonNull)
@@ -394,6 +398,14 @@ class JavacConverter {
 		if (select.getIdentifier().contentEquals("*")) {
 			res.setOnDemand(true);
 			res.setName(toName(select.getExpression()));
+		} else if (this.ast.apiLevel >= AST.JLS23_INTERNAL && select.selected.toString().equals("module") && select.name.toString().equals("<error>")) {
+			// it's a broken module import
+			var moduleModifier = this.ast.newModifier(ModifierKeyword.MODULE_KEYWORD);
+			res.modifiers().add(moduleModifier);
+			Name name = new SimpleName(this.ast);
+			name.setSourceRange(res.getStartPosition() + res.getLength() + 1, 0);
+			res.setName(name);
+			res.setSourceRange(res.getStartPosition(), res.getLength() + 1);
 		} else {
 			res.setName(toName(select));
 		}
@@ -421,6 +433,21 @@ class JavacConverter {
 				}
 			}
 		}
+		return res;
+	}
+	
+	private ImportDeclaration convert(JCModuleImport javac) {
+		ImportDeclaration res = this.ast.newImportDeclaration();
+		commonSettings(res, javac);
+		var moduleModifier = this.ast.newModifier(ModifierKeyword.MODULE_KEYWORD);
+		res.modifiers().add(moduleModifier);
+		if (javac.isStatic()) {
+			if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
+				res.setStatic(true);
+			}
+		}
+		var select = javac.getQualifiedIdentifier();
+		res.setName(toName(select));
 		return res;
 	}
 

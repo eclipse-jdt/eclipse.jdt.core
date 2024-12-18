@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -452,6 +453,17 @@ public class DOMCompletionEngine implements Runnable {
 						}
 					}
 				}
+				if (context.getParent() instanceof ImportDeclaration importDeclaration
+						&& context.getAST().apiLevel() >= AST.JLS23
+						&& this.modelUnit.getJavaProject().getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true).equals(JavaCore.ENABLED)) {
+					for (Modifier modifier : (List<Modifier>)importDeclaration.modifiers()) {
+						if (modifier.getKeyword() == ModifierKeyword.MODULE_KEYWORD) {
+							findModules(this.qualifiedPrefix.toCharArray(), this.modelUnit.getJavaProject(), this.assistOptions, Collections.emptySet());
+							suggestDefaultCompletions = false;
+							break;
+						}
+					}
+				}
 			}
 			if (context instanceof AbstractTypeDeclaration typeDecl) {
 				if (this.cuBuffer != null) {
@@ -496,105 +508,115 @@ public class DOMCompletionEngine implements Runnable {
 				}
 			}
 			if (context instanceof QualifiedName qualifiedName) {
-				IBinding qualifiedNameBinding = qualifiedName.getQualifier().resolveBinding();
-				if (qualifiedNameBinding instanceof ITypeBinding qualifierTypeBinding && !qualifierTypeBinding.isRecovered()) {
-					processMembers(qualifiedName, qualifierTypeBinding, specificCompletionBindings, true);
-					publishFromScope(specificCompletionBindings);
-					int startPos = this.offset;
-					int endPos = this.offset;
-					if ((qualifiedName.getName().getFlags() & ASTNode.MALFORMED) != 0) {
-						startPos = qualifiedName.getName().getStartPosition();
-						endPos = startPos + qualifiedName.getName().getLength();
-					}
-
-					if (!(this.toComplete instanceof Type)) {
-						ITypeBinding currentTypeBinding = DOMCompletionUtil.findParentTypeDeclaration(context).resolveBinding();
-						if (currentTypeBinding.isSubTypeCompatible(qualifierTypeBinding)) {
-							if(!isFailedMatch(this.prefix.toCharArray(), Keywords.THIS)) {
-								this.requestor.accept(createKeywordProposal(Keywords.THIS, startPos, endPos));
-							}
-							if (!isFailedMatch(this.prefix.toCharArray(), Keywords.SUPER)) {
-								this.requestor.accept(createKeywordProposal(Keywords.SUPER, startPos, endPos));
-							}
-						}
-						if (!isFailedMatch(this.prefix.toCharArray(), Keywords.CLASS)) {
-							this.requestor.accept(createClassKeywordProposal(qualifierTypeBinding, startPos, endPos));
-						}
-					}
-
+				ImportDeclaration importDecl = (ImportDeclaration)DOMCompletionUtil.findParent(context, new int[] { ASTNode.IMPORT_DECLARATION });
+				if (importDecl != null
+						&& importDecl.getAST().apiLevel() >= AST.JLS23
+						&& this.modelUnit.getJavaProject().getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true).equals(JavaCore.ENABLED)
+						&& importDecl.modifiers().stream().anyMatch(node -> node instanceof Modifier modifier && modifier.getKeyword() == ModifierKeyword.MODULE_KEYWORD)) {
+					findModules((this.qualifiedPrefix + "." + this.prefix).toCharArray(), this.modelUnit.getJavaProject(), this.assistOptions, Collections.emptySet()); //$NON-NLS-1$
 					suggestDefaultCompletions = false;
-				} else if (qualifiedNameBinding instanceof IPackageBinding qualifierPackageBinding) {
-					if (!qualifierPackageBinding.isRecovered()) {
-						// start of a known package
-						suggestPackages();
-						// suggests types in the package
-						suggestTypesInPackage(qualifierPackageBinding.getName());
+				} else {
+					IBinding qualifiedNameBinding = qualifiedName.getQualifier().resolveBinding();
+					if (qualifiedNameBinding instanceof ITypeBinding qualifierTypeBinding && !qualifierTypeBinding.isRecovered()) {
+						processMembers(qualifiedName, qualifierTypeBinding, specificCompletionBindings, true);
+						publishFromScope(specificCompletionBindings);
+						int startPos = this.offset;
+						int endPos = this.offset;
+						if ((qualifiedName.getName().getFlags() & ASTNode.MALFORMED) != 0) {
+							startPos = qualifiedName.getName().getStartPosition();
+							endPos = startPos + qualifiedName.getName().getLength();
+						}
+						if (!(this.toComplete instanceof Type)) {
+							ITypeBinding currentTypeBinding = DOMCompletionUtil.findParentTypeDeclaration(context).resolveBinding();
+							if (currentTypeBinding.isSubTypeCompatible(qualifierTypeBinding)) {
+								if (!isFailedMatch(this.prefix.toCharArray(), Keywords.THIS)) {
+									this.requestor.accept(createKeywordProposal(Keywords.THIS, startPos, endPos));
+								}
+								if (!isFailedMatch(this.prefix.toCharArray(), Keywords.SUPER)) {
+									this.requestor.accept(createKeywordProposal(Keywords.SUPER, startPos, endPos));
+								}
+							}
+							if (!isFailedMatch(this.prefix.toCharArray(), Keywords.CLASS)) {
+								this.requestor.accept(createClassKeywordProposal(qualifierTypeBinding, startPos, endPos));
+							}
+						}
+
 						suggestDefaultCompletions = false;
-					} else {
-						// likely the start of an incomplete field/method access
-						Bindings tempScope = new Bindings();
-						scrapeAccessibleBindings(tempScope);
-						Optional<ITypeBinding> potentialBinding = tempScope.all() //
-								.filter(binding -> {
-									IJavaElement elt = binding.getJavaElement();
-									if (elt == null) {
-										return false;
-									}
-									return elt.getElementName().equals(qualifiedName.getQualifier().toString());
-								}) //
-								.map(binding -> {
-									if (binding instanceof IVariableBinding variableBinding) {
-										return variableBinding.getType();
-									} else if (binding instanceof ITypeBinding typeBinding) {
-										return typeBinding;
-									}
-									throw new IllegalStateException("method, type var, etc. are likely not interpreted as a package"); //$NON-NLS-1$
-								})
-								.map(ITypeBinding.class::cast)
-								.findFirst();
-						if (potentialBinding.isPresent()) {
-							processMembers(qualifiedName, potentialBinding.get(), specificCompletionBindings, false);
-							publishFromScope(specificCompletionBindings);
-							suggestDefaultCompletions = false;
-						} else {
-							// maybe it is actually a package?
+					} else if (qualifiedNameBinding instanceof IPackageBinding qualifierPackageBinding) {
+						if (!qualifierPackageBinding.isRecovered()) {
+							// start of a known package
 							suggestPackages();
 							// suggests types in the package
 							suggestTypesInPackage(qualifierPackageBinding.getName());
 							suggestDefaultCompletions = false;
-						}
-					}
-				} else if (qualifiedNameBinding instanceof IVariableBinding variableBinding) {
-					ITypeBinding typeBinding = variableBinding.getType();
-					processMembers(qualifiedName, typeBinding, specificCompletionBindings, false);
-					publishFromScope(specificCompletionBindings);
-					suggestDefaultCompletions = false;
-				} else {
-					// UnimportedType.|
-					List<IType> foundTypes = findTypes(qualifiedName.getQualifier().toString(), null).toList();
-					// HACK: We requested exact matches from the search engine but some results aren't exact
-					foundTypes = foundTypes.stream().filter(type -> type.getElementName().equals(qualifiedName.getQualifier().toString())).toList();
-					if (!foundTypes.isEmpty()) {
-						IType firstType = foundTypes.get(0);
-						ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
-						parser.setProject(this.modelUnit.getJavaProject());
-						IBinding[] descendantBindings = parser.createBindings(new IType[] { firstType }, new NullProgressMonitor());
-						if (descendantBindings.length == 1) {
-							ITypeBinding qualifierTypeBinding = (ITypeBinding)descendantBindings[0];
-							processMembers(qualifiedName, qualifierTypeBinding, specificCompletionBindings, true);
-							publishFromScope(specificCompletionBindings);
-							int startPos = this.offset;
-							int endPos = this.offset;
-							if ((qualifiedName.getName().getFlags() & ASTNode.MALFORMED) != 0) {
-								startPos = qualifiedName.getName().getStartPosition();
-								endPos = startPos + qualifiedName.getName().getLength();
+						} else {
+							// likely the start of an incomplete field/method access
+							Bindings tempScope = new Bindings();
+							scrapeAccessibleBindings(tempScope);
+							Optional<ITypeBinding> potentialBinding = tempScope.all() //
+									.filter(binding -> {
+										IJavaElement elt = binding.getJavaElement();
+										if (elt == null) {
+											return false;
+										}
+										return elt.getElementName().equals(qualifiedName.getQualifier().toString());
+									}) //
+									.map(binding -> {
+										if (binding instanceof IVariableBinding variableBinding) {
+											return variableBinding.getType();
+										} else if (binding instanceof ITypeBinding typeBinding) {
+											return typeBinding;
+										}
+										throw new IllegalStateException(
+												"method, type var, etc. are likely not interpreted as a package"); //$NON-NLS-1$
+									}) //
+									.map(ITypeBinding.class::cast) //
+									.findFirst();
+							if (potentialBinding.isPresent()) {
+								processMembers(qualifiedName, potentialBinding.get(), specificCompletionBindings,
+										false);
+								publishFromScope(specificCompletionBindings);
+								suggestDefaultCompletions = false;
+							} else {
+								// maybe it is actually a package?
+								suggestPackages();
+								// suggests types in the package
+								suggestTypesInPackage(qualifierPackageBinding.getName());
+								suggestDefaultCompletions = false;
 							}
-							if (!(this.toComplete instanceof Type) && !isFailedMatch(this.prefix.toCharArray(), Keywords.CLASS)) {
-								this.requestor.accept(createClassKeywordProposal(qualifierTypeBinding, startPos, endPos));
+						}
+					} else if (qualifiedNameBinding instanceof IVariableBinding variableBinding) {
+						ITypeBinding typeBinding = variableBinding.getType();
+						processMembers(qualifiedName, typeBinding, specificCompletionBindings, false);
+						publishFromScope(specificCompletionBindings);
+						suggestDefaultCompletions = false;
+					} else {
+						// UnimportedType.|
+						List<IType> foundTypes = findTypes(qualifiedName.getQualifier().toString(), null).toList();
+						// HACK: We requested exact matches from the search engine but some results aren't exact
+						foundTypes = foundTypes.stream().filter(type -> type.getElementName().equals(qualifiedName.getQualifier().toString())).toList();
+						if (!foundTypes.isEmpty()) {
+							IType firstType = foundTypes.get(0);
+							ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+							parser.setProject(this.modelUnit.getJavaProject());
+							IBinding[] descendantBindings = parser.createBindings(new IType[] { firstType }, new NullProgressMonitor());
+							if (descendantBindings.length == 1) {
+								ITypeBinding qualifierTypeBinding = (ITypeBinding)descendantBindings[0];
+								processMembers(qualifiedName, qualifierTypeBinding, specificCompletionBindings, true);
+								publishFromScope(specificCompletionBindings);
+								int startPos = this.offset;
+								int endPos = this.offset;
+								if ((qualifiedName.getName().getFlags() & ASTNode.MALFORMED) != 0) {
+									startPos = qualifiedName.getName().getStartPosition();
+									endPos = startPos + qualifiedName.getName().getLength();
+								}
+								if (!(this.toComplete instanceof Type) && !isFailedMatch(this.prefix.toCharArray(), Keywords.CLASS)) {
+									this.requestor.accept(createClassKeywordProposal(qualifierTypeBinding, startPos, endPos));
+								}
 							}
 						}
+						suggestDefaultCompletions = false;
 					}
-					suggestDefaultCompletions = false;
 				}
 			}
 			if (context instanceof SuperFieldAccess superFieldAccess) {
@@ -695,6 +717,13 @@ public class DOMCompletionEngine implements Runnable {
 				completeJavadocBlockTags(tagElement);
 				completeJavadocInlineTags(tagElement);
 				suggestDefaultCompletions = false;
+			}
+			if (context instanceof ImportDeclaration) {
+				if (context.getAST().apiLevel() >= AST.JLS23
+						&& this.modelUnit.getJavaProject().getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true).equals(JavaCore.ENABLED)) {
+					findModules(this.qualifiedPrefix.toCharArray(), this.modelUnit.getJavaProject(), this.assistOptions, Collections.emptySet());
+					suggestDefaultCompletions = false;
+				}
 			}
 
 			// check for accessible bindings to potentially turn into completions.
@@ -2306,8 +2335,8 @@ public class DOMCompletionEngine implements Runnable {
 		return 0;
 	}
 
-	private HashSet<String> getAllJarModuleNames(IJavaProject project) {
-		HashSet<String> modules = new HashSet<>();
+	private Map<String, IModuleDescription> getAllJarModuleNames(IJavaProject project) {
+		Map<String, IModuleDescription> modules = new HashMap<>();
 		try {
 			for (IPackageFragmentRoot root : project.getAllPackageFragmentRoots()) {
 				if (root instanceof JarPackageFragmentRoot) {
@@ -2315,7 +2344,7 @@ public class DOMCompletionEngine implements Runnable {
 					desc = desc == null ? ((JarPackageFragmentRoot) root).getAutomaticModuleDescription() : desc;
 					String name = desc != null ? desc.getElementName() : null;
 					if (name != null && name.length() > 0)
-						modules.add(name);
+						modules.putIfAbsent(name, desc);
 				}
 			}
 		} catch (JavaModelException e) {
@@ -2328,8 +2357,7 @@ public class DOMCompletionEngine implements Runnable {
 		if(this.requestor.isIgnored(CompletionProposal.MODULE_REF)) {
 			return;
 		}
-
-		HashSet<String> probableModules = new HashSet<>();
+		HashMap<String, IModuleDescription> probableModules = new HashMap<>();
 		ModuleSourcePathManager mManager = JavaModelManager.getModulePathManager();
 		JavaElementRequestor javaElementRequestor = new JavaElementRequestor();
 		try {
@@ -2339,38 +2367,92 @@ public class DOMCompletionEngine implements Runnable {
 				String name = module.getElementName();
 				if (name == null || name.equals("")) //$NON-NLS-1$
 					continue;
-				probableModules.add(name);
+				probableModules.putIfAbsent(name, module);
 			}
 		} catch (JavaModelException e) {
 			// ignore the error
 		}
-		probableModules.addAll(getAllJarModuleNames(project));
+		probableModules.putAll(getAllJarModuleNames(project));
+		Set<String> requiredModules = collectRequiredModules(probableModules);
+		List<String> removeList = new ArrayList<>();
 		if (prefix != CharOperation.ALL_PREFIX && prefix != null && prefix.length > 0) {
-			probableModules.removeIf(e -> CompletionEngine.isFailedMatch(prefix, e.toCharArray(), options));
+			for (String key : probableModules.keySet()) {
+				if (CompletionEngine.isFailedMatch(prefix, key.toCharArray(), options)) {
+					removeList.add(key);
+				}
+			}
 		}
-		probableModules.removeIf(skip::contains);
-		probableModules.forEach(m -> this.requestor.accept(toModuleCompletion(m, prefix)));
+		for (String key : removeList) {
+			probableModules.remove(key);
+		}
+		removeList.clear();
+		for (String key : skip) {
+			probableModules.remove(key);
+		}
+		probableModules.entrySet().forEach(m -> this.requestor.accept(toModuleCompletion(m.getKey(), prefix, requiredModules)));
 	}
 
-	private CompletionProposal toModuleCompletion(String moduleName, char[] prefix) {
+	/**
+	 * Returns the list of modules required by the current module, including transitive ones.
+	 *
+	 * The current module and java.base included in the set.
+	 *
+	 * @param reachableModules the map of reachable modules
+	 * @return the list of modules required by the current module, including transitive ones
+	 */
+	private Set<String> collectRequiredModules(Map<String, IModuleDescription> reachableModules) {
+		Set<String> requiredModules = new HashSet<>();
+		requiredModules.add("java.base"); //$NON-NLS-1$
+		try {
+			IModuleDescription ownDescription = this.modelUnit.getJavaProject().getModuleDescription();
+			if (ownDescription != null && !ownDescription.getElementName().isEmpty()) {
+				Deque<String> moduleQueue = new ArrayDeque<>();
+				requiredModules.add(ownDescription.getElementName());
+				for (String moduleName : ownDescription.getRequiredModuleNames()) {
+					moduleQueue.add(moduleName);
+				}
+				while (!moduleQueue.isEmpty()) {
+					String top = moduleQueue.pollFirst();
+					requiredModules.add(top);
+					if (reachableModules.containsKey(top)) {
+						for (String moduleName : reachableModules.get(top).getRequiredModuleNames()) {
+							if (!requiredModules.contains(moduleName)) {
+								moduleQueue.add(moduleName);
+							}
+						}
+					}
+				}
+			} else {
+				// working with the default module, so everything is required I think?
+				return reachableModules.keySet();
+			}
+		} catch (JavaModelException e) {
+			// do nothing
+		}
+		return requiredModules;
+	}
+
+	private CompletionProposal toModuleCompletion(String moduleName, char[] prefix, Set<String> requiredModules) {
+
 		char[] completion = moduleName.toCharArray();
 		int relevance = CompletionEngine.computeBaseRelevance();
 		relevance += CompletionEngine.computeRelevanceForResolution();
 		relevance += this.nestedEngine.computeRelevanceForInterestingProposal();
 		relevance += this.nestedEngine.computeRelevanceForCaseMatching(prefix, completion);
 		relevance += this.nestedEngine.computeRelevanceForQualification(true);
-		relevance += this.nestedEngine.computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
-		InternalCompletionProposal proposal = new InternalCompletionProposal(CompletionProposal.MODULE_REF,
-				this.offset);
+		if (requiredModules.contains(moduleName)) {
+			relevance += CompletionEngine.computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+		}
+		InternalCompletionProposal proposal = createProposal(CompletionProposal.MODULE_REF);
 		proposal.setModuleName(completion);
 		proposal.setDeclarationSignature(completion);
 		proposal.setCompletion(completion);
-		proposal.setReplaceRange(
-				this.toComplete instanceof SimpleName ? this.toComplete.getStartPosition() : this.offset,
-				DOMCompletionEngine.this.offset);
+
+		// replacement range using import decl range:
+		ImportDeclaration importDecl = (ImportDeclaration) DOMCompletionUtil.findParent(this.toComplete, new int[] {ASTNode.IMPORT_DECLARATION});
+		proposal.setReplaceRange(importDecl.getName().getStartPosition(), importDecl.getName().getStartPosition() + importDecl.getName().getLength());
+
 		proposal.setRelevance(relevance);
-		proposal.completionEngine = this.nestedEngine;
-		proposal.nameLookup = this.nameEnvironment.nameLookup;
 
 		return proposal;
 	}
