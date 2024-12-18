@@ -310,13 +310,31 @@ public void testCreatePkgHandleInDifferentProject() throws CoreException {
 	try {
 		createJavaProject("P1", new String[] {}, "bin");
 		IFolder folder = createFolder("/P1/lib/x/y");
-		createJavaProject("P2", new String[] {}, new String[] {"/P1/lib"}, "");
+		IJavaProject p2 = createJavaProject("P2", new String[] {}, new String[] {"/P1/lib"}, "");
 		IJavaElement element = JavaCore.create(folder);
 		assertElementEquals(
 			"Unexpected element",
 			"x.y [in /P1/lib [in P2]]",
 			element
 		);
+		IFolder folder2 = createFolder("/P1/lib/x/z");
+		assertElementEquals(
+				"Unexpected element",
+				"x.z [in /P1/lib [in P2]]",
+				JavaCore.create(folder2)
+			);
+		p2.getProject().close(null);
+		assertElementEquals(
+			"Unexpected element",
+			"<null>", // closed
+			JavaCore.create(folder2)
+		);
+		p2.getProject().open(null);
+		assertElementEquals(
+				"Unexpected element",
+				"x.z [in /P1/lib [in P2]]", // open again
+				JavaCore.create(folder2)
+			);
 	} finally {
 		deleteProjects(new String[] {"P1", "P2"});
 	}
