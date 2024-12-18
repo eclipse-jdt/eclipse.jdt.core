@@ -71,6 +71,9 @@ public class ExpectedTypes {
 			if (parent2 instanceof InfixExpression) {
 				break;
 			}
+			if (parent2 instanceof ReturnStatement) {
+				break;
+			}
 			if (parent2 instanceof Assignment assign && this.offset > assign.getLeftHandSide().getStartPosition() + assign.getLeftHandSide().getLength()) {
 				this.expectedTypes.add(assign.resolveTypeBinding());
 				return;
@@ -579,7 +582,7 @@ public class ExpectedTypes {
 
 
 	private static Optional<MethodDeclaration> findMethod(ASTNode node) {
-		while (node != null && !(node instanceof MethodInvocation)) {
+		while (node != null && !(node instanceof MethodDeclaration)) {
 			node = node.getParent();
 		}
 		return Optional.ofNullable((MethodDeclaration)node);
