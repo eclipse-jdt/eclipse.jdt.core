@@ -10859,6 +10859,16 @@ public void testBug508834_comment0() {
 				                                  ^^^^^^^^^^^^^^^^^^
 			Cycle detected: the type TestClass cannot extend/implement itself or one of its own member types
 			----------
+			2. ERROR in TestClass.java (at line 1)
+				public class TestClass implements TestClass.Missing1<TestClass.Missing2<TestClass.Missing3>> {
+				                                                     ^^^^^^^^^^^^^^^^^^
+			TestClass.Missing2 cannot be resolved to a type
+			----------
+			3. ERROR in TestClass.java (at line 1)
+				public class TestClass implements TestClass.Missing1<TestClass.Missing2<TestClass.Missing3>> {
+				                                                                        ^^^^^^^^^^^^^^^^^^
+			TestClass.Missing3 cannot be resolved to a type
+			----------
 			""";
 		runner.runNegativeTest();
 	}

@@ -35345,27 +35345,32 @@ public void test1036() {
 		"	^^^^^^\n" +
 		"The type String is not generic; it cannot be parameterized with arguments <Object>\n" +
 		"----------\n" +
-		"20. ERROR in X.java (at line 10)\n" +
+		"20. ERROR in X.java (at line 9)\n" +
+		"	String<Object>.Y<List> y; // wrong\n" +
+		"	                 ^^^^\n" +
+		"List cannot be resolved to a type\n" +
+		"----------\n" +
+		"21. ERROR in X.java (at line 10)\n" +
 		"	X<Object>.Y<List> y1; // wrong\n" +
 		"	^^^^^^^^^^^\n" +
 		"X.Y cannot be resolved to a type\n" +
 		"----------\n" +
-		"21. ERROR in X.java (at line 10)\n" +
+		"22. ERROR in X.java (at line 10)\n" +
 		"	X<Object>.Y<List> y1; // wrong\n" +
 		"	  ^^^^^^\n" +
 		"Bound mismatch: The type Object is not a valid substitute for the bounded parameter <T extends String> of the type X<T>\n" +
 		"----------\n" +
-		"22. ERROR in X.java (at line 10)\n" +
+		"23. ERROR in X.java (at line 10)\n" +
 		"	X<Object>.Y<List> y1; // wrong\n" +
 		"	            ^^^^\n" +
 		"List cannot be resolved to a type\n" +
 		"----------\n" +
-		"23. ERROR in X.java (at line 11)\n" +
+		"24. ERROR in X.java (at line 11)\n" +
 		"	X<String>.Y<List> y2;\n" +
 		"	^^^^^^^^^^^\n" +
 		"X.Y cannot be resolved to a type\n" +
 		"----------\n" +
-		"24. ERROR in X.java (at line 11)\n" +
+		"25. ERROR in X.java (at line 11)\n" +
 		"	X<String>.Y<List> y2;\n" +
 		"	            ^^^^\n" +
 		"List cannot be resolved to a type\n" +
