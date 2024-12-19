@@ -560,6 +560,9 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {
 
+		if (++this.resolves > 2)
+			throw new IllegalStateException("Seen one two many resolves!"); //$NON-NLS-1$
+
 		final CompilerOptions compilerOptions = scope.compilerOptions();
 		TypeBinding lhsType;
     	if (this.constant != Constant.NotAConstant) {
