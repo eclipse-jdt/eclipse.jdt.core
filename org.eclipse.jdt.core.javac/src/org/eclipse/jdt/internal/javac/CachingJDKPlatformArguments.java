@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.javac;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,8 +21,13 @@ import java.util.stream.Stream;
 
 import javax.annotation.processing.Processor;
 import javax.tools.FileObject;
+import javax.tools.ForwardingFileObject;
 import javax.tools.ForwardingJavaFileManager;
 import javax.tools.JavaFileManager;
+import javax.tools.JavaFileObject;
+import javax.tools.JavaFileObject.Kind;
+
+import org.eclipse.core.runtime.ILog;
 
 import com.sun.source.util.Plugin;
 import com.sun.tools.javac.file.PathFileObject;
@@ -100,12 +106,43 @@ public class CachingJDKPlatformArguments extends Arguments {
 					public void close() {
 						// do nothing, to keep instance usable in the future
 					}
+					@Override
 					public FileObject getFileForInput(Location location, String packageName, String relativeName) throws IOException {
 						var res = super.getFileForInput(location, packageName, relativeName);
-						if (res instanceof PathFileObject pathFileObject) {
-							ZipFileSystemProviderWithCache.makeFileSystemUninterruptible(pathFileObject.getPath().getFileSystem());
-						}
+						makeUnderlyingFileObjectUninterruptible(res);
 						return res;
+					}
+					@Override
+					public JavaFileObject getJavaFileForInput(Location location, String className, Kind kind) throws IOException {
+						var res = super.getJavaFileForInput(location, className, kind);
+						makeUnderlyingFileObjectUninterruptible(res);
+						return res;
+					}
+					@Override
+					public Iterable<JavaFileObject> list(Location location, String packageName, java.util.Set<Kind> kinds, boolean recurse) throws IOException {
+						var res = super.list(location, packageName, kinds, recurse);
+						res.forEach(this::makeUnderlyingFileObjectUninterruptible);
+						return res;
+					}
+					private void makeUnderlyingFileObjectUninterruptible(FileObject fo) {
+						PathFileObject toUninterrupted = null;
+						if (fo instanceof PathFileObject o) {
+							toUninterrupted = o;
+						}
+						if (fo instanceof ForwardingFileObject<?> forwarding) {
+							try {
+								Field fileObjectField = ForwardingFileObject.class.getDeclaredField("fileObject");
+								Object o = fileObjectField.get(forwarding);
+								if (o instanceof PathFileObject pathFileObject) {
+									toUninterrupted = pathFileObject;
+								}
+							} catch (Exception e) {
+								ILog.get().error(e.getMessage(), e);
+							}
+						}
+						if (toUninterrupted != null) {
+							ZipFileSystemProviderWithCache.makeFileSystemUninterruptible(toUninterrupted.getPath().getFileSystem());
+						}
 					}
 				});
 			}
