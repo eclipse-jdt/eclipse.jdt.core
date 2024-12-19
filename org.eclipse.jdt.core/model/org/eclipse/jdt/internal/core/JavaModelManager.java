@@ -980,6 +980,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return null;
 	}
 
+	private static volatile String lastProjectNameUsed;
+
 	/**
 	 * Returns the package fragment or package fragment root corresponding to the given folder,
 	 * its parent or great parent being the given project.
@@ -999,6 +1001,15 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			project = JavaCore.create(folder.getProject());
 			element = determineIfOnClasspath(folder, project);
 			if (element == null) {
+				IJavaProject lastProject = lastProjectNameUsed == null ? null
+						: JavaModelManager.getJavaModelManager().getJavaModel().getJavaProject(lastProjectNameUsed);
+				if (lastProject != null) {
+					// try to avoid searching through all projects
+					element = determineIfOnClasspath(folder, lastProject);
+					if (element != null) {
+						return element;
+					}
+				}
 				// walk all projects and find one that have the given folder on its classpath
 				IJavaProject[] projects;
 				try {
@@ -1007,10 +1018,13 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					return null;
 				}
 				for (IJavaProject p : projects) {
-					project = p;
-					element = determineIfOnClasspath(folder, project);
-					if (element != null)
-						break;
+					if (!p.equals(lastProject)) {
+						element = determineIfOnClasspath(folder, p);
+						if (element != null) {
+							lastProjectNameUsed = p.getElementName();
+							return element;
+						}
+					}
 				}
 			}
 		} else {
