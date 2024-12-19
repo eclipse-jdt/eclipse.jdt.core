@@ -40,7 +40,7 @@ public class ModuleFinder {
 
 	public static List<FileSystem.Classpath> findModules(File f, String destinationPath, Parser parser, Map<String, String> options, boolean isModulepath, String release) {
 		List<FileSystem.Classpath> collector = new ArrayList<>();
-		scanForModules(destinationPath, parser, options, isModulepath, false, collector, f, release);
+		scanForModules(destinationPath, parser, options, isModulepath, !f.isDirectory(), collector, f, release);
 		return collector;
 	}
 
@@ -97,7 +97,8 @@ public class ModuleFinder {
 						module = ModuleFinder.extractModuleFromClass(new File(file, fileName), modulePath);
 						break;
 					case IModule.MODULE_INFO_JAVA:
-						module = ModuleFinder.extractModuleFromSource(new File(file, fileName), parser, modulePath);
+						if (parser != null)
+							module = ModuleFinder.extractModuleFromSource(new File(file, fileName), parser, modulePath);
 						if (module == null)
 							return null;
 						String modName = new String(module.name());

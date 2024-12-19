@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.processing.Processor;
 import javax.tools.Diagnostic;
@@ -727,12 +728,31 @@ public class EclipseCompilerImpl extends Main {
 				fileSystemClasspaths.add(classpath);
 			}
 			if (this.fileManager.hasLocation(StandardLocation.MODULE_SOURCE_PATH)) {
-				classpath = new ClasspathJsr199(this.fileManager, StandardLocation.MODULE_SOURCE_PATH);
-				fileSystemClasspaths.add(classpath);
+				// FIXME: ClasspathJsr199 doesn't really support source files
+				try {
+					Iterable<Set<Location>> locationsForModules = this.fileManager.listLocationsForModules(StandardLocation.MODULE_SOURCE_PATH);
+					for (Set<Location> locs: locationsForModules) {
+						for (Location loc : locs) {
+							classpath = new ClasspathJsr199(this.fileManager, loc);
+							fileSystemClasspaths.add(classpath);
+						}
+					}
+				} catch (IOException e) {
+					this.logger.logException(e);
+				}
 			}
 			if (this.fileManager.hasLocation(StandardLocation.MODULE_PATH)) {
-				classpath = new ClasspathJsr199(this.fileManager, StandardLocation.MODULE_PATH);
-				fileSystemClasspaths.add(classpath);
+				try {
+					Iterable<Set<Location>> locationsForModules = this.fileManager.listLocationsForModules(StandardLocation.MODULE_PATH);
+					for (Set<Location> locs: locationsForModules) {
+						for (Location loc : locs) {
+							classpath = new ClasspathJsr199(this.fileManager, loc);
+							fileSystemClasspaths.add(classpath);
+						}
+					}
+				} catch (IOException e) {
+					this.logger.logException(e);
+				}
 			}
 			classpath = new ClasspathJsr199(this.fileManager, StandardLocation.CLASS_PATH);
 			fileSystemClasspaths.add(classpath);
