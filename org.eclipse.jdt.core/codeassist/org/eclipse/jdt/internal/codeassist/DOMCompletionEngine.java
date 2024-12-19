@@ -507,14 +507,19 @@ public class DOMCompletionEngine implements Runnable {
 						endPos = startPos + qualifiedName.getName().getLength();
 					}
 
-					if (!isFailedMatch(this.prefix.toCharArray(), Keywords.THIS)) {
-						this.requestor.accept(createKeywordProposal(Keywords.THIS, startPos, endPos));
-					}
-					if (!isFailedMatch(this.prefix.toCharArray(), Keywords.SUPER)) {
-						this.requestor.accept(createKeywordProposal(Keywords.SUPER, startPos, endPos));
-					}
-					if (!isFailedMatch(this.prefix.toCharArray(), Keywords.CLASS)) {
-						this.requestor.accept(createClassKeywordProposal(qualifierTypeBinding, startPos, endPos));
+					if (!(this.toComplete instanceof Type)) {
+						ITypeBinding currentTypeBinding = DOMCompletionUtil.findParentTypeDeclaration(context).resolveBinding();
+						if (currentTypeBinding.isSubTypeCompatible(qualifierTypeBinding)) {
+							if(!isFailedMatch(this.prefix.toCharArray(), Keywords.THIS)) {
+								this.requestor.accept(createKeywordProposal(Keywords.THIS, startPos, endPos));
+							}
+							if (!isFailedMatch(this.prefix.toCharArray(), Keywords.SUPER)) {
+								this.requestor.accept(createKeywordProposal(Keywords.SUPER, startPos, endPos));
+							}
+						}
+						if (!isFailedMatch(this.prefix.toCharArray(), Keywords.CLASS)) {
+							this.requestor.accept(createClassKeywordProposal(qualifierTypeBinding, startPos, endPos));
+						}
 					}
 
 					suggestDefaultCompletions = false;
@@ -584,7 +589,7 @@ public class DOMCompletionEngine implements Runnable {
 								startPos = qualifiedName.getName().getStartPosition();
 								endPos = startPos + qualifiedName.getName().getLength();
 							}
-							if (!isFailedMatch(this.prefix.toCharArray(), Keywords.CLASS)) {
+							if (!(this.toComplete instanceof Type) && !isFailedMatch(this.prefix.toCharArray(), Keywords.CLASS)) {
 								this.requestor.accept(createClassKeywordProposal(qualifierTypeBinding, startPos, endPos));
 							}
 						}
