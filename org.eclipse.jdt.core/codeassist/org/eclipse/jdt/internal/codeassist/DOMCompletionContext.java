@@ -70,14 +70,14 @@ class DOMCompletionContext extends CompletionContext {
 		this.token = tokenBefore(cuBuffer).toCharArray();
 		this.enclosingElement = computeEnclosingElement(domUnit, modelUnit);
 		this.bindingsAcquirer = bindings::all;
-		this.isJustAfterStringLiteral = this.node instanceof StringLiteral && this.node.getLength() > 1 && this.offset >= node.getStartPosition() + node.getLength() && cuBuffer.getChar(this.offset - 1) == '"';
+		this.isJustAfterStringLiteral = this.node instanceof StringLiteral && this.node.getLength() > 1 && this.offset >= this.node.getStartPosition() + this.node.getLength() && cuBuffer.getChar(this.offset - 1) == '"';
 	}
 
-	private String tokenBefore(IBuffer cuBuffer) {
-		int position = Math.min(this.offset, cuBuffer.getLength()) - 1;
+	private String tokenBefore(IBuffer buf) {
+		int position = Math.min(this.offset, buf.getLength()) - 1;
 		StringBuilder builder = new StringBuilder();
-		while (position >= 0 && Character.isJavaIdentifierPart(cuBuffer.getChar(position))) {
-			builder.append(cuBuffer.getChar(position));
+		while (position >= 0 && Character.isJavaIdentifierPart(buf.getChar(position))) {
+			builder.append(buf.getChar(position));
 			position--;
 		}
 		builder.reverse();
@@ -85,47 +85,47 @@ class DOMCompletionContext extends CompletionContext {
 	}
 
 	private IJavaElement computeEnclosingElement(CompilationUnit domUnit, ICompilationUnit modelUnit) {
-		IJavaElement enclosingElement = modelUnit;
+		IJavaElement enclosingElement1 = modelUnit;
 		try {
-			enclosingElement = modelUnit.getElementAt(this.offset);
+			enclosingElement1 = modelUnit.getElementAt(this.offset);
 		} catch (JavaModelException e) {
 			ILog.get().error(e.getMessage(), e);
 		}
-		if (enclosingElement == null) {
+		if (enclosingElement1 == null) {
 			return modelUnit;
 		}
 		// then refine to get "resolved" element from the matching binding
 		// pitfall: currently resolve O(depth(node)) bindings while we can
 		// most likely find a O(1) solution
-		ASTNode node = NodeFinder.perform(domUnit, this.offset, 0);
-		while (node != null) {
-			IBinding binding = resolveBindingForContext(node);
+		ASTNode node2 = NodeFinder.perform(domUnit, this.offset, 0);
+		while (node2 != null) {
+			IBinding binding = resolveBindingForContext(node2);
 			if (binding != null) {
 				IJavaElement bindingBasedJavaElement = binding.getJavaElement();
-				if (enclosingElement.equals(bindingBasedJavaElement)) {
+				if (enclosingElement1.equals(bindingBasedJavaElement)) {
 					return bindingBasedJavaElement;
 				}
 			}
-			node = node.getParent();
+			node2 = node2.getParent();
 		}
-		return enclosingElement;
+		return enclosingElement1;
 	}
 
-	private IBinding resolveBindingForContext(ASTNode node) {
-		var res = DOMCodeSelector.resolveBinding(node);
+	private IBinding resolveBindingForContext(ASTNode nodep) {
+		var res = DOMCodeSelector.resolveBinding(nodep);
 		if (res != null) {
 			return res;
 		}
 		// Some declaration types are intentionally skipped by
 		// DOMCodeSelector.resolveBinding() as they're not
 		// expected by `codeSelect` add them here
-		if (node instanceof TypeDeclaration typeDecl) {
+		if (nodep instanceof TypeDeclaration typeDecl) {
 			return typeDecl.resolveBinding();
 		}
-		if (node instanceof MethodDeclaration methodDecl) {
+		if (nodep instanceof MethodDeclaration methodDecl) {
 			return methodDecl.resolveBinding();
 		}
-		if (node instanceof VariableDeclaration varDecl) {
+		if (nodep instanceof VariableDeclaration varDecl) {
 			return varDecl.resolveBinding();
 		}
 		return null;
@@ -138,7 +138,7 @@ class DOMCompletionContext extends CompletionContext {
 
 	@Override
 	public char[] getToken() {
-		return isJustAfterStringLiteral ? null : this.token;
+		return this.isJustAfterStringLiteral ? null : this.token;
 	}
 
 	@Override
@@ -185,7 +185,7 @@ class DOMCompletionContext extends CompletionContext {
 
 	@Override
 	public char[][] getExpectedTypesKeys() {
-		if (isJustAfterStringLiteral) {
+		if (this.isJustAfterStringLiteral) {
 			return null;
 		}
 		var res = this.expectedTypes.getExpectedTypes().stream() //
@@ -196,7 +196,7 @@ class DOMCompletionContext extends CompletionContext {
 	}
 	@Override
 	public char[][] getExpectedTypesSignatures() {
-		if (isJustAfterStringLiteral) {
+		if (this.isJustAfterStringLiteral) {
 			return null;
 		}
 		var res = this.expectedTypes.getExpectedTypes().stream() //
@@ -271,7 +271,7 @@ class DOMCompletionContext extends CompletionContext {
 
 	@Override
 	public int getTokenStart() {
-		if (isJustAfterStringLiteral) {
+		if (this.isJustAfterStringLiteral) {
 			return -1;
 		}
 		if (this.node instanceof StringLiteral) {
@@ -284,7 +284,7 @@ class DOMCompletionContext extends CompletionContext {
 	}
 	@Override
 	public int getTokenEnd() {
-		if (isJustAfterStringLiteral) {
+		if (this.isJustAfterStringLiteral) {
 			return -1;
 		}
 		if (this.node instanceof SimpleName || this.node instanceof StringLiteral) {
@@ -299,7 +299,7 @@ class DOMCompletionContext extends CompletionContext {
 
 	@Override
 	public int getTokenKind() {
-		if (isJustAfterStringLiteral) {
+		if (this.isJustAfterStringLiteral) {
 			return TOKEN_KIND_UNKNOWN;
 		}
 		return this.node instanceof StringLiteral ? TOKEN_KIND_STRING_LITERAL : TOKEN_KIND_NAME;
