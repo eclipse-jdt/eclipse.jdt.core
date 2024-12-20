@@ -8360,4 +8360,43 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"true");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3481
+	// [Switch Expression] yield does not work with bitwise complement ~
+	public void testIssue3481() {
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+				    int a = switch(0) {
+				        default -> {
+				            yield ~1;
+				        }
+				    };
+				    int b = switch(0) {
+				        default -> {
+				            int x = 0;
+				            yield ~x;
+				        }
+				    };
+				    int c = switch (0) {
+				        case 0 -> {
+				            yield ~2;
+				        }
+				        default -> 1;
+				    };
+
+				    {
+				        System.out.println("a = " + a + " b = " + b + " c = " + c);
+				    }
+
+				    public static void main(String [] args) {
+				        new X();
+				    }
+				}
+				"""
+				},
+				"a = -2 b = -1 c = -3");
+	}
 }

@@ -5549,7 +5549,6 @@ int disambiguateYield() {
 			case TokenNameAND:
 			case TokenNameMULTIPLY:
 			case TokenNameOR:
-			case TokenNameTWIDDLE:
 			case TokenNameDIVIDE:
 			case TokenNameGREATER:
 			case TokenNameLESS:
