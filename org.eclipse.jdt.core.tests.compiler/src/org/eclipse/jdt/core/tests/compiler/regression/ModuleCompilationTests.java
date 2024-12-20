@@ -6068,4 +6068,80 @@ public void testBug521362_emptyFile() {
 					""",
 					outFinal);
 	}
+	public void testGH3151_1() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, moduleLoc, "module-info.java",
+						"module mod.one { \n" +
+						"	requires transitive java.base;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java",
+						"package p;\n" +
+						"public class X {\n" +
+						"}");
+
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runNegativeModuleTest(files,
+				buffer,
+				"",
+				"""
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 2)
+						requires transitive java.base;
+						                    ^^^^^^^^^
+					Modifiers not allowed in requires statement for 'java.base'
+					----------
+					1 problem (1 error)
+					""",
+				"option");
+	}
+	public void testGH3151_2() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, moduleLoc, "module-info.java",
+						"module mod.one { \n" +
+						"	requires static java.base;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java",
+						"package p;\n" +
+						"public class X {\n" +
+						"}");
+
+		StringBuilder buffer = new StringBuilder();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runNegativeModuleTest(files,
+				buffer,
+				"",
+				"""
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 2)
+						requires static java.base;
+						                ^^^^^^^^^
+					Modifiers not allowed in requires statement for 'java.base'
+					----------
+					1 problem (1 error)
+					""",
+				"option");
+	}
 }
