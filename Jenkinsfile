@@ -71,7 +71,7 @@ pipeline {
 					mvn install -DskipTests -Djava.io.tmpdir=$WORKSPACE/tmp \
 						-Dtycho.buildqualifier.format="'z'yyyyMMdd-HHmm" \
 						-Pp2-repo \
-						-pl org.eclipse.jdt.core.compiler.batch,org.eclipse.jdt.core,org.eclipse.jdt.core.javac,org.eclipse.jdt.core.tests.model,org.eclipse.jdt.core.tests.compiler,repository
+						-pl org.eclipse.jdt.core.compiler.batch,org.eclipse.jdt.core,org.eclipse.jdt.core.javac,org.eclipse.jdt.core.javac.feature,org.eclipse.jdt.core.tests.model,org.eclipse.jdt.core.tests.compiler,repository
 
 					mvn verify --batch-mode -f org.eclipse.jdt.core.tests.javac \
 						--fail-at-end -Ptest-on-javase-23 -Pbree-libs \
