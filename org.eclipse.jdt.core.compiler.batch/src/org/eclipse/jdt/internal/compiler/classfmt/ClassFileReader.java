@@ -240,6 +240,10 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 	// by index are tweaked to have their value in inst vars, this minor cost at read-time makes
 	// all subsequent uses of the constant pool element faster.
 	super(classFileBytes, null, 0);
+	if (classFileBytes == null || classFileBytes.length == 0) {
+		throw new ClassFormatException(ClassFormatException.ErrBadMagic);
+	}
+
 	this.classFileName = fileName;
 	int readOffset = 10;
 	try {
