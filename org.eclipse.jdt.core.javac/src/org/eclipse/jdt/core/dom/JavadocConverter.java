@@ -857,15 +857,14 @@ class JavadocConverter {
 		res.setSourceRange(
 				range != null ? range.startOffset : paramListOffset + type.getStartPosition(),
 				range != null ? range.length : type.toString().length());
-		// Make positons absolute
-		var fixPositions = new TreeScanner() {
+		// Temporary replace relative positons for types in javadoc by absolute of convertToType is bogus
+		new TreeScanner() {
 			@Override
 			public void scan(JCTree tree) {
 				tree.setPos(tree.pos + paramListOffset);
 				super.scan(tree);
 			}
-		};
-		fixPositions.scan(type);
+		}.scan(type);
 
 		String[] segments = Stream.of(range.getContents().split("\n"))
 				.map(t -> {
@@ -891,6 +890,14 @@ class JavadocConverter {
 			jdtType = this.javacConverter.convertToType(type);
 		}
 		res.setType(jdtType);
+		// revert position types to origin as some nodes might be shared and reused
+		new TreeScanner() {
+			@Override
+			public void scan(JCTree tree) {
+				tree.setPos(tree.pos - paramListOffset);
+				super.scan(tree);
+			}
+		}.scan(type);
 
 		// some lengths may be missing
 		jdtType.accept(new ASTVisitor() {
