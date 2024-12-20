@@ -33,6 +33,8 @@ jdk.compiler/com.sun.tools.javac.resources=ALL-UNNAMED\n\
 java.base/sun.nio.ch=ALL-UNNAMED\n\
 --add-opens\n\
 jdk.zipfs/jdk.nio.zipfs=ALL-UNNAMED\n\
+--add-opens\n\
+java.compiler/javax.tools=ALL-UNNAMED\n\
 -DICompilationUnitResolver=org.eclipse.jdt.core.dom.JavacCompilationUnitResolver\n\
 -DAbstractImageBuilder.compilerFactory=org.eclipse.jdt.internal.javac.JavacCompilerFactory\n\
 -DCompilationUnit.DOM_BASED_OPERATIONS=true\n\
@@ -76,6 +78,8 @@ org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg(jvmArg:--add-opens);\
 org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg(jvmArg:java.base/sun.nio.ch=ALL-UNNAMED);\
 org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg(jvmArg:--add-opens);\
 org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg(jvmArg:jdk.zipfs/jdk.nio.zipfs=ALL-UNNAMED);\
+org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg(jvmArg:--add-opens);\
+org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg(jvmArg:java.compiler/javax.tools=ALL-UNNAMED);\
 org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg(jvmArg:-DICompilationUnitResolver=org.eclipse.jdt.core.dom.JavacCompilationUnitResolver);\
 org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg(jvmArg:-DAbstractImageBuilder.compilerFactory=org.eclipse.jdt.internal.javac.JavacCompilerFactory);\
 org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg(jvmArg:-DCompilationUnit.DOM_BASED_OPERATIONS=true);\
