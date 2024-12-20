@@ -1198,6 +1198,16 @@ public class JavaProject
 
 		try {
 			marker = this.project.createMarker(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER);
+			String message = status.getMessage();
+			int msgLength = message.length();
+			if (!(msgLength < 21000)) {
+				// prevent too long messages, see MarkerInfo.checkValidAttribute()
+				byte[] bytes = message.getBytes(StandardCharsets.UTF_8);
+				if (bytes.length > 65535) {
+					msgLength = 21000 - 15;
+				}
+				message = message.substring(0, msgLength) + "..."; //$NON-NLS-1$
+			}
 			marker.setAttributes(
 				new String[] {
 					IMarker.MESSAGE,
@@ -1212,7 +1222,7 @@ public class JavaProject
 					IMarker.SOURCE_ID,
 				},
 				new Object[] {
-					status.getMessage(),
+					message,
 					Integer.valueOf(severity),
 					Messages.classpath_buildPath,
 					isCycleProblem ? "true" : "false",//$NON-NLS-1$ //$NON-NLS-2$
