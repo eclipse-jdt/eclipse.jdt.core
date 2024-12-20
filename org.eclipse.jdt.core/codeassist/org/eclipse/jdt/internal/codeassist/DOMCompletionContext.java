@@ -239,6 +239,11 @@ class DOMCompletionContext extends CompletionContext {
 			if (wrappingNode instanceof Block block) {
 				return block.statements().isEmpty() ? TL_STATEMENT_START : 0;
 			}
+			if( wrappingNode instanceof AnonymousClassDeclaration anon) {
+				if(isWithinTypeDeclarationBody(wrappingNode, this.cuBuffer, this.offset)) {
+					return TL_MEMBER_START;
+				}
+			}
 			wrappingNode = wrappingNode.getParent();
 		}
 		return 0;
