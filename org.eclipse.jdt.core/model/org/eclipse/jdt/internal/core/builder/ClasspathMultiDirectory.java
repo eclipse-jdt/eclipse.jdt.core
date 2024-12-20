@@ -76,6 +76,9 @@ protected boolean isExcluded(IResource resource) {
 }
 @Override
 String[] directoryList(String qualifiedPackageName) {
+	if (this.directoryCache == null) {
+		this.reset();
+	}
 	String[] dirList = (String[]) this.directoryCache.get(qualifiedPackageName);
 	if (dirList != null) return dirList;
 
