@@ -386,7 +386,7 @@ class JavacConverter {
 		ImportDeclaration res = this.ast.newImportDeclaration();
 		commonSettings(res, javac);
 		if (javac.isStatic()) {
-			if( this.ast.apiLevel != AST.JLS2_INTERNAL) {
+			if (this.ast.apiLevel != AST.JLS2_INTERNAL) {
 				res.setStatic(true);
 			}
 		}
@@ -396,6 +396,30 @@ class JavacConverter {
 			res.setName(toName(select.getExpression()));
 		} else {
 			res.setName(toName(select));
+		}
+		if (javac.isStatic() || javac.isModule()) {
+			if (this.ast.apiLevel == AST.JLS2_INTERNAL) {
+				res.setFlags(res.getFlags() | ASTNode.MALFORMED);
+			} else if (this.ast.apiLevel < AST.JLS23_INTERNAL) {
+				if (!javac.isStatic()) {
+					res.setFlags(res.getFlags() | ASTNode.MALFORMED);
+				}
+			} else {
+				ModifierKeyword keyword = null;
+				if (javac.isStatic()) {
+					keyword = ModifierKeyword.STATIC_KEYWORD;
+				}
+				if (javac.isModule()) {
+					keyword = ModifierKeyword.MODULE_KEYWORD;
+				}
+				if (keyword != null) {
+					Modifier newModifier = this.ast.newModifier(keyword);
+					newModifier.setSourceRange(javac.getStartPosition(), keyword.toString().length());
+					res.modifiers().add(newModifier);
+				} else {
+					res.setFlags(res.getFlags() | ASTNode.MALFORMED);
+				}
+			}
 		}
 		return res;
 	}
