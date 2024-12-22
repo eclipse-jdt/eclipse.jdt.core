@@ -265,6 +265,36 @@ static class JavacCompiler {
 			}
 		}
 	}
+	static String getBuild(String javaPathName) throws IOException, InterruptedException {
+		Process fetchVersionProcess = null;
+		try {
+			fetchVersionProcess = Runtime.getRuntime().exec(javaPathName + " -version", env, null);
+		    Logger versionStdErrLogger = new Logger(fetchVersionProcess.getErrorStream(), ""); // for javac <= 1.8
+		    Logger versionStdOutLogger = new Logger(fetchVersionProcess.getInputStream(), ""); // for javac >= 9
+		    versionStdErrLogger.start();
+		    versionStdOutLogger.start();
+			fetchVersionProcess.waitFor();
+			// make sure we get the whole output
+			versionStdErrLogger.join();
+			versionStdOutLogger.join();
+			String loggedVersion = versionStdErrLogger.buffer.toString();
+			if (loggedVersion.isEmpty())
+				loggedVersion = versionStdOutLogger.buffer.toString();
+			int eol = loggedVersion.indexOf('\n');
+			if (eol != -1) {
+				// expect second line of format "OpenJDK Runtime Environment (build 24-ea+29-3578)"
+				int open = loggedVersion.indexOf('(', eol+1);
+				int close = loggedVersion.indexOf(')', open);
+				if (open != -1 && close != -1)
+					loggedVersion = loggedVersion.substring(open, close+1);
+			}
+			return loggedVersion;
+		} finally {
+			if (fetchVersionProcess != null) {
+				fetchVersionProcess.destroy(); // closes process streams
+			}
+		}
+	}
 	static String versionFromRawVersion(String rawVersion, String javacPathName) {
 		if (rawVersion.indexOf("1.4") != -1 ||
 				(javacPathName != null &&
@@ -2430,14 +2460,14 @@ protected static class JavacTestOptions {
 		catch (InterruptedException e1) {
 			if (compileProcess != null) compileProcess.destroy();
 			if (execProcess != null) execProcess.destroy();
-			System.out.println(testName+": Sun javac compilation was aborted!");
-			javacFullLog.println("JAVAC_WARNING: Sun javac compilation was aborted!");
+			System.out.println(testName+": OpenJDK javac compilation was aborted!");
+			javacFullLog.println("JAVAC_WARNING: OpenJDK javac compilation was aborted!");
 			e1.printStackTrace(javacFullLog);
 		}
 		catch (Throwable e) {
-			System.out.println(testName+": could not launch Sun javac compilation!");
+			System.out.println(testName+": could not launch OpenJDK javac compilation!");
 			e.printStackTrace();
-			javacFullLog.println("JAVAC_ERROR: could not launch Sun javac compilation!");
+			javacFullLog.println("JAVAC_ERROR: could not launch OpenJDK javac compilation!");
 			e.printStackTrace(javacFullLog);
 			// PREMATURE failing the javac pass or comparison could also fail
 			//           the test itself
@@ -4138,7 +4168,7 @@ protected void runNegativeTest(
 				  	new PrintWriter(new FileOutputStream(javacFullLogFileName)); // static that is initialized once, closed at process end
 				javacFullLog.println(version); // so that the contents is self sufficient
 				System.out.println("***************************************************************************");
-				System.out.println("* Sun Javac compiler output archived into file:");
+				System.out.println("* OpenJDK javac compiler "+JavacCompiler.getBuild(javaCommandLineHeader)+" output archived into file:");
 				System.out.println("* " + javacFullLogFileName);
 				System.out.println("***************************************************************************");
 				javacCompilers = new ArrayList<>();
@@ -4155,7 +4185,7 @@ protected void runNegativeTest(
 			// per class initialization
 			CURRENT_CLASS_NAME = getClass().getName();
 			dualPrintln("***************************************************************************");
-			System.out.print("* Comparison with Sun Javac compiler for class ");
+			System.out.print("* Comparison with OpenJDK javac compiler for class ");
 			dualPrintln(CURRENT_CLASS_NAME.substring(CURRENT_CLASS_NAME.lastIndexOf('.')+1) +
 					" (" + TESTS_COUNTERS.get(CURRENT_CLASS_NAME) + " tests)");
 			System.out.println("***************************************************************************");
