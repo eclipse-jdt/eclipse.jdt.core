@@ -173,10 +173,10 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 					System.out.println(testName+": javac has found error(s)!");
 				}
 			} catch (IOException ioe) {
-				System.out.println(testName+": Not possible to launch Sun javac compilation!");
+				System.out.println(testName+": Not possible to launch OpenJDK javac compilation!");
 			} catch (InterruptedException e1) {
 				if (process != null) process.destroy();
-				System.out.println(testName+": Sun javac compilation was aborted!");
+				System.out.println(testName+": OpenJDK javac compilation was aborted!");
 			}
 		} catch (Exception e) {
 			// fails silently...
