@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2023 BEA Systems, Inc. and others
+ * Copyright (c) 2006, 2024 BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -200,11 +200,14 @@ public class HookedJavaFileObject extends
 
 	private final String _typeName;
 
-	public HookedJavaFileObject(JavaFileObject fileObject, String fileName, String typeName, BatchFilerImpl filer) {
+	private final String _moduleName;
+
+	public HookedJavaFileObject(JavaFileObject fileObject, String fileName, String typeName, BatchFilerImpl filer, String module) {
 		super(fileObject);
 		this._filer = filer;
 		this._fileName = fileName;
 		this._typeName = typeName;
+		this._moduleName = module;
 	}
 
 	@SuppressWarnings("resource") // ForwardingOutputStream forwards close() too
@@ -225,8 +228,19 @@ public class HookedJavaFileObject extends
 			//TODO: support encoding
 			switch(this.getKind()) {
 				case SOURCE :
-					CompilationUnit unit = new CompilationUnit(null, this._fileName, null /* encoding */, null, this._filer._env.shouldIgnoreOptionalProblems(this._fileName.toCharArray()), null);
-					this._filer.addNewUnit(unit);
+					try {
+						CompilationUnit unit = new CompilationUnit(
+								getCharContent(false).toString().toCharArray(),
+								this._fileName,
+								null /* encoding */,
+								null /* destination path */,
+								this._filer._env.shouldIgnoreOptionalProblems(this._fileName.toCharArray()),
+								this._moduleName);
+						this._filer.addNewUnit(unit);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					break;
 				case CLASS :
 					IBinaryType binaryType = null;

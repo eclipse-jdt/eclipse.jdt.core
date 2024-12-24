@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2022 IBM Corporation and others.
+ * Copyright (c) 2006, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1417,7 +1417,6 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	}
 	private <P> void initModules(Location location, Iterable<? extends P> paths, Function<P,File> toFile) throws IOException {
 		if (location == StandardLocation.MODULE_PATH || location == StandardLocation.MODULE_SOURCE_PATH) {
-			// FIXME: same for module source path?
 			Map<String, String> options = new HashMap<>();
 			// FIXME: Find a way to get the options from the EclipseCompiler and pass it to the parser.
 			String latest = CompilerOptions.getLatestVersion();
