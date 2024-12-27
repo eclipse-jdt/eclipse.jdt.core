@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 
 /**
  * A delegating JavaFileObject that hooks the close() methods of the Writer
@@ -202,12 +203,15 @@ public class HookedJavaFileObject extends
 
 	private final String _moduleName;
 
-	public HookedJavaFileObject(JavaFileObject fileObject, String fileName, String typeName, BatchFilerImpl filer, String module) {
+	private final String _encoding;
+
+	public HookedJavaFileObject(JavaFileObject fileObject, String fileName, String typeName, BatchFilerImpl filer, String module, String encoding) {
 		super(fileObject);
 		this._filer = filer;
 		this._fileName = fileName;
 		this._typeName = typeName;
 		this._moduleName = module;
+		this._encoding = encoding;
 	}
 
 	@SuppressWarnings("resource") // ForwardingOutputStream forwards close() too
@@ -225,21 +229,20 @@ public class HookedJavaFileObject extends
 	protected void closed() {
 		if (!this._closed) {
 			this._closed = true;
-			//TODO: support encoding
 			switch(this.getKind()) {
 				case SOURCE :
 					try {
 						CompilationUnit unit = new CompilationUnit(
 								getCharContent(false).toString().toCharArray(),
 								this._fileName,
-								null /* encoding */,
+								this._encoding,
 								null /* destination path */,
 								this._filer._env.shouldIgnoreOptionalProblems(this._fileName.toCharArray()),
 								this._moduleName);
 						this._filer.addNewUnit(unit);
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
+						throw new AbortCompilationUnit(null, e, this._encoding);
 					}
 					break;
 				case CLASS :

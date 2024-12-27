@@ -49,6 +49,7 @@ public class BatchFilerImpl implements Filer {
 	protected final JavaFileManager _fileManager;
 	protected final HashSet<URI> _createdFiles;
 	protected String _moduleName;
+	protected String _encoding;
 
 	public BatchFilerImpl(BaseAnnotationProcessorManager dispatchManager, BatchProcessingEnvImpl env, Main main)
 	{
@@ -56,20 +57,21 @@ public class BatchFilerImpl implements Filer {
 		this._fileManager = env._fileManager;
 		this._env = env;
 		this._createdFiles = new HashSet<>();
+		this._encoding = main.getDefaultEncoding();
 		if (this._fileManager.hasLocation(StandardLocation.SOURCE_PATH)) {
 			try {
 				for (JavaFileObject javaFileObject : this._fileManager.list(StandardLocation.SOURCE_PATH, "", //$NON-NLS-1$
 						Collections.singleton(Kind.SOURCE), false)) {
 					if (javaFileObject.getName().equals(IModule.MODULE_INFO_JAVA)) {
-						IModule module = ClasspathJsr199.extractModuleFromFileObject(javaFileObject, main::getNewParser, null);
+						IModule module = ClasspathJsr199.extractModuleFromFileObject(javaFileObject, main::getNewParser, null, this._encoding);
 						if (module != null)
 							this._moduleName = String.valueOf(module.name());
 						break;
 					}
 				}
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				main.logger.logException(e);
 			}
 		}
 	}
@@ -96,7 +98,7 @@ public class BatchFilerImpl implements Filer {
 		}
 
 		this._createdFiles.add(uri);
-		return new HookedJavaFileObject(jfo, jfo.getName(), name.toString(), this, this._moduleName);
+		return new HookedJavaFileObject(jfo, jfo.getName(), name.toString(), this, this._moduleName, this._encoding);
 	}
 
 	/* (non-Javadoc)
@@ -183,7 +185,7 @@ public class BatchFilerImpl implements Filer {
 
 		this._createdFiles.add(uri);
 		// hook the file object's writers to create compilation unit and add to addedUnits()
-		return new HookedJavaFileObject(jfo, jfo.getName(), name.toString(), this, mod);
+		return new HookedJavaFileObject(jfo, jfo.getName(), name.toString(), this, mod, this._encoding);
 	}
 
 	/* (non-Javadoc)

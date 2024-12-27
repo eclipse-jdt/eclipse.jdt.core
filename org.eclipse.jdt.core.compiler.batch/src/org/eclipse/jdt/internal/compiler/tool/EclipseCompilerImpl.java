@@ -165,18 +165,19 @@ public class EclipseCompilerImpl extends Main {
 							throw new IllegalArgumentException(this.bind("unit.missing", name)); //$NON-NLS-1$
 					}
 
+					String encoding = getDefaultEncoding();
 					try {
 						CompilationUnit cu = new CompilationUnit(javaFileObject.getCharContent(false).toString().toCharArray(),
 							name,
-							null,
+							encoding,
 							this.destinationPaths[i],
 							shouldIgnoreOptionalProblems(this.ignoreOptionalProblemsFromFolders, name.toCharArray()),
 							this.modNames[i]);
 						units.add(cu);
 						this.javaFileObjectMap.put(cu, javaFileObject);
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
+						throw new AbortCompilationUnit(null, e, encoding);
 					}
 				}
 				i++;
@@ -989,7 +990,7 @@ public class EclipseCompilerImpl extends Main {
 			JavaFileObject javaFileObject = this.compilationUnits.get(idx);
 			if (filename.endsWith(javaFileObject.getName())) {
 				try {
-					return ClasspathJsr199.readCompilationUnit(javaFileObject);
+					return ClasspathJsr199.readCompilationUnit(javaFileObject, getDefaultEncoding());
 				} catch (IOException e) {
 					// nop
 				}

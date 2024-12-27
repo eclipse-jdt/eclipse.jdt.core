@@ -1441,7 +1441,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 						}
 					}
 				} catch (IllegalArgumentException iae) { // e.g., from ModuleFinder.scanForModule(Classpath, File, Parser, boolean, String)
-					// FIXME ignore for now
+					// ignore
 				}
 			}
 		}

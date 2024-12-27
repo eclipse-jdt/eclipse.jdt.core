@@ -46,7 +46,6 @@ import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class ClasspathJsr199 extends ClasspathLocation {
 
-	public static final String ENCODING_UTF_8 = "UTF-8"; //$NON-NLS-1$
 	private final static String NO_PATH = ""; //$NON-NLS-1$
 
 	private final Set<JavaFileObject.Kind> fileTypes;
@@ -54,6 +53,7 @@ public class ClasspathJsr199 extends ClasspathLocation {
 	private final JavaFileManager.Location location;
 	private Classpath jrt;
 	private Supplier<Parser> parserSupplier;
+	private String encoding;
 
 	/**
 	 * FileSystem.internalFindClass() detects request for initial files by filename,
@@ -128,7 +128,7 @@ public class ClasspathJsr199 extends ClasspathLocation {
 			} else {
 				if (this.initialJavaFileObjects != null && this.initialJavaFileObjects.contains(jfo))
 					return null; // refuse to re-add an initial file (possibly via a wrong module?)
-				CompilationUnit cu = readCompilationUnit(jfo);
+				CompilationUnit cu = readCompilationUnit(jfo, this.encoding);
 				cu.module = answerModule;
 				return new NameEnvironmentAnswer(cu, fetchAccessRestriction(qualifiedBinaryFileName), answerModule);
 			}
@@ -196,14 +196,14 @@ public class ClasspathJsr199 extends ClasspathLocation {
 			if (this.location == StandardLocation.SOURCE_PATH) {
 				for (JavaFileObject javaFileObject : this.fileManager.list(this.location, NO_PATH, Collections.singleton(JavaFileObject.Kind.SOURCE), false)) {
 					if (javaFileObject.getName().equals(IModule.MODULE_INFO_JAVA)) {
-						this.module = ClasspathJsr199.extractModuleFromFileObject(javaFileObject, this.parserSupplier, this);
+						this.module = ClasspathJsr199.extractModuleFromFileObject(javaFileObject, this.parserSupplier, this, this.encoding);
 						return;
 					}
 				}
 			} else {
 				for (JavaFileObject javaFileObject : this.fileManager.list(this.location, NO_PATH, Collections.singleton(JavaFileObject.Kind.CLASS), false)) {
 					if (javaFileObject.getName().equals(IModule.MODULE_INFO_CLASS)) {
-						this.module = ClasspathJsr199.extractModuleFromFileObject(javaFileObject, null, this);
+						this.module = ClasspathJsr199.extractModuleFromFileObject(javaFileObject, null, this, this.encoding);
 						return;
 					}
 				}
@@ -267,7 +267,7 @@ public class ClasspathJsr199 extends ClasspathLocation {
 			}
 			return result;
 		} catch (IOException e) {
-			// ??
+			// treat as if empty
 		}
 		return CharOperation.NO_CHAR_CHAR;
 	}
@@ -367,15 +367,15 @@ public class ClasspathJsr199 extends ClasspathLocation {
 		}
 	}
 
-	public static CompilationUnit readCompilationUnit(JavaFileObject jfo) throws IOException {
-		return new CompilationUnit(jfo.getCharContent(false).toString().toCharArray(), jfo.getName(), ENCODING_UTF_8);
+	public static CompilationUnit readCompilationUnit(JavaFileObject jfo, String encoding) throws IOException {
+		return new CompilationUnit(jfo.getCharContent(false).toString().toCharArray(), jfo.getName(), encoding);
 	}
 
-	public static IModule extractModuleFromFileObject(JavaFileObject javaFileObject, Supplier<Parser> parserSupplier, Classpath pathEntry) {
+	public static IModule extractModuleFromFileObject(JavaFileObject javaFileObject, Supplier<Parser> parserSupplier, Classpath pathEntry, String encoding) {
 		try {
 			switch (javaFileObject.getKind()) {
 				case SOURCE:
-					return extractModuleFromSource(javaFileObject, parserSupplier.get(), pathEntry);
+					return extractModuleFromSource(javaFileObject, parserSupplier.get(), pathEntry, encoding);
 				case CLASS:
 					return extractModuleFromClass(javaFileObject, pathEntry);
 				default:
@@ -394,8 +394,8 @@ public class ClasspathJsr199 extends ClasspathLocation {
 		}
 		return null;
 	}
-	static IModule extractModuleFromSource(JavaFileObject javaFileObject, Parser parser, Classpath pathEntry) throws IOException {
-		CompilationUnit cu = readCompilationUnit(javaFileObject);
+	static IModule extractModuleFromSource(JavaFileObject javaFileObject, Parser parser, Classpath pathEntry, String encoding) throws IOException {
+		CompilationUnit cu = readCompilationUnit(javaFileObject, encoding);
 		CompilationResult compilationResult = new CompilationResult(cu, 0, 1, 10);
 		CompilationUnitDeclaration unit = parser.parse(cu, compilationResult);
 		if (unit.isModuleInfo() && unit.moduleDeclaration != null) {

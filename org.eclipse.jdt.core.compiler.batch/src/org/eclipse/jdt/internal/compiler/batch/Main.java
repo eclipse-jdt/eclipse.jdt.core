@@ -3586,6 +3586,16 @@ protected CompilationUnit createCompilationUnit(int idx, String filename) {
 /*
  * External API
  */
+public String getDefaultEncoding() {
+	if (this.compilerOptions != null)
+		return this.compilerOptions.defaultEncoding;
+	if (this.options != null)
+		return new CompilerOptions(this.options).defaultEncoding;
+	return null;
+}
+/*
+ * External API
+ */
 protected ArrayList<FileSystem.Classpath> handleClasspath(ArrayList<String> classpaths, String customEncoding) {
 	ArrayList<FileSystem.Classpath> initial = new ArrayList<>(DEFAULT_SIZE_CLASSPATH);
 	if (classpaths != null && classpaths.size() > 0) {
