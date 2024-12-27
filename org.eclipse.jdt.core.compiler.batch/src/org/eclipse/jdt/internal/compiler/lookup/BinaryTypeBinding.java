@@ -245,6 +245,11 @@ public static TypeBinding resolveType(TypeBinding type, LookupEnvironment enviro
 	return type;
 }
 
+private static TypeBinding resolveType(TypeBinding type, LookupEnvironment environment, boolean convertGenericToRawType, boolean convertRawToGenericType) {
+	TypeBinding retVal = resolveType(type, environment, convertGenericToRawType);
+	return convertRawToGenericType ? retVal.actualType() : retVal;
+}
+
 /**
  * Default empty constructor for subclasses only.
  */
@@ -2552,7 +2557,7 @@ public ReferenceBinding[] permittedTypes() {
 		return this.permittedTypes = this.prototype.permittedTypes();
 	}
 	for (int i = this.permittedTypes.length; --i >= 0;)
-		this.permittedTypes[i] = (ReferenceBinding) resolveType(this.permittedTypes[i], this.environment, false); // re-resolution seems harmless
+		this.permittedTypes[i] = (ReferenceBinding) resolveType(this.permittedTypes[i], this.environment, false, true); // re-resolution seems harmless; while permitted classes/interfaces cannot be parameterized with type arguments, they are not raw either
 
 	return this.permittedTypes;
 }
