@@ -200,14 +200,14 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
         SingleVariableDeclaration variableDeclarationPattern1 = ast.newSingleVariableDeclaration();
         variableDeclarationPattern1.setType(ast.newSimpleType(ast.newSimpleName("PushNotification")));
         variableDeclarationPattern1.setName(ast.newSimpleName("_"));
-        typePattern1.setPatternVariable(variableDeclarationPattern1);
+        typePattern1.setPatternVariable((VariableDeclaration)variableDeclarationPattern1);
 
         //TypePattern2
         TypePattern typePattern2 = ast.newTypePattern();
         SingleVariableDeclaration variableDeclarationPattern2 = ast.newSingleVariableDeclaration();
         variableDeclarationPattern2.setType(ast.newSimpleType(ast.newSimpleName("EmailNotification")));
         variableDeclarationPattern2.setName(ast.newSimpleName("_"));
-        typePattern2.setPatternVariable(variableDeclarationPattern2);
+        typePattern2.setPatternVariable((VariableDeclaration)variableDeclarationPattern2);
 
         //RecordPattern
         RecordPattern recordPattern = ast.newRecordPattern();
@@ -215,7 +215,7 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
         SingleVariableDeclaration RecordVariableDeclaration = ast.newSingleVariableDeclaration();
         RecordVariableDeclaration.setType(ast.newSimpleType(ast.newName("String")));
         RecordVariableDeclaration.setName(ast.newSimpleName("_"));
-        patterns.setPatternVariable(RecordVariableDeclaration);
+        patterns.setPatternVariable((VariableDeclaration)RecordVariableDeclaration);
 
         recordPattern.setPatternType(ast.newSimpleType(ast.newSimpleName("SMSNotification")));
         recordPattern.patterns().add(patterns);
@@ -248,7 +248,7 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
         secondCaseVariableDec.setName(ast.newSimpleName("email"));
         secondCaseVariableDec.setType(ast.newSimpleType(ast.newName("EmailNotification")));
         TypePattern secondCaseTypePattern = ast.newTypePattern();
-        secondCaseTypePattern.setPatternVariable(secondCaseVariableDec);
+        secondCaseTypePattern.setPatternVariable((VariableDeclaration)secondCaseVariableDec);
 
 
         MethodInvocation methodInvocation2 = ast.newMethodInvocation();
@@ -478,7 +478,7 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 	        SingleVariableDeclaration variableDeclarationPattern = ast.newSingleVariableDeclaration();
 	        variableDeclarationPattern.setType(ast.newSimpleType(ast.newSimpleName("PagerNotification")));
 	        variableDeclarationPattern.setName(ast.newSimpleName("_"));
-	        typePattern.setPatternVariable(variableDeclarationPattern);
+	        typePattern.setPatternVariable((VariableDeclaration)variableDeclarationPattern);
 
 	        ListRewrite listRewrite= rewrite.getListRewrite(eitherOrMultiPattern, EitherOrMultiPattern.PATTERNS_PROPERTY);
 			listRewrite.insertAt(typePattern, 0, null);
@@ -509,13 +509,13 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 	        SingleVariableDeclaration variableDeclarationPattern1 = ast.newSingleVariableDeclaration();
 	        variableDeclarationPattern1.setType(ast.newSimpleType(ast.newSimpleName("PagerNotification1")));
 	        variableDeclarationPattern1.setName(ast.newSimpleName("_"));
-	        typePattern1.setPatternVariable(variableDeclarationPattern1);
+	        typePattern1.setPatternVariable((VariableDeclaration)variableDeclarationPattern1);
 
 	        TypePattern typePattern2 = ast.newTypePattern();
 	        SingleVariableDeclaration variableDeclarationPattern2 = ast.newSingleVariableDeclaration();
 	        variableDeclarationPattern2.setType(ast.newSimpleType(ast.newSimpleName("SampleNotification")));
 	        variableDeclarationPattern2.setName(ast.newSimpleName("_"));
-	        typePattern2.setPatternVariable(variableDeclarationPattern2);
+	        typePattern2.setPatternVariable((VariableDeclaration)variableDeclarationPattern2);
 
 	        ListRewrite listRewrite= rewrite.getListRewrite(eitherOrMultiPattern, EitherOrMultiPattern.PATTERNS_PROPERTY);
 			listRewrite.insertAt(typePattern1, 0, null);
@@ -546,13 +546,13 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 	        SingleVariableDeclaration variableDeclarationPattern1 = ast.newSingleVariableDeclaration();
 	        variableDeclarationPattern1.setType(ast.newSimpleType(ast.newSimpleName("XNotification1")));
 	        variableDeclarationPattern1.setName(ast.newSimpleName("_"));
-	        typePattern1.setPatternVariable(variableDeclarationPattern1);
+	        typePattern1.setPatternVariable((VariableDeclaration)variableDeclarationPattern1);
 
 	        TypePattern typePattern2 = ast.newTypePattern();
 	        SingleVariableDeclaration variableDeclarationPattern2 = ast.newSingleVariableDeclaration();
 	        variableDeclarationPattern2.setType(ast.newSimpleType(ast.newSimpleName("YNotification")));
 	        variableDeclarationPattern2.setName(ast.newSimpleName("_"));
-	        typePattern2.setPatternVariable(variableDeclarationPattern2);
+	        typePattern2.setPatternVariable((VariableDeclaration)variableDeclarationPattern2);
 
 	        ListRewrite listRewrite= rewrite.getListRewrite(eitherOrMultiPattern, EitherOrMultiPattern.PATTERNS_PROPERTY);
 			listRewrite.insertAt(typePattern1, 2, null);
@@ -630,7 +630,7 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 	        SingleVariableDeclaration RecordVariableDeclaration = ast.newSingleVariableDeclaration();
 	        RecordVariableDeclaration.setType(ast.newSimpleType(ast.newName("String")));
 	        RecordVariableDeclaration.setName(ast.newSimpleName("_"));
-	        typePatterns.setPatternVariable(RecordVariableDeclaration);
+	        typePatterns.setPatternVariable((VariableDeclaration)RecordVariableDeclaration);
 
 	        recordPattern.setPatternType(ast.newSimpleType(ast.newSimpleName("ANotification")));
 	        recordPattern.patterns().add(typePatterns);
@@ -663,7 +663,7 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 	        SingleVariableDeclaration RecordVariableDeclaration1 = ast.newSingleVariableDeclaration();
 	        RecordVariableDeclaration1.setType(ast.newSimpleType(ast.newName("String")));
 	        RecordVariableDeclaration1.setName(ast.newSimpleName("_"));
-	        typePatterns1.setPatternVariable(RecordVariableDeclaration1);
+	        typePatterns1.setPatternVariable((VariableDeclaration)RecordVariableDeclaration1);
 	        recordPattern1.setPatternType(ast.newSimpleType(ast.newSimpleName("BNotification")));
 	        recordPattern1.patterns().add(typePatterns1);
 
@@ -673,7 +673,7 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 	        SingleVariableDeclaration RecordVariableDeclaration2 = ast.newSingleVariableDeclaration();
 	        RecordVariableDeclaration2.setType(ast.newSimpleType(ast.newName("String")));
 	        RecordVariableDeclaration2.setName(ast.newSimpleName("_"));
-	        typePatterns2.setPatternVariable(RecordVariableDeclaration2);
+	        typePatterns2.setPatternVariable((VariableDeclaration)RecordVariableDeclaration2);
 	        recordPattern2.setPatternType(ast.newSimpleType(ast.newSimpleName("CNotification")));
 	        recordPattern2.patterns().add(typePatterns2);
 
@@ -707,14 +707,14 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 	        SingleVariableDeclaration variableDeclarationPattern = ast.newSingleVariableDeclaration();
 	        variableDeclarationPattern.setType(ast.newSimpleType(ast.newSimpleName("YNotification1")));
 	        variableDeclarationPattern.setName(ast.newSimpleName("_"));
-	        typePattern.setPatternVariable(variableDeclarationPattern);
+	        typePattern.setPatternVariable((VariableDeclaration)variableDeclarationPattern);
 
 			RecordPattern recordPattern = ast.newRecordPattern();
 	        TypePattern typePatterns = ast.newTypePattern();
 	        SingleVariableDeclaration RecordVariableDeclaration = ast.newSingleVariableDeclaration();
 	        RecordVariableDeclaration.setType(ast.newSimpleType(ast.newName("String")));
 	        RecordVariableDeclaration.setName(ast.newSimpleName("_"));
-	        typePatterns.setPatternVariable(RecordVariableDeclaration);
+	        typePatterns.setPatternVariable((VariableDeclaration)RecordVariableDeclaration);
 	        recordPattern.setPatternType(ast.newSimpleType(ast.newSimpleName("ZNotification")));
 	        recordPattern.patterns().add(typePatterns);
 
@@ -1327,7 +1327,7 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 	        SingleVariableDeclaration variableDeclarationPattern = ast.newSingleVariableDeclaration();
 	        variableDeclarationPattern.setType(ast.newSimpleType(ast.newSimpleName("SampleNotification")));
 	        variableDeclarationPattern.setName(ast.newSimpleName("_"));
-	        typePattern.setPatternVariable(variableDeclarationPattern);
+	        typePattern.setPatternVariable((VariableDeclaration)variableDeclarationPattern);
 
 	        rewrite.replace(patterns.get(0),typePattern, null);
 		}
@@ -1355,7 +1355,7 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 	        SingleVariableDeclaration variableDeclarationPattern = ast.newSingleVariableDeclaration();
 	        variableDeclarationPattern.setType(ast.newSimpleType(ast.newSimpleName("PagerNotification1")));
 	        variableDeclarationPattern.setName(ast.newSimpleName("_"));
-	        typePattern.setPatternVariable(variableDeclarationPattern);
+	        typePattern.setPatternVariable((VariableDeclaration)variableDeclarationPattern);
 
 	        rewrite.replace(patterns.get(1),typePattern, null);
 		}
@@ -1384,7 +1384,7 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 	        SingleVariableDeclaration variableDeclarationPattern = ast.newSingleVariableDeclaration();
 	        variableDeclarationPattern.setType(ast.newSimpleType(ast.newSimpleName("SMSNotification")));
 	        variableDeclarationPattern.setName(ast.newSimpleName("_"));
-	        typePattern.setPatternVariable(variableDeclarationPattern);
+	        typePattern.setPatternVariable((VariableDeclaration)variableDeclarationPattern);
 
 	        rewrite.replace(patterns.get(5),typePattern, null);
 		}
@@ -1414,7 +1414,7 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 	        SingleVariableDeclaration RecordVariableDeclaration1 = ast.newSingleVariableDeclaration();
 	        RecordVariableDeclaration1.setType(ast.newSimpleType(ast.newName("String")));
 	        RecordVariableDeclaration1.setName(ast.newSimpleName("_"));
-	        typePatterns1.setPatternVariable(RecordVariableDeclaration1);
+	        typePatterns1.setPatternVariable((VariableDeclaration)RecordVariableDeclaration1);
 	        recordPattern1.setPatternType(ast.newSimpleType(ast.newSimpleName("SampleNotification")));
 	        recordPattern1.patterns().add(typePatterns1);
 
@@ -1423,7 +1423,7 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 	        SingleVariableDeclaration RecordVariableDeclaration2 = ast.newSingleVariableDeclaration();
 	        RecordVariableDeclaration2.setType(ast.newSimpleType(ast.newName("String")));
 	        RecordVariableDeclaration2.setName(ast.newSimpleName("_"));
-	        typePatterns2.setPatternVariable(RecordVariableDeclaration2);
+	        typePatterns2.setPatternVariable((VariableDeclaration)RecordVariableDeclaration2);
 
 	        recordPattern2.setPatternType(ast.newSimpleType(ast.newSimpleName("PagerNotification1")));
 	        recordPattern2.patterns().add(typePatterns2);
@@ -1456,7 +1456,7 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 	        SingleVariableDeclaration variableDeclarationPattern1 = ast.newSingleVariableDeclaration();
 	        variableDeclarationPattern1.setType(ast.newSimpleType(ast.newSimpleName("XNotification")));
 	        variableDeclarationPattern1.setName(ast.newSimpleName("_"));
-	        typePattern1.setPatternVariable(variableDeclarationPattern1);
+	        typePattern1.setPatternVariable((VariableDeclaration)variableDeclarationPattern1);
 
 
 			RecordPattern recordPattern2 = ast.newRecordPattern();
@@ -1464,7 +1464,7 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 	        SingleVariableDeclaration RecordVariableDeclaration2 = ast.newSingleVariableDeclaration();
 	        RecordVariableDeclaration2.setType(ast.newSimpleType(ast.newName("String")));
 	        RecordVariableDeclaration2.setName(ast.newSimpleName("_"));
-	        typePatterns2.setPatternVariable(RecordVariableDeclaration2);
+	        typePatterns2.setPatternVariable((VariableDeclaration)RecordVariableDeclaration2);
 
 	        recordPattern2.setPatternType(ast.newSimpleType(ast.newSimpleName("YNotification1")));
 	        recordPattern2.patterns().add(typePatterns2);
@@ -1498,7 +1498,7 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 	        SingleVariableDeclaration RecordVariableDeclaration1 = ast.newSingleVariableDeclaration();
 	        RecordVariableDeclaration1.setType(ast.newSimpleType(ast.newName("String")));
 	        RecordVariableDeclaration1.setName(ast.newSimpleName("_"));
-	        typePatterns1.setPatternVariable(RecordVariableDeclaration1);
+	        typePatterns1.setPatternVariable((VariableDeclaration)RecordVariableDeclaration1);
 
 	        recordPattern1.setPatternType(ast.newSimpleType(ast.newSimpleName("EmailNotification")));
 	        recordPattern1.patterns().add(typePatterns1);
@@ -1508,7 +1508,7 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 	        SingleVariableDeclaration RecordVariableDeclaration2 = ast.newSingleVariableDeclaration();
 	        RecordVariableDeclaration2.setType(ast.newSimpleType(ast.newName("String")));
 	        RecordVariableDeclaration2.setName(ast.newSimpleName("_"));
-	        typePatterns2.setPatternVariable(RecordVariableDeclaration2);
+	        typePatterns2.setPatternVariable((VariableDeclaration)RecordVariableDeclaration2);
 
 	        recordPattern2.setPatternType(ast.newSimpleType(ast.newSimpleName("SMSNotification")));
 	        recordPattern2.patterns().add(typePatterns2);
@@ -1627,7 +1627,7 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 
 
 			TypePattern newTypePattern = ast.newTypePattern();
-			newTypePattern.setPatternVariable(svd);
+			newTypePattern.setPatternVariable((VariableDeclaration)svd);
 			newTypePattern.setSourceRange(typePattern.getStartPosition(), 1);
 			rewrite.replace(typePattern, newTypePattern, null);
 		}
@@ -1646,5 +1646,252 @@ public class ASTRewritingEitherOrMultiPatternNodeTest extends ASTRewritingTest {
 		String preview= evaluateRewrite(cu, rewrite);
 		assertEqualString(preview, ASTConvertedCode);
 
+	}
+
+	//Pos(int x1, int y1) -> Pos _
+	public void testNaiveASTFlattnerSync_a() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		String baseCode = """
+				package x;
+				public class X {
+				    public static void main(Object object) {
+					    if (object instanceof Path(Pos(int x1, int y1), Pos(int x2, int y2))) {
+					        System.out.printf("object is a path starting at x = %d, y = %d%n", x1, y1);
+					    }
+				    }
+				}
+				record Pos(int x, int y) {}
+				record Path(Pos p1, Pos p2) {}
+				""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", baseCode, false, null);
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast = AST.newAST(AST.getJLSLatest(), true);
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "main");
+		Block block= methodDecl.getBody();
+		List<?> blockStatements= block.statements();
+		IfStatement ifStatement = (IfStatement) blockStatements.get(0);
+		PatternInstanceofExpression expression = (PatternInstanceofExpression) ifStatement.getExpression();
+		RecordPattern recordPattern = (RecordPattern) expression.getPattern();
+		List<?> patterns = recordPattern.patterns();
+		RecordPattern secondRecordPattern = (RecordPattern) patterns.get(1);
+		{
+			SingleVariableDeclaration svd = ast.newSingleVariableDeclaration();
+			svd.setType(ast.newSimpleType(ast.newSimpleName("Pos")));
+			svd.setName(ast.newSimpleName("_"));
+			TypePattern newTypePattern = ast.newTypePattern();
+			newTypePattern.setPatternVariable((VariableDeclaration) svd);
+			rewrite.replace(secondRecordPattern, newTypePattern, null);
+		}
+
+		String ASTConvertedCode = """
+				package x;
+				public class X {
+				    public static void main(Object object) {
+					    if (object instanceof Path(Pos(int x1, int y1), Pos _)) {
+					        System.out.printf("object is a path starting at x = %d, y = %d%n", x1, y1);
+					    }
+				    }
+				}
+				record Pos(int x, int y) {}
+				record Path(Pos p1, Pos p2) {}
+				""";
+
+		String preview= evaluateRewrite(cu, rewrite);
+		assertEqualString(preview, ASTConvertedCode);
+	}
+
+	//Pos(int x1, int y1) -> _
+	public void testNaiveASTFlattnerSync_b() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		String baseCode = """
+				package x;
+				public class X {
+				    public static void main(Object object) {
+					    if (object instanceof Path(Pos(int x1, int y1), Pos(int x2, int y2))) {
+					        System.out.printf("object is a path starting at x = %d, y = %d%n", x1, y1);
+					    }
+				    }
+				}
+				record Pos(int x, int y) {}
+				record Path(Pos p1, Pos p2) {}
+				""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", baseCode, false, null);
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast = AST.newAST(AST.getJLSLatest(), true);
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "main");
+		Block block= methodDecl.getBody();
+		List<?> blockStatements= block.statements();
+		IfStatement ifStatement = (IfStatement) blockStatements.get(0);
+		PatternInstanceofExpression expression = (PatternInstanceofExpression) ifStatement.getExpression();
+		RecordPattern recordPattern = (RecordPattern) expression.getPattern();
+		List<?> patterns = recordPattern.patterns();
+		RecordPattern secondRecordPattern = (RecordPattern) patterns.get(1);
+		{
+			VariableDeclarationFragment vdf = ast.newVariableDeclarationFragment();
+			vdf.setName(ast.newSimpleName("_"));
+			TypePattern newTypePattern = ast.newTypePattern();
+			newTypePattern.setPatternVariable(vdf);
+			rewrite.replace(secondRecordPattern, newTypePattern, null);
+		}
+		String ASTConvertedCode = """
+				package x;
+				public class X {
+				    public static void main(Object object) {
+					    if (object instanceof Path(Pos(int x1, int y1), _)) {
+					        System.out.printf("object is a path starting at x = %d, y = %d%n", x1, y1);
+					    }
+				    }
+				}
+				record Pos(int x, int y) {}
+				record Path(Pos p1, Pos p2) {}
+				""";
+
+		String preview= evaluateRewrite(cu, rewrite);
+		assertEqualString(preview, ASTConvertedCode);
+	}
+
+	//Pos _ to Pos(String x1, String y1)
+	public void testNaiveASTFlattnerSync_c() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		String baseCode = """
+				package x;
+				public class X {
+				    public static void main(Object object) {
+					    if (object instanceof Path(Pos(String x1, String y1), Pos _)) {
+					        System.out.printf("object is a path starting at x = %s, y = %s%n", x1, y1);
+					    }
+				    }
+				}
+				record Pos(String x, String y) {}
+				record Path(Pos p1, Pos p2) {}
+				""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", baseCode, false, null);
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast = AST.newAST(AST.getJLSLatest(), true);
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "main");
+		Block block= methodDecl.getBody();
+		List<?> blockStatements= block.statements();
+		IfStatement ifStatement = (IfStatement) blockStatements.get(0);
+		PatternInstanceofExpression expression = (PatternInstanceofExpression) ifStatement.getExpression();
+		RecordPattern recordPattern = (RecordPattern) expression.getPattern();
+		List<?> patterns = recordPattern.patterns();
+		TypePattern secondPattern = (TypePattern) patterns.get(1);
+		{
+
+			SingleVariableDeclaration svd1 = ast.newSingleVariableDeclaration();
+			svd1.setType(ast.newSimpleType(ast.newSimpleName("String")));
+			svd1.setName(ast.newSimpleName("x2"));
+			TypePattern newTypePattern1 = ast.newTypePattern();
+			newTypePattern1.setPatternVariable((VariableDeclaration) svd1);
+
+			SingleVariableDeclaration svd2 = ast.newSingleVariableDeclaration();
+			svd2.setType(ast.newSimpleType(ast.newSimpleName("String")));
+			svd2.setName(ast.newSimpleName("y2"));
+			TypePattern newTypePattern2 = ast.newTypePattern();
+			newTypePattern2.setPatternVariable((VariableDeclaration) svd2);
+
+			RecordPattern recordPatternNew = ast.newRecordPattern();
+			recordPatternNew.patterns().add(newTypePattern1);
+			recordPatternNew.patterns().add(newTypePattern2);
+			recordPatternNew.setPatternType(ast.newSimpleType(ast.newName("Pos")));
+
+			rewrite.replace(secondPattern, recordPatternNew, null);
+		}
+		String ASTConvertedCode = """
+				package x;
+				public class X {
+				    public static void main(Object object) {
+					    if (object instanceof Path(Pos(String x1, String y1), Pos(String x2, String y2))) {
+					        System.out.printf("object is a path starting at x = %s, y = %s%n", x1, y1);
+					    }
+				    }
+				}
+				record Pos(String x, String y) {}
+				record Path(Pos p1, Pos p2) {}
+				""";
+
+		String preview= evaluateRewrite(cu, rewrite);
+		assertEqualString(preview, ASTConvertedCode);
+	}
+
+	//_ to Pos(String x, String y)
+	public void testNaiveASTFlattnerSync_d() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		String baseCode = """
+				package x;
+				public class X {
+				    public static void main(Object object) {
+					    if (object instanceof Path(Pos(String x1, String y1), _)) {
+					        System.out.printf("object is a path starting at x = %s, y = %s%n", x1, y1);
+					    }
+				    }
+				}
+				record Pos(String x, String y) {}
+				record Path(Pos p1, Pos p2) {}
+				""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", baseCode, false, null);
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast = AST.newAST(AST.getJLSLatest(), true);
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "main");
+		Block block= methodDecl.getBody();
+		List<?> blockStatements= block.statements();
+		IfStatement ifStatement = (IfStatement) blockStatements.get(0);
+		PatternInstanceofExpression expression = (PatternInstanceofExpression) ifStatement.getExpression();
+		RecordPattern recordPattern = (RecordPattern) expression.getPattern();
+		List<?> patterns = recordPattern.patterns();
+		TypePattern secondPattern = (TypePattern) patterns.get(1);
+
+		{
+			SingleVariableDeclaration svd1 = ast.newSingleVariableDeclaration();
+			svd1.setType(ast.newSimpleType(ast.newSimpleName("String")));
+			svd1.setName(ast.newSimpleName("x2"));
+			TypePattern newTypePattern1 = ast.newTypePattern();
+			newTypePattern1.setPatternVariable((VariableDeclaration) svd1);
+
+			SingleVariableDeclaration svd2 = ast.newSingleVariableDeclaration();
+			svd2.setType(ast.newSimpleType(ast.newSimpleName("String")));
+			svd2.setName(ast.newSimpleName("y2"));
+			TypePattern newTypePattern2 = ast.newTypePattern();
+			newTypePattern2.setPatternVariable((VariableDeclaration) svd2);
+
+			RecordPattern recordPatternNew = ast.newRecordPattern();
+			recordPatternNew.patterns().add(newTypePattern1);
+			recordPatternNew.patterns().add(newTypePattern2);
+			recordPatternNew.setPatternType(ast.newSimpleType(ast.newName("Pos")));
+
+			rewrite.replace(secondPattern, recordPatternNew, null);
+		}
+
+		String ASTConvertedCode = """
+				package x;
+				public class X {
+				    public static void main(Object object) {
+					    if (object instanceof Path(Pos(String x1, String y1), Pos(String x2, String y2))) {
+					        System.out.printf("object is a path starting at x = %s, y = %s%n", x1, y1);
+					    }
+				    }
+				}
+				record Pos(String x, String y) {}
+				record Path(Pos p1, Pos p2) {}
+				""";
+
+		String preview= evaluateRewrite(cu, rewrite);
+		assertEqualString(preview, ASTConvertedCode);
 	}
 }
