@@ -3569,7 +3569,7 @@ class ASTConverter {
 		}
 
 		if(this.ast.apiLevel < AST.JLS22_INTERNAL) {
-			typePattern.setPatternVariable(convertToSingleVariableDeclaration(pattern.local));
+			typePattern.internalSetPatternVariable(convertToSingleVariableDeclaration(pattern.local));
 		} else {
 			if(pattern.local != null && pattern.local.type != null) {
 				typePattern.setPatternVariable((VariableDeclaration)convertToSingleVariableDeclaration(pattern.local));
