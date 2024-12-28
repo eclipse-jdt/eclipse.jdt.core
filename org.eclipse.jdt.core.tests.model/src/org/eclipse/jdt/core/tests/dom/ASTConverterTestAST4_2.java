@@ -2630,126 +2630,6 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=42839
 	 */
-	public void _2551_test0493() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0493", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(getJLS4(), sourceUnit, true);
-		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
-		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
-		ASTNode node = getASTNode(unit, 0, 0);
-		assertTrue("not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION); //$NON-NLS-1$
-		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-		Type type = fieldDeclaration.getType();
-		checkSourceRange(type, "Class[][]", source);
-		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
-		ArrayType arrayType = (ArrayType) type;
-		Type componentType = componentType(arrayType);
-		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
-		checkSourceRange(componentType, "Class[]", source);
-		arrayType = (ArrayType) componentType;
-		componentType = componentType(arrayType);
-		assertTrue("is an array type", !componentType.isArrayType()); //$NON-NLS-1$
-		checkSourceRange(componentType, "Class", source);
-	}
-
-	/**
-	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=42839
-	 */
-	public void _2551_test0494() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0494", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(getJLS4(), sourceUnit, true);
-		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
-		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
-		ASTNode node = getASTNode(unit, 0, 0);
-		assertTrue("not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION); //$NON-NLS-1$
-		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-		Type type = fieldDeclaration.getType();
-		checkSourceRange(type, "Class[][][]", source);
-		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
-		ArrayType arrayType = (ArrayType) type;
-		Type componentType = componentType(arrayType);
-		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
-		checkSourceRange(componentType, "Class[][]", source);
-		arrayType = (ArrayType) componentType;
-		componentType = componentType(arrayType);
-		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
-		checkSourceRange(componentType, "Class[]", source);
-		arrayType = (ArrayType) componentType;
-		componentType = componentType(arrayType);
-		assertTrue("is an array type", !componentType.isArrayType()); //$NON-NLS-1$
-		checkSourceRange(componentType, "Class", source);
-	}
-
-	/**
-	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=42839
-	 */
-	public void _2551_test0495() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0495", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(getJLS4(), sourceUnit, true);
-		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
-		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
-		ASTNode node = getASTNode(unit, 0, 0);
-		assertTrue("not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION); //$NON-NLS-1$
-		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-		Type type = fieldDeclaration.getType();
-		checkSourceRange(type, "Class[][]", source);
-		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
-		ArrayType arrayType = (ArrayType) type;
-		Type componentType = componentType(arrayType);
-		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
-		checkSourceRange(componentType, "Class[]", source);
-		arrayType = (ArrayType) componentType;
-		componentType = componentType(arrayType);
-		assertTrue("is an array type", !componentType.isArrayType()); //$NON-NLS-1$
-		checkSourceRange(componentType, "Class", source);
-		List fragments = fieldDeclaration.fragments();
-		assertEquals("wrong size", 1, fragments.size());
-		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
-		assertEquals("wrong extra dimension", 1, fragment.getExtraDimensions());
-	}
-
-	/**
-	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=42839
-	 */
-	public void _2551_test0496() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0496", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(getJLS4(), sourceUnit, true);
-		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
-		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
-		ASTNode node = getASTNode(unit, 0, 0);
-		assertTrue("not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION); //$NON-NLS-1$
-		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
-		Type type = fieldDeclaration.getType();
-		checkSourceRange(type, "Class[][][][]", source);
-		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
-		ArrayType arrayType = (ArrayType) type;
-		Type componentType = componentType(arrayType);
-		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
-		checkSourceRange(componentType, "Class[][][]", source);
-		arrayType = (ArrayType) componentType;
-		componentType = componentType(arrayType);
-		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
-		checkSourceRange(componentType, "Class[][]", source);
-		arrayType = (ArrayType) componentType;
-		componentType = componentType(arrayType);
-		assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
-		checkSourceRange(componentType, "Class[]", source);
-		arrayType = (ArrayType) componentType;
-		componentType = componentType(arrayType);
-		assertTrue("is an array type", !componentType.isArrayType()); //$NON-NLS-1$
-		checkSourceRange(componentType, "Class", source);
-	}
-
-	/**
-	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=42839
-	 */
 	public void test0497() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0497", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
@@ -6278,7 +6158,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=89014
 	 */
-	public void _2551_test0606() throws JavaModelException {
+	public void test0606() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
 		try {
 			String contents =
@@ -9452,38 +9332,6 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 	}
 
 	/**
-	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=196514
-	 */
-	public void _2551_test0683() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0683", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode node = runConversion(getJLS4(), sourceUnit, true, true);
-		assertTrue("Not a compilation unit", node.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
-		CompilationUnit unit = (CompilationUnit) node;
-		assertProblemsSize(unit, 0);
-		node = getASTNode(unit, 0, 1, 0);
-		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
-		ExpressionStatement expressionStatement = (ExpressionStatement) node;
-		node = expressionStatement.getExpression();
-		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, node.getNodeType());
-		MethodInvocation methodInvocation = (MethodInvocation) node;
-		List arguments = methodInvocation.arguments();
-		assertEquals("Wrong size", 1, arguments.size());
-		node = (ASTNode)arguments.get(0);
-		assertEquals("Not an array creation", ASTNode.ARRAY_CREATION, node.getNodeType());
-		ArrayCreation arrayCreation = (ArrayCreation) node;
-		ArrayType arrayType = arrayCreation.getType();
-		checkSourceRange(arrayType, "String[0][b[10]][]", sourceUnit.getSource());
-		node = componentType(arrayType);
-		assertEquals("Not an array type", ASTNode.ARRAY_TYPE, node.getNodeType());
-		arrayType = (ArrayType)node;
-		checkSourceRange(arrayType, "String[0][b[10]]", sourceUnit.getSource());
-		node = componentType(arrayType);
-		assertEquals("Not an array type", ASTNode.ARRAY_TYPE, node.getNodeType());
-		arrayType = (ArrayType)node;
-		checkSourceRange(arrayType, "String[0]", sourceUnit.getSource());
-	}
-
-	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=201929
 	 */
 	public void test0684() throws JavaModelException {
@@ -9597,7 +9445,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=207754
 	 */
-	public void _2551_test0687() throws JavaModelException {
+	public void test0687() throws JavaModelException {
 		ICompilationUnit workingCopy = null;
 		try {
 			String contents =
