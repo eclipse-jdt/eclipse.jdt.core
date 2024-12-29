@@ -576,16 +576,14 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	{
 		FakedTrackingVariable trackerIfTrue = retriever.apply(conditionalExpression.valueIfTrue);
 		FakedTrackingVariable trackerIfFalse = retriever.apply(conditionalExpression.valueIfFalse);
-		if (trackerIfTrue == null)
-			return trackerIfFalse;
-		if (trackerIfFalse == null)
-			return trackerIfTrue;
 		return pickMoreUnsafe(trackerIfTrue, trackerIfFalse, flowInfo);
 	}
 
 	private static FakedTrackingVariable pickMoreUnsafe(FakedTrackingVariable tracker1, FakedTrackingVariable tracker2, FlowInfo info) {
 		// whichever of the two trackers has stronger indication to be leaking will be returned,
 		// the other one will be removed from the scope (considered to be merged into the former).
+		if (tracker1 == null) return tracker2;
+		if (tracker2 == null) return tracker1;
 		int status1 = info.nullStatus(tracker1.binding);
 		int status2 = info.nullStatus(tracker2.binding);
 		if (status1 == FlowInfo.NULL || status2 == FlowInfo.NON_NULL) return pick(tracker1, tracker2);
@@ -905,10 +903,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			for (Expression result : se.resultExpressions()) {
 				FakedTrackingVariable current = analyseCloseableExpression(scope, flowInfo, flowContext, useAnnotations,
 						local, location, result, previousTracker);
-				if (mostRisky == null)
-					mostRisky = current;
-				else
-					mostRisky = pickMoreUnsafe(mostRisky, current, flowInfo);
+				mostRisky = pickMoreUnsafe(mostRisky, current, flowInfo);
 			}
 			return mostRisky;
 		}
