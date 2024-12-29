@@ -45,6 +45,7 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -3082,11 +3083,11 @@ private String validateModuleVersion(String versionString) {
 	return versionString;
 }
 
-private Parser getNewParser() {
+public Parser getNewParser() {
 	return new Parser(new ProblemReporter(getHandlingPolicy(),
 			new CompilerOptions(this.options), getProblemFactory()), false);
 }
-private IModule extractModuleDesc(String fileName) {
+private IModule extractModuleDesc(String fileName, Supplier<CompilationUnit> cuSupplier) {
 	IModule mod = null;
 	if (fileName.toLowerCase().endsWith(IModule.MODULE_INFO_JAVA)) {
 		// this.options may not be completely populated yet, and definitely not
@@ -3096,7 +3097,7 @@ private IModule extractModuleDesc(String fileName) {
 		Parser parser = new Parser(new ProblemReporter(getHandlingPolicy(),
 				new CompilerOptions(opts), getProblemFactory()), false);
 
-		ICompilationUnit cu = new CompilationUnit(null, fileName, null);
+		ICompilationUnit cu = cuSupplier.get();
 		CompilationResult compilationResult = new CompilationResult(cu, 0, 1, 10);
 		CompilationUnitDeclaration unit = parser.parse(cu, compilationResult);
 		if (unit.isModuleInfo() && unit.moduleDeclaration != null) {
@@ -3553,8 +3554,11 @@ private void handleSingleModuleCompilation() {
 		return;
 	}
 	IModule singleMod = null;
-	for (String filename : this.filenames) {
-		IModule mod = extractModuleDesc(filename);
+	String[] names = this.filenames;
+	for (int i = 0; i < names.length; i++) {
+		String filename = names[i];
+		int idx = i; // idx is used in EclipseCompilerImpl.createCompilationUnit()
+		IModule mod = extractModuleDesc(filename, () -> createCompilationUnit(idx, filename));
 		if (mod != null) {
 			if (singleMod == null) {
 				singleMod = mod;
@@ -3570,6 +3574,20 @@ private void handleSingleModuleCompilation() {
 		}
 		this.module = singleMod;
 	}
+}
+// overridable hook
+protected CompilationUnit createCompilationUnit(int idx, String filename) {
+	return new CompilationUnit(null, filename, null);
+}
+/*
+ * External API
+ */
+public String getDefaultEncoding() {
+	if (this.compilerOptions != null)
+		return this.compilerOptions.defaultEncoding;
+	if (this.options != null)
+		return new CompilerOptions(this.options).defaultEncoding;
+	return null;
 }
 /*
  * External API

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2018 BEA Systems, Inc.
+ * Copyright (c) 2006, 2024 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -19,6 +19,7 @@ package org.eclipse.jdt.internal.compiler.apt.dispatch;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collections;
 import java.util.HashSet;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.FilerException;
@@ -28,8 +29,12 @@ import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileManager.Location;
 import javax.tools.JavaFileObject;
+import javax.tools.JavaFileObject.Kind;
 import javax.tools.StandardLocation;
+import org.eclipse.jdt.internal.compiler.batch.ClasspathJsr199;
+import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 /**
@@ -43,13 +48,32 @@ public class BatchFilerImpl implements Filer {
 	protected final BatchProcessingEnvImpl _env;
 	protected final JavaFileManager _fileManager;
 	protected final HashSet<URI> _createdFiles;
+	protected String _moduleName;
+	protected String _encoding;
 
-	public BatchFilerImpl(BaseAnnotationProcessorManager dispatchManager, BatchProcessingEnvImpl env)
+	public BatchFilerImpl(BaseAnnotationProcessorManager dispatchManager, BatchProcessingEnvImpl env, Main main)
 	{
 		this._dispatchManager = dispatchManager;
 		this._fileManager = env._fileManager;
 		this._env = env;
 		this._createdFiles = new HashSet<>();
+		this._encoding = main.getDefaultEncoding();
+		if (this._fileManager.hasLocation(StandardLocation.SOURCE_PATH)) {
+			try {
+				for (JavaFileObject javaFileObject : this._fileManager.list(StandardLocation.SOURCE_PATH, "", //$NON-NLS-1$
+						Collections.singleton(Kind.SOURCE), false)) {
+					if (javaFileObject.getName().equals(IModule.MODULE_INFO_JAVA)) {
+						IModule module = ClasspathJsr199.extractModuleFromFileObject(javaFileObject, main::getNewParser, null, this._encoding);
+						if (module != null)
+							this._moduleName = String.valueOf(module.name());
+						break;
+					}
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+				main.logger.logException(e);
+			}
+		}
 	}
 
 	public void addNewUnit(ICompilationUnit unit) {
@@ -74,7 +98,7 @@ public class BatchFilerImpl implements Filer {
 		}
 
 		this._createdFiles.add(uri);
-		return new HookedJavaFileObject(jfo, jfo.getName(), name.toString(), this);
+		return new HookedJavaFileObject(jfo, jfo.getName(), name.toString(), this, this._moduleName, this._encoding);
 	}
 
 	/* (non-Javadoc)
@@ -146,7 +170,13 @@ public class BatchFilerImpl implements Filer {
 		if (typeElement != null) {
 			throw new FilerException("Source file already exists : " + moduleAndPkgString); //$NON-NLS-1$
 		}
-		Location location = mod == null ? StandardLocation.SOURCE_OUTPUT : this._fileManager.getLocationForModule(StandardLocation.SOURCE_OUTPUT, mod);
+		Location location;
+		if (mod == null) {
+			location = StandardLocation.SOURCE_OUTPUT;
+			mod = this._moduleName;
+		} else {
+			location = this._fileManager.getLocationForModule(StandardLocation.SOURCE_OUTPUT, mod);
+		}
 		JavaFileObject jfo = this._fileManager.getJavaFileForOutput(location, name.toString(), JavaFileObject.Kind.SOURCE, null);
 		URI uri = jfo.toUri();
 		if (this._createdFiles.contains(uri)) {
@@ -155,7 +185,7 @@ public class BatchFilerImpl implements Filer {
 
 		this._createdFiles.add(uri);
 		// hook the file object's writers to create compilation unit and add to addedUnits()
-		return new HookedJavaFileObject(jfo, jfo.getName(), name.toString(), this);
+		return new HookedJavaFileObject(jfo, jfo.getName(), name.toString(), this, mod, this._encoding);
 	}
 
 	/* (non-Javadoc)
