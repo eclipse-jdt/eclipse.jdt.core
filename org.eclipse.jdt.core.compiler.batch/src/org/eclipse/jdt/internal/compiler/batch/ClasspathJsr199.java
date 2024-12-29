@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2018 IBM Corporation and others.
+ * Copyright (c) 2015, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -99,9 +99,13 @@ public class ClasspathJsr199 extends ClasspathLocation {
 
 			try (InputStream inputStream = jfo.openInputStream()) {
 				ClassFileReader reader = ClassFileReader.read(inputStream.readAllBytes(), qualifiedBinaryFileName);
-				if (reader != null) {
-					return new NameEnvironmentAnswer(reader, fetchAccessRestriction(qualifiedBinaryFileName));
-				}
+
+				// To avoid false compiler errors "package collides with type" on case insensitive file systems
+				// (e. g. Windows), make a case sensitive comparison of class name and type name from reader. The
+				// reader contains the CASE SENSITIVE type name.
+				return  reader != null && className.equals(new String(reader.getName()))
+					? new NameEnvironmentAnswer(reader, fetchAccessRestriction(qualifiedBinaryFileName))
+					: null;
 			}
 		} catch (ClassFormatException e) {
 			// treat as if class file is missing
