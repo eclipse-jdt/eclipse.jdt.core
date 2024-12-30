@@ -6584,9 +6584,9 @@ public void test406588() {
 				"}\n"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	interface I {\n" +
-			"	^\n" +
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	this(Z::new);\n" + 
+			"	     ^^^^^^\n" + 
 			"No enclosing instance of type X.Y is available due to some intermediate constructor invocation\n" +
 			"----------\n");
 }
@@ -6607,9 +6607,9 @@ public void test406586() {
 				"}\n"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	interface I {\n" +
-			"	^\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	I i = Y::new;\n" +
+			"	      ^^^^^^\n" +
 			"No enclosing instance of type X is accessible. Must qualify the allocation with an enclosing instance of type X (e.g. x.new A() where x is an instance of X).\n" +
 			"----------\n");
 }
