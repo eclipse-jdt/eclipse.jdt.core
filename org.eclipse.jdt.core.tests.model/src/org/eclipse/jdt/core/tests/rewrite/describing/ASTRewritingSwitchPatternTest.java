@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021, 2023 IBM Corporation and others.
+ * Copyright (c) 2021, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -95,7 +95,13 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 			SingleVariableDeclaration patternVariable = ast.newSingleVariableDeclaration();
 			patternVariable.setType(ast.newSimpleType(ast.newSimpleName("String")));
 			patternVariable.setName(ast.newSimpleName("s"));
-			typePattern.setPatternVariable(patternVariable);
+
+			if (this.apiLevel < AST.JLS22) {
+				typePattern.setPatternVariable(patternVariable);
+			} else {
+				typePattern.setPatternVariable((VariableDeclaration) patternVariable);
+			}
+
 			caseStatement.expressions().add(typePattern);
 
 			ListRewrite listRewrite= rewrite.getListRewrite(switchStatement, SwitchExpression.STATEMENTS_PROPERTY);
@@ -286,7 +292,13 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 			SingleVariableDeclaration patternVariable = ast.newSingleVariableDeclaration();
 			patternVariable.setType(ast.newSimpleType(ast.newSimpleName("Integer")));
 			patternVariable.setName(ast.newSimpleName("i"));
-			typePattern.setPatternVariable(patternVariable);
+
+			if (this.apiLevel < AST.JLS22) {
+				typePattern.setPatternVariable(patternVariable);
+			} else {
+				typePattern.setPatternVariable((VariableDeclaration) patternVariable);
+			}
+
 			guardedPattern.setPattern(typePattern);
 			InfixExpression infixExpression = ast.newInfixExpression();
 			infixExpression.setOperator(InfixExpression.Operator.GREATER);
@@ -369,7 +381,13 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 			SingleVariableDeclaration patternVariable = ast.newSingleVariableDeclaration();
 			patternVariable.setType(ast.newSimpleType(ast.newSimpleName("Integer")));
 			patternVariable.setName(ast.newSimpleName("i"));
-			typePattern.setPatternVariable(patternVariable);
+
+			if (this.apiLevel < AST.JLS22) {
+				typePattern.setPatternVariable(patternVariable);
+			} else {
+				typePattern.setPatternVariable((VariableDeclaration) patternVariable);
+			}
+
 			guardedPattern.setPattern(typePattern);
 			InfixExpression infixExpression = ast.newInfixExpression();
 			infixExpression.setOperator(InfixExpression.Operator.GREATER);
