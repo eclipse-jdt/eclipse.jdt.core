@@ -1017,7 +1017,8 @@ public class CommentsPreparator extends ASTVisitor {
 						// int closingBracePos = src.lastIndexOf('}', tag.getStartPosition() + tag.getLength());
 						// TODO bug 570137 workaround
 						int closingBracePos = tag.getStartPosition() + 1;
-						for (int braces = 1; braces > 0 && closingBracePos < src.length(); closingBracePos++) {
+						int lastPos = this.ctm.get(this.ctm.size() - 2).originalEnd;
+						for (int braces = 1; braces > 0 && closingBracePos < lastPos; closingBracePos++) {
 							if (src.charAt(closingBracePos) == '{')
 								braces++;
 							if (src.charAt(closingBracePos) == '}')

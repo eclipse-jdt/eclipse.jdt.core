@@ -110,7 +110,7 @@ private void setUpBigProject() throws CoreException, IOException {
 	try {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IWorkspaceRoot workspaceRoot = workspace.getRoot();
-		String targetWorkspacePath = workspaceRoot.getLocation().toFile().getCanonicalPath();
+		String targetWorkspacePath = workspaceRoot.getLocation().toFile().toPath().normalize().toAbsolutePath().toString();
 		long startNanos = System.nanoTime();
 
 		// Print for log in case of project creation troubles...

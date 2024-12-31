@@ -7813,4 +7813,23 @@ public void testIssue2127b() {
 		""",
 		CodeFormatter.K_MODULE_INFO | CodeFormatter.F_INCLUDE_COMMENTS);
 }
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3372
+ */
+public void testIssue3372() {
+	String source =
+		"""
+		/**
+		 * <pre>
+		 * {@code
+		 * void test() {
+		 *   int i;
+		 * }
+		 * </pre>
+		 */
+		class Test {
+		}
+		""";
+	formatSource(source);
+}
 }

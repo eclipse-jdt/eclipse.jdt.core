@@ -92,7 +92,7 @@ public class AnnotationProcessingCompilerToolTest extends AbstractBatchCompilerT
 			+ "	last round: false\n"
 			+ "Discovered processor service org.eclipse.jdt.apt.tests.external.annotations.batch.BatchGenProcessor\n"
 			+ "  supporting [org.eclipse.jdt.apt.tests.external.annotations.batch.BatchGen]\n"
-			+ "  in jar:"  + Path.of(_extJar.getCanonicalPath()).toUri().toURL().toString() +"!/\n"
+			+ "  in jar:"  + Path.of(_extJar.toPath().normalize().toAbsolutePath().toString()).toUri().toURL().toString() +"!/\n"
 			+ "Processor org.eclipse.jdt.apt.tests.external.annotations.batch.BatchGenProcessor matches [org.eclipse.jdt.apt.tests.external.annotations.batch.BatchGen] and returns true\n"
 			+ "Round 2:\n"
 			+ "	input files: {p1.gen.Class1,p1.gen.Class2,p1.Class0}\n"
@@ -178,7 +178,7 @@ public class AnnotationProcessingCompilerToolTest extends AbstractBatchCompilerT
 			},
 			"Discovered processor service org.eclipse.jdt.apt.tests.external.annotations.batch.BatchGenProcessor\n" +
 			"  supporting [org.eclipse.jdt.apt.tests.external.annotations.batch.BatchGen]\n" + 
-			"  in jar:"  + Path.of(_extJar.getCanonicalPath()).toUri().toURL().toString() + "!/\n" + 
+			"  in jar:"  + Path.of(_extJar.toPath().normalize().toAbsolutePath().toString()).toUri().toURL().toString() + "!/\n" + 
 			"Processor org.eclipse.jdt.apt.tests.external.annotations.batch.BatchGenProcessor matches [org.eclipse.jdt.apt.tests.external.annotations.batch.BatchGen] and returns true\n" + 
 			"Processor org.eclipse.jdt.apt.tests.external.annotations.batch.BatchGenProcessor matches [] and returns false\n",
 			"" /* expectedErrOutputString */,

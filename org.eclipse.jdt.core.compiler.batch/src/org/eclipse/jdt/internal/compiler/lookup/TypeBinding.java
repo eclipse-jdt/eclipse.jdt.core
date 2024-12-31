@@ -44,6 +44,7 @@ import java.util.Set;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 
 /*
  * Not all fields defined by this type (& its subclasses) are initialized when it is created.
@@ -305,6 +306,14 @@ public ReferenceBinding enclosingType() {
 
 public TypeBinding erasure() {
 	return this;
+}
+
+public int enumConstantCount() {
+	throw EclipseCompiler.UNSUPPORTED_OPERATION;
+}
+
+public FieldBinding[] fields() {
+	return Binding.NO_FIELDS;
 }
 
 /**

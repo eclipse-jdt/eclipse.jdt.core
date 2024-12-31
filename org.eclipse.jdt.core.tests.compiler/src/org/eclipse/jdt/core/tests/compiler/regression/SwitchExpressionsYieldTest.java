@@ -8326,4 +8326,77 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"Yield = 42");
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=566124
+	// Widening conversions combined with method invocation and switch expressions doesn't work
+	public void testBug566124() {
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X  {
+				    @SuppressWarnings("deprecation")
+				    public void bar(int i) {
+					boolean isNumeric = foo( switch(i+1) {
+					   case 0 -> new Short((short)0);
+					   case 2 -> new Double(2.0d);
+					   default -> new Integer((short)6);
+				    	});
+				    	System.out.println(isNumeric);
+				    }
+				    boolean foo(short data){ return false; }
+				    boolean foo(byte data){ return false; }
+				    boolean foo(int data){ return false; }
+				    boolean foo(float data){ return false; }
+				    boolean foo(long data){ return false; }
+				    boolean foo(double data){ return true; }
+
+				    public static void main(String[] args) {
+						X x = new X();
+						x.bar(-1);
+					}
+				}
+				"""
+				},
+				"true");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3481
+	// [Switch Expression] yield does not work with bitwise complement ~
+	public void testIssue3481() {
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+				    int a = switch(0) {
+				        default -> {
+				            yield ~1;
+				        }
+				    };
+				    int b = switch(0) {
+				        default -> {
+				            int x = 0;
+				            yield ~x;
+				        }
+				    };
+				    int c = switch (0) {
+				        case 0 -> {
+				            yield ~2;
+				        }
+				        default -> 1;
+				    };
+
+				    {
+				        System.out.println("a = " + a + " b = " + b + " c = " + c);
+				    }
+
+				    public static void main(String [] args) {
+				        new X();
+				    }
+				}
+				"""
+				},
+				"a = -2 b = -1 c = -3");
+	}
 }

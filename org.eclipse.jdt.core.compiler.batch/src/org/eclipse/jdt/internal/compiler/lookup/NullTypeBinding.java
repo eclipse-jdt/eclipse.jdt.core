@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
+
 // Give it an identity of its own to discriminate the fact that this type is not annotatable and so is a singleton.
 public class NullTypeBinding extends BaseTypeBinding {
 
@@ -35,5 +37,10 @@ public class NullTypeBinding extends BaseTypeBinding {
 	@Override
 	public TypeBinding unannotated() {
 		return this;
+	}
+
+	@Override
+	public char[] signature() {
+		return ConstantPool.ObjectSignature;
 	}
 }

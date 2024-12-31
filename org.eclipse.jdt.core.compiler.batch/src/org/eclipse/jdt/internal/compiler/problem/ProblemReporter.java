@@ -11588,9 +11588,10 @@ public void invalidOpensStatement(OpensStatement statement, ModuleDeclaration mo
 		statement.declarationSourceStart, statement.declarationSourceEnd);
 }
 public void invalidPackageReference(int problem, PackageVisibilityStatement ref) {
+	String[] arguments = new String[] { CharOperation.charToString(ref.pkgName) };
 	this.handle(problem,
-			NoArgument,
-			new String[] { CharOperation.charToString(ref.pkgName) },
+			arguments,
+			arguments,
 			ref.computeSeverity(problem),
 			ref.pkgRef.sourceStart,
 			ref.pkgRef.sourceEnd);

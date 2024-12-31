@@ -667,10 +667,10 @@ public class IncrementalTests extends BuilderTests {
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=377401
 	public void test$InTypeName() throws JavaModelException {
-		IPath projectPath1 = env.addProject("Project1", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$ //$NON-NLS-2$
+		IPath projectPath1 = env.addProject("Project1", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 		env.addExternalJars(projectPath1, Util.getJavaClassLibs());
 
-		IPath projectPath2 = env.addProject("Project2", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$ //$NON-NLS-2$
+		IPath projectPath2 = env.addProject("Project2", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 		env.addExternalJars(projectPath2, Util.getJavaClassLibs());
 
 		// remove old package fragment root so that names don't collide
@@ -1722,6 +1722,62 @@ public class IncrementalTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingSpecificProblemFor(pathToX, new Problem("E", "A Switch expression should cover all possible values", pathToX, 100, 101, CategorizedProblem.CAT_SYNTAX, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		env.removeProject(projectPath);
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3488
+	// [Sealed types] Proper sealing of hierarchy rejected in incremental builds if permitted class is generic
+	public void testIssue3488() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "19");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, "");
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		env.addClass(root, "", "Message",
+				"""
+				public sealed abstract class Message permits Request {
+				    public final String id;
+
+				    protected Message(String id) {
+				        this.id = id;
+				    }
+				}
+				""");
+
+		env.addClass(root, "", "Request",
+				"""
+				public final class Request<T> extends Message {  // Error here
+				    public final T payload;
+
+				    public Request(String id, T payload) {
+				        super(id);
+				        this.payload = payload;
+				    }
+				}
+				""");
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		env.addClass(root, "", "Request",
+				"""
+				public final class Request<T> extends Message {  // Error here
+				    public final T payload;
+
+				    public Request(String id, T payload) {
+				        super(id);
+				        this.payload = payload;
+				    }
+				}
+				""");
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+
 		env.removeProject(projectPath);
 	}
 

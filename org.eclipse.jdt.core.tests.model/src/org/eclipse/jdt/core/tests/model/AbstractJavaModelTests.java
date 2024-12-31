@@ -2543,7 +2543,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected String[] getJCLLibrary(String compliance) throws JavaModelException, IOException {
 		// ensure that the requested JCL lib is setup (i.e. that the jclMinXY.jar is copied)
 		setUpJCLClasspathVariables(compliance);
-		return new String[] {getExternalJCLPathString(compliance)};
+		String externalJCLPathString = getExternalJCLPathString(compliance);
+		if (externalJCLPathString == null) {
+			return new String[] {};
+		}
+		return new String[] {externalJCLPathString};
 	}
 	/**
 	 * Returns the specified compilation unit in the given project, root, and
@@ -2677,17 +2681,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 */
 	protected String getExternalPath() {
 		if (EXTERNAL_JAR_DIR_PATH == null) {
-			try {
-				String path = getWorkspaceRoot().getLocation().toFile().getParentFile().getCanonicalPath();
-				if (path.charAt(path.length()-1) != File.separatorChar) {
-					path += File.separatorChar;
-				}
-				EXTERNAL_JAR_DIR_PATH = path;
-				System.out.println("EXTERNAL_JAR_DIR_PATH=" + EXTERNAL_JAR_DIR_PATH);
-				System.out.println("EXTERNAL_JAR_DIR_PATH writable? " + Files.isWritable(Paths.get(EXTERNAL_JAR_DIR_PATH)));
-			} catch (IOException e) {
-				throw new IllegalStateException(e);
+			String path = getWorkspaceRoot().getLocation().toFile().getParentFile().toPath().normalize().toAbsolutePath().toString();
+			if (path.charAt(path.length()-1) != File.separatorChar) {
+				path += File.separatorChar;
 			}
+			EXTERNAL_JAR_DIR_PATH = path;
+			System.out.println("EXTERNAL_JAR_DIR_PATH=" + EXTERNAL_JAR_DIR_PATH);
+			System.out.println("EXTERNAL_JAR_DIR_PATH writable? " + Files.isWritable(Paths.get(EXTERNAL_JAR_DIR_PATH)));
 		}
 		return EXTERNAL_JAR_DIR_PATH;
 	}
@@ -2696,15 +2696,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * This path ends with a File.separatorChar.
 	 */
 	protected String getWorkspacePath() {
-		if (WORKSPACE_DIR_PATH == null)
-			try {
-				String path = getWorkspaceRoot().getLocation().toFile().getCanonicalPath();
-				if (path.charAt(path.length()-1) != File.separatorChar)
-					path += File.separatorChar;
-				WORKSPACE_DIR_PATH = path;
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+		if (WORKSPACE_DIR_PATH == null) {
+			String path = getWorkspaceRoot().getLocation().toFile().toPath().normalize().toAbsolutePath().toString();
+			if (path.charAt(path.length()-1) != File.separatorChar)
+				path += File.separatorChar;
+			WORKSPACE_DIR_PATH = path;
+		}
 		return WORKSPACE_DIR_PATH;
 	}
 	protected IFile getFile(String path) {
@@ -3418,7 +3415,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected IJavaProject setUpJavaProject(final String projectName, String compliance, boolean useFullJCL) throws CoreException, IOException {
 		// copy files in project from source workspace to target workspace
 		String sourceWorkspacePath = getSourceWorkspacePath();
-		String targetWorkspacePath = getWorkspaceRoot().getLocation().toFile().getCanonicalPath();
+		String targetWorkspacePath = getWorkspaceRoot().getLocation().toFile().toPath().normalize().toAbsolutePath().toString();
 		copyDirectory(new File(sourceWorkspacePath, projectName), new File(targetWorkspacePath, projectName));
 
 		// ensure variables are set

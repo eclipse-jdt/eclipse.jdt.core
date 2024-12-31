@@ -10430,4 +10430,64 @@ public void testGH3047() throws Exception {
 	}
 	runner.runNegativeTest();
 }
+public void testGH3451() {
+	Runner runner = new Runner();
+	String[] libs = getDefaultClassPaths();
+	int len = libs.length;
+	System.arraycopy(libs, 0, libs = new String[len+1], 0, len);
+	// contained gh3451/Abstract.class refers to missing super class gh3451.Super
+	libs[len] = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "gh3451.jar";
+	runner.classLibraries = libs;
+	runner.testFiles = new String[] {
+			"test/Bug.java",
+			"""
+			package test;
+
+			import gh3451.Abstract;
+
+			public class Bug {
+			    class Impl1 extends Abstract<@Annot String> {}
+			    class Impl2 extends Abstract.Nested<@Annot Number> {}
+
+			    Abstract<?> a1 = new Impl1();
+			    Abstract<?> a2 = new Impl2();
+			}
+			"""
+	};
+	runner.expectedCompilerLog =
+			"""
+			----------
+			1. ERROR in test\\Bug.java (at line 6)
+				class Impl1 extends Abstract<@Annot String> {}
+				      ^^^^^
+			The hierarchy of the type Impl1 is inconsistent
+			----------
+			2. ERROR in test\\Bug.java (at line 6)
+				class Impl1 extends Abstract<@Annot String> {}
+				                    ^^^^^^^^
+			The type gh3451.Super cannot be resolved. It is indirectly referenced from required type gh3451.Abstract
+			----------
+			3. ERROR in test\\Bug.java (at line 6)
+				class Impl1 extends Abstract<@Annot String> {}
+				                              ^^^^^
+			Annot cannot be resolved to a type
+			----------
+			4. ERROR in test\\Bug.java (at line 7)
+				class Impl2 extends Abstract.Nested<@Annot Number> {}
+				      ^^^^^
+			The hierarchy of the type Impl2 is inconsistent
+			----------
+			5. ERROR in test\\Bug.java (at line 7)
+				class Impl2 extends Abstract.Nested<@Annot Number> {}
+				                                     ^^^^^
+			Annot cannot be resolved to a type
+			----------
+			6. ERROR in test\\Bug.java (at line 10)
+				Abstract<?> a2 = new Impl2();
+				                 ^^^^^^^^^^^
+			Type mismatch: cannot convert from Bug.Impl2 to Abstract<?>
+			----------
+			""";
+	runner.runNegativeTest();
+}
 }

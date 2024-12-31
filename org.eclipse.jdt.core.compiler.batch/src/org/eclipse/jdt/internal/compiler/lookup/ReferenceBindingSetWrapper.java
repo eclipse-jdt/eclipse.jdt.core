@@ -27,7 +27,7 @@ final class ReferenceBindingSetWrapper {
 
 	ReferenceBindingSetWrapper(ReferenceBinding referenceBinding) {
 		this.referenceBinding = referenceBinding;
-		this.hashCode = referenceBinding.identityHashCode();
+		this.hashCode = System.identityHashCode(referenceBinding);
 	}
 
 	@Override
@@ -35,8 +35,7 @@ final class ReferenceBindingSetWrapper {
 		if (obj == this) {
 			return true;
 		}
-		if (obj instanceof ReferenceBindingSetWrapper) {
-			ReferenceBindingSetWrapper other = (ReferenceBindingSetWrapper) obj;
+		if (obj instanceof ReferenceBindingSetWrapper other) {
 			return identityEqual(this.referenceBinding, other.referenceBinding);
 		}
 		return false;

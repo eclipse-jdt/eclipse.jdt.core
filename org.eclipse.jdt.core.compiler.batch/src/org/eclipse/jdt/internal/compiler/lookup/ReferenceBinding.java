@@ -1062,6 +1062,7 @@ public ReferenceBinding actualType() {
 	return this;
 }
 
+@Override
 public int enumConstantCount() {
 	int count = 0;
 	FieldBinding[] fields = fields();
@@ -1073,10 +1074,6 @@ public int enumConstantCount() {
 
 public int fieldCount() {
 	return fields().length;
-}
-
-public FieldBinding[] fields() {
-	return Binding.NO_FIELDS;
 }
 
 public final int getAccessFlags() {
@@ -1211,10 +1208,6 @@ public int hashCode() {
 	return (this.compoundName == null || this.compoundName.length == 0)
 		? super.hashCode()
 		: CharOperation.hashCode(this.compoundName[this.compoundName.length - 1]);
-}
-
-final int identityHashCode() {
-	return super.hashCode();
 }
 
 /**

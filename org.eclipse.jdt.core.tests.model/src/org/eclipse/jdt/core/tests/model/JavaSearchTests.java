@@ -2459,7 +2459,7 @@ public void testSearchScope05() throws CoreException, IOException { // was testE
 			scope,
 			this.resultCollector);
 		assertSearchResults(
-			externalJar.getCanonicalPath()+ " p0.X",
+			externalJar.toPath().normalize().toAbsolutePath().toString()+ " p0.X",
 			this.resultCollector);
 
 	} finally {
