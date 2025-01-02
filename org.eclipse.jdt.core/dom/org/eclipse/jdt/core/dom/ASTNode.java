@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1082,6 +1082,13 @@ public abstract class ASTNode {
 	public static final int UNNAMED_CLASS = 115;
 
 	/**
+	 * Node type constant indicating a node of type
+	 * <code>NullEnumConstantDeclaration</code>.
+	 * @see NullEnumConstantDeclaration
+	 * @since 3.41
+	 */
+	public static final int NUll_ENUM_CONSTANT_DECLARATION = 116;
+	/**
 	 * Returns the node class for the corresponding node type.
 	 *
 	 * @param nodeType AST node type
@@ -1215,6 +1222,8 @@ public abstract class ASTNode {
 				return NameQualifiedType.class;
 			case NORMAL_ANNOTATION :
 				return NormalAnnotation.class;
+			case NUll_ENUM_CONSTANT_DECLARATION :
+				return NullEnumConstantDeclaration.class;
 			case NULL_LITERAL :
 				return NullLiteral.class;
 			case NULL_PATTERN :

@@ -13,20 +13,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import java.util.Hashtable;
 import java.util.List;
 import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.ImplicitTypeDeclaration;
-import org.eclipse.jdt.core.dom.ImportDeclaration;
-import org.eclipse.jdt.core.dom.Javadoc;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.*;
 
 public class ASTConverter_23Test extends ConverterTestSetup {
 
@@ -132,5 +125,34 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 		Block block =  bodyDeclaration.getBody();
 		assertEquals("Not a Block", block.getNodeType(), ASTNode.BLOCK);
 		assertEquals("Block startPosition is not correct", block.getStartPosition(), 21);
+	}
+
+	public void testBug549248_01() throws CoreException {
+	    String contents = """
+	        public enum X {
+	            JAPAN(new java.lang.String[]{"440", "441"}) {
+	            };
+
+	            public enum LoginType {
+	                public static final com.naver.linewebtoon.common.localization.X.LoginType EMAIL = null;
+	            }
+	        }
+	        """;
+
+	    ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+	    parser.setSource(contents.toCharArray());
+	    parser.setEnvironment(null, null, null, true);
+	    parser.setResolveBindings(false);
+
+	    Hashtable<String, String> options = JavaCore.getDefaultOptions();
+	    options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_23);
+	    options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_23);
+	    options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_23);
+
+	    parser.setCompilerOptions(options);
+
+	    ASTNode node = parser.createAST(null);
+
+	    assertNotNull("ASTNode creation failed. Node is null!", node);
 	}
 }
