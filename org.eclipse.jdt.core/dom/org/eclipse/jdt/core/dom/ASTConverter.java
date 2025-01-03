@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1831,6 +1831,9 @@ class ASTConverter {
 				if (anonymousType != null) {
 					AnonymousClassDeclaration anonymousClassDeclaration = new AnonymousClassDeclaration(this.ast);
 					int start = retrieveStartBlockPosition(anonymousType.sourceEnd, anonymousType.bodyEnd);
+					if(start < 0) {
+					    return createFakeEnumConstantDeclaration(enumConstant);
+					}
 					int end = retrieveRightBrace(anonymousType.bodyEnd +1, declarationSourceEnd);
 					if (end == -1) end = anonymousType.bodyEnd;
 					anonymousClassDeclaration.setSourceRange(start, end - start + 1);
@@ -4812,6 +4815,16 @@ class ASTConverter {
 		nullPattern.setFlags(nullPattern.getFlags() | ASTNode.MALFORMED);
 		nullPattern.setSourceRange(pattern.sourceStart, pattern.sourceEnd - pattern.sourceStart + 1);
 		return nullPattern;
+	}
+
+	protected EnumConstantDeclaration createFakeEnumConstantDeclaration(org.eclipse.jdt.internal.compiler.ast.FieldDeclaration enumConstant) {
+		if (enumConstant == null) return null;
+		NullEnumConstantDeclaration nullEnumConstantDeclaration = new NullEnumConstantDeclaration(this.ast);
+		nullEnumConstantDeclaration.setFlags(nullEnumConstantDeclaration.getFlags() | ASTNode.MALFORMED);
+		int start = enumConstant.sourceStart;
+		int end = enumConstant.sourceEnd;
+		nullEnumConstantDeclaration.setSourceRange(start, end - start + 1);
+		return nullEnumConstantDeclaration;
 	}
 
 	/**
