@@ -226,10 +226,10 @@ public class StringLiteral extends Expression {
 				case TerminalTokens.TokenNameStringLiteral:
 					return scanner.getCurrentStringLiteral();
 				default:
-					throw new IllegalArgumentException();
+					throw new IllegalArgumentException("tokenType: " + tokenType); //$NON-NLS-1$
 			}
 		} catch(InvalidInputException e) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(e);
 		}
 	}
 

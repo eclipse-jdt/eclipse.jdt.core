@@ -15,6 +15,11 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import junit.framework.Test;
 import org.eclipse.jdt.core.dom.*;
 
@@ -2028,6 +2033,29 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		String result = this.b.toString();
 		assertTrue(result.equals("[(eSLHHeSL)]")); //$NON-NLS-1$
 	}
+	public void testStringLiteralConcurrent() throws Exception {
+		ASTParser parser = ASTParser.newParser(AST.JLS21);
+		parser.setSource("\"hello\\nworld\"".toCharArray());
+		parser.setKind(ASTParser.K_EXPRESSION);
+		ASTNode a = parser.createAST(null);
+		StringLiteral literal = (StringLiteral) a;
+
+		ExecutorService executorService = Executors.newFixedThreadPool(10);
+		List<CompletableFuture<Void>> futures = new ArrayList<>();
+		for (int i = 0; i < 100; i++) {
+			CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+				try {
+					literal.getLiteralValue();
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}, executorService);
+			futures.add(future);
+		}
+		CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+		executorService.shutdown();
+	}
+
 	/** @deprecated using deprecated code */
 	public void testSuperConstructorInvocation() {
 		SuperConstructorInvocation x1 = this.ast.newSuperConstructorInvocation();
