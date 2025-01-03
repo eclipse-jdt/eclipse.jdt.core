@@ -2039,7 +2039,7 @@ public void testProjectImport2() throws CoreException {
 		createFile("/P1/lib.jar", "");
 		IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
-				createProject("P2");
+				createProjectInWorkspaceRunnnable("P2");
 				createFile(
 					"/P2/.classpath",
 					"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +

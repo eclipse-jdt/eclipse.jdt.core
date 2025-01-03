@@ -23,6 +23,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -2031,7 +2032,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				if (locationURI != null)
 					createExternalProject(projectName, locationURI);
 				else
-					createProject(projectName);
+					createProjectInWorkspaceRunnnable(projectName);
 
 				// set java nature
 				addJavaNature(projectName);
@@ -2377,19 +2378,17 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	/*
 	 * Create simple project.
 	 */
-	protected IProject createProject(final String projectName) throws CoreException {
+	protected void createProjectInWorkspaceRunnnable(String projectName) throws CoreException {
+		assertTrue(isWorkspaceRuleAlreadyInUse(getWorkspaceRoot()));
 		final IProject project = getProject(projectName);
-		IWorkspaceRunnable create = new IWorkspaceRunnable() {
-			public void run(IProgressMonitor monitor) throws CoreException {
-				project.create(null);
-				project.open(null);
-			}
-		};
-		if(isWorkspaceRuleAlreadyInUse(getWorkspaceRoot())) {
-			create.run(null);
-		} else {
-			getWorkspace().run(create, null);
-		}
+		project.create(null);
+		project.open(null);
+	}
+
+	protected IProject createProject(String projectName) throws CoreException {
+		assertFalse(isWorkspaceRuleAlreadyInUse(getWorkspaceRoot()));
+		final IProject project = getProject(projectName);
+		getWorkspace().run(m -> createProjectInWorkspaceRunnnable(projectName), null);
 		List<IJavaProject> javaProjects = List.of(getJavaModel().getJavaProjects());
 		boolean foundInModel = javaProjects.stream().anyMatch(p -> projectName.equals(p.getElementName()));
 		if (!foundInModel) {
@@ -3730,7 +3729,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			System.out.println("--------------------------------------------------------------------------------");
 			System.out.println("Running test "+getName()+"...");
 		}
-		logInfo("SETUP " + getName());
+		logInfo("SETUP " + getClass().getSimpleName() + "." + getName());
 	}
 
     private static void printSystemEnv() {
@@ -3948,7 +3947,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 	@Override
 	protected void tearDown() throws Exception {
-		logInfo("TEARDOWN " + getName());
+		logInfo("TDOWN " + getClass().getSimpleName() + "." + getName());
 		if (this.workingCopies != null) {
 			discardWorkingCopies(this.workingCopies);
 			this.workingCopies = null;
@@ -4128,22 +4127,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 
 	private static void logError(String errorMessage, CoreException e) {
-		Plugin plugin = JavaCore.getPlugin();
-		if (plugin != null) {
-			ILog log = plugin.getLog();
-			Status status = new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, errorMessage, e);
-			log.log(status);
-		} else {
-			System.out.println(errorMessage);
-			e.printStackTrace(System.out);
-		}
+		logInfo(errorMessage);
+		e.printStackTrace(System.out);
 	}
 
 	private static void logInfo(String message) {
-		Plugin plugin = JavaCore.getPlugin();
-		if (plugin != null) {
-			plugin.getLog().log(new Status(IStatus.INFO, JavaCore.PLUGIN_ID, message));
-		}
-		System.out.println(message);
+		System.out.println(new SimpleDateFormat("HH:mm:ss.SSS").format(new Date()) + " " + message);
 	}
 }
