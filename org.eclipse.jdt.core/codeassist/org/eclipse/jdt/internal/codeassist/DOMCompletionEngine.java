@@ -218,7 +218,7 @@ public class DOMCompletionEngine implements Runnable {
 				if (simpleName.getParent() instanceof FieldAccess || simpleName.getParent() instanceof MethodInvocation
 						|| simpleName.getParent() instanceof VariableDeclaration || simpleName.getParent() instanceof QualifiedName
 						|| simpleName.getParent() instanceof SuperFieldAccess || simpleName.getParent() instanceof SingleMemberAnnotation
-						|| simpleName.getParent() instanceof ExpressionMethodReference) {
+						|| simpleName.getParent() instanceof ExpressionMethodReference || simpleName.getParent() instanceof TagElement) {
 					if (!this.toComplete.getLocationInParent().getId().equals(QualifiedName.QUALIFIER_PROPERTY.getId())) {
 						context = this.toComplete.getParent();
 					}
@@ -229,14 +229,17 @@ public class DOMCompletionEngine implements Runnable {
 			} else if (this.toComplete instanceof TextElement textElement) {
 				if (offset >= textElement.getStartPosition() + textElement.getLength()) {
 					ASTNode parent = textElement.getParent();
-					while (parent != null && !(parent instanceof Javadoc)) {
-						parent = parent.getParent();
-					}
-					if (parent instanceof Javadoc javadoc) {
-						context = javadoc.getParent();
+					if (parent instanceof TagElement tagElement && TagElement.TAG_PARAM.equals(tagElement.getTagName())) {
+						context = tagElement;
+					} else {
+						while (parent != null && !(parent instanceof Javadoc)) {
+							parent = parent.getParent();
+						}
+						if (parent instanceof Javadoc javadoc) {
+							context = javadoc.getParent();
+						}
 					}
 				} else {
-					int charCount = this.offset - textElement.getStartPosition();
 					context = textElement.getParent();
 				}
 			} else if (this.toComplete instanceof SimpleType simpleType) {
@@ -714,9 +717,60 @@ public class DOMCompletionEngine implements Runnable {
 			}
 			if (context instanceof TagElement tagElement) {
 				completionContext.setInJavadoc(true);
-				completeJavadocBlockTags(tagElement);
-				completeJavadocInlineTags(tagElement);
-				suggestDefaultCompletions = false;
+				if (tagElement.fragments().indexOf(this.toComplete) < 0) {
+					completeJavadocBlockTags(tagElement);
+					completeJavadocInlineTags(tagElement);
+					suggestDefaultCompletions = false;
+				} else {
+					if (tagElement.getTagName() != null) {
+						Javadoc javadoc = (Javadoc)DOMCompletionUtil.findParent(tagElement, new int[] { ASTNode.JAVADOC });
+						switch (tagElement.getTagName()) {
+							case TagElement.TAG_PARAM: {
+
+								int start = tagElement.getStartPosition() + TagElement.TAG_PARAM.length() + 1;
+								int endPos = start;
+								if (this.cuBuffer != null) {
+									while (endPos < this.cuBuffer.getLength() && !Character.isWhitespace(this.cuBuffer.getChar(endPos))) {
+										endPos++;
+									}
+								}
+								String paramPrefix = this.cuBuffer.getText(start, endPos - start);
+
+								if (javadoc.getParent() instanceof MethodDeclaration methodDecl) {
+									Set<String> alreadyDocumentedParameters = findAlreadyDocumentedParameters(javadoc);
+									IMethodBinding methodBinding = methodDecl.resolveBinding();
+									Stream.of(methodBinding.getParameterNames()) //
+										.filter(name -> !alreadyDocumentedParameters.contains(name)) //
+										.filter(name -> this.pattern.matchesName(paramPrefix.toCharArray(), name.toCharArray())) //
+										.map(paramName -> toAtParamProposal(paramName, tagElement)) //
+										.forEach(this.requestor::accept);
+									Stream.of(methodBinding.getTypeParameters()) //
+										.map(typeParam -> "<" + typeParam.getName() + ">") //$NON-NLS-1$ //$NON-NLS-2$
+										.filter(name -> !alreadyDocumentedParameters.contains(name)) //
+										.filter(name -> this.pattern.matchesName(paramPrefix.toCharArray(), name.toCharArray())) //
+										.map(paramName -> toAtParamProposal(paramName, tagElement)) //
+										.forEach(this.requestor::accept);
+								} else {
+									if (javadoc.getParent() instanceof AbstractTypeDeclaration typeDecl) {
+										Set<String> alreadyDocumentedParameters = findAlreadyDocumentedParameters(javadoc);
+										ITypeBinding typeBinding = typeDecl.resolveBinding().getTypeDeclaration();
+										Stream.of(typeBinding.getTypeParameters())
+											.map(typeParam -> "<" + typeParam.getName() + ">") //$NON-NLS-1$ //$NON-NLS-2$
+											.filter(name -> !alreadyDocumentedParameters.contains(name)) //
+											.filter(name -> this.pattern.matchesName(paramPrefix.toCharArray(), name.toCharArray())) //
+											.map(name -> toAtParamProposal(name, tagElement))
+											.forEach(this.requestor::accept);
+									}
+								}
+								suggestDefaultCompletions = false;
+								break;
+							}
+						}
+					} else {
+						// the tag name is null, so this is probably a broken conversion
+						suggestDefaultCompletions = false;
+					}
+				}
 			}
 			if (context instanceof ImportDeclaration) {
 				if (context.getAST().apiLevel() >= AST.JLS23
@@ -766,6 +820,66 @@ public class DOMCompletionEngine implements Runnable {
 				this.monitor.done();
 			}
 		}
+	}
+
+	private Set<String> findAlreadyDocumentedParameters(Javadoc javadoc) {
+		Set<String> alreadyDocumentedParameters = new HashSet<>();
+		for (TagElement tagElement : (List<TagElement>)javadoc.tags()) {
+			if (TagElement.TAG_PARAM.equals(tagElement.getTagName())) {
+				List<?> fragments = tagElement.fragments();
+				if (!fragments.isEmpty()) {
+					if (fragments.get(0) instanceof TextElement textElement) {
+						if (fragments.size() >= 3 && fragments.get(1) instanceof Name) {
+							// ["<", "MyTypeVarName", ">"]
+							StringBuilder builder = new StringBuilder();
+							builder.append(fragments.get(0));
+							builder.append(fragments.get(1));
+							builder.append(fragments.get(2));
+							alreadyDocumentedParameters.add(builder.toString());
+						} else if (!textElement.getText().isEmpty()) {
+							alreadyDocumentedParameters.add(textElement.getText());
+						}
+					} else if (fragments.get(0) instanceof String str && !str.isBlank()) {
+						alreadyDocumentedParameters.add(str);
+					} else if (fragments.get(0) instanceof Name name && !name.toString().isBlank()) {
+						alreadyDocumentedParameters.add(name.toString());
+					}
+				}
+			}
+		}
+		return alreadyDocumentedParameters;
+	}
+
+	private CompletionProposal toAtParamProposal(String paramName, TagElement tagElement) {
+		InternalCompletionProposal res = createProposal(CompletionProposal.JAVADOC_PARAM_REF);
+		boolean isTypeParam = paramName.startsWith("<"); //$NON-NLS-1$
+		res.setCompletion(paramName.toCharArray());
+		if (isTypeParam) {
+			res.setName(paramName.substring(1, paramName.length() - 1).toCharArray());
+		} else {
+			res.setName(paramName.toCharArray());
+		}
+		int relevance = RelevanceConstants.R_DEFAULT
+				// FIXME: "interesting" is added twice upstream for normal parameters,
+				// (but 0 times for type parameters).
+				// This doesn't make sense to me.
+				+ (isTypeParam ? 0 : 2 * RelevanceConstants.R_INTERESTING)
+				+ RelevanceConstants.R_NON_RESTRICTED;
+		res.setRelevance(relevance);
+
+		int tagStart = tagElement.getStartPosition();
+		int realStart = tagStart + TagElement.TAG_PARAM.length() + 1;
+
+		int endPos = realStart;
+		if (this.cuBuffer != null) {
+			while (endPos < this.cuBuffer.getLength() && !Character.isWhitespace(this.cuBuffer.getChar(endPos))) {
+				endPos++;
+			}
+		}
+
+		res.setReplaceRange(realStart, endPos);
+		res.setTokenRange(realStart, endPos);
+		return res;
 	}
 
 	private void suggestTypeKeywords(boolean includeVoid) {
