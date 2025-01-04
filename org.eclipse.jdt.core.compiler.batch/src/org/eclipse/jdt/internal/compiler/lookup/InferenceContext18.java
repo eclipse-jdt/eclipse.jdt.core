@@ -708,6 +708,8 @@ public class InferenceContext18 {
 				if (!innerContext.computeB3(invocation, substF, shallowMethod))
 					return false;
 				if (innerContext.addConstraintsToC(arguments, c, innerMethod.genericMethod(), innerContext.inferenceKind, invocation)) {
+					if (innerMethod instanceof PolyParameterizedGenericMethodBinding poly && poly.hasOverloads)
+						return true; // don't propagate bounds from ambiguous inner to outer
 					this.currentBounds.addBounds(innerContext.currentBounds, this.environment);
 					return true;
 				}
