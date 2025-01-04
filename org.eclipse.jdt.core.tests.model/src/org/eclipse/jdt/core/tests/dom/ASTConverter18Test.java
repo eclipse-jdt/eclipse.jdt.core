@@ -5475,5 +5475,87 @@ public void testSVDStartPositionIssue_2() throws JavaModelException {
 	assertEquals("Single Variable Declaration length is not correct", svd.getLength(), contents.substring(contents.indexOf("/** abc*/ RuntimeException e")).indexOf(')'));
 	assertEquals("Single Variable Declaration startPosition is not correct", svd.getStartPosition(), contents.indexOf("/** abc*/ RuntimeException"));
 }
+public void testBug_3511() throws JavaModelException {
+	String contents = """
+			public class X {
+			    protected String getString(Number number) {
+			        if (number instanceof Long n) {
+			            return n.toString();
+			        }
+			        if (number instanceof Float n) {
+			            return n.toString();
+			        }
+			        if (number instanceof Double n) {
+			            return n.toString();
+			        }
+			        if (number instanceof Float n && n.isInfinite()) {
+						return "Inf"; //$NON-NLS-1$
+					}
+					if (number instanceof Double m && m.isInfinite()) {
+						return "Inf"; //$NON-NLS-1$
+					}
+			        return null;
+			    }
+			}
+			""";
+	for (int i = 0; i< 3; i ++) {
+		switch(i) {
+		case 0:
+			this.workingCopy = getWorkingCopy("/Converter_21/src/X.java", true/*resolve*/);
+			break;
+		case 1:
+			this.workingCopy = getWorkingCopy("/Converter_22/src/X.java", true/*resolve*/);
+			break;
+		case 2:
+			this.workingCopy = getWorkingCopy("/Converter_23/src/X.java", true/*resolve*/);
+			break;
+		}
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertEquals("Wrong type of statement", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+
+		BodyDeclaration bodyDeclaration = (BodyDeclaration) getASTNode(compilationUnit, 0, 0);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) bodyDeclaration;
+		Block block = methodDeclaration.getBody();
+		assertEquals("statements size", block.statements().size(), 6);
+		IfStatement ifStatement = (IfStatement) block.statements().get(0);
+		PatternInstanceofExpression expression = (PatternInstanceofExpression) ifStatement.getExpression();
+		TypePattern typePattern = (TypePattern) expression.getPattern();
+		if (isJRE21) {
+			assertEquals("SingleVariableDeclaration type", typePattern.getPatternVariable().getNodeType(), ASTNode.SINGLE_VARIABLE_DECLARATION);
+			assertEquals("pattern variable name",  typePattern.getPatternVariable().getType().toString(), "Long");
+			isJRE21 = false;
+		} else if (isJRE22) {
+			assertEquals("SingleVariableDeclaration type", typePattern.getPatternVariable2().getNodeType(), ASTNode.SINGLE_VARIABLE_DECLARATION);
+			assertEquals("pattern variable name", ((SingleVariableDeclaration) typePattern.getPatternVariable2()).getType().toString(), "Long");
+			//number instanceof Float
+			IfStatement floatIfStatement = (IfStatement) block.statements().get(3);
+			InfixExpression ie = (InfixExpression) floatIfStatement.getExpression();
+			assertEquals("InfixExpression" ,ie.getNodeType(), ASTNode.INFIX_EXPRESSION);
+			MethodInvocation mi = (MethodInvocation) ie.getRightOperand();
+			assertEquals("InfixExpression" ,mi.getNodeType(), ASTNode.METHOD_INVOCATION);
+			PatternInstanceofExpression pie = (PatternInstanceofExpression) ie.getLeftOperand();
+			assertEquals("InfixExpression" ,pie.getNodeType(), ASTNode.PATTERN_INSTANCEOF_EXPRESSION);
+			TypePattern tp = (TypePattern) pie.getPattern();
+			assertEquals("InfixExpression" ,tp.getNodeType(), ASTNode.TYPE_PATTERN);
+			isJRE22 = false;
+		} else if (isJRE23) {
+			assertEquals("SingleVariableDeclaration type", typePattern.getPatternVariable2().getNodeType(), ASTNode.SINGLE_VARIABLE_DECLARATION);
+			assertEquals("pattern variable name", ((SingleVariableDeclaration) typePattern.getPatternVariable2()).getType().toString(), "Long");
+			//number instanceof Double
+			IfStatement doubleIfStatement = (IfStatement) block.statements().get(4);
+			InfixExpression ie = (InfixExpression) doubleIfStatement.getExpression();
+			assertEquals("InfixExpression" ,ie.getNodeType(), ASTNode.INFIX_EXPRESSION);
+			MethodInvocation mi = (MethodInvocation) ie.getRightOperand();
+			assertEquals("InfixExpression" ,mi.getNodeType(), ASTNode.METHOD_INVOCATION);
+			PatternInstanceofExpression pie = (PatternInstanceofExpression) ie.getLeftOperand();
+			assertEquals("InfixExpression" ,pie.getNodeType(), ASTNode.PATTERN_INSTANCEOF_EXPRESSION);
+			TypePattern tp = (TypePattern) pie.getPattern();
+			assertEquals("InfixExpression" ,tp.getNodeType(), ASTNode.TYPE_PATTERN);
+			isJRE23 = false;
+		}
+	}
+
+}
 
 }
