@@ -2764,7 +2764,7 @@ void setSourceStart(int sourceStart);
 	int ConstructorCallNotAllowedHere = PreviewRelated + 2031;
 
 	/**
-	 * @since 3.40
+	 * @since 3.41
 	 */
 	int AllocatingLocalInStaticContext = TypeRelated + 2032;
 
