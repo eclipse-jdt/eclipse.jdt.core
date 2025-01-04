@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1179,9 +1179,9 @@ protected static class JavacTestOptions {
 					new JavacBugExtraJavacOptionsPlusMismatch(" --release 23 --enable-preview -Xlint:-preview",
 							MismatchType.JavacErrorsEclipseNone),
 			JavacBug8337980 = // https://bugs.openjdk.org/browse/JDK-8337980
-					new JavacHasABug(MismatchType.EclipseErrorsJavacNone /* add pivot JDK24 */),
+					new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ClassFileConstants.JDK24, 0000),
 			JavacBug8343306 = // https://bugs.openjdk.org/browse/JDK-8343306
-					new JavacHasABug(MismatchType.EclipseErrorsJavacNone /* add pivot JDK24 */);
+					new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ClassFileConstants.JDK24, 0000);
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
