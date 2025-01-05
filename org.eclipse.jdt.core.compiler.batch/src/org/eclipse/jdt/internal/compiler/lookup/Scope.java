@@ -125,7 +125,6 @@ public abstract class Scope {
 	public final Scope parent;
 	public final CompilationUnitScope compilationUnitScope;
 	private Map<String, Supplier<ReferenceBinding>> commonTypeBindings = null;
-	public boolean doingOverloadResolution;
 
 
 	private static class NullDefaultRange {
@@ -1770,35 +1769,29 @@ public abstract class Scope {
 		MethodBinding problemMethod = null;
 		boolean searchForDefaultAbstractMethod = soureLevel18 || (isCompliant14 && ! receiverTypeIsInterface && (receiverType.isAbstract() || receiverType.isTypeVariable()));
 		if (foundSize > 0) {
-			boolean overloadSave = this.doingOverloadResolution;
-			try {
-				this.doingOverloadResolution = foundSize > 1;
-				// argument type compatibility check
-				for (int i = 0; i < foundSize; i++) {
-					MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
-					MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
-					if (compatibleMethod != null) {
-						if (compatibleMethod.isValidBinding() || compatibleMethod.problemId() == ProblemReasons.InvocationTypeInferenceFailure) {
-							// we need to accept methods with InvocationTypeInferenceFailure, because logically overload resolution happens *before* invocation type inference
-							if (foundSize == 1 && compatibleMethod.canBeSeenBy(receiverType, invocationSite, this)) {
-								// return the single visible match now
-								if (searchForDefaultAbstractMethod)
-									return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, new MethodBinding [] {compatibleMethod});
-								unitScope.recordTypeReferences(compatibleMethod.thrownExceptions);
-								return compatibleMethod;
-							}
-							if (candidatesCount == 0)
-								candidates = new MethodBinding[foundSize];
-							candidates[candidatesCount++] = compatibleMethod;
-						} else if (compatibleMethod.problemId() == ProblemReasons.MissingTypeInSignature) {
-							return compatibleMethod; // use this method for error message to give a hint about the missing type
-						} else if (problemMethod == null) {
-							problemMethod = compatibleMethod;
+			// argument type compatibility check
+			for (int i = 0; i < foundSize; i++) {
+				MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
+				MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
+				if (compatibleMethod != null) {
+					if (compatibleMethod.isValidBinding() || compatibleMethod.problemId() == ProblemReasons.InvocationTypeInferenceFailure) {
+						// we need to accept methods with InvocationTypeInferenceFailure, because logically overload resolution happens *before* invocation type inference
+						if (foundSize == 1 && compatibleMethod.canBeSeenBy(receiverType, invocationSite, this)) {
+							// return the single visible match now
+							if (searchForDefaultAbstractMethod)
+								return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, new MethodBinding [] {compatibleMethod});
+							unitScope.recordTypeReferences(compatibleMethod.thrownExceptions);
+							return compatibleMethod;
 						}
+						if (candidatesCount == 0)
+							candidates = new MethodBinding[foundSize];
+						candidates[candidatesCount++] = compatibleMethod;
+					} else if (compatibleMethod.problemId() == ProblemReasons.MissingTypeInSignature) {
+						return compatibleMethod; // use this method for error message to give a hint about the missing type
+					} else if (problemMethod == null) {
+						problemMethod = compatibleMethod;
 					}
 				}
-			} finally {
-				this.doingOverloadResolution = overloadSave;
 			}
 		}
 

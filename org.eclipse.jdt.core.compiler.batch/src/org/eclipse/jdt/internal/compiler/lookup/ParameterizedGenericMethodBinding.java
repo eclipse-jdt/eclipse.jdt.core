@@ -330,7 +330,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 								return problemMethod;
 							}
 						} else {
-							methodSubstitute = new PolyParameterizedGenericMethodBinding(methodSubstitute, scope.doingOverloadResolution);
+							methodSubstitute = new PolyParameterizedGenericMethodBinding(methodSubstitute);
 							if (InferenceContext18.DEBUG) {
 								System.out.println("PolyParameterizedGenericMethodBinding: "+methodSubstitute); //$NON-NLS-1$
 							}

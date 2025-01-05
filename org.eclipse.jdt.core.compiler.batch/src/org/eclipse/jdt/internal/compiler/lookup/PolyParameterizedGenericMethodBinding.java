@@ -18,10 +18,9 @@ public class PolyParameterizedGenericMethodBinding extends ParameterizedGenericM
 	public boolean hasOverloads;
 
 	private final ParameterizedGenericMethodBinding wrappedBinding;
-	public PolyParameterizedGenericMethodBinding(ParameterizedGenericMethodBinding applicableMethod, boolean doingOverloadResolution) {
+	public PolyParameterizedGenericMethodBinding(ParameterizedGenericMethodBinding applicableMethod) {
 		super(applicableMethod.originalMethod, applicableMethod.typeArguments, applicableMethod.environment, applicableMethod.inferredWithUncheckedConversion, false,  applicableMethod.targetType);
 		this.wrappedBinding = applicableMethod;
-		this.hasOverloads = doingOverloadResolution;
 	}
 
 	@Override
