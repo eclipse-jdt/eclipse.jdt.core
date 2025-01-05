@@ -691,6 +691,8 @@ public class InferenceContext18 {
 			MethodBinding innerMethod = invocation.binding();
 			if (innerMethod == null)
 				return true; 		  // -> proceed with no new C set elements.
+			if (innerMethod instanceof PolyParameterizedGenericMethodBinding poly && poly.hasOverloads)
+				return true;		  // don't let ambiguous inner method influence outer inference
 
 			Expression[] arguments = invocation.arguments();
 			TypeBinding[] argumentTypes = arguments == null ? Binding.NO_PARAMETERS : new TypeBinding[arguments.length];
@@ -708,8 +710,6 @@ public class InferenceContext18 {
 				if (!innerContext.computeB3(invocation, substF, shallowMethod))
 					return false;
 				if (innerContext.addConstraintsToC(arguments, c, innerMethod.genericMethod(), innerContext.inferenceKind, invocation)) {
-					if (innerMethod instanceof PolyParameterizedGenericMethodBinding poly && poly.hasOverloads)
-						return true; // don't propagate bounds from ambiguous inner to outer
 					this.currentBounds.addBounds(innerContext.currentBounds, this.environment);
 					return true;
 				}
