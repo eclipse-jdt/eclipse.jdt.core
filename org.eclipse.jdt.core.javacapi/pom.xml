@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (c) 2023 Red Hat, Inc. and others.
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Distribution License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/org/documents/edl-v10.php
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>eclipse.jdt.core</artifactId>
+		<groupId>org.eclipse.jdt</groupId>
+		<version>4.34.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>org.eclipse.jdt.core.javacapi</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+	<packaging>eclipse-plugin</packaging>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<configuration>
+					<artifactItems>
+						<artifactItem>
+							<groupId>com.dukescript.nbjavac</groupId>
+							<artifactId>nb-javac</artifactId>
+							<version>jdk-23+35</version>
+						</artifactItem>
+						<artifactItem>
+							<groupId>com.dukescript.nbjavac</groupId>
+							<artifactId>nb-javac</artifactId>
+							<version>jdk-23+35</version>
+							<classifier>api</classifier>
+						</artifactItem>
+					</artifactItems>
+				</configuration>
+			</plugin>
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>3.8.1</version>
+					<executions>
+						<execution>
+							<?m2e execute onConfiguration onIncremental?>
+							<id>get-libs</id>
+							<goals>
+								<goal>copy</goal>
+							</goals>
+							<phase>validate</phase>
+						</execution>
+					</executions>
+					<configuration>
+						<skip>false</skip>
+						<outputDirectory>${basedir}/lib/</outputDirectory>
+						<!-- baseVersion is to avoid SNAPSHOT dependencies being copied with
+							ever daily changing timestamp -->
+					</configuration>
+				</plugin>
+				<plugin>
+					<!-- make sure lib dir is removed after clean to avoid "dirty" build -->
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>3.4.0</version>
+					<configuration>
+						<filesets>
+							<fileset>
+								<directory>${basedir}/lib</directory>
+							</fileset>
+						</filesets>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>
