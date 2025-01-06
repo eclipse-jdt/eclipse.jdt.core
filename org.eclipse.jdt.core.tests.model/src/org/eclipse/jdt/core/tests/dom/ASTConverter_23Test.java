@@ -462,6 +462,7 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 	    ITypeBinding aBinding = a.resolveBinding();
 	    assertTrue(Modifier.isSealed(aBinding.getModifiers()));
 	    assertTrue(Modifier.isPublic(aBinding.getModifiers()));
+	    assertFalse(Modifier.isNonSealed(aBinding.getModifiers()));
 	}
 
 	//public non-sealed interface
@@ -494,6 +495,7 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 	    ITypeBinding aBinding = a.resolveBinding();
 	    assertTrue(Modifier.isNonSealed(aBinding.getModifiers()));
 	    assertTrue(Modifier.isPublic(aBinding.getModifiers()));
+	    assertFalse(Modifier.isSealed(aBinding.getModifiers()));
 	}
 
 	//public strictfp interface
