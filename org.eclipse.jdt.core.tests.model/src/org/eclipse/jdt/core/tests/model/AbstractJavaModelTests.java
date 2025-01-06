@@ -2324,21 +2324,21 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		IProject sameProject = getWorkspaceRoot().getProject(projectName);
 		assertEquals("Returned project doesn't match same project from workspace: " + sameProject + " vs " + project, sameProject, project);
 
-		List<IJavaProject> javaProjects = List.of(getJavaModel().getJavaProjects());
-		boolean foundInModel = javaProjects.stream().anyMatch(p -> projectName.equals(p.getElementName()));
-		if (!foundInModel) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			waitForAutoBuild();
-			waitForManualRefresh();
-			javaProjects = List.of(getJavaModel().getJavaProjects());
-			foundInModel = javaProjects.stream().anyMatch(p -> projectName.equals(p.getElementName()));
-		}
 		boolean isNestedWorkspaceCall = isWorkspaceRuleAlreadyInUse(getWorkspaceRoot());
 		if (!isNestedWorkspaceCall) {
+			List<IJavaProject> javaProjects = List.of(getJavaModel().getJavaProjects());
+			boolean foundInModel = javaProjects.stream().anyMatch(p -> projectName.equals(p.getElementName()));
+			if (!foundInModel) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				waitForAutoBuild();
+				waitForManualRefresh();
+				javaProjects = List.of(getJavaModel().getJavaProjects());
+				foundInModel = javaProjects.stream().anyMatch(p -> projectName.equals(p.getElementName()));
+			}
 			assertTrue("Project '" + projectName + "' should be present in JavaModel, but we found only: " + javaProjects, foundInModel);
 		} else {
 			// No assert here, caller has to check it *after* the workspace task
