@@ -580,4 +580,209 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
+	public void testModifyTypePattern_a() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		String contents = """
+					public class X {
+					    protected String getString(Number number) {
+					        if (number instanceof Long n) {
+					            return n.toString();
+					        }
+					        if (number instanceof Float n) {
+					            return n.toString();
+					        }
+					        if (number instanceof Double n) {
+					            return n.toString();
+					        }
+					        if (number instanceof Float n && n.isInfinite()) {
+					            return "Inf"; //$NON-NLS-1$
+					        }
+					        if (number instanceof Double m && m.isInfinite()) {
+                            }
+					        return null;
+					    }
+					}
+				""";
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", contents, false, null);
+
+		CompilationUnit astRoot= createAST(this.apiLevel, cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		AST ast= astRoot.getAST();
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "getString");
+		Block block= methodDecl.getBody();
+		List blockStatements= block.statements();
+		assertTrue("Number of statements not 1", blockStatements.size() == 6);
+		{
+			PatternInstanceofExpression pia1 = ast.newPatternInstanceofExpression();
+			pia1.setLeftOperand(ast.newSimpleName("number"));
+
+			SingleVariableDeclaration svd1 = ast.newSingleVariableDeclaration();
+			svd1.setType(ast.newSimpleType(ast.newSimpleName("Float")));
+			svd1.setName(ast.newSimpleName("n"));
+
+			TypePattern tp1 = ast.newTypePattern();
+			if(this.apiLevel < AST.JLS22) {
+				tp1.setPatternVariable(svd1);
+			} else {
+				tp1.setPatternVariable((VariableDeclaration) svd1);
+			}
+			pia1.setPattern(tp1);
+
+
+			InfixExpression ie1 = ast.newInfixExpression();
+			ie1.setLeftOperand(pia1);
+
+			MethodInvocation mi1 = ast.newMethodInvocation();
+			mi1.setName(ast.newSimpleName("isInfinite"));
+			mi1.setExpression(ast.newSimpleName("n"));
+
+			ie1.setRightOperand(mi1);
+			ie1.setOperator(InfixExpression.Operator.CONDITIONAL_AND);
+
+			ParenthesizedExpression pe1 = ast.newParenthesizedExpression();
+			pe1.setExpression(ie1);
+
+
+
+			PatternInstanceofExpression pia2 = ast.newPatternInstanceofExpression();
+			pia2.setLeftOperand(ast.newSimpleName("number"));
+
+			SingleVariableDeclaration svd2 = ast.newSingleVariableDeclaration();
+			svd2.setType(ast.newSimpleType(ast.newSimpleName("Double")));
+			svd2.setName(ast.newSimpleName("n"));
+
+			TypePattern tp2 = ast.newTypePattern();
+			if(this.apiLevel < AST.JLS22) {
+				tp2.setPatternVariable(svd2);
+			} else {
+				tp2.setPatternVariable((VariableDeclaration) svd2);
+			}
+			pia2.setPattern(tp2);
+
+
+			InfixExpression ie2 = ast.newInfixExpression();
+			ie2.setLeftOperand(pia2);
+
+			MethodInvocation mi2 = ast.newMethodInvocation();
+			mi2.setName(ast.newSimpleName("isInfinite"));
+			mi2.setExpression(ast.newSimpleName("n"));
+
+			ie2.setRightOperand(mi2);
+			ie2.setOperator(InfixExpression.Operator.CONDITIONAL_AND);
+
+			ParenthesizedExpression pe2 = ast.newParenthesizedExpression();
+			pe2.setExpression(ie2);
+
+			InfixExpression ieMain = ast.newInfixExpression();
+			ieMain.setLeftOperand(pe1);
+			ieMain.setRightOperand(pe2);
+			ieMain.setOperator(InfixExpression.Operator.CONDITIONAL_OR);
+			IfStatement ifStatement = ast.newIfStatement();
+			ifStatement.setExpression(ieMain);
+
+
+			rewrite.remove((ASTNode) blockStatements.get(3), null);
+
+			rewrite.replace((ASTNode) blockStatements.get(4), ifStatement, null);
+		}
+
+		String modifiedString = """
+					public class X {
+					    protected String getString(Number number) {
+					        if (number instanceof Long n) {
+					            return n.toString();
+					        }
+					        if (number instanceof Float n) {
+					            return n.toString();
+					        }
+					        if (number instanceof Double n) {
+					            return n.toString();
+					        }
+					        if ((number instanceof Float n && n.isInfinite()) || (number instanceof Double n && n.isInfinite())) {
+                }
+					        return null;
+					    }
+					}
+				""";
+		String preview= evaluateRewrite(cu, rewrite);
+		assertEqualString(preview, modifiedString);
+
+	}
+
+	public void testModifyTypePattern_b() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+
+		String content = """
+					public class X {
+				        public void foo(Object x) {
+				            if (x instanceof E1.InternalStaticClass) { // comment 1
+				                System.out.println("xxx");
+				            }
+				        }
+				    }
+				""";
+
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", content, false, null);
+
+		CompilationUnit astRoot= createAST(this.apiLevel, cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		AST ast= astRoot.getAST();
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List blockStatements= block.statements();
+		assertTrue("Number of statements not 1", blockStatements.size() == 1);
+
+		{
+			IfStatement ifStatement = (IfStatement) blockStatements.get(0);
+			Expression ie = ifStatement.getExpression();
+
+			SingleVariableDeclaration svd = ast.newSingleVariableDeclaration();
+			svd.setName(ast.newSimpleName("t"));
+
+			QualifiedName qn = ast.newQualifiedName(ast.newSimpleName("E1"), ast.newSimpleName("InternalStaticClass"));
+			svd.setType(ast.newSimpleType(qn));
+
+			TypePattern tp = ast.newTypePattern();
+			if(this.apiLevel < AST.JLS22) {
+				tp.setPatternVariable(svd);
+			} else {
+				tp.setPatternVariable((VariableDeclaration)svd);
+			}
+
+			PatternInstanceofExpression pie = ast.newPatternInstanceofExpression();
+			pie.setPattern(tp);
+			pie.setLeftOperand(ast.newSimpleName("x"));
+
+			rewrite.replace(ie, pie, null);
+
+		}
+
+		String modifiedString = """
+					public class X {
+				        public void foo(Object x) {
+				            if (x instanceof E1.InternalStaticClass t) { // comment 1
+				                System.out.println("xxx");
+				            }
+				        }
+				    }
+				""";
+
+		String preview= evaluateRewrite(cu, rewrite);
+		assertEqualString(preview, modifiedString);
+	}
+
 }
