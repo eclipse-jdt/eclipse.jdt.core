@@ -206,6 +206,7 @@ public class DOMCompletionEngine implements Runnable {
 //			var completionContext = new DOMCompletionContext(this.offset, completeAfter.toCharArray(),
 //					computeEnclosingElement(), defaultCompletionBindings::stream, expectedTypes, this.toComplete);
 			var completionContext = new DOMCompletionContext(this.unit, this.modelUnit, this.cuBuffer, this.offset, this.assistOptions, defaultCompletionBindings);
+			this.nestedEngine.completionToken = completionContext.getToken();
 			this.requestor.acceptContext(completionContext);
 
 			this.expectedTypes = completionContext.expectedTypes;
@@ -430,7 +431,7 @@ public class DOMCompletionEngine implements Runnable {
 				if (context.getParent() instanceof AnnotationTypeMemberDeclaration) {
 					suggestDefaultCompletions = false;
 				}
-				if (context.getLocationInParent().getId().equals(QualifiedName.QUALIFIER_PROPERTY.getId()) && context.getParent() instanceof QualifiedName) {
+				if (context.getLocationInParent() == QualifiedName.QUALIFIER_PROPERTY && context.getParent() instanceof QualifiedName) {
 					IBinding incorrectBinding = ((SimpleName) context).resolveBinding();
 					if (incorrectBinding != null) {
 						// eg.
@@ -582,7 +583,9 @@ public class DOMCompletionEngine implements Runnable {
 								suggestDefaultCompletions = false;
 							} else {
 								// maybe it is actually a package?
-								suggestPackages();
+								if (shouldSuggestPackages(context)) {
+									suggestPackages();
+								}
 								// suggests types in the package
 								suggestTypesInPackage(qualifierPackageBinding.getName());
 								suggestDefaultCompletions = false;
@@ -784,6 +787,9 @@ public class DOMCompletionEngine implements Runnable {
 			// currently, this is always run, even when not using the default completion,
 			// because method argument guessing uses it.
 			scrapeAccessibleBindings(defaultCompletionBindings);
+			if (shouldSuggestPackages(toComplete)) {
+				suggestPackages();
+			}
 
 			if (suggestDefaultCompletions) {
 				ExtendsOrImplementsInfo extendsOrImplementsInfo = isInExtendsOrImplements(this.toComplete);
@@ -810,7 +816,9 @@ public class DOMCompletionEngine implements Runnable {
 					}
 				}
 				checkCancelled();
-				suggestPackages();
+				if (shouldSuggestPackages(toComplete)) {
+					suggestPackages();
+				}
 			}
 
 			checkCancelled();
@@ -880,6 +888,38 @@ public class DOMCompletionEngine implements Runnable {
 		res.setReplaceRange(realStart, endPos);
 		res.setTokenRange(realStart, endPos);
 		return res;
+	}
+
+	private boolean shouldSuggestPackages(ASTNode context) {
+		if (context instanceof CompilationUnit) {
+			return false;
+		}
+		if (context instanceof PackageDeclaration decl && decl.getName() != null && !Arrays.equals(decl.getName().toString().toCharArray(), RecoveryScanner.FAKE_IDENTIFIER)) {
+			// on `package` token
+			return false;
+		}
+		boolean inExtendsOrImplements = false;
+		while (context != null) {
+			if (context instanceof SimpleName) {
+				if (context.getLocationInParent() == QualifiedName.NAME_PROPERTY
+					|| (context.getLocationInParent() instanceof ChildPropertyDescriptor child && child.getChildType() == Expression.class)
+					|| (context.getLocationInParent() instanceof ChildListPropertyDescriptor childList && childList.getElementType() == Expression.class)) {
+					return true;
+				}
+			}
+			if (context instanceof QualifiedName) {
+				return true;
+			}
+			if (context instanceof Type || context instanceof Name) {
+				context = context.getParent();
+			} else if ((context.getLocationInParent() instanceof ChildPropertyDescriptor child && child.getChildType() == Type.class)
+					|| (context.getLocationInParent() instanceof ChildListPropertyDescriptor childList && childList.getElementType() == Type.class)) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+		return !inExtendsOrImplements;
 	}
 
 	private void suggestTypeKeywords(boolean includeVoid) {
@@ -1090,25 +1130,9 @@ public class DOMCompletionEngine implements Runnable {
 	}
 
 	private void suggestPackages() {
-		try {
-			if(this.requestor.isIgnored(CompletionProposal.PACKAGE_REF))
-				return;
-			if (this.prefix.isEmpty() && this.qualifiedPrefix.isEmpty()) {
-				// JDT doesn't suggest package names in this case
-				return;
-			}
-
-			Arrays.stream(this.modelUnit.getJavaProject().getPackageFragments())
-					.map(IPackageFragment::getElementName).distinct()
-					// the default package doesn't make sense as a completion item
-					.filter(name -> !name.isBlank())
-					// the qualifier must match exactly. only the last segment is (potentially) fuzzy matched.
-					// However, do not match the already completed package name!
-					.filter(name -> CharOperation.prefixEquals((this.qualifiedPrefix + ".").toCharArray(), name.toCharArray()) && name.length() > this.qualifiedPrefix.length()) //$NON-NLS-1$
-					.filter(name -> this.pattern.matchesName(this.prefix.toCharArray(), name.toCharArray()))
-					.map(pack -> toPackageProposal(pack, this.toComplete)).forEach(this.requestor::accept);
-		} catch (JavaModelException ex) {
-			ILog.get().error(ex.getMessage(), ex);
+		checkCancelled();
+		if (this.prefix.length() > 0) {
+			this.nameEnvironment.findPackages(prefix.toCharArray(), this.nestedEngine);
 		}
 	}
 
@@ -2316,28 +2340,6 @@ public class DOMCompletionEngine implements Runnable {
 		throw new IllegalArgumentException("unexpected binding type: " + binding.getClass()); //$NON-NLS-1$
 	}
 
-	private CompletionProposal toPackageProposal(String packageName, ASTNode completing) {
-
-		InternalCompletionProposal res = new InternalCompletionProposal(CompletionProposal.PACKAGE_REF, this.offset);
-		res.setName(packageName.toCharArray());
-		res.setCompletion(packageName.toCharArray());
-		res.setDeclarationSignature(packageName.toCharArray());
-		res.setSignature(packageName.toCharArray());
-		QualifiedName qualifiedName = (QualifiedName)DOMCompletionUtil.findParent(completing, new int[] {ASTNode.QUALIFIED_NAME});
-		int relevance = RelevanceConstants.R_DEFAULT
-				+ RelevanceConstants.R_RESOLVED
-				+ RelevanceConstants.R_INTERESTING
-				+ computeRelevanceForCaseMatching(this.prefix.toCharArray(), packageName.toCharArray(), this.assistOptions)
-				+ (qualifiedName != null ? RelevanceConstants.R_QUALIFIED : RelevanceConstants.R_QUALIFIED)
-				+ RelevanceConstants.R_NON_RESTRICTED;
-		res.setRelevance(relevance);
-		configureProposal(res, completing);
-		if (qualifiedName != null) {
-			res.setReplaceRange(qualifiedName.getStartPosition(), this.offset);
-		}
-		return res;
-	}
-
 	private CompletionProposal toAnnotationAttributeRefProposal(IMethodBinding method) {
 		CompletionProposal proposal = createProposal(CompletionProposal.ANNOTATION_ATTRIBUTE_REF);
 		proposal.setDeclarationSignature(DOMCompletionEngineBuilder.getSignature(method.getDeclaringClass()));
@@ -2403,12 +2405,6 @@ public class DOMCompletionEngine implements Runnable {
 		res.setReplaceRange(replaceNode.getStartPosition(), replaceNode.getStartPosition() + replaceNode.getLength());
 		res.setRelevance(RelevanceConstants.R_DEFAULT + RelevanceConstants.R_INTERESTING + RelevanceConstants.R_NON_RESTRICTED);
 		return res;
-	}
-
-	private void configureProposal(InternalCompletionProposal proposal, ASTNode completing) {
-		proposal.setReplaceRange(completing.getStartPosition(), this.offset);
-		proposal.completionEngine = this.nestedEngine;
-		proposal.nameLookup = this.nameEnvironment.nameLookup;
 	}
 
 	private int computeRelevanceForExpectingType(ITypeBinding proposalType){
