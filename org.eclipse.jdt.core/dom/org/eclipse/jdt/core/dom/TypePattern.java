@@ -96,9 +96,9 @@ public class TypePattern extends Pattern {
 		supportedOnlyIn21();
 		if (ast.apiLevel >= AST.JLS22_INTERNAL) {
 			if(flag) {
-				this.patternVariable2 = new SingleVariableDeclaration(ast);
+				this.patternVariable = new SingleVariableDeclaration(ast);
 			} else {
-				this.patternVariable2 = new VariableDeclarationFragment(ast);
+				this.patternVariable = new VariableDeclarationFragment(ast);
 			}
 		} else {
 			this.patternVariable = new SingleVariableDeclaration(ast);
@@ -109,14 +109,7 @@ public class TypePattern extends Pattern {
 	/**
 	 * The pattern Variable list; <code>empty</code> for none;
 	 */
-	private volatile SingleVariableDeclaration patternVariable;
-
-
-	/**
-	 * The extended pattern variable
-	 * Null in less than JLS22. Added in JLS22; defaults null
-	 */
-	private volatile VariableDeclaration patternVariable2 = null;
+	private volatile VariableDeclaration patternVariable;
 
 	/**
 	 * Returns a list of structural property descriptors for this node type.
@@ -187,51 +180,42 @@ public class TypePattern extends Pattern {
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used other than JLS19
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
-	 * @Deprecated(forRemoval = true, since="2024-07")
-	 * In the JLS22 API, this method is replaced by  <code>setPatternVariable(VariableDeclaration patternVariable)</code>
 	 * @since 3.38
 	 */
 	public void setPatternVariable(SingleVariableDeclaration patternVariable) {
-		internalSetPatternVariable(patternVariable);
-	}
-
-	/**
-	 * Internal synonym for deprecated method. Used to avoid deprecation warnings.
-	 */
-	final void internalSetPatternVariable(SingleVariableDeclaration patternVariable1) {
 		supportedOnlyIn20();
-		if (patternVariable1 == null) {
+		if (patternVariable == null) {
 			throw new IllegalArgumentException();
 		}
 		ASTNode oldChild = this.patternVariable;
-		preReplaceChild(oldChild, patternVariable1, PATTERN_VARIABLE_PROPERTY);
-		this.patternVariable = patternVariable1;
-		postReplaceChild(oldChild, patternVariable1, PATTERN_VARIABLE_PROPERTY);
+		preReplaceChild(oldChild, patternVariable, PATTERN_VARIABLE_PROPERTY);
+		this.patternVariable = patternVariable;
+		postReplaceChild(oldChild, patternVariable, PATTERN_VARIABLE_PROPERTY);
 	}
 
 	/**
-	 * Sets the pattern variable. Supports JLS22 and higher versions
+	 * Sets the pattern variable.
 	 *
-	 * @param patternVariable2 the right operand node
+	 * @param patternVariable the right operand node
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>
 	 * <li>a cycle in would be created</li>
 	 * </ul>
-	 * @exception UnsupportedOperationException if this operation is used other than JLS22
+	 * @exception UnsupportedOperationException if this operation is used other than JLS19
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
 	 * @since 3.39
 	 */
-	public void setPatternVariable(VariableDeclaration patternVariable2) {
+	public void setPatternVariable(VariableDeclaration patternVariable) {
 		supportedOnlyIn20();
-		if (patternVariable2 == null) {
+		if (patternVariable == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTNode oldChild = this.patternVariable2;
-		preReplaceChild(oldChild, patternVariable2, PATTERN_VARIABLE_PROPERTY2);
-		this.patternVariable2 = patternVariable2;
-		postReplaceChild(oldChild, patternVariable2, PATTERN_VARIABLE_PROPERTY2);
+		ASTNode oldChild = this.patternVariable;
+		preReplaceChild(oldChild, patternVariable, PATTERN_VARIABLE_PROPERTY2);
+		this.patternVariable = patternVariable;
+		postReplaceChild(oldChild, patternVariable, PATTERN_VARIABLE_PROPERTY2);
 	}
 
 	/**
@@ -240,7 +224,6 @@ public class TypePattern extends Pattern {
 	 * @return the pattern variable
 	 * @exception UnsupportedOperationException if this operation is used other than JLS19
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
-	 * In the JLS22 API, this method is replaced by  <code>getPatternVariable2()</code>
 	 * @since 3.38
 	 */
 	public SingleVariableDeclaration getPatternVariable() {
@@ -256,31 +239,32 @@ public class TypePattern extends Pattern {
 				}
 			}
 		}
-		return this.patternVariable;
+		return (SingleVariableDeclaration) this.patternVariable;
+
 	}
 
 	/**
 	 * Returns the pattern variable of Types Pattern.
 	 *
 	 * @return the pattern variable
-	 * @exception UnsupportedOperationException if this operation is used other than JLS22
+	 * @exception UnsupportedOperationException if this operation is used other than JLS19
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
 	 * @since 3.39
 	 */
 	public VariableDeclaration getPatternVariable2() {
-		supportedOnlyIn22();
-		if (this.patternVariable2  == null) {
+		supportedOnlyIn20();
+		if (this.patternVariable  == null) {
 			// lazy init must be thread-safe for readers
 			synchronized (this) {
-				if (this.patternVariable2 == null) {
+				if (this.patternVariable == null) {
 					preLazyInit();
 
-					this.patternVariable2 = postLazyInit(new SingleVariableDeclaration(this.ast),
+					this.patternVariable = postLazyInit(new SingleVariableDeclaration(this.ast),
 							PATTERN_VARIABLE_PROPERTY2);
 				}
 			}
 		}
-		return this.patternVariable2;
+		return this.patternVariable;
 	}
 
 	@Override
@@ -292,11 +276,7 @@ public class TypePattern extends Pattern {
 	ASTNode clone0(AST target) {
 		TypePattern result = new TypePattern(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		if (this.ast.apiLevel < AST.JLS22_INTERNAL) {
-			result.setPatternVariable((SingleVariableDeclaration) getPatternVariable().clone(target));
-		} else {
-			result.setPatternVariable((VariableDeclaration) getPatternVariable2().clone(target));
-		}
+		result.setPatternVariable((VariableDeclaration) getPatternVariable().clone(target));
 		return result;
 	}
 
@@ -312,6 +292,7 @@ public class TypePattern extends Pattern {
 			}
 		}
 		visitor.endVisit(this);
+
 	}
 
 	@Override
@@ -323,7 +304,7 @@ public class TypePattern extends Pattern {
 	int treeSize() {
 		return
 				memSize()
-				+ (this.patternVariable2 == null ? getPatternVariable().treeSize() : getPatternVariable2().treeSize());
+				+ (this.patternVariable == null ? 0 : ((this.ast.apiLevel < AST.JLS22_INTERNAL) ? getPatternVariable().treeSize() : getPatternVariable2().treeSize()));
 	}
 
 
