@@ -12,10 +12,13 @@ package org.eclipse.jdt.internal.codeassist;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
 
@@ -98,6 +101,11 @@ class DOMCompletionEngineJavadocUtil {
 		}
 	}
 
+	private static final Set<char[]> FIELD_TAGS_SET = Stream.of(JavadocTagConstants.FIELD_TAGS).collect(Collectors.toSet());
+	private static final Set<char[]> CLASS_TAGS_SET = Stream.of(JavadocTagConstants.CLASS_TAGS).collect(Collectors.toSet());
+	private static final Set<char[]> METHOD_TAGS_SET = Stream.of(JavadocTagConstants.METHOD_TAGS).collect(Collectors.toSet());
+	private static final Set<char[]> PACKAGE_TAGS_SET = Stream.of(JavadocTagConstants.PACKAGE_TAGS).collect(Collectors.toSet());
+
 	public static List<char[]> getJavadocBlockTags(IJavaProject project, TagElement tagNode) {
 		List<char[]> tagsForVersion;
 		String projectVersion = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
@@ -137,8 +145,8 @@ class DOMCompletionEngineJavadocUtil {
 	private static List<char[]> tagsForNode(List<char[]> tagsForVersion, TagElement tagNode) {
 		boolean isField = DOMCompletionUtil.findParent(tagNode, new int[]{ ASTNode.FIELD_DECLARATION }) != null;
 		if (isField) {
-			return Stream.of(JavadocTagConstants.FIELD_TAGS) //
-					.filter(tag -> tagsForVersion.contains(tag)) //
+			return tagsForVersion.stream() //
+					.filter(tag -> FIELD_TAGS_SET.contains(tag)) //
 					.toList();
 		}
 
@@ -152,22 +160,29 @@ class DOMCompletionEngineJavadocUtil {
 
 		boolean isMethod = astNode != null && astNode.getNodeType() == ASTNode.METHOD_DECLARATION;
 		if (isMethod) {
-			return Stream.of(JavadocTagConstants.METHOD_TAGS) //
-					.filter(tag -> tagsForVersion.contains(tag)) //
+			return tagsForVersion.stream() //
+					.filter(tag -> METHOD_TAGS_SET.contains(tag)) //
 					.toList();
 		}
 
 		boolean isType = astNode != null;
 		if (isType) {
-			return Stream.of(JavadocTagConstants.CLASS_TAGS) //
-					.filter(tag -> tagsForVersion.contains(tag)) //
+
+			return tagsForVersion.stream() //
+					.filter(tag -> CLASS_TAGS_SET.contains(tag)) //
+					.filter(tag -> {
+						if (JavadocTagConstants.TAG_PARAM.equals(tag)) {
+							return ((AbstractTypeDeclaration)astNode).resolveBinding().isGenericType();
+						}
+						return true;
+					})
 					.toList();
 		}
 
 		boolean isPackage = DOMCompletionUtil.findParent(tagNode, new int[] {ASTNode.PACKAGE_DECLARATION}) != null;
 		if (isPackage) {
-			return Stream.of(JavadocTagConstants.PACKAGE_TAGS) //
-					.filter(tag -> tagsForVersion.contains(tag)) //
+			return tagsForVersion.stream() //
+					.filter(tag -> PACKAGE_TAGS_SET.contains(tag)) //
 					.toList();
 		}
 

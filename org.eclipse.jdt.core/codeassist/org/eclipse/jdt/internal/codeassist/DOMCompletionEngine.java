@@ -216,8 +216,10 @@ public class DOMCompletionEngine implements Runnable {
 			String completeAfter = token == null ? new String() : new String(token);
 			ASTNode context = completionContext.node;
 			this.toComplete = completionContext.node;
-			if (completionContext.node instanceof SimpleName simpleName) {
-				int charCount = this.offset - simpleName.getStartPosition();
+			ASTNode potentialTagElement = DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.TAG_ELEMENT, ASTNode.MEMBER_REF, ASTNode.METHOD_REF });
+			if (potentialTagElement != null) {
+				context = potentialTagElement;
+			} else if (completionContext.node instanceof SimpleName simpleName) {
 				if (simpleName.getParent() instanceof FieldAccess || simpleName.getParent() instanceof MethodInvocation
 						|| simpleName.getParent() instanceof VariableDeclaration || simpleName.getParent() instanceof QualifiedName
 						|| simpleName.getParent() instanceof SuperFieldAccess || simpleName.getParent() instanceof SingleMemberAnnotation
@@ -228,22 +230,6 @@ public class DOMCompletionEngine implements Runnable {
 				}
 				if (simpleName.getParent() instanceof SimpleType simpleType && (simpleType.getParent() instanceof ClassInstanceCreation)) {
 					context = simpleName.getParent().getParent();
-				}
-			} else if (this.toComplete instanceof TextElement textElement) {
-				if (offset >= textElement.getStartPosition() + textElement.getLength()) {
-					ASTNode parent = textElement.getParent();
-					if (parent instanceof TagElement tagElement && TagElement.TAG_PARAM.equals(tagElement.getTagName())) {
-						context = tagElement;
-					} else {
-						while (parent != null && !(parent instanceof Javadoc)) {
-							parent = parent.getParent();
-						}
-						if (parent instanceof Javadoc javadoc) {
-							context = javadoc.getParent();
-						}
-					}
-				} else {
-					context = textElement.getParent();
 				}
 			} else if (this.toComplete instanceof SimpleType simpleType) {
 				if (FAKE_IDENTIFIER.equals(simpleType.getName().toString())) {
@@ -257,6 +243,8 @@ public class DOMCompletionEngine implements Runnable {
 				context = stringLiteral.getParent();
 			} else if (this.toComplete instanceof VariableDeclaration vd) {
 				context = vd.getInitializer();
+			} else if (this.toComplete instanceof QualifiedName && this.toComplete.getParent() instanceof TagElement tagElement) {
+				context = tagElement;
 			}
 			this.prefix = token == null ? new String() : new String(token);
 			this.qualifiedPrefix = this.prefix;
@@ -266,6 +254,14 @@ public class DOMCompletionEngine implements Runnable {
 				this.qualifiedPrefix = qualifiedName.getQualifier().toString();
 			} else if (this.toComplete instanceof SimpleType simpleType && simpleType.getName() instanceof QualifiedName qualifiedName) {
 				this.qualifiedPrefix = qualifiedName.getQualifier().toString();
+			} else if (this.toComplete instanceof TextElement textElement && context instanceof TagElement) {
+				String packageName = textElement.getText().trim();
+				if (!packageName.isEmpty()) {
+					if (packageName.charAt(packageName.length() - 1) == '.') {
+						packageName = packageName.substring(0, packageName.length() - 1);
+					}
+					this.qualifiedPrefix = packageName;
+				}
 			}
 			// some flags to controls different applicable completion search strategies
 			boolean suggestDefaultCompletions = true;
@@ -725,7 +721,19 @@ public class DOMCompletionEngine implements Runnable {
 			}
 			if (context instanceof TagElement tagElement) {
 				completionContext.setInJavadoc(true);
-				if (tagElement.fragments().indexOf(this.toComplete) < 0) {
+
+				boolean isTagName = true;
+				ASTNode cursor = this.toComplete;
+				while (cursor != null && cursor != tagElement) {
+					int index = tagElement.fragments().indexOf(cursor);
+					if (index >= 0) {
+						isTagName = false;
+						break;
+					}
+					cursor = cursor.getParent();
+				}
+
+				if (isTagName || (tagElement.getTagName() != null && tagElement.getTagName().length() == 1) || (tagElement.getTagName() != null && this.offset == (tagElement.getStartPosition() + tagElement.getTagName().length()))) {
 					completeJavadocBlockTags(tagElement);
 					completeJavadocInlineTags(tagElement);
 					suggestDefaultCompletions = false;
@@ -773,6 +781,48 @@ public class DOMCompletionEngine implements Runnable {
 								suggestDefaultCompletions = false;
 								break;
 							}
+							case TagElement.TAG_LINK:
+							case TagElement.TAG_SEE: {
+
+								int endPos = this.offset, startPos = endPos;
+								if (this.cuBuffer != null) {
+									while (startPos > 0 && !Character.isWhitespace(this.cuBuffer.getChar(startPos - 1))) {
+										startPos--;
+									}
+								}
+
+								String paramPrefix = this.cuBuffer.getText(startPos, endPos - startPos);
+								if (paramPrefix.indexOf('/') >= 0) {
+									// TODO: only complete types that are in the specified module
+									suggestDefaultCompletions = false;
+								} else {
+									// local types are suggested first
+									String currentPackage = ""; //$NON-NLS-1$
+									CompilationUnit cuNode = (CompilationUnit) DOMCompletionUtil.findParent(tagElement, new int[] { ASTNode.COMPILATION_UNIT });
+									if (cuNode.getPackage() != null) {
+										currentPackage = cuNode.getPackage().getName().toString();
+									}
+									final String finalizedCurrentPackage = currentPackage;
+
+									Bindings localTypeBindings = new Bindings();
+									scrapeAccessibleBindings(localTypeBindings);
+									localTypeBindings.all() //
+										.filter(binding -> binding instanceof ITypeBinding) //
+										.filter(type -> (this.qualifiedPrefix.equals(this.prefix) || this.qualifiedPrefix.equals(finalizedCurrentPackage)) && this.pattern.matchesName(this.prefix.toCharArray(), type.getName().toCharArray()))
+										.map(this::toProposal).forEach(this.requestor::accept);
+
+									findTypes(completeAfter, IJavaSearchConstants.TYPE, completeAfter.equals(this.qualifiedPrefix) ? null : this.qualifiedPrefix)
+										.filter(type -> {
+											return localTypeBindings.all().map(typeBinding -> typeBinding.getJavaElement()).noneMatch(elt -> type.equals(elt));
+										})
+										.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(), type.getElementName().toCharArray()))
+										.map(this::toProposal).forEach(this.requestor::accept);
+
+									suggestDefaultCompletions = false;
+								}
+
+								break;
+							}
 						}
 					} else {
 						// the tag name is null, so this is probably a broken conversion
@@ -793,6 +843,15 @@ public class DOMCompletionEngine implements Runnable {
 				this.offset <= ((Collection<ASTNode>)unit.imports()).stream().mapToInt(ASTNode::getStartPosition).filter(n -> n >= 0).min().orElse(Integer.MAX_VALUE) &&
 				this.offset <= ((Collection<ASTNode>)unit.types()).stream().mapToInt(ASTNode::getStartPosition).filter(n -> n >= 0).min().orElse(Integer.MAX_VALUE)) {
 				this.requestor.accept(createKeywordProposal(Keywords.PACKAGE, completionContext.getTokenStart(), completionContext.getTokenEnd()));
+			}
+			if (context instanceof MethodRef) {
+				// TODO: needs a lot of work
+				suggestTypeKeywords(true);
+				suggestDefaultCompletions = false;
+			}
+			if (context instanceof MemberRef) {
+				// TODO: needs a lot of work
+				suggestDefaultCompletions = false;
 			}
 
 			// check for accessible bindings to potentially turn into completions.
