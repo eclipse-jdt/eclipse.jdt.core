@@ -15,6 +15,11 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import junit.framework.Test;
 import org.eclipse.jdt.core.dom.*;
 
@@ -1370,6 +1375,25 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		String result = this.b.toString();
 		assertTrue(result.equals("[(eCL'q''q'eCL)]")); //$NON-NLS-1$
 	}
+	public void testCharacterLiteralConcurrent() throws Exception {
+		CharacterLiteral x1 = this.ast.newCharacterLiteral();
+		x1.setCharValue('q');
+
+		ExecutorService executorService = Executors.newFixedThreadPool(10);
+		List<CompletableFuture<Void>> futures = new ArrayList<>();
+		for (int i = 0; i < 100; i++) {
+			CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+				try {
+					x1.charValue();
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}, executorService);
+			futures.add(future);
+		}
+		CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+		executorService.shutdown();
+	}
 	/** @deprecated using deprecated code */
 	public void testClassInstanceCreation() {
 		ClassInstanceCreation x1 = this.ast.newClassInstanceCreation();
@@ -2028,6 +2052,26 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		String result = this.b.toString();
 		assertTrue(result.equals("[(eSLHHeSL)]")); //$NON-NLS-1$
 	}
+	public void testStringLiteralConcurrent() throws Exception {
+		StringLiteral x1 = this.ast.newStringLiteral();
+		x1.setEscapedValue("\"hello\\nworld\""); //$NON-NLS-1$
+
+		ExecutorService executorService = Executors.newFixedThreadPool(10);
+		List<CompletableFuture<Void>> futures = new ArrayList<>();
+		for (int i = 0; i < 100; i++) {
+			CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+				try {
+					x1.getLiteralValue();
+				} catch (Exception e) {
+					throw new RuntimeException(e);
+				}
+			}, executorService);
+			futures.add(future);
+		}
+		CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+		executorService.shutdown();
+	}
+
 	/** @deprecated using deprecated code */
 	public void testSuperConstructorInvocation() {
 		SuperConstructorInvocation x1 = this.ast.newSuperConstructorInvocation();
