@@ -1530,9 +1530,9 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 			.map(Path::toFile)
 			.forEach(File::delete);
 
-		assertTrue("Delete failed", Files.deleteIfExists(sourceFile1));
-		assertTrue("Delete failed", Files.deleteIfExists(sourceFile2));
 		assertTrue("Delete failed", Files.deleteIfExists(tempPath.resolve("Foo.class")));
+		assertFalse("Delete failed", Files.exists(sourceFile1));
+		assertTrue("Delete failed", Files.deleteIfExists(sourceFile2));
 	}
 
 	/**
