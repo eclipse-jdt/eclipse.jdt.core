@@ -187,10 +187,10 @@ public class TypePattern extends Pattern {
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used other than JLS19
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
-	 * @deprecated In the JLS22 API, this method is replaced by {@link #setPatternVariable(VariableDeclaration patternVariable)}
+	 * @Deprecated(forRemoval = true, since="2024-07")
+	 * In the JLS22 API, this method is replaced by  <code>setPatternVariable(VariableDeclaration patternVariable)</code>
 	 * @since 3.38
 	 */
-	@Deprecated(forRemoval = true, since="2025-03")
 	public void setPatternVariable(SingleVariableDeclaration patternVariable) {
 		internalSetPatternVariable(patternVariable);
 	}
