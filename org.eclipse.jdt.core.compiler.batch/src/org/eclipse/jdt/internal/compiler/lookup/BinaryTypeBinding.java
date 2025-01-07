@@ -434,7 +434,17 @@ public MethodBinding[] availableMethods() {
 	return availableMethods;
 }
 
-void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
+final void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
+	try {
+		cachePartsFrom2(binaryType, needFieldsAndMethods);
+	} catch (AbortCompilation e) {
+		throw e;
+	} catch (RuntimeException e) {
+		throw new RuntimeException("RuntimeException loading " + new String(binaryType.getFileName()), e); //$NON-NLS-1$
+	}
+}
+
+private void cachePartsFrom2(IBinaryType binaryType, boolean needFieldsAndMethods) {
 	if (!isPrototype()) throw new IllegalStateException();
 	ReferenceBinding previousRequester = this.environment.requestingType;
 	this.environment.requestingType = this;
