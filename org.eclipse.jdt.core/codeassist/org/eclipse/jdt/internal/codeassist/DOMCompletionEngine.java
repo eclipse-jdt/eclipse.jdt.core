@@ -782,6 +782,13 @@ public class DOMCompletionEngine implements Runnable {
 					suggestDefaultCompletions = false;
 				}
 			}
+			if (context instanceof CompilationUnit unit &&
+				CharOperation.prefixEquals(completionContext.getToken(), Keywords.PACKAGE) &&
+				unit.getPackage() == null &&
+				this.offset <= ((Collection<ASTNode>)unit.imports()).stream().mapToInt(ASTNode::getStartPosition).filter(n -> n >= 0).min().orElse(Integer.MAX_VALUE) &&
+				this.offset <= ((Collection<ASTNode>)unit.types()).stream().mapToInt(ASTNode::getStartPosition).filter(n -> n >= 0).min().orElse(Integer.MAX_VALUE)) {
+				this.requestor.accept(createKeywordProposal(Keywords.PACKAGE, completionContext.getTokenStart(), completionContext.getTokenEnd()));
+			}
 
 			// check for accessible bindings to potentially turn into completions.
 			// currently, this is always run, even when not using the default completion,

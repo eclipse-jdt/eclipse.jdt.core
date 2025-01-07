@@ -296,7 +296,7 @@ class DOMCompletionContext extends CompletionContext {
 			return this.node.getStartPosition() + this.node.getLength() - 1;
 		}
 		int position = this.offset;
-		while (position <= this.cuBuffer.getLength() && Character.isJavaIdentifierPart(this.cuBuffer.getChar(position))) {
+		while (position < this.cuBuffer.getLength() && Character.isJavaIdentifierPart(this.cuBuffer.getChar(position))) {
 			position++;
 		}
 		return position - 1;
