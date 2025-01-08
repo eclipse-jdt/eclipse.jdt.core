@@ -1486,6 +1486,9 @@ public class DOMCompletionEngine implements Runnable {
 		}
 
 		Predicate<IBinding> accessFilter = binding -> {
+			if (binding == null) {
+				return false;
+			}
 			boolean field = binding instanceof IVariableBinding;
 			if (field) {
 				if (impossibleFields.contains(binding.getName())) {

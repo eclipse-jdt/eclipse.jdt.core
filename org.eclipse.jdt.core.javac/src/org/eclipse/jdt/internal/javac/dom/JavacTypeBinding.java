@@ -92,6 +92,7 @@ import com.sun.tools.javac.code.Type.TypeVar;
 import com.sun.tools.javac.code.Type.WildcardType;
 import com.sun.tools.javac.code.Types.FunctionDescriptorLookupError;
 import com.sun.tools.javac.util.Name;
+import com.sun.tools.javac.util.Names;
 
 public abstract class JavacTypeBinding implements ITypeBinding {
 
@@ -100,6 +101,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	final JavacBindingResolver resolver;
 	public final TypeSymbol typeSymbol;
 	private final Types types;
+	private final Names names;
 	public final Type type;
 	private final boolean isGeneric; // only relevent for parameterized types
 	private boolean recovered = false;
@@ -115,6 +117,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		this.type = this.isGeneric || type == null ? this.typeSymbol.type /*generic*/ : type /*specific instance*/;
 		this.resolver = resolver;
 		this.types = Types.instance(this.resolver.context);
+		this.names = Names.instance(this.resolver.context);
 		// TODO: consider getting rid of typeSymbol in constructor and always derive it from type
 	}
 
@@ -552,6 +555,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		return StreamSupport.stream(this.typeSymbol.members().getSymbols().spliterator(), false)
 			.filter(VarSymbol.class::isInstance)
 			.map(VarSymbol.class::cast)
+			.filter(sym -> sym.name != this.names.error)
 			.map(this.resolver.bindings::getVariableBinding)
 			.toArray(IVariableBinding[]::new);
 	}

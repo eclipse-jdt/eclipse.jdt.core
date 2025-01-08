@@ -97,6 +97,7 @@ import com.sun.tools.javac.tree.JCTree.JCTypeParameter;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.tree.JCTree.JCWildcard;
 import com.sun.tools.javac.util.Context;
+import com.sun.tools.javac.util.Names;
 
 /**
  * Deals with creation of binding model, using the <code>Symbol</code>s from Javac.
@@ -1221,7 +1222,9 @@ public class JavacBindingResolver extends BindingResolver {
 		if (this.converter.domToJavac.get(variable) instanceof JCVariableDecl decl) {
 			// the decl.type can be null when there are syntax errors
 			if ((decl.type != null && !decl.type.isErroneous()) || this.isRecoveringBindings()) {
-				return this.bindings.getVariableBinding(decl.sym);
+				if (decl.name != Names.instance(this.context).error) { // cannot recover if name is error
+					return this.bindings.getVariableBinding(decl.sym);
+				}
 			}
 		}
 		return null;
