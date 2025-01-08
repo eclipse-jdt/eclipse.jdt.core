@@ -531,17 +531,20 @@ public class DOMCompletionEngine implements Runnable {
 							endPos = startPos + qualifiedName.getName().getLength();
 						}
 						if (!(this.toComplete instanceof Type)) {
-							ITypeBinding currentTypeBinding = DOMCompletionUtil.findParentTypeDeclaration(context).resolveBinding();
-							if (currentTypeBinding.isSubTypeCompatible(qualifierTypeBinding)) {
-								if (!isFailedMatch(this.prefix.toCharArray(), Keywords.THIS)) {
-									this.requestor.accept(createKeywordProposal(Keywords.THIS, startPos, endPos));
+							AbstractTypeDeclaration parentTypeDeclaration = DOMCompletionUtil.findParentTypeDeclaration(context);
+							if (parentTypeDeclaration != null) {
+								ITypeBinding currentTypeBinding = parentTypeDeclaration.resolveBinding();
+								if (currentTypeBinding.isSubTypeCompatible(qualifierTypeBinding)) {
+									if (!isFailedMatch(this.prefix.toCharArray(), Keywords.THIS)) {
+										this.requestor.accept(createKeywordProposal(Keywords.THIS, startPos, endPos));
+									}
+									if (!isFailedMatch(this.prefix.toCharArray(), Keywords.SUPER)) {
+										this.requestor.accept(createKeywordProposal(Keywords.SUPER, startPos, endPos));
+									}
 								}
-								if (!isFailedMatch(this.prefix.toCharArray(), Keywords.SUPER)) {
-									this.requestor.accept(createKeywordProposal(Keywords.SUPER, startPos, endPos));
+								if (!isFailedMatch(this.prefix.toCharArray(), Keywords.CLASS)) {
+									this.requestor.accept(createClassKeywordProposal(qualifierTypeBinding, startPos, endPos));
 								}
-							}
-							if (!isFailedMatch(this.prefix.toCharArray(), Keywords.CLASS)) {
-								this.requestor.accept(createClassKeywordProposal(qualifierTypeBinding, startPos, endPos));
 							}
 						}
 
