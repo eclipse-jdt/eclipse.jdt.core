@@ -1635,7 +1635,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		methodLength = compilUnit.getExtendedLength(method);
 		assumeEquals("Method declaration "+method+" does not end at the right position",method.getLength(), methodLength);
 	}
-	/** @deprecated using deprecated code */
 	public void testBug55221d() throws JavaModelException {
 		this.sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug55221.d", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(this.sourceUnit, false);
@@ -1653,7 +1652,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		int methodLength = compilUnit.getExtendedLength(method);
 		assumeEquals("Method "+method+" does not have the right length", methodLength, method.getLength());
 		// get return type
-		node = method.getReturnType();
+		node = method.getReturnType2();
 		assumeNotNull("We should get a non-null ast node", node);
 		assumeTrue("Not return type", node.getNodeType() == ASTNode.PRIMITIVE_TYPE); //$NON-NLS-1$
 		PrimitiveType returnType = (PrimitiveType) node;
@@ -1702,7 +1701,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			idx++;
 		}
 	}
-	/** @deprecated using deprecated code */
 	public void testBug55223b() throws JavaModelException {
 		this.sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.testBug55223", "TestB.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(this.sourceUnit, false);
@@ -1718,7 +1716,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		assumeEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType()); //$NON-NLS-1$
 		MethodDeclaration method = (MethodDeclaration) node;
 		// get return type
-		node = method.getReturnType();
+		node = method.getReturnType2();
 		assumeNotNull("We should get a non-null ast node", node);
 		assumeTrue("Not return type", node.getNodeType() == ASTNode.SIMPLE_TYPE); //$NON-NLS-1$
 		SimpleType returnType = (SimpleType) node;

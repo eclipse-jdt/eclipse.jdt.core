@@ -188,7 +188,10 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 						String suffix = name.substring(index + ONLY_AST_STRING.length() + 1);
 						String[] levels = suffix.split(STRING_);
 						for (int l= 0; l < levels.length; l++) {
-							suite.addTest((Test) cons.newInstance(new Object[]{name,  Integer.valueOf(levels[l])}));
+                            int level = Integer.valueOf(levels[l]);
+                            if (AST.isSupportedVersion(level)) {
+                                suite.addTest((Test) cons.newInstance(name, level));
+                            }
 						}
 
 					} else {
