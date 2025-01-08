@@ -288,7 +288,7 @@ public class DOMCompletionEngine implements Runnable {
 							&& name.resolveBinding() instanceof IPackageBinding packageBinding) {
 						packageName = packageBinding.getName();
 					}
-					suggestPackages();
+					suggestPackages(fieldAccess);
 					suggestTypesInPackage(packageName);
 				}
 				suggestDefaultCompletions = false;
@@ -549,7 +549,7 @@ public class DOMCompletionEngine implements Runnable {
 					} else if (qualifiedNameBinding instanceof IPackageBinding qualifierPackageBinding) {
 						if (!qualifierPackageBinding.isRecovered()) {
 							// start of a known package
-							suggestPackages();
+							suggestPackages(null);
 							// suggests types in the package
 							suggestTypesInPackage(qualifierPackageBinding.getName());
 							suggestDefaultCompletions = false;
@@ -584,7 +584,7 @@ public class DOMCompletionEngine implements Runnable {
 							} else {
 								// maybe it is actually a package?
 								if (shouldSuggestPackages(context)) {
-									suggestPackages();
+									suggestPackages(context);
 								}
 								// suggests types in the package
 								suggestTypesInPackage(qualifierPackageBinding.getName());
@@ -788,7 +788,7 @@ public class DOMCompletionEngine implements Runnable {
 			// because method argument guessing uses it.
 			scrapeAccessibleBindings(defaultCompletionBindings);
 			if (shouldSuggestPackages(toComplete)) {
-				suggestPackages();
+				suggestPackages(toComplete);
 			}
 
 			if (suggestDefaultCompletions) {
@@ -817,7 +817,7 @@ public class DOMCompletionEngine implements Runnable {
 				}
 				checkCancelled();
 				if (shouldSuggestPackages(toComplete)) {
-					suggestPackages();
+					suggestPackages(toComplete);
 				}
 			}
 
@@ -1129,9 +1129,13 @@ public class DOMCompletionEngine implements Runnable {
 		}
 	}
 
-	private void suggestPackages() {
+	private void suggestPackages(ASTNode context) {
 		checkCancelled();
-		if (this.prefix.length() > 0) {
+		while (context != null && context.getParent() instanceof Name) {
+			context = context.getParent();
+		}
+		String prefix = context instanceof Name name ? name.toString() : this.prefix;
+		if (prefix != null && !prefix.isBlank()) {
 			this.nameEnvironment.findPackages(prefix.toCharArray(), this.nestedEngine);
 		}
 	}
