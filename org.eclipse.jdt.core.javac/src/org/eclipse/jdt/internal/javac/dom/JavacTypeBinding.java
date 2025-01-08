@@ -756,6 +756,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	@Override
 	public int getModifiers() {
 		int modifiers = JavacMethodBinding.toInt(this.typeSymbol.getModifiers());
+		if (this.resolver.findDeclaringNode(this) instanceof TypeDeclaration typeDecl) {
+			modifiers |= typeDecl.getModifiers(); // some invalid modifiers from DOM are missing in binding
+		}
 		// JDT doesn't mark interfaces as abstract
 		if (this.isInterface()) {
 			modifiers &= ~Modifier.ABSTRACT;
