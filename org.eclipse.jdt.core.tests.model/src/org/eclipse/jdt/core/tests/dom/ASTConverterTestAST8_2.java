@@ -54,20 +54,6 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterTestAST8_2.class);
 	}
-	/**
-	 * Internal access method to MethodDeclaration#thrownExceptions() for avoiding deprecated warnings.
-	 * @deprecated
-	 */
-	private static List internalThrownExceptions(MethodDeclaration methodDeclaration) {
-		return methodDeclaration.thrownExceptions();
-	}
-
-	/**
-	 * @deprecated
-	 */
-	private Type componentType(ArrayType array) {
-		return array.getComponentType();
-	}
 
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=22560
@@ -467,17 +453,10 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		IBinding binding;
-		if (node.getAST().apiLevel() < getJLS8()) {
-			List throwsException = internalThrownExceptions(methodDeclaration);
-			assertEquals("wrong size", 2, throwsException.size()); //$NON-NLS-1$
-			Name name = (Name) throwsException.get(0);
-			binding = name.resolveBinding();
-		} else {
-			List throwsExceptionTypes = methodDeclaration.thrownExceptionTypes();
-			assertEquals("wrong size", 2, throwsExceptionTypes.size()); //$NON-NLS-1$
-			Type type = (Type) throwsExceptionTypes.get(0);
-			binding = type.resolveBinding();
-		}
+		List throwsExceptionTypes = methodDeclaration.thrownExceptionTypes();
+		assertEquals("wrong size", 2, throwsExceptionTypes.size()); //$NON-NLS-1$
+		Type type = (Type) throwsExceptionTypes.get(0);
+		binding = type.resolveBinding();
 		assertNotNull("No binding", binding); //$NON-NLS-1$
 		assertEquals("LIOException;", binding.getKey());
 		assertTrue("Binding should be marked as recovered", binding.isRecovered());
@@ -2742,7 +2721,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		checkSourceRange(type, "Class[]", source);
 		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
-		type = this.ast.apiLevel() < getJLS8() ? componentType(arrayType) : arrayType.getElementType();
+		type = arrayType.getElementType();
 		assertTrue("is an array type", !type.isArrayType()); //$NON-NLS-1$
 		checkSourceRange(type, "Class", source);
 	}
@@ -4129,9 +4108,9 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"  int i;\n" +
 				"}"
 			);
-			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, false, null, null);
-			assertNotNull("No level 2 compilation unit", unit);
-			assertEquals("Compilation unit has wrong AST level (2)", AST.JLS2, unit.getAST().apiLevel());
+			CompilationUnit unit = sourceUnit.reconcile(AST.getAllSupportedVersions().get(0), false, null, null);
+			assertNotNull("No compilation unit at level "+AST.getAllSupportedVersions().get(0), unit);
+			assertEquals("Compilation unit has wrong AST level", AST.getAllSupportedVersions().get(0).intValue(), unit.getAST().apiLevel());
 			// TODO improve test for getJLS8()
 		} finally {
 			sourceUnit.discardWorkingCopy();
@@ -4164,9 +4143,8 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0538", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		try {
 			sourceUnit.becomeWorkingCopy(null, null);
-			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, false, null, null);
+			CompilationUnit unit = sourceUnit.reconcile(AST.getAllSupportedVersions().get(0), false, null, null);
 			assertNull("Unexpected compilation unit", unit);
-			// TODO improve test for getJLS8()
 		} finally {
 			sourceUnit.discardWorkingCopy();
 		}
@@ -4186,8 +4164,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"  Object field;\n" +
 				"}"
 			);
-			// TODO improve test for getJLS8()
-			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, false, null, null);
+			CompilationUnit unit = sourceUnit.reconcile(AST.getAllSupportedVersions().get(0), false, null, null);
 			ASTNode node = getASTNode(unit, 0, 0);
 			assertNotNull("No node", node);
 			assertTrue("Not original", isOriginal(node));
@@ -4210,8 +4187,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		try {
 			ReconcilerTests.ProblemRequestor pbRequestor = new ReconcilerTests.ProblemRequestor();
 			sourceUnit.becomeWorkingCopy(pbRequestor, null);
-			// TODO improve test for getJLS8()
-			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, true/*force pb detection*/, null, null);
+			CompilationUnit unit = sourceUnit.reconcile(AST.getAllSupportedVersions().get(0), true/*force pb detection*/, null, null);
 			ASTNode node = getASTNode(unit, 0);
 			assertNotNull("No node", node);
 			assertTrue("not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION);

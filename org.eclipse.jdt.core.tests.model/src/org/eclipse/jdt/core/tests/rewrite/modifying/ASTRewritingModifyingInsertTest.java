@@ -448,7 +448,6 @@ public class ASTRewritingModifyingInsertTest extends ASTRewritingModifyingTest {
 //		assertEqualString(preview, buf.toString());
 //	}
 
-	/** @deprecated using deprecated code */
 	public void test0010() throws Exception {
 		String source = "\n";
 		CompilationUnit astRoot= createCU(source.toCharArray());
@@ -495,7 +494,6 @@ public class ASTRewritingModifyingInsertTest extends ASTRewritingModifyingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	/** @deprecated using deprecated code */
 	public void test0012() throws Exception {
 		String source = "\n";
 		CompilationUnit astRoot= createCU(source.toCharArray());
