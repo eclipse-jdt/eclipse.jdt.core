@@ -1008,6 +1008,27 @@ public class JavacBindingResolver extends BindingResolver {
 
 	private IBinding resolveNameImpl(Name name) {
 		resolve();
+
+		// first, prefer parent if appropriate
+		ASTNode parent = name.getParent();
+		if (name.getLocationInParent() == QualifiedName.NAME_PROPERTY && parent instanceof QualifiedName qname &&
+			qname.getParent() instanceof SimpleType simpleType && simpleType.getLocationInParent() == ParameterizedType.TYPE_PROPERTY) {
+			var typeBinding = resolveType((ParameterizedType)simpleType.getParent());
+			if (typeBinding != null) {
+				return typeBinding;
+			}
+		}
+		if (name.getLocationInParent() == QualifiedType.NAME_PROPERTY &&
+			parent.getLocationInParent() == QualifiedType.QUALIFIER_PROPERTY) {
+			var typeBinding = resolveType((QualifiedType)parent);
+			return typeBinding.getTypeDeclaration(); // exclude params
+		}
+		if (name.getLocationInParent() == SimpleType.NAME_PROPERTY
+				|| name.getLocationInParent() == QualifiedType.NAME_PROPERTY
+				|| name.getLocationInParent() == NameQualifiedType.NAME_PROPERTY) { // case of "var"
+			return resolveType((Type)parent);
+		}
+
 		JCTree tree = this.converter.domToJavac.get(name);
 		if( tree != null ) {
 			var res = resolveNameToJavac(name, tree);
@@ -1035,25 +1056,6 @@ public class JavacBindingResolver extends BindingResolver {
 				return b;
 		}
 
-		
-		ASTNode parent = name.getParent();
-		if (name.getLocationInParent() == QualifiedName.NAME_PROPERTY && parent instanceof QualifiedName qname &&
-			qname.getParent() instanceof SimpleType simpleType && simpleType.getLocationInParent() == ParameterizedType.TYPE_PROPERTY) {
-			var typeBinding = resolveType((ParameterizedType)simpleType.getParent());
-			if (typeBinding != null) {
-				return typeBinding;
-			}
-		}
-		if (name.getLocationInParent() == QualifiedType.NAME_PROPERTY &&
-			parent.getLocationInParent() == QualifiedType.QUALIFIER_PROPERTY) {
-			var typeBinding = resolveType((QualifiedType)parent);
-			return typeBinding.getTypeDeclaration(); // exclude params
-		}
-		if (name.getLocationInParent() == SimpleType.NAME_PROPERTY
-				|| name.getLocationInParent() == QualifiedType.NAME_PROPERTY
-				|| name.getLocationInParent() == NameQualifiedType.NAME_PROPERTY) { // case of "var"
-			return resolveType((Type)parent);
-		}
 		if (tree == null && (name.getFlags() & ASTNode.ORIGINAL) != 0) {
 			tree = this.converter.domToJavac.get(parent);
 			if( tree instanceof JCFieldAccess jcfa) {
