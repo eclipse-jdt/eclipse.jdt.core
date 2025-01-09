@@ -1681,7 +1681,7 @@ public class DOMCompletionEngine implements Runnable {
 						.toCharArray());
 			}
 
-			if ((methodBinding.getModifiers() & Flags.AccStatic) != 0) {
+			if ((methodBinding.getModifiers() & Flags.AccStatic) != 0 && this.toComplete.getLocationInParent() != QualifiedName.NAME_PROPERTY && this.toComplete.getLocationInParent() != FieldAccess.NAME_PROPERTY) {
 				ITypeBinding topLevelClass = methodBinding.getDeclaringClass();
 				while (topLevelClass.getDeclaringClass() != null) {
 					topLevelClass = topLevelClass.getDeclaringClass();
