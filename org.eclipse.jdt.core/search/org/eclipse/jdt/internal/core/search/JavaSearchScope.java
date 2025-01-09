@@ -15,7 +15,6 @@ package org.eclipse.jdt.internal.core.search;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -136,11 +135,7 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, Set<JavaProj
 		access = cpEntry.getAccessRuleSet();
 		switch (entry.getEntryKind()) {
 			case IClasspathEntry.CPE_LIBRARY:
-				IClasspathEntry rawEntry = null;
-				Map<IPath, IClasspathEntry> rootPathToRawEntries = perProjectInfo.rootPathToRawEntries;
-				if (rootPathToRawEntries != null) {
-					rawEntry = rootPathToRawEntries.get(entry.getPath());
-				}
+				IClasspathEntry rawEntry = perProjectInfo.getRawClasspathEntry(entry.getPath()).orElse(null);
 				if (rawEntry == null) break;
 				rawKind: switch (rawEntry.getEntryKind()) {
 					case IClasspathEntry.CPE_LIBRARY:

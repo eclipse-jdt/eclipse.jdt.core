@@ -610,17 +610,8 @@ public IPath internalPath() {
  */
 @Override
 public IClasspathEntry getRawClasspathEntry() throws JavaModelException {
-
-	IClasspathEntry rawEntry = null;
-	JavaProject project = getJavaProject();
-	Map rootPathToRawEntries = project.getPerProjectInfo().rootPathToRawEntries;
-	if (rootPathToRawEntries != null) {
-		rawEntry = (IClasspathEntry) rootPathToRawEntries.get(getPath());
-	}
-	if (rawEntry == null) {
-		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_NOT_ON_CLASSPATH, this));
-	}
-	return rawEntry;
+	return getJavaProject().getPerProjectInfo().getRawClasspathEntry(getPath())//
+			.orElseThrow(()->new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_NOT_ON_CLASSPATH, this)));
 }
 /*
  * @see IPackageFragmentRoot

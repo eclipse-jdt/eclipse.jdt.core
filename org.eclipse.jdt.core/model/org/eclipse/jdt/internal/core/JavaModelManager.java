@@ -1305,7 +1305,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		public volatile boolean writtingRawClasspath;
 		public volatile IClasspathEntry[] resolvedClasspath;
 		public volatile IJavaModelStatus unresolvedEntryStatus;
-		public volatile Map<IPath, IClasspathEntry> rootPathToRawEntries; // reverse map from a package fragment root's path to the raw entry
+		private volatile Map<IPath, IClasspathEntry> rootPathToRawEntries; // reverse map from a package fragment root's path to the raw entry
 		private Map<IPath, IClasspathEntry> rootPathToResolvedEntries; // map from a package fragment root's path to the resolved entry
 		public volatile IPath outputLocation;
 		public volatile Map<IPath, ObjectVector> jrtRoots; // A map between a JRT file system (as a string) and the package fragment roots found in it.
@@ -1323,6 +1323,13 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			this.project = project;
 			this.javadocCache = new LRUCache<>(JAVADOC_CACHE_INITIAL_SIZE);
 			this.secondaryTypes = new SecondaryTypes();
+		}
+
+		public synchronized Optional<IClasspathEntry> getRawClasspathEntry(IPath path) {
+			if (this.rootPathToRawEntries == null) {
+				return Optional.empty();
+			}
+			return Optional.ofNullable(this.rootPathToRawEntries.get(path));
 		}
 
 		public synchronized IClasspathEntry[] getResolvedClasspath() {
