@@ -74,6 +74,12 @@ public class ExpectedTypes {
 			if (parent2 instanceof ReturnStatement) {
 				break;
 			}
+			if (parent2 instanceof Block) {
+				break;
+			}
+			if (parent2 instanceof LambdaExpression) {
+				break;
+			}
 			if (parent2 instanceof Assignment assign && this.offset > assign.getLeftHandSide().getStartPosition() + assign.getLeftHandSide().getLength()) {
 				this.expectedTypes.add(assign.resolveTypeBinding());
 				return;
