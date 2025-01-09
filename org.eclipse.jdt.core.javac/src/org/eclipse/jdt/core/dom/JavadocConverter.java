@@ -69,8 +69,6 @@ class JavadocConverter {
 	// Both copied from jdk.javadoc.internal.doclets.formats.html.taglets.snippet.Parser
 	private static final Pattern JAVA_COMMENT = Pattern.compile(
 			"^(?<payload>.*)//(?<markup>\\s*@\\s*\\w+.+?)$");
-	private static final Pattern PROPERTIES_COMMENT = Pattern.compile(
-			"^(?<payload>[ \t]*([#!].*)?)[#!](?<markup>\\s*@\\s*\\w+.+?)$");
 
 	private final AST ast;
 	private final JavacConverter javacConverter;
@@ -571,7 +569,6 @@ class JavadocConverter {
 		List<IDocElement> elements = new ArrayList<>();
 		List<DCTree> combinable = new ArrayList<>();
 		int size = treeElements.size();
-		DCTree prev = null;
 		for( int i = 0; i < size; i++ ) {
 			boolean shouldCombine = false;
 			boolean lineBreakBefore = false;
@@ -604,7 +601,6 @@ class JavadocConverter {
 			} else {
 				elements.addAll(convertElement(oneTree).toList());
 			}
-			prev = oneTree;
 		}
 		if( combinable.size() > 0 ) 
 			elements.addAll(convertElementGroup(combinable.toArray(new DCTree[0])).toList());
@@ -796,8 +792,6 @@ class JavadocConverter {
 			int newStart = erroneous.getStartPosition() + tagName.length();
 			List<TextElement> l = splitLines(body.substring(tagName.length()), newStart, endInd, false).map(x -> toTextElement(x)).toList();
 			res.fragments.addAll(l);
-			TextElement lastFragment = l.size() == 0 ? null : l.get(l.size() - 1);
-			int newEnd = lastFragment == null ? tagName.length() : (lastFragment.getStartPosition() + lastFragment.getLength());
 			res.setSourceRange(start, endPosition - start);
 			return Stream.of(res);
 //		} else if( body.startsWith("{@")) {

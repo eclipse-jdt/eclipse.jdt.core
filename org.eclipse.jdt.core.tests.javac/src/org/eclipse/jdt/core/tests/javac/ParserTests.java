@@ -161,7 +161,7 @@ public class ParserTests {
 			@Override
 			public void preVisit(ASTNode node) {
 				super.preVisit(node);
-				if (node.getStartPosition() < previousEnd) {
+				if (node.getStartPosition() < this.previousEnd) {
 					errors.add(node);
 				}
 				if (node.getStartPosition() < node.getParent().getStartPosition()) {
@@ -1039,7 +1039,7 @@ public class ParserTests {
 			@Override
 			public void preVisit(ASTNode node) {
 				super.preVisit(node);
-				if (node.getStartPosition() < previousEnd) {
+				if (node.getStartPosition() < this.previousEnd) {
 					errors.add(node);
 				}
 				if (node.getStartPosition() < node.getParent().getStartPosition()) {

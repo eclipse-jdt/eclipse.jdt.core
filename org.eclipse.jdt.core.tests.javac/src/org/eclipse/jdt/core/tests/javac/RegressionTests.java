@@ -38,6 +38,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
@@ -92,11 +93,11 @@ public class RegressionTests {
 		IJavaProject javaProject = JavaCore.create(project);
 		IType arrayList = javaProject.findType("java.util.ArrayList");
 		IClassFile classFile = (IClassFile)arrayList.getAncestor(IJavaElement.CLASS_FILE);
-		var unit = (CompilationUnit)classFile.getWorkingCopy((WorkingCopyOwner)null, null);
+		var unit = classFile.getWorkingCopy((WorkingCopyOwner)null, null);
 		ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
 		parser.setSource(unit);
 		parser.setProject(javaProject);
-		var domUnit = parser.createAST(null);
+		parser.createAST(null);
 	}
 
 	@Test
@@ -107,7 +108,7 @@ public class RegressionTests {
 		project.build(IncrementalProjectBuilder.FULL_BUILD, null);
 		IProject dependent = importProject("projects/dependent");
 		// at this stage, no .class file exists, so we test that resolution through sourcePath/referenced projects work
-		CompilationUnit unit = (CompilationUnit)JavaCore.create(dependent).findElement(Path.fromOSString("D.java"));
+		ICompilationUnit unit = (ICompilationUnit)JavaCore.create(dependent).findElement(Path.fromOSString("D.java"));
 		unit.becomeWorkingCopy(null);
 		var dom = unit.reconcile(AST.getJLSLatest(), true, unit.getOwner(), null);
 		assertArrayEquals(new IProblem[0], dom.getProblems());
@@ -134,7 +135,7 @@ public class RegressionTests {
 		assertTrue(errors.isEmpty());
 		errors = findMarkers(proj2, IMarker.SEVERITY_ERROR);
 		assertTrue(errors.isEmpty());
-		CompilationUnit unit = (CompilationUnit)JavaCore.create(proj2).findElement(Path.fromOSString("proj2/Main.java"));
+		ICompilationUnit unit = (ICompilationUnit)JavaCore.create(proj2).findElement(Path.fromOSString("proj2/Main.java"));
 		unit.becomeWorkingCopy(null);
 		var dom = unit.reconcile(AST.getJLSLatest(), true, unit.getOwner(), null);
 		assertArrayEquals(new IProblem[0], dom.getProblems());
@@ -150,7 +151,7 @@ public class RegressionTests {
 		waitForBackgroundJobs();
 		List<IMarker> errors = findMarkers(proj, IMarker.SEVERITY_ERROR);
 		assertTrue(errors.isEmpty());
-		CompilationUnit unit = (CompilationUnit)JavaCore.create(proj).findElement(Path.fromOSString("org/sample/Main.java"));
+		ICompilationUnit unit = (ICompilationUnit)JavaCore.create(proj).findElement(Path.fromOSString("org/sample/Main.java"));
 		unit.becomeWorkingCopy(null);
 		var dom = unit.reconcile(AST.getJLSLatest(), true, unit.getOwner(), null);
 		assertArrayEquals(new IProblem[0], dom.getProblems());

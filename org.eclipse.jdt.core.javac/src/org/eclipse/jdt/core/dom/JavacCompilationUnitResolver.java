@@ -651,7 +651,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 				.or(() -> Optional.ofNullable(System.getProperty("eclipse.application")))
 				.filter(name -> !name.contains("test") && !name.contains("junit"))
 				 // continue as far as possible to get extra warnings about unused
-				.ifPresent(id ->javacOptions.put("should-stop.ifError", CompileState.GENERATE.toString()));
+				.ifPresent(_ ->javacOptions.put("should-stop.ifError", CompileState.GENERATE.toString()));
 		var fileManager = (JavacFileManager)context.get(JavaFileManager.class);
 		List<JavaFileObject> fileObjects = new ArrayList<>(); // we need an ordered list of them
 		for (var sourceUnit : sourceUnits) {

@@ -80,11 +80,7 @@ public final class JobHelpers {
 					jobs[i].join();
 				}
 			}
-			workspace.run(new IWorkspaceRunnable() {
-				@Override
-				public void run(IProgressMonitor monitor) {
-				}
-			}, workspace.getRoot(), 0, monitor);
+			workspace.run((IWorkspaceRunnable) _ -> {}, workspace.getRoot(), 0, monitor);
 
 		} finally {
 			jobManager.resume();
