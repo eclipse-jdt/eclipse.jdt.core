@@ -1819,6 +1819,7 @@ public class DOMCompletionEngine implements Runnable {
 					this.toComplete.getAST().resolveWellKnownType(Object.class.getName())) +
 				(res.getRequiredProposals() != null ? 0 : computeRelevanceForQualification(false)) +
 				CompletionEngine.computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE) + //no access restriction for class field
+				((insideQualifiedReference() && !staticOnly() && (binding.getModifiers() & Modifier.STATIC) == 0) ? RelevanceConstants.R_NON_STATIC : 0) +
 				(!staticOnly() || inheritedValue ? 0 : RelevanceConstants.R_NON_INHERITED) // TODO: when is this active?
 				);
 		if (res.getRequiredProposals() != null) {
@@ -1827,6 +1828,11 @@ public class DOMCompletionEngine implements Runnable {
 			}
 		}
 		return res;
+	}
+
+	private boolean insideQualifiedReference() {
+		return this.toComplete instanceof QualifiedName ||
+			(this.toComplete instanceof SimpleName simple && (simple.getParent() instanceof QualifiedName || simple.getParent() instanceof FieldAccess));
 	}
 
 	private boolean staticOnly() {
