@@ -85,12 +85,10 @@ public abstract class JavacTypeVariableBinding extends JavacTypeBinding {
 	static String getTypeVariableKey(TypeVariableSymbol sym, JavacBindingResolver resolver) throws BindingKeyException {
 		StringBuilder builder = new StringBuilder();
 		builder.append(sym.getSimpleName());
-		builder.append(':');
-		boolean prependColon = sym.getBounds().size() > 1
-				|| (sym.getBounds().size() > 0 && sym.getBounds().get(0).isInterface());
 		for (var bound : sym.getBounds()) {
-			if (prependColon) {
-				builder.append(":");
+			builder.append(':');
+			if (bound.isParameterized()) {
+				builder.append(':');
 			}
 			JavacTypeBinding.getKey(builder, bound, false, resolver);
 		}
