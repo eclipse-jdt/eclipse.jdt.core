@@ -38,6 +38,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.PerformanceStats;
 import org.eclipse.core.runtime.SafeRunner;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
@@ -914,7 +915,7 @@ public class DeltaProcessor {
 				}
 
 				if (this.currentDelta != null) { // if delta has not been fired while creating markers
-					fire(this.currentDelta, DEFAULT_CHANGE_EVENT);
+					fire(this.currentDelta, DEFAULT_CHANGE_EVENT, false);
 				}
 			} else if (hasExternalWorkingCopyProject) {
 				// flush jar type cache
@@ -1505,7 +1506,7 @@ public class DeltaProcessor {
 	 * Fire Java Model delta, flushing them after the fact after post_change notification.
 	 * If the firing mode has been turned off, this has no effect.
 	 */
-	public void fire(IJavaElementDelta customDelta, int eventType) {
+	public void fire(IJavaElementDelta customDelta, int eventType, boolean async) {
 		if (!this.isFiring) return;
 
 		if (DEBUG) {
@@ -1541,14 +1542,15 @@ public class DeltaProcessor {
 			listenerMask = this.state.elementChangedListenerMasks;
 			listenerCount = this.state.elementChangedListenerCount;
 		}
-
-		switch (eventType) {
-			case DEFAULT_CHANGE_EVENT:
-			case ElementChangedEvent.POST_CHANGE:
-				firePostChangeDelta(deltaToNotify, listeners, listenerMask, listenerCount);
-				fireReconcileDelta(listeners, listenerMask, listenerCount);
-				break;
-		}
+		Job.create("Fire Change", m->{ //$NON-NLS-1$
+			switch (eventType) {
+				case DEFAULT_CHANGE_EVENT:
+				case ElementChangedEvent.POST_CHANGE:
+					firePostChangeDelta(deltaToNotify, listeners, listenerMask, listenerCount);
+					fireReconcileDelta(listeners, listenerMask, listenerCount);
+					break;
+			}
+		}).schedule();
 	}
 
 	private void firePostChangeDelta(
@@ -2258,7 +2260,7 @@ public class DeltaProcessor {
 			listenerCount = this.state.elementChangedListenerCount;
 		}
 		notifyTypeHierarchies(listeners, listenerCount);
-		fire(delta, ElementChangedEvent.POST_CHANGE);
+		fire(delta, ElementChangedEvent.POST_CHANGE, false);
 	}
 
 	/*

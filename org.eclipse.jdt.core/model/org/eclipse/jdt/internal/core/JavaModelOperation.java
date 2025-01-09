@@ -788,7 +788,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 					if (isTopLevelOperation()) {
 						if ((deltaProcessor.javaModelDeltas.size() > previousDeltaCount || !deltaProcessor.reconcileDeltas.isEmpty())
 								&& !hasModifiedResource()) {
-							deltaProcessor.fire(null, DeltaProcessor.DEFAULT_CHANGE_EVENT);
+							deltaProcessor.fire(null, DeltaProcessor.DEFAULT_CHANGE_EVENT, true);
 						} // else deltas are fired while processing the resource delta
 					}
 				} finally {
