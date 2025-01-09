@@ -73,7 +73,8 @@ public class JavacLambdaBinding extends JavacMethodBinding {
 		if (member != null && member.getJavaElement() instanceof JavaElement parent) {
 			int arrowIndex = ((List<ASTNode>)this.declaration.parameters()).stream().mapToInt(param -> param.getStartPosition() + param.getLength()).max().orElse(this.declaration.getStartPosition());
 			org.eclipse.jdt.internal.core.LambdaExpression expr = LambdaFactory.createLambdaExpression(parent, Signature.createTypeSignature(getMethodDeclaration().getDeclaringClass().getQualifiedName(), true), this.declaration.getStartPosition(), this.declaration.getStartPosition() + this.declaration.getLength() - 1, arrowIndex);
-			return LambdaFactory.createLambdaMethod(expr, this.methodSymbol.name.toString(), getKey(), this.declaration.getStartPosition(), this.declaration.getStartPosition() + this.declaration.getLength() - 1, arrowIndex, Arrays.stream(getParameterTypes()).map(ITypeBinding::getName).toArray(String[]::new), getParameterNames(), Signature.createTypeSignature(getReturnType().getName(), true));
+			String returnTypeName = getReturnType().getName();
+			return LambdaFactory.createLambdaMethod(expr, this.methodSymbol.name.toString(), getKey(), this.declaration.getStartPosition(), this.declaration.getStartPosition() + this.declaration.getLength() - 1, arrowIndex, Arrays.stream(getParameterTypes()).map(ITypeBinding::getName).toArray(String[]::new), getParameterNames(), Signature.createTypeSignature(returnTypeName.isEmpty() ? Object.class.getName() : returnTypeName, true));
 		}
 		return super.getJavaElement();
 	}

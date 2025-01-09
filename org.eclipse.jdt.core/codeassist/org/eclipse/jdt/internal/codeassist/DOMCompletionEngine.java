@@ -90,7 +90,9 @@ public class DOMCompletionEngine implements Runnable {
 				}
 				this.others.removeIf(existing -> existing instanceof IMethodBinding existingMethod && methodBinding.overrides(existingMethod));
 			}
-			this.others.add(binding);
+			if (binding != null) {
+				this.others.add(binding);
+			}
 		}
 		public void addAll(Collection<? extends IBinding> bindings) {
 			bindings.forEach(this::add);
