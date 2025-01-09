@@ -1568,12 +1568,16 @@ public class SourceMapper
 
 				char[] fullName = info.getName();
 				if (isAnonymousClass) {
-					String eltName = this.binaryTypeOrModule.getParent().getElementName();
-					eltName = eltName.substring(eltName.lastIndexOf('$') + 1, eltName.length());
+					String eName = this.binaryTypeOrModule.getParent().getElementName();
+					String eltName = eName.substring(eName.lastIndexOf('$') + 1, eName.length());
+					if (eltName.endsWith(".class")) { //$NON-NLS-1$
+						eltName = eltName.substring(0, eltName.length() - ".class".length()); //$NON-NLS-1$
+					}
 					try {
 						this.anonymousClassName = Integer.parseInt(eltName);
 					} catch(NumberFormatException e) {
-						// ignore
+						throw new RuntimeException("Failed to parse anonymous class name '" //$NON-NLS-1$
+								+ eName + "'", e); //$NON-NLS-1$
 					}
 				}
 				doFullParse = hasToRetrieveSourceRangesForLocalClass(fullName);
