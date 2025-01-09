@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2021 IBM Corporation and others.
+ * Copyright (c) 2011, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -5764,7 +5764,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 	 */
 	public void test0595() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0595", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runJLS4Conversion(sourceUnit, true, false);
+		ASTNode result = runJLS4Conversion(sourceUnit, true);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
@@ -5847,7 +5847,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 	 */
 	public void test0597() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0597", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode node = runJLS4Conversion(sourceUnit, true, false);
+		ASTNode node = runJLS4Conversion(sourceUnit, true);
 		assertNotNull(node);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
@@ -5908,7 +5908,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 	 */
 	public void test0599() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0599", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode node = runJLS4Conversion(sourceUnit, true, false);
+		ASTNode node = runJLS4Conversion(sourceUnit, true);
 		assertNotNull(node);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
@@ -5930,7 +5930,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 	 */
 	public void test0600() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0600", "Try.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode node = runJLS4Conversion(sourceUnit, true, false);
+		ASTNode node = runJLS4Conversion(sourceUnit, true);
 		assertNotNull(node);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
@@ -5944,7 +5944,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 		IMethodBinding methodBinding = methodInvocation.resolveMethodBinding().getMethodDeclaration();
 
 		sourceUnit = getCompilationUnit("Converter" , "src", "test0600", "C.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		node = runJLS4Conversion(sourceUnit, true, false);
+		node = runJLS4Conversion(sourceUnit, true);
 		assertNotNull(node);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		compilationUnit = (CompilationUnit) node;
@@ -6029,7 +6029,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 	 */
 	public void test0602() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0602", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode node = runJLS4Conversion(sourceUnit, true, false);
+		ASTNode node = runJLS4Conversion(sourceUnit, true);
 		assertNotNull(node);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
@@ -6048,7 +6048,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 	 */
 	public void test0603() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0603", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode node = runJLS4Conversion(sourceUnit, true, false);
+		ASTNode node = runJLS4Conversion(sourceUnit, true);
 		assertNotNull(node);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
@@ -6073,7 +6073,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 	 */
 	public void test0604() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0604", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode node = runJLS4Conversion(sourceUnit, true, false);
+		ASTNode node = runJLS4Conversion(sourceUnit, true);
 		assertNotNull(node);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
@@ -6099,7 +6099,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 	 */
 	public void test0605() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0605", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode node = runJLS4Conversion(sourceUnit, true, false);
+		ASTNode node = runJLS4Conversion(sourceUnit, true);
 		assertNotNull(node);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
