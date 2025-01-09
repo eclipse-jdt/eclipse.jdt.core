@@ -641,23 +641,14 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		return result;
 	}
 
-	public ASTNode runJLS4Conversion(ICompilationUnit unit, boolean resolveBindings, boolean checkJLS2) {
-		return runJLS4Conversion(unit, resolveBindings, checkJLS2, false);
+	public ASTNode runJLS4Conversion(ICompilationUnit unit, boolean resolveBindings) {
+		return runJLS4Conversion(unit, resolveBindings, false);
 	}
 
-	public ASTNode runJLS4Conversion(ICompilationUnit unit, boolean resolveBindings, boolean checkJLS2, boolean bindingRecovery) {
+	public ASTNode runJLS4Conversion(ICompilationUnit unit, boolean resolveBindings, boolean bindingRecovery) {
 
 		// Create parser
-		ASTParser parser;
-		if (checkJLS2) {
-			parser = ASTParser.newParser(astInternalJLS2());
-			parser.setSource(unit);
-			parser.setResolveBindings(resolveBindings);
-			parser.setBindingsRecovery(bindingRecovery);
-			parser.createAST(null);
-		}
-
-		parser = ASTParser.newParser(JLS4_INTERNAL);
+		ASTParser parser = ASTParser.newParser(JLS4_INTERNAL);
 		parser.setSource(unit);
 		parser.setResolveBindings(resolveBindings);
 		parser.setBindingsRecovery(bindingRecovery);
