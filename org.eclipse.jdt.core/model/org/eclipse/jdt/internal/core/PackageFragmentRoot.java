@@ -613,6 +613,7 @@ public IClasspathEntry getRawClasspathEntry() throws JavaModelException {
 
 	IClasspathEntry rawEntry = null;
 	JavaProject project = getJavaProject();
+	project.getResolvedClasspath(); // force the reverse rawEntry cache to be populated
 	Map rootPathToRawEntries = project.getPerProjectInfo().rootPathToRawEntries;
 	if (rootPathToRawEntries != null) {
 		rawEntry = (IClasspathEntry) rootPathToRawEntries.get(getPath());
