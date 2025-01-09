@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023, Red Hat, Inc. and others.
+ * Copyright (c) 2023,2025 Red Hat, Inc. and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.lang.model.element.Element;
@@ -1437,67 +1436,6 @@ public class JavacBindingResolver extends BindingResolver {
 
 	public Types getTypes() {
 		return Types.instance(this.context);
-	}
-
-	private java.util.List<TypeSymbol> getTypeArguments(final Name name) {
-		if (name.getParent() instanceof SimpleType simpleType) {
-			return getTypeArguments(simpleType);
-		}
-		if (name.getParent() instanceof MethodInvocation methodInvocation && name == methodInvocation.getName()) {
-			return getTypeArguments(methodInvocation);
-		}
-		return null;
-	}
-
-	private java.util.List<TypeSymbol> getTypeArguments(final Type type) {
-		if (type instanceof SimpleType simpleType
-				&& simpleType.getParent() instanceof ParameterizedType paramType
-				&& paramType.getType() == simpleType) {
-			java.util.List<org.eclipse.jdt.core.dom.Type> typeArguments = paramType.typeArguments();
-
-			if (typeArguments == null) {
-				return null;
-			}
-			return typeArguments.stream() //
-				.map(a -> {
-					JCTree tree = this.converter.domToJavac.get(a);
-					if (tree == null) {
-						return null;
-					}
-					if (tree instanceof JCIdent ident && ident.sym instanceof TypeSymbol typeSymbol) {
-						return typeSymbol;
-					}
-					if (tree instanceof JCFieldAccess access && access.sym instanceof TypeSymbol typeSymbol) {
-						return typeSymbol;
-					}
-					return null;
-				}) //
-				.collect(Collectors.toList());
-
-		}
-		return null;
-	}
-
-	private java.util.List<TypeSymbol> getTypeArguments(final MethodInvocation methodInvocation) {
-		java.util.List<org.eclipse.jdt.core.dom.Type> typeArguments = methodInvocation.typeArguments();
-		if (typeArguments == null) {
-			return null;
-		}
-		return typeArguments.stream() //
-			.map(a -> {
-				JCTree tree = this.converter.domToJavac.get(a);
-				if (tree == null) {
-					return null;
-				}
-				if (tree instanceof JCIdent ident && ident.sym instanceof TypeSymbol typeSymbol) {
-					return typeSymbol;
-				}
-				if (tree instanceof JCFieldAccess access && access.sym instanceof TypeSymbol typeSymbol) {
-					return typeSymbol;
-				}
-				return null;
-			}) //
-			.collect(Collectors.toList());
 	}
 
 	IModuleBinding resolveModule(ModuleDeclaration module) {
