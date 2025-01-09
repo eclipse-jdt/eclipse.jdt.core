@@ -576,7 +576,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	
 	@Override
 	public boolean isParameterizedMethod() {
-		return !methodHasGenerics() && methodMatchesParameterized();
+		return !isRawMethod() && !methodHasGenerics() && methodMatchesParameterized();
 	}
 	
 	private boolean methodMatchesParameterized() {
@@ -589,7 +589,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		if (isConstructor()) {
 			return getDeclaringClass().isRawType() && this.methodSymbol.getTypeParameters().isEmpty();
 		}
-		return this.methodSymbol.getTypeParameters().isEmpty() && !this.methodSymbol.getTypeParameters().isEmpty();
+		return (this.parentType != null && this.parentType.isRaw()) || this.methodSymbol.getTypeParameters().isEmpty() && !this.methodSymbol.getTypeParameters().isEmpty();
 	}
 
 	@Override
@@ -667,6 +667,9 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public boolean overrides(IMethodBinding method) {
+		if (this == method) {
+			return false;
+		}
 		if (method instanceof JavacMethodBinding javacMethod) {
 			return Objects.equals(this.methodSymbol.name, javacMethod.methodSymbol.name)
 				&&this.methodSymbol.overrides(((JavacMethodBinding)method).methodSymbol, javacMethod.methodSymbol.enclClass(), this.resolver.getTypes(), true);
