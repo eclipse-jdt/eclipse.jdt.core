@@ -231,6 +231,8 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 			implicitLambda.setBody(arrayAllocationExpression);
 		} else {
 			AllocationExpression allocation = new AllocationExpression();
+			allocation.sourceStart = this.sourceStart;
+			allocation.sourceEnd = this.sourceEnd;
 			if (this.lhs instanceof TypeReference) {
 				allocation.type = (TypeReference) this.lhs;
 			} else if (this.lhs instanceof SingleNameReference) {

@@ -3575,12 +3575,10 @@ public class JavaProject
 				cyclesPerProject.put(project, list = new ArrayList<>());
 			} else {
 				for (CycleInfo cycleInfo: list) {
-					if (cycleInfo.cycle.equals(cycle)) {
-						// same cycle: use the shorter prefix:
-						if (cycleInfo.pathToCycle.size() > prefix.size()) {
-							cycleInfo.pathToCycle.clear();
-							cycleInfo.pathToCycle.addAll(prefix);
-						}
+					if (cycleInfo.pathToCycle.size() > prefix.size() && cycleInfo.cycle.equals(cycle)) {
+						// use same cycle with shorter prefix:
+						cycleInfo.pathToCycle.clear();
+						cycleInfo.pathToCycle.addAll(prefix);
 						return;
 					}
 				}

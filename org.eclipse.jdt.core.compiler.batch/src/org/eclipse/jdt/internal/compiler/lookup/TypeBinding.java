@@ -1734,6 +1734,10 @@ public static boolean notEquals(TypeBinding that, TypeBinding other) {
 		return true;
 	if (that.id != TypeIds.NoId && that.id == other.id)
 		return false;
+	if (that instanceof LocalTypeBinding && other instanceof LocalTypeBinding) {
+		// while a lambda is being resolved, consider a local type as equal to its variant from another lambda copy
+		return ((LocalTypeBinding) that).sourceStart != ((LocalTypeBinding) other).sourceStart;
+	}
 	return true;
 }
 /** Return the primordial type from which the receiver was cloned. Not all types track a prototype, only {@link SourceTypeBinding},

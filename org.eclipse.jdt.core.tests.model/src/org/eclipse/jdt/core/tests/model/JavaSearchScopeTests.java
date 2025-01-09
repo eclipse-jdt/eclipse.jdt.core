@@ -1132,12 +1132,13 @@ public void testBug250211() throws CoreException {
 		},
 		null);
 		SearchEngine.createJavaSearchScope(projects);
-	}
-	finally {
-		for (int i = 0; i < max; i++){
-			assertNotNull("Unexpected null project!", projects[i]);
-			deleteProject(projects[i]);
-		}
+	} finally {
+		JavaCore.run(m -> {
+			for (int i = 0; i < max; i++) {
+				assertNotNull("Unexpected null project!", projects[i]);
+				deleteProject(projects[i]);
+			}
+		}, null);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=397818
