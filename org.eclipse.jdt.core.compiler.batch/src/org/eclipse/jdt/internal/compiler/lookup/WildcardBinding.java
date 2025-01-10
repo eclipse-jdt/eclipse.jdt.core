@@ -615,11 +615,6 @@ public class WildcardBinding extends ReferenceBinding {
     }
 
 	@Override
-	public int hashCode() {
-		return this.genericType.hashCode();
-	}
-
-	@Override
 	public boolean hasTypeBit(int bit) {
 		if (this.typeBits == TypeIds.BitUninitialized) {
 			// initialize from upper bounds
