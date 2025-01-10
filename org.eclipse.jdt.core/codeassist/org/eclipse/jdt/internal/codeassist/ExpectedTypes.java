@@ -62,7 +62,10 @@ public class ExpectedTypes {
 		// find the parent that contains type information
 		while (parent2 != null) {
 			if (parent2 instanceof VariableDeclarationFragment fragment && this.offset > fragment.getName().getStartPosition() + fragment.getName().getLength()) {
-				this.expectedTypes.add(fragment.resolveBinding().getType());
+				var variable = fragment.resolveBinding();
+				if (variable != null) {
+					this.expectedTypes.add(variable.getType());
+				}
 			}
 			if (parent2 instanceof MethodInvocation method && this.offset > method.getName().getStartPosition() + method.getName().getLength()) {
 				// consider params, implemented out of this loop
@@ -94,6 +97,33 @@ public class ExpectedTypes {
 			}
 			if (parent2.getLocationInParent() != null && CONDITION_LOCATIONS.contains(parent2.getLocationInParent())) {
 				this.expectedTypes.add(parent2.getAST().resolveWellKnownType(PrimitiveType.BOOLEAN.toString()));
+				return;
+			}
+			if (parent2.getLocationInParent() == ParameterizedType.TYPE_ARGUMENTS_PROPERTY && parent2.getParent() instanceof ParameterizedType parameterized) {
+				int index = parameterized.typeArguments().indexOf(parent2);
+				ITypeBinding parameterizedType = parameterized.resolveBinding();
+				if (parameterizedType != null && index >= 0) {
+					if (parameterizedType.getTypeDeclaration() != null) {
+						parameterizedType = parameterizedType.getTypeDeclaration();
+					}
+					ITypeBinding[] typeParameters = parameterizedType.getTypeParameters();
+					if (typeParameters.length > index) {
+						ITypeBinding expectedType = typeParameters[index];
+						if (expectedType != null) {
+							if (expectedType.isTypeVariable() || expectedType.isWildcardType()) {
+								if (expectedType.getSuperclass() != null) {
+									expectedTypes.add(expectedType.getSuperclass());
+								}
+								expectedTypes.addAll(Arrays.asList(expectedType.getInterfaces()));
+							} else {
+								expectedTypes.add(expectedType);
+							}
+						}
+						if (this.expectedTypes.isEmpty()) {
+							this.expectedTypes.add(parent2.getAST().resolveWellKnownType(Object.class.getName()));
+						}
+					}
+				}
 				return;
 			}
  			parent2 = parent2.getParent();

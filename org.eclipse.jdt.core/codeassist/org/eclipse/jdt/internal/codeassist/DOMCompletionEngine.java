@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist;
 
+import java.lang.annotation.Target;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -921,7 +922,7 @@ public class DOMCompletionEngine implements Runnable {
 					final int typeMatchRule = this.toComplete.getParent() instanceof Annotation
 							? IJavaSearchConstants.ANNOTATION_TYPE
 							: IJavaSearchConstants.TYPE;
-					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF) && completionContext.getExpectedTypesSignatures() != null) {
 						findTypes(completeAfter, typeMatchRule, null)
 							.filter(type -> {
 								return defaultCompletionBindings.all().map(typeBinding -> typeBinding.getJavaElement()).noneMatch(elt -> type.equals(elt));
@@ -2053,8 +2054,38 @@ public class DOMCompletionEngine implements Runnable {
 				+ RelevanceConstants.R_RESOLVED
 				+ RelevanceConstants.R_INTERESTING
 				+ RelevanceConstants.R_NON_RESTRICTED
-				+ computeRelevanceForQualification(!nodeInImports && !fromCurrentCU && !inSamePackage && !typeIsImported);
-		relevance += computeRelevanceForCaseMatching(this.prefix.toCharArray(), simpleName, this.assistOptions);
+				+ computeRelevanceForQualification(!type.getFullyQualifiedName().startsWith("java.") && !nodeInImports && !fromCurrentCU && !inSamePackage && !typeIsImported)
+				+ (type.getFullyQualifiedName().startsWith("java.") ? RelevanceConstants.R_JAVA_LIBRARY : 0)
+				+ (expectedTypes.getExpectedTypes().stream().map(ITypeBinding::getQualifiedName).anyMatch(type.getFullyQualifiedName()::equals) ? RelevanceConstants.R_EXACT_EXPECTED_TYPE :
+					expectedTypes.getExpectedTypes().stream().map(ITypeBinding::getQualifiedName).anyMatch(Object.class.getName()::equals) ? RelevanceConstants.R_EXPECTED_TYPE :
+					0)
+				+ computeRelevanceForCaseMatching(this.prefix.toCharArray(), simpleName, this.assistOptions);
+		try {
+			if (type.isAnnotation()) {
+				ASTNode current = this.toComplete;
+				while (current instanceof Name) {
+					current = current.getParent();
+				}
+				if (current instanceof Annotation annotation) {
+					relevance += RelevanceConstants.R_ANNOTATION;
+					// TODO consider setting R_TARGET
+					IAnnotation targetAnnotation = type.getAnnotation(Target.class.getName());
+					if (targetAnnotation != null) {
+						var memberValuePairs = targetAnnotation.getMemberValuePairs();
+						if (memberValuePairs != null) {
+							if (Stream.of(memberValuePairs)
+								.filter(memberValue -> "value".equals(memberValue.getMemberName()))
+								.map(IMemberValuePair::getValue)
+								.anyMatch(target -> matchHostType(annotation.getParent(), target))) {
+								relevance += RelevanceConstants.R_TARGET;
+							}
+						}
+					}
+				}
+			}
+		} catch (JavaModelException ex) {
+			ILog.get().warn(ex.getMessage(), ex);
+		}
 		if (isInExtendsOrImplements(this.toComplete) != null) {
 			try {
 				if (type.isAnnotation()) {
@@ -2086,6 +2117,10 @@ public class DOMCompletionEngine implements Runnable {
 			}
 		}
 		return res;
+	}
+
+	private static boolean matchHostType(ASTNode host, Object targetAnnotationElementValue) {
+		return false;
 	}
 
 	private CompletionProposal toNewMethodProposal(ITypeBinding parentType, String newMethodName) {

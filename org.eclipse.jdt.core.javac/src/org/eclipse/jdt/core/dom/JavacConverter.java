@@ -51,6 +51,7 @@ import com.sun.tools.javac.parser.Tokens.Comment;
 import com.sun.tools.javac.parser.Tokens.Comment.CommentStyle;
 import com.sun.tools.javac.tree.DCTree.DCDocComment;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.tree.JCTree.JCAnnotatedType;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCAnyPattern;
@@ -1860,6 +1861,16 @@ class JavacConverter {
 			res.setType(type);
 			commonSettings(res, arrayTypeTree);
 			return res;
+		}
+		if (javac instanceof JCTypeApply parameterizedType) {
+			// usually mapping from an error
+			var recoveredType = convertToType(parameterizedType);
+			// As we cannot directly map a type to a JDT expr, let's capture it anyway
+			TypeLiteral decl = this.ast.newTypeLiteral();
+			decl.setSourceRange(recoveredType.getStartPosition(), recoveredType.getLength());
+			decl.setFlags(ASTNode.MALFORMED);
+			decl.setType(recoveredType);
+			return decl;
 		}
 		return null;
 	}
