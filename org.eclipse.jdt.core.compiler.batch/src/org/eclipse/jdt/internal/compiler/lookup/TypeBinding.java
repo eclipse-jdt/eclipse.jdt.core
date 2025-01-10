@@ -56,7 +56,7 @@ import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
  *
  * null is NOT a valid value for a non-public field... it just means the field is not initialized.
  */
-abstract public class TypeBinding extends Binding {
+abstract public class TypeBinding extends Binding implements TypeBindingWrapper {
 
 	public int id = TypeIds.NoId;
 	public long tagBits = 0; // See values in the interface TagBits below
@@ -1685,6 +1685,7 @@ public char[] signature() {
 
 public abstract char[] sourceName();
 
+@Override
 public void swapUnresolved(UnresolvedReferenceBinding unresolvedType,
 		ReferenceBinding resolvedType, LookupEnvironment environment) {
 	// subclasses must override if they wrap another type binding
