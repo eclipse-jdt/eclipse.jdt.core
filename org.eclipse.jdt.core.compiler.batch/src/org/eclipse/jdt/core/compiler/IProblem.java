@@ -2526,9 +2526,8 @@ void setSourceStart(int sourceStart);
 	 */
 	int PatternVariableRedefined = Internal + 1781;
 	/** @since 3.26
-	 * @deprecated
 	 */
-	int PatternSubtypeOfExpression = Internal + 1782;
+	int PatternSubtypeOfExpression = Internal + 1782;  // ass backwards naming of API constant :-( It should read ExpressionSubtypeOfPattern
 	/** @since 3.26
 	 */
 	int IllegalModifierForPatternVariable = Internal + 1783;
