@@ -1323,12 +1323,11 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		if (s == null)
 			return AST.JLS12;
 		switch (s) {
-		case JavaCore.VERSION_1_2 : return AST.JLS2;
-        case JavaCore.VERSION_1_3: return AST.JLS3;
-        case JavaCore.VERSION_1_4: return AST.JLS4;
-        case JavaCore.VERSION_1_5: return AST.JLS4;
-        case JavaCore.VERSION_1_6: return AST.JLS4;
-        case JavaCore.VERSION_1_7: return AST.JLS4;
+		case JavaCore.VERSION_1_2 : return AST.JLS8;
+        case JavaCore.VERSION_1_3: return AST.JLS8;
+        case JavaCore.VERSION_1_4: return AST.JLS8;
+        case JavaCore.VERSION_1_5: return AST.JLS8;
+        case JavaCore.VERSION_1_6: return AST.JLS8;
         case JavaCore.VERSION_1_8: return AST.JLS8;
         case JavaCore.VERSION_9: return AST.JLS9;
         case JavaCore.VERSION_10: return AST.JLS10;
@@ -1342,7 +1341,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
         case JavaCore.VERSION_18: return AST.JLS18;
         case JavaCore.VERSION_19: return AST.JLS19;
         case JavaCore.VERSION_20: return AST.JLS20;
-        default:  return AST.JLS2;
+        default:  return AST.JLS8;
 		}
 	}
 	/** @deprecated using deprecated code */
@@ -1355,7 +1354,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		int apiLevelCal = ASTTest.getApiLevel(JavaCore.getDefaultOptions().get(JavaCore.COMPILER_SOURCE));
 		assertTrue(a0.apiLevel() == apiLevelCal);
 		AST a1 = new AST(new HashMap()); // deprecated, but still 2.0
-		assertTrue(a1.apiLevel() == AST.JLS2);
+		assertEquals(AST.JLS8,a1.apiLevel());
 		AST a2 = AST.newAST(AST.JLS2, false);
 		assertTrue(a2.apiLevel() == AST.JLS2);
 		AST a3 = AST.newAST(JLS3_INTERNAL, false);

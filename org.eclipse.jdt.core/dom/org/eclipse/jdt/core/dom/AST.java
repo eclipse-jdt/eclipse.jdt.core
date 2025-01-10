@@ -1245,22 +1245,8 @@ public final class AST {
 		this(apiLevelMap.get(options.get(JavaCore.COMPILER_SOURCE)),
 				JavaCore.ENABLED.equals(options.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)));
 
-		long sourceLevel;
-		long complianceLevel;
-		switch(this.apiLevel) {
-			case JLS2_INTERNAL :
-			case JLS3_INTERNAL :
-				sourceLevel = ClassFileConstants.JDK1_3;
-				complianceLevel = ClassFileConstants.JDK1_5;
-				break;
-			case JLS4_INTERNAL :
-				sourceLevel = ClassFileConstants.JDK1_7;
-				complianceLevel = ClassFileConstants.JDK1_7;
-				break;
-			default :
-				sourceLevel = AST.jdkLevelMap.get(options.get(JavaCore.COMPILER_SOURCE));
-				complianceLevel = sourceLevel;
-		}
+		long sourceLevel = AST.jdkLevelMap.get(options.get(JavaCore.COMPILER_SOURCE));
+		long complianceLevel = sourceLevel;
 		this.scanner = new Scanner(
 			true /*comment*/,
 			true /*whitespace*/,
@@ -1275,13 +1261,13 @@ public final class AST {
 
 	private static Map<String, Long> getLevelMapTable() {
         Map<String, Long> t = new HashMap<>();
-        t.put(null, ClassFileConstants.JDK1_2);
-        t.put(JavaCore.VERSION_1_2, ClassFileConstants.JDK1_2);
-        t.put(JavaCore.VERSION_1_3, ClassFileConstants.JDK1_3);
-        t.put(JavaCore.VERSION_1_4, ClassFileConstants.JDK1_4);
-        t.put(JavaCore.VERSION_1_5, ClassFileConstants.JDK1_5);
-        t.put(JavaCore.VERSION_1_6, ClassFileConstants.JDK1_6);
-        t.put(JavaCore.VERSION_1_7, ClassFileConstants.JDK1_7);
+        t.put(null, ClassFileConstants.JDK1_8);
+        t.put(JavaCore.VERSION_1_2, ClassFileConstants.JDK1_8);
+        t.put(JavaCore.VERSION_1_3, ClassFileConstants.JDK1_8);
+        t.put(JavaCore.VERSION_1_4, ClassFileConstants.JDK1_8);
+        t.put(JavaCore.VERSION_1_5, ClassFileConstants.JDK1_8);
+        t.put(JavaCore.VERSION_1_6, ClassFileConstants.JDK1_8);
+        t.put(JavaCore.VERSION_1_7, ClassFileConstants.JDK1_8);
         t.put(JavaCore.VERSION_1_8, ClassFileConstants.JDK1_8);
         t.put(JavaCore.VERSION_9, ClassFileConstants.JDK9);
         t.put(JavaCore.VERSION_10, ClassFileConstants.JDK10);
@@ -1302,13 +1288,13 @@ public final class AST {
 	}
 	private static Map<String, Integer> getApiLevelMapTable() {
         Map<String, Integer> t = new HashMap<>();
-        t.put(null, JLS2_INTERNAL);
-        t.put(JavaCore.VERSION_1_2, JLS2_INTERNAL);
-        t.put(JavaCore.VERSION_1_3, JLS3_INTERNAL);
-        t.put(JavaCore.VERSION_1_4, JLS4_INTERNAL);
-        t.put(JavaCore.VERSION_1_5, JLS4_INTERNAL);
-        t.put(JavaCore.VERSION_1_6, JLS4_INTERNAL);
-        t.put(JavaCore.VERSION_1_7, JLS4_INTERNAL);
+        t.put(null, JLS8_INTERNAL);
+        t.put(JavaCore.VERSION_1_2, JLS8_INTERNAL);
+        t.put(JavaCore.VERSION_1_3, JLS8_INTERNAL);
+        t.put(JavaCore.VERSION_1_4, JLS8_INTERNAL);
+        t.put(JavaCore.VERSION_1_5, JLS8_INTERNAL);
+        t.put(JavaCore.VERSION_1_6, JLS8_INTERNAL);
+        t.put(JavaCore.VERSION_1_7, JLS8_INTERNAL);
         t.put(JavaCore.VERSION_1_8, JLS8_INTERNAL);
         t.put(JavaCore.VERSION_9, JLS9_INTERNAL);
         t.put(JavaCore.VERSION_10, JLS10_INTERNAL);
