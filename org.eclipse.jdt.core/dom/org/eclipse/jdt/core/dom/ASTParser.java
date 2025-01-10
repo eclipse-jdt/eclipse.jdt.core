@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.dom.CompilationUnitResolver.IntArrayList;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
@@ -38,16 +39,13 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScannerData;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
-import org.eclipse.jdt.internal.core.BasicCompilationUnit;
-import org.eclipse.jdt.internal.core.BinaryType;
-import org.eclipse.jdt.internal.core.ClassFileWorkingCopy;
-import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
-import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.PackageFragment;
+import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.dom.ICompilationUnitResolver;
 import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
 import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
+import org.eclipse.jdt.internal.core.util.DOMFinder;
 import org.eclipse.jdt.internal.core.util.RecordedParsingInformation;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -1166,11 +1164,96 @@ public class ASTParser {
 			if ((this.bits & CompilationUnitResolver.IGNORE_METHOD_BODIES) != 0) {
 				flags |= ICompilationUnit.IGNORE_METHOD_BODIES;
 			}
-			return CompilationUnitResolver.resolve(elements, this.apiLevel, this.compilerOptions, this.project, this.workingCopyOwner, flags, monitor);
+
+			return resolve(elements, this.apiLevel, this.compilerOptions, this.project, this.workingCopyOwner, flags, this.unitResolver, monitor);
 		} finally {
 			// reset to defaults to allow reuse (and avoid leaking)
 			initializeDefaults();
 		}
+	}
+
+
+	static IBinding[] resolve(
+		final IJavaElement[] elements,
+		int apiLevel,
+		Map compilerOptions,
+		IJavaProject javaProject,
+		WorkingCopyOwner owner,
+		int flags,
+		ICompilationUnitResolver unitResolver,
+		IProgressMonitor monitor) {
+
+		final int length = elements.length;
+		final HashMap sourceElementPositions = new HashMap(); // a map from ICompilationUnit to int[] (positions in elements)
+		int cuNumber = 0;
+		final HashtableOfObjectToInt binaryElementPositions = new HashtableOfObjectToInt(); // a map from String (binding key) to int (position in elements)
+		for (int i = 0; i < length; i++) {
+			IJavaElement element = elements[i];
+			if (!(element instanceof SourceRefElement))
+				throw new IllegalStateException(element + " is not part of a compilation unit or class file"); //$NON-NLS-1$
+			Object cu = element.getAncestor(IJavaElement.COMPILATION_UNIT);
+			if (cu != null) {
+				// source member
+				IntArrayList intList = (IntArrayList) sourceElementPositions.get(cu);
+				if (intList == null) {
+					sourceElementPositions.put(cu, intList = new IntArrayList());
+					cuNumber++;
+				}
+				intList.add(i);
+			} else {
+				// binary member or method argument
+				try {
+					String key;
+					if (element instanceof BinaryMember)
+						key = ((BinaryMember) element).getKey(true/*open to get resolved info*/);
+					else if (element instanceof LocalVariable)
+						key = ((LocalVariable) element).getKey(true/*open to get resolved info*/);
+					else if (element instanceof org.eclipse.jdt.internal.core.TypeParameter)
+						key = ((org.eclipse.jdt.internal.core.TypeParameter) element).getKey(true/*open to get resolved info*/);
+					else if (element instanceof BinaryModule)
+						key = ((BinaryModule) element).getKey(true);
+					else
+						throw new IllegalArgumentException(element + " has an unexpected type"); //$NON-NLS-1$
+					binaryElementPositions.put(key, i);
+				} catch (JavaModelException e) {
+					throw new IllegalArgumentException(element + " does not exist", e); //$NON-NLS-1$
+				}
+			}
+		}
+		ICompilationUnit[] cus = new ICompilationUnit[cuNumber];
+		sourceElementPositions.keySet().toArray(cus);
+
+		int bindingKeyNumber = binaryElementPositions.size();
+		String[] bindingKeys = new String[bindingKeyNumber];
+		binaryElementPositions.keysToArray(bindingKeys);
+
+		class Requestor extends ASTRequestor {
+			IBinding[] bindings = new IBinding[length];
+			@Override
+			public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
+				// TODO (jerome) optimize to visit the AST only once
+				IntArrayList intList = (IntArrayList) sourceElementPositions.get(source);
+				for (int i = 0; i < intList.length; i++) {
+					final int index = intList.list[i];
+					SourceRefElement element = (SourceRefElement) elements[index];
+					DOMFinder finder = new DOMFinder(ast, element, true/*resolve binding*/);
+					try {
+						finder.search();
+					} catch (JavaModelException e) {
+						throw new IllegalArgumentException(element + " does not exist", e); //$NON-NLS-1$
+					}
+					this.bindings[index] = finder.foundBinding;
+				}
+			}
+			@Override
+			public void acceptBinding(String bindingKey, IBinding binding) {
+				int index = binaryElementPositions.get(bindingKey);
+				this.bindings[index] = binding;
+			}
+		}
+		Requestor requestor = new Requestor();
+		unitResolver.resolve(cus, bindingKeys, requestor, apiLevel, compilerOptions, javaProject, owner, flags, monitor);
+		return requestor.bindings;
 	}
 
 	private ASTNode internalCreateAST(IProgressMonitor monitor) {
