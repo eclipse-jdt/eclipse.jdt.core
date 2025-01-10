@@ -2166,6 +2166,14 @@ public void illegalRedeclarationOfPatternVar(LocalVariableBinding local, ASTNode
 			nodeSourceStart(local, location),
 			nodeSourceEnd(local, location));
 }
+public void expressionTypeCannotBeSubtypeOfPatternType(ASTNode location) {
+	this.handle(
+			IProblem.PatternSubtypeOfExpression,  // ass backwards naming of API constant :-(
+			NoArgument,
+			NoArgument,
+			location.sourceStart,
+			location.sourceEnd);
+}
 public void duplicateMethodInType(AbstractMethodDeclaration methodDecl, boolean equalParameters, int severity) {
     MethodBinding method = methodDecl.binding;
     if (equalParameters) {
@@ -6412,7 +6420,8 @@ public void nullAnnotationUnsupportedLocation(TypeReference type) {
 }
 private char[][] missingAnalysisAnnotationName(AnnotationBinding[] annotations, LookupEnvironment environment) {
 	for (AnnotationBinding annotationBinding : annotations) {
-		if (annotationBinding.getAnnotationType() instanceof ReferenceBinding type
+		ReferenceBinding type;
+		if ((type = annotationBinding.getAnnotationType()) != null
 				&& environment.checkForMissingAnalysisAnnotation(type) != 0)
 			return type.compoundName;
 	}
