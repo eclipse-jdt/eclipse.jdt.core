@@ -1596,6 +1596,39 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			deleteProject("P2");
 		}
 	}
+	public void testRequiresDirectiveNameIsMandatory() throws JavaModelException, CoreException {
+		try {
+			assertTrue(RequiresDirective.NAME_PROPERTY.isMandatory());
+
+			IJavaProject project1 = createJavaProject("ASTParserModelTests", new String[] { "src" },
+					new String[] { "CONVERTER_JCL9_LIB" }, "bin", "9");
+			project1.open(null);
+			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String content = """
+			module first {
+				requires other;
+			}
+			""";
+			createFile("/ASTParserModelTests/src/module-info.java", content);
+			this.workingCopy = getCompilationUnit("/ASTParserModelTests/src/module-info.java");
+
+			ASTParser astParser = ASTParser.newParser(AST.getJLSLatest());
+			astParser.setSource(this.workingCopy);
+			astParser.setResolveBindings(true);
+			astParser.setStatementsRecovery(true);
+			CompilationUnit compilationUnit = (CompilationUnit) astParser.createAST(new NullProgressMonitor());
+			ModuleDeclaration moduleDeclaration = compilationUnit.getModule();
+			RequiresDirective requiresDirective = (RequiresDirective)moduleDeclaration.moduleStatements().get(0);
+			try {
+				requiresDirective.setName(null);
+				fail("Expected an IllegalArgumentException to be thrown");
+			} catch (IllegalArgumentException e) {
+				// do nothing
+			}
+		} finally {
+			deleteProject("ASTParserModelTests");
+		}
+	}
 
 // Add new tests here
 }

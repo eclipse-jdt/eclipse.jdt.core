@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -640,23 +640,14 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		}
 
 	}
-	public ASTNode runJLS3Conversion(ICompilationUnit unit, boolean resolveBindings, boolean checkJLS2) {
-		return runJLS3Conversion(unit, resolveBindings, checkJLS2, false);
+	public ASTNode runJLS3Conversion(ICompilationUnit unit, boolean resolveBindings) {
+		return runJLS3Conversion(unit, resolveBindings, false);
 	}
 
-	public ASTNode runJLS3Conversion(ICompilationUnit unit, boolean resolveBindings, boolean checkJLS2, boolean bindingRecovery) {
+	public ASTNode runJLS3Conversion(ICompilationUnit unit, boolean resolveBindings, boolean bindingRecovery) {
 
 		// Create parser
-		ASTParser parser;
-		if (checkJLS2) {
-			parser = ASTParser.newParser(astInternalJLS2());
-			parser.setSource(unit);
-			parser.setResolveBindings(resolveBindings);
-			parser.setBindingsRecovery(bindingRecovery);
-			parser.createAST(null);
-		}
-
-		parser = ASTParser.newParser(JLS3_INTERNAL);
+		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
 		parser.setSource(unit);
 		parser.setResolveBindings(resolveBindings);
 		parser.setBindingsRecovery(bindingRecovery);
@@ -673,23 +664,14 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		return result;
 	}
 
-	public ASTNode runJLS4Conversion(ICompilationUnit unit, boolean resolveBindings, boolean checkJLS2) {
-		return runJLS4Conversion(unit, resolveBindings, checkJLS2, false);
+	public ASTNode runJLS4Conversion(ICompilationUnit unit, boolean resolveBindings) {
+		return runJLS4Conversion(unit, resolveBindings, false);
 	}
 
-	public ASTNode runJLS4Conversion(ICompilationUnit unit, boolean resolveBindings, boolean checkJLS2, boolean bindingRecovery) {
+	public ASTNode runJLS4Conversion(ICompilationUnit unit, boolean resolveBindings, boolean bindingRecovery) {
 
 		// Create parser
-		ASTParser parser;
-		if (checkJLS2) {
-			parser = ASTParser.newParser(astInternalJLS2());
-			parser.setSource(unit);
-			parser.setResolveBindings(resolveBindings);
-			parser.setBindingsRecovery(bindingRecovery);
-			parser.createAST(null);
-		}
-
-		parser = ASTParser.newParser(JLS4_INTERNAL);
+		ASTParser parser = ASTParser.newParser(JLS4_INTERNAL);
 		parser.setSource(unit);
 		parser.setResolveBindings(resolveBindings);
 		parser.setBindingsRecovery(bindingRecovery);
@@ -706,26 +688,13 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		return result;
 	}
 
-	public ASTNode runJLS8Conversion(ICompilationUnit unit, boolean resolveBindings, boolean checkJLS2) {
-		return runJLS8Conversion(unit, resolveBindings, checkJLS2, false);
+	public ASTNode runJLS8Conversion(ICompilationUnit unit, boolean resolveBindings) {
+		return runJLS8Conversion(unit, resolveBindings, false);
 	}
 
-	/**
-	 * @deprecated references deprecated old AST level
-	 */
-	public ASTNode runJLS8Conversion(ICompilationUnit unit, boolean resolveBindings, boolean checkJLS2, boolean bindingRecovery) {
-
+	public ASTNode runJLS8Conversion(ICompilationUnit unit, boolean resolveBindings, boolean bindingRecovery) {
 		// Create parser
-		ASTParser parser;
-		if (checkJLS2) {
-			parser = ASTParser.newParser(astInternalJLS2());
-			parser.setSource(unit);
-			parser.setResolveBindings(resolveBindings);
-			parser.setBindingsRecovery(bindingRecovery);
-			parser.createAST(null);
-		}
-
-		parser = ASTParser.newParser(AST.JLS8);
+        ASTParser parser = ASTParser.newParser(JLS8_INTERNAL);
 		parser.setSource(unit);
 		parser.setResolveBindings(resolveBindings);
 		parser.setBindingsRecovery(bindingRecovery);
