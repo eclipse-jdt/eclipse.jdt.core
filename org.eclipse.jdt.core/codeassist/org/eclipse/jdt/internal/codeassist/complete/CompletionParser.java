@@ -1249,7 +1249,8 @@ private boolean popBlockContaining(ASTNode soughtStatement) {
 	RecoveredElement elem = this.currentElement;
 	while (elem instanceof RecoveredBlock block) {
 		for (int i=0; i<block.statementCount; i++) {
-			if (block.statements[i] instanceof RecoveredStatement stmt) {
+			RecoveredStatement stmt;
+			if ((stmt = block.statements[i]) != null) {
 				if (stmt.statement == soughtStatement) {
 					this.currentElement = block.parent;
 					// also remove block from the new currentElement:

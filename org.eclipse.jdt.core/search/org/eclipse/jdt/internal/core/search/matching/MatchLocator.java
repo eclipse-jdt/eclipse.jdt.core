@@ -69,7 +69,6 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfIntValues;
 import org.eclipse.jdt.internal.compiler.util.Messages;
-import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
@@ -152,7 +151,8 @@ int progressWorked;
 
 // Binding resolution and cache
 CompilationUnitScope unitScope;
-SimpleLookupTable bindings;
+Map<JavaSearchPattern, Binding> bindingsByPattern;
+Map<String, Binding> bindingsByName;
 
 HashtableOfIntValues inTypeOccurrencesCounts = new HashtableOfIntValues();
 // Cache for method handles
@@ -945,10 +945,10 @@ protected void getMethodBodies(CompilationUnitDeclaration unit, MatchingNodeSet 
 		this.parser.scanner.linePtr = oldLinePtr;
 	}
 }
-protected TypeBinding getType(Object typeKey, char[] typeName) {
+protected TypeBinding getType(char[] typeKey, char[] typeName) {
 	if (this.unitScope == null || typeName == null || typeName.length == 0) return null;
 	// Try to get binding from cache
-	Binding binding = (Binding) this.bindings.get(typeKey);
+	Binding binding = this.bindingsByName.get(new String(typeKey));
 	if (binding != null) {
 		if (binding instanceof TypeBinding && binding.isValidBinding())
 			return (TypeBinding) binding;
@@ -961,7 +961,7 @@ protected TypeBinding getType(Object typeKey, char[] typeName) {
 	if (typeBinding == null || !typeBinding.isValidBinding()) {
 		typeBinding = this.lookupEnvironment.getType(compoundName, this.unitScope.module());
 	}
-	this.bindings.put(typeKey, typeBinding);
+	this.bindingsByName.put(new String(typeKey), typeBinding);
 	return typeBinding != null && typeBinding.isValidBinding() ? typeBinding : null;
 }
 public MethodBinding getMethodBinding(MethodPattern methodPattern) {
@@ -993,7 +993,7 @@ public MethodBinding getMethodBinding(MethodPattern methodPattern) {
     				if (unit != null) {
     					AbstractMethodDeclaration amd = new ASTNodeFinder(unit).findMethod((IMethod) methodPattern.focus);
     					if (amd != null && amd.binding != null && amd.binding.isValidBinding()) {
-    						this.bindings.put(methodPattern, amd.binding);
+    						this.bindingsByPattern.put(methodPattern, amd.binding);
     						return amd.binding;
     					}
     				}
@@ -1119,7 +1119,7 @@ private MethodBinding getMostApplicableMethod(List<MethodBinding> possibleMethod
 private MethodBinding getMethodBinding0(MethodPattern methodPattern) {
 	if (this.unitScope == null) return null;
 	// Try to get binding from cache
-	Binding binding = (Binding) this.bindings.get(methodPattern);
+	Binding binding = this.bindingsByPattern.get(methodPattern);
 	if (binding != null) {
 		if (binding instanceof MethodBinding && binding.isValidBinding())
 			return (MethodBinding) binding;
@@ -1140,7 +1140,7 @@ private MethodBinding getMethodBinding0(MethodPattern methodPattern) {
 			result = getMethodBinding(methodPattern, declaringTypeBinding);
 		}
 	}
-	this.bindings.put(methodPattern, result != null ? result : new ProblemMethodBinding(methodPattern.selector, null, ProblemReasons.NotFound));
+	this.bindingsByPattern.put(methodPattern, result != null ? result : new ProblemMethodBinding(methodPattern.selector, null, ProblemReasons.NotFound));
 	return result;
 }
 private boolean matchParams(MethodPattern methodPattern, int index, TypeBinding binding) {
@@ -1248,7 +1248,8 @@ public void initialize(JavaProject project, int possibleMatchSize) throws JavaMo
 	this.lookupEnvironment = new LookupEnvironment(this, this.options, problemReporter, this.nameEnvironment);
 	this.lookupEnvironment.mayTolerateMissingType = true;
 	this.parser = MatchLocatorParser.createParser(problemReporter, this);
-	this.bindings = new SimpleLookupTable(); // For every LE
+	this.bindingsByPattern = new HashMap<>();
+	this.bindingsByName = new HashMap<>(); // For every LE
 
 	// basic parser needs also to be reset as project options may have changed
 	// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=163072
@@ -1428,7 +1429,8 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 	copies.toArray(this.workingCopies);
 
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	this.bindings = new SimpleLookupTable();
+	this.bindingsByPattern = new HashMap<>();
+	this.bindingsByName = new HashMap<>();
 	try {
 		// optimize access to zip files during search operation
 		manager.cacheZipFiles(this);
@@ -1545,7 +1547,8 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 			this.nameEnvironment.cleanup();
 		this.unitScope = null;
 		manager.flushZipFiles(this);
-		this.bindings = null;
+		this.bindingsByPattern = null;
+		this.bindingsByName = null;
 	}
 }
 private IJavaSearchScope getSubScope(String optionString, long value, boolean ref) {
@@ -2863,7 +2866,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 
 	// Clear handle cache
 	this.methodHandles = null;
-	this.bindings.removeKey(this.pattern);
+	this.bindingsByPattern.remove(this.pattern);
 	this.patternLocator.mustResolve = locatorMustResolve;
 }
 /**

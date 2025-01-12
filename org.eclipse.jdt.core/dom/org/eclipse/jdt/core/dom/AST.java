@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -128,6 +128,7 @@ public final class AST {
 	 * @since 3.0
 	 * @deprecated Clients should use the  {@link #getJLSLatest()} AST API instead.
 	 */
+	@Deprecated
 	public static final int JLS2 = 2;
 
 	/**
@@ -152,6 +153,7 @@ public final class AST {
 	 * @since 3.1
 	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 */
+	@Deprecated
 	public static final int JLS3 = 3;
 
 	/**
@@ -176,6 +178,7 @@ public final class AST {
 	 * @since 3.7.1
 	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 */
+	@Deprecated
 	public static final int JLS4 = 4;
 
 	/**
@@ -200,6 +203,7 @@ public final class AST {
 	 * @since 3.10
 	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 */
+	@Deprecated
 	public static final int JLS8 = 8;
 
 	/**
@@ -224,6 +228,7 @@ public final class AST {
 	 * @since 3.14
 	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 */
+	@Deprecated
 	public static final int JLS9 = 9;
 
 	/**
@@ -248,6 +253,7 @@ public final class AST {
 	 * @since 3.14
 	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 */
+	@Deprecated
 	public static final int JLS10 = 10;
 
 	/**
@@ -272,6 +278,7 @@ public final class AST {
 	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 * @since 3.16
 	 */
+	@Deprecated
 	public static final int JLS11 = 11;
 
 	/**
@@ -295,6 +302,7 @@ public final class AST {
 	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 * @since 3.18
 	 */
+	@Deprecated
 	public static final int JLS12 = 12;
 	/**
 	 * Internal synonym for {@link #JLS12}. Use to alleviate
@@ -316,8 +324,8 @@ public final class AST {
 	 * </p>
 	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 * @since 3.20
-	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 */
+	@Deprecated
 	public static final int JLS13 = 13;
 
 	/**
@@ -341,6 +349,7 @@ public final class AST {
 	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 * @since 3.22
 	 */
+	@Deprecated
 	public static final int JLS14 = 14;
 
 	/**
@@ -364,6 +373,7 @@ public final class AST {
 	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 * @since 3.24
 	 */
+	@Deprecated
 	public static final int JLS15 = 15;
 	/**
 	 * Constant for indicating the AST API that handles JLS16.
@@ -379,6 +389,7 @@ public final class AST {
 	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 * @since 3.26
 	 */
+	@Deprecated
 	public static final int JLS16 = 16;
 	/**
 	 * Constant for indicating the AST API that handles JLS17.
@@ -394,6 +405,7 @@ public final class AST {
 	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 * @since 3.28
 	 */
+	@Deprecated
 	public static final int JLS17 = 17;
 	/**
 	 * Constant for indicating the AST API that handles JLS17.
@@ -410,6 +422,7 @@ public final class AST {
 	 * @deprecated
 	 * @since 3.30
 	 */
+	@Deprecated
 	public static final int JLS18 = 18;
 
 	/**
@@ -427,6 +440,7 @@ public final class AST {
 	 * @deprecated
 	 * @since 3.32
 	 */
+	@Deprecated
 	public static final int JLS19 = 19;
 
 	/**
@@ -565,6 +579,7 @@ public final class AST {
 	 * This provides the latest JLS level.
 	 * @deprecated use {@link #getJLSLatest()}
 	 */
+	@Deprecated
 	public static final int JLS_Latest = JLS_INTERNAL_Latest;
 
 	/*
@@ -676,7 +691,7 @@ public final class AST {
 	 * Creates a new Java abstract syntax tree
      * (AST) following the specified set of API rules.
      * <p>
-     * Clients should use this method specifying {@link #JLS12} as the
+     * Clients should use this method specifying {@link #getJLSLatest} as the
      * AST level in all cases, even when dealing with source of earlier JDK versions like 1.3 or 1.4.
      * </p>
      *
@@ -687,9 +702,10 @@ public final class AST {
 	 * <li>the API level is not one of the <code>JLS*</code> level constants</li>
 	 * </ul>
 	 * @deprecated Clients should port their code to use the latest JLS* AST API and call
-	 *    {@link #newAST(int, boolean) AST.newAST(AST.JLS12, false)} instead of using this constructor.
+	 *    {@link #newAST(int, boolean) AST.newAST(AST.getJLSLatest(), false)} instead of using this constructor.
      * @since 3.0
 	 */
+	@Deprecated
 	public static AST newAST(int level) {
 		return new AST(level, false);
 	}
@@ -698,11 +714,11 @@ public final class AST {
 	 * Creates a new Java abstract syntax tree
      * (AST) following the specified set of API rules.
      * <p>
-     * Clients should use this method specifying {@link #JLS12} as the
+     * Clients should use this method specifying {@link #getJLSLatest} as the
      * AST level in all cases, even when dealing with source of earlier JDK versions like 1.3 or 1.4.
      * </p>
      *
- 	 * @param level the API level; one of the <code>JLS*</code> level constants
+ 	 * @param level the API level; one of the <code>JLS*</code> level constants or {@link AST#getJLSLatest}
  	 * @param previewEnabled <code>true</code> if preview feature is enabled else <code>false</code>
 	 * @return new AST instance following the specified set of API rules.
 	 * @exception IllegalArgumentException if:
@@ -726,8 +742,8 @@ public final class AST {
 	 *    	<code>"1.3"</code> means the source code is as per JDK 1.3 and api level {@link #JLS3}.</li>
 	 *    	<li><code>"1.4", "1.5", "1.6", "1.7" "1.8"</code> implies the respective source JDK levels 1.4, 1.5, 1.6, 1.7 and api level {@link #JLS4}.</li>
 	 *    	<li><code>"1.8"</code> implies the respective source JDK level 1.8 and api level {@link #JLS8}.</li>
-	 *    	<li><code>"9", "10", "11", "12" and "13"</code> implies the respective JDK levels 9, 10, 11, 12 and 13
-	 *     	and api levels {@link #JLS9}, {@link #JLS10}, {@link #JLS11}, {@link #JLS12} and {@link #JLS13}.</li>
+	 *    	<li><code>"9", "10", "11" up to "23"</code> implies the respective JDK levels 9, 10, 11 up to 23
+	 *     	and api levels {@link #JLS9}, {@link #JLS10}, {@link #JLS11} up to {@link #JLS23}.</li>
 	 *    	<li>Additional legal values may be added later.</li>
 	 *    </ul>
 	 * </li>
@@ -1112,8 +1128,9 @@ public final class AST {
 	 *
 	 * @see JavaCore#getDefaultOptions()
 	 * @deprecated Clients should port their code to use the latest JLS* AST API and call
-	 *    {@link #newAST(int, boolean) AST.newAST(AST.JLS12, false)} instead of using this constructor.
+	 *    {@link #newAST(int, boolean) AST.newAST(AST.getJLSLatest, false)} instead of using this constructor.
 	 */
+	@Deprecated
 	public AST() {
 		this(JavaCore.getDefaultOptions());
 	}
@@ -1231,11 +1248,10 @@ public final class AST {
 	 *    <ul>
 	 *    	<li>
 	 *    	<code>"1.3"</code> means the source code is as per JDK 1.3 and api level {@link #JLS3}.</li>
-	 *    	<li><code>"1.4", "1.5", "1.6", "1.7" "1.8"</code> implies the respective source JDK levels 1.4, 1.5, 1.6, 1.7 and api level {@link #JLS4}.</li>
+	 *    	<li><code>"1.4", "1.5", "1.6", "1.7"</code> implies the respective source JDK levels 1.4, 1.5, 1.6, 1.7 and api level {@link #JLS4}.</li>
 	 *    	<li><code>"1.8"</code> implies the respective source JDK level 1.8 and api level {@link #JLS8}.</li>
-	 *    	<li><code>"9", "10", "11", "12", "13", "14", "15", "16" and "17"</code> implies the respective JDK levels 9, 10, 11, 12, 13, 14, 15, 16 and 17
-	 *     	and api levels {@link #JLS9}, {@link #JLS10}, {@link #JLS11}, {@link #JLS12}, {@link #JLS13}
-	 *     {@link #JLS14}, {@link #JLS15}, {@link #JLS16} and {@link #JLS17}.</li>
+	 *    	<li><code>"9", "10", "11" up to "23"</code> implies the respective JDK levels 9, 10, 11 up to 23
+	 *     	and api levels {@link #JLS9}, {@link #JLS10}, {@link #JLS11} up to {@link #JLS23}.</li>
 	 *    	<li>Additional legal values may be added later.</li>
 	 *    </ul>
 	 * 	<li><code>"org.eclipse.jdt.core.compiler.problem.enablePreviewFeatures"</code> -

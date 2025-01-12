@@ -691,6 +691,8 @@ public class InferenceContext18 {
 			MethodBinding innerMethod = invocation.binding();
 			if (innerMethod == null)
 				return true; 		  // -> proceed with no new C set elements.
+			if (innerMethod instanceof PolyParameterizedGenericMethodBinding poly && poly.hasOverloads)
+				return true;		  // don't let ambiguous inner method influence outer inference
 
 			Expression[] arguments = invocation.arguments();
 			TypeBinding[] argumentTypes = arguments == null ? Binding.NO_PARAMETERS : new TypeBinding[arguments.length];

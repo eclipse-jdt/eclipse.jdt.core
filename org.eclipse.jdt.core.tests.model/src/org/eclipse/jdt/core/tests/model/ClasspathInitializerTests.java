@@ -397,7 +397,7 @@ public void testContainerInitializer08() throws CoreException {
 		JavaCore.run(new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
 				for (int i = 0; i < projectLength; i++) {
-					createProject(projects[i]);
+					createProjectInWorkspaceRunnnable(projects[i]);
 					editFile(
 						"/" + projects[i] + "/.project",
 						"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -463,7 +463,7 @@ public void testContainerInitializer09() throws CoreException {
 		ContainerInitializer.setInitializer(initializer);
 		JavaCore.run(new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
-				createProject("P1");
+				createProjectInWorkspaceRunnnable("P1");
 				editFile(
 					"/P1/.project",
 					"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -528,7 +528,7 @@ public void testContainerInitializer10() throws CoreException {
 		getWorkspace().run(new IWorkspaceRunnable() {
             public void run(IProgressMonitor monitor) throws CoreException {
                 p2.setRawClasspath(new IClasspathEntry[] {JavaCore.newSourceEntry(new Path("/P2/src"))}, new Path("/P2/bin"), null);
-				createProject("P3");
+                createProjectInWorkspaceRunnnable("P3");
                 editFile(
                 	"/P3/.project",
                 	"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
