@@ -2099,6 +2099,13 @@ void setSourceStart(int sourceStart);
 	int UndefinedModuleAddReads = ModuleRelated + 1319;
 	/** @since 3.20 */
 	int ExportingForeignPackage = ModuleRelated + 1320;
+	/** @since 3.41 */
+	int ModifierOnRequiresJavaBase = ModuleRelated + 1321;
+	/**
+	 * @since 3.41
+	 * @noreference related to preview feature module imports
+	 */
+	int ModifierOnRequiresJavaBasePreview = ModuleRelated + 1322;
 
 
 	/** @since 3.14 */

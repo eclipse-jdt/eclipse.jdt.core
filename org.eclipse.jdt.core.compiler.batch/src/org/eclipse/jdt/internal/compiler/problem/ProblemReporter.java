@@ -11644,6 +11644,17 @@ public void invalidServiceRef(int problem, TypeReference type) {
 		NoArgument, new String[] { CharOperation.charToString(type.resolvedType.readableName()) },
 		type.sourceStart, type.sourceEnd);
 }
+public void modifierRequiresJavaBase(RequiresStatement stat, JavaFeature moduleImports) {
+	if (moduleImports != null) {
+		if (moduleImports.isSupported(this.options))
+			return;
+		if (moduleImports.matchesCompliance(this.options)) {
+			this.handle(IProblem.ModifierOnRequiresJavaBase, NoArgument, NoArgument, stat.modifiersSourceStart, stat.sourceEnd);
+			return;
+		}
+	}
+	this.handle(IProblem.ModifierOnRequiresJavaBase, NoArgument, NoArgument, stat.modifiersSourceStart, stat.sourceEnd);
+}
 
 public void unlikelyArgumentType(Expression argument, MethodBinding method, TypeBinding argumentType,
 							TypeBinding receiverType, DangerousMethod dangerousMethod)

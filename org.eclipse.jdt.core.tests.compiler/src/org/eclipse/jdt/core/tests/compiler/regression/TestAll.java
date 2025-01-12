@@ -246,7 +246,7 @@ public static Test suite() {
 	 since_21.add(NullAnnotationTests21.class);
 	 since_21.add(BatchCompilerTest_21.class);
 	 since_21.add(JEP441SnippetsTest.class);
-	 
+
 
 	 // add 21 specific test here (check duplicates)
 	 ArrayList since_22 = new ArrayList();
@@ -258,6 +258,7 @@ public static Test suite() {
 	 since_23.add(MarkdownCommentsTest.class);
 
 	 ArrayList since_24 = new ArrayList();
+	 since_23.add(ModuleImportTests.class);
 	 since_24.add(SuperAfterStatementsTest.class);
 	 since_24.add(ImplicitlyDeclaredClassesTest.class);
 	 since_24.add(PrimitiveInPatternsTest.class);
