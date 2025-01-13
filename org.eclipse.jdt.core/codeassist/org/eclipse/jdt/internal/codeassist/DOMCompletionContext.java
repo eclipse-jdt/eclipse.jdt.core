@@ -200,8 +200,8 @@ class DOMCompletionContext extends CompletionContext {
 			return null;
 		}
 		var res = this.expectedTypes.getExpectedTypes().stream() //
-				.map(type -> type.getKey()) //
-				.map(name -> name.replace('/', '.'))
+				.map(ITypeBinding::getQualifiedName) //
+				.map(name -> Signature.createTypeSignature(name, true))
 				.map(String::toCharArray) //
 				.toArray(char[][]::new);
 		return res.length == 0 ? null : res;

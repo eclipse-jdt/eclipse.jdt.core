@@ -126,6 +126,16 @@ public class ExpectedTypes {
 				}
 				return;
 			}
+			if (parent2 instanceof SwitchCase switchCase) {
+				if (switchCase.getParent() instanceof SwitchStatement stmt) {
+					this.expectedTypes.add(stmt.getExpression().resolveTypeBinding());
+					return;
+				}
+				if (switchCase.getParent() instanceof SwitchExpression expr) {
+					this.expectedTypes.add(expr.getExpression().resolveTypeBinding());
+					return;
+				}
+			}
  			parent2 = parent2.getParent();
 		}
 		ASTNode parent = parent2;

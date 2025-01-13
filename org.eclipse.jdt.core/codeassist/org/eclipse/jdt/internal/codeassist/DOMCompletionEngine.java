@@ -902,6 +902,17 @@ public class DOMCompletionEngine implements Runnable {
 				}
 				suggestDefaultCompletions = false;
 			}
+			if (context != null && context.getLocationInParent() == QualifiedType.NAME_PROPERTY && context.getParent() instanceof QualifiedType qType) {
+				Type qualifier = qType.getQualifier();
+				if (qualifier != null) {
+					ITypeBinding qualifierBinding = qualifier.resolveBinding();
+					if (qualifierBinding != null) {
+						for (ITypeBinding nestedType : qualifierBinding.getDeclaredTypes()) {
+							this.requestor.accept(toProposal(nestedType));
+						}
+					}
+				}
+			}
 
 			// check for accessible bindings to potentially turn into completions.
 			// currently, this is always run, even when not using the default completion,
