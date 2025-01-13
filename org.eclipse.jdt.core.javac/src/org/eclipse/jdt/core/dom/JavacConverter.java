@@ -1897,6 +1897,16 @@ class JavacConverter {
 
 		// Handle errors or default situation
 		if (javac instanceof JCErroneous error) {
+			int pos = javac.getPreferredPosition();
+			char c = this.rawText.length() > pos ? this.rawText.charAt(pos) : 0;
+			if (error.getErrorTrees().isEmpty() && c == '"') {
+				  int newLine = this.rawText.indexOf('\n', pos);
+				  int lineEnd = newLine == -1 ? this.rawText.length() - 1 : newLine;
+				  String litText = this.rawText.substring(pos+1, lineEnd);
+				  Expression res = convertStringToLiteral(litText, pos, lineEnd, null);
+				  res.setSourceRange(pos,  lineEnd - pos);
+				  return res;
+				}
 			if (error.getErrorTrees().size() == 1) {
 				JCTree tree = error.getErrorTrees().get(0);
 				if (tree instanceof JCExpression nestedExpr) {
@@ -2144,43 +2154,7 @@ class JavacConverter {
 			}
 		}
 		if (value instanceof String string) {
-			boolean malformed = false;
-			if (this.rawText.charAt(literal.pos) == '"'
-					&& this.rawText.charAt(literal.pos + 1) == '"'
-					&& this.rawText.charAt(literal.pos + 2) == '"') {
-				if (this.ast.apiLevel() > AST.JLS14) {
-					TextBlock res = this.ast.newTextBlock();
-					commonSettings(res, literal);
-					String rawValue = this.rawText.substring(literal.pos, literal.getEndPosition(this.javacCompilationUnit.endPositions));
-					res.internalSetEscapedValue(rawValue, string);
-					return res;
-				}
-				malformed = true;
-			}
-			StringLiteral res = this.ast.newStringLiteral();
-			commonSettings(res, literal);
-			int startPos = res.getStartPosition();
-			int len = res.getLength();
-			if( string.length() != len && len > 2) {
-				try {
-					string = this.rawText.substring(startPos, startPos + len);
-					if (!string.startsWith("\"")) {
-						string = '"' + string;
-					}
-					if (!string.endsWith("\"")) {
-						string = string + '"';
-					}
-					res.internalSetEscapedValue(string);
-				} catch(IndexOutOfBoundsException ignore) {
-					res.setLiteralValue(string);  // TODO: we want the token here
-				}
-			} else {
-				res.setLiteralValue(string);  // TODO: we want the token here
-			}
-			if (malformed) {
-				res.setFlags(res.getFlags() | ASTNode.MALFORMED);
-			}
-			return res;
+			return convertStringToLiteral(string, literal.pos, literal.getEndPosition(this.javacCompilationUnit.endPositions), literal);
 		}
 		if (value instanceof Boolean string) {
 			BooleanLiteral res = this.ast.newBooleanLiteral(string.booleanValue());
@@ -2201,6 +2175,45 @@ class JavacConverter {
 		throw new UnsupportedOperationException("Not supported yet " + literal + "\n of type" + literal.getClass().getName());
 	}
 
+	private Expression convertStringToLiteral(String string, int pos, int endPos, JCLiteral literal) {
+		boolean malformed = false;
+		if (this.rawText.charAt(pos) == '"'
+				&& this.rawText.charAt(pos + 1) == '"'
+				&& this.rawText.charAt(pos + 2) == '"') {
+			if (this.ast.apiLevel() > AST.JLS14) {
+				TextBlock res = this.ast.newTextBlock();
+				commonSettings(res, literal);
+				String rawValue = this.rawText.substring(pos, endPos);
+				res.internalSetEscapedValue(rawValue, string);
+				return res;
+			}
+			malformed = true;
+		}
+		StringLiteral res = this.ast.newStringLiteral();
+		commonSettings(res, literal);
+		int startPos = res.getStartPosition();
+		int len = res.getLength();
+		if( string.length() != len && len > 2) {
+			try {
+				string = this.rawText.substring(startPos, startPos + len);
+				if (!string.startsWith("\"")) {
+					string = '"' + string;
+				}
+				if (!string.endsWith("\"")) {
+					string = string + '"';
+				}
+				res.internalSetEscapedValue(string);
+			} catch(IndexOutOfBoundsException ignore) {
+				res.setLiteralValue(string);  // TODO: we want the token here
+			}
+		} else {
+			res.setLiteralValue(string);  // TODO: we want the token here
+		}
+		if (malformed) {
+			res.setFlags(res.getFlags() | ASTNode.MALFORMED);
+		}
+		return res;
+	}
 	private Statement convertStatement(JCStatement javac, ASTNode parent) {
 		int endPos = TreeInfo.getEndPos(javac, this.javacCompilationUnit.endPositions);
 		int preferredPos = javac.getPreferredPosition();
