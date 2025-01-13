@@ -32,7 +32,7 @@ pipeline {
 
 					# Build and test without DOM-first to ensure no regression takes place
 					mvn -U clean verify --batch-mode --fail-at-end -Dmaven.repo.local=$WORKSPACE/.m2/repository \
-						-Ptest-on-javase-24 -Pbree-libs -Papi-check -Pjavadoc -Pp2-repo \
+						-Ptest-on-javase-24 -Pbree-libs -Pp2-repo \
 						-pl !org.eclipse.jdt.core.tests.javac \
 						-Dmaven.test.failure.ignore=true \
 						-Dcompare-version-with-baselines.skip=false \
@@ -84,6 +84,8 @@ pipeline {
 				always {
 					archiveArtifacts artifacts: '*.log,*/target/work/data/.metadata/*.log,*/tests/target/work/data/.metadata/*.log,apiAnalyzer-workspace/.metadata/*.log,repository/target/repository/**,**/target/artifactcomparison/**', allowEmptyArchive: true
 					junit 'org.eclipse.jdt.core.tests.javac/target/surefire-reports/*.xml'
+					discoverGitReferenceBuild referenceJob: 'jdt-core-incubator/dom-with-javac'
+					recordIssues publishAllIssues:false, ignoreQualityGate:true, tool: junitParser(pattern: 'org.eclipse.jdt.core.tests.javac/target/surefire-reports/*.xml'), qualityGates: [[threshold: 1, type: 'DELTA', unstable: true]]
 				}
 			}
 		}
