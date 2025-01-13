@@ -578,7 +578,7 @@ static class JavacCompiler {
 		}
 		if (version == JavaCore.VERSION_24) {
 			switch(rawVersion) {
-				case "24-ea", "24":
+				case "24-ea", "24-beta", "24":
 					return 0000;
 			}
 		}

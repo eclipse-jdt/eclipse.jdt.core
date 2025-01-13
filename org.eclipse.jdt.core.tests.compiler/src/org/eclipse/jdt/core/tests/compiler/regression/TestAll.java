@@ -250,19 +250,18 @@ public static Test suite() {
 
 	 // add 21 specific test here (check duplicates)
 	 ArrayList since_22 = new ArrayList();
-//	 since_22.add(SuperAfterStatementsTest.class);
 	 since_22.add(UnnamedPatternsAndVariablesTest.class);
 	 since_22.add(UseOfUnderscoreJava22Test.class);
 	 since_22.add(SwitchPatternTest22.class);
 
 	 ArrayList since_23 = new ArrayList();
-	 since_23.add(SuperAfterStatementsTest.class);
-	 since_23.add(ImplicitlyDeclaredClassesTest.class);
-	 since_23.add(PrimitiveInPatternsTest.class);
-	 since_23.add(PrimitiveInPatternsTestSH.class);
 	 since_23.add(MarkdownCommentsTest.class);
 
 	 ArrayList since_24 = new ArrayList();
+	 since_24.add(SuperAfterStatementsTest.class);
+	 since_24.add(ImplicitlyDeclaredClassesTest.class);
+	 since_24.add(PrimitiveInPatternsTest.class);
+	 since_24.add(PrimitiveInPatternsTestSH.class);
 	 // Add new tests for Java 24 here and/or move preview tests being moved from 23 to 24
 
 	 // Build final test suite

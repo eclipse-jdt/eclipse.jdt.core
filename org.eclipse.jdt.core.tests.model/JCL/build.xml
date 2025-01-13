@@ -70,7 +70,7 @@
 		<antcall target="converterJclMin">
 			<param name="compliance" value="22"/>
 			<param name="suffix" value="22"/>
-		</antcall-->
+		</antcall>
 		<antcall target="converterJclMin">
 			<param name="compliance" value="23"/>
 			<param name="suffix" value="23"/>
