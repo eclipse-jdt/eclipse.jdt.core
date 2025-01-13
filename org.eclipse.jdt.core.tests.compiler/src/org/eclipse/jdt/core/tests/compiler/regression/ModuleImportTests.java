@@ -419,7 +419,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				OUTPUT_DIR);
 	}
 
-	public void test008_ambiguous() {
+	public void test008_shadowing() {
 		String srcDir = OUTPUT_DIR + File.separator + "src";
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, srcDir + File.separator + "p1", "Connection.java",
@@ -440,7 +440,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					package p2;
 					import module java.sql;
 					import p1.*;
-					@SuppressWarnings("preview")
+					@SuppressWarnings({ "preview", "unused" }) // module import is not actually used
 					class Client {
 						void m(Connection c) {
 							c.foo(); // ensure we select p1.Connection
@@ -450,21 +450,47 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 		StringBuilder commandLine = new StringBuilder();
 		commandLine.append(" -24 --enable-preview ");
 
-		runNegativeModuleTest(
+		runConformModuleTest(
 				files,
 				commandLine,
 				"",
+				"");
+	}
+
+	public void test008_shadowing_static_nested() {
+		String srcDir = OUTPUT_DIR + File.separator + "src";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, srcDir + File.separator + "p1", "Outer.java",
 				"""
-					----------
-					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p2/Client.java (at line 6)
+					package p1;
+					public class Outer {
+						public static class Connection {
+							public void foo() {}
+						}
+					}
+					""");
+		writeFileCollecting(files, srcDir, "module-info.java",
+				"""
+					module mod.one {
+						requires java.sql;
+					}
+					""");
+		writeFileCollecting(files, srcDir + File.separator + "p2", "Client.java",
+				"""
+					package p2;
+					import module java.sql;
+					import p1.Outer.*;
+					@SuppressWarnings({ "preview", "unused" }) // module import is not actually used
+					class Client {
 						void m(Connection c) {
-						       ^^^^^^^^^^
-					The type Connection is ambiguous
-					----------
-					1 problem (1 error)
-					""",
-				"reference to Connection is ambiguous",
-				OUTPUT_DIR);
+							c.foo(); // ensure we select p1.Outer.Connection
+						}
+					}
+					""");
+		StringBuilder commandLine = new StringBuilder();
+		commandLine.append(" -24 --enable-preview ");
+
+		runConformModuleTest(files, commandLine, "", "");
 	}
 
 	public void test009_ambiguous_modules() {
@@ -511,7 +537,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					import module mod.one;
 					@SuppressWarnings("preview")
 					class Client {
-						Connection conn; // module conflict mod.one java.sql
+						Connection conn; // module conflict mod.one java.sql (via requires transitive)
 						Other other; // package conflict mod.one/p1 mod.one/p2
 					}
 					""");
@@ -527,7 +553,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"""
 					----------
 					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/p3/Client.java (at line 5)
-						Connection conn; // module conflict mod.one java.sql
+						Connection conn; // module conflict mod.one java.sql (via requires transitive)
 						^^^^^^^^^^
 					The type Connection is ambiguous
 					----------
@@ -537,6 +563,64 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					The type Other is ambiguous
 					----------
 					2 problems (2 errors)
+					""",
+				"reference to Connection is ambiguous",
+				OUTPUT_DIR);
+	}
+
+	public void test009_ambiguous_modules2() {
+		// module conflict via separate module imports based on separate requires directly in mod.two
+		String srcDir = OUTPUT_DIR + File.separator + "src";
+		List<String> files = new ArrayList<>();
+		String modOneDir = srcDir + File.separator + "mod.one";
+		writeFileCollecting(files, modOneDir, "module-info.java",
+				"""
+					module mod.one {
+						exports p1;
+					}
+					""");
+		writeFileCollecting(files, modOneDir + File.separator + "p1", "Connection.java",
+				"""
+					package p1;
+					public class Connection {
+					}
+					""");
+
+		String modTwoDir = srcDir + File.separator + "mod.two";
+		writeFileCollecting(files, modTwoDir, "module-info.java",
+				"""
+					module mod.two {
+						requires mod.one;
+						requires java.sql;
+					}
+					""");
+		writeFileCollecting(files, modTwoDir + File.separator + "p3", "Client.java",
+				"""
+					package p3;
+					import module mod.one;
+					import module java.sql;
+					@SuppressWarnings("preview")
+					class Client {
+						Connection conn; // module conflict mod.one java.sql
+					}
+					""");
+		StringBuilder commandLine = new StringBuilder();
+		commandLine.append(" -24 --enable-preview ");
+		commandLine.append(" --module-source-path \"").append(srcDir).append("\"");
+		commandLine.append(" -d \"").append(OUTPUT_DIR).append(File.separatorChar).append("bin").append("\"");
+
+		runNegativeModuleTest(
+				files,
+				commandLine,
+				"",
+				"""
+					----------
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/p3/Client.java (at line 6)
+						Connection conn; // module conflict mod.one java.sql
+						^^^^^^^^^^
+					The type Connection is ambiguous
+					----------
+					1 problem (1 error)
 					""",
 				"reference to Connection is ambiguous",
 				OUTPUT_DIR);

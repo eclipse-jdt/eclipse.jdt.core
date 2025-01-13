@@ -3604,50 +3604,17 @@ public abstract class Scope {
 
 			// check on demand imports
 			if (imports != null) {
-				boolean foundInImport = false;
-				ReferenceBinding type = null;
-				for (ImportBinding someImport : imports) {
-					if (someImport.onDemand) {
-						Binding resolvedImport = someImport.getResolvedImport();
-						ReferenceBinding temp = null;
-						if (resolvedImport instanceof ModuleBinding) {
-							temp = findTypeInModule(name, (ModuleBinding) resolvedImport, currentPackage);
-						} else if (resolvedImport instanceof PackageBinding) {
-							temp = findType(name, (PackageBinding) resolvedImport, currentPackage);
-						} else if (someImport.isStatic()) {
-							// Imports are always resolved in the CU Scope (bug 520874)
-							temp = compilationUnitScope().findMemberType(name, (ReferenceBinding) resolvedImport); // static imports are allowed to see inherited member types
-							if (temp != null && !temp.isStatic())
-								temp = null;
-						} else {
-							temp = compilationUnitScope().findDirectMemberType(name, (ReferenceBinding) resolvedImport);
-						}
-						if (TypeBinding.notEquals(temp, type) && temp != null) {
-							if (temp.isValidBinding()) {
-								ImportReference importReference = someImport.reference;
-								if (importReference != null) {
-									importReference.bits |= ASTNode.Used;
-								}
-								if (foundInImport) {
-									// Answer error binding -- import on demand conflict; name found in two import on demand packages.
-									temp = new ProblemReferenceBinding(new char[][]{name}, type, ProblemReasons.Ambiguous);
-									if (typeOrPackageCache != null)
-										typeOrPackageCache.put(name, temp);
-									return temp;
-								}
-								type = temp;
-								foundInImport = true;
-							} else if (foundType == null) {
-								foundType = temp;
-							}
-						}
-					}
+				ReferenceBinding type = findTypeInOnDemandImports(imports, currentPackage, name, false, typeOrPackageCache);
+				if (type == null) { // module imports would otherwise be shadowed
+					type = findTypeInOnDemandImports(imports, currentPackage, name, true/*module imports*/, typeOrPackageCache);
 				}
-				if (type != null) {
+				if (type != null && type.isValidBinding()) {
 					if (typeOrPackageCache != null)
 						typeOrPackageCache.put(name, type);
 					return type;
 				}
+				if (foundType == null)
+					foundType = type;
 			}
 		}
 
@@ -3688,6 +3655,58 @@ public abstract class Scope {
 				typeOrPackageCache.put(name, foundType);
 		}
 		return foundType;
+	}
+
+	private ReferenceBinding findTypeInOnDemandImports(ImportBinding[] imports, PackageBinding currentPackage, char[] name,
+				boolean inModules, HashtableOfObject typeOrPackageCache) {
+		// this method is run in two iterations in order to let traditional imports shadow module imports
+		boolean foundInImport = false;
+		ReferenceBinding type = null;
+		ReferenceBinding problemType = null;
+		for (ImportBinding someImport : imports) {
+			if (someImport.onDemand) {
+				Binding resolvedImport = someImport.getResolvedImport();
+				ReferenceBinding temp = null;
+				if (inModules) {
+					if (resolvedImport instanceof ModuleBinding moduleBinding) {
+						temp = findTypeInModule(name, moduleBinding, currentPackage);
+					}
+				} else {
+					if (resolvedImport instanceof PackageBinding packageBinding) {
+						temp = findType(name, packageBinding, currentPackage);
+					} else if (resolvedImport instanceof ReferenceBinding referenceBinding) {
+						if (someImport.isStatic()) {
+							// Imports are always resolved in the CU Scope (bug 520874)
+							temp = compilationUnitScope().findMemberType(name, referenceBinding); // static imports are allowed to see inherited member types
+							if (temp != null && !temp.isStatic())
+								temp = null;
+						} else {
+							temp = compilationUnitScope().findDirectMemberType(name, referenceBinding);
+						}
+					}
+				}
+				if (TypeBinding.notEquals(temp, type) && temp != null) {
+					if (temp.isValidBinding()) {
+						ImportReference importReference = someImport.reference;
+						if (importReference != null) {
+							importReference.bits |= ASTNode.Used;
+						}
+						if (foundInImport) {
+							// Answer error binding -- import on demand conflict; name found in two import on demand packages.
+							temp = new ProblemReferenceBinding(new char[][]{name}, type, ProblemReasons.Ambiguous);
+							if (typeOrPackageCache != null)
+								typeOrPackageCache.put(name, temp);
+							return temp;
+						}
+						type = temp;
+						foundInImport = true;
+					} else if (problemType == null) {
+						problemType = temp;
+					}
+				}
+			}
+		}
+		return type != null ? type : problemType;
 	}
 
 	private ReferenceBinding findTypeInModule(char[] name, ModuleBinding moduleBinding, PackageBinding currentPackage) {
