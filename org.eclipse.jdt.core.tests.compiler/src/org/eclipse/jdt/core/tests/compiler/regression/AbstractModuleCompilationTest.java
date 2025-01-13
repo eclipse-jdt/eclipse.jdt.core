@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
  *******************************************************************************/
@@ -288,6 +292,10 @@ public abstract class AbstractModuleCompilationTest extends AbstractBatchCompile
 			case "-23":
 				if (versionOptions == null)
 					buf.append(' ').append(" --release 23 ");
+				continue;
+			case "-24":
+				if (versionOptions == null)
+					buf.append(' ').append(" --release 24 ");
 				continue;
 			}
 			if (tokens[i].startsWith("-warn") || tokens[i].startsWith("-err") || tokens[i].startsWith("-info")) {

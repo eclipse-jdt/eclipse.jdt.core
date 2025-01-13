@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
  *******************************************************************************/
@@ -60,7 +64,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 			filtered.append(
 				log.toString().lines()
 					.filter(line -> !line.equals("Note: Recompile with -Xlint:preview for details."))
-					.filter(line -> !(line.startsWith("Note: ") && line.endsWith("uses preview features of Java SE 23.")))
+					.filter(line -> !(line.startsWith("Note: ") && line.endsWith("uses preview features of Java SE 24.")))
 					.collect(Collectors.joining("\n")));
 			return filtered;
 		}
@@ -87,7 +91,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					"""
 	        },
-			" -23 \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
+			" -24 \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
 	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
 	        "",
 	        """
@@ -135,7 +139,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				Preview of features is supported only at the latest source level
 				""",
 	        true,
-	        "only supported for release 23");
+	        "only supported for release 24");
 	}
 
 	public void test001_simpleOK() {
@@ -160,7 +164,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					"""
 	        },
-			" -23 --enable-preview \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
+			" -24 --enable-preview \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
 	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
 	        "",
 	        "",
@@ -187,7 +191,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					"""
 	        },
-			" -23 --enable-preview \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
+			" -24 --enable-preview \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
 	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
 	        "",
 	        """
@@ -234,7 +238,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					"""
 	        },
-			" -23 --enable-preview \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
+			" -24 --enable-preview \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
 	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
 	        "",
 	        """
@@ -287,7 +291,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -23 --enable-preview ");
+		commandLine.append(" -24 --enable-preview ");
 		runConformModuleTest(
 				files,
 				commandLine,
@@ -321,7 +325,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -23 --enable-preview ");
+		commandLine.append(" -24 --enable-preview ");
 
 		runNegativeModuleTest(
 				files,
@@ -367,7 +371,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -23 --enable-preview ");
+		commandLine.append(" -24 --enable-preview ");
 		runConformModuleTest(
 				files,
 				commandLine,
@@ -405,7 +409,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -23 --enable-preview ");
+		commandLine.append(" -24 --enable-preview ");
 
 		runConformModuleTest(
 				files,
@@ -444,7 +448,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -23 --enable-preview ");
+		commandLine.append(" -24 --enable-preview ");
 
 		runNegativeModuleTest(
 				files,
@@ -512,7 +516,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -23 --enable-preview ");
+		commandLine.append(" -24 --enable-preview ");
 		commandLine.append(" --module-source-path \"").append(srcDir).append("\"");
 		commandLine.append(" -d \"").append(OUTPUT_DIR).append(File.separatorChar).append("bin").append("\"");
 
@@ -578,7 +582,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -23 --enable-preview");
+		commandLine.append(" -24 --enable-preview");
 		commandLine.append(" --module-source-path ").append(srcDir);
 		commandLine.append(" -d ").append(OUTPUT_DIR+File.separator+"bin");
 
@@ -639,7 +643,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -23 --enable-preview");
+		commandLine.append(" -24 --enable-preview");
 		commandLine.append(" --module-source-path ").append(srcDir);
 		commandLine.append(" -d ").append(OUTPUT_DIR+File.separator+"bin");
 
@@ -675,7 +679,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					""");
 
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -23 --enable-preview");
+		commandLine.append(" -24 --enable-preview");
 
 		runNegativeModuleTest(
 				files,
@@ -712,7 +716,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					"""
 	        },
-			" -23 --enable-preview "
+			" -24 --enable-preview "
 	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
 	        "",
 	        "",
@@ -732,7 +736,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					import module.Z;
 					public class X extends Z {}
 					""");
-		StringBuilder commandLine = new StringBuilder(" -23 --enable-preview");
+		StringBuilder commandLine = new StringBuilder(" -24 --enable-preview");
 		runConformModuleTest(files, commandLine, "", "");
 	}
 
@@ -751,7 +755,113 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 						uses Z;
 					}
 					""");
-		StringBuilder commandLine = new StringBuilder(" -23 --enable-preview");
+		StringBuilder commandLine = new StringBuilder(" -24 --enable-preview");
 		runConformModuleTest(files, commandLine, "", "");
 	}
+
+	public void testIllegalModifierRequiresJavaBase_1() {
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, OUTPUT_DIR, "module-info.java",
+				"""
+					module one {
+						requires transitive java.base;
+					}
+					""");
+		runNegativeModuleTest(files,
+				new StringBuilder(" --release 24"),
+				"",
+				"""
+				----------
+				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 2)
+					requires transitive java.base;
+					         ^^^^^^^^^^^^^^^^^^^^
+				Modifiers are not allowed for dependence on module 'java.base'
+				----------
+				1 problem (1 error)
+				""",
+				"transitive modifier for java.base are not supported");
+	}
+
+	public void testIllegalModifierRequiresJavaBase_2() {
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, OUTPUT_DIR, "module-info.java",
+				"""
+					module one {
+						requires static java.base;
+					}
+					""");
+		runNegativeModuleTest(files,
+				new StringBuilder(" --release 24"),
+				"",
+				"""
+				----------
+				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 2)
+					requires static java.base;
+					         ^^^^^^^^^^^^^^^^
+				Modifiers are not allowed for dependence on module 'java.base'
+				----------
+				1 problem (1 error)
+				""",
+				"modifier static not allowed here");
+	}
+
+	public void testIllegalModifierRequiresJavaBase_3() {
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, OUTPUT_DIR, "module-info.java",
+				"""
+					module one {
+						requires transitive java.base;
+					}
+					""");
+		runConformModuleTest(files,
+				new StringBuilder(" --release 24 --enable-preview"),
+				"", "");
+	}
+
+	public void testIllegalModifierRequiresJavaBase_4() {
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, OUTPUT_DIR, "module-info.java",
+				"""
+					module one {
+						requires static java.base;
+					}
+					""");
+		runNegativeModuleTest(files,
+				new StringBuilder(" --release 24 --enable-preview"),
+				"",
+				"""
+				----------
+				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 2)
+					requires static java.base;
+					         ^^^^^^^^^^^^^^^^
+				Modifiers are not allowed for dependence on module 'java.base'
+				----------
+				1 problem (1 error)
+				""",
+				"modifier static not allowed here");
+	}
+
+
+	public void testUseRequiresTransitiveJavaBase() {
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, OUTPUT_DIR, "module-info.java",
+				"""
+					module one {
+						requires transitive java.base;
+					}
+					""");
+		writeFileCollecting(files, OUTPUT_DIR + File.separator + "p1", "Client.java",
+				"""
+				package p1;
+				import module one;
+				@SuppressWarnings("preview")
+				public class Client {
+					BigDecimal num;
+				}
+				""");
+		runConformModuleTest(files,
+				new StringBuilder(" --release 24 --enable-preview"),
+				"", "");
+	}
+
 }

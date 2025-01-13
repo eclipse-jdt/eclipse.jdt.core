@@ -8,15 +8,22 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 public class RequiresStatement extends ModuleStatement {
 
@@ -52,8 +59,17 @@ public class RequiresStatement extends ModuleStatement {
 		if (scope != null) {
 			if (this.resolvedBinding == null) {
 				scope.problemReporter().invalidModule(this.module);
-			} else if (this.resolvedBinding.hasUnstableAutoName()) {
-				scope.problemReporter().autoModuleWithUnstableName(this.module);
+			} else {
+				if (this.resolvedBinding.hasUnstableAutoName()) {
+					scope.problemReporter().autoModuleWithUnstableName(this.module);
+				}
+				if (CharOperation.equals(TypeConstants.JAVA_DOT_BASE, this.module.moduleName)) {
+					if (this.isStatic()) {
+						scope.problemReporter().modifierRequiresJavaBase(this, null);
+					} else if (this.isTransitive()) { // conditionally legal (requires preview)
+						scope.problemReporter().modifierRequiresJavaBase(this, JavaFeature.MODULE_IMPORTS);
+					}
+				}
 			}
 		}
 		return this.resolvedBinding;
