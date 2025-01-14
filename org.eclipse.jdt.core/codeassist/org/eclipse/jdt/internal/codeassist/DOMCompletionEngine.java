@@ -100,7 +100,7 @@ public class DOMCompletionEngine implements Runnable {
 			bindings.forEach(this::add);
 		}
 		public Stream<IBinding> all() {
-			return this.others.stream();
+			return this.others.stream().distinct();
 		}
 		public Stream<IMethodBinding> methods() {
 			return all().filter(IMethodBinding.class::isInstance).map(IMethodBinding.class::cast);
@@ -527,7 +527,7 @@ public class DOMCompletionEngine implements Runnable {
 							qualifiedName.getQualifier().resolveBinding() instanceof ITypeBinding type) {
 							Stream.of(type.getDeclaredFields(), type.getDeclaredMethods(), type.getDeclaredTypes())
 								.flatMap(Arrays::stream) //
-								.filter(binding -> (binding.getModifiers() & Modifier.STATIC) != 0) //
+								.filter(binding -> Modifier.isStatic(binding.getModifiers())) //
 								.map(this::toProposal) //
 								.forEach(this.requestor::accept);
 						}
@@ -934,6 +934,22 @@ public class DOMCompletionEngine implements Runnable {
 			scrapeAccessibleBindings(defaultCompletionBindings);
 			if (shouldSuggestPackages(toComplete)) {
 				suggestPackages(toComplete);
+			}
+			if (context instanceof SimpleName simple && !(simple.getParent() instanceof Name)) {
+				for (ImportDeclaration importDecl : (List<ImportDeclaration>)this.unit.imports()) {
+					if (importDecl.isStatic()) {
+						if (!importDecl.isOnDemand()) {
+							defaultCompletionBindings.add(importDecl.resolveBinding());
+						} else if (importDecl.resolveBinding() instanceof ITypeBinding staticallyImportedAll) {
+							// only add direct declarations, not inherited ones
+							Stream.of(staticallyImportedAll.getDeclaredFields(), staticallyImportedAll.getDeclaredMethods()) //
+								.flatMap(Arrays::stream) //
+								.filter(binding -> Modifier.isStatic(binding.getModifiers()))
+								.filter(this::isVisible)
+								.forEach(defaultCompletionBindings::add);
+						}
+					}
+				}
 			}
 
 			if (suggestDefaultCompletions) {
@@ -1518,13 +1534,13 @@ public class DOMCompletionEngine implements Runnable {
 			}
 			if (method.isSynthetic() || method.isConstructor()
 					|| (this.assistOptions.checkDeprecation && method.isDeprecated())
-					|| (method.getModifiers() & Modifier.STATIC) != 0
-					|| (method.getModifiers() & Modifier.PRIVATE) != 0
+					|| Modifier.isStatic(method.getModifiers())
+					|| Modifier.isPrivate(method.getModifiers())
 					|| ((method.getModifiers() & (Modifier.PUBLIC | Modifier.PRIVATE | Modifier.PROTECTED)) == 0) && !typeBinding.getPackage().getKey().equals(originalPackageKey)) {
 				continue next;
 			}
 			alreadySuggestedKeys.add(method.getKey());
-			if ((method.getModifiers() & Modifier.FINAL) != 0) {
+			if (Modifier.isFinal(method.getModifiers())) {
 				continue next;
 			}
 			if (isFailedMatch(this.prefix.toCharArray(), method.getName().toCharArray())) {
@@ -1549,7 +1565,7 @@ public class DOMCompletionEngine implements Runnable {
 					+ RelevanceConstants.R_RESOLVED
 					+ RelevanceConstants.R_INTERESTING
 					+ RelevanceConstants.R_METHOD_OVERIDE
-					+ ((method.getModifiers() & Modifier.ABSTRACT) != 0 ? RelevanceConstants.R_ABSTRACT_METHOD : 0)
+					+ (Modifier.isAbstract(method.getModifiers()) ? RelevanceConstants.R_ABSTRACT_METHOD : 0)
 					+ RelevanceConstants.R_NON_RESTRICTED;
 			proposal.setRelevance(relevance);
 
@@ -1815,7 +1831,9 @@ public class DOMCompletionEngine implements Runnable {
 						.toCharArray());
 			}
 
-			if ((methodBinding.getModifiers() & Flags.AccStatic) != 0 && this.toComplete.getLocationInParent() != QualifiedName.NAME_PROPERTY && this.toComplete.getLocationInParent() != FieldAccess.NAME_PROPERTY) {
+			if (Modifier.isStatic(methodBinding.getModifiers())
+				&& this.toComplete.getLocationInParent() != QualifiedName.NAME_PROPERTY && this.toComplete.getLocationInParent() != FieldAccess.NAME_PROPERTY
+				&& !isStaticallyImported(binding)) {
 				ITypeBinding topLevelClass = methodBinding.getDeclaringClass();
 				while (topLevelClass.getDeclaringClass() != null) {
 					topLevelClass = topLevelClass.getDeclaringClass();
@@ -1885,7 +1903,9 @@ public class DOMCompletionEngine implements Runnable {
 				}
 				if (!inheritedValue && !this.modelUnit.getType(topLevelClass.getName()).exists()) {
 					if (this.qualifiedPrefix.equals(this.prefix) && !this.modelUnit.getJavaProject().getOption(JavaCore.CODEASSIST_SUGGEST_STATIC_IMPORTS, true).equals(JavaCore.DISABLED)) {
-						res.setRequiredProposals(new CompletionProposal[] { toStaticImportProposal(variableBinding) });
+						if (((List<ImportDeclaration>)this.unit.imports()).stream().filter(ImportDeclaration::isStatic).map(ImportDeclaration::resolveBinding).noneMatch(binding::isEqualTo)) {
+							res.setRequiredProposals(new CompletionProposal[] { toStaticImportProposal(variableBinding) });
+						}
 					} else {
 						ITypeBinding directParentClass = variableBinding.getDeclaringClass();
 						res.setRequiredProposals(new CompletionProposal[] { toStaticImportProposal(directParentClass) });
@@ -1953,7 +1973,7 @@ public class DOMCompletionEngine implements Runnable {
 					this.toComplete.getAST().resolveWellKnownType(Object.class.getName())) +
 				(res.getRequiredProposals() != null || inJavadoc ? 0 : computeRelevanceForQualification(false)) +
 				CompletionEngine.computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE) + //no access restriction for class field
-				((insideQualifiedReference() && !staticOnly() && (binding.getModifiers() & Modifier.STATIC) == 0) || inJavadoc ? RelevanceConstants.R_NON_STATIC : 0) +
+				((insideQualifiedReference() && !staticOnly() && !Modifier.isStatic(binding.getModifiers())) || inJavadoc ? RelevanceConstants.R_NON_STATIC : 0) +
 				(!staticOnly() || inheritedValue ? 0 : RelevanceConstants.R_NON_INHERITED) // TODO: when is this active?
 				);
 		if (res.getRequiredProposals() != null) {
@@ -1962,6 +1982,13 @@ public class DOMCompletionEngine implements Runnable {
 			}
 		}
 		return res;
+	}
+
+	private boolean isStaticallyImported(IBinding binding) {
+		return ((List<ImportDeclaration>)unit.imports()).stream() //
+			.filter(ImportDeclaration::isStatic) //
+			.map(ImportDeclaration::resolveBinding) //
+			.anyMatch(importBinding -> binding.isEqualTo(importBinding) || getDeclaringClass(binding).isEqualTo(importBinding));
 	}
 
 	private boolean insideQualifiedReference() {
@@ -2985,4 +3012,30 @@ public class DOMCompletionEngine implements Runnable {
 		completionProposal.setTokenRange(startPos, cursor);
 	}
 
+	private boolean isVisible(IBinding binding) {
+		if (binding == null) {
+			return false;
+		}
+		if (Modifier.isPublic(binding.getModifiers())) {
+			return true;
+		}
+		if (Modifier.isPrivate(binding.getModifiers())) {
+			return binding.isEqualTo(DOMCompletionUtil.findParentTypeDeclaration(this.toComplete).resolveBinding());
+		}
+		ITypeBinding declaringClass = getDeclaringClass(binding);
+		if (declaringClass == null) {
+			return false;
+		}
+		if (Modifier.isProtected(binding.getModifiers())) {
+			return declaringClass.isSubTypeCompatible(DOMCompletionUtil.findParentTypeDeclaration(this.toComplete).resolveBinding());
+		}
+		return declaringClass.getPackage().isEqualTo(DOMCompletionUtil.findParentTypeDeclaration(this.toComplete).resolveBinding().getPackage());
+	}
+
+	private ITypeBinding getDeclaringClass(IBinding binding) {
+		return binding instanceof ITypeBinding typeBinding ? typeBinding :
+			binding instanceof IMethodBinding methodBinding ? methodBinding.getDeclaringClass() :
+			binding instanceof IVariableBinding variableBinding && variableBinding.isField() ? variableBinding.getDeclaringClass() :
+			null;
+	}
 }
