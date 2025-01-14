@@ -2079,9 +2079,12 @@ public class DOMCompletionEngine implements Runnable {
 				}
 				if (current instanceof Annotation annotation) {
 					relevance += RelevanceConstants.R_ANNOTATION;
-					// TODO consider setting R_TARGET
 					IAnnotation targetAnnotation = type.getAnnotation(Target.class.getName());
-					if (targetAnnotation != null) {
+					if (targetAnnotation == null || !targetAnnotation.exists()) {
+						// On Javadoc for @Target: "If a Target meta-annotation is not present on an annotation type declaration,
+						// the declared type may be used on any program element."
+						relevance += RelevanceConstants.R_TARGET;
+					} else {
 						var memberValuePairs = targetAnnotation.getMemberValuePairs();
 						if (memberValuePairs != null) {
 							if (Stream.of(memberValuePairs)
