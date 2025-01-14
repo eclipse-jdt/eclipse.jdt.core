@@ -513,12 +513,26 @@ public class DOMCompletionEngine implements Runnable {
 			}
 			if (context instanceof QualifiedName qualifiedName) {
 				ImportDeclaration importDecl = (ImportDeclaration)DOMCompletionUtil.findParent(context, new int[] { ASTNode.IMPORT_DECLARATION });
-				if (importDecl != null
-						&& importDecl.getAST().apiLevel() >= AST.JLS23
+				if (importDecl != null) {
+					if(importDecl.getAST().apiLevel() >= AST.JLS23
 						&& this.modelUnit.getJavaProject().getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true).equals(JavaCore.ENABLED)
 						&& importDecl.modifiers().stream().anyMatch(node -> node instanceof Modifier modifier && modifier.getKeyword() == ModifierKeyword.MODULE_KEYWORD)) {
-					findModules((this.qualifiedPrefix + "." + this.prefix).toCharArray(), this.modelUnit.getJavaProject(), this.assistOptions, Collections.emptySet()); //$NON-NLS-1$
-					suggestDefaultCompletions = false;
+						findModules((this.qualifiedPrefix + "." + this.prefix).toCharArray(), this.modelUnit.getJavaProject(), this.assistOptions, Collections.emptySet()); //$NON-NLS-1$
+						suggestDefaultCompletions = false;
+					} else {
+						suggestPackages(context);
+						suggestTypesInPackage(qualifiedName.toString());
+						suggestTypesInPackage(qualifiedName.getQualifier().toString());
+						if (importDecl.isStatic() &&
+							qualifiedName.getQualifier().resolveBinding() instanceof ITypeBinding type) {
+							Stream.of(type.getDeclaredFields(), type.getDeclaredMethods(), type.getDeclaredTypes())
+								.flatMap(Arrays::stream) //
+								.filter(binding -> (binding.getModifiers() & Modifier.STATIC) != 0) //
+								.map(this::toProposal) //
+								.forEach(this.requestor::accept);
+						}
+						suggestDefaultCompletions = false;
+					}
 				} else {
 					IBinding qualifiedNameBinding = qualifiedName.getQualifier().resolveBinding();
 					if (qualifiedNameBinding instanceof ITypeBinding qualifierTypeBinding && !qualifierTypeBinding.isRecovered()) {
@@ -1994,12 +2008,18 @@ public class DOMCompletionEngine implements Runnable {
 		if (parentTypeDeclaration != null && type.getFullyQualifiedName().equals(((IType)parentTypeDeclaration.resolveBinding().getJavaElement()).getFullyQualifiedName())) {
 			completion.insert(0, cursor.getElementName());
 		} else {
-			while (cursor instanceof IType) {
+			ASTNode currentName = this.toComplete instanceof Name ? this.toComplete : null;
+			while (cursor instanceof IType currentType && (currentName == null || !Objects.equals(currentName.toString(), currentType.getFullyQualifiedName()))) {
 				if (!completion.isEmpty()) {
 					completion.insert(0, '.');
 				}
 				completion.insert(0, cursor.getElementName());
 				cursor = cursor.getParent();
+				if (currentName != null && currentName.getLocationInParent() == QualifiedName.NAME_PROPERTY) {
+					currentName = ((QualifiedName)currentName.getParent()).getQualifier();
+				} else {
+					currentName = null;
+				}
 			}
 		}
 		AbstractTypeDeclaration parentType = DOMCompletionUtil.findParentTypeDeclaration(this.toComplete);
