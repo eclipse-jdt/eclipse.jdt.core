@@ -2535,4 +2535,27 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"""
 		});
 	}
+
+	public void testGH3116() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"X.java",
+			"""
+			class X {
+				final int final_field;
+				int x;
+				{ x = final_field; } // Error: The blank final field final_field may not have been initialized
+				X() {
+					final_field = -1;
+					super();
+				}
+				public static void main(String... args) {
+					System.out.print(new X().x);
+				}
+			}
+			"""
+		};
+		runner.expectedOutputString = "-1";
+		runner.runConformTest();
+	}
 }
