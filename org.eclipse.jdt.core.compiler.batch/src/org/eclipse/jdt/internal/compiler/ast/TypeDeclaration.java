@@ -886,8 +886,35 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 	InitializationFlowContext initializerContext = new InitializationFlowContext(parentContext, this, flowInfo, flowContext, this.initializerScope);
 	// no static initializer in local classes, thus no need to set parent:
 	InitializationFlowContext staticInitializerContext = new InitializationFlowContext(null, this, flowInfo, flowContext, this.staticInitializerScope);
-	FlowInfo nonStaticFieldInfo = flowInfo.unconditionalFieldLessCopy();
+	FlowInfo nonStaticFieldInfo = flowInfo.unconditionalFieldLessCopy();	// discards info about fields of inclosing classes
 	FlowInfo staticFieldInfo = flowInfo.unconditionalFieldLessCopy();
+
+	if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.scope.compilerOptions())) {
+		if (this.methods != null) {
+			// collect field initializations happening in constructor prologues
+			FlowInfo prologueInfo = null;
+			for (int i=0; i<this.methods.length; i++) {
+				AbstractMethodDeclaration method = this.methods[i];
+				if (method.isConstructor()) {
+					FlowInfo ctorInfo = flowInfo.copy();
+					((ConstructorDeclaration) method).analyseCode(this.scope, initializerContext, ctorInfo,
+							ctorInfo.reachMode(), ConstructorDeclaration.AnalysisMode.PROLOGUE);
+					if (prologueInfo == null)
+						prologueInfo = ctorInfo;
+					else
+						prologueInfo = prologueInfo.mergeDefiniteInitsWith(ctorInfo.unconditionalInits()); // will only evaluate field inits below
+				}
+			}
+			if (prologueInfo != null) {
+				// field initializers should see inits from ctor prologues:
+				for (FieldBinding field : this.binding.fields()) {
+					if (prologueInfo.isDefinitelyAssigned(field))
+						nonStaticFieldInfo.markAsDefinitelyAssigned(field);
+				}
+			}
+		}
+	}
+
 	if (this.fields != null) {
 		for (FieldDeclaration field : this.fields) {
 			if (field.isStatic()) {
