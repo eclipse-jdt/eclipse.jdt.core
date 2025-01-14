@@ -597,6 +597,19 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				.sorted(Comparator.comparing(IMethodBinding::getName))
 				.toArray(IMethodBinding[]::new);
 	}
+	
+	private ITypeBinding[] getDeclaredTypeDefaultImpl(ArrayList<Symbol> l) {
+		return StreamSupport.stream(l.spliterator(), false)
+				.filter(ClassSymbol.class::isInstance)
+				.map(ClassSymbol.class::cast)
+				.map(sym -> {
+					Type t = this.types.memberType(this.type, sym);
+					return this.resolver.bindings.getTypeBinding(t, isGeneric);
+				})
+				.filter(Objects::nonNull)
+				.sorted(Comparator.comparing(ITypeBinding::getName))
+				.toArray(ITypeBinding[]::new);
+	}
 
 	private IMethodBinding[] getDeclaredMethodsForRecords(ArrayList<Symbol> l) {
 		ASTNode node = this.resolver.symbolToDeclaration.get(this.typeSymbol);
@@ -642,11 +655,11 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		if (members == null) {
 			return new ITypeBinding[0];
 		}
-		return StreamSupport.stream(members.getSymbols().spliterator(), false)
-			.filter(TypeSymbol.class::isInstance)
-			.map(TypeSymbol.class::cast)
-			.map(sym -> this.resolver.bindings.getTypeBinding(sym.type))
-			.toArray(ITypeBinding[]::new);
+		ArrayList<Symbol> l = new ArrayList<>();
+		for( Symbol s : members.getSymbols()) {
+			l.add(s);
+		}
+		return getDeclaredTypeDefaultImpl(l);
 	}
 
 	@Override
