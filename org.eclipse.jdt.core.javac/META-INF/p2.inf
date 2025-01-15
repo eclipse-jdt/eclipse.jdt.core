@@ -38,7 +38,7 @@ java.compiler/javax.tools=ALL-UNNAMED\n\
 -DICompilationUnitResolver=org.eclipse.jdt.core.dom.JavacCompilationUnitResolver\n\
 -DAbstractImageBuilder.compilerFactory=org.eclipse.jdt.internal.javac.JavacCompilerFactory\n\
 -DCompilationUnit.DOM_BASED_OPERATIONS=true\n\
--DCompilationUnit.codeComplete.DOM_BASED_OPERATIONS=true_\n\
+-DICompletionEngineProvider=org.eclipse.jdt.core.dom.DOMCompletionEngineProvider\n\
 -DSourceIndexer.DOM_BASED_INDEXER=true\
 );
 

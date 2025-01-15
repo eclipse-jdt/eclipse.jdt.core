@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.codeassist;
 
 import java.util.List;
 import java.util.function.Consumer;
+
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
@@ -87,5 +88,5 @@ public class DOMCompletionUtil {
 	public static boolean isJavaFieldOrMethodModifier(String potentialModifer) {
 		return JAVA_MODIFIERS.contains(potentialModifer);
 	}
-
+	
 }

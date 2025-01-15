@@ -17,15 +17,35 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.CompletionContext;
-import org.eclipse.jdt.core.IBuffer;
-import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
+import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
+import org.eclipse.jdt.core.dom.CharacterLiteral;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.NodeFinder;
+import org.eclipse.jdt.core.dom.NumberLiteral;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.StringLiteral;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.internal.codeassist.DOMCompletionEngine.Bindings;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
@@ -38,20 +58,20 @@ class DOMCompletionContext extends CompletionContext {
 	final ExpectedTypes expectedTypes;
 	private boolean inJavadoc = false;
 	final ASTNode node;
-	private IBuffer cuBuffer;
+	private String textContent;
 	private boolean isJustAfterStringLiteral;
 
-	DOMCompletionContext(CompilationUnit domUnit, ICompilationUnit modelUnit, IBuffer cuBuffer, int offset, AssistOptions assistOptions, Bindings bindings) {
-		this.cuBuffer = cuBuffer;
+	DOMCompletionContext(CompilationUnit domUnit, ITypeRoot modelUnit, String textContent, int offset, AssistOptions assistOptions, Bindings bindings) {
+		this.textContent = textContent;
 		this.offset = offset;
 		// Use the raw text to walk back the offset to the first non-whitespace spot
 		int adjustedOffset = this.offset;
-		if (adjustedOffset >= cuBuffer.getLength()) {
-			adjustedOffset = cuBuffer.getLength() - 1;
+		if (adjustedOffset >= textContent.length()) {
+			adjustedOffset = textContent.length() - 1;
 		}
-		if (adjustedOffset + 1 >= cuBuffer.getLength()
-				|| !Character.isJavaIdentifierStart(cuBuffer.getChar(adjustedOffset))) {
-			while (adjustedOffset > 0 && Character.isWhitespace(cuBuffer.getChar(adjustedOffset - 1)) ) {
+		if (adjustedOffset + 1 >= textContent.length()
+				|| !Character.isJavaIdentifierStart(textContent.charAt(adjustedOffset))) {
+			while (adjustedOffset > 0 && Character.isWhitespace(textContent.charAt(adjustedOffset - 1)) ) {
 				adjustedOffset--;
 			}
 		}
@@ -67,24 +87,27 @@ class DOMCompletionContext extends CompletionContext {
 			?  NodeFinder.perform(domUnit, this.offset, 0) // keep default node from initial offset
 			: previousNodeBeforeWhitespaces; // use previous node
 		this.expectedTypes = new ExpectedTypes(assistOptions, this.node, offset);
-		this.token = tokenBefore(cuBuffer).toCharArray();
+		this.token = tokenBefore(this.textContent).toCharArray();
 		this.enclosingElement = computeEnclosingElement(domUnit, modelUnit);
 		this.bindingsAcquirer = bindings::all;
-		this.isJustAfterStringLiteral = this.node instanceof StringLiteral && this.node.getLength() > 1 && this.offset >= this.node.getStartPosition() + this.node.getLength() && cuBuffer.getChar(this.offset - 1) == '"';
+		this.isJustAfterStringLiteral = this.node instanceof StringLiteral && this.node.getLength() > 1 && this.offset >= this.node.getStartPosition() + this.node.getLength() && textContent.charAt(this.offset - 1) == '"';
 	}
 
-	private String tokenBefore(IBuffer buf) {
-		int position = Math.min(this.offset, buf.getLength()) - 1;
+	private String tokenBefore(String str) {
+		int position = Math.min(this.offset, str.length()) - 1;
 		StringBuilder builder = new StringBuilder();
-		while (position >= 0 && Character.isJavaIdentifierPart(buf.getChar(position))) {
-			builder.append(buf.getChar(position));
+		while (position >= 0 && Character.isJavaIdentifierPart(str.charAt(position))) {
+			builder.append(str.charAt(position));
 			position--;
 		}
 		builder.reverse();
 		return builder.toString();
 	}
 
-	private IJavaElement computeEnclosingElement(CompilationUnit domUnit, ICompilationUnit modelUnit) {
+	private IJavaElement computeEnclosingElement(CompilationUnit domUnit, ITypeRoot modelUnit) {
+		if (modelUnit == null) {
+			return null;
+		}
 		IJavaElement enclosingElement1 = modelUnit;
 		try {
 			enclosingElement1 = modelUnit.getElementAt(this.offset);
@@ -231,7 +254,7 @@ class DOMCompletionContext extends CompletionContext {
 					return TL_MEMBER_START;
 				}
 				boolean wrapperNodeIsTypeDecl = (wrappingNode instanceof AbstractTypeDeclaration || wrappingNode instanceof AnonymousClassDeclaration);
-				if(wrapperNodeIsTypeDecl && isWithinTypeDeclarationBody(wrappingNode, this.cuBuffer, this.offset)) {
+				if(wrapperNodeIsTypeDecl && isWithinTypeDeclarationBody(wrappingNode, this.textContent, this.offset)) {
 					return TL_MEMBER_START;
 				}
 				return 0;
@@ -240,7 +263,7 @@ class DOMCompletionContext extends CompletionContext {
 				return block.statements().isEmpty() ? TL_STATEMENT_START : 0;
 			}
 			if( wrappingNode instanceof AnonymousClassDeclaration anon) {
-				if(isWithinTypeDeclarationBody(wrappingNode, this.cuBuffer, this.offset)) {
+				if(isWithinTypeDeclarationBody(wrappingNode, this.textContent, this.offset)) {
 					return TL_MEMBER_START;
 				}
 			}
@@ -249,16 +272,16 @@ class DOMCompletionContext extends CompletionContext {
 		return 0;
 	}
 
-	private boolean isWithinTypeDeclarationBody(ASTNode n, IBuffer buffer, int offset2) {
-		if( buffer != null ) {
+	private boolean isWithinTypeDeclarationBody(ASTNode n, String str, int offset2) {
+		if( str != null ) {
 			if( n instanceof AbstractTypeDeclaration atd) {
 				int nameEndOffset = atd.getName().getStartPosition() + atd.getName().getLength();
-				int bodyStart = findFirstOpenBracketFromIndex(buffer, nameEndOffset);
+				int bodyStart = findFirstOpenBracketFromIndex(str, nameEndOffset);
 				int bodyEnd = atd.getStartPosition() + atd.getLength() - 1;
 				return bodyEnd > bodyStart && offset2 > bodyStart && offset2 < bodyEnd;
 			}
 			if( n instanceof AnonymousClassDeclaration acd ) {
-				int bodyStart = findFirstOpenBracketFromIndex(buffer, acd.getStartPosition());
+				int bodyStart = findFirstOpenBracketFromIndex(str, acd.getStartPosition());
 				int bodyEnd = acd.getStartPosition() + acd.getLength() - 1;
 				return bodyEnd > bodyStart && offset2 > bodyStart && offset2 < bodyEnd;
 			}
@@ -266,9 +289,9 @@ class DOMCompletionContext extends CompletionContext {
 		return false;
 	}
 
-	private int findFirstOpenBracketFromIndex(IBuffer buffer, int start) {
+	private int findFirstOpenBracketFromIndex(String str, int start) {
 		int bodyStart = start;
-		while (bodyStart < buffer.getLength() && buffer.getChar(bodyStart) != '{') {
+		while (bodyStart < str.length() && str.charAt(bodyStart) != '{') {
 			bodyStart++;
 		}
 		return bodyStart;
@@ -296,7 +319,7 @@ class DOMCompletionContext extends CompletionContext {
 			return this.node.getStartPosition() + this.node.getLength() - 1;
 		}
 		int position = this.offset;
-		while (position < this.cuBuffer.getLength() && Character.isJavaIdentifierPart(this.cuBuffer.getChar(position))) {
+		while (position < this.textContent.length() && Character.isJavaIdentifierPart(this.textContent.charAt(position))) {
 			position++;
 		}
 		return position - 1;

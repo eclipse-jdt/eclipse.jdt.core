@@ -43,7 +43,6 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.internal.codeassist.DOMCodeSelector;
-import org.eclipse.jdt.internal.codeassist.DOMCompletionEngine;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
@@ -71,14 +70,6 @@ import org.eclipse.text.edits.UndoEdit;
  */
 public class CompilationUnit extends Openable implements ICompilationUnit, org.eclipse.jdt.internal.compiler.env.ICompilationUnit, SuffixConstants {
 	public static boolean DOM_BASED_OPERATIONS = Boolean.getBoolean(CompilationUnit.class.getSimpleName() + ".DOM_BASED_OPERATIONS"); //$NON-NLS-1$
-	public static boolean DOM_BASED_COMPLETION = Boolean.getBoolean(CompilationUnit.class.getSimpleName() + ".codeComplete.DOM_BASED_OPERATIONS"); //$NON-NLS-1$
-
-	/**
-	 * Internal synonym for deprecated constant AST.JSL2
-	 * to alleviate deprecation warnings.
-	 * @deprecated
-	 */
-	/*package*/ static final int JLS2_INTERNAL = AST.JLS2;
 
 	private static final IImportDeclaration[] NO_IMPORTS = new IImportDeclaration[0];
 
@@ -458,18 +449,10 @@ public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyO
 
 @Override
 public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner workingCopyOwner, IProgressMonitor monitor) throws JavaModelException {
-	if (DOM_BASED_COMPLETION) {
-		new DOMCompletionEngine(offset, getOrBuildAST(workingCopyOwner, offset), this, workingCopyOwner, requestor, monitor).run();
-		return;
-	}
-	codeComplete(
-			this,
+
+	codeComplete(this,
 			isWorkingCopy() ? (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) getOriginalElement() : this,
-			offset,
-			requestor,
-			workingCopyOwner,
-			this,
-			monitor);
+			offset, requestor, workingCopyOwner, this, monitor);
 }
 
 /**

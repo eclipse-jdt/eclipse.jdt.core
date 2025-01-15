@@ -8,5 +8,12 @@
             id="org.eclipse.jdt.core.dom.JavacCompilationUnitResolver">
       </resolver>
    </extension>
+   <extension
+         point="org.eclipse.jdt.core.completionEngineProvider">
+      <resolver
+            class="org.eclipse.jdt.core.dom.DOMCompletionEngineProvider"
+            id="org.eclipse.jdt.core.dom.DOMCompletionEngineProvider">
+      </resolver>
+   </extension>
 
 </fragment>
