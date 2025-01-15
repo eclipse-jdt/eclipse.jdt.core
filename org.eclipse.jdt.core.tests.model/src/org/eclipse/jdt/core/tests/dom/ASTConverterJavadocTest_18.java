@@ -880,7 +880,7 @@ public class ASTConverterJavadocTest_18 extends ConverterTestSetup {
 			"	  *		\n" +
 			"	  			\n" +
 			"	  *\n" +
-			"	  *	: \n" +
+			"	  *	: a\n" +
 			"     *  System.out.println(); \n" +
 			"     * }\n" +
 			"     */\n" +
