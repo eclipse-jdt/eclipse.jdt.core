@@ -1905,6 +1905,7 @@ class JavacConverter {
 				  String litText = this.rawText.substring(pos+1, lineEnd);
 				  Expression res = convertStringToLiteral(litText, pos, lineEnd, null);
 				  res.setSourceRange(pos,  lineEnd - pos);
+				  res.setFlags(res.getFlags() | ASTNode.MALFORMED);
 				  return res;
 				}
 			if (error.getErrorTrees().size() == 1) {
