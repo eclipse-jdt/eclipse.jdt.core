@@ -404,6 +404,22 @@ public class DOMCompletionEngine implements Runnable {
 					completeMarkerAnnotation(completeAfter);
 					suggestDefaultCompletions = false;
 				}
+				if (context.getLocationInParent() == MemberValuePair.NAME_PROPERTY && context.getParent() instanceof MemberValuePair memberValuePair) {
+					Set<String> names = new HashSet<>();
+					if (memberValuePair.getParent() instanceof NormalAnnotation normalAnnotation) {
+						for (Object o : normalAnnotation.values()) {
+							if (o instanceof MemberValuePair other && other != memberValuePair) {
+								names.add(other.getName().getIdentifier());
+							}
+						}
+					}
+					Arrays.stream(((Annotation)memberValuePair.getParent()).resolveTypeBinding().getDeclaredMethods()) //
+						.filter(this::isVisible) //
+						.filter(method -> !names.contains(method.getName()))
+						.map(this::toAnnotationAttributeRefProposal) //
+						.forEach(this.requestor::accept);
+					suggestDefaultCompletions = false;
+				}
 				if (context.getParent() instanceof MemberValuePair) {
 					// TODO: most of the time a constant value is expected,
 					// however if an enum is expected, we can build out the completion for that
