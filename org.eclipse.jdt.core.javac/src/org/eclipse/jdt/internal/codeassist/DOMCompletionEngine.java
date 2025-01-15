@@ -94,7 +94,6 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.Modifier;
-import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
@@ -126,6 +125,7 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -1988,11 +1988,10 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	private void completeConstructor(ITypeBinding typeBinding, ASTNode referencedFrom, IJavaProject javaProject) {
 		// compute type hierarchy
 		boolean isArray = typeBinding.isArray();
-		IType typeHandle = ((IType)typeBinding.getJavaElement());
 		AbstractTypeDeclaration enclosingType = (AbstractTypeDeclaration) DOMCompletionUtil.findParent(referencedFrom, new int[] { ASTNode.TYPE_DECLARATION, ASTNode.ENUM_DECLARATION, ASTNode.RECORD_DECLARATION, ASTNode.ANNOTATION_TYPE_DECLARATION });
 		ITypeBinding enclosingTypeBinding = enclosingType.resolveBinding();
 		IType enclosingTypeElement = (IType) enclosingTypeBinding.getJavaElement();
-		if (typeHandle != null) {
+		if (typeBinding.getJavaElement() instanceof IType typeHandle) {
 			try {
 				ITypeHierarchy newTypeHierarchy = typeHandle.newTypeHierarchy(javaProject, null);
 				ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
@@ -2154,6 +2153,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	}
 
 	private void processMembers(ASTNode referencedFrom, ITypeBinding typeBinding, Bindings scope, boolean isStaticContext) {
+		if (typeBinding == null) {
+			return;
+		}
 		AbstractTypeDeclaration parentType = (AbstractTypeDeclaration)DOMCompletionUtil.findParent(referencedFrom, new int[] {ASTNode.ANNOTATION_TYPE_DECLARATION, ASTNode.TYPE_DECLARATION, ASTNode.ENUM_DECLARATION, ASTNode.RECORD_DECLARATION});
 		if (parentType == null) {
 			return;
