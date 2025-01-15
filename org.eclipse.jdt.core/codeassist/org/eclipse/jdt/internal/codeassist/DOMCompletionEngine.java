@@ -425,6 +425,16 @@ public class DOMCompletionEngine implements Runnable {
 					// however if an enum is expected, we can build out the completion for that
 					suggestDefaultCompletions = false;
 				}
+				if ((context.getLocationInParent() == SwitchCase.EXPRESSIONS2_PROPERTY || context.getLocationInParent() == SwitchCase.EXPRESSION_PROPERTY) && context.getParent() instanceof SwitchCase switchCase) {
+					completionContext.expectedTypes.getExpectedTypes().stream()
+						.map(ITypeBinding::getDeclaredFields)
+						.flatMap(Arrays::stream)
+						.filter(IVariableBinding::isEnumConstant)
+						.filter(constant -> this.pattern.matchesName(this.prefix.toCharArray(), constant.getName().toCharArray()))
+						.map(this::toProposal)
+						.forEach(this.requestor::accept);
+					suggestDefaultCompletions = false;
+				}
 				if (context.getParent() instanceof MethodDeclaration) {
 					suggestDefaultCompletions = false;
 				}
@@ -2109,7 +2119,7 @@ public class DOMCompletionEngine implements Runnable {
 				}
 				if (!inheritedValue && !this.modelUnit.getType(topLevelClass.getName()).exists()) {
 					if (this.qualifiedPrefix.equals(this.prefix) && !this.modelUnit.getJavaProject().getOption(JavaCore.CODEASSIST_SUGGEST_STATIC_IMPORTS, true).equals(JavaCore.DISABLED)) {
-						if (((List<ImportDeclaration>)this.unit.imports()).stream().filter(ImportDeclaration::isStatic).map(ImportDeclaration::resolveBinding).noneMatch(binding::isEqualTo)) {
+						if (!isStaticallyImported(variableBinding) && !(variableBinding.isEnumConstant() && Set.of(SwitchCase.EXPRESSION_PROPERTY, SwitchCase.EXPRESSIONS2_PROPERTY).contains(this.toComplete.getLocationInParent()))) {
 							res.setRequiredProposals(new CompletionProposal[] { toStaticImportProposal(variableBinding) });
 						}
 					} else {
@@ -2180,7 +2190,8 @@ public class DOMCompletionEngine implements Runnable {
 				(res.getRequiredProposals() != null || inJavadoc ? 0 : computeRelevanceForQualification(false)) +
 				CompletionEngine.computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE) + //no access restriction for class field
 				((insideQualifiedReference() && !staticOnly() && !Modifier.isStatic(binding.getModifiers())) || (inJavadoc && !res.isConstructor) ? RelevanceConstants.R_NON_STATIC : 0) +
-				(!staticOnly() || inheritedValue ? 0 : RelevanceConstants.R_NON_INHERITED) // TODO: when is this active?
+				(!staticOnly() || inheritedValue ? 0 : RelevanceConstants.R_NON_INHERITED) + // TODO: when is this active?
+				(binding instanceof IVariableBinding field && field.isEnumConstant() ? RelevanceConstants.R_ENUM + RelevanceConstants.R_ENUM_CONSTANT : 0)
 				);
 		if (res.getRequiredProposals() != null) {
 			for (CompletionProposal req : res.getRequiredProposals()) {
