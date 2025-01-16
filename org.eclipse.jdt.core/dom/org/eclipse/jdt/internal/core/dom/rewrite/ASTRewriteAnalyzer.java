@@ -1733,6 +1733,9 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				String separator;
 				if (lastChild.getNewValue() instanceof Annotation) {
 					separator= formatterPrefix.getPrefix(getIndent(pos));
+					for (int i= 0; i < this.formatter.computeIndentInSpaces(getIndentOfLine(pos)) % this.formatter.getTabWidth(); ++i) {
+						separator += " "; //$NON-NLS-1$
+					}
 				} else {
 					separator= String.valueOf(' ');
 				}
