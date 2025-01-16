@@ -165,7 +165,11 @@ public class DOMCompletionEngine implements Runnable {
 			visibleBindings.add(typeDecl.resolveBinding());
 		}
 
-		if (node instanceof Block block) {
+		if (node instanceof Block block && node.getStartPosition() + node.getLength() > this.offset) {
+			// TODO: handle negative if statements eg.
+			// if (!(node instanceof IfStatement ifStatement))
+			//   return;
+			// ifState|
 			var bindings = ((List<Statement>) block.statements()).stream()
 					.filter(statement -> statement.getStartPosition() < this.offset)
 					.filter(VariableDeclarationStatement.class::isInstance)
@@ -175,8 +179,89 @@ public class DOMCompletionEngine implements Runnable {
 					.map(VariableDeclarationFragment::resolveBinding)
 					.toList();
 			visibleBindings.addAll(bindings);
+			for (Statement statement : ((List<Statement>)block.statements())) {
+				if (statement.getStartPosition() >= this.offset || statement.getStartPosition() + statement.getLength() >= this.offset) {
+					break;
+				}
+				if (statement instanceof IfStatement ifStatement && ifStatement.getElseStatement() == null) {
+					visibleBindings.addAll(collectTrueFalseBindings(ifStatement.getExpression()).falseBindings());
+				}
+			}
 		}
+
+		if (node.getParent() instanceof IfStatement ifStatement && node.getStartPosition() + node.getLength() > this.offset) {
+			TrueFalseBindings leftRightBindings = collectTrueFalseBindings(ifStatement.getExpression());
+			if (ifStatement.getThenStatement() == node) {
+				visibleBindings.addAll(leftRightBindings.trueBindings());
+			} else {
+				visibleBindings.addAll(leftRightBindings.falseBindings());
+			}
+		}
+
+		if (node instanceof SwitchStatement switchStatement) {
+			int i;
+			for (i = 0; i < switchStatement.statements().size(); i++) {
+				if (((List<Statement>)switchStatement.statements()).get(i).getStartPosition() >= this.offset) {
+					break;
+				}
+				if (((List<Statement>)switchStatement.statements()).get(i) instanceof SwitchCase switchCase) {
+					DOMCompletionUtil.visitChildren(switchCase, ASTNode.TYPE_PATTERN, (TypePattern e) -> {
+						visibleBindings.add(e.getPatternVariable().resolveBinding());
+					});
+				}
+			}
+		}
+
+		if (node instanceof SwitchExpression switchExpression) {
+			int i;
+			for (i = 0; i < switchExpression.statements().size(); i++) {
+				if (((List<Statement>)switchExpression.statements()).get(i).getStartPosition() >= this.offset) {
+					break;
+				}
+				if (((List<Statement>)switchExpression.statements()).get(i) instanceof SwitchCase switchCase) {
+					DOMCompletionUtil.visitChildren(switchCase, ASTNode.TYPE_PATTERN, (TypePattern e) -> {
+						visibleBindings.add(e.getPatternVariable().resolveBinding());
+					});
+				}
+			}
+		}
+
 		return visibleBindings;
+	}
+
+	/**
+	 * Represents collections of bindings that might be accessible depending on whether a boolean expression is true or false.
+	 *
+	 * @param trueBindings the bindings that are accessible when the expression is true
+	 * @param falseBindings the bindings that are accessible when the expression is false
+	 */
+	record TrueFalseBindings(List<IVariableBinding> trueBindings, List<IVariableBinding> falseBindings) {}
+
+	private TrueFalseBindings collectTrueFalseBindings(Expression e) {
+		if (e instanceof PrefixExpression prefixExpression && prefixExpression.getOperator() == PrefixExpression.Operator.NOT) {
+			TrueFalseBindings notBindings = collectTrueFalseBindings(prefixExpression.getOperand());
+			return new TrueFalseBindings(notBindings.falseBindings(), notBindings.trueBindings());
+		} else if (e instanceof InfixExpression infixExpression && infixExpression.getOperator() == InfixExpression.Operator.AND) {
+			TrueFalseBindings left = collectTrueFalseBindings(infixExpression.getLeftOperand());
+			TrueFalseBindings right = collectTrueFalseBindings(infixExpression.getRightOperand());
+			List<IVariableBinding> combined = new ArrayList<>();
+			combined.addAll(left.trueBindings());
+			combined.addAll(right.trueBindings());
+			return new TrueFalseBindings(combined, Collections.emptyList());
+		} else if (e instanceof InfixExpression infixExpression && infixExpression.getOperator() == InfixExpression.Operator.OR) {
+			TrueFalseBindings left = collectTrueFalseBindings(infixExpression.getLeftOperand());
+			TrueFalseBindings right = collectTrueFalseBindings(infixExpression.getRightOperand());
+			List<IVariableBinding> combined = new ArrayList<>();
+			combined.addAll(left.falseBindings());
+			combined.addAll(right.falseBindings());
+			return new TrueFalseBindings(Collections.emptyList(), combined);
+		} else {
+			List<IVariableBinding> typePatternBindings = new ArrayList<>();
+			DOMCompletionUtil.visitChildren(e, ASTNode.TYPE_PATTERN, (TypePattern patt) -> {
+				typePatternBindings.add(patt.getPatternVariable().resolveBinding());
+			});
+			return new TrueFalseBindings(typePatternBindings, Collections.emptyList());
+		}
 	}
 
 	private Collection<? extends ITypeBinding> visibleTypeBindings(ASTNode node) {

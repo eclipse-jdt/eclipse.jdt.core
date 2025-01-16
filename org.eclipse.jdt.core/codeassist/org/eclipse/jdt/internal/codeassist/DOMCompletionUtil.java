@@ -11,7 +11,9 @@
 package org.eclipse.jdt.internal.codeassist;
 
 import java.util.List;
+import java.util.function.Consumer;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 
@@ -35,6 +37,18 @@ public class DOMCompletionUtil {
 			cursor = cursor.getParent();
 		}
 		return null;
+	}
+
+	public static <T extends ASTNode> void visitChildren(ASTNode root, int kind, Consumer<T> consumer) {
+		ASTVisitor visitor = new ASTVisitor() {
+			@Override
+			public void preVisit(ASTNode node) {
+				if (node.getNodeType() == kind) {
+					consumer.accept((T)node);
+				}
+			}
+		};
+		root.accept(visitor);
 	}
 
 	/**
