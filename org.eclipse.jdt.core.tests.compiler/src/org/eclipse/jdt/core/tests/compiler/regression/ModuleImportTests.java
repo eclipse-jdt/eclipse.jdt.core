@@ -859,7 +859,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 2)
 					requires transitive java.base;
 					         ^^^^^^^^^^^^^^^^^^^^
-				Modifiers are not allowed for dependence on module 'java.base'
+				Modifier 'transitive' is allowed for dependence on module 'java.base' only when preview is enabled
 				----------
 				1 problem (1 error)
 				""",

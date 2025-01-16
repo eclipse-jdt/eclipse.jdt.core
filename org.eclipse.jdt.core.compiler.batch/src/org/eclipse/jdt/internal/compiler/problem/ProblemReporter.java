@@ -11649,7 +11649,7 @@ public void modifierRequiresJavaBase(RequiresStatement stat, JavaFeature moduleI
 		if (moduleImports.isSupported(this.options))
 			return;
 		if (moduleImports.matchesCompliance(this.options)) {
-			this.handle(IProblem.ModifierOnRequiresJavaBase, NoArgument, NoArgument, stat.modifiersSourceStart, stat.sourceEnd);
+			this.handle(IProblem.ModifierOnRequiresJavaBasePreview, NoArgument, NoArgument, stat.modifiersSourceStart, stat.sourceEnd);
 			return;
 		}
 	}
