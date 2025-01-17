@@ -558,6 +558,17 @@ public final class AST {
 	@Deprecated
 	public static final int JLS_Latest = JLS_INTERNAL_Latest;
 
+	private static final List<Integer> ALL_VERSIONS = List.of(JLS2, JLS3, JLS4, JLS8, JLS9, JLS10, JLS11, JLS12, JLS13, JLS14, JLS15, JLS16, JLS17, JLS18, JLS19, JLS20, JLS21, JLS22, JLS23);
+	private static final List<Integer> UNSUPPORTED_VERSIONS = List.of(JLS2, JLS3, JLS4);
+	private static final List<Integer> SUPPORTED_VERSIONS;
+	static {
+		List<Integer> temp = new ArrayList<>();
+		temp.addAll(ALL_VERSIONS);
+		temp.removeAll(UNSUPPORTED_VERSIONS);
+		SUPPORTED_VERSIONS = Collections.unmodifiableList(temp);
+	}
+
+
 	/*
 	 * Must not collide with a value for ICompilationUnit constants
 	 */
@@ -1193,7 +1204,7 @@ public final class AST {
 						false/*isPreviewEnabled*/);
 				break;
 			default:
-				if (level < JLS2_INTERNAL && level > JLS_Latest) {
+				if (!ALL_VERSIONS.contains(level)) {
 					throw new IllegalArgumentException("Unsupported JLS level : " + level); //$NON-NLS-1$
 				}
 				this.apiLevel = level;
@@ -4019,4 +4030,39 @@ public final class AST {
 	public static int getJLSLatest() {
 		return JLS_INTERNAL_Latest;
 	}
+
+	/**
+	 * Returns all {@link AST}{@code #JLS*} levels in the order of their
+	 * introduction. For e.g., {@link AST#JLS8} appears before {@link AST#JLS10}
+	 *
+	 * @return all available versions
+	 * @since 3.41
+	 */
+	public static List<Integer> getAllVersions() {
+		return ALL_VERSIONS;
+	}
+
+	/**
+	 * Returns all {@link AST}{@code #JLS*} levels fully supported by JDT in the order of their
+	 * introduction. For e.g., {@link AST#JLS8} appears before {@link AST#JLS10}
+	 *
+	 * @return all available versions
+	 * @since 3.41
+	 */
+	public static List<Integer> getAllSupportedVersions() {
+		return SUPPORTED_VERSIONS;
+	}
+
+	/**
+	 * Not all known JLS versions are fully supported by JDT. This method answers if the given Java source
+	 * version is fully supported.
+	 *
+	 * @return {@code true} if the given string represents Java language standard version is fully supported
+	 * @see #getAllSupportedVersions()
+	 * @since 3.41
+	 */
+	public static boolean isSupportedVersion(int version) {
+		return SUPPORTED_VERSIONS.contains(version);
+	}
+
 }
