@@ -213,13 +213,6 @@ public boolean isPackage(String qualifiedPackageName, String moduleName) {
 			if (entryLC.endsWith(SuffixConstants.SUFFIX_STRING_class) || entryLC.endsWith(SuffixConstants.SUFFIX_STRING_java))
 				return true;
 		}
-		// 2. recurse into sub directories
-		for (String entry : list) {
-			if (entry.indexOf('.') == -1) { // no plain files without '.' are returned by directoryList()
-				if (isPackage(qualifiedPackageName+'/'+entry, null/*already checked*/))
-					return true;
-			}
-		}
 	}
 	return false;
 }
