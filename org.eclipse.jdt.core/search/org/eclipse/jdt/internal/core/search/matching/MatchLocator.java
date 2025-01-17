@@ -2526,7 +2526,7 @@ protected void reportMatching(LambdaExpression lambdaExpression,  IJavaElement p
 	if (nodes != null) {
 		int length = nodes.length;
 		for (int i = 0; i < length; i++) {
-			Integer level = (Integer) nodeSet.matchingNodes.removeKey(nodes[i]);
+			Integer level = nodeSet.matchingNodes.remove(nodes[i]);
 			if (report && level != null) {
 				this.patternLocator.matchReportReference(nodes[i], enclosingElement, declarationVisitor.getLocalElement(i), declarationVisitor.getOtherElements(i), lambdaExpression.binding, level.intValue(), this);
 			}
@@ -2592,7 +2592,7 @@ protected void reportMatching(AbstractMethodDeclaration method, TypeDeclaration 
 			if (nodes != null) {
 				int length = nodes.length;
 				for (int i = 0; i < length; i++) {
-					Integer level = (Integer) nodeSet.matchingNodes.removeKey(nodes[i]);
+					Integer level = nodeSet.matchingNodes.remove(nodes[i]);
 					if (report && level != null) {
 						this.patternLocator.matchReportReference(nodes[i], enclosingElement, declarationVisitor.getLocalElement(i), declarationVisitor.getOtherElements(i), method.binding, level.intValue(), this);
 					}
@@ -2640,14 +2640,14 @@ protected void reportMatching(AbstractMethodDeclaration method, TypeDeclaration 
 						method.traverse(declarationVisitor, (ClassScope) null);
 						int length = nodes.length;
 						for (int i = 0; i < length; i++) {
-							Integer level = (Integer) nodeSet.matchingNodes.removeKey(nodes[i]);
+							Integer level = nodeSet.matchingNodes.remove(nodes[i]);
 							if (level != null) { // ensure that the reference has not been already reported while visiting
 				    	        this.patternLocator.matchReportReference(nodes[i], enclosingElement, declarationVisitor.getLocalElement(i), declarationVisitor.getOtherElements(i), method.binding, level.intValue(), this);
 							}
 						}
 					} else {
 						for (ASTNode node : nodes) {
-							Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
+							Integer level = nodeSet.matchingNodes.remove(node);
 							if (level != null) { // ensure that the reference has not been already reported while visiting
 								this.patternLocator.matchReportReference(node, enclosingElement, null, null, method.binding, level.intValue(), this);
 							}
@@ -2658,7 +2658,7 @@ protected void reportMatching(AbstractMethodDeclaration method, TypeDeclaration 
 			}
 			// Remove all remaining nodes
 			for (ASTNode node : nodes) {
-				nodeSet.matchingNodes.removeKey(node);
+				nodeSet.matchingNodes.remove(node);
 			}
 		}
 	}
@@ -2679,7 +2679,7 @@ protected void reportMatching(Annotation[] annotations, IJavaElement enclosingEl
 
 		// Look for annotation type ref
 		TypeReference typeRef = annotationType.type;
-		Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeRef);
+		Integer level = nodeSet.matchingNodes.remove(typeRef);
 		if (level != null && enclosesElement && matchedContainer) {
 			localAnnotation = createHandle(annotationType, (IAnnotatable) enclosingElement);
 			if (length > 0) {
@@ -2695,7 +2695,7 @@ protected void reportMatching(Annotation[] annotations, IJavaElement enclosingEl
 		// Look for attribute ref
 		MemberValuePair[] pairs = annotationType.memberValuePairs();
 		for (MemberValuePair pair : pairs) {
-			level = (Integer) nodeSet.matchingNodes.removeKey(pair);
+			level = nodeSet.matchingNodes.remove(pair);
 			if (level != null && enclosesElement) {
 				ASTNode reference = (annotationType instanceof SingleMemberAnnotation) ? (ASTNode) annotationType: pair;
 				if (!handlesCreated) {
@@ -2717,11 +2717,11 @@ protected void reportMatching(Annotation[] annotations, IJavaElement enclosingEl
 		if (nodes != null) {
 			if (!matchedContainer) {
 				for (ASTNode node : nodes) {
-					nodeSet.matchingNodes.removeKey(node);
+					nodeSet.matchingNodes.remove(node);
 				}
 			} else {
 				for (ASTNode node : nodes) {
-					level = (Integer) nodeSet.matchingNodes.removeKey(node);
+					level = nodeSet.matchingNodes.remove(node);
 					if (enclosesElement) {
 						if (!handlesCreated) {
 							localAnnotation = createHandle(annotationType, (IAnnotatable) enclosingElement);
@@ -2758,7 +2758,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 	if (nodeSet.mustResolve) this.patternLocator.mustResolve = true;
 	if (BasicSearchEngine.VERBOSE) {
 		trace("Report matching: "); //$NON-NLS-1$
-		int size = nodeSet.matchingNodes==null ? 0 : nodeSet.matchingNodes.elementSize;
+		int size = nodeSet.matchingNodes==null ? 0 : nodeSet.matchingNodes.size();
 		trace("	- node set: accurate="+ size); //$NON-NLS-1$
 		size = nodeSet.possibleMatchingNodesSet==null ? 0 : nodeSet.possibleMatchingNodesSet.elementSize;
 		trace(", possible="+size); //$NON-NLS-1$
@@ -2795,7 +2795,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 		}
 		nodeSet.possibleMatchingNodesSet = new SimpleSet(3);
 		if (BasicSearchEngine.VERBOSE) {
-			int size = nodeSet.matchingNodes==null ? 0 : nodeSet.matchingNodes.elementSize;
+			int size = nodeSet.matchingNodes==null ? 0 : nodeSet.matchingNodes.size();
 			trace("	- node set: accurate="+size); //$NON-NLS-1$
 			size = nodeSet.possibleMatchingNodesSet==null ? 0 : nodeSet.possibleMatchingNodesSet.elementSize;
 			trace(", possible="+size); //$NON-NLS-1$
@@ -2804,7 +2804,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 		this.unitScope = null;
 	}
 
-	if (nodeSet.matchingNodes.elementSize == 0) return; // no matching nodes were found
+	if (nodeSet.matchingNodes.isEmpty()) return; // no matching nodes were found
 	this.methodHandles = new HashSet<>();
 
 	boolean matchedUnitContainer = (this.matchContainer & PatternLocator.COMPILATION_UNIT_CONTAINER) != 0;
@@ -2815,11 +2815,11 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 		if (nodes != null) {
 			if (!matchedUnitContainer) {
 				for (ASTNode node : nodes)
-					nodeSet.matchingNodes.removeKey(node);
+					nodeSet.matchingNodes.remove(node);
 			} else {
 				IJavaElement element = createPackageDeclarationHandle(unit);
 				for (ASTNode node : nodes) {
-					Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
+					Integer level = nodeSet.matchingNodes.remove(node);
 					if (encloses(element)) {
 						this.patternLocator.matchReportReference(node, element, null, null, null/*no binding*/, level.intValue(), this);
 					}
@@ -2840,7 +2840,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 		ImportReference[] imports = unit.imports;
 		if (imports != null) {
 			for (ImportReference importRef : imports) {
-				Integer level = (Integer) nodeSet.matchingNodes.removeKey(importRef);
+				Integer level = nodeSet.matchingNodes.remove(importRef);
 				if (level != null) {
 					this.patternLocator.matchReportImportRef(importRef, null /*no binding*/, createImportHandle(importRef), level.intValue(), this);
 				}
@@ -2851,15 +2851,15 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 	TypeDeclaration[] types = unit.types;
 	if (types != null) {
 		for (TypeDeclaration type : types) {
-			if (nodeSet.matchingNodes.elementSize == 0) return; // reported all the matching nodes
-			Integer level = (Integer) nodeSet.matchingNodes.removeKey(type);
+			if (nodeSet.matchingNodes.isEmpty()) return; // reported all the matching nodes
+			Integer level = nodeSet.matchingNodes.remove(type);
 			int accuracy = (level != null && matchedUnitContainer) ? level.intValue() : -1;
 			this.inTypeOccurrencesCounts = new HashtableOfIntValues();
 			reportMatching(type, null, accuracy, nodeSet, 1);
 		}
 	} else if (unit.moduleDeclaration != null) {
 		ModuleDeclaration mod = unit.moduleDeclaration;
-		Integer level = (Integer) nodeSet.matchingNodes.removeKey(mod);
+		Integer level = nodeSet.matchingNodes.remove(mod);
 		int accuracy = (level != null && matchedUnitContainer) ? level.intValue() : -1;
 		reportMatching(mod, null, accuracy, nodeSet, 1);
 	}
@@ -2909,7 +2909,7 @@ protected void reportMatching(FieldDeclaration field, FieldDeclaration[] otherFi
 			int length = nodes.length;
 			for (int i = 0; i < length; i++) {
 				ASTNode node = nodes[i];
-				Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
+				Integer level = nodeSet.matchingNodes.remove(node);
 				if (report && level != null) {
 					if (node instanceof TypeDeclaration) {
 						// use field declaration to report match (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=88174)
@@ -2943,13 +2943,13 @@ protected void reportMatching(FieldDeclaration field, FieldDeclaration[] otherFi
 			if (nodes != null) {
 				if ((this.matchContainer & PatternLocator.FIELD_CONTAINER) == 0) {
 					for (ASTNode node : nodes)
-						nodeSet.matchingNodes.removeKey(node);
+						nodeSet.matchingNodes.remove(node);
 				} else {
 					if (enclosingElement == null)
 						enclosingElement = createHandle(field, type, parent);
 					if (encloses(enclosingElement)) {
 						for (ASTNode node : nodes) {
-							Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
+							Integer level = nodeSet.matchingNodes.remove(node);
 							if (otherFields != null && otherElements == null) {
 								otherElements = createHandles(otherFields, type, parent);
 							}
@@ -2966,7 +2966,7 @@ protected void reportMatching(FieldDeclaration field, FieldDeclaration[] otherFi
 		if (nodes != null) {
 			if ((this.matchContainer & PatternLocator.FIELD_CONTAINER) == 0) {
 				for (ASTNode node : nodes) {
-					nodeSet.matchingNodes.removeKey(node);
+					nodeSet.matchingNodes.remove(node);
 				}
 			} else {
 				if (enclosingElement == null) {
@@ -2978,7 +2978,7 @@ protected void reportMatching(FieldDeclaration field, FieldDeclaration[] otherFi
 					int length = nodes.length;
 					for (int i = 0; i < length; i++) {
 						ASTNode node = nodes[i];
-						Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
+						Integer level = nodeSet.matchingNodes.remove(node);
 						if (level != null) { // ensure that the reference has not been already reported while visiting
 							if (node instanceof TypeDeclaration) {
 								// use field declaration to report match (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=88174)
@@ -3039,7 +3039,7 @@ private void reportMatching(RequiresStatement[] reqs, ModuleDeclaration module, 
 		return;
 	try {
 		for (RequiresStatement req : reqs) {
-			Integer level = (Integer) nodeSet.matchingNodes.removeKey(req.module);
+			Integer level = nodeSet.matchingNodes.remove(req.module);
 			if (level != null) {
 				this.patternLocator.matchReportReference(req.module, moduleDesc, req.resolvedBinding, level.intValue(), this);
 			}
@@ -3054,7 +3054,7 @@ private void reportMatching(PackageVisibilityStatement[] psvs, MatchingNodeSet n
 	if (psvs != null && psvs.length > 0) {
 		for (PackageVisibilityStatement psv : psvs) {
 			ImportReference importRef = psv.pkgRef;
-			Integer level = (Integer) nodeSet.matchingNodes.removeKey(importRef);
+			Integer level = nodeSet.matchingNodes.remove(importRef);
 			if (level != null) {
 				Binding binding = this.unitScope.getImport(importRef.tokens, true, 0);
 				this.patternLocator.matchReportImportRef(importRef, binding, moduleDesc, level.intValue(), this);
@@ -3062,7 +3062,7 @@ private void reportMatching(PackageVisibilityStatement[] psvs, MatchingNodeSet n
 			ModuleReference[] tgts = psv.targets;
 			if (tgts == null || tgts.length == 0) continue;
 			for (ModuleReference tgt : tgts) {
-				level = (Integer) nodeSet.matchingNodes.removeKey(tgt);
+				level = nodeSet.matchingNodes.remove(tgt);
 				if (level != null) {
 					this.patternLocator.matchReportReference(tgt, moduleDesc, tgt.resolve(this.unitScope), level.intValue(), this);
 				}
@@ -3075,14 +3075,14 @@ private void reportMatching(ProvidesStatement[] provides, ModuleDeclaration modu
 		for (ProvidesStatement service : provides) {
 			TypeReference intf = service.serviceInterface;
 			if (intf != null) {
-				Integer level = (Integer) nodeSet.matchingNodes.removeKey(intf);
+				Integer level = nodeSet.matchingNodes.remove(intf);
 				if (level != null)
 					this.patternLocator.matchReportReference(intf, moduleDesc, null, null, module.binding, level.intValue(), this);
 			}
 			TypeReference[] impls = service.implementations;
 			for (TypeReference impl : impls) {
 				if (impl != null) {
-					Integer level = (Integer) nodeSet.matchingNodes.removeKey(impl);
+					Integer level = nodeSet.matchingNodes.remove(impl);
 					if (level != null)
 						this.patternLocator.matchReportReference(impl, moduleDesc, null, null, module.binding, level.intValue(), this);
 				}
@@ -3096,7 +3096,7 @@ private void reportMatching(UsesStatement[] uses, ModuleDeclaration module, Matc
 			for (UsesStatement service : uses) {
 				TypeReference intf = service.serviceInterface;
 				if (intf != null) {
-					Integer level = (Integer) nodeSet.matchingNodes.removeKey(intf);
+					Integer level = nodeSet.matchingNodes.remove(intf);
 					if (level != null) {
 						this.patternLocator.matchReportReference(intf, moduleDesc, null, null, module.binding, level.intValue(), this);
 					}
@@ -3157,10 +3157,10 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 		if (nodes != null) {
 			if (!matchedClassContainer) {
 				for (ASTNode node : nodes)
-					nodeSet.matchingNodes.removeKey(node);
+					nodeSet.matchingNodes.remove(node);
 			} else {
 				for (ASTNode node : nodes) {
-					Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
+					Integer level = nodeSet.matchingNodes.remove(node);
 					if (enclosesElement) {
 						this.patternLocator.matchReportReference(node, enclosingElement, null, null, type.binding, level.intValue(), this);
 					}
@@ -3173,7 +3173,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 	if ((type.bits & ASTNode.IsAnonymousType) != 0) {
 		TypeReference superType = type.allocation.type;
 		if (superType != null) {
-			Integer level = (Integer) nodeSet.matchingNodes.removeKey(superType);
+			Integer level = nodeSet.matchingNodes.remove(superType);
 			if (level != null && matchedClassContainer)
 				this.patternLocator.matchReportReference(superType, enclosingElement, null, null, type.binding, level.intValue(), this);
 		}
@@ -3214,7 +3214,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 	// Visit fields
 	FieldDeclaration[] fields = type.fields;
 	if (fields != null) {
-		if (nodeSet.matchingNodes.elementSize == 0) return;	// end as all matching nodes were reported
+		if (nodeSet.matchingNodes.isEmpty()) return;	// end as all matching nodes were reported
 		FieldDeclaration[] otherFields = null;
 		int first = -1;
 		int length = fields.length;
@@ -3238,7 +3238,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 				// On last field, report match with all other elements
 				if (last) {
 					for (int j=first; j<=i; j++) {
-						Integer level = (Integer) nodeSet.matchingNodes.removeKey(fields[j]);
+						Integer level = nodeSet.matchingNodes.remove(fields[j]);
 						int value = (level != null && matchedClassContainer) ? level.intValue() : -1;
 						reportMatching(fields[j], otherFields, type, enclosingElement, value, typeInHierarchy, nodeSet);
 					}
@@ -3247,7 +3247,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 				}
 			} else {
 				// Single field, report normally
-				Integer level = (Integer) nodeSet.matchingNodes.removeKey(field);
+				Integer level = nodeSet.matchingNodes.remove(field);
 				int value = (level != null && matchedClassContainer) ? level.intValue() : -1;
 				reportMatching(field, null, type, enclosingElement, value, typeInHierarchy, nodeSet);
 			}
@@ -3257,9 +3257,9 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 	// Visit methods
 	AbstractMethodDeclaration[] methods = type.methods;
 	if (methods != null) {
-		if (nodeSet.matchingNodes.elementSize == 0) return;	// end as all matching nodes were reported
+		if (nodeSet.matchingNodes.isEmpty()) return;	// end as all matching nodes were reported
 		for (AbstractMethodDeclaration method : methods) {
-			Integer level = (Integer) nodeSet.matchingNodes.removeKey(method);
+			Integer level = nodeSet.matchingNodes.remove(method);
 			int value = (level != null && matchedClassContainer) ? level.intValue() : -1;
 			reportMatching(method, type, enclosingElement, value, typeInHierarchy, nodeSet);
 		}
@@ -3269,8 +3269,8 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 	TypeDeclaration[] memberTypes = type.memberTypes;
 	if (memberTypes != null) {
 		for (TypeDeclaration memberType : memberTypes) {
-			if (nodeSet.matchingNodes.elementSize == 0) return;	// end as all matching nodes were reported
-			Integer level = (Integer) nodeSet.matchingNodes.removeKey(memberType);
+			if (nodeSet.matchingNodes.isEmpty()) return;	// end as all matching nodes were reported
+			Integer level = nodeSet.matchingNodes.remove(memberType);
 			int value = (level != null && matchedClassContainer) ? level.intValue() : -1;
 			reportMatching(memberType, enclosingElement, value, nodeSet, 1);
 		}
@@ -3283,7 +3283,7 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
 	if (typeParameters == null) return;
 	for (TypeParameter typeParameter : typeParameters) {
 		if (typeParameter != null) {
-			Integer level = (Integer) nodeSet.matchingNodes.removeKey(typeParameter);
+			Integer level = nodeSet.matchingNodes.remove(typeParameter);
 			if (level != null) {
 				if (level.intValue() > -1 && encloses(enclosingElement)) {
 					int offset = typeParameter.sourceStart;
@@ -3297,7 +3297,7 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
 			}
 			if (typeParameter.type != null) {
 				reportMatching(typeParameter.type.annotations, enclosingElement, typeParameter.binding, nodeSet, matchedClassContainer);
-				level = (Integer) nodeSet.matchingNodes.removeKey(typeParameter.type);
+				level = nodeSet.matchingNodes.remove(typeParameter.type);
 				if (level != null) {
 					IJavaElement localElement = createHandle(typeParameter, enclosingElement);
 					this.patternLocator.matchReportReference(typeParameter.type, enclosingElement, localElement, null, binding, level.intValue(), this);
@@ -3309,7 +3309,7 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
                     	for (int k=0; k<length; k++) {
 							TypeReference typeArgument = paramSTR.typeArguments[k];
 							reportMatching(typeArgument.annotations, enclosingElement, typeArgument.resolvedType, nodeSet, matchedClassContainer);
-							level = (Integer) nodeSet.matchingNodes.removeKey(typeArgument);
+							level = nodeSet.matchingNodes.remove(typeArgument);
 							if (level != null) {
 								IJavaElement localElement = createHandle(typeParameter, enclosingElement);
 								this.patternLocator.matchReportReference(typeArgument, enclosingElement, localElement, null, binding, level.intValue(), this);
@@ -3318,7 +3318,7 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
 	                            TypeReference wildcardBound = ((Wildcard) typeArgument).bound;
 	                            if (wildcardBound != null) {
 		            				reportMatching(wildcardBound.annotations, enclosingElement, wildcardBound.resolvedType, nodeSet, matchedClassContainer);
-									level = (Integer) nodeSet.matchingNodes.removeKey(wildcardBound);
+									level = nodeSet.matchingNodes.remove(wildcardBound);
 									if (level != null) {
 										IJavaElement localElement = createHandle(typeParameter, enclosingElement);
 										this.patternLocator.matchReportReference(wildcardBound, enclosingElement, localElement, null, binding, level.intValue(), this);
@@ -3334,7 +3334,7 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
 					if (typeParameterBound.annotations != null) {
 						reportMatching(typeParameterBound.annotations, enclosingElement, binding,nodeSet, matchedClassContainer);
 					}
-					level = (Integer) nodeSet.matchingNodes.removeKey(typeParameterBound);
+					level = nodeSet.matchingNodes.remove(typeParameterBound);
 					if (level != null) {
 						IJavaElement localElement = createHandle(typeParameter, enclosingElement);
 						this.patternLocator.matchReportReference(typeParameterBound, enclosingElement, localElement, null, binding, level.intValue(), this);
@@ -3348,7 +3348,7 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
 								if (typeArgument.annotations != null) {
 									reportMatching(typeArgument.annotations, enclosingElement, binding,nodeSet, matchedClassContainer);
 								}
-								level = (Integer) nodeSet.matchingNodes.removeKey(typeArgument);
+								level = nodeSet.matchingNodes.remove(typeArgument);
 								if (level != null) {
 									IJavaElement localElement = createHandle(typeParameter, enclosingElement);
 									this.patternLocator.matchReportReference(typeArgument, enclosingElement, localElement, null, binding, level.intValue(), this);
@@ -3359,7 +3359,7 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
 		            					if (wildcardBound.annotations != null) {
 		            						reportMatching(wildcardBound.annotations, enclosingElement, binding,nodeSet, matchedClassContainer);
 		            					}
-										level = (Integer) nodeSet.matchingNodes.removeKey(wildcardBound);
+										level = nodeSet.matchingNodes.remove(wildcardBound);
 										if (level != null) {
 											IJavaElement localElement = createHandle(typeParameter, enclosingElement);
 											this.patternLocator.matchReportReference(wildcardBound, enclosingElement, localElement, null, binding, level.intValue(), this);
@@ -3383,16 +3383,16 @@ protected void reportMatchingSuperOrPermit(TypeReference superReference, IJavaEl
 	if (nodes != null) {
 		if ((this.matchContainer & PatternLocator.CLASS_CONTAINER) == 0) {
 			for (ASTNode node : nodes)
-				nodeSet.matchingNodes.removeKey(node);
+				nodeSet.matchingNodes.remove(node);
 		} else {
 			if (encloses(enclosingElement))
 				for (ASTNode node : nodes) {
-					Integer level = (Integer) nodeSet.matchingNodes.removeKey(node);
+					Integer level = nodeSet.matchingNodes.remove(node);
 					this.patternLocator.matchReportReference(node, enclosingElement, null, null, elementBinding, level.intValue(), this);
 				}
 		}
 	} else if (encloses(enclosingElement)) {
-		Integer level = (Integer) nodeSet.matchingNodes.removeKey(superReference);
+		Integer level = nodeSet.matchingNodes.remove(superReference);
 		if (level != null && matchedClassContainer)
 			this.patternLocator.matchReportReference(superReference, enclosingElement, null, null, elementBinding, level.intValue(), this);
 	}

@@ -3627,7 +3627,7 @@ public class JavaProject
 	 */
 	public void updateCycleParticipants(
 			List<IPath> prereqChain,
-			LinkedHashSet cycleParticipants,
+			LinkedHashSet<IPath> cycleParticipants,
 			Map<IPath,List<CycleInfo>> cyclesPerProject,
 			IWorkspaceRoot workspaceRoot,
 			HashSet traversed,

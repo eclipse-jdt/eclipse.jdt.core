@@ -71,15 +71,13 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfModule;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
-import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class LookupEnvironment implements ProblemReasons, TypeConstants {
 
 	/**
 	 * Map from typeBinding -> accessRestriction rule
 	 */
-	private Map accessRestrictions;
+	private Map<TypeBinding, AccessRestriction> accessRestrictions;
 	ImportBinding[] defaultImports;				// ROOT_ONLY
 	/**
 	 * The root environment driving the current compilation.
@@ -109,11 +107,10 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	private CompleteTypeBindingsSteps stepCompleted = CompleteTypeBindingsSteps.NONE; // ROOT_ONLY
 	public ITypeRequestor typeRequestor;		// SHARED
 
-	private SimpleLookupTable uniqueParameterizedGenericMethodBindings;
+	private Map<MethodBinding, ParameterizedGenericMethodBinding[]> uniqueParameterizedGenericMethodBindings;
 
-	// key is a string with the method selector value is an array of method bindings
-	private SimpleLookupTable uniquePolymorphicMethodBindings;
-	private SimpleLookupTable uniqueGetClassMethodBinding; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=300734
+	private Map<String, MethodBinding[]> uniquePolymorphicMethodBindings;
+	private Map<TypeBinding, ParameterizedMethodBinding> uniqueGetClassMethodBinding; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=300734
 
 	boolean useModuleSystem;					// true when compliance >= 9 and nameEnvironment is module aware
 	// key is a string with the module name value is a module binding
@@ -124,7 +121,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	private CompilationUnitDeclaration[] units = new CompilationUnitDeclaration[4]; // ROOT_ONLY
 	private MethodVerifier verifier;
 
-	private ArrayList missingTypes;
+	private ArrayList<MissingTypeBinding> missingTypes;
 	Set<SourceTypeBinding> typesBeingConnected;	// SHARED
 	public boolean isProcessingAnnotations = false; // ROOT_ONLY
 	public boolean mayTolerateMissingType = false;
@@ -214,11 +211,11 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.defaultPackage = new PlainPackageBinding(this); // assume the default package always exists
 	this.defaultImports = null;
 	this.nameEnvironment = nameEnvironment;
-	this.knownPackages = new HashtableOfPackage();
-	this.uniqueParameterizedGenericMethodBindings = new SimpleLookupTable(3);
-	this.uniquePolymorphicMethodBindings = new SimpleLookupTable(3);
+	this.knownPackages = new HashtableOfPackage<>();
+	this.uniqueParameterizedGenericMethodBindings = new HashMap<>();
+	this.uniquePolymorphicMethodBindings = new HashMap<>();
 	this.missingTypes = null;
-	this.accessRestrictions = new HashMap(3);
+	this.accessRestrictions = new HashMap<>();
 	this.classFilePool = ClassFilePool.newInstance();
 	this.typesBeingConnected = new LinkedHashSet<>();
 	this.deferredEnumMethods = new ArrayList<>();
@@ -239,11 +236,11 @@ LookupEnvironment(LookupEnvironment rootEnv, ModuleBinding module) {
 	this.defaultPackage = new PlainPackageBinding(this); // assume the default package always exists
 	this.defaultImports = null;
 	this.nameEnvironment = rootEnv.nameEnvironment;
-	this.knownPackages = new HashtableOfPackage();
-	this.uniqueParameterizedGenericMethodBindings = new SimpleLookupTable(3);
-	this.uniquePolymorphicMethodBindings = new SimpleLookupTable(3);
+	this.knownPackages = new HashtableOfPackage<>();
+	this.uniqueParameterizedGenericMethodBindings = new HashMap<>();
+	this.uniquePolymorphicMethodBindings = new HashMap<>();
 	this.missingTypes = null;
-	this.accessRestrictions = new HashMap(3);
+	this.accessRestrictions = new HashMap<>();
 	this.classFilePool = rootEnv.classFilePool;
 	this.typesBeingConnected = rootEnv.typesBeingConnected;
 	this.deferredEnumMethods = rootEnv.deferredEnumMethods;
@@ -1116,7 +1113,7 @@ public MissingTypeBinding createMissingType(PackageBinding packageBinding, char[
 	}
 	packageBinding.addType(missingType);
 	if (this.missingTypes == null)
-		this.missingTypes = new ArrayList(3);
+		this.missingTypes = new ArrayList<>();
 	this.missingTypes.add(missingType);
 	return missingType;
 }
@@ -1194,7 +1191,7 @@ public PlainPackageBinding createPlainPackage(char[][] compoundName) {
 
 public ParameterizedGenericMethodBinding createParameterizedGenericMethod(MethodBinding genericMethod, RawTypeBinding rawType) {
 	// cached info is array of already created parameterized types for this type
-	ParameterizedGenericMethodBinding[] cachedInfo = (ParameterizedGenericMethodBinding[])this.uniqueParameterizedGenericMethodBindings.get(genericMethod);
+	ParameterizedGenericMethodBinding[] cachedInfo = this.uniqueParameterizedGenericMethodBindings.get(genericMethod);
 	boolean needToGrow = false;
 	int index = 0;
 	if (cachedInfo != null){
@@ -1234,7 +1231,7 @@ public ParameterizedGenericMethodBinding createParameterizedGenericMethod(Method
 																			boolean inferredWithUncheckedConversion, boolean hasReturnProblem, TypeBinding targetType)
 {
 	// cached info is array of already created parameterized types for this type
-	ParameterizedGenericMethodBinding[] cachedInfo = (ParameterizedGenericMethodBinding[])this.uniqueParameterizedGenericMethodBindings.get(genericMethod);
+	ParameterizedGenericMethodBinding[] cachedInfo = this.uniqueParameterizedGenericMethodBindings.get(genericMethod);
 	int argLength = typeArguments == null ? 0: typeArguments.length;
 	boolean needToGrow = false;
 	int index = 0;
@@ -1382,9 +1379,9 @@ public ParameterizedMethodBinding createGetClassMethod(TypeBinding receiverType,
 	// see if we have already cached this method for the given receiver type.
 	ParameterizedMethodBinding retVal = null;
 	if (this.uniqueGetClassMethodBinding == null) {
-		this.uniqueGetClassMethodBinding = new SimpleLookupTable(3);
+		this.uniqueGetClassMethodBinding = new HashMap<>();
 	} else {
-		retVal = (ParameterizedMethodBinding)this.uniqueGetClassMethodBinding.get(receiverType);
+		retVal = this.uniqueGetClassMethodBinding.get(receiverType);
 	}
 	if (retVal == null) {
 		retVal = ParameterizedMethodBinding.instantiateGetClass(receiverType, originalMethod, scope);
@@ -1496,7 +1493,7 @@ public WildcardBinding createWildcard(ReferenceBinding genericType, int rank, Ty
  * Returns the access restriction associated to a given type, or null if none
  */
 public AccessRestriction getAccessRestriction(TypeBinding type) {
-	return (AccessRestriction) this.accessRestrictions.get(type);
+	return this.accessRestrictions.get(type);
 }
 
 /**
@@ -1892,16 +1889,14 @@ public ReferenceBinding getType(char[][] compoundName, ModuleBinding mod) {
 private TypeBinding[] getTypeArgumentsFromSignature(SignatureWrapper wrapper, TypeVariableBinding[] staticVariables, ReferenceBinding enclosingType, ReferenceBinding genericType,
 		char[][][] missingTypeNames, ITypeAnnotationWalker walker)
 {
-	java.util.ArrayList args = new java.util.ArrayList(2);
+	List<TypeBinding> args = new ArrayList<>(2);
 	int rank = 0;
 	do {
 		args.add(getTypeFromVariantTypeSignature(wrapper, staticVariables, enclosingType, genericType, rank, missingTypeNames,
 					walker.toTypeArgument(rank++)));
 	} while (wrapper.signature[wrapper.start] != '>');
 	wrapper.start++; // skip '>'
-	TypeBinding[] typeArguments = new TypeBinding[args.size()];
-	args.toArray(typeArguments);
-	return typeArguments;
+	return args.toArray(TypeBinding[]::new);
 }
 
 /* Answer the type corresponding to the compound name.
@@ -2274,7 +2269,7 @@ TypeBinding getTypeFromVariantTypeSignature(
 
 boolean isMissingType(char[] typeName) {
 	for (int i = this.missingTypes == null ? 0 : this.missingTypes.size(); --i >= 0;) {
-		MissingTypeBinding missingType = (MissingTypeBinding) this.missingTypes.get(i);
+		MissingTypeBinding missingType = this.missingTypes.get(i);
 		if (CharOperation.equals(missingType.sourceName, typeName))
 			return true;
 	}
@@ -2316,17 +2311,17 @@ public void reset() {
 
 	this.defaultPackage = new PlainPackageBinding(this); // assume the default package always exists
 	this.defaultImports = null;
-	this.knownPackages = new HashtableOfPackage();
-	this.accessRestrictions = new HashMap(3);
+	this.knownPackages = new HashtableOfPackage<>();
+	this.accessRestrictions = new HashMap<>();
 
 	this.verifier = null;
 
 	// NOTE: remember to fix #updateCaches(...) when adding unique binding caches
-	this.uniqueParameterizedGenericMethodBindings = new SimpleLookupTable(3);
-	this.uniquePolymorphicMethodBindings = new SimpleLookupTable(3);
+	this.uniqueParameterizedGenericMethodBindings = new HashMap<>();
+	this.uniquePolymorphicMethodBindings = new HashMap<>();
 	this.uniqueGetClassMethodBinding = null;
 	this.missingTypes = null;
-	this.typesBeingConnected = new LinkedHashSet();
+	this.typesBeingConnected = new LinkedHashSet<>();
 
 	for (int i = this.units.length; --i >= 0;)
 		this.units[i] = null;
