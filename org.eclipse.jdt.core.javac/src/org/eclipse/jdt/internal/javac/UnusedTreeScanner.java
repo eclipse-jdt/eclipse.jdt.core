@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2024 Microsoft Corporation and others.
+* Copyright (c) 2024, 2025 Microsoft Corporation and others.
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License 2.0
 * which accompanies this distribution, and is available at
@@ -47,13 +47,18 @@ import com.sun.tools.javac.code.TypeTag;
 import com.sun.tools.javac.parser.Tokens.Comment;
 import com.sun.tools.javac.parser.Tokens.Comment.CommentStyle;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.JCTree.JCAnnotation;
+import com.sun.tools.javac.tree.JCTree.JCAssign;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
+import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
 import com.sun.tools.javac.tree.JCTree.JCImport;
+import com.sun.tools.javac.tree.JCTree.JCLiteral;
 import com.sun.tools.javac.tree.JCTree.JCMemberReference;
 import com.sun.tools.javac.tree.JCTree.JCMethodDecl;
+import com.sun.tools.javac.tree.JCTree.JCNewArray;
 import com.sun.tools.javac.tree.JCTree.JCNewClass;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 
@@ -62,6 +67,8 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 	final Set<Symbol> usedElements = new HashSet<>();
 	final Map<String, JCImport> unusedImports = new LinkedHashMap<>();
 	private CompilationUnitTree unit = null;
+	private boolean classSuppressUnused = false;
+	private boolean methodSuppressUnused = false;
 	
 	private final UnusedDocTreeScanner unusedDocTreeScanner = new UnusedDocTreeScanner();
 	
@@ -105,8 +112,16 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 
 	@Override
 	public R visitClass(ClassTree node, P p) {
-		if (node instanceof JCClassDecl classDecl && this.isPotentialUnusedDeclaration(classDecl)) {
-			this.privateDecls.add(classDecl);
+		if (node instanceof JCClassDecl classDecl) {
+			for (JCAnnotation annot : classDecl.mods.annotations) {
+				classSuppressUnused = isUnusedSuppressed(annot);
+				break;
+			}
+			if( this.isPotentialUnusedDeclaration(classDecl)) {
+				if (!classSuppressUnused) {
+					this.privateDecls.add(classDecl);
+				}
+			}
 		}
 
 		return super.visitClass(node, p);
@@ -191,6 +206,10 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 		if (tree instanceof JCClassDecl classTree) {
 			return (classTree.getModifiers().flags & Flags.PRIVATE) != 0;
 		} else if (tree instanceof JCMethodDecl methodTree) {
+			for (JCAnnotation annot : methodTree.mods.annotations) {
+				methodSuppressUnused = isUnusedSuppressed(annot);
+				break;
+			}
 			if (isConstructor(methodTree)) {
 				return (methodTree.getModifiers().flags & Flags.PRIVATE) != 0
 						&& hasPackageVisibleConstructor(methodTree.sym.owner);
@@ -270,17 +289,49 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 
 	public List<CategorizedProblem> getUnusedPrivateMembers(UnusedProblemFactory problemFactory) {
 		List<Tree> unusedPrivateMembers = new ArrayList<>();
-		for (Tree decl : this.privateDecls) {
-			if (decl instanceof JCClassDecl classDecl && !this.usedElements.contains(classDecl.sym)) {
-				unusedPrivateMembers.add(decl);	
-			} else if (decl instanceof JCMethodDecl methodDecl && !this.usedElements.contains(methodDecl.sym)) {
-				unusedPrivateMembers.add(decl);
-			} else if (decl instanceof JCVariableDecl variableDecl && !this.usedElements.contains(variableDecl.sym)) {
-				unusedPrivateMembers.add(decl);
+		if (!classSuppressUnused&&!methodSuppressUnused) {
+			for (Tree decl : this.privateDecls) {
+				if (decl instanceof JCClassDecl classDecl && !this.usedElements.contains(classDecl.sym)) {
+					unusedPrivateMembers.add(decl);
+				} else if (decl instanceof JCMethodDecl methodDecl && !this.usedElements.contains(methodDecl.sym)) {
+					unusedPrivateMembers.add(decl);
+				} else if (decl instanceof JCVariableDecl variableDecl
+						&& !this.usedElements.contains(variableDecl.sym)) {
+					boolean suppressed = false;
+					for (JCAnnotation annot : variableDecl.mods.annotations) {
+						suppressed = isUnusedSuppressed(annot);
+						break;
+					}
+					if (!suppressed) {
+						unusedPrivateMembers.add(decl);
+					}
+				}
 			}
 		}
-
 		return problemFactory.addUnusedPrivateMembers(unit, unusedPrivateMembers);
+	}
+
+	private boolean isUnusedSuppressed(JCAnnotation annot) {
+		boolean suppressed = false;
+		JCTree type = annot.getAnnotationType();
+		if(type instanceof JCIdent id && id.sym.name.contentEquals("SuppressWarnings")) {
+			for (JCExpression exp : annot.getArguments()) {
+				if (exp instanceof JCAssign assign  && assign.lhs instanceof JCIdent lhsId && lhsId.sym.name.contentEquals("value")) {
+					if( assign.rhs instanceof JCLiteral rhsId && rhsId.value.equals("unused")) {
+						suppressed=true;
+						break;
+					} else if (assign.rhs instanceof JCNewArray array) {
+						for (var el: array.elems) {
+							if(el instanceof JCLiteral lit && lit.value.equals("unused")) {
+								suppressed=true;
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+		return suppressed;
 	}
 	
 	private class UnusedDocTreeScanner extends com.sun.source.util.DocTreeScanner<R, P> {
