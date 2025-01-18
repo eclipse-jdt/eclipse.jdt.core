@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2024 IBM Corporation and others.
+ * Copyright (c) 2006, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.complete;
 
-import java.util.function.Consumer;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -30,17 +29,13 @@ public class CompletionOnMessageSendName extends MessageSend implements Completi
 	public boolean nextIsCast;
 	public boolean cursorIsToTheLeftOfTheLParen;
 
-	public CompletionOnMessageSendName(char[] selector, int start, int end) {
-		this(selector, start, end, setup -> {/* use defaults */});
-	}
-
-	public CompletionOnMessageSendName(char[] selector, int start, int end, Consumer<CompletionOnMessageSendName> setup) {
+	public CompletionOnMessageSendName(char[] selector, int start, int end, boolean nextIsCast) {
 		super();
 		this.selector = selector;
 		this.sourceStart = start;
 		this.sourceEnd = end;
 		this.nameSourcePosition = end;
-		setup.accept(this);
+		this.nextIsCast = nextIsCast;
 	}
 
 	@Override

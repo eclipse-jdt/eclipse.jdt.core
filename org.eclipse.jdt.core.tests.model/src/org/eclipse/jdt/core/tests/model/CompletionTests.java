@@ -26232,8 +26232,66 @@ public void testGH2620_1() throws JavaModelException {
 	String completeBehind = "/*x*/local.ref.te";
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED;
 	assertResults(
-		"test[METHOD_REF]{test, LGH2620$Test;, ()V, null, null, test, null, [157, 161], 49}",
+		"test[METHOD_REF]{test, LGH2620$Test;, ()V, null, null, test, null, [157, 161], "+relevance+"}",
+		requestor.getResults()
+	);
+}
+public void testGH2620_1a() throws JavaModelException {
+	// to observe the difference when cursor is right to '('
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH2620.java", """
+			public class GH2620 {
+				public static void main (String[] args) {
+					Test local;
+					if (true) { // the if-statement is crucial for this test.
+						/*x*/local.ref.test();
+					}
+				}
+				public static class Test {
+					public Test ref;
+					public static void test() {}
+				}
+			}
+			""");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/*x*/local.ref.test(";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED;
+	assertResults(
+		"test[METHOD_REF]{, LGH2620$Test;, ()V, null, null, test, null, [163, 163], "+relevance+"}",
+		requestor.getResults()
+	);
+}
+public void testGH2620_1b() throws JavaModelException {
+	// to observe argument proposal
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH2620.java", """
+			public class GH2620 {
+				public static void main (String[] args) {
+					Test local;
+					int j = 1;
+					if (true) { // the if-statement is crucial for this test.
+						/*x*/local.ref.test();
+					}
+				}
+				public static class Test {
+					public Test ref;
+					public static void test(int i) {}
+				}
+			}
+			""");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/*x*/local.ref.test";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_NON_RESTRICTED;
+	assertResults(
+		"test[METHOD_REF]{test, LGH2620$Test;, (I)V, null, null, test, (i), [170, 174], "+relevance+"}",
 		requestor.getResults()
 	);
 }

@@ -3583,40 +3583,32 @@ public final class CompletionEngine
 	private void internalCompletionOnQualifiedReference(ASTNode ref, ASTNode enclosingNode, Binding qualifiedBinding, Scope scope,
 			boolean insideTypeAnnotation, boolean isInsideAnnotationAttribute, InvocationSite site, char[][] tokens, long[] sourcePositions)
 	{
-		// we take the cursor location into consideration.
+		// we take the cursor location into consideration regarding segments of a qualified name,
 		//
+		// Example:
 		// void x(TreeNode node) {
 		//   TreeNode other = node.ch|.child.child.parent;
 		//   // ...
 		// }
 		//
-		// in the above example, bestPosition will match against the cursor after 'ch', i.e. sourcePositions[1].
+		// in the above example, completionPosition will match against the cursor after 'ch', i.e. sourcePositions[1].
 		// (sourcePositions[0] points to 'node', sourcePositions[4] to 'parent')
-		long bestPosition;
-		{
-			bestPosition = -1L;
-			for (int i = 0; i < sourcePositions.length; i++) {
-				long p = sourcePositions[i];
-				int start = (int) (p >>> 32);
-				int end = (int) (p);
-				{ // in specific cases like "node.|.child" the start might be larger than the end (see GH-2620)
-					if (start > end) {
-						int tmp = start;
-						start = end;
-						end = tmp;
-					}
-				}
-				boolean cursorWithinBounds = (start <= this.actualCompletionPosition && this.actualCompletionPosition <= end);
-				if (cursorWithinBounds) {
-					bestPosition = p;
-				}
+		long completionPosition = sourcePositions[sourcePositions.length - 1]; // use last segment as a fallback for resilience
+		for (long p : sourcePositions) {
+			int start = (int) (p >>> 32);
+			int end = (int) (p);
+			if (start > end) { // in specific cases like "node.|.child" the start might be larger than the end (see GH-2620)
+				// swap them for sanity / resilience
+				int tmp = start;
+				start = end;
+				end = tmp;
+			}
+			boolean cursorWithinBounds = (start <= this.actualCompletionPosition && this.actualCompletionPosition <= end);
+			if (cursorWithinBounds) {
+				completionPosition = p;
+				break;
 			}
 		}
-		if (bestPosition == -1L) {
-			// fallback to the previous behaviour, just in case.
-			bestPosition = sourcePositions[sourcePositions.length - 1];
-		}
-		long completionPosition = bestPosition;
 
 		if (qualifiedBinding.problemId() == ProblemReasons.NotFound) {
 			setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
