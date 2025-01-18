@@ -9028,6 +9028,57 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject(p1);
 		}
 	}
+	public void testIssue2786_10() throws CoreException {
+		// module java.smartcardio is not in default root modules according to old rules of JEP 261
+		IJavaProject p10 = createJava10Project("J10", new String[] {"src"});
+		p10.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+		try {
+			createFolder("/J10/src/p1");
+			createFile("/J10/src/p1/X.java",
+					"package p1;\n" +
+					"import javax.smartcardio.Card;\n" +
+					"public class X {\n" +
+					"	Card card;\n" +
+					"}");
+
+			waitForManualRefresh();
+			waitForAutoBuild();
+			p10.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p10.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("unexpected markers",
+					"The import javax.smartcardio cannot be resolved\n" +
+					"Card cannot be resolved to a type",
+					markers);
+		} finally {
+			deleteProject(p10);
+		}
+	}
+	public void testIssue2786_11() throws CoreException {
+		// since JDK-8205169 module java.smartcardio is indeed in default root modules
+		IJavaProject p11 = createJava11Project("J11", new String[] {"src"});
+		p11.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+		try {
+			createFolder("/J11/src/p1");
+			createFile("/J11/src/p1/X.java",
+					"package p1;\n" +
+					"import javax.smartcardio.Card;\n" +
+					"public class X {\n" +
+					"	Card card;\n" +
+					"}");
+
+			waitForManualRefresh();
+			waitForAutoBuild();
+			p11.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p11.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected Markers",
+					"",
+					markers);
+		} finally {
+			deleteProject(p11);
+		}
+	}
+
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);
