@@ -371,46 +371,57 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 					fieldName = field.toString();
 				}
 
-				if (qualifier.sym == null || qualifier.sym.owner.toString().isBlank()) {
-					String suffix = "." + qualifier.getName().toString();
-					Optional<String> potentialImport = UnusedTreeScanner.this.unusedImports.keySet().stream().filter(a -> a.endsWith(suffix)).findFirst();
-					if (potentialImport.isPresent()) {
-						UnusedTreeScanner.this.unusedImports.remove(potentialImport.get());
+				checkQualifier(qualifier, fieldName);
+				if (ref.paramTypes != null) {
+					for (JCTree paramType: ref.paramTypes) {
+						if (paramType instanceof JCIdent param) {
+							checkQualifier(param, fieldName);
+						}
+					}
+				}
+			}
+		}
+
+		private void checkQualifier(JCIdent qualifier, String fieldName) {
+			if (qualifier.sym == null || qualifier.sym.owner.toString().isBlank()) {
+				String suffix = "." + qualifier.getName().toString();
+				Optional<String> potentialImport = UnusedTreeScanner.this.unusedImports.keySet().stream().filter(a -> a.endsWith(suffix)).findFirst();
+				if (potentialImport.isPresent()) {
+					UnusedTreeScanner.this.unusedImports.remove(potentialImport.get());
+				}
+				// static imports
+				if (fieldName != null) {
+					String suffixWithField = suffix + "." + fieldName;
+					String suffixWithWildcard = suffix + ".*";
+					Optional<String> potentialStaticImport = UnusedTreeScanner.this.unusedImports.keySet().stream().filter(a -> a.endsWith(suffixWithField)).findFirst();
+					if (potentialStaticImport.isPresent()) {
+						UnusedTreeScanner.this.unusedImports.remove(potentialStaticImport.get());
+					}
+					Optional<String> potentialStaticWildcardImport = UnusedTreeScanner.this.unusedImports.keySet().stream().filter(a -> a.endsWith(suffixWithWildcard)).findFirst();
+					if (potentialStaticWildcardImport.isPresent()) {
+						UnusedTreeScanner.this.unusedImports.remove(potentialStaticWildcardImport.get());
+					}
+				}
+			} else {
+				String name = qualifier.toString();
+				String ownerName = qualifier.sym.owner.toString();
+				if (!ownerName.isBlank()) {
+					String starImport = ownerName + ".*";
+					String usualImport = ownerName + "." + name;
+					if (UnusedTreeScanner.this.unusedImports.containsKey(starImport)) {
+						UnusedTreeScanner.this.unusedImports.remove(starImport);
+					} else if (UnusedTreeScanner.this.unusedImports.containsKey(usualImport)) {
+						UnusedTreeScanner.this.unusedImports.remove(usualImport);
 					}
 					// static imports
 					if (fieldName != null) {
-						String suffixWithField = suffix + "." + fieldName;
-						String suffixWithWildcard = suffix + ".*";
-						Optional<String> potentialStaticImport = UnusedTreeScanner.this.unusedImports.keySet().stream().filter(a -> a.endsWith(suffixWithField)).findFirst();
-						if (potentialStaticImport.isPresent()) {
-							UnusedTreeScanner.this.unusedImports.remove(potentialStaticImport.get());
+						String suffixWithField = usualImport + "." + fieldName;
+						String suffixWithWildcard = usualImport + ".*";
+						if (UnusedTreeScanner.this.unusedImports.containsKey(suffixWithField)) {
+							UnusedTreeScanner.this.unusedImports.remove(suffixWithField);
 						}
-						Optional<String> potentialStaticWildcardImport = UnusedTreeScanner.this.unusedImports.keySet().stream().filter(a -> a.endsWith(suffixWithWildcard)).findFirst();
-						if (potentialStaticWildcardImport.isPresent()) {
-							UnusedTreeScanner.this.unusedImports.remove(potentialStaticWildcardImport.get());
-						}
-					}
-				} else {
-					String name = qualifier.toString();
-					String ownerName = qualifier.sym.owner.toString();
-					if (!ownerName.isBlank()) {
-						String starImport = ownerName + ".*";
-						String usualImport = ownerName + "." + name;
-						if (UnusedTreeScanner.this.unusedImports.containsKey(starImport)) {
-							UnusedTreeScanner.this.unusedImports.remove(starImport);
-						} else if (UnusedTreeScanner.this.unusedImports.containsKey(usualImport)) {
-							UnusedTreeScanner.this.unusedImports.remove(usualImport);
-						}
-						// static imports
-						if (fieldName != null) {
-							String suffixWithField = usualImport + "." + fieldName;
-							String suffixWithWildcard = usualImport + ".*";
-							if (UnusedTreeScanner.this.unusedImports.containsKey(suffixWithField)) {
-								UnusedTreeScanner.this.unusedImports.remove(suffixWithField);
-							}
-							if (UnusedTreeScanner.this.unusedImports.containsKey(suffixWithWildcard)) {
-								UnusedTreeScanner.this.unusedImports.remove(suffixWithWildcard);
-							}
+						if (UnusedTreeScanner.this.unusedImports.containsKey(suffixWithWildcard)) {
+							UnusedTreeScanner.this.unusedImports.remove(suffixWithWildcard);
 						}
 					}
 				}
