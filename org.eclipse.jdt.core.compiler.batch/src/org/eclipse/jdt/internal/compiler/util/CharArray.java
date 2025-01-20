@@ -41,7 +41,8 @@ public final record CharArray(char[] key) implements Comparable<CharArray> {
 		if (!(obj instanceof CharArray)) {
 			return false;
 		}
-		return Arrays.equals(this.key, ((CharArray) obj).key);
+		CharArray other = (CharArray) obj;
+		return Arrays.equals(this.key, other.key);
 	}
 
 	@Override
