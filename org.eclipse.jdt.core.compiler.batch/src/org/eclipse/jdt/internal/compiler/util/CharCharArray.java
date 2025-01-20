@@ -2,7 +2,7 @@ package org.eclipse.jdt.internal.compiler.util;
 
 import java.util.Arrays;
 
-public final record CharCharArray(char[][] key) {
+public final record CharCharArray(char[][] key) implements Comparable<CharCharArray> {
 
 	public CharCharArray(char[][] key) {
 		this.key = key;
@@ -14,6 +14,11 @@ public final record CharCharArray(char[][] key) {
 			return Arrays.deepEquals(this.key, other.key);
 		}
 		return false;
+	}
+
+	@Override
+	public int compareTo(CharCharArray o) {
+		return 0;
 	}
 
 }
