@@ -22,8 +22,7 @@ import java.util.Arrays;
  * <code>Arrays.hashCode</code> and <code>Arrays.equals</code>.
  * </p>
  */
-final class CharArray implements Comparable<CharArray> {
-	private final char[] key;
+public final record CharArray(char[] key) implements Comparable<CharArray> {
 
 	public CharArray(char[] key) {
 		this.key = key;
