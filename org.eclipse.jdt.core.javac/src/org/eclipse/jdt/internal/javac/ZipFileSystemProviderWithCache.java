@@ -37,7 +37,6 @@ import java.util.concurrent.CompletableFuture;
 import org.eclipse.core.runtime.ILog;
 
 import com.sun.tools.javac.file.CacheFSInfo;
-import com.sun.tools.javac.file.JavacFileManager;
 
 import sun.nio.ch.FileChannelImpl;
 
