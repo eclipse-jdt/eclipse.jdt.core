@@ -1301,7 +1301,7 @@ public class JavacBindingResolver extends BindingResolver {
 		if (jcTree instanceof JCTypeCast jcCast && jcCast.getType() != null) {
 			return this.bindings.getTypeBinding(jcCast.getType().type);
 		}
-		if (jcTree instanceof JCLiteral jcLiteral && jcLiteral.type.isErroneous()) {
+		if (jcTree instanceof JCLiteral jcLiteral && jcLiteral.type != null && jcLiteral.type.isErroneous()) {
 			if (jcLiteral.typetag == TypeTag.CLASS) {
 				return resolveWellKnownType("java.lang.String");
 			} else if (jcLiteral.typetag == TypeTag.BOT) {
