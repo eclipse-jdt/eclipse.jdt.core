@@ -46,8 +46,11 @@ import com.sun.source.util.TreePath;
 import com.sun.tools.javac.api.JavacTaskImpl;
 import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.code.Attribute;
-import com.sun.tools.javac.code.Attribute.Compound;
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Symtab;
+import com.sun.tools.javac.code.TypeTag;
+import com.sun.tools.javac.code.Types;
+import com.sun.tools.javac.code.Attribute.Compound;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.ModuleSymbol;
@@ -56,7 +59,6 @@ import com.sun.tools.javac.code.Symbol.RootPackageSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.code.Type.ArrayType;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.ErrorType;
@@ -68,12 +70,12 @@ import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.ModuleType;
 import com.sun.tools.javac.code.Type.PackageType;
 import com.sun.tools.javac.code.Type.TypeVar;
-import com.sun.tools.javac.code.TypeTag;
-import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.tree.JCTree.JCAnnotatedType;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCArrayTypeTree;
+import com.sun.tools.javac.tree.JCTree.JCAssign;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
@@ -94,7 +96,6 @@ import com.sun.tools.javac.tree.JCTree.JCTypeCast;
 import com.sun.tools.javac.tree.JCTree.JCTypeParameter;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.tree.JCTree.JCWildcard;
-import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Names;
 
@@ -1569,6 +1570,15 @@ public class JavacBindingResolver extends BindingResolver {
 		var javac = this.converter.domToJavac.get(annotation);
 		if (javac instanceof JCAnnotation jcAnnotation) {
 			return this.bindings.getAnnotationBinding(jcAnnotation.attribute, recipient);
+		}
+		return null;
+	}
+	@Override
+	IMemberValuePairBinding resolveMemberValuePair(MemberValuePair memberValuePair) {
+		resolve();
+		if (this.converter.domToJavac.get(memberValuePair) instanceof JCAssign assign &&
+			assign.lhs instanceof JCIdent ident && ident.sym instanceof MethodSymbol methodSymbol) {
+			return this.bindings.getMemberValuePairBinding(methodSymbol, null);
 		}
 		return null;
 	}

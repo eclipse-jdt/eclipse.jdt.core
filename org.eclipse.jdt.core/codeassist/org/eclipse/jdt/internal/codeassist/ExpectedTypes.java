@@ -136,6 +136,16 @@ public class ExpectedTypes {
 					return;
 				}
 			}
+			if (parent2.getLocationInParent() == MemberValuePair.VALUE_PROPERTY && parent2.getParent() instanceof MemberValuePair mvp) {
+				var binding = mvp.resolveMemberValuePairBinding();
+				if (binding != null) {
+					var methodBinding = binding.getMethodBinding();
+					if (methodBinding != null) {
+						this.expectedTypes.add(methodBinding.getReturnType());
+						break;
+					}
+				}
+			}
  			parent2 = parent2.getParent();
 		}
 		ASTNode parent = parent2;

@@ -85,7 +85,7 @@ public abstract class JavacMemberValuePairBinding implements IMemberValuePairBin
 	public String getKey() {
 		// as of writing, not yet implemented for ECJ
 		// @see org.eclipse.jdt.core.dom.MemberValuePairBinding.getKey
-		return null;
+		return Integer.toString(System.identityHashCode(this.method));
 	}
 
 	@Override

@@ -49,8 +49,9 @@ import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.parser.ParserFactory;
 import com.sun.tools.javac.parser.Tokens.Comment;
 import com.sun.tools.javac.parser.Tokens.Comment.CommentStyle;
-import com.sun.tools.javac.tree.DCTree.DCDocComment;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.TreeInfo;
+import com.sun.tools.javac.tree.DCTree.DCDocComment;
 import com.sun.tools.javac.tree.JCTree.JCAnnotatedType;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCAnyPattern;
@@ -125,7 +126,6 @@ import com.sun.tools.javac.tree.JCTree.JCWhileLoop;
 import com.sun.tools.javac.tree.JCTree.JCWildcard;
 import com.sun.tools.javac.tree.JCTree.JCYield;
 import com.sun.tools.javac.tree.JCTree.Tag;
-import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.JCDiagnostic;
 import com.sun.tools.javac.util.Log;
@@ -3217,6 +3217,7 @@ class JavacConverter {
 				if( expr instanceof JCAssign jcass) {
 					if( jcass.lhs instanceof JCIdent jcid ) {
 						final MemberValuePair pair = new MemberValuePair(this.ast);
+						commonSettings(pair, jcass);
 						final SimpleName simpleName = new SimpleName(this.ast);
 						commonSettings(simpleName, jcid);
 						simpleName.internalSetIdentifier(new String(jcid.getName().toString()));
