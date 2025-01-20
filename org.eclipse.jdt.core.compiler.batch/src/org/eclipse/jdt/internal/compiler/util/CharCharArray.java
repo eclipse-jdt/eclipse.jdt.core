@@ -9,6 +9,22 @@ public final record CharCharArray(char[][] key) implements Comparable<CharCharAr
 	}
 
 	@Override
+	public int compareTo(CharCharArray other) {
+		int length = Math.min(this.key.length, other.key.length);
+		for (int i = 0; i < length; i++) {
+			int c = Arrays.compare(this.key[i], other.key[i]);
+			if (c != 0) {
+				return c;
+			}
+		}
+		return this.key.length - other.key.length;
+	}
+
+	public char[][] getKey() {
+		return this.key;
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof CharCharArray other) {
 			return Arrays.deepEquals(this.key, other.key);
@@ -17,8 +33,15 @@ public final record CharCharArray(char[][] key) implements Comparable<CharCharAr
 	}
 
 	@Override
-	public int compareTo(CharCharArray o) {
-		return 0;
+	public int hashCode() {
+		return Arrays.deepHashCode(this.key);
 	}
 
+	/**
+	 * @return <code>Arrays.toString</code> of the underlying array
+	 */
+	@Override
+	public String toString() {
+		return Arrays.deepToString(this.key);
+	}
 }
