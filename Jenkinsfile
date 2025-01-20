@@ -39,6 +39,7 @@ pipeline {
 						-DDetectVMInstallationsJob.disabled=true \
 						-Dtycho.apitools.debug \
 						-Dtycho.debug.artifactcomparator \
+						-e \
 						-Dcbi-ecj-version=99.99
 					"""
 			}
