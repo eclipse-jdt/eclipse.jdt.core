@@ -39,10 +39,10 @@ public final record CharArray(char[] key) implements Comparable<CharArray> {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof CharArray other) {
-			return Arrays.equals(this.key, other.key);
+		if (!(obj instanceof CharArray)) {
+			return false;
 		}
-		return false;
+		return Arrays.equals(this.key, ((CharArray) obj).key);
 	}
 
 	@Override
