@@ -24,10 +24,6 @@ import java.util.Arrays;
  */
 public final record CharArray(char[] key) implements Comparable<CharArray> {
 
-	public CharArray(char[] key) {
-		this.key = key;
-	}
-
 	@Override
 	public int compareTo(CharArray o) {
 		return Arrays.compare(this.key, o.key);
@@ -45,8 +41,7 @@ public final record CharArray(char[] key) implements Comparable<CharArray> {
 		if (!(obj instanceof CharArray)) {
 			return false;
 		}
-		CharArray other = (CharArray) obj;
-		return Arrays.equals(this.key, other.key);
+		return Arrays.equals(this.key, ((CharArray) obj).key);
 	}
 
 	@Override
