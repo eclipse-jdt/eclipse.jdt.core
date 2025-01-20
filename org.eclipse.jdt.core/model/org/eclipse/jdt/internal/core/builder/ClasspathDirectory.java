@@ -108,8 +108,8 @@ String[] directoryList(String qualifiedPackageName) {
 
 	try {
 		IResource container = this.binaryFolder.findMember(qualifiedPackageName); // this is a case-sensitive check
-		if (container instanceof IContainer) {
-			IResource[] members = ((IContainer) container).members();
+		if (container instanceof IContainer binaryContainer) {
+			IResource[] members = binaryContainer.members();
 			dirList = new String[members.length];
 			int index = 0;
 			for (IResource m : members) {
