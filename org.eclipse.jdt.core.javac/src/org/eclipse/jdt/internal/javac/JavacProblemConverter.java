@@ -393,7 +393,9 @@ public class JavacProblemConverter {
 			JCCompilationUnit trackedUnit = this.units.get(jcDiagnostic.getSource());
 			if (trackedUnit != null && trackedUnit.endPositions != null) {
 				int endPosition = jcTree.getEndPosition(trackedUnit.endPositions);
-				return new org.eclipse.jface.text.Position(startPosition, endPosition - startPosition);
+				if( endPosition != -1 ) {
+					return new org.eclipse.jface.text.Position(startPosition, endPosition - startPosition);
+				}
 			} else if (jcTree instanceof JCIdent ident) {
 				return new org.eclipse.jface.text.Position(startPosition, ident.getName().length());
 			}
