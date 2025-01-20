@@ -485,7 +485,7 @@ class JavacConverter {
 
 	void commonSettings(ASTNode res, JCTree javac, int length, boolean removeWhitespace) {
 		if( javac != null && length >= 0) {
-			if (!(res instanceof SimpleName name && FAKE_IDENTIFIER.equals(name.getIdentifier()))) {
+			if (javac.getStartPosition() >= 0) {
 				res.setSourceRange(javac.getStartPosition(), Math.max(0, length));
 			}
 			if( removeWhitespace ) {
@@ -3139,6 +3139,9 @@ class JavacConverter {
 		if (javac instanceof JCErroneous || javac == null /* when there are syntax errors */) {
 			// returning null could result in upstream errors, so return a fake type
 			var res = this.ast.newSimpleType(this.ast.newSimpleName(FAKE_IDENTIFIER));
+			if (javac instanceof JCErroneous err) {
+				res.setSourceRange(err.getStartPosition(), 0);
+			}
 			res.setFlags(ASTNode.RECOVERED);
 			return res;
 		}
