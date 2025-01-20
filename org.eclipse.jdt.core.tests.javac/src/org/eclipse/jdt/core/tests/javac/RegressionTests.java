@@ -82,7 +82,7 @@ public class RegressionTests {
 	@Test
 	public void testCheckBuild() throws Exception {
 		project.build(IncrementalProjectBuilder.FULL_BUILD, null);
-		assertEquals(Set.of("A.class", "B.class", "pack"),
+		assertEquals(Set.of("A.class", "B.class", "pack", "test"),
 				new HashSet<>(Arrays.asList(new File(project.getLocation().toFile(), "bin").list())));
 		assertArrayEquals(new String[] { "Packaged.class" },
 				new File(project.getLocation().toFile(), "bin/pack").list());
@@ -142,6 +142,7 @@ public class RegressionTests {
 	}
 
 	// https://github.com/eclipse-jdtls/eclipse-jdt-core-incubator/issues/955
+	@SuppressWarnings("restriction")
 	@Test
 	public void testlombok() throws Exception {
 		Assume.assumeTrue("javac is not set, skip it", CompilationUnit.DOM_BASED_OPERATIONS);
@@ -152,6 +153,18 @@ public class RegressionTests {
 		List<IMarker> errors = findMarkers(proj, IMarker.SEVERITY_ERROR);
 		assertTrue(errors.isEmpty());
 		ICompilationUnit unit = (ICompilationUnit)JavaCore.create(proj).findElement(Path.fromOSString("org/sample/Main.java"));
+		unit.becomeWorkingCopy(null);
+		var dom = unit.reconcile(AST.getJLSLatest(), true, unit.getOwner(), null);
+		assertArrayEquals(new IProblem[0], dom.getProblems());
+	}
+
+	// https://github.com/eclipse-jdtls/eclipse-jdt-core-incubator/issues/1140
+	@Test
+	public void testUnusedImport() throws Exception {
+		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.CLEAN_BUILD, null);
+		ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		waitForBackgroundJobs();
+		ICompilationUnit unit = (ICompilationUnit)JavaCore.create(project).findElement(Path.fromOSString("test/TestUnusedImport.java"));
 		unit.becomeWorkingCopy(null);
 		var dom = unit.reconcile(AST.getJLSLatest(), true, unit.getOwner(), null);
 		assertArrayEquals(new IProblem[0], dom.getProblems());
