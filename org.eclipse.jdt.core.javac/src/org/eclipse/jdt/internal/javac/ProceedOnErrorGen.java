@@ -13,10 +13,11 @@ package org.eclipse.jdt.internal.javac;
 import static com.sun.tools.javac.jvm.ByteCodes.athrow;
 
 import com.sun.tools.javac.code.Kinds.Kind;
+import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Type.ErrorType;
 import com.sun.tools.javac.comp.Attr;
 import com.sun.tools.javac.jvm.Gen;
-import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.tree.JCTree.JCArrayAccess;
 import com.sun.tools.javac.tree.JCTree.JCAssign;
 import com.sun.tools.javac.tree.JCTree.JCBinary;
@@ -32,6 +33,8 @@ import com.sun.tools.javac.tree.JCTree.JCNewClass;
 import com.sun.tools.javac.tree.JCTree.JCParens;
 import com.sun.tools.javac.tree.JCTree.JCThrow;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
+import com.sun.tools.javac.tree.TreeInfo;
+import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.List;
 import com.sun.tools.javac.util.Names;
@@ -96,6 +99,12 @@ public class ProceedOnErrorGen extends Gen {
 		if (tree.type.isErroneous() || tree.args.stream().anyMatch(arg -> arg.type == null || arg.type.isErroneous())) {
 			visitErroneous(null);
 		} else {
+			Symbol meth1 = tree == null ? null : TreeInfo.symbol(tree.meth);
+			Symbol base = meth1 == null ? null : meth1.baseSymbol();
+			boolean isMethSym = base instanceof MethodSymbol;
+			if( !isMethSym ) {
+				return;
+			}
 			super.visitApply(tree);
 		}
 	}

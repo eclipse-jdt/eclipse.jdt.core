@@ -16,12 +16,12 @@ import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.comp.TransTypes;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.tree.JCTree.JCAssign;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
 import com.sun.tools.javac.tree.JCTree.JCParens;
 import com.sun.tools.javac.tree.JCTree.JCTypeCast;
+import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Context.Factory;
 
@@ -65,7 +65,6 @@ public class ProceedOnErrorTransTypes extends TransTypes {
 		// XLargeTest.
 		// Cf https://github.com/eclipse-jdtls/eclipse-jdt-core-incubator/issues/1008
 		
-		tree.meth = translate(tree.meth, null);
 		Symbol meth = TreeInfo.symbol(tree.meth);
 		if (!(meth.baseSymbol() instanceof MethodSymbol)) {
 			//workaround: guard against ClassCastException when referencing non existing member
