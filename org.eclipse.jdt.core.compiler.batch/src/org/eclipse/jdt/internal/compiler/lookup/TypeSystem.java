@@ -20,10 +20,11 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 /* TypeSystem: An abstraction responsible for keeping track of types that undergo "derivation" of some sort and the derived types produced thus.
@@ -70,6 +71,7 @@ public class TypeSystem {
 	public final class HashedParameterizedTypes {
 
 		private final class PTBKey implements HotSwappable {
+			private Integer hash;
 			protected ReferenceBinding type; // must ensure the type is resolved
 			public TypeBinding[] arguments;
 			private ReferenceBinding enclosingType;
@@ -135,11 +137,26 @@ public class TypeSystem {
 				if(b instanceof WildcardBinding || b instanceof TypeVariableBinding || b.getClass() == ParameterizedTypeBinding.class) {
 					return System.identityHashCode(b);
 				}
+				if (b instanceof ReferenceBinding referenceBinding) {
+					return hashCode(referenceBinding);
+				}
 				return b.hashCode();
+			}
+
+			final int hashCode(ReferenceBinding referenceBinding) {
+				// ensure ReferenceBindings hash to the same position as UnresolvedReferenceBindings so they can be replaced without rehashing
+				// ALL ReferenceBindings are unique when created so equals() is the same as ==
+				return (referenceBinding.compoundName == null || referenceBinding.compoundName.length == 0)
+					? super.hashCode()
+					: CharOperation.hashCode(referenceBinding.compoundName[referenceBinding.compoundName.length - 1]);
 			}
 			@Override
 			public int hashCode() {
-				final int prime=31;
+				if (this.hash != null) {
+					// ensure to hash to the same after changing this.type in #swapUnresolved
+					return this.hash;
+				}
+				final int prime = 31;
 				int hashCode = 1 + hash(this.type);
 				if (this.enclosingType != null && this.enclosingType.getClass() == ParameterizedTypeBinding.class) {
 					// Note: this works as in swapUnresolved, a null enclosingType is never replaced by a
@@ -149,7 +166,8 @@ public class TypeSystem {
 				for (int i = 0, length = this.arguments == null ? 0 : this.arguments.length; i < length; i++) {
 					hashCode = hashCode * prime + hash(this.arguments[i]);
 				}
-				return hashCode;
+				this.hash = hashCode;
+				return this.hash;
 			}
 		}
 
@@ -217,12 +235,12 @@ public class TypeSystem {
 	private int typeid = TypeIds.T_LastWellKnownTypeId;
 	private TypeBinding [][] types;
 	protected HashedParameterizedTypes parameterizedTypes;  // auxiliary fast lookup table for parameterized types.
-	private SimpleLookupTable annotationTypes; // cannot store in types, since AnnotationBinding is not a TypeBinding and we don't want types to operate at Binding level.
+	private Map<ReferenceBinding, AnnotationBinding> annotationTypes; // cannot store in types, since AnnotationBinding is not a TypeBinding and we don't want types to operate at Binding level.
 	LookupEnvironment environment;
 
 	public TypeSystem(LookupEnvironment environment) {
 		this.environment = environment;
-		this.annotationTypes = new SimpleLookupTable(16);
+		this.annotationTypes = new HashMap<>();
 		this.typeid = TypeIds.T_LastWellKnownTypeId;
 		this.types = new TypeBinding[TypeIds.T_LastWellKnownTypeId * 2][];
 		this.parameterizedTypes = new HashedParameterizedTypes();
@@ -558,7 +576,7 @@ public class TypeSystem {
 	   We may return a resolved annotation when requested for unresolved one, but not vice versa.
 	*/
 	public final AnnotationBinding getAnnotationType(ReferenceBinding annotationType, boolean requiredResolved) {
-		AnnotationBinding annotation = (AnnotationBinding) this.annotationTypes.get(annotationType);
+		AnnotationBinding annotation = this.annotationTypes.get(annotationType);
 		if (annotation == null) {
 			if (requiredResolved)
 				annotation = new AnnotationBinding(annotationType, Binding.NO_ELEMENT_VALUE_PAIRS);
@@ -587,7 +605,7 @@ public class TypeSystem {
 	}
 
 	public void reset() {
-		this.annotationTypes = new SimpleLookupTable(16);
+		this.annotationTypes = new HashMap<>();
 		this.typeid = TypeIds.T_LastWellKnownTypeId;
 		this.types = new TypeBinding[TypeIds.T_LastWellKnownTypeId * 2][];
 		this.parameterizedTypes = new HashedParameterizedTypes();
@@ -611,14 +629,10 @@ public class TypeSystem {
 				}
 			}
 		}
-		if (this.annotationTypes.get(unresolvedType) != null) { // update the key
-			Object[] keys = this.annotationTypes.keyTable;
-			for (int i = 0, l = keys.length; i < l; i++) {
-				if (keys[i] == unresolvedType) {
-					keys[i] = resolvedType; // hashCode is based on compoundName so this works.
-					break;
-				}
-			}
+		AnnotationBinding removed = this.annotationTypes.remove(unresolvedType);
+		if (removed != null) {
+			 // update the key
+			this.annotationTypes.put(resolvedType, removed);
 		}
 	}
 
