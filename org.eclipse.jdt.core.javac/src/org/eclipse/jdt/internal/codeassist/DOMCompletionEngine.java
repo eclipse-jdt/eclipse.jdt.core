@@ -75,6 +75,7 @@ import org.eclipse.jdt.core.dom.ExpressionMethodReference;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
@@ -122,6 +123,7 @@ import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypePattern;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
@@ -275,16 +277,33 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				}
 				if (statement instanceof IfStatement ifStatement && ifStatement.getElseStatement() == null) {
 					visibleBindings.addAll(collectTrueFalseBindings(ifStatement.getExpression()).falseBindings());
+				} else if (statement instanceof ForStatement forStatement && forStatement.getExpression() != null) {
+					visibleBindings.addAll(collectTrueFalseBindings(forStatement.getExpression()).falseBindings());
 				}
+
 			}
 		}
 
 		if (node.getParent() instanceof IfStatement ifStatement && node.getStartPosition() + node.getLength() > this.offset) {
-			TrueFalseBindings leftRightBindings = collectTrueFalseBindings(ifStatement.getExpression());
+			TrueFalseBindings trueFalseBindings = collectTrueFalseBindings(ifStatement.getExpression());
 			if (ifStatement.getThenStatement() == node) {
-				visibleBindings.addAll(leftRightBindings.trueBindings());
+				visibleBindings.addAll(trueFalseBindings.trueBindings());
 			} else {
-				visibleBindings.addAll(leftRightBindings.falseBindings());
+				visibleBindings.addAll(trueFalseBindings.falseBindings());
+			}
+		}
+
+		if (node.getParent() instanceof ForStatement forStatement && node.getStartPosition() + node.getLength() > this.offset) {
+			if (forStatement.getExpression() != null) {
+				TrueFalseBindings trueFalseBindings = collectTrueFalseBindings(forStatement.getExpression());
+				visibleBindings.addAll(trueFalseBindings.trueBindings());
+			}
+			if (forStatement.initializers().size() == 1 && forStatement.initializers().get(0) instanceof VariableDeclarationExpression vde) {
+				var bindings = ((List<VariableDeclarationFragment>)vde.fragments()).stream()
+					.filter(frag -> !FAKE_IDENTIFIER.equals(frag.getName().toString()))
+					.map(VariableDeclarationFragment::resolveBinding)
+					.toList();
+				visibleBindings.addAll(bindings);
 			}
 		}
 
@@ -331,14 +350,14 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		if (e instanceof PrefixExpression prefixExpression && prefixExpression.getOperator() == PrefixExpression.Operator.NOT) {
 			TrueFalseBindings notBindings = collectTrueFalseBindings(prefixExpression.getOperand());
 			return new TrueFalseBindings(notBindings.falseBindings(), notBindings.trueBindings());
-		} else if (e instanceof InfixExpression infixExpression && infixExpression.getOperator() == InfixExpression.Operator.AND) {
+		} else if (e instanceof InfixExpression infixExpression && (infixExpression.getOperator() == InfixExpression.Operator.CONDITIONAL_AND || infixExpression.getOperator() == InfixExpression.Operator.AND )) {
 			TrueFalseBindings left = collectTrueFalseBindings(infixExpression.getLeftOperand());
 			TrueFalseBindings right = collectTrueFalseBindings(infixExpression.getRightOperand());
 			List<IVariableBinding> combined = new ArrayList<>();
 			combined.addAll(left.trueBindings());
 			combined.addAll(right.trueBindings());
 			return new TrueFalseBindings(combined, Collections.emptyList());
-		} else if (e instanceof InfixExpression infixExpression && infixExpression.getOperator() == InfixExpression.Operator.OR) {
+		} else if (e instanceof InfixExpression infixExpression && (infixExpression.getOperator() == InfixExpression.Operator.CONDITIONAL_OR || infixExpression.getOperator() == InfixExpression.Operator.OR)) {
 			TrueFalseBindings left = collectTrueFalseBindings(infixExpression.getLeftOperand());
 			TrueFalseBindings right = collectTrueFalseBindings(infixExpression.getRightOperand());
 			List<IVariableBinding> combined = new ArrayList<>();
