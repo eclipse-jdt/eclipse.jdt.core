@@ -10,12 +10,18 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.javac;
 
+import java.util.function.Predicate;
+
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.comp.TransTypes;
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.TreeInfo;
+import com.sun.tools.javac.tree.JCTree.JCAssign;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
-import com.sun.tools.javac.tree.TreeInfo;
+import com.sun.tools.javac.tree.JCTree.JCParens;
+import com.sun.tools.javac.tree.JCTree.JCTypeCast;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Context.Factory;
 
@@ -46,27 +52,53 @@ public class ProceedOnErrorTransTypes extends TransTypes {
 
 	@Override
 	public void visitApply(JCMethodInvocation tree) {
-		if (this.needsProceedOnError) {
-			// The next lines of code should allow to generate
-			// classes with errors, but they are sometimes
-			// causing infinite processing for files that 
-			// have no errors (eg with XLargeTests).
-			// So at the moment we guard them by `needProceedOnError`
-			// but those lines must be considered fragile and made
-			// more bullet proof; concretely then need to work with
-			// XLargeTest.
-			// Cf https://github.com/eclipse-jdtls/eclipse-jdt-core-incubator/issues/1008
-			if (tree.type.isErroneous()) {
-				return;
-			}
-			tree.meth = translate(tree.meth, null);
-			Symbol meth = TreeInfo.symbol(tree.meth);
-			if (!(meth.baseSymbol() instanceof MethodSymbol)) {
-				//workaround: guard against ClassCastException when referencing non existing member
-				return;
-			}
+		if (!isValid(tree) || tree.args.stream().anyMatch(Predicate.not(this::isValid))) {
+			return;
+		}
+		// The next lines of code should allow to generate
+		// classes with errors, but they are sometimes
+		// causing infinite processing for files that 
+		// have no errors (eg with XLargeTests).
+		// So at the moment we guard them by `needProceedOnError`
+		// but those lines must be considered fragile and made
+		// more bullet proof; concretely then need to work with
+		// XLargeTest.
+		// Cf https://github.com/eclipse-jdtls/eclipse-jdt-core-incubator/issues/1008
+		
+		tree.meth = translate(tree.meth, null);
+		Symbol meth = TreeInfo.symbol(tree.meth);
+		if (!(meth.baseSymbol() instanceof MethodSymbol)) {
+			//workaround: guard against ClassCastException when referencing non existing member
+			return;
 		}
 		super.visitApply(tree);
 	}
 
+	@Override
+	public void visitAssign(JCAssign tree) {
+		if (!isValid(tree.lhs) || !isValid(tree.rhs)) {
+			return;
+		}
+		super.visitAssign(tree);
+	}
+
+	@Override
+	public void visitTypeCast(JCTypeCast tree) {
+		if (!isValid(tree) || !isValid(tree.expr)) {
+			return;
+		}
+		super.visitTypeCast(tree);
+	}
+
+	@Override
+	public void visitParens(JCParens tree) {
+		if (!isValid(tree)) {
+			return;
+		}
+		super.visitParens(tree);
+	}
+
+	private boolean isValid(JCTree tree) {
+		return tree != null && tree.type != null && !tree.type.isErroneous();
+	}
 }

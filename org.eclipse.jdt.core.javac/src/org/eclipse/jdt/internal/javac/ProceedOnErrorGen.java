@@ -19,6 +19,7 @@ import com.sun.tools.javac.jvm.Gen;
 import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.tree.JCTree.JCArrayAccess;
 import com.sun.tools.javac.tree.JCTree.JCAssign;
+import com.sun.tools.javac.tree.JCTree.JCBinary;
 import com.sun.tools.javac.tree.JCTree.JCErroneous;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCExpressionStatement;
@@ -28,6 +29,7 @@ import com.sun.tools.javac.tree.JCTree.JCInstanceOf;
 import com.sun.tools.javac.tree.JCTree.JCLiteral;
 import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
 import com.sun.tools.javac.tree.JCTree.JCNewClass;
+import com.sun.tools.javac.tree.JCTree.JCParens;
 import com.sun.tools.javac.tree.JCTree.JCThrow;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.util.Context;
@@ -82,7 +84,7 @@ public class ProceedOnErrorGen extends Gen {
 	
 	@Override
 	public void visitNewClass(JCNewClass tree) {
-		if (tree.type == null || tree.type.isErroneous()) {
+		if (tree.type == null || tree.type.isErroneous() || tree.args.stream().anyMatch(arg -> arg.type == null || arg.type.isErroneous())) {
 			visitErroneous(null);
 		} else {
 			super.visitNewClass(tree);
@@ -91,7 +93,7 @@ public class ProceedOnErrorGen extends Gen {
 
 	@Override
 	public void visitApply(JCMethodInvocation tree) {
-		if (tree.type.isErroneous()) {
+		if (tree.type.isErroneous() || tree.args.stream().anyMatch(arg -> arg.type == null || arg.type.isErroneous())) {
 			visitErroneous(null);
 		} else {
 			super.visitApply(tree);
@@ -118,7 +120,7 @@ public class ProceedOnErrorGen extends Gen {
 
 	@Override
 	public void visitAssign(JCAssign tree) {
-		if (tree.lhs.type.isErroneous()) {
+		if (tree.lhs.type.isErroneous() || tree.rhs == null || tree.rhs.type == null || tree.rhs.type.isErroneous()) {
 			visitErroneous(null);
 		} else {
 			super.visitAssign(tree);
@@ -127,7 +129,7 @@ public class ProceedOnErrorGen extends Gen {
 
 	@Override
 	public void visitIndexed(JCArrayAccess tree) {
-		if (tree.type.isErroneous() || tree.getIndex() == null) {
+		if (tree.type.isErroneous() || tree.getIndex() == null || tree.getIndex().type == null || tree.getIndex().type.isErroneous()) {
 			visitErroneous(null);
 		} else {
 			super.visitIndexed(tree);
@@ -163,6 +165,24 @@ public class ProceedOnErrorGen extends Gen {
 			visitErroneous(null);
 		} else {
 			super.visitVarDef(varDef);
+		}
+	}
+
+	@Override
+	public void visitBinary(JCBinary binary) {
+		if (!isValid(binary.lhs) || !isValid(binary.rhs)) {
+			visitErroneous(null);
+		} else {
+			super.visitBinary(binary);
+		}
+	}
+
+	@Override
+	public void visitParens(JCParens parens) {
+		if (!isValid(parens) || !isValid(parens.expr)) {
+			visitErroneous(null);
+		} else {
+			super.visitParens(parens);
 		}
 	}
 }
