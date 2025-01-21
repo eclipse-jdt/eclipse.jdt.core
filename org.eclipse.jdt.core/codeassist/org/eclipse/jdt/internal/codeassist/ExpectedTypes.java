@@ -136,6 +136,13 @@ public class ExpectedTypes {
 					return;
 				}
 			}
+			if (parent2 instanceof ArrayInitializer array) {
+				var arrayType = array.resolveTypeBinding();
+				if (arrayType != null && arrayType.isArray()) {
+					this.expectedTypes.add(arrayType.getElementType());
+				}
+				break;
+			}
 			if (parent2.getLocationInParent() == MemberValuePair.VALUE_PROPERTY && parent2.getParent() instanceof MemberValuePair mvp) {
 				var binding = mvp.resolveMemberValuePairBinding();
 				if (binding != null) {
