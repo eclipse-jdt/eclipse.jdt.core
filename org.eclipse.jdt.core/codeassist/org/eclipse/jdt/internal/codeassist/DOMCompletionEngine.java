@@ -2264,6 +2264,7 @@ public class DOMCompletionEngine implements Runnable {
 		res.completionEngine = this.nestedEngine;
 		res.nameLookup = this.nameEnvironment.nameLookup;
 
+		boolean isInQualifiedName = this.toComplete.getLocationInParent() == QualifiedName.NAME_PROPERTY || this.toComplete.getLocationInParent() == FieldAccess.NAME_PROPERTY;
 		res.setRelevance(CompletionEngine.computeBaseRelevance() +
 				CompletionEngine.computeRelevanceForResolution() +
 				this.nestedEngine.computeRelevanceForInterestingProposal() +
@@ -2272,7 +2273,7 @@ public class DOMCompletionEngine implements Runnable {
 					binding instanceof IMethodBinding methodBinding ? methodBinding.getReturnType() :
 					binding instanceof IVariableBinding variableBinding ? variableBinding.getType() :
 					this.toComplete.getAST().resolveWellKnownType(Object.class.getName())) +
-				(res.getRequiredProposals() != null || inJavadoc ? 0 : computeRelevanceForQualification(false)) +
+				(isInQualifiedName || res.getRequiredProposals() != null || inJavadoc ? 0 : computeRelevanceForQualification(false)) +
 				CompletionEngine.computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE) + //no access restriction for class field
 				((insideQualifiedReference() && !staticOnly() && !Modifier.isStatic(binding.getModifiers())) || (inJavadoc && !res.isConstructor) ? RelevanceConstants.R_NON_STATIC : 0) +
 				(!staticOnly() || inheritedValue ? 0 : RelevanceConstants.R_NON_INHERITED) + // TODO: when is this active?
