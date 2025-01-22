@@ -2662,6 +2662,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				IPath path = rawClasspath[i].getPath();
 				if (path.lastSegment().equals("jrt-fs.jar")) {
 					path = path.removeLastSegments(2).append("jmods").append("java.base.jmod");
+					if (!path.toFile().exists()) {
+						// No jmod? Then this test is not applicable.
+						return;
+					}
 					IClasspathEntry newEntry = JavaCore.newLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(), new Path("java.base"));
 					rawClasspath[i] = newEntry;
 				}
@@ -2698,6 +2702,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				IPath path = rawClasspath[i].getPath();
 				if (path.lastSegment().equals("jrt-fs.jar")) {
 					path = path.removeLastSegments(2).append("jmods").append("java.base.jmod");
+					if (!path.toFile().exists()) {
+						// No jmod? Then this test is not applicable.
+						return;
+					}
 					IClasspathAttribute[] attributes = {
 							JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
 					IClasspathEntry newEntry = JavaCore.newLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(),
