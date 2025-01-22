@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  * Copyright (c) 2000, 2024 IBM Corporation and others.
+ *  * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -21,6 +25,8 @@
  *							bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
+
+import static org.eclipse.jdt.internal.compiler.impl.JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES;
 
 import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -502,8 +508,8 @@ public FieldBinding findField(TypeBinding receiverType, char[] fieldName, Invoca
 		// hence here we only handle single name references:
 		if (invocationSite instanceof SingleNameReference nameRef
 				&& (nameRef.bits & ASTNode.IsStrictlyAssigned) != 0
-				&& JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(compilerOptions())) {
-			problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES, invocationSite.sourceStart(), invocationSite.sourceEnd());
+				&& FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(compilerOptions())) {
+			problemReporter().validateJavaFeatureSupport(FLEXIBLE_CONSTRUCTOR_BODIES, invocationSite.sourceStart(), invocationSite.sourceEnd());
 			return field;
 		}
 	} else {
@@ -535,10 +541,17 @@ public FieldBinding findField(TypeBinding receiverType, char[] fieldName, Invoca
 
 protected Object[] getSyntheticEnclosingArgumentOfLambda(ReferenceBinding targetEnclosingType) {
 	SyntheticArgumentBinding sa = null;
-	if (this.isConstructorCall && this.referenceContext instanceof LambdaExpression) {
-		Map<SourceTypeBinding,SyntheticArgumentBinding> stbToSynthetic = ((LambdaExpression) this.referenceContext).mapSyntheticEnclosingTypes;
-		if (stbToSynthetic != null)
-			sa = stbToSynthetic.get(targetEnclosingType);
+	if (this.referenceContext instanceof LambdaExpression) {
+		boolean isEarlyContext = this.isConstructorCall;
+		if (FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(compilerOptions())) {
+			// if the immediately enclosing class isn't fully cooked, then ALL access has to go through synth arguments
+			isEarlyContext |= classScope().insideEarlyConstructionContext;
+		}
+		if (isEarlyContext) {
+			Map<SourceTypeBinding,SyntheticArgumentBinding> stbToSynthetic = ((LambdaExpression) this.referenceContext).mapSyntheticEnclosingTypes;
+			if (stbToSynthetic != null)
+				sa = stbToSynthetic.get(targetEnclosingType);
+		}
 	}
 	return sa != null ? new Object[] {sa} : null;
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -5664,12 +5664,16 @@ public abstract class Scope {
 				methodScope = methodScope.enclosingMethodScope();
 			}
 		}
+		boolean isFlexibleConstructorsEnabled = methodScope != null
+				&& JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(methodScope.compilerOptions());
 		MethodBinding enclosingMethod = enclosingType != null ? enclosingType.enclosingMethod() : null;
 		while (methodScope != null) {
 			while (methodScope != null && methodScope.referenceContext instanceof LambdaExpression) {
 				LambdaExpression lambda = (LambdaExpression) methodScope.referenceContext;
 				SourceTypeBinding lambdaEnclosingType = methodScope.classScope().referenceContext.binding;
-				if (methodScope.isConstructorCall) {
+				boolean insideEarlyConstructionContext = isFlexibleConstructorsEnabled &&
+						methodScope.isInsideEarlyConstructionContext(lambdaEnclosingType, false);
+				if (methodScope.isConstructorCall || insideEarlyConstructionContext) {
 					ReferenceBinding tmp = lambdaEnclosingType;
 					while ((tmp = tmp.enclosingType()) != null) {
 						if (!TypeBinding.equalsEquals(enclosingType, tmp)) continue;
@@ -5678,7 +5682,7 @@ public abstract class Scope {
 						break;
 					}
 				}
-				if (!typeVariableAccess && !lambda.scope.isStatic && !lambda.hasOuterClassMemberReference)
+				if (!typeVariableAccess && !lambda.scope.isStatic && !lambda.hasOuterClassMemberReference && !insideEarlyConstructionContext)
 					lambda.shouldCaptureInstance = true;  // lambda can still be static, only when `this' is touched (implicitly or otherwise) it cannot be.
 				methodScope = methodScope.enclosingMethodScope();
 			}
