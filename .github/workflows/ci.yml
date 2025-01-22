@@ -5,7 +5,7 @@ concurrency:
 
 on:
   push:
-    branches: '**'
+    branches: ['**']
 
 jobs:
   event_file:
@@ -31,15 +31,17 @@ jobs:
           8
           17
           21
+          23
         mvn-toolchain-id: |
           JavaSE-1.8
           JavaSE-17
           JavaSE-21
+          JavaSE-23
         distribution: 'temurin'
     - name: Set up Maven
       uses: stCarolas/setup-maven@d6af6abeda15e98926a57b5aa970a96bb37f97d1 # v5
       with:
-        maven-version: 3.9.8
+        maven-version: 3.9.9
     - name: Build with Maven 🏗️
       run: |
         mvn clean install --batch-mode -f org.eclipse.jdt.core.compiler.batch -DlocalEcjVersion=99.99
