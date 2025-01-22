@@ -853,7 +853,7 @@ public class JavacProblemConverter {
 			case "compiler.err.cant.access" -> IProblem.NotAccessibleType;
 			case "compiler.err.var.not.initialized.in.default.constructor" -> IProblem.UninitializedBlankFinalField;
 			case "compiler.err.assert.as.identifier" -> IProblem.UseAssertAsAnIdentifier;
-			case "compiler.warn.unchecked.varargs.non.reifiable.type" -> IProblem.PotentialHeapPollutionFromVararg;
+			case "compiler.warn.unchecked.varargs.non.reifiable.type", "compiler.warn.varargs.unsafe.use.varargs.param" -> IProblem.PotentialHeapPollutionFromVararg;
 			case "compiler.err.var.might.already.be.assigned" -> IProblem.FinalFieldAssignment;
 			case "compiler.err.annotation.missing.default.value.1" -> IProblem.MissingValueForAnnotationMember;
 			case "compiler.warn.static.not.qualified.by.type" -> {
