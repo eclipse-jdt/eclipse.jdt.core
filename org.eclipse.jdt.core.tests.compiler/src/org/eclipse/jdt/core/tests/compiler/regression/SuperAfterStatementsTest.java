@@ -2558,4 +2558,150 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.expectedOutputString = "-1";
 		runner.runConformTest();
 	}
+
+	public void testGH3115() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"X.java",
+			"""
+			public class X {
+				public static void main(String argv[]) {
+					X test = new X();
+				}
+				X() {
+					class InnerLocal {}
+					java.util.function.IntSupplier foo = () -> {
+						new InnerLocal() {}; // This is trouble
+						return 0;
+					};
+					super();
+				}
+			}
+			"""
+		};
+		runner.runConformTest();
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406614, [1.8][compiler] Missing and incorrect errors for lambda in explicit constructor call.
+	// Variant for early construction context
+	public void test406614() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"""
+					interface I {
+						int doit();
+					}
+					@SuppressWarnings("preview")
+					public class X {
+						int f;
+						X() {
+						}
+						X(byte b) {
+							I i = () -> this.f;
+							this();
+						}
+						X(short s) {
+							I i = () -> this.g();
+							this();
+						}
+						X (int x) {
+							I i = () -> f;
+						    this();
+						}
+						X (long x) {
+							I i = () -> g();
+						    this();
+						}
+						int g() {
+							return 0;
+						}
+						class Member {
+							Member() {}
+							Member(byte b) {
+								I i = () -> X.this.f;
+								this();
+							}
+							Member(short s) {
+								I i = () -> X.this.g();
+								this();
+							}
+							Member(int x) {
+								I i = () -> f;
+							    this();
+							}
+							Member(long x) {
+								I i = () -> g();
+							    this();
+							}
+						}
+					}
+					"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 10)\n" +
+				"	I i = () -> this.f;\n" +
+				"	            ^^^^^^\n" +
+				"Cannot read field f in an early construction context\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 14)\n" +
+				"	I i = () -> this.g();\n" +
+				"	            ^^^^\n" +
+				"Cannot use \'this\' in an early construction context\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 18)\n" +
+				"	I i = () -> f;\n" +
+				"	            ^\n" +
+				"Cannot read field f in an early construction context\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 22)\n" +
+				"	I i = () -> g();\n" +
+				"	            ^^^\n" +
+				"Cannot invoke method g() in an early construction context\n" +
+				"----------\n");
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406614, [1.8][compiler] Missing and incorrect errors for lambda in explicit constructor call.
+	// Variant for early construction context - this time a lambda in early construction of a member accesses the outer this - OK.
+	public void test406614_member() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					interface I {
+						int doit();
+					}
+					@SuppressWarnings("preview")
+					public class X {
+						int f;
+						int g() {
+							return 0;
+						}
+						class Member {
+							Member() {}
+							Member(byte b) {
+								I i = () -> X.this.f;
+								this();
+							}
+							Member(short s) {
+								I i = () -> X.this.g();
+								this();
+							}
+							Member(int x) {
+								I i = () -> f;
+							    this();
+							}
+							Member(long x) {
+								I i = () -> g();
+							    this();
+							}
+						}
+						public static void main(String... args) {
+							new X().new Member((byte)13);
+						}
+					}
+					"""
+				},
+				"");
+	}
 }
