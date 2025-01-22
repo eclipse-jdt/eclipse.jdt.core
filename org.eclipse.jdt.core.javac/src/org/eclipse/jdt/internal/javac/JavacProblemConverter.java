@@ -1,5 +1,5 @@
 /*******************************************************************************
-* Copyright (c) 2024 Microsoft Corporation and others.
+* Copyright (c) 2024, 2025 Microsoft Corporation and others.
 * All rights reserved. This program and the accompanying materials
 * are made available under the terms of the Eclipse Public License 2.0
 * which accompanies this distribution, and is available at
@@ -1025,6 +1025,7 @@ public class JavacProblemConverter {
 			case "compiler.err.try.without.catch.finally.or.resource.decls" -> IProblem.Syntax;
 			case "compiler.warn.unchecked.meth.invocation.applied" -> IProblem.UnsafeTypeConversion;
 			case "compiler.warn.override.unchecked.ret" -> IProblem.UnsafeReturnTypeOverride;
+			case "compiler.warn.override.varargs.missing" -> IProblem.VarargsConflict;
 			case "compiler.err.encl.class.required" -> IProblem.MissingEnclosingInstanceForConstructorCall;
 			case "compiler.err.operator.cant.be.applied", "compiler.err.operator.cant.be.applied.1" -> IProblem.InvalidOperator;
 			case "compiler.warn.try.resource.not.referenced" -> IProblem.LocalVariableIsNeverUsed; // not in ECJ
