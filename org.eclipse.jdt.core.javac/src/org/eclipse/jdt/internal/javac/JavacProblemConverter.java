@@ -1084,6 +1084,7 @@ public class JavacProblemConverter {
 			case "compiler.err.void.not.allowed.here" -> IProblem.ParameterMismatch;
 			case "compiler.err.abstract.cant.be.accessed.directly" -> IProblem.DirectInvocationOfAbstractMethod;
 			case "compiler.warn.annotation.method.not.found" -> IProblem.UndefinedAnnotationMember;
+			case "compiler.warn.annotation.method.not.found.reason" -> IProblem.UndefinedAnnotationMember;
 			case "compiler.err.import.module.not.found" -> IProblem.UndefinedModule;
 			case "compiler.warn.possible.this.escape" -> JavacProblemIds.PossibleThisEscape;
 			case "compiler.warn.possible.this.escape.location" -> JavacProblemIds.PossibleThisEscapeLocation;
