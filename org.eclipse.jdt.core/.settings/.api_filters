@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
+    <resource path="dom/org/eclipse/jdt/core/dom/AST.java" type="org.eclipse.jdt.core.dom.AST">
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.AST"/>
+                <message_argument value="JLS_Latest"/>
+                <message_argument value="23"/>
+    <resource path="dom/org/eclipse/jdt/core/dom/AST.java" type="org.eclipse.jdt.core.dom.AST">
+        <filter comment="javac branch has bigger version" id="1141899266">
+            <message_arguments>
+                <message_argument value="3.41"/>
+                <message_argument value="3.42"/>
+                <message_argument value="getAllVersions()"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/AbstractTagElement.java" type="org.eclipse.jdt.core.dom.AbstractTagElement">
         <filter id="576725006">
             <message_arguments>
@@ -219,6 +234,15 @@
             <message_arguments>
                 <message_argument value="ASTNode"/>
                 <message_argument value="VariableDeclaration"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="model/org/eclipse/jdt/core/JavaCore.java" type="org.eclipse.jdt.core.JavaCore">
+        <filter comment="Javac branch has bigger version" id="1141899266">
+            <message_arguments>
+                <message_argument value="3.41"/>
+                <message_argument value="3.42"/>
+                <message_argument value="defaultRootModules(Iterable&lt;IPackageFragmentRoot&gt;, String)"/>
             </message_arguments>
         </filter>
     </resource>
