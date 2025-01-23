@@ -29,7 +29,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testIssue3505" };
+//		TESTS_NAMES = new String[] { "testIssue3535" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -7416,4 +7416,37 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1");
 	}
 
+	public void testIssue3535() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+				public class X {
+
+					static Integer getInteger() {
+						return Integer.MIN_VALUE;
+					}
+					public int foo() {
+						Integer i = 10;
+						Y<Integer> f = new Y<>();
+						f.put(X.getInteger()); // This makes all the difference
+						return f.get() instanceof float ? 3 : 2;
+					}
+					public static void main(String[] args) {
+						System.out.println(new X().foo());
+					}
+
+				}
+				class Y <T> {
+				    T t;
+				    T get() {
+				        return t;
+				    }
+				    void put( T t) {
+				    	this.t = t;
+				    }
+				}
+				"""
+			},
+			"3");
+	}
 }
