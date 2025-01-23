@@ -26,6 +26,7 @@ import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
+import javax.tools.ToolProvider;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.ILog;
@@ -45,8 +46,10 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.builder.SourceFile;
 
+import com.sun.source.util.JavacTask;
 import com.sun.source.util.TaskEvent;
 import com.sun.source.util.TaskListener;
+import com.sun.tools.javac.api.JavacTool;
 import com.sun.tools.javac.api.MultiTaskListener;
 import com.sun.tools.javac.comp.AttrContext;
 import com.sun.tools.javac.comp.Env;
@@ -57,9 +60,10 @@ import com.sun.tools.javac.main.Option;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.Context.Key;
 import com.sun.tools.javac.util.Options;
 import com.sun.tools.javac.util.Pair;
+import com.sun.tools.javac.util.Context.Factory;
+import com.sun.tools.javac.util.Context.Key;
 
 public class JavacCompiler extends Compiler {
 	public static final Key<Set<JavaFileObject>> FILES_WITH_ERRORS_KEY = new Key<>();
@@ -107,6 +111,7 @@ public class JavacCompiler extends Compiler {
 
 		JavacTaskListener javacListener = new JavacTaskListener(this, this.compilerConfig, this.problemFactory, this.fileObjectToCUMap);
 		int unitIndex = 0;
+		var tool = ToolProvider.getSystemJavaCompiler();
 		Context javacContext = new Context();
 		CacheFSInfo.preRegister(javacContext);
 		ProceedOnErrorTransTypes.preRegister(javacContext);
@@ -151,7 +156,7 @@ public class JavacCompiler extends Compiler {
 		var javacOptions = Options.instance(javacContext);
 		javacOptions.remove(Option.XDOCLINT.primaryName);
 		javacOptions.remove(Option.XDOCLINT_CUSTOM.primaryName);
-		JavaCompiler javac = new JavaCompiler(javacContext) {
+		javacContext.put(JavaCompiler.compilerKey, (Factory<JavaCompiler>)c -> new JavaCompiler(c) {
 			boolean isInGeneration = false;
 
 			@Override
@@ -187,10 +192,10 @@ public class JavacCompiler extends Compiler {
 				// generating class files for those files without errors.
 				return this.isInGeneration ? 0 : super.errorCount();
 			}
-		};
+		});
 		JavacFileManager fileManager = (JavacFileManager)javacContext.get(JavaFileManager.class);
 		try {
-			javac.compile(com.sun.tools.javac.util.List.from(toCompile.stream()
+			com.sun.tools.javac.util.List<JavaFileObject> sourceFiles = com.sun.tools.javac.util.List.from(toCompile.stream()
 					.filter(SourceFile.class::isInstance).map(SourceFile.class::cast).map(source -> {
 						File unitFile;
 						// path is relative to the workspace, make it absolute
@@ -204,7 +209,10 @@ public class JavacCompiler extends Compiler {
 						JavaFileObject jfo = fileManager.getJavaFileObject(unitFile.getAbsolutePath());
 						fileObjectToCUMap.put(jfo, source);
 						return jfo;
-					}).toList()));
+					}).toList());
+			// Use a task to get proper initialization
+			JavacTask task = ((JavacTool)tool).getTask(null, fileManager, null /* already added to context */, List.of(), List.of() /* already set */, sourceFiles, javacContext);
+			task.generate();
 		} catch (Throwable e) {
 			// TODO fail
 			ILog.get().error("compilation failed", e);
