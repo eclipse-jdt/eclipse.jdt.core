@@ -18,7 +18,6 @@ import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -107,22 +106,6 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runner.expectedOutputString = expectedOutput;
 		runner.customOptions = getCompilerOptions();
 		runner.runWarningTest();
-	}
-
-	private static void verifyClassFile(String expectedOutput, String classFileName, int mode)
-			throws IOException, ClassFormatException {
-		File f = new File(OUTPUT_DIR + File.separator + classFileName);
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String result = disassembler.disassemble(classFileBytes, "\n", mode);
-		int index = result.indexOf(expectedOutput);
-		if (index == -1 || expectedOutput.length() == 0) {
-			System.out.println(Util.displayString(result, 3));
-			System.out.println("...");
-		}
-		if (index == -1) {
-			assertEquals("Wrong contents", expectedOutput, result);
-		}
 	}
 
 	public void testBug563430_001() {
@@ -5149,7 +5132,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"true");
 		String expectedOutput = "final enum Y$E$1 {\n";
-		SealedTypesTests.verifyClassFile(expectedOutput, "Y$E$1.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "Y$E$1.class", ClassFileBytesDisassembler.SYSTEM);
 		expectedOutput =
 				"  Inner classes:\n" +
 				"    [inner class info: #3 Y$E, outer class info: #20 Y\n" +
@@ -5157,7 +5140,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"    [inner class info: #1 Y$E$1, outer class info: #0\n" +
 				"     inner name: #0, accessflags: 16400 final]\n" +
 				"  Enclosing Method: #3  #0 Y$E\n";
-		SealedTypesTests.verifyClassFile(expectedOutput, "Y$E$1.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "Y$E$1.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug568854_001() {
 		this.runNegativeTest(

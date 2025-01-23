@@ -15,9 +15,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
@@ -263,7 +266,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	}
 	// Test implicit type with a valid candidate main method (public but no static, and String[] argument)
 	@Test
-	public void testImplicitType006() {
+	public void testImplicitType006() throws IOException, ClassFormatException {
 		try {
 			runConformTest(
 					new String[] {"X.java",
@@ -272,6 +275,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 							System.out.println("Hello");
 						}"""},
 					"Hello");
+			verifyClassFile("version 24 : 68.65535", "X.class", ClassFileBytesDisassembler.SYSTEM);
 		} finally {
 		}
 	}

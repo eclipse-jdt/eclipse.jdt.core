@@ -1508,6 +1508,38 @@ protected static class JavacTestOptions {
 		ClassFileReader.read(Files.readAllBytes(classFile.toPath()), className + ".class", true);
 	}
 
+	protected static void verifyClassFile(String expectedOutput, String unexpectedOutput, String classFileName, int mode)
+			throws IOException, ClassFormatException {
+		File f = new File(OUTPUT_DIR + File.separator + classFileName);
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", mode);
+		if (expectedOutput != null) {
+			int index = result.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(result, 3));
+				System.out.println("...");
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, result);
+			}
+		}
+		if (unexpectedOutput != null) {
+			int index = result.indexOf(unexpectedOutput);
+			assertTrue("Unexpected output found", index == -1);
+		}
+	}
+
+	protected void verifyNegativeClassFile(String unExpectedOutput, String classFileName, int mode)
+			throws IOException, ClassFormatException {
+		verifyClassFile(null, unExpectedOutput, classFileName, mode);
+	}
+
+	protected void verifyClassFile(String expectedOutput, String classFileName, int mode)
+			throws IOException, ClassFormatException {
+		verifyClassFile(expectedOutput, null, classFileName, mode);
+	}
+
 	protected void compileAndDeploy(String source, String directoryName, String className, boolean suppressConsole) {
 		File directory = new File(SOURCE_DIRECTORY);
 		if (!directory.exists()) {
@@ -2271,6 +2303,7 @@ protected static class JavacTestOptions {
 			}
 		}
 	}
+
 	/*
 	 * Run Sun compilation using javac.
 	 * Launch compilation in a thread and verify that it does not take more than 5s

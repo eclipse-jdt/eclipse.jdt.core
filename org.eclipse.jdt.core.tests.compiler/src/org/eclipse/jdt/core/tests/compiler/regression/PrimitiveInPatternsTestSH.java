@@ -16,8 +16,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.IOException;
 import java.util.Map;
 import junit.framework.Test;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -198,7 +201,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 	// https://cr.openjdk.org/~abimpoudis/instanceof/jep455-20240424/specs/instanceof-jls.html#jls-5.1.2
 	// 5.7 Testing Contexts
 	// Identity Conversion
-	public void testIdentity() {
+	public void testIdentity() throws IOException, ClassFormatException {
 		StringBuilder methods = new StringBuilder();
 		StringBuilder calls = new StringBuilder();
 		String methodTmpl =
@@ -227,6 +230,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		classX.append(calls);
 		classX.append("}}\n");
 		runConformTest(new String[] { "X.java", classX.toString() }, MAX_VALUES_STRING);
+		verifyClassFile("version 24 : 68.65535", "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testIdentityPattern() {
 		StringBuilder methods = new StringBuilder();

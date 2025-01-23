@@ -18,10 +18,13 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import junit.framework.Test;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.core.util.ClassFormatException;
 
 public class ModuleImportTests extends AbstractModuleCompilationTest {
 
@@ -889,7 +892,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"modifier static not allowed here");
 	}
 
-	public void testIllegalModifierRequiresJavaBase_3() {
+	public void testIllegalModifierRequiresJavaBase_3() throws IOException, ClassFormatException {
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, OUTPUT_DIR, "module-info.java",
 				"""
@@ -900,6 +903,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 		runConformModuleTest(files,
 				new StringBuilder(" --release 24 --enable-preview"),
 				"", "");
+		verifyClassFile("version 24 : 68.65535", "module-info.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void testIllegalModifierRequiresJavaBase_4() {
