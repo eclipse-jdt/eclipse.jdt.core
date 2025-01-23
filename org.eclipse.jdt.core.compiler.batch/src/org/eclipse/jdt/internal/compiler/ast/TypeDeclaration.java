@@ -741,6 +741,8 @@ public void generateCode(ClassFile enclosingClassFile) {
 	try {
 		// create the result for a compiled type
 		ClassFile classFile = ClassFile.getNewInstance(this.binding);
+		if (this.compilationResult.usesPreview)
+			classFile.targetJDK |= ClassFileConstants.MINOR_VERSION_PREVIEW;
 		classFile.initialize(this.binding, enclosingClassFile, false);
 		if (this.binding.isMemberType()) {
 			classFile.recordInnerClasses(this.binding);

@@ -902,7 +902,16 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					""");
 		runConformModuleTest(files,
 				new StringBuilder(" --release 24 --enable-preview"),
-				"", "");
+				"",
+				"""
+				----------
+				1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 2)
+					requires transitive java.base;
+					^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				1 problem (1 warning)
+				""");
 		verifyClassFile("version 24 : 68.65535", "module-info.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 
@@ -949,7 +958,16 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				""");
 		runConformModuleTest(files,
 				new StringBuilder(" --release 24 --enable-preview"),
-				"", "");
+				"",
+				"""
+				----------
+				1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 2)
+					requires transitive java.base;
+					^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				1 problem (1 warning)
+				""");
 	}
 
 }

@@ -9729,6 +9729,7 @@ public void problemNotAnalysed(Expression token, String optionKey) {
 // Try not to use this. Ideally, this should only be invoked through
 // validateJavaFeatureSupport()
 public void previewFeatureUsed(int sourceStart, int sourceEnd) {
+	this.referenceContext.compilationResult().usesPreview = true;
 	this.handle(
 			IProblem.PreviewFeatureUsed,
 			NoArgument,
@@ -9737,6 +9738,7 @@ public void previewFeatureUsed(int sourceStart, int sourceEnd) {
 			sourceEnd);
 }
 public void previewAPIUsed(int sourceStart, int sourceEnd, boolean isFatal) {
+	this.referenceContext.compilationResult().usesPreview = true;
 	this.handle(
 			IProblem.PreviewAPIUsed,
 			NoArgument,
@@ -9798,6 +9800,7 @@ public boolean validateJavaFeatureSupport(JavaFeature feature, int sourceStart, 
 			problemId = IProblem.PreviewFeatureDisabled;
 		} else if (this.options.isAnyEnabled(IrritantSet.PREVIEW)) {
 			problemId = IProblem.PreviewFeatureUsed;
+			this.referenceContext.compilationResult().usesPreview = true;
 		}
 	} else if (!versionInRange) {
 		problemId = IProblem.FeatureNotSupported;
@@ -11646,8 +11649,11 @@ public void invalidServiceRef(int problem, TypeReference type) {
 }
 public void modifierRequiresJavaBase(RequiresStatement stat, JavaFeature moduleImports) {
 	if (moduleImports != null) {
-		if (moduleImports.isSupported(this.options))
+		// don't use validateJavaFeatureSupport() as we want to give a more specific message if not enabled
+		if (moduleImports.isSupported(this.options)) {
+			previewFeatureUsed(stat.sourceStart, stat.sourceEnd);
 			return;
+		}
 		if (moduleImports.matchesCompliance(this.options)) {
 			this.handle(IProblem.ModifierOnRequiresJavaBasePreview, NoArgument, NoArgument, stat.modifiersSourceStart, stat.sourceEnd);
 			return;
