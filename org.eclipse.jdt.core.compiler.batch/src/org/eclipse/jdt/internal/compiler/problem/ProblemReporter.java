@@ -9798,8 +9798,9 @@ public boolean validateJavaFeatureSupport(JavaFeature feature, int sourceStart, 
 			problemId = IProblem.PreviewFeatureNotSupported;
 		} else if (!this.options.enablePreviewFeatures) {
 			problemId = IProblem.PreviewFeatureDisabled;
-		} else if (this.options.isAnyEnabled(IrritantSet.PREVIEW)) {
-			problemId = IProblem.PreviewFeatureUsed;
+		} else {
+			if (this.options.isAnyEnabled(IrritantSet.PREVIEW))
+				problemId = IProblem.PreviewFeatureUsed;
 			this.referenceContext.compilationResult().usesPreview = true;
 		}
 	} else if (!versionInRange) {

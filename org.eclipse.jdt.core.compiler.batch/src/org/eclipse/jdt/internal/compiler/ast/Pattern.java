@@ -223,6 +223,10 @@ public abstract class Pattern extends Expression {
 			return PrimitiveConversionRoute.NO_CONVERSION_ROUTE;
 		boolean destinationIsBaseType = destinationType.isBaseType();
 		boolean expressionIsBaseType = expressionType.isBaseType();
+		if ((expressionIsBaseType || destinationIsBaseType) &&
+				(expressionType.id != TypeIds.T_int || destinationType.id != TypeIds.T_int)) {
+			scope.referenceContext().compilationResult().usesPreview = true;
+		}
 		if (destinationIsBaseType && expressionIsBaseType) {
 			if (TypeBinding.equalsEquals(destinationType, expressionType)) {
 				return PrimitiveConversionRoute.IDENTITY_CONVERSION;
