@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -168,6 +169,16 @@ public class RegressionTests {
 		unit.becomeWorkingCopy(null);
 		var dom = unit.reconcile(AST.getJLSLatest(), true, unit.getOwner(), null);
 		assertArrayEquals(new IProblem[0], dom.getProblems());
+	}
+
+	// https://github.com/eclipse-jdtls/eclipse-jdt-core-incubator/issues/1140
+	@Test
+	public void testDeprecatedInFutureRelease() throws Exception {
+		IProject proj = importProject("projects/release");
+		proj.build(IncrementalProjectBuilder.CLEAN_BUILD, null);
+		proj.build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IFile file = proj.getFolder("src").getFile("Test.java");
+		assertArrayEquals(new IMarker[0], file.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_ZERO));
 	}
 
 	static IProject importProject(String locationInBundle) throws URISyntaxException, IOException, CoreException {
