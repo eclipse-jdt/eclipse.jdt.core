@@ -145,7 +145,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 	        "only supported for release 24");
 	}
 
-	public void test001_simpleOK() {
+	public void test001_simpleOK() throws IOException, ClassFormatException {
 		runConformModuleTest(
 			new String[] {
 				"p/X.java",
@@ -172,6 +172,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 	        "",
 	        "",
 	        true);
+		verifyClassFile("version 24 : 68.65535", "p/X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test002_moduleNotRead() {
@@ -262,7 +263,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 	        "imported module not found");
 	}
 
-	public void test004_selfImport_OK() {
+	public void test004_selfImport_OK() throws IOException, ClassFormatException {
 		String modsDir = OUTPUT_DIR +  File.separator + "mods";
 		String modOneDir = modsDir + File.separator + "mod.one";
 		List<String> files = new ArrayList<>();
@@ -301,6 +302,8 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"",
 				"",
 				OUTPUT_DIR);
+		String classFile = String.join(File.separator, "mods", "mod.one", "p", "X.class");
+		verifyClassFile("version 24 : 68.65535", classFile, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test005_selfImport_NOK() {
@@ -346,7 +349,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"cannot find symbol"); // javac additionally reports warning: [module] module not found: mod.other
 	}
 
-	public void test006_selfImportInModule() {
+	public void test006_selfImportInModule() throws IOException, ClassFormatException {
 		String modsDir = OUTPUT_DIR +  File.separator + "mods";
 		String modOneDir = modsDir + File.separator + "mod.one";
 		List<String> files = new ArrayList<>();
@@ -381,9 +384,11 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"",
 				"",
 				OUTPUT_DIR);
+		String classFile = String.join(File.separator, "mods", "mod.one", "module-info.class");
+		verifyClassFile("version 24 : 68.65535", classFile, ClassFileBytesDisassembler.SYSTEM);
 	}
 
-	public void test007_shadowing() {
+	public void test007_shadowing() throws IOException, ClassFormatException {
 		String srcDir = OUTPUT_DIR + File.separator + "src";
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, srcDir + File.separator + "p1", "Connection.java",
@@ -420,9 +425,11 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"",
 				"",
 				OUTPUT_DIR);
+		String classFile = String.join(File.separator, "src", "p2", "Client.class");
+		verifyClassFile("version 24 : 68.65535", classFile, ClassFileBytesDisassembler.SYSTEM);
 	}
 
-	public void test008_shadowing() {
+	public void test008_shadowing() throws IOException, ClassFormatException {
 		String srcDir = OUTPUT_DIR + File.separator + "src";
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, srcDir + File.separator + "p1", "Connection.java",
@@ -458,9 +465,11 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				commandLine,
 				"",
 				"");
+		String classFile = String.join(File.separator, "src", "p2", "Client.class");
+		verifyClassFile("version 24 : 68.65535", classFile, ClassFileBytesDisassembler.SYSTEM);
 	}
 
-	public void test008_shadowing_static_nested() {
+	public void test008_shadowing_static_nested() throws IOException, ClassFormatException {
 		String srcDir = OUTPUT_DIR + File.separator + "src";
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, srcDir + File.separator + "p1", "Outer.java",
@@ -494,6 +503,8 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 		commandLine.append(" -24 --enable-preview ");
 
 		runConformModuleTest(files, commandLine, "", "");
+		String classFile = String.join(File.separator, "src", "p2", "Client.class");
+		verifyClassFile("version 24 : 68.65535", classFile, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test009_ambiguous_modules() {
@@ -690,7 +701,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				OUTPUT_DIR);
 	}
 
-	public void test011_transitive() {
+	public void test011_transitive() throws IOException, ClassFormatException {
 		String srcDir = OUTPUT_DIR + File.separator + "src";
 		String modOneDir = srcDir + File.separator + "mod.one";
 		List<String> files = new ArrayList<>();
@@ -740,6 +751,8 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"",
 				"",
 				OUTPUT_DIR);
+		String classFile = String.join(File.separator, "bin", "mod.three", "p2", "Client.class");
+		verifyClassFile("version 24 : 68.65535", classFile, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test012_redundant() {
@@ -790,7 +803,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				OUTPUT_DIR);
 	}
 
-	public void test013_inUnnamedModule() {
+	public void test013_inUnnamedModule() throws IOException, ClassFormatException {
 		runConformModuleTest(
 			new String[] {
 				"p/X.java",
@@ -808,6 +821,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 	        "",
 	        "",
 	        true);
+		verifyClassFile("version 24 : 68.65535", "p/X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test014_moduleAsPackageName_regular() {
@@ -939,7 +953,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 	}
 
 
-	public void testUseRequiresTransitiveJavaBase() {
+	public void testUseRequiresTransitiveJavaBase() throws IOException, ClassFormatException {
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, OUTPUT_DIR, "module-info.java",
 				"""
@@ -968,6 +982,8 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				----------
 				1 problem (1 warning)
 				""");
+		verifyClassFile("version 24 : 68.65535", "module-info.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile("version 24 : 68.65535", "p1/Client.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 
 }
