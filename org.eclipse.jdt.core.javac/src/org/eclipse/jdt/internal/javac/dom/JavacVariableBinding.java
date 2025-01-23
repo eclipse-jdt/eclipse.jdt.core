@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
+import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -35,7 +36,6 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
-import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.internal.core.BinaryMember;
 import org.eclipse.jdt.internal.core.DOMToModelPopulator;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -49,11 +49,11 @@ import org.eclipse.jdt.internal.core.util.Util;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type;
 
 public abstract class JavacVariableBinding implements IVariableBinding {
 
@@ -178,7 +178,10 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 	}
 	private String getKeyImpl() throws BindingKeyException {
 		StringBuilder builder = new StringBuilder();
-		if (this.variableSymbol.owner instanceof ClassSymbol classSymbol) {
+		if (this.variableSymbol.owner instanceof TypeSymbol classSymbol) {
+			if( classSymbol.type.asElement() == null ) {
+				return null;
+			}
 			JavacTypeBinding.getKey(builder, classSymbol.type, false, this.resolver);
 			builder.append('.');
 			builder.append(this.variableSymbol.name);
@@ -273,8 +276,10 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 
 	@Override
 	public int getVariableId() {
-		if (this.resolver.symbolToDeclaration.get(this.variableSymbol) instanceof VariableDeclaration decl) {
-			return decl.getStartPosition();
+		if( this.resolver.symbolToDeclaration != null ) {
+			if (this.resolver.symbolToDeclaration.get(this.variableSymbol) instanceof VariableDeclaration decl) {
+				return decl.getStartPosition();
+			}
 		}
 		// FIXME: since we are not running code generation,
 		// the variable has not been assigned an offset,
