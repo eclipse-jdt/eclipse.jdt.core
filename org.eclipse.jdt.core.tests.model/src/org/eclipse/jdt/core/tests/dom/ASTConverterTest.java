@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -98,7 +98,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		methodDeclaration.setName(this.ast.newSimpleName("main"));//$NON-NLS-1$
 		methodDeclaration.setReturnType(this.ast.newPrimitiveType(PrimitiveType.VOID));
 		SingleVariableDeclaration variableDeclaration = this.ast.newSingleVariableDeclaration();
-		variableDeclaration.setModifiers(Modifier.NONE);
 		variableDeclaration.setType(this.ast.newArrayType(this.ast.newSimpleType(this.ast.newSimpleName("String"))));//$NON-NLS-1$
 		variableDeclaration.setName(this.ast.newSimpleName("args"));//$NON-NLS-1$
 		methodDeclaration.parameters().add(variableDeclaration);
@@ -379,7 +378,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * int i; ==> VariableDeclarationFragment
-	 * @deprecated using deprecated code
 	 */
 	public void test0013() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0013", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -390,7 +388,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		VariableDeclarationFragment variableDeclarationFragment = this.ast.newVariableDeclarationFragment();
 		variableDeclarationFragment.setName(this.ast.newSimpleName("i")); //$NON-NLS-1$
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
 		checkSourceRange(node, "int i;", source); //$NON-NLS-1$
@@ -398,7 +395,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * int i = 0; ==> VariableDeclarationFragment
-	 * @deprecated using deprecated code
 	 */
 	public void test0014() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0014", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -410,7 +406,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		variableDeclarationFragment.setName(this.ast.newSimpleName("i")); //$NON-NLS-1$
 		variableDeclarationFragment.setInitializer(this.ast.newNumberLiteral("0"));//$NON-NLS-1$
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -703,7 +698,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * (String) o; ==> ExpressionStatement(CastExpression)
-	 * @deprecated using deprecated code
 	 */
 	public void test0031() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0031", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -718,7 +712,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		castExpression.setType(this.ast.newSimpleType(this.ast.newSimpleName("String")));//$NON-NLS-1$
 		variableDeclarationFragment.setInitializer(castExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newSimpleType(this.ast.newSimpleName("String")));//$NON-NLS-1$
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
 		checkSourceRange(node, "String s = (String) o;", source); //$NON-NLS-1$
@@ -726,7 +719,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * (int) d; ==> ExpressionStatement(CastExpression)
-	 * @deprecated using deprecated code
 	 */
 	public void test0032() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0032", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -741,7 +733,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		castExpression.setType(this.ast.newPrimitiveType(PrimitiveType.INT));//$NON-NLS-1$
 		variableDeclarationFragment.setInitializer(castExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.INT));//$NON-NLS-1$
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
 		checkSourceRange(node, "int i = (int) d;", source); //$NON-NLS-1$
@@ -749,7 +740,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * (float) d; ==> ExpressionStatement(CastExpression)
-	 * @deprecated using deprecated code
 	 */
 	public void test0033() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0033", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -765,7 +755,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		castExpression.setType(this.ast.newPrimitiveType(PrimitiveType.FLOAT));//$NON-NLS-1$
 		variableDeclarationFragment.setInitializer(castExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.FLOAT));//$NON-NLS-1$
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -774,7 +763,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * (byte) d; ==> ExpressionStatement(CastExpression)
-	 * @deprecated using deprecated code
 	 */
 	public void test0034() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0034", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -790,7 +778,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		castExpression.setType(this.ast.newPrimitiveType(PrimitiveType.BYTE));//$NON-NLS-1$
 		variableDeclarationFragment.setInitializer(castExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.BYTE));//$NON-NLS-1$
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -799,7 +786,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * (short) d; ==> ExpressionStatement(CastExpression)
-	 * @deprecated using deprecated code
 	 */
 	public void test0035() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0035", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -815,7 +801,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		castExpression.setType(this.ast.newPrimitiveType(PrimitiveType.SHORT));//$NON-NLS-1$
 		variableDeclarationFragment.setInitializer(castExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.SHORT));//$NON-NLS-1$
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -824,7 +809,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * (long) d; ==> ExpressionStatement(CastExpression)
-	 * @deprecated using deprecated code
 	 */
 	public void test0036() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0036", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -840,7 +824,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		castExpression.setType(this.ast.newPrimitiveType(PrimitiveType.LONG));//$NON-NLS-1$
 		variableDeclarationFragment.setInitializer(castExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.LONG));//$NON-NLS-1$
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -849,7 +832,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * (char) i; ==> ExpressionStatement(CastExpression)
-	 * @deprecated using deprecated code
 	 */
 	public void test0037() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0037", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -865,7 +847,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		castExpression.setType(this.ast.newPrimitiveType(PrimitiveType.CHAR));//$NON-NLS-1$
 		variableDeclarationFragment.setInitializer(castExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.CHAR));//$NON-NLS-1$
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -874,7 +855,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * int.class; ==> ExpressionStatement(TypeLiteral)
-	 * @deprecated using deprecated code
 	 */
 	public void test0038() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0038", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -889,7 +869,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		typeLiteral.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 		variableDeclarationFragment.setInitializer(typeLiteral);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newSimpleType(this.ast.newSimpleName("Class")));//$NON-NLS-1$
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -898,7 +877,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * void.class; ==> ExpressionStatement(TypeLiteral)
-	 * @deprecated using deprecated code
 	 */
 	public void test0039() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0039", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -913,7 +891,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		typeLiteral.setType(this.ast.newPrimitiveType(PrimitiveType.VOID));
 		variableDeclarationFragment.setInitializer(typeLiteral);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newSimpleType(this.ast.newSimpleName("Class")));//$NON-NLS-1$
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -922,7 +899,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * double.class; ==> ExpressionStatement(TypeLiteral)
-	 * @deprecated using deprecated code
 	 */
 	public void test0040() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0040", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -937,7 +913,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		typeLiteral.setType(this.ast.newPrimitiveType(PrimitiveType.DOUBLE));
 		variableDeclarationFragment.setInitializer(typeLiteral);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newSimpleType(this.ast.newSimpleName("Class")));//$NON-NLS-1$
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -946,7 +921,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * long.class; ==> ExpressionStatement(TypeLiteral)
-	 * @deprecated using deprecated code
 	 */
 	public void test0041() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0041", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -961,7 +935,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		typeLiteral.setType(this.ast.newPrimitiveType(PrimitiveType.LONG));
 		variableDeclarationFragment.setInitializer(typeLiteral);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newSimpleType(this.ast.newSimpleName("Class")));//$NON-NLS-1$
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1153,7 +1126,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * AND_AND_Expression ==> InfixExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0054() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0054", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1170,7 +1142,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		infixExpression.setOperator(InfixExpression.Operator.CONDITIONAL_AND);
 		variableDeclarationFragment.setInitializer(infixExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1179,7 +1150,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * OR_OR_Expression ==> InfixExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0055() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0055", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1196,7 +1166,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		infixExpression.setOperator(InfixExpression.Operator.CONDITIONAL_OR);
 		variableDeclarationFragment.setInitializer(infixExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1205,7 +1174,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * EqualExpression ==> InfixExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0056() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0056", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1222,7 +1190,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		infixExpression.setOperator(InfixExpression.Operator.EQUALS);
 		variableDeclarationFragment.setInitializer(infixExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1231,7 +1198,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * BinaryExpression (+) ==> InfixExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0057() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0057", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1248,7 +1214,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		infixExpression.setOperator(InfixExpression.Operator.PLUS);
 		variableDeclarationFragment.setInitializer(infixExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1257,7 +1222,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * BinaryExpression (-) ==> InfixExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0058() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0058", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1274,7 +1238,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		infixExpression.setOperator(InfixExpression.Operator.MINUS);
 		variableDeclarationFragment.setInitializer(infixExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1283,7 +1246,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * BinaryExpression (*) ==> InfixExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0059() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0059", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1300,7 +1262,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		infixExpression.setOperator(InfixExpression.Operator.TIMES);
 		variableDeclarationFragment.setInitializer(infixExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1309,7 +1270,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * BinaryExpression (/) ==> InfixExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0060() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0060", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1326,7 +1286,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		infixExpression.setOperator(InfixExpression.Operator.DIVIDE);
 		variableDeclarationFragment.setInitializer(infixExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1335,7 +1294,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * BinaryExpression (%) ==> InfixExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0061() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0061", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1352,7 +1310,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		infixExpression.setOperator(InfixExpression.Operator.REMAINDER);
 		variableDeclarationFragment.setInitializer(infixExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1361,7 +1318,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * BinaryExpression (^) ==> InfixExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0062() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0062", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1378,7 +1334,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		infixExpression.setOperator(InfixExpression.Operator.XOR);
 		variableDeclarationFragment.setInitializer(infixExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1387,7 +1342,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * BinaryExpression {@code (&)} ==> InfixExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0063() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0063", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1404,7 +1358,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		infixExpression.setOperator(InfixExpression.Operator.AND);
 		variableDeclarationFragment.setInitializer(infixExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1413,7 +1366,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * BinaryExpression (|) ==> InfixExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0064() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0064", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1430,7 +1382,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		infixExpression.setOperator(InfixExpression.Operator.OR);
 		variableDeclarationFragment.setInitializer(infixExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1439,7 +1390,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * BinaryExpression {@code (<)} ==> InfixExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0065() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0065", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1456,7 +1406,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		infixExpression.setOperator(InfixExpression.Operator.LESS);
 		variableDeclarationFragment.setInitializer(infixExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1465,7 +1414,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * BinaryExpression {@code (<=)} ==> InfixExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0066() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0066", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1482,7 +1430,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		infixExpression.setOperator(InfixExpression.Operator.LESS_EQUALS);
 		variableDeclarationFragment.setInitializer(infixExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1491,7 +1438,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * BinaryExpression (>) ==> InfixExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0067() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0067", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1508,7 +1454,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		infixExpression.setOperator(InfixExpression.Operator.GREATER);
 		variableDeclarationFragment.setInitializer(infixExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1517,7 +1462,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * BinaryExpression (>=) ==> InfixExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0068() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0068", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1534,7 +1478,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		infixExpression.setOperator(InfixExpression.Operator.GREATER_EQUALS);
 		variableDeclarationFragment.setInitializer(infixExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1543,7 +1486,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * BinaryExpression (!=) ==> InfixExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0069() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0069", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1560,7 +1502,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		infixExpression.setOperator(InfixExpression.Operator.NOT_EQUALS);
 		variableDeclarationFragment.setInitializer(infixExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1569,7 +1510,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * InstanceofExpression ==> InfixExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0070() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0070", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1585,7 +1525,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		instanceOfExpression.setRightOperand(simpleType);
 		variableDeclarationFragment.setInitializer(instanceOfExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1594,7 +1533,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * InstanceofExpression ==> InfixExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0071() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0071", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1617,7 +1555,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		instanceOfExpression.setRightOperand(type);
 		variableDeclarationFragment.setInitializer(instanceOfExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1626,7 +1563,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * UnaryExpression (!) ==> PrefixExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0072() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0072", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1641,7 +1577,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		prefixExpression.setOperand(this.ast.newSimpleName("b"));//$NON-NLS-1$
 		variableDeclarationFragment.setInitializer(prefixExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1650,7 +1585,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * UnaryExpression (~) ==> PrefixExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0073() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0073", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1665,7 +1599,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		prefixExpression.setOperand(this.ast.newSimpleName("i"));//$NON-NLS-1$
 		variableDeclarationFragment.setInitializer(prefixExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1674,7 +1607,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * UnaryExpression (+) ==> PrefixExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0074() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0074", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1690,7 +1622,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		prefixExpression.setOperand(this.ast.newNumberLiteral("2"));//$NON-NLS-1$
 		variableDeclarationFragment.setInitializer(prefixExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1699,7 +1630,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * UnaryExpression (-) ==> PrefixExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0075() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0075", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1715,7 +1645,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		prefixExpression.setOperand(this.ast.newNumberLiteral("2"));//$NON-NLS-1$
 		variableDeclarationFragment.setInitializer(prefixExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 
 
@@ -1725,7 +1654,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * ConditionalExpression ==> ConditionalExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0076() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0076", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1746,7 +1674,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		conditionalExpression.setElseExpression(this.ast.newBooleanLiteral(false));
 		variableDeclarationFragment.setInitializer(conditionalExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.BOOLEAN));
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
 		checkSourceRange(node, "boolean b = args != null ? true : false;", source); //$NON-NLS-1$
@@ -1754,7 +1681,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * ConditionalExpression ==> ConditionalExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0077() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0077", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1774,7 +1700,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		conditionalExpression.setElseExpression(this.ast.newNumberLiteral("0"));//$NON-NLS-1$
 		variableDeclarationFragment.setInitializer(conditionalExpression);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
-		statement.setModifiers(Modifier.NONE);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -1866,7 +1791,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * ForStatement ==> ForStatement
-	 * @deprecated using deprecated code
 	 */
 	public void test0083() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0083", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1879,7 +1803,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		variableDeclarationFragment.setName(this.ast.newSimpleName("i")); //$NON-NLS-1$
 		variableDeclarationFragment.setInitializer(this.ast.newNumberLiteral("0"));//$NON-NLS-1$
 		VariableDeclarationExpression variableDeclarationExpression = this.ast.newVariableDeclarationExpression(variableDeclarationFragment);
-		variableDeclarationExpression.setModifiers(Modifier.NONE);
 		variableDeclarationExpression.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 		forStatement.initializers().add(variableDeclarationExpression);
 		PostfixExpression postfixExpression = this.ast.newPostfixExpression();
@@ -1898,7 +1821,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * ForStatement ==> ForStatement
-	 * @deprecated using deprecated code
 	 */
 	public void test0084() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0084", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1912,7 +1834,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		variableDeclarationFragment.setInitializer(this.ast.newNumberLiteral("0"));//$NON-NLS-1$
 
 		VariableDeclarationExpression variableDeclarationExpression = this.ast.newVariableDeclarationExpression(variableDeclarationFragment);
-		variableDeclarationExpression.setModifiers(Modifier.NONE);
 		variableDeclarationExpression.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 
 		forStatement.initializers().add(variableDeclarationExpression);
@@ -1932,7 +1853,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * ForStatement ==> ForStatement
-	 * @deprecated using deprecated code
 	 */
 	public void test0085() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0085", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1946,7 +1866,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		variableDeclarationFragment.setInitializer(this.ast.newNumberLiteral("0"));//$NON-NLS-1$
 
 		VariableDeclarationExpression variableDeclarationExpression = this.ast.newVariableDeclarationExpression(variableDeclarationFragment);
-		variableDeclarationExpression.setModifiers(Modifier.NONE);
 		variableDeclarationExpression.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 
 		forStatement.initializers().add(variableDeclarationExpression);
@@ -2004,7 +1923,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * LocalDeclaration ==> VariableDeclarationStatement
-	 * @deprecated using deprecated code
 	 */
 	public void test0088() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0088", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -2018,7 +1936,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
-		statement.setModifiers(Modifier.NONE);
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
 		checkSourceRange(node, "int i;", source); //$NON-NLS-1$
@@ -2026,7 +1943,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * LocalDeclaration ==> VariableDeclarationStatement
-	 * @deprecated using deprecated code
 	 */
 	public void test0089() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0089", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -2048,7 +1964,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 				this.ast.newSimpleName("String") //$NON-NLS-1$
 			);
 		statement.setType(this.ast.newSimpleType(name));
-		statement.setModifiers(Modifier.NONE);
 
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
 		checkSourceRange(node, "java.lang.String s;", source); //$NON-NLS-1$
@@ -2056,7 +1971,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * LocalDeclaration ==> VariableDeclarationStatement
-	 * @deprecated using deprecated code
 	 */
 	public void test0090() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0090", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -2074,14 +1988,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(variableDeclarationFragment);
 		statement.setType(this.ast.newArrayType(this.ast.newPrimitiveType(PrimitiveType.INT), 1));
-		statement.setModifiers(Modifier.NONE);
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
 		checkSourceRange(node, "int[] tab = {1, 2};", source); //$NON-NLS-1$
 	}
 
 	/**
 	 * Argument ==> SingleVariableDeclaration
-	 * @deprecated using deprecated code
 	 */
 	public void test0091() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0091", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -2091,7 +2003,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		SingleVariableDeclaration node = (SingleVariableDeclaration) method.parameters().get(0);
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
 		SingleVariableDeclaration variableDeclaration = this.ast.newSingleVariableDeclaration();
-		variableDeclaration.setModifiers(Modifier.NONE);
 		variableDeclaration.setType(this.ast.newSimpleType(this.ast.newSimpleName("String")));//$NON-NLS-1$
 		variableDeclaration.setName(this.ast.newSimpleName("s")); //$NON-NLS-1$
 		assertTrue("Both AST trees should be identical", variableDeclaration.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -2600,7 +2511,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * TryStatement ==> TryStatement
-	 * @deprecated using deprecated code
 	 */
 	public void test0113() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0113", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -2614,7 +2524,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		CatchClause catchBlock = this.ast.newCatchClause();
 		catchBlock.setBody(this.ast.newBlock());
 		SingleVariableDeclaration exceptionVariable = this.ast.newSingleVariableDeclaration();
-		exceptionVariable.setModifiers(Modifier.NONE);
 		exceptionVariable.setName(this.ast.newSimpleName("e"));//$NON-NLS-1$
 		exceptionVariable.setType(this.ast.newSimpleType(this.ast.newSimpleName("Exception")));//$NON-NLS-1$
 		catchBlock.setException(exceptionVariable);
@@ -2629,7 +2538,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * TryStatement ==> TryStatement
-	 * @deprecated using deprecated code
 	 */
 	public void test0114() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0114", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -2642,7 +2550,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		CatchClause catchBlock = this.ast.newCatchClause();
 		catchBlock.setBody(this.ast.newBlock());
 		SingleVariableDeclaration exceptionVariable = this.ast.newSingleVariableDeclaration();
-		exceptionVariable.setModifiers(Modifier.NONE);
 		exceptionVariable.setName(this.ast.newSimpleName("e"));//$NON-NLS-1$
 		exceptionVariable.setType(this.ast.newSimpleType(this.ast.newSimpleName("Exception")));//$NON-NLS-1$
 		catchBlock.setException(exceptionVariable);
@@ -2656,7 +2563,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * TryStatement ==> TryStatement
-	 * @deprecated using deprecated code
 	 */
 	public void test0115() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0115", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -2675,7 +2581,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		CatchClause catchBlock = this.ast.newCatchClause();
 		catchBlock.setBody(this.ast.newBlock());
 		SingleVariableDeclaration exceptionVariable = this.ast.newSingleVariableDeclaration();
-		exceptionVariable.setModifiers(Modifier.NONE);
 		exceptionVariable.setName(this.ast.newSimpleName("e"));//$NON-NLS-1$
 		exceptionVariable.setType(this.ast.newSimpleType(this.ast.newSimpleName("Exception")));//$NON-NLS-1$
 		catchBlock.setException(exceptionVariable);
@@ -2865,7 +2770,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		fragment.setExtraDimensions(2);
 		statement.fragments().add(fragment);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
-		statement.setModifiers(Modifier.NONE);
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
 		VariableDeclarationFragment[] fragments = (VariableDeclarationFragment[])((VariableDeclarationStatement) node).fragments().toArray(new VariableDeclarationFragment[4]);
 		assertTrue("fragments.length != 4", fragments.length == 4); //$NON-NLS-1$
@@ -2907,7 +2811,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		fragment.setExtraDimensions(2);
 		statement.fragments().add(fragment);
 		statement.setType(this.ast.newArrayType(this.ast.newPrimitiveType(PrimitiveType.INT), 1));
-		statement.setModifiers(Modifier.NONE);
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
 		checkSourceRange(node, "int[] x= 10, z[] = null, i, j[][];", source); //$NON-NLS-1$
 		VariableDeclarationFragment[] fragments = (VariableDeclarationFragment[])((VariableDeclarationStatement) node).fragments().toArray(new VariableDeclarationFragment[4]);
@@ -2934,7 +2837,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		variableDeclarationFragment.setInitializer(this.ast.newNullLiteral());//$NON-NLS-1$
 		variableDeclarationFragment.setExtraDimensions(1);
 		VariableDeclarationExpression variableDeclarationExpression = this.ast.newVariableDeclarationExpression(variableDeclarationFragment);
-		variableDeclarationExpression.setModifiers(Modifier.NONE);
 		variableDeclarationExpression.setType(this.ast.newArrayType(this.ast.newSimpleType(this.ast.newSimpleName("String")), 1));//$NON-NLS-1$
 		forStatement.initializers().add(variableDeclarationExpression);
 		PrefixExpression prefixExpression = this.ast.newPrefixExpression();
@@ -2964,7 +2866,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		variableDeclarationFragment.setInitializer(this.ast.newNullLiteral());//$NON-NLS-1$
 		variableDeclarationFragment.setExtraDimensions(1);
 		VariableDeclarationExpression variableDeclarationExpression = this.ast.newVariableDeclarationExpression(variableDeclarationFragment);
-		variableDeclarationExpression.setModifiers(Modifier.NONE);
 		variableDeclarationExpression.setType(this.ast.newSimpleType(this.ast.newSimpleName("String")));//$NON-NLS-1$
 		forStatement.initializers().add(variableDeclarationExpression);
 		PrefixExpression prefixExpression = this.ast.newPrefixExpression();
@@ -2994,7 +2895,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		variableDeclarationFragment.setInitializer(this.ast.newNullLiteral());//$NON-NLS-1$
 		variableDeclarationFragment.setExtraDimensions(1);
 		VariableDeclarationExpression variableDeclarationExpression = this.ast.newVariableDeclarationExpression(variableDeclarationFragment);
-		variableDeclarationExpression.setModifiers(Modifier.NONE);
 		variableDeclarationExpression.setType(this.ast.newSimpleType(this.ast.newSimpleName("String")));//$NON-NLS-1$
 		forStatement.initializers().add(variableDeclarationExpression);
 		PostfixExpression postfixExpression = this.ast.newPostfixExpression();
@@ -3025,7 +2925,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		fragment.setName(this.ast.newSimpleName("i")); //$NON-NLS-1$
 		fragment.setExtraDimensions(0);
 		FieldDeclaration fieldDeclaration = this.ast.newFieldDeclaration(fragment);
-		fieldDeclaration.setModifiers(Modifier.NONE);
 		fieldDeclaration.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 		assertTrue("Both AST trees should be identical", fieldDeclaration.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
 		checkSourceRange(node, "int i;", source); //$NON-NLS-1$
@@ -9072,7 +8971,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 	}
 	/**
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=21916
-	 * @deprecated using deprecated code
 	 */
 	public void test0362() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0362", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -9093,7 +8991,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 		kFragment.setInitializer(this.ast.newNumberLiteral("0"));//$NON-NLS-1$
 
 		VariableDeclarationExpression variableDeclarationExpression = this.ast.newVariableDeclarationExpression(iFragment);
-		variableDeclarationExpression.setModifiers(Modifier.NONE);
 		variableDeclarationExpression.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 		variableDeclarationExpression.fragments().add(jFragment);
 		variableDeclarationExpression.fragments().add(kFragment);
