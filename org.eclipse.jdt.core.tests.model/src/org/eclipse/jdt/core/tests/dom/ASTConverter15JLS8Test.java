@@ -430,19 +430,6 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 		assertTrue("not static", importDeclaration.isStatic());
 	}
 
-	/** @deprecated using deprecated code */
-	public void test0008() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0008", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS2, sourceUnit, true);
-		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
-		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertProblemsSize(compilationUnit, 0);
-		List imports = compilationUnit.imports();
-		assertEquals("Wrong size", 2, imports.size());
-		ImportDeclaration importDeclaration = (ImportDeclaration) imports.get(1);
-		assertTrue("Not malformed", isMalformed(importDeclaration));
-	}
-
 	public void test0009() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0009", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
@@ -11284,30 +11271,6 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 		assertBindingKeyEquals(
 				"Lp/X$;",	// should not be Lp/X$~X$;
 			binding.getKey());
-	}
-	/*
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=339864
-	 */
-	public void test0349() throws JavaModelException {
-		String contents =
-			"import java.util.*;\n" +
-			"public class X {\n" +
-			"	public static Object foo() {\n" +
-			"		List<String> l = new ArrayList<>();\n" +
-			"		return l;\n" +
-			"	}\n" +
-			"}";
-		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
-		CompilationUnit unit = (CompilationUnit) buildAST(
-			getJLS3(),
-			contents,
-			this.workingCopy,
-			false,
-			true,
-			true);
-		VariableDeclarationStatement statement = (VariableDeclarationStatement) getASTNode(unit, 0, 0, 0);
-		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) ((VariableDeclarationFragment) statement.fragments().get(0)).getInitializer();
-		assertTrue("Should be malformed", isMalformed(classInstanceCreation.getType()));
 	}
 	/*
 	 * 3.7 maintenance - Fixed bug 348024: Empty AST for class with static inner class in a package with package-info.java
