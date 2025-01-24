@@ -341,7 +341,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private final static int VALID_OPTION = 2;
 	HashSet<String> optionNames = new HashSet<>(20);
 	Map<String, String[]> deprecatedOptions = new HashMap<>();
-	volatile Hashtable<String, String> optionsCache;
+	private volatile Map<String, String> optionsCache;
 
 	// Preferences
 	public final IEclipsePreferences[] preferencesLookup = new IEclipsePreferences[2];
@@ -1838,7 +1838,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	/**
 	 * @deprecated
 	 */
-	private void addDeprecatedOptions(Hashtable<String, String> options) {
+	private void addDeprecatedOptions(Map<String, String> options) {
 		options.put(JavaCore.COMPILER_PB_INVALID_IMPORT, JavaCore.ERROR);
 		options.put(JavaCore.COMPILER_PB_UNREACHABLE_CODE, JavaCore.ERROR);
 	}
@@ -2415,20 +2415,18 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return UNKNOWN_OPTION;
 	}
 
-	public Hashtable<String, String> getOptions() {
-
-		// return cached options if already computed
-		Hashtable<String, String> cachedOptions; // use a local variable to avoid race condition (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=256329 )
-		if ((cachedOptions = this.optionsCache) != null) {
-			return new Hashtable<>(cachedOptions);
+	public Map<String, String> getOptions() {
+		// use a local variable to avoid race condition (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=256329 )
+		Map<String, String> cachedOptions = this.optionsCache;
+		if (cachedOptions != null) {
+			return cachedOptions;
 		}
+
 		if (!Platform.isRunning()) {
-			Hashtable<String, String> defaults = getDefaultOptionsNoInitialization();
-			this.optionsCache = defaults;
-			return new Hashtable<>(defaults);
+			return this.optionsCache = Map.copyOf(getDefaultOptionsNoInitialization());
 		}
 		// init
-		Hashtable<String, String> options = new Hashtable<>(10);
+		Map<String, String> options = new HashMap<>(10);
 		IPreferencesService service = Platform.getPreferencesService();
 
 		for (String propertyName : this.optionNames) {
@@ -2458,14 +2456,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		addDeprecatedOptions(options);
 
 		Util.fixTaskTags(options);
-		// store built map in cache
-		this.optionsCache = new Hashtable<>(options);
-		// return built map
-		return options;
+		return this.optionsCache = Map.copyOf(options);
 	}
 
 	// Do not modify without modifying getDefaultOptions()
-	private Hashtable<String, String> getDefaultOptionsNoInitialization() {
+	private Map<String, String> getDefaultOptionsNoInitialization() {
 		Map<String, String> defaultOptionsMap = new CompilerOptions().getMap(); // compiler defaults
 
 		// Override some compiler defaults
@@ -2520,7 +2515,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		// Time out for parameter names
 		defaultOptionsMap.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "50"); //$NON-NLS-1$
 
-		return new Hashtable<>(defaultOptionsMap);
+		return defaultOptionsMap;
 	}
 
 	/*
@@ -5321,30 +5316,30 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return true;
 	}
 
-	public void setOptions(Hashtable<String, String> newOptions) {
+	public void setOptions(Map<String, String> newOptions) {
 		Hashtable<String, String> cachedValue = newOptions == null ? null : new Hashtable<>(newOptions);
 		IEclipsePreferences defaultPreferences = getDefaultPreferences();
 		IEclipsePreferences instancePreferences = getInstancePreferences();
 
-		if (newOptions == null){
+		if (newOptions == null) {
 			try {
 				instancePreferences.clear();
-			} catch(BackingStoreException e) {
-				// ignore
+			} catch (BackingStoreException e) {
+				ILog.get().log(Status.warning("Error updating java options", e)); //$NON-NLS-1$
 			}
 		} else {
-			Enumeration<String> keys = newOptions.keys();
-			while (keys.hasMoreElements()){
-				String key = keys.nextElement();
+			for (Entry<String, String> entry : newOptions.entrySet()) {
+				String key = entry.getKey();
 				int optionLevel = getOptionLevel(key);
-				if (optionLevel == UNKNOWN_OPTION) continue; // unrecognized option
+				if (optionLevel == UNKNOWN_OPTION)
+					continue; // unrecognized option
 				if (key.equals(JavaCore.CORE_ENCODING)) {
 					if (cachedValue != null) {
 						cachedValue.put(key, JavaCore.getEncoding());
 					}
 					continue; // skipped, contributed by resource prefs
 				}
-				String value = newOptions.get(key);
+				String value = entry.getValue();
 				String defaultValue = defaultPreferences.get(key, null);
 				// Store value in preferences
 				if (defaultValue != null && defaultValue.equals(value)) {
@@ -5355,8 +5350,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			try {
 				// persist options
 				instancePreferences.flush();
-			} catch(BackingStoreException e) {
-				// ignore
+			} catch (BackingStoreException e) {
+				ILog.get().log(Status.warning("Error updating java options", e)); //$NON-NLS-1$
 			}
 		}
 		if (cachedValue == null) {
