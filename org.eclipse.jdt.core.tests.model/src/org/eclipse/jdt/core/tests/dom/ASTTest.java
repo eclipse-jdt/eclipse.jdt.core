@@ -810,14 +810,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	}
 
 	/**
-	 * Internal access method to VariableDeclarationFragment#setExtraDimensions for avoiding deprecated warnings.
-	 *
-	 * @deprecated
-	 */
-	private void setExtraDimensions(VariableDeclarationFragment node, int dimensions) {
-		node.setExtraDimensions(dimensions);
-	}
-	/**
 	 * Snippets that show how to...
 	 * @deprecated using deprecated code
 	 */
@@ -3548,7 +3540,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}
 
-	public void testVariableDeclarationFragment() {
+	@SuppressWarnings("deprecation")
+    public void testVariableDeclarationFragment() {
 		long previousCount = this.ast.modificationCount();
 		final VariableDeclarationFragment x = this.ast.newVariableDeclarationFragment();
 		assertTrue(this.ast.modificationCount() > previousCount);
@@ -3567,7 +3560,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 
 		previousCount = this.ast.modificationCount();
 		if (this.ast.apiLevel() < getJLS8()) {
-			setExtraDimensions(x, 1);
+			x.setExtraDimensions(1);
 		} else {
 			x.extraDimensions().add(this.ast.newDimension());
 		}
@@ -3576,7 +3569,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 
 		previousCount = this.ast.modificationCount();
 		if (this.ast.apiLevel() < getJLS8()) {
-			setExtraDimensions(x, 0);
+			x.setExtraDimensions(0);
 		} else {
 			x.extraDimensions().remove(0);
 		}
@@ -3586,7 +3579,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		// check that property cannot be set negative
 		if (this.ast.apiLevel() < getJLS8()) {
 			try {
-				setExtraDimensions(x, -1);
+				x.setExtraDimensions(-1);
 				fail();
 			} catch (IllegalArgumentException e) {
 				// pass
