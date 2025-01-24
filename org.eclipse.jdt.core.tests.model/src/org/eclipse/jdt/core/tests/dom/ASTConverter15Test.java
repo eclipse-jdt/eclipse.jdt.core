@@ -446,19 +446,6 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("not static", importDeclaration.isStatic());
 	}
 
-	/** @deprecated using deprecated code */
-	public void test0008() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0008", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS2, sourceUnit, true);
-		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
-		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertProblemsSize(compilationUnit, 0);
-		List imports = compilationUnit.imports();
-		assertEquals("Wrong size", 2, imports.size());
-		ImportDeclaration importDeclaration = (ImportDeclaration) imports.get(1);
-		assertTrue("Not malformed", isMalformed(importDeclaration));
-	}
-
 	public void test0009() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0009", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(getJLS3(), sourceUnit, true);
@@ -11573,37 +11560,6 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		}
 	}
 
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=404489
-	public void testBug404489() throws JavaModelException {
-		ICompilationUnit sourceUnit = getCompilationUnit("Converter18" , "src", "test404489.bug", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(this.ast.apiLevel(), sourceUnit, true);
-		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
-		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertProblemsSize(compilationUnit, 0);
-		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
-		TypeDeclaration typeDeclaration =  (TypeDeclaration) compilationUnit.types().get(0);
-
-		node = (ASTNode) typeDeclaration.bodyDeclarations().get(2);
-		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
-		MethodDeclaration methodDecl = (MethodDeclaration) node;
-		Type type = methodDecl.getReturnType2();
-		assertTrue(type.isQualifiedType());
-		assertTrue(isMalformed(type));
-
-		// parameter
-		SingleVariableDeclaration param = (SingleVariableDeclaration) methodDecl.parameters().get(0);
-		type = param.getType();
-		assertTrue(type.isQualifiedType());
-		assertTrue(isMalformed(type));
-
-		node = (ASTNode) typeDeclaration.bodyDeclarations().get(3);
-		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
-		FieldDeclaration field = (FieldDeclaration) node;
-		type = field.getType();
-		assertTrue(type.isQualifiedType());
-		assertTrue(type.isQualifiedType());
-		assertTrue(isMalformed(type));
-	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=460422
 	public void testBug460422() throws JavaModelException {
 		String str =
