@@ -56,16 +56,6 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		}
 	}
 
-	/** @deprecated using deprecated code */
-	private void internalSetExtraDimensions(VariableDeclarationFragment node, int dimensions) {
-		if (this.apiLevel < AST.JLS8) {
-			node.setExtraDimensions(dimensions);
-		} else {
-			while (dimensions > 0) {
-				node.extraDimensions().add(node.getAST().newDimension());
-			}
-		}
-	}
 	public void testInsert1() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		/* foo(): append a return statement */
@@ -5381,7 +5371,6 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			TryStatement tryStatement = (TryStatement) statement;
 
 			VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
-			internalSetExtraDimensions(fragment, 0);
 			fragment.setName(ast.newSimpleName("reader2"));
 			ClassInstanceCreation classInstanceCreation = ast.newClassInstanceCreation();
 			classInstanceCreation.setType(ast.newSimpleType(ast.newSimpleName("FileReader")));
@@ -5456,7 +5445,6 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			TryStatement tryStatement = (TryStatement) statement;
 
 			VariableDeclarationFragment fragment = ast.newVariableDeclarationFragment();
-			internalSetExtraDimensions(fragment, 0);
 			fragment.setName(ast.newSimpleName("reader2"));
 			ClassInstanceCreation classInstanceCreation = ast.newClassInstanceCreation();
 			classInstanceCreation.setType(ast.newSimpleType(ast.newSimpleName("FileReader")));

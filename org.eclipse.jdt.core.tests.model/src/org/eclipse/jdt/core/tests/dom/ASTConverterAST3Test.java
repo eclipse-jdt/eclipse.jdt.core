@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -48,14 +48,6 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverterAST3Test.class);
-	}
-	/**
-	 * Internal access method to VariableDeclarationFragment#setExtraDimensions() for avoiding deprecated warnings.
-	 *
-	 * @deprecated
-	 */
-	private void internalSetExtraDimensions(VariableDeclarationFragment node, int dimensions) {
-		node.setExtraDimensions(dimensions);
 	}
 	/**
 	 * Internal access method to MethodDeclaration#thrownExceptions() for avoiding deprecated warnings.
@@ -2738,7 +2730,8 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 	/**
 	 * Multiple local declaration => VariabledeclarationStatement
 	 */
-	public void test0124() throws JavaModelException {
+	@SuppressWarnings("deprecation")
+    public void test0124() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0124", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), sourceUnit, false);
@@ -2749,20 +2742,18 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		NumberLiteral literal = this.ast.newNumberLiteral();
 		literal.setToken("10");//$NON-NLS-1$
 		fragment.setInitializer(literal);
-		internalSetExtraDimensions(fragment, 0);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(fragment);
 		fragment = this.ast.newVariableDeclarationFragment();
 		fragment.setName(this.ast.newSimpleName("z"));//$NON-NLS-1$
 		fragment.setInitializer(this.ast.newNullLiteral());
-		internalSetExtraDimensions(fragment, 1);
+		fragment.setExtraDimensions(1);
 		statement.fragments().add(fragment);
 		fragment = this.ast.newVariableDeclarationFragment();
 		fragment.setName(this.ast.newSimpleName("i"));//$NON-NLS-1$
-		internalSetExtraDimensions(fragment, 0);
 		statement.fragments().add(fragment);
 		fragment = this.ast.newVariableDeclarationFragment();
 		fragment.setName(this.ast.newSimpleName("j"));//$NON-NLS-1$
-		internalSetExtraDimensions(fragment, 2);
+		fragment.setExtraDimensions(2);
 		statement.fragments().add(fragment);
 		statement.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -2778,7 +2769,8 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 	/**
 	 * Multiple local declaration => VariabledeclarationStatement
 	 */
-	public void test0125() throws JavaModelException {
+	@SuppressWarnings("deprecation")
+    public void test0125() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0125", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), sourceUnit, false);
@@ -2789,20 +2781,18 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		NumberLiteral literal = this.ast.newNumberLiteral();
 		literal.setToken("10");//$NON-NLS-1$
 		fragment.setInitializer(literal);
-		internalSetExtraDimensions(fragment, 0);
 		VariableDeclarationStatement statement = this.ast.newVariableDeclarationStatement(fragment);
 		fragment = this.ast.newVariableDeclarationFragment();
 		fragment.setName(this.ast.newSimpleName("z"));//$NON-NLS-1$
 		fragment.setInitializer(this.ast.newNullLiteral());
-		internalSetExtraDimensions(fragment, 1);
+		fragment.setExtraDimensions(1);
 		statement.fragments().add(fragment);
 		fragment = this.ast.newVariableDeclarationFragment();
 		fragment.setName(this.ast.newSimpleName("i"));//$NON-NLS-1$
-		internalSetExtraDimensions(fragment, 0);
 		statement.fragments().add(fragment);
 		fragment = this.ast.newVariableDeclarationFragment();
 		fragment.setName(this.ast.newSimpleName("j"));//$NON-NLS-1$
-		internalSetExtraDimensions(fragment, 2);
+		fragment.setExtraDimensions(2);
 		statement.fragments().add(fragment);
 		statement.setType(this.ast.newArrayType(this.ast.newPrimitiveType(PrimitiveType.INT), 1));
 		assertTrue("Both AST trees should be identical", statement.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -2818,7 +2808,8 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 	/**
 	 * ForStatement
 	 */
-	public void test0126() throws JavaModelException {
+	@SuppressWarnings("deprecation")
+    public void test0126() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0126", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), sourceUnit, false);
@@ -2828,7 +2819,7 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		VariableDeclarationFragment variableDeclarationFragment = this.ast.newVariableDeclarationFragment();
 		variableDeclarationFragment.setName(this.ast.newSimpleName("tab")); //$NON-NLS-1$
 		variableDeclarationFragment.setInitializer(this.ast.newNullLiteral());//$NON-NLS-1$
-		internalSetExtraDimensions(variableDeclarationFragment, 1);
+		variableDeclarationFragment.setExtraDimensions(1);
 		VariableDeclarationExpression variableDeclarationExpression = this.ast.newVariableDeclarationExpression(variableDeclarationFragment);
 		variableDeclarationExpression.setType(this.ast.newArrayType(this.ast.newSimpleType(this.ast.newSimpleName("String")), 1));//$NON-NLS-1$
 		forStatement.initializers().add(variableDeclarationExpression);
@@ -2846,7 +2837,8 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 	/**
 	 * ForStatement
 	 */
-	public void test0127() throws JavaModelException {
+	@SuppressWarnings("deprecation")
+    public void test0127() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0127", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), sourceUnit, false);
@@ -2856,7 +2848,7 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		VariableDeclarationFragment variableDeclarationFragment = this.ast.newVariableDeclarationFragment();
 		variableDeclarationFragment.setName(this.ast.newSimpleName("tab")); //$NON-NLS-1$
 		variableDeclarationFragment.setInitializer(this.ast.newNullLiteral());//$NON-NLS-1$
-		internalSetExtraDimensions(variableDeclarationFragment, 1);
+		variableDeclarationFragment.setExtraDimensions(1);
 		VariableDeclarationExpression variableDeclarationExpression = this.ast.newVariableDeclarationExpression(variableDeclarationFragment);
 		variableDeclarationExpression.setType(this.ast.newSimpleType(this.ast.newSimpleName("String")));//$NON-NLS-1$
 		forStatement.initializers().add(variableDeclarationExpression);
@@ -2874,7 +2866,8 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 	/**
 	 * ForStatement
 	 */
-	public void test0128() throws JavaModelException {
+	@SuppressWarnings("deprecation")
+    public void test0128() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0128", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), sourceUnit, false);
@@ -2884,7 +2877,7 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		VariableDeclarationFragment variableDeclarationFragment = this.ast.newVariableDeclarationFragment();
 		variableDeclarationFragment.setName(this.ast.newSimpleName("tab")); //$NON-NLS-1$
 		variableDeclarationFragment.setInitializer(this.ast.newNullLiteral());//$NON-NLS-1$
-		internalSetExtraDimensions(variableDeclarationFragment, 1);
+		variableDeclarationFragment.setExtraDimensions(1);
 		VariableDeclarationExpression variableDeclarationExpression = this.ast.newVariableDeclarationExpression(variableDeclarationFragment);
 		variableDeclarationExpression.setType(this.ast.newSimpleType(this.ast.newSimpleName("String")));//$NON-NLS-1$
 		forStatement.initializers().add(variableDeclarationExpression);
@@ -2913,7 +2906,6 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		assertTrue("Not a declaration", frag.getName().isDeclaration()); //$NON-NLS-1$
 		VariableDeclarationFragment fragment = this.ast.newVariableDeclarationFragment();
 		fragment.setName(this.ast.newSimpleName("i")); //$NON-NLS-1$
-		internalSetExtraDimensions(fragment, 0);
 		FieldDeclaration fieldDeclaration = this.ast.newFieldDeclaration(fragment);
 		fieldDeclaration.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 		assertTrue("Both AST trees should be identical", fieldDeclaration.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
@@ -2923,7 +2915,8 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 	/**
 	 * FieldDeclaration
 	 */
-	public void test0130() throws JavaModelException {
+	@SuppressWarnings("deprecation")
+    public void test0130() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0130", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode result = runConversion(getJLS3(), sourceUnit, false);
@@ -2935,22 +2928,20 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		NumberLiteral literal = this.ast.newNumberLiteral();
 		literal.setToken("10"); //$NON-NLS-1$
 		fragment.setInitializer(literal);
-		internalSetExtraDimensions(fragment, 0);
 		FieldDeclaration fieldDeclaration = this.ast.newFieldDeclaration(fragment);
 		fieldDeclaration.modifiers().add(this.ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD));
 		fieldDeclaration.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 		fragment = this.ast.newVariableDeclarationFragment();
 		fragment.setName(this.ast.newSimpleName("y"));//$NON-NLS-1$
-		internalSetExtraDimensions(fragment, 1);
+		fragment.setExtraDimensions(1);
 		fragment.setInitializer(this.ast.newNullLiteral());
 		fieldDeclaration.fragments().add(fragment);
 		fragment = this.ast.newVariableDeclarationFragment();
 		fragment.setName(this.ast.newSimpleName("i"));//$NON-NLS-1$
-		internalSetExtraDimensions(fragment, 0);
 		fieldDeclaration.fragments().add(fragment);
 		fragment = this.ast.newVariableDeclarationFragment();
 		fragment.setName(this.ast.newSimpleName("j"));//$NON-NLS-1$
-		internalSetExtraDimensions(fragment, 2);
+		fragment.setExtraDimensions(2);
 		fieldDeclaration.fragments().add(fragment);
 		assertTrue("Both AST trees should be identical", fieldDeclaration.subtreeMatch(new ASTMatcher(), node));		//$NON-NLS-1$
 		checkSourceRange(node, "public int x= 10, y[] = null, i, j[][];", source); //$NON-NLS-1$
