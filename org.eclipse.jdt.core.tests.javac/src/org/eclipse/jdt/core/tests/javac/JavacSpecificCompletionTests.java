@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IProblemRequestor;
@@ -236,6 +237,40 @@ public class JavacSpecificCompletionTests {
 			this.workingCopies[0].codeComplete(cursorLocation, requestor, WC_OWNER, monitor);
 			assertEquals(
 					"jello[LOCAL_VARIABLE_REF]{jello, null, Ljava.lang.String;, jello, 82}",
+					requestor.getResults());
+		} catch (OperationCanceledException e) {
+			Assert.assertTrue("Should not be cancelled", false);
+		}
+	}
+
+	@Test
+	public void testCompletionForEachElementInScope() throws Exception {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("HelloWorld.java",
+				"""
+				import java.util.List;
+				public class HelloWorld {
+					public static void main(String... args) {
+						List<String> myList = List.of("a", "b", "c");
+						for (String element : myList) {
+							System.out.println(elemen);
+						}
+					}
+				}
+				""");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+		// there are many types ending with "element" that are (correctly) suggested here
+		requestor.setIgnored(CompletionProposal.TYPE_REF, true);
+
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "elemen";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		IProgressMonitor monitor = new NullProgressMonitor();
+		try {
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, WC_OWNER, monitor);
+			assertEquals(
+					"element[LOCAL_VARIABLE_REF]{element, null, Ljava.lang.String;, element, 82}",
 					requestor.getResults());
 		} catch (OperationCanceledException e) {
 			Assert.assertTrue("Should not be cancelled", false);

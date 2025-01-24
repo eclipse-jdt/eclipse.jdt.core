@@ -69,6 +69,7 @@ import org.eclipse.jdt.core.dom.ChildPropertyDescriptor;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionMethodReference;
@@ -305,6 +306,10 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					.toList();
 				visibleBindings.addAll(bindings);
 			}
+		}
+
+		if (node.getParent() instanceof EnhancedForStatement foreachStatement && node.getStartPosition() + node.getLength() > this.offset) {
+			visibleBindings.add(foreachStatement.getParameter().resolveBinding());
 		}
 
 		if (node instanceof SwitchStatement switchStatement) {
