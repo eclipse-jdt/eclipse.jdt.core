@@ -1784,9 +1784,6 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_TargetPlatform)) != null) {
 			long level = versionToJdkLevel(optionValue);
 			if (level != 0) {
-				if (this.enablePreviewFeatures) {
-					level |= ClassFileConstants.MINOR_VERSION_PREVIEW;
-				}
 				this.targetJDK = level;
 			}
 		}
@@ -2222,8 +2219,6 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_EnablePreviews)) != null) {
 			if (ENABLED.equals(optionValue)) {
 				this.enablePreviewFeatures = true;
-				if (this.targetJDK != 0)
-					this.targetJDK |= ClassFileConstants.MINOR_VERSION_PREVIEW;
 			} else if (DISABLED.equals(optionValue)) {
 				this.enablePreviewFeatures = false;
 			}

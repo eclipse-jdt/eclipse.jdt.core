@@ -552,8 +552,10 @@ public class SwitchStatement extends Expression {
 				this.expression.computeConversion(upperScope, expressionType, expressionType);
 				checkType: {
 					if (expressionType.isBaseType()) {
-						if (JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(compilerOptions))
+						if (JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(compilerOptions)) {
+							upperScope.referenceContext().compilationResult().usesPreview = true;
 							this.isPrimitiveSwitch = true;
+						}
 						if (this.expression.isConstantValueOfTypeAssignableToType(expressionType, TypeBinding.INT))
 							break checkType;
 						if (expressionType.isCompatibleWith(TypeBinding.INT))

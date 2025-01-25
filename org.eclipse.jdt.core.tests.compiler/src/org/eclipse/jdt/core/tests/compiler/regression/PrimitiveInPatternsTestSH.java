@@ -16,8 +16,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.IOException;
 import java.util.Map;
 import junit.framework.Test;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -135,20 +138,22 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput) {
 		runConformTest(testFiles, expectedOutput, getCompilerOptions(true), VMARGS, JAVAC_OPTIONS);
+		checkPreviewFlag(testFiles);
 	}
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
 		if(!isJRE23Plus)
 			return;
 		runConformTest(testFiles, expectedOutput, customOptions, VMARGS, JAVAC_OPTIONS);
+		checkPreviewFlag(testFiles);
 	}
 	protected void runConformTest(
-			String[] testFiles,
-			String expectedOutputString,
-			String[] classLibraries,
-			boolean shouldFlushOutputDirectory,
-			String[] vmArguments) {
-			runTest(
+		String[] testFiles,
+		String expectedOutputString,
+		String[] classLibraries,
+		boolean shouldFlushOutputDirectory,
+		String[] vmArguments) {
+		runTest(
 		 		// test directory preparation
 				shouldFlushOutputDirectory /* should flush output directory */,
 				testFiles /* test files */,
@@ -168,7 +173,21 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				null /* do not check error string */,
 				// javac options
 				JavacTestOptions.DEFAULT /* default javac test options */);
+		checkPreviewFlag(testFiles);
+	}
+	void checkPreviewFlag(String[] testFiles) {
+		String className = testFiles[0].replace(".java", ".class");
+		try {
+			verifyClassFile("version 24 : 68.65535", className, ClassFileBytesDisassembler.SYSTEM);
+		} catch (IOException|ClassFormatException e) {
+			e.printStackTrace();
+			fail(e.getMessage());
 		}
+	}
+	private void runConformTest_skipPreviewCheck(String[] testFiles, String expectedOutput) {
+		// FIXME we skip checkPreviewFlag() because it's not yet set in a few cases!
+		runConformTest(testFiles, expectedOutput, getCompilerOptions(true), VMARGS, JAVAC_OPTIONS);
+	}
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 		Map<String, String> customOptions = getCompilerOptions(true);
 		Runner runner = new Runner();
@@ -198,7 +217,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 	// https://cr.openjdk.org/~abimpoudis/instanceof/jep455-20240424/specs/instanceof-jls.html#jls-5.1.2
 	// 5.7 Testing Contexts
 	// Identity Conversion
-	public void testIdentity() {
+	public void testIdentity() throws IOException, ClassFormatException {
 		StringBuilder methods = new StringBuilder();
 		StringBuilder calls = new StringBuilder();
 		String methodTmpl =
@@ -227,6 +246,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		classX.append(calls);
 		classX.append("}}\n");
 		runConformTest(new String[] { "X.java", classX.toString() }, MAX_VALUES_STRING);
+		verifyClassFile("version 24 : 68.65535", "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testIdentityPattern() {
 		StringBuilder methods = new StringBuilder();
@@ -1085,7 +1105,8 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 	}
 
 	public void testNonPrim001() {
-		runConformTest(new String[] {
+		// no preview used
+		super.runConformTest(new String[] {
 			"X.java",
 				"""
 					class Y<T> {
@@ -1904,11 +1925,11 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			String calls = fillIn(callsTmpl, i);
 			String classX = fillIn(classTmpl, i)
 					.replace("CALLS", calls);
-			runConformTest(new String[] { "XBOX.java".replace("BOX", BOXES[i]), classX }, "12-2");
+			runConformTest_skipPreviewCheck(new String[] { "XBOX.java".replace("BOX", BOXES[i]), classX }, "12-2");
 		}
 	}
 	public void testSwitchOn_Boolean_OK() {
-		runConformTest(new String[] {
+		runConformTest_skipPreviewCheck(new String[] {
 			"X.java",
 			"""
 			public class X {

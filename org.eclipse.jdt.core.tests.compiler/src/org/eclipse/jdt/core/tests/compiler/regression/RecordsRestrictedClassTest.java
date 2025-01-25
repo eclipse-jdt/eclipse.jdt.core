@@ -91,21 +91,6 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 		runner.runWarningTest();
 	}
 
-	private static void verifyClassFile(String expectedOutput, String classFileName, int mode)
-			throws IOException, ClassFormatException {
-		File f = new File(OUTPUT_DIR + File.separator + classFileName);
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String result = disassembler.disassemble(classFileBytes, "\n", mode);
-		int index = result.indexOf(expectedOutput);
-		if (index == -1 || expectedOutput.length() == 0) {
-			System.out.println(Util.displayString(result, 3));
-			System.out.println("...");
-		}
-		if (index == -1) {
-			assertEquals("Wrong contents", expectedOutput, result);
-		}
-	}
 	private void verifyOutputNegative(String result, String expectedOutput) {
 		verifyOutput(result, expectedOutput, false);
 	}
@@ -1622,7 +1607,7 @@ public void testBug558494_001() throws Exception {
 			"  \n" +
 			"// Component descriptor #6 I\n" +
 			"int heyPinkCity;\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug558494_002() throws Exception {
 	runConformTest(
@@ -1644,7 +1629,7 @@ public void testBug558494_002() throws Exception {
 	String expectedOutput = "Record: #Record\n" +
 			"Components:\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug558494_003() throws Exception {
 	runConformTest(
@@ -1664,7 +1649,7 @@ public void testBug558494_003() throws Exception {
 	String expectedOutput = "Record: #Record\n" +
 			"Components:\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Forts.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Forts.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug558494_004() throws Exception {
 	runConformTest(
@@ -1689,7 +1674,7 @@ public void testBug558494_004() throws Exception {
 			"int x;\n" +
 			"// Component descriptor #8 [Ljava/lang/String;\n" +
 			"java.lang.String[] wonders;\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Forts.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Forts.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug558764_001() {
 	runConformTest(
@@ -2100,7 +2085,7 @@ public void testBug560569_001() throws Exception {
 				"		#60 model;year\n" +
 				"		#62 REF_getField model:Ljava/lang/String;\n" +
 				"		#63 REF_getField year:I";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Car.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Car.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput = 			"  // Method descriptor #12 (Ljava/lang/String;I)V\n" +
 			"  // Stack: 2, Locals: 3\n" +
 			"  public Car(java.lang.String model, int year);\n" +
@@ -2124,7 +2109,7 @@ public void testBug560569_001() throws Exception {
 			"        mandated model\n" +
 			"        mandated year\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Car.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Car.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug560496_001() throws Exception {
 	runConformTest(
@@ -2140,7 +2125,7 @@ public void testBug560496_001() throws Exception {
 	 "0");
 	String expectedOutput =
 			"public final int hashCode();\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug560496_002() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK17)
@@ -2158,7 +2143,7 @@ public void testBug560496_002() throws Exception {
 	 "0");
 	String expectedOutput =
 			"public final int hashCode();\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug560797_001() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK17)
@@ -2176,7 +2161,7 @@ public void testBug560797_001() throws Exception {
 	 "true");
 	String expectedOutput =
 			"public int x();\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug560797_002() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK17)
@@ -2196,7 +2181,7 @@ public void testBug560797_002() throws Exception {
 	 "true");
 	String expectedOutput =
 			"public int x();\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug560798_001() throws Exception {
 	runConformTest(
@@ -2491,7 +2476,7 @@ public void testBug56180_001() throws Exception {
 	 "R[]");
 	String expectedOutput =
 			" public final java.lang.String toString();\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug561528_001() {
 	runConformTest(
@@ -2624,7 +2609,7 @@ public void testBug561778_001() throws IOException, ClassFormatException {
 			"  // Signature: ()TT;\n" +
 			"  // Stack: 1, Locals: 1\n" +
 			"  public java.lang.Object value();\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug561778_002() throws IOException, ClassFormatException {
 	runConformTest(
@@ -2650,7 +2635,7 @@ public void testBug561778_002() throws IOException, ClassFormatException {
 			"  // Signature: ()LY<TT;>;\n" +
 			"  // Stack: 1, Locals: 1\n" +
 			"  public Y value();\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562219_001() {
 	runConformTest(
@@ -2840,7 +2825,7 @@ public void testBug562439_001() throws IOException, ClassFormatException {
 			"  RuntimeInvisibleAnnotations: \n" +
 			"    #62 @RC(\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_002() throws IOException, ClassFormatException {
 	runConformTest(
@@ -2875,7 +2860,7 @@ public void testBug562439_002() throws IOException, ClassFormatException {
 			"  RuntimeVisibleAnnotations: \n" +
 			"    #62 @RC(\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_003() throws IOException, ClassFormatException {
 	runConformTest(
@@ -2903,7 +2888,7 @@ public void testBug562439_003() throws IOException, ClassFormatException {
 			"      #8 @RCF(\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -2913,7 +2898,7 @@ public void testBug562439_003() throws IOException, ClassFormatException {
 			"  RuntimeInvisibleAnnotations: \n" +
 			"    #8 @RCF(\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_004() throws IOException, ClassFormatException {
 	runConformTest(
@@ -2944,7 +2929,7 @@ public void testBug562439_004() throws IOException, ClassFormatException {
 			"      #8 @RCF(\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -2954,7 +2939,7 @@ public void testBug562439_004() throws IOException, ClassFormatException {
 			"  RuntimeVisibleAnnotations: \n" +
 			"    #8 @RCF(\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_005() throws IOException, ClassFormatException {
 	runConformTest(
@@ -2982,7 +2967,7 @@ public void testBug562439_005() throws IOException, ClassFormatException {
 			"      #8 @RF(\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -2991,7 +2976,7 @@ public void testBug562439_005() throws IOException, ClassFormatException {
 			"int myInt;\n" +
 			"// Component descriptor #10 C\n" +
 			"char myChar;\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_006() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3022,7 +3007,7 @@ public void testBug562439_006() throws IOException, ClassFormatException {
 			"      #8 @RF(\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3031,7 +3016,7 @@ public void testBug562439_006() throws IOException, ClassFormatException {
 			"int myInt;\n" +
 			"// Component descriptor #10 C\n" +
 			"char myChar;\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_007() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3063,7 +3048,7 @@ public void testBug562439_007() throws IOException, ClassFormatException {
 			"        target type = 0x13 FIELD\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput = 			"Record: #Record\n" +
 			"Components:\n" +
 			"  \n" +
@@ -3076,7 +3061,7 @@ public void testBug562439_007() throws IOException, ClassFormatException {
 			"    #8 @RCFU(\n" +
 			"      target type = 0x13 FIELD\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_008() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3112,7 +3097,7 @@ public void testBug562439_008() throws IOException, ClassFormatException {
 			"        target type = 0x13 FIELD\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3126,7 +3111,7 @@ public void testBug562439_008() throws IOException, ClassFormatException {
 			"    #8 @RCFU(\n" +
 			"      target type = 0x13 FIELD\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_009() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3161,7 +3146,7 @@ public void testBug562439_009() throws IOException, ClassFormatException {
 			"      #26 @RCM(\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3173,7 +3158,7 @@ public void testBug562439_009() throws IOException, ClassFormatException {
 			"    )\n" +
 			"// Component descriptor #8 C\n" +
 			"char myChar;\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_010() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3208,7 +3193,7 @@ public void testBug562439_010() throws IOException, ClassFormatException {
 			"    RuntimeVisibleAnnotations: \n" +
 			"      #26 @RCM(\n" +
 			"      )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3220,7 +3205,7 @@ public void testBug562439_010() throws IOException, ClassFormatException {
 			"    )\n" +
 			"// Component descriptor #8 C\n" +
 			"char myChar;\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_011() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3255,7 +3240,7 @@ public void testBug562439_011() throws IOException, ClassFormatException {
 			"      #26 @M(\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3264,7 +3249,7 @@ public void testBug562439_011() throws IOException, ClassFormatException {
 			"int myInt;\n" +
 			"// Component descriptor #8 C\n" +
 			"char myChar;\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_012() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3299,7 +3284,7 @@ public void testBug562439_012() throws IOException, ClassFormatException {
 			"    RuntimeVisibleAnnotations: \n" +
 			"      #26 @M(\n" +
 			"      )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3308,7 +3293,7 @@ public void testBug562439_012() throws IOException, ClassFormatException {
 			"int myInt;\n" +
 			"// Component descriptor #8 C\n" +
 			"char myChar;\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_013() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3338,7 +3323,7 @@ public void testBug562439_013() throws IOException, ClassFormatException {
 			"        target type = 0x13 FIELD\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"  // Method descriptor #26 ()I\n" +
 			"  // Stack: 1, Locals: 1\n" +
@@ -3356,7 +3341,7 @@ public void testBug562439_013() throws IOException, ClassFormatException {
 			"        target type = 0x14 METHOD_RETURN\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"// Component descriptor #6 I\n" +
 			"int myInt;\n" +
@@ -3367,7 +3352,7 @@ public void testBug562439_013() throws IOException, ClassFormatException {
 			"    #8 @RCMU(\n" +
 			"      target type = 0x13 FIELD\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_014() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3400,7 +3385,7 @@ public void testBug562439_014() throws IOException, ClassFormatException {
 			"        target type = 0x13 FIELD\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"  // Method descriptor #26 ()I\n" +
 			"  // Stack: 1, Locals: 1\n" +
@@ -3413,7 +3398,7 @@ public void testBug562439_014() throws IOException, ClassFormatException {
 			"    RuntimeVisibleAnnotations: \n" +
 			"      #8 @RCMU(\n" +
 			"      )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3427,7 +3412,7 @@ public void testBug562439_014() throws IOException, ClassFormatException {
 			"    #8 @RCMU(\n" +
 			"      target type = 0x13 FIELD\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_015() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3458,7 +3443,7 @@ public void testBug562439_015() throws IOException, ClassFormatException {
 			"        target type = 0x13 FIELD\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"  // Method descriptor #26 ()I\n" +
 			"  // Stack: 1, Locals: 1\n" +
@@ -3473,7 +3458,7 @@ public void testBug562439_015() throws IOException, ClassFormatException {
 			"        target type = 0x14 METHOD_RETURN\n" +
 			"      )\n" +
 			"  ";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3484,7 +3469,7 @@ public void testBug562439_015() throws IOException, ClassFormatException {
 			"    #8 @T(\n" +
 			"      target type = 0x13 FIELD\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"  Point(int myInt, char myChar);\n" +
 			"     0  aload_0 [this]\n" +
@@ -3510,7 +3495,7 @@ public void testBug562439_015() throws IOException, ClassFormatException {
 			"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" +
 			"        method parameter index = 0\n" +
 			"      )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_016() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3544,7 +3529,7 @@ public void testBug562439_016() throws IOException, ClassFormatException {
 			"        target type = 0x13 FIELD\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"  public int myInt();\n" +
 			"    0  aload_0 [this]\n" +
@@ -3557,7 +3542,7 @@ public void testBug562439_016() throws IOException, ClassFormatException {
 			"        target type = 0x14 METHOD_RETURN\n" +
 			"      )\n" +
 			"  ";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3568,7 +3553,7 @@ public void testBug562439_016() throws IOException, ClassFormatException {
 			"    #8 @T(\n" +
 			"      target type = 0x13 FIELD\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"  Point(int myInt, char myChar);\n" +
 			"     0  aload_0 [this]\n" +
@@ -3595,7 +3580,7 @@ public void testBug562439_016() throws IOException, ClassFormatException {
 			"        method parameter index = 0\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_017() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3643,7 +3628,7 @@ public void testBug562439_017() throws IOException, ClassFormatException {
 			"        )\n" +
 			"      Number of annotations for parameter 1: 0\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3653,7 +3638,7 @@ public void testBug562439_017() throws IOException, ClassFormatException {
 			"  RuntimeInvisibleAnnotations: \n" +
 			"    #12 @RCP(\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_018() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3704,7 +3689,7 @@ public void testBug562439_018() throws IOException, ClassFormatException {
 			"        )\n" +
 			"      Number of annotations for parameter 1: 0\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3714,7 +3699,7 @@ public void testBug562439_018() throws IOException, ClassFormatException {
 			"  RuntimeVisibleAnnotations: \n" +
 			"    #12 @RCP(\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_019() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3742,7 +3727,7 @@ public void testBug562439_019() throws IOException, ClassFormatException {
 			"      #8 @Annot(\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"  Point(int myInt, char myChar);\n" +
 			"     0  aload_0 [this]\n" +
@@ -3769,7 +3754,7 @@ public void testBug562439_019() throws IOException, ClassFormatException {
 			"        )\n" +
 			"      Number of annotations for parameter 1: 0\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"  // Method descriptor #27 ()I\n" +
 			"  // Stack: 1, Locals: 1\n" +
@@ -3782,7 +3767,7 @@ public void testBug562439_019() throws IOException, ClassFormatException {
 			"    RuntimeInvisibleAnnotations: \n" +
 			"      #8 @Annot(\n" +
 			"      )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3792,7 +3777,7 @@ public void testBug562439_019() throws IOException, ClassFormatException {
 			"  RuntimeInvisibleAnnotations: \n" +
 			"    #8 @Annot(\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_020() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3843,7 +3828,7 @@ public void testBug562439_020() throws IOException, ClassFormatException {
 			"        )\n" +
 			"      Number of annotations for parameter 1: 0\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3853,7 +3838,7 @@ public void testBug562439_020() throws IOException, ClassFormatException {
 			"  RuntimeVisibleAnnotations: \n" +
 			"    #12 @Annot(\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug563178_001() {
 	this.runNegativeTest(
@@ -4402,7 +4387,7 @@ public void testBug562637_001() {
 				"      Local variable table:\n" +
 				"        [pc: 0, pc: 5] local: this index: 0 type: Point\n" +
 				"  \n";
-		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug563181_02() throws IOException, ClassFormatException {
 		runConformTest(
@@ -4441,7 +4426,7 @@ public void testBug562637_001() {
 				"        target type = 0x14 METHOD_RETURN\n" +
 				"      )\n" +
 				"  \n";
-		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug563181_03() throws IOException, ClassFormatException {
 		runConformTest(
@@ -4477,7 +4462,7 @@ public void testBug562637_001() {
 				"        target type = 0x14 METHOD_RETURN\n" +
 				"      )\n" +
 				"  \n";
-		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug563181_04() throws IOException, ClassFormatException {
 		runConformTest(
@@ -4519,7 +4504,7 @@ public void testBug562637_001() {
 				"        target type = 0x14 METHOD_RETURN\n" +
 				"      )\n" +
 				"  \n";
-		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug565104_001() throws IOException, ClassFormatException {
 		runConformTest(
@@ -4535,7 +4520,7 @@ public void testBug562637_001() {
 				"  // Stack: 1, Locals: 1\n" +
 				"  public X$R();\n" +
 				"    0  aload_0 [this]\n";
-		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug565104_002() throws IOException, ClassFormatException {
 		runConformTest(
@@ -4551,7 +4536,7 @@ public void testBug562637_001() {
 				"  // Stack: 1, Locals: 1\n" +
 				"  X$R();\n" +
 				"    0  aload_0 [this]\n";
-		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug565104_003() throws IOException, ClassFormatException {
 		runConformTest(
@@ -4567,7 +4552,7 @@ public void testBug562637_001() {
 				"  // Stack: 1, Locals: 1\n" +
 				"  protected X$R();\n" +
 				"    0  aload_0 [this]\n";
-		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug565104_004() throws IOException, ClassFormatException {
 		runConformTest(
@@ -4583,7 +4568,7 @@ public void testBug562637_001() {
 				"  // Stack: 1, Locals: 1\n" +
 				"  private X$R();\n" +
 				"    0  aload_0 [this]\n";
-		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug564146_001() {
 		this.runNegativeTest(
@@ -8194,7 +8179,7 @@ public void testBug571038_1() throws Exception {
 			+ "  // Signature: ()[LMyIntf<TT;>;\n"
 			+ "  // Stack: 1, Locals: 1\n"
 			+ "  public MyIntf[] t();\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug571038_2() throws Exception {
 	runConformTest(
@@ -8218,7 +8203,7 @@ public void testBug571038_2() throws Exception {
 			+ "  // Signature: ()[LMyIntf<TT;>;\n"
 			+ "  // Stack: 1, Locals: 1\n"
 			+ "  public MyIntf[] t();\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug571038_3() throws Exception {
 	runConformTest(
@@ -8245,7 +8230,7 @@ public void testBug571038_3() throws Exception {
 			+ "  // Signature: ()[LMyIntf<TT;>;\n"
 			+ "  // Stack: 1, Locals: 1\n"
 			+ "  public MyIntf[] t();\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug571038_4() throws Exception {
 	runConformTest(
@@ -8273,7 +8258,7 @@ public void testBug571038_4() throws Exception {
 			+ "  // Signature: ()[LMyIntf<TT;>;\n"
 			+ "  // Stack: 1, Locals: 1\n"
 			+ "  public MyIntf[] t();\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug571454() {
 	this.runNegativeTest(
@@ -8536,7 +8521,7 @@ public void testBug571905_01() throws Exception {
 			"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" +
 			"        method parameter index = 0\n" +
 			"      )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput = // accessor
 			"  public int[] j();\n" +
 			"    0  aload_0 [this]\n" +
@@ -8548,7 +8533,7 @@ public void testBug571905_01() throws Exception {
 			"      #8 @MyAnnot(\n" +
 			"        target type = 0x14 METHOD_RETURN\n" +
 			"      )\n" ;
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug571905_02() throws Exception {
 	runConformTest(
@@ -8588,7 +8573,7 @@ public void testBug571905_02() throws Exception {
 			"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" +
 			"        method parameter index = 0\n" +
 			"      )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput = // accessor
 			"  public int[] j();\n" +
 			"    0  aload_0 [this]\n" +
@@ -8600,7 +8585,7 @@ public void testBug571905_02() throws Exception {
 			"      #8 @MyAnnot(\n" +
 			"        target type = 0x14 METHOD_RETURN\n" +
 			"      )\n" ;
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug572204_001() {
 	runNegativeTest(
@@ -8752,7 +8737,7 @@ public void testBug572204_007() throws Exception {
 			"      Number of annotations for parameter 0: 1\n" +
 			"        #10 @I(\n" +
 			"        )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput = // accessor
 			"  \n" +
 			"  // Method descriptor #38 ()[Ljava/lang/String;\n" +
@@ -8763,7 +8748,7 @@ public void testBug572204_007() throws Exception {
 			"    4  areturn\n" +
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 5]\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug572934_001() {
 	Map<String, String> options = getCompilerOptions();
@@ -8875,7 +8860,7 @@ public void testBug573195_001() throws Exception {
 			"     5  iload_1 [i]\n" +
 			"     6  putfield X$R.i : int [13]\n" +
 			"     9  return\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 
 public void testBug574284_001() throws Exception {
@@ -8912,7 +8897,7 @@ public void testBug574284_001() throws Exception {
 			"    10  aload_2 [indexes]\n" +
 			"    11  putfield X$Rec.indexes : int[] [17]\n" +
 			"    14  return\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X$Rec.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "X$Rec.class", ClassFileBytesDisassembler.SYSTEM);
 
 }
 public void testBug574284_002() {
@@ -9060,7 +9045,7 @@ public void testIssue365_001() throws Exception {
 			"     5  aload_1 [names]\n" +
 			"     6  putfield A.names : java.util.List [16]\n" +
 			"     9  return\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "A.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "A.class", ClassFileBytesDisassembler.SYSTEM);
 
 }
 
@@ -9115,7 +9100,7 @@ public void testRecordConstructorWithExceptionGh487() throws Exception {
 			     8  invokespecial java.lang.RuntimeException() [15]
 			    11  athrow
 			""";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1092
@@ -9168,7 +9153,7 @@ public void testGH1092() throws Exception {
 			"        location = [TYPE_ARGUMENT(0)]\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Record.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Record.class", ClassFileBytesDisassembler.SYSTEM);
 
 	// verify annotations on constructor
 	expectedOutput =
@@ -9202,7 +9187,7 @@ public void testGH1092() throws Exception {
 			"        location = [TYPE_ARGUMENT(0)]\n" +
 			"      )\n" +
 			"  \n" ;
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Record.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Record.class", ClassFileBytesDisassembler.SYSTEM);
 
 	// verify annotations on accessor
 	expectedOutput =
@@ -9224,7 +9209,7 @@ public void testGH1092() throws Exception {
 			"        location = [TYPE_ARGUMENT(0)]\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Record.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Record.class", ClassFileBytesDisassembler.SYSTEM);
 
 	// verify annotations on record component
 	expectedOutput =
@@ -9239,7 +9224,7 @@ public void testGH1092() throws Exception {
 			"      target type = 0x13 FIELD\n" +
 			"      location = [TYPE_ARGUMENT(0)]\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Record.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Record.class", ClassFileBytesDisassembler.SYSTEM);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=576719
 // Useless warning in compact constructor of a record

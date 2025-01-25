@@ -14,13 +14,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import junit.framework.Test;
-import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
-import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -53,21 +50,6 @@ static {
 }
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), F_1_8);
-}
-private void verifyClassFile(String expectedOutput, String classFileName, int mode) throws IOException,
-	ClassFormatException {
-	File f = new File(OUTPUT_DIR + File.separator + classFileName);
-	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-	String result = disassembler.disassemble(classFileBytes, "\n", mode);
-	int index = result.indexOf(expectedOutput);
-	if (index == -1 || expectedOutput.length() == 0) {
-	System.out.println(Util.displayString(result, 3));
-	System.out.println("...");
-	}
-	if (index == -1) {
-	assertEquals("Wrong contents", expectedOutput, result);
-	}
 }
 public void test001() throws Exception {
 	this.runConformTest(

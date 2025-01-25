@@ -20,8 +20,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.IOException;
 import java.util.Map;
 import junit.framework.Test;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -2663,7 +2666,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=406614, [1.8][compiler] Missing and incorrect errors for lambda in explicit constructor call.
 	// Variant for early construction context - this time a lambda in early construction of a member accesses the outer this - OK.
-	public void test406614_member() {
+	public void test406614_member() throws IOException, ClassFormatException {
 		this.runConformTest(
 				new String[] {
 					"X.java",
@@ -2703,5 +2706,6 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					"""
 				},
 				"");
+		verifyClassFile("version 24 : 68.65535", "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 }
