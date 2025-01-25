@@ -3732,7 +3732,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Test binding for local type declaration
-	 * @deprecated using deprecated code
 	 */
 	public void test0165() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0165", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -3741,7 +3740,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertNotNull("Expression should not be null", node); //$NON-NLS-1$
 		assertTrue("Not an type declaration", node instanceof TypeDeclarationStatement); //$NON-NLS-1$
 		TypeDeclarationStatement statement = (TypeDeclarationStatement) node;
-		TypeDeclaration typeDeclaration = statement.getTypeDeclaration();
+		TypeDeclaration typeDeclaration = (TypeDeclaration) statement.getDeclaration();
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		assertNotNull("No binding", typeBinding); //$NON-NLS-1$
 		assertTrue("An anonymous class", !typeBinding.isAnonymous()); //$NON-NLS-1$
@@ -4791,7 +4790,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Local class end position when trailing comment
-	 * @deprecated using deprecated code
 	 */
 	public void test0205() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0205", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4800,7 +4798,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		ASTNode node2 = getASTNode((CompilationUnit) result, 0, 0, 0);
 		assertTrue("TypeDeclarationStatement", node2 instanceof TypeDeclarationStatement); //$NON-NLS-1$
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) node2;
-		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		TypeDeclaration typeDeclaration = (TypeDeclaration) typeDeclarationStatement.getDeclaration();
 		assertEquals("wrong name", "AA", typeDeclaration.getName().getIdentifier()); //$NON-NLS-1$ //$NON-NLS-2$
 		checkSourceRange(typeDeclaration, "class AA extends Test {}", source); //$NON-NLS-1$
 	}
@@ -5565,7 +5563,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Check ThisExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0238() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0238", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -5576,7 +5573,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
 		assertTrue("Not a type declaration statement", node instanceof TypeDeclarationStatement); //$NON-NLS-1$
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) node;
-		TypeDeclaration typeDecl = typeDeclarationStatement.getTypeDeclaration();
+		TypeDeclaration typeDecl = (TypeDeclaration) typeDeclarationStatement.getDeclaration();
 		Object o = typeDecl.bodyDeclarations().get(0);
 		assertTrue("Not a method", o instanceof MethodDeclaration); //$NON-NLS-1$
 		MethodDeclaration methodDecl = (MethodDeclaration) o;
@@ -5601,7 +5598,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Check ThisExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0239() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0239", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -5611,7 +5607,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		ASTNode node = getASTNode((CompilationUnit) result, 1, 0, 0);
 		assertTrue("Not a type declaration statement", node instanceof TypeDeclarationStatement); //$NON-NLS-1$
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) node;
-		TypeDeclaration typeDecl = typeDeclarationStatement.getTypeDeclaration();
+		TypeDeclaration typeDecl = (TypeDeclaration) typeDeclarationStatement.getDeclaration();
 		Object o = typeDecl.bodyDeclarations().get(0);
 		assertTrue("Not a method", o instanceof MethodDeclaration); //$NON-NLS-1$
 		MethodDeclaration methodDecl = (MethodDeclaration) o;
@@ -5640,7 +5636,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Check FieldAccess
-	 * @deprecated using deprecated code
 	 */
 	public void test0240() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0240", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -5650,7 +5645,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
 		assertTrue("Not a type declaration statement", node instanceof TypeDeclarationStatement); //$NON-NLS-1$
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) node;
-		TypeDeclaration typeDecl = typeDeclarationStatement.getTypeDeclaration();
+		TypeDeclaration typeDecl = (TypeDeclaration) typeDeclarationStatement.getDeclaration();
 		Object o = typeDecl.bodyDeclarations().get(0);
 		assertTrue("Not a method", o instanceof MethodDeclaration); //$NON-NLS-1$
 		MethodDeclaration methodDecl = (MethodDeclaration) o;
@@ -5718,7 +5713,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Check ThisExpression
-	 * @deprecated using deprecated code
 	 */
 	public void test0242() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0242", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -5728,7 +5722,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		ASTNode node = getASTNode((CompilationUnit) result, 1, 0, 0);
 		assertTrue("Not a type declaration statement", node instanceof TypeDeclarationStatement); //$NON-NLS-1$
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) node;
-		TypeDeclaration typeDecl = typeDeclarationStatement.getTypeDeclaration();
+		TypeDeclaration typeDecl = (TypeDeclaration) typeDeclarationStatement.getDeclaration();
 		Object o = typeDecl.bodyDeclarations().get(0);
 		assertTrue("Not a method", o instanceof MethodDeclaration); //$NON-NLS-1$
 		MethodDeclaration methodDecl = (MethodDeclaration) o;

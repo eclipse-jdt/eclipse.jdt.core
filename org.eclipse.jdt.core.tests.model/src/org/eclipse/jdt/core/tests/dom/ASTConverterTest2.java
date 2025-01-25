@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2936,7 +2936,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 		// 'B' in 'foo()'
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) getASTNode(unit, 0, 1, 3);
-		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		AbstractTypeDeclaration typeDeclaration = typeDeclarationStatement.getDeclaration();
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		assertEquals("Unexpected key", "Ltest0502/A$206$B;", typeBinding.getKey()); //$NON-NLS-1$
 	}
@@ -2958,7 +2958,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46013
-	 * @deprecated using deprecated code
 	 */
 	public void test0502i() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -2966,7 +2965,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 		// 'field' in 'B' in 'foo()'
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) getASTNode(unit, 0, 1, 3);
-		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		TypeDeclaration typeDeclaration = (TypeDeclaration) typeDeclarationStatement.getDeclaration();
 		FieldDeclaration fieldDeclaration = typeDeclaration.getFields()[0];
 		VariableDeclarationFragment fragment = (VariableDeclarationFragment) fieldDeclaration.fragments().get(0);
 		IVariableBinding fieldBinding = fragment.resolveBinding();
@@ -2975,7 +2974,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46013
-	 * @deprecated using deprecated code
 	 */
 	public void test0502j() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -2983,7 +2981,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 		// 'bar()' in 'B' in 'foo()'
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) getASTNode(unit, 0, 1, 3);
-		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		TypeDeclaration typeDeclaration = (TypeDeclaration) typeDeclarationStatement.getDeclaration();
 		MethodDeclaration methodDeclaration = typeDeclaration.getMethods()[0];
 		IMethodBinding methodBinding = methodDeclaration.resolveBinding();
 		assertEquals("Unexpected key", "Ltest0502/A$206$B;.bar()V", methodBinding.getKey()); //$NON-NLS-1$
@@ -3017,7 +3015,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46057
-	 * @deprecated using deprecated code
 	 */
 	public void test0503c() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -3025,7 +3022,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 		// local type E in foo() in A
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) getASTNode(unit, 0, 1, 0);
-		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		TypeDeclaration typeDeclaration = (TypeDeclaration) typeDeclarationStatement.getDeclaration();
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		assertEquals("Unexpected binary name", "test0503.A$1E", typeBinding.getBinaryName()); //$NON-NLS-1$
 	}
@@ -3063,7 +3060,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46057
-	 * @deprecated using deprecated code
 	 */
 	public void test0503f() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -3072,7 +3068,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		// local type C in bar() in B in A
 		MethodDeclaration method = (MethodDeclaration) getASTNode(unit, 0, 0, 0);
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) method.getBody().statements().get(0);
-		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		TypeDeclaration typeDeclaration = (TypeDeclaration) typeDeclarationStatement.getDeclaration();
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		assertEquals("Unexpected binary name", "test0503.A$B$1C", typeBinding.getBinaryName()); //$NON-NLS-1$
 	}
@@ -3112,7 +3108,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 	/**
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=46057
-	 * @deprecated using deprecated code
 	 */
 	public void test0503i() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -3122,7 +3117,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		IfStatement ifStatement = (IfStatement) getASTNode(unit, 0, 1, 2);
 		Block block = (Block)ifStatement.getThenStatement();
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) block.statements().get(0);
-		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		TypeDeclaration typeDeclaration = (TypeDeclaration) typeDeclarationStatement.getDeclaration();
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		assertEquals("Unexpected binary name", null, typeBinding.getBinaryName()); //$NON-NLS-1$
 	}
@@ -4717,7 +4712,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=60078
-	 * @deprecated using deprecated code
 	 */
 	public void test0547() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0547", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4727,7 +4721,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertEquals("not a type declaration statement", ASTNode.TYPE_DECLARATION_STATEMENT, node.getNodeType()); //$NON-NLS-1$
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) node;
-		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		TypeDeclaration typeDeclaration = (TypeDeclaration) typeDeclarationStatement.getDeclaration();
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
 		assertEquals("Wrong key", "Ltest0547/A$74$Local;", typeBinding.getKey());
 
@@ -5188,7 +5182,6 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=74369
-	 * @deprecated using deprecated code
 	 */
 	public void test0569() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0569", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -5200,7 +5193,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode node = getASTNode(unit, 0, 0, 1);
 		assertEquals("not a type declaration statement", ASTNode.TYPE_DECLARATION_STATEMENT, node.getNodeType()); //$NON-NLS-1$
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) node;
-		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
+		TypeDeclaration typeDeclaration = (TypeDeclaration) typeDeclarationStatement.getDeclaration();
 		assertEquals("wrong name", "Local", typeDeclaration.getName().getIdentifier());
 		assertNull("Got a javadoc", typeDeclaration.getJavadoc());
 		node = getASTNode(unit, 0);
