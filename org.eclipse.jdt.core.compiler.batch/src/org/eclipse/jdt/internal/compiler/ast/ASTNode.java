@@ -58,6 +58,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationPosition;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -460,12 +461,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public ASTNode concreteStatement() {
 		return this;
 	}
-	private void reportPreviewAPI(Scope scope, long modifiers) {
-		if (scope.compilerOptions().enablePreviewFeatures)
-			return;
-		if((modifiers & TagBits.AnnotationPreviewFeature) == TagBits.AnnotationPreviewFeature) {
-			scope.problemReporter().previewAPIUsed(this.sourceStart, this.sourceEnd,
-					(modifiers & TagBits.EssentialAPI) != 0);
+	private void reportPreviewAPI(Scope scope, IBinaryAnnotation previewAnnotation) {
+		if(previewAnnotation != null) {
+			scope.problemReporter().previewAPIUsed(scope, this.sourceStart, this.sourceEnd, previewAnnotation);
 		}
 	}
 	public final boolean isFieldUseDeprecated(FieldBinding field, Scope scope, int filteredBits) {
@@ -480,7 +478,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			else
 				field.original().modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 		}
-		reportPreviewAPI(scope, field.tagBits);
+		reportPreviewAPI(scope, field.binaryPreviewAnnotation);
 
 		if ((field.modifiers & ExtraCompilerModifiers.AccRestrictedAccess) != 0) {
 			ModuleBinding module = field.declaringClass.module();
@@ -520,7 +518,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final boolean isMethodUseDeprecated(MethodBinding method, Scope scope,
 			boolean isExplicitUse, InvocationSite invocation) {
 
-		reportPreviewAPI(scope, method.tagBits);
+		reportPreviewAPI(scope, method.binaryPreviewAnnotation);
 
 		// ignore references insing Javadoc comments
 		if ((this.bits & ASTNode.InsideJavadoc) == 0 && method.isOrEnclosedByPrivateType() && !scope.isDefinedInMethod(method)) {
@@ -601,7 +599,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			// ignore cases where type is used from inside itself
 			((ReferenceBinding)refType.erasure()).modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 		}
-		reportPreviewAPI(scope, type.extendedTagBits);
+		if (type instanceof BinaryTypeBinding btb) {
+			reportPreviewAPI(scope, btb.binaryPreviewAnnotation);
+		}
 		if (refType.hasRestrictedAccess()) {
 			ModuleBinding module = refType.module();
 			LookupEnvironment env = (module == null) ? scope.environment() : module.environment;
