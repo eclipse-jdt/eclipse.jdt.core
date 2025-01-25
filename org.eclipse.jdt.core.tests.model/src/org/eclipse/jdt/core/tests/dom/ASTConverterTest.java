@@ -2991,7 +2991,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Check javadoc for MethodDeclaration
-	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0132() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0132", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -3002,8 +3001,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertTrue("The node is not a MethodDeclaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((MethodDeclaration) node).getJavadoc();
 		Javadoc javadoc = this.ast.newJavadoc();
-		javadoc.setComment("/** JavaDoc Comment*/");//$NON-NLS-1$*/
-		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(), actualJavadoc));//$NON-NLS-1$
+		TagElement te = this.ast.newTagElement();
+		TextElement text = this.ast.newTextElement();
+		text.setText("JavaDoc Comment");//$NON-NLS-1$*/
+		te.fragments().add(text);
+		javadoc.tags().add(te);
+		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(true), actualJavadoc));//$NON-NLS-1$
 		checkSourceRange(node, "/** JavaDoc Comment*/\n  void foo(final int i) {}", source); //$NON-NLS-1$
 		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source); //$NON-NLS-1$
 	}
@@ -3040,7 +3043,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Check javadoc for FieldDeclaration
-	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0135() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0135", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -3051,8 +3053,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertTrue("The node is not a FieldDeclaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((FieldDeclaration) node).getJavadoc();
 		Javadoc javadoc = this.ast.newJavadoc();
-		javadoc.setComment("/** JavaDoc Comment*/");//$NON-NLS-1$*/
-		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(), actualJavadoc));//$NON-NLS-1$
+		TagElement te = this.ast.newTagElement();
+		TextElement text = this.ast.newTextElement();
+		text.setText("JavaDoc Comment");//$NON-NLS-1$ */
+		te.fragments().add(text);
+		javadoc.tags().add(te);
+		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(true), actualJavadoc));//$NON-NLS-1$
 		checkSourceRange(node, "/** JavaDoc Comment*/\n  int i;", source); //$NON-NLS-1$
 	}
 
@@ -3124,7 +3130,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Check javadoc for TypeDeclaration
-	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0140() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0140", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -3135,8 +3140,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		Javadoc javadoc = this.ast.newJavadoc();
-		javadoc.setComment("/** JavaDoc Comment*/");//$NON-NLS-1$*/
-		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(), actualJavadoc));//$NON-NLS-1$
+		TagElement te = this.ast.newTagElement();
+		TextElement text = this.ast.newTextElement();
+		text.setText("JavaDoc Comment");//$NON-NLS-1$ */
+		te.fragments().add(text);
+		javadoc.tags().add(te);
+		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(true), actualJavadoc));//$NON-NLS-1$
 		String expectedContents =
 			 "/** JavaDoc Comment*/\n" + //$NON-NLS-1$
 			"public class Test {\n" +//$NON-NLS-1$
@@ -3148,7 +3157,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Check javadoc for MemberTypeDeclaration
-	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0141() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0141", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -3159,8 +3167,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		Javadoc javadoc = this.ast.newJavadoc();
-		javadoc.setComment("/** JavaDoc Comment*/");//$NON-NLS-1$*/
-		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(), actualJavadoc));//$NON-NLS-1$
+		TagElement te = this.ast.newTagElement();
+		TextElement text = this.ast.newTextElement();
+		text.setText("JavaDoc Comment"); //$NON-NLS-1$ */
+		te.fragments().add(text);
+		javadoc.tags().add(te);
+		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(true), actualJavadoc));//$NON-NLS-1$
 		String expectedContents =
 			 "/** JavaDoc Comment*/\n" + //$NON-NLS-1$
 			 "  class B {}";//$NON-NLS-1$
@@ -3239,7 +3251,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Checking initializers
-	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0147() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0147", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -3250,8 +3261,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 		Javadoc actualJavadoc = ((Initializer) node).getJavadoc();
 		assertNotNull("Javadoc comment should no be null", actualJavadoc); //$NON-NLS-1$
 		Javadoc javadoc = this.ast.newJavadoc();
-		javadoc.setComment("/** JavaDoc Comment*/");//$NON-NLS-1$*/
-		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(), actualJavadoc));//$NON-NLS-1$
+		TagElement te = this.ast.newTagElement();
+		TextElement text = this.ast.newTextElement();
+		text.setText("JavaDoc Comment"); //$NON-NLS-1$ */
+		te.fragments().add(text);
+		javadoc.tags().add(te);
+		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(true), actualJavadoc));//$NON-NLS-1$
 		String expectedContents =
 			 "/** JavaDoc Comment*/\n" + //$NON-NLS-1$
 			 "  static {}";//$NON-NLS-1$
@@ -3262,7 +3277,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Checking initializers
-	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0148() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0148", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -3273,8 +3287,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 		Javadoc actualJavadoc = ((Initializer) node).getJavadoc();
 		assertNotNull("Javadoc comment should not be null", actualJavadoc); //$NON-NLS-1$
 		Javadoc javadoc = this.ast.newJavadoc();
-		javadoc.setComment("/** JavaDoc Comment*/");//$NON-NLS-1$*/
-		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(), actualJavadoc));//$NON-NLS-1$
+		TagElement te = this.ast.newTagElement();
+		TextElement text = this.ast.newTextElement();
+		text.setText("JavaDoc Comment"); //$NON-NLS-1$ */
+		te.fragments().add(text);
+		javadoc.tags().add(te);
+		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(true), actualJavadoc));//$NON-NLS-1$
 		String expectedContents =
 			 "/** JavaDoc Comment*/\n" + //$NON-NLS-1$
 			 "  {}";//$NON-NLS-1$
@@ -4877,7 +4895,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Check javadoc for MethodDeclaration
-	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0207() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0207", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4888,8 +4905,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertTrue("The node is not a MethodDeclaration", node instanceof MethodDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((MethodDeclaration) node).getJavadoc();
 		Javadoc javadoc = this.ast.newJavadoc();
-		javadoc.setComment("/** JavaDoc Comment*/");//$NON-NLS-1$*/
-		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(), actualJavadoc));//$NON-NLS-1$
+		TagElement te = this.ast.newTagElement();
+		TextElement text = this.ast.newTextElement();
+		text.setText("JavaDoc Comment");//$NON-NLS-1$ */
+		te.fragments().add(text);
+		javadoc.tags().add(te);
+		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(true), actualJavadoc));//$NON-NLS-1$
 		checkSourceRange(node, "/** JavaDoc Comment*/\n  void foo(final int i) {}", source); //$NON-NLS-1$
 		checkSourceRange(actualJavadoc, "/** JavaDoc Comment*/", source); //$NON-NLS-1$
 	}
@@ -4926,7 +4947,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Check javadoc for FieldDeclaration
-	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0210() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0210", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -4937,8 +4957,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertTrue("The node is not a FieldDeclaration", node instanceof FieldDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((FieldDeclaration) node).getJavadoc();
 		Javadoc javadoc = this.ast.newJavadoc();
-		javadoc.setComment("/** JavaDoc Comment*/");//$NON-NLS-1$*/
-		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(), actualJavadoc));//$NON-NLS-1$
+		TagElement te = this.ast.newTagElement();
+		TextElement text = this.ast.newTextElement();
+		text.setText("JavaDoc Comment");//$NON-NLS-1$ */
+		te.fragments().add(text);
+		javadoc.tags().add(te);
+		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(true), actualJavadoc));//$NON-NLS-1$
 		checkSourceRange(node, "/** JavaDoc Comment*/\n  int i;", source); //$NON-NLS-1$
 	}
 
@@ -5010,7 +5034,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Check javadoc for TypeDeclaration
-	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0215() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0215", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -5021,8 +5044,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		Javadoc javadoc = this.ast.newJavadoc();
-		javadoc.setComment("/** JavaDoc Comment*/");//$NON-NLS-1$*/
-		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(), actualJavadoc));//$NON-NLS-1$
+		TagElement te = this.ast.newTagElement();
+		TextElement text = this.ast.newTextElement();
+		text.setText("JavaDoc Comment");//$NON-NLS-1$ */
+		te.fragments().add(text);
+		javadoc.tags().add(te);
+		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(true), actualJavadoc));//$NON-NLS-1$
 		String expectedContents =
 			 "/** JavaDoc Comment*/\n" + //$NON-NLS-1$
 			"public class Test {\n" +//$NON-NLS-1$
@@ -5034,7 +5061,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Check javadoc for MemberTypeDeclaration
-	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0216() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0216", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -5045,8 +5071,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertTrue("The node is not a TypeDeclaration", node instanceof TypeDeclaration); //$NON-NLS-1$
 		Javadoc actualJavadoc = ((TypeDeclaration) node).getJavadoc();
 		Javadoc javadoc = this.ast.newJavadoc();
-		javadoc.setComment("/** JavaDoc Comment*/");//$NON-NLS-1$*/
-		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(), actualJavadoc));//$NON-NLS-1$
+		TagElement te = this.ast.newTagElement();
+		TextElement text = this.ast.newTextElement();
+		text.setText("JavaDoc Comment");//$NON-NLS-1$ */
+		te.fragments().add(text);
+		javadoc.tags().add(te);
+		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(true), actualJavadoc));//$NON-NLS-1$
 		String expectedContents =
 			 "/** JavaDoc Comment*/\n" + //$NON-NLS-1$
 			 "  class B {}";//$NON-NLS-1$
@@ -5125,7 +5155,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Checking initializers
-	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0222() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0222", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -5136,8 +5165,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 		Javadoc actualJavadoc = ((Initializer) node).getJavadoc();
 		assertNotNull("Javadoc comment should no be null", actualJavadoc); //$NON-NLS-1$
 		Javadoc javadoc = this.ast.newJavadoc();
-		javadoc.setComment("/** JavaDoc Comment*/");//$NON-NLS-1$*/
-		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(), actualJavadoc));//$NON-NLS-1$
+		TagElement te = this.ast.newTagElement();
+		TextElement text = this.ast.newTextElement();
+		text.setText("JavaDoc Comment");//$NON-NLS-1$*/
+		te.fragments().add(text);
+		javadoc.tags().add(te);
+		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(true), actualJavadoc));//$NON-NLS-1$
 		String expectedContents =
 			 "/** JavaDoc Comment*/\n" + //$NON-NLS-1$
 			 "  static {}";//$NON-NLS-1$
@@ -5148,7 +5181,6 @@ public class ASTConverterTest extends ConverterTestSetup {
 
 	/**
 	 * Checking initializers
-	 * @deprecated marking deprecated since using deprecated code
 	 */
 	public void test0223() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0223", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -5159,8 +5191,12 @@ public class ASTConverterTest extends ConverterTestSetup {
 		Javadoc actualJavadoc = ((Initializer) node).getJavadoc();
 		assertNotNull("Javadoc comment should not be null", actualJavadoc); //$NON-NLS-1$
 		Javadoc javadoc = this.ast.newJavadoc();
-		javadoc.setComment("/** JavaDoc Comment*/");//$NON-NLS-1$*/
-		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(), actualJavadoc));//$NON-NLS-1$
+		TagElement te = this.ast.newTagElement();
+		TextElement text = this.ast.newTextElement();
+		text.setText("JavaDoc Comment");//$NON-NLS-1$*/
+		te.fragments().add(text);
+		javadoc.tags().add(te);
+		assertTrue("Both AST trees should be identical", javadoc.subtreeMatch(new ASTMatcher(true), actualJavadoc));//$NON-NLS-1$
 		String expectedContents =
 			 "/** JavaDoc Comment*/\n" + //$NON-NLS-1$
 			 "  {}";//$NON-NLS-1$
