@@ -125,10 +125,20 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 					"	^^^^\n" +
 					"Zork cannot be resolved to a type\n" +
 					"----------\n" +
-					"2. WARNING in X.java (at line 6)\n" +
+					"2. ERROR in X.java (at line 4)\n" +
+					"	ABC abc = null;\n" +
+					"	^^^\n" +
+					"This API is part of the preview feature \'Test Feature\' which is disabled by default. Use --enable-preview to enable\n" +
+					"----------\n" +
+					"3. ERROR in X.java (at line 6)\n" +
 					"	(new ABC()).doSomething();\n" +
 					"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-					"You are using an API that is part of a preview feature and may be removed in future\n" +
+					"This API is part of the preview feature \'Test Feature\' which is disabled by default. Use --enable-preview to enable\n" +
+					"----------\n" +
+					"4. ERROR in X.java (at line 6)\n" +
+					"	(new ABC()).doSomething();\n" +
+					"	     ^^^\n" +
+					"This API is part of the preview feature \'Test Feature\' which is disabled by default. Use --enable-preview to enable\n" +
 					"----------\n",
 					classLibs,
 					true,
@@ -167,6 +177,21 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 					"	Zork z = null;\n" +
 					"	^^^^\n" +
 					"Zork cannot be resolved to a type\n" +
+					"----------\n" +
+					"2. ERROR in X.java (at line 5)\n" +
+					"	ABC abc = null;\n" +
+					"	^^^\n" +
+					"This API is part of the preview feature \'Test Feature\' which is disabled by default. Use --enable-preview to enable\n" +
+					"----------\n" +
+					"3. ERROR in X.java (at line 7)\n" +
+					"	(new ABC()).doSomething();\n" +
+					"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+					"This API is part of the preview feature \'Test Feature\' which is disabled by default. Use --enable-preview to enable\n" +
+					"----------\n" +
+					"4. ERROR in X.java (at line 7)\n" +
+					"	(new ABC()).doSomething();\n" +
+					"	     ^^^\n" +
+					"This API is part of the preview feature \'Test Feature\' which is disabled by default. Use --enable-preview to enable\n" +
 					"----------\n",
 					classLibs,
 					true,
@@ -203,6 +228,21 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 					"	Zork z = null;\n" +
 					"	^^^^\n" +
 					"Zork cannot be resolved to a type\n" +
+					"----------\n" +
+					"2. WARNING in X.java (at line 4)\n" +
+					"	ABC abc = null;\n" +
+					"	^^^\n" +
+					"You are using an API that is part of the preview feature 'Test Feature' and may be removed in future\n" +
+					"----------\n" +
+					"3. WARNING in X.java (at line 6)\n" +
+					"	(new ABC()).doSomething();\n" +
+					"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+					"You are using an API that is part of the preview feature 'Test Feature' and may be removed in future\n" +
+					"----------\n" +
+					"4. WARNING in X.java (at line 6)\n" +
+					"	(new ABC()).doSomething();\n" +
+					"	     ^^^\n" +
+					"You are using an API that is part of the preview feature 'Test Feature' and may be removed in future\n" +
 					"----------\n",
 					classLibs,
 					true,

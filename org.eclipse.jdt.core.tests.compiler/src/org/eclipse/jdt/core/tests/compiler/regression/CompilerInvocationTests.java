@@ -1253,6 +1253,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("PreviewFeaturesNotAllowed", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("FeatureNotSupported", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
 	    expectedProblemAttributes.put("PreviewAPIUsed", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
+	    expectedProblemAttributes.put("PreviewAPIDisabled", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
 	    expectedProblemAttributes.put("JavaVersionNotSupported", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
 	    expectedProblemAttributes.put("JavaVersionTooRecent", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
 	    expectedProblemAttributes.put("SwitchExpressionsYieldIncompatibleResultExpressionTypes", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -2395,6 +2396,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("PreviewFeaturesNotAllowed", SKIP);
 	    expectedProblemAttributes.put("FeatureNotSupported", SKIP);
 	    expectedProblemAttributes.put("PreviewAPIUsed", SKIP);
+	    expectedProblemAttributes.put("PreviewAPIDisabled", SKIP);
 	    expectedProblemAttributes.put("JavaVersionNotSupported", SKIP);
 	    expectedProblemAttributes.put("JavaVersionTooRecent", SKIP);
 	    expectedProblemAttributes.put("SwitchExpressionsYieldIncompatibleResultExpressionTypes", SKIP);

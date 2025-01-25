@@ -263,6 +263,7 @@ public static Test suite() {
 	 since_24.add(ImplicitlyDeclaredClassesTest.class);
 	 since_24.add(PrimitiveInPatternsTest.class);
 	 since_24.add(PrimitiveInPatternsTestSH.class);
+	 since_24.add(PreviewFlagTest.class);
 	 // Add new tests for Java 24 here and/or move preview tests being moved from 23 to 24
 
 	 // Build final test suite
