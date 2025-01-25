@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -4895,11 +4895,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		previousCount = this.ast.modificationCount();
 		assertTrue(x.getAST() == this.ast);
 		assertTrue(x.getParent() == null);
-		if (this.ast.apiLevel() == AST.JLS2) {
-			assertTrue(x.getTypeDeclaration() == x1);
-		} else {
-			assertTrue(x.getDeclaration() == x1);
-		}
+		assertTrue(x.getDeclaration() == x1);
 		assertTrue(x1.getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.TYPE_DECLARATION_STATEMENT);
 		assertTrue(x.structuralPropertiesForType() ==
@@ -4942,7 +4938,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				}
 				@Override
 				public ASTNode get() {
-					return x.getTypeDeclaration();
+					return x.getDeclaration();
 				}
 				@Override
 				public void set(ASTNode value) {

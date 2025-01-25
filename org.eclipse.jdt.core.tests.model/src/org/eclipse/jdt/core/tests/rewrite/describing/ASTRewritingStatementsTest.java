@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -5698,8 +5698,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		}
 	}
 
-	/** @deprecated using deprecated code */
-	public void testTypeDeclarationStatement_only_2() throws Exception {
+	public void testTypeDeclarationStatement() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
@@ -5730,7 +5729,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			newDeclaration.setName(ast.newSimpleName("X"));
 			newDeclaration.setInterface(true);
 
-			rewrite.replace(stmt.getTypeDeclaration(), newDeclaration, null);
+			rewrite.replace(stmt.getDeclaration(), newDeclaration, null);
 		}
 
 		String preview= evaluateRewrite(cu, rewrite);
