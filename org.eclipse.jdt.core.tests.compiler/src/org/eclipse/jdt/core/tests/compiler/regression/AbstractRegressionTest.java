@@ -1510,7 +1510,9 @@ protected static class JavacTestOptions {
 
 	protected static void verifyClassFile(String expectedOutput, String unexpectedOutput, String classFileName, int mode)
 			throws IOException, ClassFormatException {
-		File f = new File(OUTPUT_DIR + File.separator + classFileName);
+		if (!classFileName.startsWith(OUTPUT_DIR))
+			classFileName = OUTPUT_DIR + File.separator + classFileName;
+		File f = new File(classFileName);
 		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 		String result = disassembler.disassemble(classFileBytes, "\n", mode);
