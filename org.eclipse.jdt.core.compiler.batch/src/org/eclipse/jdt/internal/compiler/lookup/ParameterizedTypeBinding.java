@@ -1551,11 +1551,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#superInterfaces()
 	 */
 	@Override
-	public ReferenceBinding[] superInterfaces() {
-	    if (this.superInterfaces == null) {
+	protected ReferenceBinding[] superInterfacesRecursive(Map<ReferenceBinding, Object> visited) {
+		// TODO (visjee) protect from duplicated calls
+	    if (this.superInterfaces == null && visited.put(this, this) == null) {
     		if (this.type.isHierarchyBeingConnected())
     			return Binding.NO_SUPERINTERFACES; // prevent superinterfaces from being assigned before they are connected
-    		this.superInterfaces = Scope.substitute(this, this.type.superInterfaces());
+    		this.superInterfaces = Scope.substitute(this, this.type.superInterfacesRecursive(visited));
     		if (this.superInterfaces != null) {
 	    		for (int i = this.superInterfaces.length; --i >= 0;) {
 	    			this.typeBits |= (this.superInterfaces[i].typeBits & TypeIds.InheritableBits);

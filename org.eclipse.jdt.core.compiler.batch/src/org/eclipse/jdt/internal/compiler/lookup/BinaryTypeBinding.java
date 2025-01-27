@@ -2524,10 +2524,12 @@ private void detectCircularHierarchy() {
 
 // NOTE: superInterfaces of binary types are resolved when needed
 @Override
-public ReferenceBinding[] superInterfaces() {
-
+protected ReferenceBinding[] superInterfacesRecursive(Map<ReferenceBinding, Object> visited) {
+	if (visited.put(this, this) != null) { // do not evaluate the same type twice
+		return this.superInterfaces;
+	}
 	if (!isPrototype()) {
-		return this.superInterfaces = this.prototype.superInterfaces();
+		return this.superInterfaces = this.prototype.superInterfacesRecursive(visited); // TODO (visjee) protect from duplicated calls
 	}
 	if ((this.tagBits & TagBits.HasUnresolvedSuperinterfaces) == 0)
 		return this.superInterfaces;
@@ -2541,7 +2543,7 @@ public ReferenceBinding[] superInterfaces() {
 			boolean wasToleratingMissingTypeProcessingAnnotations = this.environment.mayTolerateMissingType;
 			this.environment.mayTolerateMissingType = true; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=360164
 			try {
-				this.superInterfaces[i].superclass();
+				this.superInterfaces[i].superclass(); // TODO (visjee) do I need to prevent duplicated calls here too? Probably NOT.
 				if (this.superInterfaces[i].isParameterizedType()) {
 					ReferenceBinding superType = this.superInterfaces[i].actualType();
 					if (TypeBinding.equalsEquals(superType, this)) {
@@ -2549,7 +2551,7 @@ public ReferenceBinding[] superInterfaces() {
 						continue;
 					}
 				}
-				this.superInterfaces[i].superInterfaces();
+				this.superInterfaces[i].superInterfacesRecursive(visited); // TODO (visjee) protect from duplicated calls
 			} finally {
 				this.environment.mayTolerateMissingType = wasToleratingMissingTypeProcessingAnnotations;
 			}

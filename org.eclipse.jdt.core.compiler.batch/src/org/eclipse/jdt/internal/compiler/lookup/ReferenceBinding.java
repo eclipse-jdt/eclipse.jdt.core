@@ -57,6 +57,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -2098,7 +2099,11 @@ public ReferenceBinding superclass() {
 }
 
 @Override
-public ReferenceBinding[] superInterfaces() {
+public final ReferenceBinding[] superInterfaces() {
+	return superInterfacesRecursive(new IdentityHashMap<>());
+}
+
+protected ReferenceBinding[] superInterfacesRecursive(Map<ReferenceBinding, Object> visited) {
 	return Binding.NO_SUPERINTERFACES;
 }
 

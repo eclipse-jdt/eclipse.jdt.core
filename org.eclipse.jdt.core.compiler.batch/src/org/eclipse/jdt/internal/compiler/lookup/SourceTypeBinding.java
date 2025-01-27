@@ -3178,9 +3178,9 @@ public ReferenceBinding superclass() {
 }
 
 @Override
-public ReferenceBinding[] superInterfaces() {
-	if (!isPrototype())
-		return this.superInterfaces = this.prototype.superInterfaces();
+protected ReferenceBinding[] superInterfacesRecursive(Map<ReferenceBinding, Object> visited) {
+	if (!isPrototype() && visited.put(this, this) == null)
+		return this.superInterfaces = this.prototype.superInterfacesRecursive(visited); // TODO (visjee) protect from duplicated calls
 	return this.superInterfaces != null ? this.superInterfaces : isAnnotationType() ? this.superInterfaces = new ReferenceBinding [] { this.scope.getJavaLangAnnotationAnnotation() } : null;
 }
 
