@@ -1389,7 +1389,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					final int typeMatchRule = this.toComplete.getParent() instanceof Annotation
 							? IJavaSearchConstants.ANNOTATION_TYPE
 							: IJavaSearchConstants.TYPE;
-					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF) && completionContext.getExpectedTypesSignatures() != null) {
+					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)
+							&& (completionContext.getExpectedTypesSignatures() != null || extendsOrImplementsInfo != null)) {
 						findTypes(completeAfter, typeMatchRule, null)
 							.filter(type -> {
 								return defaultCompletionBindings.all().map(typeBinding -> typeBinding.getJavaElement()).noneMatch(elt -> type.equals(elt));
@@ -1791,6 +1792,22 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					|| (toFilter.getFlags() & Flags.AccFinal) != 0
 					|| typeDeclaration.resolveBinding().getKey().equals(toFilter.getKey())) {
 				return false;
+			}
+			if (toFilter.isEnum() || toFilter.isRecord()) {
+				// cannot extend or implement
+				return false;
+			}
+			if (toFilter.isSealed()) {
+				String currentTypeName = info.typeDecl.getName().toString();
+				boolean permitted = false;
+				for (var elt : toFilter.getPermittedSubtypeNames()) {
+					if (elt.equals(currentTypeName)) {
+						permitted = true;
+					}
+				}
+				if (!permitted) {
+					return false;
+				}
 			}
 			if (typeDeclaration.isInterface()
 					// in an interface extends clause, we should rule out non-interfaces
