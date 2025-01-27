@@ -525,6 +525,10 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				context = tagElement;
 			}
 			this.prefix = token == null ? new String() : new String(token);
+			if (this.toComplete instanceof MethodInvocation methodInvocation && this.offset == (methodInvocation.getName().getStartPosition() + methodInvocation.getName().getLength()) + 1) {
+				// myMethod(|)
+				this.prefix = methodInvocation.getName().toString();
+			}
 			this.qualifiedPrefix = this.prefix;
 			if (this.toComplete instanceof QualifiedName qualifiedName) {
 				this.qualifiedPrefix = qualifiedName.getQualifier().toString();
@@ -598,18 +602,24 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					}
 					suggestDefaultCompletions = false;
 				} else {
-					// args
+					// inside parens, but not on any specific argument
 					IMethodBinding methodBinding = invocation.resolveMethodBinding();
 					if (methodBinding == null && this.toComplete == invocation) {
 						// myMethod(|), where myMethod does not exist
 						suggestDefaultCompletions = false;
-					} else {
+					} else if (this.toComplete == invocation) {
 						for (ITypeBinding param : this.expectedTypes.getExpectedTypes()) {
 							IMethodBinding potentialLambda = param.getFunctionalInterfaceMethod();
 							if (potentialLambda != null) {
 								this.requestor.accept(createLambdaExpressionProposal(potentialLambda));
 							}
 						}
+						CompletionProposal proposal = toProposal(methodBinding);
+						proposal.setCompletion(new char[0]);
+						proposal.setReplaceRange(this.offset, this.offset);
+						proposal.setTokenRange(this.offset, this.offset);
+						this.requestor.accept(proposal);
+						suggestDefaultCompletions = false;
 					}
 				}
 			}
