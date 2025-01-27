@@ -17,6 +17,6 @@ Require-Bundle: org.junit,
  org.eclipse.ui.ide
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: %providerName
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Eclipse-BundleShape: dir
 Automatic-Module-Name: org.eclipse.jdt.apt.pluggable.tests
