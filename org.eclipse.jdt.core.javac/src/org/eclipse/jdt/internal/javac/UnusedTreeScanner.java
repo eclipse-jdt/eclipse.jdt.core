@@ -199,6 +199,9 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 			if (isPrivateSymbol(targetClass)) {
 				this.usedElements.add(targetClass);
 			}
+			if( newClass.constructor != null ) {
+				this.usedElements.add(newClass.constructor);
+			}
 		}
 
 		return super.visitNewClass(node, p);
