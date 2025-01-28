@@ -3357,6 +3357,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			setRange(keywordProposal);
 		} else {
 			keywordProposal.setReplaceRange(startPos, endPos);
+			keywordProposal.setTokenRange(startPos, endPos);
 		}
 		keywordProposal.setRelevance(relevance);
 		return keywordProposal;
