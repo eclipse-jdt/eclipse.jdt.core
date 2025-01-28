@@ -259,33 +259,27 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		}
 
 		if (node instanceof Block block && node.getStartPosition() + node.getLength() > this.offset) {
-			// TODO: handle negative if statements eg.
-			// if (!(node instanceof IfStatement ifStatement))
-			//   return;
-			// ifState|
-			var bindings = ((List<Statement>) block.statements()).stream()
-					.filter(statement -> statement.getStartPosition() < this.offset)
-					.filter(VariableDeclarationStatement.class::isInstance)
-					.map(VariableDeclarationStatement.class::cast)
-					.flatMap(decl -> ((List<VariableDeclarationFragment>)decl.fragments()).stream())
-					.filter(frag -> !FAKE_IDENTIFIER.equals(frag.getName().toString()))
-					.map(VariableDeclarationFragment::resolveBinding)
-					.toList();
-			visibleBindings.addAll(bindings);
 			for (Statement statement : ((List<Statement>)block.statements())) {
-				if (statement.getStartPosition() >= this.offset || statement.getStartPosition() + statement.getLength() >= this.offset) {
+				if (statement.getStartPosition() + statement.getLength() >= this.offset) {
 					break;
 				}
 				if (statement instanceof IfStatement ifStatement && ifStatement.getElseStatement() == null) {
 					visibleBindings.addAll(collectTrueFalseBindings(ifStatement.getExpression()).falseBindings());
 				} else if (statement instanceof ForStatement forStatement && forStatement.getExpression() != null) {
 					visibleBindings.addAll(collectTrueFalseBindings(forStatement.getExpression()).falseBindings());
+				} else if (statement instanceof VariableDeclarationStatement variableDeclarationStatement) {
+					for (var fragment : (List<VariableDeclarationFragment>)variableDeclarationStatement.fragments()) {
+						if (!FAKE_IDENTIFIER.equals(fragment.getName().toString())) {
+							visibleBindings.add(fragment.resolveBinding());
+						}
+					}
 				}
-
 			}
 		}
 
-		if (node.getParent() instanceof IfStatement ifStatement && node.getStartPosition() + node.getLength() > this.offset) {
+		if (node.getParent() instanceof IfStatement ifStatement
+				&& (node.getStartPosition() + node.getLength() > this.offset
+				|| ifStatement.getThenStatement() == node || ifStatement.getElseStatement() == node)) {
 			TrueFalseBindings trueFalseBindings = collectTrueFalseBindings(ifStatement.getExpression());
 			if (ifStatement.getThenStatement() == node) {
 				visibleBindings.addAll(trueFalseBindings.trueBindings());
@@ -294,7 +288,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			}
 		}
 
-		if (node.getParent() instanceof ForStatement forStatement && node.getStartPosition() + node.getLength() > this.offset) {
+		if (node.getParent() instanceof ForStatement forStatement
+				&& (node.getStartPosition() + node.getLength() > this.offset
+						|| forStatement.getBody() == node)) {
 			if (forStatement.getExpression() != null) {
 				TrueFalseBindings trueFalseBindings = collectTrueFalseBindings(forStatement.getExpression());
 				visibleBindings.addAll(trueFalseBindings.trueBindings());
@@ -308,7 +304,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			}
 		}
 
-		if (node.getParent() instanceof EnhancedForStatement foreachStatement && node.getStartPosition() + node.getLength() > this.offset) {
+		if (node.getParent() instanceof EnhancedForStatement foreachStatement
+				&& (node.getStartPosition() + node.getLength() > this.offset
+						|| foreachStatement.getBody() == node)) {
 			visibleBindings.add(foreachStatement.getParameter().resolveBinding());
 		}
 
