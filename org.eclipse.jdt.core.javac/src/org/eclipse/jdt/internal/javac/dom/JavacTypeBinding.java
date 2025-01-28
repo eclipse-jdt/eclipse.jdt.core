@@ -418,7 +418,11 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			try {
 				b2 = typeToBuild.tsym != null && typeToBuild.tsym.type != null && typeToBuild.tsym.type.isParameterized();
 			} catch( CompletionFailure cf1) {
-				throw new BindingKeyException(cf1);
+				if (resolver.isRecoveringBindings()) {
+					ILog.get().error(cf1.getMessage(), cf1);
+				} else {
+					throw new BindingKeyException(cf1);
+				}
 			}
 			if ((b1 || b2) && includeParameters) {
 				builder.append('<');
