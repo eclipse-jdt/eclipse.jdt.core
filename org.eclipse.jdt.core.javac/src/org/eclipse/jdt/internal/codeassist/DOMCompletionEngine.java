@@ -711,13 +711,48 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					suggestDefaultCompletions = false;
 				}
 				if ((context.getLocationInParent() == SwitchCase.EXPRESSIONS2_PROPERTY || context.getLocationInParent() == SwitchCase.EXPRESSION_PROPERTY) && context.getParent() instanceof SwitchCase switchCase) {
-					completionContext.expectedTypes.getExpectedTypes().stream()
-						.map(ITypeBinding::getDeclaredFields)
-						.flatMap(Arrays::stream)
-						.filter(IVariableBinding::isEnumConstant)
-						.filter(constant -> this.pattern.matchesName(this.prefix.toCharArray(), constant.getName().toCharArray()))
-						.map(this::toProposal)
-						.forEach(this.requestor::accept);
+					// find the enum if there is one
+					ITypeBinding firstEnumType = null;
+					for (ITypeBinding expectedType : completionContext.expectedTypes.getExpectedTypes()) {
+						if (expectedType.isEnum()) {
+							firstEnumType = expectedType;
+							break;
+						}
+					}
+					if (firstEnumType != null) {
+						Stream.of(firstEnumType.getDeclaredFields())
+							.filter(IVariableBinding::isEnumConstant)
+							.filter(constant -> this.pattern.matchesName(this.prefix.toCharArray(), constant.getName().toCharArray()))
+							.map(this::toProposal)
+							.forEach(this.requestor::accept);
+					} else {
+						// if there is no expected enum type, use the default completion.
+						// perhaps there is a suitable int or String constant
+						Bindings caseBindings = new Bindings();
+						scrapeAccessibleBindings(caseBindings);
+						caseBindings.all()
+							.filter(IVariableBinding.class::isInstance)
+							.map(IVariableBinding.class::cast)
+							.filter(varBinding -> {
+								return ((varBinding.getModifiers() & Flags.AccFinal) != 0);
+							})
+							.filter(varBinding -> this.pattern.matchesName(this.prefix.toCharArray(), varBinding.getName().toCharArray()))
+							.filter(varBinding -> {
+								for (ITypeBinding expectedType : completionContext.expectedTypes.getExpectedTypes()) {
+									if (varBinding.getType().getKey().equals(expectedType.getKey())) {
+										return true;
+									}
+								}
+								return false;
+							})
+							.map(this::toProposal)
+							.forEach(proposal -> {
+								// Seems like the `R_FINAL` constant is only added when completing switch statements:
+								// https://bugs.eclipse.org/bugs/show_bug.cgi?id=195346
+								proposal.setRelevance(proposal.getRelevance() + RelevanceConstants.R_FINAL);
+								this.requestor.accept(proposal);
+							});
+					}
 					suggestDefaultCompletions = false;
 				}
 				if (context.getParent() instanceof MethodDeclaration) {
