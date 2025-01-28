@@ -5,10 +5,6 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * SPDX-License-Identifier: EPL-2.0
  *
  * This is an implementation of an early-draft specification developed under the Java
@@ -2707,5 +2703,168 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				},
 				"");
 		verifyClassFile("version 24 : 68.65535", "X.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+
+	public void testFieldAssignment_OK() throws Exception {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					final String s;
+					X(String s0) {
+						s = s0;
+						super();
+					}
+					X() {
+						s = "";
+						super();
+					}
+					public static void main(String... args) {
+						System.out.print(new X("OK").s);
+					}
+				}
+				"""
+		},
+		"OK");
+	}
+
+	public void testFieldAssignmentNotAlways_NOK() throws Exception {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					final String s;
+					X(String s0) {
+						s = s0;
+						super();
+					}
+					X() {
+					}
+					public static void main(String... args) {
+						System.out.print(new X("OK").s);
+					}
+				}
+				"""
+		},
+		"""
+		----------
+		1. WARNING in X.java (at line 4)
+			s = s0;
+			^
+		You are using a preview language feature that may or may not be supported in a future release
+		----------
+		2. WARNING in X.java (at line 5)
+			super();
+			^^^^^^^^
+		You are using a preview language feature that may or may not be supported in a future release
+		----------
+		3. ERROR in X.java (at line 7)
+			X() {
+			^^^
+		The blank final field s may not have been initialized
+		----------
+		""");
+	}
+
+	public void testFieldAssignmentInLambda_NOK() throws Exception {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					String s;
+					X(String s0) {
+						s = s0;
+						super();
+					}
+					X() {
+						Runnable r = () -> s = "";
+						super();
+					}
+					public static void main(String... args) {
+						System.out.print(new X("OK").s);
+					}
+				}
+				"""
+		},
+		"""
+		----------
+		1. WARNING in X.java (at line 4)
+			s = s0;
+			^
+		You are using a preview language feature that may or may not be supported in a future release
+		----------
+		2. WARNING in X.java (at line 5)
+			super();
+			^^^^^^^^
+		You are using a preview language feature that may or may not be supported in a future release
+		----------
+		3. ERROR in X.java (at line 8)
+			Runnable r = () -> s = "";
+			                   ^
+		Cannot assign field 's' inside a lambda expression within an early construction context of class X
+		----------
+		4. WARNING in X.java (at line 9)
+			super();
+			^^^^^^^^
+		You are using a preview language feature that may or may not be supported in a future release
+		----------
+		""");
+	}
+
+	public void testFieldAssignmentInLocal_NOK() throws Exception {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					String s;
+					X(String s0) {
+						s = s0;
+						super();
+					}
+					X() {
+						Runnable r = new Runnable() {
+							public void run() { s = "Anonymous"; };
+						};
+						class Local {
+							{
+								s = "Local";
+							}
+						}
+						super();
+					}
+					public static void main(String... args) {
+						System.out.print(new X("OK").s);
+					}
+				}
+				"""
+		},
+		"""
+		----------
+		1. WARNING in X.java (at line 4)
+			s = s0;
+			^
+		You are using a preview language feature that may or may not be supported in a future release
+		----------
+		2. WARNING in X.java (at line 5)
+			super();
+			^^^^^^^^
+		You are using a preview language feature that may or may not be supported in a future release
+		----------
+		3. ERROR in X.java (at line 9)
+			public void run() { s = "Anonymous"; };
+			                    ^
+		Cannot assign field 's' from class 'X' in an early construction context
+		----------
+		4. ERROR in X.java (at line 13)
+			s = "Local";
+			^
+		Cannot assign field 's' from class 'X' in an early construction context
+		----------
+		5. WARNING in X.java (at line 16)
+			super();
+			^^^^^^^^
+		You are using a preview language feature that may or may not be supported in a future release
+		----------
+		""");
 	}
 }

@@ -12540,6 +12540,14 @@ public void assignFieldWithInitializerInEarlyConstructionContext(char[] token, i
 		sourceStart,
 		sourceEnd);
 }
+public void fieldAssignInEarlyConstructionContextInLambda(ASTNode location, FieldBinding field) {
+	this.handle(
+			IProblem.SuperFieldAssignInEarlyConstructionContextLambda,
+			new String[] {String.valueOf(field.name), String.valueOf(field.declaringClass.readableName())},
+			new String[] {String.valueOf(field.name), String.valueOf(field.declaringClass.shortReadableName())},
+			location.sourceStart,
+			location.sourceEnd);
+}
 public void errorReturnInEarlyConstructionContext(Statement stmt) {
 	String[] arguments = new String[] {stmt.toString()};
 	this.handle(
