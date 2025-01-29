@@ -1445,6 +1445,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					suggestTypeKeywords(DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.BLOCK }) == null);
 				}
 				publishFromScope(defaultCompletionBindings);
+				suggestSuperConstructors();
 				if (!completeAfter.isBlank()) {
 					String currentPackage = this.unit.getPackage() == null ? "" : this.unit.getPackage().getName().toString();
 					AbstractTypeDeclaration typeDecl = DOMCompletionUtil.findParentTypeDeclaration(context);
@@ -1492,6 +1493,27 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			this.requestor.endReporting();
 			if (this.monitor != null) {
 				this.monitor.done();
+			}
+		}
+	}
+
+	private void suggestSuperConstructors() {
+		if (this.requestor.isIgnored(CompletionProposal.METHOD_REF) || this.requestor.isIgnored(CompletionProposal.CONSTRUCTOR_INVOCATION)) {
+			return;
+		}
+		ASTNode methodOrTypeDeclaration = DOMCompletionUtil.findParent(toComplete,
+				new int[] { ASTNode.METHOD_DECLARATION, ASTNode.TYPE_DECLARATION, ASTNode.ANNOTATION_TYPE_DECLARATION, ASTNode.ENUM_DECLARATION, ASTNode.RECORD_DECLARATION });
+		if (this.pattern.matchesName(this.prefix.toCharArray(),
+				Keywords.SUPER) && methodOrTypeDeclaration instanceof MethodDeclaration methodDecl && methodDecl.isConstructor()) {
+			AbstractTypeDeclaration parentType = DOMCompletionUtil.findParentTypeDeclaration(toComplete);
+			ITypeBinding parentTypeBinding = parentType.resolveBinding();
+			ITypeBinding superclassBinding = parentTypeBinding.getSuperclass();
+			if (superclassBinding != null) {
+				for (IMethodBinding superclassMethod : superclassBinding.getDeclaredMethods()) {
+					if (superclassMethod.isConstructor() && isVisible(superclassMethod)) {
+						this.requestor.accept(toSuperConstructorProposal(superclassMethod));
+					}
+				}
 			}
 		}
 	}
@@ -2839,6 +2861,22 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		return false;
 	}
 
+	private CompletionProposal toSuperConstructorProposal(IMethodBinding superConstructor) {
+		CompletionProposal res = toProposal(superConstructor);
+		res.setName(Keywords.SUPER);
+		res.setCompletion(CharOperation.concat(Keywords.SUPER, new char[] {'(', ')'}));
+		res.setTokenRange(res.getReplaceStart(), res.getReplaceEnd());
+		
+		res.setRelevance(RelevanceConstants.R_DEFAULT +
+				RelevanceConstants.R_RESOLVED +
+				RelevanceConstants.R_INTERESTING +
+				RelevanceUtils.computeRelevanceForCaseMatching(this.prefix.toCharArray(), Keywords.SUPER, this.assistOptions) +
+				RelevanceConstants.R_NON_RESTRICTED
+				);
+		
+		return res;
+	}
+	
 	private CompletionProposal toNewMethodProposal(ITypeBinding parentType, String newMethodName) {
 		DOMInternalCompletionProposal res =  createProposal(CompletionProposal.POTENTIAL_METHOD_DECLARATION);
 		res.setDeclarationSignature(DOMCompletionEngineBuilder.getSignature(parentType));
@@ -3576,7 +3614,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			return false;
 		}
 		if (Modifier.isProtected(binding.getModifiers())) {
-			return declaringClass.isSubTypeCompatible(DOMCompletionUtil.findParentTypeDeclaration(this.toComplete).resolveBinding());
+			return findInSupers(DOMCompletionUtil.findParentTypeDeclaration(this.toComplete).resolveBinding(), declaringClass);
 		}
 		return declaringClass.getPackage().isEqualTo(DOMCompletionUtil.findParentTypeDeclaration(this.toComplete).resolveBinding().getPackage());
 	}
