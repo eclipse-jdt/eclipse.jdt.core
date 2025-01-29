@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.javac;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -275,6 +277,29 @@ public class JavacSpecificCompletionTests {
 		} catch (OperationCanceledException e) {
 			Assert.assertTrue("Should not be cancelled", false);
 		}
+	}
+
+	@Test
+	public void testSystemOutCompletion() throws Exception {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("HelloWorld.java",
+				"""
+				public class HelloWorld {
+					public static void main(String... args) {
+						System.
+					}
+				}
+				""");
+
+		// add the replace range to the results
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false, false, true);
+
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "System.";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		IProgressMonitor monitor = new NullProgressMonitor();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, WC_OWNER, monitor);
+		assertTrue(requestor.getResults().contains("out[FIELD_REF]{out, Ljava.lang.System;, Ljava.io.PrintStream;, out, [78, 78], 49}"));
 	}
 
 }

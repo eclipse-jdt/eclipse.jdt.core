@@ -94,9 +94,9 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
-import org.eclipse.jdt.core.dom.NameQualifiedType;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
@@ -126,7 +126,6 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
-import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -2461,14 +2460,6 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					} else {
 						ITypeBinding directParentClass = variableBinding.getDeclaringClass();
 						res.setRequiredProposals(new CompletionProposal[] { toStaticImportProposal(directParentClass) });
-						if (this.toComplete.getLocationInParent() != QualifiedName.NAME_PROPERTY &&
-							this.toComplete.getLocationInParent() != FieldAccess.NAME_PROPERTY &&
-							this.toComplete.getLocationInParent() != NameQualifiedType.NAME_PROPERTY) {
-							StringBuilder builder = new StringBuilder(new String(res.getCompletion()));
-							builder.insert(0, '.');
-							builder.insert(0, directParentClass.getName());
-							res.setCompletion(builder.toString().toCharArray());
-						}
 					}
 				}
 			}
