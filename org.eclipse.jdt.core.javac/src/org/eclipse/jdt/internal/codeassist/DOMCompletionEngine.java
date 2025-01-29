@@ -94,7 +94,6 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.Modifier;
-import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NameQualifiedType;
@@ -127,6 +126,7 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -833,7 +833,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 							//
 							// }
 							boolean isInterface = typeDecl instanceof TypeDeclaration realTypeDecl && realTypeDecl.isInterface();
-							if (CharOperation.prefixEquals(this.prefix.toCharArray(), Keywords.EXTENDS)) {
+							boolean isEnumOrRecord = typeDecl instanceof RecordDeclaration || typeDecl instanceof EnumDeclaration;
+							if (!isEnumOrRecord && CharOperation.prefixEquals(this.prefix.toCharArray(), Keywords.EXTENDS)) {
 								this.requestor.accept(createKeywordProposal(Keywords.EXTENDS, this.offset, this.offset));
 							}
 							if (!isInterface && CharOperation.prefixEquals(this.prefix.toCharArray(), Keywords.IMPLEMENTS)) {
