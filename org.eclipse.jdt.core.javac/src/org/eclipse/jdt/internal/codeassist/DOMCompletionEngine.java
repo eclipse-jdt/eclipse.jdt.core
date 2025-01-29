@@ -121,6 +121,7 @@ import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.TextBlock;
 import org.eclipse.jdt.core.dom.TextElement;
+import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypePattern;
@@ -181,6 +182,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	private ExpectedTypes expectedTypes;
 	private String prefix;
 	private String qualifiedPrefix;
+	private ITypeBinding qualifyingType;
 	private ASTNode toComplete;
 	private String textContent;
 
@@ -542,6 +544,10 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						packageName = packageName.substring(0, packageName.length() - 1);
 					}
 					this.qualifiedPrefix = packageName;
+				}
+			} else if (this.toComplete instanceof ThisExpression thisExpression) {
+				if (thisExpression.getQualifier() != null) {
+					this.qualifiedPrefix = thisExpression.getQualifier().toString();
 				}
 			}
 			// some flags to controls different applicable completion search strategies
@@ -1398,6 +1404,26 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					suggestAccessibleConstructorsForType(typeBinding);
 				}
 				suggestDefaultCompletions = false;
+			}
+			if (context instanceof ThisExpression thisExpression) {
+				if (thisExpression.getQualifier() != null) {
+					IBinding binding = thisExpression.getQualifier().resolveBinding();
+					if (binding instanceof ITypeBinding typeBinding) {
+						this.qualifyingType = typeBinding;
+						Bindings typesMembers = new Bindings();
+						processMembers(this.toComplete, typeBinding, typesMembers, true);
+						publishFromScope(typesMembers);
+						this.requestor.accept(createClassKeywordProposal(typeBinding, -1,-1));
+					}
+					for (char[] keyword : List.of(Keywords.SUPER, Keywords.THIS)) {
+						if (!isFailedMatch(this.prefix.toCharArray(), keyword)) {
+							CompletionProposal res = createKeywordProposal(keyword, -1, -1);
+							res.setRelevance(res.getRelevance() + RelevanceConstants.R_NON_INHERITED);
+							this.requestor.accept(res);
+						}
+					}
+					suggestDefaultCompletions = false;
+				}
 			}
 			if (context != null && context.getLocationInParent() == QualifiedType.NAME_PROPERTY && context.getParent() instanceof QualifiedType qType) {
 				Type qualifier = qType.getQualifier();
@@ -2652,6 +2678,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					this.toComplete.getAST().resolveWellKnownType(Object.class.getName()), this.expectedTypes) +
 				(isInQualifiedName || res.getRequiredProposals() != null || inJavadoc ? 0 : RelevanceUtils.computeRelevanceForQualification(false, this.prefix, this.qualifiedPrefix)) +
 				RelevanceConstants.R_NON_RESTRICTED +
+				RelevanceUtils.computeRelevanceForInheritance(this.qualifyingType, binding) +
 				((insideQualifiedReference() && !staticOnly() && !Modifier.isStatic(binding.getModifiers())) || (inJavadoc && !res.isConstructor()) ? RelevanceConstants.R_NON_STATIC : 0) +
 				(!staticOnly() || inheritedValue ? 0 : RelevanceConstants.R_NON_INHERITED) + // TODO: when is this active?
 				(binding instanceof IVariableBinding field && field.isEnumConstant() ? RelevanceConstants.R_ENUM + RelevanceConstants.R_ENUM_CONSTANT : 0)
@@ -2756,6 +2783,10 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			res.setReplaceRange(this.offset, this.offset);
 		} else if (this.toComplete instanceof SimpleName) {
 			res.setReplaceRange(this.toComplete.getStartPosition(), this.toComplete.getStartPosition() + this.toComplete.getLength());
+		} else if (this.toComplete instanceof ThisExpression thisExpression
+				&& thisExpression.getQualifier() != null
+				&& this.offset > (thisExpression.getQualifier().getStartPosition() + thisExpression.getQualifier().getLength())) {
+			setRange(res);
 		} else {
 			res.setReplaceRange(this.toComplete.getStartPosition(), this.offset);
 		}
@@ -2792,6 +2823,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				+ RelevanceConstants.R_RESOLVED
 				+ RelevanceConstants.R_INTERESTING
 				+ RelevanceConstants.R_NON_RESTRICTED
+				+ RelevanceUtils.computeRelevanceForInheritance(this.qualifyingType, type)
 				+ RelevanceUtils.computeRelevanceForQualification(!type.getFullyQualifiedName().startsWith("java.") && !nodeInImports && !fromCurrentCU && !inSamePackage && !typeIsImported, this.prefix, this.qualifiedPrefix)
 				+ (type.getFullyQualifiedName().startsWith("java.") ? RelevanceConstants.R_JAVA_LIBRARY : 0)
 				+ (expectedTypes.getExpectedTypes().stream().map(ITypeBinding::getQualifiedName).anyMatch(type.getFullyQualifiedName()::equals) ? RelevanceConstants.R_EXACT_EXPECTED_TYPE :
@@ -3511,13 +3543,21 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				+ RelevanceConstants.R_RESOLVED
 				+ RelevanceConstants.R_INTERESTING
 				+ RelevanceConstants.R_NON_RESTRICTED
-				+ RelevanceConstants.R_EXPECTED_TYPE;
-		if (!isFailedMatch(this.prefix.toCharArray(), Keywords.CLASS)) {
-			relevance += RelevanceConstants.R_SUBSTRING;
-		}
+				+ RelevanceConstants.R_NON_INHERITED
+				+ RelevanceUtils.computeRelevanceForCaseMatching(this.prefix.toCharArray(), Keywords.CLASS, assistOptions)
+//				+ RelevanceUtils.computeRelevanceForExpectingType(typeBinding, this.expectedTypes)
+				;
+		
 		DOMInternalCompletionProposal keywordProposal = createProposal(CompletionProposal.FIELD_REF);
 		keywordProposal.setCompletion(Keywords.CLASS);
-		keywordProposal.setReplaceRange(startPos, endPos);
+		
+		if (startPos == -1 && endPos == -1) {
+			setRange(keywordProposal);
+		} else {
+			keywordProposal.setReplaceRange(startPos, endPos);
+			keywordProposal.setTokenRange(startPos, endPos);
+		}
+		
 		keywordProposal.setRelevance(relevance);
 		keywordProposal.setPackageName(CharOperation.concatWith(TypeConstants.JAVA_LANG, '.'));
 		keywordProposal.setTypeName("Class".toCharArray()); //$NON-NLS-1$

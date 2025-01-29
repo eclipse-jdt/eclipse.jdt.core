@@ -12,10 +12,15 @@ package org.eclipse.jdt.internal.codeassist;
 
 import java.util.Objects;
 
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 /**
  * Helper methods for calculating the relevance numbers of completion proposals.
@@ -116,6 +121,52 @@ class RelevanceUtils {
 //				}
 			}
 			return relevance;
+		}
+		return 0;
+	}
+
+	/**
+	 * Returns the appropriate relevance number based on if the given member is directly implemented in the qualifying type.
+	 * 
+	 * @see CompletionEngine#computeRelevanceForInheritance(ReferenceBinding, ReferenceBinding)
+	 * @param qualifyingType the qualifying type
+	 * @param member the member to check if it's directly or indirectly inherited
+	 * @return the appropriate relevance number based on if the given member is directly implemented in the qualifying type
+	 */
+	static int computeRelevanceForInheritance(ITypeBinding qualifyingType, IBinding member) {
+		if (qualifyingType == null) {
+			return 0;
+		}
+		if (member instanceof IMethodBinding methodBinding) {
+			if (methodBinding.getDeclaringClass().getKey().equals(qualifyingType.getKey())) {
+				return RelevanceConstants.R_NON_INHERITED;
+			}
+		} else if (member instanceof IVariableBinding varBinding) {
+			if (varBinding.getDeclaringClass().getKey().equals(qualifyingType.getKey())) {
+				return RelevanceConstants.R_NON_INHERITED;
+			}
+		} else if (member instanceof ITypeBinding typeBinding) {
+			if (typeBinding.getDeclaringClass().getKey().equals(qualifyingType.getKey())) {
+				return RelevanceConstants.R_NON_INHERITED;
+			}
+		}
+		return 0;
+	}
+	
+	/**
+	 * Returns the appropriate relevance number based on if the given member type is directly implemented in the qualifying type.
+	 * 
+	 * @see CompletionEngine#computeRelevanceForInheritance(ReferenceBinding, ReferenceBinding)
+	 * @param qualifyingType the qualifying type
+	 * @param memberType the member type to check if it's directly or indirectly inherited
+	 * @return the appropriate relevance number based on if the given member is directly implemented in the qualifying type
+	 */
+	static int computeRelevanceForInheritance(ITypeBinding qualifyingType, IType memberType) {
+		if (qualifyingType == null || memberType.getDeclaringType() == null) {
+			return 0;
+		}
+		if (memberType.getDeclaringType().getKey().equals(qualifyingType.getKey())) {
+			return RelevanceConstants.R_NON_INHERITED;
 		}
 		return 0;
 	}
