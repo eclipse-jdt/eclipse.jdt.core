@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2024 GK Software SE and others.
+ * Copyright (c) 2024, 2025 GK Software SE and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,6 +14,7 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import junit.framework.Test;
@@ -528,5 +529,38 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 	    ITypeBinding aBinding = a.resolveBinding();
 	    assertTrue(Modifier.isStrictfp(aBinding.getModifiers()));
 	    assertTrue(Modifier.isPublic(aBinding.getModifiers()));
+	}
+
+	public void testBug549248_01() throws CoreException {
+	    String contents = """
+	        public enum X {
+	            JAPAN(new java.lang.String[] {"1","2"}){
+	    		    @Override
+	    		    public String getGreeting() {
+	    				return "Hello from Japan!";
+	    			}
+	            },
+
+	            public enum LoginType {
+	                public com.naver.linewebtoon.common.localization.X.LoginType EMAIL = "null";
+	            }
+	        }
+	        """;
+
+	    ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+	    parser.setSource(contents.toCharArray());
+	    parser.setEnvironment(null, null, null, true);
+	    parser.setResolveBindings(false);
+
+	    Hashtable<String, String> options = JavaCore.getDefaultOptions();
+	    options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_23);
+	    options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_23);
+	    options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_23);
+
+	    parser.setCompilerOptions(options);
+
+	    ASTNode node = parser.createAST(null);
+
+	    assertNotNull("ASTNode creation failed. Node is null!", node);
 	}
 }
