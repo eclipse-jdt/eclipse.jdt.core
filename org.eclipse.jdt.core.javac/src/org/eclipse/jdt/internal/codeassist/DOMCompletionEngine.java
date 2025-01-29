@@ -880,9 +880,19 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					}
 				} else {
 					IBinding qualifiedNameBinding = qualifiedName.getQualifier().resolveBinding();
+					ExtendsOrImplementsInfo info = isInExtendsOrImplements(qualifiedName);
 					if (qualifiedNameBinding instanceof ITypeBinding qualifierTypeBinding && !qualifierTypeBinding.isRecovered()) {
 						processMembers(qualifiedName, qualifierTypeBinding, specificCompletionBindings, true);
-						publishFromScope(specificCompletionBindings);
+						if (info == null) {
+							publishFromScope(specificCompletionBindings);
+						} else {
+							specificCompletionBindings.all() //
+								.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray())) //
+								.filter(ITypeBinding.class::isInstance)
+								.filter(type -> filterBasedOnExtendsOrImplementsInfo((IType)type.getJavaElement(), info))
+								.map(binding -> toProposal(binding))
+								.forEach(this.requestor::accept);
+						}
 						int startPos = this.offset;
 						int endPos = this.offset;
 						if ((qualifiedName.getName().getFlags() & ASTNode.MALFORMED) != 0) {
@@ -941,7 +951,16 @@ public class DOMCompletionEngine implements ICompletionEngine {
 							if (potentialBinding.isPresent()) {
 								processMembers(qualifiedName, potentialBinding.get(), specificCompletionBindings,
 										false);
-								publishFromScope(specificCompletionBindings);
+								if (info == null) {
+									publishFromScope(specificCompletionBindings);
+								} else {
+									specificCompletionBindings.all() //
+										.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray())) //
+										.filter(ITypeBinding.class::isInstance)
+										.filter(type -> filterBasedOnExtendsOrImplementsInfo((IType)type.getJavaElement(), info))
+										.map(binding -> toProposal(binding))
+										.forEach(this.requestor::accept);
+								}
 								suggestDefaultCompletions = false;
 							} else {
 								// maybe it is actually a package?
@@ -1826,6 +1845,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					|| typeDeclaration.resolveBinding().getKey().equals(toFilter.getKey())) {
 				return false;
 			}
+			if (toFilter.isMember() && this.modelUnit.equals(toFilter.getAncestor(IJavaElement.COMPILATION_UNIT))) {
+				return false;
+			}
 			if (toFilter.isEnum() || toFilter.isRecord()) {
 				// cannot extend or implement
 				return false;
@@ -2152,7 +2174,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			includeProtected = findInSupers(referencedFromBinding, typeBinding);
 		}
 		processMembers(typeBinding, scope, includePrivate, includeProtected, referencedFromBinding.getPackage().getKey(), isStaticContext, typeBinding.isInterface(),
-				new HashSet<>(), new HashSet<>());
+				new HashSet<>(), new HashSet<>(), new HashSet<>());
 	}
 
 	private void processMembers(ITypeBinding typeBinding, Bindings scope,
@@ -2162,7 +2184,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			boolean isStaticContext,
 			boolean canUseAbstract,
 			Set<String> impossibleMethods,
-			Set<String> impossibleFields) {
+			Set<String> impossibleFields,
+			Set<String> impossibleClasses) {
 		if (typeBinding == null) {
 			return;
 		}
@@ -2171,16 +2194,19 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			if (binding == null) {
 				return false;
 			}
-			boolean field = binding instanceof IVariableBinding;
-			if (field) {
-				if (impossibleFields.contains(binding.getName())) {
+			if (binding instanceof IVariableBinding variableBinding) {
+				if (impossibleFields.contains(variableBinding.getName())) {
+					return false;
+				}
+			} else if (binding instanceof IMethodBinding methodBinding) {
+				if (impossibleMethods.contains(methodBinding.getName())) {
+					return false;
+				}
+				if (methodBinding.isConstructor()) {
 					return false;
 				}
 			} else {
 				if (impossibleMethods.contains(binding.getName())) {
-					return false;
-				}
-				if (((IMethodBinding)binding).isConstructor()) {
 					return false;
 				}
 			}
@@ -2192,14 +2218,16 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					// check package private
 					|| ((binding.getModifiers() & (Flags.AccPublic | Flags.AccProtected | Flags.AccPrivate)) == 0 && !originalPackageKey.equals(typeBinding.getPackage().getKey()))
 					// check static
-					|| (isStaticContext && (binding.getModifiers() & Flags.AccStatic) == 0)
+					|| (isStaticContext && ((binding.getModifiers() & Flags.AccStatic) == 0 && !(binding instanceof ITypeBinding)))
 					// check abstract
 					|| (!canUseAbstract && (binding.getModifiers() & Flags.AccAbstract) != 0)
 					) {
-				if (field) {
+				if (binding instanceof IVariableBinding) {
 					impossibleFields.add(binding.getName());
-				} else {
+				} else if (binding instanceof IMethodBinding) {
 					impossibleMethods.add(binding.getName());
+				} else {
+					impossibleClasses.add(binding.getName());
 				}
 				return false;
 			}
@@ -2246,14 +2274,17 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			.filter(accessFilter) //
 			.sorted(Comparator.comparing(this::getSignature).reversed()) // as expected by tests
 			.forEach(scope::add);
+		Arrays.stream(typeBinding.getDeclaredTypes()) //
+			.filter(accessFilter) //
+			.forEach(scope::add);
 		if (typeBinding.getInterfaces() != null) {
 			for (ITypeBinding superinterfaceBinding : typeBinding.getInterfaces()) {
-				processMembers(superinterfaceBinding, scope, false, includeProtected, originalPackageKey, isStaticContext, true, impossibleMethods, impossibleFields);
+				processMembers(superinterfaceBinding, scope, false, includeProtected, originalPackageKey, isStaticContext, true, impossibleMethods, impossibleFields, impossibleClasses);
 			}
 		}
 		ITypeBinding superclassBinding = typeBinding.getSuperclass();
 		if (superclassBinding != null) {
-			processMembers(superclassBinding, scope, false, includeProtected, originalPackageKey, isStaticContext, true, impossibleMethods, impossibleFields);
+			processMembers(superclassBinding, scope, false, includeProtected, originalPackageKey, isStaticContext, true, impossibleMethods, impossibleFields, impossibleClasses);
 		}
 	}
 
