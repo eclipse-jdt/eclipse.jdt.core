@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2019 IBM Corporation and others.
+ * Copyright (c) 2017, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -785,7 +785,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				IPath path = rawClasspath[i].getPath();
 				if (path.lastSegment().equals("jrt-fs.jar")) {
 					path = path.removeLastSegments(2).append("jmods").append("java.base.jmod");
-					if (path.toFile().exists()) {
+					if (!path.toFile().exists()) {
 						// No jmod files in JDK? This test is not applicable
 						return;
 					}
