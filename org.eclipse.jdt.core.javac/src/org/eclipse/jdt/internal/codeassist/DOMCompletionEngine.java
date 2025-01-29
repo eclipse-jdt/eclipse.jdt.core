@@ -2503,6 +2503,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 		if (this.toComplete instanceof SimpleName && !this.toComplete.getLocationInParent().getId().equals(QualifiedName.QUALIFIER_PROPERTY.getId()) && !this.prefix.isEmpty() && !inJavadoc) {
 			res.setReplaceRange(this.toComplete.getStartPosition(), this.offset);
+			res.setTokenRange(this.toComplete.getStartPosition(), this.offset);
 		} else {
 			setRange(res);
 		}
