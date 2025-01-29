@@ -1290,7 +1290,7 @@ public class JavacBindingResolver extends BindingResolver {
 			if (expr instanceof SuperFieldAccess) {
 				return this.bindings.getTypeBinding(jcFieldAccess.selected.type);
 			}
-			if (jcFieldAccess.type != null || !jcFieldAccess.type.isErroneous()) {
+			if (jcFieldAccess.type != null && !jcFieldAccess.type.isErroneous()) {
 				return this.bindings.getTypeBinding(jcFieldAccess.type);
 			}
 			if (jcFieldAccess.sym != null) {
