@@ -34,7 +34,6 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.tree.Tree;
-import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCImport;
@@ -174,11 +173,6 @@ public class UnusedProblemFactory {
 				VarSymbol varSymbol = variableDecl.sym;
 				ElementKind varKind = varSymbol == null ? null : varSymbol.getKind();
 				if (varKind == ElementKind.FIELD) {
-					if( varSymbol.owner instanceof ClassSymbol css) {
-						if( css.getRecordComponents().map(x -> x.toString()).contains(name)) {
-							continue;
-						}
-					}
 					problemId = IProblem.UnusedPrivateField;
 					String typeName = varSymbol.owner.name.toString();
 					arguments = new String[] {

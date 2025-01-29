@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.lang.model.element.ElementKind;
+
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 
 import com.sun.source.doctree.SeeTree;
@@ -302,6 +304,17 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 						suppressed = isUnusedSuppressed(annot);
 						break;
 					}
+					VarSymbol varSymbol = variableDecl.sym;
+					ElementKind varKind = varSymbol == null ? null : varSymbol.getKind();
+					if (varKind == ElementKind.FIELD) {
+						if( varSymbol.owner instanceof ClassSymbol css) {
+							String name = variableDecl.name.toString();
+							if( css.getRecordComponents().map(x -> x.toString()).contains(name)) {
+								suppressed = true;
+							}
+						}
+					}
+
 					if (!suppressed) {
 						unusedPrivateMembers.add(decl);
 					}
