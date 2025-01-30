@@ -229,7 +229,7 @@ static class JavacCompiler {
 		this.compliance = CompilerOptions.versionToJdkLevel(this.version);
 		this.minor = minorFromRawVersion(this.version, rawVersion);
 		this.rawVersion = rawVersion;
-		this.classpath = "-classpath ";
+		this.classpath = " -classpath ";
 	}
 	/** Call this if " -classpath " should be replaced by some other option token. */
 	protected void usePathOption(String option) {
@@ -267,7 +267,7 @@ static class JavacCompiler {
 	static String getBuild(String javaPathName) throws IOException, InterruptedException {
 		Process fetchVersionProcess = null;
 		try {
-			fetchVersionProcess = Runtime.getRuntime().exec(javaPathName + " -version", env, null);
+			fetchVersionProcess = Runtime.getRuntime().exec(new String[] {javaPathName , "-version"}, env, null);
 		    Logger versionStdErrLogger = new Logger(fetchVersionProcess.getErrorStream(), ""); // for javac <= 1.8
 		    Logger versionStdOutLogger = new Logger(fetchVersionProcess.getInputStream(), ""); // for javac >= 9
 		    versionStdErrLogger.start();
@@ -613,7 +613,7 @@ static class JavacCompiler {
 			} else {
 				cmdLineAsString = cmdLine.toString();
 			}
-			compileProcess = Runtime.getRuntime().exec(cmdLineAsString.split("\\s"), env, directory);
+			compileProcess = Runtime.getRuntime().exec(cmdLineAsString.split("\\s+"), env, directory);
 			Logger errorLogger = new Logger(compileProcess.getErrorStream(),
 					"ERROR", log == null ? new StringBuilder() : log);
 			errorLogger.start();
@@ -4180,9 +4180,9 @@ protected void runNegativeTest(
 				javaCommandLineHeader = cmdLineHeader.toString();
 				cmdLineHeader = new StringBuilder(jdkRootDirPath.
 						append("bin").append(JAVAC_NAME).toString());
+				String version = JavacCompiler.getVersion(cmdLineHeader.toString());
 				cmdLineHeader.append(" -classpath . ");
 				  // start with the current directory which contains the source files
-				String version = JavacCompiler.getVersion(cmdLineHeader.toString());
 				cmdLineHeader.append(" -d ");
 				cmdLineHeader.append(JAVAC_OUTPUT_DIR_NAME.indexOf(" ") != -1 ? "\"" + JAVAC_OUTPUT_DIR_NAME + "\"" : JAVAC_OUTPUT_DIR_NAME);
 				String firstSupportedVersion = CompilerOptions.getFirstSupportedJavaVersion();
