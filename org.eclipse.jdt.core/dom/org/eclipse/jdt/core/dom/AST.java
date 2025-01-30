@@ -582,7 +582,7 @@ public final class AST {
 	@Deprecated
 	public static final int JLS_Latest = JLS_INTERNAL_Latest;
 
-	private static final List<Integer> ALL_VERSIONS = List.of(JLS2, JLS3, JLS4, JLS8, JLS9, JLS10, JLS11, JLS12, JLS13, JLS14, JLS15, JLS16, JLS17, JLS18, JLS19, JLS20, JLS21, JLS22, JLS23);
+	private static final List<Integer> ALL_VERSIONS = List.of(JLS2, JLS3, JLS4, JLS8, JLS9, JLS10, JLS11, JLS12, JLS13, JLS14, JLS15, JLS16, JLS17, JLS18, JLS19, JLS20, JLS21, JLS22, JLS23, JLS24);
 	private static final List<Integer> UNSUPPORTED_VERSIONS = List.of(JLS2, JLS3, JLS4);
 	private static final List<Integer> SUPPORTED_VERSIONS;
 	static {
