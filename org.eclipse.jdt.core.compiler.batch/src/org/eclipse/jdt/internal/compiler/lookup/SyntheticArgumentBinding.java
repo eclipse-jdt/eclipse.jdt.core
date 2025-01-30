@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -38,8 +42,9 @@ public class SyntheticArgumentBinding extends LocalVariableBinding {
 	public LocalVariableBinding actualOuterLocalVariable;
 	// if the argument has a matching synthetic field
 	public FieldBinding matchingField;
+	public Scope accessingScope; // scope from where the synth arg can be accessed
 
-	public SyntheticArgumentBinding(LocalVariableBinding actualOuterLocalVariable) {
+	public SyntheticArgumentBinding(LocalVariableBinding actualOuterLocalVariable, Scope declaringScope) {
 
 		super(
 			CharOperation.concat(TypeConstants.SYNTHETIC_OUTER_LOCAL_PREFIX, actualOuterLocalVariable.name),
@@ -47,6 +52,7 @@ public class SyntheticArgumentBinding extends LocalVariableBinding {
 			ClassFileConstants.AccFinal,
 			true);
 		this.actualOuterLocalVariable = actualOuterLocalVariable;
+		this.accessingScope = declaringScope;
 	}
 
 	public SyntheticArgumentBinding(ReferenceBinding enclosingType) {
