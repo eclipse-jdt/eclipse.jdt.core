@@ -99,6 +99,7 @@ import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.QualifiedName;
@@ -858,7 +859,10 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			}
 			if (context instanceof QualifiedName qualifiedName) {
 				ImportDeclaration importDecl = (ImportDeclaration)DOMCompletionUtil.findParent(context, new int[] { ASTNode.IMPORT_DECLARATION });
-				if (importDecl != null) {
+				if (isParameterInNonParameterizedType(context)) {
+					// do not complete
+					suggestDefaultCompletions = false;
+				} else if (importDecl != null) {
 					if(importDecl.getAST().apiLevel() >= AST.JLS23
 						&& this.javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true).equals(JavaCore.ENABLED)
 						&& importDecl.modifiers().stream().anyMatch(node -> node instanceof Modifier modifier && modifier.getKeyword() == ModifierKeyword.MODULE_KEYWORD)) {
@@ -1405,6 +1409,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					}
 				}
 			}
+			if (isParameterInNonParameterizedType(context)) {
+				suggestDefaultCompletions = false;
+			}
 
 			// check for accessible bindings to potentially turn into completions.
 			// currently, this is always run, even when not using the default completion,
@@ -1438,14 +1445,24 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				}
 				publishFromScope(defaultCompletionBindings);
 				if (!completeAfter.isBlank()) {
+					String currentPackage = this.unit.getPackage() == null ? "" : this.unit.getPackage().getName().toString();
+					AbstractTypeDeclaration typeDecl = DOMCompletionUtil.findParentTypeDeclaration(context);
+					ITypeBinding currentTypeBinding = typeDecl == null ? null : typeDecl.resolveBinding();
 					final int typeMatchRule = this.toComplete.getParent() instanceof Annotation
 							? IJavaSearchConstants.ANNOTATION_TYPE
 							: IJavaSearchConstants.TYPE;
-					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)
-							&& (completionContext.getExpectedTypesSignatures() != null || extendsOrImplementsInfo != null)) {
+					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 						findTypes(completeAfter, typeMatchRule, null)
+							.filter(type -> filterTypeBasedOnAccess(type, currentPackage, currentTypeBinding))
 							.filter(type -> {
-								return defaultCompletionBindings.all().map(typeBinding -> typeBinding.getJavaElement()).noneMatch(elt -> type.equals(elt));
+								for (var scrapedBinding : defaultCompletionBindings.all().toList()) {
+									if (scrapedBinding instanceof ITypeBinding scrapedTypeBinding) {
+										if (type.equals(scrapedTypeBinding.getJavaElement()) || type.getKey().equals(scrapedTypeBinding.getKey())) {
+											return false;
+										}
+									}
+								}
+								return true;
 							})
 							.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(),
 									type.getElementName().toCharArray()))
@@ -1468,6 +1485,58 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				this.monitor.done();
 			}
 		}
+	}
+
+	/**
+	 * Returns true if the given type can be accessed from the given context
+	 * 
+	 * @param type the type that you're trying to access
+	 * @param currentPackage the package that you're in
+	 * @param currentTypeBinding the binding of the type that you're currently in, can be null
+	 * @return true if the given type can be accessed from the given context
+	 */
+	private boolean filterTypeBasedOnAccess(IType type, String currentPackage, ITypeBinding currentTypeBinding) {
+		String typePackage = type.getAncestor(IJavaElement.PACKAGE_FRAGMENT).getElementName();
+		// can only access classes in the default package from the default package
+		if (!currentPackage.isEmpty() && typePackage.isEmpty()) {
+			return false;
+		}
+		try {
+			int flags = type.getFlags();
+			if ((flags & (Flags.AccPublic | Flags.AccPrivate | Flags.AccProtected)) == 0) {
+				return currentPackage.equals(typePackage);
+			}
+			if ((flags & Flags.AccPublic) != 0) {
+				return true;
+			}
+			if ((flags & Flags.AccProtected) != 0) {
+				// protected means `type` is an inner class
+				if (currentTypeBinding == null) {
+					return false;
+				}
+				return findInSupers(currentTypeBinding, ((IType)type.getParent()).getKey());
+			}
+			// private inner class
+			return false;
+		} catch (JavaModelException e) {
+			return true;
+		}
+	}
+
+	private boolean isParameterInNonParameterizedType(ASTNode context) {
+		if (DOMCompletionUtil.findParent(context, new int[] { ASTNode.PARAMETERIZED_TYPE }) != null) {
+			ASTNode cursor1 = context;
+			ASTNode cursor2 = context.getParent();
+			while (!(cursor2 instanceof ParameterizedType paramType)) {
+				cursor1 = cursor2;
+				cursor2 = cursor2.getParent();
+			}
+			ITypeBinding paramTypeBinding = paramType.resolveBinding().getTypeDeclaration();
+			if (paramTypeBinding.getTypeParameters().length <= paramType.typeArguments().indexOf(cursor1)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void suggestAccessibleConstructorsForType(ITypeBinding typeBinding) {
@@ -1825,9 +1894,12 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 			List<IType> foundTypes = findTypes(this.prefix, packageName).toList();
 			ExtendsOrImplementsInfo extendsOrImplementsInfo = isInExtendsOrImplements(this.toComplete);
+			String currentPackage = this.unit.getPackage() == null ? "" : this.unit.getPackage().getName().toString();
+			AbstractTypeDeclaration typeDecl = DOMCompletionUtil.findParentTypeDeclaration(this.toComplete);
+			ITypeBinding currentTypeBinding = typeDecl == null ? null : typeDecl.resolveBinding();
 			for (IType foundType : foundTypes) {
 				if (this.pattern.matchesName(this.prefix.toCharArray(), foundType.getElementName().toCharArray())) {
-					if (filterBasedOnExtendsOrImplementsInfo(foundType, extendsOrImplementsInfo)) {
+					if (filterBasedOnExtendsOrImplementsInfo(foundType, extendsOrImplementsInfo) && filterTypeBasedOnAccess(foundType, currentPackage, currentTypeBinding)) {
 						this.requestor.accept(this.toProposal(foundType));
 					}
 				}
