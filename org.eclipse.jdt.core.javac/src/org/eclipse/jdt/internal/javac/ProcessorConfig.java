@@ -33,7 +33,6 @@ import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.osgi.service.prefs.BackingStoreException;
 
 public class ProcessorConfig {
 	private static final String APT_PLUGIN_ID = "org.eclipse.jdt.apt.core"; //$NON-NLS-1$
@@ -72,15 +71,19 @@ public class ProcessorConfig {
 		} else {
 			contexts = new IScopeContext[] { InstanceScope.INSTANCE };
 		}
-		for (IScopeContext context : contexts) {
-			IEclipsePreferences prefs = context.getNode(JavaCore.PLUGIN_ID);
-			if ("enabled".equals(prefs.get(APT_PROCESSANNOTATIONS, "disabled"))) {
-				return true;
+		try {
+			for (IScopeContext context : contexts) {
+				IEclipsePreferences prefs = context.getNode(JavaCore.PLUGIN_ID);
+				if ("enabled".equals(prefs.get(APT_PROCESSANNOTATIONS, "disabled"))) {
+					return true;
+				}
+				prefs = context.getNode(APT_PLUGIN_ID);
+				if (prefs.getBoolean(APT_ENABLED, false)) {
+					return true;
+				}
 			}
-			prefs = context.getNode(APT_PLUGIN_ID);
-			if (prefs.getBoolean(APT_ENABLED, false)) {
-				return true;
-			}
+		} catch (Exception e) {
+			ILog.get().error("Unable to load preferences", e); //$NON-NLS-1$
 		}
 		return false;
 	}
@@ -99,8 +102,8 @@ public class ProcessorConfig {
 			contexts = new IScopeContext[] { InstanceScope.INSTANCE };
 		}
 		for (IScopeContext context : contexts) {
-			IEclipsePreferences prefs = context.getNode(APT_PLUGIN_ID);
 			try {
+				IEclipsePreferences prefs = context.getNode(APT_PLUGIN_ID);
 				if (prefs.childrenNames().length > 0) {
 					IEclipsePreferences procOptionsNode = context.getNode(APT_PLUGIN_ID + "/" + APT_PROCESSOROPTIONS); //$NON-NLS-1$
 					if (procOptionsNode != null) {
@@ -112,7 +115,7 @@ public class ProcessorConfig {
 						break;
 					}
 				}
-			} catch (BackingStoreException e) {
+			} catch (Exception e) {
 				ILog.get().error("Unable to load annotation processor options", e); //$NON-NLS-1$
 			}
 		}
