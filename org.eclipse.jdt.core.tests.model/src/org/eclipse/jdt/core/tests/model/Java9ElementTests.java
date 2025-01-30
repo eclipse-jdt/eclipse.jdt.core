@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2019 IBM Corporation and others.
+ * Copyright (c) 2017, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 import junit.framework.Test;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -783,6 +785,10 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				IPath path = rawClasspath[i].getPath();
 				if (path.lastSegment().equals("jrt-fs.jar")) {
 					path = path.removeLastSegments(2).append("jmods").append("java.base.jmod");
+					if (!path.toFile().exists()) {
+						// No jmod files in JDK? This test is not applicable
+						return;
+					}
 					IClasspathEntry newEntry = newModularLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(), new Path("java.base"));
 					rawClasspath[i] = newEntry;
 				}
@@ -838,6 +844,10 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				IPath path = rawClasspath[i].getPath();
 				if (path.lastSegment().equals("jrt-fs.jar")) {
 					path = path.removeLastSegments(2).append("jmods").append("java.base.jmod");
+					if (!path.toFile().exists()) {
+						// No jmod files? Then this test is not applicable
+						return;
+					}
 					IClasspathEntry newEntry = newModularLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(), new Path("java.base"));
 					rawClasspath[i] = newEntry;
 				}
@@ -1430,6 +1440,11 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			IPath path = rawClasspath[i].getPath();
 			if (path.lastSegment().equals("jrt-fs.jar")) {
 				path = path.removeLastSegments(2).append("jmods").append("java.base.jmod");
+				if (!path.toFile().exists()) {
+					// No jmod files? Just proceed with the jrt-fs.
+					newClasspath[i] = rawClasspath[i];
+					continue;
+				}
 				IClasspathEntry newEntry = JavaCore.newLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(), new Path("java.base"));
 				newClasspath[i] = newEntry;
 				path = path.removeLastSegments(2).append("jmods").append("java.sql.jmod");
@@ -1601,6 +1616,10 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				if (path.lastSegment().equals("jrt-fs.jar")) {
 					jdkRootPath = path.removeLastSegments(2);
 					path = jdkRootPath.append("jmods").append("java.base.jmod");
+					if (!path.toFile().exists()) {
+						// No jmod files? Then this test is not applicable
+						return;
+					}
 					IClasspathEntry newEntry = newModularLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(), new Path("java.base"));
 					rawClasspath[i] = newEntry;
 				}
@@ -1724,5 +1743,13 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		finally {
 			deleteProject("Java9Elements");
 		}
+	}
+	public void testGH3549() throws CoreException, IOException {
+		IJavaProject project = setUpJavaProject("JModTests", "17");
+		waitForManualRefresh();
+		waitForAutoBuild();
+		project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+		assertMarkers("unexpected markers", "mod.c cannot be resolved to a module", markers);
 	}
 }

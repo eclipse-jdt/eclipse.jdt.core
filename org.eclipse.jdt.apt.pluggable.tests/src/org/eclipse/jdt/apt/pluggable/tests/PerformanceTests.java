@@ -35,11 +35,14 @@ public class PerformanceTests extends TestBase
 	private final static int PAUSE_TIME = 2000; // milliseconds to wait for indexer
 	private final static boolean INCLUDE_APT_DISABLED = true;
 
-	private final static String CMD_PROFILER_PREFIX = "java -jar c:/opt/yourkit-8.0.13/lib/yjp-controller-api-redist.jar localhost 10001";
-	private final static String CMD_START_CPU_PROFILING = CMD_PROFILER_PREFIX + " start-cpu-sampling noj2ee";
-	private final static String CMD_STOP_CPU_PROFILING =  CMD_PROFILER_PREFIX + " stop-cpu-profiling";
-	private final static String CMD_PERF_SNAPSHOT =       CMD_PROFILER_PREFIX + " capture-performance-snapshot";
-	private final static String CMD_HEAP_SNAPSHOT =       CMD_PROFILER_PREFIX + " capture-memory-snapshot";
+	private final static String JAVA = "java";
+	private final static String JAR = "-jar";
+	private final static String YOURKIT_CMD = "c:/opt/yourkit-8.0.13/lib/yjp-controller-api-redist.jar localhost 10001";
+	
+	private final static String[] CMD_START_CPU_PROFILING_AS_ARRAY = new String[]{JAVA, JAR, YOURKIT_CMD, "start-cpu-sampling noj2ee"};
+	private final static String[] CMD_STOP_CPU_PROFILING_AS_ARRAY =  new String[]{JAVA, JAR, YOURKIT_CMD, "stop-cpu-profiling"};
+	private final static String[] CMD_PERF_SNAPSHOT_AS_ARRAY = new String[]{JAVA, JAR, YOURKIT_CMD, "capture-performance-snapshot"};
+	private final static String[] CMD_HEAP_SNAPSHOT_AS_ARRAY = new String[]{JAVA, JAR, YOURKIT_CMD, "capture-memory-snapshot"};
 
 	public PerformanceTests(String name) {
 		super(name);
@@ -158,14 +161,14 @@ public class PerformanceTests extends TestBase
 		if (INCLUDE_APT_DISABLED) {
 			AptConfig.setEnabled(jproj, false);
 			startNanos = System.nanoTime();
-			run.exec(CMD_START_CPU_PROFILING).waitFor();
+			run.exec(CMD_START_CPU_PROFILING_AS_ARRAY).waitFor();
 			fullBuild( project.getFullPath() );
 			if (VERBOSE) {
 				System.out
 						.println("APT disabled: full build took " + ((System.nanoTime() - startNanos) / 1_000_000L) + " ms");
 			}
-			run.exec(CMD_PERF_SNAPSHOT).waitFor();
-			run.exec(CMD_STOP_CPU_PROFILING).waitFor();
+			run.exec(CMD_PERF_SNAPSHOT_AS_ARRAY).waitFor();
+			run.exec(CMD_STOP_CPU_PROFILING_AS_ARRAY).waitFor();
 			expectingNoProblems();
 		}
 
@@ -181,7 +184,7 @@ public class PerformanceTests extends TestBase
 			System.out.println("full build took " + ((System.nanoTime() - startNanos) / 1_000_000L) + " ms");
 			System.out.println("Taking heap snapshot");
 		}
-		run.exec(CMD_HEAP_SNAPSHOT).waitFor();
+		run.exec(CMD_HEAP_SNAPSHOT_AS_ARRAY).waitFor();
 		expectingNoProblems();
 
 		System.gc();
@@ -191,13 +194,13 @@ public class PerformanceTests extends TestBase
 		startNanos = System.nanoTime();
 		if (VERBOSE)
 			System.out.println("APT enabled: starting full build");
-		run.exec(CMD_START_CPU_PROFILING).waitFor();
+		run.exec(CMD_START_CPU_PROFILING_AS_ARRAY).waitFor();
 		fullBuild( project.getFullPath() );
 		if (VERBOSE) {
 			System.out.println("full build took " + ((System.nanoTime() - startNanos) / 1_000_000L) + " ms");
 		}
-		run.exec(CMD_PERF_SNAPSHOT).waitFor();
-		run.exec(CMD_STOP_CPU_PROFILING).waitFor();
+		run.exec(CMD_PERF_SNAPSHOT_AS_ARRAY).waitFor();
+		run.exec(CMD_STOP_CPU_PROFILING_AS_ARRAY).waitFor();
 		expectingNoProblems();
 
 		System.gc();
@@ -207,13 +210,13 @@ public class PerformanceTests extends TestBase
 		startNanos = System.nanoTime();
 		if (VERBOSE)
 			System.out.println("APT enabled: starting full build");
-		run.exec(CMD_START_CPU_PROFILING).waitFor();
+		run.exec(CMD_START_CPU_PROFILING_AS_ARRAY).waitFor();
 		fullBuild( project.getFullPath() );
 		if (VERBOSE) {
 			System.out.println("full build took " + ((System.nanoTime() - startNanos) / 1_000_000L) + " ms");
 		}
-		run.exec(CMD_PERF_SNAPSHOT).waitFor();
-		run.exec(CMD_STOP_CPU_PROFILING).waitFor();
+		run.exec(CMD_PERF_SNAPSHOT_AS_ARRAY).waitFor();
+		run.exec(CMD_STOP_CPU_PROFILING_AS_ARRAY).waitFor();
 		expectingNoProblems();
 
 		// Now delete the project!
@@ -241,13 +244,13 @@ public class PerformanceTests extends TestBase
 		if (INCLUDE_APT_DISABLED) {
 			AptConfig.setEnabled(jproj, false);
 			long startNanos = System.nanoTime();
-			run.exec(CMD_START_CPU_PROFILING).waitFor();
+			run.exec(CMD_START_CPU_PROFILING_AS_ARRAY).waitFor();
 			fullBuild( project.getFullPath() );
 			if (VERBOSE)
 				System.out.println(
 						"APT disabled: full build took " + ((System.nanoTime() - startNanos) / 1_000_000L) + " ms");
-			run.exec(CMD_PERF_SNAPSHOT).waitFor();
-			run.exec(CMD_STOP_CPU_PROFILING).waitFor();
+			run.exec(CMD_PERF_SNAPSHOT_AS_ARRAY).waitFor();
+			run.exec(CMD_STOP_CPU_PROFILING_AS_ARRAY).waitFor();
 			expectingNoProblems();
 		}
 
@@ -258,12 +261,12 @@ public class PerformanceTests extends TestBase
 		long startNanos = System.nanoTime();
 		if (VERBOSE)
 			System.out.println("APT enabled: starting full build");
-		run.exec(CMD_START_CPU_PROFILING).waitFor();
+		run.exec(CMD_START_CPU_PROFILING_AS_ARRAY).waitFor();
 		fullBuild( project.getFullPath() );
 		if (VERBOSE)
 			System.out.println("full build took " + ((System.nanoTime() - startNanos) / 1_000_000L) + " ms");
-		run.exec(CMD_PERF_SNAPSHOT).waitFor();
-		run.exec(CMD_STOP_CPU_PROFILING).waitFor();
+		run.exec(CMD_PERF_SNAPSHOT_AS_ARRAY).waitFor();
+		run.exec(CMD_STOP_CPU_PROFILING_AS_ARRAY).waitFor();
 		expectingNoProblems();
 
 		// Now delete the project!

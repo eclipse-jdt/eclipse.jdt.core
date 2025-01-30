@@ -3767,6 +3767,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
         System.out.println(env);
     }
 
+	@SuppressWarnings("removal")
     private void printMemoryUse() {
     	System.gc();
     	System.runFinalization();
