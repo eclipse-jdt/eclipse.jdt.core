@@ -313,13 +313,13 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	 * @return the key including the exception suffix
 	 */
 	private String computeKeyWithThrowsFromJavadoc(IMethod method) {
-		String[] exceptions = Arrays.stream(getExceptionTypes()).map(ITypeBinding::getKey).toArray(String[]::new);
-		if (method != null) {
-			try {
-				exceptions = method.getExceptionTypes();
-			} catch (JavaModelException ex) {
-				// ignore
-			}
+		String[] exceptions = null;
+		try {
+			exceptions = method.getExceptionTypes();
+		} catch (JavaModelException ex) {
+		}
+		if (exceptions == null || exceptions.length == 0) {
+			exceptions = Arrays.stream(getExceptionTypes()).map(ITypeBinding::getKey).toArray(String[]::new);
 		}
 		return getKey() + Arrays.stream(exceptions).map(t -> '|' + t.replace('.', '/')).collect(Collectors.joining());
 	}
