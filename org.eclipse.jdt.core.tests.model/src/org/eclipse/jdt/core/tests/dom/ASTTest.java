@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -809,14 +809,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		return name;
 	}
 
-	/**
-	 * Internal access method to VariableDeclarationFragment#setExtraDimensions for avoiding deprecated warnings.
-	 *
-	 * @deprecated
-	 */
-	private void setExtraDimensions(VariableDeclarationFragment node, int dimensions) {
-		node.setExtraDimensions(dimensions);
-	}
 	/**
 	 * Snippets that show how to...
 	 * @deprecated using deprecated code
@@ -3548,7 +3540,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		});
 	}
 
-	public void testVariableDeclarationFragment() {
+	@SuppressWarnings("deprecation")
+    public void testVariableDeclarationFragment() {
 		long previousCount = this.ast.modificationCount();
 		final VariableDeclarationFragment x = this.ast.newVariableDeclarationFragment();
 		assertTrue(this.ast.modificationCount() > previousCount);
@@ -3567,7 +3560,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 
 		previousCount = this.ast.modificationCount();
 		if (this.ast.apiLevel() < getJLS8()) {
-			setExtraDimensions(x, 1);
+			x.setExtraDimensions(1);
 		} else {
 			x.extraDimensions().add(this.ast.newDimension());
 		}
@@ -3576,7 +3569,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 
 		previousCount = this.ast.modificationCount();
 		if (this.ast.apiLevel() < getJLS8()) {
-			setExtraDimensions(x, 0);
+			x.setExtraDimensions(0);
 		} else {
 			x.extraDimensions().remove(0);
 		}
@@ -3586,7 +3579,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		// check that property cannot be set negative
 		if (this.ast.apiLevel() < getJLS8()) {
 			try {
-				setExtraDimensions(x, -1);
+				x.setExtraDimensions(-1);
 				fail();
 			} catch (IllegalArgumentException e) {
 				// pass
@@ -4902,11 +4895,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		previousCount = this.ast.modificationCount();
 		assertTrue(x.getAST() == this.ast);
 		assertTrue(x.getParent() == null);
-		if (this.ast.apiLevel() == AST.JLS2) {
-			assertTrue(x.getTypeDeclaration() == x1);
-		} else {
-			assertTrue(x.getDeclaration() == x1);
-		}
+		assertTrue(x.getDeclaration() == x1);
 		assertTrue(x1.getParent() == x);
 		assertTrue(x.getNodeType() == ASTNode.TYPE_DECLARATION_STATEMENT);
 		assertTrue(x.structuralPropertiesForType() ==
@@ -4949,7 +4938,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				}
 				@Override
 				public ASTNode get() {
-					return x.getTypeDeclaration();
+					return x.getDeclaration();
 				}
 				@Override
 				public void set(ASTNode value) {
