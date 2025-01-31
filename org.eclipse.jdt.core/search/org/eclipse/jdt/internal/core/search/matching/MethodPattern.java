@@ -14,6 +14,7 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import java.io.IOException;
+import java.util.List;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IMethod;
@@ -55,9 +56,9 @@ char[][][][] parametersTypeArguments;
 boolean methodParameters = false;
 char[][] methodArguments;
 
-protected static char[][] REF_CATEGORIES = { METHOD_REF };
-protected static char[][] REF_AND_DECL_CATEGORIES = { METHOD_REF, METHOD_DECL };
-protected static char[][] DECL_CATEGORIES = { METHOD_DECL };
+private static final List<String> REF_CATEGORIES = List.of(METHOD_REF);
+private static final List<String> REF_AND_DECL_CATEGORIES = List.of( METHOD_REF, METHOD_DECL);
+private static final List<String> DECL_CATEGORIES = List.of(METHOD_DECL);
 
 public final static int FINE_GRAIN_MASK =
 	IJavaSearchConstants.SUPER_REFERENCE |
@@ -288,12 +289,12 @@ public SearchPattern getBlankPattern() {
 	return new MethodPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
 @Override
-public char[][] getIndexCategories() {
+protected List<String> getIndexCategoryStrings() {
 	if (this.findReferences)
 		return this.findDeclarations ? REF_AND_DECL_CATEGORIES : REF_CATEGORIES;
 	if (this.findDeclarations)
 		return DECL_CATEGORIES;
-	return CharOperation.NO_CHAR_CHAR;
+	return List.of();
 }
 boolean hasMethodArguments() {
 	return this.methodArguments != null && this.methodArguments.length > 0;

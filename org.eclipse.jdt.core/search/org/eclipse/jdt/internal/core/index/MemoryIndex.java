@@ -13,97 +13,95 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.index;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import org.eclipse.jdt.core.search.SearchPattern;
-import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
-import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
-import org.eclipse.jdt.internal.compiler.util.SimpleSet;
-import org.eclipse.jdt.internal.core.util.SimpleWordSet;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 
 public class MemoryIndex {
 
 public int NUM_CHANGES = 100; // number of separate document changes... used to decide when to merge
 
-SimpleLookupTable docsToReferences; // document paths -> HashtableOfObject(category names -> set of words)
-SimpleWordSet allWords; // save space by locally interning the referenced words, since an indexer can generate numerous duplicates
+final Map<String, Map<String, Set<String>>> docsToReferences; // document paths -> Map<>(category names -> set of words)
 String lastDocumentName;
-HashtableOfObject lastReferenceTable;
+Map<String, Set<String>> lastReferenceTable;
 
 MemoryIndex() {
-	this.docsToReferences = new SimpleLookupTable(7);
-	this.allWords = new SimpleWordSet(7);
+	this.docsToReferences = new HashMap<>();
 }
-void addDocumentNames(String substring, SimpleSet results) {
+void addDocumentNames(String substring, Set<String> results) {
 	// assumed the disk index already skipped over documents which have been added/changed/deleted
-	Object[] paths = this.docsToReferences.keyTable;
-	Object[] referenceTables = this.docsToReferences.valueTable;
 	if (substring == null) { // add all new/changed documents
-		for (int i = 0, l = referenceTables.length; i < l; i++)
-			if (referenceTables[i] != null)
-				results.add(paths[i]);
+		for (Entry<String, Map<String, Set<String>>> e:this.docsToReferences.entrySet()) {
+			if (e.getValue() != null) {
+				results.add(e.getKey());
+			}
+		}
 	} else {
-		for (int i = 0, l = referenceTables.length; i < l; i++)
-			if (referenceTables[i] != null && ((String) paths[i]).startsWith(substring, 0))
-				results.add(paths[i]);
+		for (Entry<String, Map<String, Set<String>>> e:this.docsToReferences.entrySet())
+			if (e.getValue() != null && (e.getKey()).startsWith(substring, 0))
+				results.add(e.getKey());
 	}
 }
-void addIndexEntry(char[] category, char[] key, String documentName) {
-	HashtableOfObject referenceTable;
+void addIndexEntry(String category, String key, String documentName) {
+	Map<String, Set<String>> referenceTable;
 	if (documentName.equals(this.lastDocumentName))
 		referenceTable = this.lastReferenceTable;
 	else {
 		// assumed a document was removed before its reindexed
-		referenceTable = (HashtableOfObject) this.docsToReferences.get(documentName);
-		if (referenceTable == null)
-			this.docsToReferences.put(documentName, referenceTable = new HashtableOfObject(3));
+		referenceTable =  this.docsToReferences.computeIfAbsent(documentName, k-> new HashMap<>());
 		this.lastDocumentName = documentName;
 		this.lastReferenceTable = referenceTable;
 	}
 
-	SimpleWordSet existingWords = (SimpleWordSet) referenceTable.get(category);
-	if (existingWords == null)
-		referenceTable.put(category, existingWords = new SimpleWordSet(1));
-
-	existingWords.add(this.allWords.add(key));
+	Set<String> existingWords = referenceTable.computeIfAbsent(category, k -> new HashSet<>());
+	String deduplicatedKey = DeduplicationUtil.intern(key); // XXX performance hotspot
+	// XXX: Deduplication is also implicitly done again when saving to disk (but not in memory)
+	// see org.eclipse.jdt.internal.core.index.DiskIndex.writeCategoryTable(String, Map<String, Object>, OutputStream)
+	// and org.eclipse.jdt.internal.core.index.DiskIndex.copyQueryResults(Map<String, Set<String>>, int)
+	existingWords.add(deduplicatedKey);
 }
-HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule, HashtableOfObject results) {
+Map<String, EntryResult> addQueryResults(List<String> categories, String key, int matchRule, Map<String, EntryResult> results) {
 	// assumed the disk index already skipped over documents which have been added/changed/deleted
 	// results maps a word -> EntryResult
-	Object[] paths = this.docsToReferences.keyTable;
-	Object[] referenceTables = this.docsToReferences.valueTable;
 	if (matchRule == (SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE) && key != null) {
-		nextPath : for (int i = 0, l = referenceTables.length; i < l; i++) {
-			HashtableOfObject categoryToWords = (HashtableOfObject) referenceTables[i];
+		nextPath : for (Entry<String, Map<String, Set<String>>> e: this.docsToReferences.entrySet()) {
+			Map<String, Set<String>> categoryToWords = e.getValue();
 			if (categoryToWords != null) {
-				for (char[] category : categories) {
-					SimpleWordSet wordSet = (SimpleWordSet) categoryToWords.get(category);
-					if (wordSet != null && wordSet.includes(key)) {
+				for (String category : categories) {
+					Set<String> wordSet = categoryToWords.get(category);
+					if (wordSet != null && wordSet.contains(key)) {
 						if (results == null)
-							results = new HashtableOfObject(13);
-						EntryResult result = (EntryResult) results.get(key);
+							results = new HashMap<>(13);
+						EntryResult result = results.get(key);
 						if (result == null)
 							results.put(key, result = new EntryResult(key, null));
-						result.addDocumentName((String) paths[i]);
+						result.addDocumentName(e.getKey());
 						continue nextPath;
 					}
 				}
 			}
 		}
 	} else {
-		for (int i = 0, l = referenceTables.length; i < l; i++) {
-			HashtableOfObject categoryToWords = (HashtableOfObject) referenceTables[i];
+		for (Entry<String, Map<String, Set<String>>> e: this.docsToReferences.entrySet()) {
+			Map<String, Set<String>> categoryToWords = e.getValue();
 			if (categoryToWords != null) {
-				for (char[] category : categories) {
-					SimpleWordSet wordSet = (SimpleWordSet) categoryToWords.get(category);
+				for (String category : categories) {
+					Set<String> wordSet = categoryToWords.get(category);
 					if (wordSet != null) {
-						char[][] words = wordSet.words;
-						for (char[] word : words) {
-							if (word != null && Index.isMatch(key, word, matchRule)) {
+						for (String word : wordSet) {
+							if (word != null && Index.isMatch(key == null ? null : key.toCharArray(),
+									word.toCharArray(), matchRule)) {
 								if (results == null)
-									results = new HashtableOfObject(13);
-								EntryResult result = (EntryResult) results.get(word);
+									results = new HashMap<>(13);
+								EntryResult result = results.get(word);
 								if (result == null)
 									results.put(word, result = new EntryResult(word, null));
-								result.addDocumentName((String) paths[i]);
+								result.addDocumentName(e.getKey());
 							}
 						}
 					}
@@ -114,7 +112,7 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 	return results;
 }
 boolean hasChanged() {
-	return this.docsToReferences.elementSize > 0;
+	return this.docsToReferences.size() > 0;
 }
 void remove(String documentName) {
 	if (documentName.equals(this.lastDocumentName)) {
@@ -124,6 +122,6 @@ void remove(String documentName) {
 	this.docsToReferences.put(documentName, null);
 }
 boolean shouldMerge() {
-	return this.docsToReferences.elementSize >= this.NUM_CHANGES;
+	return this.docsToReferences.size() >= this.NUM_CHANGES;
 }
 }

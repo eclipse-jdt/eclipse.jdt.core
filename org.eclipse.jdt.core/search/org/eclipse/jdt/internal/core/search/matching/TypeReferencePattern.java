@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import java.util.List;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
@@ -31,10 +32,9 @@ public class TypeReferencePattern extends IntersectingPattern {
 	protected char[][] segments;
 	protected int currentSegment;
 
-	private final static char[][]
-		CATEGORIES = { REF, ANNOTATION_REF },
-		CATEGORIES_ANNOT_REF = { ANNOTATION_REF };
-	private char[][] categories;
+	private static final List<String> CATEGORIES = List.of(REF, ANNOTATION_REF);
+	private static final List<String> CATEGORIES_ANNOT_REF = List.of(ANNOTATION_REF);
+	private List<String> categories;
 	char typeSuffix = TYPE_SUFFIX;
 
 	public TypeReferencePattern(char[] qualification, char[] simpleName, int matchRule) {
@@ -130,7 +130,7 @@ public class TypeReferencePattern extends IntersectingPattern {
 		return null;
 	}
 	@Override
-	public char[][] getIndexCategories() {
+	protected List<String> getIndexCategoryStrings() {
 		return this.categories;
 	}
 	@Override

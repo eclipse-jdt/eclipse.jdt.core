@@ -14,6 +14,7 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import java.io.IOException;
+import java.util.List;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.index.EntryResult;
@@ -31,7 +32,7 @@ public char[][] qualifications;
 // set to TYPE_SUFFIX for matching both classes and interfaces
 public char typeSuffix;
 
-protected static char[][] CATEGORIES = { TYPE_DECL };
+private static final List<String> CATEGORIES = List.of(TYPE_DECL);
 
 public MultiTypeDeclarationPattern(
 	char[][] qualifications,
@@ -72,7 +73,7 @@ public SearchPattern getBlankPattern() {
 	return new QualifiedTypeDeclarationPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
 @Override
-public char[][] getIndexCategories() {
+protected List<String> getIndexCategoryStrings() {
 	return CATEGORIES;
 }
 @Override

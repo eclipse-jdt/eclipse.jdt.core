@@ -2509,7 +2509,7 @@ public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchP
 			if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 
 			SearchPattern decodedResult = pattern.getBlankPattern();
-			decodedResult.decodeIndexKey(entry.getWord());
+			decodedResult.decodeIndexKey(entry.getWord().toCharArray());
 			if (pattern.matchesDecodedKey(decodedResult)) {
 				// Since resolve document name is expensive, leave the decision to the search client
 				// to decide whether to do so.
@@ -2567,6 +2567,7 @@ public char[] getIndexKey() {
 public char[][] getIndexCategories() {
 	return CharOperation.NO_CHAR_CHAR; // called from queryIn(), override as necessary
 }
+
 /**
  * Returns the rule to apply for matching index keys. Can be exact match, prefix match, pattern match or regexp match.
  * Rule can also be combined with a case sensitivity flag.

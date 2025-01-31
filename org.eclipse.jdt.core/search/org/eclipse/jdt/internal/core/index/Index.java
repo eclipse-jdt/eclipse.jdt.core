@@ -18,12 +18,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchPattern;
-import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
-import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.indexing.ReadWriteMonitor;
 
@@ -122,6 +122,12 @@ public Index(IndexLocation location, String containerPath, boolean reuseExisting
 	if (reuseExistingFile) this.separator = this.diskIndex.separator;
 }
 public void addIndexEntry(char[] category, char[] key, String containerRelativePath) {
+	addIndexEntry(new String(category), key == null ? null : String.valueOf(key), containerRelativePath);
+}
+public void addIndexEntry(String category, char[] key, String containerRelativePath) {
+	addIndexEntry(category, key == null ? null : String.valueOf(key), containerRelativePath);
+}
+public void addIndexEntry(String category, String key, String containerRelativePath) {
 	this.memoryIndex.addIndexEntry(category, key, containerRelativePath);
 }
 public String containerRelativePath(String documentPath) {
@@ -151,6 +157,16 @@ public boolean hasChanged() {
  * If the key is null then all entries in specified categories are returned.
  */
 public EntryResult[] query(char[][] categories, char[] key, int matchRule) throws IOException {
+	List<String> categoryStrings = new ArrayList<>(categories.length);
+	for (int i = 0; i < categories.length; i++) {
+		categoryStrings.add(new String(categories[i]));
+	}
+	return query(categoryStrings, key == null ? null : String.valueOf(key), matchRule);
+}
+public EntryResult[] query(List<String> categories, char[] key, int matchRule) throws IOException {
+	return query(categories, key == null ? null : String.valueOf(key), matchRule);
+}
+public EntryResult[] query(List<String> categories, String key, int matchRule) throws IOException {
 	ReadWriteMonitor readWriteMonitor = this.monitor;
 	if(readWriteMonitor == null) {
 		// index got deleted since acquired
@@ -164,7 +180,7 @@ public EntryResult[] query(char[][] categories, char[] key, int matchRule) throw
 		}
 	}
 
-	HashtableOfObject results;
+	Map<String, EntryResult> results;
 	int rule = matchRule & MATCH_RULE_INDEX_MASK;
 	if (this.memoryIndex.hasChanged()) {
 		results = this.diskIndex.addQueryResults(categories, key, rule, this.memoryIndex);
@@ -174,35 +190,29 @@ public EntryResult[] query(char[][] categories, char[] key, int matchRule) throw
 	}
 	if (results == null) return null;
 
-	EntryResult[] entryResults = new EntryResult[results.elementSize];
-	int count = 0;
-	Object[] values = results.valueTable;
-	for (Object value : values) {
-		EntryResult result = (EntryResult) value;
-		if (result != null)
-			entryResults[count++] = result;
-	}
+	EntryResult[] entryResults = results.values().toArray(EntryResult[]::new);
 	return entryResults;
 }
 /**
  * Returns the document names that contain the given substring, if null then returns all of them.
  */
 public String[] queryDocumentNames(String substring) throws IOException {
-	SimpleSet results;
+	Set<String> results;
 	if (this.memoryIndex.hasChanged()) {
 		results = this.diskIndex.addDocumentNames(substring, this.memoryIndex);
 		this.memoryIndex.addDocumentNames(substring, results);
 	} else {
 		results = this.diskIndex.addDocumentNames(substring, null);
 	}
-	if (results.elementSize == 0) return null;
+	if (results.size() == 0) return null;
 
-	String[] documentNames = new String[results.elementSize];
+	String[] documentNames = new String[results.size()];
 	int count = 0;
-	Object[] paths = results.values;
-	for (Object path : paths)
-		if (path != null)
-			documentNames[count++] = (String) path;
+	for (String path : results) {
+		if (path != null) {
+			documentNames[count++] = path;
+		}
+	}
 	return documentNames;
 }
 public void remove(String containerRelativePath) {
@@ -250,12 +260,12 @@ public List<IndexQualifier> getMetaIndexQualifications() throws IOException {
 	startQuery();
 	try {
 		ArrayList<IndexQualifier> qualifiers = new ArrayList<>();
-		for(char[] category : IIndexConstants.META_INDEX_CATEGORIES) {
+		for(String category : IIndexConstants.META_INDEX_CATEGORIES) {
 			if (this.monitor == null) {
 				// index got deleted since acquired
 				return Collections.emptyList();
 			}
-			EntryResult[] results = query(new char[][] {category}, null,
+			EntryResult[] results = query(List.of(category), (String) null,
 					SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 			if(results != null) {
 				qualifiers.ensureCapacity(results.length); // minimize array resize

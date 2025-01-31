@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.core.index;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -45,9 +46,16 @@ public class MetaIndex {
 		Optional.ofNullable(this.indexesNotInMeta).ifPresent(i -> i.add(indexName));
 	}
 
-	public void addIndexEntry(char[] metaCategory, char[] qualifier, String name) {
-		this.decoratee.addIndexEntry(metaCategory, qualifier, name);
-		Optional.ofNullable(this.indexesNotInMeta).ifPresent(i -> i.remove(name));
+	public void addIndexEntry(char[] metaCategory, char[] qualifier, char[] name) {
+		String nameString= new String(name);
+		addIndexEntry(metaCategory, qualifier, nameString);
+	}
+	public void addIndexEntry(char[] metaCategory, char[] qualifier, String nameString) {
+		addIndexEntry(new String(metaCategory), new String(qualifier), nameString);
+	}
+	public void addIndexEntry(String metaCategory, String qualifier, String nameString) {
+		this.decoratee.addIndexEntry(metaCategory, qualifier, nameString);
+		Optional.ofNullable(this.indexesNotInMeta).ifPresent(i -> i.remove(nameString));
 	}
 
 	public Index getIndex() {
@@ -58,7 +66,7 @@ public class MetaIndex {
 		this.decoratee.startQuery();
 	}
 
-	public EntryResult[] query(char[][] categories, char[] indexQualifier, int matchRule) throws IOException {
+	public EntryResult[] query(List<String> categories, char[] indexQualifier, int matchRule) throws IOException {
 		return this.decoratee.query(categories, indexQualifier, matchRule);
 	}
 

@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import java.util.List;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.compiler.ExtraFlags;
@@ -138,7 +139,7 @@ public SearchPattern getBlankPattern() {
 	return new ConstructorDeclarationPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
 @Override
-public char[][] getIndexCategories() {
+protected List<String> getIndexCategoryStrings() {
 	return DECL_CATEGORIES;
 }
 @Override

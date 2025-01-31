@@ -18,11 +18,11 @@ import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 
 public class EntryResult {
 
-private final char[] word;
+private final String word;
 private Object[] documentTables;
 private SimpleSet documentNames;
 
-public EntryResult(char[] word, Object table) {
+public EntryResult(String word, Object table) {
 	this.word = word;
 	if (table != null)
 		this.documentTables = new Object[] {table};
@@ -41,7 +41,7 @@ public void addDocumentTable(Object table) {
 		this.documentTables = new Object[] {table};
 	}
 }
-public char[] getWord() {
+public String getWord() {
 	return this.word;
 }
 public String[] getDocumentNames(Index index) throws java.io.IOException {

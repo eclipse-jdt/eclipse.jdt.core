@@ -92,7 +92,8 @@ public class IndexManagerTests extends ModifyingResourceTests {
 		indexNames = searchInMetaIndex("java.util.ArrayList");
 
 		assertTrue("No meta index", indexNames.isPresent());
-		assertEquals("Expected number of indexes are not found for ArrayList", size + 1, indexNames.get().size());
+		assertEquals("Expected number of indexes are not found for ArrayList:" + indexNames.get(), size + 1,
+				indexNames.get().size());
 	}
 
 	public void testAddingRemoveSourceFile_ShouldUpdate_MetaIndex() throws CoreException {
@@ -207,13 +208,13 @@ public class IndexManagerTests extends ModifyingResourceTests {
 				index.get().startQuery();
 				List<EntryResult> results = new ArrayList<>(2);
 				results.addAll(safeList(index.get()
-						.query(new char[][] { IIndexConstants.META_INDEX_QUALIFIED_TYPE_QUALIFIER_REF,
-								IIndexConstants.META_INDEX_QUALIFIED_SUPER_TYPE_QUALIFIER_REF }, indexQualifier.toCharArray(),
+						.query(List.of(IIndexConstants.META_INDEX_QUALIFIED_TYPE_QUALIFIER_REF,
+								IIndexConstants.META_INDEX_QUALIFIED_SUPER_TYPE_QUALIFIER_REF), indexQualifier.toCharArray(),
 								SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE)));
 
 				results.addAll(safeList(index.get()
-						.query(new char[][] { IIndexConstants.META_INDEX_SIMPLE_SUPER_TYPE_QUALIFIER_REF,
-								IIndexConstants.META_INDEX_SIMPLE_TYPE_QUALIFIER_REF },
+						.query(List.of( IIndexConstants.META_INDEX_SIMPLE_SUPER_TYPE_QUALIFIER_REF,
+								IIndexConstants.META_INDEX_SIMPLE_TYPE_QUALIFIER_REF),
 								CharOperation.lastSegment(indexQualifier.toCharArray(), '.'),
 								SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE)));
 

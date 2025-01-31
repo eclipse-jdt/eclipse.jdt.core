@@ -14,6 +14,7 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import java.io.IOException;
+import java.util.List;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.index.EntryResult;
@@ -41,7 +42,7 @@ public static final int ALL_SUPER_TYPES = 0;
 public static final int ONLY_SUPER_INTERFACES = 1; // used for IMPLEMENTORS
 public static final int ONLY_SUPER_CLASSES = 2; // used for hierarchy with a class focus
 
-protected static char[][] CATEGORIES = { SUPER_REF };
+private static final List<String> CATEGORIES = List.of(SUPER_REF);
 
 public static char[] createIndexKey(
 	int modifiers,
@@ -231,7 +232,7 @@ public SearchPattern getBlankPattern() {
 	return new SuperTypeReferencePattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
 @Override
-public char[][] getIndexCategories() {
+protected List<String> getIndexCategoryStrings() {
 	return CATEGORIES;
 }
 @Override

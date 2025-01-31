@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import java.util.List;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
@@ -28,7 +29,7 @@ import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.util.Util;
 
 
-public class JavaSearchPattern extends SearchPattern implements IIndexConstants, IParallelizable, Cloneable {
+public abstract class JavaSearchPattern extends SearchPattern implements IIndexConstants, IParallelizable, Cloneable {
 
 	/*
 	 * Whether this pattern is case sensitive.
@@ -455,5 +456,16 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants,
 	public boolean isParallelSearchSupported() {
 		return true;
 	}
-
+	@Override
+	final public char[][] getIndexCategories() {
+		List<String> categories = getIndexCategoryStrings();
+		char[][] indexCategories= new char [categories.size()][];
+		for (int i = 0; i < categories.size(); i++) {
+			indexCategories[i] = categories.get(i).toCharArray();
+		}
+		return indexCategories;
+	}
+	protected List<String> getIndexCategoryStrings() {
+			return List.of();
+	}
 }

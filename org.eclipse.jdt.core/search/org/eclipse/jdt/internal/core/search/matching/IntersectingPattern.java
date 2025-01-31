@@ -52,7 +52,7 @@ public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchP
 			for (EntryResult entry : entries) {
 				if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 
-				decodedResult.decodeIndexKey(entry.getWord());
+				decodedResult.decodeIndexKey(entry.getWord().toCharArray());
 				if (pattern.matchesDecodedKey(decodedResult)) {
 					String[] names = entry.getDocumentNames(index);
 					if (intersectedNames != null) {

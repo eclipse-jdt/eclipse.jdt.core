@@ -162,8 +162,8 @@ public abstract class AbstractIndexer implements IIndexConstants {
 	public void addFieldReference(char[] fieldName) {
 		addNameReference(fieldName);
 	}
-	protected void addIndexEntry(char[] category, char[] key) {
-		this.document.addIndexEntry(category, key);
+	protected void addIndexEntry(String category, char[] key) {
+		this.document.addIndexEntry(category.toCharArray(), key); // XXX stupid back and forth conversion from String to char[] due to API
 	}
 	public void addInterfaceDeclaration(int modifiers, char[] packageName, char[] name, char[][] enclosingTypeNames, char[][] superinterfaces, char[][] typeParameterSignatures, boolean secondary) {
 		addTypeDeclaration(modifiers, packageName, name, enclosingTypeNames, secondary);
@@ -275,7 +275,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 	}
 
 	protected void addIndexMetaQualification(char[] typeName, boolean superType) {
-		char[] category = superType ? META_INDEX_SIMPLE_SUPER_TYPE_QUALIFIER_REF : META_INDEX_SIMPLE_TYPE_QUALIFIER_REF;
+		String category = superType ? META_INDEX_SIMPLE_SUPER_TYPE_QUALIFIER_REF : META_INDEX_SIMPLE_TYPE_QUALIFIER_REF;
 		if(CharOperation.contains('.', typeName)) {
 			category = superType ? META_INDEX_QUALIFIED_SUPER_TYPE_QUALIFIER_REF : META_INDEX_QUALIFIED_TYPE_QUALIFIER_REF;
 		}

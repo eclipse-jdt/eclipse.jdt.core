@@ -14,6 +14,7 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import java.io.IOException;
+import java.util.List;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchPattern;
@@ -26,9 +27,9 @@ public class ModulePattern extends JavaSearchPattern {
 	boolean findReferences = true; /* package visible */
 	char[] name; /* package visible */
 
-	protected static char[][] REF_CATEGORIES = { MODULE_REF };
-	protected static char[][] REF_AND_DECL_CATEGORIES = { MODULE_REF, MODULE_DECL };
-	protected static char[][] DECL_CATEGORIES = { MODULE_DECL };
+	private static final List<String> REF_CATEGORIES = List.of(MODULE_REF);
+	private static final List<String> REF_AND_DECL_CATEGORIES = List.of(MODULE_REF, MODULE_DECL);
+	private static final List<String> DECL_CATEGORIES = List.of(MODULE_DECL);
 	private static char[] regexPrefix = {'/','r',' '};
 
 	public static char[] createIndexKey(char[] name) {
@@ -80,12 +81,12 @@ public class ModulePattern extends JavaSearchPattern {
 		return new ModulePattern(R_EXACT_MATCH);
 	}
 	@Override
-	public char[][] getIndexCategories() {
+	protected List<String> getIndexCategoryStrings() {
 		if (this.findReferences)
 			return this.findDeclarations ? REF_AND_DECL_CATEGORIES : REF_CATEGORIES;
 		if (this.findDeclarations)
 			return DECL_CATEGORIES;
-		return CharOperation.NO_CHAR_CHAR;
+		return List.of();
 	}
 	@Override
 	public boolean matchesDecodedKey(SearchPattern decodedPattern) {

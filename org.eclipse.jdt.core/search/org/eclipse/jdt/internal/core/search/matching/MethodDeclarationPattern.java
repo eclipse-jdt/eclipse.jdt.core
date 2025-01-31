@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import java.util.List;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchPattern;
@@ -272,8 +273,8 @@ public void decodeIndexKey(char[] key) {
 	}
 
 	@Override
-	public char[][] getIndexCategories() {
-		return new char[][] { METHOD_DECL_PLUS };
+	protected List<String> getIndexCategoryStrings() {
+		return List.of(METHOD_DECL_PLUS);
 	}
 
 	private void removeInternalFlags() {

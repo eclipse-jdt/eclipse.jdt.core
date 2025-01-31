@@ -14,6 +14,7 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import java.io.IOException;
+import java.util.List;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IMethod;
@@ -47,9 +48,9 @@ char[][][][] parametersTypeArguments;
 boolean constructorParameters = false;
 char[][] constructorArguments;
 
-protected static char[][] REF_CATEGORIES = { CONSTRUCTOR_REF };
-protected static char[][] REF_AND_DECL_CATEGORIES = { CONSTRUCTOR_REF, CONSTRUCTOR_DECL };
-protected static char[][] DECL_CATEGORIES = { CONSTRUCTOR_DECL };
+private static final List<String> REF_CATEGORIES = List.of(CONSTRUCTOR_REF);
+private static final List<String> REF_AND_DECL_CATEGORIES = List.of(CONSTRUCTOR_REF, CONSTRUCTOR_DECL);
+protected static final List<String> DECL_CATEGORIES = List.of( CONSTRUCTOR_DECL);
 
 public final static int FINE_GRAIN_MASK =
 	IJavaSearchConstants.SUPER_REFERENCE |
@@ -493,12 +494,12 @@ public SearchPattern getBlankPattern() {
 	return new ConstructorPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
 @Override
-public char[][] getIndexCategories() {
+protected List<String> getIndexCategoryStrings() {
 	if (this.findReferences)
 		return this.findDeclarations ? REF_AND_DECL_CATEGORIES : REF_CATEGORIES;
 	if (this.findDeclarations)
 		return DECL_CATEGORIES;
-	return CharOperation.NO_CHAR_CHAR;
+	return List.of();
 }
 boolean hasConstructorArguments() {
 	return this.constructorArguments != null && this.constructorArguments.length > 0;

@@ -14,6 +14,7 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.regex.Pattern;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
@@ -41,7 +42,7 @@ public char typeSuffix;
 public int modifiers;
 public boolean secondary = false;
 
-protected static char[][] CATEGORIES = { TYPE_DECL };
+protected static final List<String> CATEGORIES = List.of(TYPE_DECL);
 
 // want to save space by interning the package names for each match
 static PackageNameSet internedPackageNames = new PackageNameSet(1001);
@@ -263,7 +264,7 @@ public SearchPattern getBlankPattern() {
 	return new TypeDeclarationPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
 @Override
-public char[][] getIndexCategories() {
+protected List<String> getIndexCategoryStrings() {
 	return CATEGORIES;
 }
 @Override

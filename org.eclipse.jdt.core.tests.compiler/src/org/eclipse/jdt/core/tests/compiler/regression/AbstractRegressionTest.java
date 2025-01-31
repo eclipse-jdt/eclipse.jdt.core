@@ -1715,7 +1715,8 @@ protected static class JavacTestOptions {
 		};
 		SearchDocument document = participant.getDocument(new File(classFilePath).getPath());
 		BinaryIndexer indexer = new BinaryIndexer(document) {
-			protected void addIndexEntry(char[] category, char[] key) {
+			@Override
+			protected void addIndexEntry(String category, char[] key) {
 				references.append(category);
 				references.append('/');
 				references.append(key);

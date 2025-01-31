@@ -1526,8 +1526,8 @@ public Optional<Set<String>> findMatchingIndexNames(QualifierQuery query) {
 		mindex.startQuery();
 
 		try {
-			List<char[]> qualifiedCategories = new ArrayList<>(2);
-			List<char[]> simpleCategories = new ArrayList<>(2);
+			List<String> qualifiedCategories = new ArrayList<>(2);
+			List<String> simpleCategories = new ArrayList<>(2);
 
 			for (QueryCategory cat : query.getCategories()) {
 				if(cat == QueryCategory.REF) {
@@ -1541,9 +1541,9 @@ public Optional<Set<String>> findMatchingIndexNames(QualifierQuery query) {
 
 			List<EntryResult> results = new ArrayList<>();
 			if(query.getQualifiedKey().length > 0) {
-				results.addAll(runQuery(mindex, qualifiedCategories.toArray(new char[0][]), query.getQualifiedKey()));
+				results.addAll(runQuery(mindex, qualifiedCategories, query.getQualifiedKey()));
 			}
-			results.addAll(runQuery(mindex, simpleCategories.toArray(new char[0][]), query.getSimpleKey()));
+			results.addAll(runQuery(mindex, simpleCategories, query.getSimpleKey()));
 
 			Set<String> indexesNotInMeta;
 			synchronized (this) {
@@ -1574,7 +1574,7 @@ public Optional<Set<String>> findMatchingIndexNames(QualifierQuery query) {
 		}
 	}
 }
-private List<EntryResult> runQuery(MetaIndex index, char[][] categories, char[] key) throws IOException {
+private List<EntryResult> runQuery(MetaIndex index, List<String> categories, char[] key) throws IOException {
 	EntryResult[] result = index.query(categories, key,
 			SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 	if(result != null) {
@@ -1657,7 +1657,7 @@ void updateMetaIndex(String indexFileName, List<IndexQualifier> qualifications) 
 		mindex.remove(indexFileName);
 
 		for (IndexQualifier qualifier : qualifications) {
-			mindex.addIndexEntry(qualifier.getCategory(), qualifier.getKey(), indexFileName);
+			mindex.addIndexEntry(qualifier.category(), qualifier.key(), indexFileName);
 		}
 		if (VERBOSE) {
 			trace("-> meta-index updated for " + indexFileName); //$NON-NLS-1$

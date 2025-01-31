@@ -18,30 +18,30 @@ import org.eclipse.jdt.core.search.IJavaSearchConstants;
 public interface IIndexConstants {
 
 	/* index encoding */
-	char[] REF= "ref".toCharArray(); //$NON-NLS-1$
-	char[] ANNOTATION_REF= "annotationRef".toCharArray(); //$NON-NLS-1$
-	char[] METHOD_REF= "methodRef".toCharArray(); //$NON-NLS-1$
-	char[] CONSTRUCTOR_REF= "constructorRef".toCharArray(); //$NON-NLS-1$
-	char[] SUPER_REF = "superRef".toCharArray(); //$NON-NLS-1$
-	char[] TYPE_DECL = "typeDecl".toCharArray(); //$NON-NLS-1$
-	char[] METHOD_DECL= "methodDecl".toCharArray(); //$NON-NLS-1$
-	char[] METHOD_DECL_PLUS= "methodDeclPlus".toCharArray(); //$NON-NLS-1$
-	char[] CONSTRUCTOR_DECL= "constructorDecl".toCharArray(); //$NON-NLS-1$
-	char[] FIELD_DECL= "fieldDecl".toCharArray(); //$NON-NLS-1$
-	char[] MODULE_DECL= "moduleDecl".toCharArray(); //$NON-NLS-1$
-	char[] MODULE_REF= "moduleRef".toCharArray(); //$NON-NLS-1$
+	String REF= "ref"; //$NON-NLS-1$
+	String ANNOTATION_REF= "annotationRef"; //$NON-NLS-1$
+	String METHOD_REF= "methodRef"; //$NON-NLS-1$
+	String CONSTRUCTOR_REF= "constructorRef"; //$NON-NLS-1$
+	String SUPER_REF = "superRef"; //$NON-NLS-1$
+	String TYPE_DECL = "typeDecl"; //$NON-NLS-1$
+	String METHOD_DECL= "methodDecl"; //$NON-NLS-1$
+	String METHOD_DECL_PLUS= "methodDeclPlus"; //$NON-NLS-1$
+	String CONSTRUCTOR_DECL= "constructorDecl"; //$NON-NLS-1$
+	String FIELD_DECL= "fieldDecl"; //$NON-NLS-1$
+	String MODULE_DECL= "moduleDecl"; //$NON-NLS-1$
+	String MODULE_REF= "moduleRef"; //$NON-NLS-1$
 	char[] OBJECT = "Object".toCharArray(); //$NON-NLS-1$
-	char[] MODULE_INFO = "module-info".toCharArray(); ////$NON-NLS-1$
+	String MODULE_INFO = "module-info"; ////$NON-NLS-1$
 	char[][] COUNTS=
-		new char[][] { new char[] {'/', '0'}, new char[] {'/', '1'}, new char[] {'/', '2'}, new char[] {'/', '3'}, new char[] {'/', '4'},
-			new char[] {'/', '5'}, new char[] {'/', '6'}, new char[] {'/', '7'}, new char[] {'/', '8'}, new char[] {'/', '9'}
+			new char[][] { new char[] {'/', '0'}, new char[] {'/', '1'}, new char[] {'/', '2'}, new char[] {'/', '3'}, new char[] {'/', '4'},
+				new char[] {'/', '5'}, new char[] {'/', '6'}, new char[] {'/', '7'}, new char[] {'/', '8'}, new char[] {'/', '9'}
 	};
 	char[] DEFAULT_CONSTRUCTOR = new char[]{'/', '#'};
-	char[] META_INDEX_SIMPLE_TYPE_QUALIFIER_REF = "metaIndexSTQ".toCharArray(); //$NON-NLS-1$
-	char[] META_INDEX_QUALIFIED_TYPE_QUALIFIER_REF = "metaIndexQTQ".toCharArray(); //$NON-NLS-1$
-	char[] META_INDEX_SIMPLE_SUPER_TYPE_QUALIFIER_REF = "metaIndexSSTQ".toCharArray(); //$NON-NLS-1$
-	char[] META_INDEX_QUALIFIED_SUPER_TYPE_QUALIFIER_REF = "metaIndexQSTQ".toCharArray(); //$NON-NLS-1$
-	char[][] META_INDEX_CATEGORIES = new char[][] { META_INDEX_SIMPLE_TYPE_QUALIFIER_REF, META_INDEX_QUALIFIED_TYPE_QUALIFIER_REF,
+	String META_INDEX_SIMPLE_TYPE_QUALIFIER_REF = "metaIndexSTQ"; //$NON-NLS-1$
+	String META_INDEX_QUALIFIED_TYPE_QUALIFIER_REF = "metaIndexQTQ"; //$NON-NLS-1$
+	String META_INDEX_SIMPLE_SUPER_TYPE_QUALIFIER_REF = "metaIndexSSTQ"; //$NON-NLS-1$
+	String META_INDEX_QUALIFIED_SUPER_TYPE_QUALIFIER_REF = "metaIndexQSTQ"; //$NON-NLS-1$
+	String[] META_INDEX_CATEGORIES = new String[] { META_INDEX_SIMPLE_TYPE_QUALIFIER_REF, META_INDEX_QUALIFIED_TYPE_QUALIFIER_REF,
 			META_INDEX_SIMPLE_SUPER_TYPE_QUALIFIER_REF, META_INDEX_QUALIFIED_SUPER_TYPE_QUALIFIER_REF };
 	char CLASS_SUFFIX = 'C';
 	char INTERFACE_SUFFIX = 'I';

@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import java.util.List;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -27,9 +28,9 @@ protected char[] declaringSimpleName;
 protected char[] typeQualification;
 protected char[] typeSimpleName;
 
-protected static char[][] REF_CATEGORIES = { REF };
-protected static char[][] REF_AND_DECL_CATEGORIES = { REF, FIELD_DECL };
-protected static char[][] DECL_CATEGORIES = { FIELD_DECL };
+private static final List<String> REF_CATEGORIES = List.of(REF);
+private static final List<String> REF_AND_DECL_CATEGORIES = List.of(REF, FIELD_DECL);
+private static final List<String> DECL_CATEGORIES = List.of(FIELD_DECL);
 
 public static char[] createIndexKey(char[] fieldName) {
 	return fieldName;
@@ -87,12 +88,12 @@ public char[] getIndexKey() {
 	return this.name;
 }
 @Override
-public char[][] getIndexCategories() {
+protected List<String> getIndexCategoryStrings() {
 	if (this.findReferences || this.fineGrain != 0)
 		return this.findDeclarations || this.writeAccess ? REF_AND_DECL_CATEGORIES : REF_CATEGORIES;
 	if (this.findDeclarations)
 		return DECL_CATEGORIES;
-	return CharOperation.NO_CHAR_CHAR;
+	return List.of();
 }
 @Override
 public boolean matchesDecodedKey(SearchPattern decodedPattern) {

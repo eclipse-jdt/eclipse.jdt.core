@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import java.util.List;
 import org.eclipse.jdt.internal.core.index.EntryResult;
 import org.eclipse.jdt.internal.core.index.Index;
 
@@ -38,5 +39,9 @@ protected StringBuilder print(StringBuilder output) {
 		output.append("*"); //$NON-NLS-1$
 	output.append(">"); //$NON-NLS-1$
 	return super.print(output);
+}
+@Override
+protected List<String> getIndexCategoryStrings() {
+	return List.of();
 }
 }

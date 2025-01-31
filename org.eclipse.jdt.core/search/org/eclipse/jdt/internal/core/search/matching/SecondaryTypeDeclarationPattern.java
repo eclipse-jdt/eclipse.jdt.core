@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 public class SecondaryTypeDeclarationPattern extends TypeDeclarationPattern {
 
-	private final static char[] SECONDARY_PATTERN_KEY = "*/S".toCharArray(); //$NON-NLS-1$
+	private final static String SECONDARY_PATTERN_KEY = "*/S"; //$NON-NLS-1$
 
 public SecondaryTypeDeclarationPattern() {
 	super(null, null, null, IIndexConstants.SECONDARY_SUFFIX, R_EXACT_MATCH | R_CASE_SENSITIVE);

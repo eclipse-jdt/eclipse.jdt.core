@@ -16,25 +16,8 @@ package org.eclipse.jdt.internal.core.index;
 /**
  * The index qualifier which is used for represent MetaIndex qualifications which contains a category and a search key.
  */
-public final class IndexQualifier {
-	private final char[] category;
-
-	private final char[] key;
-
-	private IndexQualifier(char[] category, char[] key) {
-		this.category = category;
-		this.key = key;
-	}
-
-	public static IndexQualifier qualifier(char[] category, char[] key) {
+public record IndexQualifier(String category,String key) {
+	public static IndexQualifier qualifier(String category, String key) {
 		return new IndexQualifier(category, key);
-	}
-
-	public char[] getCategory() {
-		return this.category;
-	}
-
-	public char[] getKey() {
-		return this.key;
 	}
 }

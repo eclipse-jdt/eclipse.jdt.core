@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import java.util.List;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
 
@@ -23,7 +24,7 @@ protected char[] pkgName;
 protected char[][] segments;
 protected int currentSegment;
 
-protected static char[][] CATEGORIES = { REF };
+private static final List<String> CATEGORIES = List.of(REF);
 
 public PackageReferencePattern(char[] pkgName, int matchRule) {
 	this(matchRule);
@@ -58,7 +59,7 @@ public char[] getIndexKey() {
 	return null;
 }
 @Override
-public char[][] getIndexCategories() {
+protected List<String> getIndexCategoryStrings() {
 	return CATEGORIES;
 }
 @Override
