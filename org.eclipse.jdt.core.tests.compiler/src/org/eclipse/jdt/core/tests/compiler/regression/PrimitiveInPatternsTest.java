@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2024 IBM Corporation and others.
+ * Copyright (c) 2024, 2025 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,7 +29,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testIssue3535" };
+//		TESTS_NAMES = new String[] { "testIssue3536" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -7448,5 +7448,25 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"""
 			},
 			"3");
+	}
+	public void testIssue3536() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+				record Record(Byte b) {}
+				public class X {
+					public static void main(String argv[]) {
+						X x = new X();
+						System.out.println(x.foo(new Record(null)));
+					}
+					public int foo(Record r) {
+						int result = 0;
+						result = r instanceof Record(short s) ? 0 : 1;
+						return result;
+					}
+				}
+			"""
+			},
+			"1");
 	}
 }
