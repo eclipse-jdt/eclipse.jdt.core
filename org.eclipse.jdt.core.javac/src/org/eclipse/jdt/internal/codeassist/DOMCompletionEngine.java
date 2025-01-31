@@ -1456,6 +1456,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 						final Set<String> alreadySuggestedFqn = ConcurrentHashMap.newKeySet();
 						findTypes(completeAfter, typeMatchRule, null)
+							.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(),
+									type.getElementName().toCharArray()))
 							.filter(type -> filterTypeBasedOnAccess(type, currentPackage, currentTypeBinding))
 							.filter(type -> {
 								for (var scrapedBinding : defaultCompletionBindings.all().toList()) {
@@ -1467,8 +1469,6 @@ public class DOMCompletionEngine implements ICompletionEngine {
 								}
 								return true;
 							})
-							.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(),
-									type.getElementName().toCharArray()))
 							.filter(type -> {
 								return filterBasedOnExtendsOrImplementsInfo(type, extendsOrImplementsInfo);
 							})
@@ -1541,11 +1541,11 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				return true;
 			}
 			if ((flags & Flags.AccProtected) != 0) {
-				// protected means `type` is an inner class
-				if (currentTypeBinding == null) {
+				// if `protected` is used correctly means `type` is an inner class
+				if (currentTypeBinding == null || type.getDeclaringType() == null) {
 					return false;
 				}
-				return findInSupers(currentTypeBinding, ((IType)type.getParent()).getKey());
+				return findInSupers(currentTypeBinding, type.getDeclaringType().getKey());
 			}
 			// private inner class
 			return false;
@@ -2311,7 +2311,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					return false;
 				}
 			} else {
-				if (impossibleMethods.contains(binding.getName())) {
+				if (impossibleClasses.contains(binding.getName())) {
 					return false;
 				}
 			}
