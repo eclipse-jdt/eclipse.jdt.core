@@ -27,6 +27,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -94,6 +95,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
@@ -126,7 +128,6 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
-import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -1452,6 +1453,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 							? IJavaSearchConstants.ANNOTATION_TYPE
 							: IJavaSearchConstants.TYPE;
 					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+						final Set<String> alreadySuggestedFqn = ConcurrentHashMap.newKeySet();
 						findTypes(completeAfter, typeMatchRule, null)
 							.filter(type -> filterTypeBasedOnAccess(type, currentPackage, currentTypeBinding))
 							.filter(type -> {
@@ -1468,6 +1470,13 @@ public class DOMCompletionEngine implements ICompletionEngine {
 									type.getElementName().toCharArray()))
 							.filter(type -> {
 								return filterBasedOnExtendsOrImplementsInfo(type, extendsOrImplementsInfo);
+							})
+							.filter(type -> {
+								if (alreadySuggestedFqn.contains(type.getFullyQualifiedName())) {
+									return false;
+								}
+								alreadySuggestedFqn.add(type.getFullyQualifiedName());
+								return true;
 							})
 							.map(this::toProposal).forEach(this.requestor::accept);
 					}
