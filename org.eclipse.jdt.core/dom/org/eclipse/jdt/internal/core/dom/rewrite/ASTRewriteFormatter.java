@@ -168,10 +168,11 @@ public final class ASTRewriteFormatter {
 	 *
 	 * @param node The node to flatten.
 	 * @param initialIndentationLevel The initial indentation level.
+	 * @param miniumIndentInSpaces The minimum indent to use in spaces
 	 * @param resultingMarkers Resulting the updated NodeMarkers.
 	 * @return Returns the serialized and formatted code.
 	 */
-	public String getFormattedResult(ASTNode node, int initialIndentationLevel, Collection resultingMarkers) {
+	public String getFormattedResult(ASTNode node, int initialIndentationLevel, int minimumIndentInSpaces, Collection resultingMarkers) {
 
 		ExtendedFlattener flattener= new ExtendedFlattener(this.eventStore);
 		node.accept(flattener);
@@ -185,6 +186,10 @@ public final class ASTRewriteFormatter {
 		    if (initialIndentationLevel > 0) {
 		        // at least correct the indent
 		        String indentString = createIndentString(initialIndentationLevel);
+		        int indentInSpaces= computeIndentInSpaces(indentString);
+		        if (indentInSpaces < minimumIndentInSpaces) {
+		        	indentString += " ".repeat(minimumIndentInSpaces - indentInSpaces); //$NON-NLS-1$
+		        }
 				ReplaceEdit[] edits = IndentManipulation.getChangeIndentEdits(unformatted, 0, this.tabWidth, this.indentWidth, indentString);
 				edit= new MultiTextEdit();
 				edit.addChild(new InsertEdit(0, indentString));

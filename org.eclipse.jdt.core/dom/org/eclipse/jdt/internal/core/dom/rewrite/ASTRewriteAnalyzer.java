@@ -531,6 +531,10 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return getIndent(this.startPos);
 		}
 
+		protected int getInitialIndentInSpaces() {
+			return getIndentInSpaces(this.startPos);
+		}
+
 		protected int getNodeIndent(int nodeIndex) {
 			ASTNode node= getOriginalNode(nodeIndex);
 			if (node == null) {
@@ -543,6 +547,20 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				return getInitialIndent();
 			}
 			return getIndent(node.getStartPosition());
+		}
+
+		protected int getNodeIndentInSpaces(int nodeIndex) {
+			ASTNode node= getOriginalNode(nodeIndex);
+			if (node == null) {
+				for (int i= nodeIndex - 1; i>= 0; i--) {
+					ASTNode curr= getOriginalNode(i);
+					if (curr != null) {
+						return getIndentInSpaces(curr.getStartPosition());
+					}
+				}
+				return getInitialIndentInSpaces();
+			}
+			return getIndentInSpaces(node.getStartPosition());
 		}
 
 		protected int getStartOfNextNode(int nextIndex, int defaultPos) {
@@ -659,7 +677,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						if (separatorState == EXISTING) {
 							updateIndent(prevMark, currPos, i, editGroup);
 						}
-						doTextInsert(currPos, node, getNodeIndent(i), true, editGroup); // insert node
+						doTextInsert(currPos, node, getNodeIndent(i), true, getNodeIndentInSpaces(i), editGroup); // insert node
 
 						separatorState= NEW;
 						if (i != lastNonDelete) {
@@ -671,7 +689,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						}
 					} else { // EXISTING && insert before separator
 						doTextInsert(prevEnd, getSeparatorString(i - 1), editGroup);
-						doTextInsert(prevEnd, node, getNodeIndent(i), true, editGroup);
+						doTextInsert(prevEnd, node, getNodeIndent(i), true, getNodeIndentInSpaces(i), editGroup);
 					}
 					if (insertNew && i == lastNonDelete) {
 						if (endKeyword != null && endKeyword.length() > 0) {
@@ -794,7 +812,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 							// ignore
 						}
 						doTextRemoveAndVisit(currPos, currEnd - currPos, node, editGroup);
-						doTextInsert(currPos, changed, getNodeIndent(i), true, editGroup);
+						doTextInsert(currPos, changed, getNodeIndent(i), true, getNodeIndentInSpaces(i), editGroup);
 
 						prevEnd= currEnd;
 					} else { // is unchanged
@@ -991,7 +1009,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						// prefix contains a new line: update the indent to the one used in the prefix
 						indent= this.formatter.computeIndentUnits(prefix.substring(lineStart));
 					}
-					doTextInsert(offset, replacingNode, indent, true, editGroup);
+					int minimumIndent= this.formatter.computeIndentInSpaces(getIndentOfLine(parent.getStartPosition()));
+					doTextInsert(offset, replacingNode, indent, true, minimumIndent, editGroup);
 					doTextInsert(offset, strings[1], editGroup);
 					return endPos;
 				}
@@ -1467,11 +1486,18 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		return this.formatter.computeIndentUnits(getIndentOfLine(offset));
 	}
 
+	final int getIndentInSpaces(int offset) {
+		return this.formatter.computeIndentInSpaces(getIndentOfLine(offset));
+	}
+
 	final void doTextInsert(int insertOffset, ASTNode node, int initialIndentLevel, boolean removeLeadingIndent, TextEditGroup editGroup) {
+		doTextInsert(insertOffset, node, initialIndentLevel, removeLeadingIndent, 0, editGroup);
+	}
+
+	final void doTextInsert(int insertOffset, ASTNode node, int initialIndentLevel, boolean removeLeadingIndent,
+			int minimumIndentInSpaces, TextEditGroup editGroup) {
 		ArrayList markers= new ArrayList();
-		String formatted= this.formatter.getFormattedResult(node, initialIndentLevel, markers);
-
-
+		String formatted= this.formatter.getFormattedResult(node, initialIndentLevel, minimumIndentInSpaces, markers);
 		int currPos= 0;
 		if (removeLeadingIndent) {
 			while (currPos < formatted.length() && ScannerHelper.isWhitespace(formatted.charAt(currPos))) {
