@@ -125,6 +125,7 @@ public abstract class APTTestBase extends BuilderTests{
 		super.tearDown();
 	}
 
+	@SuppressWarnings("removal")
 	private static void runFinalizers() {
         // GC in an attempt to release file lock on Classes.jar
 		System.gc();

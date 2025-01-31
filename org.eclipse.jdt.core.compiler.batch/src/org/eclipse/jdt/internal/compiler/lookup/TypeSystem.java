@@ -69,7 +69,7 @@ public class TypeSystem {
 
 	public final class HashedParameterizedTypes {
 
-		private final class PTBKey extends ReferenceBinding { // extends ReferenceBinding so it can be used as wrapper
+		private final class PTBKey implements HotSwappable {
 			protected ReferenceBinding type; // must ensure the type is resolved
 			public TypeBinding[] arguments;
 			private ReferenceBinding enclosingType;
@@ -87,8 +87,6 @@ public class TypeSystem {
 							TypeBinding argument = arguments[i];
 							if (argument instanceof UnresolvedReferenceBinding)
 								((UnresolvedReferenceBinding) argument).addWrapper(this, environment);
-							if (argument.hasNullTypeAnnotations())
-								this.tagBits |= TagBits.HasNullTypeAnnotation;
 							if (argument.getClass() == TypeVariableBinding.class) {
 								final int idx = i;
 								TypeVariableBinding typeVariableBinding = (TypeVariableBinding) argument;

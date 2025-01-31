@@ -1244,39 +1244,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		ArrayInitializer initializer = creation.getInitializer();
 		checkSourceRange(initializer, "{{{1, 2, 3}}}", contents.toCharArray());
 	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391894
-	// Force to use JLS4 and confirm malformed flags are set.
-	public void test0021() throws JavaModelException {
-		String contents =
-				"import java.lang.annotation.ElementType;\n" +
-				"public class X {\n" +
-				" 	public void foo() {\n" +
-				"		int @Marker [][][] i = new @Marker2 int @Marker @Marker2 [] @Marker2 @Marker3 [] @Marker3 @Marker [] {{{1, 2, 3}}}; \n" +
-				"	}\n" +
-				"}\n" +
-				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
-				"@interface Marker {}\n" +
-				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
-				"@interface Marker2 {}\n" +
-				"@java.lang.annotation.Target (ElementType.TYPE_USE)\n" +
-				"@interface Marker3 {}";
-		this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
-		CompilationUnit unit = (CompilationUnit) buildAST(getJLS4(), contents, this.workingCopy, true, true, true);
-
-		ASTNode node = getASTNode(unit, 0, 0);
-		assertEquals("Not a Method Declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
-		MethodDeclaration method = (MethodDeclaration) node;
-		List list = method.getBody().statements();
-		assertEquals("Incorrect no of statements", 1, list.size());
-		VariableDeclarationStatement statement1 = (VariableDeclarationStatement) list.get(0);
-		list = statement1.fragments();
-		assertEquals("Incorrect no of fragments", 1, list.size());
-		VariableDeclarationFragment fragment = (VariableDeclarationFragment) list.get(0);
-		ArrayCreation creation = (ArrayCreation) fragment.getInitializer();
-		Type type = creation.getType();
-		assertEquals("Incorrect type", true, type.isArrayType());
-		assertEquals("Type should be malformed", ASTNode.MALFORMED, (type.getFlags() & ASTNode.MALFORMED));
-	}
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	 */

@@ -461,7 +461,7 @@ public class ASTRewritingModifyingInsertTest extends ASTRewritingModifyingTest {
 		astRoot.setPackage(packageDeclaration);
 		TypeDeclaration typeDeclaration =  a.newTypeDeclaration();
 		typeDeclaration.setName(a.newSimpleName("X"));
-		typeDeclaration.setModifiers(Modifier.PUBLIC);
+		typeDeclaration.modifiers().addAll(a.newModifiers(Modifier.PUBLIC));
 
 		astRoot.types().add(typeDeclaration);
 
@@ -505,7 +505,7 @@ public class ASTRewritingModifyingInsertTest extends ASTRewritingModifyingTest {
 
 		TypeDeclaration typeDeclaration =  a.newTypeDeclaration();
 		typeDeclaration.setName(a.newSimpleName("X"));
-		typeDeclaration.setModifiers(Modifier.PUBLIC);
+		typeDeclaration.modifiers().addAll(a.newModifiers(Modifier.PUBLIC));
 
 		astRoot.types().add(typeDeclaration);
 
@@ -530,7 +530,7 @@ public class ASTRewritingModifyingInsertTest extends ASTRewritingModifyingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createCU(cu, false, getJLS3());
+		CompilationUnit astRoot= createCU(cu, false);
 
 		astRoot.recordModifications();
 
@@ -566,7 +566,7 @@ public class ASTRewritingModifyingInsertTest extends ASTRewritingModifyingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createCU(cu, false, getJLS3());
+		CompilationUnit astRoot= createCU(cu, false);
 
 		astRoot.recordModifications();
 
@@ -602,7 +602,7 @@ public class ASTRewritingModifyingInsertTest extends ASTRewritingModifyingTest {
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createCU(cu, false, getJLS3());
+		CompilationUnit astRoot= createCU(cu, false);
 
 		astRoot.recordModifications();
 
@@ -635,7 +635,7 @@ public class ASTRewritingModifyingInsertTest extends ASTRewritingModifyingTest {
 		buf.append("package test0016;\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("package-info.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createCU(cu, false, getJLS3());
+		CompilationUnit astRoot= createCU(cu, false);
 
 		astRoot.recordModifications();
 

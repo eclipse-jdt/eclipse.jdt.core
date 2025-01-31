@@ -40,16 +40,6 @@ import org.eclipse.text.edits.TextEdit;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 
-	/** @deprecated using deprecated code */
-	private static final int AST_INTERNAL_JLS2 = AST.JLS2;
-
-	/**
-	 * Internal synonym for deprecated constant AST.JSL3
-	 * to alleviate deprecation warnings.
-	 * @deprecated
-	 */
-	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
-
 	protected IJavaProject javaProject;
 	protected IPackageFragmentRoot sourceFolder;
 
@@ -122,17 +112,19 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 		}
 	}
 
-	public CompilationUnit createCU(
+	@SuppressWarnings("deprecation")
+    public CompilationUnit createCU(
 			ICompilationUnit unit,
 			boolean resolveBindings) {
-		return createCU(unit, resolveBindings, AST_INTERNAL_JLS2);
+		return createCU(unit, resolveBindings, AST.JLS8);
 	}
 
 	public CompilationUnit createCU(char[] source) {
 		if (source == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTParser c = ASTParser.newParser(AST_INTERNAL_JLS2);
+		@SuppressWarnings("deprecation")
+        ASTParser c = ASTParser.newParser(AST.JLS8);
 		c.setSource(source);
 		ASTNode result = c.createAST(null);
 		return (CompilationUnit) result;
@@ -238,7 +230,4 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 		return buffer.toString();
 	}
 
-	static int getJLS3() {
-		return JLS3_INTERNAL;
-	}
 }
