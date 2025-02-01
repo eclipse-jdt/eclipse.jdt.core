@@ -1182,7 +1182,10 @@ protected static class JavacTestOptions {
 			JavacBug8343306 = // https://bugs.openjdk.org/browse/JDK-8343306
 					new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ClassFileConstants.JDK24, 0000),
 			JavacBug8348928 = // https://bugs.openjdk.org/browse/JDK-8348928
-					new JavacHasABug(MismatchType.EclipseErrorsJavacWarnings);
+					new JavacHasABug(MismatchType.EclipseErrorsJavacWarnings),
+			JavacBug8348410 = // https://bugs.openjdk.org/browse/JDK-8348410
+					new JavacHasABug(MismatchType.EclipseErrorsJavacNone);
+
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug

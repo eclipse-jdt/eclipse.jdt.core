@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 import junit.framework.Test;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class ModuleImportTests extends AbstractModuleCompilationTest {
 
@@ -916,7 +917,8 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				----------
 				1 problem (1 warning)
 				""");
-		verifyClassFile("version 24 : 68.65535", "module-info.class", ClassFileBytesDisassembler.SYSTEM, true); // FIXME skip due to https://bugs.openjdk.org/browse/JDK-8347646
+		verifyClassFile("version 24 : 68.65535", "module-info.class", ClassFileBytesDisassembler.SYSTEM,
+				this.complianceLevel <= ClassFileConstants.JDK24); // Skipped for javac 24 due to https://bugs.openjdk.org/browse/JDK-8347646 - fixed in 25
 	}
 
 	public void testIllegalModifierRequiresJavaBase_4() {
