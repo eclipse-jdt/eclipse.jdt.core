@@ -19,6 +19,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.IOException;
 import java.util.Map;
 import junit.framework.Test;
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
@@ -1636,6 +1637,68 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		testInstanceof_widenUnbox("Float", 6, "49.0+49.0|");
 	}
 
+	public void testInstanceof_widenUnboxWiden() {
+		// see https://bugs.openjdk.org/browse/JDK-8342397
+		// which links to our https://mail.openjdk.org/pipermail/compiler-dev/2024-September/027630.html
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				import java.util.List;
+				import java.util.Collections;
+				public class X {
+					static <T extends Short> void typeVariableSingle(T single) {
+						int i1 = single;
+						System.out.print(i1);
+						if (single instanceof int i)
+							System.out.print(i);
+						else
+							System.out.print('-');
+						switch (single) {
+							case int i -> System.out.print(i);
+							default -> System.out.print('-');
+						}
+						System.out.println();
+					}
+					static <T extends Short> void typeVariableList(List<T> list) {
+						int i1 = list.get(0);
+						System.out.print(i1);
+						if (list.get(0) instanceof int i)
+							System.out.print(i);
+						else
+							System.out.print('-');
+						switch (list.get(0)) {
+							case int i -> System.out.print(i);
+							default -> System.out.print('-');
+						}
+						System.out.println();
+					}
+					static void wildcard(List<? extends Short> list) {
+						int i1 = list.get(0);
+						System.out.print(i1);
+						if (list.get(0) instanceof int i)
+							System.out.print(i);
+						else
+							System.out.print('-');
+						switch (list.get(0)) {
+							case int i -> System.out.print(i);
+							default -> System.out.print('-');
+						}
+						System.out.println();
+					}
+					public static void main(String... args) {
+						Short s = 1;
+						typeVariableSingle(s);
+						typeVariableList(Collections.singletonList(s));
+						wildcard(Collections.singletonList(s));
+					}
+				}
+				"""
+			},
+			"""
+			111
+			111
+			111""");
+	}
 	public void testInstanceof_genericExpression() { // regression test for a checkCast which we failed to generate earlier
 		runConformTest(new String[] {
 				"X.java",
@@ -2537,5 +2600,86 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			"Switch cannot have both boolean values and a default label\n" +
 			"----------\n");
 	}
+	public void testJDK8348410_negative() {
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions(false); // preview NOT enabled
+		runner.testFiles = new String[] {
+				"Test.java",
+				"""
+				 public class Test {
+					public static void main(String[] args) {
+						new Test().d(true);
+					}
 
+					void d(Boolean b) {
+						switch (b) {
+							case true -> System.out.println("1");
+							case false -> System.out.println("2");
+						};
+					}
+				}
+				"""
+			};
+		runner.expectedCompilerLog = """
+			----------
+			1. ERROR in Test.java (at line 7)
+				switch (b) {
+				        ^
+			An enhanced switch statement should be exhaustive; a default label expected
+			----------
+			2. ERROR in Test.java (at line 8)
+				case true -> System.out.println("1");
+				     ^^^^
+			Case constant of type boolean is incompatible with switch selector type Boolean
+			----------
+			3. ERROR in Test.java (at line 9)
+				case false -> System.out.println("2");
+				     ^^^^^
+			Case constant of type boolean is incompatible with switch selector type Boolean
+			----------
+			""";
+		runner.javacTestOptions = JavacHasABug.JavacBug8348410;
+		runner.runNegativeTest();
+	}
+	public void testJDK8348410_positive() {
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions(true); // preview enabled
+		runner.testFiles = new String[] {
+				"Test.java",
+				"""
+				 public class Test {
+					public static void main(String[] args) {
+						new Test().d(true);
+					}
+
+					void d(Boolean b) {
+						switch (b) {
+							case true -> System.out.println("1");
+							case false -> System.out.println("2");
+						};
+					}
+				}
+				"""
+			};
+		runner.vmArguments = VMARGS;
+		runner.expectedOutputString = "1";
+		runner.runConformTest();
+	}
+	public void testJDK8348901() {
+		// according to https://bugs.openjdk.org/browse/JDK-8348901 the null type is to be admitted when case null is present
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						switch (null) {
+							case null -> System.out.println("Null");
+							default-> System.out.println("Default");
+						}
+					}
+				}
+				"""
+			},
+			"Null");
+	}
 }

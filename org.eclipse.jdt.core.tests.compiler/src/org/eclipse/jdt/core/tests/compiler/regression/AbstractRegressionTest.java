@@ -1174,15 +1174,16 @@ protected static class JavacTestOptions {
 			JavacBug8226510_switchExpression = // https://bugs.openjdk.java.net/browse/JDK-8226510
 					new JavacBug8226510(" --release 12 --enable-preview -Xlint:-preview"),
 //		    JavacBug8299416 = // https://bugs.openjdk.java.net/browse/JDK-8299416 was active only in some builds of JDK 20
-		    JavacBug8336255 = // https://bugs.openjdk.org/browse/JDK-8336255
-					new JavacBugExtraJavacOptionsPlusMismatch(" --release 23 --enable-preview -Xlint:-preview",
-							MismatchType.JavacErrorsEclipseNone),
+//		    JavacBug8336255 = // https://bugs.openjdk.org/browse/JDK-8336255 was active only during preview 23
 			JavacBug8337980 = // https://bugs.openjdk.org/browse/JDK-8337980
 					new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ClassFileConstants.JDK24, 0000),
 			JavacBug8343306 = // https://bugs.openjdk.org/browse/JDK-8343306
 					new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ClassFileConstants.JDK24, 0000),
 			JavacBug8348928 = // https://bugs.openjdk.org/browse/JDK-8348928
-					new JavacHasABug(MismatchType.EclipseErrorsJavacWarnings);
+					new JavacHasABug(MismatchType.EclipseErrorsJavacWarnings),
+			JavacBug8348410 = // https://bugs.openjdk.org/browse/JDK-8348410
+					new JavacHasABug(MismatchType.EclipseErrorsJavacNone);
+
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
