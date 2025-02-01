@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -258,7 +258,7 @@ public static Test suite() {
 	 since_23.add(MarkdownCommentsTest.class);
 
 	 ArrayList since_24 = new ArrayList();
-	 since_23.add(ModuleImportTests.class);
+	 since_24.add(ModuleImportTests.class);
 	 since_24.add(SuperAfterStatementsTest.class);
 	 since_24.add(ImplicitlyDeclaredClassesTest.class);
 	 since_24.add(PrimitiveInPatternsTest.class);
