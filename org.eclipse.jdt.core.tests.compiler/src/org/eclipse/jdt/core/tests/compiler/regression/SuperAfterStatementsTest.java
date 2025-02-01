@@ -2904,4 +2904,29 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			----------
 			""");
 	}
+	public void testGH3654() throws Exception {
+		// from https://bugs.openjdk.org/browse/JDK-8334252
+		runConformTest(new String[] {
+				"LambdaOuterCapture.java",
+				"""
+				 public class LambdaOuterCapture {
+
+					public class Inner {
+
+						public Inner() {
+							Runnable r = () -> System.out.println(LambdaOuterCapture.this);
+							this(r);
+						}
+
+						public Inner(Runnable r) {
+						}
+					}
+
+					public static void main(String[] args) {
+						new LambdaOuterCapture().new Inner();
+					}
+				}
+				"""},
+				"");
+	}
 }

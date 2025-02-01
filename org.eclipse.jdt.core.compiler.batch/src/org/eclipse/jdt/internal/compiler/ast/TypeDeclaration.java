@@ -902,7 +902,7 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 					((ConstructorDeclaration) method).analyseCode(this.scope, initializerContext, ctorInfo,
 							ctorInfo.reachMode(), ConstructorDeclaration.AnalysisMode.PROLOGUE);
 					if (prologueInfo == null)
-						prologueInfo = ctorInfo;
+						prologueInfo = ctorInfo.copy();
 					else
 						prologueInfo = prologueInfo.mergeDefiniteInitsWith(ctorInfo.unconditionalInits()); // will only evaluate field inits below
 				}
