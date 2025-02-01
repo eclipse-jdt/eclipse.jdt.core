@@ -2867,4 +2867,40 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		----------
 		""");
 	}
+	// test case from https://bugs.openjdk.org/browse/JDK-8322882
+	public void testJDK8322882() throws Exception {
+		runNegativeTest(
+			new String[] {
+				"TestUseTree2.java",
+				"""
+				 public class TestUseTree2 {
+					public static void main(String[] args) {
+						String i = "111";
+						class TestUseTree2_ROOT {
+							// ctor arg i
+							void f() {
+								System.out.println(i);
+							}
+						}
+
+						class TestUseTree2_ROOT1 {
+							// clinit args: i?
+							// should be prohibited to use `new TestUseTree2_ROOT()` in a static context
+							static TestUseTree2_ROOT r = new TestUseTree2_ROOT();
+						}
+
+						TestUseTree2_ROOT1.r.f();
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in TestUseTree2.java (at line 14)
+				static TestUseTree2_ROOT r = new TestUseTree2_ROOT();
+				                             ^^^^^^^^^^^^^^^^^^^^^^^
+			Cannot instantiate local class 'TestUseTree2_ROOT' in a static context
+			----------
+			""");
+	}
 }
