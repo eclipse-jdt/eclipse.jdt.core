@@ -45,6 +45,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMemberValuePair;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IModuleDescription;
@@ -95,7 +96,6 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.Modifier;
-import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
@@ -129,10 +129,12 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.core.search.TypeNameMatch;
 import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 import org.eclipse.jdt.internal.codeassist.impl.Keywords;
@@ -562,8 +564,13 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				Expression fieldAccessExpr = fieldAccess.getExpression();
 				ITypeBinding fieldAccessType = fieldAccessExpr.resolveTypeBinding();
 				if (fieldAccessType != null) {
-					processMembers(fieldAccess, fieldAccessExpr.resolveTypeBinding(), specificCompletionBindings, false);
-					publishFromScope(specificCompletionBindings);
+					if (!fieldAccessType.isRecovered()) {
+						processMembers(fieldAccess, fieldAccessExpr.resolveTypeBinding(), specificCompletionBindings, false);
+						publishFromScope(specificCompletionBindings);
+					} else if (fieldAccessExpr instanceof MethodInvocation method &&
+								this.unit.findDeclaringNode(method.resolveMethodBinding()) instanceof MethodDeclaration decl) {
+						completeMissingType(decl.getReturnType2());
+					}
 				} else if (DOMCompletionUtil.findParent(fieldAccessExpr, new int[]{ ASTNode.METHOD_INVOCATION }) == null) {
 					String packageName = ""; //$NON-NLS-1$
 					if (fieldAccess.getExpression() instanceof FieldAccess parentFieldAccess
@@ -989,6 +996,26 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						}
 					} else if (qualifiedNameBinding instanceof IVariableBinding variableBinding) {
 						ITypeBinding typeBinding = variableBinding.getType();
+						if (typeBinding == null && unit.findDeclaringNode(variableBinding) instanceof VariableDeclaration decl) {
+							Type type = null;
+							if (decl instanceof SingleVariableDeclaration single) {
+								type = single.getType();
+							} else if (decl instanceof VariableDeclarationFragment fragment) {
+								if (fragment.getParent() instanceof FieldDeclaration field) {
+									type = field.getType();
+								} else if (fragment.getParent() instanceof VariableDeclarationExpression expr) {
+									type = expr.getType();
+								} else if (fragment.getParent() instanceof VariableDeclarationStatement stmt) {
+									type = stmt.getType();
+								}
+							}
+							if (type != null) {
+								typeBinding = type.resolveBinding();
+							}
+							if (typeBinding == null || typeBinding.isRecovered()) {
+								completeMissingType(type);
+							}
+						}
 						processMembers(qualifiedName, typeBinding, specificCompletionBindings, false);
 						publishFromScope(specificCompletionBindings);
 						suggestDefaultCompletions = false;
@@ -1519,6 +1546,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			}
 
 			checkCancelled();
+		} catch (JavaModelException e) {
+			ILog.get().error(e.getMessage(), e);
 		} finally {
 			this.requestor.endReporting();
 			if (this.monitor != null) {
@@ -1545,6 +1574,27 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			return varDecl.getType() == childCursor;
 		}
 		return false;
+	}
+
+	private void completeMissingType(Type type) throws JavaModelException {
+		if (type instanceof ParameterizedType parameterized) {
+			type = parameterized.getType();
+		}
+		final Type finalType = type;
+		var scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { this.javaProject });
+		new SearchEngine(this.workingCopyOwner).searchAllTypeNames(null, SearchPattern.R_PREFIX_MATCH, type.toString().toCharArray(), SearchPattern.R_EXACT_MATCH, IJavaSearchConstants.TYPE, scope, new TypeNameMatchRequestor() {
+			@Override
+			public void acceptTypeNameMatch(TypeNameMatch match) {
+				processMembers(match.getType()).stream()
+					.map(member -> {
+						CompletionProposal typeProposal = toProposal(match.getType());
+						typeProposal.setReplaceRange(finalType.getStartPosition(), finalType.getStartPosition() + finalType.getLength());
+						typeProposal.setRelevance(member.getRelevance());
+						member.setRequiredProposals(new CompletionProposal[] { typeProposal });
+						return member;
+					}).forEach(DOMCompletionEngine.this.requestor::accept);
+			}
+		}, IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, monitor);
 	}
 
 	private void suggestSuperConstructors() {
@@ -2443,6 +2493,21 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		}
 	}
 
+	private List<CompletionProposal> processMembers(IType type) {
+		IJavaElement[] children;
+		try {
+			children = type.getChildren();
+		} catch (JavaModelException ex) {
+			ILog.get().error(ex.getMessage(), ex);
+			children = new IJavaElement[0];
+		}
+		return Arrays.stream(children)
+			.filter(element -> element.getElementType() == IJavaElement.FIELD || element.getElementType() == IJavaElement.METHOD)
+			.filter(this::isVisible)
+			.map(this::toProposal)
+			.toList();
+	}
+
 	private String getSignature(IMethodBinding method) {
 		return method.getName() + '(' +
 				Arrays.stream(method.getParameterTypes()).map(ITypeBinding::getName).collect(Collectors.joining(","))
@@ -2904,7 +2969,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			if (packageDecl != null) {
 				packageName = packageDecl.getName().toString();
 			}
-			if (!packageName.equals(type.getPackageFragment().getElementName())) {
+			if (!packageName.equals(type.getPackageFragment().getElementName()) && !new String(res.getCompletion()).equals(type.getFullyQualifiedName())) {
 				// propose importing the type
 				res.setRequiredProposals(new CompletionProposal[] { toImportProposal(simpleName, signature, type.getPackageFragment().getElementName().toCharArray()) });
 			}
@@ -2931,7 +2996,58 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		
 		return res;
 	}
-	
+
+	private CompletionProposal toProposal(IJavaElement element) {
+		if (element instanceof IType type) {
+			return toProposal(type);
+		}
+		DOMInternalCompletionProposal res = null;
+		IType parentType = (IType)element.getAncestor(IJavaElement.TYPE);
+		if (element instanceof IField field) {
+			res = createProposal(CompletionProposal.FIELD_REF);
+			res.setName(field.getElementName().toCharArray());
+			res.setCompletion(field.getElementName().toCharArray());
+			setRange(res);
+			res.setRelevance(RelevanceConstants.R_DEFAULT +
+				RelevanceConstants.R_RESOLVED +
+				RelevanceConstants.R_INTERESTING +
+				RelevanceConstants.R_NON_RESTRICTED);
+		}
+		if (element instanceof IMethod method) {
+			res = createProposal(CompletionProposal.METHOD_REF);
+			try {
+				res.setSignature(method.getSignature().toCharArray());
+				res.setParameterNames(Arrays.stream(method.getParameterNames()).map(String::toCharArray).toArray(char[][]::new));
+				res.setParameterTypeNames(Arrays.stream(method.getParameterTypes()).map(String::toCharArray).toArray(char[][]::new));
+			} catch (JavaModelException ex) {
+				ILog.get().error(ex.getMessage(), ex);
+			}
+			res.setName(method.getElementName().toCharArray());
+			res.setCompletion((method.getElementName() + "()").toCharArray());
+			setRange(res);
+			res.setRelevance(RelevanceConstants.R_DEFAULT + 
+				RelevanceConstants.R_RESOLVED +
+				RelevanceConstants.R_INTERESTING +
+				RelevanceConstants.R_CASE +
+				RelevanceConstants.R_NON_STATIC +
+				RelevanceConstants.R_NON_RESTRICTED +
+				RelevanceConstants.R_NO_PROBLEMS);
+		}
+		if (res != null) {
+			if (element instanceof IMember member) {
+				try {
+					res.setFlags(member.getFlags());
+				} catch (JavaModelException ex) {
+					ILog.get().error(ex.getMessage(), ex);
+				}
+			}
+			res.setDeclarationSignature(SignatureUtils.createSignature(parentType).toCharArray());
+			res.setDeclarationTypeName(parentType.getFullyQualifiedName().toCharArray());
+			res.setDeclarationPackageName(element.getAncestor(IJavaElement.PACKAGE_FRAGMENT).getElementName().toCharArray());
+		}
+		return res;
+	}
+
 	private CompletionProposal toNewMethodProposal(ITypeBinding parentType, String newMethodName) {
 		DOMInternalCompletionProposal res =  createProposal(CompletionProposal.POTENTIAL_METHOD_DECLARATION);
 		res.setDeclarationSignature(DOMCompletionEngineBuilder.getSignature(parentType));
@@ -3680,6 +3796,51 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			return findInSupers(DOMCompletionUtil.findParentTypeDeclaration(this.toComplete).resolveBinding(), declaringClass);
 		}
 		return declaringClass.getPackage().isEqualTo(DOMCompletionUtil.findParentTypeDeclaration(this.toComplete).resolveBinding().getPackage());
+	}
+
+	private boolean isVisible(IJavaElement element) {
+		if (element == null) {
+			return false;
+		}
+		int flags;
+		try {
+			flags = element instanceof IType type ? type.getFlags() :
+				element instanceof IMethod method ? method.getFlags() :
+				element instanceof IField field ? field.getFlags() :
+				0;
+		} catch (JavaModelException ex) {
+			ILog.get().error(ex.getMessage(), ex);
+			flags = 0;
+		}
+		if (element instanceof IType type) {
+			if (Modifier.isPublic(flags)) {
+				return true;
+			}
+			if (Modifier.isPrivate(flags)) {
+				return type.equals(this.toComplete);
+			}
+			if (Modifier.isProtected(flags)) {
+				// TODO
+			}
+			return Objects.equals(type.getPackageFragment().getElementName(), this.unit.getPackage().getName().toString());
+		} else {
+			IType type = element instanceof IMethod method ? method.getDeclaringType() :
+				element instanceof IField field ? field.getDeclaringType() :
+				null;
+			if (!isVisible(type)) {
+				return false;
+			}
+			if (Modifier.isPublic(flags)) {
+				return true;
+			}
+			if (Modifier.isPrivate(flags)) {
+				return type.equals(this.toComplete);
+			}
+			if (Modifier.isProtected(flags)) {
+				// TODO
+			}
+			return Objects.equals(type.getPackageFragment().getElementName(), this.unit.getPackage().getName().toString());
+		}
 	}
 
 	private ITypeBinding getDeclaringClass(IBinding binding) {
