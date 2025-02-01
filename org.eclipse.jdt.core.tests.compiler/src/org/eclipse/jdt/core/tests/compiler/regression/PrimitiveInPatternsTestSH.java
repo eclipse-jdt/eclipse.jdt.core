@@ -1637,6 +1637,68 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		testInstanceof_widenUnbox("Float", 6, "49.0+49.0|");
 	}
 
+	public void testInstanceof_widenUnboxWiden() {
+		// see https://bugs.openjdk.org/browse/JDK-8342397
+		// which links to our https://mail.openjdk.org/pipermail/compiler-dev/2024-September/027630.html
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				import java.util.List;
+				import java.util.Collections;
+				public class X {
+					static <T extends Short> void typeVariableSingle(T single) {
+						int i1 = single;
+						System.out.print(i1);
+						if (single instanceof int i)
+							System.out.print(i);
+						else
+							System.out.print('-');
+						switch (single) {
+							case int i -> System.out.print(i);
+							default -> System.out.print('-');
+						}
+						System.out.println();
+					}
+					static <T extends Short> void typeVariableList(List<T> list) {
+						int i1 = list.get(0);
+						System.out.print(i1);
+						if (list.get(0) instanceof int i)
+							System.out.print(i);
+						else
+							System.out.print('-');
+						switch (list.get(0)) {
+							case int i -> System.out.print(i);
+							default -> System.out.print('-');
+						}
+						System.out.println();
+					}
+					static void wildcard(List<? extends Short> list) {
+						int i1 = list.get(0);
+						System.out.print(i1);
+						if (list.get(0) instanceof int i)
+							System.out.print(i);
+						else
+							System.out.print('-');
+						switch (list.get(0)) {
+							case int i -> System.out.print(i);
+							default -> System.out.print('-');
+						}
+						System.out.println();
+					}
+					public static void main(String... args) {
+						Short s = 1;
+						typeVariableSingle(s);
+						typeVariableList(Collections.singletonList(s));
+						wildcard(Collections.singletonList(s));
+					}
+				}
+				"""
+			},
+			"""
+			111
+			111
+			111""");
+	}
 	public void testInstanceof_genericExpression() { // regression test for a checkCast which we failed to generate earlier
 		runConformTest(new String[] {
 				"X.java",
