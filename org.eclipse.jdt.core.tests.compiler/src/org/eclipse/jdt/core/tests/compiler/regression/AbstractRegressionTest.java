@@ -680,7 +680,7 @@ static class JavaRuntime {
 			cmdLine.append(options);
 			cmdLine.append(' ');
 			cmdLine.append(className);
-			executionProcess = Runtime.getRuntime().exec(cmdLine.toString().split("\\s"), env, directory);
+			executionProcess = Runtime.getRuntime().exec(cmdLine.toString().split("\\s+"), env, directory);
 			Logger outputLogger = new Logger(executionProcess.getInputStream(),
 					"RUNTIME OUTPUT", stdout == null ? new StringBuilder() : stdout);
 			outputLogger.start();
@@ -1180,7 +1180,9 @@ protected static class JavacTestOptions {
 			JavacBug8337980 = // https://bugs.openjdk.org/browse/JDK-8337980
 					new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ClassFileConstants.JDK24, 0000),
 			JavacBug8343306 = // https://bugs.openjdk.org/browse/JDK-8343306
-					new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ClassFileConstants.JDK24, 0000);
+					new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ClassFileConstants.JDK24, 0000),
+			JavacBug8348928 = // https://bugs.openjdk.org/browse/JDK-8348928
+					new JavacHasABug(MismatchType.EclipseErrorsJavacWarnings);
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug

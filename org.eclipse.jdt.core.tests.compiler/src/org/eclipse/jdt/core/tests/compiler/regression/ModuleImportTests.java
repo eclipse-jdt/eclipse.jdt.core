@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2024 GK Software SE, and others.
+ * Copyright (c) 2024, 2025 GK Software SE, and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -67,7 +67,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 			filtered.append(
 				log.toString().lines()
 					.filter(line -> !line.equals("Note: Recompile with -Xlint:preview for details."))
-					.filter(line -> !(line.startsWith("Note: ") && line.endsWith("uses preview features of Java SE 24.")))
+					.filter(line -> !(line.startsWith("Note: ") && line.endsWith(" preview features of Java SE 24.")))
 					.collect(Collectors.joining("\n")));
 			return filtered;
 		}
@@ -870,7 +870,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				----------
 				1 problem (1 error)
 				""",
-				"transitive modifier for java.base are not supported");
+				"transitive modifier for java.base are a preview feature");
 	}
 
 	public void testIllegalModifierRequiresJavaBase_2() {
