@@ -828,12 +828,6 @@ public VariableBinding[] getEmulationPath(LocalVariableBinding outerLocalVariabl
 	MethodScope currentMethodScope = methodScope();
 	SourceTypeBinding sourceType = currentMethodScope.enclosingSourceType();
 
-	// identity check
-	BlockScope variableScope = outerLocalVariable.declaringScope;
-	if (variableScope == null /*val$this$0*/ || currentMethodScope == variableScope.methodScope()) {
-		return new VariableBinding[] { outerLocalVariable };
-		// implicit this is good enough
-	}
 	if (currentMethodScope.isLambdaScope()) {
 		LambdaExpression lambda = (LambdaExpression) currentMethodScope.referenceContext;
 		SyntheticArgumentBinding syntheticArgument;
@@ -841,6 +835,14 @@ public VariableBinding[] getEmulationPath(LocalVariableBinding outerLocalVariabl
 			return new VariableBinding[] { syntheticArgument };
 		}
 	}
+
+	// identity check
+	BlockScope variableScope = outerLocalVariable.declaringScope;
+	if (variableScope == null /*val$this$0*/ || currentMethodScope == variableScope.methodScope()) {
+		return new VariableBinding[] { outerLocalVariable };
+		// implicit this is good enough
+	}
+
 	// use synthetic constructor arguments if possible
 	if (currentMethodScope.isInsideInitializerOrConstructor()
 		&& (sourceType.isNestedType())) {

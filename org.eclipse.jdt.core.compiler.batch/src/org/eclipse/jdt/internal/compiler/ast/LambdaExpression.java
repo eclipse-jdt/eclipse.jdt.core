@@ -1347,6 +1347,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		this.outerLocalVariables[newSlot] = syntheticLocal = new SyntheticArgumentBinding(enclosingType);
 		syntheticLocal.resolvedPosition = this.outerLocalVariablesSlotSize; // may need adjusting later if we need to generate an instance method for the lambda.
 		syntheticLocal.declaringScope = this.scope;
+		syntheticLocal.actualOuterLocalVariable = getActualOuterLocalFromEnclosingScope(enclosingType);
 		int parameterCount = this.binding.parameters.length;
 		TypeBinding [] newParameters = new TypeBinding[parameterCount + 1];
 		newParameters[newSlot] = enclosingType;
@@ -1366,6 +1367,18 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		}
 		return syntheticLocal;
 	}
+
+	private SyntheticArgumentBinding getActualOuterLocalFromEnclosingScope(ReferenceBinding enclosingType) {
+		// check if access to enclosingType actually relates to a synthetic argument of an outer constructor:
+		MethodScope currentMethodScope = this.scope.enclosingMethodScope();
+		if (currentMethodScope != null && currentMethodScope.isInsideInitializerOrConstructor()) {
+			// use synthetic constructor arguments if possible
+			if (currentMethodScope.enclosingSourceType() instanceof NestedTypeBinding nested)
+				return nested.getSyntheticArgument(enclosingType, true, currentMethodScope.isConstructorCall);
+		}
+		return null;
+	}
+
 	public SyntheticArgumentBinding getSyntheticArgument(LocalVariableBinding actualOuterLocalVariable) {
 		for (int i = 0, length = this.outerLocalVariables == null ? 0 : this.outerLocalVariables.length; i < length; i++)
 			if (this.outerLocalVariables[i].actualOuterLocalVariable == actualOuterLocalVariable)
