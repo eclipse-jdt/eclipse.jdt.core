@@ -3040,6 +3040,9 @@ class JavacConverter {
 						String raw = this.rawText.substring(startPos, endPos);
 						int ordinalEnd = ordinalIndexOf(raw, "]", dims);
 						int ordinalStart = ordinalIndexOf(raw, "[", dims);
+						if (ordinalStart == -1) {
+							ordinalStart = ordinalIndexOf(raw, "\\u005b", dims);
+						}
 						if( ordinalEnd != -1 ) {
 							commonSettings(res, jcArrayType, ordinalEnd + 1, true);
 							if( this.ast.apiLevel >= AST.JLS8_INTERNAL ) {
