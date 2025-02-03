@@ -348,6 +348,10 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	    return this.formatter.createIndentString(indent);
 	}
 
+	final String createIndentString(int indent, int minimumIndentInSpaces) {
+		return this.formatter.createIndentString(indent, minimumIndentInSpaces);
+	}
+
 	final private String getIndentOfLine(int pos) {
 		int line= getLineInformation().getLineOfOffset(pos);
 		if (line >= 0) {
@@ -362,6 +366,14 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		return Util.EMPTY_STRING;
 	}
 
+	final private String getIndentString(String line, int minimumIndentInSpaces) {
+		String indent= this.formatter.getIndentString(line);
+		int indentInSpaces= this.formatter.computeIndentInSpaces(indent);
+		if (indentInSpaces < minimumIndentInSpaces) {
+			indent= indent + " ".repeat(minimumIndentInSpaces - indentInSpaces); //$NON-NLS-1$
+		}
+		return indent;
+	}
 
 	final String getIndentAtOffset(int pos) {
 		return this.formatter.getIndentString(getIndentOfLine(pos));
@@ -1160,7 +1172,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			for (int i= 0; i < newLines; i++) {
 				buf.append(lineDelim);
 			}
-			buf.append(createIndentString(getNodeIndent(nextNodeIndex)));
+			buf.append(createIndentString(getNodeIndent(nextNodeIndex), getNodeIndentInSpaces(nextNodeIndex)));
 			return buf.toString();
 		}
 
@@ -1510,6 +1522,11 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			int offset= curr.offset;
 			if (offset >= currPos) {
 				String insertStr= formatted.substring(currPos, offset);
+				int indentInSpaces= this.formatter.computeIndentInSpaces(insertStr);
+				if (indentInSpaces < minimumIndentInSpaces && !removeLeadingIndent) {
+					insertStr= reindent(insertStr, minimumIndentInSpaces);
+				}
+				removeLeadingIndent= false;
 				doTextInsert(insertOffset, insertStr, editGroup); // insert until the marker's begin
 			} else {
 				// already processed
@@ -1538,8 +1555,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				// proper indentation - see https://bugs.eclipse.org/bugs/show_bug.cgi?id=350285
 				int lineOffset = getCurrentLineStart(formatted, offset);
 				String destIndentString = (lineOffset == 0)
-						? this.formatter.createIndentString(initialIndentLevel)
-						: this.formatter.getIndentString(formatted.substring(lineOffset, offset));
+						? createIndentString(initialIndentLevel, minimumIndentInSpaces)
+						: getIndentString(formatted.substring(lineOffset, offset), minimumIndentInSpaces);
 				if (data instanceof CopyPlaceholderData) { // replace with a copy/move target
 					CopySourceInfo copySource= ((CopyPlaceholderData) data).copySource;
 					int srcIndentLevel= getIndent(copySource.getNode().getStartPosition());
@@ -1560,9 +1577,35 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 		if (currPos < formatted.length()) {
 			String insertStr= formatted.substring(currPos);
+			String[] lines= insertStr.split("\n"); //$NON-NLS-1$
+			boolean mustReformInsert= false;
+			for (int i= 0; i < lines.length; ++i) {
+				if (!lines[i].isEmpty()) {
+					int indentInSpaces= this.formatter.computeIndentInSpaces(lines[i]) + this.formatter.getIndentWidth() * initialIndentLevel;
+					if (indentInSpaces < minimumIndentInSpaces) {
+						lines[i]= reindent(lines[i], minimumIndentInSpaces);
+						mustReformInsert= true;
+					}
+				}
+			}
+			if (mustReformInsert) {
+				StringBuilder s= new StringBuilder();
+				for (int i= 0; i < lines.length - 1; ++i) {
+					s.append(lines[i] + "\n"); //$NON-NLS-1$
+				}
+				s.append(lines[lines.length - 1]);
+				insertStr= s.toString();
+			}
 			doTextInsert(insertOffset, insertStr, editGroup);
 		}
 	}
+
+	private String reindent(String line, int minimumIndentInSpaces) {
+		String originalIndent= this.formatter.getIndentString(line);
+		String newIndent= getIndentString(line, minimumIndentInSpaces);
+		return newIndent + line.substring(originalIndent.length());
+	}
+
 	private boolean needsNewLineForLineComment(ASTNode node, String formatted, int offset) {
 		if (!this.lineCommentEndOffsets.isEndOfLineComment(getExtendedEnd(node), this.content)) {
 			return false;
