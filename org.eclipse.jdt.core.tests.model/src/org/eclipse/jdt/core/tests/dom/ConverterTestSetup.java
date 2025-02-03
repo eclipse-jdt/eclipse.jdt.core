@@ -320,27 +320,27 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 
 	public ASTNode runConversion(ICompilationUnit unit, boolean resolveBindings,
 			boolean bindingsRecovery) {
-		return runConversion(astInternalJLS2(), unit, resolveBindings, false, bindingsRecovery);
+		return runConversion(AST.getAllSupportedVersions().getFirst(), unit, resolveBindings, false, bindingsRecovery);
 	}
 
 	public ASTNode runConversion(ICompilationUnit unit, boolean resolveBindings) {
-		return runConversion(astInternalJLS2(), unit, resolveBindings);
+		return runConversion(AST.getAllSupportedVersions().getFirst(), unit, resolveBindings);
 	}
 
 	public ASTNode runConversion(ICompilationUnit unit, int position, boolean resolveBindings) {
-		return runConversion(astInternalJLS2(), unit, position, resolveBindings);
+		return runConversion(AST.getAllSupportedVersions().getFirst(), unit, position, resolveBindings);
 	}
 
 	public ASTNode runConversion(IClassFile classFile, int position, boolean resolveBindings) {
-		return runConversion(astInternalJLS2(), classFile, position, resolveBindings);
+		return runConversion(AST.getAllSupportedVersions().getFirst(), classFile, position, resolveBindings);
 	}
 
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project) {
-		return runConversion(astInternalJLS2(), source, unitName, project);
+		return runConversion(AST.getAllSupportedVersions().getFirst(), source, unitName, project);
 	}
 
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, boolean resolveBindings) {
-		return runConversion(astInternalJLS2(), source, unitName, project, resolveBindings);
+		return runConversion(AST.getAllSupportedVersions().getFirst(), source, unitName, project, resolveBindings);
 	}
 
 	public ASTNode runConversion(int astLevel, ICompilationUnit unit, boolean resolveBindings) {
@@ -752,10 +752,10 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	}
 
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, Map<String, String> options, boolean resolveBindings) {
-		return runConversion(astInternalJLS2(), source, unitName, project, options, resolveBindings);
+		return runConversion(AST.getAllSupportedVersions().getFirst(), source, unitName, project, options, resolveBindings);
 	}
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, Map<String, String> options) {
-		return runConversion(astInternalJLS2(), source, unitName, project, options);
+		return runConversion(AST.getAllSupportedVersions().getFirst(), source, unitName, project, options);
 	}
 
 	protected ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {
