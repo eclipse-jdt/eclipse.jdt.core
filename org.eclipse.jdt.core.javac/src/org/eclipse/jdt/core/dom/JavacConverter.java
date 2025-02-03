@@ -3024,7 +3024,7 @@ class JavacConverter {
 			if (t instanceof ArrayType childArrayType && this.ast.apiLevel > AST.JLS4_INTERNAL) {
 				res = childArrayType;
 				res.dimensions().addFirst(this.ast.newDimension());
-				commonSettings(res, jcArrayType.getType());
+				commonSettings(res, jcArrayType);
 			} else {
 				int dims = countDimensions(jcArrayType);
 				res = this.ast.newArrayType(t);
