@@ -31,12 +31,6 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings("rawtypes")
 public abstract class ConverterTestSetup extends AbstractASTTests {
-	/**
-	 * Internal synonym for deprecated constant AST.JSL3
-	 * to alleviate deprecation warnings.
-	 * @deprecated
-	 */
-	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
 
 	/**
 	 * Internal synonym for deprecated constant AST.JSL4
@@ -52,10 +46,6 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	 */
 	/*package*/ static final int JLS8_INTERNAL = AST.JLS8;
 
-	static int getJLS3() {
-		return JLS3_INTERNAL;
-	}
-
 	static int getJLS4() {
 		return JLS4_INTERNAL;
 	}
@@ -63,6 +53,11 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	static int getJLS8() {
 		return JLS8_INTERNAL;
 	}
+
+	static int getJLSFirst() {
+		return AST.getAllSupportedVersions().getFirst();
+	}
+
 	protected AST ast;
 	public static List TEST_SUITES = null;
 	public static boolean PROJECT_SETUP = false;
@@ -352,6 +347,19 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	}
 
 	public ASTNode runConversion(
+			ICompilationUnit unit,
+			boolean resolveBindings,
+			boolean statementsRecovery,
+			boolean bindingsRecovery) {
+		ASTParser parser = ASTParser.newParser(getJLSFirst());
+		parser.setSource(unit);
+		parser.setResolveBindings(resolveBindings);
+		parser.setStatementsRecovery(statementsRecovery);
+		parser.setBindingsRecovery(bindingsRecovery);
+		return parser.createAST(null);
+	}
+
+	public ASTNode runConversion(
 			int astLevel,
 			ICompilationUnit unit,
 			boolean resolveBindings,
@@ -624,7 +632,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	public ASTNode runJLS3Conversion(ICompilationUnit unit, boolean resolveBindings, boolean bindingRecovery) {
 
 		// Create parser
-		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
+		ASTParser parser = ASTParser.newParser(getJLSFirst());
 		parser.setSource(unit);
 		parser.setResolveBindings(resolveBindings);
 		parser.setBindingsRecovery(bindingRecovery);

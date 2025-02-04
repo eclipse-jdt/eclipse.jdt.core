@@ -30,7 +30,7 @@ public class ASTNodeFinderTest extends ConverterTestSetup {
 	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(getJLS3(), false);
+		this.ast = AST.newAST(getJLSFirst(), false);
 	}
 
 	public ASTNodeFinderTest(String name) {
