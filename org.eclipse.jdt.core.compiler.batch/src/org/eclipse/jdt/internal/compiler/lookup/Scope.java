@@ -2672,7 +2672,7 @@ public abstract class Scope {
 						if (methodBinding != null) { // skip it if we did not find anything
 							if (foundMethod == null) {
 								if (methodBinding.isValidBinding()) {
-									if (!methodBinding.isStatic() && (insideConstructorCall || insideStaticContext)) {
+									if (lacksRequiredInstanceScope(methodBinding, insideConstructorCall, insideStaticContext)) {
 										if (foundProblem != null && foundProblem.problemId() != ProblemReasons.NotVisible)
 											return foundProblem; // takes precedence
 										return new ProblemMethodBinding(
@@ -2877,6 +2877,18 @@ public abstract class Scope {
 			return foundProblem;
 
 		return new ProblemMethodBinding(selector, argumentTypes, ProblemReasons.NotFound);
+	}
+
+	boolean lacksRequiredInstanceScope(MethodBinding methodBinding, boolean insideConstructorCall, boolean insideStaticContext) {
+		if (methodBinding.isStatic())
+			return false; // target instance not needed
+		if (!insideConstructorCall && !insideStaticContext)
+			return false; // target instance available
+		if (insideConstructorCall && JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(compilerOptions())) {
+			if (!isInsideEarlyConstructionContext(methodBinding.declaringClass, false))
+				return false; // this case is excused
+		}
+		return true;
 	}
 
 	public final ReferenceBinding getJavaIoSerializable() {
