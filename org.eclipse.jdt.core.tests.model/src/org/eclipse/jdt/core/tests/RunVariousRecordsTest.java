@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.tests.compiler.regression.SwitchPatternTest22;
 import org.eclipse.jdt.core.tests.dom.ASTConverter_RecordPattern_Test;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
 import org.eclipse.jdt.core.tests.model.CompletionTestsForRecordPattern;
+import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingRecordDeclarationTest;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingRecordPatternTest;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingSwitchPatternTest;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
@@ -51,6 +52,7 @@ public class RunVariousRecordsTest extends TestCase {
 				ASTConverter_RecordPattern_Test.class,
 				ASTRewritingRecordPatternTest.class,
 				ASTRewritingSwitchPatternTest.class,
+				ASTRewritingRecordDeclarationTest.class,
 				SwitchPatternTest22.class,
 				CompletionTestsForRecordPattern.class,
 				NullAnnotationTests21.class,

@@ -742,6 +742,7 @@ ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
 ClassBodyDeclaration -> ClassMemberDeclaration
 ClassBodyDeclaration -> StaticInitializer
 ClassBodyDeclaration -> ConstructorDeclaration
+ClassBodyDeclaration -> CompactConstructorDeclaration
 
 ImplicitlyDeclaredClassBodyDeclarations -> ClassMemberDeclaration
 ImplicitlyDeclaredClassBodyDeclarations ::= ClassMemberDeclaration ImplicitlyDeclaredClassBodyDeclarations
@@ -1126,7 +1127,7 @@ InterfaceMemberDeclaration -> RecordDeclaration
 -- 14 feature : record type
 -----------------------------------------------
 
-RecordDeclaration ::= RecordHeaderPart RecordBody
+RecordDeclaration ::= RecordHeaderPart ClassBody
 /.$putCase consumeRecordDeclaration(); $break ./
 /:$readableName RecordDeclaration:/
 /:$compliance 14:/
@@ -1188,30 +1189,6 @@ VariableArityRecordComponent ::= Modifiersopt Type @308... TypeAnnotations '...'
 /:$readableName VariableArityRecordComponent:/
 /:$compliance 14:/
 /:$recovery_template Identifier Identifier:/
-
-RecordBody ::= '{' RecordBodyDeclarationopt '}'
-/.$putCase consumeRecordBody(); $break ./
-/:$readableName RecordBody:/
-/:$compliance 14:/
-
-RecordBodyDeclarationopt ::= $empty
-/.$putCase consumeEmptyRecordBodyDeclaration(); $break ./
-RecordBodyDeclarationopt -> RecordBodyDeclarations
-/:$readableName RecordBodyDeclarationopt:/
-/:$compliance 14:/
-
-RecordBodyDeclarations ::= RecordBodyDeclaration
-RecordBodyDeclarations ::= RecordBodyDeclarations RecordBodyDeclaration
-/.$putCase consumeRecordBodyDeclarations(); $break ./
-/:$readableName RecordBodyDeclarations:/
-/:$compliance 14:/
-
-RecordBodyDeclaration ::=  ClassBodyDeclaration
-/.$putCase consumeRecordBodyDeclaration(); $break ./
-RecordBodyDeclaration ::=  CompactConstructorDeclaration
-/.$putCase consumeRecordBodyDeclaration(); $break ./
-/:$readableName RecordBodyDeclaration:/
-/:$compliance 14:/
 
 CompactConstructorDeclaration ::= CompactConstructorHeader MethodBody
 /.$putCase consumeCompactConstructorDeclaration(); $break ./

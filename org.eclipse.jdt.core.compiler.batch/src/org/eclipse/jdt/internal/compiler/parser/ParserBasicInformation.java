@@ -22,20 +22,20 @@ public interface ParserBasicInformation {
 
 					ERROR_SYMBOL = 138,
 					MAX_NAME_LENGTH = 41,
-					NUM_STATES = 1237,
+					NUM_STATES = 1233,
 
 					NT_OFFSET = 138,
-					SCOPE_UBOUND = 320,
-					SCOPE_SIZE = 321,
-					LA_STATE_OFFSET = 17992,
+					SCOPE_UBOUND = 319,
+					SCOPE_SIZE = 320,
+					LA_STATE_OFFSET = 17780,
 					MAX_LA = 1,
-					NUM_RULES = 939,
+					NUM_RULES = 933,
 					NUM_TERMINALS = 138,
-					NUM_NON_TERMINALS = 432,
-					NUM_SYMBOLS = 570,
-					START_STATE = 2217,
-					EOFT_SYMBOL = 40,
-					EOLT_SYMBOL = 40,
-					ACCEPT_ACTION = 17991,
-					ERROR_ACTION = 17992;
+					NUM_NON_TERMINALS = 428,
+					NUM_SYMBOLS = 566,
+					START_STATE = 980,
+					EOFT_SYMBOL = 39,
+					EOLT_SYMBOL = 39,
+					ACCEPT_ACTION = 17779,
+					ERROR_ACTION = 17780;
 }

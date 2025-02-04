@@ -11905,6 +11905,14 @@ public void recordCompactConstructorHasReturnStatement(ReturnStatement stmt) {
 		stmt.sourceStart,
 		stmt.sourceEnd);
 }
+public void compactConstructorsOnlyInRecords(CompactConstructorDeclaration ccd) {
+	this.handle(
+			IProblem.CompactConstructorOnlyInRecords,
+			NoArgument,
+			NoArgument,
+			ccd.sourceStart,
+			ccd.sourceEnd);
+}
 public void recordIllegalComponentNameInRecord(RecordComponent recComp, TypeDeclaration typeDecl) {
 	this.handle(
 		IProblem.RecordIllegalComponentNameInRecord,

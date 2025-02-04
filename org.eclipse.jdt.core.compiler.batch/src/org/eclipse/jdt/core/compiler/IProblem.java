@@ -2515,6 +2515,8 @@ void setSourceStart(int sourceStart);
 	int ClassExtendFinalRecord = TypeRelated + 1767;
 	/** @since 3.29 */
 	int RecordErasureIncompatibilityInCanonicalConstructor = TypeRelated + 1768;
+	/** @since 3.41 */
+	int CompactConstructorOnlyInRecords = TypeRelated + 1769;
 	/* records - end */
 
 
