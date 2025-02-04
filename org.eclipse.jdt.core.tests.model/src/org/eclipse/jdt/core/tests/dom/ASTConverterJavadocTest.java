@@ -90,8 +90,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	protected boolean resolveBinding = true;
 	protected boolean packageBinding = true;
 	// AST Level
-	/** @deprecated using deprecated code */
-	protected int astLevel = AST.JLS2;
+	protected int astLevel = AST.getAllSupportedVersions().getFirst();
 	protected int savedLevel;
 	// Debug
 	protected String prefix = "";
@@ -1200,8 +1199,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 
 		// Create DOM AST nodes hierarchy
 		List unitComments = null;
-		String sourceLevel = null;
-		String complianceLevel = null;
 		CompilationUnit compilUnit = (CompilationUnit) runConversion(testedSource, fileName, this.currentProject, options);
 		if (this.compilerOption.equals(JavaCore.ERROR)) {
 			assumeEquals(this.prefix+"Unexpected problems", 0, compilUnit.getProblems().length); //$NON-NLS-1$
@@ -1257,10 +1254,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		}
 		*/
 
-		if (sourceLevel != null) {
-			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, complianceLevel);
-			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, sourceLevel);
-		}
 		// Return compilation unit for possible further verifications
 		return compilUnit;
 	}

@@ -9376,7 +9376,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	 */
 	public void test0682() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0682", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode node = runConversion(sourceUnit, true, true);
+		ASTNode node = runConversion(sourceUnit, true, true, true);
 		assertTrue("Not a compilation unit", node.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(
