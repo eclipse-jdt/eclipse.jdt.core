@@ -34,8 +34,10 @@ public class ASTParserTest extends org.eclipse.jdt.core.tests.junit.extension.Te
 		Method[] methods = c.getMethods();
 		for (int i = 0, max = methods.length; i < max; i++) {
 			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
-				suite.addTest(new ASTParserTest(methods[i].getName(), AST.JLS2));
-				suite.addTest(new ASTParserTest(methods[i].getName(), AST.JLS3));
+				suite.addTest(new ASTParserTest(methods[i].getName(), AST.JLS8));
+				suite.addTest(new ASTParserTest(methods[i].getName(), AST.JLS11));
+				suite.addTest(new ASTParserTest(methods[i].getName(), AST.JLS17));
+				suite.addTest(new ASTParserTest(methods[i].getName(), AST.JLS21));
 			}
 		}
 		return suite;
@@ -64,14 +66,8 @@ public class ASTParserTest extends org.eclipse.jdt.core.tests.junit.extension.Te
 	/** @deprecated using deprecated code */
 	public String getName() {
 		String name = super.getName();
-		switch (this.API_LEVEL) {
-			case AST.JLS2:
-				name = "JLS2 - " + name;
-				break;
-			case AST.JLS3:
-				name = "JLS3 - " + name;
-				break;
-		}
+
+		name = "JLS"+this.API_LEVEL+" - " + name;
 		return name;
 	}
 
