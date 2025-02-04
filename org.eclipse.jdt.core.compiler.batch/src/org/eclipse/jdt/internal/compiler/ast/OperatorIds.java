@@ -35,13 +35,17 @@ public interface OperatorIds {
 	public static final int RIGHT_SHIFT = 17;
 	public static final int EQUAL_EQUAL = 18;
 	public static final int UNSIGNED_RIGHT_SHIFT= 19; // last org.eclipse.jdt.internal.compiler.ast.OperatorExpression
+	public static final int CONNECT = 20;
+	public static final int CAT = 21;
+	public static final int EQUAL_EQUAL_EQUAL = 22;
+	public static final int NOT_EQUAL_EQUAL = 23;
 
-	public static final int NOT_EQUAL = 20;
-	public static final int EQUAL = 21;
+	public static final int NOT_EQUAL = 24;
+	public static final int EQUAL = 25;
 	/** others */
-	public static final int QUESTIONCOLON = 22;
-	public static final int INSTANCEOF = 23;
+	public static final int QUESTIONCOLON = 26;
+	public static final int INSTANCEOF = 27;
 	/** postfix */
-	public static final int PLUS_PLUS = 24;
-	public static final int MINUS_MINUS = 25;
+	public static final int PLUS_PLUS = 28;
+	public static final int MINUS_MINUS = 29;
 }
