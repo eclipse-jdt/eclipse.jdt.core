@@ -1096,7 +1096,7 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 				public TestDependsOnClass(@Qualifier(value= ) Object mybean) { }
 			}
 			""");
-		ASTNode result = runConversion(getJLS8(), this.workingCopies[0], true, true);
+		ASTNode result = runConversion(this.workingCopies[0], true, true);
 
 		assertASTNodeEquals(
 			"""
@@ -1131,7 +1131,7 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 				@Value(spring.) private String value1;
 			}
 			""");
-		ASTNode result = runConversion(getJLS8(), this.workingCopies[0], true, true);
+		ASTNode result = runConversion(this.workingCopies[0], true, true);
 
 		assertASTNodeEquals(
 			"""
