@@ -52,12 +52,6 @@ public class CompilationUnitTests extends ModifyingResourceTests {
 public CompilationUnitTests(String name) {
 	super(name);
 }
-/**
- * Internal synonym for deprecated constant AST.JSL3
- * to alleviate deprecation warnings.
- * @deprecated
- */
-/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
 
 @Override
 public void setUpSuite() throws Exception {
@@ -533,7 +527,7 @@ public void testDeprecatedFlag10() throws CoreException {
 				"public class D extends p2.C {}\n");
 		ICompilationUnit cuD = getCompilationUnit("/P/src/p/D.java");
 
-		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
+		ASTParser parser = ASTParser.newParser(AST.getAllSupportedVersions().getFirst());
 		parser.setProject(this.testProject);
 		parser.setSource(cuD);
 		parser.setResolveBindings(true);
@@ -584,7 +578,7 @@ public void testDeprecatedFlag11() throws CoreException {
 				"public class D extends p2.C {}\n");
 		ICompilationUnit cuD = getCompilationUnit("/P/src/p/D.java");
 
-		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
+		ASTParser parser = ASTParser.newParser(AST.getAllSupportedVersions().getFirst());
 		parser.setWorkingCopyOwner(myWCOwner);
 		parser.setProject(this.testProject);
 		parser.setSource(cuD);
