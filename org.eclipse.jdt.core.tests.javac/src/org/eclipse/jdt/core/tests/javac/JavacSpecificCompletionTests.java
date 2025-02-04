@@ -299,7 +299,7 @@ public class JavacSpecificCompletionTests {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		IProgressMonitor monitor = new NullProgressMonitor();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, WC_OWNER, monitor);
-		assertTrue(requestor.getResults().contains("out[FIELD_REF]{out, Ljava.lang.System;, Ljava.io.PrintStream;, out, [78, 78], 49}"));
+		assertTrue(requestor.getResults().contains("out[FIELD_REF]{out, Ljava.lang.System;, Ljava.io.PrintStream;, out, [78, 78], 51}"));
 	}
 
 }

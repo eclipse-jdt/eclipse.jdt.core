@@ -893,8 +893,12 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					IBinding qualifiedNameBinding = qualifiedName.getQualifier().resolveBinding();
 					ExtendsOrImplementsInfo info = isInExtendsOrImplements(qualifiedName);
 					if (qualifiedNameBinding instanceof ITypeBinding qualifierTypeBinding && !qualifierTypeBinding.isRecovered()) {
+
+						boolean isTypeInVariableDeclaration = isTypeInVariableDeclaration(context);
+
 						processMembers(qualifiedName, qualifierTypeBinding, specificCompletionBindings, true);
-						if (info == null) {
+						if (info == null && !isTypeInVariableDeclaration) {
+							this.qualifyingType = qualifierTypeBinding;
 							publishFromScope(specificCompletionBindings);
 						} else {
 							specificCompletionBindings.all() //
@@ -1521,6 +1525,26 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				this.monitor.done();
 			}
 		}
+	}
+	
+	private boolean isTypeInVariableDeclaration(ASTNode context) {
+		ASTNode cursor = context.getParent();
+		ASTNode childCursor = context;
+		while (cursor != null
+				&& !(cursor instanceof FieldDeclaration)
+				&& !(cursor instanceof VariableDeclarationStatement)
+				&& !(cursor instanceof SingleVariableDeclaration)) {
+			childCursor = cursor;
+			cursor = cursor.getParent();
+		}
+		if (cursor instanceof FieldDeclaration fieldDecl) {
+			return fieldDecl.getType() == childCursor;
+		} else if (cursor instanceof VariableDeclarationStatement varDecl) {
+			return varDecl.getType() == childCursor;
+		} else if (cursor instanceof SingleVariableDeclaration varDecl) {
+			return varDecl.getType() == childCursor;
+		}
+		return false;
 	}
 
 	private void suggestSuperConstructors() {
@@ -2680,7 +2704,6 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				RelevanceConstants.R_NON_RESTRICTED +
 				RelevanceUtils.computeRelevanceForInheritance(this.qualifyingType, binding) +
 				((insideQualifiedReference() && !staticOnly() && !Modifier.isStatic(binding.getModifiers())) || (inJavadoc && !res.isConstructor()) ? RelevanceConstants.R_NON_STATIC : 0) +
-				(!staticOnly() || inheritedValue ? 0 : RelevanceConstants.R_NON_INHERITED) + // TODO: when is this active?
 				(binding instanceof IVariableBinding field && field.isEnumConstant() ? RelevanceConstants.R_ENUM + RelevanceConstants.R_ENUM_CONSTANT : 0)
 				);
 		if (res.getRequiredProposals() != null) {
