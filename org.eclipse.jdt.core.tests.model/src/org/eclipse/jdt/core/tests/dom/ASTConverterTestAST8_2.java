@@ -10516,7 +10516,6 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"public class one {}";
 			workingCopy = getWorkingCopy("/Converter/src/one/two/one.java", true/*resolve*/);
 			CompilationUnit unit = (CompilationUnit) buildAST(
-				getJLS3(),
 				contents,
 				workingCopy,
 				true,

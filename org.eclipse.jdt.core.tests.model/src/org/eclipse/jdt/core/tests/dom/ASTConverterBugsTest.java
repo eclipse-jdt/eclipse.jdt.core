@@ -636,7 +636,7 @@ public void testBug214002b() throws CoreException, IOException {
 			);
 			ICompilationUnit cuA = getCompilationUnit("P/A.java");
 			try {
-				runConversion(getJLS3(), cuA, true, true, true);
+				runConversion(cuA, true, true, true);
 			} catch(IllegalArgumentException e) {
 				assertTrue("Unexpected IllegalArgumentException", false);
 			}
