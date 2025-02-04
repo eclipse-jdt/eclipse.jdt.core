@@ -29,7 +29,6 @@ public class ASTConverterBugsTestJLS4 extends ASTConverterBugsTestJLS3 {
 
 public ASTConverterBugsTestJLS4(String name) {
     super(name);
-    this.testLevel = getJLS4();
 }
 
 public static Test suite() {

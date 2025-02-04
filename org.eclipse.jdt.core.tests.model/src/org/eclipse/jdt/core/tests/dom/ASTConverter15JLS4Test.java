@@ -44,7 +44,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(getJLS4(), false);
+		this.ast = AST.newAST(getJLSFirst(), false);
 	}
 
 	public ASTConverter15JLS4Test(String name) {
@@ -400,7 +400,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 	public void test0006() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0006", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(getJLS4(), sourceUnit, true);
+		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		final String expectedOutput = "Package annotations must be in file package-info.java";
@@ -420,7 +420,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 	public void test0007() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0007", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(getJLS4(), sourceUnit, true);
+		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertProblemsSize(compilationUnit, 0);
@@ -436,7 +436,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 
 	public void test0009() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0009", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(getJLS4(), sourceUnit, true);
+		ASTNode result = runConversion(sourceUnit, true);
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
@@ -460,7 +460,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 
 	public void test0010() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0010", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(getJLS4(), sourceUnit, true);
+		ASTNode result = runConversion(sourceUnit, true);
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
@@ -490,7 +490,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 
 	public void test0011() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0011", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(getJLS4(), sourceUnit, true);
+		ASTNode result = runConversion(sourceUnit, true);
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
@@ -521,7 +521,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 
 	public void test0012() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0012", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(getJLS4(), sourceUnit, true);
+		ASTNode result = runConversion(sourceUnit, true);
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
@@ -2218,7 +2218,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 	 */
 	public void test0072() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15", "src", "test0072", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(getJLS4(), sourceUnit, true);
+		ASTNode result = runConversion(sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertProblemsSize(unit, 0);
@@ -3237,7 +3237,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents.toCharArray());
-		ASTNode node = runConversion(getJLS4(), this.workingCopy, true);
+		ASTNode node = runConversion(this.workingCopy, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
 		String expectedOutput = "Dead code";
@@ -5894,7 +5894,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=99510
 	public void test0191() throws CoreException, IOException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0191", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode node = runConversion(getJLS4(), sourceUnit, true);
+		ASTNode node = runConversion(sourceUnit, true);
 		assertNotNull("No node", node);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
@@ -7497,7 +7497,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 		IType type = sourceUnit.getType("Test3");//$NON-NLS-1$
 
 		assertNotNull("Should not be null", type);
-		ASTParser parser= ASTParser.newParser(getJLS4());
+		ASTParser parser= ASTParser.newParser(getJLSFirst());
 		parser.setProject(type.getJavaProject());
 		IBinding[] bindings= parser.createBindings(new IJavaElement[] { type }, null);
 		if (bindings.length == 1 && bindings[0] instanceof ITypeBinding) {
@@ -7521,7 +7521,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 		IType type = sourceUnit.getType("Test3");//$NON-NLS-1$
 
 		assertNotNull("Should not be null", type);
-		ASTParser parser= ASTParser.newParser(getJLS4());
+		ASTParser parser= ASTParser.newParser(getJLSFirst());
 		parser.setSource(sourceUnit);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setResolveBindings(true);
@@ -8103,7 +8103,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 	 */
 	public void test0247() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0247", "EclipseCompiler.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(getJLS4(), sourceUnit, true, true);
+		ASTNode result = runConversion(sourceUnit, true, true);
 		assertNotNull("Not a compilation unit", result);
 	}
 
@@ -8242,7 +8242,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=174436
 	public void test0251() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0251", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode node = runConversion(getJLS4(), sourceUnit, false);
+		ASTNode node = runConversion(sourceUnit, false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
@@ -8272,7 +8272,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=174436
 	public void test0252() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0252", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode node = runConversion(getJLS4(), sourceUnit, false);
+		ASTNode node = runConversion(sourceUnit, false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
@@ -8312,7 +8312,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
-		ASTNode node = runConversion(getJLS4(), this.workingCopy, true, true, true);
+		ASTNode node = runConversion(this.workingCopy, true, true, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		String expectedError = "List cannot be resolved to a type";
@@ -8350,7 +8350,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
-		ASTNode node = runConversion(getJLS4(), this.workingCopy, true, true, true);
+		ASTNode node = runConversion(this.workingCopy, true, true, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
@@ -9420,7 +9420,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 		}
 
 		CompilationUnitRequestor requestor = new CompilationUnitRequestor();
-		ASTParser parser = ASTParser.newParser(getJLS4());
+		ASTParser parser = ASTParser.newParser(getJLSFirst());
 		parser.setResolveBindings(true);
 		parser.setProject(getJavaProject("Converter15"));
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -9596,7 +9596,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
-		ASTNode node = runConversion(getJLS4(), this.workingCopy, true, true, true);
+		ASTNode node = runConversion(this.workingCopy, true, true, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
@@ -9650,7 +9650,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 			"}";
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
-		ASTNode node = runConversion(getJLS4(), this.workingCopy, true, true, true);
+		ASTNode node = runConversion(this.workingCopy, true, true, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 1, "Bar2 cannot be resolved to a type");
@@ -10725,7 +10725,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 			BindingKey.createTypeBindingKey(typeName)
 		};
 		final BindingRequestor requestor = new BindingRequestor();
-		final ASTParser parser = ASTParser.newParser(getJLS4());
+		final ASTParser parser = ASTParser.newParser(getJLSFirst());
 		parser.setResolveBindings(true);
 		parser.setProject(javaProject);
 		// this doesn't really do a parse; it's a type lookup
@@ -10760,7 +10760,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 			BindingKey.createTypeBindingKey(typeName)
 		};
 		final BindingRequestor requestor = new BindingRequestor();
-		final ASTParser parser = ASTParser.newParser(getJLS4());
+		final ASTParser parser = ASTParser.newParser(getJLSFirst());
 		parser.setResolveBindings(true);
 		parser.setProject(javaProject);
 		// this doesn't really do a parse; it's a type lookup
@@ -10798,7 +10798,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 			BindingKey.createTypeBindingKey(typeName)
 		};
 		final BindingRequestor requestor = new BindingRequestor();
-		final ASTParser parser = ASTParser.newParser(getJLS4());
+		final ASTParser parser = ASTParser.newParser(getJLSFirst());
 		parser.setResolveBindings(true);
 		parser.setProject(javaProject);
 		// this doesn't really do a parse; it's a type lookup
@@ -11221,7 +11221,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 		//IType type2 = sourceUnit2.getType("TestAnnotationWithStringDefault");//$NON-NLS-1$
 
 		assertNotNull("Should not be null", type);
-		ASTParser parser= ASTParser.newParser(getJLS4());
+		ASTParser parser= ASTParser.newParser(getJLSFirst());
 		parser.setProject(type.getJavaProject());
 		IBinding[] bindings= parser.createBindings(new IJavaElement[] { type }, null);
 		if (bindings.length == 1 && bindings[0] instanceof ITypeBinding) {
@@ -11301,7 +11301,6 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 				"public class X {}\n";
 		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
 		CompilationUnit compilationUnit = (CompilationUnit) buildAST(
-			getJLS4(),
 			contents,
 			this.workingCopy,
 			false,
