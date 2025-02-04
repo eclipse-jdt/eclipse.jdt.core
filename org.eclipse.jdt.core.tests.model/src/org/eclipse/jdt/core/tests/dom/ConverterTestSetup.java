@@ -32,17 +32,6 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @SuppressWarnings("rawtypes")
 public abstract class ConverterTestSetup extends AbstractASTTests {
 
-	/**
-	 * Internal synonym for deprecated constant AST.JSL8
-	 * to alleviate deprecation warnings.
-	 * @deprecated
-	 */
-	/*package*/ static final int JLS8_INTERNAL = AST.JLS8;
-
-	static int getJLS8() {
-		return JLS8_INTERNAL;
-	}
-
 	static int getJLSFirst() {
 		return AST.getAllSupportedVersions().getFirst();
 	}
@@ -668,7 +657,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 
 	public ASTNode runJLS8Conversion(ICompilationUnit unit, boolean resolveBindings, boolean bindingRecovery) {
 		// Create parser
-        ASTParser parser = ASTParser.newParser(JLS8_INTERNAL);
+        ASTParser parser = ASTParser.newParser(getJLSFirst());
 		parser.setSource(unit);
 		parser.setResolveBindings(resolveBindings);
 		parser.setBindingsRecovery(bindingRecovery);
