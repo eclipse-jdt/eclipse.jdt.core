@@ -4404,26 +4404,26 @@ public void test74() {
 		"}									\n";
 
 	String expectedDietUnitToString =
-		"package pack;\n" +
-		"class A extends IOException {\n" +
-		"  {\n" +
-		"  }\n" +
-		"  A() {\n" +
-		"  }\n" +
-		"}\n";
+			"package pack;\n" +
+			"class A extends IOException {\n" +
+			"  A() {\n" +
+			"  }\n" +
+			"  S() {\n" +
+			"  }\n" +
+			"}\n";
 
 	String expectedDietPlusBodyUnitToString =
-		"package pack;\n" +
-		"class A extends IOException {\n" +
-		"  {\n" +
-		"    int x;\n" +
-		"  }\n" +
-		"  A() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"}\n";
+			"package pack;\n" +
+			"class A extends IOException {\n" +
+			"  A() {\n" +
+			"    super();\n" +
+			"  }\n" +
+			"  S() {\n" +
+			"    int x;\n" +
+			"  }\n" +
+			"}\n";
 
-	String expectedFullUnitToString = expectedDietUnitToString;
+	String expectedFullUnitToString = expectedDietPlusBodyUnitToString;
 
 	String expectedCompletionDietUnitToString = expectedDietUnitToString;
 
