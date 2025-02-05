@@ -921,7 +921,7 @@ ConstructorHeaderName ::= Modifiersopt 'Identifier' '('
 /:$readableName ConstructorHeaderName:/
 
 CompactConstructorDeclaration ::= CompactConstructorHeader MethodBody
-/.$putCase consumeCompactConstructorDeclaration(); $break ./
+/.$putCase consumeConstructorDeclaration(); $break ./
 /:$readableName CompactConstructorDeclaration:/
 /:$compliance 16:/
 
