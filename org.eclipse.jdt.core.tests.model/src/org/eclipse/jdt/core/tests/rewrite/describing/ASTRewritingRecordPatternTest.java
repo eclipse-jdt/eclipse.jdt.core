@@ -48,6 +48,7 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 	}
 
 
+	@SuppressWarnings("removal")
 	public void testAddRecordSwitchPattern() throws Exception {
 		if (checkAPILevel()) {
 			return;
@@ -137,6 +138,7 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 	}
 
 
+	@SuppressWarnings("removal")
 	public void testModifyRecordSwitchPattern() throws Exception {
 		if (checkAPILevel()) {
 			return;
@@ -288,6 +290,7 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 	}
 
 
+	@SuppressWarnings("removal")
 	public void testAddRecordInstanceOfPattern() throws Exception {
 		if (checkAPILevel()) {
 			return;
@@ -376,6 +379,7 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
+	@SuppressWarnings("removal")
 	public void testModifyGuardedPattern() throws Exception {
 		if (checkAPILevel()) {
 			return;

@@ -52,6 +52,7 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 	}
 
 
+	@SuppressWarnings("removal")
 	public void testAddTypePattern() throws Exception {
 		if (checkAPILevel()) {
 			return;
@@ -128,6 +129,7 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
+	@SuppressWarnings("removal")
 	public void tesModifyTypePattern() throws Exception {
 		if (checkAPILevel()) {
 			return;
@@ -251,6 +253,7 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 	}
 
 
+	@SuppressWarnings("removal")
 	public void testAddGuardedPattern() throws Exception {
 		if (checkAPILevel()) {
 			return;
@@ -340,6 +343,7 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
+	@SuppressWarnings("removal")
 	public void testModifyGuardedPattern() throws Exception {
 		if (checkAPILevel()) {
 			return;

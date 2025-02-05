@@ -1079,7 +1079,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings({ "deprecation", "removal" })
 	public void testPatternInstanceofExpression() {
 		if (this.ast.apiLevel() < AST.JLS17) {
 			return;
@@ -1094,7 +1094,11 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			x1.setRightOperand(svd);
 		} else {
 			TypePattern tp = this.ast.newTypePattern();
-			tp.setPatternVariable(svd);
+			if (this.ast.apiLevel() < AST.JLS22) {
+				tp.setPatternVariable(svd);
+			} else {
+				tp.setPatternVariable((VariableDeclaration)svd);
+			}
 			x1.setPattern(tp);
 		}
 		basicMatch(x1);
