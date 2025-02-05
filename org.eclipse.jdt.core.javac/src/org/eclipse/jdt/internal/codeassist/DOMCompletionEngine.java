@@ -177,7 +177,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	private final IProgressMonitor monitor;
 	private final Map<String, String> settings;
 	private final IJavaProject javaProject;
-	
+
 	private final CompletionEngine nestedEngine; // to reuse some utilities
 
 	private CompilationUnit unit;
@@ -190,6 +190,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	private ITypeBinding qualifyingType;
 	private ASTNode toComplete;
 	private String textContent;
+	private ExtendsOrImplementsInfo extendsOrImplementsInfo;
 
 	static class Bindings {
 		// those need to be list since the order matters
@@ -228,9 +229,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		this.workingCopyOwner = workingCopyOwner;
 		this.monitor = monitor;
 		this.javaProject = javaProject;
-		
+
 		this.nestedEngine = new CompletionEngine(this.nameEnvironment, this.requestor, settings, javaProject, workingCopyOwner, monitor);
-		
+
 		// TODO also honor assistOptions.checkVisibility!
 		// TODO also honor requestor.ignore*
 		// TODO sorting/relevance: closest/prefix match should go first
@@ -402,7 +403,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		}
 		return visibleBindings;
 	}
-	
+
 	private static CompilationUnit getCompletionAST(ITypeRoot typeRoot, IJavaProject javaProject,
 			WorkingCopyOwner workingCopyOwner, int focalPosition) {
 		Map<String, String> options = javaProject.getOptions(true);
@@ -423,7 +424,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		}
 		return null;
 	}
-	
+
 	private static CompilationUnit getCompletionAST(char[] content, char[] unitName, IJavaProject javaProject,
 			WorkingCopyOwner workingCopyOwner, int focalPosition) {
 		Map<String, String> options = javaProject.getOptions(true);
@@ -483,7 +484,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				this.unit = getCompletionAST(sourceUnit.getContents(), sourceUnit.getFileName(), this.javaProject, this.workingCopyOwner, completionPosition);
 			}
 		}
-		
+
 
 		try {
 			Bindings defaultCompletionBindings = new Bindings();
@@ -555,6 +556,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					this.qualifiedPrefix = thisExpression.getQualifier().toString();
 				}
 			}
+			this.extendsOrImplementsInfo = isInExtendsOrImplements(context);
 			// some flags to controls different applicable completion search strategies
 			boolean suggestDefaultCompletions = true;
 
@@ -656,7 +658,6 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					// }
 					ITypeBinding typeDeclBinding = typeDecl.resolveBinding();
 					findOverridableMethods(typeDeclBinding, this.javaProject, context);
-					ExtendsOrImplementsInfo extendsOrImplementsInfo = isInExtendsOrImplements(this.toComplete);
 					suggestTypeKeywords(true);
 					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 						findTypes(this.prefix, IJavaSearchConstants.TYPE, null)
@@ -674,7 +675,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 							.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(),
 									type.getElementName().toCharArray()))
 							.filter(type -> {
-								return filterBasedOnExtendsOrImplementsInfo(type, extendsOrImplementsInfo);
+								return filterBasedOnExtendsOrImplementsInfo(type, this.extendsOrImplementsInfo);
 							})
 							.map(this::toProposal).forEach(this.requestor::accept);
 					}
@@ -833,43 +834,58 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			}
 			if (context instanceof AbstractTypeDeclaration typeDecl) {
 				if (this.textContent != null) {
-					int nameEndOffset = typeDecl.getName().getStartPosition() + typeDecl.getName().getLength();
-					int bodyStart = nameEndOffset;
-					while (bodyStart < this.textContent.length() && this.textContent.charAt(bodyStart) != '{') {
-						bodyStart++;
-					}
-					int prefixCursor = this.offset;
-					while (prefixCursor > 0 && !Character.isWhitespace(this.textContent.charAt(prefixCursor - 1))) {
-						prefixCursor--;
-					}
-					this.prefix = this.textContent.substring(prefixCursor, this.offset);
-					if (nameEndOffset < this.offset && this.offset <= bodyStart) {
-						String extendsOrImplementsContent = this.textContent.substring(nameEndOffset, this.offset);
-						if (extendsOrImplementsContent.indexOf("implements") < 0 && extendsOrImplementsContent.indexOf("extends") < 0) { //$NON-NLS-1$ //$NON-NLS-2$
-							// public class Foo | {
-							//
-							// }
-							boolean isInterface = typeDecl instanceof TypeDeclaration realTypeDecl && realTypeDecl.isInterface();
-							boolean isEnumOrRecord = typeDecl instanceof RecordDeclaration || typeDecl instanceof EnumDeclaration;
-							if (!isEnumOrRecord && CharOperation.prefixEquals(this.prefix.toCharArray(), Keywords.EXTENDS)) {
-								this.requestor.accept(createKeywordProposal(Keywords.EXTENDS, this.offset, this.offset));
-							}
-							if (!isInterface && CharOperation.prefixEquals(this.prefix.toCharArray(), Keywords.IMPLEMENTS)) {
+					if (this.extendsOrImplementsInfo != null) {
+						// keyword present, but no simple or qualified name
+						// class MyClass implements | {
+						Bindings typeCompletionBindings = new Bindings();
+						topLevelTypes(typeCompletionBindings);
+						typeCompletionBindings.all()
+							.filter(ITypeBinding.class::isInstance)
+							.map(typeBinding -> (IType)typeBinding.getJavaElement())
+							.filter(type -> filterBasedOnExtendsOrImplementsInfo(type, this.extendsOrImplementsInfo))
+							.map(this::toProposal)
+							.forEach(this.requestor::accept);
+					} else {
+						int nameEndOffset = typeDecl.getName().getStartPosition() + typeDecl.getName().getLength();
+						int bodyStart = nameEndOffset;
+						while (bodyStart < this.textContent.length() && this.textContent.charAt(bodyStart) != '{') {
+							bodyStart++;
+						}
+						int prefixCursor = this.offset;
+						while (prefixCursor > 0 && !Character.isWhitespace(this.textContent.charAt(prefixCursor - 1))) {
+							prefixCursor--;
+						}
+						this.prefix = this.textContent.substring(prefixCursor, this.offset);
+						if (nameEndOffset < this.offset && this.offset <= bodyStart) {
+							String extendsOrImplementsContent = this.textContent.substring(nameEndOffset, this.offset);
+							int implementsOffset = extendsOrImplementsContent.indexOf("implements");
+							int extendsOffset = extendsOrImplementsContent.indexOf("extends");
+							if (implementsOffset < 0 && extendsOffset < 0) {
+								// public class Foo | {
+								//
+								// }
+								boolean isInterface = typeDecl instanceof TypeDeclaration realTypeDecl && realTypeDecl.isInterface();
+								boolean isEnumOrRecord = typeDecl instanceof RecordDeclaration || typeDecl instanceof EnumDeclaration;
+								if (!isEnumOrRecord && CharOperation.prefixEquals(this.prefix.toCharArray(), Keywords.EXTENDS)) {
+									this.requestor.accept(createKeywordProposal(Keywords.EXTENDS, this.offset, this.offset));
+								}
+								if (!isInterface && CharOperation.prefixEquals(this.prefix.toCharArray(), Keywords.IMPLEMENTS)) {
+									this.requestor.accept(createKeywordProposal(Keywords.IMPLEMENTS, this.offset, this.offset));
+								}
+							} else if (implementsOffset < 0
+									&& (Character.isWhitespace(this.textContent.charAt(this.offset - 1)) || this.textContent.charAt(this.offset - 1) == ',')) {
+								// public class Foo extends Bar, Baz, | {
+								//
+								// }
 								this.requestor.accept(createKeywordProposal(Keywords.IMPLEMENTS, this.offset, this.offset));
 							}
-						} else if (extendsOrImplementsContent.indexOf("implements") < 0 //$NON-NLS-1$
-									&& (Character.isWhitespace(this.textContent.charAt(this.offset - 1)) || this.textContent.charAt(this.offset - 1) == ',')) {
-							// public class Foo extends Bar, Baz, | {
-							//
+						} else if (bodyStart < this.offset) {
+							// public class Foo {
+							//     |
 							// }
-							this.requestor.accept(createKeywordProposal(Keywords.IMPLEMENTS, this.offset, this.offset));
+							ITypeBinding typeDeclBinding = typeDecl.resolveBinding();
+							findOverridableMethods(typeDeclBinding, this.javaProject, null);
 						}
-					} else if (bodyStart < this.offset) {
-						// public class Foo {
-						//     |
-						// }
-						ITypeBinding typeDeclBinding = typeDecl.resolveBinding();
-						findOverridableMethods(typeDeclBinding, this.javaProject, null);
 					}
 					suggestDefaultCompletions = false;
 				}
@@ -901,20 +917,19 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					}
 				} else {
 					IBinding qualifiedNameBinding = qualifiedName.getQualifier().resolveBinding();
-					ExtendsOrImplementsInfo info = isInExtendsOrImplements(qualifiedName);
 					if (qualifiedNameBinding instanceof ITypeBinding qualifierTypeBinding && !qualifierTypeBinding.isRecovered()) {
 
 						boolean isTypeInVariableDeclaration = isTypeInVariableDeclaration(context);
 
 						processMembers(qualifiedName, qualifierTypeBinding, specificCompletionBindings, true);
-						if (info == null && !isTypeInVariableDeclaration) {
+						if (this.extendsOrImplementsInfo == null && !isTypeInVariableDeclaration) {
 							this.qualifyingType = qualifierTypeBinding;
 							publishFromScope(specificCompletionBindings);
 						} else {
 							specificCompletionBindings.all() //
 								.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray())) //
 								.filter(ITypeBinding.class::isInstance)
-								.filter(type -> filterBasedOnExtendsOrImplementsInfo((IType)type.getJavaElement(), info))
+								.filter(type -> filterBasedOnExtendsOrImplementsInfo((IType)type.getJavaElement(), this.extendsOrImplementsInfo))
 								.map(binding -> toProposal(binding))
 								.forEach(this.requestor::accept);
 						}
@@ -976,13 +991,13 @@ public class DOMCompletionEngine implements ICompletionEngine {
 							if (potentialBinding.isPresent()) {
 								processMembers(qualifiedName, potentialBinding.get(), specificCompletionBindings,
 										false);
-								if (info == null) {
+								if (this.extendsOrImplementsInfo == null) {
 									publishFromScope(specificCompletionBindings);
 								} else {
 									specificCompletionBindings.all() //
 										.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray())) //
 										.filter(ITypeBinding.class::isInstance)
-										.filter(type -> filterBasedOnExtendsOrImplementsInfo((IType)type.getJavaElement(), info))
+										.filter(type -> filterBasedOnExtendsOrImplementsInfo((IType)type.getJavaElement(), this.extendsOrImplementsInfo))
 										.map(binding -> toProposal(binding))
 										.forEach(this.requestor::accept);
 								}
@@ -1499,9 +1514,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			}
 
 			if (suggestDefaultCompletions) {
-				ExtendsOrImplementsInfo extendsOrImplementsInfo = isInExtendsOrImplements(this.toComplete);
 				statementLikeKeywords();
-				if (!this.prefix.isEmpty() && extendsOrImplementsInfo == null) {
+				if (!this.prefix.isEmpty() && this.extendsOrImplementsInfo == null) {
 					suggestTypeKeywords(DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.BLOCK }) == null);
 				}
 				publishFromScope(defaultCompletionBindings);
@@ -1530,7 +1544,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 								return true;
 							})
 							.filter(type -> {
-								return filterBasedOnExtendsOrImplementsInfo(type, extendsOrImplementsInfo);
+								return filterBasedOnExtendsOrImplementsInfo(type, this.extendsOrImplementsInfo);
 							})
 							.filter(type -> {
 								if (alreadySuggestedFqn.contains(type.getFullyQualifiedName())) {
@@ -1558,7 +1572,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			}
 		}
 	}
-	
+
 	private boolean isTypeInVariableDeclaration(ASTNode context) {
 		ASTNode cursor = context.getParent();
 		ASTNode childCursor = context;
@@ -1665,7 +1679,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 	/**
 	 * Returns true if the given type can be accessed from the given context
-	 * 
+	 *
 	 * @param type the type that you're trying to access
 	 * @param currentPackage the package that you're in
 	 * @param currentTypeBinding the binding of the type that you're currently in, can be null
@@ -1936,6 +1950,20 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			.forEach(scope::add);
 	}
 
+	private void topLevelTypes(Bindings scope) {
+		Queue<AbstractTypeDeclaration> toCollect = new ArrayDeque<AbstractTypeDeclaration>();
+		toCollect.addAll(this.unit.types());
+		while (!toCollect.isEmpty()) {
+			AbstractTypeDeclaration current = toCollect.poll();
+			scope.add(current.resolveBinding());
+			for (ASTNode bodyDecl : (List<ASTNode>)current.bodyDeclarations()) {
+				if (bodyDecl instanceof AbstractTypeDeclaration childTypeDecl) {
+					toCollect.add(childTypeDecl);
+				}
+			}
+		}
+	}
+
 	private void completeMethodModifiers(MethodDeclaration methodDeclaration) {
 		List<char[]> keywords = new ArrayList<>();
 
@@ -2069,13 +2097,12 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	private void suggestTypesInPackage(String packageName) {
 		if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 			List<IType> foundTypes = findTypes(this.prefix, packageName).toList();
-			ExtendsOrImplementsInfo extendsOrImplementsInfo = isInExtendsOrImplements(this.toComplete);
 			String currentPackage = this.unit.getPackage() == null ? "" : this.unit.getPackage().getName().toString();
 			AbstractTypeDeclaration typeDecl = DOMCompletionUtil.findParentTypeDeclaration(this.toComplete);
 			ITypeBinding currentTypeBinding = typeDecl == null ? null : typeDecl.resolveBinding();
 			for (IType foundType : foundTypes) {
 				if (this.pattern.matchesName(this.prefix.toCharArray(), foundType.getElementName().toCharArray())) {
-					if (filterBasedOnExtendsOrImplementsInfo(foundType, extendsOrImplementsInfo) && filterTypeBasedOnAccess(foundType, currentPackage, currentTypeBinding)) {
+					if (filterBasedOnExtendsOrImplementsInfo(foundType, this.extendsOrImplementsInfo) && filterTypeBasedOnAccess(foundType, currentPackage, currentTypeBinding)) {
 						this.requestor.accept(this.toProposal(foundType));
 					}
 				}
@@ -2093,8 +2120,15 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					|| typeDeclaration.resolveBinding().getKey().equals(toFilter.getKey())) {
 				return false;
 			}
-			if (toFilter.isMember() && this.modelUnit.equals(toFilter.getAncestor(IJavaElement.COMPILATION_UNIT))) {
-				return false;
+			{
+				IType cursor = toFilter;
+				String invocationKey = info.typeDecl.resolveBinding().getKey();
+				while (cursor != null) {
+					if (cursor.getKey().equals(invocationKey)) {
+						return false;
+					}
+					cursor = cursor.getDeclaringType();
+				}
 			}
 			if (toFilter.isEnum() || toFilter.isRecord()) {
 				// cannot extend or implement
@@ -2140,7 +2174,29 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	 * @param completion the node to check
 	 * @return info if the given node is in an extends or implements clause, or null if not in either clause
 	 */
-	private static ExtendsOrImplementsInfo isInExtendsOrImplements(ASTNode completion) {
+	private ExtendsOrImplementsInfo isInExtendsOrImplements(ASTNode completion) {
+		if (completion instanceof AbstractTypeDeclaration typeDecl) {
+			// string manipulation
+			int nameEndOffset = typeDecl.getName().getStartPosition() + typeDecl.getName().getLength();
+			int bodyStart = nameEndOffset;
+			while (bodyStart < this.textContent.length() && this.textContent.charAt(bodyStart) != '{') {
+				bodyStart++;
+			}
+			int prefixCursor = this.offset;
+			while (prefixCursor > 0 && !Character.isWhitespace(this.textContent.charAt(prefixCursor - 1))) {
+				prefixCursor--;
+			}
+			if (nameEndOffset < this.offset && this.offset <= bodyStart) {
+				String extendsOrImplementsContent = this.textContent.substring(nameEndOffset, this.offset);
+				int implementsOffset = extendsOrImplementsContent.indexOf("implements");
+				int extendsOffset = extendsOrImplementsContent.indexOf("extends");
+				if (implementsOffset >= 0 || extendsOffset >= 0) {
+					boolean isInterface = implementsOffset >= 0 && this.offset > implementsOffset;
+					return new ExtendsOrImplementsInfo(typeDecl, isInterface);
+				}
+			}
+			return null;
+		}
 		ASTNode cursor = completion;
 		while (cursor != null
 				&& cursor.getNodeType() != ASTNode.TYPE_DECLARATION
@@ -2229,6 +2285,12 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	private void publishFromScope(Bindings scope) {
 		scope.all() //
 			.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray())) //
+			.filter(binding -> {
+				if (binding instanceof ITypeBinding typeBinding) {
+					return filterBasedOnExtendsOrImplementsInfo((IType)typeBinding.getJavaElement(), this.extendsOrImplementsInfo);
+				}
+				return true;
+			})
 			.map(binding -> toProposal(binding))
 			.forEach(this.requestor::accept);
 	}
@@ -2720,7 +2782,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						completionContextTypeBinding = completionContextTypeBinding.getSuperclass();
 					}
 				}
-				
+
 				boolean isMethodInCurrentCU = ((List<AbstractTypeDeclaration>)this.unit.types()).stream().anyMatch(typeDecl -> typeDecl.getName().toString().equals(finalizedTopLevelClass.getName()));
 				if (!inheritedValue && !isMethodInCurrentCU) {
 					if (this.qualifiedPrefix.equals(this.prefix) && !this.javaProject.getOption(JavaCore.CODEASSIST_SUGGEST_STATIC_IMPORTS, true).equals(JavaCore.DISABLED)) {
@@ -2899,7 +2961,10 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		cursor = type;
 		StringBuilder completion = new StringBuilder();
 		AbstractTypeDeclaration parentTypeDeclaration = DOMCompletionUtil.findParentTypeDeclaration(this.toComplete);
-		if (parentTypeDeclaration != null && type.getFullyQualifiedName().equals(((IType)parentTypeDeclaration.resolveBinding().getJavaElement()).getFullyQualifiedName())) {
+		if (parentTypeDeclaration != null
+				&& parentTypeDeclaration.resolveBinding() != null
+				&& parentTypeDeclaration.resolveBinding().getJavaElement() != null
+				&& type.getFullyQualifiedName().equals(((IType)parentTypeDeclaration.resolveBinding().getJavaElement()).getFullyQualifiedName())) {
 			completion.insert(0, cursor.getElementName());
 		} else {
 			ASTNode currentName = this.toComplete instanceof Name ? this.toComplete : null;
@@ -2961,13 +3026,13 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			res.setTokenRange(this.offset, this.offset);
 		}
 		boolean nodeInImports = DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.IMPORT_DECLARATION }) != null;
-		
+
 		IType topLevelClass = type;
-		while (topLevelClass.getParent() instanceof IType parentIType) {
+		while (topLevelClass.getDeclaringType() instanceof IType parentIType) {
 			topLevelClass = parentIType;
 		}
 		final IType finalizedTopLevelClass = topLevelClass;
-		
+
 		boolean fromCurrentCU = ((List<AbstractTypeDeclaration>)this.unit.types()).stream().anyMatch(typeDecl -> typeDecl.resolveBinding().getQualifiedName().equals(finalizedTopLevelClass.getFullyQualifiedName()));
 		boolean inSamePackage = false;
 		boolean typeIsImported = ((List<ImportDeclaration>)this.unit.imports()).stream().anyMatch(importDecl -> {
@@ -3058,14 +3123,14 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		res.setName(Keywords.SUPER);
 		res.setCompletion(CharOperation.concat(Keywords.SUPER, new char[] {'(', ')'}));
 		res.setTokenRange(res.getReplaceStart(), res.getReplaceEnd());
-		
+
 		res.setRelevance(RelevanceConstants.R_DEFAULT +
 				RelevanceConstants.R_RESOLVED +
 				RelevanceConstants.R_INTERESTING +
 				RelevanceUtils.computeRelevanceForCaseMatching(this.prefix.toCharArray(), Keywords.SUPER, this.assistOptions) +
 				RelevanceConstants.R_NON_RESTRICTED
 				);
-		
+
 		return res;
 	}
 
@@ -3105,7 +3170,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			res.setName(method.getElementName().toCharArray());
 			res.setCompletion((method.getElementName() + "()").toCharArray());
 			setRange(res);
-			res.setRelevance(RelevanceConstants.R_DEFAULT + 
+			res.setRelevance(RelevanceConstants.R_DEFAULT +
 				RelevanceConstants.R_RESOLVED +
 				RelevanceConstants.R_INTERESTING +
 				RelevanceConstants.R_CASE +
@@ -3766,17 +3831,17 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				+ RelevanceUtils.computeRelevanceForCaseMatching(this.prefix.toCharArray(), Keywords.CLASS, assistOptions)
 //				+ RelevanceUtils.computeRelevanceForExpectingType(typeBinding, this.expectedTypes)
 				;
-		
+
 		DOMInternalCompletionProposal keywordProposal = createProposal(CompletionProposal.FIELD_REF);
 		keywordProposal.setCompletion(Keywords.CLASS);
-		
+
 		if (startPos == -1 && endPos == -1) {
 			setRange(keywordProposal);
 		} else {
 			keywordProposal.setReplaceRange(startPos, endPos);
 			keywordProposal.setTokenRange(startPos, endPos);
 		}
-		
+
 		keywordProposal.setRelevance(relevance);
 		keywordProposal.setPackageName(CharOperation.concatWith(TypeConstants.JAVA_LANG, '.'));
 		keywordProposal.setTypeName("Class".toCharArray()); //$NON-NLS-1$

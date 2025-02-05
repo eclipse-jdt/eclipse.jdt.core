@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.codeassist.DOMCompletionUtil;
 import org.eclipse.jdt.internal.javac.dom.JavacAnnotationBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacErrorMethodBinding;
+import org.eclipse.jdt.internal.javac.dom.JavacErrorTypeBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacLambdaBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacMemberValuePairBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacMethodBinding;
@@ -69,6 +70,7 @@ import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.ModuleType;
 import com.sun.tools.javac.code.Type.PackageType;
 import com.sun.tools.javac.code.Type.TypeVar;
+import com.sun.tools.javac.code.Type.UnknownType;
 import com.sun.tools.javac.code.TypeTag;
 import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.tree.JCTree;
@@ -709,6 +711,9 @@ public class JavacBindingResolver extends BindingResolver {
 	ITypeBinding resolveType(TypeDeclaration type) {
 		resolve();
 		JCTree javacNode = this.converter.domToJavac.get(type);
+		if (javacNode instanceof JCClassDecl jcClassDecl && javacNode.type instanceof UnknownType && "<any?>".equals(javacNode.type.toString())) {
+			return new JavacErrorTypeBinding(javacNode.type, javacNode.type.tsym, true, JavacBindingResolver.this, jcClassDecl.sym);
+		}
 		if (javacNode instanceof JCClassDecl jcClassDecl && jcClassDecl.type != null) {
 			return this.bindings.getTypeBinding(jcClassDecl.type, true);
 		}
