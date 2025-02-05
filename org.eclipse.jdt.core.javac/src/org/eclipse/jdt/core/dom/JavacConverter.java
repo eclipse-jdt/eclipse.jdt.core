@@ -22,7 +22,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.PriorityQueue;
 import java.util.Set;
@@ -747,7 +746,7 @@ class JavacConverter {
 			ret.typeBounds().add(type);
 			end = typeParameter.getEndPosition(this.javacCompilationUnit.endPositions);
 		}
-		if (typeParameter.getAnnotations() != null && this.ast.apiLevel() >= AST.JLS8_INTERNAL) {
+		if (typeParameter.getAnnotations() != null) {
 			typeParameter.getAnnotations().stream()
 				.map(this::convert)
 				.forEach(ret.modifiers()::add);
@@ -943,11 +942,7 @@ class JavacConverter {
 		var dims = convertDimensionsAfterPosition(retTypeTree, javac.pos);
 		if (!dims.isEmpty() && retTypeTree.pos > javac.pos ) {
 			// The array dimensions are part of the variable name
-			if( this.ast.apiLevel < AST.JLS8_INTERNAL) {
-				res.setExtraDimensions(dims.size());
-			} else {
-				res.extraDimensions().addAll(dims);
-			}
+			res.extraDimensions().addAll(dims);
 			retType = convertToType(unwrapDimensions(retTypeTree, dims.size()));
 		}
 
@@ -994,10 +989,9 @@ class JavacConverter {
 					boolean isInterface = td instanceof TypeDeclaration td1 && td1.isInterface();
 					long modFlags = javac.getModifiers() == null ? 0 : javac.getModifiers().flags;
 					boolean isAbstractOrNative = (modFlags & (Flags.ABSTRACT | Flags.NATIVE)) != 0;
-					boolean isJlsBelow8 = this.ast.apiLevel < AST.JLS8_INTERNAL;
 					boolean isJlsAbove8 = this.ast.apiLevel > AST.JLS8_INTERNAL;
 					long flagsToCheckForAboveJLS8 = Flags.STATIC | Flags.DEFAULT | (isJlsAbove8 ? Flags.PRIVATE : 0);
-					boolean notAllowed = (isAbstractOrNative || (isInterface && (isJlsBelow8 || (modFlags & flagsToCheckForAboveJLS8) == 0)));
+					boolean notAllowed = (isAbstractOrNative || (isInterface && (modFlags & flagsToCheckForAboveJLS8) == 0));
 					if (notAllowed) {
 						res.setFlags(res.getFlags() | ASTNode.MALFORMED);
 					}
@@ -1014,13 +1008,9 @@ class JavacConverter {
 		}
 
 		for (JCExpression thrown : javac.getThrows()) {
-			if (this.ast.apiLevel < AST.JLS8_INTERNAL) {
-				res.thrownExceptions().add(toName(thrown));
-			} else {
-				Type type = convertToType(thrown);
-				if (type != null) {
-					res.thrownExceptionTypes().add(type);
-				}
+			Type type = convertToType(thrown);
+			if (type != null) {
+				res.thrownExceptionTypes().add(type);
 			}
 		}
 		if( malformed ) {
@@ -1084,11 +1074,7 @@ class JavacConverter {
 		List<Dimension> dims = convertDimensionsAfterPosition(javac.getType(), javac.getPreferredPosition()); // +1 to exclude part of the type declared before name
 		if(!dims.isEmpty() ) {
 			// Some of the array dimensions are part of the variable name
-			if( this.ast.apiLevel < AST.JLS8_INTERNAL) {
-				res.setExtraDimensions(dims.size()); // the type is 1-dim array
-			} else {
-				res.extraDimensions().addAll(dims);
-			}
+			res.extraDimensions().addAll(dims);
 			type = unwrapDimensions(type, dims.size());
 		} 
 		
@@ -1128,11 +1114,7 @@ class JavacConverter {
 			fragment.setName(simpleName);
 		}
 		var dims = convertDimensionsAfterPosition(javac.getType(), fragmentStart);
-		if( this.ast.apiLevel < AST.JLS8_INTERNAL) {
-			fragment.setExtraDimensions(dims.size());
-		} else {
-			fragment.extraDimensions().addAll(dims);
-		}
+		fragment.extraDimensions().addAll(dims);
 		if (javac.getInitializer() != null) {
 			Expression initializer = convertExpression(javac.getInitializer());
 			if( initializer != null ) {
@@ -1637,69 +1619,59 @@ class JavacConverter {
 				ArrayType arrayType;
 				if (type instanceof ArrayType childArrayType) {
 					arrayType = childArrayType;
-					if( this.ast.apiLevel >= AST.JLS8_INTERNAL) {
-						var extraDimensions = jcNewArray.getDimAnnotations().stream()
-							.map(annotations -> annotations.stream().map(this::convert).toList())
-							.map(annotations -> {
-								Dimension dim = this.ast.newDimension();
-								dim.annotations().addAll(annotations);
-								int startOffset = annotations.stream().mapToInt(Annotation::getStartPosition).min().orElse(-1);
-								int endOffset = annotations.stream().mapToInt(ann -> ann.getStartPosition() + ann.getLength()).max().orElse(-1);
-								dim.setSourceRange(startOffset, endOffset - startOffset);
-								return dim;
-							})
-							.toList();
-						if (arrayType.dimensions().isEmpty()) {
-							arrayType.dimensions().addAll(extraDimensions);
-						} else {
-							var lastDimension = arrayType.dimensions().removeFirst();
-							arrayType.dimensions().addAll(extraDimensions);
-							arrayType.dimensions().add(lastDimension);
-						}
-						int totalRequiredDims = countDimensions(jcNewArray.getType()) + 1;
-						int totalCreated = arrayType.dimensions().size();
-						if( totalCreated < totalRequiredDims) {
-							int endPos = jcNewArray.getEndPosition(this.javacCompilationUnit.endPositions);
-							int startPos = jcNewArray.getStartPosition();
-							String raw = this.rawText.substring(startPos, endPos);
-							for( int i = 0; i < totalRequiredDims; i++ ) {
-								int absoluteEndChar = startPos + ordinalIndexOf(raw, "]", i+1);
-								int absoluteEnd = absoluteEndChar + 1;
-								int absoluteStart = startPos + ordinalIndexOf(raw, "[", i+1);
-								boolean found = false;
-								if( absoluteEnd != -1 && absoluteStart != -1 ) {
-									for( int j = 0; j < totalCreated && !found; j++ ) {
-										Dimension d = (Dimension)arrayType.dimensions().get(j);
-										if( d.getStartPosition() == absoluteStart && (d.getStartPosition() + d.getLength()) == absoluteEnd) {
-											found = true;
-										}
+					var extraDimensions = jcNewArray.getDimAnnotations().stream()
+						.map(annotations -> annotations.stream().map(this::convert).toList())
+						.map(annotations -> {
+							Dimension dim = this.ast.newDimension();
+							dim.annotations().addAll(annotations);
+							int startOffset = annotations.stream().mapToInt(Annotation::getStartPosition).min().orElse(-1);
+							int endOffset = annotations.stream().mapToInt(ann -> ann.getStartPosition() + ann.getLength()).max().orElse(-1);
+							dim.setSourceRange(startOffset, endOffset - startOffset);
+							return dim;
+						})
+						.toList();
+					if (arrayType.dimensions().isEmpty()) {
+						arrayType.dimensions().addAll(extraDimensions);
+					} else {
+						var lastDimension = arrayType.dimensions().removeFirst();
+						arrayType.dimensions().addAll(extraDimensions);
+						arrayType.dimensions().add(lastDimension);
+					}
+					int totalRequiredDims = countDimensions(jcNewArray.getType()) + 1;
+					int totalCreated = arrayType.dimensions().size();
+					if( totalCreated < totalRequiredDims) {
+						int endPos = jcNewArray.getEndPosition(this.javacCompilationUnit.endPositions);
+						int startPos = jcNewArray.getStartPosition();
+						String raw = this.rawText.substring(startPos, endPos);
+						for( int i = 0; i < totalRequiredDims; i++ ) {
+							int absoluteEndChar = startPos + ordinalIndexOf(raw, "]", i+1);
+							int absoluteEnd = absoluteEndChar + 1;
+							int absoluteStart = startPos + ordinalIndexOf(raw, "[", i+1);
+							boolean found = false;
+							if( absoluteEnd != -1 && absoluteStart != -1 ) {
+								for( int j = 0; j < totalCreated && !found; j++ ) {
+									Dimension d = (Dimension)arrayType.dimensions().get(j);
+									if( d.getStartPosition() == absoluteStart && (d.getStartPosition() + d.getLength()) == absoluteEnd) {
+										found = true;
 									}
-									if( !found ) {
-										// Need to make a new one
-										Dimension d = this.ast.newDimension();
-										d.setSourceRange(absoluteStart, absoluteEnd - absoluteStart);
-										arrayType.dimensions().add(i, d);
-										totalCreated++;
-									}
+								}
+								if( !found ) {
+									// Need to make a new one
+									Dimension d = this.ast.newDimension();
+									d.setSourceRange(absoluteStart, absoluteEnd - absoluteStart);
+									arrayType.dimensions().add(i, d);
+									totalCreated++;
 								}
 							}
 						}
-					} else {
-						// JLS < 8, just wrap underlying type
-						arrayType = this.ast.newArrayType(childArrayType);
 					}
 				} else if(jcNewArray.dims != null && jcNewArray.dims.size() > 0 ){
 					// Child is not array type
 					arrayType = this.ast.newArrayType(type);
 					int dims = jcNewArray.dims.size();
 					for( int i = 0; i < dims - 1; i++ ) {
-						if( this.ast.apiLevel >= AST.JLS8_INTERNAL) {
-							// TODO, this dimension needs source range
-							arrayType.dimensions().addFirst(this.ast.newDimension());
-						} else {
-							// JLS < 8, wrap underlying
-							arrayType = this.ast.newArrayType(arrayType);
-						}
+						// TODO, this dimension needs source range
+						arrayType.dimensions().addFirst(this.ast.newDimension());
 					}
 				} else {
 					// Child is not array type, and 0 dims for underlying
@@ -2025,31 +1997,23 @@ class JavacConverter {
 		do {
 			if( elem.pos >= pos) {
 				if (elem instanceof JCArrayTypeTree arrayType) {
-					if (this.ast.apiLevel < AST.JLS8_INTERNAL) {
-						res.add(null);
-					} else {
-						Dimension dimension = this.ast.newDimension();
-						res.add(dimension);
-						// Would be better to use a Tokenizer here that is capable of skipping comments
-						int startPosition = this.rawText.indexOf('[', arrayType.pos);
-						int endPosition = this.rawText.indexOf(']', startPosition);
-						dimension.setSourceRange(startPosition, endPosition - startPosition + 1);
-					}
+					Dimension dimension = this.ast.newDimension();
+					res.add(dimension);
+					// Would be better to use a Tokenizer here that is capable of skipping comments
+					int startPosition = this.rawText.indexOf('[', arrayType.pos);
+					int endPosition = this.rawText.indexOf(']', startPosition);
+					dimension.setSourceRange(startPosition, endPosition - startPosition + 1);
 					elem = arrayType.getType();
 				} else if (elem instanceof JCAnnotatedType annotated && annotated.getUnderlyingType() instanceof JCArrayTypeTree arrayType) {
-					if (this.ast.apiLevel < AST.JLS8_INTERNAL) {
-						res.add(null);
-					} else {
-						Dimension dimension = this.ast.newDimension();
-						annotated.getAnnotations().stream()
-							.map(this::convert)
-							.forEach(dimension.annotations()::add);
-						// Would be better to use a Tokenizer here that is capable of skipping comments
-						int startPosition = this.rawText.indexOf('[', arrayType.pos);
-						int endPosition = this.rawText.indexOf(']', startPosition);
-						dimension.setSourceRange(startPosition, endPosition - startPosition + 1);
-						res.add(dimension);
-					}
+					Dimension dimension = this.ast.newDimension();
+					annotated.getAnnotations().stream()
+						.map(this::convert)
+						.forEach(dimension.annotations()::add);
+					// Would be better to use a Tokenizer here that is capable of skipping comments
+					int startPosition = this.rawText.indexOf('[', arrayType.pos);
+					int endPosition = this.rawText.indexOf(']', startPosition);
+					dimension.setSourceRange(startPosition, endPosition - startPosition + 1);
+					res.add(dimension);
 					elem = arrayType.getType();
 				} else {
 					elem = null;
@@ -2336,9 +2300,7 @@ class JavacConverter {
 			if (jcVariableDecl.vartype != null) {
 				if( jcVariableDecl.vartype instanceof JCArrayTypeTree jcatt) {
 					int extraDims = 0;
-					if( fragment.extraArrayDimensions > 0 ) {
-						extraDims = fragment.extraArrayDimensions;
-					} else if( this.ast.apiLevel > AST.JLS4_INTERNAL && fragment.extraDimensions() != null && fragment.extraDimensions().size() > 0 ) {
+					if(fragment.extraDimensions() != null && fragment.extraDimensions().size() > 0 ) {
 						extraDims = fragment.extraDimensions().size();
 					}
 					res.setType(convertToType(unwrapDimensions(jcatt, extraDims)));
@@ -2646,9 +2608,7 @@ class JavacConverter {
 			if (javac instanceof JCVariableDecl jcvd && jcvd.vartype != null) {
 				if( jcvd.vartype instanceof JCArrayTypeTree jcatt) {
 					int extraDims = 0;
-					if( fragment.extraArrayDimensions > 0 ) {
-						extraDims = fragment.extraArrayDimensions;
-					} else if( this.ast.apiLevel > AST.JLS4_INTERNAL && fragment.extraDimensions() != null && fragment.extraDimensions().size() > 0 ) {
+					if(fragment.extraDimensions() != null && fragment.extraDimensions().size() > 0 ) {
 						extraDims = fragment.extraDimensions().size();
 					}
 					jdtVariableDeclarationExpression.setType(convertToType(unwrapDimensions(jcatt, extraDims)));
@@ -2726,11 +2686,9 @@ class JavacConverter {
 					initializer.delete();
 					fragment.setInitializer(initializer);
 				}
-				if (parent.getAST().apiLevel() > AST.JLS4) {
-					for (Dimension extraDimension : (List<Dimension>)single.extraDimensions()) {
-						extraDimension.delete();
-						fragment.extraDimensions().add(extraDimension);
-					}
+				for (Dimension extraDimension : (List<Dimension>)single.extraDimensions()) {
+					extraDimension.delete();
+					fragment.extraDimensions().add(extraDimension);
 				}
 			} else {
 				fragment = this.ast.newVariableDeclarationFragment();
@@ -2860,7 +2818,7 @@ class JavacConverter {
 				// or empty (eg `test.`)
 				simpleName.setSourceRange(qualifierType.getStartPosition(), 0);
 			}
-			if(qualifierType instanceof SimpleType simpleType && (ast.apiLevel() < AST.JLS8 || simpleType.annotations().isEmpty())) {
+			if(qualifierType instanceof SimpleType simpleType && simpleType.annotations().isEmpty()) {
 				simpleType.delete();
 				Name parentName = simpleType.getName();
 				parentName.setParent(null, null);
@@ -2888,19 +2846,13 @@ class JavacConverter {
 			return res;
 		}
 		if (javac instanceof JCTypeUnion union) {
-			if (this.ast.apiLevel() > AST.JLS3) {
-				UnionType res = this.ast.newUnionType();
-				commonSettings(res, javac);
-				union.getTypeAlternatives().stream()
-					.map(this::convertToType)
-					.filter(Objects::nonNull)
-					.forEach(res.types()::add);
-				return res;
-			} else {
-				Optional<Type> lastType = union.getTypeAlternatives().reverse().stream().map(this::convertToType).filter(Objects::nonNull).findFirst();
-				lastType.ifPresent(a -> a.setFlags(a.getFlags() | ASTNode.MALFORMED));
-				return lastType.get();
-			}
+			UnionType res = this.ast.newUnionType();
+			commonSettings(res, javac);
+			union.getTypeAlternatives().stream()
+				.map(this::convertToType)
+				.filter(Objects::nonNull)
+				.forEach(res.types()::add);
+			return res;
 		}
 		if (javac instanceof JCArrayTypeTree jcArrayType) {
 			Type t = convertToType(jcArrayType.getType());
@@ -2908,7 +2860,7 @@ class JavacConverter {
 				return null;
 			}
 			ArrayType res;
-			if (t instanceof ArrayType childArrayType && this.ast.apiLevel > AST.JLS4_INTERNAL) {
+			if (t instanceof ArrayType childArrayType) {
 				res = childArrayType;
 				res.dimensions().addFirst(this.ast.newDimension());
 				commonSettings(res, jcArrayType);
@@ -2932,10 +2884,8 @@ class JavacConverter {
 						}
 						if( ordinalEnd != -1 ) {
 							commonSettings(res, jcArrayType, ordinalEnd + 1, true);
-							if( this.ast.apiLevel >= AST.JLS8_INTERNAL ) {
-								if( res.dimensions().size() > 0 ) {
-									((Dimension)res.dimensions().get(0)).setSourceRange(startPos + ordinalStart, ordinalEnd - ordinalStart + 1);
-								}
+							if( res.dimensions().size() > 0 ) {
+								((Dimension)res.dimensions().get(0)).setSourceRange(startPos + ordinalStart, ordinalEnd - ordinalStart + 1);
 							}
 							return res;
 						}
@@ -2981,7 +2931,6 @@ class JavacConverter {
 			JCExpression jcpe = jcAnnotatedType.getUnderlyingType();
 			if( jcAnnotatedType.getAnnotations() != null //
 				&& !jcAnnotatedType.getAnnotations().isEmpty() //
-				&& this.ast.apiLevel >= AST.JLS8_INTERNAL
 				&& !(jcpe instanceof JCWildcard)) {
 				if( jcpe instanceof JCFieldAccess jcfa2) {
 					if( jcfa2.selected instanceof JCAnnotatedType || jcfa2.selected instanceof JCTypeApply) {
@@ -3005,12 +2954,12 @@ class JavacConverter {
 			if (res == null) { // nothing specific
 				res = convertToType(jcAnnotatedType.getUnderlyingType());
 			}
-			if (res instanceof AnnotatableType annotatableType && this.ast.apiLevel() >= AST.JLS8_INTERNAL) {
+			if (res instanceof AnnotatableType annotatableType) {
 				for (JCAnnotation annotation : jcAnnotatedType.getAnnotations()) {
 					annotatableType.annotations().add(convert(annotation));
 				}
 			} else if (res instanceof ArrayType arrayType) {
-				if (this.ast.apiLevel() >= AST.JLS8 && !arrayType.dimensions().isEmpty()) {
+				if (!arrayType.dimensions().isEmpty()) {
 					for (JCAnnotation annotation : jcAnnotatedType.getAnnotations()) {
 						((Dimension)arrayType.dimensions().get(0)).annotations().add(convert(annotation));
 					}
@@ -3269,14 +3218,6 @@ class JavacConverter {
 	private Modifier modifierToDom(javax.lang.model.element.Modifier javac) {
 		return this.ast.newModifier(modifierToKeyword(javac));
 	}
-	private int modifierToFlagVal(javax.lang.model.element.Modifier javac) {
-		ModifierKeyword m = modifierToKeyword(javac);
-		if( m != null ) {
-			return m.toFlagValue();
-		}
-		return 0;
-	}
-
 
 	private Modifier convert(javax.lang.model.element.Modifier javac, int startPos, int endPos) {
 		Modifier res = modifierToDom(javac);
