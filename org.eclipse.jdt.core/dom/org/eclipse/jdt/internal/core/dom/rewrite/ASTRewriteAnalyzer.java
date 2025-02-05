@@ -629,6 +629,12 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			this.startPos= offset;
 			this.list= getEvent(parent, property).getChildren();
 
+			boolean maintainMinimumIndent= false;
+			if (property == Block.STATEMENTS_PROPERTY ||
+					property == SwitchStatement.STATEMENTS_PROPERTY ||
+					property == SwitchExpression.STATEMENTS_PROPERTY) {
+				maintainMinimumIndent= true;
+			}
 			int total= this.list.length;
 			if (total == 0) {
 				return this.startPos;
@@ -684,12 +690,17 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 					if (separatorState == NONE) { // element after last existing element (but not first)
 						doTextInsert(currPos, getSeparatorString(i - 1), editGroup); // insert separator
 						separatorState= NEW;
+						maintainMinimumIndent= false;
 					}
 					if (separatorState == NEW || insertAfterSeparator(node)) {
 						if (separatorState == EXISTING) {
 							updateIndent(prevMark, currPos, i, editGroup);
 						}
-						doTextInsert(currPos, node, getNodeIndent(i), true, getNodeIndentInSpaces(i), editGroup); // insert node
+						if (maintainMinimumIndent) {
+							doTextInsert(currPos, node, getNodeIndent(i), true, getNodeIndentInSpaces(i), editGroup); // insert node
+						} else {
+							doTextInsert(currPos, node, getNodeIndent(i), true, editGroup); // insert node
+						}
 
 						separatorState= NEW;
 						if (i != lastNonDelete) {
@@ -701,7 +712,11 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						}
 					} else { // EXISTING && insert before separator
 						doTextInsert(prevEnd, getSeparatorString(i - 1), editGroup);
-						doTextInsert(prevEnd, node, getNodeIndent(i), true, getNodeIndentInSpaces(i), editGroup);
+						if (maintainMinimumIndent) {
+							doTextInsert(prevEnd, node, getNodeIndent(i), true, getNodeIndentInSpaces(i), editGroup);
+						} else {
+							doTextInsert(prevEnd, node, getNodeIndent(i), true, editGroup);
+						}
 					}
 					if (insertNew && i == lastNonDelete) {
 						if (endKeyword != null && endKeyword.length() > 0) {
@@ -824,7 +839,11 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 							// ignore
 						}
 						doTextRemoveAndVisit(currPos, currEnd - currPos, node, editGroup);
-						doTextInsert(currPos, changed, getNodeIndent(i), true, getNodeIndentInSpaces(i), editGroup);
+						if (maintainMinimumIndent) {
+							doTextInsert(currPos, changed, getNodeIndent(i), true, getNodeIndentInSpaces(i), editGroup);
+						} else {
+							doTextInsert(currPos, changed, getNodeIndent(i), true, editGroup);
+						}
 
 						prevEnd= currEnd;
 					} else { // is unchanged
@@ -3919,6 +3938,37 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 				if (node.getNodeType() != ASTNode.SWITCH_CASE) {
 					indent++;
+				}
+			}
+			return indent;
+		}
+
+		@Override
+		protected int getNodeIndentInSpaces(int nodeIndex) {
+			int indent= getInitialIndentInSpaces();
+
+			if (this.indentSwitchStatementsCompareToCases) {
+				RewriteEvent event = this.list[nodeIndex];
+				int changeKind = event.getChangeKind();
+
+				ASTNode node;
+				if (changeKind == RewriteEvent.INSERTED || changeKind == RewriteEvent.REPLACED) {
+					node= (ASTNode)event.getNewValue();
+				} else {
+					node= (ASTNode)event.getOriginalValue();
+				}
+
+				if (node.getNodeType() != ASTNode.SWITCH_CASE) {
+					for (int i= 0; i < list.length; ++i) {
+						RewriteEvent nodeEvent = this.list[i];
+						if (changeKind == RewriteEvent.UNCHANGED || changeKind == RewriteEvent.REPLACED) {
+							node= (ASTNode)event.getOriginalValue();
+							if (node.getNodeType() != ASTNode.SWITCH_CASE) {
+								return getIndentInSpaces(node.getStartPosition());
+							}
+						}
+					}
+					indent+= ASTRewriteAnalyzer.this.formatter.getIndentWidth();
 				}
 			}
 			return indent;
