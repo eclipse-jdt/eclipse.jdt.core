@@ -839,7 +839,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 							// ignore
 						}
 						doTextRemoveAndVisit(currPos, currEnd - currPos, node, editGroup);
-						if (maintainMinimumIndent) {
+						if (maintainMinimumIndent && separatorState != EXISTING) {
 							doTextInsert(currPos, changed, getNodeIndent(i), true, getNodeIndentInSpaces(i), editGroup);
 						} else {
 							doTextInsert(currPos, changed, getNodeIndent(i), true, editGroup);
@@ -3900,6 +3900,29 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return indent;
 		}
 
+		@Override
+		protected int getNodeIndentInSpaces(int nodeIndex) {
+			int indent= getInitialIndentInSpaces();
+			if (this.indentSwitchStatementsCompareToCases) {
+				RewriteEvent event = this.list[nodeIndex];
+				int changeKind = event.getChangeKind();
+				ASTNode node;
+				if (changeKind == RewriteEvent.INSERTED || changeKind == RewriteEvent.REPLACED) {
+					node= (ASTNode)event.getNewValue();
+				} else {
+					node= (ASTNode)event.getOriginalValue();
+				}
+				if (node.getNodeType() != ASTNode.SWITCH_CASE) {
+					ASTNode prevNode = getNode(nodeIndex -1);
+					if (prevNode.getNodeType() == ASTNode.SWITCH_CASE && ((SwitchCase)prevNode).isSwitchLabeledRule()) {
+						return 0;
+					} else {
+						indent= indent + ASTRewriteAnalyzer.this.formatter.getIndentWidth();					}
+				}
+			}
+			return indent;
+		}
+
 		private boolean isSwitchLabeledRule(int nodeIndex, int nextNodeIndex) {
 			ASTNode curr= getNode(nodeIndex);
 			ASTNode next= getNode(nodeIndex +1);
@@ -3959,10 +3982,11 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				}
 
 				if (node.getNodeType() != ASTNode.SWITCH_CASE) {
-					for (int i= 0; i < list.length; ++i) {
+					for (int i= 0; i < this.list.length; ++i) {
 						RewriteEvent nodeEvent = this.list[i];
-						if (changeKind == RewriteEvent.UNCHANGED || changeKind == RewriteEvent.REPLACED) {
-							node= (ASTNode)event.getOriginalValue();
+						int nodeChangeKind= nodeEvent.getChangeKind();
+						if (nodeChangeKind == RewriteEvent.UNCHANGED || nodeChangeKind == RewriteEvent.REPLACED) {
+							node= (ASTNode)nodeEvent.getOriginalValue();
 							if (node.getNodeType() != ASTNode.SWITCH_CASE) {
 								return getIndentInSpaces(node.getStartPosition());
 							}
