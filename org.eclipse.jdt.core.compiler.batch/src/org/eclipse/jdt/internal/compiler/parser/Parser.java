@@ -6967,7 +6967,7 @@ protected void consumeRule(int act) {
 		    consumeConstructorHeaderName(false); 			break;
 
     case 272 : if (DEBUG) { System.out.println("CompactConstructorDeclaration ::=..."); }  //$NON-NLS-1$
-		    consumeCompactConstructorDeclaration(); 			break;
+		    consumeConstructorDeclaration(); 			break;
 
     case 273 : if (DEBUG) { System.out.println("CompactConstructorHeader ::=..."); }  //$NON-NLS-1$
 		    consumeConstructorHeader(); 			break;
@@ -10653,48 +10653,6 @@ protected void consumeRecordComponent(boolean isVarArgs) {
 		if (!this.statementRecoveryActivated && extendedDimensions > 0)
 			problemReporter().recordIllegalExtendedDimensionsForRecordComponent(recordComponent);
 	}
-}
-protected void consumeCompactConstructorDeclaration() {
-	// CompactConstructorDeclaration ::= CompactConstructorHeaderName MethodHeaderThrowsClauseopt MethodBody
-
-	//must provide a default constructor call when needed
-
-	int length;
-
-	// pop the position of the {  (body of the method) pushed in block decl
-	this.intPtr--;
-	this.intPtr--;
-
-	//statements
-	this.realBlockPtr--;
-	Statement[] statements = null;
-	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
-		this.astPtr -= length;
-		if (!this.options.ignoreMethodBodies) {
-			System.arraycopy(
-					this.astStack,
-					this.astPtr + 1,
-					statements = new Statement[length],
-					0,
-					length);
-		}
-	}
-
-	CompactConstructorDeclaration ccd = (CompactConstructorDeclaration) this.astStack[this.astPtr];
-	ccd.statements = statements;
-
-	if (!(this.diet && this.dietInt == 0)
-			&& statements == null
-			&& !containsComment(ccd.bodyStart, this.endPosition)) {
-		ccd.bits |= ASTNode.UndocumentedEmptyBlock;
-	}
-	ccd.constructorCall = SuperReference.implicitSuperConstructorCall();
-
-	//watch for } that could be given as a unicode ! ( u007D is '}' )
-	// store the this.endPosition (position just before the '}') in case there is
-	// a trailing comment behind the end of the method
-	ccd.bodyEnd = this.endPosition;
-	ccd.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
 }
 protected void dispatchDeclarationIntoRecordDeclaration(int length) {
 	/* they are length on this.astStack that should go into
