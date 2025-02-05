@@ -392,7 +392,7 @@ protected void consumeConstructorHeader() {
 			this.scanner.currentPosition - 1);
 }
 @Override
-protected void consumeConstructorHeaderName() {
+protected void consumeConstructorHeaderName(boolean isCompact) {
 	// ConstructorHeaderName ::=  Modifiersopt 'Identifier' '('
 	ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationUnit.compilationResult);
 

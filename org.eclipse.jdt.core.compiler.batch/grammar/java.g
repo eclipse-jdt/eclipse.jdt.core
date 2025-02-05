@@ -917,8 +917,23 @@ ConstructorHeader ::= ConstructorHeaderName FormalParameterListopt MethodHeaderR
 ConstructorHeaderName ::= Modifiersopt TypeParameters 'Identifier' '('
 /.$putCase consumeConstructorHeaderNameWithTypeParameters(); $break ./
 ConstructorHeaderName ::= Modifiersopt 'Identifier' '('
-/.$putCase consumeConstructorHeaderName(); $break ./
+/.$putCase consumeConstructorHeaderName(false); $break ./
 /:$readableName ConstructorHeaderName:/
+
+CompactConstructorDeclaration ::= CompactConstructorHeader MethodBody
+/.$putCase consumeCompactConstructorDeclaration(); $break ./
+/:$readableName CompactConstructorDeclaration:/
+/:$compliance 16:/
+
+CompactConstructorHeader ::= CompactConstructorHeaderName MethodHeaderThrowsClauseopt
+/.$putCase consumeConstructorHeader(); $break ./
+/:$readableName CompactConstructorHeader:/
+/:$compliance 16:/
+
+CompactConstructorHeaderName ::= Modifiersopt 'Identifier'
+/.$putCase consumeConstructorHeaderName(true); $break ./
+/:$readableName CompactConstructorHeaderName:/
+/:$compliance 16:/
 
 FormalParameterList -> FormalParameter
 FormalParameterList ::= FormalParameterList ',' FormalParameter
@@ -1124,91 +1139,74 @@ InterfaceMemberDeclaration -> RecordDeclaration
 /:$readableName InterfaceMemberDeclaration:/
 
 -----------------------------------------------
--- 14 feature : record type
+-- 16 feature : record type
 -----------------------------------------------
 
 RecordDeclaration ::= RecordHeaderPart ClassBody
 /.$putCase consumeRecordDeclaration(); $break ./
 /:$readableName RecordDeclaration:/
-/:$compliance 14:/
+/:$compliance 16:/
 
 RecordHeaderPart ::= RecordHeaderName RecordHeader ClassHeaderImplementsopt
 /.$putCase consumeRecordHeaderPart(); $break ./
 /:$readableName RecordHeaderPart:/
-/:$compliance 14:/
+/:$compliance 16:/
 
 RecordHeaderName ::= RecordHeaderName1 TypeParameters
 /.$putCase consumeRecordHeaderNameWithTypeParameters(); $break ./
-/:$compliance 14:/
+/:$compliance 16:/
 
 RecordHeaderName -> RecordHeaderName1
 /:$readableName RecordHeaderName:/
-/:$compliance 14:/
+/:$compliance 16:/
 
 RecordHeaderName1 ::= Modifiersopt RestrictedIdentifierrecord 'Identifier'
 /.$putCase consumeRecordHeaderName1(); $break ./
 /:$readableName RecordHeaderName:/
-/:$compliance 14:/
+/:$compliance 16:/
 
 RecordComponentHeaderRightParen ::= ')'
 /.$putCase consumeRecordComponentHeaderRightParen(); $break ./
 /:$readableName ):/
 /:$recovery_template ):/
-/:$compliance 14:/
+/:$compliance 16:/
 
 RecordHeader ::= '(' RecordComponentsopt RecordComponentHeaderRightParen
 /.$putCase consumeRecordHeader(); $break ./
 /:$readableName RecordHeader:/
-/:$compliance 14:/
+/:$compliance 16:/
 
 RecordComponentsopt ::= $empty
 /.$putCase consumeRecordComponentsopt(); $break ./
 RecordComponentsopt -> RecordComponents
 /:$readableName RecordComponentsopt:/
-/:$compliance 14:/
+/:$compliance 16:/
 
 RecordComponents -> RecordComponent
 RecordComponents ::= RecordComponents ',' RecordComponent
 /.$putCase consumeRecordComponents(); $break ./
 /:$readableName RecordComponents:/
-/:$compliance 14:/
+/:$compliance 16:/
 
 RecordComponent -> VariableArityRecordComponent
 RecordComponent ::= Modifiersopt Type VariableDeclaratorId
 /.$putCase consumeRecordComponent(false); $break ./
 /:$readableName RecordComponent:/
-/:$compliance 14:/
+/:$compliance 16:/
 
 VariableArityRecordComponent ::= Modifiersopt Type PushZeroTypeAnnotations '...' VariableDeclaratorId
 /.$putCase consumeRecordComponent(true); $break ./
 /:$readableName VariableArityRecordComponent:/
-/:$compliance 14:/
+/:$compliance 16:/
 
 VariableArityRecordComponent ::= Modifiersopt Type @308... TypeAnnotations '...' VariableDeclaratorId
 /.$putCase consumeRecordComponent(true); $break ./
 /:$readableName VariableArityRecordComponent:/
-/:$compliance 14:/
+/:$compliance 16:/
 /:$recovery_template Identifier Identifier:/
 
-CompactConstructorDeclaration ::= CompactConstructorHeader MethodBody
-/.$putCase consumeCompactConstructorDeclaration(); $break ./
-/:$readableName CompactConstructorDeclaration:/
-/:$compliance 14:/
-
-CompactConstructorHeader ::= CompactConstructorHeaderName MethodHeaderThrowsClauseopt
-/.$putCase consumeCompactConstructorHeader(); $break ./
-/:$readableName CompactConstructorDeclaration:/
-/:$compliance 14:/
-
-CompactConstructorHeaderName ::= Modifiersopt 'Identifier'
-/.$putCase consumeCompactConstructorHeaderName(); $break ./
-CompactConstructorHeaderName ::= Modifiersopt TypeParameters 'Identifier'
-/.$putCase consumeCompactConstructorHeaderNameWithTypeParameters(); $break ./
-/:$readableName CompactConstructorHeaderName:/
-/:$compliance 14:/
-
 -----------------------------------------------
--- 14 feature : end of record type
+-- 16 feature : end of record type
 -----------------------------------------------
 
 -----------------------------------------------
