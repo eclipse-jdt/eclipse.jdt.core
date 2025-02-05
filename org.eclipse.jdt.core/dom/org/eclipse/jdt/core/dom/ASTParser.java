@@ -272,6 +272,9 @@ public class ASTParser {
 	}
 
 	private void checkForSystemLibrary(List<Classpath> allClasspaths) {
+		if (!hasJavaNature()) {
+			return;
+		}
 		boolean hasSystemLibrary = true; // default for 1.8 setting without a valid project
 		boolean hasModule = false;
 		Throwable exception = null;
@@ -1655,5 +1658,9 @@ public class ASTParser {
 					compilationUnit.types().add(typeDeclaration);
 				}
 		}
+	}
+
+	private boolean hasJavaNature() {
+		return this.project == null || JavaProject.hasJavaNature(this.project.getProject());
 	}
 }

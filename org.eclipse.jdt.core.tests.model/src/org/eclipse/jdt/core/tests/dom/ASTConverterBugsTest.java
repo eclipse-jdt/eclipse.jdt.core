@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import junit.framework.Test;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -1444,5 +1445,44 @@ public void testGH3047_2() throws Exception {
 	}
 	parser.createASTs(paths, null, new String[] {}, new MyFileASTRequestor() {}, null);
 	assertEquals(expectedProblems, actualProblems);
+}
+public void testGH3298() throws Exception {
+	Hashtable<String, String> options = JavaCore.getDefaultOptions();
+	options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_9);
+	options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_9);
+	options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_9);
+
+	createProject("GH3298");
+	IFile javaFile = createFile("GH3298/Test.java", "public class Test{}");
+	ICompilationUnit javaElement = JavaCore.createCompilationUnitFrom(javaFile);
+
+	try {
+		ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+		parser.setSource(javaElement);
+		parser.setCompilerOptions(options);
+		parser.setResolveBindings(true);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		assertNotNull(parser.createAST(null));
+
+		addJavaNature("GH3298");
+		parser.setSource(javaElement);
+		parser.setCompilerOptions(options);
+		parser.setResolveBindings(true);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		try {
+			parser.createAST(null);
+			fail("Expected exception was not thrown");
+		} catch (IllegalStateException ise) {
+			assertEquals("Missing system library", ise.getMessage());
+		}
+
+		parser.setSource(javaElement);
+		parser.setCompilerOptions(options);
+		parser.setResolveBindings(false);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		assertNotNull(parser.createAST(null));
+	} finally {
+		deleteProject("GH3298");
+	}
 }
 }
