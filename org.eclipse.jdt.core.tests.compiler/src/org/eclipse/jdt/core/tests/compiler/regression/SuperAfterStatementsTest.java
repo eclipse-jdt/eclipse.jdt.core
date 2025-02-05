@@ -2991,4 +2991,54 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			},
 			"Hello");
 	}
+	public void testGH3652() {
+		runConformTest(new String[] {
+			"Outer.java",
+			"""
+			class Outer {
+				interface A {
+					void run();
+				}
+				interface B {
+					void run();
+				}
+
+				class Inner1 {
+					Inner1() {
+						this(new A() {
+							class Inner2 {
+								Inner2() {
+									this(new B() {
+										public void run() {
+											m();
+											g();
+										}
+									});
+								}
+
+								Inner2(B o) {
+									o.run();
+								}
+							}
+
+							public void run() {
+								new Inner2();
+							}
+
+							void m() { System.out.print(getClass().getName() + ".m() "); }
+						});
+					}
+
+					Inner1(A o) { o.run(); }
+				}
+				void g() { System.out.print(getClass().getName() +".g()"); }
+
+				public static void main(String[] args) {
+					new Outer().new Inner1();
+				}
+			}
+			"""
+		},
+		"Outer$Inner1$1.m() Outer.g()");
+	}
 }
