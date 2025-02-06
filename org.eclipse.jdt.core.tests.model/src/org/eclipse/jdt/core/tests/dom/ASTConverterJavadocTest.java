@@ -31,7 +31,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.tests.javac.JavacFailReason;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.junit.Ignore;
 import org.junit.experimental.categories.Category;
@@ -2159,7 +2158,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	@Category(value=Ignore.class) @JavacFailReason(cause=JavacFailReason.JDT_RECOVERS_FROM_BAD_INPUTS)
 	public void testBug70892_JLS3() throws JavaModelException {
 		int level = this.astLevel;
-		this.astLevel = getJLS3();
+		this.astLevel = getJLSFirst();
 		verifyComments("testBug70892");
 		this.astLevel = level;
 	}
