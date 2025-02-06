@@ -978,7 +978,18 @@ public Object[] getEmulationPath(ReferenceBinding targetEnclosingType, boolean o
 				|| (!onlyExactMatch && currentType.findSuperTypeOriginatingFrom(targetEnclosingType) != null))	break;
 
 			if (currentMethodScope != null) {
-				currentMethodScope = currentMethodScope.enclosingMethodScope();
+				// search for an enclosing method scope still inside targetEnclosingType
+				Scope enclosingScope = currentMethodScope.parent;
+				currentMethodScope = null;
+				while (enclosingScope != null) {
+					if (enclosingScope instanceof ClassScope cs && TypeBinding.equalsEquals(cs.referenceContext.binding, targetEnclosingType)) {
+						break; // any scopes outward from here are irrelevant
+					} else if (enclosingScope instanceof MethodScope ms) {
+						currentMethodScope = ms; // found, check this scope below
+						break;
+					}
+					enclosingScope = enclosingScope.parent;
+				}
 				if (currentMethodScope != null && currentMethodScope.isConstructorCall){
 					return BlockScope.NoEnclosingInstanceInConstructorCall;
 				}

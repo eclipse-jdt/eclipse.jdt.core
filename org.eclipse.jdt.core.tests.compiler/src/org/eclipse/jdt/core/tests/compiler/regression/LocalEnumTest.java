@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 IBM Corporation and others.
+ * Copyright (c) 2020, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2797,7 +2797,7 @@ public void test076() { // bridge method needed
 }
 
 public void test077() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -2821,12 +2821,24 @@ public void test077() {
 			"	}\n" +
 			"}\n"
 		},
-		"SUCCESS"
+		"""
+		----------
+		1. WARNING in X.java (at line 6)
+			void bar() {
+			     ^^^^^
+		The method bar() of type new E(){} should be tagged with @Override since it actually overrides a superclass method
+		----------
+		2. ERROR in X.java (at line 7)
+			new M();
+			^^^^^^^
+		Cannot instantiate local class 'E.M' in a static context
+		----------
+		"""
 	);
 }
 
 public void test078() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -2854,7 +2866,19 @@ public void test078() {
 			"	}\n" +
 			"}\n"
 		},
-		"SUCCESS"
+		"""
+		----------
+		1. WARNING in X.java (at line 6)
+			void bar() {
+			     ^^^^^
+		The method bar() of type new E(){} should be tagged with @Override since it actually overrides a superclass method
+		----------
+		2. ERROR in X.java (at line 9)
+			new M();
+			^^^^^^^
+		Cannot instantiate local class 'E.M' in a static context
+		----------
+		"""
 	);
 }
 
@@ -6664,25 +6688,64 @@ public void test168() {
 		"	             ^^\n" +
 		"Cannot reference a field before it is defined\n" +
 		"----------\n" +
-		"4. WARNING in X.java (at line 19)\n" +
+		"4. ERROR in X.java (at line 11)\n" +
+		"	static A X2 = new A(A.X2);//2 - OK\n" +
+		"	              ^^^^^^^^^^^\n" +
+		"Cannot instantiate local class \'A\' in a static context\n" +
+		"----------\n" +
+		"5. WARNING in X.java (at line 19)\n" +
 		"	A x1 = new A(x1);//6 - WRONG\n" +
 		"	  ^^\n" +
 		"The field Y.x1 is hiding a field from type A\n" +
 		"----------\n" +
-		"5. ERROR in X.java (at line 19)\n" +
+		"6. ERROR in X.java (at line 19)\n" +
 		"	A x1 = new A(x1);//6 - WRONG\n" +
 		"	             ^^\n" +
 		"Cannot reference a field before it is defined\n" +
 		"----------\n" +
-		"6. WARNING in X.java (at line 20)\n" +
+		"7. WARNING in X.java (at line 20)\n" +
 		"	static A X2 = new A(Y.X2);//7 - OK\n" +
 		"	         ^^\n" +
 		"The field Y.X2 is hiding a field from type A\n" +
 		"----------\n" +
-		"7. WARNING in X.java (at line 21)\n" +
+		"8. ERROR in X.java (at line 20)\n" +
+		"	static A X2 = new A(Y.X2);//7 - OK\n" +
+		"	              ^^^^^^^^^^^\n" +
+		"Cannot instantiate local class \'A\' in a static context\n" +
+		"----------\n" +
+		"9. WARNING in X.java (at line 21)\n" +
 		"	A x3 = new A(this.x3);//8 - OK\n" +
 		"	  ^^\n" +
 		"The field Y.x3 is hiding a field from type A\n" +
+		"----------\n");
+}
+public void test168_extract() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"public class X { \n" +
+			"	public static void main(String[] args) {\n" +
+			"		class A {\n" +
+			"    		A(A a) {}\n" +
+			"    		static A X2 = new A(A.X2);\n" +
+			"		}\n" +
+			"		class Y extends A {\n" +
+			"    		static A X3 = new A(Y.X3);\n" +
+			"    		Y(Y y) { super(y); }\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n", // =================
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	static A X2 = new A(A.X2);\n" +
+		"	              ^^^^^^^^^^^\n" +
+		"Cannot instantiate local class \'A\' in a static context\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 8)\n" +
+		"	static A X3 = new A(Y.X3);\n" +
+		"	              ^^^^^^^^^^^\n" +
+		"Cannot instantiate local class \'A\' in a static context\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=255452 - variation
