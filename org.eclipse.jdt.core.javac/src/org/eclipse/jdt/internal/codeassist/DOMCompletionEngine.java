@@ -97,6 +97,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
@@ -130,7 +131,6 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
-import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -2340,9 +2340,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			proposal.setTypeName(method.getReturnType().getName().toCharArray());
 			proposal.setDeclarationPackageName(typeBinding.getPackage().getName().toCharArray());
 			proposal.setDeclarationTypeName(typeBinding.getQualifiedName().toCharArray());
-			proposal.setDeclarationSignature(DOMCompletionEngineBuilder.getSignature(method.getDeclaringClass()));
+			proposal.setDeclarationSignature(SignatureUtils.getSignatureChar(method.getDeclaringClass()));
 			proposal.setKey(method.getKey().toCharArray());
-			proposal.setSignature(DOMCompletionEngineBuilder.getSignature(method));
+			proposal.setSignature(SignatureUtils.getSignatureChar(method));
 			proposal.setParameterNames(Stream.of(method.getParameterNames()).map(name -> name.toCharArray()).toArray(char[][]::new));
 
 			int relevance = RelevanceConstants.R_DEFAULT
@@ -2663,7 +2663,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				res.setParameterNames(paramNames.stream().map(String::toCharArray).toArray(i -> new char[i][]));
 			}
 			res.setParameterTypeNames(Stream.of(methodBinding.getParameterNames()).map(String::toCharArray).toArray(char[][]::new));
-			res.setSignature(DOMCompletionEngineBuilder.getSignature(methodBinding));
+			res.setSignature(SignatureUtils.getSignatureChar(methodBinding));
 			if (!methodBinding.getDeclaringClass().getQualifiedName().isEmpty()) {
 				res.setDeclarationSignature(Signature
 						.createTypeSignature(methodBinding.getDeclaringClass().getQualifiedName().toCharArray(), true)
@@ -3092,7 +3092,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 	private CompletionProposal toNewMethodProposal(ITypeBinding parentType, String newMethodName) {
 		DOMInternalCompletionProposal res =  createProposal(CompletionProposal.POTENTIAL_METHOD_DECLARATION);
-		res.setDeclarationSignature(DOMCompletionEngineBuilder.getSignature(parentType));
+		res.setDeclarationSignature(SignatureUtils.getSignatureChar(parentType));
 		res.setSignature(Signature.createMethodSignature(CharOperation.NO_CHAR_CHAR, Signature.createCharArrayTypeSignature(VOID, true)));
 		res.setDeclarationPackageName(parentType.getPackage().getName().toCharArray());
 		res.setDeclarationTypeName(parentType.getQualifiedName().toCharArray());
@@ -3380,12 +3380,12 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		if (binding instanceof IMethodBinding methodBinding) {
 			res = createProposal(CompletionProposal.METHOD_IMPORT);
 			res.setName(methodBinding.getName().toCharArray());
-			res.setSignature(DOMCompletionEngineBuilder.getSignature(methodBinding));
+			res.setSignature(SignatureUtils.getSignatureChar(methodBinding));
 
-			res.setDeclarationSignature(DOMCompletionEngineBuilder.getSignature(methodBinding.getDeclaringClass()));
-			res.setSignature(DOMCompletionEngineBuilder.getSignature(methodBinding));
+			res.setDeclarationSignature(SignatureUtils.getSignatureChar(methodBinding.getDeclaringClass()));
+			res.setSignature(SignatureUtils.getSignatureChar(methodBinding));
 			if(methodBinding != methodBinding.getMethodDeclaration()) {
-				res.setOriginalSignature(DOMCompletionEngineBuilder.getSignature(methodBinding.getMethodDeclaration()));
+				res.setOriginalSignature(SignatureUtils.getSignatureChar(methodBinding.getMethodDeclaration()));
 			}
 			res.setDeclarationPackageName(methodBinding.getDeclaringClass().getPackage().getName().toCharArray());
 			res.setDeclarationTypeName(methodBinding.getDeclaringClass().getQualifiedName().toCharArray());
@@ -3416,7 +3416,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		} else if (binding instanceof IVariableBinding variableBinding) {
 			res = createProposal(CompletionProposal.FIELD_IMPORT);
 
-			res.setDeclarationSignature(DOMCompletionEngineBuilder.getSignature(variableBinding.getDeclaringClass()));
+			res.setDeclarationSignature(SignatureUtils.getSignatureChar(variableBinding.getDeclaringClass()));
 			res.setSignature(Signature.createTypeSignature(variableBinding.getType().getQualifiedName().toCharArray(), true)
 					.toCharArray());
 			res.setDeclarationPackageName(variableBinding.getDeclaringClass().getPackage().getName().toCharArray());
@@ -3435,7 +3435,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 			res = createProposal(CompletionProposal.TYPE_IMPORT);
 			res.setDeclarationSignature(typeBinding.getPackage().getName().toCharArray());
-			res.setSignature(DOMCompletionEngineBuilder.getSignature(typeBinding));
+			res.setSignature(SignatureUtils.getSignatureChar(typeBinding));
 			res.setPackageName(typeBinding.getPackage().getName().toCharArray());
 			res.setTypeName(typeBinding.getQualifiedName().toCharArray());
 			res.setAdditionalFlags(CompletionFlags.Default);
@@ -3475,8 +3475,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 	private CompletionProposal toAnnotationAttributeRefProposal(IMethodBinding method) {
 		CompletionProposal proposal = createProposal(CompletionProposal.ANNOTATION_ATTRIBUTE_REF);
-		proposal.setDeclarationSignature(DOMCompletionEngineBuilder.getSignature(method.getDeclaringClass()));
-		proposal.setSignature(DOMCompletionEngineBuilder.getSignature(method.getReturnType()));
+		proposal.setDeclarationSignature(SignatureUtils.getSignatureChar(method.getDeclaringClass()));
+		proposal.setSignature(SignatureUtils.getSignatureChar(method.getReturnType()));
 		proposal.setName(method.getName().toCharArray());
 		// add "=" to completion since it will always be needed
 		char[] completion= method.getName().toCharArray();
@@ -3777,12 +3777,12 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				.map(s -> s.toCharArray()) //
 				.toArray(char[][]::new);
 
-		res.setDeclarationSignature(DOMCompletionEngineBuilder.getSignature(method.getDeclaringClass()));
-		res.setSignature(DOMCompletionEngineBuilder.getSignature(method));
+		res.setDeclarationSignature(SignatureUtils.getSignatureChar(method.getDeclaringClass()));
+		res.setSignature(SignatureUtils.getSignatureChar(method));
 
 		IMethodBinding original = method.getMethodDeclaration();
 		if (original != method) {
-			res.setOriginalSignature(DOMCompletionEngineBuilder.getSignature(original));
+			res.setOriginalSignature(SignatureUtils.getSignatureChar(original));
 		}
 
 		setRange(res);

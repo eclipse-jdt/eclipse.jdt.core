@@ -177,19 +177,4 @@ class DOMCompletionEngineBuilder {
 		}
 	}
 
-	static char[] getSignature(IMethodBinding methodBinding) {
-		String fullKey = methodBinding.getKey().replace('/', '.');
-		String removeName = fullKey.substring(fullKey.indexOf('('));
-		int firstException = removeName.indexOf('|');
-		if (firstException > 0) {
-			return removeName.substring(0, firstException).toCharArray();
-		} else {
-			return removeName.toCharArray();
-		}
-	}
-
-	static char[] getSignature(ITypeBinding typeBinding) {
-		return typeBinding.getKey().replace('/', '.').toCharArray();
-	}
-
 }
