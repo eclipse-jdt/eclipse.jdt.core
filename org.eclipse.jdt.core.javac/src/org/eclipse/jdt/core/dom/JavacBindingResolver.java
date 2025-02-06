@@ -27,6 +27,7 @@ import javax.lang.model.type.TypeKind;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.internal.codeassist.DOMCompletionUtil;
 import org.eclipse.jdt.internal.javac.dom.JavacAnnotationBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacErrorMethodBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacLambdaBinding;
@@ -46,11 +47,8 @@ import com.sun.source.util.TreePath;
 import com.sun.tools.javac.api.JavacTaskImpl;
 import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.code.Attribute;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Symtab;
-import com.sun.tools.javac.code.TypeTag;
-import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.code.Attribute.Compound;
+import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.ModuleSymbol;
@@ -59,6 +57,7 @@ import com.sun.tools.javac.code.Symbol.RootPackageSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.code.Type.ArrayType;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.ErrorType;
@@ -70,8 +69,9 @@ import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.ModuleType;
 import com.sun.tools.javac.code.Type.PackageType;
 import com.sun.tools.javac.code.Type.TypeVar;
+import com.sun.tools.javac.code.TypeTag;
+import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.tree.JCTree.JCAnnotatedType;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCArrayTypeTree;
@@ -96,6 +96,7 @@ import com.sun.tools.javac.tree.JCTree.JCTypeCast;
 import com.sun.tools.javac.tree.JCTree.JCTypeParameter;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.tree.JCTree.JCWildcard;
+import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Names;
 
@@ -331,11 +332,11 @@ public class JavacBindingResolver extends BindingResolver {
 		}
 		//
 		private Map<String, JavacVariableBinding> variableBindings = new HashMap<>();
-		public JavacVariableBinding getVariableBinding(VarSymbol varSymbol) {
+		public JavacVariableBinding getVariableBinding(VarSymbol varSymbol, boolean isUnique) {
 			if (varSymbol == null) {
 				return null;
 			}
-			JavacVariableBinding newInstance = new JavacVariableBinding(varSymbol, JavacBindingResolver.this) { };
+			JavacVariableBinding newInstance = new JavacVariableBinding(varSymbol, JavacBindingResolver.this, isUnique) { };
 			String k = newInstance.getKey();
 			if( k != null ) {
 				variableBindings.putIfAbsent(k, newInstance);
@@ -386,7 +387,15 @@ public class JavacBindingResolver extends BindingResolver {
 					return getMethodBinding(methodType, other, null, false);
 				}
 			} else if (owner instanceof final VarSymbol other) {
-				return getVariableBinding(other);
+				if (JavacBindingResolver.this.symbolToDeclaration != null) {
+					ASTNode ownerDecl = JavacBindingResolver.this.symbolToDeclaration.get(owner.owner);
+					MethodDeclaration methodDecl = (MethodDeclaration) DOMCompletionUtil.findParent(ownerDecl, new int[] { ASTNode.METHOD_DECLARATION });
+					if (methodDecl != null) {
+						boolean isUnique = calculateIsUnique(methodDecl, other.name.toString());
+						return getVariableBinding(other, isUnique);
+					}
+					return getVariableBinding(other, true);
+				}
 			}
 			return null;
 		}
@@ -743,7 +752,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacElement = this.converter.domToJavac.get(fieldAccess);
 		if (javacElement instanceof JCFieldAccess javacFieldAccess && javacFieldAccess.sym instanceof VarSymbol varSymbol) {
-			return this.bindings.getVariableBinding(varSymbol);
+			return this.bindings.getVariableBinding(varSymbol, true);
 		}
 		return null;
 	}
@@ -753,7 +762,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacElement = this.converter.domToJavac.get(fieldAccess);
 		if (javacElement instanceof JCFieldAccess javacFieldAccess && javacFieldAccess.sym instanceof VarSymbol varSymbol) {
-			return this.bindings.getVariableBinding(varSymbol);
+			return this.bindings.getVariableBinding(varSymbol, true);
 		}
 		return null;
 	}
@@ -1214,7 +1223,7 @@ public class JavacBindingResolver extends BindingResolver {
 		if (this.converter.domToJavac.get(enumConstant) instanceof JCVariableDecl decl) {
 			// the decl.type can be null when there are syntax errors
 			if ((decl.type != null && !decl.type.isErroneous()) || this.isRecoveringBindings()) {
-				return this.bindings.getVariableBinding(decl.sym);
+				return this.bindings.getVariableBinding(decl.sym, true);
 			}
 		}
 		return null;
@@ -1223,15 +1232,67 @@ public class JavacBindingResolver extends BindingResolver {
 	@Override
 	IVariableBinding resolveVariable(VariableDeclaration variable) {
 		resolve();
+		boolean isUnique = calculateIsUnique(variable);
 		if (this.converter.domToJavac.get(variable) instanceof JCVariableDecl decl) {
 			// the decl.type can be null when there are syntax errors
 			if ((decl.type != null && !decl.type.isErroneous()) || this.isRecoveringBindings()) {
 				if (decl.name != Names.instance(this.context).error) { // cannot recover if name is error
-					return this.bindings.getVariableBinding(decl.sym);
+					return this.bindings.getVariableBinding(decl.sym, isUnique);
 				}
 			}
 		}
 		return null;
+	}
+
+	public static boolean calculateIsUnique(VariableDeclaration variable) {
+		MethodDeclaration parentMethod = (MethodDeclaration)DOMCompletionUtil.findParent(variable, new int[] { ASTNode.METHOD_DECLARATION });
+		if (parentMethod == null) {
+			return true;
+		}
+		final String variableName = variable.getName().toString();
+		class UniquenessVisitor extends ASTVisitor {
+			boolean isUnique = true;
+			@Override
+			public boolean visit(VariableDeclarationFragment node) {
+				if (node != variable && variableName.equals(node.getName().toString())) {
+					isUnique = false;
+				}
+				return super.visit(node);
+			}
+			@Override
+			public boolean visit(SingleVariableDeclaration node) {
+				if (node != variable && variableName.equals(node.getName().toString())) {
+					isUnique = false;
+				}
+				return super.visit(node);
+			}
+		}
+		UniquenessVisitor uniquenessVisitor = new UniquenessVisitor();
+		parentMethod.accept(uniquenessVisitor);
+		return uniquenessVisitor.isUnique;
+	}
+	
+	public static boolean calculateIsUnique(MethodDeclaration methodDecl, String name) {
+		class UniquenessVisitor extends ASTVisitor {
+			int count = 0;
+			@Override
+			public boolean visit(VariableDeclarationFragment node) {
+				if (name.equals(node.getName().toString())) {
+					this.count++;
+				}
+				return super.visit(node);
+			}
+			@Override
+			public boolean visit(SingleVariableDeclaration node) {
+				if (name.equals(node.getName().toString())) {
+					this.count++;
+				}
+				return super.visit(node);
+			}
+		}
+		UniquenessVisitor uniquenessVisitor = new UniquenessVisitor();
+		methodDecl.accept(uniquenessVisitor);
+		return uniquenessVisitor.count <= 1;
 	}
 
 	@Override
@@ -1480,7 +1541,7 @@ public class JavacBindingResolver extends BindingResolver {
 		} else if (attribute instanceof Attribute.Class clazz) {
 			return this.bindings.getTypeBinding(clazz.classType);
 		} else if (attribute instanceof Attribute.Enum enumm) {
-			return this.bindings.getVariableBinding(enumm.value);
+			return this.bindings.getVariableBinding(enumm.value, true);
 		} else if (attribute instanceof Attribute.Array array) {
 			return Stream.of(array.values) //
 					.map(nestedAttr -> {
@@ -1489,7 +1550,7 @@ public class JavacBindingResolver extends BindingResolver {
 						} else if (nestedAttr instanceof Attribute.Class clazz) {
 							return this.bindings.getTypeBinding(clazz.classType);
 						} else if (nestedAttr instanceof Attribute.Enum enumerable) {
-							return this.bindings.getVariableBinding(enumerable.value);
+							return this.bindings.getVariableBinding(enumerable.value, true);
 						}
 						throw new IllegalArgumentException("Unexpected attribute type: " + nestedAttr.getClass().getCanonicalName());
 					}) //

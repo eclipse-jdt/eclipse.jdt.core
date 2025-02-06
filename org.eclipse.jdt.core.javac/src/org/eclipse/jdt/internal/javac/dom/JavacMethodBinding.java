@@ -35,10 +35,12 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
 import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
+import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
+import org.eclipse.jdt.internal.codeassist.DOMCompletionUtil;
 import org.eclipse.jdt.internal.core.BinaryMethod;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.Member;
@@ -679,8 +681,16 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		if (!this.methodSymbol.isLambdaMethod()) {
 			return new IVariableBinding[0];
 		}
+		LambdaExpression lambdaExpression = (LambdaExpression) this.resolver.symbolToDeclaration.get(this.methodSymbol);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) DOMCompletionUtil.findParent(lambdaExpression, new int[] { ASTNode.METHOD_DECLARATION });
 		return this.methodSymbol.capturedLocals.stream() //
-				.map(this.resolver.bindings::getVariableBinding) //
+				.map(varSymbol -> {
+					boolean isUnique = true;
+					if (methodDeclaration != null) {
+						isUnique = JavacBindingResolver.calculateIsUnique(methodDeclaration, getName());
+					}
+					return this.resolver.bindings.getVariableBinding(varSymbol, isUnique);
+				}) //
 				.toArray(IVariableBinding[]::new);
 	}
 
