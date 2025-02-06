@@ -62,6 +62,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
@@ -996,7 +997,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						}
 					} else if (qualifiedNameBinding instanceof IVariableBinding variableBinding) {
 						ITypeBinding typeBinding = variableBinding.getType();
-						if (typeBinding == null && unit.findDeclaringNode(variableBinding) instanceof VariableDeclaration decl) {
+						if ((typeBinding == null || typeBinding.isRecovered()) && unit.findDeclaringNode(variableBinding) instanceof VariableDeclaration decl) {
 							Type type = null;
 							if (decl instanceof SingleVariableDeclaration single) {
 								type = single.getType();
@@ -1577,24 +1578,66 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	}
 
 	private void completeMissingType(Type type) throws JavaModelException {
-		if (type instanceof ParameterizedType parameterized) {
-			type = parameterized.getType();
-		}
-		final Type finalType = type;
+		Type simpleType = type instanceof ParameterizedType parameterized ?
+			parameterized.getType() : type;
 		var scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { this.javaProject });
-		new SearchEngine(this.workingCopyOwner).searchAllTypeNames(null, SearchPattern.R_PREFIX_MATCH, type.toString().toCharArray(), SearchPattern.R_EXACT_MATCH, IJavaSearchConstants.TYPE, scope, new TypeNameMatchRequestor() {
+		SearchEngine searchEngine = new SearchEngine(this.workingCopyOwner);
+		List<IType> types = new ArrayList<>();
+		searchEngine.searchAllTypeNames(null, SearchPattern.R_PREFIX_MATCH, simpleType.toString().toCharArray(), SearchPattern.R_EXACT_MATCH, IJavaSearchConstants.TYPE, scope, new TypeNameMatchRequestor() {
 			@Override
 			public void acceptTypeNameMatch(TypeNameMatch match) {
-				processMembers(match.getType()).stream()
-					.map(member -> {
-						CompletionProposal typeProposal = toProposal(match.getType());
-						typeProposal.setReplaceRange(finalType.getStartPosition(), finalType.getStartPosition() + finalType.getLength());
-						typeProposal.setRelevance(member.getRelevance());
-						member.setRequiredProposals(new CompletionProposal[] { typeProposal });
-						return member;
-					}).forEach(DOMCompletionEngine.this.requestor::accept);
+				types.add(match.getType());
 			}
 		}, IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, monitor);
+		StringBuilder builder = new StringBuilder();
+		if (type instanceof ParameterizedType parameterized) {
+			builder.append(Signature.C_GENERIC_START);
+			for (Type typeParam : (List<Type>)parameterized.typeArguments()) {
+				builder.append(SignatureUtils.createSignature(typeParam, searchEngine, scope, monitor));
+			}
+			builder.append(Signature.C_GENERIC_END);
+		}
+		for (IType matchedType : types) {
+			processMembers(matchedType)
+			.map(member -> {
+				StringBuilder declaringSignature = new StringBuilder();
+				declaringSignature.append(member.getDeclarationSignature());
+				declaringSignature.deleteCharAt(declaringSignature.length() - 1); // `;`
+				declaringSignature.append(builder);
+				declaringSignature.append(';');
+				member.setDeclarationSignature(declaringSignature.toString().toCharArray());
+				CompletionProposal typeProposal = toProposal(matchedType);
+				typeProposal.setReplaceRange(simpleType.getStartPosition(), simpleType.getStartPosition() + simpleType.getLength());
+				typeProposal.setRelevance(member.getRelevance());
+				type.accept(new ASTVisitor() {
+					@Override
+					public boolean visit(SimpleType simpleType) {
+						ITypeBinding binding = simpleType.resolveBinding();
+						if (binding == null || binding.isRecovered()) {
+							List<IType> matchingITypes = new ArrayList<>();
+							try {
+								searchEngine.searchAllTypeNames(null, SearchPattern.R_PREFIX_MATCH, simpleType.toString().toCharArray(), SearchPattern.R_EXACT_MATCH, IJavaSearchConstants.TYPE, scope, new TypeNameMatchRequestor() {
+									@Override
+									public void acceptTypeNameMatch(TypeNameMatch match) {
+										matchingITypes.add(match.getType());
+									}
+								}, IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, monitor);
+							} catch (JavaModelException ex) {
+								ILog.get().error(ex.getMessage(), ex);
+							}
+							if (matchingITypes.size() == 1) {
+								CompletionProposal typeProposal = toProposal(matchingITypes.get(0));
+								typeProposal.setReplaceRange(simpleType.getStartPosition(), simpleType.getStartPosition() + simpleType.getLength());
+								typeProposal.setRelevance(member.getRelevance());
+							}
+						}
+						return true;
+					}
+				});
+				member.setRequiredProposals(new CompletionProposal[] { typeProposal });
+				return member;
+			}).forEach(DOMCompletionEngine.this.requestor::accept);
+		}
 	}
 
 	private void suggestSuperConstructors() {
@@ -2493,7 +2536,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		}
 	}
 
-	private List<CompletionProposal> processMembers(IType type) {
+	private Stream<CompletionProposal> processMembers(IType type) {
 		IJavaElement[] children;
 		try {
 			children = type.getChildren();
@@ -2504,8 +2547,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		return Arrays.stream(children)
 			.filter(element -> element.getElementType() == IJavaElement.FIELD || element.getElementType() == IJavaElement.METHOD)
 			.filter(this::isVisible)
-			.map(this::toProposal)
-			.toList();
+			.map(this::toProposal);
 	}
 
 	private String getSignature(IMethodBinding method) {

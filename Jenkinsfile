@@ -68,12 +68,15 @@ pipeline {
 					unset JAVA_TOOL_OPTIONS
 					unset _JAVA_OPTIONS
 					# force qualifier to start with `z` so we identify it more easily and it always seem more recent than upstrea
-					mvn install -X -DskipTests -Djava.io.tmpdir=$WORKSPACE/tmp \
+					mvn install -DskipTests -Djava.io.tmpdir=$WORKSPACE/tmp -Dmaven.repo.local=$WORKSPACE/.m2/repository \
+						-Pbree-libs \
 						-Dtycho.buildqualifier.format="'z'yyyyMMdd-HHmm" \
 						-Pp2-repo \
+						-Djava.io.tmpdir=$WORKSPACE/tmp -Dproject.build.sourceEncoding=UTF-8 \
+						-Dcbi-ecj-version=99.99 \
 						-pl org.eclipse.jdt.core.compiler.batch,org.eclipse.jdt.core,org.eclipse.jdt.core.javac,org.eclipse.jdt.core.javac.feature,org.eclipse.jdt.core.tests.model,org.eclipse.jdt.core.tests.compiler,repository
 
-					mvn verify --batch-mode -f org.eclipse.jdt.core.tests.javac \
+					mvn verify --batch-mode -f org.eclipse.jdt.core.tests.javac -Dmaven.repo.local=$WORKSPACE/.m2/repository \
 						--fail-at-end -Ptest-on-javase-23 -Pbree-libs \
 						-DfailIfNoTests=false -DexcludedGroups=org.junit.Ignore -DproviderHint=junit47 \
 						-Papi-check -Djava.io.tmpdir=$WORKSPACE/tmp -Dproject.build.sourceEncoding=UTF-8 \
