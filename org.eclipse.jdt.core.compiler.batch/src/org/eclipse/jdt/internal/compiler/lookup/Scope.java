@@ -1196,6 +1196,16 @@ public abstract class Scope {
 		}
 		return null; // may answer null if no method around
 	}
+	public final MethodScope nearestEnclosingStaticScope() {
+		Scope current = this;
+		while (current != null) {
+			MethodScope methodScope = current.methodScope();
+			if (methodScope != null && methodScope.isStatic)
+				return methodScope;
+			current = current.parent;
+		}
+		return null;
+	}
 
 	/* Answer the scope receiver type (could be parameterized)
 	*/

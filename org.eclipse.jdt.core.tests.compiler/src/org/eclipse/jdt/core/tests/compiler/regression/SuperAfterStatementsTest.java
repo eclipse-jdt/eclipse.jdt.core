@@ -3041,4 +3041,62 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		},
 		"Outer$Inner1$1.m() Outer.g()");
 	}
+	public void testGH3687a() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					public void main(String[] args) {
+						System.out.println(foo() != 0);
+					}
+					static int foo() {
+						class Local {
+							int value = 0;
+							class Local2 {
+								public static int bar() {
+									return new Local().value;
+								}
+							}
+						}
+						return Local.Local2.bar();
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 10)
+				return new Local().value;
+				       ^^^^^^^^^^^
+			Cannot instantiate local class 'Local' in a static context
+			----------
+			""");
+	}
+	public void testGH3687b() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					@SuppressWarnings("unused")
+					static int INT_FIELD = new Object() {
+						class Local {
+							int value = 10;
+							class Local2 {
+								public int bar() {
+									int v = new Local().value;
+									System.out.print(v);
+									return v;
+								}
+							}
+						}
+						int l = new Local().new Local2().bar();
+					}.hashCode();
+					public static void main(String... args) {
+						int h = INT_FIELD / 2;
+					}
+				}
+				"""
+			},
+			"10");
+	}
 }
