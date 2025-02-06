@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -63,7 +63,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.SimpleSetOfCharArray;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
-public class TypeDeclaration extends Statement implements ProblemSeverities, ReferenceContext {
+public class TypeDeclaration extends Statement implements ProblemSeverities, ReferenceContext, TypeOrLambda {
 	// Type decl kinds
 	public static final int CLASS_DECL = 1;
 	public static final int INTERFACE_DECL = 2;
@@ -1105,7 +1105,7 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 			outerScope = outerScope.enclosingInstanceScope();
 			earlySeen = methodScope.isInsideEarlyConstructionContext(nestedType.enclosingType(), false);
 		}
-		addSyntheticArgumentsBeyondEarlyConstructionContext(nestedType, earlySeen, outerScope);
+		addSyntheticArgumentsBeyondEarlyConstructionContext(earlySeen, outerScope);
 	}
 	// add superclass enclosing instance arg for anonymous types (if necessary)
 	if (nestedType.isAnonymousType()) {
@@ -1156,30 +1156,13 @@ public void manageEnclosingInstanceAccessIfNecessary(ClassScope currentScope, Fl
 		NestedTypeBinding nestedType = (NestedTypeBinding) this.binding;
 		nestedType.addSyntheticArgumentAndField(this.binding.enclosingType());
 		boolean earlySeen = this.scope.insideEarlyConstructionContext;
-		addSyntheticArgumentsBeyondEarlyConstructionContext(nestedType, earlySeen, currentScope);
+		addSyntheticArgumentsBeyondEarlyConstructionContext(earlySeen, currentScope);
 	}
 }
 
-private void addSyntheticArgumentsBeyondEarlyConstructionContext(NestedTypeBinding nestedType, boolean earlySeen, Scope outerScope) {
-	if (outerScope != null && JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(outerScope.compilerOptions())) {
-		// JEP 482: this is the central location for organizing synthetic arguments and fields
-		// to serve far outer instances even in inner early construction context.
-		// Locations MethodBinding.computeSignature() and BlockScope.getEmulationPath() will faithfully
-		// use the information generated here, to decide about signature and call sequence.
-		while (outerScope != null) {
-			if (outerScope instanceof ClassScope cs) {
-				if (earlySeen && !cs.insideEarlyConstructionContext) {
-					// a direct outer beyond an early construction context disrupts
-					// the chain of fields, supply a local copy instead (arg & field):
-					nestedType.addSyntheticArgumentAndField(cs.referenceContext.binding);
-				}
-				earlySeen = cs.insideEarlyConstructionContext;
-			}
-			outerScope = outerScope.parent;
-			if (outerScope instanceof MethodScope ms && ms.isStatic)
-				break;
-		}
-	}
+@Override
+public void ensureSyntheticOuterAccess(SourceTypeBinding targetEnclosing) {
+	((NestedTypeBinding) this.binding).addSyntheticArgumentAndField(targetEnclosing);
 }
 
 /**

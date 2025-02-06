@@ -82,7 +82,7 @@ import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 import org.eclipse.jdt.internal.compiler.problem.AbortType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
-public class LambdaExpression extends FunctionalExpression implements IPolyExpression, ReferenceContext, ProblemSeverities {
+public class LambdaExpression extends FunctionalExpression implements IPolyExpression, ReferenceContext, ProblemSeverities, TypeOrLambda {
 	public Argument [] arguments;
 	private TypeBinding [] argumentTypes;
 	public int arrowPosition;
@@ -558,6 +558,8 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 
 		if (this.ignoreFurtherInvestigation)
 			return flowInfo;
+
+		addSyntheticArgumentsBeyondEarlyConstructionContext(false, this.enclosingScope);
 
 		FlowInfo lambdaInfo = flowInfo.copy(); // what happens in vegas, stays in vegas ...
 		ExceptionHandlingFlowContext methodContext =
@@ -1366,6 +1368,11 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				break;
 		}
 		return syntheticLocal;
+	}
+
+	@Override
+	public void ensureSyntheticOuterAccess(SourceTypeBinding targetEnclosing) {
+		this.mapSyntheticEnclosingTypes.computeIfAbsent(targetEnclosing, this::addSyntheticArgument);
 	}
 
 	private SyntheticArgumentBinding getActualOuterLocalFromEnclosingScope(ReferenceBinding enclosingType) {
