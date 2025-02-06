@@ -5697,7 +5697,7 @@ public abstract class Scope {
 					ReferenceBinding tmp = lambdaEnclosingType;
 					while ((tmp = tmp.enclosingType()) != null) {
 						if (!TypeBinding.equalsEquals(enclosingType, tmp)) continue;
-						lambda.mapSyntheticEnclosingTypes.computeIfAbsent((SourceTypeBinding) enclosingType, lambda::addSyntheticArgument);
+						lambda.ensureSyntheticOuterAccess((SourceTypeBinding) enclosingType);
 						lambda.hasOuterClassMemberReference = true; // ref to Outer class members allowed - interpreting 8.8.7.1
 						break;
 					}

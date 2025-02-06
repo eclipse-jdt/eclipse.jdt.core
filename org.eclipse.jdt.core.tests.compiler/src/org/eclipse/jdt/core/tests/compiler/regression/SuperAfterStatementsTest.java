@@ -3099,4 +3099,42 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			},
 			"10");
 	}
+	public void testGH3700() {
+		// test case from https://bugs.openjdk.org/browse/JDK-8333313
+		runConformTest(new String[] {
+				"Main.java",
+				"""
+				interface Foo {
+					void foo();
+				}
+
+				public class Main {
+					static int check = 0;
+
+					class Test {
+						Test() {}
+						Test(int a) {
+							class InnerLocal {
+								int a = 1;
+							}
+							Foo lmb = () -> {
+								Main.check = new InnerLocal() {
+										public int a() {
+											return this.a;
+										}
+									}.a();
+							};
+							lmb.foo();
+							this();
+						}
+					}
+					public static void main(String... args) {
+						new Main().new Test(3);
+						System.out.print(check);
+					}
+				}
+				"""
+		},
+		"1");
+	}
 }
