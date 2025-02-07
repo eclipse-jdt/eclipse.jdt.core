@@ -23,6 +23,7 @@ import java.util.Set;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 /**
  * Manages context during a single round of annotation processing.
@@ -165,10 +166,26 @@ public class RoundDispatcher {
 				}
 			}
 		} catch (Throwable e) {
+			// Keep AbortCompilation Exception from cancel during annotation processing as is:
+			// Currently IdeAnnotationProcessorManager.reportProcessorException would only log the exception.
+			if (e instanceof AbortCompilation cancelSignal) {
+				throw cancelSignal;
+			}
+			// unfold InvocationTargetException:
+			if (e.getCause() instanceof AbortCompilation cancelSignal) {
+				throw cancelSignal;
+			}
 			// If a processor throws an exception (as opposed to reporting an error),
 			// report it and abort compilation by throwing AbortCompilation.
-			this._provider.reportProcessorException(pi._processor, new Exception(e));
+			this._provider.reportProcessorException(pi._processor,
+					(e instanceof Exception ex) ? ex
+							: new Exception(
+									"Error while processing Annotation Processor " + pi._processor.getClass().getName(), //$NON-NLS-1$
+									e));
 		}
+		// XXX could be improved with explicit check with BuildNotifier.checkCancelWithinCompiler()
+		// in case the Annotation Processor catched an AbortCompilation Exception away to avoid further processing
+		// something like this._provider.processingEnv.notifier.checkCancelWithinCompiler())
 	}
 
 }
