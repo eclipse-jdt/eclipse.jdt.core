@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -1946,30 +1948,31 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 	}
 
 	public void testBindingKey() throws IOException {
-		File rootDir = new File(System.getProperty("java.io.tmpdir"));
-		ASTParser parser = ASTParser.newParser(AST_JLS_LATEST);
-		parser.setEnvironment(null, null, null, true);
-		parser.setResolveBindings(true);
-		parser.setStatementsRecovery(true);
-		parser.setBindingsRecovery(true);
-		parser.setCompilerOptions(getCompilerOptions());
-
-		final IBinding[] bindings = new IBinding[1];
-
-		String contents =
-			"package p;\n" +
-			"public class X {\n" +
-			"}";
-
-		File packageDir = new File(rootDir, "p");
-		packageDir.mkdir();
-		File file = new File(packageDir, "X.java");
-		try (Writer writer = new BufferedWriter(new FileWriter(file))) {
-			writer.write(contents);
-		}
-
+		Path rootDir = null;
+		Path packageDir = null;
+		Path file = null;
 		try {
-			final String absPath = file.getAbsolutePath();
+			rootDir = Files.createTempDirectory("jdt-test-binding-key");
+			ASTParser parser = ASTParser.newParser(AST_JLS_LATEST);
+			parser.setEnvironment(null, null, null, true);
+			parser.setResolveBindings(true);
+			parser.setStatementsRecovery(true);
+			parser.setBindingsRecovery(true);
+			parser.setCompilerOptions(getCompilerOptions());
+
+			final IBinding[] bindings = new IBinding[1];
+
+			String contents =
+				"package p;\n" +
+				"public class X {\n" +
+				"}";
+
+			packageDir = rootDir.resolve("p");
+			Files.createDirectory(packageDir);
+			file = packageDir.resolve("X.java");
+			Files.writeString(file, contents);
+
+			final String absPath = file.toFile().getAbsolutePath();
 
 			FileASTRequestor requestor = new FileASTRequestor() {
 				public void acceptAST(String sourceFilePath, CompilationUnit ast) {
@@ -1987,7 +1990,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 				}
 			};
 
-			parser.setEnvironment(null, new String[] { rootDir.getCanonicalPath() }, null, true);
+			parser.setEnvironment(null, new String[] { rootDir.toFile().getAbsolutePath() }, null, true);
 
 			parser.createASTs(new String[] {absPath}, null, new String[0], requestor, null);
 
@@ -1997,7 +2000,15 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			assertEquals("Wrong binding", "p.X", typeBinding.getQualifiedName());
 			assertEquals("Wrong binding key", "Lp/X;", typeBinding.getKey());
 		} finally {
-			file.delete();
+			if (file != null) {
+				Files.delete(file);
+			}
+			if (packageDir != null) {
+				Files.delete(packageDir);
+			}
+			if (rootDir != null) {
+				Files.delete(rootDir);
+			}
 		}
 	}
 
