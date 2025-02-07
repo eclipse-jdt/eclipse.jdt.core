@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -133,6 +134,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeNameMatch;
@@ -1598,7 +1600,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			builder.append(Signature.C_GENERIC_END);
 		}
 		for (IType matchedType : types) {
-			processMembers(matchedType)
+			processMembers(matchedType, searchEngine, scope)
 			.map(member -> {
 				StringBuilder declaringSignature = new StringBuilder();
 				declaringSignature.append(member.getDeclarationSignature());
@@ -2536,7 +2538,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		}
 	}
 
-	private Stream<CompletionProposal> processMembers(IType type) {
+	private Stream<CompletionProposal> processMembers(IType type, SearchEngine searchEngine, IJavaSearchScope scope) {
 		IJavaElement[] children;
 		try {
 			children = type.getChildren();
@@ -2544,10 +2546,38 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			ILog.get().error(ex.getMessage(), ex);
 			children = new IJavaElement[0];
 		}
-		return Arrays.stream(children)
+		Stream<CompletionProposal> current = Arrays.stream(children)
 			.filter(element -> element.getElementType() == IJavaElement.FIELD || element.getElementType() == IJavaElement.METHOD)
 			.filter(this::isVisible)
 			.map(this::toProposal);
+		List<String> superTypes = new ArrayList<>();
+		try {
+			superTypes.add(type.getSuperclassName());
+			superTypes.addAll(Arrays.asList(type.getSuperInterfaceNames()));
+		} catch (JavaModelException ex) {
+			ILog.get().error(ex.getMessage(), ex);
+		}
+		return Stream.concat(current, superTypes.stream()
+				.filter(Objects::nonNull)
+				.map(typeName -> {
+					int index = typeName.lastIndexOf('.');
+					char[] packageName = index >= 0 ? typeName.substring(0, index).toCharArray() : null;
+					char[] simpleName = index >= 0 ? typeName.substring(index + 1, typeName.length()).toCharArray() : typeName.toCharArray();
+					List<IType> types = new ArrayList<>();
+					try {
+						searchEngine.searchAllTypeNames(packageName, SearchPattern.R_EXACT_MATCH, simpleName, SearchPattern.R_EXACT_MATCH, IJavaSearchConstants.TYPE, scope, new TypeNameMatchRequestor() {
+							@Override
+							public void acceptTypeNameMatch(TypeNameMatch match) {
+								types.add(match.getType());
+							}
+						}, IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, monitor);
+					} catch (JavaModelException ex) {
+						ILog.get().error(ex.getMessage(), ex);
+					}
+					return types;
+				}).flatMap(List::stream)
+				.map(t -> processMembers(t, searchEngine, scope))
+				.flatMap(Function.identity()));
 	}
 
 	private String getSignature(IMethodBinding method) {
@@ -3048,12 +3078,20 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		if (element instanceof IField field) {
 			res = createProposal(CompletionProposal.FIELD_REF);
 			res.setName(field.getElementName().toCharArray());
+			try {
+				res.setSignature(field.getTypeSignature().toCharArray());
+			} catch (JavaModelException ex) {
+				ILog.get().error(ex.getMessage(), ex);
+			}
 			res.setCompletion(field.getElementName().toCharArray());
 			setRange(res);
-			res.setRelevance(RelevanceConstants.R_DEFAULT +
-				RelevanceConstants.R_RESOLVED +
-				RelevanceConstants.R_INTERESTING +
-				RelevanceConstants.R_NON_RESTRICTED);
+			res.setRelevance(RelevanceConstants.R_DEFAULT + 
+					RelevanceConstants.R_RESOLVED +
+					RelevanceConstants.R_INTERESTING +
+					RelevanceConstants.R_CASE +
+					RelevanceConstants.R_NON_STATIC +
+					RelevanceConstants.R_NON_RESTRICTED +
+					RelevanceConstants.R_NO_PROBLEMS);
 		}
 		if (element instanceof IMethod method) {
 			res = createProposal(CompletionProposal.METHOD_REF);
