@@ -520,4 +520,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		return this.type != null && this.type.isTypeNameVar(scope);
 	}
 
+	@Override
+	public LocalVariableBinding getBinding() {
+		return this.binding;
+	}
+
+	@Override
+	public void setBinding(Binding binding) {
+		this.binding = (LocalVariableBinding) binding;
+	}
+
 }
