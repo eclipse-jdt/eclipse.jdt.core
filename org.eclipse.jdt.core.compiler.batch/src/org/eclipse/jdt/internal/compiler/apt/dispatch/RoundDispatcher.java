@@ -23,7 +23,9 @@ import java.util.Set;
 import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
+import org.eclipse.jdt.core.compiler.CompilationProgress;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
+import org.eclipse.jdt.internal.compiler.util.Messages;
 
 /**
  * Manages context during a single round of annotation processing.
@@ -138,6 +140,13 @@ public class RoundDispatcher {
 			boolean shouldCall = pi.computeSupportedAnnotations(
 					this._unclaimedAnnotations, annotationsToProcess);
 			if (shouldCall) {
+				CompilationProgress progress = this._provider.getCompilationProgress();
+				if (progress != null) {
+					if (progress.isCanceled()) {
+						throw new AbortCompilation(true, null);
+					}
+					progress.setTaskName(Messages.bind(Messages.apt_processing, pi._processor.getClass().getName()));
+				}
 				boolean claimed = pi._processor.process(annotationsToProcess, this._roundEnv);
 				if (null != this._traceProcessorInfo && !this._roundEnv.processingOver()) {
 					StringBuilder sb = new StringBuilder();
@@ -183,9 +192,6 @@ public class RoundDispatcher {
 									"Error while processing Annotation Processor " + pi._processor.getClass().getName(), //$NON-NLS-1$
 									e));
 		}
-		// XXX could be improved with explicit check with BuildNotifier.checkCancelWithinCompiler()
-		// in case the Annotation Processor catched an AbortCompilation Exception away to avoid further processing
-		// something like this._provider.processingEnv.notifier.checkCancelWithinCompiler())
 	}
 
 }
