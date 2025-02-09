@@ -125,6 +125,11 @@ public abstract void generateAssignment(BlockScope currentScope, CodeStream code
 
 public abstract void generateCompoundAssignment(BlockScope currentScope, CodeStream codeStream, Expression expression, int operator, int assignmentImplicitConversion, boolean valueRequired);
 
+public abstract TypeBinding resolveTypeCompoundOverloadOperator(BlockScope scope, TypeBinding type);
+
+public abstract void generatePreOverloadAssignment(BlockScope currentScope, CodeStream codeStream, boolean valueRequired);
+public abstract void generatePostOverloadAssignment(BlockScope currentScope, CodeStream codeStream, boolean valueRequired);
+
 public abstract void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired);
 
 /**

@@ -2775,4 +2775,131 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature
 	 */
 	int DefaultTrueAndFalseCases = PreviewRelated + 2102;
+
+	///////////////////////////////////////////////////////////////////////////////////////
+	// #1169
+
+	/**
+	 *  Overloaded operators
+	 * @since 3.41
+	 */
+    // NOTE:
+	// 80000 from messages.properties is chosen semi-arbitrary.
+    // In the future changes may be required, because of possible conflicts between sums.
+
+	int AmbigousOperator = MethodRelated + 80000;
+
+	////////////////////////////////////////////////////////////////////////////////////////
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+	//
+
+	/**
+	 *  Overloaded operators
+	 * @since 3.41
+	 */
+    // NOTE:
+	// 80001 from messages.properties is chosen semi-arbitrary.
+    // In the future changes may be required, because of possible conflicts between sums.
+
+	int InvalidOrMissingOverloadedOperator2P = MethodRelated + 80001;
+
+	////////////////////////////////////////////////////////////////////////////////////////
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+	//
+
+	/**
+	 *  Overloaded operators
+	 * @since 3.41
+	 */
+    // NOTE:
+	// 80002 from messages.properties is chosen semi-arbitrary.
+    // In the future changes may be required, because of possible conflicts between sums.
+
+	int InvalidOrMissingOverloadedOperator3P = MethodRelated + 80002;
+
+	////////////////////////////////////////////////////////////////////////////////////////
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+	//
+
+	/**
+	 *  Overloaded operators
+	 * @since 3.41
+	 */
+    // NOTE:
+	// 80003 from messages.properties is chosen semi-arbitrary.
+    // In the future changes may be required, because of possible conflicts between sums.
+
+	int InvalidOrMissingOverloadedOperator4P = MethodRelated + 80003;
+
+	////////////////////////////////////////////////////////////////////////////////////////
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////
+	//
+
+	/**
+	 *  Overloaded operators
+	 * @since 3.41
+	 */
+    // NOTE:
+	// 80004 from messages.properties is chosen semi-arbitrary.
+    // In the future changes may be required, because of possible conflicts between sums.
+
+	int OverloadedOperatorMethodNotStatic = MethodRelated + 80004;
+
+	////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 *  Overloaded operators
+	 * @since 3.41
+	 */
+    // NOTE:
+	// 80005 from messages.properties is chosen semi-arbitrary.
+    // In the future changes may be required, because of possible conflicts between sums.
+
+	int WrongTernaryIfEqualityExpression = MethodRelated + Internal + 80005;
+
+	////////////////////////////////////////////////////////////////////////////////////////
+
+	////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 *  Overloaded operators
+	 * @since 3.41
+	 */
+    // NOTE:
+	// 80006 from messages.properties is chosen semi-arbitrary.
+    // In the future changes may be required, because of possible conflicts between sums.
+
+	int InvalidReturnTypeForOverloadedOperator = MethodRelated + Internal + 80006;
+
+	////////////////////////////////////////////////////////////////////////////////////////
+
+	////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 *  Illegal assert statement
+	 */
+    // NOTE:
+	// 80007 from messages.properties is chosen semi-arbitrary.
+    // In the future changes may be required, because of possible conflicts between sums.
+
+	//int MaxelerAssertStatement = MethodRelated + Internal + 80007;
+
+	////////////////////////////////////////////////////////////////////////////////////////
+
+	/**
+	 *  Using non void return type for overloaded put method
+	 * @since 3.41
+	 */
+    // NOTE:
+	// 80006 from messages.properties is chosen semi-arbitrary.
+    // In the future changes may be required, because of possible conflicts between sums.
+
+	int MaxelerInvalidOverloadedPut = MethodRelated + 80008;
+
+	////////////////////////////////////////////////////////////////////////////////////////
 }

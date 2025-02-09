@@ -166,6 +166,8 @@ public class CompilerOptions {
 	public static final String OPTION_ReportMethodCanBeStatic = "org.eclipse.jdt.core.compiler.problem.reportMethodCanBeStatic";  //$NON-NLS-1$
 	public static final String OPTION_ReportMethodCanBePotentiallyStatic = "org.eclipse.jdt.core.compiler.problem.reportMethodCanBePotentiallyStatic";  //$NON-NLS-1$
 	public static final String OPTION_ReportRedundantSpecificationOfTypeArguments =  "org.eclipse.jdt.core.compiler.problem.redundantSpecificationOfTypeArguments"; //$NON-NLS-1$
+	public static final String OPTION_ForceMAXJ = "org.eclipse.jdt.core.compiler.forceMaxJ"; //$NON-NLS-1$
+	//public static final String OPTION_ReportMaxelerAssertStatement = "org.eclipse.jdt.core.compiler.problem.maxelerAssertStatement"; //$NON-NLS-1$
 
 	// resource leak analysis:
 	public static final String OPTION_ReportUnclosedCloseable = "org.eclipse.jdt.core.compiler.problem.unclosedCloseable"; //$NON-NLS-1$
@@ -401,6 +403,9 @@ public class CompilerOptions {
 	public static final int IncompatibleOwningContract = IrritantSet.GROUP3 | ASTNode.Bit2;
 	public static final int UnusedLambdaParameter = IrritantSet.GROUP3 | ASTNode.Bit3;
 
+	public static final int MaxelerOverloadedPut = IrritantSet.GROUP3 | ASTNode.Bit4;
+	//public static final int MaxelerAssertStatement = IrritantSet.GROUP3 | ASTNode.Bit5;
+
 
 	// Severity level for handlers
 	/**
@@ -423,6 +428,7 @@ public class CompilerOptions {
 	 * Default settings are to be defined in {@link CompilerOptions#resetDefaults()}
 	 */
 
+	public boolean forceMAXJ;
 	/** Classfile debug information, may contain source file name, line numbers, local variable tables, etc... */
 	public int produceDebugAttributes;
 	/** Classfile method parameters information as per JEP 118... */
@@ -612,6 +618,7 @@ public class CompilerOptions {
 	// keep in sync with warningTokenToIrritant and warningTokenFromIrritant
 	public final static String[] warningTokens = {
 		"all", //$NON-NLS-1$
+		//"assert-statement", //$NON-NLS-1$
 		"boxing", //$NON-NLS-1$
 		"cast", //$NON-NLS-1$
 		"dep-ann", //$NON-NLS-1$
@@ -629,6 +636,7 @@ public class CompilerOptions {
 		"removal", //$NON-NLS-1$
 		"resource", //$NON-NLS-1$
 		"restriction", //$NON-NLS-1$
+		"return-on-overloaded-put", //$NON-NLS-1$
 		"serial", //$NON-NLS-1$
 		"static-access", //$NON-NLS-1$
 		"static-method", //$NON-NLS-1$
@@ -835,6 +843,8 @@ public class CompilerOptions {
 				return OPTION_ReportMissingNonNullByDefaultAnnotation;
 			case RedundantSpecificationOfTypeArguments :
 				return OPTION_ReportRedundantSpecificationOfTypeArguments;
+			//case MaxelerAssertStatement:
+			//		return OPTION_ReportMaxelerAssertStatement;
 
 			// resource leak analysis:
 			case UnclosedCloseable :
@@ -1097,6 +1107,7 @@ public class CompilerOptions {
 			OPTION_ReportUnusedTypeArgumentsForMethodInvocation,
 			OPTION_ReportUnusedWarningToken,
 			OPTION_ReportVarargsArgumentNeedCast,
+			//OPTION_ReportMaxelerAssertStatement,
 
 			// resource leak analysis:
 			OPTION_ReportUnclosedCloseable,
@@ -1235,6 +1246,10 @@ public class CompilerOptions {
 				return "module"; //$NON-NLS-1$
 			case PreviewFeatureUsed:
 				return "preview"; //$NON-NLS-1$
+			//case MaxelerAssertStatement :
+			//	return "assert-statement"; //$NON-NLS-1$
+			case MaxelerOverloadedPut:
+				return "return-on-overloaded-put"; //$NON-NLS-1$
 		}
 		return null;
 	}
@@ -1246,6 +1261,8 @@ public class CompilerOptions {
 			case 'a' :
 				if ("all".equals(warningToken)) //$NON-NLS-1$
 					return IrritantSet.ALL;
+				//if ("assert-statement".equals(warningToken)) //$NON-NLS-1$
+				//	return IrritantSet.MAXELER_ASSERT_STATEMENT;
 				break;
 			case 'b' :
 				if ("boxing".equals(warningToken)) //$NON-NLS-1$
@@ -1307,6 +1324,8 @@ public class CompilerOptions {
 					return IrritantSet.RESTRICTION;
 				if ("removal".equals(warningToken)) //$NON-NLS-1$
 					return IrritantSet.TERMINAL_DEPRECATION;
+				if ("return-on-overloaded-put".equals(warningToken)) //$NON-NLS-1$
+					return IrritantSet.MAXELER_OVERLOADED_PUT;
 				break;
 			case 's' :
 				if ("serial".equals(warningToken)) //$NON-NLS-1$
@@ -1415,6 +1434,8 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportUnusedLabel, getSeverityString(UnusedLabel));
 		optionsMap.put(OPTION_ReportUnusedTypeArgumentsForMethodInvocation, getSeverityString(UnusedTypeArguments));
 		optionsMap.put(OPTION_Compliance, versionFromJdkLevel(this.complianceLevel));
+		optionsMap.put(OPTION_ForceMAXJ, this.forceMAXJ ? ENABLED : DISABLED);
+		//optionsMap.put(OPTION_ReportMaxelerAssertStatement, getSeverityString(MaxelerAssertStatement));
 		optionsMap.put(OPTION_Release, this.release ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_Source, versionFromJdkLevel(this.sourceLevel));
 		optionsMap.put(OPTION_TargetPlatform, versionFromJdkLevel(this.targetJDK));
@@ -1644,6 +1665,8 @@ public class CompilerOptions {
 		this.reportMissingJavadocCommentsVisibility = ClassFileConstants.AccPublic;
 		this.reportMissingJavadocCommentsOverriding = false;
 
+		this.forceMAXJ = false;
+
 		// javadoc comment support
 		this.docCommentSupport = false;
 
@@ -1751,6 +1774,13 @@ public class CompilerOptions {
 				this.reportDeprecationWhenOverridingDeprecatedMethod = true;
 			} else if (DISABLED.equals(optionValue)) {
 				this.reportDeprecationWhenOverridingDeprecatedMethod = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_ForceMAXJ)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.forceMAXJ = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.forceMAXJ = false;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedDeclaredThrownExceptionWhenOverriding)) != null) {
@@ -2001,6 +2031,7 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportMethodCanBeStatic)) != null) updateSeverity(MethodCanBeStatic, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportMethodCanBePotentiallyStatic)) != null) updateSeverity(MethodCanBePotentiallyStatic, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportRedundantSpecificationOfTypeArguments)) != null) updateSeverity(RedundantSpecificationOfTypeArguments, optionValue);
+		//if ((optionValue = optionsMap.get(OPTION_ReportMaxelerAssertStatement)) != null) updateSeverity(MaxelerAssertStatement, optionValue);
 		// resource leak analysis:
 		if ((optionValue = optionsMap.get(OPTION_ReportUnclosedCloseable)) != null) updateSeverity(UnclosedCloseable, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportPotentiallyUnclosedCloseable)) != null) updateSeverity(PotentiallyUnclosedCloseable, optionValue);
@@ -2390,6 +2421,7 @@ public class CompilerOptions {
 		buf.append("\n\t- method can be static: ").append(getSeverityString(MethodCanBeStatic)); //$NON-NLS-1$
 		buf.append("\n\t- method can be potentially static: ").append(getSeverityString(MethodCanBePotentiallyStatic)); //$NON-NLS-1$
 		buf.append("\n\t- redundant specification of type arguments: ").append(getSeverityString(RedundantSpecificationOfTypeArguments)); //$NON-NLS-1$
+		//buf.append("\n\t- maxeler assert statement: ").append(getSeverityString(MaxelerAssertStatement)); //$NON-NLS-1$
 		// resource leak analysis:
 		buf.append("\n\t- resource is not closed: ").append(getSeverityString(UnclosedCloseable)); //$NON-NLS-1$
 		buf.append("\n\t- resource may not be closed: ").append(getSeverityString(PotentiallyUnclosedCloseable)); //$NON-NLS-1$

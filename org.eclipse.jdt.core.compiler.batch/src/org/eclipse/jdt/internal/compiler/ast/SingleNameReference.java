@@ -58,6 +58,7 @@ public SingleNameReference(char[] source, long pos) {
 @Override
 public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, Assignment assignment, boolean isCompound) {
 	boolean isReachable = (flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0;
+	boolean operatorOverloading = assignment instanceof ConnectCompoundAssignment && ((ConnectCompoundAssignment)assignment).appropriateMethodForOverload != null;
 	// compound assignment extra work
 	if (isCompound) { // check the variable part is initialized if blank final
 		switch (this.bits & ASTNode.RestrictiveFlagMASK) {
@@ -76,7 +77,9 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 				// check if assigning a final blank field
 				LocalVariableBinding localBinding;
 				if (!flowInfo.isDefinitelyAssigned(localBinding = (LocalVariableBinding) this.binding)) {
-					currentScope.problemReporter().uninitializedLocalVariable(localBinding, this, currentScope);
+					if (!operatorOverloading) {
+						currentScope.problemReporter().uninitializedLocalVariable(localBinding, this, currentScope);
+					}
 					// we could improve error msg here telling "cannot use compound assignment on final local variable"
 				}
 				if (localBinding.useFlag != LocalVariableBinding.USED) {
@@ -111,7 +114,9 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 					}
 					flowInfo.markAsDefinitelyAssigned(fieldBinding);
 				} else {
-					currentScope.problemReporter().cannotAssignToFinalField(fieldBinding, this);
+					if (!operatorOverloading) {
+						currentScope.problemReporter().cannotAssignToFinalField(fieldBinding, this);
+					}
 				}
 			} else if (!isCompound && (fieldBinding.isNonNull() || fieldBinding.type.isTypeVariable())
 						&& TypeBinding.equalsEquals(fieldBinding.declaringClass, currentScope.enclosingReceiverType())) { // inherited fields are not tracked here
@@ -143,16 +148,22 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 				if ((this.bits & ASTNode.DepthMASK) == 0) {
 					// tolerate assignment to final local in unreachable code (45674)
 					if ((isReachable && isCompound) || !localBinding.isBlankFinal()){
-						currentScope.problemReporter().cannotAssignToFinalLocal(localBinding, this);
+						if (!operatorOverloading) {
+							currentScope.problemReporter().cannotAssignToFinalLocal(localBinding, this);
+						}
 					} else if (flowInfo.isPotentiallyAssigned(localBinding)) {
-						currentScope.problemReporter().duplicateInitializationOfFinalLocal(localBinding, this);
+						if (!operatorOverloading) {
+							currentScope.problemReporter().duplicateInitializationOfFinalLocal(localBinding, this);
+						}
 					} else if ((this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
 						currentScope.problemReporter().cannotAssignToFinalOuterLocal(localBinding, this);
 					} else {
 						flowContext.recordSettingFinal(localBinding, this, flowInfo);
 					}
 				} else {
-					currentScope.problemReporter().cannotAssignToFinalOuterLocal(localBinding, this);
+					if (!operatorOverloading) {
+						currentScope.problemReporter().cannotAssignToFinalOuterLocal(localBinding, this);
+					}
 				}
 			}
 			else /* avoid double diagnostic */ if ((localBinding.tagBits & TagBits.IsArgument) != 0) {
@@ -402,6 +413,46 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 			// implicit conversion
 			if (valueRequired) {
 				codeStream.generateImplicitConversion(assignment.implicitConversion);
+			}
+	}
+}
+
+@Override
+public void generatePreOverloadAssignment(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+	switch (this.bits & ASTNode.RestrictiveFlagMASK) {
+		case Binding.FIELD : // assigning to a field
+			int pc = codeStream.position;
+			FieldBinding codegenBinding = ((FieldBinding) this.binding).original();
+			if (!codegenBinding.isStatic()) { // need a receiver?
+				if ((this.bits & ASTNode.DepthMASK) != 0) {
+					ReferenceBinding targetType = currentScope.enclosingSourceType().enclosingTypeAt((this.bits & ASTNode.DepthMASK) >> ASTNode.DepthSHIFT);
+					Object[] emulationPath = currentScope.getEmulationPath(targetType, true /*only exact match*/, false/*consider enclosing arg*/);
+					codeStream.generateOuterAccess(emulationPath, this, targetType, currentScope);
+				} else {
+					generateReceiver(codeStream);
+				}
+			}
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
+			return;
+	}
+}
+
+@Override
+public void generatePostOverloadAssignment(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+	switch (this.bits & ASTNode.RestrictiveFlagMASK) {
+		case Binding.FIELD : // assigning to a field
+			int pc = codeStream.position;
+			FieldBinding codegenBinding = ((FieldBinding) this.binding).original();
+			codeStream.recordPositionsFrom(pc, this.sourceStart);
+			fieldStore(currentScope, codeStream, codegenBinding, this.syntheticAccessors == null ? null : this.syntheticAccessors[SingleNameReference.WRITE], this.actualReceiverType, true /*implicit this*/, valueRequired);
+			return;
+		case Binding.LOCAL : // assigning to a local variable
+			LocalVariableBinding localBinding = (LocalVariableBinding) this.binding;
+
+			// normal local assignment (since cannot store in outer local which are final locations)
+			codeStream.store(localBinding, valueRequired);
+			if ((this.bits & ASTNode.FirstAssignmentToLocal) != 0) { // for local variable debug attributes
+				localBinding.recordInitializationStartPC(codeStream.position);
 			}
 	}
 }
@@ -999,6 +1050,7 @@ public TypeBinding reportError(BlockScope scope) {
 @Override
 public TypeBinding resolveType(BlockScope scope) {
 	// for code gen, harm the restrictiveFlag
+	if (this.resolvedType != null) return this.resolvedType;
 
 	if (this.actualReceiverType != null) {
 		this.binding = scope.getField(this.actualReceiverType, this.token, this);
@@ -1098,5 +1150,10 @@ public String unboundReferenceErrorName(){
 @Override
 public char[][] getName() {
 	return new char[][] {this.token};
+}
+
+@Override
+public TypeBinding resolveTypeCompoundOverloadOperator(BlockScope scope, TypeBinding type) {
+	return null;
 }
 }

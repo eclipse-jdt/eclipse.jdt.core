@@ -176,4 +176,19 @@ public class ThisReference extends Reference {
 		visitor.visit(this, blockScope);
 		visitor.endVisit(this, blockScope);
 	}
+
+	@Override
+	public TypeBinding resolveTypeCompoundOverloadOperator(BlockScope scope, TypeBinding type) {
+		return null;
+	}
+
+	@Override
+	public void generatePreOverloadAssignment(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+		// this cannot be assigned
+	}
+
+	@Override
+	public void generatePostOverloadAssignment(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+		// this cannot be assigned
+	}
 }

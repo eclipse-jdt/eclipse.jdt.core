@@ -75,6 +75,8 @@ public class IrritantSet {
 	public static final IrritantSet UNLIKELY_ARGUMENT_TYPE = new IrritantSet(CompilerOptions.UnlikelyCollectionMethodArgumentType);
 	public static final IrritantSet API_LEAK = new IrritantSet(CompilerOptions.APILeak);
 	public static final IrritantSet MODULE = new IrritantSet(CompilerOptions.UnstableAutoModuleName);
+	public static final IrritantSet MAXELER_OVERLOADED_PUT = new IrritantSet(CompilerOptions.MaxelerOverloadedPut);
+	//public static final IrritantSet MAXELER_ASSERT_STATEMENT = new IrritantSet(CompilerOptions.MaxelerAssertStatement);
 
 	public static final IrritantSet JAVADOC = new IrritantSet(CompilerOptions.InvalidJavadoc);
 	public static final IrritantSet PREVIEW = new IrritantSet(CompilerOptions.PreviewFeatureUsed);
@@ -141,7 +143,8 @@ public class IrritantSet {
 				|CompilerOptions.PreviewFeatureUsed)
 			.set(CompilerOptions.InsufficientResourceManagement
 				|CompilerOptions.IncompatibleOwningContract
-				|CompilerOptions.UnusedLambdaParameter);
+				|CompilerOptions.UnusedLambdaParameter
+				|CompilerOptions.MaxelerOverloadedPut);
 		// default errors IF AnnotationBasedNullAnalysis is enabled:
 		COMPILER_DEFAULT_ERRORS.set(
 				CompilerOptions.NullSpecViolation
