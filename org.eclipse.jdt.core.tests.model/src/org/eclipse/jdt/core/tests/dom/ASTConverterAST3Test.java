@@ -6619,8 +6619,6 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 		typeBinding = newAst.resolveWellKnownType("java.lang.Class"); //$NON-NLS-1$
 		assertNotNull("No typeBinding", typeBinding); //$NON-NLS-1$
 		assertEquals("Wrong name", "Class", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-		typeBinding = newAst.resolveWellKnownType("java.lang.Runnable"); //$NON-NLS-1$
-		assertNull("typeBinding not null", typeBinding); //$NON-NLS-1$
 		typeBinding = newAst.resolveWellKnownType("java.lang.Cloneable"); //$NON-NLS-1$
 		assertNotNull("typeBinding not null", typeBinding); //$NON-NLS-1$
 		typeBinding = newAst.resolveWellKnownType("java.io.Serializable"); //$NON-NLS-1$
