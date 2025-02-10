@@ -78,7 +78,6 @@ ClassOrInterfaceType=Type
 ClassType=ClassType
 ClassTypeElt=ClassType
 ClassTypeList=ClassTypeList
-CompactConstructorDeclaration=CompactConstructorDeclaration
 CompactConstructorHeader=CompactConstructorHeader
 CompactConstructorHeaderName=CompactConstructorHeaderName
 CompilationUnit=CompilationUnit

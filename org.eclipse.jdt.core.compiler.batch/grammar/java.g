@@ -742,7 +742,6 @@ ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
 ClassBodyDeclaration -> ClassMemberDeclaration
 ClassBodyDeclaration -> StaticInitializer
 ClassBodyDeclaration -> ConstructorDeclaration
-ClassBodyDeclaration -> CompactConstructorDeclaration
 
 ImplicitlyDeclaredClassBodyDeclarations -> ClassMemberDeclaration
 ImplicitlyDeclaredClassBodyDeclarations ::= ClassMemberDeclaration ImplicitlyDeclaredClassBodyDeclarations
@@ -920,11 +919,6 @@ ConstructorHeaderName ::= Modifiersopt 'Identifier' '('
 /.$putCase consumeConstructorHeaderName(false); $break ./
 /:$readableName ConstructorHeaderName:/
 
-CompactConstructorDeclaration ::= CompactConstructorHeader MethodBody
-/.$putCase consumeConstructorDeclaration(); $break ./
-/:$readableName CompactConstructorDeclaration:/
-/:$compliance 16:/
-
 CompactConstructorHeader ::= CompactConstructorHeaderName MethodHeaderThrowsClauseopt
 /.$putCase consumeConstructorHeader(); $break ./
 /:$readableName CompactConstructorHeader:/
@@ -1008,6 +1002,9 @@ ConstructorDeclaration ::= ConstructorHeader MethodBody
 -- These rules are added to be able to parse constructors with no body
 ConstructorDeclaration ::= ConstructorHeader ';'
 /.$putCase consumeInvalidConstructorDeclaration() ; $break ./
+ConstructorDeclaration ::= CompactConstructorHeader MethodBody
+/.$putCase consumeConstructorDeclaration(); $break ./
+/:$compliance 16:/
 /:$readableName ConstructorDeclaration:/
 
 -- the rules ExplicitConstructorInvocationopt has been expanded
