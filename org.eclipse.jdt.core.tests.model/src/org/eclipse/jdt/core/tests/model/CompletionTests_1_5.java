@@ -1205,7 +1205,7 @@ public void test0050() throws JavaModelException {
 }
 
 public void test0051() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	ICompilationUnit[] qqTypes = null;
 	try {
@@ -1243,7 +1243,7 @@ public void test0051() throws JavaModelException {
 	}
 }
 public void test0052() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	ICompilationUnit[] qqTypes = null;
 	ICompilationUnit qqType2 = null;
@@ -1305,7 +1305,7 @@ public void test0052() throws JavaModelException {
 	}
 }
 public void test0053() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	ICompilationUnit[] qqTypes = null;
 	try {
@@ -1345,7 +1345,7 @@ public void test0053() throws JavaModelException {
 	}
 }
 public void test0054() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	ICompilationUnit[] qqTypes = null;
 	try {
@@ -1383,7 +1383,7 @@ public void test0054() throws JavaModelException {
 	}
 }
 public void test0055() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	ICompilationUnit[] qqTypes = null;
 	try {
@@ -1422,7 +1422,7 @@ public void test0055() throws JavaModelException {
 	}
 }
 public void test0056() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	ICompilationUnit[] qqTypes = null;
 	try {
@@ -1461,7 +1461,7 @@ public void test0056() throws JavaModelException {
 	}
 }
 public void test0057() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	ICompilationUnit[] qqTypes = null;
 	try {
@@ -1499,7 +1499,7 @@ public void test0057() throws JavaModelException {
 	}
 }
 public void test0058() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	ICompilationUnit[] qqTypes = null;
 	try {
@@ -1537,7 +1537,7 @@ public void test0058() throws JavaModelException {
 	}
 }
 public void test0059() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	ICompilationUnit[] qqTypes = null;
 	ICompilationUnit qqType5 = null;
@@ -1594,7 +1594,7 @@ public void test0059() throws JavaModelException {
 	}
 }
 public void test0060() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	ICompilationUnit[] qqTypes = null;
 	try {
@@ -1625,7 +1625,7 @@ public void test0060() throws JavaModelException {
 	}
 }
 public void test0061() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	ICompilationUnit[] qqTypes = null;
 	try {
@@ -1662,7 +1662,7 @@ public void test0061() throws JavaModelException {
 	}
 }
 public void test0062() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	ICompilationUnit[] qqTypes = null;
 	try {
@@ -1700,7 +1700,7 @@ public void test0062() throws JavaModelException {
 	}
 }
 public void test0063() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	ICompilationUnit[] qqTypes = null;
 	try {
@@ -1738,7 +1738,7 @@ public void test0063() throws JavaModelException {
 	}
 }
 public void test0064() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	ICompilationUnit[] qqTypes = null;
 	try {
@@ -1766,7 +1766,7 @@ public void test0064() throws JavaModelException {
 	}
 }
 public void test0065() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	ICompilationUnit[] qqTypes = null;
 	try {
@@ -1803,7 +1803,7 @@ public void test0065() throws JavaModelException {
 	}
 }
 public void test0066() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	ICompilationUnit[] qqTypes = null;
 	ICompilationUnit qqType8 = null;
@@ -1860,7 +1860,7 @@ public void test0066() throws JavaModelException {
 	}
 }
 public void test0067() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	ICompilationUnit[] qqTypes = null;
 	try {
@@ -1891,7 +1891,7 @@ public void test0067() throws JavaModelException {
 	}
 }
 public void test0068() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	ICompilationUnit[] qqTypes = null;
 	try {
@@ -7954,7 +7954,7 @@ public void test0247() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void test0248() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
@@ -7995,7 +7995,7 @@ public void test0248() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void test0249() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
@@ -8036,7 +8036,7 @@ public void test0249() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void test0250() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
@@ -8074,7 +8074,7 @@ public void test0250() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void test0260() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
@@ -13199,7 +13199,7 @@ public void testFavoriteImports029() throws JavaModelException {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
 public void testFavoriteImports030() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
@@ -13247,7 +13247,7 @@ public void testFavoriteImports030() throws JavaModelException {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
 public void testFavoriteImports031() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
@@ -13295,7 +13295,7 @@ public void testFavoriteImports031() throws JavaModelException {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=178982
 public void testFavoriteImports032() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);
@@ -13620,7 +13620,7 @@ public void testCompletionOnExtends4() throws JavaModelException {
  * To test whether camel case completion works for imported static methods
  */
 public void testCamelCaseStaticMethodImport() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 	this.workingCopies = new ICompilationUnit[2];
 	try {
 		Hashtable options = new Hashtable(this.oldOptions);

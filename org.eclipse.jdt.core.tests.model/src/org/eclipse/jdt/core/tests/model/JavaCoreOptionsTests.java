@@ -13,7 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -21,7 +22,6 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 /**
  * Tests JavaCore options
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class JavaCoreOptionsTests extends ModifyingResourceTests {
 
 public static Test suite() {
@@ -38,16 +38,16 @@ public JavaCoreOptionsTests(String name) {
 	super(name);
 }
 public void test1() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getUnmodifiableOptions();
 	try {
-		Hashtable currentOptions = new Hashtable(options);
+		Map<String, String> currentOptions = new HashMap<>(options);
 		currentOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "HIGH,HIGH");
 		currentOptions.put(JavaCore.COMPILER_TASK_TAGS, "TODO");
 		JavaCore.setOptions(currentOptions);
 
-		Hashtable options2 = JavaCore.getOptions();
-		String taskTagsValue = (String) options2.get(JavaCore.COMPILER_TASK_TAGS);
-		String taskPrioritiesValue = (String) options2.get(JavaCore.COMPILER_TASK_PRIORITIES);
+		Map<String, String> options2 = JavaCore.getOptions();
+		String taskTagsValue = options2.get(JavaCore.COMPILER_TASK_TAGS);
+		String taskPrioritiesValue = options2.get(JavaCore.COMPILER_TASK_PRIORITIES);
 		char[][] taskPriorities = CharOperation.splitAndTrimOn(',', taskPrioritiesValue.toCharArray());
 		char[][] taskTags = CharOperation.splitAndTrimOn(',', taskTagsValue.toCharArray());
 		assertEquals("wrong size", 1, taskPriorities.length);
@@ -57,16 +57,16 @@ public void test1() {
 	}
 }
 public void test2() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getUnmodifiableOptions();
 	try {
-		Hashtable currentOptions = new Hashtable(options);
+		Map<String, String> currentOptions = new HashMap<>(options);
 		currentOptions.remove(JavaCore.COMPILER_TASK_PRIORITIES);
 		currentOptions.remove(JavaCore.COMPILER_TASK_TAGS);
 		JavaCore.setOptions(currentOptions);
 
-		Hashtable options2 = JavaCore.getOptions();
-		String taskTagsValue = (String) options2.get(JavaCore.COMPILER_TASK_TAGS);
-		String taskPrioritiesValue = (String) options2.get(JavaCore.COMPILER_TASK_PRIORITIES);
+		Map<String, String> options2 = JavaCore.getOptions();
+		String taskTagsValue = options2.get(JavaCore.COMPILER_TASK_TAGS);
+		String taskPrioritiesValue = options2.get(JavaCore.COMPILER_TASK_PRIORITIES);
 		assertNull("wrong value", taskTagsValue);
 		assertNull("wrong value", taskPrioritiesValue);
 	} finally {
@@ -74,16 +74,16 @@ public void test2() {
 	}
 }
 public void test3() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getUnmodifiableOptions();
 	try {
-		Hashtable currentOptions = new Hashtable(options);
+		Map<String, String> currentOptions = new HashMap<>(options);
 		currentOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "HIGH,HIGH");
 		currentOptions.remove(JavaCore.COMPILER_TASK_TAGS);
 		JavaCore.setOptions(currentOptions);
 
-		Hashtable options2 = JavaCore.getOptions();
-		String taskTagsValue = (String) options2.get(JavaCore.COMPILER_TASK_TAGS);
-		String taskPrioritiesValue = (String) options2.get(JavaCore.COMPILER_TASK_PRIORITIES);
+		Map<String, String> options2 = JavaCore.getOptions();
+		String taskTagsValue = options2.get(JavaCore.COMPILER_TASK_TAGS);
+		String taskPrioritiesValue = options2.get(JavaCore.COMPILER_TASK_PRIORITIES);
 		assertNull("wrong value", taskTagsValue);
 		assertNull("wrong value", taskPrioritiesValue);
 	} finally {
@@ -91,16 +91,16 @@ public void test3() {
 	}
 }
 public void test4() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getUnmodifiableOptions();
 	try {
-		Hashtable currentOptions = new Hashtable(options);
+		Map<String, String> currentOptions = new HashMap<>(options);
 		currentOptions.remove(JavaCore.COMPILER_TASK_PRIORITIES);
 		currentOptions.put(JavaCore.COMPILER_TASK_TAGS, "TODO");
 		JavaCore.setOptions(currentOptions);
 
-		Hashtable options2 = JavaCore.getOptions();
-		String taskTagsValue = (String) options2.get(JavaCore.COMPILER_TASK_TAGS);
-		String taskPrioritiesValue = (String) options2.get(JavaCore.COMPILER_TASK_PRIORITIES);
+		Map<String, String> options2 = JavaCore.getOptions();
+		String taskTagsValue = options2.get(JavaCore.COMPILER_TASK_TAGS);
+		String taskPrioritiesValue = options2.get(JavaCore.COMPILER_TASK_PRIORITIES);
 		assertNull("wrong value", taskTagsValue);
 		assertNull("wrong value", taskPrioritiesValue);
 	} finally {

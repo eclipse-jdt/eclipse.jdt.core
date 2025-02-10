@@ -17,7 +17,7 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Hashtable;
+import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -406,7 +406,7 @@ public void testBug540541() throws CoreException, IOException {
 	if (!isJRE9) return;
 	IJavaProject project1 = null;
 	IJavaProject project2 = null;
-	Hashtable<String, String> options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getUnmodifiableOptions();
 	try {
 		project1 = createJava9Project("java.base", "9");
 		createFile("/java.base/src/module-info.java",
@@ -656,7 +656,7 @@ public void testBug545687() throws CoreException, IOException {
 	if (!isJRE9)
 		return;
 	IJavaProject p = null;
-	Hashtable<String, String> options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getUnmodifiableOptions();
 	try {
 		p = createJava9Project("testproj", "9");
 		createFolder("/testproj/src/javax/xml/dummy");

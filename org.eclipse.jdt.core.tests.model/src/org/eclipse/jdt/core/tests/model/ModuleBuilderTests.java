@@ -7198,7 +7198,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	public void testBug534624a() throws CoreException, IOException {
 		IJavaProject project = null;
-		Hashtable<String, String> options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
 		try {
 			project = setUpJavaProject("bug.test.b534624");
 			IClasspathEntry[] rawClasspath = project.getRawClasspath();
@@ -7222,7 +7222,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	public void testBug534624b() throws CoreException, IOException {
 		IJavaProject project = null;
-		Hashtable<String, String> options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
 		try {
 			project = setUpJavaProject("bug.test.b534624");
 			IClasspathEntry[] rawClasspath = project.getRawClasspath();
@@ -8315,7 +8315,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	public void testReleaseOption1() throws Exception {
-		Hashtable<String, String> options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
 		IJavaProject p = createJava9Project("p");
 		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_11);
 		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_11);
@@ -8345,7 +8345,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	public void testReleaseOption2() throws Exception {
 		if (!isJRE12)
 			return;
-		Hashtable<String, String> options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
 		IJavaProject p = createJava9Project("p");
 		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_6);
 		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_6);
@@ -8379,7 +8379,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	public void testReleaseOption3() throws Exception {
 		if (isJRE12)
 			return;
-		Hashtable<String, String> options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
 		IJavaProject p = createJava9Project("p");
 		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_11);
 		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_11);
@@ -8410,7 +8410,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testReleaseOption4() throws Exception {
-		Hashtable<String, String> options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
 		IJavaProject p = createJava9Project("p");
 		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
 		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
@@ -8442,7 +8442,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	public void testReleaseOption5() throws Exception {
 		if (!isJRE19) return;
-		Hashtable<String, String> options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
 		IJavaProject p = createJava9Project("p");
 		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_11);
 		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_11);
@@ -8474,7 +8474,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	public void testReleaseOption8() throws Exception {
-		Hashtable<String, String> options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
 		IJavaProject p = createJava9Project("p");
 		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_9);
 		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_9);
@@ -8504,7 +8504,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	public void testReleaseOption9() throws Exception {
 		if (!isJRE10) return;
-		Hashtable<String, String> options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
 		IJavaProject p = createJava9Project("p");
 		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_10);
 		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_10);
@@ -8533,7 +8533,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testReleaseOption10() throws Exception {
-		Hashtable<String, String> options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
 		IJavaProject p = createJava9Project("p");
 		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
 		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
@@ -8569,7 +8569,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testReleaseOption11() throws Exception {
-		Hashtable<String, String> options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
 		IJavaProject p = createJava9Project("p");
 		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
 		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
@@ -8607,7 +8607,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	public void testReleaseOption12() throws Exception {
 		if (!isJRE16)
 			return;
-		Hashtable<String, String> options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
 		IJavaProject p = createJava16Project("p");
 		IClasspathEntry[] rawClasspath = p.getRawClasspath();
 		IClasspathEntry jrtEntry = getJRTLibraryEntry();
@@ -8648,7 +8648,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	public void testReleaseOption13() throws Exception {
 		if (!isJRE12)
 			return;
-		Hashtable<String, String> options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
 		IJavaProject p = createJava9Project("p");
 		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
 		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);

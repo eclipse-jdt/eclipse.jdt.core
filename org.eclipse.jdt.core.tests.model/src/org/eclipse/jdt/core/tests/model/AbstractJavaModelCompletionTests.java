@@ -15,8 +15,9 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import junit.framework.ComparisonFailure;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -32,8 +33,8 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 
-@SuppressWarnings("rawtypes")
 public abstract class AbstractJavaModelCompletionTests extends AbstractJavaModelTests implements RelevanceConstants {
+	@SuppressWarnings("rawtypes")
 	public static List COMPLETION_SUITES = null;
 	protected static IJavaProject COMPLETION_PROJECT;
 	protected static class CompletionResult {
@@ -43,9 +44,9 @@ public abstract class AbstractJavaModelCompletionTests extends AbstractJavaModel
 		public int tokenStart;
 		public int tokenEnd;
 	}
-	Hashtable<String, String> oldOptions;
+	Map<String, String> oldOptions;
 	ICompilationUnit wc = null;
-	private Hashtable<String, String> defaultOptions;
+	private Map<String, String> defaultOptions;
 
 public AbstractJavaModelCompletionTests(String name) {
 	super(name);
@@ -172,7 +173,7 @@ protected CompletionResult snippetContextComplete(
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	this.oldOptions = JavaCore.getDefaultOptions();
-	Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
+	Map<String, String> options = new HashMap<>(this.oldOptions);
 	options.put(JavaCore.CODEASSIST_SUBWORD_MATCH, JavaCore.DISABLED);
 	JavaCore.setOptions(options);
 	this.defaultOptions = options;
@@ -206,7 +207,7 @@ public void tearDownSuite() throws Exception {
 }
 
 @Override
-protected Hashtable<String, String> getDefaultJavaCoreOptions() {
+protected Map<String, String> getDefaultJavaCoreOptions() {
 	return this.defaultOptions;
 }
 

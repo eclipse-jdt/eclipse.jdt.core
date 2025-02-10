@@ -18,8 +18,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -164,7 +164,7 @@ public void testClosedProject() throws JavaModelException, IOException {
 	//----------------------------
 	//           Step 3
 	//----------------------------
-	Hashtable<String, String> options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getUnmodifiableOptions();
 	options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.IGNORE);
 	JavaCore.setOptions(options);
 	env.closeProject(project1Path);
@@ -215,7 +215,7 @@ public void testCorruptBuilder() throws JavaModelException {
 	fullBuild();
 	expectingNoProblems();
 
-	Hashtable<String, String> options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getUnmodifiableOptions();
 	options.put(JavaCore.CORE_JAVA_BUILD_RECREATE_MODIFIED_CLASS_FILES_IN_OUTPUT_FOLDER, JavaCore.ENABLED);
 	JavaCore.setOptions(options);
 
@@ -264,7 +264,7 @@ public void testCorruptBuilder2() throws JavaModelException {
 	env.waitForAutoBuild();
 	expectingNoProblems();
 
-	Hashtable<String, String> options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getUnmodifiableOptions();
 	options.put(JavaCore.CORE_JAVA_BUILD_RECREATE_MODIFIED_CLASS_FILES_IN_OUTPUT_FOLDER, JavaCore.ENABLED);
 	JavaCore.setOptions(options);
 
@@ -920,7 +920,7 @@ public void testMissingProject() throws JavaModelException {
 	//----------------------------
 	//           Step 3
 	//----------------------------
-	Hashtable<String, String> options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getUnmodifiableOptions();
 	options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.IGNORE);
 	JavaCore.setOptions(options);
 	env.waitForManualRefresh();
@@ -971,7 +971,7 @@ public void testMissingOptionalProject() throws JavaModelException {
 	//----------------------------
 	//           Step 3
 	//----------------------------
-	Hashtable<String, String> options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getUnmodifiableOptions();
 	options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.IGNORE);
 	JavaCore.setOptions(options);
 	env.waitForManualRefresh();

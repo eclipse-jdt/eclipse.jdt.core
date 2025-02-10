@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.util.Hashtable;
+import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -36,7 +36,6 @@ import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.util.ExternalAnnotationUtil;
 import org.eclipse.jdt.core.util.ExternalAnnotationUtil.MergeStrategy;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class ExternalAnnotations9Test extends ExternalAnnotations18Test {
 
 	public ExternalAnnotations9Test(String name) {
@@ -73,7 +72,7 @@ public class ExternalAnnotations9Test extends ExternalAnnotations18Test {
 			System.out.println("Skipping ExternalAnnotations9Test.testBug522401(), needs JRE9");
 			return;
 		}
-		Hashtable options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
 		try {
 			setupJavaProject("Test2");
 			this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);

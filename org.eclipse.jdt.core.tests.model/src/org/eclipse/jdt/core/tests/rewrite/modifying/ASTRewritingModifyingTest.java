@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.rewrite.modifying;
 
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 import junit.framework.ComparisonFailure;
 import junit.framework.Test;
@@ -37,14 +37,14 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
+@SuppressWarnings({"rawtypes"})
 public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 
 	protected IJavaProject javaProject;
 	protected IPackageFragmentRoot sourceFolder;
 
-	private Hashtable<String, String> oldOptions;
-	private Hashtable<String, String> defaultOptions;
+	private Map<String, String> oldOptions;
+	private Map<String, String> defaultOptions;
 
 	public ASTRewritingModifyingTest(String name) {
 		super(name);
@@ -68,8 +68,8 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 		this.javaProject = createJavaProject("P", new String[] {"src"}, null, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.sourceFolder = getPackageFragmentRoot("P", "src");
 
-		Hashtable<String, String> options = JavaCore.getOptions();
-		this.oldOptions = (Hashtable)options.clone();
+		this.oldOptions = JavaCore.getUnmodifiableOptions();
+		Map<String, String> options= new HashMap<>(this.oldOptions);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "4");
 		this.defaultOptions = options;
@@ -91,7 +91,7 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 	}
 
 	@Override
-	protected Hashtable<String, String> getDefaultJavaCoreOptions() {
+	protected Map<String, String> getDefaultJavaCoreOptions() {
 		return this.defaultOptions;
 	}
 

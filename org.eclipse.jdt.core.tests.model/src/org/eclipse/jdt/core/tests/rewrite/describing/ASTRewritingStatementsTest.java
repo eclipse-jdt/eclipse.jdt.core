@@ -11,8 +11,8 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.rewrite.describing;
-import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -6608,7 +6608,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		String formattedString = "\tdefault int func2() {\n" +
 								 "\t\treturn 1;\n" +
 								 "\t}";
-		Hashtable options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getOptions();
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
 		TextEdit edit = new ASTRewriteFormatter(null, null, options, "\n").formatString(CodeFormatter.K_CLASS_BODY_DECLARATIONS, buf, 0, buf.length(), 1);
 		edit.apply(doc);
@@ -6621,7 +6621,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		String formattedString = "\tdefault int func2() {\n" +
 								 "\t\treturn 2 * (3 + 4) / 5 / (6 + 7);\n" +
 								 "\t}";
-		Hashtable options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getOptions();
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
 		TextEdit edit = new ASTRewriteFormatter(null, null, options, "\n").formatString(CodeFormatter.K_CLASS_BODY_DECLARATIONS, buf, 0, buf.length(), 1);
 		edit.apply(doc);

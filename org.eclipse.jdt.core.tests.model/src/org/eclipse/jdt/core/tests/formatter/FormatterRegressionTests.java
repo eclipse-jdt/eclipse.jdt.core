@@ -6781,9 +6781,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -6808,9 +6808,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
         preferences.tab_size = 4;
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -6836,9 +6836,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
         preferences.tab_size = 4;
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
 		setPageWidth80(preferences);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -6863,9 +6863,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
         preferences.tab_size = 4;
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -6890,9 +6890,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -6981,9 +6981,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7021,9 +7021,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
         preferences.tab_size = 4;
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7050,9 +7050,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7079,9 +7079,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7108,9 +7108,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7137,9 +7137,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7164,9 +7164,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7191,9 +7191,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7218,9 +7218,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7248,9 +7248,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.keep_enum_constant_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 		preferences.keep_enum_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7278,9 +7278,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.keep_enum_constant_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 		preferences.keep_enum_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7308,9 +7308,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.keep_enum_constant_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
 		preferences.keep_enum_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7338,9 +7338,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.keep_enum_constant_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
 		preferences.keep_enum_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7366,9 +7366,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
         preferences.tab_size = 4;
 		setPageWidth80(preferences);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7391,9 +7391,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
         preferences.tab_size = 4;
 		preferences.alignment_for_arguments_in_annotation = Alignment.M_COMPACT_SPLIT;
 		setPageWidth80(preferences);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7418,9 +7418,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7445,9 +7445,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7472,9 +7472,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7499,9 +7499,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7526,9 +7526,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7553,9 +7553,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7580,9 +7580,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7607,9 +7607,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7636,9 +7636,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.insert_space_after_question_in_wilcard = true;
 		preferences.insert_space_before_question_in_wilcard = true;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7665,9 +7665,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.insert_space_after_question_in_wilcard = true;
 		preferences.insert_space_before_question_in_wilcard = true;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7701,9 +7701,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7727,9 +7727,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7754,9 +7754,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
         preferences.tab_char = DefaultCodeFormatterOptions.SPACE;
         preferences.tab_size = 4;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7799,9 +7799,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
         preferences.tab_char = DefaultCodeFormatterOptions.SPACE;
 		preferences.insert_space_after_closing_angle_bracket_in_type_parameters = true;
 		preferences.brace_position_for_type_declaration = DefaultCodeFormatterConstants.NEXT_LINE;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -7826,9 +7826,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
         preferences.tab_size = 4;
         preferences.tab_char = DefaultCodeFormatterOptions.SPACE;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -8040,9 +8040,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
         preferences.tab_size = 4;
         preferences.tab_char = DefaultCodeFormatterOptions.SPACE;
 		preferences.insert_space_after_comma_in_enum_declarations = false;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -8081,9 +8081,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
         preferences.tab_size = 4;
         preferences.tab_char = DefaultCodeFormatterOptions.SPACE;
 		preferences.insert_space_after_comma_in_enum_declarations = true;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -8137,9 +8137,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
         preferences.tab_char = DefaultCodeFormatterOptions.SPACE;
         preferences.tab_size = 4;
 		preferences.insert_space_after_closing_angle_bracket_in_type_arguments = false;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -8164,9 +8164,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
         preferences.tab_size = 4;
         preferences.tab_char = DefaultCodeFormatterOptions.SPACE;
 		preferences.insert_space_after_closing_angle_bracket_in_type_arguments = true;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -8219,9 +8219,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
         preferences.tab_char = DefaultCodeFormatterOptions.SPACE;
 		preferences.brace_position_for_enum_constant = DefaultCodeFormatterConstants.NEXT_LINE;
 		preferences.brace_position_for_enum_declaration = DefaultCodeFormatterConstants.NEXT_LINE;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -8290,9 +8290,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ENUM_CONSTANTS,
 				DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE, DefaultCodeFormatterConstants.INDENT_DEFAULT));
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -8316,9 +8316,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ENUM_CONSTANTS,
 				DefaultCodeFormatterConstants.createAlignmentValue(true, DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE, DefaultCodeFormatterConstants.INDENT_ON_COLUMN));
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -8384,9 +8384,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=122247: use deprecated option
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION, JavaCore.INSERT);
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -8407,9 +8407,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test576() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -8462,9 +8462,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test581() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -8486,9 +8486,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.insert_space_after_closing_angle_bracket_in_type_arguments = false;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -8509,9 +8509,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test583() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -8536,9 +8536,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "65");
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "4");
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -8563,9 +8563,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "80");
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "4");
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -8590,9 +8590,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "65");
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "4");
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -8617,9 +8617,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "80");
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "4");
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -8640,9 +8640,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test588() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -8811,9 +8811,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 						DefaultCodeFormatterConstants.WRAP_NEXT_PER_LINE,
 						DefaultCodeFormatterConstants.INDENT_DEFAULT));
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -8945,9 +8945,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.indent_body_declarations_compare_to_type_header = true;
 		preferences.keep_annotation_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -8971,9 +8971,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.indent_body_declarations_compare_to_type_header = false;
 		preferences.keep_annotation_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
 		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -9043,9 +9043,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_CLOSING_ANGLE_BRACKET_IN_TYPE_ARGUMENTS, JavaCore.DO_NOT_INSERT);
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -9066,9 +9066,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_CLOSING_ANGLE_BRACKET_IN_TYPE_ARGUMENTS, JavaCore.DO_NOT_INSERT);
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -9088,9 +9088,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test622() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -9110,9 +9110,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test623() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -9132,9 +9132,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test624() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -9167,9 +9167,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test626() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -9191,9 +9191,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.brace_position_for_type_declaration = DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -9214,9 +9214,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.brace_position_for_type_declaration = DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -9237,9 +9237,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.brace_position_for_type_declaration = DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -9613,9 +9613,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.brace_position_for_type_declaration = DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -10414,9 +10414,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.insert_new_line_after_annotation_on_parameter = true;
 		preferences.insert_new_line_after_annotation_on_local_variable = false;
 		preferences.alignment_for_annotations_on_local_variable = Alignment.M_NO_ALIGNMENT;
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -10445,9 +10445,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.insert_new_line_after_annotation_on_local_variable = false;
 		preferences.alignment_for_annotations_on_local_variable = Alignment.M_NO_ALIGNMENT;
 		preferences.line_separator = "\n";//$NON-NLS-1$
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -10477,9 +10477,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.insert_new_line_after_annotation_on_local_variable = false;
 		preferences.alignment_for_annotations_on_local_variable = Alignment.M_NO_ALIGNMENT;
 		setPageWidth80(preferences);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -10513,9 +10513,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.alignment_for_annotations_on_local_variable = Alignment.M_NO_ALIGNMENT;
 		preferences.line_separator = "\n";//$NON-NLS-1$
 		setPageWidth80(preferences);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -10547,9 +10547,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.insert_new_line_after_annotation_on_parameter = true;
 		preferences.insert_new_line_after_annotation_on_local_variable = true;
 		preferences.line_separator = "\n";//$NON-NLS-1$
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -10582,9 +10582,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.insert_new_line_after_annotation_on_local_variable = true;
 		preferences.line_separator = "\n";//$NON-NLS-1$
 		setPageWidth80(preferences);
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
@@ -10608,9 +10608,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.line_separator = "\n";//$NON-NLS-1$
 		setPageWidth80(preferences);
 		// use defaults
-		Hashtable javaCoreOptions = JavaCore.getOptions();
+		Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 		try {
-			Hashtable newJavaCoreOptions = JavaCore.getOptions();
+			Map<String, String> newJavaCoreOptions = new HashMap<>(javaCoreOptions);
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());

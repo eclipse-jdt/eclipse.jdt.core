@@ -13,7 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
@@ -1136,7 +1138,7 @@ public class IncrementalTests extends BuilderTests {
 		Hashtable options = null;
 		try {
 			options = JavaCore.getOptions();
-			Hashtable newOptions = JavaCore.getOptions();
+			Map<String, String> newOptions = new HashMap<>(options);
 			newOptions.put(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
 			newOptions.put(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
 			newOptions.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
