@@ -218,7 +218,15 @@ public final class ASTRewriteFormatter {
 		return IndentManipulation.extractIndentString(currentLine, this.tabWidth, this.indentWidth);
 	}
 
-	public String changeIndent(String code, int codeIndentLevel, String newIndent) {
+    public String getIndentStringWithSpaces(String currentLine) {
+    	int count= 0;
+    	while (count < currentLine.length() && IndentManipulation.isIndentChar(currentLine.charAt(count))) {
+    		++count;
+    	}
+    	return currentLine.substring(0, count);
+    }
+
+    public String changeIndent(String code, int codeIndentLevel, String newIndent) {
 		return IndentManipulation.changeIndent(code, codeIndentLevel, this.tabWidth, this.indentWidth, newIndent, this.lineDelimiter);
 	}
 

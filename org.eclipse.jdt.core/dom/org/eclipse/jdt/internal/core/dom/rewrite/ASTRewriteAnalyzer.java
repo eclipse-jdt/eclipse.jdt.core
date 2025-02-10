@@ -523,6 +523,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	class ListRewriter {
 		protected String constantSeparator;
 		protected int startPos;
+		protected ASTNode parent;
+		protected int nodeIndentPos;
 
 		protected RewriteEvent[] list;
 
@@ -540,11 +542,11 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 
 		protected int getInitialIndent() {
-			return getIndent(this.startPos);
+			return getIndent(this.nodeIndentPos);
 		}
 
 		protected int getInitialIndentInSpaces() {
-			return getIndentInSpaces(this.startPos);
+			return getIndentInSpaces(this.nodeIndentPos);
 		}
 
 		protected int getNodeIndent(int nodeIndex) {
@@ -627,12 +629,28 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				String endKeyword,
 				int offset) {
 			this.startPos= offset;
+			this.nodeIndentPos= offset;
 			this.list= getEvent(parent, property).getChildren();
+			this.parent= parent;
+
+			if (this.parent.getLocationInParent() == TryStatement.BODY_PROPERTY) {
+				TryStatement tryParent= (TryStatement)this.parent.getParent();
+				if (!tryParent.resources().isEmpty()) {
+					List<Expression> resources= tryParent.resources();
+					int lastResourcePos= resources.get(resources.size() - 1).getStartPosition();
+					int lastResourceLine= getLineInformation().getLineOfOffset(lastResourcePos);
+					int blockLine= getLineInformation().getLineOfOffset(this.parent.getStartPosition());
+					if (blockLine == lastResourceLine) {
+						this.nodeIndentPos= tryParent.getStartPosition();
+					}
+				}
+			}
 
 			boolean maintainMinimumIndent= false;
 			if (property == Block.STATEMENTS_PROPERTY ||
 					property == SwitchStatement.STATEMENTS_PROPERTY ||
-					property == SwitchExpression.STATEMENTS_PROPERTY) {
+					property == SwitchExpression.STATEMENTS_PROPERTY ||
+					property == TypeDeclaration.BODY_DECLARATIONS_PROPERTY) {
 				maintainMinimumIndent= true;
 			}
 			int total= this.list.length;
@@ -690,7 +708,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 					if (separatorState == NONE) { // element after last existing element (but not first)
 						doTextInsert(currPos, getSeparatorString(i - 1), editGroup); // insert separator
 						separatorState= NEW;
-						maintainMinimumIndent= false;
+//						maintainMinimumIndent= false;
 					}
 					if (separatorState == NEW || insertAfterSeparator(node)) {
 						if (separatorState == EXISTING) {
@@ -1529,6 +1547,52 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			int minimumIndentInSpaces, TextEditGroup editGroup) {
 		ArrayList markers= new ArrayList();
 		String formatted= this.formatter.getFormattedResult(node, initialIndentLevel, minimumIndentInSpaces, markers);
+		System.out.println("minimumIndentInSpaces is " + minimumIndentInSpaces);
+		System.out.println("initial indent level is " + initialIndentLevel);
+		System.out.println(node);
+		System.out.println(formatted);
+		if (initialIndentLevel * this.formatter.getIndentWidth() < minimumIndentInSpaces) {
+			String[] lines= formatted.split("\n"); //$NON-NLS-1$
+			for (int i= 0; i < markers.size(); i++) {
+				NodeMarker curr= (NodeMarker) markers.get(i);
+				System.out.println("curr offset: " + curr.offset + " curr length: " + curr.length);
+				int offset= curr.offset;
+				int total= 0;
+				int lineCount= 0;
+				int totalPadding= 0;
+				while (total <= offset && lineCount < lines.length) {
+					total += lines[lineCount].length() + 1;
+					String indentOfLine= this.formatter.getIndentStringWithSpaces(lines[lineCount]);
+					int indentOfLineInSpaces= this.formatter.computeIndentInSpaces(indentOfLine);
+					if (indentOfLineInSpaces  < minimumIndentInSpaces) {
+						int padding= minimumIndentInSpaces - indentOfLineInSpaces;
+						totalPadding += padding;
+					}
+					++lineCount;
+				}
+				System.out.println("new offset is " + (offset + totalPadding));
+				curr.setOffset(offset + totalPadding);
+				totalPadding= 0;
+				int markerEnd= offset + curr.length;
+				System.out.println("marker end is " + markerEnd);
+				System.out.println("total is " + total);
+				while (total <= markerEnd && lineCount < lines.length) {
+					total += lines[lineCount].length() + 1;
+					String indentOfLine= this.formatter.getIndentStringWithSpaces(lines[lineCount]);
+					int indentOfLineInSpaces= this.formatter.computeIndentInSpaces(indentOfLine);
+					if (indentOfLineInSpaces < minimumIndentInSpaces) {
+						int padding= minimumIndentInSpaces - indentOfLineInSpaces;
+						totalPadding += padding;
+					}
+					++lineCount;
+				}
+				System.out.println("new length is " + (curr.length + totalPadding));
+				curr.setLength(curr.length + totalPadding);
+			}
+			System.out.println(formatted);
+			formatted= reindent(minimumIndentInSpaces, lines, initialIndentLevel);
+			System.out.println(formatted);
+		}
 		int currPos= 0;
 		if (removeLeadingIndent) {
 			while (currPos < formatted.length() && ScannerHelper.isWhitespace(formatted.charAt(currPos))) {
@@ -1541,11 +1605,6 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			int offset= curr.offset;
 			if (offset >= currPos) {
 				String insertStr= formatted.substring(currPos, offset);
-				int indentInSpaces= this.formatter.computeIndentInSpaces(insertStr);
-				if (indentInSpaces < minimumIndentInSpaces && !removeLeadingIndent) {
-					insertStr= reindent(insertStr, minimumIndentInSpaces);
-				}
-				removeLeadingIndent= false;
 				doTextInsert(insertOffset, insertStr, editGroup); // insert until the marker's begin
 			} else {
 				// already processed
@@ -1586,8 +1645,61 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						doTextInsert(insertOffset, getLineDelimiter(), editGroup);
 					}
 				} else if (data instanceof StringPlaceholderData) { // replace with a placeholder
+					System.out.println(minimumIndentInSpaces);
+					System.out.println(initialIndentLevel);
+					System.out.println(">" + destIndentString + "<");
+					System.out.println("lineOffset is " + lineOffset);
 					String code= ((StringPlaceholderData) data).code;
-					String str= this.formatter.changeIndent(code, 0, destIndentString);
+					System.out.println(code);
+					int destIndentStringInSpaces= this.formatter.computeIndentInSpaces(destIndentString);
+					String lines[]= code.split("\n"); //$NON-NLS-1$
+					System.out.println("lines count is " + lines.length);
+					boolean needIndent= false;
+					if (minimumIndentInSpaces == destIndentStringInSpaces &&
+							minimumIndentInSpaces % this.formatter.getIndentWidth() != 0 && lines.length > 1) {
+						int modTabWidth= this.formatter.computeIndentInSpaces(destIndentString) % this.formatter.getIndentWidth();
+						String trimmedDestIndentString= destIndentString.substring(0, destIndentString.length() - modTabWidth);
+						StringBuilder b= new StringBuilder();
+						b.append(lines[0] + "\n"); //$NON-NLS-1$
+						for (int j= 1; j < lines.length - 1; ++j) {
+							String line= lines[j];
+							if (!line.isEmpty()) {
+								String indentOfLine= this.formatter.getIndentStringWithSpaces(line);
+								if (this.formatter.computeIndentInSpaces(indentOfLine) < minimumIndentInSpaces) {
+									line= indentOfLine + destIndentString + line.substring(indentOfLine.length());
+								} else {
+									line= indentOfLine + trimmedDestIndentString + line.substring(indentOfLine.length());
+								}
+								b.append(line + "\n"); //$NON-NLS-1$
+							}
+						}
+						String line= lines[lines.length - 1];
+						String indentOfLine= this.formatter.getIndentStringWithSpaces(line);
+						if (this.formatter.computeIndentInSpaces(indentOfLine) < minimumIndentInSpaces) {
+							line= indentOfLine + destIndentString + line.substring(indentOfLine.length());
+						} else {
+							line= indentOfLine + trimmedDestIndentString + line.substring(indentOfLine.length());
+						}
+						b.append(line);
+						code= b.toString();
+//					if ((lineOffset != 0 || minimumIndentInSpaces > initialIndentLevel * this.formatter.getIndentWidth())
+//							&& minimumIndentInSpaces != 0 && lines.length > 1) {
+//						code= reindent(minimumIndentInSpaces, lines, false);
+//						for (int j= 1; j < lines.length; ++j) {
+//							if (!lines[j].isEmpty()) {
+//								System.out.println(":" + lines[j] + ":");
+//								if (this.formatter.computeIndentInSpaces(lines[j]) < minimumIndentInSpaces) {
+//
+//									System.out.println("setting true");
+//									break;
+//								}
+//							}
+//						}
+					} else {
+						needIndent= true;
+					}
+					String str= needIndent ? this.formatter.changeIndent(code, 0, destIndentString) : code;
+					System.out.println(str);
 					doTextInsert(insertOffset, str, editGroup);
 					currPos= offset + curr.length; // continue to insert after the replaced string
 				}
@@ -1596,33 +1708,40 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 		if (currPos < formatted.length()) {
 			String insertStr= formatted.substring(currPos);
-			String[] lines= insertStr.split("\n"); //$NON-NLS-1$
-			boolean mustReformInsert= false;
-			for (int i= 0; i < lines.length; ++i) {
-				if (!lines[i].isEmpty()) {
-					int indentInSpaces= this.formatter.computeIndentInSpaces(lines[i]) + this.formatter.getIndentWidth() * initialIndentLevel;
-					if (indentInSpaces < minimumIndentInSpaces) {
-						lines[i]= reindent(lines[i], minimumIndentInSpaces);
-						mustReformInsert= true;
-					}
-				}
-			}
-			if (mustReformInsert) {
-				StringBuilder s= new StringBuilder();
-				for (int i= 0; i < lines.length - 1; ++i) {
-					s.append(lines[i] + "\n"); //$NON-NLS-1$
-				}
-				s.append(lines[lines.length - 1]);
-				insertStr= s.toString();
-			}
 			doTextInsert(insertOffset, insertStr, editGroup);
 		}
 	}
 
-	private String reindent(String line, int minimumIndentInSpaces) {
-		String originalIndent= this.formatter.getIndentString(line);
-		String newIndent= getIndentString(line, minimumIndentInSpaces);
-		return newIndent + line.substring(originalIndent.length());
+	private String reindent(int minimumIndentInSpaces, String[] lines, int initialIndentLevel) {
+		StringBuilder s= new StringBuilder();
+		for (int i= 0; i < lines.length - 1; ++i) {
+			String line= lines[i];
+			if (!line.isEmpty()) {
+				int indentOfLineInSpaces= this.formatter.computeIndentInSpaces(line);
+				if (indentOfLineInSpaces < minimumIndentInSpaces) {
+					String indentOfLine= this.formatter.getIndentStringWithSpaces(line);
+					int padding= minimumIndentInSpaces - indentOfLineInSpaces;
+					line= indentOfLine +
+							" ".repeat(padding) + //$NON-NLS-1$
+							line.substring(indentOfLine.length());
+				}
+			}
+			s.append(line + "\n"); //$NON-NLS-1$
+		}
+		String line= lines[lines.length - 1];
+		System.out.println("last line:<" + line + ">");
+		if (!line.isEmpty()) {
+			int indentOfLineInSpaces= this.formatter.computeIndentInSpaces(line);
+			if (indentOfLineInSpaces < minimumIndentInSpaces) {
+				String indentOfLine= this.formatter.getIndentStringWithSpaces(line);
+				int padding= minimumIndentInSpaces - indentOfLineInSpaces;
+				line= indentOfLine +
+						" ".repeat(padding) + //$NON-NLS-1$
+						line.substring(indentOfLine.length());
+			}
+		}
+		s.append(line);
+		return s.toString();
 	}
 
 	private boolean needsNewLineForLineComment(ASTNode node, String formatted, int offset) {
