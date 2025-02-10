@@ -13,18 +13,21 @@
 
 package org.eclipse.jdt.internal.javac;
 
+import org.eclipse.jdt.core.compiler.CompilationProgress;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.CompilerConfiguration;
-import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.ICompilerFactory;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 
 public class JavacCompilerFactory implements ICompilerFactory {
 
+	@Override
 	public Compiler newCompiler(INameEnvironment environment, IErrorHandlingPolicy policy,
-		CompilerConfiguration compilerConfig, ICompilerRequestor requestor, IProblemFactory problemFactory) {
-		return new JavacCompiler(environment, policy, compilerConfig, requestor, problemFactory);
+			CompilerConfiguration compilerConfig, ICompilerRequestor requestor, IProblemFactory problemFactory,
+			CompilationProgress compilationProgress) {
+		return new JavacCompiler(environment, policy, compilerConfig, requestor, problemFactory, compilationProgress);
 	}
 }

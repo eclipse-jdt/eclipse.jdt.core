@@ -33,6 +33,7 @@ import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.CompilationProgress;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.Compiler;
@@ -73,12 +74,11 @@ public class JavacCompiler extends Compiler {
 	Map<JavaFileObject, ICompilationUnit> fileObjectToCUMap = new HashMap<>();
 
 	public JavacCompiler(INameEnvironment environment, IErrorHandlingPolicy policy, CompilerConfiguration compilerConfig,
-			ICompilerRequestor requestor, IProblemFactory problemFactory) {
+			ICompilerRequestor requestor, IProblemFactory problemFactory, CompilationProgress compilationProgress) {
 		super(environment, policy, compilerConfig.compilerOptions(), requestor, problemFactory);
 		this.compilerConfig = JavacConfig.createFrom(compilerConfig);
 		this.problemFactory = problemFactory;
-		// next is ugly workaround for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3370
-		this.progress = new BuildNotifierCompilationProgress(requestor);
+		this.progress = compilationProgress;
 	}
 
 	@Override
