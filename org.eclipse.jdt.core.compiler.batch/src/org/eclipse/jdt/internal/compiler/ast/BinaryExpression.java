@@ -21,14 +21,11 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class BinaryExpression extends OperatorExpression {
 
@@ -47,6 +44,17 @@ public class BinaryExpression extends OperatorExpression {
 
 	public Expression left, right;
 	public Constant optimizedBooleanConstant;
+	public MethodBinding appropriateMethodForOverload = null;
+	public MethodBinding syntheticAccessor = null;
+	public int overloadedExpresionSide = -1;
+	protected static final int overloadedLeftSide = 0;
+	protected static final int overloadedRightSide = 1;
+	public TypeBinding expectedType = null;//Operator overload, for generic function call
+
+	@Override
+	public void setExpectedType(TypeBinding expectedType) {
+		this.expectedType = expectedType;
+	}
 
 public BinaryExpression(Expression left, Expression right, int operator) {
 	this.left = left;
@@ -73,6 +81,13 @@ public BinaryExpression(BinaryExpression expression) {
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	// keep implementation in sync with CombinedBinaryExpression#analyseCode
 	try {
+		if (this.appropriateMethodForOverload != null) {
+			MethodBinding original = this.appropriateMethodForOverload.original();
+			if (original.isPrivate()) {
+				this.syntheticAccessor = ((SourceTypeBinding)original.declaringClass).addSyntheticMethod(original, false);
+				currentScope.problemReporter().needToEmulateMethodAccess(original, this);
+			}
+		}
 		if (this.resolvedType.id == TypeIds.T_JavaLangString) {
 			return this.right.analyseCode(
 								currentScope, flowContext,
@@ -153,6 +168,11 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 		return;
 	}
+	if (this.appropriateMethodForOverload != null){
+		this.generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+		codeStream.recordPositionsFrom(pc, this.sourceStart);
+		return;
+	}
 	switch ((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) {
 		case PLUS :
 			switch (this.bits & ASTNode.ReturnTypeIDMASK) {
@@ -189,6 +209,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					if (valueRequired)
 						codeStream.fadd();
 					break;
+				default:
+					generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+					break;
 			}
 			break;
 		case MINUS :
@@ -217,6 +240,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					if (valueRequired)
 						codeStream.fsub();
 					break;
+				default:
+					generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+					break;
 			}
 			break;
 		case MULTIPLY :
@@ -244,6 +270,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					this.right.generateCode(currentScope, codeStream, valueRequired);
 					if (valueRequired)
 						codeStream.fmul();
+					break;
+				default:
+					generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
 					break;
 			}
 			break;
@@ -275,7 +304,19 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					if (valueRequired)
 						codeStream.fdiv();
 					break;
+				default:
+					generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+					break;
 			}
+			break;
+		case CAT :
+			generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+			break;
+		case EQUAL_EQUAL_EQUAL :
+			generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+			break;
+		case NOT_EQUAL_EQUAL :
+			generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
 			break;
 		case REMAINDER :
 			switch (this.bits & ASTNode.ReturnTypeIDMASK) {
@@ -304,6 +345,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					this.right.generateCode(currentScope, codeStream, valueRequired);
 					if (valueRequired)
 						codeStream.frem();
+					break;
+				default:
+					generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
 					break;
 			}
 			break;
@@ -360,6 +404,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 				case T_boolean : // logical and
 					generateLogicalAnd(currentScope, codeStream, valueRequired);
 					break;
+				default:
+					generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+					break;
 			}
 			break;
 		case OR :
@@ -406,6 +453,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					break;
 				case T_boolean : // logical or
 					generateLogicalOr(currentScope, codeStream, valueRequired);
+					break;
+				default:
+					generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
 					break;
 			}
 			break;
@@ -454,6 +504,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 				case T_boolean :
 					generateLogicalXor(currentScope, 	codeStream, valueRequired);
 					break;
+				default:
+					generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+					break;
 			}
 			break;
 		case LEFT_SHIFT :
@@ -469,6 +522,10 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					this.right.generateCode(currentScope, codeStream, valueRequired);
 					if (valueRequired)
 						codeStream.lshl();
+					break;
+				default:
+					generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+					break;
 			}
 			break;
 		case RIGHT_SHIFT :
@@ -484,6 +541,10 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					this.right.generateCode(currentScope, codeStream, valueRequired);
 					if (valueRequired)
 						codeStream.lshr();
+					break;
+				default:
+					generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+					break;
 			}
 			break;
 		case UNSIGNED_RIGHT_SHIFT :
@@ -499,9 +560,17 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					this.right.generateCode(currentScope, codeStream, valueRequired);
 					if (valueRequired)
 						codeStream.lushr();
+					break;
+				default:
+					generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+					break;
 			}
 			break;
 		case GREATER :
+			if ((this.bits & ASTNode.ReturnTypeIDMASK) != T_boolean) {
+				generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+				break;
+			}
 			BranchLabel falseLabel, endLabel;
 			generateOptimizedGreaterThan(
 				currentScope,
@@ -525,6 +594,10 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			}
 			break;
 		case GREATER_EQUAL :
+			if ((this.bits & ASTNode.ReturnTypeIDMASK) != T_boolean) {
+				generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+				break;
+			}
 			generateOptimizedGreaterThanOrEqual(
 				currentScope,
 				codeStream,
@@ -547,6 +620,10 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			}
 			break;
 		case LESS :
+			if ((this.bits & ASTNode.ReturnTypeIDMASK) != T_boolean) {
+				generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+				break;
+			}
 			generateOptimizedLessThan(
 				currentScope,
 				codeStream,
@@ -569,6 +646,10 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			}
 			break;
 		case LESS_EQUAL :
+			if ((this.bits & ASTNode.ReturnTypeIDMASK) != T_boolean) {
+				generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+				break;
+			}
 			generateOptimizedLessThanOrEqual(
 				currentScope,
 				codeStream,
@@ -589,6 +670,10 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					endLabel.place();
 				}
 			}
+			break;
+		default:
+			generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+			break;
 	}
 	if (valueRequired) {
 		codeStream.generateImplicitConversion(this.implicitConversion);
@@ -729,27 +814,39 @@ public void generateOptimizedGreaterThan(BlockScope currentScope, CodeStream cod
 		}
 	}
 	// default comparison
-	this.left.generateCode(currentScope, codeStream, valueRequired);
-	this.right.generateCode(currentScope, codeStream, valueRequired);
 	if (valueRequired) {
 		if (falseLabel == null) {
 			if (trueLabel != null) {
 				// implicit falling through the FALSE case
 				switch (promotedTypeID) {
 					case T_int :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.if_icmpgt(trueLabel);
 						break;
 					case T_float :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.fcmpl();
 						codeStream.ifgt(trueLabel);
 						break;
 					case T_long :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.lcmp();
 						codeStream.ifgt(trueLabel);
 						break;
 					case T_double :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.dcmpl();
 						codeStream.ifgt(trueLabel);
+						break;
+					default:
+						generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+						codeStream.generateInlinedValue(true);
+						codeStream.if_icmpeq(trueLabel);
+						break;
 				}
 				// reposition the endPC
 				codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd);
@@ -760,19 +857,33 @@ public void generateOptimizedGreaterThan(BlockScope currentScope, CodeStream cod
 				// implicit falling through the TRUE case
 				switch (promotedTypeID) {
 					case T_int :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.if_icmple(falseLabel);
 						break;
 					case T_float :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.fcmpl();
 						codeStream.ifle(falseLabel);
 						break;
 					case T_long :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.lcmp();
 						codeStream.ifle(falseLabel);
 						break;
 					case T_double :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.dcmpl();
 						codeStream.ifle(falseLabel);
+						break;
+					default:
+						generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+						codeStream.generateInlinedValue(true);
+						codeStream.if_icmpne(falseLabel);
+						break;
 				}
 				// reposition the endPC
 				codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd);
@@ -837,27 +948,39 @@ public void generateOptimizedGreaterThanOrEqual(BlockScope currentScope, CodeStr
 		}
 	}
 	// default comparison
-	this.left.generateCode(currentScope, codeStream, valueRequired);
-	this.right.generateCode(currentScope, codeStream, valueRequired);
 	if (valueRequired) {
 		if (falseLabel == null) {
 			if (trueLabel != null) {
 				// implicit falling through the FALSE case
 				switch (promotedTypeID) {
 					case T_int :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.if_icmpge(trueLabel);
 						break;
 					case T_float :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.fcmpl();
 						codeStream.ifge(trueLabel);
 						break;
 					case T_long :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.lcmp();
 						codeStream.ifge(trueLabel);
 						break;
 					case T_double :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.dcmpl();
 						codeStream.ifge(trueLabel);
+						break;
+					default:
+						generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+						codeStream.generateInlinedValue(true);
+						codeStream.if_icmpeq(trueLabel);
+						break;
 				}
 				// reposition the endPC
 				codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd);
@@ -868,19 +991,33 @@ public void generateOptimizedGreaterThanOrEqual(BlockScope currentScope, CodeStr
 				// implicit falling through the TRUE case
 				switch (promotedTypeID) {
 					case T_int :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.if_icmplt(falseLabel);
 						break;
 					case T_float :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.fcmpl();
 						codeStream.iflt(falseLabel);
 						break;
 					case T_long :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.lcmp();
 						codeStream.iflt(falseLabel);
 						break;
 					case T_double :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.dcmpl();
 						codeStream.iflt(falseLabel);
+						break;
+					default:
+						generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+						codeStream.generateInlinedValue(true);
+						codeStream.if_icmpne(falseLabel);
+						break;
 				}
 				// reposition the endPC
 				codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd);
@@ -943,27 +1080,39 @@ public void generateOptimizedLessThan(BlockScope currentScope, CodeStream codeSt
 		}
 	}
 	// default comparison
-	this.left.generateCode(currentScope, codeStream, valueRequired);
-	this.right.generateCode(currentScope, codeStream, valueRequired);
 	if (valueRequired) {
 		if (falseLabel == null) {
 			if (trueLabel != null) {
 				// implicit falling through the FALSE case
 				switch (promotedTypeID) {
 					case T_int :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.if_icmplt(trueLabel);
 						break;
 					case T_float :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.fcmpg();
 						codeStream.iflt(trueLabel);
 						break;
 					case T_long :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.lcmp();
 						codeStream.iflt(trueLabel);
 						break;
 					case T_double :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.dcmpg();
 						codeStream.iflt(trueLabel);
+						break;
+					default:
+						generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+						codeStream.generateInlinedValue(true);
+						codeStream.if_icmpeq(trueLabel);
+						break;
 				}
 				codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd);
 				return;
@@ -973,19 +1122,33 @@ public void generateOptimizedLessThan(BlockScope currentScope, CodeStream codeSt
 				// implicit falling through the TRUE case
 				switch (promotedTypeID) {
 					case T_int :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.if_icmpge(falseLabel);
 						break;
 					case T_float :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.fcmpg();
 						codeStream.ifge(falseLabel);
 						break;
 					case T_long :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.lcmp();
 						codeStream.ifge(falseLabel);
 						break;
 					case T_double :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.dcmpg();
 						codeStream.ifge(falseLabel);
+						break;
+					default:
+						generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+						codeStream.generateInlinedValue(true);
+						codeStream.if_icmpne(falseLabel);
+						break;
 				}
 				codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd);
 				return;
@@ -1049,27 +1212,39 @@ public void generateOptimizedLessThanOrEqual(BlockScope currentScope, CodeStream
 		}
 	}
 	// default comparison
-	this.left.generateCode(currentScope, codeStream, valueRequired);
-	this.right.generateCode(currentScope, codeStream, valueRequired);
 	if (valueRequired) {
 		if (falseLabel == null) {
 			if (trueLabel != null) {
 				// implicit falling through the FALSE case
 				switch (promotedTypeID) {
 					case T_int :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.if_icmple(trueLabel);
 						break;
 					case T_float :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.fcmpg();
 						codeStream.ifle(trueLabel);
 						break;
 					case T_long :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.lcmp();
 						codeStream.ifle(trueLabel);
 						break;
 					case T_double :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.dcmpg();
 						codeStream.ifle(trueLabel);
+						break;
+					default:
+						generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+						codeStream.generateInlinedValue(true);
+						codeStream.if_icmpeq(trueLabel);
+						break;
 				}
 				// reposition the endPC
 				codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd);
@@ -1080,19 +1255,33 @@ public void generateOptimizedLessThanOrEqual(BlockScope currentScope, CodeStream
 				// implicit falling through the TRUE case
 				switch (promotedTypeID) {
 					case T_int :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.if_icmpgt(falseLabel);
 						break;
 					case T_float :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.fcmpg();
 						codeStream.ifgt(falseLabel);
 						break;
 					case T_long :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.lcmp();
 						codeStream.ifgt(falseLabel);
 						break;
 					case T_double :
+						this.left.generateCode(currentScope, codeStream, valueRequired);
+						this.right.generateCode(currentScope, codeStream, valueRequired);
 						codeStream.dcmpg();
 						codeStream.ifgt(falseLabel);
+						break;
+					default:
+						generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+						codeStream.generateInlinedValue(true);
+						codeStream.if_icmpne(falseLabel);
+						break;
 				}
 				// reposition the endPC
 				codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd);
@@ -1146,10 +1335,16 @@ public void generateLogicalAnd(BlockScope currentScope, CodeStream codeStream, b
 		}
 	}
 	// default case
-	this.left.generateCode(currentScope, codeStream, valueRequired);
-	this.right.generateCode(currentScope, codeStream, valueRequired);
-	if (valueRequired) {
-		codeStream.iand();
+	boolean custom = (TypeBinding.notEquals(this.right.resolvedType, TypeBinding.BOOLEAN) && this.right.resolvedType.id != TypeIds.T_JavaLangBoolean)
+		|| (TypeBinding.notEquals(this.left.resolvedType, TypeBinding.BOOLEAN) && this.left.resolvedType.id != TypeIds.T_JavaLangBoolean);
+	if (custom) {
+		generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+	} else {
+		this.left.generateCode(currentScope, codeStream, valueRequired);
+		this.right.generateCode(currentScope, codeStream, valueRequired);
+		if (valueRequired) {
+			codeStream.iand();
+		}
 	}
 	codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd);
 }
@@ -1194,10 +1389,16 @@ public void generateLogicalOr(BlockScope currentScope, CodeStream codeStream, bo
 		}
 	}
 	// default case
-	this.left.generateCode(currentScope, codeStream, valueRequired);
-	this.right.generateCode(currentScope, codeStream, valueRequired);
-	if (valueRequired) {
-		codeStream.ior();
+	boolean custom = (TypeBinding.notEquals(this.right.resolvedType, TypeBinding.BOOLEAN) && this.right.resolvedType.id != TypeIds.T_JavaLangBoolean)
+		|| (TypeBinding.notEquals(this.left.resolvedType, TypeBinding.BOOLEAN) && this.left.resolvedType.id != TypeIds.T_JavaLangBoolean);
+	if (custom) {
+		generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+	} else {
+		this.left.generateCode(currentScope, codeStream, valueRequired);
+		this.right.generateCode(currentScope, codeStream, valueRequired);
+		if (valueRequired) {
+			codeStream.ior();
+		}
 	}
 	codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd);
 }
@@ -1246,10 +1447,16 @@ public void generateLogicalXor(BlockScope currentScope,	CodeStream codeStream, b
 		}
 	}
 	// default case
-	this.left.generateCode(currentScope, codeStream, valueRequired);
-	this.right.generateCode(currentScope, codeStream, valueRequired);
-	if (valueRequired) {
-		codeStream.ixor();
+	boolean custom = (TypeBinding.notEquals(this.right.resolvedType, TypeBinding.BOOLEAN) && this.right.resolvedType.id != TypeIds.T_JavaLangBoolean)
+		|| (TypeBinding.notEquals(this.left.resolvedType, TypeBinding.BOOLEAN) && this.left.resolvedType.id != TypeIds.T_JavaLangBoolean);
+	if (custom) {
+		generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+	} else{
+		this.left.generateCode(currentScope, codeStream, valueRequired);
+		this.right.generateCode(currentScope, codeStream, valueRequired);
+		if (valueRequired) {
+			codeStream.ixor();
+		}
 	}
 	codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd);
 }
@@ -1342,10 +1549,20 @@ public void generateOptimizedLogicalAnd(BlockScope currentScope, CodeStream code
 		}
 	}
 	// default case
-	this.left.generateCode(currentScope, codeStream, valueRequired);
-	this.right.generateCode(currentScope, codeStream, valueRequired);
+	boolean custom = (TypeBinding.notEquals(this.right.resolvedType, TypeBinding.BOOLEAN) && this.right.resolvedType.id != TypeIds.T_JavaLangBoolean)
+		|| (TypeBinding.notEquals(this.left.resolvedType, TypeBinding.BOOLEAN) && this.left.resolvedType.id != TypeIds.T_JavaLangBoolean);
+	if (custom) {
+		generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+	} else {
+		this.left.generateCode(currentScope, codeStream, valueRequired);
+		this.right.generateCode(currentScope, codeStream, valueRequired);
+	}
 	if (valueRequired) {
-		codeStream.iand();
+		if (custom) {
+			codeStream.ineg();
+		} else {
+			codeStream.iand();
+		}
 		if (falseLabel == null) {
 			if (trueLabel != null) {
 				// implicit falling through the FALSE case
@@ -1451,10 +1668,20 @@ public void generateOptimizedLogicalOr(BlockScope currentScope, CodeStream codeS
 		}
 	}
 	// default case
-	this.left.generateCode(currentScope, codeStream, valueRequired);
-	this.right.generateCode(currentScope, codeStream, valueRequired);
+	boolean custom = (TypeBinding.notEquals(this.right.resolvedType, TypeBinding.BOOLEAN) && this.right.resolvedType.id != TypeIds.T_JavaLangBoolean)
+		|| (TypeBinding.notEquals(this.left.resolvedType, TypeBinding.BOOLEAN) && this.left.resolvedType.id != TypeIds.T_JavaLangBoolean);
+	if (custom) {
+		generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+	} else {
+		this.left.generateCode(currentScope, codeStream, valueRequired);
+		this.right.generateCode(currentScope, codeStream, valueRequired);
+	}
 	if (valueRequired) {
-		codeStream.ior();
+		if (custom) {
+			codeStream.ineg();
+		} else {
+			codeStream.ior();
+		}
 		if (falseLabel == null) {
 			if (trueLabel != null) {
 				// implicit falling through the FALSE case
@@ -1544,10 +1771,20 @@ public void generateOptimizedLogicalXor(BlockScope currentScope, CodeStream code
 		}
 	}
 	// default case
-	this.left.generateCode(currentScope, codeStream, valueRequired);
-	this.right.generateCode(currentScope, codeStream, valueRequired);
+	boolean custom = (TypeBinding.notEquals(this.right.resolvedType, TypeBinding.BOOLEAN) && this.right.resolvedType.id != TypeIds.T_JavaLangBoolean)
+		|| (TypeBinding.notEquals(this.left.resolvedType, TypeBinding.BOOLEAN) && this.left.resolvedType.id != TypeIds.T_JavaLangBoolean);
+	if (custom) {
+		generateOperatorOverloadCode(currentScope, codeStream, valueRequired);
+	} else {
+		this.left.generateCode(currentScope, codeStream, valueRequired);
+		this.right.generateCode(currentScope, codeStream, valueRequired);
+	}
 	if (valueRequired) {
-		codeStream.ixor();
+		if (custom) {
+			codeStream.ineg();
+		} else {
+			codeStream.ixor();
+		}
 		if (falseLabel == null) {
 			if (trueLabel != null) {
 				// implicit falling through the FALSE case
@@ -1646,9 +1883,11 @@ public void generateOptimizedStringConcatenationCreation(BlockScope blockScope, 
 	}
 }
 
+boolean isCompactable = true;
+
 @Override
 public boolean isCompactableOperation() {
-	return true;
+	return this.isCompactable;
 }
 
 /**
@@ -1826,6 +2065,225 @@ public StringBuilder printExpressionNoParenthesis(int indent, StringBuilder outp
 	return this.right.printExpression(0, output);
 }
 
+public String getMethodName() {
+	switch ((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) {
+		case PLUS:
+			return "add"; //$NON-NLS-1$
+		case MINUS :
+			return "sub"; //$NON-NLS-1$
+		case MULTIPLY :
+			return "mul"; //$NON-NLS-1$
+		case DIVIDE :
+			return "div"; //$NON-NLS-1$
+		case CAT :
+			return "cat"; //$NON-NLS-1$
+		case REMAINDER :
+			return "mod"; //$NON-NLS-1$
+		case AND :
+			return "and"; //$NON-NLS-1$
+		case OR :
+			return "or"; //$NON-NLS-1$
+		case XOR :
+			return "xor"; //$NON-NLS-1$
+		case EQUAL_EQUAL_EQUAL :
+			return "eq"; //$NON-NLS-1$
+		case NOT_EQUAL_EQUAL :
+			return "neq"; //$NON-NLS-1$
+		case LEFT_SHIFT:
+			return "shiftLeft"; //$NON-NLS-1$
+		case RIGHT_SHIFT:
+			return "shiftRight"; //$NON-NLS-1$
+		case UNSIGNED_RIGHT_SHIFT:
+			return "unsignedShiftRight"; //$NON-NLS-1$
+		case GREATER:
+			return "gt"; //$NON-NLS-1$
+		case GREATER_EQUAL:
+			return "gte"; //$NON-NLS-1$
+		case LESS:
+			return "lt"; //$NON-NLS-1$
+		case LESS_EQUAL:
+			return "lte"; //$NON-NLS-1$
+		case EQUAL_EQUAL:
+			return "CECINESTPASUNOPERATEUR_eq"; //$NON-NLS-1$
+		case NOT_EQUAL:
+			return "CECINESTPASUNOPERATEUR_neq";  //$NON-NLS-1$
+	}
+	return ""; //$NON-NLS-1$
+}
+
+public MethodBinding getMethodBindingForOverload(BlockScope scope) {
+	TypeBinding tb_right = null;
+	TypeBinding tb_left = null;
+
+	if(this.left.resolvedType == null)
+		tb_left = this.left.resolveType(scope);
+	else
+		tb_left = this.left.resolvedType;
+
+	if(this.right.resolvedType == null)
+		tb_right = this.right.resolveType(scope);
+	else
+		tb_right = this.right.resolvedType;
+
+	final TypeBinding expectedTypeLocal = this.expectedType;
+	OperatorOverloadInvocationSite fakeInvocationSite = new OperatorOverloadInvocationSite(){
+		@Override
+		public TypeBinding[] genericTypeArguments() { return null; }
+		@Override
+		public boolean isSuperAccess(){ return false; }
+		@Override
+		public boolean isTypeAccess() { return true; }
+		@Override
+		public void setActualReceiverType(ReferenceBinding actualReceiverType) { /* ignore */}
+		@Override
+		public void setDepth(int depth) { /* ignore */}
+		@Override
+		public void setFieldIndex(int depth){ /* ignore */}
+		@Override
+		public int sourceStart() { return 0; }
+		@Override
+		public int sourceEnd() { return 0; }
+		@Override
+		public TypeBinding getExpectedType() {
+			return expectedTypeLocal;
+		}
+		@Override
+		public TypeBinding invocationTargetType() { return null; }
+		@Override
+		public boolean receiverIsImplicitThis() { return false; }
+		@Override
+		public InferenceContext18 freshInferenceContext(Scope s) { return null; }
+		@Override
+		public ExpressionContext getExpressionContext() { return null; }
+		@Override
+		public boolean isQualifiedSuper() { return false; }
+		@Override
+		public boolean checkingPotentialCompatibility() { return false; }
+		@Override
+		public void acceptPotentiallyCompatibleMethods(MethodBinding[] methods) {/* ignore */}
+	};
+
+	String ms = getMethodName();
+
+	//Object <op> Object
+	if (!tb_left.isBoxedPrimitiveType() && !tb_left.isBaseType() && !tb_right.isBoxedPrimitiveType() && !tb_right.isBaseType()){
+		MethodBinding mbLeft = scope.getMethod(tb_left, ms.toCharArray(), new TypeBinding[]{tb_right},  fakeInvocationSite);
+		MethodBinding mbRight = scope.getMethod(tb_right, (ms + "AsRHS").toCharArray(), new TypeBinding[]{tb_left},  fakeInvocationSite); //$NON-NLS-1$
+		if(mbLeft.isValidBinding() && mbRight.isValidBinding()){
+			if(mbLeft.isStatic() && mbRight.isStatic()) {
+				scope.problemReporter().overloadedOperatorMethodNotStatic(this, getMethodName());
+				return null;
+			}
+			return new ProblemMethodBinding(ms.toCharArray(), new TypeBinding[]{tb_right}, ProblemReasons.Ambiguous);
+		}
+		if(mbLeft.isValidBinding()){
+			if(mbLeft.isStatic()) {
+				scope.problemReporter().overloadedOperatorMethodNotStatic(this, getMethodName());
+				return null;
+			}
+			this.overloadedExpresionSide = overloadedLeftSide;
+			return mbLeft;
+		}
+		if(mbRight.isValidBinding()){
+			if(mbRight.isStatic()) {
+				scope.problemReporter().overloadedOperatorMethodNotStatic(this, getMethodName());
+				return null;
+			}
+			this.overloadedExpresionSide = overloadedRightSide;
+			return mbRight;
+		}
+		if(tb_left.id == T_JavaLangString || tb_right.id == T_JavaLangString){
+			return null;
+		}
+		return null;
+	}
+
+
+	//Object <op> type or type <op> Object
+	if(!tb_left.isBoxedPrimitiveType() && !tb_left.isBaseType() && (tb_right.isBoxedPrimitiveType() || tb_right.isBaseType())){
+		MethodBinding mbLeft = scope.getMethod(tb_left, ms.toCharArray(), new TypeBinding[]{tb_right}, fakeInvocationSite);
+		if(mbLeft.isValidBinding() && isAnnotationSet(mbLeft)){
+			if(mbLeft.isStatic()) {
+				scope.problemReporter().overloadedOperatorMethodNotStatic(this, getMethodName());
+				return null;
+			}
+			this.overloadedExpresionSide = overloadedLeftSide;
+			return mbLeft;
+		}
+		return null;
+	}
+	if(!tb_right.isBoxedPrimitiveType() && !tb_right.isBaseType() && (tb_left.isBoxedPrimitiveType() || tb_left.isBaseType())){
+		MethodBinding mbRight = scope.getMethod(tb_right, (ms + "AsRHS").toCharArray(), new TypeBinding[]{tb_left}, fakeInvocationSite); //$NON-NLS-1$
+		if(mbRight.isValidBinding()){
+			if(mbRight.isStatic()) {
+				scope.problemReporter().overloadedOperatorMethodNotStatic(this, getMethodName());
+				return null;
+			}
+			this.overloadedExpresionSide = overloadedRightSide;
+			return mbRight;
+		}
+		return null;
+	}
+	return null;
+}
+
+	public boolean isAnnotationSet(MethodBinding method){
+/*		if(!method.isValidBinding())
+			return false;
+		AnnotationBinding[] annotations = method.declaringClass.getAnnotations();
+		if( annotations == null)
+			return false;
+		for(int i = 0; i < annotations.length; i++){
+			AnnotationBinding annotation = annotations[i];
+			if(Arrays.equals(annotation.getAnnotationType().sourceName, "EnableOperatorOverloading".toCharArray())) //$NON-NLS-1$
+				return true;
+		}
+
+		return false;*/
+		return true;
+	}
+
+public void boxConvert(Expression e, BlockScope currentScope, CodeStream codeStream) {
+	if (e.resolvedType.isBaseType()) {
+		e.computeConversion(currentScope, currentScope.boxing(e.resolvedType), e.resolvedType);
+		codeStream.generateBoxingConversion(e.resolvedType.id);
+	}
+}
+
+public void generateOperatorOverloadCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+	if(this.overloadedExpresionSide == overloadedLeftSide){
+		this.left.generateCode(currentScope, codeStream,true);
+		this.right.generateCode(currentScope, codeStream, true);
+	}else{
+		this.right.generateCode(currentScope, codeStream, true);
+		this.left.generateCode(currentScope, codeStream,true);
+	}
+	if (this.appropriateMethodForOverload.hasSubstitutedParameters() || this.appropriateMethodForOverload.hasSubstitutedReturnType()) {
+		TypeBinding tbo = this.appropriateMethodForOverload.returnType;
+		MethodBinding mb3 = this.appropriateMethodForOverload.original();
+		MethodBinding final_mb = mb3;
+		// TODO remove for real?
+		//final_mb.returnType = final_mb.returnType.erasure();
+		codeStream.invoke((final_mb.declaringClass.isInterface()) ? Opcodes.OPC_invokeinterface : Opcodes.OPC_invokevirtual, final_mb, final_mb.declaringClass.erasure());
+
+		if (tbo.erasure().isProvablyDistinct(final_mb.returnType.erasure())) {
+			codeStream.checkcast(tbo);
+		}
+	} else {
+		MethodBinding original = this.appropriateMethodForOverload.original();
+		if(original.isPrivate()){
+			codeStream.invoke(Opcodes.OPC_invokestatic, this.syntheticAccessor, null /* default declaringClass */);
+		}
+		else{
+			codeStream.invoke((original.declaringClass.isInterface()) ? Opcodes.OPC_invokeinterface : Opcodes.OPC_invokevirtual, original, original.declaringClass);
+		}
+		if (!this.appropriateMethodForOverload.returnType.isBaseType()) codeStream.checkcast(this.appropriateMethodForOverload.returnType);
+	}
+	if (valueRequired) {
+		codeStream.generateImplicitConversion(this.implicitConversion);
+	}
+}
+
 @Override
 public TypeBinding resolveType(BlockScope scope) {
 	// keep implementation in sync with CombinedBinaryExpression#resolveType
@@ -1881,6 +2339,65 @@ public TypeBinding resolveType(BlockScope scope) {
 		return null;
 	}
 
+	//if L is object or R is object
+	if((!leftType.isBoxedPrimitiveType() && !leftType.isBaseType() && leftType.id != T_JavaLangString) || (!rightType.isBoxedPrimitiveType() && !rightType.isBaseType() && rightType.id != T_JavaLangString)){
+		MethodBinding overloadMethod = this.getMethodBindingForOverload(scope);
+		//if overloaded method is OK continue
+		if(overloadMethod != null && overloadMethod.isValidBinding()){
+			this.appropriateMethodForOverload = overloadMethod;
+			if (isMethodUseDeprecated(this.appropriateMethodForOverload, scope, true, new InvocationSite.EmptyWithAstNode(this)))
+				scope.problemReporter().deprecatedMethod(this.appropriateMethodForOverload, this);
+			// Object <op> Object just return returnType
+			if((!leftType.isBoxedPrimitiveType() && !leftType.isBaseType() && leftType.id != T_JavaLangString) && (!rightType.isBoxedPrimitiveType() && !rightType.isBaseType() && rightType.id != T_JavaLangString)){
+				this.constant = Constant.NotAConstant;
+				this.isCompactable = false;
+				this.left.computeConversion(scope, leftType, leftType);
+				this.right.computeConversion(scope, rightType, rightType);
+				return this.resolvedType = overloadMethod.returnType;
+			}
+			if(this.overloadedExpresionSide == overloadedLeftSide){
+				leftType = overloadMethod.parameters[0];
+			}else if(this.overloadedExpresionSide == overloadedRightSide){
+				rightType = overloadMethod.parameters[0];
+			}else{
+				this.constant = Constant.NotAConstant;
+				scope.problemReporter().invalidOperator(this, this.left.resolvedType, this.right.resolvedType);
+				return null;
+			}
+
+		}else{
+			//Left is object and right isn't string or Right is object and left isn't string
+			if((!leftType.isBoxedPrimitiveType() && !leftType.isBaseType() && leftType.id != T_JavaLangString && rightType.id != T_JavaLangString) ||
+					(!rightType.isBoxedPrimitiveType() && !rightType.isBaseType() && rightType.id != T_JavaLangString && leftType.id != T_JavaLangString)){
+				//Error, return appropriate error text
+				if(overloadMethod instanceof ProblemMethodBinding && overloadMethod.problemId() == ProblemReasons.Ambiguous){
+						scope.problemReporter().ambiguousOperator(this, leftType, rightType);
+						this.constant = Constant.NotAConstant;
+						return null;
+				}else{
+					this.constant = Constant.NotAConstant;
+					scope.problemReporter().invalidOperator(this, this.left.resolvedType, this.right.resolvedType);
+					return null;
+				}
+			}
+		}
+	}
+
+	if(((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) == OperatorIds.CAT && this.appropriateMethodForOverload == null) {
+		this.constant = Constant.NotAConstant;
+		scope.problemReporter().invalidOperator(this, this.left.resolvedType, this.right.resolvedType);
+		return null;
+	}
+
+	if((((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) == OperatorIds.EQUAL_EQUAL_EQUAL
+			|| ((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) == OperatorIds.NOT_EQUAL_EQUAL)
+			&& this.appropriateMethodForOverload == null){
+		this.constant = Constant.NotAConstant;
+		scope.problemReporter().invalidOperator(this, this.left.resolvedType, this.right.resolvedType);
+		return null;
+	}
+
+
 	int leftTypeID = leftType.id;
 	int rightTypeID = rightType.id;
 
@@ -1901,9 +2418,12 @@ public TypeBinding resolveType(BlockScope scope) {
 		} else if (rightTypeID == TypeIds.T_JavaLangString) {
 			leftTypeID = TypeIds.T_JavaLangObject;
 		} else {
+			rightTypeID = TypeIds.T_JavaLangObject;
+			leftTypeID = TypeIds.T_JavaLangObject;
+			/*
 			this.constant = Constant.NotAConstant;
 			scope.problemReporter().invalidOperator(this, leftType, rightType);
-			return null;
+			return null;*/
 		}
 	}
 	if (((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) == OperatorIds.PLUS) {
@@ -1931,39 +2451,66 @@ public TypeBinding resolveType(BlockScope scope) {
 	int operator = (this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT;
 	int operatorSignature = OperatorExpression.OperatorSignatures[operator][(leftTypeID << 4) + rightTypeID];
 
-	this.left.computeConversion(scope, TypeBinding.wellKnownType(scope, (operatorSignature >>> 16) & 0x0000F), leftType);
-	this.right.computeConversion(scope, TypeBinding.wellKnownType(scope, (operatorSignature >>> 8) & 0x0000F), rightType);
-	this.bits |= operatorSignature & 0xF;
-	switch (operatorSignature & 0xF) { // record the current ReturnTypeID
-		// only switch on possible result type.....
-		case T_boolean :
-			this.resolvedType = TypeBinding.BOOLEAN;
-			break;
-		case T_byte :
-			this.resolvedType = TypeBinding.BYTE;
-			break;
-		case T_char :
-			this.resolvedType = TypeBinding.CHAR;
-			break;
-		case T_double :
-			this.resolvedType = TypeBinding.DOUBLE;
-			break;
-		case T_float :
-			this.resolvedType = TypeBinding.FLOAT;
-			break;
-		case T_int :
-			this.resolvedType = TypeBinding.INT;
-			break;
-		case T_long :
-			this.resolvedType = TypeBinding.LONG;
-			break;
-		case T_JavaLangString :
-			this.resolvedType = scope.getJavaLangString();
-			break;
-		default : //error........
+	if (this.appropriateMethodForOverload == null) {
+		this.left.computeConversion(scope, TypeBinding.wellKnownType(scope, (operatorSignature >>> 16) & 0x0000F), leftType);
+		this.right.computeConversion(scope, TypeBinding.wellKnownType(scope, (operatorSignature >>> 8) & 0x0000F), rightType);
+		this.bits |= operatorSignature & 0xF;
+		switch (operatorSignature & 0xF) { // record the current ReturnTypeID
+			// only switch on possible result type.....
+			case T_boolean :
+				this.resolvedType = TypeBinding.BOOLEAN;
+				break;
+			case T_byte :
+				this.resolvedType = TypeBinding.BYTE;
+				break;
+			case T_char :
+				this.resolvedType = TypeBinding.CHAR;
+				break;
+			case T_double :
+				this.resolvedType = TypeBinding.DOUBLE;
+				break;
+			case T_float :
+				this.resolvedType = TypeBinding.FLOAT;
+				break;
+			case T_int :
+				this.resolvedType = TypeBinding.INT;
+				break;
+			case T_long :
+				this.resolvedType = TypeBinding.LONG;
+				break;
+			case T_JavaLangString :
+				this.resolvedType = scope.getJavaLangString();
+				break;
+			default : //error........
+				boolean allow = this.appropriateMethodForOverload != null &&  this.appropriateMethodForOverload.isValidBinding();
+
+				if (!allow) {
+					this.constant = Constant.NotAConstant;
+					scope.problemReporter().invalidOperator(this, leftType, rightType);
+					return null;
+				}
+				this.isCompactable = false;
+				this.resolvedType =  this.appropriateMethodForOverload.returnType;
+				break;
+		}
+	} else {
+		if (this.overloadedExpresionSide == overloadedLeftSide) {
+			this.left.implicitConversion = 0;
+			this.left.computeConversion(scope, this.left.resolvedType, this.left.resolvedType);
+			this.right.computeConversion(scope, this.appropriateMethodForOverload.parameters[0], this.right.resolvedType);
+			this.isCompactable = false;
+			this.resolvedType = this.appropriateMethodForOverload.returnType;
+		} else if (this.overloadedExpresionSide == overloadedRightSide) {
+			this.right.implicitConversion = 0;
+			this.right.computeConversion(scope, this.right.resolvedType, this.right.resolvedType);
+			this.left.computeConversion(scope, this.appropriateMethodForOverload.parameters[0], this.left.resolvedType);
+			this.isCompactable = false;
+			this.resolvedType = this.appropriateMethodForOverload.returnType;
+		} else {
 			this.constant = Constant.NotAConstant;
 			scope.problemReporter().invalidOperator(this, leftType, rightType);
 			return null;
+		}
 	}
 
 	// check need for operand cast

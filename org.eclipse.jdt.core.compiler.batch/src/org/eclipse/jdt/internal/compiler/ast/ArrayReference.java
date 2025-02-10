@@ -358,7 +358,8 @@ public void generatePostOverloadAssignment(BlockScope currentScope, CodeStream c
 	codeStream.arrayAtPut(this.resolvedType.id, valueRequired);
 }
 
-public TypeBinding resolveType(BlockScope scope,Expression expression) {
+@Override
+public TypeBinding resolveType(BlockScope scope, Expression expression) {
 	//Only valid for Assignment
 	Assignment assignment;
 	try{

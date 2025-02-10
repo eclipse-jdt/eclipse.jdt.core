@@ -319,6 +319,7 @@ public void generatePostOverloadAssignment(BlockScope currentScope, CodeStream c
 	 // this cannot be assigned
 }
 
+@Override
 public TypeBinding resolveType(BlockScope scope, Expression expression) {
 	//Only valid for Assignment
 	Assignment assignment;

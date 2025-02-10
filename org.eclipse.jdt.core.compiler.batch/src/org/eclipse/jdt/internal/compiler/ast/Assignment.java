@@ -223,8 +223,27 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().expressionShouldBeAVariable(this.lhs);
 		return null;
 	}
-	TypeBinding lhsType = this.lhs.resolveType(scope);
+	TypeBinding lhsType = this.lhs.resolveType(scope, this);
 	this.expression.setExpressionContext(ASSIGNMENT_CONTEXT);
+	if (this.lhs instanceof ArrayReference || this.lhs instanceof CompositeArrayReference) {
+		if (this.lhs instanceof ArrayReference) {
+			ArrayReference array = (ArrayReference) this.lhs;
+			if (array.appropriateMethodForOverload != null) {
+				//Put method will be called
+				//Return type must be void
+				this.resolvedType = this.lhs.resolvedType;
+				return this.lhs.resolvedType;
+			}
+		} else {
+			CompositeArrayReference array = (CompositeArrayReference) this.lhs;
+			if (array.appropriateMethodForOverload != null) {
+				//Put method will be called
+				//Return type must be void
+				this.resolvedType = this.lhs.resolvedType;
+				return this.lhs.resolvedType;
+			}
+		}
+	}
 	this.expression.setExpectedType(lhsType); // needed in case of generic method invocation
 	if (lhsType != null) {
 		this.resolvedType = lhsType.capture(scope, this.lhs.sourceStart, this.lhs.sourceEnd); // make it unique, `this' shares source end with 'this.expression'.
@@ -233,7 +252,11 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (localVariableBinding != null && (localVariableBinding.isCatchParameter() || localVariableBinding.isParameter())) {
 		localVariableBinding.tagBits &= ~TagBits.IsEffectivelyFinal;  // as it is already definitely assigned, we can conclude already. Also note: catch parameter cannot be compound assigned.
 	}
-	TypeBinding rhsType = this.expression.resolveType(scope);
+	TypeBinding rhsType;
+	if(this.expression.resolvedType != null)
+		rhsType = this.expression.resolvedType;
+	else
+		rhsType = this.expression.resolveType(scope);
 	if (lhsType == null || rhsType == null) {
 		return null;
 	}

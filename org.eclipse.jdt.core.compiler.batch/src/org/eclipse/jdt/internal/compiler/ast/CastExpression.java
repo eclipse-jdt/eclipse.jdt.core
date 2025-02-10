@@ -163,7 +163,7 @@ public static void checkNeedForArgumentCast(BlockScope scope, int operator, int 
 	} else {
 		TypeBinding alternateLeftType = ((CastExpression)expression).expression.resolvedType;
 		if (alternateLeftType == null) return; // cannot do better
-		if (alternateLeftType.id == expressionTypeId) { // obvious identity cast
+		if (alternateLeftType.id == expressionTypeId && expressionTypeId != TypeIds.NoId) { // obvious identity cast
 			scope.problemReporter().unnecessaryCast((CastExpression)expression);
 			return;
 		}
