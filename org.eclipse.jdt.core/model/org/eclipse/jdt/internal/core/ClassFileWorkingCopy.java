@@ -95,7 +95,7 @@ public char[] getFileName(){
 		String parentPath = this.classFile.getParent().getPath().toString();
 		IPackageFragment enclosingPackage = (IPackageFragment)getAncestor(IJavaElement.PACKAGE_FRAGMENT);
 		String pack = enclosingPackage == null ? "" : enclosingPackage.getElementName(); //$NON-NLS-1$
-		String packReplaced = pack.length() > 0 ? pack.replaceAll("\\.", "/") + "/" : ""; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		String packReplaced = pack.length() > 0 ? pack.replaceAll("\\.", java.io.File.separator) + java.io.File.separator : ""; //$NON-NLS-1$ //$NON-NLS-2$
 		String goal = parentPath + IDependent.JAR_FILE_ENTRY_SEPARATOR + packReplaced + clazzFileName;
 		ret = goal.toCharArray();
 	} else {
