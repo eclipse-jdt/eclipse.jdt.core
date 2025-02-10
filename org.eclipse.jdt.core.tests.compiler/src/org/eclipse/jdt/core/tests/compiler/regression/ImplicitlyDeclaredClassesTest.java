@@ -388,4 +388,20 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 		VMARGS,
 		JavacTestOptions.SKIP);
 	}
+	public void testGH3714() {
+		runConformTest(new String[] {
+				"Main.java",
+				"""
+				import static java.io.IO.*;
+				public class Main {
+					public static void main(String[] args) {
+						println("Hello");
+					}
+				}"""
+		},
+		"Hello",
+		null,
+		VMARGS,
+		JavacTestOptions.SKIP);
+	}
 }
