@@ -583,11 +583,17 @@ public class SwitchStatement extends Expression {
 			if (this.statements != null) {
 				preprocess(); // make a pass over the switch block and allocate vectors.
 				LocalVariableBinding[] patternVariables = NO_VARIABLES;
+				boolean trueSeen = false, falseSeen = false;
 				for (final Statement statement : this.statements) {
 					if (statement instanceof CaseStatement caseStatement) {
 						caseStatement.swich = this;
 						caseStatement.resolve(this.scope);
 						patternVariables = caseStatement.bindingsWhenTrue();
+						Boolean booleanConstant = caseStatement.getBooleanConstantValue();
+						if (booleanConstant == Boolean.TRUE)
+							trueSeen = true;
+						else if (booleanConstant == Boolean.FALSE)
+							falseSeen = true;
 					} else {
 						statement.resolveWithBindings(patternVariables, this.scope);
 						patternVariables = LocalVariableBinding.merge(patternVariables, statement.bindingsWhenComplete());
@@ -595,7 +601,7 @@ public class SwitchStatement extends Expression {
 				}
 				if (expressionType != null
 						&& (expressionType.id == TypeIds.T_boolean || expressionType.id == TypeIds.T_JavaLangBoolean)
-						&& this.defaultCase != null  && isExhaustive()) {
+						&& this.defaultCase != null  && trueSeen && falseSeen) {
 					upperScope.problemReporter().caseDefaultPlusTrueAndFalse(this);
 				}
 				if (this.labelExpressions.length != this.labelExpressionIndex)
