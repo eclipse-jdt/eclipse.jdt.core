@@ -2665,6 +2665,25 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		runner.expectedOutputString = "1";
 		runner.runConformTest();
 	}
+	public void testGH3128() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				class X {
+					public void foo(Boolean boxed) {
+						switch (boxed) {
+							case boolean b -> { System.out.print(b); }
+							default -> {}
+						}
+					}
+					public static void main(String... args) {
+						new X().foo(true);
+					}
+				}
+				"""
+			},
+			"true");
+	}
 	public void testJDK8348901() {
 		// according to https://bugs.openjdk.org/browse/JDK-8348901 the null type is to be admitted when case null is present
 		runConformTest(new String[] {
