@@ -175,11 +175,7 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 				int level = wrapper.trustedASTNodeLevels.get(node);
 				SearchMatch match = toMatch(locator, node, level, possibleMatch);
 				if (match != null && match.getElement() != null) {
-					try {
-						SearchMatchingUtility.reportSearchMatch(locator, match);
-					} catch (CoreException ex) {
-						ILog.get().error(ex.getMessage(), ex);
-					}
+					SearchMatchingUtility.reportSearchMatch(locator, match);
 				}
 			}
 		}
