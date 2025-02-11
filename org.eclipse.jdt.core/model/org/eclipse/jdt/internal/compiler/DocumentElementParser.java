@@ -731,6 +731,10 @@ protected void consumeSingleVariableDeclarator(boolean isVarArgs) {
 	identifierStack :
 	intStack :
 	*/
+	if (this.parsingRecordComponents) {
+		super.consumeSingleVariableDeclarator(isVarArgs);
+		return;
+	}
 	NameReference qualifyingNameReference = null;
     boolean isReceiver = this.intStack[this.intPtr--] == 0;
     if (isReceiver) {

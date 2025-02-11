@@ -743,7 +743,7 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 }
 @Override
 protected void consumeSingleVariableDeclarator(boolean isVarArgs) {
-	if (this.indexOfAssistIdentifier() < 0) {
+	if (this.indexOfAssistIdentifier() < 0 || this.parsingRecordComponents) {
 		super.consumeSingleVariableDeclarator(isVarArgs);
 	} else {
 		boolean isReceiver = this.intStack[this.intPtr--] == 0;

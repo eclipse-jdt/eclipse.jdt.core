@@ -7906,7 +7906,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				"11. ERROR in /Converter/src/TestCharset.java (at line 10)\n" +
 				"	CharsetDecoder(CharSet\n" +
 				"	               ^^^^^^^\n" +
-				"Syntax error, insert \"... VariableDeclaratorId\" to complete FormalParameter\n" +
+				"Syntax error, insert \"... VariableDeclaratorId\" to complete SingleVariableDeclarator\n" +
 				"12. ERROR in /Converter/src/TestCharset.java (at line 10)\n" +
 				"	CharsetDecoder(CharSet\n" +
 				"	               ^^^^^^^\n" +

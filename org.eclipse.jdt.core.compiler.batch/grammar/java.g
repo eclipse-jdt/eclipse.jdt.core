@@ -935,12 +935,6 @@ CompactConstructorHeaderName ::= Modifiersopt 'Identifier'
 /:$readableName CompactConstructorHeaderName:/
 /:$compliance 16:/
 
-FormalParameterList -> SingleVariableDeclaratorList
-/:$readableName FormalParameterList:/
-
-RecordComponentList -> SingleVariableDeclaratorList
-/:$readableName RecordComponentList:/
-
 SingleVariableDeclaratorList -> SingleVariableDeclarator
 SingleVariableDeclaratorList ::= SingleVariableDeclaratorList ',' SingleVariableDeclarator
 /.$putCase consumeSingleVariableDeclaratorList(); $break ./
@@ -1185,7 +1179,7 @@ RecordHeader ::= '(' RecordComponentListOpt RecordComponentHeaderRightParen
 
 RecordComponentListOpt ::= $empty
 /.$putCase consumeRecordComponentsopt(); $break ./
-RecordComponentListOpt -> RecordComponentList
+RecordComponentListOpt -> SingleVariableDeclaratorList
 /:$readableName RecordComponentsopt:/
 /:$compliance 16:/
 
@@ -2313,7 +2307,7 @@ MethodHeaderThrowsClauseopt -> MethodHeaderThrowsClause
 
 FormalParameterListopt ::= $empty
 /.$putcase consumeFormalParameterListopt(); $break ./
-FormalParameterListopt -> FormalParameterList
+FormalParameterListopt -> SingleVariableDeclaratorList
 /:$readableName FormalParameterList:/
 
 ClassHeaderImplementsopt ::= $empty

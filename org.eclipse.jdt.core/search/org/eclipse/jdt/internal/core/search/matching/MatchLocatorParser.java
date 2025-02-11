@@ -383,7 +383,8 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 @Override
 protected void consumeSingleVariableDeclarator(boolean isVarArgs) {
 	super.consumeSingleVariableDeclarator(isVarArgs);
-	this.patternLocator.match((LocalDeclaration) this.astStack[this.astPtr], this.nodeSet);
+	if (!this.parsingRecordComponents)
+		this.patternLocator.match((LocalDeclaration) this.astStack[this.astPtr], this.nodeSet);
 }
 
 @Override
