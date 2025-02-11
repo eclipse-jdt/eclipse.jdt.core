@@ -90,7 +90,6 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
-import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.Javadoc;
@@ -102,7 +101,6 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.Modifier;
-import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
@@ -138,6 +136,8 @@ import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
+import org.eclipse.jdt.core.dom.InfixExpression.Operator;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -1112,6 +1112,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						if (!foundTypes.isEmpty()) {
 							IType firstType = foundTypes.get(0);
 							ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+							parser.setWorkingCopyOwner(this.workingCopyOwner);
 							parser.setProject(this.javaProject);
 							IBinding[] descendantBindings = parser.createBindings(new IType[] { firstType }, new NullProgressMonitor());
 							if (descendantBindings.length == 1) {
@@ -3118,6 +3119,22 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			res.setSignature(new char[] {});
 			res.setReceiverSignature(new char[] {});
 			res.setDeclarationSignature(new char[] {});
+		}
+
+		if (Modifier.isStatic(binding.getModifiers()) &&
+			this.toComplete.getLocationInParent() == QualifiedName.NAME_PROPERTY &&
+			((QualifiedName)this.toComplete.getParent()).getQualifier().resolveBinding() == null &&
+			binding.getJavaElement() != null &&
+			binding.getJavaElement().getParent() instanceof IType resolvedType &&
+			resolvedType.exists()) {
+			// unresolved type for qualifier, suggest qualification
+			var typeProposal = toProposal(resolvedType);
+			var qualifier = ((QualifiedName)this.toComplete.getParent()).getQualifier();
+			typeProposal.setReplaceRange(qualifier.getStartPosition(), qualifier.getStartPosition() + qualifier.getLength());
+			var requiredProposals = res.getRequiredProposals();
+			requiredProposals = requiredProposals == null ? new CompletionProposal[1] : Arrays.copyOf(requiredProposals, requiredProposals.length + 1);
+			requiredProposals[requiredProposals.length - 1] = typeProposal;
+			res.setRequiredProposals(requiredProposals);
 		}
 
 		if (this.toComplete instanceof SimpleName && !this.toComplete.getLocationInParent().getId().equals(QualifiedName.QUALIFIER_PROPERTY.getId()) && !this.prefix.isEmpty() && !inJavadoc) {

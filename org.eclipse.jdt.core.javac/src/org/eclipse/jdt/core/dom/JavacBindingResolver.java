@@ -213,6 +213,9 @@ public class JavacBindingResolver extends BindingResolver {
 		//
 		private Map<String, JavacPackageBinding> packageBindings = new HashMap<>();
 		public JavacPackageBinding getPackageBinding(PackageSymbol packageSymbol) {
+			if (!packageSymbol.exists()) {
+				return null;
+			}
 			if( packageSymbol.owner instanceof PackageSymbol parentPack) {
 				if( !(parentPack instanceof RootPackageSymbol) )
 					getPackageBinding(parentPack);
@@ -1062,7 +1065,7 @@ public class JavacBindingResolver extends BindingResolver {
 		}
 		
 		PackageSymbol ps = findPackageSymbol(name);
-		if( ps != null ) {
+		if( ps != null && ps.exists()) {
 			return this.bindings.getPackageBinding(ps);
 		}
 		if( isPackageName(name)) {
@@ -1136,7 +1139,7 @@ public class JavacBindingResolver extends BindingResolver {
 		while( working instanceof Name ) {
 			JCTree tree = this.converter.domToJavac.get(working);
 			if( tree instanceof JCFieldAccess jcfa) {
-				return jcfa.sym instanceof PackageSymbol;
+				return jcfa.sym instanceof PackageSymbol psym && psym.exists();
 			}
 			if( working instanceof QualifiedName qnn) {
 				if( qnn.getQualifier() == working) {

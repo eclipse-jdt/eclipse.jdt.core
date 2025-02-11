@@ -99,7 +99,8 @@ public abstract class JavacPackageBinding implements IPackageBinding {
 		}
 	}
 
-	public IModuleBinding getModule() {
+	@Override
+	public IModuleBinding getModule() { 
 		return this.getPackageSymbol() != null ? 
 				this.resolver.bindings.getModuleBinding(this.getPackageSymbol().modle) :
 				null;
@@ -164,4 +165,5 @@ public abstract class JavacPackageBinding implements IPackageBinding {
 				&& Objects.equals(this.getPackageSymbol(), other.getPackageSymbol())
 				&& Objects.equals(this.nameString, other.nameString);
 	}
+
 }
