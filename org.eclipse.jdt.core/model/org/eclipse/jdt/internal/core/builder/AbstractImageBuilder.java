@@ -641,7 +641,11 @@ protected Compiler newCompiler() {
 
 		@Override
 		public void setTaskName(String name) {
-			AbstractImageBuilder.this.notifier.subTask(name);
+			// ignore
+
+			// idea was to use
+			// AbstractImageBuilder.this.notifier.subTask(name);
+			// but that only works in SWT thread while compile can run in any thread.
 		}
 
 		@Override
