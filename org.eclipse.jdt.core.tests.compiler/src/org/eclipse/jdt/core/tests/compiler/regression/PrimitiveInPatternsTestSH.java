@@ -2701,4 +2701,45 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			},
 			"Null");
 	}
+	public void testGH3369_statement() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						switch (main(null)) {
+
+						}
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	switch (main(null)) {\n" +
+			"	        ^^^^^^^^^^\n" +
+			"Expression must return a value\n" +
+			"----------\n");
+	}
+	public void testGH3369_expression() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					int foo() {
+						return switch (bar()) {
+							default -> 1;
+						};
+					}
+					void bar() {}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	return switch (bar()) {\n" +
+			"	               ^^^^^\n" +
+			"Expression must return a value\n" +
+			"----------\n");
+	}
 }
