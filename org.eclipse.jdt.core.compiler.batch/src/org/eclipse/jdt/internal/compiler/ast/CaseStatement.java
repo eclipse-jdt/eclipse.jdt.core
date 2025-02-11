@@ -113,6 +113,9 @@ private void checkDuplicateDefault(BlockScope scope, ASTNode node) {
 
 private Constant resolveConstantLabel(BlockScope scope, TypeBinding caseType, TypeBinding selectorType, Expression expression) {
 
+	if (this.swich.expression.resolvedType != null && this.swich.expression.resolvedType.id == TypeIds.T_void)
+		return Constant.NotAConstant;
+
 	if (expression instanceof NullLiteral) {
 		if (!caseType.isCompatibleWith(selectorType, scope))
 			scope.problemReporter().caseConstantIncompatible(TypeBinding.NULL, selectorType, expression);

@@ -7679,14 +7679,14 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				+ "1. ERROR in X.java (at line 7)\n"
 				+ "	switch (foo()) {\n"
 				+ "	        ^^^^^\n"
-				+ "Cannot switch on a value of type void. Only convertible int values, strings or enum variables are permitted\n"
+				+ "Expression must return a value\n"
 				+ "----------\n" :
-						"----------\n"
-						+ "1. ERROR in X.java (at line 8)\n"
-						+ "	case 1.0 -> System.out.println(d);\n"
-						+ "	     ^^^\n"
-						+ "Case constant of type double is incompatible with switch selector type void\n"
-						+ "----------\n");
+						"----------\n" +
+						"1. ERROR in X.java (at line 7)\n" +
+						"	switch (foo()) {\n" +
+						"	        ^^^^^\n" +
+						"Expression must return a value\n" +
+						"----------\n");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
 	// VerifyError in switch expression on double
@@ -7793,7 +7793,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				+ "1. ERROR in X.java (at line 7)\n"
 				+ "	switch (foo()) {\n"
 				+ "	        ^^^^^\n"
-				+ "Cannot switch on a value of type void. Only convertible int values, strings or enum variables are permitted\n"
+				+ "Expression must return a value\n"
 				+ "----------\n"
 				+ "2. ERROR in X.java (at line 8)\n"
 				+ "	case null -> System.out.println(d);\n"
@@ -7804,12 +7804,12 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"1. ERROR in X.java (at line 7)\n" +
 						"	switch (foo()) {\n" +
 						"	        ^^^^^\n" +
-						"An enhanced switch statement should be exhaustive; a default label expected\n" +
+						"Expression must return a value\n" +
 						"----------\n" +
-						"2. ERROR in X.java (at line 8)\n" +
-						"	case null -> System.out.println(d);\n" +
-						"	     ^^^^\n" +
-						"Case constant of type null is incompatible with switch selector type void\n" +
+						"2. ERROR in X.java (at line 7)\n" +
+						"	switch (foo()) {\n" +
+						"	        ^^^^^\n" +
+						"An enhanced switch statement should be exhaustive; a default label expected\n" +
 						"----------\n");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2387
