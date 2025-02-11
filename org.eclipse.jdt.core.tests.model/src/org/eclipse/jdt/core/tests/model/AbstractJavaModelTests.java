@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1692,6 +1692,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected IJavaProject createJava21Project(String name) throws CoreException {
 		return createJava9ProjectWithJREAttributes(name, new String[]{"src"}, null, "21");
 	}
+	protected IJavaProject createJava23Project(String name) throws CoreException {
+		return createJava9ProjectWithJREAttributes(name, new String[]{"src"}, null, "23");
+	}
 	protected IJavaProject createJava9ProjectWithJREAttributes(String name, String[] srcFolders, IClasspathAttribute[] attributes) throws CoreException {
 		return createJava9ProjectWithJREAttributes(name, srcFolders, attributes, "9");
 	}
@@ -2305,6 +2308,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_22);
 					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_22);
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_22);
+					javaProject.setOptions(options);
+				} else if ("23".equals(compliance)) {
+					Map options = new HashMap();
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_23);
+					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_23);
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_23);
 					javaProject.setOptions(options);
 				} else {
 					// Do NOT set default project options if compliance is not given,
