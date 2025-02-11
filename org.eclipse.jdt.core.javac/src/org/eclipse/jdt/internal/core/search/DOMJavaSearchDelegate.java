@@ -74,6 +74,7 @@ import org.eclipse.jdt.core.search.TypeParameterReferenceMatch;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.NamedMember;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
@@ -91,7 +92,7 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 	@Override
 	public void locateMatches(MatchLocator locator, IJavaProject javaProject, PossibleMatch[] possibleMatches, int start,
 			int length) throws CoreException {
-		
+		locator.initialize((JavaProject)javaProject, length);
 		for( int i = 0; i < possibleMatches.length; i++ ) {
 			matchToWrapper.put(possibleMatches[i], wrapNodeSet(possibleMatches[i].nodeSet));
 		}
