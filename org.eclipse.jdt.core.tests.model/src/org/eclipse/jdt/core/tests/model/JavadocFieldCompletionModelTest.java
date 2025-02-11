@@ -13,7 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -22,7 +23,6 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 /**
  * Test class for completion in Javadoc comment of a field declaration.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class JavadocFieldCompletionModelTest extends AbstractJavadocCompletionModelTest {
 
 public JavadocFieldCompletionModelTest(String name) {
@@ -515,9 +515,9 @@ public void test028() throws JavaModelException {
  * tests Tests for camel case completion
  */
 public void test030() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 	try {
-		Hashtable options = new Hashtable(this.oldOptions);
+		Map<String, String> options = new HashMap<>(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 

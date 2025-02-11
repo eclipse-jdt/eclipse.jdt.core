@@ -42,7 +42,7 @@ public static Test suite() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=563010
 public void testStaticInterfaceMethod() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	try {
 		Hashtable<String, String> options = new Hashtable<>(this.oldOptions);

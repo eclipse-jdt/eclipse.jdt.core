@@ -3956,8 +3956,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		this.wcOwner = null;
 
 		// ensure workspace options have been restored to their default
-		Hashtable options = JavaCore.getOptions();
-		Hashtable defaultOptions = getDefaultJavaCoreOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
+		Map<String, String> defaultOptions = getDefaultJavaCoreOptions();
 		boolean resetToDefault = true;
 		try {
 			String expected = new CompilerOptions(defaultOptions).toString();
@@ -3981,7 +3981,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 *
 	 * @return by default {@link JavaCore#getDefaultOptions()}
 	 */
-	protected Hashtable<String, String> getDefaultJavaCoreOptions() {
+	protected Map<String, String> getDefaultJavaCoreOptions() {
 		return JavaCore.getDefaultOptions();
 	}
 

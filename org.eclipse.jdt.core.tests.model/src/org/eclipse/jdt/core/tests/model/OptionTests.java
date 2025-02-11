@@ -16,6 +16,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -38,7 +39,6 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.osgi.service.prefs.BackingStoreException;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class OptionTests extends ModifyingResourceTests {
 
 	int eventCount = 0;
@@ -99,7 +99,7 @@ public void test01() throws CoreException {
 				"",
 				"" /* no compliance to force defaults */);
 
-		Hashtable options = new Hashtable();
+		Map<String, String> options = new HashMap<>();
 		options.put(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, JavaCore.DISABLED);
 		options.put(JavaCore.COMPILER_COMPLIANCE, "8.0");
 		options.put(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK, JavaCore.ERROR);
@@ -156,7 +156,7 @@ public void test02() throws CoreException {
 
 		String globalEncoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
 
-		Hashtable options = new Hashtable();
+		Map<String, String> options = new HashMap<>();
 		options.put(JavaCore.CORE_ENCODING, "custom");
 		projectA.setOptions(options);
 
@@ -198,7 +198,7 @@ public void test03() throws CoreException {
 				"",
 				"" /* no compliance to force defaults */);
 
-		Hashtable options = new Hashtable();
+		Map<String, String> options = new HashMap<>();
 		options.put(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, JavaCore.DISABLED);
 		options.put(JavaCore.COMPILER_COMPLIANCE, "8.0");
 		options.put(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK, JavaCore.ERROR);
@@ -252,7 +252,7 @@ public void test04() throws CoreException {
 				"",
 				"" /* no compliance to force defaults */);
 
-		Hashtable options = new Hashtable();
+		Map<String, String> options = new HashMap<>();
 		options.put(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, JavaCore.DISABLED);
 		options.put(JavaCore.COMPILER_COMPLIANCE, "8.0");
 		options.put(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK, JavaCore.ERROR);
@@ -309,7 +309,7 @@ public void test05() throws CoreException {
 
 		String globalEncoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
 
-		Hashtable options = new Hashtable();
+		Map<String, String> options = new HashMap<>();
 		options.put(JavaCore.CORE_ENCODING, "custom");
 		projectA.setOptions(options);
 
@@ -351,7 +351,7 @@ public void test06() throws CoreException {
 				"",
 				"" /* no compliance to force defaults */);
 
-		Hashtable options = new Hashtable();
+		Map<String, String> options = new HashMap<>();
 		options.put(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, JavaCore.DISABLED);
 		options.put(JavaCore.COMPILER_COMPLIANCE, "8.0");
 		options.put(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK, JavaCore.ERROR);
@@ -405,7 +405,7 @@ public void test07() throws CoreException {
 		TestPropertyListener listener = new TestPropertyListener();
 		eclipsePreferences.addPreferenceChangeListener(listener);
 
-		Hashtable options = new Hashtable();
+		Map<String, String> options = new HashMap<>();
 		options.put(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, JavaCore.ENABLED);
 		options.put(JavaCore.COMPILER_COMPLIANCE, "10.0");
 		projectA.setOptions(options);
@@ -447,7 +447,7 @@ public void test08() throws CoreException {
 				"",
 				"" /* no compliance to force defaults */);
 
-		Hashtable options = new Hashtable();
+		Map<String, String> options = new HashMap<>();
 		options.put(JavaCore.COMPILER_TASK_TAGS, "TODO:");
 		JavaCore.setOptions(options);
 
@@ -492,7 +492,7 @@ public void test09() throws CoreException {
 		IEclipsePreferences eclipsePreferences = projectA.getEclipsePreferences();
 		eclipsePreferences.addPreferenceChangeListener(new TestPropertyListener());
 
-		Hashtable options = new Hashtable();
+		Map<String, String> options = new HashMap<>();
 		options.put(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, JavaCore.ENABLED);
 		options.put(JavaCore.COMPILER_COMPLIANCE, "10.0");
 		projectA.setOptions(options);
@@ -563,8 +563,8 @@ public void test12() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=217443
 public void test13() {
-	Hashtable options = JavaCore.getDefaultOptions();
-	String immutableValue = (String) options.get(JavaCore.CORE_ENCODING);
+	Map<String, String> options = JavaCore.getDefaultOptions();
+	String immutableValue = options.get(JavaCore.CORE_ENCODING);
 	assertEquals(ResourcesPlugin.getEncoding(), immutableValue);
 	options.put(JavaCore.CORE_ENCODING, immutableValue + "_extra_tail");
 	JavaCore.setOptions(options);
@@ -585,12 +585,12 @@ public void testBug68993() throws CoreException, BackingStoreException {
 
 		// set all project options as custom ones: this is what happens when user select
 		// "Use project settings" in project 'Java Compiler' preferences page...
-		Hashtable options = new Hashtable(projectA.getOptions(true));
+		Map<String, String> options = new HashMap<>(projectA.getOptions(true));
 		projectA.setOptions(options);
 
 		// reset all project custom options: this is what happens when user select
 		// "Use workspace settings" in project 'Java Compiler' preferences page...
-		options = new Hashtable();
+		options = new HashMap<>();
 		options.put("internal.default.compliance", JavaCore.DEFAULT);
 		projectA.setOptions(options);
 
@@ -623,7 +623,7 @@ public void testBug72214() throws CoreException, BackingStoreException {
  */
 public void testBug100393() throws CoreException, BackingStoreException {
 	// Get default compiler options
-	Map options = new CompilerOptions().getMap();
+	Map<String, String> options = new CompilerOptions().getMap();
 
 	// verify that CompilerOptions default preferences for modified options
 	assertEquals("Invalid default for "+CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING, options.get(CompilerOptions.OPTION_ReportUnusedLocal));
@@ -718,8 +718,8 @@ public void testBug152562() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=152578"
  */
 public void testBug152578() throws CoreException {
-	Hashtable wkspOptions = JavaCore.getOptions();
-	String wkspCompilerSource = (String) wkspOptions.get(JavaCore.COMPILER_SOURCE);
+	Map<String, String> wkspOptions = JavaCore.getUnmodifiableOptions();
+	String wkspCompilerSource = wkspOptions.get(JavaCore.COMPILER_SOURCE);
 	String compilerSource = wkspCompilerSource.equals(JavaCore.VERSION_1_5) ? JavaCore.VERSION_1_6 : JavaCore.VERSION_1_5;
 	try {
 		JavaProject project = (JavaProject) createJavaProject("P");
@@ -728,7 +728,7 @@ public void testBug152578() throws CoreException {
 		if (!option.equals(wkspCompilerSource)) {
 			System.err.println("Unexpected option value: "+option+" instead of: "+wkspCompilerSource);
 		}
-		Hashtable newOptions = JavaCore.getOptions();
+		Map<String, String> newOptions = new HashMap<>(wkspOptions);
 		newOptions.put(JavaCore.COMPILER_SOURCE, compilerSource);
 		JavaCore.setOptions(newOptions);
 		option = project.getOption(JavaCore.COMPILER_SOURCE, false);
@@ -777,7 +777,7 @@ public void testBug324987_Project02() throws CoreException {
 		// Set the obsolete option using the IJavaProject API
 		JavaProject project = (JavaProject) createJavaProject("P");
 		final String obsoleteOption = DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER;
-		Map testOptions = project.getOptions(true);
+		Map<String, String> testOptions = project.getOptions(true);
 		testOptions.put(obsoleteOption, JavaCore.DO_NOT_INSERT);
 		project.setOptions(testOptions);
 		// Verify that obsolete preference is not stored
@@ -800,26 +800,26 @@ public void testBug324987_Project02() throws CoreException {
  * @deprecated As using deprecated constants
  */
 public void testBug346010() throws CoreException {
-	class ForcedOrderMap extends Hashtable {
+	class ForcedOrderMap extends Hashtable<String, String> {
 		private static final long serialVersionUID = 8012963985718522218L;
-		Map original;
-		Map.Entry additionalEntry;
+		Map<String, String> original;
+		Map.Entry<String, String> additionalEntry;
 		/* Force (additionalKey,additionalValue) to be served after all entries of original. */
-		public ForcedOrderMap(Map original, String additionalKey, String additionalValue) {
+		public ForcedOrderMap(Map<String, String> original, String additionalKey, String additionalValue) {
 			this.original = original;
 			// convert additionalKey->additionalValue to a Map.Entry without inserting into original:
-			Hashtable tmp = new Hashtable();
+			Hashtable<String, String> tmp = new Hashtable<>();
 			tmp.put(additionalKey, additionalValue);
-			this.additionalEntry = (Map.Entry) tmp.entrySet().iterator().next();
+			this.additionalEntry = tmp.entrySet().iterator().next();
 		}
 		@Override
-		public Set entrySet() {
-			return new HashSet() {
+		public Set<Map.Entry<String, String>> entrySet() {
+			return new HashSet<>() {
 				private static final long serialVersionUID = 1L;
 				@Override
-				public Iterator iterator() {
-					List orderedEntries;
-					orderedEntries = new ArrayList(ForcedOrderMap.this.original.entrySet());
+				public Iterator<Map.Entry<String, String>> iterator() {
+					List<Map.Entry<String, String>> orderedEntries;
+					orderedEntries = new ArrayList<>(ForcedOrderMap.this.original.entrySet());
 					orderedEntries.add(ForcedOrderMap.this.additionalEntry);
 					return orderedEntries.iterator();
 				}
@@ -834,8 +834,8 @@ public void testBug346010() throws CoreException {
 		// Set the obsolete option using the IJavaProject API
 		JavaProject project = (JavaProject) createJavaProject("P");
 		final String obsoleteOption = DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER;
-		Map testOptions = project.getOptions(true);
-		Map orderedOptions = new ForcedOrderMap(testOptions, obsoleteOption, JavaCore.DO_NOT_INSERT);
+		Map<String, String> testOptions = project.getOptions(true);
+		Map<String, String> orderedOptions = new ForcedOrderMap(testOptions, obsoleteOption, JavaCore.DO_NOT_INSERT);
 		project.setOptions(orderedOptions);
 		// Verify that obsolete preference is not stored
 		assertNull(
@@ -890,7 +890,7 @@ public void testBug324987_Workspace01() throws CoreException {
 	try {
 		// Set the obsolete option using the JavaCore API
 		final String obsoleteOption = DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER;
-		Hashtable testOptions = JavaCore.getOptions();
+		Map<String, String> testOptions = JavaCore.getOptions();
 		testOptions.put(obsoleteOption, JavaCore.DO_NOT_INSERT);
 		JavaCore.setOptions(testOptions);
 		// Verify that obsolete preference is not stored
@@ -944,7 +944,7 @@ public void testBug324987_Workspace03() throws CoreException {
 	try {
 		// Set the obsolete option using the JavaCore API
 		final String obsoleteOption = DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER;
-		Hashtable testOptions = JavaCore.getOptions();
+		Map<String, String> testOptions = JavaCore.getOptions();
 		testOptions.put(obsoleteOption, JavaCore.INSERT);
 		JavaCore.setOptions(testOptions);
 		// Verify that obsolete preference is not stored

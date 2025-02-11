@@ -26,7 +26,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -64,7 +64,6 @@ import org.osgi.framework.Bundle;
 /**
  * Basic tests of the image builder.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class BasicBuildTests extends BuilderTests {
 	public BasicBuildTests(String name) {
 		super(name);
@@ -106,8 +105,8 @@ public class BasicBuildTests extends BuilderTests {
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=23894
 	 */
 	public void testToDoMarker() throws JavaModelException {
-		Hashtable options = JavaCore.getOptions();
-		Hashtable newOptions = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
+		Map<String, String> newOptions = new HashMap<>(options);
 		newOptions.put(JavaCore.COMPILER_TASK_TAGS, "todo"); //$NON-NLS-1$
 		newOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL"); //$NON-NLS-1$
 
@@ -138,8 +137,8 @@ public class BasicBuildTests extends BuilderTests {
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=91426
 	 */
 	public void testToDoMarker2() throws JavaModelException {
-		Hashtable options = JavaCore.getOptions();
-		Hashtable newOptions = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
+		Map<String, String> newOptions = new HashMap<>(options);
 		newOptions.put(JavaCore.COMPILER_TASK_TAGS, "TODO,FIXME,XXX"); //$NON-NLS-1$
 		newOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL,HIGH,LOW"); //$NON-NLS-1$
 
@@ -200,8 +199,8 @@ public class BasicBuildTests extends BuilderTests {
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=110797
 	 */
 	public void testTags() throws JavaModelException {
-		Hashtable options = JavaCore.getOptions();
-		Hashtable newOptions = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
+		Map<String, String> newOptions = new HashMap<>(options);
 		newOptions.put(JavaCore.COMPILER_TASK_TAGS, "TODO,FIXME,XXX"); //$NON-NLS-1$
 		newOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL,HIGH,LOW"); //$NON-NLS-1$
 
@@ -256,8 +255,8 @@ public class BasicBuildTests extends BuilderTests {
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=110797
 	 */
 	public void testTags2() throws JavaModelException {
-		Hashtable options = JavaCore.getOptions();
-		Hashtable newOptions = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
+		Map<String, String> newOptions = new HashMap<>(options);
 		newOptions.put(JavaCore.COMPILER_TASK_TAGS, "TODO,FIXME,XXX"); //$NON-NLS-1$
 		newOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL,HIGH,LOW"); //$NON-NLS-1$
 
@@ -306,10 +305,10 @@ public class BasicBuildTests extends BuilderTests {
 	 * (regression test for bug 123721 two types of 'remove' for TODO task tags)
 	 */
 	public void testTags3() throws CoreException {
-		Hashtable options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
 
 		try {
-			Hashtable newOptions = JavaCore.getOptions();
+			Map<String, String> newOptions = new HashMap<>(options);
 			newOptions.put(JavaCore.COMPILER_TASK_TAGS, "TODO,FIXME,XXX"); //$NON-NLS-1$
 			newOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL,HIGH,LOW"); //$NON-NLS-1$
 
@@ -342,8 +341,8 @@ public class BasicBuildTests extends BuilderTests {
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=92821
 	 */
 	public void testUnusedImport() throws JavaModelException {
-		Hashtable options = JavaCore.getOptions();
-		Hashtable newOptions = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
+		Map<String, String> newOptions = new HashMap<>(options);
 		newOptions.put(JavaCore.COMPILER_PB_UNUSED_IMPORT, JavaCore.WARNING);
 
 		JavaCore.setOptions(newOptions);
@@ -510,8 +509,8 @@ public class BasicBuildTests extends BuilderTests {
 	}
 
 	public void testTags4() throws JavaModelException {
-		Hashtable options = JavaCore.getOptions();
-		Hashtable newOptions = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
+		Map<String, String> newOptions = new HashMap<>(options);
 		newOptions.put(JavaCore.COMPILER_TASK_TAGS, "TODO!,TODO,TODO?"); //$NON-NLS-1$
 		newOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "HIGH,NORMAL,LOW"); //$NON-NLS-1$
 

@@ -4615,7 +4615,32 @@ public final class JavaCore extends Plugin {
 	 * @see #getDefaultOptions()
 	 * @see JavaCorePreferenceInitializer for changing default settings
 	 */
+	// TODO @deprecated use {@link #getUnmodifiableOptions(Map)} for better performance
 	public static Hashtable<String, String> getOptions() {
+		return new Hashtable<>(JavaModelManager.getJavaModelManager().getOptions());
+	}
+
+	/**
+	 * Returns a unmodifiable map of the current options. Initially, all options have their default values,
+	 * and this method returns a table that includes all known options.
+	 * <p>
+	 * Helper constants have been defined on JavaCore for each of the option IDs
+	 * (categorized in Code assist option ID, Compiler option ID and Core option ID)
+	 * and some of their acceptable values (categorized in Option value). Some
+	 * options accept open value sets beyond the documented constant values.
+	 * </p>
+	 * <p>
+	 * Note: each release may add new options.
+	 * </p>
+	 * <p>Returns a default set of options even if the platform is not running.</p>
+	 *
+	 * @return table of current settings of all options
+	 *   (key type: <code>String</code>; value type: <code>String</code>)
+	 * @see #getDefaultOptions()
+	 * @see JavaCorePreferenceInitializer for changing default settings
+	 * @since 3.41
+	 */
+	public static Map<String, String> getUnmodifiableOptions() {
 		return JavaModelManager.getJavaModelManager().getOptions();
 	}
 
@@ -6417,7 +6442,31 @@ public final class JavaCore extends Plugin {
 	 * @see JavaCore#getDefaultOptions()
 	 * @see JavaCorePreferenceInitializer for changing default settings
 	 */
+	// TODO @deprecated use {@link #setOptions(Map)}
 	public static void setOptions(Hashtable<String, String> newOptions) {
+		setOptions((Map<String, String> ) newOptions);
+	}
+	/**
+	 * Sets the current table of options. All and only the options explicitly
+	 * included in the given table are remembered; all previous option settings
+	 * are forgotten, including ones not explicitly mentioned.
+	 * <p>
+	 * Helper constants have been defined on JavaCore for each of the option IDs
+	 * (categorized in Code assist option ID, Compiler option ID and Core option ID)
+	 * and some of their acceptable values (categorized in Option value). Some
+	 * options accept open value sets beyond the documented constant values.
+	 * </p>
+	 * Note: each release may add new options.
+	 *
+	 * @param newOptions
+	 *            the new options (key type: <code>String</code>; value type:
+	 *            <code>String</code>), or <code>null</code> to reset all
+	 *            options to their default values
+	 * @see JavaCore#getDefaultOptions()
+	 * @see JavaCorePreferenceInitializer for changing default settings
+	 * @since 3.41
+	 */
+	public static void setOptions(Map<String, String> newOptions) {
 		JavaModelManager.getJavaModelManager().setOptions(newOptions);
 	}
 

@@ -20,7 +20,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -440,8 +441,8 @@ private String getResourceOuput(IResource[] resources) {
 
 // ignore optional errors
 public void test0108() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Hashtable newOptions = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getUnmodifiableOptions();
+	Map<String, String> newOptions = new HashMap<>(options);
 	newOptions.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
 
 	JavaCore.setOptions(newOptions);
@@ -473,8 +474,8 @@ public void test0108() throws JavaModelException {
 
 // two different source folders ignore only from one
 public void test0109() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Hashtable newOptions = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getUnmodifiableOptions();
+	Map<String, String> newOptions = new HashMap<>(options);
 	newOptions.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
 
 	JavaCore.setOptions(newOptions);
@@ -517,8 +518,8 @@ public void test0109() throws JavaModelException {
 
 // two different source folders ignore from both
 public void test0110() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Hashtable newOptions = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getUnmodifiableOptions();
+	Map<String, String> newOptions = new HashMap<>(options);
 	newOptions.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
 
 	JavaCore.setOptions(newOptions);
@@ -561,8 +562,8 @@ public void test0110() throws JavaModelException {
 
 //non-optional errors cannot be ignored
 public void test0111() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Hashtable newOptions = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getUnmodifiableOptions();
+	Map<String, String> newOptions = new HashMap<>(options);
 	newOptions.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
 
 	JavaCore.setOptions(newOptions);
@@ -597,8 +598,8 @@ public void test0111() throws JavaModelException {
 
 //task tags cannot be ignored
 public void test0112() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Hashtable newOptions = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getUnmodifiableOptions();
+	Map<String, String> newOptions = new HashMap<>(options);
 	newOptions.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
 	newOptions.put(JavaCore.COMPILER_TASK_TAGS, "TODO");
 	newOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL");

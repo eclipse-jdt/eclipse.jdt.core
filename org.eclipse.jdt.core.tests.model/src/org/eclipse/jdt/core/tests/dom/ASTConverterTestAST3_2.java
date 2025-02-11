@@ -14,7 +14,7 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -285,8 +285,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=23162
 	 */
 	public void test0409() throws JavaModelException {
-		Hashtable options = JavaCore.getOptions();
-		Hashtable newOptions = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
+		Map<String, String> newOptions = new HashMap<>(options);
 		try {
 			newOptions.put(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newOptions);
@@ -1768,8 +1768,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=33949
 	 */
 	public void test0466() throws JavaModelException {
-		Hashtable options = JavaCore.getOptions();
-		Hashtable newOptions = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
+		Map<String, String> newOptions = new HashMap<>(options);
 		try {
 			newOptions.put(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newOptions);
@@ -1792,8 +1792,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=33949
 	 */
 	public void test0467() throws JavaModelException {
-		Hashtable options = JavaCore.getOptions();
-		Hashtable newOptions = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
+		Map<String, String> newOptions = new HashMap<>(options);
 		try {
 			newOptions.put(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newOptions);
@@ -1941,8 +1941,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=38732
 	 */
 	public void test0473() throws JavaModelException {
-		Hashtable options = JavaCore.getOptions();
-		Hashtable newOptions = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
+		Map<String, String> newOptions = new HashMap<>(options);
 		try {
 			newOptions.put(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
 			newOptions.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
@@ -2565,8 +2565,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=42647
 	 */
 	public void test0491() throws JavaModelException {
-		Hashtable options = JavaCore.getOptions();
-		Hashtable newOptions = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
+		Map<String, String> newOptions = new HashMap<>(options);
 		try {
 			newOptions.put(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newOptions);
@@ -2591,8 +2591,8 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 	 * http://bugs.eclipse.org/bugs/show_bug.cgi?id=42647
 	 */
 	public void test0492() throws JavaModelException {
-		Hashtable options = JavaCore.getOptions();
-		Hashtable newOptions = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
+		Map<String, String> newOptions = new HashMap<>(options);
 		try {
 			newOptions.put(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newOptions);
@@ -3309,7 +3309,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setSource(source);
 		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
-		parser.setCompilerOptions(JavaCore.getOptions());
+		parser.setCompilerOptions(JavaCore.getUnmodifiableOptions());
 		ASTNode result2 = parser.createAST(null);
 		assertNotNull("No node", result2);
 		assertTrue("not a type declaration", result2.getNodeType() == ASTNode.TYPE_DECLARATION);
@@ -3345,7 +3345,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setSource(source);
 		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
-		parser.setCompilerOptions(JavaCore.getOptions());
+		parser.setCompilerOptions(JavaCore.getUnmodifiableOptions());
 		ASTNode result2 = parser.createAST(null);
 		assertNotNull("No node", result2);
 		assertTrue("not a type declaration", result2.getNodeType() == ASTNode.TYPE_DECLARATION);
@@ -3379,7 +3379,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setSource(source);
 		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
-		parser.setCompilerOptions(JavaCore.getOptions());
+		parser.setCompilerOptions(JavaCore.getUnmodifiableOptions());
 		ASTNode result2 = parser.createAST(null);
 		assertNotNull("No node", result2);
 		assertTrue("not a type declaration", result2.getNodeType() == ASTNode.TYPE_DECLARATION);
@@ -3414,7 +3414,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		parser.setKind(ASTParser.K_STATEMENTS);
 		parser.setSource(source);
 		parser.setSourceRange(statement.getStartPosition(), statement.getLength());
-		parser.setCompilerOptions(JavaCore.getOptions());
+		parser.setCompilerOptions(JavaCore.getUnmodifiableOptions());
 		ASTNode result2 = parser.createAST(null);
 		assertNotNull("No node", result2);
 		assertTrue("not a block", result2.getNodeType() == ASTNode.BLOCK);
@@ -3451,7 +3451,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		parser.setKind(ASTParser.K_EXPRESSION);
 		parser.setSource(source);
 		parser.setSourceRange(expression.getStartPosition(), expression.getLength());
-		parser.setCompilerOptions(JavaCore.getOptions());
+		parser.setCompilerOptions(JavaCore.getUnmodifiableOptions());
 		ASTNode result2 = parser.createAST(null);
 		assertNotNull("No node", result2);
 		assertTrue("not a method invocation", result2.getNodeType() == ASTNode.METHOD_INVOCATION);
@@ -3996,7 +3996,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setSource(source);
 		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
-		parser.setCompilerOptions(JavaCore.getOptions());
+		parser.setCompilerOptions(JavaCore.getUnmodifiableOptions());
 		ASTNode result2 = parser.createAST(null);
 		assertNotNull("No node", result2);
 		assertTrue("not a compilation unit", result2.getNodeType() == ASTNode.COMPILATION_UNIT);
@@ -4021,7 +4021,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setSource(source);
 		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
-		parser.setCompilerOptions(JavaCore.getOptions());
+		parser.setCompilerOptions(JavaCore.getUnmodifiableOptions());
 		ASTNode result2 = parser.createAST(null);
 		assertNotNull("No node", result2);
 		assertTrue("not a compilation unit", result2.getNodeType() == ASTNode.COMPILATION_UNIT);
@@ -4046,7 +4046,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setSource(source);
 		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
-		parser.setCompilerOptions(JavaCore.getOptions());
+		parser.setCompilerOptions(JavaCore.getUnmodifiableOptions());
 		ASTNode result2 = parser.createAST(null);
 		assertNotNull("No node", result2);
 		assertTrue("not a compilation unit", result2.getNodeType() == ASTNode.COMPILATION_UNIT);
@@ -6702,7 +6702,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		parser.setKind(ASTParser.K_STATEMENTS);
 		parser.setSource(source);
 		parser.setSourceRange(statement.getStartPosition(), statement.getLength());
-		parser.setCompilerOptions(JavaCore.getOptions());
+		parser.setCompilerOptions(JavaCore.getUnmodifiableOptions());
 		ASTNode result2 = parser.createAST(null);
 		assertNotNull("No node", result2);
 		assertTrue("not a block", result2.getNodeType() == ASTNode.BLOCK);
@@ -7067,7 +7067,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		String source = "{\"red\", \"yellow\"}";
 		parser.setSource(source.toCharArray());
 		parser.setSourceRange(0, source.length());
-		parser.setCompilerOptions(JavaCore.getOptions());
+		parser.setCompilerOptions(JavaCore.getUnmodifiableOptions());
 		ASTNode result = parser.createAST(null);
 		assertNotNull("No node", result);
 		assertEquals("not an array initializer", ASTNode.ARRAY_INITIALIZER, result.getNodeType());
@@ -9657,7 +9657,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		ASTParser parser = ASTParser.newParser(getJLSFirst());
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setSource(unit);
-		Hashtable options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
 		options.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
 		parser.setCompilerOptions(options);
 		ISourceRange range = method.getSourceRange();

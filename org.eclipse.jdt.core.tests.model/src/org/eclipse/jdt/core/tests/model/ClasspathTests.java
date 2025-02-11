@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.InvalidPathException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import junit.framework.Test;
@@ -1935,12 +1936,12 @@ public void testClasspathValidation27() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=159325"
  */
 public void testClasspathValidation27_Bug159325_project() throws CoreException {
-	Hashtable javaCoreOptions = JavaCore.getOptions();
+	Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 	try {
 		IJavaProject proj1 =  this.createJavaProject("P1", new String[] {}, "");
 		proj1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
 
-		Hashtable options = JavaCore.getOptions();
+		Map<String, String> options = new HashMap<>(javaCoreOptions);
 		options.put(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, JavaCore.WARNING);
 		JavaCore.setOptions(options);
 		IJavaProject proj2 =  this.createJavaProject("P2", new String[] {}, "");
@@ -1955,12 +1956,12 @@ public void testClasspathValidation27_Bug159325_project() throws CoreException {
 	}
 }
 public void testClasspathValidation27_Bug159325_lib() throws CoreException {
-	Hashtable javaCoreOptions = JavaCore.getOptions();
+	Map<String, String> javaCoreOptions = JavaCore.getUnmodifiableOptions();
 	try {
 		IJavaProject proj =  this.createJavaProject("P1", new String[] {}, "");
 		proj.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_1);
 
-		Hashtable options = JavaCore.getOptions();
+		Map<String, String> options = new HashMap<>(javaCoreOptions);
 		options.put(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, JavaCore.WARNING);
 		JavaCore.setOptions(options);
 		proj.setOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, new String("ignore".toCharArray()));

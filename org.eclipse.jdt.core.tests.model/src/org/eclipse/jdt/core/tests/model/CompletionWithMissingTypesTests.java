@@ -13,14 +13,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class CompletionWithMissingTypesTests extends AbstractJavaModelCompletionTests {
 
 public CompletionWithMissingTypesTests(String name) {
@@ -811,10 +811,10 @@ public void test0019() throws JavaModelException {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
 public void test0020() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	try {
-		Hashtable options = new Hashtable(this.oldOptions);
+		Map<String, String> options = new HashMap<>(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 
@@ -861,10 +861,10 @@ public void test0020() throws JavaModelException {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
 public void test0021() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	try {
-		Hashtable options = new Hashtable(this.oldOptions);
+		Map<String, String> options = new HashMap<>(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 
@@ -905,10 +905,10 @@ public void test0021() throws JavaModelException {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
 public void test0022() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	try {
-		Hashtable options = new Hashtable(this.oldOptions);
+		Map<String, String> options = new HashMap<>(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 
@@ -957,10 +957,10 @@ public void test0022() throws JavaModelException {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
 public void test0023() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	try {
-		Hashtable options = new Hashtable(this.oldOptions);
+		Map<String, String> options = new HashMap<>(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 
@@ -1003,10 +1003,10 @@ public void test0023() throws JavaModelException {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
 public void _test0024() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	try {
-		Hashtable options = new Hashtable(this.oldOptions);
+		Map<String, String> options = new HashMap<>(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 
@@ -1052,10 +1052,10 @@ public void _test0024() throws JavaModelException {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
 public void test0025() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	try {
-		Hashtable options = new Hashtable(this.oldOptions);
+		Map<String, String> options = new HashMap<>(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 
@@ -1095,10 +1095,10 @@ public void test0025() throws JavaModelException {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
 public void _test0026() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	try {
-		Hashtable options = new Hashtable(this.oldOptions);
+		Map<String, String> options = new HashMap<>(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 
@@ -1146,10 +1146,10 @@ public void _test0026() throws JavaModelException {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
 public void test0027() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 
 	try {
-		Hashtable options = new Hashtable(this.oldOptions);
+		Map<String, String> options = new HashMap<>(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 

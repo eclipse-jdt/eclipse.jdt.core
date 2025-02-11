@@ -14,7 +14,6 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.jdt.core.Flags;
@@ -24,11 +23,10 @@ import org.eclipse.jdt.core.NamingConventions;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class NamingConventionTests extends AbstractJavaModelTests {
 
 IJavaProject project;
-Hashtable oldOptions;
+Map<String, String> oldOptions;
 
 public NamingConventionTests(String name) {
 	super(name);
@@ -44,7 +42,7 @@ public static Test suite() {
 public void setUp() throws Exception {
 	super.setUp();
 	this.project = createJavaProject("P", new String[]{"src"}, "bin"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	this.oldOptions = JavaCore.getOptions();
+	this.oldOptions = JavaCore.getUnmodifiableOptions();
 //	this.abortOnFailure = false; // some tests have failing one time on macos boxes => do not abort on failures
 }
 /**
@@ -90,7 +88,7 @@ public void testGetBaseName002() {
  * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=38111
  */
 public void testGetBaseName003() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
@@ -108,7 +106,7 @@ public void testGetBaseName003() {
  * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=38111
  */
 public void testGetBaseName004() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
@@ -153,7 +151,7 @@ public void testSuggestFieldName002() {
 		toString(suggestions));
 }
 public void testSuggestFieldName003() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"f"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
 
@@ -174,7 +172,7 @@ public void testSuggestFieldName003() {
 		toString(suggestions));
 }
 public void testSuggestFieldName004() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"_"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
 
@@ -195,7 +193,7 @@ public void testSuggestFieldName004() {
 		toString(suggestions));
 }
 public void testSuggestFieldName005() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"f"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_STATIC_FIELD_PREFIXES,"fg"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
@@ -217,7 +215,7 @@ public void testSuggestFieldName005() {
 		toString(suggestions));
 }
 public void testSuggestFieldName006() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
@@ -243,7 +241,7 @@ public void testSuggestFieldName006() {
 		toString(suggestions));
 }
 public void testSuggestFieldName007() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
@@ -280,7 +278,7 @@ public void testSuggestFieldName008() {
 		toString(suggestions));
 }
 public void testSuggestFieldName009() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
@@ -306,7 +304,7 @@ public void testSuggestFieldName009() {
 		toString(suggestions));
 }
 public void testSuggestFieldName010() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
@@ -509,7 +507,7 @@ public void testSuggestFieldName021() {
  * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=38111
  */
 public void testSuggestFieldName022() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
@@ -555,7 +553,7 @@ public void testSuggestFieldName023() {
  * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=38111
  */
 public void testSuggestFieldName024() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
@@ -1007,7 +1005,7 @@ public void testSuggestFieldName048() {
 }
 /** @deprecated */
 public void testRemovePrefixAndSuffixForFieldName001() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
@@ -1023,7 +1021,7 @@ public void testRemovePrefixAndSuffixForFieldName001() {
 }
 /** @deprecated */
 public void testRemovePrefixAndSuffixForFieldName002() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pr, pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"uf, suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
@@ -1039,7 +1037,7 @@ public void testRemovePrefixAndSuffixForFieldName002() {
 }
 /** @deprecated */
 public void testRemovePrefixAndSuffixForFieldName003() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pr, pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"uf, suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
@@ -1056,7 +1054,7 @@ public void testRemovePrefixAndSuffixForFieldName003() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=114086
 /** @deprecated */
 public void testRemovePrefixAndSuffixForFieldName004() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pre,"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
 
@@ -1071,7 +1069,7 @@ public void testRemovePrefixAndSuffixForFieldName004() {
 }
 /** @deprecated */
 public void testRemovePrefixAndSuffixForLocalName001() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pr, pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"uf, suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
@@ -1110,7 +1108,7 @@ public void testSuggestGetterName002() {
 		new String(suggestion));
 }
 public void testSuggestGetterName003() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pr, pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"uf, suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
@@ -1127,7 +1125,7 @@ public void testSuggestGetterName003() {
 		new String(suggestion));
 }
 public void testSuggestGetterName004() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pr, pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"uf, suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
@@ -1144,7 +1142,7 @@ public void testSuggestGetterName004() {
 		new String(suggestion));
 }
 public void testSuggestGetterName005() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_FIELD_PREFIXES,"pr, pre"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_FIELD_SUFFIXES,"uf, suf"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
@@ -1198,7 +1196,7 @@ public void testSuggestGetterName008() {
 		new String(suggestion));
 }
 public void testSuggestGetterName009() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_PREFIXES,"PRE_"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_SUFFIXES,"_SUF"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
@@ -1291,7 +1289,7 @@ public void testSuggestSetterName002() {
 		new String(suggestion));
 }
 public void testSuggestSetterName003() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_PREFIXES,"PRE_"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_SUFFIXES,"_SUF"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
@@ -1311,9 +1309,9 @@ public void testSuggestSetterName003() {
  * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=133562
  */
 public void testSuggestLocalName001() {
-	Map options = this.project.getOptions(true);
+	Map<String, String> options = this.project.getOptions(true);
 	try {
-		Map newOptions = new HashMap(options);
+		Map<String, String> newOptions = new HashMap<>(options);
 		newOptions.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
 		newOptions.put(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
 		newOptions.put(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
@@ -1339,9 +1337,9 @@ public void testSuggestLocalName001() {
  * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=133562
  */
 public void testSuggestLocalName002() {
-	Map options = this.project.getOptions(true);
+	Map<String, String> options = this.project.getOptions(true);
 	try {
-		Map newOptions = new HashMap(options);
+		Map<String, String> newOptions = new HashMap<>(options);
 		newOptions.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
 		newOptions.put(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
 		newOptions.put(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
@@ -1381,7 +1379,7 @@ public void testSuggestConstantFieldName001() {
  * bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=38111
  */
 public void testSuggestConstantFieldName002() {
-	Hashtable options = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_PREFIXES,"PRE"); //$NON-NLS-1$
 	options.put(JavaCore.CODEASSIST_STATIC_FINAL_FIELD_SUFFIXES,"SUF"); //$NON-NLS-1$
 	JavaCore.setOptions(options);
@@ -1407,9 +1405,9 @@ public void testSuggestConstantFieldName002() {
  * Test that suggestions for parameters include the underscores as supplied
  */
 public void testSuggestParamWithUnderscore() {
-	Map options = this.project.getOptions(true);
+	Map<String, String> options = this.project.getOptions(true);
 	try {
-		Map newOptions = new HashMap(options);
+		Map<String, String> newOptions = new HashMap<>(options);
 		this.project.setOptions(newOptions);
 
 		String[] suggestions = NamingConventions.suggestVariableNames(

@@ -18,8 +18,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -46,7 +46,6 @@ import org.eclipse.jdt.internal.core.JavaModelStatus;
 /**
  * Tests the Java search engine where results are JavaElements and source positions.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class JavaSearchTests extends AbstractJavaSearchTests {
 
 public JavaSearchTests(String name) {
@@ -582,7 +581,7 @@ public void testExternalFolder1() throws CoreException {
 				"  }\n" +
 				"}"
 			},
-			new HashMap(),
+			new HashMap<>(),
 			getExternalResourcePath("externalLib")
 		);
 		createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
@@ -610,7 +609,7 @@ public void testExternalFolder2() throws CoreException {
 				"public class ExternalType {\n" +
 				"}"
 			},
-			new HashMap(),
+			new HashMap<>(),
 			getExternalResourcePath("externalLib")
 		);
 		createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
@@ -653,7 +652,7 @@ public void testExternalFolder3() throws CoreException {
 				"public class ExternalType229304 {\n" +
 				"}"
 			},
-			new HashMap(),
+			new HashMap<>(),
 			getExternalResourcePath("externalLib")
 		);
 		createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
@@ -885,8 +884,8 @@ public void testFieldReference05() throws CoreException {
 	IField field = type.getField("x");
 
 	// Set 1.4 compliance level (no constant yet)
-	Hashtable options = JavaCore.getOptions();
-	String currentOption = (String)options.get("org.eclipse.jdt.core.compiler.compliance");
+	Map<String, String> options = JavaCore.getOptions();
+	String currentOption = options.get("org.eclipse.jdt.core.compiler.compliance");
 	options.put("org.eclipse.jdt.core.compiler.compliance", CompilerOptions.getFirstSupportedJavaVersion());
 	JavaCore.setOptions(options);
 

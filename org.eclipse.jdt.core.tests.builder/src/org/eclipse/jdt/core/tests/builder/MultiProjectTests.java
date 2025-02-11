@@ -13,7 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -29,7 +30,6 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.test.OrderedTestSuite;
 
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class MultiProjectTests extends BuilderTests {
 
 	static {
@@ -176,7 +176,7 @@ public class MultiProjectTests extends BuilderTests {
 	}
 
 	public void testRemoveField() throws JavaModelException {
-		Hashtable options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getOptions();
 		options.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
 		JavaCore.setOptions(options);
 
@@ -230,8 +230,8 @@ public class MultiProjectTests extends BuilderTests {
 	}
 
 	public void testCompileOrder() throws JavaModelException {
-		Hashtable options = JavaCore.getOptions();
-		Hashtable newOptions = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
+		Map<String, String> newOptions = new HashMap<>(options);
 		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING);
 
 		JavaCore.setOptions(newOptions);
@@ -348,8 +348,8 @@ public class MultiProjectTests extends BuilderTests {
 	}
 
 	public void testCycle1() throws JavaModelException {
-		Hashtable options = JavaCore.getOptions();
-		Hashtable newOptions = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
+		Map<String, String> newOptions = new HashMap<>(options);
 		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING);
 
 		JavaCore.setOptions(newOptions);
@@ -461,8 +461,8 @@ public class MultiProjectTests extends BuilderTests {
 	}
 
 	public void testCycle2() throws JavaModelException {
-		Hashtable options = JavaCore.getOptions();
-		Hashtable newOptions = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
+		Map<String, String> newOptions = new HashMap<>(options);
 		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING);
 
 		JavaCore.setOptions(newOptions);
@@ -575,8 +575,8 @@ public class MultiProjectTests extends BuilderTests {
 	}
 
 	public void testCycle3() throws JavaModelException {
-		Hashtable options = JavaCore.getOptions();
-		Hashtable newOptions = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
+		Map<String, String> newOptions = new HashMap<>(options);
 		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING);
 
 		JavaCore.setOptions(newOptions);
@@ -719,8 +719,8 @@ public class MultiProjectTests extends BuilderTests {
 		}
 	}
 	public void testCycle4() throws JavaModelException {
-		Hashtable options = JavaCore.getOptions();
-		Hashtable newOptions = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
+		Map<String, String> newOptions = new HashMap<>(options);
 		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING);
 
 		JavaCore.setOptions(newOptions);
@@ -861,8 +861,8 @@ public class MultiProjectTests extends BuilderTests {
 	}
 
 	public void testCycle5() throws JavaModelException {
-		Hashtable options = JavaCore.getOptions();
-		Hashtable newOptions = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
+		Map<String, String> newOptions = new HashMap<>(options);
 		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING); // $NON-NLS-1$
 
 		JavaCore.setOptions(newOptions);
@@ -971,8 +971,8 @@ public class MultiProjectTests extends BuilderTests {
 // this one fails; compare with testCycle7 (only one change in Object source),
 // which passes
 public void testCycle6() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Hashtable newOptions = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getUnmodifiableOptions();
+	Map<String, String> newOptions = new HashMap<>(options);
 	newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING);
 
 	JavaCore.setOptions(newOptions);
@@ -1085,8 +1085,8 @@ public void testCycle6() throws JavaModelException {
 // this one passes; compare with testCycle6 (only one change in Object source),
 // which fails
 public void testCycle7() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Hashtable newOptions = JavaCore.getOptions();
+	Map<String, String> options = JavaCore.getUnmodifiableOptions();
+	Map<String, String> newOptions = new HashMap<>(options);
 	newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING);
 
 	JavaCore.setOptions(newOptions);
@@ -1193,8 +1193,8 @@ public void testCycle7() throws JavaModelException {
 }
 	public void testCycle8() throws JavaModelException {
 		// specifically tests projects with (transitive) dependencies on a cycle, i.e., error messages with a non-empty prefix
-		Hashtable options = JavaCore.getOptions();
-		Hashtable newOptions = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
+		Map<String, String> newOptions = new HashMap<>(options);
 		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING);
 
 		JavaCore.setOptions(newOptions);

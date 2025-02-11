@@ -594,7 +594,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		try {
 			ASTParser parser = ASTParser.newParser(AST_JLS_LATEST);
 			parser.setKind(ASTParser.K_COMPILATION_UNIT);
-			parser.setCompilerOptions(JavaCore.getOptions());
+			parser.setCompilerOptions(JavaCore.getUnmodifiableOptions());
 			parser.createASTs(
 					new String[] { file.toPath().normalize().toAbsolutePath().toString(), fileY.toPath().normalize().toAbsolutePath().toString() },
 					null,
@@ -1667,7 +1667,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			parser.setKind(ASTParser.K_COMPILATION_UNIT);
 			parser.setEnvironment(null, null, null, true);
 			parser.setResolveBindings(true);
-			parser.setCompilerOptions(JavaCore.getOptions());
+			parser.setCompilerOptions(JavaCore.getUnmodifiableOptions());
 			parser.createASTs(
 					new String[] { file.toPath().normalize().toAbsolutePath().toString(), fileYPath, fileZPath, file2.toPath().normalize().toAbsolutePath().toString() },
 					null,

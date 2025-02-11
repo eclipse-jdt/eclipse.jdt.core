@@ -21,7 +21,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import junit.framework.Test;
@@ -51,7 +50,6 @@ import org.eclipse.jdt.internal.core.ClasspathAttribute;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.osgi.framework.Bundle;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class ExternalAnnotations18Test extends ModifyingResourceTests {
 
 	/**
@@ -227,7 +225,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		if(addAnnotationLib)
 			addLibraryEntry(this.project, this.ANNOTATION_LIB, false);
 
-		Map options = this.project.getOptions(true);
+		Map<String, String> options = this.project.getOptions(true);
 		options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 		this.project.setOptions(options);
 
@@ -253,7 +251,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 	void myCreateJavaProject(String name, String projectCompliance, String projectJclLib) throws CoreException {
 		this.project = createJavaProject(name, new String[]{"src"}, new String[]{projectJclLib}, null, null, "bin", null, null, null, projectCompliance);
 		addLibraryEntry(this.project, this.ANNOTATION_LIB, false);
-		Map options = this.project.getOptions(true);
+		Map<String, String> options = this.project.getOptions(true);
 		options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 		this.project.setOptions(options);
 
@@ -283,7 +281,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 	}
 
 	protected void addLibraryWithExternalAnnotations(IJavaProject javaProject, String jarName, String externalAnnotationPath,
-			String[] pathAndContents, Map options) throws CoreException, IOException {
+			String[] pathAndContents, Map<String, String> options) throws CoreException, IOException {
 		addLibraryWithExternalAnnotations(javaProject, this.compliance, jarName, externalAnnotationPath, pathAndContents, options);
 	}
 
@@ -291,7 +289,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 			IJavaProject javaProject,
 			String referencedProjectName,
 			String externalAnnotationPath,
-			Map options) throws CoreException, IOException
+			Map<String, String> options) throws CoreException, IOException
 	{
 		IClasspathEntry entry = JavaCore.newProjectEntry(
 				new Path(referencedProjectName),
@@ -929,7 +927,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 	/** Project with real JRE. */
 	public void test2() throws Exception {
 		// library type used: j.u.Map (no need for JRE8)
-		Hashtable options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
 		try {
 			setupJavaProject("Test2");
 			this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -952,7 +950,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		}
 		final String TESTWORK_VAR_NAME = "TESTWORK";
 		JavaCore.setClasspathVariable(TESTWORK_VAR_NAME, new Path(getSourceWorkspacePath()), null);
-		Hashtable options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
 		try {
 			setupJavaProject("Test3");
 			this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -2234,7 +2232,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 	/** assert that per-workspace configuration re rt.jar is overridden by per-project configuration for JRE container. */
 	public void testBug465296() throws Exception {
 		// library type used: j.u.Map (no need for JRE8)
-		Hashtable options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
 		TestContainerInitializer.RT_JAR_ANNOTATION_PATH = "/MissingPrj/missing";
 		try {
 			setupJavaProject("Test2");
@@ -2253,7 +2251,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 	 * Full build.
 	 */
 	public void testBug509715fullBuild() throws Exception {
-		Hashtable options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getUnmodifiableOptions();
 		try {
 			setupJavaProject("Bug509715ProjA");
 			this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -3258,7 +3256,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 
 	public void testGH1008() throws Exception {
 		myCreateJavaProject("ValueOf");
-		Map options = this.project.getOptions(true);
+		Map<String, String> options = this.project.getOptions(true);
 		options.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 		this.project.setOptions(options);
 
@@ -3337,7 +3335,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 	}
 	public void testGH2178() throws CoreException, IOException {
 		myCreateJavaProject("GH2178", "21", "JCL_21_LIB");
-		Map options = this.project.getOptions(true);
+		Map<String, String> options = this.project.getOptions(true);
 		options.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.ERROR);
 		options.put(JavaCore.COMPILER_PB_NULL_ANNOTATION_INFERENCE_CONFLICT, JavaCore.ERROR);
 		this.project.setOptions(options);
