@@ -144,7 +144,8 @@ public void checkCancelWithinCompiler() throws AbortCompilation {
  * Notification while within a compile that a unit has finished being compiled.
  */
 public void compiled(SourceFile unit) {
-	// no subTask message, as this would interfere with progress status from compiler
+	String message = Messages.bind(Messages.build_compiling, unit.resource.getFullPath().removeLastSegments(1).makeRelative().toString());
+	subTask(message);
 	updateProgressDelta(this.progressPerCompilationUnit);
 	checkCancelWithinCompiler();
 }
