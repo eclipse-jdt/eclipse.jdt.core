@@ -6921,7 +6921,7 @@ public void missingSynchronizedOnInheritedMethod(MethodBinding currentMethod, Me
 public void missingTypeInConstructor(ASTNode location, MethodBinding constructor) {
 	List<TypeBinding> missingTypes = constructor.collectMissingTypes(null, true);
 	if (missingTypes == null) {
-		System.err.println("The constructor " + constructor + " is wrongly tagged as containing missing types"); //$NON-NLS-1$ //$NON-NLS-2$
+		assert false : "The constructor " + constructor + " is wrongly tagged as containing missing types"; //$NON-NLS-1$ //$NON-NLS-2$
 		return;
 	}
 	TypeBinding missingType = missingTypes.get(0);
@@ -6954,7 +6954,7 @@ public void missingTypeInLambda(LambdaExpression lambda, MethodBinding method) {
 	int nameSourceEnd = lambda.diagnosticsSourceEnd();
 	List<TypeBinding> missingTypes = method.collectMissingTypes(null, true);
 	if (missingTypes == null) {
-		System.err.println("The lambda expression " + method + " is wrongly tagged as containing missing types"); //$NON-NLS-1$ //$NON-NLS-2$
+		assert false : "The lambda expression " + method + " is wrongly tagged as containing missing types"; //$NON-NLS-1$ //$NON-NLS-2$
 		return;
 	}
 	TypeBinding missingType = missingTypes.get(0);
@@ -6981,7 +6981,7 @@ public void missingTypeInMethod(ASTNode astNode, MethodBinding method) {
 	}
 	List<TypeBinding> missingTypes = method.collectMissingTypes(null, true);
 	if (missingTypes == null) {
-		System.err.println("The method " + method + " is wrongly tagged as containing missing types"); //$NON-NLS-1$ //$NON-NLS-2$
+		assert false : "The method " + method + " is wrongly tagged as containing missing types"; //$NON-NLS-1$ //$NON-NLS-2$
 		return;
 	}
 	TypeBinding missingType = missingTypes.get(0);

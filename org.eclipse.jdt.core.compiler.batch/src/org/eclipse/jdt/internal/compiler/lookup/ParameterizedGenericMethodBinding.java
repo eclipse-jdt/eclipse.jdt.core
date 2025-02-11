@@ -307,7 +307,10 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 					if (invocationSite instanceof Invocation && allArgumentsAreProper && (expectedType == null || expectedType.isProperType(true)))
 						infCtx18.forwardResults(result, (Invocation) invocationSite, methodSubstitute, expectedType);
 					try {
-						if (infCtx18.hasIgnoredMissingType) {
+						if (infCtx18.hasIgnoredMissingType
+								&& (expectedType == null
+									|| (expectedType.tagBits & TagBits.HasMissingType) == 0)) // don't blame the method, when it's the expected type having problems
+						{
 							return new ProblemMethodBinding(originalMethod, originalMethod.selector, parameters, ProblemReasons.MissingTypeInSignature);
 						}
 						if (hasReturnProblem) { // illegally working from the provisional result?
