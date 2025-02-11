@@ -3079,13 +3079,13 @@ protected void consumeForceNoDiet() {
 	}
 }
 @Override
-protected void consumeFormalParameter(boolean isVarArgs) {
+protected void consumeSingleVariableDeclarator(boolean isVarArgs) {
 
 	this.invocationType = NO_RECEIVER;
 	this.qualifier = -1;
 
-	if (this.indexOfAssistIdentifier() < 0) {
-		super.consumeFormalParameter(isVarArgs);
+	if (this.indexOfAssistIdentifier() < 0 || this.parsingRecordComponents) {
+		super.consumeSingleVariableDeclarator(isVarArgs);
 		if (this.pendingAnnotation != null) {
 			this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 			this.pendingAnnotation = null;
