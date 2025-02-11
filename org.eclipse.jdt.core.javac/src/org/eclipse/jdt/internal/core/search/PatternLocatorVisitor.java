@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search;
 
+import java.util.HashMap;
 import java.util.function.Function;
 
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -75,6 +76,7 @@ class PatternLocatorVisitor extends ASTVisitor {
 	private final PatternLocator patternLocator;
 	private final NodeSetWrapper nodeSet;
 	private MatchLocator locator;
+	private HashMap<PatternLocator, DOMPatternLocator> wrapperMap = new HashMap<>();
 
 	public PatternLocatorVisitor(PatternLocator patternLocator, NodeSetWrapper nodeSet, MatchLocator locator) {
 		super(true);
@@ -84,6 +86,15 @@ class PatternLocatorVisitor extends ASTVisitor {
 	}
 	
 	private DOMPatternLocator getWrapper(PatternLocator locator) {
+		DOMPatternLocator l = wrapperMap.get(locator);
+		if(l == null ) {
+			l = createWrapper(locator);
+			wrapperMap.put(locator, l);
+		}
+		return l;
+	}
+	
+	private DOMPatternLocator createWrapper(PatternLocator locator) {
 		// TODO implement all this. 
 		if( locator instanceof FieldLocator fl) {
 			return new DOMFieldLocator(fl);
@@ -273,9 +284,10 @@ class PatternLocatorVisitor extends ASTVisitor {
 		if (node.getLocationInParent() == SimpleType.NAME_PROPERTY) {
 			return false; // type was already checked
 		}
-		int level = getWrapper(this.patternLocator).match(node, this.nodeSet, this.locator);
+		DOMPatternLocator wrapper = getWrapper(this.patternLocator);
+		int level = wrapper.match(node, this.nodeSet, this.locator);
 		if ((level & PatternLocator.MATCH_LEVEL_MASK) == PatternLocator.POSSIBLE_MATCH && (this.nodeSet.getWrapped().mustResolve || this.patternLocator.isMustResolve())) {
-			level = getWrapper(this.patternLocator).resolveLevel(node, node.resolveBinding(), this.locator);
+			level = wrapper.resolveLevel(node, node.resolveBinding(), this.locator);
 		}
 		this.nodeSet.addMatch(node, level);
 		if( (level & PatternLocator.MATCH_LEVEL_MASK) == PatternLocator.IMPOSSIBLE_MATCH ) {
