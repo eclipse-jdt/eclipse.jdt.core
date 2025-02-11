@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1024,11 +1024,13 @@ private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType,
 		}
 
 	} else {
-		if (sourceLevel >= ClassFileConstants.JDK1_8) { // below 1.8, external annotations will be attached later
-			walker = binaryType.enrichWithExternalAnnotationsFor(walker, method, this.environment);
-		}
-		if (walker == ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER && this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
-			walker = provideSyntheticEEA(method, walker);
+		if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
+			if (sourceLevel >= ClassFileConstants.JDK1_8) { // below 1.8, external annotations will be attached later
+				walker = binaryType.enrichWithExternalAnnotationsFor(walker, method, this.environment);
+			}
+			if (walker == ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER) {
+				walker = provideSyntheticEEA(method, walker);
+			}
 		}
 		methodModifiers |= ExtraCompilerModifiers.AccGenericSignature;
 		// MethodTypeSignature = ParameterPart(optional) '(' TypeSignatures ')' return_typeSignature ['^' TypeSignature (optional)]
