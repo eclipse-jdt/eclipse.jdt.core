@@ -50,6 +50,7 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class Statement extends ASTNode {
@@ -558,6 +559,11 @@ public ExpressionContext getExpressionContext() {
 protected MethodBinding findConstructorBinding(BlockScope scope, Invocation site, ReferenceBinding receiverType, TypeBinding[] argumentTypes) {
 	MethodBinding ctorBinding = scope.getConstructor(receiverType, argumentTypes, site);
 	return resolvePolyExpressionArguments(site, ctorBinding, argumentTypes, scope);
+}
+public Constant resolveCase(BlockScope scope, TypeBinding testType, SWITCHStatement switchStatement) {
+	// statement within a switch that are not case are treated as normal statement....
+	resolve(scope);
+	return Constant.NotAConstant;
 }
 }
 

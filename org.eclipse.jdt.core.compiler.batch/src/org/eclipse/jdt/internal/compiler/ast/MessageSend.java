@@ -610,6 +610,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		codeStream.invoke(Opcodes.OPC_invokestatic, this.syntheticAccessor, null /* default declaringClass */, this.typeArguments);
 	}
 	// required cast must occur even if no value is required
+	if (this.resolvedType != null) {
+		if (!this.resolvedType.isBaseType()) codeStream.checkcast(this.resolvedType);
+	}
 	if (this.valueCast != null) codeStream.checkcast(this.valueCast);
 	if (valueRequired){
 		// implicit conversion if necessary
@@ -1050,6 +1053,17 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (this.typeArguments != null && this.binding.original().typeVariables == Binding.NO_TYPE_VARIABLES) {
 		scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(this.binding, this.genericTypeArguments, this.typeArguments);
 	}
+
+	// bad patch but...
+	try {
+		String rvn = new String(this.binding.declaringClass.constantPoolName());
+		if (rvn.equals("java/lang/Enum")) { //$NON-NLS-1$
+			this.bits |= NeedReceiverGenericCast;
+		}
+	} catch(Exception e) {
+		// Ignore
+	}
+
 	return (this.resolvedType.tagBits & TagBits.HasMissingType) == 0
 				? this.resolvedType
 				: null;

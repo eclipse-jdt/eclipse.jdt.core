@@ -292,6 +292,16 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			if (this.thrownExceptions != null)
 				this.scope.problemReporter().recordAccessorMethodHasThrowsClause(this);
 		}
+
+		//Maxeler warning for put methods with non void return type.
+		if(this.binding != null && this.binding.returnType != null && !this.binding.returnType.isEquivalentTo(TypeBinding.VOID)){
+			if(CharOperation.equals(this.binding.selector, new char[]{'p','u','t'})){
+				int paramCount = this.binding.parameters.length;
+				if(paramCount == 2 || paramCount == 3){
+					this.scope.problemReporter().invalidPutReturnType(this.binding);
+				}
+			}
+		}
 		// check if method with constructor name
 		if (CharOperation.equals(this.scope.enclosingSourceType().sourceName, this.selector)) {
 			this.scope.problemReporter().methodWithConstructorName(this);
