@@ -5644,11 +5644,6 @@ public void testBug564672_042() {
 		"----------\n" +
 		"1. ERROR in X.java (at line 1)\n" +
 		"	record Point(record x, int i) { }\n" +
-		"	^\n" +
-		"record cannot be resolved to a type\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	record Point(record x, int i) { }\n" +
 		"	             ^^^^^^\n" +
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");

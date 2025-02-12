@@ -24,14 +24,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -400,26 +396,6 @@ public ConstructorDeclaration createDefaultConstructorForRecord(boolean needExpl
 		constructor.constructorCall.sourceStart = this.sourceStart;
 		constructor.constructorCall.sourceEnd = this.sourceEnd;
 	}
-/* The body of the implicitly declared canonical constructor initializes each field corresponding
-	 * to a record component with the corresponding formal parameter in the order that they appear
-	 * in the record component list.*/
-	List<Statement> statements = new ArrayList<>();
-	int l = this.recordComponents != null ? this.recordComponents.length : 0;
-	if (l > 0 && this.fields != null) {
-		List<String> fNames = Arrays.stream(this.fields)
-				.filter(f -> f.isARecordComponent)
-				.map(f ->new String(f.name))
-				.collect(Collectors.toList());
-		for (int i = 0; i < l; ++i) {
-			RecordComponent component = this.recordComponents[i];
-			if (!fNames.contains(new String(component.name)))
-				continue;
-			FieldReference lhs = new FieldReference(component.name, 0);
-			lhs.receiver = ThisReference.implicitThis();
-			statements.add(new Assignment(lhs, new SingleNameReference(component.name, 0), 0));
-		}
-	}
-	constructor.statements = statements.toArray(new Statement[0]);
 
 	//adding the constructor in the methods list: rank is not critical since bindings will be sorted
 	if (needToInsert) {
