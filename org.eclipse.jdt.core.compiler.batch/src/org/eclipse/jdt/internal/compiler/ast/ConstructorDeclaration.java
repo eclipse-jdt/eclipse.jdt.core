@@ -205,6 +205,14 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			this.bits |= ASTNode.NeedFreeReturn;
 		}
 
+		if (this.isCompactConstructor()) {
+			for (FieldBinding field : this.binding.declaringClass.fields()) {
+				if (!field.isStatic()) {
+					flowInfo.markAsDefinitelyAssigned(field);
+				}
+			}
+		}
+
 		// reuse the initial reach mode for diagnosing missing blank finals
 		// no, we should use the updated reach mode for diagnosing uninitialized blank finals.
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=235781
@@ -475,7 +483,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 			throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult, null);
 		}
 		if ((this.bits & ASTNode.NeedFreeReturn) != 0) { //
-			if (this instanceof CompactConstructorDeclaration) {
+			if (this.isCompactConstructor()) {
 				// Note: the body of a compact constructor may not contain a return statement and so will need a injected return
 				for (RecordComponent rc : classScope.referenceContext.recordComponents) {
 					LocalVariableBinding parameter = this.scope.findVariable(rc.name);
@@ -606,7 +614,9 @@ public boolean isRecursive(ArrayList visited) {
 @Override
 public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 	//fill up the constructor body with its statements
-	if (((this.bits & ASTNode.IsDefaultConstructor) != 0) && this.constructorCall == null){
+	if (this.isCompactConstructor()) {
+		this.constructorCall = SuperReference.implicitSuperConstructorCall();
+	} else if (((this.bits & ASTNode.IsDefaultConstructor) != 0) && this.constructorCall == null){
 		this.constructorCall = SuperReference.implicitSuperConstructorCall();
 		this.constructorCall.sourceStart = this.sourceStart;
 		this.constructorCall.sourceEnd = this.sourceEnd;
@@ -680,7 +690,7 @@ public void resolveStatements() {
 			}
 			this.constructorCall = null;
 		} else if (sourceType.isRecord() &&
-				!(this instanceof CompactConstructorDeclaration) && // compact constr should be marked as canonical?
+				!this.isCompactConstructor() && // compact constr should be marked as canonical?
 				(this.binding != null && !this.binding.isCanonicalConstructor()) &&
 				this.constructorCall.accessMode != ExplicitConstructorCall.This) {
 			this.scope.problemReporter().recordMissingExplicitConstructorCallInNonCanonicalConstructor(this);
