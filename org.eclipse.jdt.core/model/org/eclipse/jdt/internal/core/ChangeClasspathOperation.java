@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -50,10 +50,6 @@ public abstract class ChangeClasspathOperation extends JavaModelOperation {
 		project.resetCaches();
 
 		if (this.canChangeResources) {
-			// workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=177922
-			if (isTopLevelOperation() && !ResourcesPlugin.getWorkspace().isTreeLocked()) {
-				new ClasspathValidation(project).validate();
-			}
 
 			// delta, indexing and classpath markers are going to be created by the delta processor
 			// while handling the resource change (either .classpath change, or project touched)
@@ -61,6 +57,11 @@ public abstract class ChangeClasspathOperation extends JavaModelOperation {
 			project.getProject().clearCachedDynamicReferences();
 			// and ensure that external folders are updated as well
 			new ExternalFolderChange(project, change.oldResolvedClasspath).updateExternalFoldersIfNecessary(refreshExternalFolder, null);
+
+			// workaround for https://bugs.eclipse.org/bugs/show_bug.cgi?id=177922
+			if (isTopLevelOperation() && !ResourcesPlugin.getWorkspace().isTreeLocked()) {
+				new ClasspathValidation(project).validate();
+			}
 
 		} else {
 			DeltaProcessingState state = JavaModelManager.getDeltaState();
