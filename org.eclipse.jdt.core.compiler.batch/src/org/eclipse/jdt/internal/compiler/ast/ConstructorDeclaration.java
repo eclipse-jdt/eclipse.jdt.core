@@ -44,7 +44,6 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
-import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -216,7 +215,6 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			&& (this.constructorCall.accessMode != ExplicitConstructorCall.This)) {
 			flowInfo = flowInfo.mergedWith(constructorContext.initsOnReturn);
 			FieldBinding[] fields = this.binding.declaringClass.fields();
-			checkAndGenerateFieldAssignment(initializerFlowContext, flowInfo, fields);
 			doFieldReachAnalysis(flowInfo, fields);
 		}
 		// check unreachable catch blocks
@@ -248,10 +246,6 @@ protected void doFieldReachAnalysis(FlowInfo flowInfo, FieldBinding[] fields) {
 			}
 		}
 	}
-}
-
-protected void checkAndGenerateFieldAssignment(FlowContext flowContext, FlowInfo flowInfo, FieldBinding[] fields) {
-	return;
 }
 boolean isValueProvidedUsingAnnotation(FieldDeclaration fieldDecl) {
 	// a member field annotated with @Inject is considered to be initialized by the injector
@@ -480,7 +474,17 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		if (this.ignoreFurtherInvestigation) {
 			throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult, null);
 		}
-		if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
+		if ((this.bits & ASTNode.NeedFreeReturn) != 0) { //
+			if (this instanceof CompactConstructorDeclaration) {
+				// Note: the body of a compact constructor may not contain a return statement and so will need a injected return
+				for (RecordComponent rc : classScope.referenceContext.recordComponents) {
+					LocalVariableBinding parameter = this.scope.findVariable(rc.name);
+					FieldBinding field = classScope.referenceContext.binding.getField(rc.name, true).original();
+					codeStream.aload_0();
+					codeStream.load(parameter);
+					codeStream.fieldAccess(Opcodes.OPC_putfield, field, classScope.referenceContext.binding);
+				}
+			}
 			codeStream.return_();
 		}
 		// See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1796#issuecomment-1933458054

@@ -2052,7 +2052,7 @@ public abstract class Scope {
 		return typeBinding;
 	}
 
-	public LocalVariableBinding findVariable(char[] variable, InvocationSite invocationSite) {
+	public LocalVariableBinding findVariable(char[] variable) {
 		return null;
 	}
 
@@ -2114,7 +2114,7 @@ public abstract class Scope {
 						case BLOCK_SCOPE :
 							if (!resolvingGuardExpression)
 								resolvingGuardExpression = scope.resolvingGuardExpression();
-							LocalVariableBinding variableBinding = scope.findVariable(name, invocationSite);
+							LocalVariableBinding variableBinding = scope.findVariable(name);
 							// looks in this scope only
 							if (variableBinding != null) {
 								if (foundField != null && foundField.isValidBinding())

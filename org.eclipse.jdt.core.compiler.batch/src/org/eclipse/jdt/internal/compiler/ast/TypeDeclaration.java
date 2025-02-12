@@ -699,7 +699,6 @@ public ConstructorDeclaration getConstructor(Parser parser) {
 				} else {
 					if (am instanceof CompactConstructorDeclaration) {
 						CompactConstructorDeclaration ccd = (CompactConstructorDeclaration) am;
-						ccd.recordDeclaration = this;
 						if (ccd.arguments == null)
 							ccd.arguments = getArgumentsFromComponents(this.recordComponents);
 						return ccd;
