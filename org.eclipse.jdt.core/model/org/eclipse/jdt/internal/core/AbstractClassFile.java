@@ -219,9 +219,11 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 	protected byte[] getClassFileContent(JarPackageFragmentRoot root, String className) throws CoreException, IOException {
 		byte[] contents = null;
 		String rootPath = root.getPath().toOSString();
+		String release = root.getJavaProject().getReleaseOption();
 		if (org.eclipse.jdt.internal.compiler.util.Util.isJrt(rootPath)) {
 			contents = org.eclipse.jdt.internal.compiler.util.JRTUtil.getClassfileContent(
 					new File(rootPath),
+					release,
 					className,
 					root.getElementName());
 		} else {

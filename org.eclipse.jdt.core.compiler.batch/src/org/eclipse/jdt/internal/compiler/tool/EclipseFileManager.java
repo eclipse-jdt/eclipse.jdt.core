@@ -102,7 +102,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	}
 	protected void initialize(File javahome) throws IOException {
 		if (this.isOnJvm9) {
-			this.jrtSystem = new JrtFileSystem(javahome);
+			this.jrtSystem = new JrtFileSystem(javahome, this.releaseVersion);
 			try (Archive previous = this.archivesCache.put(javahome, this.jrtSystem)) {
 				// nothing. Only theoretically autoclose the previous instance - which does not exist at this time
 			}
@@ -254,7 +254,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		if (f.exists()) {
 			try {
 				if (isJrt(f)) {
-					archive = new JrtFileSystem(f);
+					archive = new JrtFileSystem(f, this.releaseVersion);
 				} else {
 					archive = new Archive(f);
 				}

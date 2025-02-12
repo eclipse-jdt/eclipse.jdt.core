@@ -150,6 +150,8 @@ private static Class[] getAllTestClasses() {
 		ReconcilerTests9.class,
 		ReconcilerTests16.class,
 		ReconcilerTests21.class,
+		ReconcilerTests16WithReleaseOption.class,
+		ReconcilerTests21WithReleaseOption.class,
 		ReconcilerStatementsRecoveryTests.class,
 
 		// Copy and move operation tests

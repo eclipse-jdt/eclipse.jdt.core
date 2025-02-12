@@ -9031,7 +9031,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			waitForAutoBuild();
 			p1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
-			assertMarkers("Unexpected markers", "The project was not built due to \"Invalid value for --release argument:16.8\". Fix the problem, then try refreshing this project and building it since it may be inconsistent", markers);
+			assertMarkers("Unexpected markers",
+					"The project was not built since its build path is incomplete. Cannot find the class file for java.lang.Object. Fix the build path then try building this project\n" +
+					"The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files"
+					, markers);
 		} finally {
 			deleteProject(p1);
 		}

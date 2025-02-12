@@ -20,14 +20,20 @@ public interface SuffixConstants {
 	public final static String EXTENSION_JAVA = "JAVA"; //$NON-NLS-1$
 	public final static String EXTENSION_jmod = "jmod"; //$NON-NLS-1$
 	public final static String EXTENSION_JMOD = "JMOD"; //$NON-NLS-1$
+	public final static String EXTENSION_sig = "sig"; //$NON-NLS-1$
+	public final static String EXTENSION_SIG = "SIG"; //$NON-NLS-1$
 
 	public final static String SUFFIX_STRING_class = "." + EXTENSION_class; //$NON-NLS-1$
 	public final static String SUFFIX_STRING_CLASS = "." + EXTENSION_CLASS; //$NON-NLS-1$
 	public final static String SUFFIX_STRING_java = "." + EXTENSION_java; //$NON-NLS-1$
 	public final static String SUFFIX_STRING_JAVA = "." + EXTENSION_JAVA; //$NON-NLS-1$
+	public final static String SUFFIX_STRING_sig = "." + EXTENSION_sig; //$NON-NLS-1$
+	public final static String SUFFIX_STRING_SIG = "." + EXTENSION_SIG; //$NON-NLS-1$
 
 	public final static char[] SUFFIX_class = SUFFIX_STRING_class.toCharArray();
 	public final static char[] SUFFIX_CLASS = SUFFIX_STRING_CLASS.toCharArray();
 	public final static char[] SUFFIX_java = SUFFIX_STRING_java.toCharArray();
 	public final static char[] SUFFIX_JAVA = SUFFIX_STRING_JAVA.toCharArray();
+	public final static char[] SUFFIX_sig = SUFFIX_STRING_sig.toCharArray();
+	public final static char[] SUFFIX_SIG = SUFFIX_STRING_SIG.toCharArray();
 }
