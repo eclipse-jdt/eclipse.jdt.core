@@ -89,6 +89,7 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
@@ -98,6 +99,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
@@ -131,7 +133,6 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
-import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -168,6 +169,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			PrimitiveType.DOUBLE.toString().toCharArray(),
 			PrimitiveType.FLOAT.toString().toCharArray(),
 			PrimitiveType.CHAR.toString().toCharArray());
+	private static final String STATIC = "static";
 
 	private final CompletionRequestor requestor;
 	private final SearchableEnvironment nameEnvironment;
@@ -941,11 +943,14 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						}
 						if (!(this.toComplete instanceof Type)) {
 							AbstractTypeDeclaration parentTypeDeclaration = DOMCompletionUtil.findParentTypeDeclaration(context);
-							if (parentTypeDeclaration != null) {
+							MethodDeclaration methodDecl = (MethodDeclaration)DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.METHOD_DECLARATION });
+							if (parentTypeDeclaration != null && methodDecl != null && (methodDecl.getModifiers() & Flags.AccStatic) == 0) {
 								ITypeBinding currentTypeBinding = parentTypeDeclaration.resolveBinding();
 								if (currentTypeBinding.isSubTypeCompatible(qualifierTypeBinding)) {
 									if (!isFailedMatch(this.prefix.toCharArray(), Keywords.THIS)) {
-										this.requestor.accept(createKeywordProposal(Keywords.THIS, startPos, endPos));
+										CompletionProposal res = createKeywordProposal(Keywords.THIS, startPos, endPos);
+										res.setRelevance(res.getRelevance() + RelevanceConstants.R_NON_INHERITED);
+										this.requestor.accept(res);
 									}
 									if (!isFailedMatch(this.prefix.toCharArray(), Keywords.SUPER)) {
 										this.requestor.accept(createKeywordProposal(Keywords.SUPER, startPos, endPos));
@@ -2027,6 +2032,12 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					}
 				}
 			}
+		}
+		MethodDeclaration methodDecl = (MethodDeclaration) DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.METHOD_DECLARATION });
+		Initializer initializer = (Initializer) DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.INITIALIZER });
+		if (methodDecl != null && (methodDecl.getModifiers() & Flags.AccStatic) == 0
+				|| initializer != null && !STATIC.equals(this.textContent.substring(initializer.getStartPosition(), initializer.getStartPosition() + STATIC.length()))) {
+			keywords.add(Keywords.THIS);
 		}
 		for (char[] keyword : keywords) {
 			if (!isFailedMatch(this.toComplete.toString().toCharArray(), keyword)) {
