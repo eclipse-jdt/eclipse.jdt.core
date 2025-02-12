@@ -644,7 +644,7 @@ class ASTConverter {
 		methodName.internalSetIdentifier(new String(methodDeclaration.selector));
 		int start = methodDeclaration.sourceStart;
 		int end;
-		if (DOMASTUtil.isRecordDeclarationSupported(this.ast) && methodDeclaration instanceof CompactConstructorDeclaration) {
+		if (DOMASTUtil.isRecordDeclarationSupported(this.ast) && methodDeclaration.isCompactConstructor()) {
 			methodDecl.setCompactConstructor(true);
 			end = start + methodDeclaration.selector.length -1;
 		}else {

@@ -2980,7 +2980,12 @@ protected void consumeConstructorHeaderName(boolean isCompact) {
 
 	// ConstructorHeaderName ::=  Modifiersopt 'Identifier' '('
 	// CompactConstructorHeaderName ::= Modifiersopt 'Identifier'
-	ConstructorDeclaration cd = isCompact ? new CompactConstructorDeclaration(this.compilationUnit.compilationResult) : new ConstructorDeclaration(this.compilationUnit.compilationResult);
+	ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationUnit.compilationResult) {
+										@Override
+										public boolean isCompactConstructor() {
+											return isCompact;
+										}
+									};
 
 	//name -- this is not really revelant but we do .....
 	cd.selector = this.identifierStack[this.identifierPtr];
@@ -10409,7 +10414,7 @@ protected void consumeRecordDeclaration() {
 	typeDecl.createDefaultConstructor(!(this.diet && this.dietInt == 0), true);
 	//convert constructor that do not have the type's name into methods
 	ConstructorDeclaration cd = typeDecl.getConstructor(this);
-	if (cd instanceof CompactConstructorDeclaration
+	if (cd.isCompactConstructor()
 		|| ((typeDecl.recordComponents == null || typeDecl.recordComponents.length == 0)
 		&& (cd.arguments == null || cd.arguments.length == 0))) {
 		cd.bits |= ASTNode.IsCanonicalConstructor;
