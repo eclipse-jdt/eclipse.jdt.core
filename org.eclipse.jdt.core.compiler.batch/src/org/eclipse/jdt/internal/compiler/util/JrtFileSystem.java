@@ -42,11 +42,10 @@ public class JrtFileSystem {
 	FileSystem fs;
 	final Path modRoot;
 	final Jdk jdk;
-	final String release;
 
 	public static JrtFileSystem getNewJrtFileSystem(Jdk jdk, String release) throws IOException {
 		if (release == null || jdk.sameRelease(release)) {
-			return new JrtFileSystem(jdk, null);
+			return new JrtFileSystem(jdk);
 		} else {
 			return new JrtFileSystemWithOlderRelease(jdk, release);
 		}
@@ -56,9 +55,8 @@ public class JrtFileSystem {
 	 * The jrt file system is based on the location of the JRE home whose libraries
 	 * need to be loaded.
 	 */
-	JrtFileSystem(Jdk jdkHome, String release) throws IOException {
+	JrtFileSystem(Jdk jdkHome) throws IOException {
 		this.jdk = jdkHome;
-		this.release = release;
 		JRTUtil.MODULE_TO_LOAD = System.getProperty("modules.to.load"); //$NON-NLS-1$
 		this.fs = JRTUtil.getJrtFileSystem(this.jdk.path);
 		this.modRoot = this.fs.getPath(JRTUtil.MODULES_SUBDIR);
