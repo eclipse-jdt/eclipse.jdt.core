@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.codegen.AnnotationContext;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -174,6 +175,16 @@ public class RecordComponent extends AbstractVariableDeclaration {
 				this.initialization.traverse(visitor, scope);
 		}
 		visitor.endVisit(this, scope);
+	}
+
+	@Override
+	public RecordComponentBinding getBinding() {
+		return this.binding;
+	}
+
+	@Override
+	public void setBinding(Binding binding) {
+		this.binding = (RecordComponentBinding) binding;
 	}
 
 }

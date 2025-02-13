@@ -384,6 +384,16 @@ public void resolveJavadoc(MethodScope initializationScope) {
 	}
 }
 
+@Override
+public FieldBinding getBinding() {
+	return this.binding;
+}
+
+@Override
+public void setBinding(Binding binding) {
+	this.binding = (FieldBinding) binding;
+}
+
 public void traverse(ASTVisitor visitor, MethodScope scope) {
 	if (visitor.visit(this, scope)) {
 		if (this.javadoc != null) {
