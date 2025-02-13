@@ -14,23 +14,31 @@ import static com.sun.tools.javac.jvm.ByteCodes.athrow;
 
 import com.sun.tools.javac.code.Kinds.Kind;
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
+import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ErrorType;
 import com.sun.tools.javac.comp.Attr;
+import com.sun.tools.javac.comp.AttrContext;
+import com.sun.tools.javac.comp.Env;
 import com.sun.tools.javac.jvm.Gen;
 import com.sun.tools.javac.tree.JCTree.JCArrayAccess;
 import com.sun.tools.javac.tree.JCTree.JCAssign;
 import com.sun.tools.javac.tree.JCTree.JCBinary;
+import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCErroneous;
 import com.sun.tools.javac.tree.JCTree.JCExpression;
 import com.sun.tools.javac.tree.JCTree.JCExpressionStatement;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
+import com.sun.tools.javac.tree.JCTree.JCIf;
 import com.sun.tools.javac.tree.JCTree.JCInstanceOf;
 import com.sun.tools.javac.tree.JCTree.JCLiteral;
 import com.sun.tools.javac.tree.JCTree.JCMethodInvocation;
 import com.sun.tools.javac.tree.JCTree.JCNewClass;
 import com.sun.tools.javac.tree.JCTree.JCParens;
+import com.sun.tools.javac.tree.JCTree.JCReturn;
 import com.sun.tools.javac.tree.JCTree.JCThrow;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.tree.TreeInfo;
@@ -58,6 +66,28 @@ public class ProceedOnErrorGen extends Gen {
 		Attr.instance(context).attribStat(res, getAttrEnv());
 		res.type = res.clazz.type; // ugly workaround
 		return res;
+	}
+
+	@Override
+	public boolean genClass(Env<AttrContext> env, JCClassDecl cdef) {
+		try {
+			return super.genClass(env, cdef) && verifyClassComplete(cdef.sym);
+		} catch (Exception ex) {
+			return false;
+		}
+	}
+
+	private boolean verifyClassComplete(ClassSymbol sym) {
+		return sym.type != null && !sym.type.isErroneous() &&
+			!sym.getSuperclass().isErroneous() &&
+			sym.getInterfaces().stream().noneMatch(Type::isErroneous) &&
+			!sym.members().getSymbols(member ->
+					(member instanceof VarSymbol field && field.type.isErroneous()) ||
+					(member instanceof MethodSymbol method && (method.type.isErroneous() ||
+						method.getReturnType().isErroneous() ||
+						(method.params != null && method.params.stream().map(param -> param.type).anyMatch(Type::isErroneous)) ||
+						method.getThrownTypes().stream().anyMatch(Type::isErroneous))
+				)).iterator().hasNext();
 	}
 
 	@Override
@@ -192,6 +222,24 @@ public class ProceedOnErrorGen extends Gen {
 			visitErroneous(null);
 		} else {
 			super.visitParens(parens);
+		}
+	}
+
+	@Override
+	public void visitReturn(JCReturn tree) {
+		if (tree == null || (tree.getExpression() != null && !isValid(tree.getExpression()))) {
+			visitErroneous(null);
+		} else {
+			super.visitReturn(tree);
+		}
+	}
+
+	@Override
+	public void visitIf(JCIf tree) {
+		if (tree == null || !isValid(tree.getCondition())) {
+			visitErroneous(null);
+		} else {
+			super.visitIf(tree);
 		}
 	}
 }
