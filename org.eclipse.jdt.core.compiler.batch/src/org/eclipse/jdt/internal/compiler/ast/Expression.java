@@ -718,7 +718,7 @@ public void computeConversion(Scope scope, TypeBinding runtimeType, TypeBinding 
 			if (compileTimeTypeID == TypeIds.T_JavaLangObject) {
 				this.implicitConversion |= (runtimeTypeID << 4) + compileTimeTypeID;
 			} else {
-				this.implicitConversion |= (TypeIds.T_int << 4) + compileTimeTypeID;
+				this.implicitConversion |= (runtimeTypeID << 4) + compileTimeTypeID;
 			}
 			break;
 		case T_JavaLangString :
