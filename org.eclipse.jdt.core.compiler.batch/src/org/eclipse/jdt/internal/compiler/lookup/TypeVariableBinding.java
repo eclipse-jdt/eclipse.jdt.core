@@ -45,6 +45,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -935,7 +936,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	}
 
 	@Override
-	public ReferenceBinding[] superInterfaces() {
+	protected ReferenceBinding[] superInterfacesRecursive(Map<ReferenceBinding, Object> visited) {
 		return this.superInterfaces;
 	}
 
