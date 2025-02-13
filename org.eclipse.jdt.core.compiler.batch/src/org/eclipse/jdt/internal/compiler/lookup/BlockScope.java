@@ -497,7 +497,7 @@ public LocalDeclaration[] findLocalVariableDeclarations(int position) {
 	return null;
 }
 @Override
-public LocalVariableBinding findVariable(char[] variableName, InvocationSite invocationSite) {
+public LocalVariableBinding findVariable(char[] variableName) {
 	int varLength = variableName.length;
 	for (int i = this.localIndex-1; i >= 0; i--) { // lookup backward to reach latest additions first
 		LocalVariableBinding local = this.locals[i];

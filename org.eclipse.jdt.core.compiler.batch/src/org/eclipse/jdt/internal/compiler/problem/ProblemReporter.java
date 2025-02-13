@@ -11913,7 +11913,7 @@ public void recordCompactConstructorHasReturnStatement(ReturnStatement stmt) {
 		stmt.sourceStart,
 		stmt.sourceEnd);
 }
-public void compactConstructorsOnlyInRecords(CompactConstructorDeclaration ccd) {
+public void compactConstructorsOnlyInRecords(AbstractMethodDeclaration ccd) {
 	this.handle(
 			IProblem.CompactConstructorOnlyInRecords,
 			NoArgument,
