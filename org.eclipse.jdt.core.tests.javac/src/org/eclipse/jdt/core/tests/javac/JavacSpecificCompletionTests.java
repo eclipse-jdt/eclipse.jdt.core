@@ -302,4 +302,118 @@ public class JavacSpecificCompletionTests {
 		assertTrue(requestor.getResults().contains("out[FIELD_REF]{out, Ljava.lang.System;, Ljava.io.PrintStream;, out, [78, 78], 51}"));
 	}
 
+	@Test
+	public void testWhileCastedMethodRefCompletion() throws Exception {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("HelloWorld.java",
+				"""
+				public class HelloWorld {
+					public int foo() { return 12; }
+					public static void main(String... args) {
+						Object obj = null;
+						while (obj instanceof HelloWorld) {
+							obj.fo
+						}
+					}
+				}
+				""");
+
+		// add the replace range to the results
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false, false, true);
+
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "obj.fo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		IProgressMonitor monitor = new NullProgressMonitor();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, WC_OWNER, monitor);
+		assertTrue(requestor.getResults().contains("foo[METHOD_REF_WITH_CASTED_RECEIVER]{((HelloWorld)obj).foo(), LHelloWorld;, ()I, LHelloWorld;, foo, replace[164, 170], receiver[164, 167], 60}"));
+	}
+
+	@Test
+	public void testForCastedMethodRefCompletion() throws Exception {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("HelloWorld.java",
+				"""
+				public class HelloWorld {
+					public int foo() { return 12; }
+					public static void main(String... args) {
+						Object obj = null;
+						for (;obj instanceof HelloWorld;) {
+							obj.fo
+						}
+					}
+				}
+				""");
+
+		// add the replace range to the results
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false, false, true);
+
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "obj.fo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		IProgressMonitor monitor = new NullProgressMonitor();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, WC_OWNER, monitor);
+		assertTrue(requestor.getResults().contains("foo[METHOD_REF_WITH_CASTED_RECEIVER]{((HelloWorld)obj).foo(), LHelloWorld;, ()I, LHelloWorld;, foo, replace[164, 170], receiver[164, 167], 60}"));
+	}
+
+	@Test
+	public void testNegativeIfContainingReturnCastedMethodRefCompletion() throws Exception {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("HelloWorld.java",
+				"""
+				public class HelloWorld {
+					public int foo() { return 12; }
+					public static void main(String... args) {
+						Object obj = null;
+						if (!(obj instanceof HelloWorld)) {
+							String asdf = "";
+							return;
+						}
+						obj.fo
+					}
+				}
+				""");
+
+		// add the replace range to the results
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false, false, true);
+
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "obj.fo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		IProgressMonitor monitor = new NullProgressMonitor();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, WC_OWNER, monitor);
+		assertTrue(requestor.getResults().contains("foo[METHOD_REF_WITH_CASTED_RECEIVER]{((HelloWorld)obj).foo(), LHelloWorld;, ()I, LHelloWorld;, foo, replace[199, 205], receiver[199, 202], 60}"));
+	}
+
+	@Test
+	public void testCastedFieldRefPreservesComments() throws Exception {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("HelloWorld.java",
+				"""
+				public class DemoClass {
+					int myField = 12;
+					public void myMethod() {
+						MyNested obj = new MyNested();
+						if (obj.nestedField instanceof DemoClass) {
+							obj /* obj.nestedField is definitely a DemoClass */ . nestedField . myF
+						}
+					}
+
+					public static class MyNested {
+						public Object nestedField = null;
+					}
+				}
+				""");
+
+		// add the replace range to the results
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false, false, true);
+
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "myF";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		IProgressMonitor monitor = new NullProgressMonitor();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, WC_OWNER, monitor);
+		assertEquals("myField[FIELD_REF_WITH_CASTED_RECEIVER]{((DemoClass)obj /* obj.nestedField is definitely a DemoClass */ . nestedField) . myField, LDemoClass;, I, LHelloWorld~DemoClass;, myField, replace[152, 223], receiver[152, 219], 60}", requestor.getResults());
+	}
+
 }

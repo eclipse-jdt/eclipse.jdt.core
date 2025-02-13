@@ -89,7 +89,9 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.core.dom.Initializer;
+import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
@@ -111,6 +113,7 @@ import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.QualifiedType;
 import org.eclipse.jdt.core.dom.RecordDeclaration;
+import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
@@ -133,6 +136,7 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -359,6 +363,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	 * @param falseBindings the bindings that are accessible when the expression is false
 	 */
 	record TrueFalseBindings(List<IVariableBinding> trueBindings, List<IVariableBinding> falseBindings) {}
+	
+	record TrueFalseCasts(List<ITypeBinding> trueCasts, List<ITypeBinding> falseCasts) {}
 
 	private TrueFalseBindings collectTrueFalseBindings(Expression e) {
 		if (e instanceof PrefixExpression prefixExpression && prefixExpression.getOperator() == PrefixExpression.Operator.NOT) {
@@ -384,6 +390,38 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				typePatternBindings.add(patt.getPatternVariable().resolveBinding());
 			});
 			return new TrueFalseBindings(typePatternBindings, Collections.emptyList());
+		}
+	}
+	
+	private static TrueFalseCasts collectTrueFalseCasts(Expression e, IVariableBinding castedBinding) {
+		if (e instanceof PrefixExpression prefixExpression && prefixExpression.getOperator() == PrefixExpression.Operator.NOT) {
+			TrueFalseCasts notBindings = collectTrueFalseCasts(prefixExpression.getOperand(), castedBinding);
+			return new TrueFalseCasts(notBindings.falseCasts(), notBindings.trueCasts());
+		} else if (e instanceof InfixExpression infixExpression && (infixExpression.getOperator() == InfixExpression.Operator.CONDITIONAL_AND || infixExpression.getOperator() == InfixExpression.Operator.AND )) {
+			TrueFalseCasts left = collectTrueFalseCasts(infixExpression.getLeftOperand(), castedBinding);
+			TrueFalseCasts right = collectTrueFalseCasts(infixExpression.getRightOperand(), castedBinding);
+			List<ITypeBinding> combined = new ArrayList<>();
+			combined.addAll(left.trueCasts());
+			combined.addAll(right.trueCasts());
+			return new TrueFalseCasts(combined, Collections.emptyList());
+		} else if (e instanceof InfixExpression infixExpression && (infixExpression.getOperator() == InfixExpression.Operator.CONDITIONAL_OR || infixExpression.getOperator() == InfixExpression.Operator.OR)) {
+			TrueFalseCasts left = collectTrueFalseCasts(infixExpression.getLeftOperand(), castedBinding);
+			TrueFalseCasts right = collectTrueFalseCasts(infixExpression.getRightOperand(), castedBinding);
+			List<ITypeBinding> combined = new ArrayList<>();
+			combined.addAll(left.falseCasts());
+			combined.addAll(right.falseCasts());
+			return new TrueFalseCasts(Collections.emptyList(), combined);
+		} else {
+			List<ITypeBinding> castedTypes = new ArrayList<>();
+			DOMCompletionUtil.visitChildren(e, ASTNode.INSTANCEOF_EXPRESSION, (InstanceofExpression expr) -> {
+				Expression leftOperand= expr.getLeftOperand();
+				if (leftOperand instanceof Name name && name.resolveBinding() != null && name.resolveBinding().getKey().equals(castedBinding.getKey())) {
+					castedTypes.add(expr.getRightOperand().resolveBinding());
+				} else if (leftOperand instanceof FieldAccess fieldAccess && fieldAccess.resolveFieldBinding() != null && fieldAccess.resolveFieldBinding().getKey().equals(castedBinding.getKey())) {
+					castedTypes.add(expr.getRightOperand().resolveBinding());
+				}
+			});
+			return new TrueFalseCasts(castedTypes, Collections.emptyList());
 		}
 	}
 
@@ -574,6 +612,15 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					if (!fieldAccessType.isRecovered()) {
 						processMembers(fieldAccess, fieldAccessExpr.resolveTypeBinding(), specificCompletionBindings, false);
 						publishFromScope(specificCompletionBindings);
+						IVariableBinding variableToCast = null;
+						if (fieldAccessExpr instanceof Name name && name.resolveBinding() instanceof IVariableBinding variableBinding) {
+							variableToCast = variableBinding;
+						} else if (fieldAccessExpr instanceof FieldAccess parentFieldAccess && parentFieldAccess.resolveFieldBinding() != null) {
+							variableToCast = parentFieldAccess.resolveFieldBinding();
+						}
+						if (variableToCast != null) {
+							suggestDowncastedFieldsAndMethods(specificCompletionBindings, fieldAccessExpr, variableToCast);
+						}
 					} else if (fieldAccessExpr instanceof MethodInvocation method &&
 								this.unit.findDeclaringNode(method.resolveMethodBinding()) instanceof MethodDeclaration decl) {
 						completeMissingType(decl.getReturnType2());
@@ -1041,6 +1088,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						}
 						processMembers(qualifiedName, typeBinding, specificCompletionBindings, false);
 						publishFromScope(specificCompletionBindings);
+						suggestDowncastedFieldsAndMethods(specificCompletionBindings, qualifiedName.getQualifier(), variableBinding);
 						suggestDefaultCompletions = false;
 					} else {
 						// UnimportedType.|
@@ -1576,6 +1624,138 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				this.monitor.done();
 			}
 		}
+	}
+
+	private void suggestDowncastedFieldsAndMethods(Bindings specificCompletionBindings, Expression fieldAccessExpr,
+			IVariableBinding variableToCast) {
+		if (this.extendsOrImplementsInfo == null && (!this.requestor.isIgnored(CompletionProposal.METHOD_REF_WITH_CASTED_RECEIVER)
+				|| !this.requestor.isIgnored(CompletionProposal.FIELD_REF_WITH_CASTED_RECEIVER))) {
+			Set<String> alreadySuggestedBindingKeys = specificCompletionBindings.all()
+					.map(IBinding::getKey).collect(Collectors.toSet());
+			List<ITypeBinding> castedTypes = findInstanceofChecks(this.toComplete, variableToCast);
+			for (ITypeBinding castedType : castedTypes) {
+				Bindings castedBindings = new Bindings();
+				processMembers(this.toComplete, castedType, castedBindings, false);
+				castedBindings.all().forEach(castedBinding -> {
+					if (alreadySuggestedBindingKeys.contains(castedBinding.getKey())) {
+						return;
+					}
+					if (!this.pattern.matchesName(this.prefix.toCharArray(), castedBinding.getName().toCharArray())) {
+						return;
+					}
+					this.requestor.accept(toCastedReceiverProposal(castedBinding, castedType, fieldAccessExpr));
+				});
+			}
+		}
+	}
+
+	private CompletionProposal toCastedReceiverProposal(IBinding castedBinding, ITypeBinding castedType, ASTNode toCast) {
+		DOMInternalCompletionProposal template = (DOMInternalCompletionProposal)toProposal(castedBinding);
+		DOMInternalCompletionProposal res = null;
+		if (castedBinding instanceof IMethodBinding) {
+			res = createProposal(CompletionProposal.METHOD_REF_WITH_CASTED_RECEIVER);
+		} else if (castedBinding instanceof IVariableBinding) {
+			res = createProposal(CompletionProposal.FIELD_REF_WITH_CASTED_RECEIVER);
+		} else {
+			return template;
+		}
+
+		int templateEnd = template.getReplaceEnd();
+		res.setReplaceRange(toCast.getStartPosition(), templateEnd);
+		res.setReceiverRange(toCast.getStartPosition(), template.getReplaceStart() - 1);
+		res.setTokenRange(template.getReplaceStart(), templateEnd);
+
+		String existingQualifierContent = this.textContent.substring(toCast.getStartPosition(), toCast.getStartPosition() + toCast.getLength());
+
+		// usually just the `.`, but could include comments
+		// see CompletionTests.testCompletionAfterInstanceof19
+		String existingPostQualifierPreTokenContent = this.textContent.substring(toCast.getStartPosition() + toCast.getLength(), template.getReplaceStart());
+
+		// build completion
+		StringBuilder completion = new StringBuilder();
+		completion.append("((");
+		completion.append(castedType.getName());
+		completion.append(")");
+		completion.append(existingQualifierContent);
+		completion.append(")");
+		completion.append(existingPostQualifierPreTokenContent);
+		completion.append(template.getCompletion());
+
+		res.setCompletion(completion.toString().toCharArray());
+		
+		// copy props from the template proposal
+		if (!castedType.isArray()) {
+			res.setDeclarationSignature(template.getDeclarationSignature());
+		} else {
+			// length of an array type
+			res.setDeclarationSignature(SignatureUtils.getSignatureChar(castedType));
+		}
+		res.setSignature(template.getSignature());
+		res.setOriginalSignature(template.originalSignature);
+		res.setReceiverSignature(SignatureUtils.getSignatureChar(castedType));
+		res.setDeclarationPackageName(template.getDeclarationPackageName());
+		res.setDeclarationTypeName(template.getDeclarationTypeName());
+		res.setParameterPackageNames(template.getParameterPackageNames());
+		res.setParameterTypeNames(template.getParameterTypeNames());
+		res.setPackageName(template.getPackageName());
+		res.setTypeName(template.getTypeName());
+		res.setName(template.getName());
+		res.setFlags(template.getFlags());
+		res.setRelevance(template.getRelevance());
+
+		return res;
+	}
+
+	private static List<ITypeBinding> findInstanceofChecks(ASTNode toComplete2, IVariableBinding variableBinding) {
+		List<ITypeBinding> castedTypes = new ArrayList<>();
+		ASTNode cursor = toComplete2;
+		ASTNode cursorParent = cursor.getParent();
+		while (cursorParent != null) {
+			if (cursorParent instanceof IfStatement ifStatement) {
+				TrueFalseCasts trueFalseCasts = collectTrueFalseCasts(ifStatement.getExpression(), variableBinding);
+				if (ifStatement.getThenStatement().equals(cursor)) {
+					castedTypes.addAll(trueFalseCasts.trueCasts());
+				} else if (ifStatement.getElseStatement() != null && ifStatement.getElseStatement().equals(cursor)) {
+					castedTypes.addAll(trueFalseCasts.falseCasts());
+				}
+			} else if (cursorParent instanceof WhileStatement whileStatement) {
+				TrueFalseCasts trueFalseCasts = collectTrueFalseCasts(whileStatement.getExpression(), variableBinding);
+				if (whileStatement.getBody().equals(cursor)) {
+					castedTypes.addAll(trueFalseCasts.trueCasts());
+				}
+			} else if (cursorParent instanceof ForStatement forStatement && forStatement.getExpression() != null) {
+				TrueFalseCasts trueFalseCasts = collectTrueFalseCasts(forStatement.getExpression(), variableBinding);
+				if (forStatement.getBody().equals(cursor)) {
+					castedTypes.addAll(trueFalseCasts.trueCasts());
+				}
+			} else if (cursorParent instanceof Block block) {
+				int lastIndex = block.statements().indexOf(cursor);
+				for (int i = 0; i < lastIndex; i++) {
+					if (block.statements().get(i) instanceof IfStatement ifStatement) {
+						if (ifStatement.getElseStatement() == null
+								&& (ifStatement.getThenStatement() instanceof ReturnStatement
+										|| (ifStatement.getThenStatement() instanceof Block nestedBlock && nestedBlock.statements().stream().anyMatch(ReturnStatement.class::isInstance)))) {
+							// with a non conditional return
+							TrueFalseCasts trueFalseCasts = collectTrueFalseCasts(ifStatement.getExpression(), variableBinding);
+							castedTypes.addAll(trueFalseCasts.falseCasts());
+						}
+					}
+				}
+			} else if (cursorParent instanceof InfixExpression infixExpression) {
+				if (infixExpression.getRightOperand().equals(cursor)) {
+					if (infixExpression.getOperator().equals(Operator.CONDITIONAL_AND)) {
+						TrueFalseCasts trueFalseCasts = collectTrueFalseCasts(infixExpression.getLeftOperand(), variableBinding);
+						castedTypes.addAll(trueFalseCasts.trueCasts());
+					} else if (infixExpression.getOperator().equals(Operator.CONDITIONAL_OR)) {
+						TrueFalseCasts trueFalseCasts = collectTrueFalseCasts(infixExpression.getLeftOperand(), variableBinding);
+						castedTypes.addAll(trueFalseCasts.falseCasts());
+					}
+				}
+			}
+			cursor = cursorParent;
+			cursorParent = cursorParent.getParent();
+		}
+		return castedTypes;
 	}
 
 	private boolean isTypeInVariableDeclaration(ASTNode context) {
