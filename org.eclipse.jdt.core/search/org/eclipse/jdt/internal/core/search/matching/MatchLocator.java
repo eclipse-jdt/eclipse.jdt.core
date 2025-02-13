@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -822,6 +823,9 @@ private boolean filterEnum(SearchMatch match) {
 	// filter org.apache.commons.lang.enum package for projects above 1.5
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=317264
 	IJavaElement element = (IJavaElement)match.getElement();
+	if( element == null )
+		return false;
+
 	PackageFragment pkg = (PackageFragment)element.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
 	if (pkg != null) {
 		// enum was found in org.apache.commons.lang.enum at index 5
@@ -1273,6 +1277,15 @@ private boolean skipMatch(JavaProject javaProject, PossibleMatch possibleMatch) 
 	return false;
 }
 protected void locateMatches(JavaProject javaProject, PossibleMatch[] possibleMatches, int start, int length) throws CoreException {
+	IJavaSearchDelegate delegate = JavaSearchDelegateDiscovery.getInstance();
+	if( delegate != null ) {
+		delegate.locateMatches(this, javaProject, possibleMatches, start, length);
+	} else {
+		locateMatchesDefaultImpl(javaProject, possibleMatches, start, length);
+	}
+}
+
+protected void locateMatchesDefaultImpl(JavaProject javaProject, PossibleMatch[] possibleMatches, int start, int length) throws CoreException {
 	initialize(javaProject, length);
 
 	// create and resolve binding (equivalent to beginCompilation() in Compiler)
@@ -1716,7 +1729,25 @@ public SearchMatch newDeclarationMatch(
 		int accuracy,
 		int offset,
 		int length) {
+	return newDeclarationMatch(element, binding, accuracy, offset, length, false);
+}
+
+public SearchMatch newDeclarationMatch(
+		IJavaElement element,
+		Binding binding,
+		int accuracy,
+		int offset,
+		int length,
+		boolean overrideRangeFromMethod) {
 	SearchParticipant participant = getParticipant();
+	if (overrideRangeFromMethod && element instanceof IMethod method) {
+		try {
+			offset = method.getNameRange().getOffset();
+			length = method.getNameRange().getLength();
+		} catch (JavaModelException e) {
+			ILog.get().error(e.getMessage(), e);
+		}
+	}
 	IResource resource = this.currentPossibleMatch.resource;
 	return newDeclarationMatch(element, binding, accuracy, offset, length, participant, resource);
 }
