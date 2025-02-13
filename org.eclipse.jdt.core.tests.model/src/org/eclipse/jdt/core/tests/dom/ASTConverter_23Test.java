@@ -563,4 +563,40 @@ public class ASTConverter_23Test extends ConverterTestSetup {
 
 	    assertNotNull("ASTNode creation failed. Node is null!", node);
 	}
+
+	public void testBug3734() throws CoreException {
+        ASTParser astParser = ASTParser.newParser(getAST23());
+        Map<String, String> options = new HashMap<>();
+        options.put(JavaCore.COMPILER_COMPLIANCE, "23");
+        options.put(JavaCore.COMPILER_SOURCE, "23");
+
+        astParser.setCompilerOptions(options);
+        astParser.setEnvironment(new String[] {}, new String[] {}, new String[] {}, true);
+        astParser.setUnitName("X.java");
+        astParser.setResolveBindings(true);
+        astParser.setBindingsRecovery(true);
+
+        String source ="""
+                    public class X {
+                        int[] x = new int[1];
+                        int[] y = new int[1];
+                        int test(int a) {
+                        	this.y[0] = a;
+                            return this.x[0] = a;
+                        }
+                    }
+                """;
+
+        astParser.setSource(source.toCharArray());
+
+        CompilationUnit compilationUnit = (CompilationUnit) astParser.createAST(null);
+        TypeDeclaration a = (TypeDeclaration) compilationUnit.types().get(0);
+
+        ITypeBinding aBinding = a.resolveBinding();
+        IVariableBinding[] fieldBinding = aBinding.getDeclaredFields();
+
+        assertEquals("Mismatch in field",fieldBinding.length, 2);
+
+
+    }
 }
