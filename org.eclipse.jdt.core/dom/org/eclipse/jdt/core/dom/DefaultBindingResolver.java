@@ -373,6 +373,8 @@ class DefaultBindingResolver extends BindingResolver {
 			}
 			ITypeBinding binding = (ITypeBinding) this.bindingTables.compilerBindingsToASTBindings.get(referenceBinding);
 			if (binding != null) {
+				if (referenceBinding.fields() != null && referenceBinding.fields().length > 0)
+                    binding.getDeclaredFields();
 				return binding;
 			}
 			binding = TypeBinding.createTypeBinding(this, referenceBinding, declaringMember);
