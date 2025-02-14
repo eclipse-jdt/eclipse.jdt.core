@@ -416,4 +416,32 @@ public class JavacSpecificCompletionTests {
 		assertEquals("myField[FIELD_REF_WITH_CASTED_RECEIVER]{((DemoClass)obj /* obj.nestedField is definitely a DemoClass */ . nestedField) . myField, LDemoClass;, I, LHelloWorld~DemoClass;, myField, replace[152, 223], receiver[152, 219], 60}", requestor.getResults());
 	}
 
+	@Test
+	public void testCompleteAnonymousClassField() throws Exception {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("HelloWorld.java",
+				"""
+				public class DemoClass  {
+					public void myMethod() {
+						Object obj = new Object() {
+							int myField = 4;
+							void myMethod() {
+								System.out.println(myF);
+							}
+						};
+					}
+				}
+				""");
+
+		// add the replace range to the results
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false, false, true);
+
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "myF";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		IProgressMonitor monitor = new NullProgressMonitor();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, WC_OWNER, monitor);
+		assertEquals("myField[FIELD_REF]{myField, Ljava.lang.Object;, I, myField, [146, 149], 82}", requestor.getResults());
+	}
+
 }

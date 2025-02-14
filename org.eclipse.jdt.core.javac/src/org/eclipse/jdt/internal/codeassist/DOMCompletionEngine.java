@@ -67,6 +67,7 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
+import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.ChildPropertyDescriptor;
@@ -202,6 +203,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		// those need to be list since the order matters
 		// fields must be before methods
 		private List<IBinding> others = new ArrayList<>();
+		
+		private Set<IBinding> shadowed = new HashSet<>();
 
 		public void add(IBinding binding) {
 			if (binding instanceof IMethodBinding methodBinding) {
@@ -212,6 +215,14 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					return;
 				}
 				this.others.removeIf(existing -> existing instanceof IMethodBinding existingMethod && methodBinding.overrides(existingMethod));
+			} else if (binding instanceof IVariableBinding variableBinding) {
+				String nameToCheckShadowing = variableBinding.getName();
+				List<IVariableBinding> overlapping = this.others.stream().filter(IVariableBinding.class::isInstance).map(IVariableBinding.class::cast)
+				.filter(varBinding -> nameToCheckShadowing.equals(varBinding.getName())).toList();
+				if (!overlapping.isEmpty()) {
+					shadowed.addAll(overlapping);
+					shadowed.add(variableBinding);
+				}
 			}
 			if (binding != null) {
 				this.others.add(binding);
@@ -225,6 +236,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		}
 		public Stream<IMethodBinding> methods() {
 			return all().filter(IMethodBinding.class::isInstance).map(IMethodBinding.class::cast);
+		}
+		public boolean isShadowed(IBinding binding) {
+			return this.shadowed.contains(binding);
 		}
 	}
 
@@ -2065,6 +2079,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			scope.addAll(gottenVisibleBindings);
 			if (current instanceof AbstractTypeDeclaration typeDecl) {
 				processMembers(this.toComplete, typeDecl.resolveBinding(), scope, false);
+			} else if (current instanceof AnonymousClassDeclaration anonymousClass) {
+				processMembers(this.toComplete, anonymousClass.resolveBinding(), scope, false);
 			}
 			current = current.getParent();
 		}
@@ -2477,12 +2493,29 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		scope.all() //
 			.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray())) //
 			.filter(binding -> {
+				if (binding instanceof IVariableBinding varBinding) {
+					if (scope.isShadowed(binding) && varBinding.isField() && varBinding.getDeclaringClass().isAnonymous()) {
+						return false;
+					}
+				}
+				return true;
+			})
+			.filter(binding -> {
 				if (binding instanceof ITypeBinding typeBinding) {
 					return filterBasedOnExtendsOrImplementsInfo((IType)typeBinding.getJavaElement(), this.extendsOrImplementsInfo);
 				}
 				return true;
 			})
-			.map(binding -> toProposal(binding))
+			.map(binding ->  {
+				if (binding instanceof IVariableBinding varBinding && scope.isShadowed(binding) && varBinding.isField() && (varBinding.getModifiers() & Flags.AccStatic) == 0) {
+					StringBuilder completion = new StringBuilder();
+					completion.append(varBinding.getDeclaringClass().getName());
+					completion.append(".this.");
+					completion.append(varBinding.getName());
+					return toProposal(binding, completion.toString());
+				}
+				return toProposal(binding);
+			})
 			.forEach(this.requestor::accept);
 	}
 
@@ -2657,11 +2690,16 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		if (typeBinding == null) {
 			return;
 		}
-		AbstractTypeDeclaration parentType = (AbstractTypeDeclaration)DOMCompletionUtil.findParent(referencedFrom, new int[] {ASTNode.ANNOTATION_TYPE_DECLARATION, ASTNode.TYPE_DECLARATION, ASTNode.ENUM_DECLARATION, ASTNode.RECORD_DECLARATION});
+		ASTNode parentType = DOMCompletionUtil.findParent(referencedFrom, new int[] {ASTNode.ANNOTATION_TYPE_DECLARATION, ASTNode.TYPE_DECLARATION, ASTNode.ENUM_DECLARATION, ASTNode.RECORD_DECLARATION, ASTNode.ANONYMOUS_CLASS_DECLARATION});
 		if (parentType == null) {
 			return;
 		}
-		ITypeBinding referencedFromBinding = parentType.resolveBinding();
+		ITypeBinding referencedFromBinding = null;
+		if (parentType instanceof AbstractTypeDeclaration abstractTypeDeclaration) {
+			referencedFromBinding = abstractTypeDeclaration.resolveBinding();
+		} else if (parentType instanceof AnonymousClassDeclaration anonymousClassDeclaration) {
+			referencedFromBinding = anonymousClassDeclaration.resolveBinding();
+		}
 		boolean includePrivate = referencedFromBinding.getKey().equals(typeBinding.getKey());
 		MethodDeclaration methodDeclaration = (MethodDeclaration)DOMCompletionUtil.findParent(referencedFrom, new int[] {ASTNode.METHOD_DECLARATION});
 		// you can reference protected fields/methods from a static method,
@@ -2743,8 +2781,13 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			// we need to take into account the order of field declarations and their fragments,
 			// because any declared after this node are not viable.
 			VariableDeclarationFragment fragment = (VariableDeclarationFragment)DOMCompletionUtil.findParent(this.toComplete, new int[] {ASTNode.VARIABLE_DECLARATION_FRAGMENT});
-			AbstractTypeDeclaration typeDecl = (AbstractTypeDeclaration)((CompilationUnit)this.toComplete.getRoot()).findDeclaringNode(typeBinding);
-			int indexOfField = typeDecl.bodyDeclarations().indexOf(fieldDeclaration);
+			ASTNode typeDecl = ((CompilationUnit)this.toComplete.getRoot()).findDeclaringNode(typeBinding);
+			int indexOfField = -1;
+			if (typeDecl instanceof AbstractTypeDeclaration abstractTypeDecl) {
+				indexOfField = abstractTypeDecl.bodyDeclarations().indexOf(fieldDeclaration);
+			} else if (typeDecl instanceof AnonymousClassDeclaration anonymousTypeDeclaration) {
+				indexOfField = anonymousTypeDeclaration.bodyDeclarations().indexOf(fieldDeclaration);
+			}
 			if (indexOfField < 0) {
 				// oops we messed up, probably this fieldDecl is in a nested class
 				// proceed as normal
@@ -2752,8 +2795,14 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					.filter(accessFilter) //
 					.forEach(scope::add);
 			} else {
+				List<ASTNode> bodyDeclarations = null;
+				if (typeDecl instanceof AbstractTypeDeclaration abstractTypeDecl) {
+					bodyDeclarations = abstractTypeDecl.bodyDeclarations();
+				} else if (typeDecl instanceof AnonymousClassDeclaration anonymousTypeDeclaration) {
+					bodyDeclarations = anonymousTypeDeclaration.bodyDeclarations();
+				}
 				for (int i = 0; i < indexOfField + 1; i++) {
-					if (typeDecl.bodyDeclarations().get(i) instanceof FieldDeclaration fieldDecl) {
+					if (bodyDeclarations.get(i) instanceof FieldDeclaration fieldDecl) {
 						List<VariableDeclarationFragment> frags = fieldDecl.fragments();
 						int fragIterEndpoint = frags.indexOf(fragment);
 						if (fragIterEndpoint == -1) {
@@ -3005,6 +3054,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 								declaringClass.getQualifiedName().toCharArray(), true)
 						.toCharArray();
 				res.setDeclarationSignature(declSignature);
+			} else if (declaringClass != null && declaringClass.isAnonymous()) {
+				res.setDeclarationSignature(SignatureUtils.getSignatureChar(declaringClass.getSuperclass()));
 			} else {
 				res.setDeclarationSignature(new char[0]);
 			}
