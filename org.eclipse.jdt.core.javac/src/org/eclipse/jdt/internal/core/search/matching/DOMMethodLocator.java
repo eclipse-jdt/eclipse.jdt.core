@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.internal.core.BinaryMethod;
 import org.eclipse.jdt.internal.core.search.DOMASTNodeUtils;
+import org.eclipse.jdt.internal.core.search.LocatorResponse;
 
 public class DOMMethodLocator extends DOMPatternLocator {
 
@@ -60,11 +61,13 @@ public class DOMMethodLocator extends DOMPatternLocator {
 	}
 
 	@Override
-	public int match(org.eclipse.jdt.core.dom.MethodDeclaration node, NodeSetWrapper nodeSet, MatchLocator locator) {
-		if (!this.locator.pattern.findDeclarations) return IMPOSSIBLE_MATCH;
+	public LocatorResponse match(org.eclipse.jdt.core.dom.MethodDeclaration node, NodeSetWrapper nodeSet, MatchLocator locator) {
+		if (!this.locator.pattern.findDeclarations) 
+			return toResponse(IMPOSSIBLE_MATCH);
 
 		// Verify method name
-		if (!this.locator.matchesName(this.locator.pattern.selector, node.getName().getIdentifier().toCharArray())) return IMPOSSIBLE_MATCH;
+		if (!this.locator.matchesName(this.locator.pattern.selector, node.getName().getIdentifier().toCharArray())) 
+			return toResponse(IMPOSSIBLE_MATCH);
 
 		// Verify parameters types
 		boolean resolve = this.locator.pattern.mustResolve;
@@ -72,7 +75,8 @@ public class DOMMethodLocator extends DOMPatternLocator {
 			int length = this.locator.pattern.parameterSimpleNames.length;
 			List<SingleVariableDeclaration> args = node.parameters();
 			int argsLength = args == null ? 0 : args.size();
-			if (length != argsLength) return IMPOSSIBLE_MATCH;
+			if (length != argsLength) 
+				return toResponse(IMPOSSIBLE_MATCH);
 			for (int i = 0; i < argsLength; i++) {
 				var arg = args.get(i);
 				if (!this.matchesTypeReference(this.locator.pattern.parameterSimpleNames[i], arg.getType(), arg.isVarargs())) {
@@ -86,7 +90,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 						}
 				//		this.methodDeclarationsWithInvalidParam.put(node, null);
 					} else {
-						return IMPOSSIBLE_MATCH;
+						return toResponse(IMPOSSIBLE_MATCH);
 					}
 				}
 			}
@@ -95,11 +99,12 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		// Verify type arguments (do not reject if pattern has no argument as it can be an erasure match)
 		if (this.locator.pattern.hasMethodArguments()) {
 			if (node.typeParameters() == null || node.typeParameters().size() != this.locator.pattern.methodArguments.length)
-				return IMPOSSIBLE_MATCH;
+				return toResponse(IMPOSSIBLE_MATCH);
 		}
 
 		// Method declaration may match pattern
-		return nodeSet.addMatch(node, resolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+		int level = nodeSet.addMatch(node, resolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+		return toResponse(level, true);
 	}
 	private int matchReference(SimpleName name, List<?> args, NodeSetWrapper nodeSet) {
 		if (!this.locator.pattern.findReferences) return IMPOSSIBLE_MATCH;
@@ -113,20 +118,24 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		return this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 	}
 	@Override
-	public int match(MethodInvocation node, NodeSetWrapper nodeSet, MatchLocator locator) {
+	public LocatorResponse match(MethodInvocation node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		int level = this.matchReference(node.getName(), node.arguments(), nodeSet);
-		return level != IMPOSSIBLE_MATCH ? nodeSet.addMatch(node, level) : level;
+		if( level == IMPOSSIBLE_MATCH )
+			return toResponse(IMPOSSIBLE_MATCH);
+		return toResponse(nodeSet.addMatch(node, level), true);
 	}
 	@Override
-	public int match(org.eclipse.jdt.core.dom.Expression expression, NodeSetWrapper nodeSet, MatchLocator locator) {
+	public LocatorResponse match(org.eclipse.jdt.core.dom.Expression expression, NodeSetWrapper nodeSet, MatchLocator locator) {
 		int level = expression instanceof SuperMethodInvocation node ? this.matchReference(node.getName(), node.arguments(), nodeSet) :
 			IMPOSSIBLE_MATCH;
-		return level != IMPOSSIBLE_MATCH ? nodeSet.addMatch(expression, level) : level;
+		if( level == IMPOSSIBLE_MATCH)
+			return toResponse(IMPOSSIBLE_MATCH);
+		return toResponse(nodeSet.addMatch(expression, level), true);
 	}
 
 
 	@Override
-	public int match(Name node, NodeSetWrapper nodeSet, MatchLocator locator) {
+	public LocatorResponse match(Name node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		String name = node.toString();
 		String[] segments = name.split("\\."); //$NON-NLS-1$
 		String lastSegment = segments == null || segments.length == 0 ? null : segments[segments.length-1];
@@ -134,7 +143,8 @@ public class DOMMethodLocator extends DOMPatternLocator {
 			this.locator.matchesName(this.locator.pattern.selector, (lastSegment == null ? "" : lastSegment).toCharArray()); //$NON-NLS-1$
 		boolean matchesPrefix = this.locator.pattern.declaringPackageName == null ? true :
 			name.startsWith(new String(this.locator.pattern.declaringPackageName));
-		return matchesLastSegment && matchesPrefix ? POSSIBLE_MATCH : IMPOSSIBLE_MATCH;
+		int level = matchesLastSegment && matchesPrefix ? POSSIBLE_MATCH : IMPOSSIBLE_MATCH;
+		return toResponse(level);
 	}
 
 
@@ -231,21 +241,22 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		return null;
 	}
 	@Override
-	public int resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
+	public LocatorResponse resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
 		if (binding instanceof IMethodBinding method) {
 			boolean skipVerif = this.locator.pattern.findDeclarations && this.locator.mayBeGeneric;
 			int methodLevel = matchMethod(method, skipVerif);
 			if (methodLevel == IMPOSSIBLE_MATCH) {
 				if (method != method.getMethodDeclaration()) methodLevel = matchMethod(method.getMethodDeclaration(), skipVerif);
 				if (methodLevel == IMPOSSIBLE_MATCH) {
-					return IMPOSSIBLE_MATCH;
+					return toResponse(IMPOSSIBLE_MATCH);
 				} else {
 					method = method.getMethodDeclaration();
 				}
 			}
 
 			// declaring type
-			if (this.locator.pattern.declaringSimpleName == null && this.locator.pattern.declaringQualification == null) return methodLevel; // since any declaring class will do
+			if (this.locator.pattern.declaringSimpleName == null && this.locator.pattern.declaringQualification == null) 
+				return toResponse(methodLevel); // since any declaring class will do
 
 			boolean subType = ((method.getModifiers() & Modifier.STATIC) == 0) && ((method.getModifiers() & Modifier.PRIVATE) == 0);
 			if (subType && this.locator.pattern.declaringQualification != null && method.getDeclaringClass() != null && method.getDeclaringClass().getPackage() != null) {
@@ -254,9 +265,10 @@ public class DOMMethodLocator extends DOMPatternLocator {
 			int declaringLevel = subType
 				? resolveLevelAsSubtype(this.locator.pattern.declaringSimpleName, this.locator.pattern.declaringQualification, method.getDeclaringClass(), method.getName(), null, method.getDeclaringClass().getPackage().getName(), (method.getModifiers() & Modifier.DEFAULT) != 0)
 				: this.resolveLevelForType(this.locator.pattern.declaringSimpleName, this.locator.pattern.declaringQualification, method.getDeclaringClass());
-			return (methodLevel & PatternLocator.MATCH_LEVEL_MASK) > (declaringLevel & PatternLocator.MATCH_LEVEL_MASK) ? declaringLevel : methodLevel; // return the weaker match
+			int level = (methodLevel & PatternLocator.MATCH_LEVEL_MASK) > (declaringLevel & PatternLocator.MATCH_LEVEL_MASK) ? declaringLevel : methodLevel; // return the weaker match
+			return toResponse(level);
 		}
-		 return INACCURATE_MATCH;
+		 return toResponse(INACCURATE_MATCH);
 	}
 	protected int resolveLevelAsSubtype(char[] simplePattern, char[] qualifiedPattern, ITypeBinding type, String methodName, ITypeBinding[] argumentTypes, String packageName, boolean isDefault) {
 		if (type == null) return INACCURATE_MATCH;

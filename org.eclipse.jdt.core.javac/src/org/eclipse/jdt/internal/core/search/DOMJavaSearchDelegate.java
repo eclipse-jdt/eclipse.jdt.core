@@ -77,11 +77,11 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.NamedMember;
+import org.eclipse.jdt.internal.core.search.matching.DOMPatternLocator;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.jdt.internal.core.search.matching.MatchingNodeSet;
 import org.eclipse.jdt.internal.core.search.matching.NodeSetWrapper;
 import org.eclipse.jdt.internal.core.search.matching.PossibleMatch;
-import org.eclipse.jdt.internal.core.search.matching.SearchMatchingUtility;
 
 public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 	private Map<PossibleMatch, NodeSetWrapper> matchToWrapper = new HashMap<>();
@@ -175,7 +175,8 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 				int level = wrapper.trustedASTNodeLevels.get(node);
 				SearchMatch match = toMatch(locator, node, level, possibleMatch);
 				if (match != null && match.getElement() != null) {
-					SearchMatchingUtility.reportSearchMatch(locator, match);
+					DOMPatternLocator locator2 = DOMPatternLocatorFactory.createWrapper(locator.patternLocator);
+					locator2.reportSearchMatch(locator, node, match);
 				}
 			}
 		}
@@ -286,7 +287,7 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 					getParticipant(locator), resource);
 		}
 		if (node instanceof Type nt) {
-			IBinding b = DOMASTNodeUtils.getBinding(nt);
+			//IBinding b = DOMASTNodeUtils.getBinding(nt);
 			IJavaElement element = DOMASTNodeUtils.getEnclosingJavaElement(node);
 			if (element instanceof LocalVariable) {
 				element = element.getParent();

@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IModuleBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.internal.core.search.LocatorResponse;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 public class DOMTypeDeclarationLocator extends DOMPatternLocator {
@@ -29,54 +30,58 @@ public class DOMTypeDeclarationLocator extends DOMPatternLocator {
 		this.locator = locator;
 	}
 	@Override
-	public int match(AbstractTypeDeclaration node, NodeSetWrapper nodeSet, MatchLocator locator) {
-		if (this.locator.pattern.simpleName == null || this.locator.matchesName(this.locator.pattern.simpleName, node.getName().getIdentifier().toCharArray()))
-			return nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+	public LocatorResponse match(AbstractTypeDeclaration node, NodeSetWrapper nodeSet, MatchLocator locator) {
+		if (this.locator.pattern.simpleName == null || this.locator.matchesName(this.locator.pattern.simpleName, node.getName().getIdentifier().toCharArray())) {
+			int level = nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+			return toResponse(level, true);
+		}
 
-		return IMPOSSIBLE_MATCH;
+		return toResponse(IMPOSSIBLE_MATCH);
 	}
 	@Override
-	public int resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
-		if (binding == null) return INACCURATE_MATCH;
-		if (!(binding instanceof ITypeBinding)) return IMPOSSIBLE_MATCH;
+	public LocatorResponse resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
+		if (binding == null) return toResponse(INACCURATE_MATCH);
+		if (!(binding instanceof ITypeBinding)) return toResponse(IMPOSSIBLE_MATCH);
 
 		ITypeBinding type = (ITypeBinding) binding;
 
 		switch (this.locator.pattern.typeSuffix) {
 			case IIndexConstants.CLASS_SUFFIX:
-				if (!type.isClass()) return IMPOSSIBLE_MATCH;
+				if (!type.isClass()) return toResponse(IMPOSSIBLE_MATCH);;
 				break;
 			case IIndexConstants.CLASS_AND_INTERFACE_SUFFIX:
-				if (!(type.isClass() || (type.isInterface() && !type.isAnnotation()))) return IMPOSSIBLE_MATCH;
+				if (!(type.isClass() || (type.isInterface() && !type.isAnnotation()))) return toResponse(IMPOSSIBLE_MATCH);;
 				break;
 			case IIndexConstants.CLASS_AND_ENUM_SUFFIX:
-				if (!(type.isClass() || type.isEnum())) return IMPOSSIBLE_MATCH;
+				if (!(type.isClass() || type.isEnum())) return toResponse(IMPOSSIBLE_MATCH);;
 				break;
 			case IIndexConstants.INTERFACE_SUFFIX:
-				if (!type.isInterface() || type.isAnnotation()) return IMPOSSIBLE_MATCH;
+				if (!type.isInterface() || type.isAnnotation()) return toResponse(IMPOSSIBLE_MATCH);;
 				break;
 			case IIndexConstants.INTERFACE_AND_ANNOTATION_SUFFIX:
-				if (!(type.isInterface() || type.isAnnotation())) return IMPOSSIBLE_MATCH;
+				if (!(type.isInterface() || type.isAnnotation())) return toResponse(IMPOSSIBLE_MATCH);;
 				break;
 			case IIndexConstants.ENUM_SUFFIX:
-				if (!type.isEnum()) return IMPOSSIBLE_MATCH;
+				if (!type.isEnum()) return toResponse(IMPOSSIBLE_MATCH);;
 				break;
 			case IIndexConstants.ANNOTATION_TYPE_SUFFIX:
-				if (!type.isAnnotation()) return IMPOSSIBLE_MATCH;
+				if (!type.isAnnotation()) return toResponse(IMPOSSIBLE_MATCH);;
 				break;
 			case IIndexConstants.TYPE_SUFFIX : // nothing
 		}
 
 		if (this.matchModule(this.locator.pattern, type) == IMPOSSIBLE_MATCH) {
-			return IMPOSSIBLE_MATCH;
+			return toResponse(IMPOSSIBLE_MATCH);
 		}
 		// fully qualified name
 		if (this.locator.pattern instanceof QualifiedTypeDeclarationPattern) {
 			QualifiedTypeDeclarationPattern qualifiedPattern = (QualifiedTypeDeclarationPattern) this.locator.pattern;
-			return this.resolveLevelForType(qualifiedPattern.simpleName, qualifiedPattern.qualification, type);
+			int level = this.resolveLevelForType(qualifiedPattern.simpleName, qualifiedPattern.qualification, type);
+			return toResponse(level);
 		} else {
 			char[] enclosingTypeName = this.locator.pattern.enclosingTypeNames == null ? null : CharOperation.concatWith(this.locator.pattern.enclosingTypeNames, '.');
-			return resolveLevelForType(this.locator.pattern.simpleName, this.locator.pattern.pkg, enclosingTypeName, type);
+			int level = resolveLevelForType(this.locator.pattern.simpleName, this.locator.pattern.pkg, enclosingTypeName, type);
+			return toResponse(level);
 		}
 	}
 	protected int resolveLevelForType(char[] simpleNamePattern, char[] qualificationPattern, char[] enclosingNamePattern, ITypeBinding type) {

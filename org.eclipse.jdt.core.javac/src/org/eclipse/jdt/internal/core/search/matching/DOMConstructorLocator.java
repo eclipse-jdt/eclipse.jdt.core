@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.core.search.DOMASTNodeUtils;
+import org.eclipse.jdt.internal.core.search.LocatorResponse;
 
 public class DOMConstructorLocator extends DOMPatternLocator {
 
@@ -36,44 +37,45 @@ public class DOMConstructorLocator extends DOMPatternLocator {
 	}
 
 	@Override
-	public int match(MethodDeclaration node, NodeSetWrapper nodeSet, MatchLocator locator) {
+	public LocatorResponse match(MethodDeclaration node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		if (!node.isConstructor()) {
-			return IMPOSSIBLE_MATCH;
+			return toResponse(IMPOSSIBLE_MATCH);
 		}
 		if (this.locator.pattern.fineGrain != 0 && !this.locator.pattern.findDeclarations)
-			return IMPOSSIBLE_MATCH;
+			return toResponse(IMPOSSIBLE_MATCH);
 		int referencesLevel = /* this.locator.pattern.findReferences ? matchLevelForReferences(node) : */IMPOSSIBLE_MATCH;
 		int declarationsLevel = this.locator.pattern.findDeclarations ? this.matchLevelForDeclarations(node) : IMPOSSIBLE_MATCH;
 
 		// use the stronger match
-		return nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel); 
+		int level = nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel);
+		return toResponse(level, true);
 	}
 
 	@Override
-	public int match(org.eclipse.jdt.core.dom.Expression node, NodeSetWrapper nodeSet, MatchLocator locator) { // interested
-																												// in
-																												// AllocationExpression
+	public LocatorResponse match(org.eclipse.jdt.core.dom.Expression node, NodeSetWrapper nodeSet, MatchLocator locator) { // interested
 		if (!this.locator.pattern.findReferences)
-			return IMPOSSIBLE_MATCH;
+			return toResponse(IMPOSSIBLE_MATCH);
 		if (node instanceof CreationReference creationRef && (this.locator.pattern.declaringSimpleName == null
 				|| this.matchesTypeReference(this.locator.pattern.declaringSimpleName, creationRef.getType()))) {
-			return this.locator.pattern.mustResolve ? POSSIBLE_MATCH : INACCURATE_MATCH;
+			int level = this.locator.pattern.mustResolve ? POSSIBLE_MATCH : INACCURATE_MATCH;
+			return toResponse(level);
 		}
 		if (node instanceof ClassInstanceCreation newInstance) {
-			return (this.locator.pattern.declaringSimpleName == null
+			int level = (this.locator.pattern.declaringSimpleName == null
 					|| this.matchesTypeReference(this.locator.pattern.declaringSimpleName, newInstance.getType()))
 					&& matchParametersCount(node, newInstance.arguments()) ? POSSIBLE_MATCH : IMPOSSIBLE_MATCH;
+			return toResponse(level);
 		}
-		return IMPOSSIBLE_MATCH;
+		return toResponse(IMPOSSIBLE_MATCH);
 	}
 
 	@Override
-	public int match(org.eclipse.jdt.core.dom.ASTNode node, NodeSetWrapper nodeSet, MatchLocator locator) {
+	public LocatorResponse match(org.eclipse.jdt.core.dom.ASTNode node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		if (!this.locator.pattern.findReferences)
-			return IMPOSSIBLE_MATCH;
+			return toResponse(IMPOSSIBLE_MATCH);
 		if (node instanceof SuperConstructorInvocation superRef) {
 			if (!matchParametersCount(node, superRef.arguments())) {
-				return IMPOSSIBLE_MATCH;
+				return toResponse(IMPOSSIBLE_MATCH);
 			}
 			if (this.locator.pattern.declaringSimpleName != null) {
 				Type superType = null;
@@ -89,23 +91,25 @@ public class DOMConstructorLocator extends DOMPatternLocator {
 					superType = newInstance.getType();
 				}
 				if (!this.matchesTypeReference(this.locator.pattern.declaringSimpleName, superType)) {
-					return IMPOSSIBLE_MATCH;
+					return toResponse(IMPOSSIBLE_MATCH);
 				}
 			}
-			return this.locator.pattern.mustResolve ? POSSIBLE_MATCH : INACCURATE_MATCH;
+			int level = this.locator.pattern.mustResolve ? POSSIBLE_MATCH : INACCURATE_MATCH;
+			return toResponse(level, true);
 		}
 		if (node instanceof EnumConstantDeclaration enumConstantDecl
 				&& node.getParent() instanceof EnumDeclaration enumDeclaration
 				&& this.locator.matchesName(this.locator.pattern.declaringSimpleName,
 						enumDeclaration.getName().getIdentifier().toCharArray())
 				&& matchParametersCount(enumConstantDecl, enumConstantDecl.arguments())) {
-			return nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+			int level = nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+			return toResponse(level, true);
 		}
-		return IMPOSSIBLE_MATCH;
+		return toResponse(IMPOSSIBLE_MATCH);
 	}
 
 	@Override
-	public int resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
+	public LocatorResponse resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
 		if (binding instanceof IMethodBinding constructor) {
 			int level = matchConstructor(constructor);
 			if (level == IMPOSSIBLE_MATCH) {
@@ -113,9 +117,9 @@ public class DOMConstructorLocator extends DOMPatternLocator {
 					level = matchConstructor(constructor.getMethodDeclaration());
 				}
 			}
-			return level;
+			return toResponse(level);
 		}
-		return IMPOSSIBLE_MATCH;
+		return toResponse(IMPOSSIBLE_MATCH);
 	}
 
 	boolean matchParametersCount(org.eclipse.jdt.core.dom.ASTNode node,

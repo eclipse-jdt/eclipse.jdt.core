@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.dom.QualifiedType;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.internal.core.search.LocatorResponse;
 
 public class DOMSuperTypeReferenceLocator extends DOMPatternLocator {
 
@@ -28,19 +29,22 @@ public class DOMSuperTypeReferenceLocator extends DOMPatternLocator {
 	}
 
 	@Override
-	public int match(org.eclipse.jdt.core.dom.LambdaExpression node, NodeSetWrapper nodeSet, MatchLocator locator) {
+	public LocatorResponse match(org.eclipse.jdt.core.dom.LambdaExpression node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		if (this.locator.pattern.superRefKind != SuperTypeReferencePattern.ONLY_SUPER_INTERFACES)
-			return IMPOSSIBLE_MATCH;
+			return toResponse(IMPOSSIBLE_MATCH);
 		nodeSet.getWrapped().mustResolve = true;
-		return nodeSet.addMatch(node, POSSIBLE_MATCH);
+		int level = nodeSet.addMatch(node, POSSIBLE_MATCH);
+		return toResponse(level, true);
 	}
 
 	@Override
-	public int match(Type node, NodeSetWrapper nodeSet, MatchLocator locator) {
+	public LocatorResponse match(Type node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		if (this.locator.flavors != PatternLocator.SUPERTYPE_REF_FLAVOR)
-			return IMPOSSIBLE_MATCH;
-		if (this.locator.pattern.superSimpleName == null)
-			return nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+			return toResponse(IMPOSSIBLE_MATCH);
+		if (this.locator.pattern.superSimpleName == null) {
+			int level = nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+			return toResponse(level, true);
+		}
 
 		char[] typeRefSimpleName = null;
 		if (node instanceof SimpleType simple) {
@@ -53,18 +57,20 @@ public class DOMSuperTypeReferenceLocator extends DOMPatternLocator {
 		} else if (node instanceof QualifiedType qualified) {
 			typeRefSimpleName = qualified.getName().getIdentifier().toCharArray();
 		}
-		if (this.locator.matchesName(this.locator.pattern.superSimpleName, typeRefSimpleName))
-			return nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+		if (this.locator.matchesName(this.locator.pattern.superSimpleName, typeRefSimpleName)) {
+			int level = nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+			return toResponse(level, true);
+		}
 
-		return IMPOSSIBLE_MATCH;
+		return toResponse(IMPOSSIBLE_MATCH);
 	}
 
 	@Override
-	public int resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
+	public LocatorResponse resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
 		if (binding == null)
-			return INACCURATE_MATCH;
+			return toResponse(INACCURATE_MATCH);
 		if (!(binding instanceof ITypeBinding))
-			return IMPOSSIBLE_MATCH;
+			return toResponse(IMPOSSIBLE_MATCH);
 
 		var type = (ITypeBinding) binding;
 		int level = IMPOSSIBLE_MATCH;
@@ -72,7 +78,7 @@ public class DOMSuperTypeReferenceLocator extends DOMPatternLocator {
 			level = this.resolveLevelForType(this.locator.pattern.superSimpleName, this.locator.pattern.superQualification,
 					type.getSuperclass());
 			if (level == ACCURATE_MATCH)
-				return ACCURATE_MATCH;
+				return toResponse(ACCURATE_MATCH);
 		}
 
 		if (this.locator.pattern.superRefKind != SuperTypeReferencePattern.ONLY_SUPER_CLASSES) {
@@ -81,11 +87,11 @@ public class DOMSuperTypeReferenceLocator extends DOMPatternLocator {
 						superInterface);
 				if (newLevel > level) {
 					if (newLevel == ACCURATE_MATCH)
-						return ACCURATE_MATCH;
+						return toResponse(ACCURATE_MATCH);
 					level = newLevel;
 				}
 			}
 		}
-		return level;
+		return toResponse(level);
 	}
 }

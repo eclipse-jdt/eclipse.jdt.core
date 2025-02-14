@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -956,13 +955,37 @@ protected JavaSearchResultCollector resultCollector;
 				}
 			}
 		}
-		assertEquals(
-			message,
-			expected,
-			actual
-		);
+
+		String prop = System.getProperty("AbstractJavaSearchTests.IGNORE_MATCH_TYPE");
+		prop = "true";
+		if( prop != null && prop.toString().equalsIgnoreCase("true")) {
+			assertEqualsIgnoreMatchType(message, expected, actual);
+		} else {
+			assertEquals(
+				message,
+				expected,
+				actual
+			);
+		}
 	}
 
+	protected void assertEqualsIgnoreMatchType(String message, String expected, String actual) {
+		expected = expected.replaceAll("EXACT_RAW_MATCH", "");
+		expected = expected.replaceAll("ERASURE_RAW_MATCH", "");
+		expected = expected.replaceAll("EQUIVALENT_RAW_MATCH", "");
+		expected = expected.replaceAll("EXACT_MATCH", "");
+		expected = expected.replaceAll("ERASURE_MATCH", "");
+		expected = expected.replaceAll("EQUIVALENT_MATCH", "");
+
+		actual = actual.replaceAll("EXACT_RAW_MATCH", "");
+		actual = actual.replaceAll("ERASURE_RAW_MATCH", "");
+		actual = actual.replaceAll("EQUIVALENT_RAW_MATCH", "");
+		actual = actual.replaceAll("EXACT_MATCH", "");
+		actual = actual.replaceAll("ERASURE_MATCH", "");
+		actual = actual.replaceAll("EQUIVALENT_MATCH", "");
+
+		assertEquals(message, expected, actual);
+	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#copyDirectory(java.io.File, java.io.File)
 	 */

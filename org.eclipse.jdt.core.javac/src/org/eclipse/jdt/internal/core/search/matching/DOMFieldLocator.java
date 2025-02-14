@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.search.FieldDeclarationMatch;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.core.search.DOMASTNodeUtils;
+import org.eclipse.jdt.internal.core.search.LocatorResponse;
 
 public class DOMFieldLocator extends DOMPatternLocator {
 
@@ -40,7 +41,7 @@ public class DOMFieldLocator extends DOMPatternLocator {
 	}
 
 	@Override
-	public int match(org.eclipse.jdt.core.dom.ASTNode node, NodeSetWrapper nodeSet, MatchLocator locator) {
+	public LocatorResponse match(org.eclipse.jdt.core.dom.ASTNode node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		int declarationsLevel = PatternLocator.IMPOSSIBLE_MATCH;
 		if (node instanceof EnumConstantDeclaration enumConstant) {
 			return match(enumConstant, nodeSet);
@@ -61,13 +62,14 @@ public class DOMFieldLocator extends DOMPatternLocator {
 				}
 			}
 		}
-		return nodeSet.addMatch(node, declarationsLevel);
+		int level = nodeSet.addMatch(node, declarationsLevel);
+		return toResponse(level, true);
 	}
 
 	@Override
-	public int match(Name name, NodeSetWrapper nodeSet, MatchLocator locator) {
+	public LocatorResponse match(Name name, NodeSetWrapper nodeSet, MatchLocator locator) {
 		if (this.fieldLocator.pattern.findDeclarations) {
-			return PatternLocator.IMPOSSIBLE_MATCH; // already caught by match(VariableDeclaration)
+			return toResponse(PatternLocator.IMPOSSIBLE_MATCH); // already caught by match(VariableDeclaration)
 		}
 
 		if (this.fieldLocator.matchesName(this.fieldLocator.pattern.name, name.toString().toCharArray())) {
@@ -76,7 +78,7 @@ public class DOMFieldLocator extends DOMPatternLocator {
 				if (doafp.enclosingElement != null) {
 					// we have an enclosing element to check
 					if (!DOMASTNodeUtils.isWithinRange(name, doafp.enclosingElement)) {
-						return PatternLocator.IMPOSSIBLE_MATCH;
+						return toResponse(PatternLocator.IMPOSSIBLE_MATCH);
 					}
 					// We need to report the declaration, not the usage
 					// TODO testDeclarationOfAccessedFields2
@@ -108,44 +110,46 @@ public class DOMFieldLocator extends DOMPatternLocator {
 							}
 						}
 					}
-					return PatternLocator.IMPOSSIBLE_MATCH;
+					return toResponse(PatternLocator.IMPOSSIBLE_MATCH);
 				}
 			}
 
-			return nodeSet.addMatch(name, this.fieldLocator.pattern.mustResolve ? PatternLocator.POSSIBLE_MATCH
+			int level = nodeSet.addMatch(name, this.fieldLocator.pattern.mustResolve ? PatternLocator.POSSIBLE_MATCH
 					: PatternLocator.ACCURATE_MATCH);
+			return toResponse(level, true);
 		}
-		return PatternLocator.IMPOSSIBLE_MATCH;
+		return toResponse(PatternLocator.IMPOSSIBLE_MATCH);
 	}
 
 	@Override
-	public int resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
+	public LocatorResponse resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
 		if (binding == null)
-			return PatternLocator.ACCURATE_MATCH;
+			return toResponse(PatternLocator.ACCURATE_MATCH);
 		if (binding instanceof IVariableBinding variableBinding) {
 			if (variableBinding.isRecordComponent()) {
 				// for matching the component in constructor of a record
 				if (!this.fieldLocator.matchesName(this.fieldLocator.pattern.name,
 						variableBinding.getName().toCharArray()))
-					return PatternLocator.IMPOSSIBLE_MATCH;
+					return toResponse(PatternLocator.IMPOSSIBLE_MATCH);
 				FieldPattern fieldPattern = (FieldPattern) this.fieldLocator.pattern;
-				return this.resolveLevelForType(fieldPattern.declaringSimpleName,
+				int level = this.resolveLevelForType(fieldPattern.declaringSimpleName,
 						fieldPattern.declaringQualification, variableBinding.getDeclaringMethod().getDeclaringClass());
+				return toResponse(level);
 			}
 			if (variableBinding.isField()) {
-				return this.matchField(variableBinding, true);
+				return toResponse(this.matchField(variableBinding, true));
 			}
 		}
-		return PatternLocator.IMPOSSIBLE_MATCH;
+		return toResponse(PatternLocator.IMPOSSIBLE_MATCH);
 	}
 
 	@Override
-	public int match(VariableDeclaration node, NodeSetWrapper nodeSet, MatchLocator locator) {
+	public LocatorResponse match(VariableDeclaration node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		if (!this.fieldLocator.pattern.findDeclarations && !this.fieldLocator.isDeclarationOfAccessedFieldsPattern) {
-			return PatternLocator.IMPOSSIBLE_MATCH;
+			return toResponse(PatternLocator.IMPOSSIBLE_MATCH);
 		}
 		if (node.getLocationInParent() != org.eclipse.jdt.core.dom.FieldDeclaration.FRAGMENTS_PROPERTY) {
-			return PatternLocator.IMPOSSIBLE_MATCH;
+			return toResponse(PatternLocator.IMPOSSIBLE_MATCH);
 		}
 		int referencesLevel = PatternLocator.IMPOSSIBLE_MATCH;
 		if (this.fieldLocator.pattern.findReferences)
@@ -167,13 +171,12 @@ public class DOMFieldLocator extends DOMPatternLocator {
 			declarationsLevel = this.fieldLocator.pattern.mustResolve ? PatternLocator.POSSIBLE_MATCH
 					: PatternLocator.ACCURATE_MATCH;
 		}
-		return nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel); // use
-																													// the
-																													// stronger
-																													// match
+		// use the stronger match
+		int level = nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel); 
+		return toResponse(level, true);
 	}
 
-	private int match(EnumConstantDeclaration node, NodeSetWrapper nodeSet) {
+	private LocatorResponse match(EnumConstantDeclaration node, NodeSetWrapper nodeSet) {
 		int referencesLevel = PatternLocator.IMPOSSIBLE_MATCH;
 		if (this.fieldLocator.pattern.findReferences)
 			// must be a write only access with an initializer
@@ -193,10 +196,9 @@ public class DOMFieldLocator extends DOMPatternLocator {
 			declarationsLevel = this.fieldLocator.pattern.mustResolve ? PatternLocator.POSSIBLE_MATCH
 					: PatternLocator.ACCURATE_MATCH;
 		}
-		return nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel); // use
-																													// the
-																													// stronger
-																													// match
+		// use the stronger match
+		int level = nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel); 
+		return toResponse(level, true);
 	}
 
 	protected int matchField(IVariableBinding field, boolean matchName) {
@@ -242,13 +244,6 @@ public class DOMFieldLocator extends DOMPatternLocator {
 			}
 			return IMPOSSIBLE_MATCH;
 		}
-
-		// get real field binding
-		// TODO what is a ParameterizedFieldBinding?
-//	FieldBinding fieldBinding = field;
-//	if (field instanceof ParameterizedFieldBinding) {
-//		fieldBinding = ((ParameterizedFieldBinding) field).originalField;
-//	}
 
 		int typeLevel = resolveLevelForType(field.getType());
 		int ret = declaringLevel > typeLevel ? typeLevel : declaringLevel; // return the weaker match

@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.eclipse.jdt.internal.core.search.LocatorResponse;
 
 public class DOMLocalVariableLocator extends DOMPatternLocator {
 
@@ -31,31 +32,33 @@ public class DOMLocalVariableLocator extends DOMPatternLocator {
 	}
 
 	@Override
-	public int match(Name node, NodeSetWrapper nodeSet, MatchLocator locator) {
+	public LocatorResponse match(Name node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		if (node.getLocationInParent() instanceof ChildPropertyDescriptor descriptor
-				&& (descriptor.getChildType() == Expression.class // local variable refs are either expressions as
-																	// children
-						|| descriptor == QualifiedName.QUALIFIER_PROPERTY) // or dereferenced names
-				&& node instanceof SimpleName simple // local variables cannot be qualified
+				// local variable refs are either expressions as children
+				&& (descriptor.getChildType() == Expression.class 
+						// or dereferenced names
+						|| descriptor == QualifiedName.QUALIFIER_PROPERTY)
+				// local variables cannot be qualified
+				&& node instanceof SimpleName simple 
 				&& this.locator.getLocalVariable().getElementName().equals(simple.getIdentifier())) {
-			return POSSIBLE_MATCH;
+			return toResponse(POSSIBLE_MATCH);
 		}
-		return IMPOSSIBLE_MATCH;
+		return toResponse(IMPOSSIBLE_MATCH);
 	}
 
 	@Override
-	public int resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
+	public LocatorResponse resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
 		if (!(binding instanceof IVariableBinding)) {
-			return IMPOSSIBLE_MATCH;
+			return toResponse(IMPOSSIBLE_MATCH);
 		}
 		if (Objects.equals(binding.getJavaElement(), this.locator.getLocalVariable())) {
-			return ACCURATE_MATCH;
+			return toResponse(ACCURATE_MATCH);
 		}
-		return INACCURATE_MATCH;
+		return toResponse(INACCURATE_MATCH);
 	}
 
 	@Override
-	public int match(VariableDeclaration node, NodeSetWrapper nodeSet, MatchLocator locator) {
+	public LocatorResponse match(VariableDeclaration node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		int referencesLevel = IMPOSSIBLE_MATCH;
 		if (this.locator.pattern.findReferences)
 			// must be a write only access with an initializer
@@ -70,6 +73,7 @@ public class DOMLocalVariableLocator extends DOMPatternLocator {
 					declarationsLevel = this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 
 		// Use the stronger match
-		return nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel); 
+		int level = nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel);
+		return toResponse(level, true);
 	}
 }

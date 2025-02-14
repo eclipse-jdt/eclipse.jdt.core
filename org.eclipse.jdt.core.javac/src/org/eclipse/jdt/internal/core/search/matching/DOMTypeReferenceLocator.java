@@ -13,7 +13,9 @@ package org.eclipse.jdt.internal.core.search.matching;
 import static org.eclipse.jdt.internal.core.search.DOMASTNodeUtils.insideDocComment;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -22,6 +24,7 @@ import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.ISourceReference;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.BreakStatement;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
@@ -34,22 +37,26 @@ import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.LabeledStatement;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.QualifiedType;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeDeclarationMatch;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
 import org.eclipse.jdt.internal.core.search.DOMASTNodeUtils;
+import org.eclipse.jdt.internal.core.search.LocatorResponse;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 public class DOMTypeReferenceLocator extends DOMPatternLocator {
 
 	private TypeReferenceLocator locator;
 	private List<IJavaElement> foundElements = new ArrayList<>();
+	private Set<org.eclipse.jdt.core.dom.Name> imports = new HashSet<>();
 	
 	public DOMTypeReferenceLocator(TypeReferenceLocator locator) {
 		super(locator.pattern);
@@ -66,108 +73,262 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 
 
 	@Override
-	public int match(org.eclipse.jdt.core.dom.Annotation node, NodeSetWrapper nodeSet, MatchLocator locator) {
+	public LocatorResponse match(org.eclipse.jdt.core.dom.Annotation node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		return match(node.getTypeName(), nodeSet, locator);
 	}
 	@Override
-	public int match(Name name, NodeSetWrapper nodeSet, MatchLocator locator) {
+	public LocatorResponse match(Name name, NodeSetWrapper nodeSet, MatchLocator locator) {
 		if (name.getParent() instanceof AbstractTypeDeclaration) {
-			return IMPOSSIBLE_MATCH;
+			return toResponse(IMPOSSIBLE_MATCH);
 		}
 		if( name.getParent() instanceof LabeledStatement ls && ls.getLabel() == name) {
-			return IMPOSSIBLE_MATCH;
+			return toResponse(IMPOSSIBLE_MATCH);
 		}
 		if( name.getParent() instanceof BreakStatement bs && bs.getLabel() == name) {
-			return IMPOSSIBLE_MATCH;
+			return toResponse(IMPOSSIBLE_MATCH);
 		}
 		if (failsFineGrain(name, this.locator.fineGrain())) {
-			return IMPOSSIBLE_MATCH;
+			return toResponse(IMPOSSIBLE_MATCH);
 		}
 		if (this.locator.pattern.simpleName == null) {
-			return nodeSet.addMatch(name, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+			int v = nodeSet.addMatch(name, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+			return toResponse(v, true);
 		}
 		if( name instanceof SimpleName sn2 ) {
 			if( this.locator.pattern.qualification == null)
-				return match(sn2, nodeSet);
+				return toResponse(match(sn2, nodeSet));
 			// searching for a qualified name but we are only simple
 			org.eclipse.jdt.core.dom.ASTNode parent3 = name.getParent();
 			if( !(parent3 instanceof QualifiedName)) {
-				return match(sn2, nodeSet);
+				return toResponse(match(sn2, nodeSet));
 			}
 			// Parent is a qualified name and we didn't match it...
 			// so we know the whole name was a failed match, but...
 			if( parent3 instanceof QualifiedName qn3 && qn3.getQualifier() == name) {
 				// Maybe the qualifier is the type we're looking for
 				if( match(sn2, nodeSet) == POSSIBLE_MATCH) {
-					return POSSIBLE_MATCH;
+					return toResponse(POSSIBLE_MATCH);
 				}
 			}
 
 			if( this.locator.pattern.getMatchMode() == SearchPattern.R_EXACT_MATCH) {
-				return IMPOSSIBLE_MATCH;
+				return toResponse(IMPOSSIBLE_MATCH);
 			}
 			if( match(sn2, nodeSet) == POSSIBLE_MATCH) {
-				return POSSIBLE_MATCH;
+				return toResponse(POSSIBLE_MATCH);
 			}
-			return IMPOSSIBLE_MATCH;
+			return toResponse(IMPOSSIBLE_MATCH);
 		}
 		if( name instanceof QualifiedName qn2 ) {
-			return match(qn2, nodeSet);
+			return toResponse(match(qn2, nodeSet));
 		}
-		return IMPOSSIBLE_MATCH;
+		return toResponse(IMPOSSIBLE_MATCH);
 	}
 	@Override
-	public int match(org.eclipse.jdt.core.dom.ASTNode node, NodeSetWrapper nodeSet, MatchLocator locator) {
+	public LocatorResponse match(org.eclipse.jdt.core.dom.ASTNode node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		if (failsFineGrain(node, this.locator.fineGrain())) {
-			return IMPOSSIBLE_MATCH;
+			return toResponse(IMPOSSIBLE_MATCH);
 		}
 		if (node instanceof EnumConstantDeclaration enumConstantDecl
 			&& node.getParent() instanceof EnumDeclaration enumDeclaration
 			&& enumConstantDecl.getAnonymousClassDeclaration() != null) {
 			if (this.locator.pattern.simpleName == null) {
-				return nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+				int v = nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+				return toResponse(v, true);
 			}
 			if (this.locator.matchesName(this.locator.pattern.simpleName, enumDeclaration.getName().getIdentifier().toCharArray())) {
-				return nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+				int v = nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+				return toResponse(v, true);
 			}
 		}
-		return IMPOSSIBLE_MATCH;
+		if( node instanceof ImportDeclaration id) {
+			Name n = id.getName();
+			imports.add(n);
+		}
+		return toResponse(IMPOSSIBLE_MATCH);
 	}
 	@Override
-	public int match(Type node, NodeSetWrapper nodeSet, MatchLocator locator) {
+	public LocatorResponse match(Type node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		if (failsFineGrain(node, this.locator.fineGrain())) {
-			return IMPOSSIBLE_MATCH;
+			return toResponse(IMPOSSIBLE_MATCH);
 		}
-		if (this.locator.pattern.simpleName == null)
-			return nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
-		String qualifiedName = null;
-		String simpleName = null;
+		if (this.locator.pattern.simpleName == null) {
+			int v = nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+			return toResponse(v, true);
+		}
+		String qualifiedNameFromNode = getQualifiedNameFromType(node);
+		String simpleNameFromNode = getNameStringFromType(node);
+		if( qualifiedNameFromNode != null && this.locator.pattern.qualification != null) {
+			// we have a qualified name in the node, and our pattern is searching for a qualified name
+			String patternQualifiedString = (new String(this.locator.pattern.qualification) + "." + new String(this.locator.pattern.simpleName));
+			char[] patternQualified = patternQualifiedString.toCharArray();
+			if( this.locator.matchesName(patternQualified, qualifiedNameFromNode.toCharArray())) {
+				if( validateTypeParameters(node)) {
+					int v = nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+					return toResponse(v, true);
+				} else {
+					return new LocatorResponse(IMPOSSIBLE_MATCH, false, node, false, false);
+				}
+			}
+			
+			// Not an exact match. We might need to check for more qualifications
+			if( qualifiedNameFromNode.endsWith(patternQualifiedString)) {
+				String[] patternQualifiedStringSegments = patternQualifiedString.split("\\.");
+				String firstSegment = patternQualifiedStringSegments == null || patternQualifiedStringSegments.length == 0 ? null : patternQualifiedStringSegments[0];
+				String fqqnImport = fqqnFromImport(firstSegment);
+				if( fqqnImport != null ) {
+					String fqqn = fqqnImport + patternQualifiedString.substring(firstSegment.length());
+					if( this.locator.matchesName(qualifiedNameFromNode.toCharArray(), fqqn.toCharArray())) {
+						if( validateTypeParameters(node)) {
+							int v = nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+							return toResponse(v, true);
+						} else {
+							return new LocatorResponse(IMPOSSIBLE_MATCH, false, node, false, false);
+						}
+					}
+				}
+			} else if( patternQualifiedString.endsWith(qualifiedNameFromNode)) {
+				String[] qualifiedNameFromNodeStringSegments = qualifiedNameFromNode.split("\\.");
+				String firstSegment = qualifiedNameFromNodeStringSegments == null || qualifiedNameFromNodeStringSegments.length == 0 ? null : qualifiedNameFromNodeStringSegments[0];
+				String fqqnImport = fqqnFromImport(firstSegment);
+				if( fqqnImport != null ) {
+					String fqqn = fqqnImport + qualifiedNameFromNode.substring(firstSegment.length());
+					if( this.locator.matchesName(patternQualified, fqqn.toCharArray())) {
+						if( validateTypeParameters(node)) {
+							int v = nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+							return toResponse(v, true);
+						} else {
+							return new LocatorResponse(IMPOSSIBLE_MATCH, false, node, false, false);
+						}
+					}
+				}
+			}
+		} else if (simpleNameFromNode != null ) {
+			if( this.locator.matchesName(this.locator.pattern.simpleName, simpleNameFromNode.toCharArray()) ) {
+				int level = this.locator.pattern.mustResolve || this.locator.pattern.qualification == null ? POSSIBLE_MATCH : ACCURATE_MATCH;
+				Name n = getSimpleNameNodeFromType(node);
+				if( n != null ) {
+					// Replace node n as the matching node 
+					if( validateTypeParameters(node)) {
+						nodeSet.addMatch(n, level);
+						return new LocatorResponse(level, true, n, true, true);
+					} else {
+						return new LocatorResponse(IMPOSSIBLE_MATCH, true, n, false, false);
+					}
+				} else {
+					if( validateTypeParameters(node)) {
+						int v = nodeSet.addMatch(node, level);
+						return toResponse(v, true);
+					} else {
+						return new LocatorResponse(IMPOSSIBLE_MATCH, false, node, false, false);
+					}
+				}
+			}
+		}
+		return toResponse(IMPOSSIBLE_MATCH);
+	}
+	private boolean validateTypeParameters(Type node) {
+		// SimpleType with typeName=QualifiedName
+		if( node instanceof SimpleType st && (st.getName() instanceof QualifiedName || st.getName() instanceof SimpleName))
+			return true;
+		
+		char[][][] fromPattern = this.locator.pattern.getTypeArguments();
+		if( fromPattern == null ) {
+			return true;
+		}
+		
+		Type working = null;
+		int start = 0;
+		if( node instanceof QualifiedType qt ) {
+			// QualifiedType with name=SimpleName and Qualifier=ParameterizedType
+			working = qt.getQualifier();
+			start = 1;
+		} else if( node instanceof ParameterizedType pt1) {
+			working = pt1;
+		}
+		for( int i = start; i < fromPattern.length; i++ ) {
+			char[][] thisLevelTypeParams = fromPattern[i];
+			if( thisLevelTypeParams != null && thisLevelTypeParams.length != 0 && working instanceof ParameterizedType pt) {
+				List typeArgs = pt.typeArguments();
+				if( typeArgs == null || typeArgs.size() != thisLevelTypeParams.length) {
+					return false;
+				}
+				working = pt.getType();
+			}
+		}
+		return true;
+	}
+	private String getQualifiedNameFromType(Type query) {
+		if( query instanceof QualifiedType qtt) {
+			String qualString = getQualifiedNameFromType(qtt.getQualifier());
+			String nameString = getNameStringFromType(query);
+			return qualString == null || nameString == null ? null : 
+				qualString + "." + nameString;
+		}
+		if( query instanceof ParameterizedType ptt) {
+			return getQualifiedNameFromType(ptt.getType());
+		}
+		if( query instanceof SimpleType st) {
+			String fqqn = fqqnFromImport(st.getName().toString());
+			return fqqn != null ? fqqn : st.getName().toString();
+		}
+		return null;
+	}
+	
+	private String getNameStringFromType(Type node) {
 		if (node instanceof SimpleType simple) {
 			if (simple.getName() instanceof SimpleName name) {
-				simpleName = name.getIdentifier();
+				return name.getIdentifier();
 			}
 			if (simple.getName() instanceof QualifiedName name) {
-				simpleName = name.getName().getIdentifier();
-				qualifiedName = name.getFullyQualifiedName();
+				return name.getName().getIdentifier();
 			}
 		} else if (node instanceof QualifiedType qualified) {
-			simpleName = qualified.getName().getIdentifier();
-			qualifiedName = qualified.getName().getFullyQualifiedName();
+			return qualified.getName().getIdentifier();
+		} else if( node instanceof ParameterizedType ptt) {
+			return getNameStringFromType(ptt.getType());
 		}
-		if( qualifiedName != null && this.locator.pattern.qualification != null) {
-			// we have a qualified name in the node, and our pattern is searching for a qualified name
-			char[] patternQualified = (new String(this.locator.pattern.qualification) + "." + new String(this.locator.pattern.simpleName)).toCharArray();
-			char[] found = qualifiedName.toCharArray();
-			if( this.locator.matchesName(patternQualified, found)) {
-				return nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+		return null;
+	}
+	
+	private org.eclipse.jdt.core.dom.Name getSimpleNameNodeFromType(Type node) {
+		org.eclipse.jdt.core.dom.Name name = getNameNodeFromType(node);
+		if( name != null ) {
+			if( name instanceof QualifiedName qn ) {
+				return qn.getName();
 			}
-		} else if (simpleName != null && this.locator.matchesName(this.locator.pattern.simpleName, simpleName.toCharArray())) {
-			return nodeSet.addMatch(node, this.locator.pattern.mustResolve || this.locator.pattern.qualification == null ? POSSIBLE_MATCH : ACCURATE_MATCH);
+			return name;
 		}
-		return IMPOSSIBLE_MATCH;
+		return null;
+	}
+	
+	private org.eclipse.jdt.core.dom.Name getNameNodeFromType(Type node) {
+		if (node instanceof SimpleType simple) {
+			return simple.getName();
+		} else if (node instanceof QualifiedType qualified) {
+			return qualified.getName();
+		} else if( node instanceof ParameterizedType ptt) {
+			return getNameNodeFromType(ptt.getType());
+		}
+		return null;
+	}
+
+	private String fqqnFromImport(String firstSegment) {
+		if( firstSegment == null )
+			return null;
+		
+		for( Name n : imports ) {
+			if( n.isSimpleName() && n.toString().equals(firstSegment)) {
+				return n.toString();
+			}
+			if( n.isQualifiedName() && n.toString().endsWith("." + firstSegment)) {
+				return n.toString();
+			}
+		}
+		return null;
 	}
 	@Override
-	public int resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
+	public LocatorResponse resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
 		if (binding == null) {
 			if( node instanceof SimpleName sn) {
 				int accuracy = resolveLevelForSimpleName(node, sn.getIdentifier());
@@ -189,31 +350,32 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 						// ignore
 					}
 					// Then return not possible so it doesn't get added again
-					return IMPOSSIBLE_MATCH;
+					return toResponse(IMPOSSIBLE_MATCH);
 				}
 			}
-			return INACCURATE_MATCH;
+			return toResponse(INACCURATE_MATCH);
 		}
 		if (binding instanceof ITypeBinding typeBinding) {
-			return resolveLevelForTypeBinding(node, typeBinding, locator);
+			int v = resolveLevelForTypeBinding(node, typeBinding, locator);
+			return toResponse(v);
 		}
 		if( binding instanceof IPackageBinding && node instanceof SimpleName sn) {
 			// var x = (B36479.C)val;
 			// might interpret the B36479 to be a package and C a type,
 			// rather than B36479 to be a type and C to be an inner-type
 			if( this.locator.isDeclarationOfReferencedTypesPattern) {
-				return IMPOSSIBLE_MATCH;
+				return toResponse(IMPOSSIBLE_MATCH);
 			}
 			if( hasPackageDeclarationAncestor(node)) {
-				return IMPOSSIBLE_MATCH;
+				return toResponse(IMPOSSIBLE_MATCH);
 			}
 			String identifier = sn.getIdentifier();
 			if( this.locator.matchesName(this.locator.pattern.simpleName, identifier.toCharArray())) {
-				return INACCURATE_MATCH;
+				return toResponse(INACCURATE_MATCH);
 			}
 
 		}
-		return IMPOSSIBLE_MATCH;
+		return toResponse(IMPOSSIBLE_MATCH);
 	}
 	
 	private static boolean failsFineGrain(ASTNode node, int fineGrain) {
@@ -238,11 +400,8 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 	private int resolveLevelForSimpleName(org.eclipse.jdt.core.dom.ASTNode node, String simpleNameNeedle) {
 		if( !simpleNameNeedle.contains(".") && this.locator.pattern.qualification != null && this.locator.pattern.qualification.length > 0 ) { //$NON-NLS-1$
 			// we need to find out if we import this thing at all
-			org.eclipse.jdt.core.dom.CompilationUnit cu = findCU(node);
-			List imports = cu.imports();
-			for( Object id : imports) {
-				ImportDeclaration idd = (ImportDeclaration)id;
-				if( idd.getName() instanceof QualifiedName qn) {
+			for( Name id : imports) {
+				if( id instanceof QualifiedName qn) {
 					if( qn.getName().toString().equals(simpleNameNeedle)) {
 						char[] qualifiedPattern = this.locator.getQualifiedPattern(this.locator.pattern.simpleName, this.locator.pattern.qualification);
 						// we were imported as qualified name...
@@ -260,7 +419,15 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 
 	private int resolveLevelForTypeBinding(org.eclipse.jdt.core.dom.ASTNode node, ITypeBinding typeBinding,
 			MatchLocator locator) {
-		int newLevel = this.resolveLevelForType(this.locator.pattern.simpleName, this.locator.pattern.qualification, typeBinding);
+		IImportDiscovery importDiscovery = new IImportDiscovery() {
+			@Override
+			public String findImportForString(String s) {
+				return fqqnFromImport(s);
+			}
+		};
+		
+		int newLevel = this.resolveLevelForType(this.locator.pattern.simpleName, 
+				this.locator.pattern.qualification, typeBinding, importDiscovery);
 		if( newLevel == IMPOSSIBLE_MATCH ) {
 			String qualNameFromBinding = typeBinding.getQualifiedName();
 			int simpleNameMatch = resolveLevelForSimpleName(node, qualNameFromBinding);
@@ -367,6 +534,57 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		return this.resolveLevelForType(this.locator.pattern.simpleName,
 							this.locator.pattern.qualification,
 							typeBinding);
+	}
+	
+	@Override
+	public void reportSearchMatch(MatchLocator locator, ASTNode node, SearchMatch match) throws CoreException {
+		ASTNode replacementNode = null;
+		if( node instanceof QualifiedType qtt) {
+			replacementNode = findNodeMatchingPatternQualifier(qtt.getQualifier());
+		} else if( node instanceof SimpleType st) {
+			replacementNode = findNodeMatchingPatternQualifier(st);
+		}
+		
+		if( replacementNode != null ) {
+			int matchStart = match.getOffset();
+			int matchEnd = matchStart + match.getLength();
+			int newStart = replacementNode.getStartPosition();
+			int newLength = matchEnd - newStart;
+			match.setOffset(newStart);
+			match.setLength(newLength);
+		}
+		SearchMatchingUtility.reportSearchMatch(locator, match);
+	}
+	private ASTNode findNodeMatchingPatternQualifier(Type qualifier) {
+		if( qualifier instanceof ParameterizedType pt) {
+			return findNodeMatchingPatternQualifier(pt.getType());
+		}
+		Name[] retNode = new Name[] {null};
+		String needle = this.locator.pattern.qualification == null ? null : new String(this.locator.pattern.qualification);
+		if( needle != null ) {
+			qualifier.accept(new ASTVisitor() {
+				@Override
+				public boolean visit(QualifiedName node) {
+					if( node.getName().toString().equals(needle)) {
+						retNode[0] = node.getName();
+					}
+					return retNode[0] == null;
+				}
+				@Override
+				public boolean visit(SimpleName node) {
+					if( node.toString().equals(needle)) {
+						retNode[0] = node;
+					}
+					return retNode[0] == null;
+				}
+				@Override
+				public boolean visit(ParameterizedType node) {
+					node.getType().accept(this);
+					return false;
+				}
+			});
+		}
+		return retNode[0];
 	}
 
 }

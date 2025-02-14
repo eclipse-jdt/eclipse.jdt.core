@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.internal.core.search.LocatorResponse;
 
 public class DOMTypeParameterLocator extends DOMPatternLocator {
 
@@ -51,46 +52,46 @@ public class DOMTypeParameterLocator extends DOMPatternLocator {
 	}
 
 	@Override
-	public int match(Type node, NodeSetWrapper nodeSet, MatchLocator locator) {
+	public LocatorResponse match(Type node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		if (this.locator.pattern.findReferences) {
 			if (node instanceof SimpleType simple) { // Type parameter cannot be qualified
 				if (this.locator.matchesName(this.locator.pattern.name, simple.getName().toString().toCharArray())) {
 					int level = this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
-					return nodeSet.addMatch(node, level);
+					return toResponse(nodeSet.addMatch(node, level), true);
 				}
 			}
 		}
-		return IMPOSSIBLE_MATCH;
+		return toResponse(IMPOSSIBLE_MATCH);
 	}
 
 	@Override
-	public int match(org.eclipse.jdt.core.dom.TypeParameter node, NodeSetWrapper nodeSet, MatchLocator locator) {
+	public LocatorResponse match(org.eclipse.jdt.core.dom.TypeParameter node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		if (this.locator.pattern.findReferences) {
 			if (this.locator.matchesName(this.locator.pattern.name, node.getName().toString().toCharArray())) {
 				int level = this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
-				return nodeSet.addMatch(node, level);
+				return toResponse(nodeSet.addMatch(node, level), true);
 			}
 		}
 		if (this.locator.pattern.findDeclarations) {
 			if (this.locator.matchesName(this.locator.pattern.name, node.getName().toString().toCharArray())) {
 				int level = this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
-				return nodeSet.addMatch(node, level);
+				return toResponse(nodeSet.addMatch(node, level), true);
 			}
 		}
-		return IMPOSSIBLE_MATCH;
+		return toResponse(IMPOSSIBLE_MATCH);
 	}
 	@Override
-	public int resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
-		if (binding == null) return INACCURATE_MATCH;
-		if (!(binding instanceof ITypeBinding)) return IMPOSSIBLE_MATCH;
+	public LocatorResponse resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
+		if (binding == null) return toResponse(INACCURATE_MATCH);
+		if (!(binding instanceof ITypeBinding)) return toResponse(IMPOSSIBLE_MATCH);
 		ITypeBinding tb = (ITypeBinding)binding;
 		int ret = matchTypeParameter(tb, true);
 		if( ret == ACCURATE_MATCH) {
 			if( !this.locator.pattern.findDeclarations && nodeSourceRangeMatchesElement(node, this.locator.pattern.focus)) {
-				return IMPOSSIBLE_MATCH;
+				return toResponse(IMPOSSIBLE_MATCH);
 			}
 		}
-		return ret;
+		return toResponse(ret);
 	}
 	protected int matchTypeParameter(ITypeBinding variable, boolean matchName) {
 		if (variable.getDeclaringMethod() != null) {

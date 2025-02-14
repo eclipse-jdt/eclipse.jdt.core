@@ -888,6 +888,10 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	public String getQualifiedName() {
 		return getQualifiedNameImpl(this.type, this.typeSymbol, this.typeSymbol.owner, !this.isGeneric);
 	}
+	public String getQualifiedName(boolean includeParams) {
+		return getQualifiedNameImpl(this.type, this.typeSymbol, this.typeSymbol.owner, includeParams);
+	}
+	
 	protected String getQualifiedNameImpl(Type type, TypeSymbol typeSymbol, Symbol owner, boolean includeParameters) {
 		if (owner instanceof MethodSymbol) {
 			return "";
