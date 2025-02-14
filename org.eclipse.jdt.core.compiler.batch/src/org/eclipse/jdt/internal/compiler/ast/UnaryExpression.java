@@ -20,23 +20,143 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class UnaryExpression extends OperatorExpression {
 
 	public Expression expression;
 	public Constant optimizedBooleanConstant;
 	private int trueInitStateIndex = -1;
+	public MethodBinding appropriateMethodForOverload = null;
+	public MethodBinding syntheticAccessor = null;
+	public TypeBinding expectedType = null;//Operator overload, for generic function call
+
+	@Override
+	public void setExpectedType(TypeBinding expectedType) {
+		this.expectedType = expectedType;
+	}
 
 	public UnaryExpression(Expression expression, int operator) {
 		this.expression = expression;
 		this.bits |= operator << OperatorSHIFT; // encode operator
+	}
+
+	public String getMethodName() {
+		switch ((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) {
+			case NOT:
+				return "logicalNot"; //$NON-NLS-1$
+			case MINUS :
+				return "neg"; //$NON-NLS-1$
+			case TWIDDLE :
+				return "complement"; //$NON-NLS-1$
+			case PLUS :
+				return "plus"; //$NON-NLS-1$
+
+		}
+		return ""; //$NON-NLS-1$
+	}
+
+	public MethodBinding getMethodBindingForOverload(BlockScope scope) {
+		TypeBinding tb = null;
+
+		if(this.expression.resolvedType == null)
+			tb = this.expression.resolveType(scope);
+		else
+			tb = this.expression.resolvedType;
+
+		final TypeBinding expectedTypeLocal = this.expectedType;
+		OperatorOverloadInvocationSite fakeInvocationSite = new OperatorOverloadInvocationSite(){
+			@Override
+			public TypeBinding[] genericTypeArguments() { return null; }
+			@Override
+			public boolean isSuperAccess(){ return false; }
+			@Override
+			public boolean isTypeAccess() { return true; }
+			@Override
+			public void setActualReceiverType(ReferenceBinding actualReceiverType) { /* ignore */}
+			@Override
+			public void setDepth(int depth) { /* ignore */}
+			@Override
+			public void setFieldIndex(int depth){ /* ignore */}
+			@Override
+			public int sourceStart() { return 0; }
+			@Override
+			public int sourceEnd() { return 0; }
+			@Override
+			public TypeBinding getExpectedType() {
+				return expectedTypeLocal;
+			}
+			@Override
+			public TypeBinding invocationTargetType() { return null; }
+			@Override
+			public boolean receiverIsImplicitThis() { return false; }
+			@Override
+			public InferenceContext18 freshInferenceContext(Scope s) { return null; }
+			@Override
+			public ExpressionContext getExpressionContext() { return null; }
+			@Override
+			public boolean isQualifiedSuper() { return false; }
+			@Override
+			public boolean checkingPotentialCompatibility() { return false; }
+			@Override
+			public void acceptPotentiallyCompatibleMethods(MethodBinding[] methods) {/* ignore */}
+		};
+
+		String ms = getMethodName();
+
+		MethodBinding mb2 = scope.getMethod(tb, ms.toCharArray(), new TypeBinding[]{},  fakeInvocationSite);
+		return mb2;
+	}
+
+	public void generateOperatorOverloadCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+		this.expression.generateCode(currentScope, codeStream, true);
+		if ((!this.expression.resolvedType.isBaseType())) {
+			codeStream.checkcast(this.expression.resolvedType);
+		}
+		generateOperatorOverloadCodeSimple(currentScope, codeStream, valueRequired);
+	}
+
+	public void generateOperatorOverloadCodeSimple(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+		if (this.appropriateMethodForOverload.hasSubstitutedParameters() || this.appropriateMethodForOverload.hasSubstitutedReturnType()) {
+			TypeBinding tbo = this.appropriateMethodForOverload.returnType;
+			MethodBinding mb3 = this.appropriateMethodForOverload.original();
+			MethodBinding final_mb = mb3;
+			codeStream.checkcast(final_mb.declaringClass);
+			codeStream.invoke((final_mb.declaringClass.isInterface()) ? Opcodes.OPC_invokeinterface : Opcodes.OPC_invokevirtual, final_mb, final_mb.declaringClass.erasure());
+			if (tbo.erasure().isProvablyDistinct(final_mb.returnType.erasure())) {
+				codeStream.checkcast(tbo);
+			}
+		} else {
+			MethodBinding original = this.appropriateMethodForOverload.original();
+			if(original.isPrivate()){
+				codeStream.invoke(Opcodes.OPC_invokestatic, this.syntheticAccessor, null /* default declaringClass */);
+			}
+			else{
+				codeStream.invoke((original.declaringClass.isInterface()) ? Opcodes.OPC_invokeinterface : Opcodes.OPC_invokevirtual, original, original.declaringClass);
+			}
+			if (!this.appropriateMethodForOverload.returnType.isBaseType()) codeStream.checkcast(this.appropriateMethodForOverload.returnType);
+		}
+
+		String rvn = new String(this.resolvedType.constantPoolName());
+
+		if (!valueRequired) {
+			if (this.resolvedType.id != TypeBinding.VOID.id) {
+				if ((this.resolvedType.isEquivalentTo(TypeBinding.DOUBLE))
+						|| (this.resolvedType.isEquivalentTo(TypeBinding.LONG))
+						|| (rvn.equals("java/lang/Double")) //$NON-NLS-1$
+						|| (rvn.equals("java/lang/Long"))) { //$NON-NLS-1$
+					codeStream.pop2();
+				}
+				else {
+					codeStream.pop();
+				}
+			}
+		}
 	}
 
 	@Override
@@ -44,6 +164,15 @@ public class UnaryExpression extends OperatorExpression {
 			BlockScope currentScope,
 			FlowContext flowContext,
 			FlowInfo flowInfo) {
+
+		if(this.appropriateMethodForOverload != null){
+			MethodBinding original = this.appropriateMethodForOverload.original();
+			if(original.isPrivate()){
+				this.syntheticAccessor = ((SourceTypeBinding)original.declaringClass).addSyntheticMethod(original, false);
+				currentScope.problemReporter().needToEmulateMethodAccess(original, this);
+			}
+		}
+
 		if (((this.bits & OperatorMASK) >> OperatorSHIFT) == NOT) {
 			flowContext.tagBits ^= FlowContext.INSIDE_NEGATION;
 			flowInfo = this.expression.
@@ -123,6 +252,8 @@ public class UnaryExpression extends OperatorExpression {
 							falseLabel.place();
 						}
 						break;
+					default:
+						generateOperatorOverloadCode(currentScope,codeStream,valueRequired);
 				}
 				break;
 			case TWIDDLE :
@@ -141,6 +272,9 @@ public class UnaryExpression extends OperatorExpression {
 							codeStream.ldc2_w(-1L);
 							codeStream.lxor();
 						}
+						break;
+					default:
+						generateOperatorOverloadCode(currentScope,codeStream,valueRequired);
 				}
 				break;
 			case MINUS :
@@ -176,6 +310,9 @@ public class UnaryExpression extends OperatorExpression {
 								break;
 							case T_double :
 								codeStream.dneg();
+								break;
+							default:
+								generateOperatorOverloadCodeSimple(currentScope,codeStream,valueRequired);
 						}
 					}
 				}
@@ -211,12 +348,38 @@ public class UnaryExpression extends OperatorExpression {
 			return;
 		}
 		if (((this.bits & OperatorMASK) >> OperatorSHIFT) == NOT) {
-			this.expression.generateOptimizedBoolean(
-				currentScope,
-				codeStream,
-				falseLabel,
-				trueLabel,
-				valueRequired);
+			if (((this.expression.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_boolean) {
+
+				this.expression.generateCode(currentScope, codeStream, valueRequired);
+				generateOperatorOverloadCode(currentScope,codeStream,valueRequired);
+
+				codeStream.ineg();
+
+				if (falseLabel == null) {
+					if (trueLabel != null) {
+						// implicit falling through the FALSE case
+						codeStream.ifne(trueLabel);
+					}
+				} else {
+					// implicit falling through the TRUE case
+					if (trueLabel == null) {
+						codeStream.ifeq(falseLabel);
+					} else {
+						// no implicit fall through TRUE/FALSE --> should never occur
+					}
+				}
+
+				// reposition the endPC
+				codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd);
+
+			} else {
+				this.expression.generateOptimizedBoolean(
+						currentScope,
+						codeStream,
+						falseLabel,
+						trueLabel,
+						valueRequired);
+			}
 		} else {
 			super.generateOptimizedBoolean(
 				currentScope,
@@ -250,11 +413,11 @@ public class UnaryExpression extends OperatorExpression {
 				expressionTypeID = scope.environment().computeBoxingType(expressionType).id;
 			}
 		}
-		if (expressionTypeID > 15) {
-			this.constant = Constant.NotAConstant;
-			scope.problemReporter().invalidOperator(this, expressionType);
-			return null;
-		}
+		//if (expressionTypeID > 15) {
+		//	this.constant = Constant.NotAConstant;
+		//	scope.problemReporter().invalidOperator(this, expressionType);
+		//	return null;
+		//}
 
 		int tableId;
 		switch ((this.bits & OperatorMASK) >> OperatorSHIFT) {
@@ -272,7 +435,10 @@ public class UnaryExpression extends OperatorExpression {
 		// (cast)  left   Op (cast)  rigth --> result
 		//  0000   0000       0000   0000      0000
 		//  <<16   <<12       <<8    <<4       <<0
-		int operatorSignature = OperatorSignatures[tableId][(expressionTypeID << 4) + expressionTypeID];
+		int operatorSignature = 0;
+		if (expressionTypeID <= 15)	{
+			operatorSignature = OperatorSignatures[tableId][(expressionTypeID << 4) + expressionTypeID];
+		}
 		this.expression.computeConversion(scope, TypeBinding.wellKnownType(scope, (operatorSignature >>> 16) & 0x0000F), expressionType);
 		this.bits |= operatorSignature & 0xF;
 		switch (operatorSignature & 0xF) { // only switch on possible result type.....
@@ -298,10 +464,22 @@ public class UnaryExpression extends OperatorExpression {
 				this.resolvedType = TypeBinding.LONG;
 				break;
 			default : //error........
-				this.constant = Constant.NotAConstant;
-				if (expressionTypeID != T_undefined)
-					scope.problemReporter().invalidOperator(this, expressionType);
-				return null;
+				this.appropriateMethodForOverload = getMethodBindingForOverload(scope);
+				if (isMethodUseDeprecated(this.appropriateMethodForOverload, scope, true, new InvocationSite.EmptyWithAstNode(this)))
+					scope.problemReporter().deprecatedMethod(this.appropriateMethodForOverload, this);
+				if (!this.appropriateMethodForOverload.isValidBinding()) {
+					this.constant = Constant.NotAConstant;
+					if (expressionTypeID != T_undefined)
+						scope.problemReporter().invalidOperator(this, expressionType);
+					return null;
+				}
+				if((this.appropriateMethodForOverload.modifiers & ClassFileConstants.AccStatic) != 0) {
+					scope.problemReporter().overloadedOperatorMethodNotStatic(this, getMethodName());
+					return null;
+				}
+				this.expression.computeConversion(scope, this.expression.resolvedType, this.expression.resolvedType);
+				this.resolvedType =  this.appropriateMethodForOverload.returnType;
+				break;
 		}
 		// compute the constant when valid
 		if (this.expression.constant != Constant.NotAConstant) {
@@ -312,10 +490,17 @@ public class UnaryExpression extends OperatorExpression {
 					(this.bits & OperatorMASK) >> OperatorSHIFT);
 		} else {
 			this.constant = Constant.NotAConstant;
-			if (((this.bits & OperatorMASK) >> OperatorSHIFT) == NOT) {
+			if (((this.bits & OperatorMASK) >> OperatorSHIFT) == NOT
+					|| ((this.bits & OperatorMASK) >> OperatorSHIFT) == TWIDDLE
+					|| ((this.bits & OperatorMASK) >> OperatorSHIFT) == MINUS
+					|| ((this.bits & OperatorMASK) >> OperatorSHIFT) == PLUS) {
 				Constant cst = this.expression.optimizedBooleanConstant();
-				if (cst != Constant.NotAConstant)
+				if (cst != Constant.NotAConstant) {
 					this.optimizedBooleanConstant = BooleanConstant.fromValue(!cst.booleanValue());
+				} else {
+					if (this.expression.resolvedType.id == T_null)
+						scope.problemReporter().invalidOperator(this, expressionType);
+				}
 			}
 		}
 		if (expressionIsCast) {
