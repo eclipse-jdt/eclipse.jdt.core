@@ -7674,19 +7674,12 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				}
 				"""
 				},
-				this.complianceLevel < ClassFileConstants.JDK21 ?
-				"----------\n"
-				+ "1. ERROR in X.java (at line 7)\n"
-				+ "	switch (foo()) {\n"
-				+ "	        ^^^^^\n"
-				+ "Expression must return a value\n"
-				+ "----------\n" :
-						"----------\n" +
-						"1. ERROR in X.java (at line 7)\n" +
-						"	switch (foo()) {\n" +
-						"	        ^^^^^\n" +
-						"Expression must return a value\n" +
-						"----------\n");
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	switch (foo()) {\n" +
+				"	        ^^^^^\n" +
+				"This expression yields no value\n" +
+				"----------\n");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
 	// VerifyError in switch expression on double
@@ -7793,7 +7786,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				+ "1. ERROR in X.java (at line 7)\n"
 				+ "	switch (foo()) {\n"
 				+ "	        ^^^^^\n"
-				+ "Expression must return a value\n"
+				+ "This expression yields no value\n"
 				+ "----------\n"
 				+ "2. ERROR in X.java (at line 8)\n"
 				+ "	case null -> System.out.println(d);\n"
@@ -7804,7 +7797,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"1. ERROR in X.java (at line 7)\n" +
 						"	switch (foo()) {\n" +
 						"	        ^^^^^\n" +
-						"Expression must return a value\n" +
+						"This expression yields no value\n" +
 						"----------\n" +
 						"2. ERROR in X.java (at line 7)\n" +
 						"	switch (foo()) {\n" +

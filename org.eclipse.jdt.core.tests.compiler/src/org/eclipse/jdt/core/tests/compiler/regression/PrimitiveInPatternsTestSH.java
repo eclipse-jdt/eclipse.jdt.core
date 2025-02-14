@@ -2718,7 +2718,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 3)\n" +
 			"	switch (main(null)) {\n" +
 			"	        ^^^^^^^^^^\n" +
-			"Expression must return a value\n" +
+			"This expression yields no value\n" +
 			"----------\n");
 	}
 	public void testGH3369_expression() {
@@ -2739,7 +2739,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 3)\n" +
 			"	return switch (bar()) {\n" +
 			"	               ^^^^^\n" +
-			"Expression must return a value\n" +
+			"This expression yields no value\n" +
 			"----------\n");
 	}
 }
