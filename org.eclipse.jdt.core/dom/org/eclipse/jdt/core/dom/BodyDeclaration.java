@@ -200,6 +200,8 @@ public abstract class BodyDeclaration extends ASTNode {
 		if (this.modifiers == null) {
 			// JLS2 behavior - bona fide property
 			return this.modifierFlags;
+		} else if (getNodeType() == ASTNode.UNNAMED_CLASS && this.ast.apiLevel >= AST.JLS24) {
+			return Modifier.FINAL;
 		} else {
 			// JLS3 behavior - convenience method
 			// performance could be improved by caching computed flags
