@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -552,6 +556,10 @@ public class SwitchStatement extends Expression {
 				this.expression.computeConversion(upperScope, expressionType, expressionType);
 				checkType: {
 					if (expressionType.isBaseType()) {
+						if (expressionType.id == TypeIds.T_void) {
+							upperScope.problemReporter().illegalVoidExpression(this.expression);
+							break checkType;
+						}
 						if (JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(compilerOptions)) {
 							upperScope.referenceContext().compilationResult().usesPreview = true;
 							this.isPrimitiveSwitch = true;
