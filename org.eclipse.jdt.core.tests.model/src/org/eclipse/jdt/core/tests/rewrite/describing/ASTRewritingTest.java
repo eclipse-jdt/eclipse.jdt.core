@@ -47,46 +47,6 @@ import org.eclipse.text.edits.TextEdit;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ASTRewritingTest extends AbstractJavaModelTests {
 
-	/** @deprecated using deprecated code */
-	private final static int JLS8_INTERNAL = AST.JLS8;
-
-	/** @deprecated using deprecated code */
-	private final static int JLS9_INTERNAL = AST.JLS9;
-
-	/** @deprecated using deprecated code */
-	private final static int JLS10_INTERNAL = AST.JLS10;
-
-	/** @deprecated using deprecated code */
-	private final static int JLS14_INTERNAL = AST.JLS14;
-
-	/** @deprecated using deprecated code */
-	private final static int JLS15_INTERNAL = AST.JLS15;
-
-	/** @deprecated using deprecated code */
-	private final static int JLS16_INTERNAL = AST.JLS16;
-
-	/** @deprecated using deprecated code */
-	private final static int JLS17_INTERNAL = AST.JLS17;
-
-	/** @deprecated using deprecated code */
-	private final static int JLS18_INTERNAL = AST.JLS18;
-
-	/** @deprecated using deprecated code */
-	private final static int JLS19_INTERNAL = AST.JLS19;
-
-	/** @deprecated using deprecated code */
-	private final static int JLS20_INTERNAL = AST.JLS20;
-
-	/** @deprecated using deprecated code */
-	private final static int JLS21_INTERNAL = AST.JLS21;
-
-	private final static int JLS22_INTERNAL = AST.JLS22;
-	private final static int JLS23_INTERNAL = AST.JLS23;
-
-	private final static int[] JLS_LEVELS = { JLS8_INTERNAL, JLS9_INTERNAL,
-			JLS10_INTERNAL, JLS14_INTERNAL, JLS15_INTERNAL, JLS16_INTERNAL, JLS17_INTERNAL, JLS18_INTERNAL,
-			JLS19_INTERNAL, JLS20_INTERNAL, JLS21_INTERNAL , JLS22_INTERNAL, JLS23_INTERNAL};
-
 	private static final String ONLY_AST_STRING = "_only";
 	private static final String SINCE_AST_STRING = "_since";
 	private static final String STRING_ = "_";
@@ -188,7 +148,10 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 						String suffix = name.substring(index + ONLY_AST_STRING.length() + 1);
 						String[] levels = suffix.split(STRING_);
 						for (int l= 0; l < levels.length; l++) {
-							suite.addTest((Test) cons.newInstance(new Object[]{name,  Integer.valueOf(levels[l])}));
+                            int level = Integer.valueOf(levels[l]);
+                            if (AST.isSupportedVersion(level)) {
+                                suite.addTest((Test) cons.newInstance(name, level));
+                            }
 						}
 
 					} else {
@@ -198,8 +161,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 							String suffix = name.substring(index + SINCE_AST_STRING.length() + 1);
 							since = Integer.parseInt(suffix);
 						}
-						for (int j= 0; j < JLS_LEVELS.length; j++) {
-							int level = JLS_LEVELS[j];
+						for (int level :AST.getAllSupportedVersions()) {
 							if (level >= since && level >= classSince) {
 								suite.addTest((Test) cons.newInstance(new Object[]{name, Integer.valueOf(level)}));
 							}

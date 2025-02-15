@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2019 IBM Corporation and others.
+ * Copyright (c) 2013, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -263,26 +263,10 @@ public class TypeSystem {
 	}
 
 	/**
-	 * Forcefully register the given type as a derived type.
-	 * If it itself is already registered as the key unannotated type of its family,
-	 * create a clone to play that role from now on and swap types in the types cache.
+	 * Actual work happening only in subclass AnnotatableTypeSystem
 	 */
 	public void forceRegisterAsDerived(TypeVariableBinding derived) {
-		int id = derived.id;
-		if (id != TypeIds.NoId && this.types[id] != null) {
-			TypeBinding unannotated = this.types[id][0];
-			if (unannotated == derived) { //$IDENTITY-COMPARISON$
-				// was previously registered as unannotated, replace by a fresh clone to remain unannotated:
-				this.types[id][0] = unannotated = derived.clone(null);
-				if (derived.updateWhenSettingTypeAnnotations != null) {
-					derived.updateWhenSettingTypeAnnotations.accept((TypeVariableBinding) unannotated);
-				}
-			}
-			// proceed as normal:
-			cacheDerivedType(unannotated, derived);
-		} else {
-			throw new IllegalStateException("Type was not yet registered as expected: "+derived); //$NON-NLS-1$
-		}
+		throw new UnsupportedOperationException("class TypeSystem does not handle type annotations."); //$NON-NLS-1$
 	}
 
 	// Given a type, return all its variously annotated versions.
@@ -505,7 +489,7 @@ public class TypeSystem {
 		return this.types[keyType.id];
 	}
 
-	private TypeBinding cacheDerivedType(TypeBinding keyType, TypeBinding derivedType) {
+	protected TypeBinding cacheDerivedType(TypeBinding keyType, TypeBinding derivedType) {
 		if (keyType == null || derivedType == null || keyType.id == TypeIds.NoId)
 			throw new IllegalStateException();
 

@@ -24,21 +24,7 @@ import org.eclipse.jdt.core.dom.*;
 @SuppressWarnings("rawtypes")
 public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
 
-	/**
-	 * Internal synonym for deprecated constant AST.JSL3
-	 * to alleviate deprecation warnings.
-	 * @deprecated
-	 */
-	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
-
-	/**
-	 * Internal synonym for deprecated constant AST.JSL4
-	 * to alleviate deprecation warnings.
-	 * @deprecated
-	 */
-	/*package*/ static final int JLS4_INTERNAL = AST.JLS4;
-
-	/** @deprecated using deprecated code */
+	@SuppressWarnings("deprecation")
 	public static Test suite() {
 		// TODO (frederic) use buildList + setAstLevel(init) instead...
 		junit.framework.TestSuite suite = new junit.framework.TestSuite(ASTMatcherTest.class.getName());
@@ -47,10 +33,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		Method[] methods = c.getMethods();
 		for (int i = 0, max = methods.length; i < max; i++) {
 			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
-				suite.addTest(new ASTMatcherTest(methods[i].getName(), AST.JLS2));
-				suite.addTest(new ASTMatcherTest(methods[i].getName(), JLS3_INTERNAL));
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391898
-				suite.addTest(new ASTMatcherTest(methods[i].getName(), getJLS8()));
+				suite.addTest(new ASTMatcherTest(methods[i].getName(), AST.JLS8));
+				suite.addTest(new ASTMatcherTest(methods[i].getName(), AST.JLS11));
 				suite.addTest(new ASTMatcherTest(methods[i].getName(), AST.JLS17));
 				suite.addTest(new ASTMatcherTest(methods[i].getName(), AST.JLS21));
 			}
@@ -123,13 +108,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 
 	/**
-	 * @deprecated
-	 */
-	static int getJLS8() {
-		return AST.JLS8;
-	}
-
-	/**
 	 * @deprecated (not really - just suppressing the warnings
 	 * that come from testing Javadoc.getComment())
 	 */
@@ -150,10 +128,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		this.S1 = this.ast.newContinueStatement();
 		this.S2 = this.ast.newBreakStatement();
 		this.B1 = this.ast.newBlock();
-		if (this.ast.apiLevel() >= getJLS8()) {
-			this.R1 = this.ast.newSimpleType(this.ast.newSimpleName("XYZ"));
-			this.Q1 = this.ast.newSimpleName("XYZ");
-		}
+		this.R1 = this.ast.newSimpleType(this.ast.newSimpleName("XYZ"));
+		this.Q1 = this.ast.newSimpleName("XYZ");
 		this.V1 = this.ast.newSingleVariableDeclaration();
 		this.V1.setType(this.ast.newPrimitiveType(PrimitiveType.INT));
 		this.V1.setName(this.ast.newSimpleName("a")); //$NON-NLS-1$
@@ -216,46 +192,42 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		this.MPARM1 = this.ast.newMethodRefParameter();
 		this.MPARM1.setType(this.ast.newPrimitiveType(PrimitiveType.CHAR));
 
-		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
-			this.PT1 = this.ast.newParameterizedType(this.ast.newSimpleType(this.ast.newSimpleName("Z"))); //$NON-NLS-1$
-			this.PT1S = "[(tM[(tS[(nSZZnS)]tS)]tM)]"; //$NON-NLS-1$
+		this.PT1 = this.ast.newParameterizedType(this.ast.newSimpleType(this.ast.newSimpleName("Z"))); //$NON-NLS-1$
+		this.PT1S = "[(tM[(tS[(nSZZnS)]tS)]tM)]"; //$NON-NLS-1$
 
-			this.TP1 = this.ast.newTypeParameter();
-			this.TP1.setName(this.ast.newSimpleName("x")); //$NON-NLS-1$
-			this.TP1S = "[(tTP[(nSxxnS)]tTP)]"; //$NON-NLS-1$
+		this.TP1 = this.ast.newTypeParameter();
+		this.TP1.setName(this.ast.newSimpleName("x")); //$NON-NLS-1$
+		this.TP1S = "[(tTP[(nSxxnS)]tTP)]"; //$NON-NLS-1$
 
-			this.TP2 = this.ast.newTypeParameter();
-			this.TP2.setName(this.ast.newSimpleName("y")); //$NON-NLS-1$
-			this.TP2S = "[(tTP[(nSyynS)]tTP)]"; //$NON-NLS-1$
-			this.LC1 = this.ast.newLineComment();
+		this.TP2 = this.ast.newTypeParameter();
+		this.TP2.setName(this.ast.newSimpleName("y")); //$NON-NLS-1$
+		this.TP2S = "[(tTP[(nSyynS)]tTP)]"; //$NON-NLS-1$
+		this.LC1 = this.ast.newLineComment();
 
-			this.MVP1 = this.ast.newMemberValuePair();
-			this.MVP1.setName(this.ast.newSimpleName("x")); //$NON-NLS-1$
-			this.MVP1.setValue(this.ast.newSimpleName("y")); //$NON-NLS-1$
+		this.MVP1 = this.ast.newMemberValuePair();
+		this.MVP1.setName(this.ast.newSimpleName("x")); //$NON-NLS-1$
+		this.MVP1.setValue(this.ast.newSimpleName("y")); //$NON-NLS-1$
 
-			this.MVP2 = this.ast.newMemberValuePair();
-			this.MVP2.setName(this.ast.newSimpleName("a")); //$NON-NLS-1$
-			this.MVP2.setValue(this.ast.newSimpleName("b")); //$NON-NLS-1$
+		this.MVP2 = this.ast.newMemberValuePair();
+		this.MVP2.setName(this.ast.newSimpleName("a")); //$NON-NLS-1$
+		this.MVP2.setValue(this.ast.newSimpleName("b")); //$NON-NLS-1$
 
-			this.ANO1 = this.ast.newMarkerAnnotation();
-			this.ANO1.setTypeName(this.ast.newSimpleName("p")); //$NON-NLS-1$
+		this.ANO1 = this.ast.newMarkerAnnotation();
+		this.ANO1.setTypeName(this.ast.newSimpleName("p")); //$NON-NLS-1$
 
-			this.ANO2 = this.ast.newSingleMemberAnnotation();
-			this.ANO2.setTypeName(this.ast.newSimpleName("q")); //$NON-NLS-1$
-			this.ANO2.setValue(this.ast.newSimpleName("v")); //$NON-NLS-1$
+		this.ANO2 = this.ast.newSingleMemberAnnotation();
+		this.ANO2.setTypeName(this.ast.newSimpleName("q")); //$NON-NLS-1$
+		this.ANO2.setValue(this.ast.newSimpleName("v")); //$NON-NLS-1$
 
-			this.MOD1 = this.ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
-			this.MOD2 = this.ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD);
+		this.MOD1 = this.ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
+		this.MOD2 = this.ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD);
 
-			this.EC1 = this.ast.newEnumConstantDeclaration();
-			this.EC1.setName(this.ast.newSimpleName("F")); //$NON-NLS-1$
-			this.EC2 = this.ast.newEnumConstantDeclaration();
-			this.EC2.setName(this.ast.newSimpleName("G")); //$NON-NLS-1$
-		}
-		if (this.ast.apiLevel() >= getJLS8()) {
-			this.T3 = this.ast.newSimpleType(this.ast.newSimpleName("U")); //$NON-NLS-1$
-			this.T4 = this.ast.newSimpleType(this.ast.newSimpleName("V")); //$NON-NLS-1$
-		}
+		this.EC1 = this.ast.newEnumConstantDeclaration();
+		this.EC1.setName(this.ast.newSimpleName("F")); //$NON-NLS-1$
+		this.EC2 = this.ast.newEnumConstantDeclaration();
+		this.EC2.setName(this.ast.newSimpleName("G")); //$NON-NLS-1$
+		this.T3 = this.ast.newSimpleType(this.ast.newSimpleName("U")); //$NON-NLS-1$
+		this.T4 = this.ast.newSimpleType(this.ast.newSimpleName("V")); //$NON-NLS-1$
 	}
 
 	protected void tearDown() throws Exception {
@@ -267,12 +239,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public String getName() {
 		String name = super.getName();
 		switch (this.API_LEVEL) {
-			case AST.JLS2:
-				name = "JLS2 - " + name;
-				break;
-			case JLS3_INTERNAL:
-				name = "JLS3 - " + name;
-				break;
 			case AST.JLS8:
 				name = "JLS8 - " + name;
 				break;
@@ -730,9 +696,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 
 	public void testUnionType() {
-		if (this.ast.apiLevel() < JLS4_INTERNAL) {
-			return;
-		}
 		UnionType x1 = this.ast.newUnionType();
 		x1.types().add(this.ast.newSimpleType(this.N1));
 		basicMatch(x1);
@@ -744,20 +707,12 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 
-	/** @deprecated using deprecated code */
 	public void testNameQualifiedType() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		Type x1 = this.ast.newNameQualifiedType(this.ast.newQualifiedName(this.N2, this.N3), this.N1);
 		basicMatch(x1);
 	}
 
-	/** @deprecated using deprecated code */
 	public void testParameterizedType() {
-		if (this.ast.apiLevel() == AST.JLS2) {
-			return;
-		}
 		ParameterizedType x1 = this.ast.newParameterizedType(this.ast.newSimpleType(this.ast.newSimpleName("X"))); //$NON-NLS-1$
 		x1.typeArguments().add(this.T1);
 		x1.typeArguments().add(this.T2);
@@ -892,9 +847,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testConstructorInvocation() {
 		ConstructorInvocation x1 = this.ast.newConstructorInvocation();
-		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
-			x1.typeArguments().add(this.PT1);
-		}
+		x1.typeArguments().add(this.PT1);
 		x1.arguments().add(this.E1);
 		x1.arguments().add(this.E2);
 		basicMatch(x1);
@@ -906,9 +859,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399794
 	public void testCreationReference() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		CreationReference x1 = this.ast.newCreationReference();
 		x1.setType(this.T1);
 		basicMatch(x1);
@@ -971,9 +921,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399794
 	public void testExpressionMethodReference() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		ExpressionMethodReference x1 = this.ast.newExpressionMethodReference();
 		x1.setExpression(this.E1);
 		x1.setName(this.N1);
@@ -993,10 +940,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testFieldDeclaration() {
 		FieldDeclaration x1 = this.ast.newFieldDeclaration(this.W1);
 		x1.setJavadoc(this.JD1);
-		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
-			x1.modifiers().add(this.MOD1);
-			x1.modifiers().add(this.MOD2);
-		}
+		x1.modifiers().add(this.MOD1);
+		x1.modifiers().add(this.MOD2);
 		x1.setType(this.T1);
 		x1.fragments().add(this.W2);
 		basicMatch(x1);
@@ -1035,10 +980,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testInitializer() {
 		Initializer x1 = this.ast.newInitializer();
 		x1.setJavadoc(this.JD1);
-		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
-			x1.modifiers().add(this.MOD1);
-			x1.modifiers().add(this.MOD2);
-		}
+		x1.modifiers().add(this.MOD1);
+		x1.modifiers().add(this.MOD2);
 		x1.setBody(this.B1);
 		basicMatch(x1);
 	}
@@ -1075,41 +1018,27 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 
-	/** @deprecated using deprecated code */
 	public void testMethodDeclaration() {
 		MethodDeclaration x1 = this.ast.newMethodDeclaration();
 		x1.setJavadoc(this.JD1);
-		if (this.ast.apiLevel() == AST.JLS2) {
-			x1.setReturnType(this.T1);
-		} else {
-			x1.modifiers().add(this.MOD1);
-			x1.modifiers().add(this.MOD2);
-			x1.typeParameters().add(this.TP1);
-			x1.typeParameters().add(this.TP2);
-			x1.setReturnType2(this.T1);
-			if (this.ast.apiLevel() >= getJLS8()) {
-				x1.setReceiverType(this.R1);
-			}
-		}
+		x1.modifiers().add(this.MOD1);
+		x1.modifiers().add(this.MOD2);
+		x1.typeParameters().add(this.TP1);
+		x1.typeParameters().add(this.TP2);
+		x1.setReturnType2(this.T1);
+		x1.setReceiverType(this.R1);
 		x1.setName(this.N1);
 		x1.parameters().add(this.V1);
 		x1.parameters().add(this.V2);
-		if (this.ast.apiLevel() < getJLS8()) {
-			x1.thrownExceptions().add(this.N2);
-			x1.thrownExceptions().add(this.N3);
-		} else {
-			x1.thrownExceptionTypes().add(this.T3);
-			x1.thrownExceptionTypes().add(this.T4);
-		}
+		x1.thrownExceptionTypes().add(this.T3);
+		x1.thrownExceptionTypes().add(this.T4);
 		x1.setBody(this.B1);
 		basicMatch(x1);
 	}
 	public void testMethodInvocation() {
 		MethodInvocation x1 = this.ast.newMethodInvocation();
 		x1.setExpression(this.N1);
-		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
-			x1.typeArguments().add(this.PT1);
-		}
+		x1.typeArguments().add(this.PT1);
 		x1.setName(this.N2);
 		x1.arguments().add(this.E1);
 		x1.arguments().add(this.E2);
@@ -1140,11 +1069,9 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testPackageDeclaration() {
 		PackageDeclaration x1 = this.ast.newPackageDeclaration();
-		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
-			x1.setJavadoc(this.JD1);
-			x1.annotations().add(this.ANO1);
-			x1.annotations().add(this.ANO2);
-		}
+		x1.setJavadoc(this.JD1);
+		x1.annotations().add(this.ANO1);
+		x1.annotations().add(this.ANO2);
 		basicMatch(x1);
 	}
 	public void testParenthesizedExpression() {
@@ -1152,7 +1079,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings({ "deprecation", "removal" })
 	public void testPatternInstanceofExpression() {
 		if (this.ast.apiLevel() < AST.JLS17) {
 			return;
@@ -1167,7 +1094,11 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			x1.setRightOperand(svd);
 		} else {
 			TypePattern tp = this.ast.newTypePattern();
-			tp.setPatternVariable(svd);
+			if (this.ast.apiLevel() < AST.JLS22) {
+				tp.setPatternVariable(svd);
+			} else {
+				tp.setPatternVariable((VariableDeclaration)svd);
+			}
 			x1.setPattern(tp);
 		}
 		basicMatch(x1);
@@ -1191,10 +1122,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testSingleVariableDeclaration() {
 		SingleVariableDeclaration x1 = this.ast.newSingleVariableDeclaration();
-		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
-			x1.modifiers().add(this.MOD1);
-			x1.modifiers().add(this.MOD2);
-		}
+		x1.modifiers().add(this.MOD1);
+		x1.modifiers().add(this.MOD2);
 		x1.setType(this.T1);
 		x1.setName(this.N1);
 		x1.setInitializer(this.E1);
@@ -1208,9 +1137,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testSuperConstructorInvocation() {
 		SuperConstructorInvocation x1 = this.ast.newSuperConstructorInvocation();
 		x1.setExpression(this.N1);
-		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
-			x1.typeArguments().add(this.PT1);
-		}
+		x1.typeArguments().add(this.PT1);
 		x1.arguments().add(this.E1);
 		x1.arguments().add(this.E2);
 		basicMatch(x1);
@@ -1224,18 +1151,13 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	public void testSuperMethodInvocation() {
 		SuperMethodInvocation x1 = this.ast.newSuperMethodInvocation();
 		x1.setQualifier(this.N1);
-		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
-			x1.typeArguments().add(this.PT1);
-		}
+		x1.typeArguments().add(this.PT1);
 		x1.setName(this.N2);
 		x1.arguments().add(this.E1);
 		x1.arguments().add(this.E2);
 		basicMatch(x1);
 	}
 	public void testSuperMethodReference() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		SuperMethodReference x1 = this.ast.newSuperMethodReference();
 		x1.setQualifier(this.N1);
 		x1.setName(this.N2);
@@ -1301,9 +1223,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 	public void testTryStatementWithResources() {
-		if (this.ast.apiLevel() < JLS4_INTERNAL) {
-			return;
-		}
 		TryStatement x1 = this.ast.newTryStatement();
 		VariableDeclarationExpression var = this.ast.newVariableDeclarationExpression(this.W1);
 		var.setType(this.T1);
@@ -1371,20 +1290,16 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testVariableDeclarationExpression() {
 		VariableDeclarationExpression x1 = this.ast.newVariableDeclarationExpression(this.W1);
-		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
-			x1.modifiers().add(this.MOD1);
-			x1.modifiers().add(this.MOD2);
-		}
+		x1.modifiers().add(this.MOD1);
+		x1.modifiers().add(this.MOD2);
 		x1.setType(this.T1);
 		x1.fragments().add(this.W2);
 		basicMatch(x1);
 	}
 	public void testVariableDeclarationStatement() {
 		VariableDeclarationStatement x1 = this.ast.newVariableDeclarationStatement(this.W1);
-		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
-			x1.modifiers().add(this.MOD1);
-			x1.modifiers().add(this.MOD2);
-		}
+		x1.modifiers().add(this.MOD1);
+		x1.modifiers().add(this.MOD2);
 		x1.setType(this.T1);
 		x1.fragments().add(this.W2);
 		basicMatch(x1);
@@ -1462,9 +1377,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391898
 	public void testSingleVariableDeclarationVarargsAnnotation() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		SingleVariableDeclaration x1 = this.ast.newSingleVariableDeclaration();
 		x1.setType(this.T1);
 		x1.setName(this.N1);
@@ -1475,9 +1387,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=395886
 	public void testQualifiedTypeAnnotation() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		QualifiedType x1 = this.ast.newQualifiedType(this.T1, this.N1);
 		x1.annotations().add(this.ANO1);
 		x1 = this.ast.newQualifiedType(x1, this.N2);
@@ -1487,9 +1396,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=395886
 	public void testParameterizedQualifiedTypeAnnotation() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		QualifiedType qualifiedType = this.ast.newQualifiedType(this.T1, this.N1);
 		qualifiedType.annotations().add(this.ANO1);
 		ParameterizedType x1 = this.ast.newParameterizedType(qualifiedType);
@@ -1504,9 +1410,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations1() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		// simpleType with Annotations
 		SimpleType x1 = this.ast.newSimpleType(this.N1);
 		x1.annotations().add(this.ANO1);
@@ -1515,9 +1418,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations2() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
   		// Type arguments at parameterized types
 		SimpleType x1 = this.ast.newSimpleType(this.N2);
 		ParameterizedType x2 = this.ast.newParameterizedType(x1);
@@ -1530,9 +1430,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations3() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		// type arguments in constructor invocation
 		ConstructorInvocation x1 = this.ast.newConstructorInvocation();
 		SimpleType x2 = this.ast.newSimpleType(this.N1);
@@ -1543,9 +1440,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations4() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		// annotated simple type at class inheritance
 		TypeDeclaration x1 = this.ast.newTypeDeclaration();
 		SimpleType x2 = this.ast.newSimpleType(this.N1);
@@ -1557,9 +1451,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations5() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		// constructor invocation results
 		ClassInstanceCreation x1 = this.ast.newClassInstanceCreation();
 		SimpleType x2 = this.ast.newSimpleType(this.N1);
@@ -1570,9 +1461,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations6() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		// simple type in cast expression
 		CastExpression x1 = this.ast.newCastExpression();
 		SimpleType x2 = this.ast.newSimpleType(this.N1);
@@ -1583,9 +1471,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations7() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		// simple type type tests
 		InstanceofExpression x1 = this.ast.newInstanceofExpression();
 		SimpleType x2 = this.ast.newSimpleType(this.N1);
@@ -1597,9 +1482,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations8() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		// annotations on wildcard type
 		WildcardType x1 = this.ast.newWildcardType();
 		SimpleType x2 = this.ast.newSimpleType(this.N1);
@@ -1610,9 +1492,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations9() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		// annotations on constructor declaration - implying on the object returned.
 		MethodDeclaration x1 = this.ast.newMethodDeclaration();
 		x1.setConstructor(true);
@@ -1623,9 +1502,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations10() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		// annotations on constructor declaration - implying on the object returned.
 		MethodDeclaration x1 = this.ast.newMethodDeclaration();
 		x1.setConstructor(true);
@@ -1638,9 +1514,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations11() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		// annotated simple type at class inheritance
 		TypeDeclaration x1 = this.ast.newTypeDeclaration();
 		TypeParameter x2 = this.ast.newTypeParameter();
@@ -1653,9 +1526,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations12() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		VariableDeclarationFragment x1 = this.ast.newVariableDeclarationFragment();
 		x1.setName(this.N1);
 		Dimension x2 = this.ast.newDimension();
@@ -1676,9 +1546,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399794
 	public void testTypeMethodReference() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		TypeMethodReference x1 = this.ast.newTypeMethodReference();
 		x1.setType(this.T1);
 		x1.setName(this.N1);
@@ -1687,9 +1554,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
 	public void testLambdaExpressions1() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		LambdaExpression x1 = this.ast.newLambdaExpression();
 		VariableDeclarationFragment x2 = this.ast.newVariableDeclarationFragment();
 		x2.setName(this.N1);
@@ -1700,9 +1564,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
 	public void testLambdaExpressions2() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		LambdaExpression x1 = this.ast.newLambdaExpression();
 		x1.setBody(this.ast.newBlock());
 		basicMatch(x1);
@@ -1710,9 +1571,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
 	public void testLambdaExpressions3() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		LambdaExpression x1 = this.ast.newLambdaExpression();
 		x1.setBody(this.E1);
 		basicMatch(x1);
@@ -1720,9 +1578,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
 	public void testLambdaExpressions4() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		LambdaExpression x1 = this.ast.newLambdaExpression();
 		SingleVariableDeclaration x2 = this.ast.newSingleVariableDeclaration();
 		x2.modifiers().add(this.MOD1);
@@ -1734,9 +1589,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 	public void testIntersectionType() {
-		if (this.ast.apiLevel() < getJLS8()) {
-			return;
-		}
 		IntersectionType x1 = this.ast.newIntersectionType();
 		x1.types().add(this.ast.newSimpleType(this.N1));
 		basicMatch(x1);

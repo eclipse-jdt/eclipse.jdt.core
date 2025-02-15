@@ -36,32 +36,8 @@ import org.eclipse.jdt.internal.core.dom.SourceRangeVerifier;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class AbstractASTTests extends ModifyingResourceTests implements DefaultMarkedNodeLabelProviderOptions {
 
-	/** @deprecated Using deprecated code */
-	private static final int AST_INTERNAL_JLS2 = AST.JLS2;
-	/**
-	 * Internal synonym for deprecated constant AST.JSL3
-	 * to alleviate deprecation warnings.
-	 * @deprecated
-	 */
-	/*package*/ static final int AST_INTERNAL_JLS3 = AST.JLS3;
-	/**
-	 * Internal synonym for deprecated constant AST.JSL4
-	 * to alleviate deprecation warnings.
-	 * @deprecated
-	 */
-	/*package*/ static final int AST_INTERNAL_JLS4 = AST.JLS4;
-	/**
-	 * Internal synonym for deprecated constant AST.JSL8
-	 * to alleviate deprecation warnings.
-	 * @deprecated
-	 */
-	/*package*/ static final int AST_INTERNAL_JLS8 = AST.JLS8;
-	public static final int astInternalJLS2() {
-		return AST_INTERNAL_JLS2;
-	}
-
 	// TODO (frederic) use this field while converting instead of method argument
-	protected int testLevel = AST_INTERNAL_JLS2;
+	protected int testLevel = AST.getAllSupportedVersions().getFirst();
 
 	public AbstractASTTests(String name) {
 		super(name);
@@ -303,7 +279,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	 * and returns the AST node that was delimited by the astStart and astEnd of the marker info.
 	 */
 	protected ASTNode buildAST(MarkerInfo markerInfo, IClassFile classFile, boolean reportErrors) throws JavaModelException {
-		ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS3);
+		ASTParser parser = ASTParser.newParser(AST.getAllSupportedVersions().getFirst());
 		parser.setSource(classFile);
 		parser.setResolveBindings(true);
 		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
@@ -376,13 +352,13 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		CompilationUnit unit;
 		if (cu.isWorkingCopy()) {
 			cu.getBuffer().setContents(newContents);
-			unit = cu.reconcile(AST_INTERNAL_JLS3, flags, null, null);
+			unit = cu.reconcile(AST.getAllSupportedVersions().getFirst(), flags, null, null);
 		} else {
 			IBuffer buffer = cu.getBuffer();
 			buffer.setContents(newContents);
 			buffer.save(null, false);
 
-			ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS3);
+			ASTParser parser = ASTParser.newParser(AST.getAllSupportedVersions().getFirst());
 			parser.setSource(cu);
 			parser.setResolveBindings(true);
 			parser.setStatementsRecovery((flags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
@@ -465,7 +441,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	protected ASTNode[] buildASTs(String newContents, ICompilationUnit cu, boolean reportErrors, boolean enableStatementRecovery, boolean bindingRecovery) throws JavaModelException {
 		String option = cu.getJavaProject().getOption(JavaCore.COMPILER_COMPLIANCE, true);
 		long jdkLevel = CompilerOptions.versionToJdkLevel(option);
-		int JLSLevel = AST_INTERNAL_JLS3;
+		int JLSLevel = AST.getAllSupportedVersions().getFirst();
 		if (jdkLevel >= ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_23)) {
 			JLSLevel = AST_INTERNAL_JLS23;
 		} else if (jdkLevel >= ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_22)) {
@@ -497,7 +473,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		} else if (jdkLevel >= ClassFileConstants.JDK9) {
 			JLSLevel = AST_INTERNAL_JLS9;
 		} else if (jdkLevel <= CompilerOptions.getFirstSupportedJdkLevel()) {
-			JLSLevel = AST_INTERNAL_JLS8;
+			JLSLevel = AST.getAllSupportedVersions().getFirst();
 		}
 		return buildASTs(
 				JLSLevel,
@@ -689,7 +665,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	}
 
 	protected void resolveASTs(ICompilationUnit[] cus, String[] bindingKeys, ASTRequestor requestor, IJavaProject project, WorkingCopyOwner owner) {
-		ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS3);
+		ASTParser parser = ASTParser.newParser(AST.getAllSupportedVersions().getFirst());
 		parser.setResolveBindings(true);
 		parser.setProject(project);
 		parser.setWorkingCopyOwner(owner);

@@ -2528,6 +2528,8 @@ void setSourceStart(int sourceStart);
 	int ClassExtendFinalRecord = TypeRelated + 1767;
 	/** @since 3.29 */
 	int RecordErasureIncompatibilityInCanonicalConstructor = TypeRelated + 1768;
+	/** @since 3.41 */
+	int CompactConstructorOnlyInRecords = TypeRelated + 1769;
 	/* records - end */
 
 
@@ -2799,4 +2801,7 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature
 	 */
 	int DefaultTrueAndFalseCases = PreviewRelated + 2102;
+
+	/** @since 3.41 */
+	int MissingTypeForInference = Internal + 2103;
 }

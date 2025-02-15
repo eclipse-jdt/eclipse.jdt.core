@@ -48,6 +48,7 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 	}
 
 
+	@SuppressWarnings("removal")
 	public void testAddRecordSwitchPattern() throws Exception {
 		if (checkAPILevel()) {
 			return;
@@ -96,7 +97,13 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 			SingleVariableDeclaration patternVariable = ast.newSingleVariableDeclaration();
 			patternVariable.setType(ast.newSimpleType(ast.newSimpleName("Rectangle")));
 			patternVariable.setName(ast.newSimpleName("r1"));
-			tPattern.setPatternVariable(patternVariable);
+
+			if (this.apiLevel < AST.JLS22) {
+				tPattern.setPatternVariable(patternVariable);
+			} else {
+				tPattern.setPatternVariable((VariableDeclaration) patternVariable);
+			}
+
 			caseStatement.expressions().add(tPattern);
 			ListRewrite listRewrite= rewrite.getListRewrite(switchExpression, SwitchExpression.STATEMENTS_PROPERTY);
 			listRewrite.insertAt(caseStatement, 0, null);
@@ -131,6 +138,7 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 	}
 
 
+	@SuppressWarnings("removal")
 	public void testModifyRecordSwitchPattern() throws Exception {
 		if (checkAPILevel()) {
 			return;
@@ -179,7 +187,13 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 			SingleVariableDeclaration variableDeclaration = ast.newSingleVariableDeclaration();
 			variableDeclaration.setType(ast.newSimpleType(ast.newSimpleName("ColoredPoint")));
 			variableDeclaration.setName(ast.newSimpleName("clr1"));
-			typePattern.setPatternVariable(variableDeclaration);
+
+			if (this.apiLevel < AST.JLS22) {
+				typePattern.setPatternVariable(variableDeclaration);
+			} else {
+				typePattern.setPatternVariable((VariableDeclaration) variableDeclaration);
+			}
+
 			ListRewrite listRewrite= rewrite.getListRewrite(recordPatternR, RecordPattern.PATTERNS_PROPERTY);
 			listRewrite.insertAt(typePattern, 0, null);
 		}
@@ -276,6 +290,7 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 	}
 
 
+	@SuppressWarnings("removal")
 	public void testAddRecordInstanceOfPattern() throws Exception {
 		if (checkAPILevel()) {
 			return;
@@ -317,7 +332,12 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 			SingleVariableDeclaration patternVariable = ast.newSingleVariableDeclaration();
 			patternVariable.setType(ast.newSimpleType(ast.newSimpleName("Integer")));
 			patternVariable.setName(ast.newSimpleName("i"));
-			typePattern.setPatternVariable(patternVariable);
+			if (this.apiLevel < AST.JLS22) {
+				typePattern.setPatternVariable(patternVariable);
+			} else {
+				typePattern.setPatternVariable((VariableDeclaration) patternVariable);
+			}
+
 			guardedPattern.setPattern(typePattern);
 			InfixExpression infixExpression = ast.newInfixExpression();
 			infixExpression.setOperator(InfixExpression.Operator.GREATER);
@@ -359,6 +379,7 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
+	@SuppressWarnings("removal")
 	public void testModifyGuardedPattern() throws Exception {
 		if (checkAPILevel()) {
 			return;
@@ -400,7 +421,13 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 			SingleVariableDeclaration patternVariable = ast.newSingleVariableDeclaration();
 			patternVariable.setType(ast.newSimpleType(ast.newSimpleName("Integer")));
 			patternVariable.setName(ast.newSimpleName("i"));
-			typePattern.setPatternVariable(patternVariable);
+
+			if (this.apiLevel < AST.JLS22) {
+				typePattern.setPatternVariable(patternVariable);
+			} else {
+				typePattern.setPatternVariable((VariableDeclaration) patternVariable);
+			}
+
 			guardedPattern.setPattern(typePattern);
 			InfixExpression infixExpression = ast.newInfixExpression();
 			infixExpression.setOperator(InfixExpression.Operator.GREATER);

@@ -9297,7 +9297,7 @@ public void testIssue1218_001() {
 			"2. ERROR in X.java (at line 2)\n" +
 			"	record R(T x);\n" +
 			"	            ^\n" +
-			"Syntax error, insert \"RecordBody\" to complete ClassBodyDeclarations\n" +
+			"Syntax error, insert \"ClassBody\" to complete ClassBodyDeclarations\n" +
 			"----------\n");
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -9599,6 +9599,24 @@ public void testBug3504_1() {
 			"	static int i = 0;\n" +
 			"	           ^\n" +
 			"Illegal modifier for the variable i; only final is permitted\n" +
+			"----------\n");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/3675
+public void testPR3675() {
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+					class X {
+					       X {}
+					}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	X {}\n" +
+			"	^\n" +
+			"A canonical constructor is allowed only in record classes\n" +
 			"----------\n");
 }
 }

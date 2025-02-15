@@ -60,7 +60,7 @@ public class DOMCodeSelector {
 		if (offset + length > this.unit.getSource().length()) {
 			throw new JavaModelException(new IndexOutOfBoundsException(offset + length), IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS);
 		}
-		org.eclipse.jdt.core.dom.CompilationUnit currentAST = this.unit.getOrBuildAST(this.owner);
+		org.eclipse.jdt.core.dom.CompilationUnit currentAST = this.unit.getOrBuildAST(this.owner, this.unit.getBuffer().getLength() < 50000 ? -1 : offset);
 		if (currentAST == null) {
 			return new IJavaElement[0];
 		}
@@ -197,6 +197,10 @@ public class DOMCodeSelector {
 				return reorderedOverloadedMethods;
 			}
 			return new IJavaElement[] { importBinding.getJavaElement() };
+		} else if (node instanceof MethodDeclaration decl && offset > decl.getName().getStartPosition()) {
+			// most likely inside and empty `()`
+			// case for TypeHierarchyCommandTest.testTypeHierarchy()
+			return null;
 		} else if (findTypeDeclaration(node) == null) {
 			IBinding binding = resolveBinding(node);
 			if (binding != null && !binding.isRecovered()) {
@@ -372,7 +376,7 @@ public class DOMCodeSelector {
 		return new IJavaElement[0];
 	}
 
-	static IBinding resolveBinding(ASTNode node) {
+	public static IBinding resolveBinding(ASTNode node) {
 		if (node instanceof MethodDeclaration decl) {
 			return decl.resolveBinding();
 		}
@@ -450,7 +454,7 @@ public class DOMCodeSelector {
 				}
 				IMethod methodModel = ((IMethod)methodBinding.getJavaElement());
 				boolean allowExtraParam = true;
-				if ((methodModel.getFlags() & Flags.AccStatic) != 0) {
+				if (methodModel != null && (methodModel.getFlags() & Flags.AccStatic) != 0) {
 					allowExtraParam = false;
 					if (methodRef.getExpression() instanceof ClassInstanceCreation) {
 						return null;
@@ -463,14 +467,20 @@ public class DOMCodeSelector {
 				while (type == null && cursor != null) {
 					if (cursor.getParent() instanceof VariableDeclarationFragment declFragment) {
 						type = declFragment.resolveBinding().getType();
-					}
-					else if (cursor.getParent() instanceof MethodInvocation methodInvocation) {
+					} else if (cursor.getParent() instanceof MethodInvocation methodInvocation) {
 						IMethodBinding methodInvocationBinding = methodInvocation.resolveMethodBinding();
-						int index = methodInvocation.arguments().indexOf(cursor);
-						type = methodInvocationBinding.getParameterTypes()[index];
+						if (methodInvocationBinding != null) {
+							int index = methodInvocation.arguments().indexOf(cursor);
+							type = methodInvocationBinding.getParameterTypes()[index];
+						} else {
+							cursor = null;
+						}
 					} else {
 						cursor = cursor.getParent();
 					}
+				}
+				if (type == null) {
+					return null;
 				}
 
 				IMethodBinding boundMethod = type.getDeclaredMethods()[0];
@@ -562,6 +572,9 @@ public class DOMCodeSelector {
 	}
 
 	private IJavaElement[] findTypeInIndex(String packageName, String simpleName) throws JavaModelException {
+		if (simpleName == null) {
+			return new IJavaElement[0];
+		}
 		List<IType> indexMatch = new ArrayList<>();
 		TypeNameMatchRequestor requestor = new TypeNameMatchRequestor() {
 			@Override
