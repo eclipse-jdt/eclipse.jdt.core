@@ -2717,7 +2717,7 @@ protected void consumeConstructorHeader() {
 	pushOnElementStack(K_BLOCK_DELIMITER);
 }
 @Override
-protected void consumeConstructorHeaderName() {
+protected void consumeConstructorHeaderName(boolean isCompact) {
 
 	/* no need to take action if not inside assist identifiers */
 	if (indexOfAssistIdentifier() < 0) {
@@ -2726,9 +2726,9 @@ protected void consumeConstructorHeaderName() {
 		int currentAstPtr = this.astPtr;
 		/* recovering - might be an empty message send */
 		if (this.currentElement != null && this.lastIgnoredToken == TokenNamenew){ // was an allocation expression
-			super.consumeConstructorHeaderName();
+			super.consumeConstructorHeaderName(isCompact);
 		} else {
-			super.consumeConstructorHeaderName();
+			super.consumeConstructorHeaderName(isCompact);
 			if (this.pendingAnnotation != null) {
 				this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 				this.pendingAnnotation = null;
@@ -3079,13 +3079,13 @@ protected void consumeForceNoDiet() {
 	}
 }
 @Override
-protected void consumeFormalParameter(boolean isVarArgs) {
+protected void consumeSingleVariableDeclarator(boolean isVarArgs) {
 
 	this.invocationType = NO_RECEIVER;
 	this.qualifier = -1;
 
-	if (this.indexOfAssistIdentifier() < 0) {
-		super.consumeFormalParameter(isVarArgs);
+	if (this.indexOfAssistIdentifier() < 0 || this.parsingRecordComponents) {
+		super.consumeSingleVariableDeclarator(isVarArgs);
 		if (this.pendingAnnotation != null) {
 			this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 			this.pendingAnnotation = null;

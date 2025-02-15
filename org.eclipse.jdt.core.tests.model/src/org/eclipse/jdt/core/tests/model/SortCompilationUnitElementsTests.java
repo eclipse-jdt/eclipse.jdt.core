@@ -1878,8 +1878,8 @@ public void test028() throws CoreException {
 				Javadoc javadoc2 = bodyDeclaration2.getJavadoc();
 				if (javadoc1 != null && javadoc2 != null) {
 				    var comment1 = ((AbstractTextElement)((TagElement)javadoc1.tags().get(0)).fragments().get(0)).getText();
-                    var comment2 = ((AbstractTextElement)((TagElement)javadoc2.tags().get(0)).fragments().get(0)).getText();
-                    return comment1.compareTo(comment2);
+				    var comment2 = ((AbstractTextElement)((TagElement)javadoc2.tags().get(0)).fragments().get(0)).getText();
+					return comment1.compareTo(comment2);
 				}
 				final int sourceStart1 = ((Integer) bodyDeclaration1.getProperty(CompilationUnitSorter.RELATIVE_ORDER)).intValue();
 				final int sourceStart2 = ((Integer) bodyDeclaration2.getProperty(CompilationUnitSorter.RELATIVE_ORDER)).intValue();

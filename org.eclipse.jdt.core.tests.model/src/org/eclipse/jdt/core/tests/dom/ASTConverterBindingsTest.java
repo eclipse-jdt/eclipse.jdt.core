@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -430,7 +430,7 @@ public class ASTConverterBindingsTest extends ConverterTestSetup {
 	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(getJLS3(), false);
+		this.ast = AST.newAST(getJLSFirst(), false);
 	}
 
 	public ASTConverterBindingsTest(String name) {
@@ -463,10 +463,10 @@ public class ASTConverterBindingsTest extends ConverterTestSetup {
 		compilationUnitscollector.toArray(units);
 		for (int j = 0; j < length; j++) {
 			ICompilationUnit currentUnit = units[j];
-			ASTNode result = runConversion(getJLS3(), currentUnit, true);
+			ASTNode result = runConversion(currentUnit, true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType());
 			CompilationUnit unit = (CompilationUnit) result;
-			result = runConversion(getJLS3(), currentUnit, true);
+			result = runConversion(currentUnit, true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType());
 			if (DEBUG) {
 				if (unit.types().size() > 0 ) {

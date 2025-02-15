@@ -172,6 +172,10 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 		ASTNode dom = null;
 		try {
 			dom = astParser.createAST(pm);
+			if (computeProblems) {
+				// force resolution of bindings to load more problems
+				dom.getAST().resolveWellKnownType(Object.class.getName());
+			}
 		} catch (AbortCompilationUnit e) {
 			var problem = e.problem;
 			if (problem == null && e.exception instanceof IOException ioEx) {
@@ -472,12 +476,14 @@ public IJavaElement[] codeSelect(int offset, int length, WorkingCopyOwner workin
 	}
 }
 
-public org.eclipse.jdt.core.dom.CompilationUnit getOrBuildAST(WorkingCopyOwner workingCopyOwner) throws JavaModelException {
+public org.eclipse.jdt.core.dom.CompilationUnit getOrBuildAST(WorkingCopyOwner workingCopyOwner, int focalPosition) throws JavaModelException {
 	if (this.ast != null) {
 		return this.ast;
 	}
 	Map<String, String> options = getOptions(true);
 	ASTParser parser = ASTParser.newParser(new AST(options).apiLevel()); // go through AST constructor to convert options to apiLevel
+	// but we should probably instead just use the latest Java version
+	// supported by the compiler
 	parser.setWorkingCopyOwner(workingCopyOwner);
 	parser.setSource(this);
 	// greedily enable everything assuming the AST will be used extensively for edition
@@ -485,7 +491,12 @@ public org.eclipse.jdt.core.dom.CompilationUnit getOrBuildAST(WorkingCopyOwner w
 	parser.setStatementsRecovery(true);
 	parser.setBindingsRecovery(true);
 	parser.setCompilerOptions(options);
+	parser.setFocalPosition(focalPosition);
 	if (parser.createAST(null) instanceof org.eclipse.jdt.core.dom.CompilationUnit newAST) {
+		if (focalPosition >= 0) {
+			// do not store
+			return newAST;
+		}
 		this.ast = newAST;
 	}
 	return this.ast;

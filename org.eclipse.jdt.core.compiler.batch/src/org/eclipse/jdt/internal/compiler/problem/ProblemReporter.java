@@ -4789,7 +4789,7 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method, Scope s
 			return;
 		case ProblemReasons.MissingTypeInSignature:
 			problemMethod = (ProblemMethodBinding) method;
-			missingTypeInMethod(messageSend, problemMethod.closestMatch);
+			missingTypeInMethod(messageSend, problemMethod);
 			return;
 		case ProblemReasons.NoError : // 0
 		default :
@@ -6930,7 +6930,7 @@ public void missingSynchronizedOnInheritedMethod(MethodBinding currentMethod, Me
 public void missingTypeInConstructor(ASTNode location, MethodBinding constructor) {
 	List<TypeBinding> missingTypes = constructor.collectMissingTypes(null, true);
 	if (missingTypes == null) {
-		System.err.println("The constructor " + constructor + " is wrongly tagged as containing missing types"); //$NON-NLS-1$ //$NON-NLS-2$
+		assert false : "The constructor " + constructor + " is wrongly tagged as containing missing types"; //$NON-NLS-1$ //$NON-NLS-2$
 		return;
 	}
 	TypeBinding missingType = missingTypes.get(0);
@@ -6963,7 +6963,7 @@ public void missingTypeInLambda(LambdaExpression lambda, MethodBinding method) {
 	int nameSourceEnd = lambda.diagnosticsSourceEnd();
 	List<TypeBinding> missingTypes = method.collectMissingTypes(null, true);
 	if (missingTypes == null) {
-		System.err.println("The lambda expression " + method + " is wrongly tagged as containing missing types"); //$NON-NLS-1$ //$NON-NLS-2$
+		assert false : "The lambda expression " + method + " is wrongly tagged as containing missing types"; //$NON-NLS-1$ //$NON-NLS-2$
 		return;
 	}
 	TypeBinding missingType = missingTypes.get(0);
@@ -6980,22 +6980,30 @@ public void missingTypeInLambda(LambdaExpression lambda, MethodBinding method) {
 }
 public void missingTypeInMethod(ASTNode astNode, MethodBinding method) {
 	int nameSourceStart, nameSourceEnd;
-	if (astNode instanceof MessageSend) {
-		MessageSend messageSend = astNode instanceof MessageSend ? (MessageSend) (astNode) : null;
+	if (astNode instanceof MessageSend messageSend) {
 		nameSourceStart = (int) (messageSend.nameSourcePosition >>> 32);
 		nameSourceEnd = (int) messageSend.nameSourcePosition;
 	} else {
 		nameSourceStart = astNode.sourceStart;
 		nameSourceEnd = astNode.sourceEnd;
 	}
+	int problemId = IProblem.MissingTypeInMethod;
+	TypeBinding missingType = null;
 	List<TypeBinding> missingTypes = method.collectMissingTypes(null, true);
-	if (missingTypes == null) {
-		System.err.println("The method " + method + " is wrongly tagged as containing missing types"); //$NON-NLS-1$ //$NON-NLS-2$
+	if (missingTypes != null) {
+		missingType = missingTypes.get(0);
+	} else if (method instanceof ProblemMethodBinding problem && problem.missingType != null) {
+		missingType = problem.missingType;
+		problemId = IProblem.MissingTypeForInference;
+	} else {
+		assert false : "The method " + method + " is wrongly tagged as containing missing types"; //$NON-NLS-1$ //$NON-NLS-2$
 		return;
 	}
-	TypeBinding missingType = missingTypes.get(0);
+	if (method instanceof ProblemMethodBinding problem) {
+		method = problem.closestMatch;
+	}
 	this.handle(
-			IProblem.MissingTypeInMethod,
+			problemId,
 			new String[] {
 			        new String(method.declaringClass.readableName()),
 			        new String(method.selector),
@@ -11974,6 +11982,14 @@ public void recordCompactConstructorHasReturnStatement(ReturnStatement stmt) {
 		NoArgument,
 		stmt.sourceStart,
 		stmt.sourceEnd);
+}
+public void compactConstructorsOnlyInRecords(CompactConstructorDeclaration ccd) {
+	this.handle(
+			IProblem.CompactConstructorOnlyInRecords,
+			NoArgument,
+			NoArgument,
+			ccd.sourceStart,
+			ccd.sourceEnd);
 }
 public void recordIllegalComponentNameInRecord(RecordComponent recComp, TypeDeclaration typeDecl) {
 	this.handle(

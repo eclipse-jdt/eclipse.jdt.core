@@ -36,38 +36,11 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings("rawtypes")
 public abstract class ConverterTestSetup extends AbstractASTTests {
-	/**
-	 * Internal synonym for deprecated constant AST.JSL3
-	 * to alleviate deprecation warnings.
-	 * @deprecated
-	 */
-	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
 
-	/**
-	 * Internal synonym for deprecated constant AST.JSL4
-	 * to alleviate deprecation warnings.
-	 * @deprecated
-	 */
-	/*package*/ static final int JLS4_INTERNAL = AST.JLS4;
-
-	/**
-	 * Internal synonym for deprecated constant AST.JSL8
-	 * to alleviate deprecation warnings.
-	 * @deprecated
-	 */
-	/*package*/ static final int JLS8_INTERNAL = AST.JLS8;
-
-	static int getJLS3() {
-		return JLS3_INTERNAL;
+	static int getJLSFirst() {
+		return AST.getAllSupportedVersions().getFirst();
 	}
 
-	static int getJLS4() {
-		return JLS4_INTERNAL;
-	}
-
-	static int getJLS8() {
-		return JLS8_INTERNAL;
-	}
 	protected AST ast;
 	public static List TEST_SUITES = null;
 	public static boolean PROJECT_SETUP = false;
@@ -343,27 +316,27 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 
 	public ASTNode runConversion(ICompilationUnit unit, boolean resolveBindings,
 			boolean bindingsRecovery) {
-		return runConversion(astInternalJLS2(), unit, resolveBindings, false, bindingsRecovery);
+		return runConversion(AST.getAllSupportedVersions().getFirst(), unit, resolveBindings, false, bindingsRecovery);
 	}
 
 	public ASTNode runConversion(ICompilationUnit unit, boolean resolveBindings) {
-		return runConversion(astInternalJLS2(), unit, resolveBindings);
+		return runConversion(AST.getAllSupportedVersions().getFirst(), unit, resolveBindings);
 	}
 
 	public ASTNode runConversion(ICompilationUnit unit, int position, boolean resolveBindings) {
-		return runConversion(astInternalJLS2(), unit, position, resolveBindings);
+		return runConversion(AST.getAllSupportedVersions().getFirst(), unit, position, resolveBindings);
 	}
 
 	public ASTNode runConversion(IClassFile classFile, int position, boolean resolveBindings) {
-		return runConversion(astInternalJLS2(), classFile, position, resolveBindings);
+		return runConversion(AST.getAllSupportedVersions().getFirst(), classFile, position, resolveBindings);
 	}
 
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project) {
-		return runConversion(astInternalJLS2(), source, unitName, project);
+		return runConversion(AST.getAllSupportedVersions().getFirst(), source, unitName, project);
 	}
 
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, boolean resolveBindings) {
-		return runConversion(astInternalJLS2(), source, unitName, project, resolveBindings);
+		return runConversion(AST.getAllSupportedVersions().getFirst(), source, unitName, project, resolveBindings);
 	}
 
 	public ASTNode runConversion(int astLevel, ICompilationUnit unit, boolean resolveBindings) {
@@ -372,6 +345,19 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 
 	public ASTNode runConversion(int astLevel, ICompilationUnit unit, boolean resolveBindings, boolean statementsRecovery) {
 		return runConversion(astLevel, unit, resolveBindings, statementsRecovery, false);
+	}
+
+	public ASTNode runConversion(
+			ICompilationUnit unit,
+			boolean resolveBindings,
+			boolean statementsRecovery,
+			boolean bindingsRecovery) {
+		ASTParser parser = ASTParser.newParser(getJLSFirst());
+		parser.setSource(unit);
+		parser.setResolveBindings(resolveBindings);
+		parser.setStatementsRecovery(statementsRecovery);
+		parser.setBindingsRecovery(bindingsRecovery);
+		return parser.createAST(null);
 	}
 
 	public ASTNode runConversion(
@@ -647,7 +633,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	public ASTNode runJLS3Conversion(ICompilationUnit unit, boolean resolveBindings, boolean bindingRecovery) {
 
 		// Create parser
-		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
+		ASTParser parser = ASTParser.newParser(getJLSFirst());
 		parser.setSource(unit);
 		parser.setResolveBindings(resolveBindings);
 		parser.setBindingsRecovery(bindingRecovery);
@@ -671,7 +657,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	public ASTNode runJLS4Conversion(ICompilationUnit unit, boolean resolveBindings, boolean bindingRecovery) {
 
 		// Create parser
-		ASTParser parser = ASTParser.newParser(JLS4_INTERNAL);
+		ASTParser parser = ASTParser.newParser(getJLSFirst());
 		parser.setSource(unit);
 		parser.setResolveBindings(resolveBindings);
 		parser.setBindingsRecovery(bindingRecovery);
@@ -694,7 +680,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 
 	public ASTNode runJLS8Conversion(ICompilationUnit unit, boolean resolveBindings, boolean bindingRecovery) {
 		// Create parser
-        ASTParser parser = ASTParser.newParser(JLS8_INTERNAL);
+        ASTParser parser = ASTParser.newParser(getJLSFirst());
 		parser.setSource(unit);
 		parser.setResolveBindings(resolveBindings);
 		parser.setBindingsRecovery(bindingRecovery);
@@ -775,10 +761,10 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	}
 
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, Map<String, String> options, boolean resolveBindings) {
-		return runConversion(astInternalJLS2(), source, unitName, project, options, resolveBindings);
+		return runConversion(AST.getAllSupportedVersions().getFirst(), source, unitName, project, options, resolveBindings);
 	}
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, Map<String, String> options) {
-		return runConversion(astInternalJLS2(), source, unitName, project, options);
+		return runConversion(AST.getAllSupportedVersions().getFirst(), source, unitName, project, options);
 	}
 
 	protected ASTNode getASTNodeToCompare(org.eclipse.jdt.core.dom.CompilationUnit unit) {

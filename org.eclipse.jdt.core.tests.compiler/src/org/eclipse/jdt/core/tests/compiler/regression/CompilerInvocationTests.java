@@ -854,6 +854,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("MissingTypeInLambda", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("ModifierOnRequiresJavaBase", new ProblemAttributes(CategorizedProblem.CAT_MODULE));
 		expectedProblemAttributes.put("ModifierOnRequiresJavaBasePreview", new ProblemAttributes(CategorizedProblem.CAT_MODULE));
+		expectedProblemAttributes.put("MissingTypeForInference", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("UnterminatedTextBlock", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 		expectedProblemAttributes.put("MissingTypeInMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("MissingValueForAnnotationMember", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1383,6 +1384,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("IllegalModifierCombinationForType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 	    expectedProblemAttributes.put("LambdaParameterIsNeverUsed", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 	    expectedProblemAttributes.put("FunctionalInterfaceMayNotbeSealed", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+	    expectedProblemAttributes.put("CompactConstructorOnlyInRecords", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 
 	    StringBuilder failures = new StringBuilder();
 		StringBuilder correctResult = new StringBuilder(70000);
@@ -2000,6 +2002,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ModifierOnRequiresJavaBasePreview", SKIP);
 		expectedProblemAttributes.put("UnterminatedTextBlock", SKIP);
 		expectedProblemAttributes.put("MissingTypeInMethod", SKIP);
+		expectedProblemAttributes.put("MissingTypeForInference", SKIP);
 		expectedProblemAttributes.put("MissingValueForAnnotationMember", SKIP);
 		expectedProblemAttributes.put("MissingValueFromLambda", SKIP);
 		expectedProblemAttributes.put("ModuleNotRead", SKIP);
@@ -2528,6 +2531,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("IllegalModifierCombinationForType", SKIP);
 	    expectedProblemAttributes.put("LambdaParameterIsNeverUsed", SKIP);
 	    expectedProblemAttributes.put("FunctionalInterfaceMayNotbeSealed", SKIP);
+	    expectedProblemAttributes.put("CompactConstructorOnlyInRecords", SKIP);
 
 
 	    Map constantNamesIndex = new HashMap();
