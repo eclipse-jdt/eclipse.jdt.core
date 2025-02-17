@@ -88,7 +88,16 @@ public class JavacUtils {
 				.map(value -> value.split(":"))
 				.flatMap(Arrays::stream)
 				.collect(Collectors.joining("\0")); //$NON-NLS-1$ // \0 as expected by javac
-		configureOptions(javaProject, context, compilerOptions, addExports);
+		var limitModules = Arrays.stream(classpath) //
+				.filter(entry -> entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) //
+				.map(IClasspathEntry::getExtraAttributes)
+				.flatMap(Arrays::stream)
+				.filter(attribute -> IClasspathAttribute.LIMIT_MODULES.equals(attribute.getName()))
+				.map(IClasspathAttribute::getValue)
+				.map(value -> value.split(":"))
+				.flatMap(Arrays::stream)
+				.collect(Collectors.joining("\0"));
+		configureOptions(javaProject, context, compilerOptions, addExports, limitModules);
 		// TODO populate more from compilerOptions and/or project settings
 		if (context.get(JavaFileManager.class) == null) {
 			JavacFileManager.preRegister(context);
@@ -98,7 +107,7 @@ public class JavacUtils {
 		}
 	}
 
-	private static void configureOptions(IJavaProject javaProject, Context context, Map<String, String> compilerOptions, String addExports) {
+	private static void configureOptions(IJavaProject javaProject, Context context, Map<String, String> compilerOptions, String addExports, String limitModules) {
 		boolean nineOrLater = false;
 		Options options = Options.instance(context);
 		options.put("should-stop.ifError", CompileState.GENERATE.toString());
@@ -166,6 +175,9 @@ public class JavacUtils {
 		}
 		if (addExports != null && !addExports.isBlank()) {
 			options.put(Option.ADD_EXPORTS, addExports);
+		}
+		if (limitModules != null && !limitModules.isBlank()) {
+			options.put(Option.LIMIT_MODULES, limitModules);
 		}
 		if (nineOrLater && !options.isSet(Option.RELEASE) && javaProject instanceof JavaProject javaProjectImpl) {
 			try {
