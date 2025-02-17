@@ -20,14 +20,20 @@ public interface SuffixConstants {
 	public final static String EXTENSION_JAVA = "JAVA"; //$NON-NLS-1$
 	public final static String EXTENSION_jmod = "jmod"; //$NON-NLS-1$
 	public final static String EXTENSION_JMOD = "JMOD"; //$NON-NLS-1$
+	public final static String EXTENSION_maxjava = "maxj"; //$NON-NLS-1$
+	public final static String EXTENSION_MAXJAVA = "MAXJ"; //$NON-NLS-1$
 
 	public final static String SUFFIX_STRING_class = "." + EXTENSION_class; //$NON-NLS-1$
 	public final static String SUFFIX_STRING_CLASS = "." + EXTENSION_CLASS; //$NON-NLS-1$
 	public final static String SUFFIX_STRING_java = "." + EXTENSION_java; //$NON-NLS-1$
 	public final static String SUFFIX_STRING_JAVA = "." + EXTENSION_JAVA; //$NON-NLS-1$
+	public final static String SUFFIX_STRING_maxjava = "." + EXTENSION_maxjava; //$NON-NLS-1$
+	public final static String SUFFIX_STRING_MAXJAVA = "." + EXTENSION_MAXJAVA; //$NON-NLS-1$
 
 	public final static char[] SUFFIX_class = SUFFIX_STRING_class.toCharArray();
 	public final static char[] SUFFIX_CLASS = SUFFIX_STRING_CLASS.toCharArray();
 	public final static char[] SUFFIX_java = SUFFIX_STRING_java.toCharArray();
 	public final static char[] SUFFIX_JAVA = SUFFIX_STRING_JAVA.toCharArray();
+	public final static char[] SUFFIX_maxjava = SUFFIX_STRING_maxjava.toCharArray();
+	public final static char[] SUFFIX_MAXAJAVA = SUFFIX_STRING_MAXJAVA.toCharArray();
 }
