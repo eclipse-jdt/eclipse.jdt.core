@@ -48,7 +48,11 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 		OperatorSignatures[REMAINDER] = get_REMAINDER();
 		OperatorSignatures[RIGHT_SHIFT] = get_RIGHT_SHIFT();
 		OperatorSignatures[UNSIGNED_RIGHT_SHIFT] = get_UNSIGNED_RIGHT_SHIFT();
+		OperatorSignatures[CONNECT] = get_CONNECT();
+		OperatorSignatures[CAT] = get_CAT();
 		OperatorSignatures[XOR] = get_XOR();
+		OperatorSignatures[EQUAL_EQUAL_EQUAL] = get_EQUAL_EQUAL_EQUAL();
+		OperatorSignatures[NOT_EQUAL_EQUAL] = get_NOT_EQUAL_EQUAL();
 	}
 
 	public static final String generateTableTestCase(){
@@ -62,7 +66,8 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 
 		int[] operators = new int[]{AND,AND_AND,DIVIDE,GREATER,GREATER_EQUAL,
 				LEFT_SHIFT,LESS,LESS_EQUAL,MINUS,MULTIPLY,OR,OR_OR,PLUS,REMAINDER,
-				RIGHT_SHIFT,UNSIGNED_RIGHT_SHIFT,XOR};
+				RIGHT_SHIFT,UNSIGNED_RIGHT_SHIFT,CONNECT,CAT,XOR,EQUAL_EQUAL_EQUAL,
+				NOT_EQUAL_EQUAL};
 
 		class Decode {
 			public  final String constant(int code){
@@ -98,10 +103,14 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 			public  final String operator(int operator){
 					switch (operator) {
 					case EQUAL_EQUAL :	return "=="; //$NON-NLS-1$
+					case EQUAL_EQUAL_EQUAL: return "==="; //$NON-NLS-1$
+					case NOT_EQUAL_EQUAL: return "!=="; //$NON-NLS-1$
 					case LESS_EQUAL :	return "<="; //$NON-NLS-1$
 					case GREATER_EQUAL :return ">="; //$NON-NLS-1$
 					case LEFT_SHIFT :	return "<<"; //$NON-NLS-1$
 					case RIGHT_SHIFT :	return ">>"; //$NON-NLS-1$
+					case CONNECT :		return "<=="; //$NON-NLS-1$
+					case CAT :			return "#"; //$NON-NLS-1$
 					case UNSIGNED_RIGHT_SHIFT :	return ">>>"; //$NON-NLS-1$
 					case OR_OR :return "||"; //$NON-NLS-1$
 					case AND_AND :		return "&&"; //$NON-NLS-1$
@@ -1197,6 +1206,17 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 		return get_LESS();
 	}
 
+	public static final int[] get_CONNECT(){
+
+		//the code is an int
+		// (cast)  left   Op (cast)  rigth --> result
+		//  0000   0000       0000   0000      0000
+		//  <<16   <<12       <<8    <<4
+
+		//	int[] table  = new int[16*16];
+		return get_MINUS();
+	}
+
 	public static final int[] get_MINUS(){
 
 		//the code is an int
@@ -1465,6 +1485,42 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 		return table;
 	}
 
+	public static final int[] get_CAT(){
+
+		//the code is an int
+		// (cast)  left   Op (cast)  rigth --> result
+		//  0000   0000       0000   0000      0000
+		//  <<16   <<12       <<8    <<4
+
+
+		//	int[] table  = new int[16*16];
+		return get_AND();
+	}
+
+	public static final int[] get_EQUAL_EQUAL_EQUAL(){
+
+		//the code is an int
+		// (cast)  left   Op (cast)  rigth --> result
+		//  0000   0000       0000   0000      0000
+		//  <<16   <<12       <<8    <<4
+
+
+		//	int[] table  = new int[16*16];
+		return get_AND();
+	}
+
+	public static final int[] get_NOT_EQUAL_EQUAL(){
+
+		//the code is an int
+		// (cast)  left   Op (cast)  rigth --> result
+		//  0000   0000       0000   0000      0000
+		//  <<16   <<12       <<8    <<4
+
+
+		//	int[] table  = new int[16*16];
+		return get_AND();
+	}
+
 	public static final int[] get_REMAINDER(){
 
 		//the code is an int
@@ -1514,18 +1570,26 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 		switch (op) {
 			case EQUAL_EQUAL :
 				return "=="; //$NON-NLS-1$
+			case EQUAL_EQUAL_EQUAL :
+				return "==="; //$NON-NLS-1$
 			case LESS_EQUAL :
 				return "<="; //$NON-NLS-1$
 			case GREATER_EQUAL :
 				return ">="; //$NON-NLS-1$
 			case NOT_EQUAL :
 				return "!="; //$NON-NLS-1$
+			case NOT_EQUAL_EQUAL :
+				return "!=="; //$NON-NLS-1$
 			case LEFT_SHIFT :
 				return "<<"; //$NON-NLS-1$
 			case RIGHT_SHIFT :
 				return ">>"; //$NON-NLS-1$
 			case UNSIGNED_RIGHT_SHIFT :
 				return ">>>"; //$NON-NLS-1$
+			case CONNECT :
+				return "<=="; //$NON-NLS-1$
+			case CAT :
+				return "#"; //$NON-NLS-1$
 			case OR_OR :
 				return "||"; //$NON-NLS-1$
 			case AND_AND :

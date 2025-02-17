@@ -70,6 +70,9 @@ public abstract class ASTVisitor {
 		ClassScope scope) {
 		// do nothing by default
 	}
+	public void endVisit(CompositeArrayReference arrayReference, BlockScope scope) {
+		// do nothing by default
+	}
 	public void endVisit(ArrayReference arrayReference, BlockScope scope) {
 		// do nothing by default
 	}
@@ -97,6 +100,9 @@ public abstract class ASTVisitor {
 	public void endVisit(CaseStatement caseStatement, BlockScope scope) {
 		// do nothing by default
 	}
+	public void endVisit(CASEStatement caseStatement, BlockScope scope) {
+		// do nothing by default
+	}
 	public void endVisit(CastExpression castExpression, BlockScope scope) {
 		// do nothing by default
 	}
@@ -110,6 +116,9 @@ public abstract class ASTVisitor {
 		// do nothing by default
 	}
 	public void endVisit(CompactConstructorDeclaration ccd, ClassScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(ConnectCompoundAssignment compoundAssignment, BlockScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(
@@ -183,6 +192,9 @@ public abstract class ASTVisitor {
 		// do nothing by default, keep traversing
 	}
 	public void endVisit(IfStatement ifStatement, BlockScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(IFStatement ifStatement, BlockScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(ImportReference importRef, CompilationUnitScope scope) {
@@ -435,6 +447,9 @@ public abstract class ASTVisitor {
 	public void endVisit(SwitchStatement switchStatement, BlockScope scope) {
 		// do nothing by default
 	}
+	public void endVisit(SWITCHStatement switchStatement, BlockScope scope) {
+		// do nothing by default
+	}
 	public void endVisit(
 		SynchronizedStatement synchronizedStatement,
 		BlockScope scope) {
@@ -565,6 +580,9 @@ public abstract class ASTVisitor {
 		ClassScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
+	public boolean visit(CompositeArrayReference arrayReference, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
 	public boolean visit(ArrayReference arrayReference, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
@@ -592,6 +610,9 @@ public abstract class ASTVisitor {
 	public boolean visit(CaseStatement caseStatement, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
+	public boolean visit(CASEStatement caseStatement, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
 	public boolean visit(CastExpression castExpression, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
@@ -616,6 +637,9 @@ public abstract class ASTVisitor {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(CompoundAssignment compoundAssignment, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(ConnectCompoundAssignment compoundAssignment, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(
@@ -681,6 +705,9 @@ public abstract class ASTVisitor {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(IfStatement ifStatement, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(IFStatement ifStatement, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(ImportReference importRef, CompilationUnitScope scope) {
@@ -933,6 +960,9 @@ public abstract class ASTVisitor {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(SwitchStatement switchStatement, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(SWITCHStatement switchStatement, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(

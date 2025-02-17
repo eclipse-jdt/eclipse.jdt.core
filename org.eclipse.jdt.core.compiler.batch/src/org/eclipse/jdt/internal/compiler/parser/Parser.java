@@ -1743,6 +1743,39 @@ protected void consumeArrayAccess(boolean unspecifiedReference) {
 	}
 	exp.sourceEnd = this.endStatementPosition;
 }
+/**
+ * milan
+ */
+protected void consumeCompositeArrayAccess(boolean unspecifiedReference) {
+	// ArrayAccess ::= Name '[' Expression : Expression ']' ==> true
+	// ArrayAccess ::= PrimaryNoNewArray '[' Expression : Expression ']' ==> false
+
+
+	//optimize push/pop
+	Expression exp;
+	if (unspecifiedReference) {
+		this.expressionPtr--;
+		this.expressionLengthPtr--;
+		exp =
+			this.expressionStack[this.expressionPtr] =
+				new CompositeArrayReference(
+					getUnspecifiedReferenceOptimized(),
+					this.expressionStack[this.expressionPtr],
+					this.expressionStack[this.expressionPtr + 1]);
+	} else {
+		this.expressionPtr--;
+		this.expressionPtr--;
+		this.expressionLengthPtr--;
+		this.expressionLengthPtr--;
+		exp =
+			this.expressionStack[this.expressionPtr] =
+				new CompositeArrayReference(
+					this.expressionStack[this.expressionPtr],
+					this.expressionStack[this.expressionPtr + 1],
+					this.expressionStack[this.expressionPtr + 2]);
+	}
+	exp.sourceEnd = this.endStatementPosition;
+}
 protected void consumeArrayCreationExpressionWithInitializer() {
 	// ArrayCreationWithArrayInitializer ::= 'new' PrimitiveType DimWithOrWithOutExprs ArrayInitializer
 	// ArrayCreationWithArrayInitializer ::= 'new' ClassOrInterfaceType DimWithOrWithOutExprs ArrayInitializer
@@ -1834,17 +1867,30 @@ protected void consumeAssignment() {
 
 	this.expressionPtr -- ; this.expressionLengthPtr -- ;
 	Expression expression = this.expressionStack[this.expressionPtr+1];
-	this.expressionStack[this.expressionPtr] =
-		(op != EQUAL ) ?
-			new CompoundAssignment(
-				this.expressionStack[this.expressionPtr] ,
-				expression,
-				op,
-				expression.sourceEnd):
+	switch(op){
+		case EQUAL:
+			this.expressionStack[this.expressionPtr] =
 			new Assignment(
-				this.expressionStack[this.expressionPtr] ,
-				expression,
-				expression.sourceEnd);
+					this.expressionStack[this.expressionPtr] ,
+					expression,
+					expression.sourceEnd);
+			break;
+		case CONNECT:
+			this.expressionStack[this.expressionPtr] =
+			new ConnectCompoundAssignment(
+					this.expressionStack[this.expressionPtr] ,
+					expression,
+					op,
+					expression.sourceEnd);
+			break;
+		default:
+			this.expressionStack[this.expressionPtr] =
+			new CompoundAssignment(
+					this.expressionStack[this.expressionPtr] ,
+					expression,
+					op,
+					expression.sourceEnd);
+	}
 
 	if (this.pendingRecoveredType != null) {
 		// Used only in statements recovery.
@@ -1879,6 +1925,7 @@ protected void consumeBinaryExpression(int op) {
 	// MultiplicativeExpression ::= MultiplicativeExpression '*' UnaryExpression
 	// MultiplicativeExpression ::= MultiplicativeExpression '/' UnaryExpression
 	// MultiplicativeExpression ::= MultiplicativeExpression '%' UnaryExpression
+	// MultiplicativeExpression ::= MultiplicativeExpression '<==' UnaryExpression
 	// AdditiveExpression ::= AdditiveExpression '+' MultiplicativeExpression
 	// AdditiveExpression ::= AdditiveExpression '-' MultiplicativeExpression
 	// ShiftExpression ::= ShiftExpression '<<'  AdditiveExpression
@@ -2018,6 +2065,13 @@ protected void consumeBinaryExpression(int op) {
 					expr2,
 					op);
 			break;
+		case CAT :
+			this.expressionStack[this.expressionPtr] =
+				new CAT_Expression(
+					expr1,
+					expr2,
+					op);
+			break;
 		default :
 			this.expressionStack[this.expressionPtr] =
 				new BinaryExpression(
@@ -2141,6 +2195,13 @@ protected void consumeBinaryExpressionWithName(int op) {
 					expr2,
 					op);
 			break;
+		case CAT :
+			this.expressionStack[this.expressionPtr] =
+				new CAT_Expression(
+					expr1,
+					expr2,
+					op);
+			break;
 		default :
 			this.expressionStack[this.expressionPtr] =
 				new BinaryExpression(
@@ -2189,6 +2250,17 @@ protected void consumeBlockStatement() {
 protected void consumeBlockStatements() {
 	// BlockStatements ::= BlockStatements BlockStatement
 	concatNodeLists();
+}
+protected void consumeCASELabel() {
+	// SwitchLabel ::= 'CASE' ConstantExpression ':'
+	this.expressionLengthPtr--;
+	Expression expression = this.expressionStack[this.expressionPtr--];
+	CASEStatement caseStatement = new CASEStatement(expression, expression.sourceEnd, this.intStack[this.intPtr--], ThisReference.implicitThis(), false);
+	// Look for $fall-through$ tag in leading comment for case statement
+	if (hasLeadingTagComment(FALL_THROUGH_TAG, caseStatement.sourceStart)) {
+		caseStatement.bits |= ASTNode.DocumentedFallthrough;
+	}
+	pushOnAstStack(caseStatement);
 }
 protected void consumeCastExpressionLL1() {
 	//CastExpression ::= '(' Name ')' InsideCastExpressionLL1 UnaryExpressionNotPlusMinus
@@ -3126,6 +3198,15 @@ protected void consumeCreateInitializer() {
 protected void consumeDefaultLabel() {
 	pushOnExpressionStackLengthStack(0);
 }
+protected void consumeOTHERWISELabel() {
+	// SwitchLabel ::= 'OTHERWISE' ':'
+	CASEStatement defaultStatement = new CASEStatement(null, this.intStack[this.intPtr--], this.intStack[this.intPtr--], ThisReference.implicitThis(), true);
+	// Look for $fall-through$ tag in leading comment for case statement
+	if (hasLeadingTagComment(FALL_THROUGH_TAG, defaultStatement.sourceStart)) {
+		defaultStatement.bits |= ASTNode.DocumentedFallthrough;
+	}
+	pushOnAstStack(defaultStatement);
+}
 protected void consumeDefaultModifiers() {
 	checkComment(); // might update modifiers with AccDeprecated
 	pushOnIntStack(this.modifiers); // modifiers
@@ -3286,6 +3367,15 @@ protected void consumeEmptyStatement() {
 		}
 		pushOnAstStack(new EmptyStatement(this.endPosition + 1, this.endStatementPosition));
 	}
+}
+protected void consumeEmptySWITCHBlock() {
+	// SwitchBlock ::= '{' '}'
+	pushOnAstLengthStack(0);
+}
+protected void consumeEmptySWITCHBlockStatement() {
+	// CaseBlock ::= '{' '}'
+//	pushOnAstLengthStack(0);
+//	concatNodeLists();
 }
 protected void consumeEmptyTypeDeclaration() {
 	// ClassMemberDeclaration ::= ';'
@@ -4012,6 +4102,36 @@ protected void consumeEqualityExpressionWithName(int op) {
 	this.expressionLengthPtr--;
 	this.expressionStack[this.expressionPtr] =
 		new EqualExpression(
+			this.expressionStack[this.expressionPtr + 1],
+			this.expressionStack[this.expressionPtr],
+			op);
+}
+protected void consumeMaxelerEqualityExpression(int op) {
+	// EqualityExpression ::= EqualityExpression '===' RelationalExpression
+	// EqualityExpression ::= EqualityExpression '!==' RelationalExpression
+
+	//optimize the push/pop
+
+	this.expressionPtr--;
+	this.expressionLengthPtr--;
+	this.expressionStack[this.expressionPtr] =
+		new EqualEqualExpression(
+			this.expressionStack[this.expressionPtr],
+			this.expressionStack[this.expressionPtr + 1],
+			op);
+}
+/*
+ * @param op
+ */
+protected void consumeMaxelerEqualityExpressionWithName(int op) {
+	// EqualityExpression ::= Name '===' RelationalExpression
+	// EqualityExpression ::= Name '!==' RelationalExpression
+
+	pushOnExpressionStack(getUnspecifiedReferenceOptimized());
+	this.expressionPtr--;
+	this.expressionLengthPtr--;
+	this.expressionStack[this.expressionPtr] =
+		new EqualEqualExpression(
 			this.expressionStack[this.expressionPtr + 1],
 			this.expressionStack[this.expressionPtr],
 			op);
@@ -9159,6 +9279,39 @@ protected void consumeStatementIfWithElse() {
 			this.intStack[this.intPtr--],
 			this.endStatementPosition);
 }
+protected void consumeStatementIFNoELSE() {
+	// IfThenStatement ::=  'if' '(' Expression ')' Statement
+
+	//optimize the push/pop
+	this.expressionLengthPtr--;
+	Statement thenStatement = (Statement) this.astStack[this.astPtr];
+	this.astStack[this.astPtr] =
+		new IFStatement(
+			this.expressionStack[this.expressionPtr--],
+			thenStatement,
+			this.intStack[this.intPtr--],
+			this.endStatementPosition,
+			ThisReference.implicitThis());
+}
+protected void consumeStatementIFWithELSE() {
+	// IfThenElseStatement ::=  'if' '(' Expression ')' StatementNoShortIf 'else' Statement
+	// IfThenElseStatementNoShortIf ::=  'if' '(' Expression ')' StatementNoShortIf 'else' StatementNoShortIf
+
+	this.expressionLengthPtr--;
+
+	// optimized {..., Then, Else } ==> {..., If }
+	this.astLengthPtr--;
+
+	//optimize the push/pop
+	this.astStack[--this.astPtr] =
+		new IFStatement(
+			this.expressionStack[this.expressionPtr--],
+			(Statement) this.astStack[this.astPtr],
+			(Statement) this.astStack[this.astPtr + 1],
+			this.intStack[this.intPtr--],
+			this.endStatementPosition,
+			ThisReference.implicitThis());
+}
 protected void consumeStatementLabel() {
 	// LabeledStatement ::= 'Identifier' ':' Statement
 	// LabeledStatementNoShortIf ::= 'Identifier' ':' StatementNoShortIf
@@ -9223,7 +9376,35 @@ protected void consumeSwitchStatementOrExpression(boolean isStmt) {
 		pushOnExpressionStack(switchStatement);
 	}
 }
+protected void consumeStatementSWITCH() {
+	// SwitchStatement ::= 'switch' OpenBlock '(' Expression ')' SwitchBlock
 
+	//OpenBlock just makes the semantic action blockStart()
+	//the block is inlined but a scope need to be created
+	//if some declaration occurs.
+
+	int length;
+	SWITCHStatement switchStatement = new SWITCHStatement(ThisReference.implicitThis());
+	this.expressionLengthPtr--;
+	switchStatement.expression = this.expressionStack[this.expressionPtr--];
+	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
+		this.astPtr -= length;
+		System.arraycopy(
+			this.astStack,
+			this.astPtr + 1,
+			switchStatement.statements = new Statement[length],
+			0,
+			length);
+	}
+	switchStatement.explicitDeclarations = this.realBlockStack[this.realBlockPtr--];
+	pushOnAstStack(switchStatement);
+	switchStatement.blockStart = this.intStack[this.intPtr--];
+	switchStatement.sourceStart = this.intStack[this.intPtr--];
+	switchStatement.sourceEnd = this.endStatementPosition;
+	if (length == 0 && !containsComment(switchStatement.blockStart, switchStatement.sourceEnd)) {
+		switchStatement.bits |= ASTNode.UndocumentedEmptyBlock;
+	}
+}
 protected void consumeStatementSynchronized() {
 	// SynchronizedStatement ::= OnlySynchronized '(' Expression ')' Block
 	//optimize the push/pop
@@ -9567,6 +9748,26 @@ protected void consumeCaseLabelElements() {
 	}
 }
 
+/**
+ * Milan: SWITCH handlers
+ */
+protected void consumeSWITCHBlock() {
+	// SwitchBlock ::= '{' SwitchBlockStatements SwitchLabels '}'
+//	concatNodeLists();
+}
+protected void consumeSWITCHBlockStatement() {
+	// SwitchBlockStatement ::= SwitchLabels BlockStatements
+	concatNodeLists();
+}
+protected void consumeSWITCHBlockStatements() {
+	// SwitchBlockStatements ::= SwitchBlockStatements SwitchBlockStatement
+	concatNodeLists();
+}
+protected void consumeSWITCHLabels() {
+	// SwitchLabels ::= SwitchLabels SwitchLabel
+	optimizedConcatNodeLists();
+}
+
 protected void consumeToken(int type) {
 	/* remember the last consumed value */
 	/* try to minimize the number of build values */
@@ -9821,6 +10022,8 @@ protected void consumeToken(int type) {
 		case TokenNamethrow :
 		case TokenNamedo :
 		case TokenNameif :
+		case TokenNameIF :
+		case TokenNameSWITCH :
 		case TokenNamewhile :
 		case TokenNamebreak :
 		case TokenNamecontinue :
@@ -9849,6 +10052,9 @@ protected void consumeToken(int type) {
 			this.nestedMethod[this.nestedType] ++;
 			pushOnIntStack(this.scanner.startPosition);
 			break;
+		case TokenNameCASE :
+			pushOnIntStack(this.scanner.startPosition);
+			break;
 		case TokenNamenew :
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=40954
 			resetModifiers();
@@ -9864,6 +10070,10 @@ protected void consumeToken(int type) {
 			pushOnIntStack(this.scanner.startPosition);
 			break;
 		case TokenNamedefault :
+			pushOnIntStack(this.scanner.startPosition);
+			pushOnIntStack(this.scanner.currentPosition - 1);
+			break;
+		case TokenNameOTHERWISE :
 			pushOnIntStack(this.scanner.startPosition);
 			pushOnIntStack(this.scanner.currentPosition - 1);
 			break;
@@ -9938,6 +10148,7 @@ protected void consumeToken(int type) {
 			//  case TokenNamecase  :
 			//  case TokenNamecatch  :
 			//  case TokenNameelse  :
+			//  case TokenNameELSE  :
 			//  case TokenNameextends  :
 			//  case TokenNamefinally  :
 			//  case TokenNameimplements  :
