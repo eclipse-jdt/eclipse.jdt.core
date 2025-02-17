@@ -965,8 +965,8 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 
 	static void addCommentsToUnit(Collection<Comment> comments, CompilationUnit res) {
 		List<Comment> before = res.getCommentList() == null ? new ArrayList<>() : new ArrayList<>(res.getCommentList());
-		comments.stream().filter(comment -> comment.getStartPosition() >= 0 && JavacCompilationUnitResolver.noCommentAt(res, comment.getStartPosition()))
-			.forEach(before::add);
+		comments.stream().filter(comment -> comment.getStartPosition() >= 0 && !generated(comment)  && JavacCompilationUnitResolver.noCommentAt(res, comment.getStartPosition()))
+		      .forEach(before::add);
 		before.sort(Comparator.comparingInt(Comment::getStartPosition));
 		res.setCommentTable(before.toArray(Comment[]::new));
 	}
@@ -977,6 +977,18 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		}
 		return ((List<Comment>)unit.getCommentList()).stream()
 				.allMatch(other -> pos < other.getStartPosition() || pos >= other.getStartPosition() + other.getLength());
+	}
+
+	private static boolean generated(Comment comment) {
+		ASTNode parentNode = comment.getParent();
+		if (parentNode instanceof MethodDeclaration md) {
+			for (Object modifier: md.modifiers()) {
+				if (modifier instanceof MarkerAnnotation ma) {
+					return "lombok.Generated".equals(ma.getTypeName().getFullyQualifiedName());
+				}
+			}
+		}
+		return false;
 	}
 
 	private static class BindingBuilder extends ASTVisitor {
