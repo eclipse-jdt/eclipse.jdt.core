@@ -20,7 +20,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public abstract class OperatorExpression extends Expression implements OperatorIds {
 
-	public static int[][] OperatorSignatures = new int[UNSIGNED_RIGHT_SHIFT+1][];
+	public static int[][] OperatorSignatures = new int[NOT_EQUAL_EQUAL+1][];
 
 	static {classInitialize();}
 
