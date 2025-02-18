@@ -53,6 +53,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.classfmt.AnnotationInfo;
@@ -2524,8 +2525,8 @@ private void detectCircularHierarchy() {
 
 // NOTE: superInterfaces of binary types are resolved when needed
 @Override
-protected ReferenceBinding[] superInterfacesRecursive(Map<ReferenceBinding, Object> visited) {
-	if (visited.put(this, this) != null) { // do not evaluate the same type twice
+protected ReferenceBinding[] superInterfacesRecursive(Set<ReferenceBinding> visited) {
+	if (!visited.add(this)) { // do not evaluate the same type twice
 		return this.superInterfaces;
 	}
 	if (!isPrototype()) {

@@ -15,7 +15,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.lang.reflect.Field;
-import java.util.Map;
+import java.util.Set;
 import org.eclipse.jdt.core.compiler.CharOperation;
 
 @SuppressWarnings("rawtypes")
@@ -61,7 +61,7 @@ public ReferenceBinding superclass() {
 }
 
 @Override
-protected ReferenceBinding[] superInterfacesRecursive(Map<ReferenceBinding, Object> visited) {
+protected ReferenceBinding[] superInterfacesRecursive(Set<ReferenceBinding> visited) {
 	if (this.closestMatch != null)
 		return this.closestMatch.superInterfacesRecursive(visited); // TODO (visjee) protect from duplicated calls
 	return super.superInterfacesRecursive(visited);

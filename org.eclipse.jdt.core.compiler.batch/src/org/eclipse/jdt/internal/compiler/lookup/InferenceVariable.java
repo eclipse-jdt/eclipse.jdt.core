@@ -174,7 +174,7 @@ public class InferenceVariable extends TypeVariableBinding {
 	}
 
 	@Override
-	protected ReferenceBinding[] superInterfacesRecursive(Map<ReferenceBinding, Object> visited) {
+	protected ReferenceBinding[] superInterfacesRecursive(Set<ReferenceBinding> visited) {
 		return Binding.NO_SUPERINTERFACES;
 	}
 

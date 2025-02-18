@@ -55,15 +55,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -3178,8 +3170,8 @@ public ReferenceBinding superclass() {
 }
 
 @Override
-protected ReferenceBinding[] superInterfacesRecursive(Map<ReferenceBinding, Object> visited) {
-	if (!isPrototype() && visited.put(this, this) == null)
+protected ReferenceBinding[] superInterfacesRecursive(Set<ReferenceBinding> visited) {
+	if (!isPrototype() && visited.add(this))
 		return this.superInterfaces = this.prototype.superInterfacesRecursive(visited); // TODO (visjee) protect from duplicated calls
 	return this.superInterfaces != null ? this.superInterfaces : isAnnotationType() ? this.superInterfaces = new ReferenceBinding [] { this.scope.getJavaLangAnnotationAnnotation() } : null;
 }

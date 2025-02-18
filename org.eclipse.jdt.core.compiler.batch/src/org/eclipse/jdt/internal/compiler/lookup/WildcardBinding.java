@@ -28,7 +28,6 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
@@ -928,8 +927,8 @@ public class WildcardBinding extends ReferenceBinding implements HotSwappable{
     }
 
     @Override
-    protected ReferenceBinding[] superInterfacesRecursive(Map<ReferenceBinding, Object> visited) {
-        if (this.superInterfaces == null && visited.put(this, this) == null) {
+    protected ReferenceBinding[] superInterfacesRecursive(Set<ReferenceBinding> visited) {
+        if (this.superInterfaces == null && visited.add(this)) {
         	if (typeVariable() != null) {
         		this.superInterfaces = this.typeVariable.superInterfacesRecursive(visited);// TODO (visjee) protect from duplicated calls
         	} else {
