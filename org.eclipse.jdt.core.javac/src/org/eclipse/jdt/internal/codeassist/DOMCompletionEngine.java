@@ -199,7 +199,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	private String textContent;
 	private ExtendsOrImplementsInfo extendsOrImplementsInfo;
 
-	static class Bindings {
+	class Bindings {
 		// those need to be list since the order matters
 		// fields must be before methods
 		private List<IBinding> others = new ArrayList<>();
@@ -239,6 +239,33 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		}
 		public boolean isShadowed(IBinding binding) {
 			return this.shadowed.contains(binding);
+		}
+		public Stream<CompletionProposal> toProposals() {
+			return all() //
+				.filter(binding -> pattern.matchesName(prefix.toCharArray(), binding.getName().toCharArray())) //
+				.filter(binding -> {
+					if (binding instanceof IVariableBinding varBinding) {
+						if (isShadowed(binding) && varBinding.isField() && varBinding.getDeclaringClass().isAnonymous()) {
+							return false;
+						}
+					}
+					return true;
+				}).filter(binding -> {
+					if (binding instanceof ITypeBinding typeBinding) {
+						return filterBasedOnExtendsOrImplementsInfo((IType)typeBinding.getJavaElement(), extendsOrImplementsInfo);
+					}
+					return true;
+				}).filter(binding -> !assistOptions.checkDeprecation || !isDeprecated(binding.getJavaElement()))
+				.map(binding ->  {
+					if (binding instanceof IVariableBinding varBinding && isShadowed(binding) && varBinding.isField() && (varBinding.getModifiers() & Flags.AccStatic) == 0) {
+						StringBuilder completion = new StringBuilder();
+						completion.append(varBinding.getDeclaringClass().getName());
+						completion.append(".this.");
+						completion.append(varBinding.getName());
+						return toProposal(binding, completion.toString());
+					}
+					return toProposal(binding);
+				});
 		}
 	}
 
@@ -1118,7 +1145,19 @@ public class DOMCompletionEngine implements ICompletionEngine {
 							if (descendantBindings.length == 1) {
 								ITypeBinding qualifierTypeBinding = (ITypeBinding)descendantBindings[0];
 								processMembers(qualifiedName, qualifierTypeBinding, specificCompletionBindings, true);
-								publishFromScope(specificCompletionBindings);
+								specificCompletionBindings.toProposals().map(prop -> {
+									int rating = prop.getRelevance() + RelevanceConstants.R_NON_INHERITED + RelevanceConstants.R_NO_PROBLEMS;
+									LinkedList<CompletionProposal> proposals = new LinkedList<>();
+									proposals.add(prop);
+									while (!proposals.isEmpty()) {
+										CompletionProposal p = proposals.pop();
+										p.setRelevance(rating);
+										if (p.getRequiredProposals() != null) {
+											proposals.addAll(Arrays.asList(p.getRequiredProposals()));
+										}
+									}
+									return prop;
+								}).forEach(this.requestor::accept);
 								int startPos = this.offset;
 								int endPos = this.offset;
 								if ((qualifiedName.getName().getFlags() & ASTNode.MALFORMED) != 0) {
@@ -2491,33 +2530,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	}
 
 	private void publishFromScope(Bindings scope) {
-		scope.all() //
-			.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray())) //
-			.filter(binding -> {
-				if (binding instanceof IVariableBinding varBinding) {
-					if (scope.isShadowed(binding) && varBinding.isField() && varBinding.getDeclaringClass().isAnonymous()) {
-						return false;
-					}
-				}
-				return true;
-			})
-			.filter(binding -> {
-				if (binding instanceof ITypeBinding typeBinding) {
-					return filterBasedOnExtendsOrImplementsInfo((IType)typeBinding.getJavaElement(), this.extendsOrImplementsInfo);
-				}
-				return true;
-			})
-			.map(binding ->  {
-				if (binding instanceof IVariableBinding varBinding && scope.isShadowed(binding) && varBinding.isField() && (varBinding.getModifiers() & Flags.AccStatic) == 0) {
-					StringBuilder completion = new StringBuilder();
-					completion.append(varBinding.getDeclaringClass().getName());
-					completion.append(".this.");
-					completion.append(varBinding.getName());
-					return toProposal(binding, completion.toString());
-				}
-				return toProposal(binding);
-			})
-			.forEach(this.requestor::accept);
+		scope.toProposals().forEach(this.requestor::accept);
 	}
 
 	private void completeConstructor(ITypeBinding typeBinding, ASTNode referencedFrom, IJavaProject javaProject) {
@@ -2606,7 +2619,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				continue next;
 			}
 			if (method.isSynthetic() || method.isConstructor()
-					|| (this.assistOptions.checkDeprecation && method.isDeprecated())
+					|| (this.assistOptions.checkDeprecation && isDeprecated(method.getJavaElement()))
 					|| Modifier.isStatic(method.getModifiers())
 					|| Modifier.isPrivate(method.getModifiers())
 					|| ((method.getModifiers() & (Modifier.PUBLIC | Modifier.PRIVATE | Modifier.PROTECTED)) == 0) && !typeBinding.getPackage().getKey().equals(originalPackageKey)) {
@@ -2851,6 +2864,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		}
 		Stream<CompletionProposal> current = Arrays.stream(children)
 			.filter(element -> element.getElementType() == IJavaElement.FIELD || element.getElementType() == IJavaElement.METHOD)
+			.filter(element -> !assistOptions.checkDeprecation || !isDeprecated(element))
 			.filter(this::isVisible)
 			.map(this::toProposal);
 		List<String> superTypes = new ArrayList<>();
@@ -4182,9 +4196,26 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		completionProposal.setTokenRange(startPos, cursor);
 	}
 
+	private boolean isDeprecated(IJavaElement element) {
+		while (element instanceof IMember member) {
+			try {
+				if (Flags.isDeprecated(member.getFlags())) {
+					return true;
+				}
+			} catch (JavaModelException e) {
+				ILog.get().error(e.getMessage(), e);
+			}
+			element = element.getParent();
+		}
+		return false;
+	}
+
 	private boolean isVisible(IBinding binding) {
 		if (binding == null) {
 			return false;
+		}
+		if (!assistOptions.checkVisibility) {
+			return true;
 		}
 		if (Modifier.isPublic(binding.getModifiers())) {
 			return true;
@@ -4205,6 +4236,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	private boolean isVisible(IJavaElement element) {
 		if (element == null) {
 			return false;
+		}
+		if (!assistOptions.checkVisibility) {
+			return true;
 		}
 		int flags;
 		try {
