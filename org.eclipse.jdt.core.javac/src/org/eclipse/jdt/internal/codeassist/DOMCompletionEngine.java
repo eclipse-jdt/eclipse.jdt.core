@@ -1158,14 +1158,18 @@ public class DOMCompletionEngine implements ICompletionEngine {
 									}
 									return prop;
 								}).forEach(this.requestor::accept);
-								int startPos = this.offset;
-								int endPos = this.offset;
-								if ((qualifiedName.getName().getFlags() & ASTNode.MALFORMED) != 0) {
-									startPos = qualifiedName.getName().getStartPosition();
-									endPos = startPos + qualifiedName.getName().getLength();
-								}
+								int startPos = qualifiedName.getName().getStartPosition();
+								int endPos = startPos + qualifiedName.getName().getLength();
 								if (!(this.toComplete instanceof Type) && !isFailedMatch(this.prefix.toCharArray(), Keywords.CLASS)) {
-									this.requestor.accept(createClassKeywordProposal(qualifierTypeBinding, startPos, endPos));
+									var prop = createClassKeywordProposal(qualifierTypeBinding, startPos, endPos);
+									prop.setRelevance(prop.getRelevance() + RelevanceConstants.R_NO_PROBLEMS);
+									var typeProposal = toProposal(qualifierTypeBinding);
+									typeProposal.setReplaceRange(qualifiedName.getQualifier().getStartPosition(), qualifiedName.getQualifier().getStartPosition() + qualifiedName.getQualifier().getLength());
+									typeProposal.setRelevance(prop.getRelevance());
+									CompletionProposal[] requires = prop.getRequiredProposals() == null ? new CompletionProposal[1] : Arrays.copyOf(prop.getRequiredProposals(), prop.getRequiredProposals().length + 1);
+									requires[requires.length - 1] = typeProposal;
+									prop.setRequiredProposals(requires);
+									this.requestor.accept(prop);
 								}
 							}
 						}
