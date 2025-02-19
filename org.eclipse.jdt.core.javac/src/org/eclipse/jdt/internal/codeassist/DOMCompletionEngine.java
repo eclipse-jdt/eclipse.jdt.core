@@ -90,6 +90,7 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.Javadoc;
@@ -101,6 +102,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
@@ -136,8 +138,6 @@ import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
-import org.eclipse.jdt.core.dom.InfixExpression.Operator;
-import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -749,6 +749,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					ITypeBinding typeDeclBinding = typeDecl.resolveBinding();
 					findOverridableMethods(typeDeclBinding, this.javaProject, context);
 					suggestTypeKeywords(true);
+					suggestModifierKeywords(fieldDeclaration.getModifiers());
 					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 						findTypes(this.prefix, IJavaSearchConstants.TYPE, null)
 							// don't care about annotations
@@ -1219,6 +1220,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				} else if (methodDeclaration.getBody() == null || (methodDeclaration.getBody() != null && this.offset <= methodDeclaration.getBody().getStartPosition())) {
 					completeThrowsClause(methodDeclaration, specificCompletionBindings);
 					suggestDefaultCompletions = false;
+				} else if (this.offset > methodDeclaration.getStartPosition() + methodDeclaration.getLength()) {
+					suggestModifierKeywords(0);
 				}
 			}
 			if (context instanceof ClassInstanceCreation) {
@@ -1680,6 +1683,61 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			this.requestor.endReporting();
 			if (this.monitor != null) {
 				this.monitor.done();
+			}
+		}
+	}
+
+	private void suggestModifierKeywords(int existingModifiers) {
+		List<char[]> viableMods = new ArrayList<>();
+		boolean isDefinitelyMethod = Flags.isAbstract(existingModifiers)
+				|| Flags.isDefaultMethod(existingModifiers)
+				|| Flags.isNative(existingModifiers)
+				|| Flags.isSynchronized(existingModifiers)
+				|| Flags.isStrictfp(existingModifiers);
+		boolean isDefinitelyField = Flags.isTransient(existingModifiers)
+				|| Flags.isVolatile(existingModifiers);
+
+		if (!Flags.isAbstract(existingModifiers) && !Flags.isFinal(existingModifiers)) {
+			if (!isDefinitelyField) {
+				viableMods.add(Modifier.ModifierKeyword.ABSTRACT_KEYWORD.toString().toCharArray());
+			}
+			viableMods.add(Modifier.ModifierKeyword.FINAL_KEYWORD.toString().toCharArray());
+		}
+		if (!Flags.isAbstract(existingModifiers)) {
+			if (!isDefinitelyMethod) {
+				if (!Flags.isVolatile(existingModifiers)) {
+					viableMods.add(Modifier.ModifierKeyword.VOLATILE_KEYWORD.toString().toCharArray());
+				}
+				if (!Flags.isTransient(existingModifiers)) {
+					viableMods.add(Modifier.ModifierKeyword.TRANSIENT_KEYWORD.toString().toCharArray());
+				}
+			}
+			if (!isDefinitelyField) {
+				if (!Flags.isNative(existingModifiers)) {
+					viableMods.add(Modifier.ModifierKeyword.NATIVE_KEYWORD.toString().toCharArray());
+				}
+				if (!Flags.isSynchronized(existingModifiers)) {
+					viableMods.add(Modifier.ModifierKeyword.SYNCHRONIZED_KEYWORD.toString().toCharArray());
+				}
+				if (!Flags.isStrictfp(existingModifiers)) {
+					viableMods.add(Modifier.ModifierKeyword.STRICTFP_KEYWORD.toString().toCharArray());
+				}
+				if (!Flags.isDefaultMethod(existingModifiers)) {
+					viableMods.add(Modifier.ModifierKeyword.DEFAULT_KEYWORD.toString().toCharArray());
+				}
+			}
+			if (!Flags.isStatic(existingModifiers)) {
+				viableMods.add(Modifier.ModifierKeyword.STATIC_KEYWORD.toString().toCharArray());
+			}
+		}
+		if (!Flags.isPublic(existingModifiers) && !Flags.isProtected(existingModifiers) && !Flags.isPrivate(existingModifiers)) {
+			viableMods.add(Modifier.ModifierKeyword.PUBLIC_KEYWORD.toString().toCharArray());
+			viableMods.add(Modifier.ModifierKeyword.PROTECTED_KEYWORD.toString().toCharArray());
+			viableMods.add(Modifier.ModifierKeyword.PRIVATE_KEYWORD.toString().toCharArray());
+		}
+		for (char[] keyword : viableMods) {
+			if (!this.isFailedMatch(this.prefix.toCharArray(), keyword)) {
+				this.requestor.accept(createKeywordProposal(keyword, -1, -1));
 			}
 		}
 	}
