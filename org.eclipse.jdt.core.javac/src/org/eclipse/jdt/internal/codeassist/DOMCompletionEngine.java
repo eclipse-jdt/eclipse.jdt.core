@@ -3366,6 +3366,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			res.setTokenRange(this.toComplete.getStartPosition(), this.toComplete.getStartPosition() + this.toComplete.getLength());
 		} else if (this.toComplete instanceof MarkerAnnotation) {
 			res.setTokenRange(this.offset, this.offset);
+		} else {
+			setTokenRange(res);
 		}
 		boolean nodeInImports = DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.IMPORT_DECLARATION }) != null;
 
@@ -4262,6 +4264,23 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			cursor++;
 		}
 		completionProposal.setReplaceRange(startPos, cursor);
+		completionProposal.setTokenRange(startPos, cursor);
+	}
+	
+	/**
+	 * Sets the token range of the completion based on the contents of the buffer.
+	 *
+	 * Useful as a last case resort if there is no SimpleName node to base the range on.
+	 *
+	 * @param completionProposal the proposal whose range to set
+	 */
+	private void setTokenRange(CompletionProposal completionProposal) {
+		int startPos = this.offset - this.prefix.length();
+		int cursor = this.offset;
+		while (cursor < this.textContent.length()
+				&& Character.isJavaIdentifierPart(this.textContent.charAt(cursor))) {
+			cursor++;
+		}
 		completionProposal.setTokenRange(startPos, cursor);
 	}
 
