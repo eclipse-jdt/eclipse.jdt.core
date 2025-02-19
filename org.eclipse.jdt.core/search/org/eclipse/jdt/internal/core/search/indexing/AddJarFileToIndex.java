@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -22,7 +22,6 @@ import java.nio.charset.Charset;
 import java.nio.file.NoSuchFileException;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipError;
 import java.util.zip.ZipFile;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -281,7 +280,7 @@ class AddJarFileToIndex extends BinaryContainer {
 				}
 				monitor.exitWrite(); // free write lock
 			}
-		} catch (IOException | ZipError e) {
+		} catch (IOException e) {
 			if (e instanceof NoSuchFileException) {
 				org.eclipse.jdt.internal.core.util.Util.log(Status.info("Can not index not existing zip " + this.containerPath)); //$NON-NLS-1$
 			} else if ("zip file is empty".equals(e.getMessage())) { //$NON-NLS-1$
