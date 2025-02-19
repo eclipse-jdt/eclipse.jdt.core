@@ -2877,17 +2877,24 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				} else if (typeDecl instanceof AnonymousClassDeclaration anonymousTypeDeclaration) {
 					bodyDeclarations = anonymousTypeDeclaration.bodyDeclarations();
 				}
-				for (int i = 0; i < indexOfField + 1; i++) {
+				boolean isCursorFieldStatic = Flags.isStatic(fieldDeclaration.getModifiers());
+				for (int i = 0; i < bodyDeclarations.size(); i++) {
 					if (bodyDeclarations.get(i) instanceof FieldDeclaration fieldDecl) {
-						List<VariableDeclarationFragment> frags = fieldDecl.fragments();
-						int fragIterEndpoint = frags.indexOf(fragment);
-						if (fragIterEndpoint == -1) {
-							fragIterEndpoint = frags.size();
-						}
-						for (int j = 0; j < fragIterEndpoint; j++) {
-							IVariableBinding varBinding = frags.get(j).resolveBinding();
-							if (accessFilter.test(varBinding)) {
-								scope.add(varBinding);
+						// static field declarations after the current declaration can be used in completion,
+						// since they will be assigned during object creation
+						if (isCursorFieldStatic
+								? (Flags.isStatic(fieldDecl.getModifiers()) && i < indexOfField + 1)
+								: (Flags.isStatic(fieldDecl.getModifiers()) || i < indexOfField + 1)) {
+							List<VariableDeclarationFragment> frags = fieldDecl.fragments();
+							int fragIterEndpoint = frags.indexOf(fragment);
+							if (fragIterEndpoint == -1) {
+								fragIterEndpoint = frags.size();
+							}
+							for (int j = 0; j < fragIterEndpoint; j++) {
+								IVariableBinding varBinding = frags.get(j).resolveBinding();
+								if (accessFilter.test(varBinding)) {
+									scope.add(varBinding);
+								}
 							}
 						}
 					}
