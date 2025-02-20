@@ -39,7 +39,9 @@ java.compiler/javax.tools=ALL-UNNAMED\n\
 -DAbstractImageBuilder.compilerFactory=org.eclipse.jdt.internal.javac.JavacCompilerFactory\n\
 -DCompilationUnit.DOM_BASED_OPERATIONS=true\n\
 -DICompletionEngineProvider=org.eclipse.jdt.core.dom.DOMCompletionEngineProvider\n\
--DSourceIndexer.DOM_BASED_INDEXER=true\
+-DSourceIndexer.DOM_BASED_INDEXER=true\n\
+-DMatchLocator.DOM_BASED_MATCH=true\n\
+-DIJavaSearchDelegate=org.eclipse.jdt.internal.core.search.DOMJavaSearchDelegate\
 );
 
 # See https://github.com/eclipse-equinox/p2/issues/572 about requirement for multiple instructions 
@@ -84,4 +86,6 @@ org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg(jvmArg:-DICompilationUnit
 org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg(jvmArg:-DAbstractImageBuilder.compilerFactory=org.eclipse.jdt.internal.javac.JavacCompilerFactory);\
 org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg(jvmArg:-DCompilationUnit.DOM_BASED_OPERATIONS=true);\
 org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg(jvmArg:-DCompilationUnit.codeComplete.DOM_BASED_OPERATIONS=true_);\
-org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg(jvmArg:-DSourceIndexer.DOM_BASED_INDEXER=true);
+org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg(jvmArg:-DSourceIndexer.DOM_BASED_INDEXER=true);\
+org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg(jvmArg:-DMatchLocator.DOM_BASED_MATCH=true);\
+org.eclipse.equinox.p2.touchpoint.eclipse.removeJvmArg(jvmArg:-DIJavaSearchDelegate=org.eclipse.jdt.internal.core.search.DOMJavaSearchDelegate);\
