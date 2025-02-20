@@ -52,11 +52,11 @@ import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
-import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -67,9 +67,13 @@ import org.eclipse.jdt.internal.core.SourceType;
 import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
+import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Type;
+import com.sun.tools.javac.code.TypeTag;
+import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.code.Kinds.Kind;
 import com.sun.tools.javac.code.Kinds.KindSelector;
-import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Scope.LookupKind;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.CompletionFailure;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
@@ -78,7 +82,6 @@ import com.sun.tools.javac.code.Symbol.RootPackageSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ArrayType;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.ErrorType;
@@ -88,8 +91,6 @@ import com.sun.tools.javac.code.Type.JCVoidType;
 import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.TypeVar;
 import com.sun.tools.javac.code.Type.WildcardType;
-import com.sun.tools.javac.code.TypeTag;
-import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.code.Types.FunctionDescriptorLookupError;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Names;
@@ -571,34 +572,43 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		if (this.typeSymbol.members() == null) {
 			return new IMethodBinding[0];
 		}
-		ArrayList<Symbol> l = new ArrayList<>();
-		this.typeSymbol.members().getSymbols().forEach(l::add);
-		// This is very very questionable, but trying to find
-		// the order of these members in the file has been challenging
-		Collections.reverse(l);
 
 		if( this.isRecord()) {
+			ArrayList<Symbol> l = new ArrayList<>();
+			this.typeSymbol.members().getSymbols().forEach(l::add);
+			// This is very very questionable, but trying to find
+			// the order of these members in the file has been challenging
+			Collections.reverse(l);
 			IMethodBinding[] ret = getDeclaredMethodsForRecords(l);
 			if( ret != null ) {
 				return ret;
 			}
 		}
-		return getDeclaredMethodsDefaultImpl(l);
-	}
-
-	private IMethodBinding[] getDeclaredMethodsDefaultImpl(ArrayList<Symbol> l) {
-		return StreamSupport.stream(l.spliterator(), false)
-				.filter(MethodSymbol.class::isInstance)
+		
+		// JDT's class reader keeps the order for fields and methods
+		// rely on it to ensure we return the same order in bindings,
+		// as expected in various tests
+		List<IJavaElement> tmp = List.of();
+		if (getJavaElement() instanceof IType type) {
+			try {
+				tmp = Arrays.asList(type.getChildren());
+			} catch (JavaModelException ex) {
+				ILog.get().error(ex.getMessage(), ex);
+			}
+		}
+		final List<IJavaElement> orderedListFromModel = tmp;
+		return StreamSupport.stream(this.typeSymbol.members().getSymbols(MethodSymbol.class::isInstance, LookupKind.NON_RECURSIVE).spliterator(), false)
 				.map(MethodSymbol.class::cast)
 				.map(sym -> {
 					Type.MethodType methodType = this.types.memberType(this.type, sym).asMethodType();
 					return this.resolver.bindings.getMethodBinding(methodType, sym, this.type, isGeneric);
-				})
-				.filter(Objects::nonNull)
-				.sorted(Comparator.comparing(IMethodBinding::getName))
-				.toArray(IMethodBinding[]::new);
+				}).filter(Objects::nonNull)
+				.sorted(Comparator.comparingInt(binding -> {
+					var elt = binding.getJavaElement();
+					return elt != null ? orderedListFromModel.indexOf(elt) : -1; 
+				})).toArray(IMethodBinding[]::new);
 	}
-	
+
 	private ITypeBinding[] getDeclaredTypeDefaultImpl(ArrayList<Symbol> l) {
 		return StreamSupport.stream(l.spliterator(), false)
 				.filter(ClassSymbol.class::isInstance)
