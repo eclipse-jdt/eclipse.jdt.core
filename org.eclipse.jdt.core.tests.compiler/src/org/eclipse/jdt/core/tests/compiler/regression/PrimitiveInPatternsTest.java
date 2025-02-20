@@ -7416,7 +7416,7 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"1");
 	}
 
-	public void testIssue3535() {
+	public void testIssue3535_001() {
 		runConformTest(new String[] {
 			"X.java",
 			"""
@@ -7448,6 +7448,39 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"""
 			},
 			"3");
+	}
+	public void testIssue3535_002() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+				public class X {
+
+					static Integer getInteger() {
+						return Integer.MAX_VALUE;
+					}
+					public int foo() {
+						Integer i = 10;
+						Y<Integer> f = new Y<>();
+						f.put(X.getInteger()); // This makes all the difference
+						return f.get() instanceof float ? 3 : 2;
+					}
+					public static void main(String[] args) {
+						System.out.println(new X().foo());
+					}
+
+				}
+				class Y <T> {
+				    T t;
+				    T get() {
+				        return t;
+				    }
+				    void put( T t) {
+				    	this.t = t;
+				    }
+				}
+				"""
+			},
+			"2");
 	}
 	public void testIssue3536() {
 		runConformTest(new String[] {
