@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
-import org.eclipse.jdt.internal.compiler.flow.SWITCHFlowContext;
+import org.eclipse.jdt.internal.compiler.flow.SWITCH_FlowContext;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
@@ -87,8 +87,8 @@ public class SWITCH_Statement extends Statement {
 				}
 			}
 
-			SWITCHFlowContext switchContext =
-				new SWITCHFlowContext(flowContext, this, (this.breakLabel = new BranchLabel()));
+			SWITCH_FlowContext switchContext =
+				new SWITCH_FlowContext(flowContext, this, (this.breakLabel = new BranchLabel()));
 
 			// analyse the block by considering specially the case/default statements (need to bind them
 			// to the entry point)

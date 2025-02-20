@@ -8,12 +8,12 @@ import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
  * @author milan
  *
  */
-public class SWITCHFlowContext extends FlowContext {
+public class SWITCH_FlowContext extends FlowContext {
 
 	public BranchLabel breakLabel;
 	public UnconditionalFlowInfo initsOnBreak = FlowInfo.DEAD_END;
 
-public SWITCHFlowContext(FlowContext parent, ASTNode associatedNode, BranchLabel breakLabel) {
+public SWITCH_FlowContext(FlowContext parent, ASTNode associatedNode, BranchLabel breakLabel) {
 	super(parent, associatedNode, true);
 	this.breakLabel = breakLabel;
 }
