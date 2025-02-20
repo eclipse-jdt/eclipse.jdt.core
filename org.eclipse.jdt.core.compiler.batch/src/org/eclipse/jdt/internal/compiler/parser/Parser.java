@@ -2255,7 +2255,7 @@ protected void consumeCASELabel() {
 	// SwitchLabel ::= 'CASE' ConstantExpression ':'
 	this.expressionLengthPtr--;
 	Expression expression = this.expressionStack[this.expressionPtr--];
-	CASEStatement caseStatement = new CASEStatement(expression, expression.sourceEnd, this.intStack[this.intPtr--], ThisReference.implicitThis(), false);
+	CASE_Statement caseStatement = new CASE_Statement(expression, expression.sourceEnd, this.intStack[this.intPtr--], ThisReference.implicitThis(), false);
 	// Look for $fall-through$ tag in leading comment for case statement
 	if (hasLeadingTagComment(FALL_THROUGH_TAG, caseStatement.sourceStart)) {
 		caseStatement.bits |= ASTNode.DocumentedFallthrough;
@@ -3200,7 +3200,7 @@ protected void consumeDefaultLabel() {
 }
 protected void consumeOTHERWISELabel() {
 	// SwitchLabel ::= 'OTHERWISE' ':'
-	CASEStatement defaultStatement = new CASEStatement(null, this.intStack[this.intPtr--], this.intStack[this.intPtr--], ThisReference.implicitThis(), true);
+	CASE_Statement defaultStatement = new CASE_Statement(null, this.intStack[this.intPtr--], this.intStack[this.intPtr--], ThisReference.implicitThis(), true);
 	// Look for $fall-through$ tag in leading comment for case statement
 	if (hasLeadingTagComment(FALL_THROUGH_TAG, defaultStatement.sourceStart)) {
 		defaultStatement.bits |= ASTNode.DocumentedFallthrough;
@@ -9286,7 +9286,7 @@ protected void consumeStatementIFNoELSE() {
 	this.expressionLengthPtr--;
 	Statement thenStatement = (Statement) this.astStack[this.astPtr];
 	this.astStack[this.astPtr] =
-		new IFStatement(
+		new IF_Statement(
 			this.expressionStack[this.expressionPtr--],
 			thenStatement,
 			this.intStack[this.intPtr--],
@@ -9304,7 +9304,7 @@ protected void consumeStatementIFWithELSE() {
 
 	//optimize the push/pop
 	this.astStack[--this.astPtr] =
-		new IFStatement(
+		new IF_Statement(
 			this.expressionStack[this.expressionPtr--],
 			(Statement) this.astStack[this.astPtr],
 			(Statement) this.astStack[this.astPtr + 1],
@@ -9384,7 +9384,7 @@ protected void consumeStatementSWITCH() {
 	//if some declaration occurs.
 
 	int length;
-	SWITCHStatement switchStatement = new SWITCHStatement(ThisReference.implicitThis());
+	SWITCH_Statement switchStatement = new SWITCH_Statement(ThisReference.implicitThis());
 	this.expressionLengthPtr--;
 	switchStatement.expression = this.expressionStack[this.expressionPtr--];
 	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {

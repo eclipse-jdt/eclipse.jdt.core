@@ -22,7 +22,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
  * @author milan
  *
  */
-public class CASEStatement extends Statement {
+public class CASE_Statement extends Statement {
 
 	public Expression constantExpression;
 	public CaseLabel targetLabel;
@@ -31,7 +31,7 @@ public class CASEStatement extends Statement {
 	public MethodBinding appropriateMethodForOverload = null;
 	public MethodBinding syntheticAccessor;
 
-public CASEStatement(Expression constantExpression, int sourceEnd, int sourceStart, ThisReference thisReference, boolean defaultStatement) {
+public CASE_Statement(Expression constantExpression, int sourceEnd, int sourceStart, ThisReference thisReference, boolean defaultStatement) {
 	this.constantExpression = constantExpression;
 	this.sourceEnd = sourceEnd;
 	this.sourceStart = sourceStart;
@@ -97,10 +97,10 @@ public void resolve(BlockScope scope) {
 
 /**
  * Returns the constant intValue or ordinal for enum constants. If constant is NotAConstant, then answers Float.MIN_VALUE
- * @see org.eclipse.jdt.internal.compiler.ast.Statement#resolveCase(org.eclipse.jdt.internal.compiler.lookup.BlockScope, org.eclipse.jdt.internal.compiler.lookup.TypeBinding, org.eclipse.jdt.internal.compiler.ast.SWITCHStatement)
+ * @see org.eclipse.jdt.internal.compiler.ast.Statement#resolveCase(org.eclipse.jdt.internal.compiler.lookup.BlockScope, org.eclipse.jdt.internal.compiler.lookup.TypeBinding, org.eclipse.jdt.internal.compiler.ast.SWITCH_Statement)
  */
 @Override
-public Constant resolveCase(BlockScope scope, TypeBinding switchExpressionType, SWITCHStatement switchStatement) {
+public Constant resolveCase(BlockScope scope, TypeBinding switchExpressionType, SWITCH_Statement switchStatement) {
 	// switchExpressionType maybe null in error case
 	scope.enclosingCASE = this; // record entering in a switch case block
 

@@ -100,7 +100,7 @@ public abstract class ASTVisitor {
 	public void endVisit(CaseStatement caseStatement, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(CASEStatement caseStatement, BlockScope scope) {
+	public void endVisit(CASE_Statement caseStatement, BlockScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(CastExpression castExpression, BlockScope scope) {
@@ -194,7 +194,7 @@ public abstract class ASTVisitor {
 	public void endVisit(IfStatement ifStatement, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(IFStatement ifStatement, BlockScope scope) {
+	public void endVisit(IF_Statement ifStatement, BlockScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(ImportReference importRef, CompilationUnitScope scope) {
@@ -447,7 +447,7 @@ public abstract class ASTVisitor {
 	public void endVisit(SwitchStatement switchStatement, BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(SWITCHStatement switchStatement, BlockScope scope) {
+	public void endVisit(SWITCH_Statement switchStatement, BlockScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(
@@ -610,7 +610,7 @@ public abstract class ASTVisitor {
 	public boolean visit(CaseStatement caseStatement, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(CASEStatement caseStatement, BlockScope scope) {
+	public boolean visit(CASE_Statement caseStatement, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(CastExpression castExpression, BlockScope scope) {
@@ -707,7 +707,7 @@ public abstract class ASTVisitor {
 	public boolean visit(IfStatement ifStatement, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(IFStatement ifStatement, BlockScope scope) {
+	public boolean visit(IF_Statement ifStatement, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(ImportReference importRef, CompilationUnitScope scope) {
@@ -962,7 +962,7 @@ public abstract class ASTVisitor {
 	public boolean visit(SwitchStatement switchStatement, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(SWITCHStatement switchStatement, BlockScope scope) {
+	public boolean visit(SWITCH_Statement switchStatement, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(

@@ -35,15 +35,15 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
  * @author milan
  *
  */
-public class SWITCHStatement extends Statement {
+public class SWITCH_Statement extends Statement {
 
 	public Expression expression;
 	public Statement[] statements;
 	public BlockScope scope;
 	public int explicitDeclarations;
 	public BranchLabel breakLabel;
-	public CASEStatement[] cases;
-	public CASEStatement defaultCase;
+	public CASE_Statement[] cases;
+	public CASE_Statement defaultCase;
 	public int blockStart;
 	public int caseCount;
 	int[] constants;
@@ -63,7 +63,7 @@ public class SWITCHStatement extends Statement {
 	int preSwitchInitStateIndex = -1;
 	int mergedInitStateIndex = -1;
 
-	public SWITCHStatement(ThisReference thisReference){
+	public SWITCH_Statement(ThisReference thisReference){
 		this.thisReference = thisReference;
 	}
 
@@ -152,7 +152,7 @@ public class SWITCHStatement extends Statement {
 				currentScope.methodScope().recordInitializationStates(mergedInfo);
 			return mergedInfo;
 	    } finally {
-	        if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
+	        if (this.scope != null) this.scope.enclosingCASE = null; // no longer inside switch case block
 	    }
 	}
 
@@ -223,7 +223,7 @@ public class SWITCHStatement extends Statement {
 			}
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		} finally {
-			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
+			if (this.scope != null) this.scope.enclosingCASE = null; // no longer inside switch case block
 		}
 	}
 
@@ -235,7 +235,7 @@ public class SWITCHStatement extends Statement {
 		if (this.statements != null) {
 			for (int i = 0; i < this.statements.length; i++) {
 				output.append('\n');
-				if (this.statements[i] instanceof CASEStatement) {
+				if (this.statements[i] instanceof CASE_Statement) {
 					this.statements[i].printStatement(indent, output);
 				} else {
 					this.statements[i].printStatement(indent+2, output);
@@ -269,8 +269,8 @@ public class SWITCHStatement extends Statement {
 					return;
 				}
 				this.switchAppropriateMethodForOverload = mb2;
-				if (isMethodUseDeprecated(this.switchAppropriateMethodForOverload, this.scope, true, new InvocationSite.EmptyWithAstNode(this)))
-					this.scope.problemReporter().deprecatedMethod(this.switchAppropriateMethodForOverload, this);
+				if (isMethodUseDeprecated(this.switchAppropriateMethodForOverload, upperScope, true, new InvocationSite.EmptyWithAstNode(this)))
+					upperScope.problemReporter().deprecatedMethod(this.switchAppropriateMethodForOverload, this);
 				if(this.thisReference.resolvedType == null)
 					this.thisReference.resolveType(upperScope);
 				this.thisReference.computeConversion(upperScope, this.thisReference.resolvedType, this.thisReference.resolvedType);
@@ -296,8 +296,8 @@ public class SWITCHStatement extends Statement {
 					return;
 				}
 				this.endswitchAppropriateMethodForOverload = mb2;
-				if (isMethodUseDeprecated(this.endswitchAppropriateMethodForOverload, this.scope, true, new InvocationSite.EmptyWithAstNode(this)))
-					this.scope.problemReporter().deprecatedMethod(this.endswitchAppropriateMethodForOverload, this);
+				if (isMethodUseDeprecated(this.endswitchAppropriateMethodForOverload, upperScope, true, new InvocationSite.EmptyWithAstNode(this)))
+					upperScope.problemReporter().deprecatedMethod(this.endswitchAppropriateMethodForOverload, this);
 			}else{
 				upperScope.problemReporter().invalidOrMissingOverloadedOperator(this, getMethodNameForENDSWITCH(), TypeBinding.VOID);
 					return;
@@ -309,7 +309,7 @@ public class SWITCHStatement extends Statement {
 				this.scope = /*explicitDeclarations == 0 ? upperScope : */new BlockScope(upperScope);
 				int length;
 				// collection of cases is too big but we will only iterate until caseCount
-				this.cases = new CASEStatement[length = this.statements.length];
+				this.cases = new CASE_Statement[length = this.statements.length];
 				this.constants = new int[length];
 				for (int i = 0; i < length; i++) {
 					final Statement statement = this.statements[i];
@@ -326,7 +326,7 @@ public class SWITCHStatement extends Statement {
 				this.scope = new BlockScope(upperScope);
 			}
 	    } finally {
-	        if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
+	        if (this.scope != null) this.scope.enclosingCASE = null; // no longer inside switch case block
 	    }
 	}
 

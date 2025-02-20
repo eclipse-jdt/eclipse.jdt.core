@@ -560,7 +560,7 @@ protected MethodBinding findConstructorBinding(BlockScope scope, Invocation site
 	MethodBinding ctorBinding = scope.getConstructor(receiverType, argumentTypes, site);
 	return resolvePolyExpressionArguments(site, ctorBinding, argumentTypes, scope);
 }
-public Constant resolveCase(BlockScope scope, TypeBinding testType, SWITCHStatement switchStatement) {
+public Constant resolveCase(BlockScope scope, TypeBinding testType, SWITCH_Statement switchStatement) {
 	// statement within a switch that are not case are treated as normal statement....
 	resolve(scope);
 	return Constant.NotAConstant;

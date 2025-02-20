@@ -61,7 +61,7 @@ public class BlockScope extends Scope {
 	public int subscopeCount = 0; // need access from code assist
 	// record the current case statement being processed (for entire switch case block).
 	public CaseStatement enclosingCase; // from 1.4 on, local types should not be accessed across switch case blocks (52221)
-	public CASEStatement enclosingCASE;
+	public CASE_Statement enclosingCASE;
 
 	public final static VariableBinding[] EmulationPathToImplicitThis = {};
 	public final static VariableBinding[] NoEnclosingInstanceInConstructorCall = {};

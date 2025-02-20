@@ -32,7 +32,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
  * @author milan
  *
  */
-public class IFStatement extends Statement {
+public class IF_Statement extends Statement {
 
 	//this class represents the case of only one statement in
 	//either else and/or then branches.
@@ -57,7 +57,7 @@ public class IFStatement extends Statement {
 	int mergedInitStateIndex = -1;
 
 
-public IFStatement(Expression condition, Statement thenStatement, 	int sourceStart, int sourceEnd, ThisReference thisReference) {
+public IF_Statement(Expression condition, Statement thenStatement, 	int sourceStart, int sourceEnd, ThisReference thisReference) {
 	this.condition = condition;
 	this.thenStatement = thenStatement;
 	// remember useful empty statement
@@ -67,7 +67,7 @@ public IFStatement(Expression condition, Statement thenStatement, 	int sourceSta
 	this.thisReference = thisReference;
 }
 
-public IFStatement(Expression condition, Statement thenStatement, Statement elseStatement, int sourceStart, int sourceEnd, ThisReference thisReference) {
+public IF_Statement(Expression condition, Statement thenStatement, Statement elseStatement, int sourceStart, int sourceEnd, ThisReference thisReference) {
 	this.condition = condition;
 	this.thenStatement = thenStatement;
 	// remember useful empty statement
