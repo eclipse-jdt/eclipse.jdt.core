@@ -478,11 +478,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {
 		// JLS3 15.25
-		this.constant = Constant.NotAConstant;
 
 		MethodBinding mb2 = this.getMethodBindingForOverload(scope);
 //		boolean allow = this.checkOverloadBinding(this.condition.resolvedType);
 		if ((mb2 != null) && (mb2.isValidBinding())) {
+			this.constant = Constant.NotAConstant;
 			this.resolvedType = mb2.returnType;
 			this.appropriateMethodForOverload = mb2;
 			if (isMethodUseDeprecated(this.appropriateMethodForOverload, scope, true, new InvocationSite.EmptyWithAstNode(this)))
