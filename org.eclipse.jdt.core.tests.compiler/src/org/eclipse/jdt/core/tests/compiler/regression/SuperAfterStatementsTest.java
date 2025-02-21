@@ -3220,4 +3220,107 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			----------
 			""");
 	}
+	public void testGH3687c() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+					import java.util.function.IntSupplier;
+					@SuppressWarnings("unused")
+					public class X {
+						public static void main(String argv[]) {
+							class Parent {
+								int value;
+								Parent(int i) {
+									this.value = i;
+								}
+							}
+							class Outer {
+								static IntSupplier supplier = () -> {
+									class InnerLocal extends Parent {
+										InnerLocal() {
+											super(10);
+										}
+									}
+									return new InnerLocal().value;
+								};
+							}
+							System.out.println(Outer.supplier.getAsInt());
+						}
+					}"""
+			},
+				"----------\n" +
+				"1. ERROR in X.java (at line 15)\n" +
+				"	super(10);\n" +
+				"	^^^^^^^^^^\n" +
+				"Cannot instantiate local class \'Parent\' in a static context\n" +
+				"----------\n");
+	}
+	public void testGH3687d() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+					import java.util.function.IntSupplier;
+					import java.util.function.Predicate;
+					@SuppressWarnings("unused")
+					public class X {
+						public static void main(String argv[]) {
+							Predicate<Integer> condition = (Integer param) -> {
+								class Parent {
+									int value;
+									Parent(int i) {
+										value = i;
+									}
+								}
+								class Outer {
+									static {
+										class Inner extends Parent {
+											Inner(int i) {
+												super(i);
+											}
+										}
+									}
+								}
+								return param <= 10;
+							};
+							System.out.println(condition.test(10));
+						}
+					}"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 17)\n" +
+			"	super(i);\n" +
+			"	^^^^^^^^^\n" +
+			"Cannot instantiate local class \'Parent\' in a static context\n" +
+			"----------\n");
+	}
+	public void testGH3687e() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+					import java.io.PrintStream;
+					import java.util.function.Predicate;
+					@SuppressWarnings("unused")
+					public class X {
+						static {
+							class SuperClass {}
+							class Outer {
+								static int a;
+								static Predicate<Object> test = (o) -> new SuperClass() {
+									public boolean test() {
+										return true;
+									}
+								}.test();
+							}
+						}
+						public static void main(String argv[]) {
+						}
+					}"""
+			},
+				"----------\n" +
+				"1. ERROR in X.java (at line 9)\n" +
+				"	static Predicate<Object> test = (o) -> new SuperClass() {\n" +
+				"	                                           ^^^^^^^^^^^^\n" +
+				"Cannot instantiate local class \'SuperClass\' in a static context\n" +
+				"----------\n");
+	}
 }

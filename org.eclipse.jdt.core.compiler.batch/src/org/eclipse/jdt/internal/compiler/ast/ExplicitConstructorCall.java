@@ -378,6 +378,14 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 						&& receiverType.erasure().id == TypeIds.T_JavaLangEnum) {
 					scope.problemReporter().cannotInvokeSuperConstructorInEnum(this, methodScope.referenceMethod().binding);
 				}
+				if (!receiverType.isEnum() &&
+						this.accessMode <= ExplicitConstructorCall.Super &&
+						receiverType instanceof LocalTypeBinding local) {
+					MethodScope allocationStaticEnclosing = scope.parent.nearestEnclosingStaticScope(); // Constructor scope already has static, start from parent scope
+					MethodScope typesEnclosingStaticScope = local.scope.nearestEnclosingStaticScope();
+					if (allocationStaticEnclosing != null && typesEnclosingStaticScope != null && allocationStaticEnclosing != typesEnclosingStaticScope)
+						scope.problemReporter().allocationInStaticContext(this, local);
+				}
 				// qualification should be from the type of the enclosingType
 				if (this.qualification != null) {
 					if (this.accessMode != ExplicitConstructorCall.Super) {
