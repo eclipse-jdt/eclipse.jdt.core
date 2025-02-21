@@ -482,9 +482,9 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		if (this.ignoreFurtherInvestigation) {
 			throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult, null);
 		}
-		if ((this.bits & ASTNode.NeedFreeReturn) != 0) { //
+		if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
 			if (this.isCompactConstructor()) {
-				// Note: the body of a compact constructor may not contain a return statement and so will need a injected return
+				// Note: the body of a compact constructor may not contain a return statement and so will need an injected return
 				for (RecordComponent rc : classScope.referenceContext.recordComponents) {
 					LocalVariableBinding parameter = this.scope.findVariable(rc.name);
 					FieldBinding field = classScope.referenceContext.binding.getField(rc.name, true).original();
@@ -616,6 +616,8 @@ public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 	//fill up the constructor body with its statements
 	if (this.isCompactConstructor()) {
 		this.constructorCall = SuperReference.implicitSuperConstructorCall();
+		this.constructorCall.sourceStart = this.sourceStart;
+		this.constructorCall.sourceEnd = this.sourceEnd;
 	} else if (((this.bits & ASTNode.IsDefaultConstructor) != 0) && this.constructorCall == null){
 		this.constructorCall = SuperReference.implicitSuperConstructorCall();
 		this.constructorCall.sourceStart = this.sourceStart;

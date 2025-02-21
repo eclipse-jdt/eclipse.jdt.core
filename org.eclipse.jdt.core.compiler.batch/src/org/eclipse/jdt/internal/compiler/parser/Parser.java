@@ -1025,6 +1025,7 @@ public RecoveredElement buildInitialRecoveryState(){
 		this.compilationUnit.types = null;
 		this.currentToken = 0;
 		this.listLength = 0;
+		this.parsingRecordComponents = false;
 		this.listTypeParameterLength = 0;
 		this.endPosition = 0;
 		this.endStatementPosition = 0;
@@ -11692,6 +11693,7 @@ public void initialize(boolean parsingCompilationUnit) {
 	this.lastErrorEndPositionBeforeRecovery = -1;
 	this.lastJavadocEnd = -1;
 	this.listLength = 0;
+	this.parsingRecordComponents = false;
 	this.listTypeParameterLength = 0;
 	this.lastPosistion = -1;
 
@@ -13454,6 +13456,7 @@ protected void resetStacks() {
 	this.realBlockStack[this.realBlockPtr = 0] = 0;
 	this.recoveredStaticInitializerStart = 0;
 	this.listLength = 0;
+	this.parsingRecordComponents = false;
 	this.listTypeParameterLength = 0;
 
 	this.genericsIdentifiersLengthPtr = -1;
@@ -13711,6 +13714,7 @@ public void copyState(Parser from) {
 	// Loose variables.
 
 	this.listLength = parser.listLength;
+	this.parsingRecordComponents = parser.parsingRecordComponents;
 	this.listTypeParameterLength = parser.listTypeParameterLength;
 	this.dimensions = parser.dimensions;
 	this.recoveredStaticInitializerStart = parser.recoveredStaticInitializerStart;

@@ -314,7 +314,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 				}
 			}
 			if (hasError) {
-				if (!(methodDeclaration.isCompactConstructor())) {// already flagged for CCD
+				if (!methodDeclaration.isCompactConstructor()) {// already flagged for CCD
 					if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())) {
 						boolean isTopLevel = Arrays.stream(methodDeclaration.statements).anyMatch(this::equals);
 						if (isTopLevel)
