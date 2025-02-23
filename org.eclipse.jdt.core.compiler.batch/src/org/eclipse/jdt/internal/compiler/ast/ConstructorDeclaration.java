@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -47,6 +51,7 @@ import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
+import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -71,6 +76,13 @@ public ConstructorDeclaration(CompilationResult compilationResult){
 }
 
 enum AnalysisMode { ALL, PROLOGUE, REST }
+
+FlowInfo getPrologueInfo() {
+	if (this.prologueInfo != null)
+		return this.prologueInfo;
+	return new UnconditionalFlowInfo();
+}
+
 /**
  * The flowInfo corresponds to non-static field initialization infos. It may be unreachable (155423), but still the explicit constructor call must be
  * analyzed as reachable, since it will be generated in the end.
@@ -89,9 +101,10 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 
 	try {
 		ExplicitConstructorCall lateConstructorCall = getLateConstructorCall();
-		if (mode == AnalysisMode.PROLOGUE) {
-			if (lateConstructorCall == null)
-				return;
+		if (mode == AnalysisMode.PROLOGUE
+				&& lateConstructorCall == null
+				&& (this.constructorCall == null || !this.constructorCall.hasArgumentNeedingAnalysis())) {
+			return; // no relevant prologue present
 		}
 
 		int nonStaticFieldInfoReachMode = flowInfo.reachMode();
@@ -99,7 +112,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		if (mode == AnalysisMode.REST) {
 			// retrieve from first iteration (PROLOGUE):
 			constructorContext = this.prologueContext;
-			flowInfo = this.prologueInfo;
+			flowInfo = this.prologueInfo.addInitializationsFrom(flowInfo);
 			// skip the part already done during PROLOGUE analysis ...
 		} else {
 			flowInfo.setReachMode(initialReachMode);
@@ -196,6 +209,9 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 
 			// propagate to constructor call
 			if (this.constructorCall != null) {
+				flowInfo = this.constructorCall.analyseCode(this.scope, constructorContext, flowInfo);
+				if (mode == AnalysisMode.PROLOGUE && this.constructorCall.hasArgumentNeedingAnalysis())
+					this.prologueInfo = flowInfo.copy();
 				// if calling 'this(...)', then flag all non-static fields as definitely
 				// set since they are supposed to be set inside other local constructor
 				if (this.constructorCall.accessMode == ExplicitConstructorCall.This) {
@@ -206,7 +222,6 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 						}
 					}
 				}
-				flowInfo = this.constructorCall.analyseCode(this.scope, constructorContext, flowInfo);
 			}
 
 			// reuse the reachMode from non static field info
@@ -219,22 +234,10 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			boolean enableSyntacticNullAnalysisForFields = compilerOptions.enableSyntacticNullAnalysisForFields;
 			int complaintLevel = (nonStaticFieldInfoReachMode & FlowInfo.UNREACHABLE) == 0 ? Statement.NOT_COMPLAINED : Statement.COMPLAINED_FAKE_REACHABLE;
 			for (Statement stat : this.statements) {
-				switch (mode) {
-					case PROLOGUE -> {
-						if (stat == lateConstructorCall) {
-							this.prologueInfo = flowInfo;	// keep for second iteration, also signals the need for REST analysis
-							return;							// we're done for this time
-						}
-					}
-					case REST -> {
-						if (lateConstructorCall != null) {
-							if (stat == lateConstructorCall)	// if true this is where we start analysing
-								lateConstructorCall = null; 	// no more checking for subsequent statements
-							else
-								continue;						// skip statements already processed during PROLOGUE analysis
-						}
-					}
-					default -> { /* nothing special */ }
+				if (mode == AnalysisMode.REST && lateConstructorCall != null) {
+					if (stat == lateConstructorCall)	// if true this is where we start analysing
+						lateConstructorCall = null; 	// no more checking for subsequent statements
+					continue;							// skip statements already processed during PROLOGUE analysis
 				}
 				if ((complaintLevel = stat.complainIfUnreachable(flowInfo, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
 					flowInfo = stat.analyseCode(this.scope, constructorContext, flowInfo);
@@ -244,6 +247,11 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 				}
 				if (compilerOptions.analyseResourceLeaks) {
 					FakedTrackingVariable.cleanUpUnassigned(this.scope, stat, flowInfo, false);
+				}
+				if (mode == AnalysisMode.PROLOGUE && stat == lateConstructorCall) {
+					// lateConstructor implies no this.constructorCall (which is handled above)
+					this.prologueInfo = flowInfo;	// keep for second iteration, also signals the need for REST analysis
+					return;							// we're done for this time
 				}
 			}
 		}

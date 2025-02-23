@@ -3137,4 +3137,87 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		},
 		"1");
 	}
+
+	public void testGH3748a() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					final int fin1, fin2;
+					{
+						fin1 = 0;
+						fin2 = 1;
+					}
+					X() {
+						int abc = 0; // Commenting out this line brings out the error
+						this(fin1 = 10);
+						fin2 = 11;
+					}
+					X(int x) {}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 4)
+				fin1 = 0;
+				^^^^
+			The final field fin1 may already have been assigned
+			----------
+			2. WARNING in X.java (at line 9)
+				this(fin1 = 10);
+				^^^^^^^^^^^^^^^^
+			You are using a preview language feature that may or may not be supported in a future release
+			----------
+			3. WARNING in X.java (at line 9)
+				this(fin1 = 10);
+				     ^^^^
+			You are using a preview language feature that may or may not be supported in a future release
+			----------
+			4. ERROR in X.java (at line 10)
+				fin2 = 11;
+				^^^^
+			The final field fin2 may already have been assigned
+			----------
+			""");
+	}
+
+	public void testGH3748b() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					final int fin1;
+					final int fin2;
+					{
+						fin1 = 0;
+						fin2 = 1;
+					}
+					X() {
+						this(fin1 = 10);
+						fin2 = 11;
+					}
+					X(int x) {}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 5)
+				fin1 = 0;
+				^^^^
+			The final field fin1 may already have been assigned
+			----------
+			2. WARNING in X.java (at line 9)
+				this(fin1 = 10);
+				     ^^^^
+			You are using a preview language feature that may or may not be supported in a future release
+			----------
+			3. ERROR in X.java (at line 10)
+				fin2 = 11;
+				^^^^
+			The final field fin2 may already have been assigned
+			----------
+			""");
+	}
 }

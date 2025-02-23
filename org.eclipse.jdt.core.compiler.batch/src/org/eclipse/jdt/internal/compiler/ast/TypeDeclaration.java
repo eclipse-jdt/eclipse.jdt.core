@@ -42,6 +42,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.AnalysisMode;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
@@ -900,8 +901,9 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 				AbstractMethodDeclaration method = this.methods[i];
 				if (method.isConstructor()) {
 					FlowInfo ctorInfo = flowInfo.copy();
-					((ConstructorDeclaration) method).analyseCode(this.scope, initializerContext, ctorInfo,
-							ctorInfo.reachMode(), ConstructorDeclaration.AnalysisMode.PROLOGUE);
+					ConstructorDeclaration constructor = (ConstructorDeclaration) method;
+					constructor.analyseCode(this.scope, initializerContext, ctorInfo, ctorInfo.reachMode(), AnalysisMode.PROLOGUE);
+					ctorInfo = constructor.getPrologueInfo();
 					if (prologueInfo == null)
 						prologueInfo = ctorInfo.copy();
 					else
@@ -911,8 +913,14 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 			if (prologueInfo != null) {
 				// field initializers should see inits from ctor prologues:
 				for (FieldBinding field : this.binding.fields()) {
-					if (prologueInfo.isDefinitelyAssigned(field))
+					if (prologueInfo.isDefinitelyAssigned(field)) {
 						nonStaticFieldInfo.markAsDefinitelyAssigned(field);
+					} else if (prologueInfo.isPotentiallyAssigned(field)) {
+						// mimic missing method markAsPotentiallyAssigned(field):
+						UnconditionalFlowInfo assigned = FlowInfo.initial(this.maxFieldCount);
+						assigned.markAsDefinitelyAssigned(field);
+						nonStaticFieldInfo.addPotentialInitializationsFrom(assigned);
+					}
 				}
 			}
 		}
