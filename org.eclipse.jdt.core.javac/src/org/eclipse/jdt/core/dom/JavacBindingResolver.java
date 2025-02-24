@@ -48,12 +48,9 @@ import com.sun.source.util.TreePath;
 import com.sun.tools.javac.api.JavacTaskImpl;
 import com.sun.tools.javac.api.JavacTrees;
 import com.sun.tools.javac.code.Attribute;
+import com.sun.tools.javac.code.Attribute.Compound;
 import com.sun.tools.javac.code.ClassFinder;
 import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Symtab;
-import com.sun.tools.javac.code.TypeTag;
-import com.sun.tools.javac.code.Types;
-import com.sun.tools.javac.code.Attribute.Compound;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.CompletionFailure;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
@@ -63,6 +60,7 @@ import com.sun.tools.javac.code.Symbol.RootPackageSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Symtab;
 import com.sun.tools.javac.code.Type.ArrayType;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.ErrorType;
@@ -75,9 +73,10 @@ import com.sun.tools.javac.code.Type.ModuleType;
 import com.sun.tools.javac.code.Type.PackageType;
 import com.sun.tools.javac.code.Type.TypeVar;
 import com.sun.tools.javac.code.Type.UnknownType;
+import com.sun.tools.javac.code.TypeTag;
+import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.comp.Modules;
 import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.tree.JCTree.JCAnnotatedType;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCArrayTypeTree;
@@ -100,8 +99,10 @@ import com.sun.tools.javac.tree.JCTree.JCPrimitiveTypeTree;
 import com.sun.tools.javac.tree.JCTree.JCTypeApply;
 import com.sun.tools.javac.tree.JCTree.JCTypeCast;
 import com.sun.tools.javac.tree.JCTree.JCTypeParameter;
+import com.sun.tools.javac.tree.JCTree.JCTypeUnion;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.tree.JCTree.JCWildcard;
+import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.Names;
 
@@ -281,8 +282,7 @@ public class JavacBindingResolver extends BindingResolver {
 		public JavacTypeBinding getTypeBinding(JCTree tree, com.sun.tools.javac.code.Type type) {
 			return getTypeBinding(type, tree instanceof JCClassDecl);
 		}
-		
-		
+
 		public JavacTypeBinding getTypeBinding(com.sun.tools.javac.code.Type type) {
 			if (type == null) {
 				return null;
@@ -290,6 +290,9 @@ public class JavacBindingResolver extends BindingResolver {
 			return getTypeBinding(type.baseType() /* remove metadata for constant values */, false);
 		}
 		public JavacTypeBinding getTypeBinding(com.sun.tools.javac.code.Type type, boolean isDeclaration) {
+			return getTypeBinding(type, null, isDeclaration);
+		}
+		public JavacTypeBinding getTypeBinding(com.sun.tools.javac.code.Type type, com.sun.tools.javac.code.Type[] alternatives, boolean isDeclaration) {
 			if (type instanceof com.sun.tools.javac.code.Type.TypeVar typeVar) {
 				return getTypeVariableBinding(typeVar);
 			}
@@ -302,7 +305,7 @@ public class JavacBindingResolver extends BindingResolver {
 						&& !(originalType instanceof com.sun.tools.javac.code.Type.MethodType)
 						&& !(originalType instanceof com.sun.tools.javac.code.Type.ForAll)
 						&& !(originalType instanceof com.sun.tools.javac.code.Type.ErrorType)) {
-					JavacTypeBinding newInstance = new JavacTypeBinding(originalType, type.tsym, isDeclaration, JavacBindingResolver.this) { };
+					JavacTypeBinding newInstance = new JavacTypeBinding(originalType, type.tsym, alternatives, isDeclaration, JavacBindingResolver.this) { };
 					typeBinding.putIfAbsent(newInstance, newInstance);
 					JavacTypeBinding jcb = typeBinding.get(newInstance);
 					jcb.setRecovered(true);
@@ -310,7 +313,7 @@ public class JavacBindingResolver extends BindingResolver {
 				} else if (errorType.tsym instanceof ClassSymbol classErrorSymbol &&
 							Character.isJavaIdentifierStart(classErrorSymbol.getSimpleName().charAt(0))) {
 					// non usable original type: try symbol
-					JavacTypeBinding newInstance = new JavacTypeBinding(classErrorSymbol.type, classErrorSymbol, isDeclaration, JavacBindingResolver.this) { };
+					JavacTypeBinding newInstance = new JavacTypeBinding(classErrorSymbol.type, classErrorSymbol, alternatives, isDeclaration, JavacBindingResolver.this) { };
 					typeBinding.putIfAbsent(newInstance, newInstance);
 					JavacTypeBinding jcb = typeBinding.get(newInstance);
 					jcb.setRecovered(true);
@@ -327,7 +330,7 @@ public class JavacBindingResolver extends BindingResolver {
 				// Fail back to an hopefully better type
 				type = type.tsym.type;
 			}
-			JavacTypeBinding newInstance = new JavacTypeBinding(type, type.tsym, isDeclaration, JavacBindingResolver.this) { };
+			JavacTypeBinding newInstance = new JavacTypeBinding(type, type.tsym, alternatives, isDeclaration, JavacBindingResolver.this) { };
 			typeBinding.putIfAbsent(newInstance, newInstance);
 			return typeBinding.get(newInstance);
 		}
@@ -630,6 +633,13 @@ public class JavacBindingResolver extends BindingResolver {
 		if (jcTree instanceof JCAnnotatedType annotated && annotated.type != null) {
 			return this.bindings.getTypeBinding(annotated.type);
 		}
+		if (jcTree instanceof JCTypeUnion unionType) {
+			com.sun.tools.javac.code.Type[] alternativesArray = new com.sun.tools.javac.code.Type[unionType.alternatives.size()];
+			for (int i = 0 ; i < alternativesArray.length; i++) {
+				alternativesArray[i] = unionType.alternatives.get(i).type;
+			}
+			return this.bindings.getTypeBinding(unionType.type, alternativesArray, false);
+		}
 
 //			return this.flowResult.stream().map(env -> env.enclClass)
 //				.filter(Objects::nonNull)
@@ -718,7 +728,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacNode = this.converter.domToJavac.get(type);
 		if (javacNode instanceof JCClassDecl jcClassDecl && javacNode.type instanceof UnknownType && "<any?>".equals(javacNode.type.toString())) {
-			return new JavacErrorTypeBinding(javacNode.type, javacNode.type.tsym, true, JavacBindingResolver.this, jcClassDecl.sym);
+			return new JavacErrorTypeBinding(javacNode.type, javacNode.type.tsym, null, true, JavacBindingResolver.this, jcClassDecl.sym);
 		}
 		if (javacNode instanceof JCClassDecl jcClassDecl && jcClassDecl.type != null) {
 			return this.bindings.getTypeBinding(jcClassDecl.type, true);

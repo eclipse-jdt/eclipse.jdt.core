@@ -52,11 +52,11 @@ import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
+import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -67,13 +67,10 @@ import org.eclipse.jdt.internal.core.SourceType;
 import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.code.TypeTag;
-import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.code.Kinds.Kind;
 import com.sun.tools.javac.code.Kinds.KindSelector;
 import com.sun.tools.javac.code.Scope.LookupKind;
+import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.CompletionFailure;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
@@ -82,6 +79,7 @@ import com.sun.tools.javac.code.Symbol.RootPackageSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ArrayType;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.ErrorType;
@@ -91,6 +89,8 @@ import com.sun.tools.javac.code.Type.JCVoidType;
 import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.TypeVar;
 import com.sun.tools.javac.code.Type.WildcardType;
+import com.sun.tools.javac.code.TypeTag;
+import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.code.Types.FunctionDescriptorLookupError;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Names;
@@ -106,8 +106,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	public final Type type;
 	private final boolean isGeneric; // only relevent for parameterized types
 	private boolean recovered = false;
+	private final Type[] alternatives;
 
-	public JavacTypeBinding(Type type, final TypeSymbol typeSymbol, boolean isDeclaration, JavacBindingResolver resolver) {
+	public JavacTypeBinding(Type type, final TypeSymbol typeSymbol, Type[] alternatives, boolean isDeclaration, JavacBindingResolver resolver) {
 		if (!JavacBindingResolver.isTypeOfType(type)) {
 			if (typeSymbol != null) {
 				type = typeSymbol.type;
@@ -119,6 +120,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		this.resolver = resolver;
 		this.types = Types.instance(this.resolver.context);
 		this.names = Names.instance(this.resolver.context);
+		this.alternatives = alternatives;
 		// TODO: consider getting rid of typeSymbol in constructor and always derive it from type
 	}
 
@@ -801,6 +803,16 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	}
 	
 	public String getName(boolean checkParameterized) {
+		if (this.isIntersectionType()) {
+			StringBuilder builder = new StringBuilder();
+			for (int i = 0; i < this.alternatives.length; i++) {
+				builder.append(this.resolver.bindings.getTypeBinding(this.alternatives[i]).getName());
+				if (i != this.alternatives.length - 1) {
+					builder.append("|");
+				}
+			}
+			return builder.toString();
+		}
 		if (this.isArray()) {
 			StringBuilder builder = new StringBuilder(this.getElementType().getName());
 			for (int i = 0; i < this.getDimensions(); i++) {
@@ -1003,7 +1015,10 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding[] getTypeBounds() {
-		if (this.type instanceof ClassType classType) {
+		if (this.alternatives != null && this.alternatives.length > 0) {
+			// union type
+			return Stream.of(this.alternatives).map(this.resolver.bindings::getTypeBinding).toArray(ITypeBinding[]::new);
+		} else if (this.type instanceof ClassType classType) {
 			Type z1 = classType.supertype_field;
 			List<Type> z2 = classType.interfaces_field;
 			ArrayList<JavacTypeBinding> l = new ArrayList<>();

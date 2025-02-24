@@ -33,6 +33,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.lang.model.SourceVersion;
+
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -69,6 +71,7 @@ import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.ChildPropertyDescriptor;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
@@ -78,7 +81,6 @@ import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionMethodReference;
-import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ForStatement;
@@ -90,6 +92,7 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.Javadoc;
@@ -101,6 +104,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
@@ -136,8 +140,6 @@ import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
-import org.eclipse.jdt.core.dom.InfixExpression.Operator;
-import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -734,11 +736,6 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						this.requestor.accept(proposal);
 						suggestDefaultCompletions = false;
 					}
-				}
-			}
-			if (context instanceof VariableDeclaration declaration) {
-				if (declaration.getName() == this.toComplete) {
-					suggestDefaultCompletions = false;
 				}
 			}
 			if (context instanceof ModuleDeclaration mod) {
@@ -1605,6 +1602,32 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					suggestDefaultCompletions = false;
 				}
 			}
+			if (context instanceof VariableDeclarationFragment vdf) {
+				if (this.toComplete.equals(vdf.getName())) {
+					ITypeBinding typeBinding = null;
+					if (vdf.getParent() instanceof VariableDeclarationStatement vds) {
+						typeBinding = vds.getType().resolveBinding();
+					} else if (vdf.getParent() instanceof FieldDeclaration fieldDecl) {
+						typeBinding = fieldDecl.getType().resolveBinding();
+					}
+					if (typeBinding != null) {
+						suggestVariableNamesForType(typeBinding);
+					}
+					suggestDefaultCompletions = false;
+				}
+			}
+			if (context instanceof SingleVariableDeclaration svd) {
+				ITypeBinding typeBinding = svd.getType().resolveBinding();
+				suggestVariableNamesForType(typeBinding);
+				suggestDefaultCompletions = false;
+			}
+			if (context instanceof CatchClause catchClause) {
+				if (catchClause.getException().getName().toString().equals(FAKE_IDENTIFIER)) {
+					ITypeBinding exceptionType = catchClause.getException().getType().resolveBinding();
+					suggestVariableNamesForType(exceptionType);
+					suggestDefaultCompletions = false;
+				}
+			}
 			if (context != null && context.getLocationInParent() == QualifiedType.NAME_PROPERTY && context.getParent() instanceof QualifiedType qType) {
 				Type qualifier = qType.getQualifier();
 				if (qualifier != null) {
@@ -1702,6 +1725,197 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				this.monitor.done();
 			}
 		}
+	}
+
+	private void suggestVariableNamesForType(ITypeBinding typeBinding) {
+		if (typeBinding.isPrimitive() || typeBinding.isRecovered()) {
+			return;
+		}
+
+		String simpleName;
+		if (typeBinding.isArray()) {
+			simpleName = typeBinding.getElementType().getName();
+		} else {
+			simpleName = typeBinding.getName();
+		}
+
+		List<String> nameSegments = Stream.of(simpleName.split("(?=_)|(?<=_)")).flatMap(nameSegment -> Stream.of(nameSegment.split("(?<=[a-z0-9])(?=[A-Z])"))).filter(str -> !str.isEmpty()).toList();
+		
+		if (nameSegments.isEmpty()) {
+			return;
+		}
+		
+		List<String> variablePortionsOfName = new ArrayList<>();
+		
+		for (int i = 0; i < nameSegments.size(); i++) {
+			if (nameSegments.get(i).equals("_")) {
+				continue;
+			}
+			StringBuilder variablePortionOfName = new StringBuilder();
+			String lowerCaseSegment = nameSegments.get(i).toLowerCase();
+			variablePortionOfName.append(lowerCaseSegment);
+			for (int j = i + 1; j < nameSegments.size(); j++) {
+				variablePortionOfName.append(nameSegments.get(j));
+			}
+			if (typeBinding.isArray()) {
+				if (variablePortionOfName.toString().endsWith("s")) {
+					variablePortionOfName.append("es");
+				} else {
+					variablePortionOfName.append("s");
+				}
+			}
+			variablePortionsOfName.add(variablePortionOfName.toString());
+		}
+		
+		List<String> prefixes = new ArrayList<>();
+		List<String> suffixes = new ArrayList<>();
+		if (this.assistOptions.localPrefixes != null) {
+			for (char[] localPrefix : this.assistOptions.localPrefixes) {
+				prefixes.add(new String(localPrefix));
+			}
+		}
+		if (this.assistOptions.localSuffixes != null) {
+			for (char[] localSuffix : this.assistOptions.localSuffixes) {
+				suffixes.add(new String(localSuffix));
+			}
+		}
+		// there is always the implicit suffix of ""
+		suffixes.add("");
+		Set<String> possibleNames = new HashSet<>();
+		Map<String, Integer> additionalRelevances = new HashMap<>();
+		boolean firstPrefix = true;
+		boolean firstSuffix = true;
+		boolean realPrefixUsed = false;
+		for (String localPrefix : prefixes) {
+			int shortest = localPrefix.length();
+			if (this.prefix.length() < shortest) {
+				shortest = this.prefix.length();
+			}
+			
+			if (localPrefix.substring(0, shortest).equals(this.prefix.substring(0, shortest))) {
+				int outerAdditionalRelevance = 0;
+				if (firstPrefix) {
+					outerAdditionalRelevance += RelevanceConstants.R_NAME_FIRST_PREFIX;
+				} else if (!localPrefix.isEmpty()) {
+					outerAdditionalRelevance += RelevanceConstants.R_NAME_PREFIX;
+				}
+				for (String localSuffix : suffixes) {
+					int innerAdditionalRelevance = outerAdditionalRelevance;
+					if (firstSuffix && !localSuffix.isEmpty()) {
+						innerAdditionalRelevance += RelevanceConstants.R_NAME_FIRST_SUFFIX;
+					} else if (!localSuffix.isEmpty()) {
+						innerAdditionalRelevance += RelevanceConstants.R_NAME_SUFFIX;
+					}
+					firstSuffix = false;
+					for (String variablePortionOfName : variablePortionsOfName) {
+						int moreInnerAdditionalRelevance = innerAdditionalRelevance;
+						StringBuilder possibleName = new StringBuilder();
+						possibleName.append(localPrefix);
+						if (!localPrefix.isEmpty()) {
+							variablePortionOfName = capitalizeFirstCodepoint(variablePortionOfName);
+						}
+						if (localPrefix.length() < this.prefix.length()) {
+							String leftovers = capitalizeFirstCodepoint(this.prefix.substring(localPrefix.length()));
+							boolean inserted = false;
+							for (int i = 0 ; i < leftovers.length(); i++) {
+								if (variablePortionOfName.startsWith(leftovers.substring(i))) {
+									inserted = true;
+									possibleName.append(leftovers.substring(0, i));
+									possibleName.append(variablePortionOfName);
+									moreInnerAdditionalRelevance += RelevanceConstants.R_NAME_LESS_NEW_CHARACTERS;
+									break;
+								}
+							}
+							if (!inserted) {
+								possibleName.append(leftovers);
+								possibleName.append(variablePortionOfName);
+							}
+						} else {
+							possibleName.append(variablePortionOfName);
+						}
+						possibleName.append(localSuffix);
+						possibleNames.add(possibleName.toString());
+						additionalRelevances.put(possibleName.toString(), moreInnerAdditionalRelevance);
+					}
+				}
+				realPrefixUsed = true;
+			}
+		}
+		if (!realPrefixUsed) {
+			firstSuffix = true;
+			for (String localSuffix : suffixes) {
+				int outerAdditionalRelevance = 0;
+				if (firstSuffix && !localSuffix.isEmpty()) {
+					outerAdditionalRelevance += RelevanceConstants.R_NAME_FIRST_SUFFIX;
+				} else if (!localSuffix.isEmpty()) {
+					outerAdditionalRelevance += RelevanceConstants.R_NAME_SUFFIX;
+				}
+				firstSuffix = false;
+				for (String variablePortionOfName : variablePortionsOfName) {
+					int innerAdditionalRelevance = outerAdditionalRelevance;
+					StringBuilder possibleName = new StringBuilder();
+					boolean inserted = false;
+					if (!this.prefix.isEmpty()) {
+						if (variablePortionOfName.startsWith(this.prefix)) {
+							possibleName.append(variablePortionOfName);
+							innerAdditionalRelevance += RelevanceConstants.R_NAME_LESS_NEW_CHARACTERS;
+						} else {
+							variablePortionOfName = capitalizeFirstCodepoint(variablePortionOfName);
+							for (int i = 1; i < this.prefix.length(); i++) {
+								if (variablePortionOfName.startsWith(this.prefix.substring(i))) {
+									inserted = true;
+									possibleName.append(this.prefix.substring(0, i));
+									possibleName.append(variablePortionOfName);
+									innerAdditionalRelevance += RelevanceConstants.R_NAME_LESS_NEW_CHARACTERS;
+									break;
+								}
+							}
+							if (!inserted) {
+								possibleName.append(this.prefix);
+								possibleName.append(variablePortionOfName);
+							}
+						}
+					} else {
+						possibleName.append(variablePortionOfName);
+					}
+					possibleName.append(localSuffix);
+					possibleNames.add(possibleName.toString());
+					additionalRelevances.put(possibleName.toString(), innerAdditionalRelevance);
+				}
+			}
+		}
+
+		for (String possibleName : possibleNames) {
+			CompletionProposal res = createProposal(CompletionProposal.VARIABLE_DECLARATION);
+			
+			int additionalRelevance = additionalRelevances.get(possibleName);
+			if (SourceVersion.isKeyword(possibleName)) {
+				possibleName += "1";
+			}
+			
+			res.setName(possibleName.toCharArray());
+			res.setCompletion(possibleName.toCharArray());
+			
+			res.setRelevance(RelevanceConstants.R_DEFAULT
+					+ RelevanceConstants.R_INTERESTING
+					+ RelevanceUtils.computeRelevanceForCaseMatching(this.prefix.toCharArray(), possibleName.toCharArray(), this.assistOptions)
+					+ additionalRelevance
+					+ RelevanceConstants.R_NON_RESTRICTED);
+			res.setSignature(SignatureUtils.getSignatureChar(typeBinding));
+			setRange(res);
+			this.requestor.accept(res);
+		}
+	}
+	
+	/**
+	 * Returns the string with the first codepoint capitalized
+	 * 
+	 * @param str the string to capitalize
+	 * @return the string with the first codepoint capitalized
+	 */
+	private static String capitalizeFirstCodepoint(String str) {
+		int firstCodepoint = str.codePointAt(0);
+		return Character.toString(Character.toUpperCase(firstCodepoint)) + str.substring(Character.charCount(firstCodepoint));
 	}
 
 	private void suggestModifierKeywords(int existingModifiers) {
@@ -2334,12 +2548,12 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			keywords.add(Keywords.BREAK);
 			keywords.add(Keywords.CONTINUE);
 		}
-		ExpressionStatement exprStatement = (ExpressionStatement) DOMCompletionUtil.findParent(this.toComplete, new int[] {ASTNode.EXPRESSION_STATEMENT});
-		if (exprStatement != null) {
+		Statement statement = (Statement) DOMCompletionUtil.findParent(this.toComplete, new int[] {ASTNode.EXPRESSION_STATEMENT, ASTNode.VARIABLE_DECLARATION_STATEMENT});
+		if (statement != null) {
 
-			ASTNode statementParent = exprStatement.getParent();
+			ASTNode statementParent = statement.getParent();
 			if (statementParent instanceof Block block) {
-				int exprIndex = block.statements().indexOf(exprStatement);
+				int exprIndex = block.statements().indexOf(statement);
 				if (exprIndex > 0) {
 					ASTNode prevStatement = (ASTNode)block.statements().get(exprIndex - 1);
 					if (prevStatement.getNodeType() == ASTNode.IF_STATEMENT) {

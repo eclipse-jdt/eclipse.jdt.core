@@ -121,7 +121,7 @@ public class SignatureUtils {
 	 * @return the signature of the given type key
 	 */
 	public static String getSignatureForTypeKey(String key) {
-		return key.replace('/', '.');
+		return key.replace('/', '.').replaceFirst("(?<=\\.|L)[_$A-Za-z][_$A-Za-z0-9]*~", "");
 	}
 
 	/**

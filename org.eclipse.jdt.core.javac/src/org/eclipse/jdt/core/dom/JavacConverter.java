@@ -49,9 +49,8 @@ import com.sun.tools.javac.code.Type.PackageType;
 import com.sun.tools.javac.parser.ParserFactory;
 import com.sun.tools.javac.parser.Tokens.Comment;
 import com.sun.tools.javac.parser.Tokens.Comment.CommentStyle;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.tree.DCTree.DCDocComment;
+import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCAnnotatedType;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCAnyPattern;
@@ -126,6 +125,7 @@ import com.sun.tools.javac.tree.JCTree.JCWhileLoop;
 import com.sun.tools.javac.tree.JCTree.JCWildcard;
 import com.sun.tools.javac.tree.JCTree.JCYield;
 import com.sun.tools.javac.tree.JCTree.Tag;
+import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.JCDiagnostic;
 import com.sun.tools.javac.util.Log;
@@ -2242,6 +2242,24 @@ class JavacConverter {
 					}
 					if (tree instanceof JCExpression expr) {
 						Expression expression = convertExpression(expr);
+						if (expression instanceof SimpleName simpleName
+								&& expression.getStartPosition() + expression.getLength() + 1 < this.rawText.length()
+								&& Character.isSpaceChar(this.rawText.charAt(expression.getStartPosition() + expression.getLength()))) {
+							// assume variable declaration statement
+							VariableDeclarationFragment fakeVdf = this.ast.newVariableDeclarationFragment();
+							SimpleName fakeSimpleName = this.ast.newSimpleName(FAKE_IDENTIFIER);
+							int fakePos = expression.getStartPosition() + expression.getLength() + 1;
+							fakeSimpleName.setSourceRange(fakePos, 0);
+							fakeVdf.setName(fakeSimpleName);
+							fakeVdf.setSourceRange(fakePos, 0);
+							fakeVdf.setFlags(fakeVdf.getFlags() | ASTNode.MALFORMED);
+							SimpleType simpleType = this.ast.newSimpleType(simpleName);
+							commonSettings(simpleType, expr);
+							VariableDeclarationStatement res = this.ast.newVariableDeclarationStatement(fakeVdf);
+							res.setType(simpleType);
+							commonSettings(res, expr);
+							return res;
+						}
 						ExpressionStatement res = this.ast.newExpressionStatement(expression);
 						commonSettings(res, javac);
 						return res;

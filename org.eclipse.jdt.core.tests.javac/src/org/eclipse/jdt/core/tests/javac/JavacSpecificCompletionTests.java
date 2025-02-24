@@ -413,7 +413,7 @@ public class JavacSpecificCompletionTests {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		IProgressMonitor monitor = new NullProgressMonitor();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, WC_OWNER, monitor);
-		assertEquals("myField[FIELD_REF_WITH_CASTED_RECEIVER]{((DemoClass)obj /* obj.nestedField is definitely a DemoClass */ . nestedField) . myField, LDemoClass;, I, LHelloWorld~DemoClass;, myField, replace[152, 223], receiver[152, 219], 60}", requestor.getResults());
+		assertEquals("myField[FIELD_REF_WITH_CASTED_RECEIVER]{((DemoClass)obj /* obj.nestedField is definitely a DemoClass */ . nestedField) . myField, LDemoClass;, I, LDemoClass;, myField, replace[152, 223], receiver[152, 219], 60}", requestor.getResults());
 	}
 
 	@Test

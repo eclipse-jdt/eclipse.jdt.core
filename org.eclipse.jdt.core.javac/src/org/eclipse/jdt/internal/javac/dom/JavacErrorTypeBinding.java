@@ -24,9 +24,9 @@ public class JavacErrorTypeBinding extends JavacTypeBinding {
 
 	private TypeSymbol originatingSymbol;
 
-	public JavacErrorTypeBinding(Type type, final TypeSymbol typeSymbol, boolean isDeclaration,
+	public JavacErrorTypeBinding(Type type, final TypeSymbol typeSymbol, Type[] alternatives, boolean isDeclaration,
 			JavacBindingResolver resolver, TypeSymbol originatingSymbol) {
-		super(type, typeSymbol, isDeclaration, resolver);
+		super(type, typeSymbol, alternatives, isDeclaration, resolver);
 		this.originatingSymbol = originatingSymbol;
 	}
 

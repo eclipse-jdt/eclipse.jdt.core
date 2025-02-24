@@ -17,8 +17,8 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
 import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 
-import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.TypeVar;
 
 /**
@@ -31,7 +31,7 @@ public abstract class JavacTypeVariableBinding extends JavacTypeBinding {
 	private final TypeVar typeVar;
 
 	public JavacTypeVariableBinding(TypeVar type, TypeVariableSymbol sym, JavacBindingResolver bindingResolver) {
-		super(type, sym, false, bindingResolver);
+		super(type, sym, null, false, bindingResolver);
 		this.typeVar = type;
 		this.sym = sym;
 		this.bindingResolver = bindingResolver;
