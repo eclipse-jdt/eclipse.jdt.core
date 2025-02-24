@@ -237,6 +237,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		public Stream<IMethodBinding> methods() {
 			return all().filter(IMethodBinding.class::isInstance).map(IMethodBinding.class::cast);
 		}
+		public Stream<IVariableBinding> variables() {
+			return all().filter(IVariableBinding.class::isInstance).map(IVariableBinding.class::cast);
+		}
 		public boolean isShadowed(IBinding binding) {
 			return this.shadowed.contains(binding);
 		}
@@ -1133,48 +1136,59 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						suggestDowncastedFieldsAndMethods(specificCompletionBindings, qualifiedName.getQualifier(), variableBinding);
 						suggestDefaultCompletions = false;
 					} else {
-						// UnimportedType.|
-						List<IType> foundTypes = findTypes(qualifiedName.getQualifier().toString(), null).toList();
-						// HACK: We requested exact matches from the search engine but some results aren't exact
-						foundTypes = foundTypes.stream().filter(type -> type.getElementName().equals(qualifiedName.getQualifier().toString())).toList();
-						if (!foundTypes.isEmpty()) {
-							IType firstType = foundTypes.get(0);
-							ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
-							parser.setWorkingCopyOwner(this.workingCopyOwner);
-							parser.setProject(this.javaProject);
-							IBinding[] descendantBindings = parser.createBindings(new IType[] { firstType }, new NullProgressMonitor());
-							if (descendantBindings.length == 1) {
-								ITypeBinding qualifierTypeBinding = (ITypeBinding)descendantBindings[0];
-								processMembers(qualifiedName, qualifierTypeBinding, specificCompletionBindings, true);
-								specificCompletionBindings.toProposals().map(prop -> {
-									int rating = prop.getRelevance() + RelevanceConstants.R_NON_INHERITED + RelevanceConstants.R_NO_PROBLEMS;
-									LinkedList<CompletionProposal> proposals = new LinkedList<>();
-									proposals.add(prop);
-									while (!proposals.isEmpty()) {
-										CompletionProposal p = proposals.pop();
-										p.setRelevance(rating);
-										if (p.getRequiredProposals() != null) {
-											proposals.addAll(Arrays.asList(p.getRequiredProposals()));
+						Bindings tempScope = new Bindings();
+						String simpleName = qualifiedName.getQualifier() instanceof SimpleName simple ? simple.getIdentifier() : "";
+						if (!simpleName.isEmpty()) {
+							scrapeAccessibleBindings(tempScope);
+						}
+						IVariableBinding v = tempScope.variables().filter(variable -> simpleName.equals(variable.getName())).findFirst().orElse(null);
+						if (v != null) {
+							processMembers(qualifiedName, v.getType(), specificCompletionBindings, false);
+							publishFromScope(specificCompletionBindings);
+						} else {
+							// UnimportedType.|
+							List<IType> foundTypes = findTypes(qualifiedName.getQualifier().toString(), null).toList();
+							// HACK: We requested exact matches from the search engine but some results aren't exact
+							foundTypes = foundTypes.stream().filter(type -> type.getElementName().equals(qualifiedName.getQualifier().toString())).toList();
+							if (!foundTypes.isEmpty()) {
+								IType firstType = foundTypes.get(0);
+								ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+								parser.setWorkingCopyOwner(this.workingCopyOwner);
+								parser.setProject(this.javaProject);
+								IBinding[] descendantBindings = parser.createBindings(new IType[] { firstType }, new NullProgressMonitor());
+								if (descendantBindings.length == 1) {
+									ITypeBinding qualifierTypeBinding = (ITypeBinding)descendantBindings[0];
+									processMembers(qualifiedName, qualifierTypeBinding, specificCompletionBindings, true);
+									specificCompletionBindings.toProposals().map(prop -> {
+										int rating = prop.getRelevance() + RelevanceConstants.R_NON_INHERITED + RelevanceConstants.R_NO_PROBLEMS;
+										LinkedList<CompletionProposal> proposals = new LinkedList<>();
+										proposals.add(prop);
+										while (!proposals.isEmpty()) {
+											CompletionProposal p = proposals.pop();
+											p.setRelevance(rating);
+											if (p.getRequiredProposals() != null) {
+												proposals.addAll(Arrays.asList(p.getRequiredProposals()));
+											}
 										}
+										return prop;
+									}).forEach(this.requestor::accept);
+									int startPos = qualifiedName.getName().getStartPosition();
+									int endPos = startPos + qualifiedName.getName().getLength();
+									if (!(this.toComplete instanceof Type) && !isFailedMatch(this.prefix.toCharArray(), Keywords.CLASS)) {
+										var prop = createClassKeywordProposal(qualifierTypeBinding, startPos, endPos);
+										prop.setRelevance(prop.getRelevance() + RelevanceConstants.R_NO_PROBLEMS);
+										var typeProposal = toProposal(qualifierTypeBinding);
+										typeProposal.setReplaceRange(qualifiedName.getQualifier().getStartPosition(), qualifiedName.getQualifier().getStartPosition() + qualifiedName.getQualifier().getLength());
+										typeProposal.setRelevance(prop.getRelevance());
+										CompletionProposal[] requires = prop.getRequiredProposals() == null ? new CompletionProposal[1] : Arrays.copyOf(prop.getRequiredProposals(), prop.getRequiredProposals().length + 1);
+										requires[requires.length - 1] = typeProposal;
+										prop.setRequiredProposals(requires);
+										this.requestor.accept(prop);
 									}
-									return prop;
-								}).forEach(this.requestor::accept);
-								int startPos = qualifiedName.getName().getStartPosition();
-								int endPos = startPos + qualifiedName.getName().getLength();
-								if (!(this.toComplete instanceof Type) && !isFailedMatch(this.prefix.toCharArray(), Keywords.CLASS)) {
-									var prop = createClassKeywordProposal(qualifierTypeBinding, startPos, endPos);
-									prop.setRelevance(prop.getRelevance() + RelevanceConstants.R_NO_PROBLEMS);
-									var typeProposal = toProposal(qualifierTypeBinding);
-									typeProposal.setReplaceRange(qualifiedName.getQualifier().getStartPosition(), qualifiedName.getQualifier().getStartPosition() + qualifiedName.getQualifier().getLength());
-									typeProposal.setRelevance(prop.getRelevance());
-									CompletionProposal[] requires = prop.getRequiredProposals() == null ? new CompletionProposal[1] : Arrays.copyOf(prop.getRequiredProposals(), prop.getRequiredProposals().length + 1);
-									requires[requires.length - 1] = typeProposal;
-									prop.setRequiredProposals(requires);
-									this.requestor.accept(prop);
 								}
 							}
+							suggestDefaultCompletions = false;
 						}
-						suggestDefaultCompletions = false;
 					}
 				}
 			}
