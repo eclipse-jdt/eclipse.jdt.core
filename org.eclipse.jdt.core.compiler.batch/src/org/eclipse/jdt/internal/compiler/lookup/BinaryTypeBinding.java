@@ -440,8 +440,9 @@ final void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) 
 		cachePartsFrom2(binaryType, needFieldsAndMethods);
 	} catch (AbortCompilation e) {
 		throw e;
-	} catch (RuntimeException e) {
-		throw new RuntimeException("RuntimeException loading " + new String(binaryType.getFileName()), e); //$NON-NLS-1$
+	} catch (RuntimeException e) { // may be a org.eclipse.core.runtime.OperationCanceledException
+		e.addSuppressed(new RuntimeException("RuntimeException loading " + new String(binaryType.getFileName()))); //$NON-NLS-1$
+		throw e;
 	}
 }
 
