@@ -189,6 +189,13 @@ public class ExpectedTypes {
 					}
 				}
 			}
+			if (parent2.getLocationInParent() == LambdaExpression.BODY_PROPERTY && parent2.getParent() instanceof LambdaExpression lambda && !lambda.hasParentheses()) {
+				var binding = lambda.resolveMethodBinding();
+				if (binding != null) {
+					this.expectedTypes.add(binding.getReturnType());
+					break;
+				}
+			}
  			parent2 = parent2.getParent();
 		}
 		ASTNode parent = parent2;

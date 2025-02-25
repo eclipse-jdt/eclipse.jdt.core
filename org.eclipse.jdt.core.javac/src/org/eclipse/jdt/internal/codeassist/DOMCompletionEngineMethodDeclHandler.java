@@ -33,11 +33,18 @@ final class DOMCompletionEngineMethodDeclHandler {
     public static List<String> findVariableNames(IMethodBinding binding) {
         if (binding.getJavaElement() instanceof IMethod m) {
             try {
-                return List.of(m.getParameterNames());
+                List<String> res = List.of(m.getParameterNames());
+//                if (m instanceof SourceMethod || binding.getDeclaringClass().isArray() || !IntStream.range(0, m.getParameterTypes().length).mapToObj(n -> "arg" + n).toList().equals(res)) {
+                	// generated default names, ignore
+                	return res;
+//                }
             } catch (JavaModelException ex) {
                 ILog.get().warn(ex.getMessage(), ex);
             }
         }
-        return List.of(binding.getParameterNames());
+        if (binding.getDeclaringClass().isFromSource()) {
+        	return List.of(binding.getParameterNames());
+        }
+        return List.of();
     }
 }

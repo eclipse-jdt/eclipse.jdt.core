@@ -3234,7 +3234,10 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			res.setRequiredProposals(requiredProposals);
 		}
 
-		if (this.toComplete instanceof SimpleName && !this.toComplete.getLocationInParent().getId().equals(QualifiedName.QUALIFIER_PROPERTY.getId()) && !this.prefix.isEmpty() && !inJavadoc) {
+		if (this.toComplete instanceof SimpleName
+			&& !Set.of(QualifiedName.QUALIFIER_PROPERTY, ExpressionMethodReference.NAME_PROPERTY).contains(this.toComplete.getLocationInParent())
+			&& !this.prefix.isEmpty()
+			&& !inJavadoc) {
 			res.setReplaceRange(this.toComplete.getStartPosition(), this.offset);
 			res.setTokenRange(this.toComplete.getStartPosition(), this.offset);
 		} else {
