@@ -7375,12 +7375,18 @@ public void noSuchEnclosingInstance(TypeBinding targetType, ASTNode location, bo
 		id = IProblem.IncorrectEnclosingInstanceReference;
 	}
 
+	int end = location.sourceEnd;
+	if (location instanceof LambdaExpression lambda)
+		end = lambda.diagnosticsSourceEnd();
+	else if (location instanceof QualifiedAllocationExpression qae && qae.anonymousType != null)
+		end = qae.anonymousType.sourceEnd;
+
 	this.handle(
 		id,
 		new String[] { new String(targetType.readableName())},
 		new String[] { new String(targetType.shortReadableName())},
 		location.sourceStart,
-		location instanceof LambdaExpression ? ((LambdaExpression)location).diagnosticsSourceEnd() : location.sourceEnd);
+		end);
 }
 public void notCompatibleTypesError(ASTNode location, TypeBinding leftType, TypeBinding rightType) {
 	String leftName = new String(leftType.readableName());
