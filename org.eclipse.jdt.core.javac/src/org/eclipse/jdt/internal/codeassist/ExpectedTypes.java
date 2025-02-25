@@ -189,7 +189,7 @@ public class ExpectedTypes {
 					}
 				}
 			}
-			if (parent2.getLocationInParent() == LambdaExpression.BODY_PROPERTY && parent2.getParent() instanceof LambdaExpression lambda && !lambda.hasParentheses()) {
+			if (parent2.getLocationInParent() == LambdaExpression.BODY_PROPERTY && parent2.getParent() instanceof LambdaExpression lambda && !(parent2 instanceof Block)) {
 				var binding = lambda.resolveMethodBinding();
 				if (binding != null) {
 					this.expectedTypes.add(binding.getReturnType());

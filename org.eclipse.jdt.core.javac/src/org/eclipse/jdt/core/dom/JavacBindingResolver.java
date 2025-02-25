@@ -319,21 +319,6 @@ public class JavacBindingResolver extends BindingResolver {
 				// no type information  we could recover from
 				return null;
 			}
-			if (type instanceof ClassType classType &&
-				classType.tsym instanceof ClassSymbol classSymbol &&
-				type.getAnnotationMirrors().stream().map(com.sun.tools.javac.code.Attribute.TypeCompound::getAnnotationType)
-					.filter(ClassType.class::isInstance).map(ClassType.class::cast)
-					.map(annotationType -> annotationType.tsym)
-					.filter(ClassSymbol.class::isInstance).map(ClassSymbol.class::cast)
-					.map(ClassSymbol::getQualifiedName)
-					.map(com.sun.tools.javac.util.Name::toString)
-					.anyMatch("jdk.internal.ValueBased"::equals)) {
-				// use the primitive
-				var unboxed = Types.instance(context).unboxedType(type);
-				if (!unboxed.isErroneous()) {
-					return getTypeBinding(unboxed, isDeclaration);
-				}
-			}
 			if (!type.isParameterized() && !type.isRaw() && type instanceof ClassType classType
 					&& classType.interfaces_field == null) {
 				// workaround faulty case of TypeMismatchQuickfixText.testMismatchingReturnTypeOnGenericMethod

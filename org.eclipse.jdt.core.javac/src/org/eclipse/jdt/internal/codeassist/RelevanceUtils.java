@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.codeassist;
 
 import java.util.Objects;
+import java.util.Set;
 
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -116,9 +117,15 @@ class RelevanceUtils {
 				}
 				// Bug 84720 - [1.5][assist] proposal ranking by return value should consider auto(un)boxing
 				// Just ensuring that the unitScope is not null, even though it's an unlikely case.
-//				if (this.unitScope != null && this.unitScope.isBoxingCompatibleWith(proposalType, this.expectedTypes[i])) {
-//					relevance = CompletionEngine.R_EXPECTED_TYPE;
-//				}
+				var oneErasure = expectedType.getErasure();
+				var otherErasure = proposalType.getErasure();
+				if ((oneErasure.isPrimitive() && otherErasure.getQualifiedName().startsWith("java.lang.")) || 
+					(otherErasure.isPrimitive() && oneErasure.getQualifiedName().startsWith("java.lang."))) {
+					if (oneErasure.getName().equalsIgnoreCase(otherErasure.getName()) ||
+						Set.of(oneErasure.getName().toLowerCase(), otherErasure.getName().toLowerCase()).equals(Set.of("char", "character"))) {
+						relevance = CompletionEngine.R_EXPECTED_TYPE;
+					}
+				}
 			}
 			return relevance;
 		}
