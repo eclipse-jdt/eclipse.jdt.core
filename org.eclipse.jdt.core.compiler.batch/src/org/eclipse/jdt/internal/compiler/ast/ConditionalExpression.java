@@ -46,7 +46,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class ConditionalExpression extends OperatorExpression implements IPolyExpression {
+public class ConditionalExpression extends OperatorExpression implements IPolyExpression, InvocationSite {
 
 	public Expression condition, valueIfTrue, valueIfFalse;
 	public Constant optimizedBooleanConstant;
@@ -963,49 +963,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		else
 			tb_cond = this.condition.resolvedType;
 
-		final TypeBinding expectedTypeLocal = this.expectedType;
-		OperatorOverloadInvocationSite fakeInvocationSite = new OperatorOverloadInvocationSite(){
-			@Override
-			public TypeBinding[] genericTypeArguments() { return null; }
-			@Override
-			public boolean isSuperAccess(){ return false; }
-			@Override
-			public boolean isTypeAccess() { return true; }
-			@Override
-			public void setActualReceiverType(ReferenceBinding actualReceiverType) { /* ignore */}
-			@Override
-			public void setDepth(int depth) { /* ignore */}
-			@Override
-			public void setFieldIndex(int depth){ /* ignore */}
-			@Override
-			public int sourceStart() { return 0; }
-			@Override
-			public int sourceEnd() { return 0; }
-			@Override
-			public TypeBinding getExpectedType() {
-				return expectedTypeLocal;
-			}
-			@Override
-			public TypeBinding invocationTargetType() { return null; }
-			@Override
-			public boolean receiverIsImplicitThis() { return false; }
-			@Override
-			public InferenceContext18 freshInferenceContext(Scope s) { return null; }
-			@Override
-			public ExpressionContext getExpressionContext() { return null; }
-			@Override
-			public boolean isQualifiedSuper() { return false; }
-			@Override
-			public boolean checkingPotentialCompatibility() { return false; }
-			@Override
-			public void acceptPotentiallyCompatibleMethods(MethodBinding[] methods) {/* ignore */}
-		};
-
 		String ms = getMethodName();
 
 		MethodBinding mb2 = null;
 		if ((tb_cond != null) && (tb_left!=null) && (tb_right!=null)) {
-			mb2 = scope.getMethod(tb_cond, ms.toCharArray(), new TypeBinding[]{tb_left, tb_right},  fakeInvocationSite);
+			mb2 = scope.getMethod(tb_cond, ms.toCharArray(), new TypeBinding[]{tb_left, tb_right},  this);
 		}
 		return mb2;
 	}
@@ -1024,49 +986,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		else
 			tb_right = localCondition.right.resolvedType;
 
-		final TypeBinding expectedTypeLocal = this.expectedType;
-		OperatorOverloadInvocationSite fakeInvocationSite = new OperatorOverloadInvocationSite(){
-			@Override
-			public TypeBinding[] genericTypeArguments() { return null; }
-			@Override
-			public boolean isSuperAccess(){ return false; }
-			@Override
-			public boolean isTypeAccess() { return true; }
-			@Override
-			public void setActualReceiverType(ReferenceBinding actualReceiverType) { /* ignore */}
-			@Override
-			public void setDepth(int depth) { /* ignore */}
-			@Override
-			public void setFieldIndex(int depth){ /* ignore */}
-			@Override
-			public int sourceStart() { return 0; }
-			@Override
-			public int sourceEnd() { return 0; }
-			@Override
-			public TypeBinding getExpectedType() {
-				return expectedTypeLocal;
-			}
-			@Override
-			public TypeBinding invocationTargetType() { return null; }
-			@Override
-			public boolean receiverIsImplicitThis() { return false; }
-			@Override
-			public InferenceContext18 freshInferenceContext(Scope s) { return null; }
-			@Override
-			public ExpressionContext getExpressionContext() { return null; }
-			@Override
-			public boolean isQualifiedSuper() { return false; }
-			@Override
-			public boolean checkingPotentialCompatibility() { return false; }
-			@Override
-			public void acceptPotentiallyCompatibleMethods(MethodBinding[] methods) {/* ignore */}
-		};
-
 		String ms = "eq"; //$NON-NLS-1$
 
 		MethodBinding mb2 = null;
 		if ((tb_left!=null) && (tb_right!=null) /*&& (tb_left.id == tb_right.id)*/) {
-			mb2 = scope.getMethod(tb_left, ms.toCharArray(), new TypeBinding[]{tb_right},  fakeInvocationSite);
+			mb2 = scope.getMethod(tb_left, ms.toCharArray(), new TypeBinding[]{tb_right}, new InvocationSite.EmptyWithAstNode(this));
 			if(mb2 == null || !mb2.isValidBinding() || tb_left.id != mb2.returnType.id){
 				return null;
 			}
@@ -1108,6 +1032,41 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 				codeStream.generateImplicitConversion(this.implicitConversion);
 			}
 		}
+	}
+
+	@Override
+	public TypeBinding[] genericTypeArguments() {
+		return null;
+	}
+
+	@Override
+	public boolean isSuperAccess() {
+		return false;
+	}
+
+	@Override
+	public boolean isTypeAccess() {
+		return false;
+	}
+
+	@Override
+	public void setActualReceiverType(ReferenceBinding receiverType) {
+		// ignored
+	}
+
+	@Override
+	public void setDepth(int depth) {
+		// ignored
+	}
+
+	@Override
+	public void setFieldIndex(int depth) {
+		// ignored
+	}
+
+	@Override
+	public InferenceContext18 freshInferenceContext(Scope scope) {
+		return new InferenceContext18(scope, new Expression[] {this.valueIfTrue, this.valueIfFalse}, this, null);
 	}
 }
 
