@@ -468,6 +468,37 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			}
 			return IMPOSSIBLE_MATCH;
 		}
+		if( newLevel == ACCURATE_MATCH && this.locator.pattern.hasTypeArguments() ) {
+			int matchRule = newLevel;
+			boolean hasTypeParameters = this.locator.pattern.hasTypeParameters();
+			char[][][] patternTypeArgArray = this.locator.pattern.getTypeArguments();
+			int patternTypeArgsLength = patternTypeArgArray == null ? -1 : 
+				patternTypeArgArray[0] == null ? -1 : 
+					patternTypeArgArray[0].length == 0 ? -1 : patternTypeArgArray[0].length;
+			boolean raw = typeBinding.isRawType();
+			boolean generic = typeBinding.isGenericType();
+			boolean parameterized = typeBinding.isParameterizedType();
+			ITypeBinding[] args = typeBinding.getTypeArguments();
+			int typeArgumentsLength = args == null ? -1 : args.length;
+			// Compare arguments lengthes
+			if (patternTypeArgsLength == typeArgumentsLength) {
+				if (!raw && hasTypeParameters) {
+					// generic patterns are always not compatible match
+					return ERASURE_MATCH;
+				}
+			} else {
+				if (patternTypeArgsLength==0) {
+					if (!match.isRaw() || hasTypeParameters) {
+						return matchRule;
+					}
+				} else  if (typeArgumentsLength==0) {
+					// raw binding is always compatible
+					return matchRule;
+				} else {
+					return IMPOSSIBLE_MATCH;
+				}
+			}
+		}
 		return newLevel;
 	}
 
@@ -553,6 +584,10 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			match.setOffset(newStart);
 			match.setLength(newLength);
 		}
+		
+		boolean report = (this.isErasureMatch && match.isErasure()) || (this.isEquivalentMatch && match.isEquivalent()) || match.isExact();
+		if (!report) return;
+
 		SearchMatchingUtility.reportSearchMatch(locator, match);
 	}
 	private ASTNode findNodeMatchingPatternQualifier(Type qualifier) {
