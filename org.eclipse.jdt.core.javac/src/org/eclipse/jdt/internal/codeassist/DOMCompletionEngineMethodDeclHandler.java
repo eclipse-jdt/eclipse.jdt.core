@@ -14,11 +14,14 @@
 package org.eclipse.jdt.internal.codeassist;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.internal.compiler.classfmt.MethodInfo;
+import org.eclipse.jdt.internal.core.BinaryMethod;
 
 /**
  * This class define methods which are used for handling dom based completions for method declarations.
@@ -32,19 +35,21 @@ final class DOMCompletionEngineMethodDeclHandler {
      */
     public static List<String> findVariableNames(IMethodBinding binding) {
         if (binding.getJavaElement() instanceof IMethod m) {
-            try {
-                List<String> res = List.of(m.getParameterNames());
-//                if (m instanceof SourceMethod || binding.getDeclaringClass().isArray() || !IntStream.range(0, m.getParameterTypes().length).mapToObj(n -> "arg" + n).toList().equals(res)) {
-                	// generated default names, ignore
-                	return res;
-//                }
+        	try {
+        		var res = List.of(m.getParameterNames());
+	        	if (!res.isEmpty() && m instanceof BinaryMethod binary && binary.getElementInfo() instanceof MethodInfo info
+	        		&& IntStream.range(0, res.size()).mapToObj(n -> "arg" + n).toList().equals(res)
+	        		&& (info.getArgumentNames() == null || info.getArgumentNames().length == 0)) {
+	        		return null;
+	        	}
+	        	return res;
             } catch (JavaModelException ex) {
                 ILog.get().warn(ex.getMessage(), ex);
             }
         }
-        if (binding.getDeclaringClass().isFromSource()) {
+        if (binding.getDeclaringClass().isFromSource() || binding.getDeclaringClass().isArray()) {
         	return List.of(binding.getParameterNames());
         }
-        return List.of();
+        return null;
     }
 }

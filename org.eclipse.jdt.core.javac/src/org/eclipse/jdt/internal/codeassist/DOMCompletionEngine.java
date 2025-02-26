@@ -3087,9 +3087,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			}
 
 			var paramNames = DOMCompletionEngineMethodDeclHandler.findVariableNames(methodBinding);
-			if (paramNames.isEmpty()) {
-				res.setParameterNames(null);
-			} else {
+			if (paramNames != null) {
 				res.setParameterNames(paramNames.stream().map(String::toCharArray).toArray(i -> new char[i][]));
 			}
 			res.setParameterTypeNames(Stream.of(methodBinding.getParameterNames()).map(String::toCharArray).toArray(char[][]::new));
