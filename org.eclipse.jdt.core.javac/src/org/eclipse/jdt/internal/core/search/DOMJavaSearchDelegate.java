@@ -70,6 +70,7 @@ import org.eclipse.jdt.core.search.MethodReferenceMatch;
 import org.eclipse.jdt.core.search.PackageReferenceMatch;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeParameterReferenceMatch;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -183,7 +184,7 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 	}
 	
 	private NodeSetWrapper wrapNodeSet(MatchingNodeSet nodeSet) {
-		return new NodeSetWrapper(nodeSet);
+		return new NodeSetWrapper(nodeSet.mustResolve);
 	}
 
 	private boolean skipMatch(MatchLocator locator, IJavaProject javaProject, PossibleMatch possibleMatch) {
@@ -226,6 +227,14 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 	}
 
 	private SearchMatch toMatch(MatchLocator locator, org.eclipse.jdt.core.dom.ASTNode node, int accuracy, PossibleMatch possibleMatch) {
+		SearchMatch sm = toCoreMatch(locator, node, accuracy, possibleMatch);
+		if( accuracy == SearchPattern.R_ERASURE_MATCH) {
+			sm.setRule(SearchPattern.R_ERASURE_MATCH);
+		}
+		return sm;
+	}
+
+	private SearchMatch toCoreMatch(MatchLocator locator, org.eclipse.jdt.core.dom.ASTNode node, int accuracy, PossibleMatch possibleMatch) {
 		IResource resource = possibleMatch.resource;
 		if (node instanceof MethodDeclaration || node instanceof AbstractTypeDeclaration
 				|| node instanceof VariableDeclaration) {

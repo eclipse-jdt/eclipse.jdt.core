@@ -148,12 +148,12 @@ public class DOMPatternLocator extends PatternLocator {
 		return binding.getName();
 	}
 	protected int resolveLevelForType(char[] simpleNamePattern, char[] qualificationPattern, ITypeBinding binding) {
-		return resolveLevelForType(simpleNamePattern, qualificationPattern, binding, null);
+		return resolveLevelForTypeFQN(simpleNamePattern, qualificationPattern, binding, null);
 	}
 	
-	protected int resolveLevelForType(char[] simpleNamePattern, char[] qualificationPattern, ITypeBinding binding, IImportDiscovery discovery) {
+	protected int resolveLevelForTypeFQN(char[] simpleNamePattern, char[] qualificationPattern, ITypeBinding binding, IImportDiscovery discovery) {
 		char[] qualifiedPattern = getQualifiedPattern(simpleNamePattern, qualificationPattern);
-		int level = resolveLevelForType(qualifiedPattern, binding, discovery);
+		int level = resolveLevelForTypeFQN(qualifiedPattern, binding, discovery);
 		if (level == ACCURATE_MATCH || binding == null)
 			return level;
 
@@ -265,10 +265,10 @@ public class DOMPatternLocator extends PatternLocator {
 		public String findImportForString(String s);
 	}
 	
-	protected int resolveLevelForType(char[] qualifiedPattern, ITypeBinding type) {
-		return resolveLevelForType(qualifiedPattern, type, null);
+	protected int resolveLevelForTypeFQN(char[] qualifiedPattern, ITypeBinding type) {
+		return resolveLevelForTypeFQN(qualifiedPattern, type, null);
 	}
-	protected int resolveLevelForType(char[] qualifiedPattern, ITypeBinding type, IImportDiscovery discovery) {
+	protected int resolveLevelForTypeFQN(char[] qualifiedPattern, ITypeBinding type, IImportDiscovery discovery) {
 
 		if (qualifiedPattern == null) return ACCURATE_MATCH;
 		if (type == null) return INACCURATE_MATCH;

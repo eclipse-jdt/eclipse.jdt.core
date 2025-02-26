@@ -32,7 +32,7 @@ public class DOMSuperTypeReferenceLocator extends DOMPatternLocator {
 	public LocatorResponse match(org.eclipse.jdt.core.dom.LambdaExpression node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		if (this.locator.pattern.superRefKind != SuperTypeReferencePattern.ONLY_SUPER_INTERFACES)
 			return toResponse(IMPOSSIBLE_MATCH);
-		nodeSet.getWrapped().mustResolve = true;
+		nodeSet.setMustResolve(true);
 		int level = nodeSet.addMatch(node, POSSIBLE_MATCH);
 		return toResponse(level, true);
 	}

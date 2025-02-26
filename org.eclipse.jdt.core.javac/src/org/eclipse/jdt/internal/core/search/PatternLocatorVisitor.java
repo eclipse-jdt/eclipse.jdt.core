@@ -100,7 +100,7 @@ class PatternLocatorVisitor extends ASTVisitor {
 			T node,
 			BiFunction<T, DOMPatternLocator, LocatorResponse> levelFunc,
 			Function<ASTNode, IBinding> bindingFunc) {
-		boolean mustResolve = (this.nodeSet.getWrapped().mustResolve || this.patternLocator.isMustResolve());
+		boolean mustResolve = (this.nodeSet.mustResolve() || this.patternLocator.isMustResolve());
 		DOMPatternLocator wrapper = getWrapper(this.patternLocator);
 		LocatorResponse resp = levelFunc.apply(node, wrapper);
 		boolean nodeReplaced = resp.replacementNodeFound();
@@ -276,7 +276,7 @@ class PatternLocatorVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(EnumConstantDeclaration node) {
 		LocatorResponse response = getWrapper(this.patternLocator).match(node, this.nodeSet, this.locator);
-		boolean mustResolve = (this.nodeSet.getWrapped().mustResolve || this.patternLocator.isMustResolve());
+		boolean mustResolve = (this.nodeSet.mustResolve() || this.patternLocator.isMustResolve());
 		int retLevel = response.level();
 		if ((response.level() & PatternLocator.MATCH_LEVEL_MASK) == PatternLocator.POSSIBLE_MATCH && mustResolve) {
 			LocatorResponse l1 = getWrapper(this.patternLocator).resolveLevel(node, node.resolveVariable(), this.locator);

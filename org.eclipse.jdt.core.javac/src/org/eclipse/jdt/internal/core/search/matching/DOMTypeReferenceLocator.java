@@ -426,7 +426,7 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			}
 		};
 		
-		int newLevel = this.resolveLevelForType(this.locator.pattern.simpleName, 
+		int newLevel = this.resolveLevelForTypeFQN(this.locator.pattern.simpleName, 
 				this.locator.pattern.qualification, typeBinding, importDiscovery);
 		if( newLevel == IMPOSSIBLE_MATCH ) {
 			String qualNameFromBinding = typeBinding.getQualifiedName();

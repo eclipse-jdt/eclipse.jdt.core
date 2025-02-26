@@ -19,15 +19,19 @@ import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchPattern;
 
 public class NodeSetWrapper {
-	private MatchingNodeSet wrapped;
 	private Set<org.eclipse.jdt.core.dom.ASTNode> possibleASTNodes = new LinkedHashSet<>();
 	public final Map<org.eclipse.jdt.core.dom.ASTNode, Integer> trustedASTNodeLevels = new LinkedHashMap<>();
-	public NodeSetWrapper(MatchingNodeSet set) {
-		this.wrapped = set;
+	private boolean mustResolve;
+	public NodeSetWrapper(boolean mustResolve) {
+		this.setMustResolve(mustResolve);
 	}
 	
-	public MatchingNodeSet getWrapped() {
-		return wrapped;
+	public boolean mustResolve() {
+		return mustResolve;
+	}
+	
+	public void setMustResolve(boolean mustResolve) {
+		this.mustResolve = mustResolve;
 	}
 	
 	public int addMatch(org.eclipse.jdt.core.dom.ASTNode node, int matchLevel) {
@@ -69,4 +73,5 @@ public class NodeSetWrapper {
 	void addTrustedMatch(org.eclipse.jdt.core.dom.ASTNode node, Integer level) {
 		this.trustedASTNodeLevels.put(node, level);
 	}
+
 }

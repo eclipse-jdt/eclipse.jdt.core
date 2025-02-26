@@ -85,7 +85,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 						if (!this.locator.pattern.mustResolve) {
 							// Set resolution flag on node set in case of types was inferred in parameterized types from generic ones...
 						 	// (see  bugs https://bugs.eclipse.org/bugs/show_bug.cgi?id=79990, 96761, 96763)
-							nodeSet.getWrapped().mustResolve = true;
+							nodeSet.setMustResolve(true);
 							resolve = true;
 						}
 				//		this.methodDeclarationsWithInvalidParam.put(node, null);
