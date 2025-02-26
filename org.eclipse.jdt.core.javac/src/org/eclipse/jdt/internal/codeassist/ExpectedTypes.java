@@ -104,8 +104,13 @@ public class ExpectedTypes {
 				}
 			}
 			if (parent2 instanceof MethodInvocation method && this.offset > method.getName().getStartPosition() + method.getName().getLength()) {
-				// consider params, implemented out of this loop
-				break;
+				if (method.arguments().size() == 1 && ((ASTNode)method.arguments().get(0)).getLength() == 0) {
+					// just methodName( => consider type of requestor
+					// continue
+				} else {
+					// consider params, implemented out of this loop
+					break;
+				}
 			}
 			if (parent2 instanceof InfixExpression) {
 				break;

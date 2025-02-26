@@ -711,6 +711,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 							.forEach(this.requestor::accept);
 					}
 					suggestDefaultCompletions = false;
+				} else if (invocation.arguments().size() == 1 && ((ASTNode)invocation.arguments().get(0)).getLength() == 0) {
+					// actually unresolved method: eg myMethod(|
+					// leave it to default behavior: complete with methods in scope
 				} else {
 					// inside parens, but not on any specific argument
 					IMethodBinding methodBinding = invocation.resolveMethodBinding();
@@ -3053,6 +3056,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		res.setName(binding.getName().toCharArray());
 		if (kind == CompletionProposal.METHOD_REF) {
 			completion += "()"; //$NON-NLS-1$
+		}
+		if (toComplete instanceof MethodInvocation method && Objects.equals(binding.getName(), method.getName().getIdentifier())) {
+			completion = ""; // myMethod(|
 		}
 		res.setCompletion(completion.toCharArray());
 		res.setFlags(binding.getModifiers());
