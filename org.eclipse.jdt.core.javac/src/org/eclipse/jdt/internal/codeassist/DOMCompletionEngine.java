@@ -92,6 +92,7 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.Javadoc;
@@ -103,6 +104,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
@@ -140,8 +142,6 @@ import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
-import org.eclipse.jdt.core.dom.InfixExpression.Operator;
-import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -1644,20 +1644,38 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						typeBinding = fieldDecl.getType().resolveBinding();
 					}
 					if (typeBinding != null) {
-						suggestVariableNamesForType(typeBinding);
+						Set<String> alreadySuggestedNames = new HashSet<>();
+						suggestUndeclaredVariableNames(typeBinding, alreadySuggestedNames);
+						suggestVariableNamesForType(typeBinding, alreadySuggestedNames);
 					}
 					suggestDefaultCompletions = false;
 				}
 			}
 			if (context instanceof SingleVariableDeclaration svd) {
 				ITypeBinding typeBinding = svd.getType().resolveBinding();
-				suggestVariableNamesForType(typeBinding);
+				Block block = null;
+				if (svd.getParent() instanceof CatchClause catchClause) {
+					block = catchClause.getBody();
+				} else if (svd.getParent() instanceof MethodDeclaration methDecl) {
+					block = methDecl.getBody();
+				}
+				Set<String> alreadySuggestedNames = new HashSet<>();
+				if (block != null) {
+					suggestUndeclaredVariableNames(block, typeBinding, alreadySuggestedNames);
+				} else {
+					suggestUndeclaredVariableNames(typeBinding, alreadySuggestedNames);
+				}
+				suggestVariableNamesForType(typeBinding, alreadySuggestedNames);
 				suggestDefaultCompletions = false;
 			}
 			if (context instanceof CatchClause catchClause) {
 				if (catchClause.getException().getName().toString().equals(FAKE_IDENTIFIER)) {
 					ITypeBinding exceptionType = catchClause.getException().getType().resolveBinding();
-					suggestVariableNamesForType(exceptionType);
+					Set<String> alreadySuggestedNames = new HashSet<>();
+					if (!catchClause.getBody().statements().isEmpty()) {
+						suggestUndeclaredVariableNames(catchClause.getBody(), exceptionType, alreadySuggestedNames);
+					}
+					suggestVariableNamesForType(exceptionType, alreadySuggestedNames);
 					suggestDefaultCompletions = false;
 				}
 			}
@@ -1760,7 +1778,91 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		}
 	}
 
-	private void suggestVariableNamesForType(ITypeBinding typeBinding) {
+	private void suggestUndeclaredVariableNames(ITypeBinding typeBinding, Set<String> alreadySuggested) {
+		ASTNode pastCursor = this.toComplete;
+		ASTNode cursor = this.toComplete.getParent();
+
+		while (cursor != null && !(cursor instanceof Block)) {
+			pastCursor = cursor;
+			cursor = cursor.getParent();
+		}
+
+		if (cursor instanceof Block block) {
+			List<String> names = new ArrayList<>();
+			int indexOfPast = block.statements().indexOf(pastCursor);
+			for (int i = indexOfPast + 1; i < block.statements().size(); i++) {
+				DOMCompletionUtil.visitChildren((ASTNode)block.statements().get(i), ASTNode.SIMPLE_NAME, node -> {
+					SimpleName simpleName = (SimpleName) node;
+					if (!(simpleName.getParent() instanceof SimpleType)
+							&& !(simpleName.getParent() instanceof FieldAccess fieldAccess && fieldAccess.getName() == simpleName)
+							&& !(simpleName.getParent() instanceof QualifiedName qualifiedName && qualifiedName.getName() == simpleName)
+							&& simpleName.resolveBinding().isRecovered()) {
+						names.add(simpleName.toString());
+					}
+				});
+			}
+			for (String name : names) {
+				if (!this.isFailedMatch(this.prefix.toCharArray(), name.toCharArray()) && !alreadySuggested.contains(name)) {
+					alreadySuggested.add(name);
+
+					CompletionProposal res = createProposal(CompletionProposal.VARIABLE_DECLARATION);
+					res.setName(name.toCharArray());
+					res.setCompletion(name.toCharArray());
+					res.setSignature(SignatureUtils.getSignatureChar(typeBinding));
+					res.setRelevance(RelevanceConstants.R_DEFAULT
+							+ RelevanceConstants.R_INTERESTING
+							+ RelevanceConstants.R_NAME_FIRST_SUFFIX
+							+ RelevanceConstants.R_NAME_FIRST_PREFIX
+							+ RelevanceConstants.R_NAME_LESS_NEW_CHARACTERS
+							+ RelevanceUtils.computeRelevanceForCaseMatching(this.prefix.toCharArray(), name.toCharArray(), this.assistOptions)
+							+ RelevanceConstants.R_NON_RESTRICTED);
+					res.setSignature(SignatureUtils.getSignatureChar(typeBinding));
+					setRange(res);
+					this.requestor.accept(res);
+				}
+			}
+		}
+	}
+
+	private void suggestUndeclaredVariableNames(Block block, ITypeBinding typeBinding, Set<String> alreadySuggested) {
+		List<String> names = new ArrayList<>();
+		for (Statement statement : (List<Statement>)block.statements()) {
+			DOMCompletionUtil.visitChildren(statement, ASTNode.SIMPLE_NAME, node -> {
+				SimpleName simpleName = (SimpleName) node;
+				if (!(simpleName.getParent() instanceof SimpleType)
+						&& !(simpleName.getParent() instanceof FieldAccess fieldAccess && fieldAccess.getName() == simpleName)
+						&& !(simpleName.getParent() instanceof QualifiedName qualifiedName && qualifiedName.getName() == simpleName)
+						&& !(simpleName.getParent() instanceof MethodInvocation)
+						&& !(simpleName.getParent() instanceof MethodDeclaration)
+						&& !(simpleName.getParent() instanceof AbstractTypeDeclaration)
+						&& simpleName.resolveBinding().isRecovered()) {
+					names.add(simpleName.toString());
+				}
+			});
+		}
+		for (String name : names) {
+			if (!this.isFailedMatch(this.prefix.toCharArray(), name.toCharArray()) && !alreadySuggested.contains(name)) {
+				alreadySuggested.add(name);
+
+				CompletionProposal res = createProposal(CompletionProposal.VARIABLE_DECLARATION);
+				res.setName(name.toCharArray());
+				res.setCompletion(name.toCharArray());
+				res.setSignature(SignatureUtils.getSignatureChar(typeBinding));
+				res.setRelevance(RelevanceConstants.R_DEFAULT
+						+ RelevanceConstants.R_INTERESTING
+						+ RelevanceConstants.R_NAME_FIRST_SUFFIX
+						+ RelevanceConstants.R_NAME_FIRST_PREFIX
+						+ RelevanceConstants.R_NAME_LESS_NEW_CHARACTERS
+						+ RelevanceUtils.computeRelevanceForCaseMatching(this.prefix.toCharArray(), name.toCharArray(), this.assistOptions)
+						+ RelevanceConstants.R_NON_RESTRICTED);
+				res.setSignature(SignatureUtils.getSignatureChar(typeBinding));
+				setRange(res);
+				this.requestor.accept(res);
+			}
+		}
+	}
+
+	private void suggestVariableNamesForType(ITypeBinding typeBinding, Set<String> alreadySuggestedNames) {
 		if (typeBinding.isPrimitive() || typeBinding.isRecovered()) {
 			return;
 		}
@@ -1919,24 +2021,27 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		}
 
 		for (String possibleName : possibleNames) {
-			CompletionProposal res = createProposal(CompletionProposal.VARIABLE_DECLARATION);
-			
-			int additionalRelevance = additionalRelevances.get(possibleName);
-			if (SourceVersion.isKeyword(possibleName)) {
-				possibleName += "1";
+			if (!alreadySuggestedNames.contains(possibleName)) {
+				alreadySuggestedNames.add(possibleName);
+				CompletionProposal res = createProposal(CompletionProposal.VARIABLE_DECLARATION);
+				
+				int additionalRelevance = additionalRelevances.get(possibleName);
+				if (SourceVersion.isKeyword(possibleName)) {
+					possibleName += "1";
+				}
+				
+				res.setName(possibleName.toCharArray());
+				res.setCompletion(possibleName.toCharArray());
+				
+				res.setRelevance(RelevanceConstants.R_DEFAULT
+						+ RelevanceConstants.R_INTERESTING
+						+ RelevanceUtils.computeRelevanceForCaseMatching(this.prefix.toCharArray(), possibleName.toCharArray(), this.assistOptions)
+						+ additionalRelevance
+						+ RelevanceConstants.R_NON_RESTRICTED);
+				res.setSignature(SignatureUtils.getSignatureChar(typeBinding));
+				setRange(res);
+				this.requestor.accept(res);
 			}
-			
-			res.setName(possibleName.toCharArray());
-			res.setCompletion(possibleName.toCharArray());
-			
-			res.setRelevance(RelevanceConstants.R_DEFAULT
-					+ RelevanceConstants.R_INTERESTING
-					+ RelevanceUtils.computeRelevanceForCaseMatching(this.prefix.toCharArray(), possibleName.toCharArray(), this.assistOptions)
-					+ additionalRelevance
-					+ RelevanceConstants.R_NON_RESTRICTED);
-			res.setSignature(SignatureUtils.getSignatureChar(typeBinding));
-			setRange(res);
-			this.requestor.accept(res);
 		}
 	}
 	

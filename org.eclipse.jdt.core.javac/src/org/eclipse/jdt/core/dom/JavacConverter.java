@@ -197,7 +197,7 @@ class JavacConverter {
 			javacCompilationUnit.getImports().stream().filter(imp -> imp instanceof JCModuleImport).map(jc -> convert((JCModuleImport)jc)).forEach(res.imports()::add);
 		}
 		javacCompilationUnit.getTypeDecls().stream()
-			.map(n -> convertBodyDeclaration(n, res))
+			.map(n -> convertBodyDeclaration(n, res, false))
 			.filter(Objects::nonNull)
 			.forEach(res.types()::add);
 		res.accept(new FixPositions());
@@ -561,7 +561,7 @@ class JavacConverter {
 		throw new UnsupportedOperationException("toName for " + expression + " (" + expression == null ? "null" : expression.getClass().getName() + ")");
 	}
 
-	private AbstractTypeDeclaration convertClassDecl(JCClassDecl javacClassDecl, ASTNode parent) {
+	private AbstractTypeDeclaration convertClassDecl(JCClassDecl javacClassDecl, ASTNode parent, boolean parentBodyFilled) {
 		if( javacClassDecl.getKind() == Kind.ANNOTATION_TYPE &&
 				(this.ast.scanner.complianceLevel < ClassFileConstants.JDK1_5)) {
 			return null;
@@ -589,10 +589,10 @@ class JavacConverter {
 					this.ast.newTypeDeclaration();
 			default -> throw new IllegalStateException();
 		};
-		return convertClassDecl(javacClassDecl, parent, res);
+		return convertClassDecl(javacClassDecl, parent, res, parentBodyFilled);
 	}
 
-	private AbstractTypeDeclaration convertClassDecl(JCClassDecl javacClassDecl, ASTNode parent, AbstractTypeDeclaration res) {
+	private AbstractTypeDeclaration convertClassDecl(JCClassDecl javacClassDecl, ASTNode parent, AbstractTypeDeclaration res, boolean parentBodyFilled) {
 		commonSettings(res, javacClassDecl);
 		SimpleName simpName = (SimpleName)convertName(javacClassDecl.getSimpleName());
 		if(!(res instanceof ImplicitTypeDeclaration) && simpName != null) {
@@ -642,7 +642,7 @@ class JavacConverter {
 				List<JCTree> members = javacClassDecl.getMembers();
 				ASTNode previous = null;
 				for( int i = 0; i < members.size(); i++ ) {
-					ASTNode decl = convertBodyDeclaration(members.get(i), res);
+					ASTNode decl = convertBodyDeclaration(members.get(i), res, parentBodyFilled);
 					if( decl != null ) {
 						typeDeclaration.bodyDeclarations().add(decl);
 						if (previous != null) {
@@ -665,7 +665,7 @@ class JavacConverter {
 						enumStatements.add(dec1);
 					} else {
 						// body declaration
-						ASTNode bodyDecl = convertBodyDeclaration(member, res);
+						ASTNode bodyDecl = convertBodyDeclaration(member, res, parentBodyFilled);
 						if( bodyDecl != null ) {
 							res.bodyDeclarations().add(bodyDecl);
 						}
@@ -679,7 +679,7 @@ class JavacConverter {
 			res.setName(name);
 			if( javacClassDecl.defs != null ) {
 				for( Iterator<JCTree> i = javacClassDecl.defs.iterator(); i.hasNext(); ) {
-					ASTNode converted = convertBodyDeclaration(i.next(), res);
+					ASTNode converted = convertBodyDeclaration(i.next(), res, parentBodyFilled);
 					if( converted != null ) {
 						res.bodyDeclarations.add(converted);
 					}
@@ -715,7 +715,7 @@ class JavacConverter {
 					vdd.modifiers().addAll(convertModifierAnnotations(vd.getModifiers(), vdd));
 					recordDecl.recordComponents().add(vdd);
 				} else {
-					ASTNode converted = convertBodyDeclaration(node, res);
+					ASTNode converted = convertBodyDeclaration(node, res, parentBodyFilled);
 					if( converted != null ) {
 						res.bodyDeclarations.add(converted);
 					}
@@ -723,7 +723,7 @@ class JavacConverter {
 			}
 		} else if (res instanceof ImplicitTypeDeclaration) {
 			javacClassDecl.getMembers().stream()
-				.map(member -> convertBodyDeclaration(member, res))
+				.map(member -> convertBodyDeclaration(member, res, parentBodyFilled))
 				.filter(Objects::nonNull)
 				.forEach(res.bodyDeclarations()::add);
 		}
@@ -785,15 +785,15 @@ class JavacConverter {
 		return ret;
 	}
 
-	private ASTNode convertBodyDeclaration(JCTree tree, ASTNode parent) {
+	private ASTNode convertBodyDeclaration(JCTree tree, ASTNode parent, boolean parentBodyFilled) {
 		if( parent instanceof AnnotationTypeDeclaration && tree instanceof JCMethodDecl methodDecl) {
 			return convertMethodInAnnotationTypeDecl(methodDecl, parent);
 		}
 		if (tree instanceof JCMethodDecl methodDecl) {
-			return convertMethodDecl(methodDecl, parent);
+			return convertMethodDecl(methodDecl, parent, parentBodyFilled);
 		}
 		if (tree instanceof JCClassDecl jcClassDecl) {
-			return convertClassDecl(jcClassDecl, parent);
+			return convertClassDecl(jcClassDecl, parent, parentBodyFilled);
 		}
 		if (tree instanceof JCVariableDecl jcVariableDecl) {
 			return convertFieldDeclaration(jcVariableDecl, parent);
@@ -880,7 +880,7 @@ class JavacConverter {
 		return name;
 	}
 
-	private MethodDeclaration convertMethodDecl(JCMethodDecl javac, ASTNode parent) {
+	private MethodDeclaration convertMethodDecl(JCMethodDecl javac, ASTNode parent, boolean parentBodyFilled) {
 		if (TreeInfo.getEndPos(javac, this.javacCompilationUnit.endPositions) <= javac.getStartPosition()) {
 			// not really existing, analysis sugar; let's skip
 			return null;
@@ -984,6 +984,7 @@ class JavacConverter {
 		if (!generatedByLombok && javac.getBody() != null
 			&& javac.getBody().endpos > javac.getBody().getStartPosition()) { // otherwise, it's probably generated by lombok
 			boolean fillBlock = shouldFillBlock(javac, this.focalPoint);
+			fillBlock = parentBodyFilled || fillBlock;
 			if( fillBlock ) {
 				Block b = convertBlock(javac.getBody());
 				if (b != null) {
@@ -1978,7 +1979,7 @@ class JavacConverter {
 		if (javacAnon.getMembers() != null) {
 			List<JCTree> members = javacAnon.getMembers();
 			for( int i = 0; i < members.size(); i++ ) {
-				ASTNode decl = convertBodyDeclaration(members.get(i), anon);
+				ASTNode decl = convertBodyDeclaration(members.get(i), anon, true);
 				if( decl != null ) {
 					anon.bodyDeclarations().add(decl);
 				}
@@ -2512,7 +2513,7 @@ class JavacConverter {
 			return res;
 		}
 		if (javac instanceof JCClassDecl jcclass) {
-			TypeDeclarationStatement res = this.ast.newTypeDeclarationStatement(convertClassDecl(jcclass, parent));
+			TypeDeclarationStatement res = this.ast.newTypeDeclarationStatement(convertClassDecl(jcclass, parent, true));
 			commonSettings(res, javac);
 			return res;
 		}
