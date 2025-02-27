@@ -640,9 +640,9 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			// most likely no need for linting
 			// resolveBindings still seems requested for tests
 			javacOptions.remove(Option.XLINT.primaryName);
-			javacOptions.remove(Option.XLINT_CUSTOM.primaryName);
+			javacOptions.put(Option.XLINT_CUSTOM, "none");
 			javacOptions.remove(Option.XDOCLINT.primaryName);
-			javacOptions.remove(Option.XDOCLINT_CUSTOM.primaryName);
+			javacOptions.put(Option.XDOCLINT_CUSTOM, "none");
 		}
 		javacOptions.put(Option.PROC, "only");
 		Optional.ofNullable(Platform.getProduct())
