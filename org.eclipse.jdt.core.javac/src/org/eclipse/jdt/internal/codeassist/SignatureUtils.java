@@ -141,7 +141,9 @@ public class SignatureUtils {
 	 * @return the signature for the given method key
 	 */
 	public static String getSignatureForMethodKey(String key) {
-		String fullKey = key.replace('/', '.');
+		String fullKey = key
+				.replace('/', '.')
+				.replace("<+Ljava.lang.Object;>", "<*>");
 		String removeName = fullKey.substring(fullKey.indexOf('('));
 		int firstException = removeName.indexOf('|');
 		if (firstException > 0) {
