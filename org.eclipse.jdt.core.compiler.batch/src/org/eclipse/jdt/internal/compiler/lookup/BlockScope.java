@@ -877,7 +877,8 @@ public Object[] getEmulationPath(ReferenceBinding targetEnclosingType, boolean o
 	SourceTypeBinding sourceType = currentMethodScope.enclosingSourceType();
 
 	// use 'this' if possible
-	if (!currentMethodScope.isStatic && !currentMethodScope.isConstructorCall) {
+	if (!currentMethodScope.isStatic && !currentMethodScope.isConstructorCall
+			&& !isInsideEarlyConstructionContext(targetEnclosingType, true)) {
 		if (TypeBinding.equalsEquals(sourceType, targetEnclosingType) || (!onlyExactMatch && sourceType.findSuperTypeOriginatingFrom(targetEnclosingType) != null)) {
 			return BlockScope.EmulationPathToImplicitThis; // implicit this is good enough
 		}

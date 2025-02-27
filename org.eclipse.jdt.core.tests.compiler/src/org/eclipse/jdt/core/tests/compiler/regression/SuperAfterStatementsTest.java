@@ -3323,4 +3323,45 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				"Cannot instantiate local class \'SuperClass\' in a static context\n" +
 				"----------\n");
 	}
+	public void testGH3753() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					static int value = 0;
+					public static void main(String[] argv) {
+						class Local {
+							class Inner {}
+							Local(int a) {
+								X.value = new Inner() { // This is reported by Javac
+									public int foo() {
+										return 1;
+									}
+								}.foo();
+								super();
+							}
+						}
+					}
+				}
+				"""
+		},
+		"""
+		----------
+		1. WARNING in X.java (at line 4)
+			class Local {
+			      ^^^^^
+		The type Local is never used locally
+		----------
+		2. ERROR in X.java (at line 7)
+			X.value = new Inner() { // This is reported by Javac
+			          ^^^^^^^^^^^
+		No enclosing instance of type Local is accessible. Must qualify the allocation with an enclosing instance of type Local (e.g. x.new A() where x is an instance of Local).
+		----------
+		3. WARNING in X.java (at line 12)
+			super();
+			^^^^^^^^
+		You are using a preview language feature that may or may not be supported in a future release
+		----------
+		""");
+	}
 }
