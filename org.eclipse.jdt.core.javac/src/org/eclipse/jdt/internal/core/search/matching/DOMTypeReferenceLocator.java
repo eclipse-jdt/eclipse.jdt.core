@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.ISourceReference;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.BreakStatement;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
@@ -29,6 +30,7 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.LabeledStatement;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
@@ -37,6 +39,7 @@ import org.eclipse.jdt.core.dom.QualifiedType;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeDeclarationMatch;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
@@ -77,6 +80,9 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		if( name.getParent() instanceof BreakStatement bs && bs.getLabel() == name) {
 			return IMPOSSIBLE_MATCH;
 		}
+		if (failsFineGrain(name, this.locator.fineGrain())) {
+			return IMPOSSIBLE_MATCH;
+		}
 		if (this.locator.pattern.simpleName == null) {
 			return nodeSet.addMatch(name, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 		}
@@ -112,6 +118,9 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 	}
 	@Override
 	public int match(org.eclipse.jdt.core.dom.ASTNode node, NodeSetWrapper nodeSet, MatchLocator locator) {
+		if (failsFineGrain(node, this.locator.fineGrain())) {
+			return IMPOSSIBLE_MATCH;
+		}
 		if (node instanceof EnumConstantDeclaration enumConstantDecl
 			&& node.getParent() instanceof EnumDeclaration enumDeclaration
 			&& enumConstantDecl.getAnonymousClassDeclaration() != null) {
@@ -126,6 +135,9 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 	}
 	@Override
 	public int match(Type node, NodeSetWrapper nodeSet, MatchLocator locator) {
+		if (failsFineGrain(node, this.locator.fineGrain())) {
+			return IMPOSSIBLE_MATCH;
+		}
 		if (this.locator.pattern.simpleName == null)
 			return nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 		String qualifiedName = null;
@@ -202,6 +214,22 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 
 		}
 		return IMPOSSIBLE_MATCH;
+	}
+	
+	private static boolean failsFineGrain(ASTNode node, int fineGrain) {
+		if (fineGrain == 0) {
+			return false;
+		}
+		if ((fineGrain & IJavaSearchConstants.INSTANCEOF_TYPE_REFERENCE) != 0) {
+			ASTNode cursor = node;
+			while (cursor != null && !(cursor instanceof InstanceofExpression)) {
+				cursor = cursor.getParent();
+			}
+			if (cursor == null) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/*
