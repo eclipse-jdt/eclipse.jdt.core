@@ -3467,7 +3467,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			res.setDeclarationPackageName(element.getAncestor(IJavaElement.PACKAGE_FRAGMENT).getElementName().toCharArray());
 		}
 
-		boolean isInQualifiedName = this.toComplete.getLocationInParent() == QualifiedName.NAME_PROPERTY || this.toComplete.getLocationInParent() == FieldAccess.NAME_PROPERTY;
+		boolean isInQualifiedName = Set.of(QualifiedName.NAME_PROPERTY, FieldAccess.NAME_PROPERTY, ExpressionMethodReference.NAME_PROPERTY).contains(this.toComplete.getLocationInParent());
 		res.setRelevance(RelevanceConstants.R_DEFAULT +
 				RelevanceConstants.R_RESOLVED +
 				RelevanceConstants.R_INTERESTING +
@@ -3499,7 +3499,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 	private boolean insideQualifiedReference() {
 		return this.toComplete instanceof QualifiedName ||
-			(this.toComplete instanceof SimpleName simple && (simple.getParent() instanceof QualifiedName || simple.getParent() instanceof FieldAccess));
+			(this.toComplete instanceof SimpleName simple && (simple.getParent() instanceof QualifiedName || simple.getParent() instanceof FieldAccess)) ||
+			Set.of(ExpressionMethodReference.NAME_PROPERTY).contains(this.toComplete.getLocationInParent());
 	}
 
 	private boolean staticOnly() {
