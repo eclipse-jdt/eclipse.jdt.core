@@ -92,7 +92,6 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
-import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.Javadoc;
@@ -104,7 +103,6 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.Modifier;
-import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
@@ -125,6 +123,7 @@ import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.SuperFieldAccess;
+import org.eclipse.jdt.core.dom.SuperMethodReference;
 import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchExpression;
 import org.eclipse.jdt.core.dom.SwitchStatement;
@@ -134,12 +133,15 @@ import org.eclipse.jdt.core.dom.TextElement;
 import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeMethodReference;
 import org.eclipse.jdt.core.dom.TypePattern;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
+import org.eclipse.jdt.core.dom.InfixExpression.Operator;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -594,7 +596,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				if (simpleName.getParent() instanceof FieldAccess || simpleName.getParent() instanceof MethodInvocation
 						|| simpleName.getParent() instanceof VariableDeclaration || simpleName.getParent() instanceof QualifiedName
 						|| simpleName.getParent() instanceof SuperFieldAccess || simpleName.getParent() instanceof SingleMemberAnnotation
-						|| simpleName.getParent() instanceof ExpressionMethodReference || simpleName.getParent() instanceof TagElement) {
+						|| simpleName.getParent() instanceof ExpressionMethodReference || simpleName.getParent() instanceof TypeMethodReference
+						|| simpleName.getParent() instanceof SuperMethodReference
+						|| simpleName.getParent() instanceof TagElement) {
 					if (!this.toComplete.getLocationInParent().getId().equals(QualifiedName.QUALIFIER_PROPERTY.getId())) {
 						context = this.toComplete.getParent();
 					}
@@ -984,6 +988,13 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					suggestDefaultCompletions = false;
 				}
 			}
+			if (context instanceof AnonymousClassDeclaration anonymous) {
+				suggestTypeKeywords(true);
+				suggestModifierKeywords(0);
+				ITypeBinding typeDeclBinding = anonymous.resolveBinding();
+				findOverridableMethods(typeDeclBinding, this.javaProject, null);
+				suggestDefaultCompletions = false;
+			}
 			if (context instanceof QualifiedName qualifiedName) {
 				ImportDeclaration importDecl = (ImportDeclaration)DOMCompletionUtil.findParent(context, new int[] { ASTNode.IMPORT_DECLARATION });
 				if (isParameterInNonParameterizedType(context)) {
@@ -1273,6 +1284,28 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			}
 			if (context instanceof ExpressionMethodReference emr) {
 				ITypeBinding typeBinding = emr.getExpression().resolveTypeBinding();
+				if (typeBinding != null && !this.requestor.isIgnored(CompletionProposal.METHOD_NAME_REFERENCE)) {
+					processMembers(emr, typeBinding, specificCompletionBindings, false);
+					specificCompletionBindings.methods() //
+							.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
+							.map(this::toProposal) //
+							.forEach(this.requestor::accept);
+				}
+				suggestDefaultCompletions = false;
+			}
+			if (context instanceof TypeMethodReference emr) {
+				ITypeBinding typeBinding = emr.getType().resolveBinding();
+				if (typeBinding != null && !this.requestor.isIgnored(CompletionProposal.METHOD_NAME_REFERENCE)) {
+					processMembers(emr, typeBinding, specificCompletionBindings, false);
+					specificCompletionBindings.methods() //
+							.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray()))
+							.map(this::toProposal) //
+							.forEach(this.requestor::accept);
+				}
+				suggestDefaultCompletions = false;
+			}
+			if (context instanceof SuperMethodReference emr) {
+				ITypeBinding typeBinding = DOMCompletionUtil.findParentTypeDeclaration(emr).resolveBinding().getSuperclass();
 				if (typeBinding != null && !this.requestor.isIgnored(CompletionProposal.METHOD_NAME_REFERENCE)) {
 					processMembers(emr, typeBinding, specificCompletionBindings, false);
 					specificCompletionBindings.methods() //
@@ -3251,7 +3284,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		if (binding instanceof ITypeBinding) {
 			kind = CompletionProposal.TYPE_REF;
 		} else if (binding instanceof IMethodBinding m) {
-			if (DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.EXPRESSION_METHOD_REFERENCE }) != null) {
+			if (DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.EXPRESSION_METHOD_REFERENCE, ASTNode.TYPE_METHOD_REFERENCE, ASTNode.SUPER_METHOD_REFERENCE }) != null) {
 				kind = CompletionProposal.METHOD_NAME_REFERENCE;
 			} else if (m.getDeclaringClass() != null && m.getDeclaringClass().isAnnotation()) {
 				kind = CompletionProposal.ANNOTATION_ATTRIBUTE_REF;
@@ -3467,7 +3500,11 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			res.setDeclarationPackageName(element.getAncestor(IJavaElement.PACKAGE_FRAGMENT).getElementName().toCharArray());
 		}
 
-		boolean isInQualifiedName = Set.of(QualifiedName.NAME_PROPERTY, FieldAccess.NAME_PROPERTY, ExpressionMethodReference.NAME_PROPERTY).contains(this.toComplete.getLocationInParent());
+		boolean isInQualifiedName = Set.of(QualifiedName.NAME_PROPERTY,
+				FieldAccess.NAME_PROPERTY,
+				ExpressionMethodReference.NAME_PROPERTY,
+				TypeMethodReference.NAME_PROPERTY,
+				SuperMethodReference.NAME_PROPERTY).contains(this.toComplete.getLocationInParent());
 		res.setRelevance(RelevanceConstants.R_DEFAULT +
 				RelevanceConstants.R_RESOLVED +
 				RelevanceConstants.R_INTERESTING +
@@ -3500,7 +3537,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	private boolean insideQualifiedReference() {
 		return this.toComplete instanceof QualifiedName ||
 			(this.toComplete instanceof SimpleName simple && (simple.getParent() instanceof QualifiedName || simple.getParent() instanceof FieldAccess)) ||
-			Set.of(ExpressionMethodReference.NAME_PROPERTY).contains(this.toComplete.getLocationInParent());
+			Set.of(ExpressionMethodReference.NAME_PROPERTY,
+				TypeMethodReference.NAME_PROPERTY,
+				SuperMethodReference.NAME_PROPERTY).contains(this.toComplete.getLocationInParent());
 	}
 
 	private boolean staticOnly() {
