@@ -595,18 +595,6 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			}
 		}
 		
-		// JDT's class reader keeps the order for fields and methods
-		// rely on it to ensure we return the same order in bindings,
-		// as expected in various tests
-		List<IJavaElement> tmp = List.of();
-		if (getJavaElement() instanceof IType type) {
-			try {
-				tmp = Arrays.asList(type.getChildren());
-			} catch (JavaModelException ex) {
-				ILog.get().error(ex.getMessage(), ex);
-			}
-		}
-		final List<IJavaElement> orderedListFromModel = tmp;
 		Stream<JavacMethodBinding> methods = StreamSupport.stream(this.typeSymbol.members().getSymbols(MethodSymbol.class::isInstance, LookupKind.NON_RECURSIVE).spliterator(), false)
 				.map(MethodSymbol.class::cast)
 				.map(sym -> {
@@ -614,6 +602,18 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 					return this.resolver.bindings.getMethodBinding(methodType, sym, this.type, isGeneric);
 				}).filter(Objects::nonNull);
 		if (!isFromSource()) {
+			// JDT's class reader keeps the order for fields and methods
+			// rely on it to ensure we return the same order in bindings,
+			// as expected in various tests
+			List<IJavaElement> tmp = List.of();
+			if (getJavaElement() instanceof IType type) {
+				try {
+					tmp = Arrays.asList(type.getChildren());
+				} catch (JavaModelException ex) {
+					ILog.get().error(ex.getMessage(), ex);
+				}
+			}
+			final List<IJavaElement> orderedListFromModel = tmp;
 			// with javac, we loose the order of methods for binaries, so
 			// recompute it relying on JDT model (which honors the order)
 			methods = methods.sorted(Comparator.comparingInt(binding -> {
