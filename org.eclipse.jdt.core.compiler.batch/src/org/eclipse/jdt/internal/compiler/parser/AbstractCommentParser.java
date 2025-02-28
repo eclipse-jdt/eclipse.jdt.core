@@ -254,7 +254,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					case '@' :
 						// Start tag parsing only if we are on line beginning or at inline tag beginning
 						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345: ignore all tags when inside @literal or @code tags
-						if (considerTagAsPlainText || this.markdownHelper.isInCodeBlock()) {
+						if (considerTagAsPlainText || this.markdownHelper.isInCode()) {
 							// new tag found
 							if (!this.lineStarted) {
 								// we may want to report invalid syntax when no closing brace found,
@@ -462,7 +462,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						// $FALL-THROUGH$ - fall through default case
 					default :
 						if (this.markdown) {
-							if (nextCharacter == '[') {
+							if (nextCharacter == '[' && !this.markdownHelper.isInCode()) {
 								if (this.textStart != -1) {
 									if (this.textStart < textEndPosition) {
 										pushText(this.textStart, textEndPosition);
