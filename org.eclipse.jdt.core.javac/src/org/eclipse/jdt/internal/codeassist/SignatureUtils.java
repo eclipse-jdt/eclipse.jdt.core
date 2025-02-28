@@ -152,4 +152,19 @@ public class SignatureUtils {
 			return removeName;
 		}
 	}
+
+	/**
+	 * Returns true if the given signature is a primitive number, and false
+	 * otherwise.
+	 *
+	 * @param sig the signature to check
+	 * @return true if the given signature is a primitive number, and false
+	 *         otherwise
+	 */
+	public static boolean isNumeric(String sig) {
+		return sig.equals(Signature.SIG_BYTE) || sig.equals(Signature.SIG_CHAR) || sig.equals(Signature.SIG_DOUBLE)
+				|| sig.equals(Signature.SIG_FLOAT) || sig.equals(Signature.SIG_INT) || sig.equals(Signature.SIG_LONG)
+				|| sig.equals(Signature.SIG_SHORT);
+	}
+
 }

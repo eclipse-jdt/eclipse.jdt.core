@@ -410,6 +410,12 @@ class DOMCompletionContext extends CompletionContext {
 						|| sig2.equals(Signature.SIG_INT)
 						|| sig2.equals(Signature.SIG_DOUBLE)
 						|| sig2.equals(Signature.SIG_FLOAT);
+			case Signature.SIG_SHORT:
+				return sig2.equals(Signature.SIG_LONG)
+						|| sig2.equals(Signature.SIG_INT)
+						|| sig2.equals(Signature.SIG_SHORT)
+						|| sig2.equals(Signature.SIG_DOUBLE)
+						|| sig2.equals(Signature.SIG_FLOAT);
 			case Signature.SIG_BYTE:
 				return sig2.equals(Signature.SIG_LONG)
 						|| sig2.equals(Signature.SIG_INT)

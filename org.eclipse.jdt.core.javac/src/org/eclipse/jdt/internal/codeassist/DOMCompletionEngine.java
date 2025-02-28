@@ -1025,11 +1025,47 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					if (qualifiedNameBinding instanceof ITypeBinding qualifierTypeBinding && !qualifierTypeBinding.isRecovered()) {
 
 						boolean isTypeInVariableDeclaration = isTypeInVariableDeclaration(context);
+						SwitchCase switchCase = (SwitchCase)DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.SWITCH_CASE });
 
 						processMembers(qualifiedName, qualifierTypeBinding, specificCompletionBindings, true);
-						if (this.extendsOrImplementsInfo == null && !isTypeInVariableDeclaration) {
+						if (this.extendsOrImplementsInfo == null && !isTypeInVariableDeclaration && switchCase == null) {
 							this.qualifyingType = qualifierTypeBinding;
 							publishFromScope(specificCompletionBindings);
+						} else if (switchCase != null) {
+							ITypeBinding switchBinding = null;
+							if (switchCase.getParent() instanceof SwitchStatement switchStatement) {
+								switchBinding = switchStatement.getExpression().resolveTypeBinding();
+							} else if (switchCase.getParent() instanceof SwitchExpression switchExpression) {
+								switchBinding = switchExpression.getExpression().resolveTypeBinding();
+							}
+							if (switchBinding == null || !switchBinding.isEnum()) {
+								final ITypeBinding finalizedSwitchBinding = switchBinding;
+								specificCompletionBindings.all() //
+									.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray())) //
+									.filter(binding -> {
+										if (binding instanceof ITypeBinding) {
+											return true;
+										}
+										if (binding instanceof IVariableBinding variableBinding
+												&& Flags.isStatic(variableBinding.getModifiers())
+												&& Flags.isFinal(variableBinding.getModifiers())) {
+											if (SignatureUtils.isNumeric(SignatureUtils.getSignature(finalizedSwitchBinding))
+													&& SignatureUtils.isNumeric(SignatureUtils.getSignature(variableBinding.getType()))) {
+												return true;
+											}
+											return variableBinding.getType().getKey().equals(finalizedSwitchBinding.getKey());
+										}
+										return false;
+									})
+									.map(binding -> toProposal(binding))
+									.map(proposal -> {
+										if (proposal.getKind() == CompletionProposal.FIELD_REF) {
+											proposal.setRelevance(proposal.getRelevance() + RelevanceConstants.R_FINAL + RelevanceConstants.R_QUALIFIED);
+										}
+										return proposal;
+									})
+									.forEach(this.requestor::accept);
+							}
 						} else {
 							specificCompletionBindings.all() //
 								.filter(binding -> this.pattern.matchesName(this.prefix.toCharArray(), binding.getName().toCharArray())) //
