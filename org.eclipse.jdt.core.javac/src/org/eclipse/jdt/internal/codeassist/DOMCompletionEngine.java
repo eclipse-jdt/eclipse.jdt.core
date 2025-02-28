@@ -3226,7 +3226,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					return false;
 				}
 			} else if (binding instanceof IMethodBinding methodBinding) {
-				if (impossibleMethods.contains(methodBinding.getName())) {
+				if (impossibleMethods.contains(getSignature(methodBinding))) {
 					return false;
 				}
 				if (methodBinding.isConstructor()) {
@@ -3251,8 +3251,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					) {
 				if (binding instanceof IVariableBinding) {
 					impossibleFields.add(binding.getName());
-				} else if (binding instanceof IMethodBinding) {
-					impossibleMethods.add(binding.getName());
+				} else if (binding instanceof IMethodBinding method) {
+					impossibleMethods.add(getSignature(method));
 				} else {
 					impossibleClasses.add(binding.getName());
 				}
