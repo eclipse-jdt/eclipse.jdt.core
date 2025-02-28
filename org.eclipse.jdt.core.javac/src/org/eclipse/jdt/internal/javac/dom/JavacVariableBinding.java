@@ -61,6 +61,7 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 	private final JavacBindingResolver resolver;
 	private final boolean isUnique;
 	private IJavaElement javaElement;
+	private String key;
 
 	public JavacVariableBinding(VarSymbol sym, JavacBindingResolver resolver, boolean isUnique) {
 		this.variableSymbol = sym;
@@ -180,6 +181,13 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 
 	@Override
 	public String getKey() {
+		if (this.key == null) {
+			this.key = computeKey();
+		}
+		return this.key;
+	}
+	
+	private String computeKey() {
 		try {
 			return getKeyImpl();
 		} catch(BindingKeyException bke) {

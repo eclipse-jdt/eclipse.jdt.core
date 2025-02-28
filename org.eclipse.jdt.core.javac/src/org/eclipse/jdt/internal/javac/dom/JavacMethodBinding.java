@@ -13,11 +13,9 @@ package org.eclipse.jdt.internal.javac.dom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -77,6 +75,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	// allows to discriminate generic vs parameterized
 	private final boolean isDeclaration;
 	private IJavaElement javaElement;
+	private String key;
 
 	/**
 	 *
@@ -214,53 +213,36 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		if (this.methodSymbol == null) {
 			return null;
 		}
-		// This can be invalid: it looks like it's possible to get some methodSymbol
-		// for a method that doesn't exist (eg `Runnable.equals()`). So we may be
-		// constructing incorrect bindings.
-		// If it is true, then once we only construct correct binding that really
-		// reference the method, then we can probably get rid of a lot of complexity
-		// here or in `getDeclaringClass()`
 		if (this.resolver.bindings.getBinding(this.methodSymbol.owner, this.methodType) instanceof ITypeBinding typeBinding) {
-			Queue<ITypeBinding> types = new LinkedList<>();
-			types.add(typeBinding);
-			while (!types.isEmpty()) {
-				ITypeBinding currentBinding = types.poll();
+			if (typeBinding != null && typeBinding.getJavaElement() instanceof IType currentType) {
 				// prefer DOM object (for type parameters)
-				if (currentBinding.getJavaElement() instanceof IType currentType) {
-					ASTNode declaringNode = this.resolver.findDeclaringNode(this);
-					if (declaringNode instanceof MethodDeclaration methodDeclaration) {
-						return getJavaElementForMethodDeclaration(currentType, methodDeclaration);
-					} else if (declaringNode instanceof AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration) {
-						return getJavaElementForAnnotationTypeMemberDeclaration(currentType, annotationTypeMemberDeclaration);
-					}
-
-					var parametersResolved = this.methodSymbol.params().stream()
-							.map(varSymbol -> varSymbol.type)
-							.map(t ->
-								t instanceof TypeVar typeVar ? Signature.C_TYPE_VARIABLE + typeVar.tsym.name.toString() + ";" : // check whether a better constructor exists for it
-									Signature.createTypeSignature(resolveTypeName(t, true), true))
-							.toArray(String[]::new);
-					IMethod[] methods = currentType.findMethods(currentType.getMethod(getName(), parametersResolved));
-					if (methods != null && methods.length > 0) {
-						return resolved(methods[0]);
-					}
-					var parametersNotResolved = this.methodSymbol.params().stream()
-							.map(varSymbol -> varSymbol.type)
-							.map(t ->
-								t instanceof TypeVar typeVar ? Signature.C_TYPE_VARIABLE + typeVar.tsym.name.toString() + ";" : // check whether a better constructor exists for it
-									Signature.createTypeSignature(resolveTypeName(t, false), false))
-							.toArray(String[]::new);
-					methods = currentType.findMethods(currentType.getMethod(getName(), parametersNotResolved));
-					if (methods != null && methods.length > 0) {
-						return resolved(methods[0]);
-					}
+				ASTNode declaringNode = this.resolver.findDeclaringNode(this);
+				if (declaringNode instanceof MethodDeclaration methodDeclaration) {
+					return getJavaElementForMethodDeclaration(currentType, methodDeclaration);
+				} else if (declaringNode instanceof AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration) {
+					return getJavaElementForAnnotationTypeMemberDeclaration(currentType, annotationTypeMemberDeclaration);
 				}
-				// nothing found: move up in hierarchy
-				ITypeBinding superClass = currentBinding.getSuperclass();
-				if (superClass != null) {
-					types.add(superClass);
+	
+				var parametersResolved = this.methodSymbol.params().stream()
+						.map(varSymbol -> varSymbol.type)
+						.map(t ->
+							t instanceof TypeVar typeVar ? Signature.C_TYPE_VARIABLE + typeVar.tsym.name.toString() + ";" : // check whether a better constructor exists for it
+								Signature.createTypeSignature(resolveTypeName(t, true), true))
+						.toArray(String[]::new);
+				IMethod[] methods = currentType.findMethods(currentType.getMethod(getName(), parametersResolved));
+				if (methods != null && methods.length > 0) {
+					return resolved(methods[0]);
 				}
-				types.addAll(Arrays.asList(currentBinding.getInterfaces()));
+				var parametersNotResolved = this.methodSymbol.params().stream()
+						.map(varSymbol -> varSymbol.type)
+						.map(t ->
+							t instanceof TypeVar typeVar ? Signature.C_TYPE_VARIABLE + typeVar.tsym.name.toString() + ";" : // check whether a better constructor exists for it
+								Signature.createTypeSignature(resolveTypeName(t, false), false))
+						.toArray(String[]::new);
+				methods = currentType.findMethods(currentType.getMethod(getName(), parametersNotResolved));
+				if (methods != null && methods.length > 0) {
+					return resolved(methods[0]);
+				}
 			}
 		}
 		return null;
@@ -366,6 +348,13 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public String getKey() {
+		if (this.key == null) {
+			this.key = computeKey();
+		}
+		return this.key;
+	}
+	
+	private String computeKey() {
 		try {
 			StringBuilder builder = new StringBuilder();
 			getKey(builder, this.methodSymbol, this.methodType, this.parentType, this.resolver);
@@ -483,14 +472,9 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		if (this.parentType != null) {
 			return this.resolver.bindings.getTypeBinding(this.parentType, isDeclaration);
 		}
-		// probably incorrect as it may not return the actual declaring type, see getJavaElement()
-		Symbol parentSymbol = this.methodSymbol.owner;
-		do {
-			if (parentSymbol instanceof ClassSymbol clazz) {
-				return this.resolver.bindings.getTypeBinding(clazz.type, isDeclaration);
-			}
-			parentSymbol = parentSymbol.owner;
-		} while (parentSymbol != null);
+		if (this.methodSymbol.owner instanceof ClassSymbol clazz) {
+			return this.resolver.bindings.getTypeBinding(clazz.type, isDeclaration);
+		}
 		return null;
 	}
 

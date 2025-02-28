@@ -108,6 +108,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	private boolean recovered = false;
 	private final Type[] alternatives;
 	private IJavaElement javaElement;
+	private String key;
 
 	public JavacTypeBinding(Type type, final TypeSymbol typeSymbol, Type[] alternatives, boolean isDeclaration, JavacBindingResolver resolver) {
 		if (!JavacBindingResolver.isTypeOfType(type)) {
@@ -305,6 +306,13 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public String getKey() {
+		if (this.key == null) {
+			this.key = computeKey();
+		}
+		return this.key;
+	}
+	
+	private String computeKey() {
 		if (isGenericType()) {
 			return removeTrailingSemicolon(getKey(false)) + '<'
 				+ Arrays.stream(getTypeParameters())
