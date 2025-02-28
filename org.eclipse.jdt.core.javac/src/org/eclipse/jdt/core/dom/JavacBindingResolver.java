@@ -1731,10 +1731,12 @@ public class JavacBindingResolver extends BindingResolver {
 		JCFieldAccess jcfa2 = (fieldAccess.sym == null && fieldAccess.selected instanceof JCFieldAccess jcfa3) ? jcfa3 : fieldAccess; 
 		if( jcfa2.sym != null ) {
 			com.sun.tools.javac.code.Type typeToUse = jcfa2.type;
-			if(jcfa2.selected instanceof JCTypeApply) {
+			IBinding bRet = this.bindings.getBinding(jcfa2.sym, typeToUse);
+			if(bRet == null && jcfa2.selected instanceof JCTypeApply) {
+				// ??? no idea if this is a good answer
 				typeToUse = jcfa2.sym.type;
 			}
-			IBinding bRet = this.bindings.getBinding(jcfa2.sym, typeToUse);
+
 			if( jcfa2 != fieldAccess && bRet instanceof ITypeBinding itb ) {
 				String fieldAccessIdentifier = fieldAccess.getIdentifier().toString();
 				// If we changed the field access, we need to go one generation lower

@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -285,10 +286,10 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	private IType resolved(IType type) {
 		if (type instanceof SourceType && !(type instanceof ResolvedSourceType)) {
-			return new ResolvedSourceType((JavaElement)type.getParent(), type.getElementName(), getKey(), type.getOccurrenceCount());
+			return new ResolvedSourceType((JavaElement)type.getParent(), type.getElementName(), getGenericTypeSignature(true), type.getOccurrenceCount());
 		}
 		if (type instanceof BinaryType && !(type instanceof ResolvedBinaryType)) {
-			return new ResolvedBinaryType((JavaElement)type.getParent(), type.getElementName(), getKey(), type.getOccurrenceCount());
+			return new ResolvedBinaryType((JavaElement)type.getParent(), type.getElementName(), getGenericTypeSignature(true), type.getOccurrenceCount());
 		}
 		return type;
 	}
@@ -313,19 +314,64 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	}
 	
 	private String computeKey() {
+		return getKeyWithPossibleGenerics(this.type, this.typeSymbol);
+	}
+	public String getKeyWithPossibleGenerics(Type t, TypeSymbol s) {
+		return getKeyWithPossibleGenerics(t, s, ITypeBinding::getKey);
+	}
+	private String getKeyWithPossibleGenerics(Type t, TypeSymbol s, Function<ITypeBinding, String> parameterizedCallback) {
+		return getKeyWithPossibleGenerics(t, s, parameterizedCallback, false);
+	}
+	private String getKeyWithPossibleGenerics(Type t, TypeSymbol s, Function<ITypeBinding, String> parameterizedCallback, boolean useSlashes) {
+		String base = removeTrailingSemicolon(getKey(t, s.flatName(), false, useSlashes));
 		if (isGenericType()) {
-			return removeTrailingSemicolon(getKey(false)) + '<'
+			return base + '<'
 				+ Arrays.stream(getTypeParameters())
 					.map(ITypeBinding::getName)
 					.map(name -> 'T' + name + ';')
 					.collect(Collectors.joining())
 				+ ">;";
 		} else if (isParameterizedType()) {
-			return removeTrailingSemicolon(getKey(false)) + '<'
-				+ Arrays.stream(getTypeArguments()).map(ITypeBinding::getKey).collect(Collectors.joining())
+			return base + '<'
+				+ Arrays.stream(getTypeArguments())
+					.map(parameterizedCallback)
+					.collect(Collectors.joining())
 				+ ">;";
 		}
-		return getKey(this.type, this.typeSymbol.flatName());
+		return base + ";";
+	}
+	
+	public String getGenericTypeSignature(boolean useSlashes) {
+		return getGenericTypeSignature(this.type, this.typeSymbol, useSlashes);
+	}
+	public String getGenericTypeSignature(Type t, TypeSymbol s, boolean useSlashes) {
+		if( t instanceof ClassType ct && ct.getEnclosingType() != null ) {
+			// return 			Lg1/t/s/def/Generic<Ljava/lang/Exception;>.Member;  
+			// Don't return 	Lg1/t/s/def/Generic$Member<>;
+			Type enclosing = ct.getEnclosingType();
+			if( enclosing != null && enclosing != Type.noType) {
+				JavacTypeBinding enclosingBinding = this.resolver.bindings.getTypeBinding(enclosing);
+				String enclosingSignature = removeTrailingSemicolon(enclosingBinding.getGenericTypeSignature(useSlashes));
+				String simpleName = s.getSimpleName().toString();
+				String typeArgs = "";
+				if(t.getTypeArguments().nonEmpty() ) {
+					typeArgs = '<'
+							+ Arrays.stream(getTypeArguments())
+							.map(x -> x instanceof JavacTypeBinding jtb ? jtb.getGenericTypeSignature(useSlashes) : x.getKey())
+							.collect(Collectors.joining())
+						+ ">;";
+				}
+				return enclosingSignature + '.' + simpleName + typeArgs; 
+			}
+		} else if( t instanceof ArrayType at) {
+			Type component = at.getComponentType();
+			JavacTypeBinding componentBinding = this.resolver.bindings.getTypeBinding(component);
+			return '[' + componentBinding.getGenericTypeSignature(useSlashes);
+		}
+		String ret = getKeyWithPossibleGenerics(t, s, 
+				x -> x instanceof JavacTypeBinding jtb ? jtb.getGenericTypeSignature(useSlashes) : x.getKey(),
+						useSlashes);
+		return ret;
 	}
 
 
@@ -345,9 +391,12 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		return getKey(type, n, true);
 	}
 	public String getKey(Type t, Name n, boolean includeTypeParameters) {
+		return getKey(t, n, includeTypeParameters, false);
+	}
+	public String getKey(Type t, Name n, boolean includeTypeParameters, boolean useSlashes) {
 		try {
 			StringBuilder builder = new StringBuilder();
-			getKey(builder, t, n, false, includeTypeParameters, this.resolver);
+			getKey(builder, t, n.toString(), false, includeTypeParameters, useSlashes, this.resolver);
 			return builder.toString();
 		} catch(BindingKeyException bke) {
 			return null;
@@ -364,6 +413,11 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	}
 
 	static void getKey(StringBuilder builder, Type typeToBuild, Name n, boolean isLeaf, boolean includeParameters, JavacBindingResolver resolver) throws BindingKeyException {
+		getKey(builder, typeToBuild, n.toString(), isLeaf, includeParameters, false, resolver);
+	}
+	
+	static void getKey(StringBuilder builder, Type typeToBuild, String n, boolean isLeaf, boolean includeParameters, boolean useSlashes, JavacBindingResolver resolver) throws BindingKeyException {
+
 		if (typeToBuild instanceof Type.JCNoType) {
 			return;
 		}
@@ -410,7 +464,12 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			 * but the test suite expects test0502.A$182,
 			 * where 182 is the location in the source of the symbol.
 			 */
-			builder.append(n.toString().replace('.', '/'));
+			if( useSlashes )
+				builder.append(n.toString().replace('.', '/'));
+			else {
+				builder.append(n.toString());
+			}
+			
 			// This is a hack and will likely need to be enhanced
 			if (typeToBuild.tsym instanceof ClassSymbol classSymbol && !(classSymbol.type instanceof ErrorType) && classSymbol.owner instanceof PackageSymbol) {
 				JavaFileObject sourcefile = classSymbol.sourcefile;
@@ -432,7 +491,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				}
 			}
 
-
+			// maybe use typeToBuild.getTypeArguments().nonEmpty();
 			boolean b1 = typeToBuild.isParameterized();
 			boolean b2 = false;
 			try {

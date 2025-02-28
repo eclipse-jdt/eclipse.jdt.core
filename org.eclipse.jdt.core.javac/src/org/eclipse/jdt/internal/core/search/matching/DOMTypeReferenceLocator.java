@@ -51,6 +51,7 @@ import org.eclipse.jdt.core.search.TypeReferenceMatch;
 import org.eclipse.jdt.internal.core.search.DOMASTNodeUtils;
 import org.eclipse.jdt.internal.core.search.LocatorResponse;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
+import org.eclipse.jdt.internal.javac.dom.JavacTypeBinding;
 
 public class DOMTypeReferenceLocator extends DOMPatternLocator {
 
@@ -163,11 +164,13 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			String patternQualifiedString = (new String(this.locator.pattern.qualification) + "." + new String(this.locator.pattern.simpleName));
 			char[] patternQualified = patternQualifiedString.toCharArray();
 			if( this.locator.matchesName(patternQualified, qualifiedNameFromNode.toCharArray())) {
-				if( validateTypeParameters(node)) {
+				int typeParamMatches = validateTypeParameters(node);
+				if( typeParamMatches == TYPE_PARAMS_MATCH) {
 					int v = nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 					return toResponse(v, true);
 				} else {
-					return new LocatorResponse(IMPOSSIBLE_MATCH, false, node, false, false);
+					int ret = typeParamMatches == TYPE_PARAMS_COUNT_MATCH ? ERASURE_MATCH : IMPOSSIBLE_MATCH;
+					return new LocatorResponse(ret, false, node, false, false);
 				}
 			}
 			
@@ -179,11 +182,13 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 				if( fqqnImport != null ) {
 					String fqqn = fqqnImport + patternQualifiedString.substring(firstSegment.length());
 					if( this.locator.matchesName(qualifiedNameFromNode.toCharArray(), fqqn.toCharArray())) {
-						if( validateTypeParameters(node)) {
+						int typeParamMatches = validateTypeParameters(node);
+						if( typeParamMatches == TYPE_PARAMS_MATCH) {
 							int v = nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 							return toResponse(v, true);
 						} else {
-							return new LocatorResponse(IMPOSSIBLE_MATCH, false, node, false, false);
+							int ret = typeParamMatches == TYPE_PARAMS_COUNT_MATCH ? ERASURE_MATCH : IMPOSSIBLE_MATCH;
+							return new LocatorResponse(ret, false, node, false, false);
 						}
 					}
 				}
@@ -194,11 +199,13 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 				if( fqqnImport != null ) {
 					String fqqn = fqqnImport + qualifiedNameFromNode.substring(firstSegment.length());
 					if( this.locator.matchesName(patternQualified, fqqn.toCharArray())) {
-						if( validateTypeParameters(node)) {
+						int typeParamMatches = validateTypeParameters(node);
+						if( typeParamMatches == TYPE_PARAMS_MATCH) {
 							int v = nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 							return toResponse(v, true);
 						} else {
-							return new LocatorResponse(IMPOSSIBLE_MATCH, false, node, false, false);
+							int ret = typeParamMatches == TYPE_PARAMS_COUNT_MATCH ? ERASURE_MATCH : IMPOSSIBLE_MATCH;
+							return new LocatorResponse(ret, false, node, false, false);
 						}
 					}
 				}
@@ -206,57 +213,73 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		} else if (simpleNameFromNode != null ) {
 			if( this.locator.matchesName(this.locator.pattern.simpleName, simpleNameFromNode.toCharArray()) ) {
 				int level = this.locator.pattern.mustResolve || this.locator.pattern.qualification == null ? POSSIBLE_MATCH : ACCURATE_MATCH;
-				Name n = getSimpleNameNodeFromType(node);
-				if( n != null ) {
-					// Replace node n as the matching node 
-					if( validateTypeParameters(node)) {
+				int typeParamMatches = validateTypeParameters(node);
+				if( typeParamMatches == TYPE_PARAMS_NO_MATCH) level = IMPOSSIBLE_MATCH;
+				if( typeParamMatches == TYPE_PARAMS_COUNT_MATCH) level = ERASURE_MATCH;
+				if( level != IMPOSSIBLE_MATCH ) {
+					Name n = getSimpleNameNodeFromType(node);
+					if( n != null ) {
 						nodeSet.addMatch(n, level);
 						return new LocatorResponse(level, true, n, true, true);
 					} else {
-						return new LocatorResponse(IMPOSSIBLE_MATCH, true, n, false, false);
-					}
-				} else {
-					if( validateTypeParameters(node)) {
 						int v = nodeSet.addMatch(node, level);
 						return toResponse(v, true);
-					} else {
-						return new LocatorResponse(IMPOSSIBLE_MATCH, false, node, false, false);
 					}
 				}
 			}
 		}
 		return toResponse(IMPOSSIBLE_MATCH);
 	}
-	private boolean validateTypeParameters(Type node) {
+	
+	private static final int TYPE_PARAMS_MATCH = 1;
+	private static final int TYPE_PARAMS_COUNT_MATCH = 2;
+	private static final int TYPE_PARAMS_NO_MATCH = 3;
+	
+	private int validateTypeParameters(Type node) {
 		// SimpleType with typeName=QualifiedName
 		if( node instanceof SimpleType st && (st.getName() instanceof QualifiedName || st.getName() instanceof SimpleName))
-			return true;
+			return TYPE_PARAMS_MATCH;
 		
 		char[][][] fromPattern = this.locator.pattern.getTypeArguments();
 		if( fromPattern == null ) {
-			return true;
+			return TYPE_PARAMS_MATCH;
 		}
 		
-		Type working = null;
-		int start = 0;
-		if( node instanceof QualifiedType qt ) {
-			// QualifiedType with name=SimpleName and Qualifier=ParameterizedType
-			working = qt.getQualifier();
-			start = 1;
-		} else if( node instanceof ParameterizedType pt1) {
-			working = pt1;
-		}
-		for( int i = start; i < fromPattern.length; i++ ) {
+		Type working = node;
+		boolean done = false;
+		int i = 0;
+		boolean countMatchesAtAllLevels = true;
+		for( i = 0; i < fromPattern.length && !done; i++ ) {
 			char[][] thisLevelTypeParams = fromPattern[i];
 			if( thisLevelTypeParams != null && thisLevelTypeParams.length != 0 && working instanceof ParameterizedType pt) {
 				List typeArgs = pt.typeArguments();
 				if( typeArgs == null || typeArgs.size() != thisLevelTypeParams.length) {
-					return false;
+					return TYPE_PARAMS_NO_MATCH;
 				}
-				working = pt.getType();
+				for( int j = 0; j < thisLevelTypeParams.length; j++ ) {
+					String typeFromPattern = new String(thisLevelTypeParams[j]);
+					IBinding b = DOMASTNodeUtils.getBinding((ASTNode)typeArgs.get(j));
+					String sig = b == null ? null : b instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : b.getKey();
+					if( !typeFromPattern.equals(sig)) {
+						return TYPE_PARAMS_COUNT_MATCH;
+					}
+				}
+			}
+			if( working instanceof ParameterizedType ptt) 
+				working = ptt.getType();
+			if( working instanceof QualifiedType qtt) {
+				working = qtt.getQualifier();
+			}
+			if( working instanceof SimpleType) 
+				done = true;
+		}
+		for( int k = i; k < fromPattern.length; k++ ) {
+			if( fromPattern[k] != null && fromPattern[k].length != 0) {
+				// More typeargs required, but we don't have any more
+				return TYPE_PARAMS_NO_MATCH;
 			}
 		}
-		return true;
+		return TYPE_PARAMS_MATCH;
 	}
 	private String getQualifiedNameFromType(Type query) {
 		if( query instanceof QualifiedType qtt) {
