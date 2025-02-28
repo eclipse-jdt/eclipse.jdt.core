@@ -107,6 +107,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	private final boolean isGeneric; // only relevent for parameterized types
 	private boolean recovered = false;
 	private final Type[] alternatives;
+	private IJavaElement javaElement;
 
 	public JavacTypeBinding(Type type, final TypeSymbol typeSymbol, Type[] alternatives, boolean isDeclaration, JavacBindingResolver resolver) {
 		if (!JavacBindingResolver.isTypeOfType(type)) {
@@ -183,6 +184,13 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public IJavaElement getJavaElement() {
+		if (this.javaElement == null) {
+			this.javaElement = computeJavaElement();
+		}
+		return this.javaElement;
+	}	
+	
+	private IJavaElement computeJavaElement() {
 		if (isTypeVariable() && this.typeSymbol != null) {
 			if (this.typeSymbol.owner instanceof ClassSymbol ownerSymbol
 					&& ownerSymbol.type != null) {
@@ -599,16 +607,21 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			}
 		}
 		final List<IJavaElement> orderedListFromModel = tmp;
-		return StreamSupport.stream(this.typeSymbol.members().getSymbols(MethodSymbol.class::isInstance, LookupKind.NON_RECURSIVE).spliterator(), false)
+		Stream<JavacMethodBinding> methods = StreamSupport.stream(this.typeSymbol.members().getSymbols(MethodSymbol.class::isInstance, LookupKind.NON_RECURSIVE).spliterator(), false)
 				.map(MethodSymbol.class::cast)
 				.map(sym -> {
 					Type.MethodType methodType = this.types.memberType(this.type, sym).asMethodType();
 					return this.resolver.bindings.getMethodBinding(methodType, sym, this.type, isGeneric);
-				}).filter(Objects::nonNull)
-				.sorted(Comparator.comparingInt(binding -> {
+				}).filter(Objects::nonNull);
+		if (!isFromSource()) {
+			// with javac, we loose the order of methods for binaries, so
+			// recompute it relying on JDT model (which honors the order)
+			methods = methods.sorted(Comparator.comparingInt(binding -> {
 					var elt = binding.getJavaElement();
 					return elt != null ? orderedListFromModel.indexOf(elt) : -1; 
-				})).toArray(IMethodBinding[]::new);
+				}));
+		}
+		return methods.toArray(IMethodBinding[]::new);
 	}
 
 	private ITypeBinding[] getDeclaredTypeDefaultImpl(ArrayList<Symbol> l) {

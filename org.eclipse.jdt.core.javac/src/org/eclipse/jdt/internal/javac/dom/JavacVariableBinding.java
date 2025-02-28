@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
+import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -35,7 +36,6 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
-import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.internal.core.BinaryMember;
 import org.eclipse.jdt.internal.core.DOMToModelPopulator;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -49,17 +49,18 @@ import org.eclipse.jdt.internal.core.util.Util;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type;
 
 public abstract class JavacVariableBinding implements IVariableBinding {
 
 	public final VarSymbol variableSymbol;
 	private final JavacBindingResolver resolver;
 	private final boolean isUnique;
+	private IJavaElement javaElement;
 
 	public JavacVariableBinding(VarSymbol sym, JavacBindingResolver resolver, boolean isUnique) {
 		this.variableSymbol = sym;
@@ -116,6 +117,13 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 
 	@Override
 	public IJavaElement getJavaElement() {
+		if (this.javaElement == null) {
+			this.javaElement = computeJavaElement();
+		}
+		return this.javaElement;
+	}	
+	
+	private IJavaElement computeJavaElement() {
 		if (this.resolver.javaProject == null) {
 			return null;
 		}

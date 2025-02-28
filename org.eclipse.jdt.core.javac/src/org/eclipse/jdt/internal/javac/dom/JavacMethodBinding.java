@@ -76,6 +76,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	final boolean explicitSynthetic;
 	// allows to discriminate generic vs parameterized
 	private final boolean isDeclaration;
+	private IJavaElement javaElement;
 
 	/**
 	 *
@@ -203,6 +204,13 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public IJavaElement getJavaElement() {
+		if (this.javaElement == null) {
+			this.javaElement = computeJavaElement();
+		}
+		return this.javaElement;
+	}	
+	
+	private IJavaElement computeJavaElement() {
 		if (this.methodSymbol == null) {
 			return null;
 		}
