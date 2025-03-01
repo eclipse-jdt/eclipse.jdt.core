@@ -1104,7 +1104,6 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 		this.currentProject.setOption(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, this.docCommentSupport);
 		this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_23);
 		this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_23);
-		this.currentProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		this.astLevel = AST.JLS23;
 	}
 	protected CompilationUnit verifyComments(String fileName, char[] source, Map options) {
@@ -1789,6 +1788,55 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			assertEquals("Should be two", 2, parameters.size());
 			assertEquals("Incorrect name", "Object[] obj", parameters.get(0).toString());
 			assertEquals("Incorrect name", "String[][][] str", parameters.get(1).toString());
+		}
+	}
+
+	public void testArrayReferenceInCode() throws JavaModelException {
+		String source= """
+				package markdown.gh3761;
+				/// In the following indented code block, `[i]` is program text,
+				/// and not a hyper link:
+				///
+				///     int i = 3;
+				///     int[] d = new int[i];
+				///
+				/// Likewise, in the following fenced code block, `[i]` is program text,
+				/// and not a hyper link:
+				///
+				/// ```
+				/// int i = 3;
+				/// int[] d = new int[i];
+				/// ```
+				public class ArrayInCode {
+				}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/gh3761/ArrayInCode.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			List unitComments = compilUnit.getCommentList();
+			assertEquals("Wrong number of comments", 1, unitComments.size());
+
+			Comment comment = (Comment) unitComments.get(0);
+			assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+			List<ASTNode> tagList = ((Javadoc) comment).tags();
+			assertEquals("Wrong number of tags", 1, tagList.size());
+			TagElement tag = (TagElement) tagList.get(0);
+			String[] lines = {
+					"In the following indented code block, `[i]` is program text,",
+					"and not a hyper link:",
+					"    int i = 3;",
+					"    int[] d = new int[i];",
+					"Likewise, in the following fenced code block, `[i]` is program text,",
+					"and not a hyper link:",
+					"```",
+					"int i = 3;",
+					"int[] d = new int[i];",
+					"```"
+			};
+			for (int i = 0; i < lines.length; i++) {
+				assertEquals("Line "+i, lines[i], tag.fragments().get(i).toString());
+			}
 		}
 	}
 }
