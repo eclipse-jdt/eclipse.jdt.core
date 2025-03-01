@@ -348,7 +348,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 					"""
 					public class X {
 						/// Some text here without the necessary tags for main method
-						/// @param arguments
+						/// @param arguments\s 
 
 						// This line will be ignored and the previous block will be considered as the Javadoc
 						public static void main(String[] arguments) {
@@ -358,7 +358,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 					""", },
 					"----------\n" +
 					"1. WARNING in X.java (at line 3)\n" +
-					"	/// @param arguments\n" +
+					"	/// @param arguments \n" +
 					"	           ^^^^^^^^^\n" +
 					"Javadoc: Description expected after this reference\n" +
 					"----------\n");
