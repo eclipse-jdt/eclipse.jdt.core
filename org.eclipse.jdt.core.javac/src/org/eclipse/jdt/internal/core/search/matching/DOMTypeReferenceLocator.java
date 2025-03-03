@@ -237,11 +237,22 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 	
 	private int validateTypeParameters(Type node) {
 		// SimpleType with typeName=QualifiedName
-		if( node instanceof SimpleType st && (st.getName() instanceof QualifiedName || st.getName() instanceof SimpleName))
-			return TYPE_PARAMS_MATCH;
-		
 		char[][][] fromPattern = this.locator.pattern.getTypeArguments();
 		if( fromPattern == null ) {
+			return TYPE_PARAMS_MATCH;
+		}
+		
+		if( node instanceof SimpleType st && (st.getName() instanceof QualifiedName || st.getName() instanceof SimpleName)) {
+			// JavaSearchGenericTypeEquivalentTests.testTypeMultipleArguments03 needs to return no_match
+			// JavaSearchGenericTypeTests.testTypeMultipleArguments03 needs to return params_match			
+			
+			if( fromPattern != null && fromPattern.length > 0 && fromPattern[0] != null && fromPattern[0].length != 0) {
+				int r = this.locator.pattern.getMatchRule();
+				boolean erasureMatch = (r & SearchPattern.R_ERASURE_MATCH) == SearchPattern.R_ERASURE_MATCH;
+				//boolean equivMatch = (r & SearchPattern.R_EQUIVALENT_MATCH) == SearchPattern.R_EQUIVALENT_MATCH;
+				if( !erasureMatch )
+					return TYPE_PARAMS_NO_MATCH;
+			}
 			return TYPE_PARAMS_MATCH;
 		}
 		
