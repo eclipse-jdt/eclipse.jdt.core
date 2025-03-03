@@ -137,6 +137,7 @@ import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeMethodReference;
 import org.eclipse.jdt.core.dom.TypePattern;
+import org.eclipse.jdt.core.dom.UnionType;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -1764,6 +1765,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				if (!completeAfter.isBlank()) {
 					String currentPackage = this.unit.getPackage() == null ? "" : this.unit.getPackage().getName().toString();
 					AbstractTypeDeclaration typeDecl = DOMCompletionUtil.findParentTypeDeclaration(context);
+					UnionType unionType = (UnionType)DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.UNION_TYPE });
 					ITypeBinding currentTypeBinding = typeDecl == null ? null : typeDecl.resolveBinding();
 					final int typeMatchRule = this.toComplete.getParent() instanceof Annotation
 							? IJavaSearchConstants.ANNOTATION_TYPE
@@ -1783,6 +1785,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 									}
 								}
 								return true;
+							})
+							.filter(type -> {
+								return unionType == null || ((List<Type>)unionType.types()).stream().noneMatch(unionMemberType -> unionMemberType.resolveBinding().getKey().equals(type.getKey()));
 							})
 							.filter(type -> {
 								return filterBasedOnExtendsOrImplementsInfo(type, this.extendsOrImplementsInfo);
@@ -3410,6 +3415,21 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		}
 		return false;
 	}
+	
+	private static boolean findInSupers(IType root, String keyOfTypeToFind) {
+		ITypeHierarchy hierarchy;
+		try {
+			hierarchy = root.newSupertypeHierarchy(new NullProgressMonitor());
+			for (IType superType : hierarchy.getAllSupertypes(root)) {
+				if (superType.getKey().equals(keyOfTypeToFind)) {
+					return true;
+				}
+			}
+			return false;
+		} catch (JavaModelException e) {
+			return false;
+		}
+	}
 
 	private CompletionProposal toProposal(IBinding binding) {
 		return toProposal(binding, binding.getName());
@@ -3804,10 +3824,13 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		} else {
 			inSamePackage = type.getPackageFragment().getElementName().isEmpty();
 		}
+		boolean inCatchClause = DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.CATCH_CLAUSE }) != null;
+		boolean subclassesException = findInSupers(type, "Ljava/lang/Exception;");
 		int relevance = RelevanceConstants.R_DEFAULT
 				+ RelevanceConstants.R_RESOLVED
 				+ RelevanceConstants.R_INTERESTING
 				+ RelevanceConstants.R_NON_RESTRICTED
+				+ (inCatchClause && subclassesException ? RelevanceConstants.R_EXCEPTION : 0)
 				+ RelevanceUtils.computeRelevanceForInheritance(this.qualifyingType, type)
 				+ RelevanceUtils.computeRelevanceForQualification(!type.getFullyQualifiedName().startsWith("java.") && !nodeInImports && !fromCurrentCU && !inSamePackage && !typeIsImported, this.prefix, this.qualifiedPrefix)
 				+ (type.getFullyQualifiedName().startsWith("java.") ? RelevanceConstants.R_JAVA_LIBRARY : 0)
