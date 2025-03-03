@@ -53,6 +53,7 @@ import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchExpression;
 import org.eclipse.jdt.core.dom.SwitchStatement;
+import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -122,6 +123,9 @@ public class ExpectedTypes {
 				break;
 			}
 			if (parent2 instanceof LambdaExpression) {
+				break;
+			}
+			if (parent2 instanceof TryStatement) {
 				break;
 			}
 			if (parent2 instanceof Assignment assign && this.offset > assign.getLeftHandSide().getStartPosition() + assign.getLeftHandSide().getLength()) {
@@ -476,41 +480,32 @@ public class ExpectedTypes {
 					}
 				}
 			}
+		*/
 		} else if (parent instanceof TryStatement) {
-			boolean isException = false;
-			if (node instanceof CompletionOnSingleTypeReference) {
-				isException = ((CompletionOnSingleTypeReference)node).isException();
-			} else if (node instanceof CompletionOnQualifiedTypeReference) {
-				isException = ((CompletionOnQualifiedTypeReference)node).isException();
-			} else if (node instanceof CompletionOnParameterizedQualifiedTypeReference) {
-				isException = ((CompletionOnParameterizedQualifiedTypeReference)node).isException();
+			DOMThrownExceptionFinder thrownExceptionFinder = new DOMThrownExceptionFinder();
+			thrownExceptionFinder.processThrownExceptions((TryStatement) parent);
+			ITypeBinding[] bindings = thrownExceptionFinder.getThrownUncaughtExceptions();
+			ITypeBinding[] alreadyCaughtExceptions = thrownExceptionFinder.getAlreadyCaughtExceptions();
+			ITypeBinding[] discouragedExceptions = thrownExceptionFinder.getDiscouragedExceptions();
+			if (bindings != null && bindings.length > 0) {
+				for (ITypeBinding binding : bindings) {
+					this.expectedTypes.add(binding);
+				}
+				this.expectedTypesFilters = Set.of(TypeFilter.SUPERTYPE);
 			}
-			if (isException) {
-				ThrownExceptionFinder thrownExceptionFinder = new ThrownExceptionFinder();
-				thrownExceptionFinder.processThrownExceptions((TryStatement) parent, (BlockScope)scope);
-				ReferenceBinding[] bindings = thrownExceptionFinder.getThrownUncaughtExceptions();
-				ReferenceBinding[] alreadyCaughtExceptions = thrownExceptionFinder.getAlreadyCaughtExceptions();
-				ReferenceBinding[] discouragedExceptions = thrownExceptionFinder.getDiscouragedExceptions();
-				if (bindings != null && bindings.length > 0) {
-					for (ReferenceBinding binding : bindings) {
-						this.expectedTypes.add(binding);
-					}
-					this.expectedTypesFilters = Set.of(TypeFilter.SUPERTYPE);
-				}
-				if (alreadyCaughtExceptions != null && alreadyCaughtExceptions.length > 0) {
-					for (ReferenceBinding alreadyCaughtException : alreadyCaughtExceptions) {
-						this.forbiddenBindings.add(alreadyCaughtException);
-						this.knownTypes.put(CharOperation.concat(alreadyCaughtException.qualifiedPackageName(), alreadyCaughtException.qualifiedSourceName(), '.'), KNOWN_TYPE_WITH_KNOWN_CONSTRUCTORS);
-					}
-				}
-				if (discouragedExceptions != null && discouragedExceptions.length > 0) {
-					for (ReferenceBinding discouragedException : discouragedExceptions) {
-						this.uninterestingBindings.add(discouragedException);
-						// do not insert into known types. We do need these types to come from
-						// searchAllTypes(..) albeit with lower relevance
-					}
+			if (alreadyCaughtExceptions != null && alreadyCaughtExceptions.length > 0) {
+				for (ITypeBinding alreadyCaughtException : alreadyCaughtExceptions) {
+					this.forbiddenBindings.add(alreadyCaughtException);
 				}
 			}
+			if (discouragedExceptions != null && discouragedExceptions.length > 0) {
+				for (ITypeBinding discouragedException : discouragedExceptions) {
+					this.uninterestingBindings.add(discouragedException);
+					// do not insert into known types. We do need these types to come from
+					// searchAllTypes(..) albeit with lower relevance
+				}
+			}
+			/*
 		} else if (parent instanceof SwitchStatement switchStatement) {
 			this.assistNodeIsInsideCase = assistNodeIsInsideCase(node, parent);
 			if (switchStatement.getExpression() != null &&
@@ -728,6 +723,10 @@ public class ExpectedTypes {
 			computeExpectedTypes();
 		}
 		return new ArrayList<>(this.expectedTypes);
+	}
+	
+	public Collection<ITypeBinding> getUninterestingTypes() {
+		return this.uninterestingBindings;
 	}
 
 	public boolean allowsSubtypes() {

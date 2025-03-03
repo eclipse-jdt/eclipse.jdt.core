@@ -10,12 +10,21 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist;
 
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 import java.util.function.Consumer;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeHierarchy;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 
 public class DOMCompletionUtil {
@@ -87,6 +96,79 @@ public class DOMCompletionUtil {
 	 */
 	public static boolean isJavaFieldOrMethodModifier(String potentialModifer) {
 		return JAVA_MODIFIERS.contains(potentialModifer);
+	}
+	
+	/**
+	 * Returns true if toFind is a superclass of root.
+	 * 
+	 * @param root the class to begin searching in
+	 * @param toFind the class to find
+	 * @return true if toFind is a superclass of root
+	 */
+	public static boolean findInSupers(ITypeBinding root, ITypeBinding toFind) {
+		ITypeBinding superFind = toFind.getErasure();
+		if( superFind != null ) {
+			String keyToFind = superFind.getKey();
+			return findInSupers(root, keyToFind);
+		}
+		return false;
+	}
+
+	/**
+	 * Returns true if the type indicated by keyOfTypeToFind is a superclass of root.
+	 * 
+	 * @param root the class to begin searching in
+	 * @param keyOfTypeToFind the key of the class to find
+	 * @return true if the type indicated by keyOfTypeToFind is a superclass of root
+	 */
+	public static boolean findInSupers(ITypeBinding root, String keyOfTypeToFind) {
+		String keyToFind = keyOfTypeToFind;
+		Queue<ITypeBinding> toCheck = new LinkedList<>();
+		Set<String> alreadyChecked = new HashSet<>();
+		toCheck.add(root.getErasure());
+		while (!toCheck.isEmpty()) {
+			ITypeBinding current = toCheck.poll();
+			String currentKey = current.getErasure().getKey();
+			if (alreadyChecked.contains(currentKey)) {
+				continue;
+			}
+			alreadyChecked.add(currentKey);
+			if (currentKey.equals(keyToFind)) {
+				return true;
+			}
+			for (ITypeBinding superInterface : current.getInterfaces()) {
+				toCheck.add(superInterface);
+			}
+			if (current.getSuperclass() != null) {
+				toCheck.add(current.getSuperclass());
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Returns true if the type indicated by keyOfTypeToFind is a superclass of root.
+	 * 
+	 * @param root the class to begin searching in
+	 * @param keyOfTypeToFind the key of the class to find
+	 * @return true if the type indicated by keyOfTypeToFind is a superclass of root
+	 */
+	public static boolean findInSupers(IType root, String keyOfTypeToFind) {
+		if (root.getKey().equals(keyOfTypeToFind)) {
+			return true;
+		}
+		ITypeHierarchy hierarchy;
+		try {
+			hierarchy = root.newSupertypeHierarchy(new NullProgressMonitor());
+			for (IType superType : hierarchy.getAllSupertypes(root)) {
+				if (superType.getKey().equals(keyOfTypeToFind)) {
+					return true;
+				}
+			}
+			return false;
+		} catch (JavaModelException e) {
+			return false;
+		}
 	}
 	
 }

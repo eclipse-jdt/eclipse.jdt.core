@@ -480,12 +480,12 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			 * but the test suite expects test0502.A$182,
 			 * where 182 is the location in the source of the symbol.
 			 */
-			if( useSlashes )
-				builder.append(n.toString().replace('.', '/'));
-			else {
-				builder.append(n.toString());
+			String nameAsString = n.toString();
+			if (useSlashes) {
+				nameAsString = nameAsString.replace('.', '/');
 			}
-			
+			nameAsString = nameAsString.replaceFirst("\\$([0-9]+)([A-Za-z$_][A-Za-z$_0-9]*)", "\\$$1\\$$2");
+			builder.append(nameAsString);
 			// This is a hack and will likely need to be enhanced
 			if (typeToBuild.tsym instanceof ClassSymbol classSymbol && !(classSymbol.type instanceof ErrorType) && classSymbol.owner instanceof PackageSymbol) {
 				JavaFileObject sourcefile = classSymbol.sourcefile;

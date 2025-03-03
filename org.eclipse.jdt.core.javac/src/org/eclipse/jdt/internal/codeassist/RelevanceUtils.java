@@ -13,6 +13,8 @@ package org.eclipse.jdt.internal.codeassist;
 import java.util.Objects;
 import java.util.Set;
 
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -131,6 +133,61 @@ class RelevanceUtils {
 		}
 		return 0;
 	}
+	
+	static int computeRelevanceForExpectingType(IType proposalType, ExpectedTypes expectedTypes) {
+		if (proposalType != null) {
+			IPackageFragment packageFragment = (IPackageFragment)proposalType.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
+			int relevance = 0;
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=271296
+			// If there is at least one expected type, then void proposal types attract a degraded relevance.
+			if (!expectedTypes.getExpectedTypes().isEmpty() && PrimitiveType.VOID.toString().equals(proposalType.getElementName())) {
+				return RelevanceConstants.R_VOID;
+			}
+			for (ITypeBinding expectedType : expectedTypes.getExpectedTypes()) {
+				if(expectedTypes.allowsSubtypes()
+						&& DOMCompletionUtil.findInSupers(proposalType, expectedType.getKey())) {
+					if (expectedType.getKey().equals(proposalType.getKey())) {
+						return RelevanceConstants.R_EXACT_EXPECTED_TYPE;
+						// ??? I'm just guessing on the default packages name here, it might be the empty string
+					} else if (packageFragment != null && packageFragment.getElementName().equals("<default>")) {
+						return RelevanceConstants.R_PACKAGE_EXPECTED_TYPE;
+					}
+					relevance = RelevanceConstants.R_EXPECTED_TYPE;
+
+				}
+				if(expectedTypes.allowsSupertypes() && DOMCompletionUtil.findInSupers(expectedType, proposalType.getKey())) {
+					if (expectedType.getKey().equals(proposalType.getKey())) {
+						return RelevanceConstants.R_EXACT_EXPECTED_TYPE;
+					}
+					relevance = RelevanceConstants.R_EXPECTED_TYPE;
+				}
+				// Bug 84720 - [1.5][assist] proposal ranking by return value should consider auto(un)boxing
+				// Just ensuring that the unitScope is not null, even though it's an unlikely case.
+				var oneErasure = expectedType.getErasure();
+				if ((oneErasure.isPrimitive() && proposalType.getFullyQualifiedName().startsWith("java.lang."))) {
+					if (oneErasure.getName().equalsIgnoreCase(proposalType.getElementName()) ||
+						Set.of(oneErasure.getName().toLowerCase(), proposalType.getElementName().toLowerCase()).equals(Set.of("char", "character"))) {
+						relevance = CompletionEngine.R_EXPECTED_TYPE;
+					}
+				}
+			}
+			return relevance;
+		}
+		return 0;
+	}
+	
+	/**
+	 * Returns the appropriate relevance based on if the given type is expected, without taking into account sub/super classes.
+	 * 
+	 * @param type the type completion to get the relevance of
+	 * @param expectedTypes the information on the expected type
+	 * @return the appropriate relevance based on if the given type is expected, without taking into account sub/super classes
+	 */
+	static int simpleComputeRelevanceForExpectingType(IType type, ExpectedTypes expectedTypes) {
+		return (expectedTypes.getExpectedTypes().stream().map(ITypeBinding::getQualifiedName).anyMatch(type.getFullyQualifiedName()::equals) ? RelevanceConstants.R_EXACT_EXPECTED_TYPE :
+			expectedTypes.getExpectedTypes().stream().map(ITypeBinding::getQualifiedName).anyMatch(Object.class.getName()::equals) ? RelevanceConstants.R_EXPECTED_TYPE :
+			0);
+	}
 
 	/**
 	 * Returns the appropriate relevance number based on if the given member is directly implemented in the qualifying type.
@@ -176,6 +233,16 @@ class RelevanceUtils {
 			return RelevanceConstants.R_NON_INHERITED;
 		}
 		return 0;
+	}
+	
+	static int computeRelevanceForInteresting(IType potentiallyInterestingType, ExpectedTypes expectedTypes) {
+		String typeKey = potentiallyInterestingType.getKey();
+		for (ITypeBinding uninterestingType : expectedTypes.getUninterestingTypes()) {
+			if (uninterestingType.getKey().equals(typeKey)) {
+				return 0;
+			}
+		}
+		return RelevanceConstants.R_INTERESTING;
 	}
 
 }

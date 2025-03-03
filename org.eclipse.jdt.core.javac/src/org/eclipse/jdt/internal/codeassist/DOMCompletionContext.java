@@ -224,7 +224,7 @@ class DOMCompletionContext extends CompletionContext {
 		}
 		var res = this.expectedTypes.getExpectedTypes().stream() //
 				.map(binding -> binding.isTypeVariable() ?
-						'T' + binding.getQualifiedName() + ';' :
+						'T' + binding.getQualifiedName() + ';' : binding.isLocal() ? Signature.createTypeSignature(binding.getName(), true) :
 						Signature.createTypeSignature(binding.getQualifiedName(), true))
 				.map(String::toCharArray) //
 				.toArray(char[][]::new);
