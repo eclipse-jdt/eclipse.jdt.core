@@ -510,9 +510,7 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			return newLevel;
 		} else {
 			if (patternTypeArgsLength==0) {
-				if (!bindingIsRaw || patternHasTypeParameters) {
-					return newLevel;
-				}
+				return newLevel;
 			} else if (bindingTypeArgsLength==0) {
 				// If this is an import, we have to treat it differently
 				
