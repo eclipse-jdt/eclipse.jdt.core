@@ -70,9 +70,6 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		return node == null ? false : hasPackageDeclarationAncestor(node.getParent());
 	}
 
-
-
-
 	@Override
 	public LocatorResponse match(org.eclipse.jdt.core.dom.Annotation node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		return match(node.getTypeName(), nodeSet, locator);
@@ -242,14 +239,14 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			return TYPE_PARAMS_MATCH;
 		}
 		
+		int r = this.locator.pattern.getMatchRule();
+		boolean erasureMatch = (r & SearchPattern.R_ERASURE_MATCH) == SearchPattern.R_ERASURE_MATCH;
+		boolean equivMatch = (r & SearchPattern.R_EQUIVALENT_MATCH) == SearchPattern.R_EQUIVALENT_MATCH;
 		if( node instanceof SimpleType st && (st.getName() instanceof QualifiedName || st.getName() instanceof SimpleName)) {
 			// JavaSearchGenericTypeEquivalentTests.testTypeMultipleArguments03 needs to return no_match
 			// JavaSearchGenericTypeTests.testTypeMultipleArguments03 needs to return params_match			
 			
 			if( fromPattern != null && fromPattern.length > 0 && fromPattern[0] != null && fromPattern[0].length != 0) {
-				int r = this.locator.pattern.getMatchRule();
-				boolean erasureMatch = (r & SearchPattern.R_ERASURE_MATCH) == SearchPattern.R_ERASURE_MATCH;
-				//boolean equivMatch = (r & SearchPattern.R_EQUIVALENT_MATCH) == SearchPattern.R_EQUIVALENT_MATCH;
 				if( !erasureMatch )
 					return TYPE_PARAMS_NO_MATCH;
 			}
@@ -390,6 +387,9 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			return toResponse(INACCURATE_MATCH);
 		}
 		if (binding instanceof ITypeBinding typeBinding) {
+			if( node.getParent() instanceof ImportDeclaration id) {
+				return resolveLevelForImportBinding(node, typeBinding, locator);
+			}
 			int v = resolveLevelForTypeBinding(node, typeBinding, locator);
 			return toResponse(v);
 		}
@@ -412,6 +412,12 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		return toResponse(IMPOSSIBLE_MATCH);
 	}
 	
+	private LocatorResponse resolveLevelForImportBinding(ASTNode node, ITypeBinding typeBinding,
+			MatchLocator locator2) {
+		int newLevel = this.resolveLevelForTypeFQN(this.locator.pattern.simpleName, 
+				this.locator.pattern.qualification, typeBinding, null);
+		return toResponse(newLevel);
+	}
 	private static boolean failsFineGrain(ASTNode node, int fineGrain) {
 		if (fineGrain == 0) {
 			return false;
@@ -470,72 +476,89 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			}
 		}
 		if( this.locator.isDeclarationOfReferencedTypesPattern) {
-			IJavaElement enclosing = ((DeclarationOfReferencedTypesPattern)this.locator.pattern).enclosingElement;
-			// We don't add this node. We manually add the declaration
-			ITypeBinding t2 = typeBinding.getTypeDeclaration();
-			IJavaElement je = t2 == null ? null : t2.getJavaElement();
-			if( je != null && !this.foundElements.contains(je) && DOMASTNodeUtils.isWithinRange(node, enclosing)) {
-				ISourceReference sr = je instanceof ISourceReference ? (ISourceReference)je : null;
-				IResource r = null;
-				ISourceRange srg = null;
-				ISourceRange nameRange = null;
-				try {
-					srg = sr.getSourceRange();
-					nameRange = sr.getNameRange();
-					IJavaElement ancestor = je.getAncestor(IJavaElement.COMPILATION_UNIT);
-					r = ancestor == null ? null : ancestor.getCorrespondingResource();
-				} catch(JavaModelException jme) {
-					// ignore
-				}
-				ISourceRange rangeToUse = (nameRange == null) ? srg : nameRange;
-				if( rangeToUse != null ) {
-					TypeDeclarationMatch tdm = new TypeDeclarationMatch(je, newLevel,
-							rangeToUse.getOffset(), rangeToUse.getLength(),
-							locator.getParticipant(), r);
-					try {
-						this.foundElements.add(je);
-						locator.report(tdm);
-					} catch(CoreException ce) {
-						// ignore
-					}
-				}
-			}
-			return IMPOSSIBLE_MATCH;
+			return resolveLevelForTypeBindingDeclarationOfReferencedTypes(typeBinding, node, newLevel, locator);
 		}
 		if( newLevel == ACCURATE_MATCH && this.locator.pattern.hasTypeArguments() ) {
-			int matchRule = newLevel;
-			boolean hasTypeParameters = this.locator.pattern.hasTypeParameters();
-			char[][][] patternTypeArgArray = this.locator.pattern.getTypeArguments();
-			int patternTypeArgsLength = patternTypeArgArray == null ? -1 : 
-				patternTypeArgArray[0] == null ? -1 : 
-					patternTypeArgArray[0].length == 0 ? -1 : patternTypeArgArray[0].length;
-			boolean raw = typeBinding.isRawType();
-			boolean generic = typeBinding.isGenericType();
-			boolean parameterized = typeBinding.isParameterizedType();
-			ITypeBinding[] args = typeBinding.getTypeArguments();
-			int typeArgumentsLength = args == null ? -1 : args.length;
-			// Compare arguments lengthes
-			if (patternTypeArgsLength == typeArgumentsLength) {
-				if (!raw && hasTypeParameters) {
-					// generic patterns are always not compatible match
-					return ERASURE_MATCH;
-				}
-			} else {
-				if (patternTypeArgsLength==0) {
-					if (!match.isRaw() || hasTypeParameters) {
-						return matchRule;
-					}
-				} else  if (typeArgumentsLength==0) {
-					// raw binding is always compatible
-					return matchRule;
-				} else {
-					return IMPOSSIBLE_MATCH;
-				}
-			}
+			return resolveLevelForTypeBindingWithTypeArguments(typeBinding, node, newLevel, locator);
 		}
 		return newLevel;
 	}
 
+	private int resolveLevelForTypeBindingWithTypeArguments(ITypeBinding typeBinding, ASTNode node, int newLevel,
+			MatchLocator locator2) {
+		boolean patternHasTypeParameters = this.locator.pattern.hasTypeParameters();
+		char[][][] patternTypeArgArray = this.locator.pattern.getTypeArguments();
+		int patternTypeArgsLength = patternTypeArgArray == null ? -1 : 
+			patternTypeArgArray[0] == null ? -1 : 
+				patternTypeArgArray[0].length == 0 ? -1 : patternTypeArgArray[0].length;
+		boolean bindingIsRaw = typeBinding.isRawType();
+		boolean bindingIsGeneric = typeBinding.isGenericType();
+		boolean bindingIsParameterized = typeBinding.isParameterizedType();
+		int patternRule = this.locator.pattern.getMatchRule();
+		boolean patternIsErasureMatch = (patternRule & SearchPattern.R_ERASURE_MATCH) == SearchPattern.R_ERASURE_MATCH;
+		boolean patternIsEquivMatch = (patternRule & SearchPattern.R_EQUIVALENT_MATCH) == SearchPattern.R_EQUIVALENT_MATCH;
+
+		ITypeBinding[] bindingArgs = typeBinding.getTypeArguments();
+		ITypeBinding[] bindingParams = typeBinding.getTypeParameters();
+		int bindingTypeArgsLength = bindingArgs == null ? -1 : bindingArgs.length;
+		// Compare arguments lengths
+		if (patternTypeArgsLength == bindingTypeArgsLength) {
+			if (!bindingIsRaw && patternHasTypeParameters) {
+				// generic patterns are always not compatible match
+				return ERASURE_MATCH;
+			}
+		} else {
+			if (patternTypeArgsLength==0) {
+				if (!bindingIsRaw || patternHasTypeParameters) {
+					return newLevel;
+				}
+			} else if (bindingTypeArgsLength==0) {
+				// If this is an import, we have to treat it differently
+				
+				// pattern looking for args but binding has none. 
+//				ITypeBinding decl = typeBinding.getTypeDeclaration();
+//				ITypeBinding[] declArgs = decl.getTypeArguments();
+//				ITypeBinding[] declParams = decl.getTypeParameters();
+				// raw binding is always compatible
+				if( !patternIsEquivMatch )
+					return newLevel;
+			} 
+		}
+		return IMPOSSIBLE_MATCH;
+	}
+	private int resolveLevelForTypeBindingDeclarationOfReferencedTypes(ITypeBinding typeBinding, ASTNode node, int newLevel, MatchLocator locator) {
+		IJavaElement enclosing = ((DeclarationOfReferencedTypesPattern)this.locator.pattern).enclosingElement;
+		// We don't add this node. We manually add the declaration
+		ITypeBinding t2 = typeBinding.getTypeDeclaration();
+		IJavaElement je = t2 == null ? null : t2.getJavaElement();
+		if( je != null && !this.foundElements.contains(je) && DOMASTNodeUtils.isWithinRange(node, enclosing)) {
+			ISourceReference sr = je instanceof ISourceReference ? (ISourceReference)je : null;
+			IResource r = null;
+			ISourceRange srg = null;
+			ISourceRange nameRange = null;
+			try {
+				srg = sr.getSourceRange();
+				nameRange = sr.getNameRange();
+				IJavaElement ancestor = je.getAncestor(IJavaElement.COMPILATION_UNIT);
+				r = ancestor == null ? null : ancestor.getCorrespondingResource();
+			} catch(JavaModelException jme) {
+				// ignore
+			}
+			ISourceRange rangeToUse = (nameRange == null) ? srg : nameRange;
+			if( rangeToUse != null ) {
+				TypeDeclarationMatch tdm = new TypeDeclarationMatch(je, newLevel,
+						rangeToUse.getOffset(), rangeToUse.getLength(),
+						locator.getParticipant(), r);
+				try {
+					this.foundElements.add(je);
+					locator.report(tdm);
+				} catch(CoreException ce) {
+					// ignore
+				}
+			}
+		}
+		return IMPOSSIBLE_MATCH;
+	}
 	private org.eclipse.jdt.core.dom.CompilationUnit findCU(org.eclipse.jdt.core.dom.ASTNode node) {
 		if( node == null )
 			return null;
