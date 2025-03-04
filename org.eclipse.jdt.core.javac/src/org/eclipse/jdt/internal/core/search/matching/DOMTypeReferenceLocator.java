@@ -507,6 +507,7 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 				// generic patterns are always not compatible match
 				return ERASURE_MATCH;
 			}
+			return newLevel;
 		} else {
 			if (patternTypeArgsLength==0) {
 				if (!bindingIsRaw || patternHasTypeParameters) {
