@@ -314,7 +314,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 				}
 			}
 			if (hasError) {
-				if (!(methodDeclaration instanceof CompactConstructorDeclaration)) {// already flagged for CCD
+				if (!methodDeclaration.isCompactConstructor()) {// already flagged for CCD
 					if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())) {
 						boolean isTopLevel = Arrays.stream(methodDeclaration.statements).anyMatch(this::equals);
 						if (isTopLevel)
@@ -495,7 +495,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 		if (methodDecl.binding == null || methodDecl.binding.declaringClass == null
 				|| !methodDecl.binding.declaringClass.isRecord())
 			return true;
-		boolean isInsideCCD = methodDecl instanceof CompactConstructorDeclaration;
+		boolean isInsideCCD = methodDecl.isCompactConstructor();
 		if (this.accessMode != ExplicitConstructorCall.ImplicitSuper) {
 			if (isInsideCCD)
 				scope.problemReporter().recordCompactConstructorHasExplicitConstructorCall(this);

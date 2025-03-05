@@ -9591,6 +9591,65 @@ public void testGH1939() {
 			},
 		"OK!");
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3745
+// [Records] ClassCastException when saving a file with a record syntax error
+public void testIssue3745() {
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+				    public static void main(String[] args) {}
+				    record R(int x,) {}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	record R(int x,) {}\n" +
+			"	              ^\n" +
+			"Syntax error on token \",\", SingleVariableDeclarator expected after this token\n" +
+			"----------\n");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3745
+// Records] ClassCastException when saving a file with a record syntax error
+public void testIssue3745_full() {
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				package test;
+
+				public class Test {
+
+				    private static final PathReplacement[] REPLACEMENTS = {
+				            new PathReplacement("", ""),
+				    };
+
+				    public static void main(String[] args) {
+
+				    }
+
+				    private record PathReplacement(String absolutePathPrefix, String bazelPath) {}
+
+				    private record BuildProperties(
+				            int resourceDirsToSkip,
+				    ) {}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	public class Test {\n" +
+			"	             ^^^^\n" +
+			"The public type Test must be defined in its own file\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 16)\n" +
+			"	int resourceDirsToSkip,\n" +
+			"	                      ^\n" +
+			"Syntax error on token \",\", SingleVariableDeclarator expected after this token\n" +
+			"----------\n");
+}
 public void testBug3504_1() {
 	runNegativeTest(
 			new String[] {

@@ -1025,6 +1025,7 @@ public RecoveredElement buildInitialRecoveryState(){
 		this.compilationUnit.types = null;
 		this.currentToken = 0;
 		this.listLength = 0;
+		this.parsingRecordComponents = false;
 		this.listTypeParameterLength = 0;
 		this.endPosition = 0;
 		this.endStatementPosition = 0;
@@ -2980,7 +2981,12 @@ protected void consumeConstructorHeaderName(boolean isCompact) {
 
 	// ConstructorHeaderName ::=  Modifiersopt 'Identifier' '('
 	// CompactConstructorHeaderName ::= Modifiersopt 'Identifier'
-	ConstructorDeclaration cd = isCompact ? new CompactConstructorDeclaration(this.compilationUnit.compilationResult) : new ConstructorDeclaration(this.compilationUnit.compilationResult);
+	ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationUnit.compilationResult) {
+										@Override
+										public boolean isCompactConstructor() {
+											return isCompact;
+										}
+									};
 
 	//name -- this is not really revelant but we do .....
 	cd.selector = this.identifierStack[this.identifierPtr];
@@ -10409,7 +10415,7 @@ protected void consumeRecordDeclaration() {
 	typeDecl.createDefaultConstructor(!(this.diet && this.dietInt == 0), true);
 	//convert constructor that do not have the type's name into methods
 	ConstructorDeclaration cd = typeDecl.getConstructor(this);
-	if (cd instanceof CompactConstructorDeclaration
+	if (cd.isCompactConstructor()
 		|| ((typeDecl.recordComponents == null || typeDecl.recordComponents.length == 0)
 		&& (cd.arguments == null || cd.arguments.length == 0))) {
 		cd.bits |= ASTNode.IsCanonicalConstructor;
@@ -11687,6 +11693,7 @@ public void initialize(boolean parsingCompilationUnit) {
 	this.lastErrorEndPositionBeforeRecovery = -1;
 	this.lastJavadocEnd = -1;
 	this.listLength = 0;
+	this.parsingRecordComponents = false;
 	this.listTypeParameterLength = 0;
 	this.lastPosistion = -1;
 
@@ -13449,6 +13456,7 @@ protected void resetStacks() {
 	this.realBlockStack[this.realBlockPtr = 0] = 0;
 	this.recoveredStaticInitializerStart = 0;
 	this.listLength = 0;
+	this.parsingRecordComponents = false;
 	this.listTypeParameterLength = 0;
 
 	this.genericsIdentifiersLengthPtr = -1;
@@ -13706,6 +13714,7 @@ public void copyState(Parser from) {
 	// Loose variables.
 
 	this.listLength = parser.listLength;
+	this.parsingRecordComponents = parser.parsingRecordComponents;
 	this.listTypeParameterLength = parser.listTypeParameterLength;
 	this.dimensions = parser.dimensions;
 	this.recoveredStaticInitializerStart = parser.recoveredStaticInitializerStart;

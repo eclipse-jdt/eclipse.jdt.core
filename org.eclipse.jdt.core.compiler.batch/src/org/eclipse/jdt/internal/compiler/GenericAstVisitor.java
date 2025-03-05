@@ -145,11 +145,6 @@ public abstract class GenericAstVisitor extends ASTVisitor {
 	}
 
 	@Override
-	public boolean visit(CompactConstructorDeclaration ccd, ClassScope scope) {
-		return visitNode(ccd);
-	}
-
-	@Override
 	public boolean visit(CompilationUnitDeclaration compilationUnitDeclaration, CompilationUnitScope scope) {
 		return visitNode(compilationUnitDeclaration);
 	}
