@@ -314,7 +314,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	}
 	
 	private String computeKey() {
-		return getKeyWithPossibleGenerics(this.type, this.typeSymbol);
+		return getKeyWithPossibleGenerics(this.type, this.typeSymbol, ITypeBinding::getKey, true);
 	}
 	public String getKeyWithPossibleGenerics(Type t, TypeSymbol s) {
 		return getKeyWithPossibleGenerics(t, s, ITypeBinding::getKey);
@@ -323,22 +323,26 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		return getKeyWithPossibleGenerics(t, s, parameterizedCallback, false);
 	}
 	private String getKeyWithPossibleGenerics(Type t, TypeSymbol s, Function<ITypeBinding, String> parameterizedCallback, boolean useSlashes) {
-		String base = removeTrailingSemicolon(getKey(t, s.flatName(), false, useSlashes));
-		if (isGenericType()) {
+		String base1 = getKey(t, s.flatName(), false, useSlashes);
+		boolean removingSemi = base1.endsWith(";");
+		String base = removingSemi ? removeTrailingSemicolon(base1) : base1;
+		if (isGenericType(t)) {
 			return base + '<'
 				+ Arrays.stream(getTypeParameters())
 					.map(ITypeBinding::getName)
 					.map(name -> 'T' + name + ';')
 					.collect(Collectors.joining())
 				+ ">;";
-		} else if (isParameterizedType()) {
+		} else if (isParameterizedType(t)) {
 			return base + '<'
 				+ Arrays.stream(getTypeArguments())
 					.map(parameterizedCallback)
 					.collect(Collectors.joining())
 				+ ">;";
+		} else if( isRawType(t)) {
+			return base + "<>;";
 		}
-		return base + ";";
+		return base1;
 	}
 	
 	public String getGenericTypeSignature(boolean useSlashes) {
@@ -387,6 +391,10 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		return getKey(this.type, this.typeSymbol.flatName(), includeTypeParameters);
 	}
 
+	public String getKey(boolean includeTypeParameters, boolean useSlashes) {
+		return getKey(this.type, this.typeSymbol.flatName(), includeTypeParameters, useSlashes);
+	}
+
 	public String getKey(Type t, Name n) {
 		return getKey(type, n, true);
 	}
@@ -405,17 +413,25 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 
 	static void getKey(StringBuilder builder, Type typeToBuild, boolean isLeaf, JavacBindingResolver resolver) throws BindingKeyException {
-		getKey(builder, typeToBuild, typeToBuild.asElement().flatName(), isLeaf, false, resolver);
+		getKey(builder, typeToBuild, typeToBuild.asElement().flatName(), isLeaf, false, false, resolver);
+	}
+	
+	static void getKey(StringBuilder builder, Type typeToBuild, boolean isLeaf, boolean includeParameters, JavacBindingResolver resolver) throws BindingKeyException {
+		getKey(builder, typeToBuild, typeToBuild.asElement().flatName(), isLeaf, includeParameters, false, resolver);
 	}
 
-	static void getKey(StringBuilder builder, Type typeToBuild, boolean isLeaf, boolean includeParameters, JavacBindingResolver resolver) throws BindingKeyException {
-		getKey(builder, typeToBuild, typeToBuild.asElement().flatName(), isLeaf, includeParameters, resolver);
+	static void getKey(StringBuilder builder, Type typeToBuild, boolean isLeaf, boolean includeParameters, boolean useSlashes, JavacBindingResolver resolver) throws BindingKeyException {
+		getKey(builder, typeToBuild, typeToBuild.asElement().flatName(), isLeaf, includeParameters, useSlashes, resolver);
 	}
 
 	static void getKey(StringBuilder builder, Type typeToBuild, Name n, boolean isLeaf, boolean includeParameters, JavacBindingResolver resolver) throws BindingKeyException {
 		getKey(builder, typeToBuild, n.toString(), isLeaf, includeParameters, false, resolver);
 	}
 	
+	static void getKey(StringBuilder builder, Type typeToBuild, Name n, boolean isLeaf, boolean includeParameters, boolean useSlashes, JavacBindingResolver resolver) throws BindingKeyException {
+		getKey(builder, typeToBuild, n.toString(), isLeaf, includeParameters, useSlashes, resolver);
+	}
+
 	static void getKey(StringBuilder builder, Type typeToBuild, String n, boolean isLeaf, boolean includeParameters, boolean useSlashes, JavacBindingResolver resolver) throws BindingKeyException {
 
 		if (typeToBuild instanceof Type.JCNoType) {
@@ -435,7 +451,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		}
 		if (typeToBuild instanceof ArrayType arrayType) {
 			builder.append('[');
-			getKey(builder, arrayType.elemtype, isLeaf, includeParameters, resolver);
+			getKey(builder, arrayType.elemtype, isLeaf, includeParameters, useSlashes, resolver);
 			return;
 		}
 		if (typeToBuild instanceof Type.WildcardType wildcardType) {
@@ -443,10 +459,10 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				builder.append("+Ljava/lang/Object;");
 			} else if (wildcardType.isExtendsBound()) {
 				builder.append('+');
-				getKey(builder, wildcardType.getExtendsBound(), isLeaf, includeParameters, resolver);
+				getKey(builder, wildcardType.getExtendsBound(), isLeaf, includeParameters, useSlashes, resolver);
 			} else if (wildcardType.isSuperBound()) {
 				builder.append('-');
-				getKey(builder, wildcardType.getSuperBound(), isLeaf, includeParameters, resolver);
+				getKey(builder, wildcardType.getSuperBound(), isLeaf, includeParameters, useSlashes, resolver);
 			}
 			return;
 		}
@@ -506,7 +522,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			if ((b1 || b2) && includeParameters) {
 				builder.append('<');
 				for (var typeArgument : typeToBuild.getTypeArguments()) {
-					getKey(builder, typeArgument, false, includeParameters, resolver);
+					getKey(builder, typeArgument, false, includeParameters, useSlashes, resolver);
 				}
 				builder.append('>');
 			}
@@ -1227,9 +1243,14 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isGenericType() {
-		return !isRawType() && this.type.isParameterized() && this.isGeneric;
+		return isGenericType(this.type);
 	}
 
+	public boolean isGenericType(Type t) {
+		return !isRawType(t) && t.isParameterized() && this.isGeneric;
+	}
+
+	
 	@Override
 	public boolean isInterface() {
 		return this.typeSymbol.isInterface();
@@ -1275,7 +1296,10 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isParameterizedType() {
-		return this.type.isParameterized() && !this.isGeneric;
+		return isParameterizedType(this.type);
+	}
+	public boolean isParameterizedType(Type t) {
+		return t.isParameterized() && !this.isGeneric;
 	}
 
 	@Override
@@ -1285,7 +1309,11 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public boolean isRawType() {
-		return this.type.isRaw();
+		return isRawType(this.type);
+	}
+
+	private boolean isRawType(Type type2) {
+		return type2.isRaw();
 	}
 
 	@Override

@@ -145,13 +145,31 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		}
 		return toResponse(IMPOSSIBLE_MATCH);
 	}
+	
+	private LocatorResponse matchTypeNodeReturnComponent(Type node, String qualifiedNameFromNode, String fqqn, 
+			int defaultLevel) {
+		if( this.locator.matchesName(qualifiedNameFromNode.toCharArray(), fqqn.toCharArray())) {
+			Type componentType = node instanceof ParameterizedType pt ? pt.getType() : null;
+			boolean replacementFound = componentType != node;
+			int typeParamMatches = validateTypeParameters(node);
+			if( typeParamMatches == TYPE_PARAMS_MATCH) {
+				return new LocatorResponse(defaultLevel, replacementFound, componentType, false, false);
+			} else {
+				int ret = typeParamMatches == TYPE_PARAMS_COUNT_MATCH ? ERASURE_MATCH : IMPOSSIBLE_MATCH;
+				return new LocatorResponse(ret, replacementFound, componentType, false, false);
+			}
+		}
+		return null;
+	}
+	
 	@Override
 	public LocatorResponse match(Type node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		if (failsFineGrain(node, this.locator.fineGrain())) {
 			return toResponse(IMPOSSIBLE_MATCH);
 		}
+		int defaultLevel = this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 		if (this.locator.pattern.simpleName == null) {
-			int v = nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
+			int v = nodeSet.addMatch(node, defaultLevel);
 			return toResponse(v, true);
 		}
 		String qualifiedNameFromNode = getQualifiedNameFromType(node);
@@ -159,17 +177,8 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		if( qualifiedNameFromNode != null && this.locator.pattern.qualification != null) {
 			// we have a qualified name in the node, and our pattern is searching for a qualified name
 			String patternQualifiedString = (new String(this.locator.pattern.qualification) + "." + new String(this.locator.pattern.simpleName));
-			char[] patternQualified = patternQualifiedString.toCharArray();
-			if( this.locator.matchesName(patternQualified, qualifiedNameFromNode.toCharArray())) {
-				int typeParamMatches = validateTypeParameters(node);
-				if( typeParamMatches == TYPE_PARAMS_MATCH) {
-					int v = nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
-					return toResponse(v, true);
-				} else {
-					int ret = typeParamMatches == TYPE_PARAMS_COUNT_MATCH ? ERASURE_MATCH : IMPOSSIBLE_MATCH;
-					return new LocatorResponse(ret, false, node, false, false);
-				}
-			}
+			LocatorResponse r1 = matchTypeNodeReturnComponent(node, patternQualifiedString, qualifiedNameFromNode, defaultLevel);
+			if( r1 != null ) return r1;
 			
 			// Not an exact match. We might need to check for more qualifications
 			if( qualifiedNameFromNode.endsWith(patternQualifiedString)) {
@@ -178,16 +187,8 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 				String fqqnImport = fqqnFromImport(firstSegment);
 				if( fqqnImport != null ) {
 					String fqqn = fqqnImport + patternQualifiedString.substring(firstSegment.length());
-					if( this.locator.matchesName(qualifiedNameFromNode.toCharArray(), fqqn.toCharArray())) {
-						int typeParamMatches = validateTypeParameters(node);
-						if( typeParamMatches == TYPE_PARAMS_MATCH) {
-							int v = nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
-							return toResponse(v, true);
-						} else {
-							int ret = typeParamMatches == TYPE_PARAMS_COUNT_MATCH ? ERASURE_MATCH : IMPOSSIBLE_MATCH;
-							return new LocatorResponse(ret, false, node, false, false);
-						}
-					}
+					r1 = matchTypeNodeReturnComponent(node, qualifiedNameFromNode, fqqn, defaultLevel);
+					if( r1 != null ) return r1;
 				}
 			} else if( patternQualifiedString.endsWith(qualifiedNameFromNode)) {
 				String[] qualifiedNameFromNodeStringSegments = qualifiedNameFromNode.split("\\.");
@@ -195,16 +196,8 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 				String fqqnImport = fqqnFromImport(firstSegment);
 				if( fqqnImport != null ) {
 					String fqqn = fqqnImport + qualifiedNameFromNode.substring(firstSegment.length());
-					if( this.locator.matchesName(patternQualified, fqqn.toCharArray())) {
-						int typeParamMatches = validateTypeParameters(node);
-						if( typeParamMatches == TYPE_PARAMS_MATCH) {
-							int v = nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
-							return toResponse(v, true);
-						} else {
-							int ret = typeParamMatches == TYPE_PARAMS_COUNT_MATCH ? ERASURE_MATCH : IMPOSSIBLE_MATCH;
-							return new LocatorResponse(ret, false, node, false, false);
-						}
-					}
+					r1 = matchTypeNodeReturnComponent(node, patternQualifiedString, fqqn, defaultLevel);
+					if( r1 != null ) return r1;
 				}
 			}
 		} else if (simpleNameFromNode != null ) {
@@ -391,6 +384,9 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 				return resolveLevelForImportBinding(node, typeBinding, locator);
 			}
 			int v = resolveLevelForTypeBinding(node, typeBinding, locator);
+			if( node instanceof ParameterizedType pt) {
+				return new LocatorResponse(v, true, pt.getType(), false, false);
+			}
 			return toResponse(v);
 		}
 		if( binding instanceof IPackageBinding && node instanceof SimpleName sn) {

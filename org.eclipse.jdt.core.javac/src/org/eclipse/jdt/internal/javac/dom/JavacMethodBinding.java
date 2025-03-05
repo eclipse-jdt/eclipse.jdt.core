@@ -365,15 +365,20 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	}
 
 	static void getKey(StringBuilder builder, MethodSymbol methodSymbol, MethodType methodType, Type parentType, JavacBindingResolver resolver) throws BindingKeyException {
+		getKey(builder, methodSymbol, methodType, parentType, false, resolver);
+	}
+	
+	static void getKey(StringBuilder builder, MethodSymbol methodSymbol, MethodType methodType, Type parentType, boolean useSlashes, JavacBindingResolver resolver) throws BindingKeyException {
+
 		if (parentType != null) {
-			builder.append(resolver.bindings.getTypeBinding(parentType).getKey());
+			builder.append(resolver.bindings.getTypeBinding(parentType).getKey(true, true));
 		} else {
 			Symbol ownerSymbol = methodSymbol.owner;
 			while (ownerSymbol != null && !(ownerSymbol instanceof TypeSymbol)) {
 				ownerSymbol = ownerSymbol.owner;
 			}
 			if (ownerSymbol instanceof TypeSymbol ownerTypeSymbol && ownerTypeSymbol.type != Type.noType) {
-				JavacTypeBinding.getKey(builder, resolver.getTypes().erasure(ownerTypeSymbol.type), false, resolver);
+				JavacTypeBinding.getKey(builder, resolver.getTypes().erasure(ownerTypeSymbol.type), false, false, useSlashes, resolver);
 			} else {
 				throw new BindingKeyException(new IllegalArgumentException("Method has no owning class"));
 			}
@@ -391,7 +396,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 			if (methodType != null && !methodType.getTypeArguments().isEmpty()) {
 				builder.append('<');
 				for (var typeParam : methodType.getTypeArguments()) {
-					JavacTypeBinding.getKey(builder, typeParam, false, resolver);
+					JavacTypeBinding.getKey(builder, typeParam, false, true, useSlashes, resolver);
 				}
 				builder.append('>');
 			} else if (!methodSymbol.getTypeParameters().isEmpty()) {
@@ -404,18 +409,18 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 			builder.append('(');
 			if (methodType != null) {
 				for (var param : methodType.getParameterTypes()) {
-					JavacTypeBinding.getKey(builder, param, false, resolver);
+					JavacTypeBinding.getKey(builder, param, false, false, true, resolver);
 				}
 			} else {
 				for (var param : methodSymbol.getParameters()) {
-					JavacTypeBinding.getKey(builder, param.type, false, resolver);
+					JavacTypeBinding.getKey(builder, param.type, false, false, true, resolver);
 				}
 			}
 			builder.append(')');
 			if (methodType != null && !(methodType.getReturnType() instanceof JCNoType)) {
-				JavacTypeBinding.getKey(builder, methodType.getReturnType(), false, true, resolver);
+				JavacTypeBinding.getKey(builder, methodType.getReturnType(), false, true, true, resolver);
 			} else if (!(methodSymbol.getReturnType() instanceof JCNoType)) {
-				JavacTypeBinding.getKey(builder, methodSymbol.getReturnType(), false, resolver);
+				JavacTypeBinding.getKey(builder, methodSymbol.getReturnType(), false, true, true, resolver);
 			}
 			if (
 					methodSymbol.getThrownTypes().stream().anyMatch(a -> !a.getParameterTypes().isEmpty())

@@ -56,7 +56,7 @@ public abstract class JavacTypeVariableBinding extends JavacTypeBinding {
 			IBinding ownerBinding = this.bindingResolver.bindings.getBinding(this.sym.owner, null);
 			if (ownerBinding != null) {
 				if( ownerBinding instanceof JavacTypeBinding jctb && !(ownerBinding instanceof JavacTypeVariableBinding)) {
-					builder.append(jctb.getKey(false));
+					builder.append(jctb.getKey(false, true));
 				} else {
 					builder.append(ownerBinding.getKey());
 				}
@@ -90,7 +90,7 @@ public abstract class JavacTypeVariableBinding extends JavacTypeBinding {
 			if (bound.isParameterized()) {
 				builder.append(':');
 			}
-			JavacTypeBinding.getKey(builder, bound, false, resolver);
+			JavacTypeBinding.getKey(builder, bound, false, false, true, resolver);
 		}
 		return builder.toString();
 	}

@@ -159,7 +159,8 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		int length = sourceFilePaths.length;
 		List<org.eclipse.jdt.internal.compiler.env.ICompilationUnit> sourceUnitList = new ArrayList<>(length);
 		for (int i = 0; i < length; i++) {
-			org.eclipse.jdt.internal.compiler.env.ICompilationUnit obj = createSourceUnit(sourceFilePaths[i], encodings[i]);
+			String encoding = encodings == null ? null : i >= encodings.length ? null : encodings[i];
+			org.eclipse.jdt.internal.compiler.env.ICompilationUnit obj = createSourceUnit(sourceFilePaths[i], encoding);
 			if( obj != null )
 				sourceUnitList.add(obj);
 		}

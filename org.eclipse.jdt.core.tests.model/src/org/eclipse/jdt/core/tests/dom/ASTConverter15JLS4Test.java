@@ -3880,6 +3880,8 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
         assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression.getNodeType());
         methodInvocation = (MethodInvocation) expression;
         IMethodBinding methodBinding2 = methodInvocation.resolveMethodBinding();
+        String k1 = methodBinding.getKey();
+        String k2 = methodBinding2.getKey();
         assertFalse("Keys are equals", methodBinding.getKey().equals(methodBinding2.getKey()));
         assertFalse("bindings are equals", methodBinding.isEqualTo(methodBinding2));
     }

@@ -200,18 +200,19 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 			if( classSymbol.type.asElement() == null ) {
 				return null;
 			}
-			JavacTypeBinding.getKey(builder, classSymbol.type, false, this.resolver);
+			JavacTypeBinding.getKey(builder, classSymbol.type, false, false, true, this.resolver);
 			builder.append('.');
 			builder.append(this.variableSymbol.name);
 			builder.append(')');
 			if (this.variableSymbol.type != null) {
-				JavacTypeBinding.getKey(builder, this.variableSymbol.type, false, this.resolver);
+				JavacTypeBinding.getKey(builder, this.variableSymbol.type, false, false, true, this.resolver);
 			} else {
 				builder.append('V');
 			}
 			return builder.toString();
 		} else if (this.variableSymbol.owner instanceof MethodSymbol methodSymbol) {
-			JavacMethodBinding.getKey(builder, methodSymbol, methodSymbol.type instanceof Type.MethodType methodType ? methodType : null, null, this.resolver);
+			Type.MethodType toUse = methodSymbol.type instanceof Type.MethodType methodType ? methodType : null;
+			JavacMethodBinding.getKey(builder, methodSymbol, toUse, null, true, this.resolver);
 			// no need to get it right, just get it right enough
 			if (!isUnique) {
 				builder.append(this.variableSymbol.pos);

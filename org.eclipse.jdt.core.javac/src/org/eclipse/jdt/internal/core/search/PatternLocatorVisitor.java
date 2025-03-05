@@ -108,7 +108,8 @@ class PatternLocatorVisitor extends ASTVisitor {
 		n2 = n2 == null ? node : n2;
 		if (resp.level() == PatternLocator.POSSIBLE_MATCH && mustResolve) {
 			LocatorResponse resp2 = wrapper.resolveLevel(n2, bindingFunc.apply(n2), this.locator);
-			resp = new LocatorResponse(resp2.level(), resp.replacementNodeFound(), n2, resp2.added(), resp2.canVisitChildren());
+			n2 = resp2.replacementNodeFound() ? resp2.replacement() : n2;
+			resp = new LocatorResponse(resp2.level(), resp.replacementNodeFound() || resp2.replacementNodeFound(), n2, resp2.added(), resp2.canVisitChildren());
 		}
 		boolean added = resp.added();  
 		if( !added ) {
@@ -204,7 +205,7 @@ class PatternLocatorVisitor extends ASTVisitor {
 	}
 	@Override
 	public boolean visit(ParameterizedType node) {
-		LocatorResponse resp = defaultVisitImplementationWithFunc(node.getType(), (x,y) -> y.match(node, this.nodeSet, this.locator), DOMASTNodeUtils::getBinding);
+		LocatorResponse resp = defaultVisitImplementationWithFunc(node, (x,y) -> y.match(node, this.nodeSet, this.locator), DOMASTNodeUtils::getBinding);
 		if( resp.level() == 0 && resp.canVisitChildren() ) {
 			return true;
 		}
