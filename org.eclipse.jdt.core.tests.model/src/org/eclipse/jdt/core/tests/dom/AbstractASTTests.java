@@ -222,8 +222,12 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		}
 		String actual = buffer.toString();
 		if (!expected.equals(actual)) {
-			System.out.print(displayString(actual, 4));
-			System.out.println(',');
+			try {
+				System.out.print(displayString(actual, 4));
+				System.out.println(',');
+			} catch(Throwable t) {
+				// For some reason ConverterTestSetup.getExternalJCLPathString(etc) returns null directly.
+			}
 		}
 		assertEquals(
 			"Unexpected binding keys",

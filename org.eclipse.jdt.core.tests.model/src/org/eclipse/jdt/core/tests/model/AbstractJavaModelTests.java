@@ -2935,28 +2935,28 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
     			toDisplay,
     			getWorkspacePath().toCharArray(),
     			"getWorkspacePath()".toCharArray());
-    	toDisplay =
+    	toDisplay = getExternalJCLPathString() == null ? toDisplay :
     		CharOperation.replace(
     			toDisplay,
     			getExternalJCLPathString().toCharArray(),
     			"getExternalJCLPathString()".toCharArray());
-		toDisplay =
+		toDisplay = getExternalJCLPathString(minJavaVersion) == null ? toDisplay :
     		CharOperation.replace(
     			toDisplay,
     			getExternalJCLPathString(minJavaVersion).toCharArray(),
     			("getExternalJCLPathString(" + minJavaVersionEncoded + ")").toCharArray());
-		toDisplay =
+		toDisplay = getExternalPath() == null ? toDisplay :
     		CharOperation.replace(
     			toDisplay,
     			getExternalPath().toCharArray(),
     			"getExternalPath()".toCharArray());
 
-		toDisplay =
+		toDisplay = getExternalJCLSourcePathString() == null ? toDisplay :
     		CharOperation.replace(
     			toDisplay,
     			org.eclipse.jdt.core.tests.util.Util.displayString(getExternalJCLSourcePathString(), 0).toCharArray(),
     			"getExternalJCLSourcePathString()".toCharArray());
-		toDisplay =
+		toDisplay = getExternalJCLSourcePathString(minJavaVersion) == null ? toDisplay :
     		CharOperation.replace(
     			toDisplay,
     			org.eclipse.jdt.core.tests.util.Util.displayString(getExternalJCLSourcePathString(minJavaVersion), 0).toCharArray(),
