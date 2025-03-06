@@ -27,6 +27,7 @@ import java.util.function.Predicate;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
 public class SpacePreparator extends ASTVisitor {
 
@@ -144,7 +145,7 @@ public class SpacePreparator extends ASTVisitor {
 			int from = this.tm.firstIndexIn(node.getName(), TokenNameIdentifier) + 1;
 			AnonymousClassDeclaration classDeclaration = node.getAnonymousClassDeclaration();
 			int to = classDeclaration != null ? this.tm.firstIndexBefore(classDeclaration, -1)
-					: this.tm.lastIndexIn(node, -1);
+					: this.tm.lastIndexIn(node, TokenNameInvalid);
 			for (int i = from; i <= to; i++) {
 				if (this.tm.get(i).tokenType == TokenNameLPAREN) {
 					openingParen = this.tm.get(i);
@@ -1079,7 +1080,7 @@ public class SpacePreparator extends ASTVisitor {
 		}
 	}
 
-	private void handleToken(ASTNode node, int tokenType, boolean spaceBefore, boolean spaceAfter) {
+	private void handleToken(ASTNode node, TerminalTokens tokenType, boolean spaceBefore, boolean spaceAfter) {
 		if (spaceBefore || spaceAfter) {
 			Token token = this.tm.get(this.tm.findIndex(node.getStartPosition(), tokenType, true));
 			// ^not the same as "firstTokenIn(node, tokenType)" - do not assert the token is inside the node
@@ -1087,17 +1088,17 @@ public class SpacePreparator extends ASTVisitor {
 		}
 	}
 
-	private void handleTokenBefore(ASTNode node, int tokenType, boolean spaceBefore, boolean spaceAfter) {
+	private void handleTokenBefore(ASTNode node, TerminalTokens tokenType, boolean spaceBefore, boolean spaceAfter) {
 		if (spaceBefore || spaceAfter) {
 			Token token = this.tm.firstTokenBefore(node, tokenType);
 			handleToken(token, spaceBefore, spaceAfter);
 		}
 	}
 
-	private void handleTokenAfter(ASTNode node, int tokenType, boolean spaceBefore, boolean spaceAfter) {
+	private void handleTokenAfter(ASTNode node, TerminalTokens tokenType, boolean spaceBefore, boolean spaceAfter) {
 		if (tokenType == TokenNameGREATER) {
 			// there could be ">>" or ">>>" instead, get rid of them
-			int index = this.tm.lastIndexIn(node, -1);
+			int index = this.tm.lastIndexIn(node, TokenNameInvalid);
 			for (int i = index; i < index + 2; i++) {
 				Token token = this.tm.get(i);
 				if (token.tokenType == TokenNameRIGHT_SHIFT || token.tokenType == TokenNameUNSIGNED_RIGHT_SHIFT) {
@@ -1144,7 +1145,7 @@ public class SpacePreparator extends ASTVisitor {
 
 	private void handleSemicolon(ASTNode node) {
 		if (this.options.insert_space_before_semicolon) {
-			Token lastToken = this.tm.lastTokenIn(node, -1);
+			Token lastToken = this.tm.lastTokenIn(node, TokenNameInvalid);
 			if (lastToken.tokenType == TokenNameSEMICOLON)
 				lastToken.spaceBefore();
 		}
@@ -1187,6 +1188,8 @@ public class SpacePreparator extends ASTVisitor {
 					case TokenNameMINUS:
 						if (getNext().tokenType == TokenNameMINUS || getNext().tokenType == TokenNameMINUS_MINUS)
 							token.spaceAfter();
+						break;
+					default: // NOP
 						break;
 				}
 				return true;

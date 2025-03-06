@@ -13,13 +13,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser.diagnose;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOLON_COLON;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameEOF;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
-public class LexStream implements TerminalTokens {
+public class LexStream {
 	public static final int IS_AFTER_JUMP = 1;
 	public static final int LBRACE_MISSING = 2;
 
@@ -81,8 +84,8 @@ public class LexStream implements TerminalTokens {
 
 		while(tokenNotFound) {
 			try {
-				int tokenKind =  this.scanner.getNextToken();
-				if (tokenKind == TokenNameBeginTypeArguments) {
+				TerminalTokens tokenKind =  this.scanner.getNextToken();
+				if (tokenKind == TerminalTokens.TokenNameBeginTypeArguments) {
 					this.awaitingColonColon = true;
 				} else if (tokenKind == TokenNameCOLON_COLON) {
 					this.awaitingColonColon = false;
@@ -96,7 +99,7 @@ public class LexStream implements TerminalTokens {
 							nextInterval >= this.intervalStartToSkip.length ||
 							start < this.intervalStartToSkip[nextInterval]) {
 						Token token = new Token();
-						token.kind = tokenKind;
+						token.kind = tokenKind.tokenNumber();
 						token.name = this.scanner.getCurrentTokenSource();
 						token.start = start;
 						token.end = end;
@@ -120,7 +123,7 @@ public class LexStream implements TerminalTokens {
 					int start = this.scanner.getCurrentTokenStartPosition();
 					int end = this.scanner.getCurrentTokenEndPosition();
 					Token token = new Token();
-					token.kind = tokenKind;
+					token.kind = tokenKind.tokenNumber();
 					token.name = CharOperation.NO_CHAR;
 					token.start = start;
 					token.end = end;
@@ -140,7 +143,7 @@ public class LexStream implements TerminalTokens {
 	public Token token(int index) {
 		if(index < 0) {
 			Token eofToken = new Token();
-			eofToken.kind = TokenNameEOF;
+			eofToken.kind = TokenNameEOF.tokenNumber();
 			eofToken.name = CharOperation.NO_CHAR;
 			return eofToken;
 		}
@@ -281,7 +284,7 @@ public class LexStream implements TerminalTokens {
 				res.append(source.substring(previousEnd + 1, curtokStart));
 				res.append('<');
 				res.append('#');
-				if(curtokKind == TokenNameEOF) {
+				if(curtokKind == TokenNameEOF.tokenNumber()) {
 					res.append("EOF#>"); //$NON-NLS-1$
 				} else {
 					res.append(source.substring(curtokStart, curtokEnd + 1));

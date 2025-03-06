@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
  */
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class RecoveredType extends RecoveredStatement implements TerminalTokens {
+public class RecoveredType extends RecoveredStatement {
 	public static final int MAX_TYPE_DEPTH = 256;
 
 	public TypeDeclaration typeDeclaration;
@@ -789,19 +789,21 @@ public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 				!= parser.scanner.searchLineNumber(braceEnd)){
 		 */
 		Parser parser = parser();
-		switch(parser.lastIgnoredToken){
-			case -1 :
-			case TokenNameextends :
-			case TokenNameimplements :
-			case TokenNameRestrictedIdentifierpermits:
-			case TokenNameGREATER :
-			case TokenNameRIGHT_SHIFT :
-			case TokenNameUNSIGNED_RIGHT_SHIFT :
-				if (parser.recoveredStaticInitializerStart == 0) break;
-			//$FALL-THROUGH$
-			default:
-				this.foundOpeningBrace = true;
-				this.bracketBalance = 1; // pretend the brace was already there
+		if (parser.lastIgnoredToken != null){
+			switch(parser.lastIgnoredToken){
+				case TokenNameInvalid :
+				case TokenNameextends :
+				case TokenNameimplements :
+				case TokenNameRestrictedIdentifierpermits:
+				case TokenNameGREATER :
+				case TokenNameRIGHT_SHIFT :
+				case TokenNameUNSIGNED_RIGHT_SHIFT :
+					if (parser.recoveredStaticInitializerStart == 0) break;
+				//$FALL-THROUGH$
+				default:
+					this.foundOpeningBrace = true;
+					this.bracketBalance = 1; // pretend the brace was already there
+			}
 		}
 	}
 	// might be an initializer

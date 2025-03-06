@@ -179,9 +179,9 @@ public class TextBlock extends Expression {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length);
 		try {
-			int tokenType = scanner.getNextToken();
+			TerminalTokens tokenType = scanner.getNextToken();
 			switch(tokenType) {
-				case TerminalTokens.TokenNameTextBlock:
+				case TokenNameTextBlock:
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid Text Block : >" + token + "<"); //$NON-NLS-1$//$NON-NLS-2$

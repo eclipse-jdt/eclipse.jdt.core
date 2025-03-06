@@ -2236,7 +2236,7 @@ protected void reportAccurateTypeReference(SearchMatch match, ASTNode typeRef, c
 		scanner.setSource(this.currentPossibleMatch.getContents());
 		scanner.resetTo(sourceStart, sourceEnd);
 
-		int token = -1;
+		TerminalTokens token = TerminalTokens.TokenNameInvalid;
 		int currentPosition;
 		do {
 			currentPosition = scanner.currentPosition;
@@ -2405,7 +2405,7 @@ protected void reportAccurateEnumConstructorReference(SearchMatch match, FieldDe
 	scanner.setSource(this.currentPossibleMatch.getContents());
 	scanner.resetTo(sourceStart, sourceEnd);
 	try {
-		int token = scanner.getNextToken();
+		TerminalTokens token = scanner.getNextToken();
 		while (token != TerminalTokens.TokenNameEOF) {
 			if (token == TerminalTokens.TokenNameRPAREN) {
 				sourceEnd = scanner.getCurrentTokenEndPosition();
@@ -2442,7 +2442,7 @@ protected void reportAccurateFieldReference(SearchMatch[] matches, QualifiedName
 
 	int refSourceStart = -1, refSourceEnd = -1;
 	int length = tokens.length;
-	int token = -1;
+	TerminalTokens token = TerminalTokens.TokenNameInvalid;
 	int previousValid = -1;
 	int i = 0;
 	int index = 0;

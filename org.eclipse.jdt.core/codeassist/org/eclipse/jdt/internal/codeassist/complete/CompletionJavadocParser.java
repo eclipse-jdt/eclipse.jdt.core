@@ -210,7 +210,7 @@ public class CompletionJavadocParser extends JavadocParser {
 	 * Create type reference. If it includes completion location, create and store completion node.
 	 */
 	@Override
-	protected Object createTypeReference(int primitiveToken, boolean canBeModule) {
+	protected Object createTypeReference(TerminalTokens primitiveToken, boolean canBeModule) {
 		// Need to create type ref in case it was needed by members
 		int nbIdentifiers = this.identifierLengthStack[this.identifierLengthPtr];
 		int startPtr = this.identifierPtr - (nbIdentifiers-1);
@@ -265,7 +265,7 @@ public class CompletionJavadocParser extends JavadocParser {
 	}
 
 	@Override
-	protected Object createModuleTypeReference(int primitiveToken, int moduleRefTokenCount) {
+	protected Object createModuleTypeReference(TerminalTokens primitiveToken, int moduleRefTokenCount) {
 
 		// Need to create type ref in case it was needed by members
 		int nbIdentifiers = this.identifierLengthStack[this.identifierLengthPtr];
@@ -559,7 +559,7 @@ public class CompletionJavadocParser extends JavadocParser {
 				}
 
 				// Read separator or end arguments declaration
-				int token = readToken();
+				TerminalTokens token = readToken();
 				name = argName == null ? CharOperation.NO_CHAR : argName;
 				if (token == TerminalTokens.TokenNameCOMMA) {
 					// Create new argument
@@ -776,11 +776,11 @@ public class CompletionJavadocParser extends JavadocParser {
 				this.pushText = true;
 
 				// Get reference tokens
-				int previousToken = TerminalTokens.TokenNameWHITESPACE;
+				TerminalTokens previousToken = TerminalTokens.TokenNameWHITESPACE;
 				while (!this.scanner.atEnd() && this.completionNode == null && !this.abort) {
-					int token = readTokenSafely();
+					TerminalTokens token = readTokenSafely();
 					switch (token) {
-						case TerminalTokens.TokenNameStringLiteral :
+						case TokenNameStringLiteral :
 							int strStart = 0, strEnd = 0;
 							if ((strStart=this.scanner.getCurrentTokenStartPosition()+1) <= this.cursorLocation &&
 								this.cursorLocation <= (strEnd=this.scanner.getCurrentTokenEndPosition()-1))
@@ -789,7 +789,7 @@ public class CompletionJavadocParser extends JavadocParser {
 							}
 							consumeToken();
 							break;
-						case TerminalTokens.TokenNameERROR :
+						case TokenNameERROR :
 							consumeToken();
 							if (this.scanner.currentCharacter == '#') { // @see ...#member
 								Object member = null;
@@ -820,7 +820,7 @@ public class CompletionJavadocParser extends JavadocParser {
 								}
 							}
 							break;
-						case TerminalTokens.TokenNameIdentifier :
+						case TokenNameIdentifier :
 							try {
 								this.scanner.tokenizeWhiteSpace = false;
 								typeRef = parseQualifiedName(true);
@@ -841,7 +841,7 @@ public class CompletionJavadocParser extends JavadocParser {
 								this.completionNode = null;
 							}
 							break;
-						case TerminalTokens.TokenNameAT:
+						case TokenNameAT:
 							consumeToken();
 							try {
 								this.scanner.tokenizeWhiteSpace = false;
@@ -932,8 +932,8 @@ public class CompletionJavadocParser extends JavadocParser {
 	}
 
 	@Override
-	protected int readToken() throws InvalidInputException {
-		int token = super.readToken();
+	protected TerminalTokens readToken() throws InvalidInputException {
+		TerminalTokens token = super.readToken();
 		if (token == TerminalTokens.TokenNameIdentifier && this.scanner.currentPosition == this.scanner.startPosition) {
 			// Scanner is looping on empty token => read it...
 			this.scanner.getCurrentIdentifierSource();
@@ -945,7 +945,7 @@ public class CompletionJavadocParser extends JavadocParser {
 	 * Recover syntax on invalid qualified name.
 	 */
 	@Override
-	protected Object syntaxRecoverQualifiedName(int primitiveToken) throws InvalidInputException {
+	protected Object syntaxRecoverQualifiedName(TerminalTokens primitiveToken) throws InvalidInputException {
 		if (this.cursorLocation == ((int)this.identifierPositionStack[this.identifierPtr])) {
 			// special case of completion just before the dot.
 			return createTypeReference(primitiveToken);

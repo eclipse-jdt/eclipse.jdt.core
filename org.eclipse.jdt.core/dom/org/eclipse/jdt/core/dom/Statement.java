@@ -137,13 +137,13 @@ public abstract class Statement extends ASTNode {
 			scanner.resetTo(0, source.length);
 			scanner.setSource(source);
 			try {
-				int token;
+				TerminalTokens token;
 				boolean onlyOneComment = false;
 				while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 					switch(token) {
-						case TerminalTokens.TokenNameCOMMENT_BLOCK :
-						case TerminalTokens.TokenNameCOMMENT_JAVADOC :
-						case TerminalTokens.TokenNameCOMMENT_LINE :
+						case TokenNameCOMMENT_BLOCK :
+						case TokenNameCOMMENT_JAVADOC :
+						case TokenNameCOMMENT_LINE :
 							if (onlyOneComment) {
 								throw new IllegalArgumentException();
 							}

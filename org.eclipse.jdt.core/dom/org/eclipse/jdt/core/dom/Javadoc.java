@@ -273,11 +273,11 @@ public class Javadoc extends Comment {
 		scanner.resetTo(0, source.length);
 		scanner.setSource(source);
 		try {
-			int token;
+			TerminalTokens token;
 			boolean onlyOneComment = false;
 			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
-					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+					case TokenNameCOMMENT_JAVADOC :
 						if (onlyOneComment) {
 							throw new IllegalArgumentException();
 						}
