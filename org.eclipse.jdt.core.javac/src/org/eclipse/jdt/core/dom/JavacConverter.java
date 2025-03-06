@@ -2683,6 +2683,10 @@ class JavacConverter {
 					res.resources().add(working);
 				} else if( this.ast.apiLevel >= AST.JLS9_INTERNAL && working instanceof Name){
 					res.resources().add(working);
+				} else if( this.ast.apiLevel >= AST.JLS9_INTERNAL && working instanceof SuperFieldAccess){
+					res.resources().add(working);
+				} else if( this.ast.apiLevel >= AST.JLS9_INTERNAL && working instanceof FieldAccess){
+					res.resources().add(working);
 				} else {
 					res.setFlags(res.getFlags() | ASTNode.MALFORMED);
 				}
