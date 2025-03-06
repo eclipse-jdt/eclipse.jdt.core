@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameNotAToken;
+
 import junit.framework.Test;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
@@ -38,7 +40,7 @@ public class InternalScannerTest extends AbstractRegressionTest {
 		String source =	"//Comment";
 		Scanner scanner = new Scanner();
 		scanner.setSource(source.toCharArray());
-		int token = 0;
+		TerminalTokens token = TokenNameNotAToken;
 		try {
 			token = scanner.getNextToken();
 		} catch (InvalidInputException e) {
@@ -56,12 +58,12 @@ public class InternalScannerTest extends AbstractRegressionTest {
 		Scanner scanner = new Scanner();
 		scanner.recordLineSeparator = true;
 		scanner.setSource("a\nb\nc\n".toCharArray());
-		int token = 0;
+		TerminalTokens token = TokenNameNotAToken;
 		while (token !=  TerminalTokens.TokenNameEOF) {
 			token = scanner.getNextToken();
 		}
 		scanner.setSource("a\nb\n".toCharArray());
-		token = 0;
+		token = TokenNameNotAToken;
 		while (token !=  TerminalTokens.TokenNameEOF) {
 			token = scanner.getNextToken();
 		}

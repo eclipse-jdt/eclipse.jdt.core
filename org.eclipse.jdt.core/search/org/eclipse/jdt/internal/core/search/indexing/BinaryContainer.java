@@ -17,7 +17,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 public abstract class BinaryContainer extends IndexRequest {
@@ -31,9 +30,9 @@ public abstract class BinaryContainer extends IndexRequest {
 		switch(this.scanner.scanIdentifier()) {
 			// assert and enum will not be recognized as java identifiers
 			// in 1.7 mode, which are in 1.3.
-			case TerminalTokens.TokenNameIdentifier:
-			case TerminalTokens.TokenNameassert:
-			case TerminalTokens.TokenNameenum:
+			case TokenNameIdentifier:
+			case TokenNameassert:
+			case TokenNameenum:
 				return true;
 			default:
 				return false;

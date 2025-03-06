@@ -22,59 +22,59 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScannerData;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
-import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToIntArray;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToTokenArray;
 
 /**
  * Internal AST visitor for propagating syntax errors.
  */
 @SuppressWarnings({"rawtypes"})
 class ASTRecoveryPropagator extends DefaultASTVisitor {
-	private static final int NOTHING = -1;
-	HashtableOfObjectToIntArray endingTokens = new HashtableOfObjectToIntArray();
+	private static final TerminalTokens NOTHING = TerminalTokens.TokenNameInvalid;
+	HashtableOfObjectToTokenArray endingTokens = new HashtableOfObjectToTokenArray();
 	{
-		this.endingTokens.put(AnonymousClassDeclaration.class, new int[]{TerminalTokens.TokenNameRBRACE});
-		this.endingTokens.put(ArrayAccess.class, new int[]{TerminalTokens.TokenNameRBRACKET});
-		this.endingTokens.put(ArrayCreation.class, new int[]{NOTHING, TerminalTokens.TokenNameRBRACKET});
-		this.endingTokens.put(ArrayInitializer.class, new int[]{TerminalTokens.TokenNameRBRACE});
-		this.endingTokens.put(ArrayType.class, new int[]{TerminalTokens.TokenNameRBRACKET});
-		this.endingTokens.put(AssertStatement.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
-		this.endingTokens.put(Block.class, new int[]{TerminalTokens.TokenNameRBRACE});
-		this.endingTokens.put(BooleanLiteral.class, new int[]{TerminalTokens.TokenNamefalse, TerminalTokens.TokenNametrue});
-		this.endingTokens.put(BreakStatement.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
-		this.endingTokens.put(CharacterLiteral.class, new int[]{TerminalTokens.TokenNameCharacterLiteral});
-		this.endingTokens.put(ClassInstanceCreation.class, new int[]{TerminalTokens.TokenNameRBRACE, TerminalTokens.TokenNameRPAREN});
-		this.endingTokens.put(ConstructorInvocation.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
-		this.endingTokens.put(ContinueStatement.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
-		this.endingTokens.put(DoStatement.class, new int[]{TerminalTokens.TokenNameRPAREN});
-		this.endingTokens.put(EmptyStatement.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
-		this.endingTokens.put(ExpressionStatement.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
-		this.endingTokens.put(FieldDeclaration.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
-		this.endingTokens.put(ImportDeclaration.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
-		this.endingTokens.put(Initializer.class, new int[]{TerminalTokens.TokenNameRBRACE});
-		this.endingTokens.put(MethodDeclaration.class, new int[]{NOTHING, TerminalTokens.TokenNameSEMICOLON});
-		this.endingTokens.put(MethodInvocation.class, new int[]{TerminalTokens.TokenNameRPAREN});
-		this.endingTokens.put(ModuleDeclaration.class, new int[]{TerminalTokens.TokenNameRBRACE});
-		this.endingTokens.put(ModuleDirective.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
-		this.endingTokens.put(NullLiteral.class, new int[]{TerminalTokens.TokenNamenull});
-		this.endingTokens.put(NumberLiteral.class, new int[]{TerminalTokens.TokenNameIntegerLiteral, TerminalTokens.TokenNameLongLiteral, TerminalTokens.TokenNameFloatingPointLiteral, TerminalTokens.TokenNameDoubleLiteral});
-		this.endingTokens.put(PackageDeclaration.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
-		this.endingTokens.put(ParenthesizedExpression.class, new int[]{TerminalTokens.TokenNameRPAREN});
-		this.endingTokens.put(PostfixExpression.class, new int[]{TerminalTokens.TokenNamePLUS_PLUS, TerminalTokens.TokenNameMINUS_MINUS});
-		this.endingTokens.put(PrimitiveType.class, new int[]{TerminalTokens.TokenNamebyte, TerminalTokens.TokenNameshort, TerminalTokens.TokenNamechar, TerminalTokens.TokenNameint, TerminalTokens.TokenNamelong, TerminalTokens.TokenNamefloat, TerminalTokens.TokenNameboolean, TerminalTokens.TokenNamedouble, TerminalTokens.TokenNamevoid});
-		this.endingTokens.put(ReturnStatement.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
-		this.endingTokens.put(SimpleName.class, new int[]{TerminalTokens.TokenNameIdentifier});
-		this.endingTokens.put(SingleVariableDeclaration.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
-		this.endingTokens.put(StringLiteral.class, new int[]{TerminalTokens.TokenNameStringLiteral});
-		this.endingTokens.put(SuperConstructorInvocation.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
-		this.endingTokens.put(SuperMethodInvocation.class, new int[]{TerminalTokens.TokenNameRPAREN});
-		this.endingTokens.put(SwitchCase.class, new int[]{TerminalTokens.TokenNameCOLON});
-		this.endingTokens.put(SwitchStatement.class, new int[]{TerminalTokens.TokenNameRBRACE});
-		this.endingTokens.put(SynchronizedStatement.class, new int[]{TerminalTokens.TokenNameRBRACE});
-		this.endingTokens.put(ThisExpression.class, new int[]{TerminalTokens.TokenNamethis});
-		this.endingTokens.put(ThrowStatement.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
-		this.endingTokens.put(TypeDeclaration.class, new int[]{TerminalTokens.TokenNameRBRACE});
-		this.endingTokens.put(TypeLiteral.class, new int[]{TerminalTokens.TokenNameclass});
-		this.endingTokens.put(VariableDeclarationStatement.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(AnonymousClassDeclaration.class, new TerminalTokens[]{TerminalTokens.TokenNameRBRACE});
+		this.endingTokens.put(ArrayAccess.class, new TerminalTokens[]{TerminalTokens.TokenNameRBRACKET});
+		this.endingTokens.put(ArrayCreation.class, new TerminalTokens[]{NOTHING, TerminalTokens.TokenNameRBRACKET});
+		this.endingTokens.put(ArrayInitializer.class, new TerminalTokens[]{TerminalTokens.TokenNameRBRACE});
+		this.endingTokens.put(ArrayType.class, new TerminalTokens[]{TerminalTokens.TokenNameRBRACKET});
+		this.endingTokens.put(AssertStatement.class, new TerminalTokens[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(Block.class, new TerminalTokens[]{TerminalTokens.TokenNameRBRACE});
+		this.endingTokens.put(BooleanLiteral.class, new TerminalTokens[]{TerminalTokens.TokenNamefalse, TerminalTokens.TokenNametrue});
+		this.endingTokens.put(BreakStatement.class, new TerminalTokens[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(CharacterLiteral.class, new TerminalTokens[]{TerminalTokens.TokenNameCharacterLiteral});
+		this.endingTokens.put(ClassInstanceCreation.class, new TerminalTokens[]{TerminalTokens.TokenNameRBRACE, TerminalTokens.TokenNameRPAREN});
+		this.endingTokens.put(ConstructorInvocation.class, new TerminalTokens[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(ContinueStatement.class, new TerminalTokens[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(DoStatement.class, new TerminalTokens[]{TerminalTokens.TokenNameRPAREN});
+		this.endingTokens.put(EmptyStatement.class, new TerminalTokens[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(ExpressionStatement.class, new TerminalTokens[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(FieldDeclaration.class, new TerminalTokens[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(ImportDeclaration.class, new TerminalTokens[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(Initializer.class, new TerminalTokens[]{TerminalTokens.TokenNameRBRACE});
+		this.endingTokens.put(MethodDeclaration.class, new TerminalTokens[]{NOTHING, TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(MethodInvocation.class, new TerminalTokens[]{TerminalTokens.TokenNameRPAREN});
+		this.endingTokens.put(ModuleDeclaration.class, new TerminalTokens[]{TerminalTokens.TokenNameRBRACE});
+		this.endingTokens.put(ModuleDirective.class, new TerminalTokens[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(NullLiteral.class, new TerminalTokens[]{TerminalTokens.TokenNamenull});
+		this.endingTokens.put(NumberLiteral.class, new TerminalTokens[]{TerminalTokens.TokenNameIntegerLiteral, TerminalTokens.TokenNameLongLiteral, TerminalTokens.TokenNameFloatingPointLiteral, TerminalTokens.TokenNameDoubleLiteral});
+		this.endingTokens.put(PackageDeclaration.class, new TerminalTokens[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(ParenthesizedExpression.class, new TerminalTokens[]{TerminalTokens.TokenNameRPAREN});
+		this.endingTokens.put(PostfixExpression.class, new TerminalTokens[]{TerminalTokens.TokenNamePLUS_PLUS, TerminalTokens.TokenNameMINUS_MINUS});
+		this.endingTokens.put(PrimitiveType.class, new TerminalTokens[]{TerminalTokens.TokenNamebyte, TerminalTokens.TokenNameshort, TerminalTokens.TokenNamechar, TerminalTokens.TokenNameint, TerminalTokens.TokenNamelong, TerminalTokens.TokenNamefloat, TerminalTokens.TokenNameboolean, TerminalTokens.TokenNamedouble, TerminalTokens.TokenNamevoid});
+		this.endingTokens.put(ReturnStatement.class, new TerminalTokens[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(SimpleName.class, new TerminalTokens[]{TerminalTokens.TokenNameIdentifier});
+		this.endingTokens.put(SingleVariableDeclaration.class, new TerminalTokens[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(StringLiteral.class, new TerminalTokens[]{TerminalTokens.TokenNameStringLiteral});
+		this.endingTokens.put(SuperConstructorInvocation.class, new TerminalTokens[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(SuperMethodInvocation.class, new TerminalTokens[]{TerminalTokens.TokenNameRPAREN});
+		this.endingTokens.put(SwitchCase.class, new TerminalTokens[]{TerminalTokens.TokenNameCOLON});
+		this.endingTokens.put(SwitchStatement.class, new TerminalTokens[]{TerminalTokens.TokenNameRBRACE});
+		this.endingTokens.put(SynchronizedStatement.class, new TerminalTokens[]{TerminalTokens.TokenNameRBRACE});
+		this.endingTokens.put(ThisExpression.class, new TerminalTokens[]{TerminalTokens.TokenNamethis});
+		this.endingTokens.put(ThrowStatement.class, new TerminalTokens[]{TerminalTokens.TokenNameSEMICOLON});
+		this.endingTokens.put(TypeDeclaration.class, new TerminalTokens[]{TerminalTokens.TokenNameRBRACE});
+		this.endingTokens.put(TypeLiteral.class, new TerminalTokens[]{TerminalTokens.TokenNameclass});
+		this.endingTokens.put(VariableDeclarationStatement.class, new TerminalTokens[]{TerminalTokens.TokenNameSEMICOLON});
 	}
 
 	private final CategorizedProblem[] problems;
@@ -84,7 +84,7 @@ class ASTRecoveryPropagator extends DefaultASTVisitor {
 	private int blockDepth = 0;
 	private int lastEnd;
 
-	private int[] insertedTokensKind;
+	private TerminalTokens[] insertedTokensKind;
 	private int[] insertedTokensPosition;
 	private boolean[] insertedTokensFlagged;
 
@@ -106,7 +106,7 @@ class ASTRecoveryPropagator extends DefaultASTVisitor {
 			for (int i = 0; i < data.insertedTokensPtr + 1; i++) {
 				length += data.insertedTokens[i].length;
 			}
-			this.insertedTokensKind = new int[length];
+			this.insertedTokensKind = new TerminalTokens[length];
 			this.insertedTokensPosition = new int[length];
 			this.insertedTokensFlagged = new boolean[length];
 			int tokenCount = 0;
@@ -261,7 +261,7 @@ class ASTRecoveryPropagator extends DefaultASTVisitor {
 	}
 
 	private boolean flagNodesWithInsertedTokensAtEnd(ASTNode node) {
-		int[] expectedEndingToken = this.endingTokens.get(node.getClass());
+		TerminalTokens[] expectedEndingToken = this.endingTokens.get(node.getClass());
 		if (expectedEndingToken != null) {
 			int start = node.getStartPosition();
 			int end = start + node.getLength() - 1;

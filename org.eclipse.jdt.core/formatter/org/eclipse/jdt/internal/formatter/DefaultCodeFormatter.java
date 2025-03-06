@@ -24,6 +24,7 @@ import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameC
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_JAVADOC;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_LINE;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameEOF;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameInvalid;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameNotAToken;
 
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.SourceModule;
@@ -238,7 +240,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 					: unit.getModule() != null ? unit.getModule()
 					: unit.getPackage();
 			if (firstElement != null) {
-				int headerEndIndex = this.tokenManager.firstIndexIn(firstElement, -1);
+				int headerEndIndex = this.tokenManager.firstIndexIn(firstElement, TokenNameInvalid);
 				this.tokenManager.setHeaderEndIndex(headerEndIndex);
 			}
 		}
@@ -393,7 +395,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		scanner.fakeInModule = (kind & K_MODULE_INFO) != 0;
 		while (true) {
 			try {
-				int tokenType = scanner.getNextToken();
+				TerminalTokens tokenType = scanner.getNextToken();
 				if (tokenType == TokenNameEOF)
 					break;
 				Token token = Token.fromCurrent(scanner, tokenType);

@@ -27,7 +27,7 @@ public class RecoveredAnnotation extends RecoveredElement {
 	public boolean hasPendingMemberValueName;
 	public int memberValuPairEqualEnd = -1;
 	public Annotation annotation;
-	public int errorToken;
+	public TerminalTokens errorToken;
 
 	public RecoveredAnnotation(int identifierPtr, int identifierLengthPtr, int sourceStart, RecoveredElement parent, int bracketBalance) {
 		super(parent, bracketBalance);

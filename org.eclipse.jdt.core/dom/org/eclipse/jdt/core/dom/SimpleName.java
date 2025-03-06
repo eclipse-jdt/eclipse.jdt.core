@@ -237,7 +237,7 @@ public class SimpleName extends Name {
 			final int length = source.length;
 			scanner.resetTo(0, length - 1);
 			try {
-				int tokenType = scanner.scanIdentifier();
+				TerminalTokens tokenType = scanner.scanIdentifier();
 				if (tokenType != TerminalTokens.TokenNameIdentifier) {
 					throw new IllegalArgumentException("Invalid identifier : >" + identifier + "<");  //$NON-NLS-1$//$NON-NLS-2$
 				}
