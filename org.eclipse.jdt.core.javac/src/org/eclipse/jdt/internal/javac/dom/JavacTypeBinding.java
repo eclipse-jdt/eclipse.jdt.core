@@ -563,6 +563,12 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding createArrayType(final int dimension) {
+		int realDimensions = dimension;
+		realDimensions += getDimensions();
+		if (realDimensions < 1 || realDimensions > 255) {
+			throw new IllegalArgumentException();
+		}
+
 		if (this.type instanceof JCVoidType) {
 			return null;
 		}
