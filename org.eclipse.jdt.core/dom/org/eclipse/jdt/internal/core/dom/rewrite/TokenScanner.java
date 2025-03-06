@@ -86,8 +86,8 @@ public class TokenScanner {
 	 * @exception CoreException Thrown when the end of the file has been reached (code END_OF_FILE)
 	 * or a lexical error was detected while scanning (code LEXICAL_ERROR)
 	 */
-	public int readNext(boolean ignoreComments) throws CoreException {
-		int curr= 0;
+	public TerminalTokens readNext(boolean ignoreComments) throws CoreException {
+		TerminalTokens curr= TerminalTokens.TokenNameNotAToken;
 		do {
 			try {
 				curr= this.scanner.getNextToken();
@@ -109,7 +109,7 @@ public class TokenScanner {
 	 * @exception CoreException Thrown when the end of the file has been reached (code END_OF_FILE)
 	 * or a lexical error was detected while scanning (code LEXICAL_ERROR)
 	 */
-	public int readNext(int offset, boolean ignoreComments) throws CoreException {
+	public TerminalTokens readNext(int offset, boolean ignoreComments) throws CoreException {
 		setOffset(offset);
 		return readNext(ignoreComments);
 	}
@@ -146,8 +146,8 @@ public class TokenScanner {
 	 * @exception CoreException Thrown when the end of the file has been reached (code END_OF_FILE)
 	 * or a lexical error was detected while scanning (code LEXICAL_ERROR)
 	 */
-	public void readToToken(int tok) throws CoreException {
-		int curr= 0;
+	public void readToToken(TerminalTokens tok) throws CoreException {
+		TerminalTokens curr= TerminalTokens.TokenNameNotAToken;
 		do {
 			curr= readNext(false);
 		} while (curr != tok);
@@ -160,7 +160,7 @@ public class TokenScanner {
 	 * @exception CoreException Thrown when the end of the file has been reached (code END_OF_FILE)
 	 * or a lexical error was detected while scanning (code LEXICAL_ERROR)
 	 */
-	public void readToToken(int tok, int offset) throws CoreException {
+	public void readToToken(TerminalTokens tok, int offset) throws CoreException {
 		setOffset(offset);
 		readToToken(tok);
 	}
@@ -173,7 +173,7 @@ public class TokenScanner {
 	 * @exception CoreException Thrown when the end of the file has been reached (code END_OF_FILE)
 	 * or a lexical error was detected while scanning (code LEXICAL_ERROR)
 	 */
-	public int getTokenStartOffset(int token, int startOffset) throws CoreException {
+	public int getTokenStartOffset(TerminalTokens token, int startOffset) throws CoreException {
 		readToToken(token, startOffset);
 		return getCurrentStartOffset();
 	}
@@ -186,7 +186,7 @@ public class TokenScanner {
 	 * @exception CoreException Thrown when the end of the file has been reached (code END_OF_FILE)
 	 * or a lexical error was detected while scanning (code LEXICAL_ERROR)
 	 */
-	public int getTokenEndOffset(int token, int startOffset) throws CoreException {
+	public int getTokenEndOffset(TerminalTokens token, int startOffset) throws CoreException {
 		readToToken(token, startOffset);
 		return getCurrentEndOffset();
 	}
@@ -199,10 +199,10 @@ public class TokenScanner {
 	 * @exception CoreException Thrown when the end of the file has been reached (code END_OF_FILE)
 	 * or a lexical error was detected while scanning (code LEXICAL_ERROR)
 	 */
-	public int getPreviousTokenEndOffset(int token, int startOffset) throws CoreException {
+	public int getPreviousTokenEndOffset(TerminalTokens token, int startOffset) throws CoreException {
 		setOffset(startOffset);
 		int res= startOffset;
-		int curr= readNext(false);
+		TerminalTokens curr= readNext(false);
 		while (curr != token) {
 			res= getCurrentEndOffset();
 			curr= readNext(false);
@@ -210,24 +210,24 @@ public class TokenScanner {
 		return res;
 	}
 
-	public static boolean isComment(int token) {
+	public static boolean isComment(TerminalTokens token) {
 		return token == TerminalTokens.TokenNameCOMMENT_BLOCK || token == TerminalTokens.TokenNameCOMMENT_JAVADOC
 			|| token == TerminalTokens.TokenNameCOMMENT_LINE;
 	}
 
-	public static boolean isModifier(int token) {
+	public static boolean isModifier(TerminalTokens token) {
 		switch (token) {
-			case TerminalTokens.TokenNamepublic:
-			case TerminalTokens.TokenNameprotected:
-			case TerminalTokens.TokenNameprivate:
-			case TerminalTokens.TokenNamestatic:
-			case TerminalTokens.TokenNamefinal:
-			case TerminalTokens.TokenNameabstract:
-			case TerminalTokens.TokenNamenative:
-			case TerminalTokens.TokenNamevolatile:
-			case TerminalTokens.TokenNamestrictfp:
-			case TerminalTokens.TokenNametransient:
-			case TerminalTokens.TokenNamesynchronized:
+			case TokenNamepublic:
+			case TokenNameprotected:
+			case TokenNameprivate:
+			case TokenNamestatic:
+			case TokenNamefinal:
+			case TokenNameabstract:
+			case TokenNamenative:
+			case TokenNamevolatile:
+			case TokenNamestrictfp:
+			case TokenNametransient:
+			case TokenNamesynchronized:
 				return true;
 			default:
 				return false;

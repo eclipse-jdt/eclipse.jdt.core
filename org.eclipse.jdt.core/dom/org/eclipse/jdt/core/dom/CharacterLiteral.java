@@ -165,9 +165,9 @@ public class CharacterLiteral extends Expression {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length);
 		try {
-			int tokenType = scanner.getNextToken();
+			TerminalTokens tokenType = scanner.getNextToken();
 			switch(tokenType) {
-				case TerminalTokens.TokenNameCharacterLiteral:
+				case TokenNameCharacterLiteral:
 					break;
 				default:
 					throw new IllegalArgumentException();

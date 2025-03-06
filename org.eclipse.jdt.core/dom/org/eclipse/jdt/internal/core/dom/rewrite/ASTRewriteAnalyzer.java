@@ -788,7 +788,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						// from getting removed.
 						try {
 							TokenScanner scanner = getScanner();
-							int nextToken= scanner.readNext(currEnd, false);
+							TerminalTokens nextToken= scanner.readNext(currEnd, false);
 							if (TokenScanner.isComment(nextToken)) {
 								// the separator also has comments that are not part of extended
 								// source range of this node or the next node. So dont remove the separator
@@ -1027,7 +1027,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						endPos= getExtendedEnd(node);
 						if (endPos != previousEnd) {
 							// check if the end is a comment
-							int token = TokenScanner.END_OF_FILE;
+							TerminalTokens token = TerminalTokens.TokenNameEOF; // Refactored - was TokenScanner.END_OF_FILE -- shoudln't be possible
 							try {
 								token = getScanner().readNext(previousEnd, false);
 							} catch(CoreException e) {
@@ -1481,9 +1481,9 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 	}
 
-	private int getPosAfterToken(int pos, int token) {
+	private int getPosAfterToken(int pos, TerminalTokens token) {
 		try {
-			int nextToken= getScanner().readNext(pos, true);
+			TerminalTokens nextToken= getScanner().readNext(pos, true);
 			if (nextToken == token) {
 				return getScanner().getCurrentEndOffset();
 			}
@@ -1519,7 +1519,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	 */
 	private int getPosAfterTry(int pos) {
 		try {
-			int nextToken= getScanner().readNext(pos, true);
+			TerminalTokens nextToken= getScanner().readNext(pos, true);
 			if (nextToken == TerminalTokens.TokenNametry) {
 				return getScanner().getCurrentEndOffset();
 			}
@@ -1740,7 +1740,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 			TokenScanner scanner= getScanner();
 
-			int tok= scanner.readNext(offset, false);
+			TerminalTokens tok= scanner.readNext(offset, false);
 			int startPos= scanner.getCurrentStartOffset();
 			int nextStart= startPos;
 			loop: while (true) {
@@ -1749,19 +1749,19 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				}
 				boolean keep= true;
 				switch (tok) {
-					case TerminalTokens.TokenNamepublic: keep= Modifier.isPublic(newModifiers); break;
-					case TerminalTokens.TokenNameprotected: keep= Modifier.isProtected(newModifiers); break;
-					case TerminalTokens.TokenNameprivate: keep= Modifier.isPrivate(newModifiers); break;
-					case TerminalTokens.TokenNamestatic: keep= Modifier.isStatic(newModifiers); break;
-					case TerminalTokens.TokenNamefinal: keep= Modifier.isFinal(newModifiers); break;
-					case TerminalTokens.TokenNameabstract: keep= Modifier.isAbstract(newModifiers); break;
-					case TerminalTokens.TokenNamenative: keep= Modifier.isNative(newModifiers); break;
-					case TerminalTokens.TokenNamevolatile: keep= Modifier.isVolatile(newModifiers); break;
-					case TerminalTokens.TokenNamestrictfp: keep= Modifier.isStrictfp(newModifiers); break;
-					case TerminalTokens.TokenNametransient: keep= Modifier.isTransient(newModifiers); break;
-					case TerminalTokens.TokenNamesynchronized: keep= Modifier.isSynchronized(newModifiers); break;
-					case TerminalTokens.TokenNameRestrictedIdentifiersealed: keep= Modifier.isSealed(newModifiers); break;
-					case TerminalTokens.TokenNamenon_sealed: keep= Modifier.isNonSealed(newModifiers); break;
+					case TokenNamepublic: keep= Modifier.isPublic(newModifiers); break;
+					case TokenNameprotected: keep= Modifier.isProtected(newModifiers); break;
+					case TokenNameprivate: keep= Modifier.isPrivate(newModifiers); break;
+					case TokenNamestatic: keep= Modifier.isStatic(newModifiers); break;
+					case TokenNamefinal: keep= Modifier.isFinal(newModifiers); break;
+					case TokenNameabstract: keep= Modifier.isAbstract(newModifiers); break;
+					case TokenNamenative: keep= Modifier.isNative(newModifiers); break;
+					case TokenNamevolatile: keep= Modifier.isVolatile(newModifiers); break;
+					case TokenNamestrictfp: keep= Modifier.isStrictfp(newModifiers); break;
+					case TokenNametransient: keep= Modifier.isTransient(newModifiers); break;
+					case TokenNamesynchronized: keep= Modifier.isSynchronized(newModifiers); break;
+					case TokenNameRestrictedIdentifiersealed: keep= Modifier.isSealed(newModifiers); break;
+					case TokenNamenon_sealed: keep= Modifier.isNonSealed(newModifiers); break;
 					default:
 						break loop;
 				}
@@ -2060,7 +2060,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		boolean invertType= isChanged(node, TypeDeclaration.INTERFACE_PROPERTY);
 		if (invertType) {
 			try {
-				int typeToken= isInterface ? TerminalTokens.TokenNameinterface : TerminalTokens.TokenNameclass;
+				TerminalTokens typeToken= isInterface ? TerminalTokens.TokenNameinterface : TerminalTokens.TokenNameclass;
 				int startPosition = node.getStartPosition();
 				if (!isJLS2) {
 					List modifiers = node.modifiers();
@@ -2308,7 +2308,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		return i < size ? prev : null;
 	}
 
-	private int getPreviousTokenEndOffset(ASTNode node, int token) {
+	private int getPreviousTokenEndOffset(ASTNode node, TerminalTokens token) {
 		int offset = -1;
 		ASTNode prev = getPreviousNode(node);
 		if (prev != null) {
@@ -2780,22 +2780,24 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	 */
 	protected int retrieveRightBracketEndPosition(int offset, int count, boolean isLeftRead) throws CoreException {
 		TokenScanner scanner= getScanner();
-		int token;
+		TerminalTokens token;
 		int balance= 0;
 		if (isLeftRead) balance++;
 		scanner.setOffset(offset);
 		while ((token= scanner.readNext(true)) != TerminalTokens.TokenNameEOF) {
 			switch(token) {
-				case TerminalTokens.TokenNameLBRACKET :
+				case TokenNameLBRACKET :
 					balance++;
 					break;
-				case TerminalTokens.TokenNameRBRACKET :
+				case TokenNameRBRACKET :
 					balance--;
 					if (balance == 0) {
 						if (--count == 0) {
 							return scanner.getCurrentEndOffset();
 						}
 					}
+					break;
+				default: // NOP
 					break;
 			}
 		}
@@ -3233,7 +3235,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 		if (thenEvent != null && thenEvent.getChangeKind() != RewriteEvent.UNCHANGED) {
 			try {
-				int tok= getScanner().readNext(pos, true); // after the closing parent
+				TerminalTokens tok= getScanner().readNext(pos, true); // after the closing parent
 				pos= (tok == TerminalTokens.TokenNameRPAREN) ? getScanner().getCurrentEndOffset() : getScanner().getCurrentStartOffset();
 
 				int indent= getIndent(node.getStartPosition());
@@ -3920,7 +3922,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			if (isChanged(node, SwitchCase.SWITCH_LABELED_RULE_PROPERTY)) {
 				TextEditGroup editGroup = getEditGroup(node, SwitchCase.SWITCH_LABELED_RULE_PROPERTY);
 				try {
-					int tokenEnd, oldToken;
+					int tokenEnd;
+					TerminalTokens oldToken;
 					String newVal;
 					if (getNewValue(node, SwitchCase.SWITCH_LABELED_RULE_PROPERTY).equals(Boolean.TRUE)) {
 						oldToken = TerminalTokens.TokenNameCOLON;
@@ -4610,7 +4613,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (argsEvent != null && argsEvent.getChangeKind() != RewriteEvent.UNCHANGED) {
 			RewriteEvent[] children= argsEvent.getChildren();
 			try {
-				int nextTok= getScanner().readNext(pos, true);
+				TerminalTokens nextTok= getScanner().readNext(pos, true);
 				boolean hasParents= (nextTok == TerminalTokens.TokenNameLPAREN);
 				boolean isAllRemoved= hasParents && isAllOfKind(children, RewriteEvent.REMOVED);
 				String prefix= Util.EMPTY_STRING;
@@ -4687,7 +4690,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				} else {
 					indent= getIndent(node.getStartPosition()) + 1;
 				}
-				int token= getScanner().readNext(pos, true);
+				TerminalTokens token= getScanner().readNext(pos, true);
 				boolean hasSemicolon= token == TerminalTokens.TokenNameSEMICOLON;
 				if (!hasSemicolon && isAllOfKind(children, RewriteEvent.INSERTED)) {
 					if (!hasConstants) {
@@ -4697,7 +4700,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 					if (token == TerminalTokens.TokenNameCOMMA) {
 						// a comma is at the end of the enum constant before a potential semicolon
 						int endPos= getScanner().getCurrentEndOffset();
-						int nextToken= getScanner().readNext(endPos, true);
+						TerminalTokens nextToken= getScanner().readNext(endPos, true);
 						if (nextToken != TerminalTokens.TokenNameSEMICOLON) {
 							doTextInsert(endPos, ";", getEditGroup(children[0])); //$NON-NLS-1$
 						} else {

@@ -15,11 +15,9 @@ package org.eclipse.jdt.internal.formatter;
 
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_JAVADOC;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_LINE;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameIdentifier;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameNotAToken;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameStringLiteral;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameTextBlock;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameUNDERSCORE;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -134,7 +132,7 @@ public class TokenManager implements Iterable<Token> {
 	}
 
 	public int indexOf(Token token) {
-		int index = findIndex(token.originalStart, -1, false);
+		int index = findIndex(token.originalStart, TerminalTokens.TokenNameInvalid, false);
 		if (get(index) != token)
 			return -1;
 		return index;
@@ -149,6 +147,10 @@ public class TokenManager implements Iterable<Token> {
 	}
 
 	public int findIndex(int positionInSource, int tokenType, boolean forward) {
+		return findIndex(positionInSource, TerminalTokens.of(tokenType), forward);
+	}
+
+	public int findIndex(int positionInSource, TerminalTokens tokenType, boolean forward) {
 		// binary search
 		int left = 0, right = size() - 1;
 		while (left < right) {
@@ -171,12 +173,12 @@ public class TokenManager implements Iterable<Token> {
 		if (forward && get(index).originalEnd < positionInSource)
 			index++;
 		Token t;
-		while (tokenType >= 0 && (t = get(index)).tokenType != tokenType) {
-			if (TerminalTokens.isRestrictedKeyword(tokenType) && t.tokenType == TokenNameIdentifier) {
+		while (tokenType != TerminalTokens.TokenNameInvalid && (t = get(index)).tokenType != tokenType) {
+			if (TerminalTokens.isRestrictedKeyword(tokenType) && t.tokenType == TerminalTokens.TokenNameIdentifier) {
 				if (tokenType == TerminalTokens.getRestrictedKeyword(toString(t)))
 					break;
 			}
-			if (t.tokenType == TokenNameUNDERSCORE && tokenType == TokenNameIdentifier) {
+			if (t.tokenType == TerminalTokens.TokenNameUNDERSCORE && tokenType == TerminalTokens.TokenNameIdentifier) {
 				break;
 			}
 			index += forward ? 1 : -1;
@@ -193,39 +195,39 @@ public class TokenManager implements Iterable<Token> {
 		return this.tokens.stream();
 	}
 
-	public int firstIndexIn(ASTNode node, int tokenType) {
+	public int firstIndexIn(ASTNode node, TerminalTokens tokenType) {
 		int index = findIndex(node.getStartPosition(), tokenType, true);
 		assert tokenInside(node, index);
 		return index;
 	}
 
-	public Token firstTokenIn(ASTNode node, int tokenType) {
+	public Token firstTokenIn(ASTNode node, TerminalTokens tokenType) {
 		return get(firstIndexIn(node, tokenType));
 	}
 
-	public int lastIndexIn(ASTNode node, int tokenType) {
+	public int lastIndexIn(ASTNode node, TerminalTokens tokenType) {
 		int index = findIndex(node.getStartPosition() + node.getLength() - 1, tokenType, false);
 		assert tokenInside(node, index);
 		return index;
 	}
 
-	public Token lastTokenIn(ASTNode node, int tokenType) {
+	public Token lastTokenIn(ASTNode node, TerminalTokens tokenType) {
 		return get(lastIndexIn(node, tokenType));
 	}
 
-	public int firstIndexAfter(ASTNode node, int tokenType) {
+	public int firstIndexAfter(ASTNode node, TerminalTokens tokenType) {
 		return findIndex(node.getStartPosition() + node.getLength(), tokenType, true);
 	}
 
-	public Token firstTokenAfter(ASTNode node, int tokenType) {
+	public Token firstTokenAfter(ASTNode node, TerminalTokens tokenType) {
 		return get(firstIndexAfter(node, tokenType));
 	}
 
-	public int firstIndexBefore(ASTNode node, int tokenType) {
+	public int firstIndexBefore(ASTNode node, TerminalTokens tokenType) {
 		return findIndex(node.getStartPosition() - 1, tokenType, false);
 	}
 
-	public Token firstTokenBefore(ASTNode node, int tokenType) {
+	public Token firstTokenBefore(ASTNode node, TerminalTokens tokenType) {
 		return get(firstIndexBefore(node, tokenType));
 	}
 

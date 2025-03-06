@@ -522,7 +522,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		int lastIdentifierStart = -1;
 		int lastIdentifierEnd = -1;
 		char[] lastIdentifier = null;
-		int token;
+		TerminalTokens token;
 
 		if(selectionStart > selectionEnd){
 			int end = source.length - 1;
@@ -602,10 +602,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					return false;
 				}
 				switch (token) {
-					case TerminalTokens.TokenNamethis:
-					case TerminalTokens.TokenNamesuper:
-					case TerminalTokens.TokenNamenew:
-					case TerminalTokens.TokenNameIdentifier:
+					case TokenNamethis:
+					case TokenNamesuper:
+					case TokenNamenew:
+					case TokenNameIdentifier:
 						if (scanner.startPosition <= selectionStart && selectionStart <= scanner.currentPosition) {
 							if (scanner.currentPosition == scanner.eofPosition) {
 								int temp = scanner.eofPosition;
@@ -619,14 +619,16 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							break isolateLastName;
 						}
 						break;
-					case TerminalTokens.TokenNameARROW:
-					case TerminalTokens.TokenNameCOLON_COLON:
+					case TokenNameARROW:
+					case TokenNameCOLON_COLON:
 						if (scanner.startPosition <= selectionStart && selectionStart <= scanner.currentPosition) {
 							lastIdentifierStart = scanner.startPosition;
 							lastIdentifierEnd = scanner.currentPosition - 1;
 							lastIdentifier = scanner.getCurrentTokenSource();
 							break isolateLastName;
 						}
+						break;
+					default: // NOP
 						break;
 				}
 			} while (token != TerminalTokens.TokenNameEOF);
@@ -654,10 +656,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					return false;
 				}
 				switch (token) {
-					case TerminalTokens.TokenNamethis :
-					case TerminalTokens.TokenNamesuper :
-					case TerminalTokens.TokenNamenew :
-					case TerminalTokens.TokenNameIdentifier :
+					case TokenNamethis :
+					case TokenNamesuper :
+					case TokenNamenew :
+					case TokenNameIdentifier :
 						if (!expectingIdentifier)
 							return false;
 						lastIdentifier = scanner.getCurrentTokenSource();
@@ -669,7 +671,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						}
 						expectingIdentifier = false;
 						break;
-					case TerminalTokens.TokenNameCOLON_COLON:
+					case TokenNameCOLON_COLON:
 						if (selectionStart >= scanner.startPosition && selectionEnd < scanner.currentPosition) {
 							this.actualSelectionStart = selectionStart;
 							this.actualSelectionEnd = selectionEnd;
@@ -677,30 +679,30 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							return true;
 						}
 						//$FALL-THROUGH$
-					case TerminalTokens.TokenNameDOT :
+					case TokenNameDOT :
 						if (expectingIdentifier)
 							return false;
 						expectingIdentifier = true;
 						break;
-					case TerminalTokens.TokenNameEOF :
+					case TokenNameEOF :
 						if (expectingIdentifier)
 							return false;
 						break;
-					case TerminalTokens.TokenNameLESS :
+					case TokenNameLESS :
 						if(!checkTypeArgument(scanner))
 							return false;
 						break;
-					case TerminalTokens.TokenNameAT:
+					case TokenNameAT:
 						if(scanner.startPosition != scanner.initialPosition)
 							return false;
 						break;
-					case TerminalTokens.TokenNameARROW:
+					case TokenNameARROW:
 						this.actualSelectionStart = selectionStart;
 						this.actualSelectionEnd = selectionEnd;
 						this.selectedIdentifier = CharOperation.NO_CHAR;
 						return true;
-					case TerminalTokens.TokenNameLPAREN:
-					case TerminalTokens.TokenNameRPAREN:
+					case TokenNameLPAREN:
+					case TokenNameRPAREN:
 						break;
 					default :
 						return false;
@@ -717,7 +719,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	}
 	private boolean checkTypeArgument(Scanner scanner) {
 		int depth = 1;
-		int token;
+		TerminalTokens token;
 		StringBuilder buffer = new StringBuilder();
 		do {
 			try {
@@ -726,29 +728,29 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				return false;
 			}
 			switch(token) {
-				case TerminalTokens.TokenNameLESS :
+				case TokenNameLESS :
 					depth++;
 					buffer.append(scanner.getCurrentTokenSource());
 					break;
-				case TerminalTokens.TokenNameGREATER :
+				case TokenNameGREATER :
 					depth--;
 					buffer.append(scanner.getCurrentTokenSource());
 					break;
-				case TerminalTokens.TokenNameRIGHT_SHIFT :
+				case TokenNameRIGHT_SHIFT :
 					depth-=2;
 					buffer.append(scanner.getCurrentTokenSource());
 					break;
-				case TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT :
+				case TokenNameUNSIGNED_RIGHT_SHIFT :
 					depth-=3;
 					buffer.append(scanner.getCurrentTokenSource());
 					break;
-				case TerminalTokens.TokenNameextends :
-				case TerminalTokens.TokenNamesuper :
+				case TokenNameextends :
+				case TokenNamesuper :
 					buffer.append(' ');
 					buffer.append(scanner.getCurrentTokenSource());
 					buffer.append(' ');
 					break;
-				case TerminalTokens.TokenNameCOMMA :
+				case TokenNameCOMMA :
 					if(depth == 1) {
 						int length = buffer.length();
 						char[] typeRef = new char[length];

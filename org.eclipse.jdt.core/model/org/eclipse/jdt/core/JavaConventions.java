@@ -131,7 +131,7 @@ public final class JavaConventions {
 
 		try {
 			SCANNER.setSource(id.toCharArray());
-			int token = SCANNER.scanIdentifier();
+			TerminalTokens token = SCANNER.scanIdentifier();
 			if (token != TerminalTokens.TokenNameIdentifier) return null;
 			if (SCANNER.currentPosition == SCANNER.eofPosition) { // to handle case where we had an ArrayIndexOutOfBoundsException
 				try {

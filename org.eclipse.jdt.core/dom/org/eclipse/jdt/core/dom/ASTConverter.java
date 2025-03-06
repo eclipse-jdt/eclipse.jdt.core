@@ -96,20 +96,23 @@ class ASTConverter {
 		int rightParentCount = 0;
 		this.scanner.resetTo(start, end);
 		try {
-			int token = this.scanner.getNextToken();
+			TerminalTokens token = this.scanner.getNextToken();
 			expression.sourceStart = this.scanner.currentPosition;
 			boolean stop = false;
 			while (!stop && ((token  = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF)) {
 				switch(token) {
-					case TerminalTokens.TokenNameLPAREN:
+					case TokenNameLPAREN:
 						leftParentCount++;
 						break;
-					case TerminalTokens.TokenNameRPAREN:
+					case TokenNameRPAREN:
 						rightParentCount++;
 						if (rightParentCount == leftParentCount) {
 							// we found the matching parenthesis
 							stop = true;
 						}
+						break;
+					default:
+						// NOP
 				}
 			}
 			expression.sourceEnd = this.scanner.startPosition - 1;
@@ -3954,14 +3957,14 @@ class ASTConverter {
 		this.scanner.fakeInModule = true;
 		this.scanner.resetTo(req.declarationSourceStart, req.sourceEnd);
 		try {
-			int token;
+			TerminalTokens token;
 			ModuleModifier modifier;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
-					case TerminalTokens.TokenNamestatic:
+					case TokenNamestatic:
 						modifier = createModuleModifier(ModuleModifier.ModuleModifierKeyword.STATIC_KEYWORD);
 						break;
-					case TerminalTokens.TokenNametransitive:
+					case TokenNametransitive:
 						modifier = createModuleModifier(ModuleModifier.ModuleModifierKeyword.TRANSITIVE_KEYWORD);
 						break;
 					default :
@@ -5201,7 +5204,7 @@ class ASTConverter {
 				// get method name start position
 				int start = methodRef.getStartPosition();
 				this.scanner.resetTo(start, start + name.getStartPosition()+name.getLength());
-				int token;
+				TerminalTokens token;
 				try {
 					nextToken: while((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF && token != TerminalTokens.TokenNameLPAREN)  {
 						if (token == TerminalTokens.TokenNameERROR && this.scanner.currentCharacter == '#') {
@@ -5322,7 +5325,7 @@ class ASTConverter {
 	}
 	private int [] trimWhiteSpacesAndComments(int start, int end) {
 		int [] positions = new int[]{start, end};
-		int token;
+		TerminalTokens token;
 		int trimLeftPosition = start;
 		int trimRightPosition = end;
 		boolean first = true;
@@ -5333,19 +5336,19 @@ class ASTConverter {
 			while (true) {
 				token = removeBlankScanner.getNextToken();
 				switch (token) {
-					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
-					case TerminalTokens.TokenNameCOMMENT_LINE :
-					case TerminalTokens.TokenNameCOMMENT_BLOCK :
+					case TokenNameCOMMENT_JAVADOC :
+					case TokenNameCOMMENT_LINE :
+					case TokenNameCOMMENT_BLOCK :
 						if (first) {
 							trimLeftPosition = removeBlankScanner.currentPosition;
 						}
 						break;
-					case TerminalTokens.TokenNameWHITESPACE :
+					case TokenNameWHITESPACE :
 						if (first) {
 							trimLeftPosition = removeBlankScanner.currentPosition;
 						}
 						break;
-					case TerminalTokens.TokenNameEOF :
+					case TokenNameEOF :
 						positions[0] = trimLeftPosition;
 						positions[1] = trimRightPosition;
 						return positions;
@@ -5371,25 +5374,27 @@ class ASTConverter {
 	protected void removeLeadingAndTrailingCommentsFromLiteral(ASTNode node) {
 		int start = node.getStartPosition();
 		this.scanner.resetTo(start, start + node.getLength());
-		int token;
+		TerminalTokens token;
 		int startPosition = -1;
 		try {
 			while((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF)  {
 				switch(token) {
-					case TerminalTokens.TokenNameIntegerLiteral :
-					case TerminalTokens.TokenNameFloatingPointLiteral :
-					case TerminalTokens.TokenNameLongLiteral :
-					case TerminalTokens.TokenNameDoubleLiteral :
-					case TerminalTokens.TokenNameCharacterLiteral :
+					case TokenNameIntegerLiteral :
+					case TokenNameFloatingPointLiteral :
+					case TokenNameLongLiteral :
+					case TokenNameDoubleLiteral :
+					case TokenNameCharacterLiteral :
 						if (startPosition == -1) {
 							startPosition = this.scanner.startPosition;
 						}
 						int end = this.scanner.currentPosition;
 						node.setSourceRange(startPosition, end - startPosition);
 						return;
-					case TerminalTokens.TokenNameMINUS :
+					case TokenNameMINUS :
 						startPosition = this.scanner.startPosition;
 						break;
+					default:
+						// NOP
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -5405,12 +5410,12 @@ class ASTConverter {
 		this.scanner.resetTo(start, this.compilationUnitSourceLength);
 		this.scanner.returnOnlyGreater = true;
 		try {
-			int token;
+			TerminalTokens token;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
-					case TerminalTokens.TokenNameGREATER:
+					case TokenNameGREATER:
 						return this.scanner.currentPosition - 1;
-					case TerminalTokens.TokenNameLESS:
+					case TokenNameLESS:
 						// TokenNameLESS can only be found if the current type has a diamond, start is located before the '<'
 						continue;
 					default:
@@ -5440,13 +5445,13 @@ class ASTConverter {
 	private void retrieveArrowPosition(ASTNode node) {
 		setNodeSourceEndPosition(node, TerminalTokens.TokenNameARROW);
 	}
-	private void setNodeSourceEndPosition(ASTNode node, int expectedToken) {
+	private void setNodeSourceEndPosition(ASTNode node, TerminalTokens expectedToken) {
 		int start = node.getStartPosition();
 		int length = node.getLength();
 		int end = start + length;
 		this.scanner.resetTo(end, this.compilationUnitSourceLength);
 		try {
-			int token;
+			TerminalTokens token;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				if (token == expectedToken) {
 						node.setSourceRange(start, this.scanner.currentPosition - start);
@@ -5463,11 +5468,13 @@ class ASTConverter {
 	protected int retrieveEllipsisStartPosition(int start, int end) {
 		this.scanner.resetTo(start, end);
 		try {
-			int token;
+			TerminalTokens token;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
-					case TerminalTokens.TokenNameELLIPSIS:
+					case TokenNameELLIPSIS:
 						return this.scanner.startPosition - 1;
+					default:
+						// NOP
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -5483,11 +5490,13 @@ class ASTConverter {
 		int end = start + length;
 		this.scanner.resetTo(end, this.compilationUnitSourceLength);
 		try {
-			int token;
+			TerminalTokens token;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
-					case TerminalTokens.TokenNameSEMICOLON:
+					case TokenNameSEMICOLON:
 						return this.scanner.currentPosition - 1;
+					default:
+						// NOP
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -5504,27 +5513,29 @@ class ASTConverter {
 	protected int[] retrieveEndOfElementTypeNamePosition(int start, int end) {
 		this.scanner.resetTo(start, end);
 		try {
-			int token;
+			TerminalTokens token;
 			int count = 0;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
-					case TerminalTokens.TokenNameLPAREN:
+					case TokenNameLPAREN:
 						++count;
 						break;
-					case TerminalTokens.TokenNameRPAREN:
+					case TokenNameRPAREN:
 						--count;
 						break;
-					case TerminalTokens.TokenNameIdentifier:
-					case TerminalTokens.TokenNamebyte:
-					case TerminalTokens.TokenNamechar:
-					case TerminalTokens.TokenNamedouble:
-					case TerminalTokens.TokenNamefloat:
-					case TerminalTokens.TokenNameint:
-					case TerminalTokens.TokenNamelong:
-					case TerminalTokens.TokenNameshort:
-					case TerminalTokens.TokenNameboolean:
+					case TokenNameIdentifier:
+					case TokenNamebyte:
+					case TokenNamechar:
+					case TokenNamedouble:
+					case TokenNamefloat:
+					case TokenNameint:
+					case TokenNamelong:
+					case TokenNameshort:
+					case TokenNameboolean:
 						if (count > 0) break;
 						return new int[]{this.scanner.startPosition, this.scanner.currentPosition - 1};
+					default:
+						// NOP
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -5540,15 +5551,15 @@ class ASTConverter {
 	protected int retrieveEndOfRightParenthesisPosition(int start, int end) {
 		this.scanner.resetTo(start, end);
 		try {
-			int token;
+			TerminalTokens token;
 			int count = 0;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
-					case TerminalTokens.TokenNameRPAREN:
+					case TokenNameRPAREN:
 						count--;
 						if (count <= 0) return this.scanner.currentPosition;
 						 break;
-					case TerminalTokens.TokenNameLPAREN:
+					case TokenNameLPAREN:
 						count++;
 						//$FALL-THROUGH$
 					default:
@@ -5563,7 +5574,7 @@ class ASTConverter {
 
 	protected void retrieveDimensionAndSetPositions(int start, int end, Dimension dim) {
 		this.scanner.resetTo(start, end);
-		int token;
+		TerminalTokens token;
 		int count = 0, lParenCount = 0;
 		boolean startSet = false;
 		try {
@@ -5574,21 +5585,21 @@ class ASTConverter {
 						startSet = true;
 					}
 					switch(token) {
-						case TerminalTokens.TokenNameRBRACKET:
+						case TokenNameRBRACKET:
 							if (lParenCount > 0) break;
 							--count;
 							if (count > 0) break;
 							int endDim = this.scanner.currentPosition - 1;
 							dim.setSourceRange(start, endDim - start + 1);
 							return;
-						case TerminalTokens.TokenNameLBRACKET:
+						case TokenNameLBRACKET:
 							if (lParenCount > 0) break;
 							count++;
 							break;
-						case TerminalTokens.TokenNameLPAREN:
+						case TokenNameLPAREN:
 							lParenCount++;
 							break;
-						case TerminalTokens.TokenNameRPAREN:
+						case TokenNameRPAREN:
 							--lParenCount;
 							break;
 						default:
@@ -5602,7 +5613,7 @@ class ASTConverter {
 	}
 	protected void retrieveIdentifierAndSetPositions(int start, int end, Name name) {
 		this.scanner.resetTo(start, end);
-		int token;
+		TerminalTokens token;
 		try {
 			while((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF)  {
 				if (token == TerminalTokens.TokenNameIdentifier) {
@@ -5624,11 +5635,13 @@ class ASTConverter {
 	protected int retrieveIdentifierEndPosition(int start, int end) {
 		this.scanner.resetTo(start, end);
 		try {
-			int token;
+			TerminalTokens token;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
-					case TerminalTokens.TokenNameIdentifier://110
+					case TokenNameIdentifier://110
 						return this.scanner.getCurrentTokenEndPosition();
+					default:
+						// NOP
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -5645,7 +5658,7 @@ class ASTConverter {
 	 */
 	protected void retrieveInitAndSetPositions(int start, int end, Name name) {
 		this.scanner.resetTo(start, end);
-		int token;
+		TerminalTokens token;
 		try {
 			while((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF)  {
 				if (token == TerminalTokens.TokenNamenew) {
@@ -5671,7 +5684,8 @@ class ASTConverter {
 		int balance = 0;
 		int pos = initializerEnd > nameEnd ? initializerEnd - 1 : nameEnd;
 		try {
-			int token, lParenCount = 0;
+			TerminalTokens token;
+			int lParenCount = 0;
 			boolean hasAnnotations = false;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				hasTokens = true;
@@ -5684,26 +5698,28 @@ class ASTConverter {
 					if (lParenCount > 0) continue;
 				}
 				switch(token) {
-					case TerminalTokens.TokenNameAT:
+					case TokenNameAT:
 						hasAnnotations = true;
 						break;
-					case TerminalTokens.TokenNameLBRACE :
-					case TerminalTokens.TokenNameLBRACKET :
+					case TokenNameLBRACE :
+					case TokenNameLBRACKET :
 						balance++;
 						break;
-					case TerminalTokens.TokenNameRBRACKET :
-					case TerminalTokens.TokenNameRBRACE :
+					case TokenNameRBRACKET :
+					case TokenNameRBRACE :
 						balance --;
 						pos = this.scanner.currentPosition - 1;
 						break;
-					case TerminalTokens.TokenNameCOMMA :
+					case TokenNameCOMMA :
 						if (balance == 0) return pos;
 						// case where a missing closing brace doesn't close an array initializer
 						pos = this.scanner.currentPosition - 1;
 						break;
-					case TerminalTokens.TokenNameSEMICOLON :
+					case TokenNameSEMICOLON :
 						if (balance == 0) return pos;
 						return -pos;
+					default:
+						// NOP
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -5716,22 +5732,23 @@ class ASTConverter {
 	protected int retrieveProperRightBracketPosition(int bracketNumber, int start, int end) {
 		this.scanner.resetTo(start, this.compilationUnitSourceLength);
 		try {
-			int token, count = 0, lParentCount = 0, balance = 0;
+			TerminalTokens token;
+			int count = 0, lParentCount = 0, balance = 0;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
-					case TerminalTokens.TokenNameLPAREN:
+					case TokenNameLPAREN:
 						++lParentCount;
 						break;
-					case TerminalTokens.TokenNameRPAREN:
+					case TokenNameRPAREN:
 						--lParentCount;
 						break;
-					case TerminalTokens.TokenNameLBRACKET:
+					case TokenNameLBRACKET:
 						++balance;
 						break;
-					case TerminalTokens.TokenNameELLIPSIS:
+					case TokenNameELLIPSIS:
 						++balance; // special case for varargs - simulate lbracket found
 						//$FALL-THROUGH$
-					case TerminalTokens.TokenNameRBRACKET:
+					case TokenNameRBRACKET:
 						--balance;
 						if (lParentCount > 0) break;
 						if (balance > 0) break;
@@ -5739,6 +5756,9 @@ class ASTConverter {
 						if (count == bracketNumber) {
 							return this.scanner.currentPosition - 1;
 						}
+						break;
+					default:
+						// NOP
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -5758,13 +5778,15 @@ class ASTConverter {
 	protected int retrieveRightBraceOrSemiColonPosition(int start, int end) {
 		this.scanner.resetTo(start, end);
 		try {
-			int token;
+			TerminalTokens token;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
-					case TerminalTokens.TokenNameRBRACE :
+					case TokenNameRBRACE :
 						return this.scanner.currentPosition - 1;
-					case TerminalTokens.TokenNameSEMICOLON :
+					case TokenNameSEMICOLON :
 						return this.scanner.currentPosition - 1;
+					default:
+						// NOP
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -5780,11 +5802,13 @@ class ASTConverter {
 	protected int retrieveRightBrace(int start, int end) {
 		this.scanner.resetTo(start, end);
 		try {
-			int token;
+			TerminalTokens token;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
-					case TerminalTokens.TokenNameRBRACE :
+					case TokenNameRBRACE :
 						return this.scanner.currentPosition - 1;
+					default:
+						// NOP
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -5800,11 +5824,13 @@ class ASTConverter {
 	protected int retrieveStartBlockPosition(int start, int end) {
 		this.scanner.resetTo(start, end);
 		try {
-			int token;
+			TerminalTokens token;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
-					case TerminalTokens.TokenNameLBRACE://110
+					case TokenNameLBRACE://110
 						return this.scanner.startPosition;
+					default:
+						// NOP
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -5820,11 +5846,13 @@ class ASTConverter {
 	protected int retrieveStartingCatchPosition(int start, int end) {
 		this.scanner.resetTo(start, end);
 		try {
-			int token;
+			TerminalTokens token;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
-					case TerminalTokens.TokenNamecatch://225
+					case TokenNamecatch://225
 						return this.scanner.startPosition;
+					default:
+						// NOP
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -5854,54 +5882,54 @@ class ASTConverter {
 	protected void setModifiers(List modifiers, org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations, int modifiersEnd) {
 		this.scanner.tokenizeWhiteSpace = false;
 		try {
-			int token;
+			TerminalTokens token;
 			int indexInAnnotations = 0;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				IExtendedModifier modifier = null;
 				switch(token) {
-					case TerminalTokens.TokenNameabstract:
+					case TokenNameabstract:
 						modifier = createModifier(Modifier.ModifierKeyword.ABSTRACT_KEYWORD);
 						break;
-					case TerminalTokens.TokenNamepublic:
+					case TokenNamepublic:
 						modifier = createModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
 						break;
-					case TerminalTokens.TokenNamestatic:
+					case TokenNamestatic:
 						modifier = createModifier(Modifier.ModifierKeyword.STATIC_KEYWORD);
 						break;
-					case TerminalTokens.TokenNameprotected:
+					case TokenNameprotected:
 						modifier = createModifier(Modifier.ModifierKeyword.PROTECTED_KEYWORD);
 						break;
-					case TerminalTokens.TokenNameprivate:
+					case TokenNameprivate:
 						modifier = createModifier(Modifier.ModifierKeyword.PRIVATE_KEYWORD);
 						break;
-					case TerminalTokens.TokenNamefinal:
+					case TokenNamefinal:
 						modifier = createModifier(Modifier.ModifierKeyword.FINAL_KEYWORD);
 						break;
-					case TerminalTokens.TokenNamenative:
+					case TokenNamenative:
 						modifier = createModifier(Modifier.ModifierKeyword.NATIVE_KEYWORD);
 						break;
-					case TerminalTokens.TokenNamesynchronized:
+					case TokenNamesynchronized:
 						modifier = createModifier(Modifier.ModifierKeyword.SYNCHRONIZED_KEYWORD);
 						break;
-					case TerminalTokens.TokenNametransient:
+					case TokenNametransient:
 						modifier = createModifier(Modifier.ModifierKeyword.TRANSIENT_KEYWORD);
 						break;
-					case TerminalTokens.TokenNamevolatile:
+					case TokenNamevolatile:
 						modifier = createModifier(Modifier.ModifierKeyword.VOLATILE_KEYWORD);
 						break;
-					case TerminalTokens.TokenNamestrictfp:
+					case TokenNamestrictfp:
 						modifier = createModifier(Modifier.ModifierKeyword.STRICTFP_KEYWORD);
 						break;
-					case TerminalTokens.TokenNamedefault:
+					case TokenNamedefault:
 						modifier = createModifier(Modifier.ModifierKeyword.DEFAULT_KEYWORD);
 						break;
-					case TerminalTokens.TokenNameRestrictedIdentifiersealed:
+					case TokenNameRestrictedIdentifiersealed:
 						modifier = createModifier(Modifier.ModifierKeyword.SEALED_KEYWORD);
 						break;
-					case TerminalTokens.TokenNamenon_sealed:
+					case TokenNamenon_sealed:
 						modifier = createModifier(Modifier.ModifierKeyword.NON_SEALED_KEYWORD);
 						break;
-					case TerminalTokens.TokenNameAT :
+					case TokenNameAT :
 						// we have an annotation
 						if (annotations != null && indexInAnnotations < annotations.length) {
 							org.eclipse.jdt.internal.compiler.ast.Annotation annotation = annotations[indexInAnnotations++];
@@ -5909,9 +5937,9 @@ class ASTConverter {
 							this.scanner.resetTo(annotation.declarationSourceEnd + 1, modifiersEnd);
 						}
 						break;
-					case TerminalTokens.TokenNameCOMMENT_BLOCK :
-					case TerminalTokens.TokenNameCOMMENT_LINE :
-					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+					case TokenNameCOMMENT_BLOCK :
+					case TokenNameCOMMENT_LINE :
+					case TokenNameCOMMENT_JAVADOC :
 						break;
 					default :
 						// there is some syntax errors in source code
@@ -6015,44 +6043,44 @@ class ASTConverter {
 				org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations = argument.annotations;
 				int indexInAnnotations = 0;
 				try {
-					int token;
+					TerminalTokens token;
 					while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 						IExtendedModifier modifier = null;
 						switch(token) {
-							case TerminalTokens.TokenNameabstract:
+							case TokenNameabstract:
 								modifier = createModifier(Modifier.ModifierKeyword.ABSTRACT_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamepublic:
+							case TokenNamepublic:
 								modifier = createModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamestatic:
+							case TokenNamestatic:
 								modifier = createModifier(Modifier.ModifierKeyword.STATIC_KEYWORD);
 								break;
-							case TerminalTokens.TokenNameprotected:
+							case TokenNameprotected:
 								modifier = createModifier(Modifier.ModifierKeyword.PROTECTED_KEYWORD);
 								break;
-							case TerminalTokens.TokenNameprivate:
+							case TokenNameprivate:
 								modifier = createModifier(Modifier.ModifierKeyword.PRIVATE_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamefinal:
+							case TokenNamefinal:
 								modifier = createModifier(Modifier.ModifierKeyword.FINAL_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamenative:
+							case TokenNamenative:
 								modifier = createModifier(Modifier.ModifierKeyword.NATIVE_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamesynchronized:
+							case TokenNamesynchronized:
 								modifier = createModifier(Modifier.ModifierKeyword.SYNCHRONIZED_KEYWORD);
 								break;
-							case TerminalTokens.TokenNametransient:
+							case TokenNametransient:
 								modifier = createModifier(Modifier.ModifierKeyword.TRANSIENT_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamevolatile:
+							case TokenNamevolatile:
 								modifier = createModifier(Modifier.ModifierKeyword.VOLATILE_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamestrictfp:
+							case TokenNamestrictfp:
 								modifier = createModifier(Modifier.ModifierKeyword.STRICTFP_KEYWORD);
 								break;
-							case TerminalTokens.TokenNameAT :
+							case TokenNameAT :
 								// we have an annotation
 								if (annotations != null && indexInAnnotations < annotations.length) {
 									org.eclipse.jdt.internal.compiler.ast.Annotation annotation = annotations[indexInAnnotations++];
@@ -6060,9 +6088,9 @@ class ASTConverter {
 									this.scanner.resetTo(annotation.declarationSourceEnd + 1, this.compilationUnitSourceLength);
 								}
 								break;
-							case TerminalTokens.TokenNameCOMMENT_BLOCK :
-							case TerminalTokens.TokenNameCOMMENT_LINE :
-							case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+							case TokenNameCOMMENT_BLOCK :
+							case TokenNameCOMMENT_LINE :
+							case TokenNameCOMMENT_JAVADOC :
 								break;
 							default :
 								return;
@@ -6090,44 +6118,44 @@ class ASTConverter {
 			org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations = localDeclaration.annotations;
 			int indexInAnnotations = 0;
 			try {
-				int token;
+				TerminalTokens token;
 				while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 					IExtendedModifier modifier = null;
 					switch(token) {
-						case TerminalTokens.TokenNameabstract:
+						case TokenNameabstract:
 							modifier = createModifier(Modifier.ModifierKeyword.ABSTRACT_KEYWORD);
 							break;
-						case TerminalTokens.TokenNamepublic:
+						case TokenNamepublic:
 							modifier = createModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
 							break;
-						case TerminalTokens.TokenNamestatic:
+						case TokenNamestatic:
 							modifier = createModifier(Modifier.ModifierKeyword.STATIC_KEYWORD);
 							break;
-						case TerminalTokens.TokenNameprotected:
+						case TokenNameprotected:
 							modifier = createModifier(Modifier.ModifierKeyword.PROTECTED_KEYWORD);
 							break;
-						case TerminalTokens.TokenNameprivate:
+						case TokenNameprivate:
 							modifier = createModifier(Modifier.ModifierKeyword.PRIVATE_KEYWORD);
 							break;
-						case TerminalTokens.TokenNamefinal:
+						case TokenNamefinal:
 							modifier = createModifier(Modifier.ModifierKeyword.FINAL_KEYWORD);
 							break;
-						case TerminalTokens.TokenNamenative:
+						case TokenNamenative:
 							modifier = createModifier(Modifier.ModifierKeyword.NATIVE_KEYWORD);
 							break;
-						case TerminalTokens.TokenNamesynchronized:
+						case TokenNamesynchronized:
 							modifier = createModifier(Modifier.ModifierKeyword.SYNCHRONIZED_KEYWORD);
 							break;
-						case TerminalTokens.TokenNametransient:
+						case TokenNametransient:
 							modifier = createModifier(Modifier.ModifierKeyword.TRANSIENT_KEYWORD);
 							break;
-						case TerminalTokens.TokenNamevolatile:
+						case TokenNamevolatile:
 							modifier = createModifier(Modifier.ModifierKeyword.VOLATILE_KEYWORD);
 							break;
-						case TerminalTokens.TokenNamestrictfp:
+						case TokenNamestrictfp:
 							modifier = createModifier(Modifier.ModifierKeyword.STRICTFP_KEYWORD);
 							break;
-						case TerminalTokens.TokenNameAT :
+						case TokenNameAT :
 							// we have an annotation
 							if (annotations != null && indexInAnnotations < annotations.length) {
 								org.eclipse.jdt.internal.compiler.ast.Annotation annotation = annotations[indexInAnnotations++];
@@ -6135,9 +6163,9 @@ class ASTConverter {
 								this.scanner.resetTo(annotation.declarationSourceEnd + 1, this.compilationUnitSourceLength);
 							}
 							break;
-						case TerminalTokens.TokenNameCOMMENT_BLOCK :
-						case TerminalTokens.TokenNameCOMMENT_LINE :
-						case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+						case TokenNameCOMMENT_BLOCK :
+						case TokenNameCOMMENT_LINE :
+						case TokenNameCOMMENT_JAVADOC :
 							break;
 						default :
 							return;
@@ -6170,44 +6198,44 @@ class ASTConverter {
 				org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations = component.annotations;
 				int indexInAnnotations = 0;
 				try {
-					int token;
+					TerminalTokens token;
 					while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 						IExtendedModifier modifier = null;
 						switch(token) {
-							case TerminalTokens.TokenNameabstract:
+							case TokenNameabstract:
 								modifier = createModifier(Modifier.ModifierKeyword.ABSTRACT_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamepublic:
+							case TokenNamepublic:
 								modifier = createModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamestatic:
+							case TokenNamestatic:
 								modifier = createModifier(Modifier.ModifierKeyword.STATIC_KEYWORD);
 								break;
-							case TerminalTokens.TokenNameprotected:
+							case TokenNameprotected:
 								modifier = createModifier(Modifier.ModifierKeyword.PROTECTED_KEYWORD);
 								break;
-							case TerminalTokens.TokenNameprivate:
+							case TokenNameprivate:
 								modifier = createModifier(Modifier.ModifierKeyword.PRIVATE_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamefinal:
+							case TokenNamefinal:
 								modifier = createModifier(Modifier.ModifierKeyword.FINAL_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamenative:
+							case TokenNamenative:
 								modifier = createModifier(Modifier.ModifierKeyword.NATIVE_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamesynchronized:
+							case TokenNamesynchronized:
 								modifier = createModifier(Modifier.ModifierKeyword.SYNCHRONIZED_KEYWORD);
 								break;
-							case TerminalTokens.TokenNametransient:
+							case TokenNametransient:
 								modifier = createModifier(Modifier.ModifierKeyword.TRANSIENT_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamevolatile:
+							case TokenNamevolatile:
 								modifier = createModifier(Modifier.ModifierKeyword.VOLATILE_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamestrictfp:
+							case TokenNamestrictfp:
 								modifier = createModifier(Modifier.ModifierKeyword.STRICTFP_KEYWORD);
 								break;
-							case TerminalTokens.TokenNameAT :
+							case TokenNameAT :
 								// we have an annotation
 								if (annotations != null && indexInAnnotations < annotations.length) {
 									org.eclipse.jdt.internal.compiler.ast.Annotation annotation = annotations[indexInAnnotations++];
@@ -6215,9 +6243,9 @@ class ASTConverter {
 									this.scanner.resetTo(annotation.declarationSourceEnd + 1, this.compilationUnitSourceLength);
 								}
 								break;
-							case TerminalTokens.TokenNameCOMMENT_BLOCK :
-							case TerminalTokens.TokenNameCOMMENT_LINE :
-							case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+							case TokenNameCOMMENT_BLOCK :
+							case TokenNameCOMMENT_LINE :
+							case TokenNameCOMMENT_JAVADOC :
 								break;
 							default :
 								return;
@@ -6263,44 +6291,44 @@ class ASTConverter {
 				org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations = localDeclaration.annotations;
 				int indexInAnnotations = 0;
 				try {
-					int token;
+					TerminalTokens token;
 					while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 						IExtendedModifier modifier = null;
 						switch(token) {
-							case TerminalTokens.TokenNameabstract:
+							case TokenNameabstract:
 								modifier = createModifier(Modifier.ModifierKeyword.ABSTRACT_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamepublic:
+							case TokenNamepublic:
 								modifier = createModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamestatic:
+							case TokenNamestatic:
 								modifier = createModifier(Modifier.ModifierKeyword.STATIC_KEYWORD);
 								break;
-							case TerminalTokens.TokenNameprotected:
+							case TokenNameprotected:
 								modifier = createModifier(Modifier.ModifierKeyword.PROTECTED_KEYWORD);
 								break;
-							case TerminalTokens.TokenNameprivate:
+							case TokenNameprivate:
 								modifier = createModifier(Modifier.ModifierKeyword.PRIVATE_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamefinal:
+							case TokenNamefinal:
 								modifier = createModifier(Modifier.ModifierKeyword.FINAL_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamenative:
+							case TokenNamenative:
 								modifier = createModifier(Modifier.ModifierKeyword.NATIVE_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamesynchronized:
+							case TokenNamesynchronized:
 								modifier = createModifier(Modifier.ModifierKeyword.SYNCHRONIZED_KEYWORD);
 								break;
-							case TerminalTokens.TokenNametransient:
+							case TokenNametransient:
 								modifier = createModifier(Modifier.ModifierKeyword.TRANSIENT_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamevolatile:
+							case TokenNamevolatile:
 								modifier = createModifier(Modifier.ModifierKeyword.VOLATILE_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamestrictfp:
+							case TokenNamestrictfp:
 								modifier = createModifier(Modifier.ModifierKeyword.STRICTFP_KEYWORD);
 								break;
-							case TerminalTokens.TokenNameAT :
+							case TokenNameAT :
 								// we have an annotation
 								if (annotations != null && indexInAnnotations < annotations.length) {
 									org.eclipse.jdt.internal.compiler.ast.Annotation annotation = annotations[indexInAnnotations++];
@@ -6308,9 +6336,9 @@ class ASTConverter {
 									this.scanner.resetTo(annotation.declarationSourceEnd + 1, this.compilationUnitSourceLength);
 								}
 								break;
-							case TerminalTokens.TokenNameCOMMENT_BLOCK :
-							case TerminalTokens.TokenNameCOMMENT_LINE :
-							case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+							case TokenNameCOMMENT_BLOCK :
+							case TokenNameCOMMENT_LINE :
+							case TokenNameCOMMENT_JAVADOC :
 								break;
 							default :
 								return;
@@ -6340,44 +6368,44 @@ class ASTConverter {
 				org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations = localDeclaration.annotations;
 				int indexInAnnotations = 0;
 				try {
-					int token;
+					TerminalTokens token;
 					while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 						IExtendedModifier modifier = null;
 						switch(token) {
-							case TerminalTokens.TokenNameabstract:
+							case TokenNameabstract:
 								modifier = createModifier(Modifier.ModifierKeyword.ABSTRACT_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamepublic:
+							case TokenNamepublic:
 								modifier = createModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamestatic:
+							case TokenNamestatic:
 								modifier = createModifier(Modifier.ModifierKeyword.STATIC_KEYWORD);
 								break;
-							case TerminalTokens.TokenNameprotected:
+							case TokenNameprotected:
 								modifier = createModifier(Modifier.ModifierKeyword.PROTECTED_KEYWORD);
 								break;
-							case TerminalTokens.TokenNameprivate:
+							case TokenNameprivate:
 								modifier = createModifier(Modifier.ModifierKeyword.PRIVATE_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamefinal:
+							case TokenNamefinal:
 								modifier = createModifier(Modifier.ModifierKeyword.FINAL_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamenative:
+							case TokenNamenative:
 								modifier = createModifier(Modifier.ModifierKeyword.NATIVE_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamesynchronized:
+							case TokenNamesynchronized:
 								modifier = createModifier(Modifier.ModifierKeyword.SYNCHRONIZED_KEYWORD);
 								break;
-							case TerminalTokens.TokenNametransient:
+							case TokenNametransient:
 								modifier = createModifier(Modifier.ModifierKeyword.TRANSIENT_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamevolatile:
+							case TokenNamevolatile:
 								modifier = createModifier(Modifier.ModifierKeyword.VOLATILE_KEYWORD);
 								break;
-							case TerminalTokens.TokenNamestrictfp:
+							case TokenNamestrictfp:
 								modifier = createModifier(Modifier.ModifierKeyword.STRICTFP_KEYWORD);
 								break;
-							case TerminalTokens.TokenNameAT :
+							case TokenNameAT :
 								// we have an annotation
 								if (annotations != null && indexInAnnotations < annotations.length) {
 									org.eclipse.jdt.internal.compiler.ast.Annotation annotation = annotations[indexInAnnotations++];
@@ -6385,9 +6413,9 @@ class ASTConverter {
 									this.scanner.resetTo(annotation.declarationSourceEnd + 1, this.compilationUnitSourceLength);
 								}
 								break;
-							case TerminalTokens.TokenNameCOMMENT_BLOCK :
-							case TerminalTokens.TokenNameCOMMENT_LINE :
-							case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+							case TokenNameCOMMENT_BLOCK :
+							case TokenNameCOMMENT_LINE :
+							case TokenNameCOMMENT_JAVADOC :
 								break;
 							default :
 								return;

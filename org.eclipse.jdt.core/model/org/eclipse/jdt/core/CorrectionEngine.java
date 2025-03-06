@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameNotAToken;
+
 import java.util.Hashtable;
 import java.util.Map;
 import org.eclipse.core.resources.IMarker;
@@ -259,7 +261,7 @@ public class CorrectionEngine {
 			scanner.setSource(source.toCharArray());
 
 			scanner.resetTo(this.correctionStart, this.correctionEnd);
-			int token = 0;
+			TerminalTokens token = TokenNameNotAToken;
 			char[] argumentSource = CharOperation.NO_CHAR;
 
 			// search last segment position

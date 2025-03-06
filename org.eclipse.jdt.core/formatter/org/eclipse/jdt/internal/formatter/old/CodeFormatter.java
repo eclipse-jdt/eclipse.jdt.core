@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.formatter.old;
 import java.util.Map;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.text.edits.ReplaceEdit;
 import org.eclipse.text.edits.TextEdit;
@@ -29,7 +28,7 @@ import org.eclipse.text.edits.TextEdit;
  * @deprecated
 */
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class CodeFormatter implements TerminalTokens, org.eclipse.jdt.core.ICodeFormatter {
+public class CodeFormatter implements org.eclipse.jdt.core.ICodeFormatter {
 
 	private Map options;
 

@@ -615,15 +615,17 @@ public class InternalNamingConventions {
 			try{
 				nameScanner.setSource(baseName);
 				switch (nameScanner.getNextToken()) {
-					case TerminalTokens.TokenNameint :
-					case TerminalTokens.TokenNamebyte :
-					case TerminalTokens.TokenNameshort :
-					case TerminalTokens.TokenNamechar :
-					case TerminalTokens.TokenNamelong :
-					case TerminalTokens.TokenNamefloat :
-					case TerminalTokens.TokenNamedouble :
-					case TerminalTokens.TokenNameboolean :
+					case TokenNameint :
+					case TokenNamebyte :
+					case TokenNameshort :
+					case TokenNamechar :
+					case TokenNamelong :
+					case TokenNamefloat :
+					case TokenNamedouble :
+					case TokenNameboolean :
 						isBaseType = true;
+						break;
+					default: // NOP
 						break;
 				}
 			} catch(InvalidInputException e){
@@ -782,8 +784,8 @@ public class InternalNamingConventions {
 						try{
 							nameScanner.setSource(suffixName);
 							switch (nameScanner.getNextToken()) {
-								case TerminalTokens.TokenNameIdentifier :
-									int token = nameScanner.getNextToken();
+								case TokenNameIdentifier :
+									TerminalTokens token = nameScanner.getNextToken();
 									if (token == TerminalTokens.TokenNameEOF && nameScanner.startPosition == suffixName.length) {
 										if (!foundNames.includes(suffixName)) {
 											acceptName(suffixName, prefixes[k], suffixes[l],  k == 0, l == 0, internalPrefix.length - matchingIndex, requestor);
@@ -806,7 +808,7 @@ public class InternalNamingConventions {
 											excluded);
 									nameScanner.setSource(suffixName);
 									switch (nameScanner.getNextToken()) {
-										case TerminalTokens.TokenNameIdentifier :
+										case TokenNameIdentifier :
 											token = nameScanner.getNextToken();
 											if (token == TerminalTokens.TokenNameEOF && nameScanner.startPosition == suffixName.length) {
 												if (!foundNames.includes(suffixName)) {
@@ -815,6 +817,9 @@ public class InternalNamingConventions {
 													acceptDefaultName = false;
 												}
 											}
+											break;
+										default: // NOP
+											break;
 									}
 							}
 						} catch(InvalidInputException e){

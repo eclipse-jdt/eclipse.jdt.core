@@ -5210,11 +5210,11 @@ public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclar
 		this.referenceContext = savedContext;
 	}
 }
-private boolean isIdentifier(int token) {
+private boolean isIdentifier(TerminalTokens token) {
 	return token == TerminalTokens.TokenNameIdentifier;
 }
 
-private boolean isLiteral(int token) {
+private boolean isLiteral(TerminalTokens token) {
 	return Scanner.isLiteral(token);
 }
 
@@ -7607,7 +7607,7 @@ public void parameterizedMemberTypeMissingArguments(ASTNode location, TypeBindin
 public void parseError(
 	int startPosition,
 	int endPosition,
-	int currentToken,
+	TerminalTokens currentToken,
 	char[] currentTokenSource,
 	String errorTokenName,
 	String[] possibleTokens) {
@@ -7675,7 +7675,7 @@ public void parseError(
 public void parseErrorDeleteToken(
 	int start,
 	int end,
-	int currentKind,
+	TerminalTokens currentKind,
 	char[] errorTokenSource,
 	String errorTokenName){
 	syntaxError(
@@ -7701,7 +7701,7 @@ public void parseErrorDeleteTokens(
 public void parseErrorInsertAfterToken(
 	int start,
 	int end,
-	int currentKind,
+	TerminalTokens currentKind,
 	char[] errorTokenSource,
 	String errorTokenName,
 	String expectedToken){
@@ -7717,7 +7717,7 @@ public void parseErrorInsertAfterToken(
 public void parseErrorInsertBeforeToken(
 	int start,
 	int end,
-	int currentKind,
+	TerminalTokens currentKind,
 	char[] errorTokenSource,
 	String errorTokenName,
 	String expectedToken){
@@ -7771,7 +7771,7 @@ public void parseErrorInsertToCompleteScope(
 public void parseErrorInvalidToken(
 	int start,
 	int end,
-	int currentKind,
+	TerminalTokens currentKind,
 	char[] errorTokenSource,
 	String errorTokenName,
 	String expectedToken){
@@ -7809,7 +7809,7 @@ public void parseErrorMisplacedConstruct(
 public void parseErrorNoSuggestion(
 	int start,
 	int end,
-	int currentKind,
+	TerminalTokens currentKind,
 	char[] errorTokenSource,
 	String errorTokenName){
 	syntaxError(
@@ -7834,7 +7834,7 @@ public void parseErrorNoSuggestionForTokens(
 public void parseErrorReplaceToken(
 	int start,
 	int end,
-	int currentKind,
+	TerminalTokens currentKind,
 	char[] errorTokenSource,
 	String errorTokenName,
 	String expectedToken){
@@ -8111,21 +8111,23 @@ private int retrieveClosingAngleBracketPosition(int start) {
 	int end = start;
 	int count = 0;
 	try {
-		int token;
+		TerminalTokens token;
 		loop: while ((token = this.positionScanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 			switch(token) {
-				case TerminalTokens.TokenNameLESS:
+				case TokenNameLESS:
 					count++;
 					break;
-				case TerminalTokens.TokenNameGREATER:
+				case TokenNameGREATER:
 					count--;
 					if (count == 0) {
 						end = this.positionScanner.currentPosition - 1;
 						break loop;
 					}
 					break;
-				case TerminalTokens.TokenNameLBRACE :
+				case TokenNameLBRACE :
 					break loop;
+				default : // NOP
+					break;
 			}
 		}
 	} catch(InvalidInputException e) {
@@ -8148,11 +8150,11 @@ private int retrieveEndingPositionAfterOpeningParenthesis(int sourceStart, int s
 	this.positionScanner.setSource(contents);
 	this.positionScanner.resetTo(sourceStart, sourceEnd);
 	try {
-		int token;
+		TerminalTokens token;
 		int previousSourceEnd = sourceEnd;
 		while ((token = this.positionScanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 			switch(token) {
-				case TerminalTokens.TokenNameRPAREN:
+				case TokenNameRPAREN:
 					return previousSourceEnd;
 				default :
 					previousSourceEnd = this.positionScanner.currentPosition - 1;
@@ -8179,15 +8181,18 @@ private int retrieveStartingPositionAfterOpeningParenthesis(int sourceStart, int
 	this.positionScanner.resetTo(sourceStart, sourceEnd);
 	int count = 0;
 	try {
-		int token;
+		TerminalTokens token;
 		while ((token = this.positionScanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 			switch(token) {
-				case TerminalTokens.TokenNameLPAREN:
+				case TokenNameLPAREN:
 					count++;
 					if (count == numberOfParen) {
 						this.positionScanner.getNextToken();
 						return this.positionScanner.startPosition;
 					}
+					break;
+				default: // NOP
+					break;
 			}
 		}
 	} catch(InvalidInputException e) {
@@ -8425,7 +8430,7 @@ private boolean handleSyntaxErrorOnNewTokens(
 	int id,
 	int start,
 	int end,
-	int currentKind,
+	TerminalTokens currentKind,
 	char[] errorTokenSource,
 	String errorTokenName,
 	String expectedToken) {
@@ -8445,7 +8450,7 @@ private void handleSyntaxError(
 	int id,
 	int start,
 	int end,
-	int currentKind,
+	TerminalTokens currentKind,
 	char[] errorTokenSource,
 	String errorTokenName,
 	String expectedToken) {
@@ -8472,7 +8477,7 @@ private void syntaxError(
 	int id,
 	int startPosition,
 	int endPosition,
-	int currentKind,
+	TerminalTokens currentKind,
 	char[] currentTokenSource,
 	String errorTokenName,
 	String expectedToken) {
