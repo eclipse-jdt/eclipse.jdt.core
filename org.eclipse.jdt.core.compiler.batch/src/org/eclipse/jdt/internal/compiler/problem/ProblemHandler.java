@@ -223,6 +223,13 @@ public void handle(
 	ReferenceContext referenceContext,
 	CompilationResult unitResult) {
 
+	if (problemArguments.length == 0) {
+		problemArguments = new String[] { "N/A" }; //$NON-NLS-1$
+	}
+
+	if (messageArguments.length == 0) {
+		messageArguments =new String[] { "N/A" }; //$NON-NLS-1$
+	}
 	this.handle(
 		problemId,
 		problemArguments,
