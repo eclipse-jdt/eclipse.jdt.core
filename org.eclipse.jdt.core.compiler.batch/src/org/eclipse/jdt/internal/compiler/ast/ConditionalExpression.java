@@ -814,7 +814,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	@Override
 	public boolean isCompatibleWith(TypeBinding left, Scope scope) {
 		if (!isPolyExpression())
-			super.isCompatibleWith(left, scope);
+			return super.isCompatibleWith(left, scope);
 
 		scope.include(this.condition.bindingsWhenTrue());
 		try {
