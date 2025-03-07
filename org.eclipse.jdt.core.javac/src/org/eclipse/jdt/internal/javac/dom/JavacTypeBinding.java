@@ -357,7 +357,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				JavacTypeBinding enclosingBinding = this.resolver.bindings.getTypeBinding(enclosing);
 				String enclosingSignature = removeTrailingSemicolon(enclosingBinding.getGenericTypeSignature(useSlashes));
 				String simpleName = s.getSimpleName().toString();
-				String typeArgs = "";
+				String typeArgs = ";";
 				if(t.getTypeArguments().nonEmpty() ) {
 					typeArgs = '<'
 							+ Arrays.stream(getTypeArguments())
@@ -365,7 +365,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 							.collect(Collectors.joining())
 						+ ">;";
 				}
-				return enclosingSignature + '.' + simpleName + typeArgs; 
+				return enclosingSignature + '$' + simpleName + typeArgs;
 			}
 		} else if( t instanceof ArrayType at) {
 			Type component = at.getComponentType();
