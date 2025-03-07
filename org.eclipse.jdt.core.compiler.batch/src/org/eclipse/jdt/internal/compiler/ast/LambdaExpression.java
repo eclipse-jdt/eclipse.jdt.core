@@ -1438,7 +1438,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				return LambdaExpression.this.scope.getJavaLangObject();
 			}
 			@Override
-			public ReferenceBinding[] superInterfaces() {
+			protected ReferenceBinding[] superInterfacesRecursive(Set<ReferenceBinding> visited) {
 				return new ReferenceBinding[] { (ReferenceBinding) LambdaExpression.this.resolvedType };
 			}
 			@Override
