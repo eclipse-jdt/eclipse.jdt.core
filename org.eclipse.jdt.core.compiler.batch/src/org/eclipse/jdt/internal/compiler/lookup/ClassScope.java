@@ -35,6 +35,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -225,40 +226,51 @@ public class ClassScope extends Scope {
 			}
 		}
 
+		RecordComponent [] recordComponents = this.referenceContext.recordComponents;
+		count += recordComponents.length;
 		// iterate the field declarations to create the bindings, lose all duplicates
 		FieldBinding[] fieldBindings = new FieldBinding[count];
 		HashtableOfObject knownFieldNames = new HashtableOfObject(count);
 		count = 0;
-		for (int i = 0; i < size; i++) {
-			FieldDeclaration field = fields[i];
-			if (field.getKind() == AbstractVariableDeclaration.INITIALIZER) {
+
+		AbstractVariableDeclaration variableDeclarartions[] = Stream.concat(Stream.of(fields), Stream.of(recordComponents)).toArray(AbstractVariableDeclaration[]::new);
+
+
+		int i = -1;
+		for (AbstractVariableDeclaration variableDeclaration : variableDeclarartions) {
+			FieldBinding fieldBinding;
+			++i;
+			if (variableDeclaration.getKind() == AbstractVariableDeclaration.INITIALIZER) {
 				// We used to report an error for initializers declared inside interfaces, but
 				// now this error reporting is moved into the parser itself. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=212713
-			} else {
-				FieldBinding fieldBinding = new FieldBinding(field, null, field.modifiers | ExtraCompilerModifiers.AccUnresolved, sourceType);
+				continue;
+			}
+			if (variableDeclaration instanceof FieldDeclaration field) {
+				fieldBinding = new FieldBinding(field, null, field.modifiers | ExtraCompilerModifiers.AccUnresolved, sourceType);
 				fieldBinding.id = count;
 				// field's type will be resolved when needed for top level types
 				checkAndSetModifiersForField(fieldBinding, field);
-
-				if (knownFieldNames.containsKey(field.name)) {
-					FieldBinding previousBinding = (FieldBinding) knownFieldNames.get(field.name);
-					if (previousBinding != null) {
-						for (int f = 0; f < i; f++) {
-							FieldDeclaration previousField = fields[f];
-							if (previousField.binding == previousBinding) {
-								problemReporter().duplicateFieldInType(sourceType, previousField);
-								break;
-							}
+			} else {
+				continue;
+			}
+			if (knownFieldNames.containsKey(variableDeclaration.name)) {
+				FieldBinding previousBinding = (FieldBinding) knownFieldNames.get(variableDeclaration.name);
+				if (previousBinding != null) {
+					for (int f = 0; f < i; f++) {
+						AbstractVariableDeclaration previousField = variableDeclarartions[f];
+						if (previousField.getBinding() == previousBinding) {
+							problemReporter().duplicateFieldInType(sourceType, previousField);
+							break;
 						}
 					}
-					knownFieldNames.put(field.name, null); // ensure that the duplicate field is found & removed
-					problemReporter().duplicateFieldInType(sourceType, field);
-					field.binding = null;
-				} else {
-					knownFieldNames.put(field.name, fieldBinding);
-					// remember that we have seen a field with this name
-					fieldBindings[count++] = fieldBinding;
 				}
+				knownFieldNames.put(variableDeclaration.name, null); // ensure that the duplicate field is found & removed
+				problemReporter().duplicateFieldInType(sourceType, variableDeclaration);
+				variableDeclaration.setBinding(null);
+			} else {
+				knownFieldNames.put(variableDeclaration.name, fieldBinding);
+				// remember that we have seen a field with this name
+				fieldBindings[count++] = fieldBinding;
 			}
 		}
 		// remove duplicate fields
