@@ -745,4 +745,23 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 				},
 				"Bar!\nBar!\nBar!\nBar!");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3775
+	// [Ternary operator] Inference failure involving standalone conditional expression argument
+	public void testIssue3775() {
+		this.runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						import java.util.Optional;
+
+						public class X {
+						    public static void main(String[] args) {
+						        System.out.println(Optional.ofNullable("a" == null ? null : 2.0));
+						    }
+						}
+						"""
+				},
+				"Optional[2.0]");
+	}
 }
