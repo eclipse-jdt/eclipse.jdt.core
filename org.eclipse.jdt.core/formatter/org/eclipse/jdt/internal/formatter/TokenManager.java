@@ -195,18 +195,10 @@ public class TokenManager implements Iterable<Token> {
 		return this.tokens.stream();
 	}
 
-	public int firstIndexIn(ASTNode node, int tokenType) {
-		return this.firstIndexIn(node, TerminalTokens.of(tokenType));
-	}
-
 	public int firstIndexIn(ASTNode node, TerminalTokens tokenType) {
 		int index = findIndex(node.getStartPosition(), tokenType, true);
 		assert tokenInside(node, index);
 		return index;
-	}
-
-	public Token firstTokenIn(ASTNode node, int tokenType) {
-		return firstTokenIn(node, TerminalTokens.of(tokenType));
 	}
 
 	public Token firstTokenIn(ASTNode node, TerminalTokens tokenType) {
@@ -219,32 +211,16 @@ public class TokenManager implements Iterable<Token> {
 		return index;
 	}
 
-	public Token lastTokenIn(ASTNode node, int tokenType) {
-		return lastTokenIn(node, TerminalTokens.of(tokenType));
-	}
-
 	public Token lastTokenIn(ASTNode node, TerminalTokens tokenType) {
 		return get(lastIndexIn(node, tokenType));
-	}
-
-	public int firstIndexAfter(ASTNode node, int tokenType) {
-		return firstIndexAfter(node, TerminalTokens.of(tokenType));
 	}
 
 	public int firstIndexAfter(ASTNode node, TerminalTokens tokenType) {
 		return findIndex(node.getStartPosition() + node.getLength(), tokenType, true);
 	}
 
-	public Token firstTokenAfter(ASTNode node, int tokenType) {
-		return firstTokenAfter(node, TerminalTokens.of(tokenType));
-	}
-
 	public Token firstTokenAfter(ASTNode node, TerminalTokens tokenType) {
 		return get(firstIndexAfter(node, tokenType));
-	}
-
-	public int firstIndexBefore(ASTNode node, int tokenType) {
-		return firstIndexBefore(node, TerminalTokens.of(tokenType));
 	}
 
 	public int firstIndexBefore(ASTNode node, TerminalTokens tokenType) {

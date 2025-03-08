@@ -144,7 +144,7 @@ public class SpacePreparator extends ASTVisitor {
 			// look for empty parenthesis, may not be there
 			int from = this.tm.firstIndexIn(node.getName(), TokenNameIdentifier) + 1;
 			AnonymousClassDeclaration classDeclaration = node.getAnonymousClassDeclaration();
-			int to = classDeclaration != null ? this.tm.firstIndexBefore(classDeclaration, -1)
+			int to = classDeclaration != null ? this.tm.firstIndexBefore(classDeclaration, TokenNameInvalid)
 					: this.tm.lastIndexIn(node, TokenNameInvalid);
 			for (int i = from; i <= to; i++) {
 				if (this.tm.get(i).tokenType == TokenNameLPAREN) {
@@ -260,7 +260,7 @@ public class SpacePreparator extends ASTVisitor {
 			this.tm.firstTokenIn(node.getBody(), TokenNameLBRACE).spaceBefore();
 
 		if (node.getReceiverType() != null)
-			this.tm.lastTokenIn(node.getReceiverType(), -1).spaceAfter();
+			this.tm.lastTokenIn(node.getReceiverType(), TokenNameInvalid).spaceAfter();
 
 		List<Type> thrownExceptionTypes = node.thrownExceptionTypes();
 		if (!thrownExceptionTypes.isEmpty()) {
@@ -335,7 +335,7 @@ public class SpacePreparator extends ASTVisitor {
 			List<Annotation> varargsAnnotations = node.varargsAnnotations();
 			if (!varargsAnnotations.isEmpty()) {
 				this.tm.firstTokenIn(varargsAnnotations.get(0), TokenNameAT).spaceBefore();
-				this.tm.lastTokenIn(varargsAnnotations.get(varargsAnnotations.size() - 1), -1).clearSpaceAfter();
+				this.tm.lastTokenIn(varargsAnnotations.get(varargsAnnotations.size() - 1), TokenNameInvalid).clearSpaceAfter();
 			}
 		} else {
 			handleToken(node.getName(), TokenNameIdentifier, true, false);
@@ -403,7 +403,7 @@ public class SpacePreparator extends ASTVisitor {
 	@Override
 	public boolean visit(YieldStatement node) {
 		if (node.getExpression() != null && !node.isImplicit()) {
-			this.tm.firstTokenIn(node, -1).spaceAfter();
+			this.tm.firstTokenIn(node, TokenNameInvalid).spaceAfter();
 		}
 		return true;
 	}
@@ -453,7 +453,7 @@ public class SpacePreparator extends ASTVisitor {
 						this.options.insert_space_after_semicolon_in_try_resources);
 			}
 			// there can be a semicolon after the last resource
-			int index = this.tm.firstIndexAfter(resources.get(resources.size() - 1), -1);
+			int index = this.tm.firstIndexAfter(resources.get(resources.size() - 1), TokenNameInvalid);
 			while (index < this.tm.size()) {
 				Token token = this.tm.get(index++);
 				if (token.tokenType == TokenNameSEMICOLON) {
@@ -577,7 +577,7 @@ public class SpacePreparator extends ASTVisitor {
 						&& ((AnnotationTypeMemberDeclaration) parent).getDefault() == node)
 				|| parent instanceof ArrayInitializer;
 		if (!skipSpaceAfter)
-			this.tm.lastTokenIn(node, -1).spaceAfter();
+			this.tm.lastTokenIn(node, TokenNameInvalid).spaceAfter();
 	}
 
 	@Override
@@ -669,7 +669,7 @@ public class SpacePreparator extends ASTVisitor {
 			handleCommas(node.fragments(), this.options.insert_space_before_comma_in_multiple_local_declarations,
 					this.options.insert_space_after_comma_in_multiple_local_declarations);
 		}
-		this.tm.firstTokenAfter(node.getType(), -1).spaceBefore();
+		this.tm.firstTokenAfter(node.getType(), TokenNameInvalid).spaceBefore();
 		return true;
 	}
 
@@ -808,7 +808,7 @@ public class SpacePreparator extends ASTVisitor {
 	public boolean visit(PostfixExpression node) {
 		if (this.options.insert_space_before_postfix_operator || this.options.insert_space_after_postfix_operator) {
 			String operator = node.getOperator().toString();
-			int i = this.tm.firstIndexAfter(node.getOperand(), -1);
+			int i = this.tm.firstIndexAfter(node.getOperand(), TokenNameInvalid);
 			while (!operator.equals(this.tm.toString(i))) {
 				i++;
 			}
@@ -820,7 +820,7 @@ public class SpacePreparator extends ASTVisitor {
 
 	private void handleOperator(String operator, ASTNode nodeAfter, boolean spaceBefore, boolean spaceAfter) {
 		if (spaceBefore || spaceAfter) {
-			int i = this.tm.firstIndexBefore(nodeAfter, -1);
+			int i = this.tm.firstIndexBefore(nodeAfter, TokenNameInvalid);
 			while (!operator.equals(this.tm.toString(i))) {
 				i--;
 			}
@@ -1160,7 +1160,7 @@ public class SpacePreparator extends ASTVisitor {
 
 	private void handleLoopBody(Statement loopBody) {
 		/* space before body statement may be needed if it will stay on the same line */
-		int firstTokenIndex = this.tm.firstIndexIn(loopBody, -1);
+		int firstTokenIndex = this.tm.firstIndexIn(loopBody, TokenNameInvalid);
 		if (!(loopBody instanceof Block) && !(loopBody instanceof EmptyStatement)
 				&& !this.tm.get(firstTokenIndex - 1).isComment()) {
 			this.tm.get(firstTokenIndex).spaceBefore();
