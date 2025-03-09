@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.search;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameInvalid;
+
 import java.io.IOException;
 import java.util.regex.Pattern;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -946,12 +948,12 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 	scanner.setSource(patternString.toCharArray());
 	final int InsideDeclaringPart = 1;
 	final int InsideType = 2;
-	int lastToken = -1;
+	TerminalTokens lastToken = TokenNameInvalid;
 
 	String declaringType = null, fieldName = null;
 	String type = null;
 	int mode = InsideDeclaringPart;
-	int token;
+	TerminalTokens token;
 	try {
 		token = scanner.getNextToken();
 	} catch (InvalidInputException e) {
@@ -962,7 +964,7 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 			// read declaring type and fieldName
 			case InsideDeclaringPart :
 				switch (token) {
-					case TerminalTokens.TokenNameDOT:
+					case TokenNameDOT:
 						if (declaringType == null) {
 							if (fieldName == null) return null;
 							declaringType = fieldName;
@@ -972,7 +974,7 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 						}
 						fieldName = null;
 						break;
-					case TerminalTokens.TokenNameWHITESPACE:
+					case TokenNameWHITESPACE:
 						if (!(TerminalTokens.TokenNameWHITESPACE == lastToken || TerminalTokens.TokenNameDOT == lastToken))
 							mode = InsideType;
 						break;
@@ -986,7 +988,7 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 			// read type
 			case InsideType:
 				switch (token) {
-					case TerminalTokens.TokenNameWHITESPACE:
+					case TokenNameWHITESPACE:
 						break;
 					default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
 						if (type == null)
@@ -1065,7 +1067,7 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 	final int InsideTypeArguments = 2;
 	final int InsideParameter = 3;
 	final int InsideReturnType = 4;
-	int lastToken = -1;
+	TerminalTokens lastToken = TokenNameInvalid;
 
 	String declaringType = null, selector = null, parameterType = null;
 	String[] parameterTypes = null;
@@ -1075,7 +1077,8 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 	String returnType = null;
 	boolean foundClosingParenthesis = false;
 	int mode = InsideSelector;
-	int token, argCount = 0;
+	TerminalTokens token;
+	int argCount = 0;
 	try {
 		token = scanner.getNextToken();
 	} catch (InvalidInputException e) {
@@ -1087,7 +1090,7 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 			case InsideSelector :
 				if (argCount == 0) {
 					switch (token) {
-						case TerminalTokens.TokenNameLESS:
+						case TokenNameLESS:
 							argCount++;
 							if (selector == null || lastToken == TerminalTokens.TokenNameDOT) {
 								typeArgumentsString = scanner.getCurrentTokenString();
@@ -1102,7 +1105,7 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 							declaringType += scanner.getCurrentTokenString();
 							selector = null;
 							break;
-						case TerminalTokens.TokenNameDOT:
+						case TokenNameDOT:
 							if (!isConstructor && typeArgumentsString != null) return null; // invalid syntax
 							if (declaringType == null) {
 								if (selector == null) return null; // invalid syntax
@@ -1112,18 +1115,18 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 							}
 							selector = null;
 							break;
-						case TerminalTokens.TokenNameLPAREN:
+						case TokenNameLPAREN:
 							parameterTypes = new String[5];
 							parameterCount = 0;
 							mode = InsideParameter;
 							break;
-						case TerminalTokens.TokenNameWHITESPACE:
+						case TokenNameWHITESPACE:
 							switch (lastToken) {
-								case TerminalTokens.TokenNameWHITESPACE:
-								case TerminalTokens.TokenNameDOT:
-								case TerminalTokens.TokenNameGREATER:
-								case TerminalTokens.TokenNameRIGHT_SHIFT:
-								case TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT:
+								case TokenNameWHITESPACE:
+								case TokenNameDOT:
+								case TokenNameGREATER:
+								case TokenNameRIGHT_SHIFT:
+								case TokenNameUNSIGNED_RIGHT_SHIFT:
 									break;
 								default:
 									mode = InsideReturnType;
@@ -1140,13 +1143,15 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 				} else {
 					if (declaringType == null) return null; // invalid syntax
 					switch (token) {
-						case TerminalTokens.TokenNameGREATER:
-						case TerminalTokens.TokenNameRIGHT_SHIFT:
-						case TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT:
+						case TokenNameGREATER:
+						case TokenNameRIGHT_SHIFT:
+						case TokenNameUNSIGNED_RIGHT_SHIFT:
 							argCount--;
 							break;
-						case TerminalTokens.TokenNameLESS:
+						case TokenNameLESS:
 							argCount++;
+							break;
+						default: // NOP
 							break;
 					}
 					declaringType += scanner.getCurrentTokenString();
@@ -1157,9 +1162,9 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 				if (typeArgumentsString == null) return null; // invalid syntax
 				typeArgumentsString += scanner.getCurrentTokenString();
 				switch (token) {
-					case TerminalTokens.TokenNameGREATER:
-					case TerminalTokens.TokenNameRIGHT_SHIFT:
-					case TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT:
+					case TokenNameGREATER:
+					case TokenNameRIGHT_SHIFT:
+					case TokenNameUNSIGNED_RIGHT_SHIFT:
 						argCount--;
 						if (argCount == 0) {
 							String pseudoType = "Type"+typeArgumentsString; //$NON-NLS-1$
@@ -1167,8 +1172,10 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 							mode = InsideSelector;
 						}
 						break;
-					case TerminalTokens.TokenNameLESS:
+					case TokenNameLESS:
 						argCount++;
+						break;
+					default: // NOP
 						break;
 				}
 				break;
@@ -1176,9 +1183,9 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 			case InsideParameter :
 				if (argCount == 0) {
 					switch (token) {
-						case TerminalTokens.TokenNameWHITESPACE:
+						case TokenNameWHITESPACE:
 							break;
-						case TerminalTokens.TokenNameCOMMA:
+						case TokenNameCOMMA:
 							if (parameterType == null) return null;
 							if (parameterTypes != null) {
 								if (parameterTypes.length == parameterCount)
@@ -1187,7 +1194,7 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 							}
 							parameterType = null;
 							break;
-						case TerminalTokens.TokenNameRPAREN:
+						case TokenNameRPAREN:
 							foundClosingParenthesis = true;
 							if (parameterType != null && parameterTypes != null) {
 								if (parameterTypes.length == parameterCount)
@@ -1196,7 +1203,7 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 							}
 							mode = isConstructor ? InsideTypeArguments : InsideReturnType;
 							break;
-						case TerminalTokens.TokenNameLESS:
+						case TokenNameLESS:
 							argCount++;
 							if (parameterType == null) return null; // invalid syntax
 							// $FALL-THROUGH$ - fall through next case to add token
@@ -1209,13 +1216,15 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 				} else {
 					if (parameterType == null) return null; // invalid syntax
 					switch (token) {
-						case TerminalTokens.TokenNameGREATER:
-						case TerminalTokens.TokenNameRIGHT_SHIFT:
-						case TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT:
+						case TokenNameGREATER:
+						case TokenNameRIGHT_SHIFT:
+						case TokenNameUNSIGNED_RIGHT_SHIFT:
 							argCount--;
 							break;
-						case TerminalTokens.TokenNameLESS:
+						case TokenNameLESS:
 							argCount++;
+							break;
+						default: // NOP
 							break;
 					}
 					parameterType += scanner.getCurrentTokenString();
@@ -1225,14 +1234,14 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 			case InsideReturnType:
 				if (argCount == 0) {
 					switch (token) {
-						case TerminalTokens.TokenNameWHITESPACE:
+						case TokenNameWHITESPACE:
 							break;
-						case TerminalTokens.TokenNameLPAREN:
+						case TokenNameLPAREN:
 							parameterTypes = new String[5];
 							parameterCount = 0;
 							mode = InsideParameter;
 							break;
-						case TerminalTokens.TokenNameLESS:
+						case TokenNameLESS:
 							argCount++;
 							if (returnType == null) return null; // invalid syntax
 							// $FALL-THROUGH$ - fall through next case to add token
@@ -1245,13 +1254,15 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 				} else {
 					if (returnType == null) return null; // invalid syntax
 					switch (token) {
-						case TerminalTokens.TokenNameGREATER:
-						case TerminalTokens.TokenNameRIGHT_SHIFT:
-						case TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT:
+						case TokenNameGREATER:
+						case TokenNameRIGHT_SHIFT:
+						case TokenNameUNSIGNED_RIGHT_SHIFT:
 							argCount--;
 							break;
-						case TerminalTokens.TokenNameLESS:
+						case TokenNameLESS:
 							argCount++;
+							break;
+						default: // NOP
 							break;
 					}
 					returnType += scanner.getCurrentTokenString();
@@ -2315,7 +2326,7 @@ private static SearchPattern createTypePattern(String patternString, int limitTo
 	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_7/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 	scanner.setSource(patternString.toCharArray());
 	String type = null;
-	int token;
+	TerminalTokens token;
 	try {
 		token = scanner.getNextToken();
 	} catch (InvalidInputException e) {
@@ -2325,9 +2336,9 @@ private static SearchPattern createTypePattern(String patternString, int limitTo
 	while (token != TerminalTokens.TokenNameEOF) {
 		if (argCount == 0) {
 			switch (token) {
-				case TerminalTokens.TokenNameWHITESPACE:
+				case TokenNameWHITESPACE:
 					break;
-				case TerminalTokens.TokenNameLESS:
+				case TokenNameLESS:
 					argCount++;
 					// $FALL-THROUGH$ - fall through default case to add token to type
 				default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
@@ -2338,13 +2349,15 @@ private static SearchPattern createTypePattern(String patternString, int limitTo
 			}
 		} else {
 			switch (token) {
-				case TerminalTokens.TokenNameGREATER:
-				case TerminalTokens.TokenNameRIGHT_SHIFT:
-				case TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT:
+				case TokenNameGREATER:
+				case TokenNameRIGHT_SHIFT:
+				case TokenNameUNSIGNED_RIGHT_SHIFT:
 					argCount--;
 					break;
-				case TerminalTokens.TokenNameLESS:
+				case TokenNameLESS:
 					argCount++;
+					break;
+				default: // NOP
 					break;
 			}
 			if (type == null) return null; // invalid syntax

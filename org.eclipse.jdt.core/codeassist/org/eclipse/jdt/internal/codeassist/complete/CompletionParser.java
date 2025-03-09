@@ -19,6 +19,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.complete;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -2189,7 +2191,7 @@ private boolean checkRecoveredMethod() {
  		RecoveredMethod recoveredMethod = (RecoveredMethod)this.currentElement;
 		/* only consider if inside method header */
 		if (!recoveredMethod.foundOpeningBrace
-			&& this.lastIgnoredToken == -1) {
+			&& this.lastIgnoredToken == TerminalTokens.TokenNameInvalid) {
 			//if (rParenPos < lParenPos){ // inside arguments
 			this.assistNode = this.getTypeReference(0);
 			this.lastCheckPoint = this.assistNode.sourceEnd + 1;
@@ -2243,7 +2245,7 @@ private boolean checkRecoveredType() {
 		RecoveredType recoveredType = (RecoveredType)this.currentElement;
 		/* filter out cases where scanner is still inside type header */
 		if (recoveredType.foundOpeningBrace
-				|| (this.lastIgnoredToken == -1 && recoveredType.typeDeclaration.isRecord())) {
+				|| (this.lastIgnoredToken == TerminalTokens.TokenNameInvalid && recoveredType.typeDeclaration.isRecord())) {
 			// complete generics stack if necessary
 			if((this.genericsIdentifiersLengthPtr < 0 && this.identifierPtr > -1)
 					|| (this.genericsIdentifiersLengthStack[this.genericsIdentifiersLengthPtr] <= this.identifierPtr)) {
@@ -2925,7 +2927,7 @@ protected void consumeEnterVariable() {
 				this.assistNode = completionFieldDecl;
 				this.lastCheckPoint = type.sourceEnd + 1;
 				this.currentElement = this.currentElement.add(completionFieldDecl, 0);
-				this.lastIgnoredToken = -1;
+				this.lastIgnoredToken = TerminalTokens.TokenNameInvalid;
 			}
 		}
 	}
@@ -3468,7 +3470,7 @@ protected void consumeMethodHeaderName(boolean isAnnotationMethod) {
 					this.assistNode = completionFieldDecl;
 					this.lastCheckPoint = type.sourceEnd + 1;
 					this.currentElement = this.currentElement.add(completionFieldDecl, 0);
-					this.lastIgnoredToken = -1;
+					this.lastIgnoredToken = TerminalTokens.TokenNameInvalid;
 				} else {
 					CompletionOnMethodReturnType md = new CompletionOnMethodReturnType(type, this.compilationUnit.compilationResult);
 					// consume annotations
@@ -3489,7 +3491,7 @@ protected void consumeMethodHeaderName(boolean isAnnotationMethod) {
 					this.assistNode = md;
 					this.lastCheckPoint = md.bodyStart;
 					this.currentElement = this.currentElement.add(md, 0);
-					this.lastIgnoredToken = -1;
+					this.lastIgnoredToken = TerminalTokens.TokenNameInvalid;
 					// javadoc
 					md.javadoc = this.javadoc;
 					this.javadoc = null;
@@ -3542,7 +3544,7 @@ protected void consumeMethodHeaderName(boolean isAnnotationMethod) {
 						== Util.getLineNumber(md.sourceStart, this.scanner.lineEnds, 0, this.scanner.linePtr))){
 				this.lastCheckPoint = md.bodyStart;
 				this.currentElement = this.currentElement.add(md, 0);
-				this.lastIgnoredToken = -1;
+//				this.lastIgnoredToken = TerminalTokens.TokenNameInvalid;
 			} else {
 				this.lastCheckPoint = md.sourceStart;
 				this.restartRecovery = true;
@@ -4040,8 +4042,8 @@ protected void consumeSwitchRule(SwitchRuleKind kind) {
 	}
 }
 @Override
-protected int fetchNextToken() throws InvalidInputException {
-	int token = this.scanner.getNextToken();
+protected TerminalTokens fetchNextToken() throws InvalidInputException {
+	TerminalTokens token = this.scanner.getNextToken();
 	if (token != TerminalTokens.TokenNameEOF && this.scanner.currentPosition > this.cursorLocation) {
 		if (!this.diet || this.dietInt != 0) { // do this also when parsing field initializers:
 			if (this.currentToken == TerminalTokens.TokenNameIdentifier
@@ -4083,7 +4085,7 @@ protected int fetchNextToken() throws InvalidInputException {
  * Variant of parse() without side effects that stops when another token would need to be fetched.
  * Returns the name of the last reduced rule, or empty string if nothing reduced, or null if error was detected.
  */
-String reduce(int token) {
+String reduce(TerminalTokens token) {
 	int myStackTop = this.stateStackTop;
 	int[] myStack = Arrays.copyOf(this.stack, this.stack.length);
 	int act = this.unstackedAct;
@@ -4097,7 +4099,7 @@ String reduce(int token) {
 				stackLength);
 		}
 		myStack[myStackTop] = act;
-		act = tAction(act, token);
+		act = tAction(act, token.tokenNumber());
 		if (act == ERROR_ACTION)
 			return null;
 		if (act <= NUM_RULES) { // reduce
@@ -4121,7 +4123,7 @@ String reduce(int token) {
 	}
 }
 @Override
-protected void consumeToken(int token) {
+protected void consumeToken(TerminalTokens token) {
 	if(this.isFirst) {
 		super.consumeToken(token);
 		return;
@@ -4132,7 +4134,7 @@ protected void consumeToken(int token) {
 		this.canBeExplicitConstructor = NO;
 	}
 
-	int previous = this.previousToken;
+	TerminalTokens previous = this.previousToken;
 	int prevIdentifierPtr = this.previousIdentifierPtr;
 
 	isInsideEnhancedForLoopWithoutBlock(token);
@@ -4191,7 +4193,8 @@ protected void consumeToken(int token) {
 					popElement(K_RECORD_PATTERN);
 				}
 				break;
-
+			default: // NOP
+				break;
 		}
 	}
 
@@ -4254,6 +4257,8 @@ protected void consumeToken(int token) {
 								this.invocationType = NAME_RECEIVER;
 							}
 						}
+						break;
+					default: // NOP
 						break;
 				}
 				break;
@@ -4386,6 +4391,8 @@ protected void consumeToken(int token) {
 						this.qualifier = -1;
 						this.invocationType = NO_RECEIVER;
 						break;
+					default: // NOP
+						break;
 				}
 				break;
 			case TokenNameLBRACE:
@@ -4467,6 +4474,8 @@ protected void consumeToken(int token) {
 						case TokenNameUNSIGNED_RIGHT_SHIFT:
 							this.invocationType = NO_RECEIVER;
 							this.qualifier = -1;
+							break;
+						default: // NOP
 							break;
 					}
 				}
@@ -4593,6 +4602,8 @@ protected void consumeToken(int token) {
 						break;
 					case TokenNamenew :
 						pushOnElementStack(K_PARAMETERIZED_ALLOCATION);
+						break;
+					default: // NOP
 						break;
 				}
 				pushOnElementStack(K_BINARY_OPERATOR, LESS);
@@ -4729,6 +4740,8 @@ protected void consumeToken(int token) {
 			case TokenNamecontinue:
 				pushOnElementStack(K_INSIDE_CONTINUE_STATEMENT, this.bracketDepth);
 				break;
+			default: // NOP
+				break;
 		}
 	} else if (isInsideAnnotation()){
 		switch (token) {
@@ -4738,6 +4751,8 @@ protected void consumeToken(int token) {
 				if (kind == K_BETWEEN_ANNOTATION_NAME_AND_RPAREN) {
 					pushOnElementStack(K_MEMBER_VALUE_ARRAY_INITIALIZER, this.endPosition);
 				}
+				break;
+			default: // NOP
 				break;
 		}
 	} else {
@@ -4757,12 +4772,13 @@ protected void consumeToken(int token) {
 			case TokenNameUNSIGNED_RIGHT_SHIFT:
 				pushOnElementStack(K_BINARY_OPERATOR, UNSIGNED_RIGHT_SHIFT);
 				break;
-
+			default: // NOP
+				break;
 		}
 	}
 }
-private void isInsideEnhancedForLoopWithoutBlock(int token) {
-	if( this.consumedEnhancedFor == true && token != TokenNameLBRACE) {
+private void isInsideEnhancedForLoopWithoutBlock(TerminalTokens token) {
+	if( this.consumedEnhancedFor == true && token !=TerminalTokens.TokenNameLBRACE) {
 		consumeOpenFakeBlock();
 	}
 	this.consumedEnhancedFor = false;
@@ -5640,7 +5656,7 @@ public void copyState(Parser from) {
  * Initializes the state of the parser that is about to go for BlockStatements.
  */
 private void initializeForBlockStatements() {
-	this.previousToken = -1;
+	this.previousToken = TerminalTokens.TokenNameInvalid;
 	this.previousIdentifierPtr = -1;
 	this.invocationType = NO_RECEIVER;
 	this.qualifier = -1;
@@ -6318,7 +6334,7 @@ private boolean isInsideBody(Statement statement, AbstractMethodDeclaration meth
 	// Note that diet parsing may not have found the '{' to properly set bodyStart, so the above check is not sufficient
 	this.scanner.resetTo(method.sourceEnd, statement.sourceStart);
 	try {
-		int tkn;
+		TerminalTokens tkn;
 		while ((tkn = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 			if (tkn == TerminalTokens.TokenNameLBRACE)
 				return true;
@@ -6403,12 +6419,12 @@ private boolean foundToken(int token) {
 }
 @Override
 protected int actFromTokenOrSynthetic(int previousAct) {
-	int newAct = tAction(previousAct, this.currentToken);
+	int newAct = tAction(previousAct, this.currentToken.tokenNumber());
 	if (this.hasError && !this.diet && newAct == ERROR_ACTION && this.scanner.currentPosition > this.cursorLocation) {
 		if (requireExtendedRecovery()) {
 			// during extended recovery, if EOF would be wrong, try a few things to reduce our stacks:
-			for (int tok : RECOVERY_TOKENS) {
-				newAct = tAction(previousAct, tok);
+			for (TerminalTokens tok : RECOVERY_TOKENS) {
+				newAct = tAction(previousAct, tok.tokenNumber());
 				if (newAct != ERROR_ACTION) {
 					this.currentToken = tok; // this worked, pretend we really got this from the Scanner
 					return newAct;
@@ -6416,7 +6432,7 @@ protected int actFromTokenOrSynthetic(int previousAct) {
 			}
 			// recovery tokens wouldn't help, so let's initiate the final phase
 			this.currentToken = TerminalTokens.TokenNameEOF;
-			return tAction(previousAct, this.currentToken);
+			return tAction(previousAct, this.currentToken.tokenNumber());
 		}
 	}
 	return newAct;

@@ -97,7 +97,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public final class CompletionEngine
 	extends Engine
-	implements ISearchRequestor, TypeConstants , TerminalTokens , RelevanceConstants, SuffixConstants, ICompletionEngine {
+	implements ISearchRequestor, TypeConstants , RelevanceConstants, SuffixConstants, ICompletionEngine {
 
 	private static class AcceptedConstructor {
 		public int modifiers;
@@ -1549,7 +1549,7 @@ public final class CompletionEngine
 		}
 	}
 
-	private char[] appendUnlessNextToken(char[] completionName, char[] suffix, int nextToken) {
+	private char[] appendUnlessNextToken(char[] completionName, char[] suffix, TerminalTokens nextToken) {
 		if (this.source == null)
 			return CharOperation.concat(completionName, suffix);
 

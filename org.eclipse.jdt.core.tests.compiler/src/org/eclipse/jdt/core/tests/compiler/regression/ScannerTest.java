@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameEOF;
+
 import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
@@ -548,7 +550,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
-			int token;
+			TerminalTokens token;
 			StringBuilder buffer = new StringBuilder();
 			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				try {
@@ -577,7 +579,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
-			int token;
+			TerminalTokens token;
 			StringBuilder buffer = new StringBuilder();
 			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				try {
@@ -609,7 +611,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
-			int token;
+			TerminalTokens token;
 			StringBuilder buffer = new StringBuilder();
 			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				try {
@@ -1458,7 +1460,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
-			int token;
+			TerminalTokens token;
 			StringBuilder buffer = new StringBuilder();
 			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				try {
@@ -1491,7 +1493,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
-			int token;
+			TerminalTokens token;
 			StringBuilder buffer = new StringBuilder();
 			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				try {
@@ -1550,7 +1552,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
-			int token = scanner.getNextToken();
+			TerminalTokens token = scanner.getNextToken();
 			assertEquals(TerminalTokens.TokenNameStringLiteral, token);
 			assertEquals("Unexpected string literal content", "Hello world", scanner.getCurrentStringLiteral());
 		} catch (InvalidInputException e) {
@@ -1568,17 +1570,17 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
-			int token;
+			TerminalTokens token;
 			StringBuilder buffer = new StringBuilder();
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != TokenNameEOF) {
 				try {
 					switch(token) {
-						case TerminalTokens.TokenNameTextBlock :
+						case TokenNameTextBlock :
 							buffer.append( new String(scanner.getCurrentTextBlock()));
 							break;
-						case TerminalTokens.TokenNameStringLiteral :
+						case TokenNameStringLiteral :
 							break;
-						case TerminalTokens.TokenNameEOF :
+						case TokenNameEOF :
 							break;
 						default :
 							break;
@@ -1604,7 +1606,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
-			int token;
+			TerminalTokens token;
 			StringBuilder buffer = new StringBuilder();
 			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				try {
@@ -1887,7 +1889,7 @@ public class ScannerTest extends AbstractRegressionTest {
 	public void testTerminalTokensAPIs() {
 		char [][] ids = { "when".toCharArray(), "record".toCharArray(), "sealed".toCharArray(),
 				"permits".toCharArray(), "yield".toCharArray()};
-		int [] reskw = { TerminalTokens.TokenNameRestrictedIdentifierWhen,
+		TerminalTokens [] reskw = { TerminalTokens.TokenNameRestrictedIdentifierWhen,
 							TerminalTokens.TokenNameRestrictedIdentifierrecord,
 							TerminalTokens.TokenNameRestrictedIdentifiersealed,
 							TerminalTokens.TokenNameRestrictedIdentifierpermits,
@@ -1895,7 +1897,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		int i = -1;
 		for (char [] id : ids) {
 			i++;
-			int t = TerminalTokens.getRestrictedKeyword(id);
+			TerminalTokens t = TerminalTokens.getRestrictedKeyword(id);
 			assertTrue(t != TerminalTokens.TokenNameNotAToken);
 			assertTrue(TerminalTokens.isRestrictedKeyword(t));
 			assertTrue(t == reskw[i]);

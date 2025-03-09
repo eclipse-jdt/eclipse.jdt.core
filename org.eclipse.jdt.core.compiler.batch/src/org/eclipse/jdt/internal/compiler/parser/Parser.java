@@ -31,6 +31,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.*;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -69,7 +71,7 @@ import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class Parser implements TerminalTokens, ParserBasicInformation, ConflictedParser, OperatorIds, TypeIds {
+public class Parser implements ParserBasicInformation, ConflictedParser, OperatorIds, TypeIds {
 
 	protected static final int THIS_CALL = ExplicitConstructorCall.This;
 	protected static final int SUPER_CALL = ExplicitConstructorCall.Super;
@@ -165,7 +167,7 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 	private static final short TYPE_CLASS = 1;
 
 	public Scanner scanner;
-	public int currentToken;
+	public TerminalTokens currentToken;
 
 	static {
 		try{
@@ -796,7 +798,7 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 	}
 	/** Overridable hook, to allow CompletionParser to synthesize a few trailing tokens at (faked) EOF. */
 	protected int actFromTokenOrSynthetic(int previousAct) {
-		return tAction(previousAct, this.currentToken);
+		return tAction(previousAct, this.currentToken.tokenNumber());
 	}
 	protected int astLengthPtr;
 
@@ -817,7 +819,7 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 	protected int expressionPtr;
 	protected Expression[] expressionStack = new Expression[ExpressionStackIncrement];
 	protected int rBracketPosition;
-	public int firstToken ; // handle for multiple parsing goals
+	public TerminalTokens firstToken ; // handle for multiple parsing goals
 
 	/* jsr308 -- Type annotation management, we now maintain type annotations in a separate stack
 	   as otherwise they get interspersed with other expressions and some of the code is not prepared
@@ -862,7 +864,7 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 	protected int lastCheckPoint;
 	protected int lastErrorEndPosition;
 	protected int lastErrorEndPositionBeforeRecovery = -1;
-	protected int lastIgnoredToken, nextIgnoredToken;
+	protected TerminalTokens lastIgnoredToken, nextIgnoredToken;
 
 	protected int listLength; // for recovering some incomplete list (interfaces, throws or parameters)
 
@@ -1023,7 +1025,7 @@ public RecoveredElement buildInitialRecoveryState(){
 		this.compilationUnit.currentPackage = null;
 		this.compilationUnit.imports = null;
 		this.compilationUnit.types = null;
-		this.currentToken = 0;
+		this.currentToken = TokenNameNotAToken;
 		this.listLength = 0;
 		this.parsingRecordComponents = false;
 		this.listTypeParameterLength = 0;
@@ -1466,11 +1468,11 @@ protected void consumeAllocationHeader() {
 		alloc.sourceEnd = anonymousType.sourceEnd ;
 		this.lastCheckPoint = anonymousType.bodyStart = this.scanner.currentPosition;
 		this.currentElement = this.currentElement.add(anonymousType, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		if (isIndirectlyInsideLambdaExpression())
 			this.ignoreNextOpeningBrace = true;
 		else
-			this.currentToken = 0; // opening brace already taken into account
+			this.currentToken = TokenNameNotAToken; // opening brace already taken into account
 		return;
 	}
 	this.lastCheckPoint = this.scanner.startPosition; // force to restart at this exact position
@@ -1605,7 +1607,7 @@ protected void consumeAnnotationTypeDeclarationHeaderName() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = annotationTypeDeclaration.bodyStart;
 		this.currentElement = this.currentElement.add(annotationTypeDeclaration, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 	}
 }
 protected void consumeAnnotationTypeDeclarationHeaderNameWithTypeParameters() {
@@ -1691,7 +1693,7 @@ protected void consumeAnnotationTypeDeclarationHeaderNameWithTypeParameters() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = annotationTypeDeclaration.bodyStart;
 		this.currentElement = this.currentElement.add(annotationTypeDeclaration, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 	}
 }
 protected void consumeAnnotationTypeMemberDeclaration() {
@@ -2423,7 +2425,7 @@ protected void consumeCatchHeader() {
 	this.currentElement = this.currentElement.add(localDeclaration, 0);
 	this.lastCheckPoint = this.scanner.startPosition; // force to restart at this exact position
 	this.restartRecovery = true; // request to restart from here on
-	this.lastIgnoredToken = -1;
+	this.lastIgnoredToken = TokenNameInvalid;
 }
 protected void consumeCatchType() {
 	// CatchType ::= UnionType
@@ -2643,7 +2645,7 @@ private void consumeClassOrRecordHeaderName1(boolean isRecord) {
 	if (this.currentElement != null){
 		this.lastCheckPoint = typeDecl.bodyStart;
 		this.currentElement = this.currentElement.add(typeDecl, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 	}
 	// javadoc
 	typeDecl.javadoc = this.javadoc;
@@ -3027,7 +3029,7 @@ protected void consumeConstructorHeaderName(boolean isCompact) {
 		if ((this.currentElement instanceof RecoveredType && this.lastIgnoredToken != TokenNameDOT)
 			|| cd.modifiers != 0){
 			this.currentElement = this.currentElement.add(cd, 0);
-			this.lastIgnoredToken = -1;
+			this.lastIgnoredToken = TokenNameInvalid;
 		}
 	}
 }
@@ -3087,7 +3089,7 @@ private void helperConstructorHeaderNameWithTypeParameters(ConstructorDeclaratio
 		if ((this.currentElement instanceof RecoveredType && this.lastIgnoredToken != TokenNameDOT)
 			|| cd.modifiers != 0){
 			this.currentElement = this.currentElement.add(cd, 0);
-			this.lastIgnoredToken = -1;
+			this.lastIgnoredToken = TokenNameInvalid;
 		}
 	}
 }
@@ -3410,12 +3412,12 @@ protected void consumeEnterAnonymousClassBody(boolean qualified) {
 			if (isIndirectlyInsideLambdaExpression())
 				this.ignoreNextOpeningBrace = true;
 			else
-				this.currentToken = 0; // opening brace already taken into account
+				this.currentToken = TokenNameNotAToken; // opening brace already taken into account
 		} else {
 			this.ignoreNextOpeningBrace = true;
 			this.currentElement.bracketBalance++;
 		}
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 	}
 	checkForDiamond(typeReference);
 }
@@ -3582,7 +3584,7 @@ protected void consumeEnterVariable() {
 			this.lastCheckPoint = fieldDecl.sourceEnd + 1;
 			this.currentElement = this.currentElement.add(fieldDecl, 0);
 		}
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 	}
 }
 protected void consumeEnumBodyNoConstants() {
@@ -3651,11 +3653,11 @@ protected void consumeEnumConstantHeader() {
 	  	TypeDeclaration anonymousType = (TypeDeclaration) this.astStack[this.astPtr];
 	  	this.currentElement = this.currentElement.add(anonymousType, 0);
       	this.lastCheckPoint = anonymousType.bodyStart;
-        this.lastIgnoredToken = -1;
+        this.lastIgnoredToken = TokenNameInvalid;
         if (isIndirectlyInsideLambdaExpression())
 			this.ignoreNextOpeningBrace = true;
 		else
-			this.currentToken = 0; // opening brace already taken into account
+			this.currentToken = TokenNameNotAToken; // opening brace already taken into account
 	  } else {
 	  	  if(this.currentToken == TokenNameSEMICOLON) {
 		  	RecoveredType currentType = currentRecoveryType();
@@ -3664,7 +3666,7 @@ protected void consumeEnumConstantHeader() {
 			}
 		  }
 		  this.lastCheckPoint = this.scanner.startPosition; // force to restart at this exact position
-	      this.lastIgnoredToken = -1;
+	      this.lastIgnoredToken = TokenNameInvalid;
 	      this.restartRecovery = true;
 	  }
    }
@@ -3867,7 +3869,7 @@ protected void consumeEnumHeaderName() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = enumDeclaration.bodyStart;
 		this.currentElement = this.currentElement.add(enumDeclaration, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 	}
 	// javadoc
 	enumDeclaration.javadoc = this.javadoc;
@@ -3953,7 +3955,7 @@ protected void consumeEnumHeaderNameWithTypeParameters() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = enumDeclaration.bodyStart;
 		this.currentElement = this.currentElement.add(enumDeclaration, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 	}
 	// javadoc
 	enumDeclaration.javadoc = this.javadoc;
@@ -4363,7 +4365,7 @@ protected void consumeImportDeclaration() {
 	if (this.currentElement != null) {
 		this.lastCheckPoint = impt.declarationSourceEnd + 1;
 		this.currentElement = this.currentElement.add(impt, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.restartRecovery = true;
 		// used to avoid branching back into the regular automaton
 	}
@@ -4634,7 +4636,7 @@ protected void consumeInterfaceHeaderName1() {
 	if (this.currentElement != null){ // is recovering
 		this.lastCheckPoint = typeDecl.bodyStart;
 		this.currentElement = this.currentElement.add(typeDecl, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 	}
 	// javadoc
 	typeDecl.javadoc = this.javadoc;
@@ -5262,7 +5264,7 @@ protected void consumeMethodHeaderName(boolean isAnnotationMethod) {
 					== Util.getLineNumber(md.sourceStart, this.scanner.lineEnds, 0, this.scanner.linePtr))){
 			this.lastCheckPoint = md.bodyStart;
 			this.currentElement = this.currentElement.add(md, 0);
-			this.lastIgnoredToken = -1;
+			this.lastIgnoredToken = TokenNameInvalid;
 		} else {
 			this.lastCheckPoint = md.sourceStart;
 			this.restartRecovery = true;
@@ -5332,7 +5334,7 @@ protected void consumeMethodHeaderNameWithTypeParameters(boolean isAnnotationMet
 			}
 			this.lastCheckPoint = md.bodyStart;
 			this.currentElement = this.currentElement.add(md, 0);
-			this.lastIgnoredToken = -1;
+			this.lastIgnoredToken = TokenNameInvalid;
 		} else {
 			this.lastCheckPoint = md.sourceStart;
 			this.restartRecovery = true;
@@ -5403,7 +5405,7 @@ protected void consumeMethodHeaderRightParen() {
 				|| (this.currentToken == TokenNameLBRACE)
 				|| (this.currentToken == TokenNamethrows)){
 				this.currentElement = this.currentElement.add(md, 0);
-				this.lastIgnoredToken = -1;
+				this.lastIgnoredToken = TokenNameInvalid;
 			}
 		}
 	}
@@ -5716,7 +5718,7 @@ protected void consumeRequiresStatement() {
 	if (this.currentElement instanceof RecoveredModule) {
 		this.lastCheckPoint = req.declarationSourceEnd + 1;
 		this.currentElement = this.currentElement.add(req, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
@@ -5753,7 +5755,7 @@ protected void consumeExportsStatement() {
 	if (this.currentElement instanceof RecoveredPackageVisibilityStatement) {
 		this.lastCheckPoint = expt.declarationSourceEnd + 1;
 		this.currentElement = this.currentElement.parent;
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.restartRecovery = true;
 		// used to avoid branching back into the regular automaton
 	}
@@ -5807,7 +5809,7 @@ protected void consumeOpensStatement() {
 	if (this.currentElement instanceof RecoveredPackageVisibilityStatement) {
 		this.lastCheckPoint = expt.declarationSourceEnd + 1;
 		this.currentElement = this.currentElement.parent;
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.restartRecovery = true;
 		// used to avoid branching back into the regular automaton
 	}
@@ -5878,7 +5880,7 @@ protected void consumeUsesStatement() {
 	// recovery
 	if (this.currentElement instanceof RecoveredModule){
 		this.lastCheckPoint = stmt.declarationSourceEnd;
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.restartRecovery = true;
 	}
 }
@@ -5935,7 +5937,7 @@ protected void consumeProvidesInterface() {
 	if (this.currentElement instanceof RecoveredModule) {
 		this.lastCheckPoint = siName.sourceEnd + 1;
 		this.currentElement = this.currentElement.add(ref, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 	}
 }
 protected void consumeSingleServiceImplName() {
@@ -5967,7 +5969,7 @@ protected void consumeProvidesStatement() {
 	ref.declarationEnd = ref.declarationSourceEnd = this.endStatementPosition;
 	//recovery
 	if (this.currentElement instanceof RecoveredProvidesStatement) {
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.currentElement = this.currentElement.parent;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
@@ -6058,7 +6060,7 @@ protected void consumeModuleHeader() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = typeDecl.bodyStart;
 		this.currentElement = this.currentElement.add(typeDecl, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 	}
 		// javadoc
 //		typeDecl.javadoc = this.javadoc;
@@ -8806,7 +8808,7 @@ protected void consumeSingleModifierImportDeclarationName(int modifier) {
 	if (this.currentElement != null){
 		this.lastCheckPoint = impt.declarationSourceEnd+1;
 		this.currentElement = this.currentElement.add(impt, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
@@ -8837,7 +8839,7 @@ protected void consumeSingleTypeImportDeclarationName() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = impt.declarationSourceEnd+1;
 		this.currentElement = this.currentElement.add(impt, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
@@ -9241,7 +9243,7 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = impt.declarationSourceEnd+1;
 		this.currentElement = this.currentElement.add(impt, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
@@ -9267,7 +9269,7 @@ protected void consumeStaticInitializer() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = initializer.declarationSourceEnd;
 		this.currentElement = this.currentElement.add(initializer, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 	}
 }
 protected void consumeStaticOnly() {
@@ -9440,7 +9442,7 @@ protected void consumeCaseLabelElements() {
 	}
 }
 
-protected void consumeToken(int type) {
+protected void consumeToken(TerminalTokens type) {
 	/* remember the last consumed value */
 	/* try to minimize the number of build values */
 //	// clear the commentPtr of the scanner in case we read something different from a modifier
@@ -9843,6 +9845,9 @@ protected void consumeToken(int type) {
 			//  case TokenNameOR  :
 			//  case TokenNameDIVIDE :
 			//  case TokenNameGREATER  :
+		default:
+			// Cover synthetic tokens
+			break;
 	}
 }
 protected void consumeTypeArgument() {
@@ -9909,7 +9914,7 @@ protected void consumeTypeHeaderNameWithTypeParameters() {
 		} else {
 			this.lastCheckPoint = typeDecl.bodyStart;
 			this.currentElement = this.currentElement.add(typeDecl, 0);
-			this.lastIgnoredToken = -1;
+			this.lastIgnoredToken = TokenNameInvalid;
 		}
 	}
 }
@@ -9942,7 +9947,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = impt.declarationSourceEnd+1;
 		this.currentElement = this.currentElement.add(impt, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
@@ -11096,7 +11101,7 @@ protected TypeReference getAnnotationType() {
 		return new QualifiedTypeReference(tokens, positions);
 	}
 }
-public int getFirstToken() {
+public TerminalTokens getFirstToken() {
 	// the first token is a virtual token that
 	// allows the parser to parse several goals
 	// even if they aren't LALR(1)....
@@ -11688,7 +11693,7 @@ public void initialize(boolean parsingCompilationUnit) {
 	this.restartRecovery = false;
 	this.hasReportedError = false;
 	this.recoveredStaticInitializerStart = 0;
-	this.lastIgnoredToken = -1;
+	this.lastIgnoredToken = TokenNameInvalid;
 	this.lastErrorEndPosition = -1;
 	this.lastErrorEndPositionBeforeRecovery = -1;
 	this.lastJavadocEnd = -1;
@@ -11744,9 +11749,9 @@ private void jumpOverType(){
 		this.scanner.diet = false; // quit jumping over method bodies
 
 		if(!isAnonymous) {
-			((RecoveryScanner)this.scanner).setPendingTokens(new int[]{TokenNameSEMICOLON, TokenNamebreak});
+			((RecoveryScanner)this.scanner).setPendingTokens(new TerminalTokens[]{TokenNameSEMICOLON, TokenNamebreak});
 		} else {
-			((RecoveryScanner)this.scanner).setPendingTokens(new int[]{TokenNameIdentifier, TokenNameEQUAL, TokenNameIdentifier});
+			((RecoveryScanner)this.scanner).setPendingTokens(new TerminalTokens[]{TokenNameIdentifier, TokenNameEQUAL, TokenNameIdentifier});
 		}
 
 		this.pendingRecoveredType = typeDeclaration;
@@ -11826,14 +11831,14 @@ protected boolean moveRecoveryCheckpoint() {
 
 	/* if about to restart, then no need to shift token */
 	if (this.restartRecovery){
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.scanner.insideRecovery = true;
 		return true;
 	}
 
 	/* protect against shifting on an invalid token */
 	this.lastIgnoredToken = this.nextIgnoredToken;
-	this.nextIgnoredToken = -1;
+	this.nextIgnoredToken = TokenNameInvalid;
 	do {
 		try {
 			this.scanner.resetLookBack(); // stay clear of the voodoo in the present method
@@ -11843,7 +11848,7 @@ protected boolean moveRecoveryCheckpoint() {
 		} finally {
 			this.scanner.resetLookBack(); // steer clear of the voodoo in the present method
 		}
-	} while (this.nextIgnoredToken < 0);
+	} while (this.nextIgnoredToken == TokenNameInvalid);
 
 	if (this.nextIgnoredToken == TokenNameEOF) { // no more recovery after this point
 		if (this.currentToken == TokenNameEOF) { // already tried one iteration on EOF
@@ -11983,7 +11988,7 @@ protected void optimizedConcatNodeLists() {
 	this.astLengthStack[--this.astLengthPtr]++;
 }
 @Override
-public boolean atConflictScenario(int token) {
+public boolean atConflictScenario(TerminalTokens token) {
 
 	/* Answer true if the parser is at a configuration where the scanner must look ahead and help disambiguate between (a) '<' as an operator and '<' as the
 	   start of <type argument> and (b) the use of '(' in '(' expression ')' and '( type ')' and '(' lambda formal parameters ')'. (c) whether the token @
@@ -12021,7 +12026,8 @@ public boolean atConflictScenario(int token) {
 }
 /*main loop of the automat
 When a rule is reduced, the method consumeRule(int) is called with the number
-of the consumed rule. When a terminal is consumed, the method consumeToken(int) is
+of the consumed rule. When a terminal is consumed, the method
+consumeToken(TerminalTokens) is
 called in order to remember (when needed) the consumed token */
 // (int)asr[asi(act)]
 // name[symbol_index[currentKind]]
@@ -12033,7 +12039,7 @@ protected void parse() {
 	}
 
 	boolean isDietParse = this.diet;
-	int oldFirstToken = getFirstToken();
+	TerminalTokens oldFirstToken = getFirstToken();
 	this.hasError = false;
 
 	this.hasReportedError = false;
@@ -12068,13 +12074,13 @@ try {
 				if (act == ERROR_ACTION)
 					this.hasError = true;
 			}
-			int previousToken = this.currentToken;
+			TerminalTokens previousToken = this.currentToken;
 			switch (resumeOnSyntaxError()) {
 				case HALT:
 					act = ERROR_ACTION; // this is suspect, but goes quite some way back in time ...
 					break ProcessTerminals;
 				case RESTART:
-					if (act == ERROR_ACTION && previousToken != 0) this.lastErrorEndPosition = errorPos;
+					if (act == ERROR_ACTION && previousToken != TokenNameNotAToken) this.lastErrorEndPosition = errorPos;
 					act = START_STATE;
 					this.stateStackTop = -1;
 					this.currentToken = getFirstToken();
@@ -12111,7 +12117,7 @@ try {
 					this.hasReportedError = true;
 				}
 				this.lastCheckPoint = this.scanner.currentPosition;
-				this.currentToken = 0;
+				this.currentToken = TokenNameNotAToken;
 				this.restartRecovery = true;
 			}
 			if(this.statementRecoveryActivated) {
@@ -12120,7 +12126,7 @@ try {
 			this.unstackedAct = act -= ERROR_ACTION;
 
 			if (DEBUG_AUTOMATON) {
-				System.out.print("Shift/Reduce - (" + name[terminal_index[this.currentToken]]+") ");  //$NON-NLS-1$  //$NON-NLS-2$
+				System.out.print("Shift/Reduce - (" + name[terminal_index[this.currentToken.tokenNumber()]]+") ");  //$NON-NLS-1$  //$NON-NLS-2$
 			}
 
 		} else {
@@ -12140,14 +12146,14 @@ try {
 						this.hasReportedError = true;
 					}
 					this.lastCheckPoint = this.scanner.currentPosition;
-					this.currentToken = 0;
+					this.currentToken = TokenNameNotAToken;
 					this.restartRecovery = true;
 				}
 				if(this.statementRecoveryActivated) {
 					jumpOverType();
 				}
 				if (DEBUG_AUTOMATON) {
-					System.out.println("Shift        - (" + name[terminal_index[this.currentToken]]+")");  //$NON-NLS-1$  //$NON-NLS-2$
+					System.out.println("Shift        - (" + name[terminal_index[this.currentToken.tokenNumber()]]+")");  //$NON-NLS-1$  //$NON-NLS-2$
 				}
 				continue ProcessTerminals;
 			}
@@ -12243,7 +12249,7 @@ try {
 protected boolean restartRecovery() {
 	return this.restartRecovery;
 }
-protected int fetchNextToken() throws InvalidInputException {
+protected TerminalTokens fetchNextToken() throws InvalidInputException {
 	return this.scanner.getNextToken();
 }
 public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit, boolean recordLineSeparator) {
@@ -13361,7 +13367,7 @@ public void recoveryTokenCheck() {
 	this.ignoreNextOpeningBrace = false;
 }
 // A P I
-protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
+protected void reportSyntaxErrors(boolean isDietParse, TerminalTokens oldFirstToken) {
 	if(this.referenceContext instanceof MethodDeclaration methodDeclaration) {
 		if((methodDeclaration.bits & ASTNode.ErrorInSignature) != 0){
 			return;
@@ -13727,7 +13733,7 @@ public void copyState(Parser from) {
 public int automatonState() {
 	return this.stack[this.stateStackTop];
 }
-public boolean automatonWillShift(int token, int lastAction) {
+public boolean automatonWillShift(TerminalTokens token, int lastAction) {
 	if (lastAction == ERROR_ACTION) {
 		return false;
 	}
@@ -13752,7 +13758,7 @@ public boolean automatonWillShift(int token, int lastAction) {
 		}
 		highWaterMark = ++stackTop;
 		stackTopState = lastAction; // "push"
-		lastAction = tAction(lastAction, token); // can be looked up from a precomputed cache.
+		lastAction = tAction(lastAction, token.tokenNumber()); // can be looked up from a precomputed cache.
 		if (lastAction <= NUM_RULES) {
 			stackTop --;
 		    lastAction += ERROR_ACTION;
@@ -13764,7 +13770,7 @@ public boolean automatonWillShift(int token, int lastAction) {
 }
 
 @Override
-public boolean automatonWillShift(int token) {
+public boolean automatonWillShift(TerminalTokens token) {
 	return automatonWillShift(token, this.unstackedAct);
 }
 
