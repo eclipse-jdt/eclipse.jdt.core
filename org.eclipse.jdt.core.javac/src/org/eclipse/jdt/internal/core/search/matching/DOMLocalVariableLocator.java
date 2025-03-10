@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.search.LocatorResponse;
 
 public class DOMLocalVariableLocator extends DOMPatternLocator {
@@ -31,6 +32,12 @@ public class DOMLocalVariableLocator extends DOMPatternLocator {
 		this.locator = lcl;
 	}
 
+	private LocalVariable getLocalVariable() {
+		if( this.locator.pattern instanceof LocalVariablePattern lvp )
+			return lvp.localVariable;
+		return null;
+	}
+	
 	@Override
 	public LocatorResponse match(Name node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		if (node.getLocationInParent() instanceof ChildPropertyDescriptor descriptor
@@ -40,7 +47,7 @@ public class DOMLocalVariableLocator extends DOMPatternLocator {
 						|| descriptor == QualifiedName.QUALIFIER_PROPERTY)
 				// local variables cannot be qualified
 				&& node instanceof SimpleName simple 
-				&& this.locator.getLocalVariable().getElementName().equals(simple.getIdentifier())) {
+				&& Objects.equals(getLocalVariable() == null ? null : getLocalVariable().getElementName(), simple.getIdentifier())) {
 			return toResponse(POSSIBLE_MATCH);
 		}
 		return toResponse(IMPOSSIBLE_MATCH);
@@ -51,7 +58,7 @@ public class DOMLocalVariableLocator extends DOMPatternLocator {
 		if (!(binding instanceof IVariableBinding)) {
 			return toResponse(IMPOSSIBLE_MATCH);
 		}
-		if (Objects.equals(binding.getJavaElement(), this.locator.getLocalVariable())) {
+		if (Objects.equals(binding.getJavaElement(), getLocalVariable())) {
 			return toResponse(ACCURATE_MATCH);
 		}
 		return toResponse(INACCURATE_MATCH);
@@ -69,7 +76,7 @@ public class DOMLocalVariableLocator extends DOMPatternLocator {
 		int declarationsLevel = IMPOSSIBLE_MATCH;
 		if (this.locator.pattern.findDeclarations)
 			if (this.locator.matchesName(this.locator.pattern.name, node.getName().getIdentifier().toCharArray()))
-				if (node.getStartPosition() == this.locator.getLocalVariable().declarationSourceStart)
+				if (getLocalVariable() != null && node.getStartPosition() == getLocalVariable().declarationSourceStart)
 					declarationsLevel = this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 
 		// Use the stronger match

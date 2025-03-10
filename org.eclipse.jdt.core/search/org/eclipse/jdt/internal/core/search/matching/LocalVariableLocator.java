@@ -50,7 +50,7 @@ public int match(LocalDeclaration node, MatchingNodeSet nodeSet) {
 
 	return nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel); // use the stronger match
 }
-protected LocalVariable getLocalVariable() {
+private LocalVariable getLocalVariable() {
 	return ((LocalVariablePattern) this.pattern).localVariable;
 }
 @Override

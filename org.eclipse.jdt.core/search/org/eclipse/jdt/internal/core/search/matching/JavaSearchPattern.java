@@ -401,7 +401,6 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants,
 	 */
 	void storeTypeSignaturesAndArguments(IType type) {
 		if (type.isResolved()) {
-			String k = type.getKey();
 			BindingKey bindingKey = new BindingKey(type.getKey());
 			if (bindingKey.isParameterizedType() || bindingKey.isRawType()) {
 				String signature = bindingKey.toSignature();
