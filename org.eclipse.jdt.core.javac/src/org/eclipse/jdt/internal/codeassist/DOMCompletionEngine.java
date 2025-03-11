@@ -81,6 +81,7 @@ import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionMethodReference;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ForStatement;
@@ -607,6 +608,17 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					if (!this.toComplete.getLocationInParent().getId().equals(QualifiedName.QUALIFIER_PROPERTY.getId())) {
 						context = this.toComplete.getParent();
 					}
+				} else if (simpleName.getParent() instanceof ExpressionStatement && simpleName.getParent().getParent() instanceof SwitchStatement) {
+					// eg.
+					// switch (i) {
+					//   cas|
+					// }
+					// but also:
+					// switch (i) {
+					//   case 0:
+					//     ass|
+					// }
+					context = simpleName.getParent().getParent();
 				}
 				if (simpleName.getParent() instanceof SimpleType simpleType && (simpleType.getParent() instanceof ClassInstanceCreation)) {
 					context = simpleName.getParent().getParent();
@@ -1797,7 +1809,6 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				}
 			}
 			if (context instanceof CompilationUnit) {
-				
 				// recover existing modifiers (they can't exist in the DOM since there is no TypeDeclaration)
 				boolean afterBrokenImport = false;
 				int startOffset = 0;
@@ -1829,6 +1840,11 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					}
 				}
 				suggestDefaultCompletions = false;
+			}
+			if (context instanceof SwitchStatement || context instanceof SwitchExpression) {
+				if (!this.isFailedMatch(this.prefix.toCharArray(), Keywords.CASE)) {
+					this.requestor.accept(createKeywordProposal(Keywords.CASE, -1, -1));
+				}
 			}
 			if (context != null && context.getLocationInParent() == QualifiedType.NAME_PROPERTY && context.getParent() instanceof QualifiedType qType) {
 				Type qualifier = qType.getQualifier();
