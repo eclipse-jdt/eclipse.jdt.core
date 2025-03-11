@@ -942,6 +942,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						}
 					}
 				}
+				if (context.getParent() instanceof PackageDeclaration) {
+					suggestDefaultCompletions = false;
+				}
 			}
 			if (context instanceof AbstractTypeDeclaration typeDecl) {
 				if (this.textContent != null) {
@@ -1792,6 +1795,40 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					}
 					suggestDefaultCompletions = false;
 				}
+			}
+			if (context instanceof CompilationUnit) {
+				
+				// recover existing modifiers (they can't exist in the DOM since there is no TypeDeclaration)
+				boolean afterBrokenImport = false;
+				int startOffset = 0;
+				if (this.unit.getPackage() != null) {
+					startOffset = this.unit.getPackage().getStartPosition() + this.unit.getPackage().getLength();
+				}
+				if (!this.unit.imports().isEmpty()) {
+					ImportDeclaration lastImport = (ImportDeclaration)this.unit.imports().get(this.unit.imports().size() - 1);
+					startOffset = lastImport.getStartPosition() + lastImport.getLength();
+
+					if (lastImport.getName().toString().endsWith("$missing$")) {
+						afterBrokenImport = true;
+					}
+				}
+				
+				if (!afterBrokenImport && startOffset <= this.offset) {
+					int existingModifiers = 0;
+					String[] potentialModifiers = this.textContent.substring(startOffset).split("\\s+");
+					for (String potentialModifier : potentialModifiers) {
+						ModifierKeyword potentialModifierKeyword = Modifier.ModifierKeyword.toKeyword(potentialModifier);
+						if (potentialModifierKeyword != null) {
+							existingModifiers |= potentialModifierKeyword.toFlagValue();
+						}
+					}
+					
+					suggestModifierKeywords(existingModifiers);
+					if (!this.isFailedMatch(this.prefix.toCharArray(), Keywords.CLASS)) {
+						this.requestor.accept(createKeywordProposal(Keywords.CLASS, -1, -1));
+					}
+				}
+				suggestDefaultCompletions = false;
 			}
 			if (context != null && context.getLocationInParent() == QualifiedType.NAME_PROPERTY && context.getParent() instanceof QualifiedType qType) {
 				Type qualifier = qType.getQualifier();
@@ -2821,7 +2858,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			keywords.add(Keywords.THIS);
 		}
 		for (char[] keyword : keywords) {
-			if (!isFailedMatch(this.toComplete.toString().toCharArray(), keyword)) {
+			if (!isFailedMatch(this.prefix.toCharArray(), keyword)) {
 				this.requestor.accept(createKeywordProposal(keyword, this.toComplete.getStartPosition(), this.offset));
 			}
 		}
