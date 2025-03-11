@@ -35,6 +35,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.parser.JavadocParser;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredType;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -64,6 +65,8 @@ public class SelectionParser extends AssistParser {
 
 	protected static final int K_INSIDE_FOR_EACH = SELECTION_PARSER + 14; // whether we are in a for each statement
 
+	protected static final int K_INSIDE_INITIALIZATION = SELECTION_PARSER + 15; // whether we are in an initialization of a field/local declaration
+	protected static final int K_INSIDE_ASSIGNMENT = SELECTION_PARSER + 16; // whether we are in an assignment statement
 
 
 	/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=476693
@@ -255,6 +258,23 @@ private void buildMoreCompletionContext(Expression expression) {
 					cast.sourceEnd= expression.sourceEnd;
 					parentNode = orphan = cast;
 					this.assistNodeParent = parentNode;
+				}
+				break;
+			case K_INSIDE_ASSIGNMENT:
+				if (orphan instanceof SwitchExpression) { // ensure switch expression is not mistakenly seen in vanilla context
+					this.expressionLengthPtr--;
+					parentNode = orphan =
+							new Assignment(
+								this.expressionStack[this.expressionPtr--],
+								(Expression) orphan,
+								orphan.sourceEnd);
+					}
+				break;
+			case K_INSIDE_INITIALIZATION:
+				if (orphan instanceof SwitchExpression) { // ensure switch expression is not mistakenly seen in vanilla context
+					AbstractVariableDeclaration variable = (AbstractVariableDeclaration) this.astStack[this.astPtr--];
+					variable.initialization = (Expression) orphan;
+					parentNode = orphan = variable;
 				}
 				break;
 		}
@@ -689,10 +709,14 @@ protected void consumeEnterVariable() {
 		}
 		this.isOrphanCompletionNode = false; // already attached inside variable decl
 	}
+
+	if (this.currentToken == TerminalTokens.TokenNameEQUAL)
+		pushOnElementStack(K_INSIDE_INITIALIZATION);
 }
 
 @Override
 protected void consumeExitVariableWithInitialization() {
+	popElement(K_INSIDE_INITIALIZATION);
 	super.consumeExitVariableWithInitialization();
 
 	// does not keep the initialization if selection is not inside
@@ -915,6 +939,18 @@ protected void consumeBinaryExpressionWithName(int op) {
 		popUntilElement(K_POST_OR_OR);
 		popElement(K_POST_OR_OR);
 	}
+}
+
+@Override
+protected void consumeAssignment() {
+	popElement(K_INSIDE_ASSIGNMENT);
+	super.consumeAssignment();
+}
+@Override
+protected void consumeAssignmentOperator(int pos) {
+	super.consumeAssignmentOperator(pos);
+	if (pos == EQUAL)
+		pushOnElementStack(K_INSIDE_ASSIGNMENT, pos);
 }
 
 @Override
