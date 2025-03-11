@@ -40,6 +40,7 @@ import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodReference;
@@ -254,12 +255,13 @@ class PatternLocatorVisitor extends ASTVisitor {
 	}
 	@Override
 	public boolean visit(SimpleName node) {
+		StructuralPropertyDescriptor loc = node.getLocationInParent();
 		if (
-			node.getLocationInParent() == VariableDeclarationFragment.NAME_PROPERTY ||
-			node.getLocationInParent() == SingleVariableDeclaration.NAME_PROPERTY ||
-			node.getLocationInParent() == TypeDeclaration.NAME_PROPERTY ||
-			node.getLocationInParent() == EnumDeclaration.NAME_PROPERTY ||
-			node.getLocationInParent() == MethodDeclaration.NAME_PROPERTY) {
+			loc == VariableDeclarationFragment.NAME_PROPERTY ||
+			loc == SingleVariableDeclaration.NAME_PROPERTY ||
+			loc == TypeDeclaration.NAME_PROPERTY ||
+			loc == EnumDeclaration.NAME_PROPERTY ||
+			loc == MethodDeclaration.NAME_PROPERTY) {
 			return false; // skip as parent was most likely already matched
 		}
 		LocatorResponse resp = defaultVisitImplementationWithFunc(node, (x,y) -> y.match(node, this.nodeSet, this.locator), DOMASTNodeUtils::getBinding);
