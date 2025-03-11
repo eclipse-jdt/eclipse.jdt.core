@@ -2852,6 +2852,13 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				new int[] { ASTNode.WHILE_STATEMENT, ASTNode.DO_STATEMENT, ASTNode.FOR_STATEMENT }) != null) {
 			keywords.add(Keywords.BREAK);
 			keywords.add(Keywords.CONTINUE);
+		} else if (DOMCompletionUtil.findParent(this.toComplete,
+				new int[] { ASTNode.SWITCH_EXPRESSION, ASTNode.SWITCH_STATEMENT }) != null) {
+			keywords.add(Keywords.BREAK);
+		}
+		if (DOMCompletionUtil.findParent(this.toComplete,
+				new int[] { ASTNode.SWITCH_EXPRESSION }) != null) {
+			keywords.add(Keywords.YIELD);
 		}
 		Statement statement = (Statement) DOMCompletionUtil.findParent(this.toComplete, new int[] {ASTNode.EXPRESSION_STATEMENT, ASTNode.VARIABLE_DECLARATION_STATEMENT});
 		if (statement != null) {
