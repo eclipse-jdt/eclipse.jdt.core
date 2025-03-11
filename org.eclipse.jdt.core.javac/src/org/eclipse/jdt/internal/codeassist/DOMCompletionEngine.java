@@ -96,7 +96,6 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
-import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.Javadoc;
@@ -108,7 +107,6 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.Modifier;
-import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NodeFinder;
@@ -149,6 +147,8 @@ import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
+import org.eclipse.jdt.core.dom.InfixExpression.Operator;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -585,7 +585,6 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				this.unit = getCompletionAST(sourceUnit.getContents(), sourceUnit.getFileName(), this.javaProject, this.workingCopyOwner, completionPosition);
 			}
 		}
-
 
 		try {
 			Bindings defaultCompletionBindings = new Bindings();
@@ -1358,30 +1357,30 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			if (context instanceof ClassInstanceCreation) {
 				if (this.expectedTypes.getExpectedTypes() != null && !this.expectedTypes.getExpectedTypes().isEmpty() && !this.expectedTypes.getExpectedTypes().get(0).isRecovered()) {
 					completeConstructor(this.expectedTypes.getExpectedTypes().get(0), context, this.javaProject);
-				} else {
-					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF) && !this.requestor.isIgnored(CompletionProposal.CONSTRUCTOR_INVOCATION)) {
-						String packageName = "";//$NON-NLS-1$
-						PackageDeclaration packageDecl = this.unit.getPackage();
-						if (packageDecl != null) {
-							packageName = packageDecl.getName().toString();
-						}
-						this.findTypes(this.prefix, IJavaSearchConstants.TYPE, packageName)
-								.filter(type -> {
-									try {
-										return !type.isAnnotation();
-									} catch (JavaModelException e) {
-										return true;
-									}
-								}) //
-								.flatMap(type -> {
-									if (this.prefix.isEmpty()) {
-										return Stream.of(toProposal(type));
-									} else {
-										return toConstructorProposals(type, this.toComplete, false).stream();
-									}
-								}) //
-								.forEach(this.requestor::accept);
+				} else if (this.toComplete == context) {
+					// completing empty args
+				} else if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF) && !this.requestor.isIgnored(CompletionProposal.CONSTRUCTOR_INVOCATION)) {
+					String packageName = "";//$NON-NLS-1$
+					PackageDeclaration packageDecl = this.unit.getPackage();
+					if (packageDecl != null) {
+						packageName = packageDecl.getName().toString();
 					}
+					this.findTypes(this.prefix, IJavaSearchConstants.TYPE, packageName)
+							.filter(type -> {
+								try {
+									return !type.isAnnotation();
+								} catch (JavaModelException e) {
+									return true;
+								}
+							}) //
+							.flatMap(type -> {
+								if (this.prefix.isEmpty()) {
+									return Stream.of(toProposal(type));
+								} else {
+									return toConstructorProposals(type, this.toComplete, false).stream();
+								}
+							}) //
+							.forEach(this.requestor::accept);
 				}
 				suggestDefaultCompletions = false;
 			}

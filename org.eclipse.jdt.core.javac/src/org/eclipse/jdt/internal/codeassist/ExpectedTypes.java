@@ -133,7 +133,13 @@ public class ExpectedTypes {
 				return;
 			}
 			if (parent2 instanceof ClassInstanceCreation newObj && this.offset > newObj.getType().getStartPosition() + newObj.getType().getLength()) {
-				// TODO find params
+				ITypeBinding binding = newObj.resolveTypeBinding();
+				if(binding != null) {
+					computeExpectedTypesForAllocationExpression(
+						binding,
+						newObj.arguments(),
+						newObj);
+				}
 				break;
 			}
 			if (parent2 instanceof CastExpression cast && this.offset > cast.getType().getStartPosition() + cast.getType().getLength()) {
@@ -596,6 +602,8 @@ public class ExpectedTypes {
 				if(expectedType != null) {
 					this.expectedTypes.add(expectedType);
 				}
+			} else if (arguments.isEmpty() && parameters.length > 0 && parameters[0] != null) {
+				this.expectedTypes.add(parameters[0]);
 			}
 		}
 	}
