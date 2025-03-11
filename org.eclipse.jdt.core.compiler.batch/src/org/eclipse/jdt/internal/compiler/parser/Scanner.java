@@ -5662,7 +5662,7 @@ int disambiguatedToken(int token, Scanner scanner) {
 	if (token == TokenNameARROW) {
 		if (this.lookBack[1] == TokenNamedefault)
 			return TokenNameCaseArrow;
-		if (this.sourceLevel < ClassFileConstants.JDK14 || this.activeParser == null || !this.activeParser.automatonWillShift(TokenNameCaseArrow))
+		if (this.activeParser == null || !this.activeParser.automatonWillShift(TokenNameCaseArrow))
 			return TokenNameARROW;
 		return TokenNameCaseArrow;
 	} else	if (token == TokenNameLPAREN  && maybeAtLambdaOrCast()) {
