@@ -720,7 +720,12 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			var aptPath = fileManager.getLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH);
 			if ((flags & ICompilationUnit.FORCE_PROBLEM_DETECTION) != 0
 				|| (aptPath != null && aptPath.iterator().hasNext())) {
-				task.analyze();
+				try {
+					task.analyze();
+				} catch (Throwable t) {
+					ILog.get().error("Error while analyzing", t);
+					// continue anyway
+				}
 			}
 
 			Throwable cachedThrown = null;
