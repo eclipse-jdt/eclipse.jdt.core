@@ -1043,6 +1043,12 @@ public class JavacBindingResolver extends BindingResolver {
 
 	private IBinding resolveNameImpl(Name name) {
 		resolve();
+		if (name.getParent() instanceof MemberRef memberRef) {
+			resolveReference(memberRef); // initialize symbols on Javadoc
+		}
+		if (name.getParent() instanceof MethodRef methodRef) {
+			resolveReference(methodRef);
+		}
 
 		// first, prefer parent if appropriate
 		ASTNode parent = name.getParent();

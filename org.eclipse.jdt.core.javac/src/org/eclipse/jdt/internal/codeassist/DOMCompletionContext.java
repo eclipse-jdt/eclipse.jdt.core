@@ -51,9 +51,14 @@ import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 
 class DOMCompletionContext extends CompletionContext {
+
+	private final CompilationUnit domUnit;
+	private final ITypeRoot modelUnit;
 	private final int offset;
 	private final char[] token;
-	private final IJavaElement enclosingElement;
+
+	private IJavaElement enclosingElement;
+	private boolean enclosingElementComputed;
 	private final Supplier<Stream<IBinding>> bindingsAcquirer;
 	final ExpectedTypes expectedTypes;
 	private boolean inJavadoc = false;
@@ -62,6 +67,8 @@ class DOMCompletionContext extends CompletionContext {
 	private boolean isJustAfterStringLiteral;
 
 	DOMCompletionContext(CompilationUnit domUnit, ITypeRoot modelUnit, String textContent, int offset, AssistOptions assistOptions, Bindings bindings) {
+		this.domUnit = domUnit;
+		this.modelUnit = modelUnit;
 		this.textContent = textContent;
 		this.offset = offset;
 		// Use the raw text to walk back the offset to the first non-whitespace spot
@@ -88,7 +95,6 @@ class DOMCompletionContext extends CompletionContext {
 			: previousNodeBeforeWhitespaces; // use previous node
 		this.expectedTypes = new ExpectedTypes(assistOptions, this.node, offset);
 		this.token = tokenBefore(this.textContent).toCharArray();
-		this.enclosingElement = computeEnclosingElement(domUnit, modelUnit);
 		this.bindingsAcquirer = bindings::all;
 		this.isJustAfterStringLiteral = this.node instanceof StringLiteral && this.node.getLength() > 1 && this.offset >= this.node.getStartPosition() + this.node.getLength() && textContent.charAt(this.offset - 1) == '"';
 	}
@@ -175,6 +181,10 @@ class DOMCompletionContext extends CompletionContext {
 
 	@Override
 	public IJavaElement getEnclosingElement() {
+		if (!this.enclosingElementComputed) {
+			this.enclosingElement = computeEnclosingElement(domUnit, modelUnit);
+			this.enclosingElementComputed = true;
+		}
 		return this.enclosingElement;
 	}
 
