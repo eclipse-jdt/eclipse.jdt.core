@@ -89,8 +89,8 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			return toResponse(IMPOSSIBLE_MATCH);
 		}
 		if (this.locator.pattern.simpleName == null) {
-			int v = nodeSet.addMatch(name, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
-			return toResponse(v, true);
+			int v = this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+			return toResponse(v, false);
 		}
 		if( name instanceof SimpleName sn2 ) {
 			if( this.locator.pattern.qualification == null)
@@ -420,7 +420,7 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			return toResponse(INACCURATE_MATCH);
 		}
 		if (binding instanceof ITypeBinding typeBinding) {
-			if( node.getParent() instanceof ImportDeclaration id) {
+			if( node.getParent() instanceof ImportDeclaration && !this.locator.isDeclarationOfReferencedTypesPattern) {
 				return resolveLevelForImportBinding(node, typeBinding, locator);
 			}
 			int v = resolveLevelForTypeBinding(node, typeBinding, locator);
@@ -533,15 +533,15 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		
 		int newLevel = this.resolveLevelForTypeFQN(this.locator.pattern.simpleName, 
 				this.locator.pattern.qualification, typeBinding, importDiscovery);
+		if( this.locator.isDeclarationOfReferencedTypesPattern) {
+			return resolveLevelForTypeBindingDeclarationOfReferencedTypes(typeBinding, node, newLevel, locator);
+		}
 		if( newLevel == IMPOSSIBLE_MATCH ) {
 			String qualNameFromBinding = typeBinding.getQualifiedName();
 			int simpleNameMatch = resolveLevelForSimpleName(node, qualNameFromBinding);
 			if( simpleNameMatch != -1 ) {
 				return simpleNameMatch;
 			}
-		}
-		if( this.locator.isDeclarationOfReferencedTypesPattern) {
-			return resolveLevelForTypeBindingDeclarationOfReferencedTypes(typeBinding, node, newLevel, locator);
 		}
 		if( newLevel == ACCURATE_MATCH && this.locator.pattern.hasTypeArguments() ) {
 			return resolveLevelForTypeBindingWithTypeArguments(typeBinding, node, newLevel, locator);
