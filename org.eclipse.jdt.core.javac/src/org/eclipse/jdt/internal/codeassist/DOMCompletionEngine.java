@@ -1842,8 +1842,23 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				suggestDefaultCompletions = false;
 			}
 			if (context instanceof SwitchStatement || context instanceof SwitchExpression) {
+				boolean hasDefault = false;
+				if (context instanceof SwitchStatement switchStatement) {
+					hasDefault = switchStatement.statements().stream().anyMatch(statement -> {
+						return statement instanceof SwitchCase switchCase && switchCase.isDefault();
+					});
+				} else {
+					hasDefault = ((SwitchExpression)context).statements().stream().anyMatch(statement -> {
+						return statement instanceof SwitchCase switchCase && switchCase.isDefault();
+					});
+				}
 				if (!this.isFailedMatch(this.prefix.toCharArray(), Keywords.CASE)) {
 					this.requestor.accept(createKeywordProposal(Keywords.CASE, -1, -1));
+				}
+				if (!hasDefault) {
+					if (!this.isFailedMatch(this.prefix.toCharArray(), Keywords.DEFAULT)) {
+						this.requestor.accept(createKeywordProposal(Keywords.DEFAULT, -1, -1));
+					}
 				}
 			}
 			if (context != null && context.getLocationInParent() == QualifiedType.NAME_PROPERTY && context.getParent() instanceof QualifiedType qType) {
@@ -2845,20 +2860,39 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 	private void statementLikeKeywords() {
 		List<char[]> keywords = new ArrayList<>();
-		keywords.add(Keywords.ASSERT);
-		keywords.add(Keywords.RETURN);
+		boolean isExpressionExpected = (this.toComplete.getParent() instanceof IfStatement ifStatement
+				&& (IfStatement.EXPRESSION_PROPERTY.getId().equals(this.toComplete.getLocationInParent().getId())
+				|| "$missing$".equals(ifStatement.getExpression().toString())));
+		if (!isExpressionExpected) {
+			keywords.add(Keywords.ASSERT);
+			keywords.add(Keywords.RETURN);
+			keywords.add(Keywords.DO);
+			keywords.add(Keywords.WHILE);
+			keywords.add(Keywords.FOR);
+			keywords.add(Keywords.IF);
+			keywords.add(Keywords.SWITCH);
+			keywords.add(Keywords.SYNCHRONIZED);
+			keywords.add(Keywords.THROW);
+			keywords.add(Keywords.TRY);
+		}
 		keywords.add(Keywords.SUPER);
 		if (DOMCompletionUtil.findParent(this.toComplete,
 				new int[] { ASTNode.WHILE_STATEMENT, ASTNode.DO_STATEMENT, ASTNode.FOR_STATEMENT }) != null) {
-			keywords.add(Keywords.BREAK);
-			keywords.add(Keywords.CONTINUE);
+			if (!isExpressionExpected) {
+				keywords.add(Keywords.BREAK);
+				keywords.add(Keywords.CONTINUE);
+			}
 		} else if (DOMCompletionUtil.findParent(this.toComplete,
 				new int[] { ASTNode.SWITCH_EXPRESSION, ASTNode.SWITCH_STATEMENT }) != null) {
-			keywords.add(Keywords.BREAK);
+			if (!isExpressionExpected) {
+				keywords.add(Keywords.BREAK);
+			}
 		}
 		if (DOMCompletionUtil.findParent(this.toComplete,
 				new int[] { ASTNode.SWITCH_EXPRESSION }) != null) {
-			keywords.add(Keywords.YIELD);
+			if (!isExpressionExpected) {
+				keywords.add(Keywords.YIELD);
+			}
 		}
 		Statement statement = (Statement) DOMCompletionUtil.findParent(this.toComplete, new int[] {ASTNode.EXPRESSION_STATEMENT, ASTNode.VARIABLE_DECLARATION_STATEMENT});
 		if (statement != null) {
