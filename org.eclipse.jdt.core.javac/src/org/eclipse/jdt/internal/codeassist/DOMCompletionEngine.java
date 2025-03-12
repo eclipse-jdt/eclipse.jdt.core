@@ -70,6 +70,7 @@ import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
+import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
@@ -687,6 +688,13 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					if (!fieldAccessType.isRecovered()) {
 						processMembers(fieldAccess, fieldAccessExpr.resolveTypeBinding(), specificCompletionBindings, false);
 						publishFromScope(specificCompletionBindings);
+						if (fieldAccessExpr instanceof ThisExpression) {
+							// this.new can be used to instantiate non-static inner classes
+							// eg. MyInner myInner = this.new MyInner(12);
+							if (CharOperation.prefixEquals(this.prefix.toCharArray(), Keywords.NEW)) {
+								this.requestor.accept(createKeywordProposal(Keywords.NEW, -1, -1));
+							}
+						}
 						IVariableBinding variableToCast = null;
 						if (fieldAccessExpr instanceof Name name && name.resolveBinding() instanceof IVariableBinding variableBinding) {
 							variableToCast = variableBinding;
@@ -1011,6 +1019,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 							// }
 							ITypeBinding typeDeclBinding = typeDecl.resolveBinding();
 							findOverridableMethods(typeDeclBinding, this.javaProject, null);
+							suggestTypeKeywords(true);
+							suggestModifierKeywords(0);
 						}
 					}
 					suggestDefaultCompletions = false;
@@ -1843,14 +1853,29 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			}
 			if (context instanceof SwitchStatement || context instanceof SwitchExpression) {
 				boolean hasDefault = false;
+				boolean afterLabel = false;
 				if (context instanceof SwitchStatement switchStatement) {
-					hasDefault = switchStatement.statements().stream().anyMatch(statement -> {
-						return statement instanceof SwitchCase switchCase && switchCase.isDefault();
-					});
+					for (Statement statement : (List<Statement>)switchStatement.statements()) {
+						if (statement instanceof SwitchCase switchCase) {
+							if (switchCase.isDefault()) {
+								hasDefault = true;
+							}
+							if (switchCase.getStartPosition() < this.offset) {
+								afterLabel = true;
+							}
+						}
+					}
 				} else {
-					hasDefault = ((SwitchExpression)context).statements().stream().anyMatch(statement -> {
-						return statement instanceof SwitchCase switchCase && switchCase.isDefault();
-					});
+					for (Statement statement : (List<Statement>)((SwitchExpression)context).statements()) {
+						if (statement instanceof SwitchCase switchCase) {
+							if (switchCase.isDefault()) {
+								hasDefault = true;
+							}
+							if (switchCase.getStartPosition() < this.offset) {
+								afterLabel = true;
+							}
+						}
+					}
 				}
 				if (!this.isFailedMatch(this.prefix.toCharArray(), Keywords.CASE)) {
 					this.requestor.accept(createKeywordProposal(Keywords.CASE, -1, -1));
@@ -1859,6 +1884,10 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					if (!this.isFailedMatch(this.prefix.toCharArray(), Keywords.DEFAULT)) {
 						this.requestor.accept(createKeywordProposal(Keywords.DEFAULT, -1, -1));
 					}
+				}
+				if (!afterLabel) {
+					// case or default label required before regular body statements
+					suggestDefaultCompletions = false;
 				}
 			}
 			if (context != null && context.getLocationInParent() == QualifiedType.NAME_PROPERTY && context.getParent() instanceof QualifiedType qType) {
@@ -2860,9 +2889,19 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 	private void statementLikeKeywords() {
 		List<char[]> keywords = new ArrayList<>();
-		boolean isExpressionExpected = (this.toComplete.getParent() instanceof IfStatement ifStatement
+		boolean isExpressionExpected =
+				(this.toComplete.getParent() instanceof IfStatement ifStatement
 				&& (IfStatement.EXPRESSION_PROPERTY.getId().equals(this.toComplete.getLocationInParent().getId())
-				|| "$missing$".equals(ifStatement.getExpression().toString())));
+				|| "$missing$".equals(ifStatement.getExpression().toString())))
+				||
+				(this.toComplete.getParent() instanceof WhileStatement whileStatement
+						&& (WhileStatement.EXPRESSION_PROPERTY.getId().equals(this.toComplete.getLocationInParent().getId())
+						|| "$missing$".equals(whileStatement.getExpression().toString())))
+				||
+				(this.toComplete.getParent() instanceof Assignment)
+				||
+				(this.toComplete instanceof Assignment)
+				;
 		if (!isExpressionExpected) {
 			keywords.add(Keywords.ASSERT);
 			keywords.add(Keywords.RETURN);
@@ -2874,8 +2913,14 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			keywords.add(Keywords.SYNCHRONIZED);
 			keywords.add(Keywords.THROW);
 			keywords.add(Keywords.TRY);
+			keywords.add(Keywords.FINAL);
 		}
 		keywords.add(Keywords.SUPER);
+		keywords.add(Keywords.NEW);
+		
+		if (!this.expectedTypes.getExpectedTypes().isEmpty()) {
+			keywords.add(Keywords.NULL);
+		}
 		if (DOMCompletionUtil.findParent(this.toComplete,
 				new int[] { ASTNode.WHILE_STATEMENT, ASTNode.DO_STATEMENT, ASTNode.FOR_STATEMENT }) != null) {
 			if (!isExpressionExpected) {
@@ -2917,6 +2962,19 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		for (char[] keyword : keywords) {
 			if (!isFailedMatch(this.prefix.toCharArray(), keyword)) {
 				this.requestor.accept(createKeywordProposal(keyword, this.toComplete.getStartPosition(), this.offset));
+			}
+		}
+		// Z means boolean
+		if (this.expectedTypes.getExpectedTypes().stream().anyMatch(type -> "Z".equals(type.getKey()))) {
+			if (!isFailedMatch(this.prefix.toCharArray(), Keywords.TRUE)) {
+				CompletionProposal completionProposal = createKeywordProposal(Keywords.TRUE, this.toComplete.getStartPosition(), this.offset);
+				completionProposal.setRelevance(completionProposal.getRelevance() + RelevanceConstants.R_EXACT_EXPECTED_TYPE + RelevanceConstants.R_UNQUALIFIED);
+				this.requestor.accept(completionProposal);
+			}
+			if (!isFailedMatch(this.prefix.toCharArray(), Keywords.FALSE)) {
+				CompletionProposal completionProposal = createKeywordProposal(Keywords.FALSE, this.toComplete.getStartPosition(), this.offset);
+				completionProposal.setRelevance(completionProposal.getRelevance() + RelevanceConstants.R_EXACT_EXPECTED_TYPE + RelevanceConstants.R_UNQUALIFIED);
+				this.requestor.accept(completionProposal);
 			}
 		}
 	}
