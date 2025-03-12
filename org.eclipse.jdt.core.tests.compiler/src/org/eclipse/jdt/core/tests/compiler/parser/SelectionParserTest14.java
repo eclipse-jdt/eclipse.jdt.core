@@ -627,13 +627,10 @@ public void test013() throws JavaModelException {
 			"  public X() {\n" +
 			"  }\n" +
 			"  public static void foo(int num_) {\n" +
-			"    int i;\n" +
-			"    {\n" +
-			"      switch (num_) {\n" +
-			"      case 3 ->\n" +
-			"          <SelectOnName:num_>;\n" +
-			"      }\n" +
-			"    }\n" +
+			"    int i =     switch (num_) {\n" +
+			"    case 3 ->\n" +
+			"        <SelectOnName:num_>;\n" +
+			"    };\n" +
 			"  }\n" +
 			"}\n";
 	String expectedReplacedSource = "num_";
@@ -668,15 +665,12 @@ public void test014() throws JavaModelException {
 			"  public X() {\n" +
 			"  }\n" +
 			"  public static void foo(int num_) {\n" +
-			"    int i;\n" +
-			"    {\n" +
-			"      switch (num_) {\n" +
-			"      case 3 ->\n" +
-			"          0;\n" +
-			"      default ->\n" +
-			"          <SelectOnName:num_>;\n" +
-			"      }\n" +
-			"    }\n" +
+			"    int i =     switch (num_) {\n" +
+			"    case 3 ->\n" +
+			"        0;\n" +
+			"    default ->\n" +
+			"        <SelectOnName:num_>;\n" +
+			"    };\n" +
 			"  }\n" +
 			"}\n";
 	String expectedReplacedSource = "num_";
@@ -711,15 +705,12 @@ public void test015() throws JavaModelException {
 			"  public X() {\n" +
 			"  }\n" +
 			"  public static void foo(int num_) {\n" +
-			"    int i;\n" +
-			"    {\n" +
-			"      switch (num_) {\n" +
-			"      case 3 ->\n" +
-			"          0;\n" +
-			"      default ->\n" +
-			"          <SelectOnName:num_>;\n" +
-			"      }\n" +
-			"    }\n" +
+			"    int i =     switch (num_) {\n" +
+			"    case 3 ->\n" +
+			"        0;\n" +
+			"    default ->\n" +
+			"        <SelectOnName:num_>;\n" +
+			"    };\n" +
 			"  }\n" +
 			"}\n";
 	String expectedReplacedSource = "num_";
@@ -754,15 +745,12 @@ public void test016() throws JavaModelException {
 			"  public X() {\n" +
 			"  }\n" +
 			"  public void bar(int s) {\n" +
-			"    int i_j;\n" +
-			"    {\n" +
-			"      switch (s) {\n" +
-			"      case 3 ->\n" +
-			"          (s + 1);\n" +
-			"      default ->\n" +
-			"          <SelectOnName:i_j>;\n" +
-			"      }\n" +
-			"    }\n" +
+			"    int i_j =     switch (s) {\n" +
+			"    case 3 ->\n" +
+			"        (s + 1);\n" +
+			"    default ->\n" +
+			"        <SelectOnName:i_j>;\n" +
+			"    };\n" +
 			"  }\n" +
 			"}\n";
 	String expectedReplacedSource = "i_j";
@@ -794,15 +782,12 @@ public void test017() throws JavaModelException {
 			"  public X() {\n" +
 			"  }\n" +
 			"  public void bar(int s) {\n" +
-			"    int i_j;\n" +
-			"    {\n" +
-			"      switch (s) {\n" +
-			"      case 3 ->\n" +
-			"          (s + 1);\n" +
-			"      default ->\n" +
-			"          <SelectOnName:i_j>;\n" +
-			"      }\n" +
-			"    }\n" +
+			"    int i_j =     switch (s) {\n" +
+			"    case 3 ->\n" +
+			"        (s + 1);\n" +
+			"    default ->\n" +
+			"        <SelectOnName:i_j>;\n" +
+			"    };\n" +
 			"  }\n" +
 			"}\n";
 	String expectedReplacedSource = "i_j";

@@ -274,7 +274,6 @@ private void buildMoreCompletionContext(Expression expression) {
 				if (orphan instanceof SwitchExpression) { // ensure switch expression is not mistakenly seen in vanilla context
 					AbstractVariableDeclaration variable = (AbstractVariableDeclaration) this.astStack[this.astPtr--];
 					variable.initialization = (Expression) orphan;
-					parentNode = orphan = variable;
 				}
 				break;
 		}
