@@ -8191,7 +8191,7 @@ private int retrieveStartingPositionAfterOpeningParenthesis(int sourceStart, int
 						return this.positionScanner.startPosition;
 					}
 					break;
-				default: // NOP
+				default:
 					break;
 			}
 		}

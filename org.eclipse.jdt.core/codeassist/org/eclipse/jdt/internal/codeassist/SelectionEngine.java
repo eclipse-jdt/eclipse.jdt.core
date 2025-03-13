@@ -628,7 +628,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							break isolateLastName;
 						}
 						break;
-					default: // NOP
+					default:
 						break;
 				}
 			} while (token != TerminalTokens.TokenNameEOF);

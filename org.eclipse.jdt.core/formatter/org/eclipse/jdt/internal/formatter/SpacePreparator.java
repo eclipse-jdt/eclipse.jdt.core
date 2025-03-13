@@ -1189,7 +1189,7 @@ public class SpacePreparator extends ASTVisitor {
 						if (getNext().tokenType == TokenNameMINUS || getNext().tokenType == TokenNameMINUS_MINUS)
 							token.spaceAfter();
 						break;
-					default: // NOP
+					default:
 						break;
 				}
 				return true;
