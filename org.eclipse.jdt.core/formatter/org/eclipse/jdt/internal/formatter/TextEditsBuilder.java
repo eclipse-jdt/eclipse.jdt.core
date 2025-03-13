@@ -17,6 +17,7 @@ import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameC
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_JAVADOC;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_LINE;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_MARKDOWN;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameInvalid;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameNotAToken;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameStringLiteral;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameTextBlock;
@@ -88,7 +89,7 @@ public class TextEditsBuilder extends TokenTraverser {
 			int sourceStart = this.tm.get(0).originalStart;
 
 			if (start > sourceStart) {
-				Token token = this.tm.get(this.tm.findIndex(start, -1, false));
+				Token token = this.tm.get(this.tm.findIndex(start, TokenNameInvalid, false));
 				if ((token.tokenType == TokenNameCOMMENT_BLOCK || token.tokenType == TokenNameCOMMENT_JAVADOC)
 						&& start <= token.originalEnd) {
 					start = token.originalStart;
@@ -96,7 +97,7 @@ public class TextEditsBuilder extends TokenTraverser {
 			}
 
 			if (end > start && end > sourceStart) {
-				Token token = this.tm.get(this.tm.findIndex(end, -1, false));
+				Token token = this.tm.get(this.tm.findIndex(end, TokenNameInvalid, false));
 				if ((token.tokenType == TokenNameCOMMENT_BLOCK || token.tokenType == TokenNameCOMMENT_JAVADOC)
 						&& end < token.originalEnd) {
 					end = token.originalEnd;

@@ -1051,7 +1051,7 @@ class DocCommentParser extends AbstractCommentParser {
 				this.tagValue = TAG_OTHERS_VALUE;
 				createTag();
 				break;
-			default: // NOP
+			default:
 				break;
 		}
 		this.textStart = this.index;

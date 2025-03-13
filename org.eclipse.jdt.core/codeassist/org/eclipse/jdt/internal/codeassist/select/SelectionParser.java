@@ -1557,7 +1557,7 @@ protected void consumeToken(TerminalTokens token) {
 					}
 				}
 				break;
-			default: // NOP
+			default:
 				break;
 		}
 	}

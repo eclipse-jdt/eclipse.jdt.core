@@ -1151,7 +1151,7 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 						case TokenNameLESS:
 							argCount++;
 							break;
-						default: // NOP
+						default:
 							break;
 					}
 					declaringType += scanner.getCurrentTokenString();
@@ -1175,7 +1175,7 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 					case TokenNameLESS:
 						argCount++;
 						break;
-					default: // NOP
+					default:
 						break;
 				}
 				break;
@@ -1224,7 +1224,7 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 						case TokenNameLESS:
 							argCount++;
 							break;
-						default: // NOP
+						default:
 							break;
 					}
 					parameterType += scanner.getCurrentTokenString();
@@ -1262,7 +1262,7 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 						case TokenNameLESS:
 							argCount++;
 							break;
-						default: // NOP
+						default:
 							break;
 					}
 					returnType += scanner.getCurrentTokenString();
@@ -2357,7 +2357,7 @@ private static SearchPattern createTypePattern(String patternString, int limitTo
 				case TokenNameLESS:
 					argCount++;
 					break;
-				default: // NOP
+				default:
 					break;
 			}
 			if (type == null) return null; // invalid syntax

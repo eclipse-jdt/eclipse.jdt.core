@@ -625,7 +625,7 @@ public class InternalNamingConventions {
 					case TokenNameboolean :
 						isBaseType = true;
 						break;
-					default: // NOP
+					default:
 						break;
 				}
 			} catch(InvalidInputException e){
@@ -818,7 +818,7 @@ public class InternalNamingConventions {
 												}
 											}
 											break;
-										default: // NOP
+										default:
 											break;
 									}
 							}

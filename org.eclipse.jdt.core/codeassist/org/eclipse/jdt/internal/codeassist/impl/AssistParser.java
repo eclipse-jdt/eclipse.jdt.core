@@ -1325,7 +1325,7 @@ private void adjustBracket(TerminalTokens token) {
 			this.bracketDepth--;
 			break;
 		default:
-			break; // NOP
+			break;
 	}
 }
 @Override
@@ -1361,7 +1361,7 @@ protected void consumeToken(TerminalTokens token) {
 							this.pushOnElementStack(K_SELECTOR, this.identifierPtr);
 						}
 						break;
-					default: // NOP
+					default:
 						break;
 				}
 				break;
@@ -1373,7 +1373,7 @@ protected void consumeToken(TerminalTokens token) {
 					}
 				}
 				break;
-			default: // NOP
+			default:
 				break;
 		}
 	} else if (isInsideModuleInfo()) {
@@ -1385,7 +1385,7 @@ protected void consumeToken(TerminalTokens token) {
 					popElement(K_TYPE_DELIMITER);
 				}
 				break;
-			default: // NOP
+			default:
 				break;
 		}
 	}
@@ -1445,7 +1445,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = reference.declarationSourceEnd+1;
 		this.currentElement = this.currentElement.add(reference, 0);
-//		this.lastIgnoredToken = TerminalTokens.TokenNameInvalid;
+		this.lastIgnoredToken = TerminalTokens.TokenNameInvalid;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }

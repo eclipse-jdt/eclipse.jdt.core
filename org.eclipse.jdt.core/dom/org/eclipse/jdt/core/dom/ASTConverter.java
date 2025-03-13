@@ -112,7 +112,7 @@ class ASTConverter {
 						}
 						break;
 					default:
-						// NOP
+						break;
 				}
 			}
 			expression.sourceEnd = this.scanner.startPosition - 1;

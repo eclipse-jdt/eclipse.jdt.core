@@ -146,10 +146,6 @@ public class TokenManager implements Iterable<Token> {
 		return this.source.length();
 	}
 
-	public int findIndex(int positionInSource, int tokenType, boolean forward) {
-		return findIndex(positionInSource, TerminalTokens.of(tokenType), forward);
-	}
-
 	public int findIndex(int positionInSource, TerminalTokens tokenType, boolean forward) {
 		// binary search
 		int left = 0, right = size() - 1;

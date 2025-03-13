@@ -2624,7 +2624,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						}
 					}
 					break;
-				default: // NOP
+				default:
 					break;
 			}
 		}

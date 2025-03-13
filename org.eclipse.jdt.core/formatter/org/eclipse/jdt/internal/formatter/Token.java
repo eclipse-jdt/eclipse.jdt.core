@@ -324,7 +324,7 @@ public class Token {
 			case TokenNameCOMMENT_JAVADOC:
 			case TokenNameCOMMENT_LINE:
 				return true;
-			default: // NOP
+			default:
 				return false;
 		}
 	}

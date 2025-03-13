@@ -97,7 +97,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public final class CompletionEngine
 	extends Engine
-	implements ISearchRequestor, TypeConstants , RelevanceConstants, SuffixConstants, ICompletionEngine {
+	implements ISearchRequestor, TypeConstants, RelevanceConstants, SuffixConstants, ICompletionEngine {
 
 	private static class AcceptedConstructor {
 		public int modifiers;
