@@ -27,7 +27,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class BinaryExpression extends OperatorExpression {
+public class BinaryExpression extends OperatorExpression implements InvocationSite {
 
 /* Tracking helpers
  * The following are used to elaborate realistic statistics about binary
@@ -2125,50 +2125,12 @@ public MethodBinding getMethodBindingForOverload(BlockScope scope) {
 	else
 		tb_right = this.right.resolvedType;
 
-	final TypeBinding expectedTypeLocal = this.expectedType;
-	OperatorOverloadInvocationSite fakeInvocationSite = new OperatorOverloadInvocationSite(){
-		@Override
-		public TypeBinding[] genericTypeArguments() { return null; }
-		@Override
-		public boolean isSuperAccess(){ return false; }
-		@Override
-		public boolean isTypeAccess() { return true; }
-		@Override
-		public void setActualReceiverType(ReferenceBinding actualReceiverType) { /* ignore */}
-		@Override
-		public void setDepth(int depth) { /* ignore */}
-		@Override
-		public void setFieldIndex(int depth){ /* ignore */}
-		@Override
-		public int sourceStart() { return 0; }
-		@Override
-		public int sourceEnd() { return 0; }
-		@Override
-		public TypeBinding getExpectedType() {
-			return expectedTypeLocal;
-		}
-		@Override
-		public TypeBinding invocationTargetType() { return null; }
-		@Override
-		public boolean receiverIsImplicitThis() { return false; }
-		@Override
-		public InferenceContext18 freshInferenceContext(Scope s) { return null; }
-		@Override
-		public ExpressionContext getExpressionContext() { return null; }
-		@Override
-		public boolean isQualifiedSuper() { return false; }
-		@Override
-		public boolean checkingPotentialCompatibility() { return false; }
-		@Override
-		public void acceptPotentiallyCompatibleMethods(MethodBinding[] methods) {/* ignore */}
-	};
-
 	String ms = getMethodName();
 
 	//Object <op> Object
 	if (!tb_left.isBoxedPrimitiveType() && !tb_left.isBaseType() && !tb_right.isBoxedPrimitiveType() && !tb_right.isBaseType()){
-		MethodBinding mbLeft = scope.getMethod(tb_left, ms.toCharArray(), new TypeBinding[]{tb_right},  fakeInvocationSite);
-		MethodBinding mbRight = scope.getMethod(tb_right, (ms + "AsRHS").toCharArray(), new TypeBinding[]{tb_left},  fakeInvocationSite); //$NON-NLS-1$
+		MethodBinding mbLeft = getLeftMethod(scope, ms, tb_left, tb_right);
+		MethodBinding mbRight = getRightMethod(scope, ms, tb_left, tb_right);
 		if(mbLeft.isValidBinding() && mbRight.isValidBinding()){
 			if(mbLeft.isStatic() && mbRight.isStatic()) {
 				scope.problemReporter().overloadedOperatorMethodNotStatic(this, getMethodName());
@@ -2192,16 +2154,13 @@ public MethodBinding getMethodBindingForOverload(BlockScope scope) {
 			this.overloadedExpresionSide = overloadedRightSide;
 			return mbRight;
 		}
-		if(tb_left.id == T_JavaLangString || tb_right.id == T_JavaLangString){
-			return null;
-		}
 		return null;
 	}
 
 
 	//Object <op> type or type <op> Object
 	if(!tb_left.isBoxedPrimitiveType() && !tb_left.isBaseType() && (tb_right.isBoxedPrimitiveType() || tb_right.isBaseType())){
-		MethodBinding mbLeft = scope.getMethod(tb_left, ms.toCharArray(), new TypeBinding[]{tb_right}, fakeInvocationSite);
+		MethodBinding mbLeft = getLeftMethod(scope, ms, tb_left, tb_right);
 		if(mbLeft.isValidBinding() && isAnnotationSet(mbLeft)){
 			if(mbLeft.isStatic()) {
 				scope.problemReporter().overloadedOperatorMethodNotStatic(this, getMethodName());
@@ -2213,7 +2172,7 @@ public MethodBinding getMethodBindingForOverload(BlockScope scope) {
 		return null;
 	}
 	if(!tb_right.isBoxedPrimitiveType() && !tb_right.isBaseType() && (tb_left.isBoxedPrimitiveType() || tb_left.isBaseType())){
-		MethodBinding mbRight = scope.getMethod(tb_right, (ms + "AsRHS").toCharArray(), new TypeBinding[]{tb_left}, fakeInvocationSite); //$NON-NLS-1$
+		MethodBinding mbRight = getRightMethod(scope, ms, tb_left, tb_right);
 		if(mbRight.isValidBinding()){
 			if(mbRight.isStatic()) {
 				scope.problemReporter().overloadedOperatorMethodNotStatic(this, getMethodName());
@@ -2345,7 +2304,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		//if overloaded method is OK continue
 		if(overloadMethod != null && overloadMethod.isValidBinding()){
 			this.appropriateMethodForOverload = overloadMethod;
-			if (isMethodUseDeprecated(this.appropriateMethodForOverload, scope, true, new InvocationSite.EmptyWithAstNode(this)))
+			if (isMethodUseDeprecated(this.appropriateMethodForOverload, scope, true, this))
 				scope.problemReporter().deprecatedMethod(this.appropriateMethodForOverload, this);
 			// Object <op> Object just return returnType
 			if((!leftType.isBoxedPrimitiveType() && !leftType.isBaseType() && leftType.id != T_JavaLangString) && (!rightType.isBoxedPrimitiveType() && !rightType.isBaseType() && rightType.id != T_JavaLangString)){
@@ -2530,4 +2489,54 @@ public void traverse(ASTVisitor visitor, BlockScope scope) {
 	}
 	visitor.endVisit(this, scope);
 }
+
+protected MethodBinding getLeftMethod(BlockScope scope, String ms, TypeBinding leftType, TypeBinding rightType) {
+	this.overloadedExpresionSide = overloadedLeftSide;
+	return scope.getMethod(leftType, ms.toCharArray(), new TypeBinding[]{rightType}, this);
+}
+
+protected MethodBinding getRightMethod(BlockScope scope, String ms, TypeBinding leftType, TypeBinding rightType) {
+	this.overloadedExpresionSide = overloadedRightSide;
+	return scope.getMethod(rightType, (ms + "AsRHS").toCharArray(), new TypeBinding[]{leftType}, this); //$NON-NLS-1$
+}
+
+@Override
+public TypeBinding[] genericTypeArguments() {
+	return null;
+}
+
+@Override
+public boolean isSuperAccess() {
+	return false;
+}
+
+@Override
+public boolean isTypeAccess() {
+	return false;
+}
+
+@Override
+public void setActualReceiverType(ReferenceBinding receiverType) {
+	// ignored
+}
+
+@Override
+public void setDepth(int depth) {
+	// ignored
+}
+
+@Override
+public void setFieldIndex(int depth) {
+	// ignored
+}
+
+@Override
+public InferenceContext18 freshInferenceContext(Scope scope) {
+	return new InferenceContext18(scope, new Expression[] {switch (this.overloadedExpresionSide) {
+		case overloadedLeftSide -> this.right;
+		case overloadedRightSide -> this.left;
+		default -> this.right; // assume we probably got here from ConditionalExpression's speculative eq() check
+	}}, this, null);
+	}
+
 }

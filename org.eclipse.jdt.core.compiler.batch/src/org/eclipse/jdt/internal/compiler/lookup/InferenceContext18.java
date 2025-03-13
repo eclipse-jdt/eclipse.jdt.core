@@ -720,6 +720,10 @@ public class InferenceContext18 {
 			}
 		} else if (expri instanceof ConditionalExpression) {
 			ConditionalExpression ce = (ConditionalExpression) expri;
+			// MAXELER HACK: Please just treat overloaded ternaryIf() like any other method
+			if (ce.resolvingMethod) {
+				return true;
+			}
 			return addConstraintsToC_OneExpr(ce.valueIfTrue, c, fsi, substF, method)
 					&& addConstraintsToC_OneExpr(ce.valueIfFalse, c, fsi, substF, method);
 		} else if (expri instanceof SwitchExpression se) {

@@ -142,6 +142,10 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				}
 			} else if (this.left instanceof ConditionalExpression) {
 				ConditionalExpression conditional = (ConditionalExpression) this.left;
+				// MAXELER HACK: Overloaded ternaryIfs() return the type they've already been resolved to
+				if (conditional.resolvingMethod) {
+					return ConstraintTypeFormula.create(this.left.resolvedType, this.right, COMPATIBLE, this.isSoft);
+				}
 				return new ConstraintFormula[] {
 					new ConstraintExpressionFormula(conditional.valueIfTrue, this.right, this.relation, this.isSoft),
 					new ConstraintExpressionFormula(conditional.valueIfFalse, this.right, this.relation, this.isSoft)

@@ -54,6 +54,7 @@ public class ConditionalExpression extends OperatorExpression implements IPolyEx
 	public Constant optimizedIfFalseConstant;
 	public MethodBinding appropriateMethodForOverload = null;
 	public MethodBinding syntheticAccessor = null;
+	public boolean resolvingMethod; // unfortunately necessary due to daft special-casing deep in the inference code
 
 	// for local variables table attributes
 	int trueInitStateIndex = -1;
@@ -550,16 +551,13 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 
 		if (this.constant != Constant.NotAConstant) {
 			this.constant = Constant.NotAConstant;
-			TypeBinding conditionType = this.condition.resolvedType; //this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
+			TypeBinding conditionType = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
 			this.condition.computeConversion(scope, TypeBinding.BOOLEAN, conditionType);
 
 			if (this.valueIfTrue instanceof CastExpression) this.valueIfTrue.bits |= DisableUnnecessaryCastCheck; // will check later on
-			// TODO check if this is correct
-			this.originalValueIfTrueType = this.valueIfTrue.resolvedType;
-			//this.originalValueIfTrueType = this.valueIfTrue.resolveTypeWithBindings(this.condition.bindingsWhenTrue(), scope);
+			this.originalValueIfTrueType = this.valueIfTrue.resolveTypeWithBindings(this.condition.bindingsWhenTrue(), scope);
 			if (this.valueIfFalse instanceof CastExpression) this.valueIfFalse.bits |= DisableUnnecessaryCastCheck; // will check later on
-			//this.originalValueIfFalseType = this.valueIfFalse.resolveTypeWithBindings(this.condition.bindingsWhenFalse(), scope);
-			this.originalValueIfFalseType = this.valueIfFalse.resolvedType;
+			this.originalValueIfFalseType = this.valueIfFalse.resolveTypeWithBindings(this.condition.bindingsWhenFalse(), scope);
 
 			/*
 			 *
@@ -887,6 +885,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 
 	@Override
 	public boolean isCompatibleWith(TypeBinding left, Scope scope) {
+		if (this.appropriateMethodForOverload != null) {
+			// true/false path logic is irrelevant for overloaded ternary if, as both branches
+			// get entered in any case
+			return super.isCompatibleWith(left, scope);
+		}
 		if (!isPolyExpression())
 			super.isCompatibleWith(left, scope);
 
@@ -944,30 +947,33 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	}
 
 	public MethodBinding getMethodBindingForOverload(BlockScope scope) {
-		TypeBinding tb_cond = null;
-		TypeBinding tb_right = null;
-		TypeBinding tb_left = null;
-
-		if(this.valueIfTrue.resolvedType == null)
-			tb_left = this.valueIfTrue.resolveType(scope);
-		else
-			tb_left = this.valueIfTrue.resolvedType;
-
-		if(this.valueIfFalse.resolvedType == null)
-			tb_right = this.valueIfFalse.resolveType(scope);
-		else
-			tb_right = this.valueIfFalse.resolvedType;
+		TypeBinding tb_cond;
 
 		if(this.condition.resolvedType == null)
 			tb_cond = this.condition.resolveType(scope);
 		else
 			tb_cond = this.condition.resolvedType;
 
+		if (tb_cond == null || tb_cond.isBoxedPrimitiveType() || tb_cond.isBaseType()) {
+			return null;
+		}
+
+		if(this.valueIfTrue.resolvedType == null)
+			this.originalValueIfTrueType = this.valueIfTrue.resolveType(scope);
+		else
+			this.originalValueIfTrueType = this.valueIfTrue.resolvedType;
+
+		if(this.valueIfFalse.resolvedType == null)
+			this.originalValueIfFalseType = this.valueIfFalse.resolveType(scope);
+		else
+			this.originalValueIfFalseType = this.valueIfFalse.resolvedType;
+
 		String ms = getMethodName();
 
 		MethodBinding mb2 = null;
-		if ((tb_cond != null) && (tb_left!=null) && (tb_right!=null)) {
-			mb2 = scope.getMethod(tb_cond, ms.toCharArray(), new TypeBinding[]{tb_left, tb_right},  this);
+		if (this.originalValueIfTrueType != null && this.originalValueIfFalseType != null) {
+			this.resolvingMethod = true;
+			mb2 = scope.getMethod(tb_cond, ms.toCharArray(), new TypeBinding[]{this.originalValueIfTrueType, this.originalValueIfFalseType},  this);
 		}
 		return mb2;
 	}
@@ -990,8 +996,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 
 		MethodBinding mb2 = null;
 		if ((tb_left!=null) && (tb_right!=null) /*&& (tb_left.id == tb_right.id)*/) {
-			mb2 = scope.getMethod(tb_left, ms.toCharArray(), new TypeBinding[]{tb_right}, new InvocationSite.EmptyWithAstNode(this));
-			if(mb2 == null || !mb2.isValidBinding() || tb_left.id != mb2.returnType.id){
+			mb2 = scope.getMethod(tb_left, ms.toCharArray(), new TypeBinding[]{tb_right}, localCondition);
+			if (mb2 == null || !mb2.isValidBinding() || TypeBinding.notEquals(tb_left, mb2.returnType)) {
 				return null;
 			}
 			return mb2;
