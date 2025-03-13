@@ -110,6 +110,7 @@ import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
@@ -156,6 +157,7 @@ import org.eclipse.jdt.core.search.TypeNameMatch;
 import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 import org.eclipse.jdt.internal.codeassist.impl.Keywords;
+import org.eclipse.jdt.internal.codeassist.impl.RestrictedIdentifiers;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
@@ -646,6 +648,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				}
 			} else if (this.toComplete instanceof QualifiedName && this.toComplete.getParent() instanceof TagElement tagElement) {
 				context = tagElement;
+			} else if (this.toComplete instanceof Modifier && this.toComplete.getParent() instanceof ImportDeclaration) {
+				context = this.toComplete.getParent();
 			}
 			this.prefix = token == null ? new String() : new String(token);
 			if (this.toComplete instanceof MethodInvocation methodInvocation && this.offset == (methodInvocation.getName().getStartPosition() + methodInvocation.getName().getLength()) + 1) {
@@ -792,9 +796,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					// }
 					ITypeBinding typeDeclBinding = typeDecl.resolveBinding();
 					findOverridableMethods(typeDeclBinding, this.javaProject, context);
-					if (!isFailedMatch(this.prefix.toCharArray(), Keywords.CLASS)) {
-						this.requestor.accept(createKeywordProposal(Keywords.CLASS, this.toComplete.getStartPosition(), this.offset));
-					}
+					suggestClassDeclarationLikeKeywords();
 					suggestTypeKeywords(true);
 					suggestModifierKeywords(fieldDeclaration.getModifiers());
 					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
@@ -1563,19 +1565,39 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					}
 				}
 			}
-			if (context instanceof ImportDeclaration) {
+			if (context instanceof ImportDeclaration importDeclaration) {
 				if (context.getAST().apiLevel() >= AST.JLS23
-						&& this.javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true).equals(JavaCore.ENABLED)) {
+						&& this.javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true).equals(JavaCore.ENABLED)
+						&& Modifier.isModule(importDeclaration.getModifiers())) {
 					findModules(this.qualifiedPrefix.toCharArray(), this.javaProject, this.assistOptions, Collections.emptySet());
 					suggestDefaultCompletions = false;
 				}
 			}
-			if (context instanceof CompilationUnit unit &&
-				CharOperation.prefixEquals(completionContext.getToken(), Keywords.PACKAGE) &&
-				unit.getPackage() == null &&
-				this.offset <= ((Collection<ASTNode>)unit.imports()).stream().mapToInt(ASTNode::getStartPosition).filter(n -> n >= 0).min().orElse(Integer.MAX_VALUE) &&
-				this.offset <= ((Collection<ASTNode>)unit.types()).stream().mapToInt(ASTNode::getStartPosition).filter(n -> n >= 0).min().orElse(Integer.MAX_VALUE)) {
-				this.requestor.accept(createKeywordProposal(Keywords.PACKAGE, completionContext.getTokenStart(), completionContext.getTokenEnd()));
+			if (context instanceof CompilationUnit unit) {
+				if (CharOperation.prefixEquals(completionContext.getToken(), Keywords.PACKAGE) &&
+						unit.getPackage() == null &&
+						this.offset <= ((Collection<ASTNode>)unit.imports()).stream().mapToInt(ASTNode::getStartPosition).filter(n -> n >= 0).min().orElse(Integer.MAX_VALUE) &&
+						this.offset <= ((Collection<ASTNode>)unit.types()).stream().mapToInt(ASTNode::getStartPosition).filter(n -> n >= 0).min().orElse(Integer.MAX_VALUE)) {
+					this.requestor.accept(createKeywordProposal(Keywords.PACKAGE, completionContext.getTokenStart(), completionContext.getTokenEnd()));
+				}
+				if (CharOperation.prefixEquals(completionContext.getToken(), Keywords.IMPORT)
+						&& (unit.getPackage() == null
+								|| this.offset >= unit.getPackage().getStartPosition() + unit.getPackage().getLength())
+						&& (unit.types().isEmpty() || this.offset < ((ASTNode)unit.types().get(0)).getStartPosition())) {
+					if (unit.imports().isEmpty()) {
+						this.requestor.accept(createKeywordProposal(Keywords.IMPORT, -1, -1));
+					} else {
+						for (int i = unit.imports().size() - 1; i >= 0; i--) {
+							ImportDeclaration importDeclaration = (ImportDeclaration)unit.imports().get(i);
+							if (this.offset > importDeclaration.getStartPosition() + importDeclaration.getLength()) {
+								if ((importDeclaration.getFlags() & ASTNode.MALFORMED) == 0) {
+									this.requestor.accept(createKeywordProposal(Keywords.IMPORT, -1, -1));
+								}
+								break;
+							}
+						}
+					}
+				}
 			}
 			if (context instanceof MethodRef methodRef) {
 				JavadocMethodReferenceParseState state = JavadocMethodReferenceParseState.BEFORE_IDENTIFIER;
@@ -1879,9 +1901,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					}
 					
 					suggestModifierKeywords(existingModifiers);
-					if (!this.isFailedMatch(this.prefix.toCharArray(), Keywords.CLASS)) {
-						this.requestor.accept(createKeywordProposal(Keywords.CLASS, -1, -1));
-					}
+					suggestClassDeclarationLikeKeywords();
 				}
 				suggestDefaultCompletions = false;
 			}
@@ -2048,6 +2068,23 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			this.requestor.endReporting();
 			if (this.monitor != null) {
 				this.monitor.done();
+			}
+		}
+	}
+	
+	private void suggestClassDeclarationLikeKeywords() {
+		if (!this.isFailedMatch(this.prefix.toCharArray(), Keywords.CLASS)) {
+			this.requestor.accept(createKeywordProposal(Keywords.CLASS, -1, -1));
+		}
+		if (!this.isFailedMatch(this.prefix.toCharArray(), Keywords.INTERFACE)) {
+			this.requestor.accept(createKeywordProposal(Keywords.INTERFACE, -1, -1));
+		}
+		if (!this.isFailedMatch(this.prefix.toCharArray(), Keywords.ENUM)) {
+			this.requestor.accept(createKeywordProposal(Keywords.ENUM, -1, -1));
+		}
+		if (this.unit.getAST().apiLevel() >= AST.JLS14) {
+			if (!this.isFailedMatch(this.prefix.toCharArray(), RestrictedIdentifiers.RECORD)) {
+				this.requestor.accept(createKeywordProposal(RestrictedIdentifiers.RECORD, -1, -1));
 			}
 		}
 	}
@@ -2981,7 +3018,22 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		}
 		keywords.add(Keywords.SUPER);
 		keywords.add(Keywords.NEW);
-		
+
+		{
+			// instanceof must be preceeded by an expression
+			int instanceofCursor = this.toComplete.getStartPosition();
+			while (instanceofCursor > 0 && Character.isWhitespace(this.textContent.charAt(instanceofCursor - 1))) {
+				instanceofCursor--;
+			}
+			ASTNode preceedingNode = NodeFinder.perform(this.unit, instanceofCursor, 0);
+			while (preceedingNode != null && !(preceedingNode instanceof Expression)) {
+				preceedingNode = preceedingNode.getParent();
+			}
+			if (preceedingNode != null) {
+				keywords.add(Keywords.INSTANCEOF);
+			}
+		}
+
 		if (!this.expectedTypes.getExpectedTypes().isEmpty()) {
 			keywords.add(Keywords.NULL);
 		}
@@ -3097,8 +3149,17 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			context = context.getParent();
 		}
 		String prefix = context instanceof Name name ? name.toString() : this.prefix;
-		if (prefix != null && !prefix.isBlank()) {
-			this.nameEnvironment.findPackages(prefix.toCharArray(), this.nestedEngine);
+		if (prefix != null) {
+			prefix = prefix.replace(FAKE_IDENTIFIER, "");
+			if (!prefix.isBlank()) {
+				// IMO we should provide our own ISearchRequestor so that we don't have to mess with CompletionEngine internal state
+				// but this hack should hopefully fix the range
+				if (context instanceof Name name) {
+					this.nestedEngine.startPosition = name.getStartPosition();
+					this.nestedEngine.endPosition = name.getStartPosition() + name.getLength();
+				}
+				this.nameEnvironment.findPackages(prefix.toCharArray(), this.nestedEngine);
+			}
 		}
 	}
 

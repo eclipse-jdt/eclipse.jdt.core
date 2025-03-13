@@ -407,6 +407,9 @@ class JavacConverter {
 		} else {
 			res.setName(toName(select));
 		}
+		if (res.getName().toString().contains(JavacConverter.FAKE_IDENTIFIER)) {
+			res.setFlags(res.getFlags() | ASTNode.MALFORMED);
+		}
 		if (javac.isStatic() || javac.isModule()) {
 			if (this.ast.apiLevel < AST.JLS23_INTERNAL) {
 				if (!javac.isStatic()) {

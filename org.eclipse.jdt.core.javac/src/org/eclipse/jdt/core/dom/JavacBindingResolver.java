@@ -1594,16 +1594,19 @@ public class JavacBindingResolver extends BindingResolver {
 			if (importDeclaration.isStatic()) {
 				com.sun.tools.javac.code.Type type = fieldAccess.getExpression().type;
 				if (type != null) {
-					IBinding binding = Arrays.stream(this.bindings.getTypeBinding(type).getDeclaredMethods())
-						.filter(method -> Objects.equals(fieldAccess.getIdentifier().toString(), method.getName()))
-						.findAny()
-						.orElse(null);
-					if (binding == null) {
-						binding = Arrays.stream(this.bindings.getTypeBinding(type).getDeclaredFields()).filter(
-								field -> Objects.equals(fieldAccess.getIdentifier().toString(), field.getName()))
-								.findAny().orElse(null);
+					ITypeBinding typeBinding = this.bindings.getTypeBinding(type);
+					if (typeBinding != null) {
+						IBinding binding = Arrays.stream(typeBinding.getDeclaredMethods())
+								.filter(method -> Objects.equals(fieldAccess.getIdentifier().toString(), method.getName()))
+								.findAny()
+								.orElse(null);
+						if (binding == null) {
+							binding = Arrays.stream(typeBinding.getDeclaredFields()).filter(
+									field -> Objects.equals(fieldAccess.getIdentifier().toString(), field.getName()))
+									.findAny().orElse(null);
+						}
+						return binding;
 					}
-					return binding;
 				}
 			}
 		}
