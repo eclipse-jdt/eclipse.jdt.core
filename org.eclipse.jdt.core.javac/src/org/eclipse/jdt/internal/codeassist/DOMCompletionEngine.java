@@ -78,6 +78,7 @@ import org.eclipse.jdt.core.dom.ChildPropertyDescriptor;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
@@ -630,8 +631,11 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				} else if (simpleType.getName() instanceof QualifiedName qualifiedName) {
 					context = qualifiedName;
 				}
-			} else if (this.toComplete instanceof Block block && this.offset == block.getStartPosition()) {
-				context = this.toComplete.getParent();
+			} else if (this.toComplete instanceof Block block) {
+				if (this.offset == block.getStartPosition()
+						|| this.offset >= block.getStartPosition() + block.getLength()) {
+					context = this.toComplete.getParent();
+				}
 			} else if (this.toComplete instanceof StringLiteral stringLiteral && (this.offset <= stringLiteral.getStartPosition() || stringLiteral.getStartPosition() + stringLiteral.getLength() <= this.offset)) {
 				context = stringLiteral.getParent();
 			} else if (this.toComplete instanceof VariableDeclaration vd) {
@@ -788,6 +792,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					// }
 					ITypeBinding typeDeclBinding = typeDecl.resolveBinding();
 					findOverridableMethods(typeDeclBinding, this.javaProject, context);
+					if (!isFailedMatch(this.prefix.toCharArray(), Keywords.CLASS)) {
+						this.requestor.accept(createKeywordProposal(Keywords.CLASS, this.toComplete.getStartPosition(), this.offset));
+					}
 					suggestTypeKeywords(true);
 					suggestModifierKeywords(fieldDeclaration.getModifiers());
 					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
@@ -831,6 +838,18 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						}
 					}
 					suggestDefaultCompletions = false;
+				}
+				if (context.getParent() instanceof DoStatement doStatement) {
+					if (doStatement.getBody().getStartPosition() + doStatement.getBody().getLength() < this.offset) {
+						String needsWhileTextArea = this.textContent.substring(doStatement.getBody().getStartPosition() + doStatement.getBody().getLength(),
+								doStatement.getStartPosition() + doStatement.getLength());
+						if (!needsWhileTextArea.contains("while")) {
+							if (!isFailedMatch(this.prefix.toCharArray(), Keywords.WHILE)) {
+								this.requestor.accept(createKeywordProposal(Keywords.WHILE, -1, -1));
+							}
+							suggestDefaultCompletions = false;
+						}
+					}
 				}
 				if (context.getParent() instanceof MarkerAnnotation) {
 					completeMarkerAnnotation(completeAfter);
@@ -1818,6 +1837,21 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					suggestDefaultCompletions = false;
 				}
 			}
+			if (context instanceof TryStatement tryStatement) {
+				if (tryStatement.getBody().getStartPosition() + tryStatement.getBody().getLength() < this.offset) {
+					if (tryStatement.getFinally() == null) {
+						if (!isFailedMatch(this.prefix.toCharArray(), Keywords.FINALLY)) {
+							this.requestor.accept(createKeywordProposal(Keywords.FINALLY, -1, -1));
+						}
+					}
+					if (!isFailedMatch(this.prefix.toCharArray(), Keywords.CATCH)) {
+						this.requestor.accept(createKeywordProposal(Keywords.CATCH, -1, -1));
+					}
+					if (tryStatement.getFinally() == null && tryStatement.catchClauses().isEmpty()) {
+						suggestDefaultCompletions = false;
+					}
+				}
+			}
 			if (context instanceof CompilationUnit) {
 				// recover existing modifiers (they can't exist in the DOM since there is no TypeDeclaration)
 				boolean afterBrokenImport = false;
@@ -1829,7 +1863,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					ImportDeclaration lastImport = (ImportDeclaration)this.unit.imports().get(this.unit.imports().size() - 1);
 					startOffset = lastImport.getStartPosition() + lastImport.getLength();
 
-					if (lastImport.getName().toString().endsWith("$missing$")) {
+					if (lastImport.getName().toString().endsWith(FAKE_IDENTIFIER)) {
 						afterBrokenImport = true;
 					}
 				}
@@ -1897,6 +1931,35 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					if (qualifierBinding != null) {
 						for (ITypeBinding nestedType : qualifierBinding.getDeclaredTypes()) {
 							this.requestor.accept(toProposal(nestedType));
+						}
+					}
+				}
+			}
+			{
+				// If the completion is after a try block without a catch or finally,
+				// we need to disable default completion.
+				ASTNode cursor = this.toComplete;
+				ASTNode parentCursor = this.toComplete.getParent();
+				while (parentCursor != null && !(parentCursor instanceof Block)) {
+					cursor = parentCursor;
+					parentCursor = parentCursor.getParent();
+				}
+				if (parentCursor instanceof Block parentBlock) {
+					int statementIndex = parentBlock.statements().indexOf(cursor);
+					if (statementIndex > 0) {
+						Statement prevStatement = ((List<Statement>)parentBlock.statements()).get(statementIndex - 1);
+						if (prevStatement instanceof TryStatement tryStatement) {
+							if (!isFailedMatch(this.prefix.toCharArray(), Keywords.CATCH)) {
+								this.requestor.accept(createKeywordProposal(Keywords.CATCH, -1, -1));
+							}
+							if (tryStatement.getFinally() == null) {
+								if (!isFailedMatch(this.prefix.toCharArray(), Keywords.FINALLY)) {
+									this.requestor.accept(createKeywordProposal(Keywords.FINALLY, -1, -1));
+								}
+							}
+							if (tryStatement.catchClauses().isEmpty() && tryStatement.getFinally() == null) {
+								suggestDefaultCompletions = false;
+							}
 						}
 					}
 				}
@@ -2892,11 +2955,11 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		boolean isExpressionExpected =
 				(this.toComplete.getParent() instanceof IfStatement ifStatement
 				&& (IfStatement.EXPRESSION_PROPERTY.getId().equals(this.toComplete.getLocationInParent().getId())
-				|| "$missing$".equals(ifStatement.getExpression().toString())))
+				|| FAKE_IDENTIFIER.equals(ifStatement.getExpression().toString())))
 				||
 				(this.toComplete.getParent() instanceof WhileStatement whileStatement
 						&& (WhileStatement.EXPRESSION_PROPERTY.getId().equals(this.toComplete.getLocationInParent().getId())
-						|| "$missing$".equals(whileStatement.getExpression().toString())))
+						|| FAKE_IDENTIFIER.equals(whileStatement.getExpression().toString())))
 				||
 				(this.toComplete.getParent() instanceof Assignment)
 				||
@@ -2914,6 +2977,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			keywords.add(Keywords.THROW);
 			keywords.add(Keywords.TRY);
 			keywords.add(Keywords.FINAL);
+			keywords.add(Keywords.CLASS);
 		}
 		keywords.add(Keywords.SUPER);
 		keywords.add(Keywords.NEW);
