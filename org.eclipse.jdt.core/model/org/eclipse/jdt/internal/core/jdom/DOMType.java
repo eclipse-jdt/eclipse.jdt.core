@@ -516,7 +516,7 @@ void normalize(ILineStartFinder finder) {
 	scanner.resetTo(this.fNameRange[1] + 1, this.fDocument.length);
 
 	try {
-		int currentToken = scanner.getNextToken();
+		TerminalTokens currentToken = scanner.getNextToken();
 		while(currentToken != TerminalTokens.TokenNameLBRACE &&
 				currentToken != TerminalTokens.TokenNameEOF) {
 			currentToken = scanner.getNextToken();
@@ -550,7 +550,7 @@ void normalize(ILineStartFinder finder) {
 		scanner.setSource(this.fDocument);
 		scanner.resetTo(lastNode.getEndPosition() + 1, this.fDocument.length);
 		try {
-			int currentToken = scanner.getNextToken();
+			TerminalTokens currentToken = scanner.getNextToken();
 			while(currentToken != TerminalTokens.TokenNameRBRACE &&
 					currentToken != TerminalTokens.TokenNameEOF) {
 				currentToken = scanner.getNextToken();
@@ -569,7 +569,7 @@ void normalize(ILineStartFinder finder) {
 	} else {
 		scanner.resetTo(openBodyEnd, this.fDocument.length);
 		try {
-			int currentToken = scanner.getNextToken();
+			TerminalTokens currentToken = scanner.getNextToken();
 			while(currentToken != TerminalTokens.TokenNameRBRACE &&
 					currentToken != TerminalTokens.TokenNameEOF) {
 				currentToken = scanner.getNextToken();

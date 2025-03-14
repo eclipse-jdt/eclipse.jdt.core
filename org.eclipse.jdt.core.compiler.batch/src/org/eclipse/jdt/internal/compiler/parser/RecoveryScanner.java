@@ -23,7 +23,7 @@ public class RecoveryScanner extends Scanner {
 
 	private RecoveryScannerData data;
 
-	private int[] pendingTokens;
+	private TerminalTokens[] pendingTokens;
 	private int pendingTokensPtr = -1;
 	private char[] fakeTokenSource = null;
 	private boolean isInserted = true;
@@ -67,20 +67,23 @@ public class RecoveryScanner extends Scanner {
 		setData(data);
 	}
 
-	public void insertToken(int token, int completedToken, int position) {
-		insertTokens(new int []{token}, completedToken, position);
+	public void insertToken(TerminalTokens token, int completedToken, int position) {
+		insertTokens(new TerminalTokens []{token}, completedToken, position);
 	}
 
-	private int[] reverse(int[] tokens) {
+	private TerminalTokens[] reverse(TerminalTokens[] tokens) {
 		int length = tokens.length;
 		for(int i = 0, max = length / 2; i < max; i++) {
-			int tmp = tokens[i];
+			TerminalTokens tmp = tokens[i];
 			tokens[i] = tokens[length - i - 1];
 			tokens[length - i - 1] = tmp;
 		}
 		return filterTokens(tokens);
 	}
 	public void insertTokens(int[] tokens, int completedToken, int position) {
+		insertTokens(mapTokens(tokens), completedToken, position);
+	}
+	public void insertTokens(TerminalTokens[] tokens, int completedToken, int position) {
 		if(!this.record) return;
 		tokens = filterTokens(tokens);
 		if (tokens.length == 0)
@@ -90,12 +93,12 @@ public class RecoveryScanner extends Scanner {
 
 		this.data.insertedTokensPtr++;
 		if(this.data.insertedTokens == null) {
-			this.data.insertedTokens = new int[10][];
+			this.data.insertedTokens = new TerminalTokens[10][];
 			this.data.insertedTokensPosition = new int[10];
 			this.data.insertedTokenUsed = new boolean[10];
 		} else if(this.data.insertedTokens.length == this.data.insertedTokensPtr) {
 			int length = this.data.insertedTokens.length;
-			System.arraycopy(this.data.insertedTokens, 0, this.data.insertedTokens = new int[length * 2][], 0, length);
+			System.arraycopy(this.data.insertedTokens, 0, this.data.insertedTokens = new TerminalTokens[length * 2][], 0, length);
 			System.arraycopy(this.data.insertedTokensPosition, 0, this.data.insertedTokensPosition = new int[length * 2], 0, length);
 			System.arraycopy(this.data.insertedTokenUsed, 0, this.data.insertedTokenUsed = new boolean[length * 2], 0, length);
 		}
@@ -104,42 +107,54 @@ public class RecoveryScanner extends Scanner {
 		this.data.insertedTokenUsed[this.data.insertedTokensPtr] = false;
 	}
 
-	public void insertTokenAhead(int token, int index) {
+	public void insertTokenAhead(TerminalTokens token, int index) {
 		if(!this.record) return;
 		if (token == TerminalTokens.TokenNameRestrictedIdentifierrecord)
 			return;
 		int length = this.data.insertedTokens[index].length;
-		int [] tokens = new int [length + 1];
+		TerminalTokens [] tokens = new TerminalTokens [length + 1];
 		System.arraycopy(this.data.insertedTokens[index], 0, tokens, 1, length);
 		tokens[0] = token;
 		this.data.insertedTokens[index] = tokens;
 	}
 
 	public void replaceTokens(int token, int start, int end) {
-		replaceTokens(new int []{token}, start, end);
+		replaceTokens(new TerminalTokens []{TerminalTokens.of(token)}, start, end);
+	}
+	public void replaceTokens(TerminalTokens token, int start, int end) {
+		replaceTokens(new TerminalTokens []{token}, start, end);
 	}
 
-	int[] filterTokens(int[] tokens) {
+	TerminalTokens[] filterTokens(TerminalTokens[] tokens) {
 //		if (this.sourceLevel >= ClassFileConstants.JDK14)
 //			return tokens;
 		return Arrays.stream(tokens)
 				.filter(x -> x != TerminalTokens.TokenNameRestrictedIdentifierrecord)
-				.toArray();
+				.toArray(TerminalTokens[]::new);
 	}
 	public void replaceTokens(int[] tokens, int start, int end) {
+		TerminalTokens[] mappedTokens = mapTokens(tokens);
+		replaceTokens(mappedTokens, start, end);
+	}
+	private TerminalTokens[] mapTokens(int[] tokens) {
+		TerminalTokens[] mappedTokens = new TerminalTokens[tokens.length];
+		for (int i = 0; i < tokens.length; ++i) mappedTokens[i] = TerminalTokens.of(tokens[i]);
+		return mappedTokens;
+	}
+	public void replaceTokens(TerminalTokens[] tokens, int start, int end) {
 		if(!this.record) return;
 		tokens = filterTokens(tokens);
 		if (tokens.length == 0)
 			return;
 		this.data.replacedTokensPtr++;
 		if(this.data.replacedTokensStart == null) {
-			this.data.replacedTokens = new int[10][];
+			this.data.replacedTokens = new TerminalTokens[10][];
 			this.data.replacedTokensStart = new int[10];
 			this.data.replacedTokensEnd = new int[10];
 			this.data.replacedTokenUsed= new boolean[10];
 		} else if(this.data.replacedTokensStart.length == this.data.replacedTokensPtr) {
 			int length = this.data.replacedTokensStart.length;
-			System.arraycopy(this.data.replacedTokens, 0, this.data.replacedTokens = new int[length * 2][], 0, length);
+			System.arraycopy(this.data.replacedTokens, 0, this.data.replacedTokens = new TerminalTokens[length * 2][], 0, length);
 			System.arraycopy(this.data.replacedTokensStart, 0, this.data.replacedTokensStart = new int[length * 2], 0, length);
 			System.arraycopy(this.data.replacedTokensEnd, 0, this.data.replacedTokensEnd = new int[length * 2], 0, length);
 			System.arraycopy(this.data.replacedTokenUsed, 0, this.data.replacedTokenUsed = new boolean[length * 2], 0, length);
@@ -169,9 +184,9 @@ public class RecoveryScanner extends Scanner {
 	}
 
 	@Override
-	protected int getNextToken0() throws InvalidInputException {
+	protected TerminalTokens getNextToken0() throws InvalidInputException {
 		if(this.pendingTokensPtr > -1) {
-			int pendingToken = this.pendingTokens[this.pendingTokensPtr--];
+			TerminalTokens pendingToken = this.pendingTokens[this.pendingTokensPtr--];
 			if(pendingToken == TerminalTokens.TokenNameIdentifier){
 				this.fakeTokenSource = FAKE_IDENTIFIER;
 			} else {
@@ -192,7 +207,7 @@ public class RecoveryScanner extends Scanner {
 					this.isInserted = true;
 					this.startPosition = this.currentPosition;
 					this.skipNextInsertedTokens = i;
-					int pendingToken = this.pendingTokens[this.pendingTokensPtr--];
+					TerminalTokens pendingToken = this.pendingTokens[this.pendingTokensPtr--];
 					if(pendingToken == TerminalTokens.TokenNameIdentifier){
 						this.fakeTokenSource = FAKE_IDENTIFIER;
 					} else {
@@ -205,7 +220,7 @@ public class RecoveryScanner extends Scanner {
 		}
 
 		int previousLocation = this.currentPosition;
-		int currentToken = super.getNextToken0();
+		TerminalTokens currentToken = super.getNextToken0();
 
 		if(this.data.replacedTokens != null) {
 			for (int i = 0; i <= this.data.replacedTokensPtr; i++) {
@@ -218,7 +233,7 @@ public class RecoveryScanner extends Scanner {
 					this.fakeTokenSource = FAKE_IDENTIFIER;
 					this.isInserted = false;
 					this.currentPosition = this.data.replacedTokensEnd[i] + 1;
-					int pendingToken = this.pendingTokens[this.pendingTokensPtr--];
+					TerminalTokens pendingToken = this.pendingTokens[this.pendingTokensPtr--];
 					if(pendingToken == TerminalTokens.TokenNameIdentifier){
 						this.fakeTokenSource = FAKE_IDENTIFIER;
 					} else {
@@ -289,7 +304,7 @@ public class RecoveryScanner extends Scanner {
 		}
 	}
 
-	public void setPendingTokens(int[] pendingTokens) {
+	public void setPendingTokens(TerminalTokens[] pendingTokens) {
 		this.pendingTokens = pendingTokens;
 		this.pendingTokensPtr = pendingTokens.length - 1;
 	}

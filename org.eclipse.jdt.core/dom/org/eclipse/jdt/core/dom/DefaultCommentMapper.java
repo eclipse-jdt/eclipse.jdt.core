@@ -329,7 +329,7 @@ class DefaultCommentMapper {
 			} else if ((end+1) < previousStart) { // may be equals => then no scan is necessary
 				this.scanner.resetTo(end+1, previousStart);
 				try {
-					int token = this.scanner.getNextToken();
+					TerminalTokens token = this.scanner.getNextToken();
 					if (token != TerminalTokens.TokenNameWHITESPACE || this.scanner.currentPosition != previousStart) {
 						// stop search on condition 3)
 						// if first comment fails, then there's no extended position in fact
@@ -466,7 +466,7 @@ class DefaultCommentMapper {
 			} else if (previousEnd < commentStart) {
 				this.scanner.resetTo(previousEnd, commentStart);
 				try {
-					int token = this.scanner.getNextToken();
+					TerminalTokens token = this.scanner.getNextToken();
 					if (token != TerminalTokens.TokenNameWHITESPACE || this.scanner.currentPosition != commentStart) {
 						// stop search on condition 2)
 						// if first index fails, then there's no extended position in fact...

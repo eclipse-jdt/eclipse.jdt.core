@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.select;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameIdentifier;
+
 /*
  * Scanner aware of a selection range. If finding an identifier which source range is exactly
  * the same, then will record it so that the parser can make use of it.
@@ -20,6 +22,7 @@ package org.eclipse.jdt.internal.codeassist.select;
  * Source positions are zero-based and inclusive.
  */
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
 public class SelectionScanner extends Scanner {
 
@@ -61,9 +64,9 @@ public char[] getCurrentIdentifierSource() {
  * range, we pretend we read an identifier.
  */
 @Override
-public int scanIdentifierOrKeyword() {
+public TerminalTokens scanIdentifierOrKeyword() {
 
-	int id = super.scanIdentifierOrKeyword();
+	TerminalTokens id = super.scanIdentifierOrKeyword();
 
 	// convert completed keyword into an identifier
 	if (id != TokenNameIdentifier
