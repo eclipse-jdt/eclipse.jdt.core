@@ -13067,6 +13067,7 @@ public void testBug250656() {
 		"	}\n" +
 		"}");
 }
+
 /**
  * https://bugs.eclipse.org/559006 - [formatter] Wrong indentation in region after wrapped line
  */
@@ -13391,5 +13392,100 @@ public void testIssue1624() {
 			}
 		}
 		""");
+}
+
+/**
+ * https://bugs.eclipse.org/548910 - Wrong indentation after 'else if ' with newline in condition
+ */
+public void testBug548910() {
+	this.formatterPrefs.page_width = 28;
+	this.formatterPrefs.keep_else_statement_on_same_line = true;
+	String source =
+			"""
+			public class X01 {
+				void f() {
+					if (false
+							|| true) {
+						// good case
+					} else if (false
+							|| true) {
+							// bad case
+						} // fails to align
+				}
+			}
+			""";
+	formatSource(source,
+			"""
+			public class X01 {
+				void f() {
+					if (false
+							|| true) {
+						// good case
+					} else if (false
+							|| true) {
+						// bad case
+					} // fails to align
+				}
+			}
+			""");
+}
+
+public void testBug548910_2() {
+	this.formatterPrefs.page_width = 100;
+	this.formatterPrefs.keep_else_statement_on_same_line = true;
+	this.formatterPrefs.alignment_for_logical_operator = 48;
+	this.formatterPrefs.alignment_for_conditional_expression_chain = 48;
+	String source =
+			"""
+			public class X01 {
+				void f(String methodName, int lineNumber, String[] argumentTypes) {
+					if (argumentTypes.length == 2
+						&& argumentTypes[0].equals("STRING")
+						&& argumentTypes[1].equals("OBJECT_ARRAY")) {
+						checkArrayArgs(methodNode, lineNumber);
+					} else if (argumentTypes.length == 2
+						&& argumentTypes[0].equals("STRING")
+						&& argumentTypes[1].equals("OBJECT")) {
+							checkFixedArityArgs(methodNode, lineNumber);
+						} else if (argumentTypes.length == 3
+							&& argumentTypes[0].equals("STRING")
+							&& argumentTypes[1].equals("OBJECT")
+							&& argumentTypes[2].equals("OBJECT")) {
+								checkFixedArityArgs(methodNode, lineNumber);
+							} else if (argumentTypes.length == 3
+								&& argumentTypes[0].equals("STRING")
+								&& argumentTypes[1].equals("OBJECT_ARRAY")
+								&& argumentTypes[2].equals("THROWABLE")) {
+									checkArrayArgs(methodNode, lineNumber);
+								}
+				}
+			}
+			""";
+	formatSource(source,
+			"""
+			public class X01 {
+				void f(String methodName, int lineNumber, String[] argumentTypes) {
+					if (argumentTypes.length == 2
+							&& argumentTypes[0].equals("STRING")
+							&& argumentTypes[1].equals("OBJECT_ARRAY")) {
+						checkArrayArgs(methodNode, lineNumber);
+					} else if (argumentTypes.length == 2
+							&& argumentTypes[0].equals("STRING")
+							&& argumentTypes[1].equals("OBJECT")) {
+						checkFixedArityArgs(methodNode, lineNumber);
+					} else if (argumentTypes.length == 3
+							&& argumentTypes[0].equals("STRING")
+							&& argumentTypes[1].equals("OBJECT")
+							&& argumentTypes[2].equals("OBJECT")) {
+						checkFixedArityArgs(methodNode, lineNumber);
+					} else if (argumentTypes.length == 3
+							&& argumentTypes[0].equals("STRING")
+							&& argumentTypes[1].equals("OBJECT_ARRAY")
+							&& argumentTypes[2].equals("THROWABLE")) {
+						checkArrayArgs(methodNode, lineNumber);
+					}
+				}
+			}
+			""");
 }
 }
