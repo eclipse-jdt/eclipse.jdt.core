@@ -209,6 +209,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	private ASTNode toComplete;
 	private String textContent;
 	private ExtendsOrImplementsInfo extendsOrImplementsInfo;
+	
+	private Map<String, ITypeHierarchy> typeHierarchyCache = new HashMap<>();
 
 	class Bindings {
 		// those need to be list since the order matters
@@ -4126,7 +4128,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			inSamePackage = type.getPackageFragment().getElementName().isEmpty();
 		}
 		boolean inCatchClause = DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.CATCH_CLAUSE }) != null;
-		boolean subclassesException = DOMCompletionUtil.findInSupers(type, "Ljava/lang/Exception;");
+		boolean subclassesException = DOMCompletionUtil.findInSupers(type, "Ljava/lang/Exception;", this.workingCopyOwner, this.typeHierarchyCache);
 		int relevance = RelevanceConstants.R_DEFAULT
 				+ RelevanceConstants.R_RESOLVED
 				+ RelevanceUtils.computeRelevanceForInteresting(type, expectedTypes)
@@ -4136,7 +4138,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				+ RelevanceUtils.computeRelevanceForQualification(!type.getFullyQualifiedName().startsWith("java.") && !nodeInImports && !fromCurrentCU && !inSamePackage && !typeIsImported, this.prefix, this.qualifiedPrefix)
 				+ (type.getFullyQualifiedName().startsWith("java.") ? RelevanceConstants.R_JAVA_LIBRARY : 0)
 				// sometimes subclasses and superclasses are considered, sometimes they aren't
-				+ (inCatchClause ? RelevanceUtils.computeRelevanceForExpectingType(type, expectedTypes) : RelevanceUtils.simpleComputeRelevanceForExpectingType(type, expectedTypes))
+				+ (inCatchClause ? RelevanceUtils.computeRelevanceForExpectingType(type, expectedTypes, this.workingCopyOwner, this.typeHierarchyCache) : RelevanceUtils.simpleComputeRelevanceForExpectingType(type, expectedTypes))
 				+ RelevanceUtils.computeRelevanceForCaseMatching(this.prefix.toCharArray(), simpleName, this.assistOptions);
 		try {
 			if (type.isAnnotation()) {

@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.codeassist;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -21,6 +22,8 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeHierarchy;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
@@ -145,24 +148,37 @@ public class DOMCompletionUtil {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Returns true if the type indicated by keyOfTypeToFind is a superclass of root.
 	 * 
-	 * @param root the class to begin searching in
-	 * @param keyOfTypeToFind the key of the class to find
+	 * @param root             the class to begin searching in
+	 * @param keyOfTypeToFind  the key of the class to find
+	 * @param workignCopyOwner the working copy owner
+	 * @param hierarchyCache   the cache of existing type hierarchies (rebuilding
+	 *                         the type hierarchy is very expensive)
 	 * @return true if the type indicated by keyOfTypeToFind is a superclass of root
 	 */
-	public static boolean findInSupers(IType root, String keyOfTypeToFind) {
+	public static boolean findInSupers(IType root, String keyOfTypeToFind, WorkingCopyOwner workingCopyOwner, Map<String, ITypeHierarchy> hierarchyCache) {
 		if (root.getKey().equals(keyOfTypeToFind)) {
 			return true;
 		}
-		ITypeHierarchy hierarchy;
 		try {
-			hierarchy = root.newSupertypeHierarchy(new NullProgressMonitor());
-			for (IType superType : hierarchy.getAllSupertypes(root)) {
-				if (superType.getKey().equals(keyOfTypeToFind)) {
-					return true;
+			String signature = SignatureUtils.getSignatureForTypeKey(keyOfTypeToFind);
+			IType typeToFind = root.getJavaProject().findType(Signature.getSignatureQualifier(signature)+ "." + Signature.getSignatureSimpleName(signature));
+			if (typeToFind != null) {
+				ITypeHierarchy hierarchy;
+				if (hierarchyCache.containsKey(keyOfTypeToFind)) {
+					hierarchy = hierarchyCache.get(keyOfTypeToFind);
+				} else {
+					hierarchy = typeToFind.newTypeHierarchy(root.getJavaProject(), workingCopyOwner, new NullProgressMonitor());
+					hierarchyCache.put(keyOfTypeToFind, hierarchy);
+				}
+				
+				for (IType subType : hierarchy.getAllSubtypes(typeToFind)) {
+					if (subType.getKey().equals(root.getKey())) {
+						return true;
+					}
 				}
 			}
 			return false;
@@ -170,5 +186,5 @@ public class DOMCompletionUtil {
 			return false;
 		}
 	}
-	
+
 }

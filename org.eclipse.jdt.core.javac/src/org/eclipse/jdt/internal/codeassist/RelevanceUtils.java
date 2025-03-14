@@ -10,12 +10,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeHierarchy;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -134,7 +137,7 @@ class RelevanceUtils {
 		return 0;
 	}
 	
-	static int computeRelevanceForExpectingType(IType proposalType, ExpectedTypes expectedTypes) {
+	static int computeRelevanceForExpectingType(IType proposalType, ExpectedTypes expectedTypes, WorkingCopyOwner workingCopyOwner, Map<String, ITypeHierarchy> typeHierarchyCache) {
 		if (proposalType != null) {
 			IPackageFragment packageFragment = (IPackageFragment)proposalType.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
 			int relevance = 0;
@@ -145,7 +148,7 @@ class RelevanceUtils {
 			}
 			for (ITypeBinding expectedType : expectedTypes.getExpectedTypes()) {
 				if(expectedTypes.allowsSubtypes()
-						&& DOMCompletionUtil.findInSupers(proposalType, expectedType.getKey())) {
+						&& DOMCompletionUtil.findInSupers(proposalType, expectedType.getKey(), workingCopyOwner, typeHierarchyCache)) {
 					if (expectedType.getKey().equals(proposalType.getKey())) {
 						return RelevanceConstants.R_EXACT_EXPECTED_TYPE;
 						// ??? I'm just guessing on the default packages name here, it might be the empty string
