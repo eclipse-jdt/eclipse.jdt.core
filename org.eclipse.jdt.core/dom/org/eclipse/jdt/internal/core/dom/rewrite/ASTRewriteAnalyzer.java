@@ -523,7 +523,6 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	class ListRewriter {
 		protected String constantSeparator;
 		protected int startPos;
-		protected ASTNode parent;
 		protected int nodeIndentPos;
 
 		protected RewriteEvent[] list;
@@ -631,15 +630,14 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			this.startPos= offset;
 			this.nodeIndentPos= offset;
 			this.list= getEvent(parent, property).getChildren();
-			this.parent= parent;
 
-			if (this.parent.getLocationInParent() == TryStatement.BODY_PROPERTY) {
-				TryStatement tryParent= (TryStatement)this.parent.getParent();
+			if (parent.getLocationInParent() == TryStatement.BODY_PROPERTY) {
+				TryStatement tryParent= (TryStatement)parent.getParent();
 				if (!tryParent.resources().isEmpty()) {
 					List<Expression> resources= tryParent.resources();
 					int lastResourcePos= resources.get(resources.size() - 1).getStartPosition();
 					int lastResourceLine= getLineInformation().getLineOfOffset(lastResourcePos);
-					int blockLine= getLineInformation().getLineOfOffset(this.parent.getStartPosition());
+					int blockLine= getLineInformation().getLineOfOffset(parent.getStartPosition());
 					if (blockLine == lastResourceLine) {
 						this.nodeIndentPos= tryParent.getStartPosition();
 					}
