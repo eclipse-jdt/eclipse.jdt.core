@@ -16,6 +16,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameInvalid;
 import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 
 import java.io.File;
@@ -2236,7 +2237,7 @@ protected void reportAccurateTypeReference(SearchMatch match, ASTNode typeRef, c
 		scanner.setSource(this.currentPossibleMatch.getContents());
 		scanner.resetTo(sourceStart, sourceEnd);
 
-		TerminalTokens token = TerminalTokens.TokenNameInvalid;
+		TerminalTokens token = TokenNameInvalid;
 		int currentPosition;
 		do {
 			currentPosition = scanner.currentPosition;
@@ -2442,7 +2443,7 @@ protected void reportAccurateFieldReference(SearchMatch[] matches, QualifiedName
 
 	int refSourceStart = -1, refSourceEnd = -1;
 	int length = tokens.length;
-	TerminalTokens token = TerminalTokens.TokenNameInvalid;
+	TerminalTokens token = TokenNameInvalid;
 	int previousValid = -1;
 	int i = 0;
 	int index = 0;

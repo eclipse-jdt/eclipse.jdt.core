@@ -8126,7 +8126,7 @@ private int retrieveClosingAngleBracketPosition(int start) {
 					break;
 				case TokenNameLBRACE :
 					break loop;
-				default : // NOP
+				default :
 					break;
 			}
 		}

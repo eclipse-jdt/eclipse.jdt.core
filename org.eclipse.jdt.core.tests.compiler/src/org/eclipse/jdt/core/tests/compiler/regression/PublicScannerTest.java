@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameInvalid;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,7 +79,7 @@ public class PublicScannerTest extends AbstractRegressionTest {
 		list.add(TerminalTokens.TokenNameBeginLambda);
 		list.add(TerminalTokens.TokenNameBeginTypeArguments);
 		list.add(TerminalTokens.TokenNameElidedSemicolonAndRightBrace);
-		list.add(TerminalTokens.TokenNameInvalid);
+		list.add(TokenNameInvalid);
 		SYNTHETIC_SKIP_TOKENS = Collections.unmodifiableList(list);
 
 		list = new ArrayList<>();
@@ -152,7 +154,7 @@ public class PublicScannerTest extends AbstractRegressionTest {
 			if (MODULE_TOKENS.contains(fieldValue)) {
 				continue;
 			}
-			if (fieldValue == TerminalTokens.TokenNameInvalid) {
+			if (fieldValue == TokenNameInvalid) {
 				continue;
 			}
 			this.ps.setNextToken(fieldValue);
@@ -253,7 +255,7 @@ public class PublicScannerTest extends AbstractRegressionTest {
 		}
 
 		void reset() {
-			this.delegate.next = TerminalTokens.TokenNameInvalid;
+			this.delegate.next = TokenNameInvalid;
 			this.nextTokenCalls = 0;
 		}
 
@@ -281,7 +283,7 @@ public class PublicScannerTest extends AbstractRegressionTest {
 				char[][] taskPriorities, boolean isTaskCaseSensitive, boolean isPreviewEnabled) {
 			super(tokenizeComments, tokenizeWhiteSpace, checkNonExternalizedStringLiterals, sourceLevel,
 					complianceLevel, taskTags, taskPriorities, isTaskCaseSensitive, isPreviewEnabled);
-			this.next = TerminalTokens.TokenNameInvalid;
+			this.next = TokenNameInvalid;
 		}
 
 		@Override

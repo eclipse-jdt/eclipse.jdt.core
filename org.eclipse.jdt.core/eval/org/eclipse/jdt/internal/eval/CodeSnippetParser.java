@@ -13,6 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.eval;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameInvalid;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameTWIDDLE;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -194,7 +197,7 @@ protected void consumeClassHeaderName1() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = typeDecl.bodyStart;
 		this.currentElement = this.currentElement.add(typeDecl, 0);
-		this.lastIgnoredToken = TerminalTokens.TokenNameInvalid;
+		this.lastIgnoredToken = TokenNameInvalid;
 	}
 	// javadoc
 	typeDecl.javadoc = this.javadoc;
@@ -822,7 +825,7 @@ protected void reportSyntaxErrors(boolean isDietParse, TerminalTokens oldFirstTo
 	if (!isDietParse) {
 		this.scanner.initialPosition = this.lastStatement;
 		this.scanner.eofPosition = this.codeSnippetEnd + 1; // stop after expression
-		oldFirstToken = TerminalTokens.TokenNameTWIDDLE;//TokenNameREMAINDER; // first token of th expression parse
+		oldFirstToken = TokenNameTWIDDLE;//TokenNameREMAINDER; // first token of th expression parse
 	}
 	super.reportSyntaxErrors(isDietParse, oldFirstToken);
 }

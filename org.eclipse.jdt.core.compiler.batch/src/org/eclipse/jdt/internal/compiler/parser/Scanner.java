@@ -3228,7 +3228,7 @@ public void recordComment(TerminalTokens token) {
 			isMarkdown = true;
 			break;
 		default:
-			// NOP
+			break;
 	}
 
 	// a new comment is recorded
@@ -3300,7 +3300,7 @@ final void addTokenToLookBack(TerminalTokens newToken) {
 		case TokenNameCOMMENT_JAVADOC:
 			return;
 		default:
-			// NOP
+			break;
 	}
 	if (newToken == TokenNamecase)
 		this.scanningSwitchLabel = true;
@@ -5622,7 +5622,7 @@ TerminalTokens disambiguatedRestrictedKeyword(TerminalTokens restrictedKeywordTo
 			}
 			break;
 		default:
-			// NOP
+			break;
 	}
 	return token;
 }
