@@ -28,7 +28,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testRecPatExhaust018" };
+//		TESTS_NAMES = new String[] { "testRecPatTypeInfer_001" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -4920,5 +4920,30 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"""
 			},
 			"012012345678");
+	}
+	public void testRecPatTypeInfer_001() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				interface I<T> {}
+				record R<T>(T t) {}
+
+				public class X  {
+
+				    static <T> boolean foo(R<T> y) {
+				       if (y.t() instanceof R(var v)) {
+				            var t = new R<>(v);
+				            R<Object> r = t;
+				            return true;
+				        }
+				        return false;
+				    }
+				    public static void main(String argv[]) {
+				        System.out.println(foo(new R<R<Object>>(new R<>(new X()))));
+				    }
+				}
+				"""
+				},
+				"true");
 	}
 }
