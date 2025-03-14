@@ -263,8 +263,7 @@ public FieldBinding addSyntheticFieldForInnerclass(LocalVariableBinding actualOu
 			actualOuterLocalVariable.type,
 			ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal | ClassFileConstants.AccSynthetic,
 			this,
-			Constant.NotAConstant,
-			this.synthetics[SourceTypeBinding.FIELD_EMUL].size());
+			Constant.NotAConstant);
 		this.synthetics[SourceTypeBinding.FIELD_EMUL].put(actualOuterLocalVariable, synthField);
 	}
 
@@ -314,8 +313,7 @@ public FieldBinding addSyntheticFieldForInnerclass(ReferenceBinding enclosingTyp
 			enclosingType,
 			ClassFileConstants.AccDefault | ClassFileConstants.AccFinal | ClassFileConstants.AccSynthetic,
 			this,
-			Constant.NotAConstant,
-			this.synthetics[SourceTypeBinding.FIELD_EMUL].size());
+			Constant.NotAConstant);
 		this.synthetics[SourceTypeBinding.FIELD_EMUL].put(enclosingType, synthField);
 	}
 	// ensure there is not already such a field defined by the user
@@ -345,6 +343,26 @@ public FieldBinding addSyntheticFieldForInnerclass(ReferenceBinding enclosingTyp
 	} while (needRecheck);
 	return synthField;
 }
+public FieldBinding addSyntheticFieldForRecordComponent() {
+	if (!isPrototype()) throw new IllegalStateException();
+
+	if (this.synthetics == null)
+		this.synthetics = new LinkedHashMap[MAX_SYNTHETICS];
+	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
+		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new LinkedHashMap(5);
+
+	FieldBinding synthField = (FieldBinding) this.synthetics[SourceTypeBinding.FIELD_EMUL].get("assertionEmulation"); //$NON-NLS-1$
+	if (synthField == null) {
+		synthField = new SyntheticFieldBinding(
+			TypeConstants.SYNTHETIC_ASSERT_DISABLED,
+			TypeBinding.BOOLEAN,
+			(isInterface() ? ClassFileConstants.AccPublic : ClassFileConstants.AccDefault) | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic | ClassFileConstants.AccFinal,
+			this,
+			Constant.NotAConstant);
+		this.synthetics[SourceTypeBinding.FIELD_EMUL].put("assertionEmulation", synthField); //$NON-NLS-1$
+	}
+	return synthField;
+}
 /* Add a new synthetic field for the emulation of the assert statement.
 *	Answer the new field or the existing field if one already existed.
 */
@@ -364,8 +382,7 @@ public FieldBinding addSyntheticFieldForAssert(BlockScope blockScope) {
 			TypeBinding.BOOLEAN,
 			(isInterface() ? ClassFileConstants.AccPublic : ClassFileConstants.AccDefault) | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic | ClassFileConstants.AccFinal,
 			this,
-			Constant.NotAConstant,
-			this.synthetics[SourceTypeBinding.FIELD_EMUL].size());
+			Constant.NotAConstant);
 		this.synthetics[SourceTypeBinding.FIELD_EMUL].put("assertionEmulation", synthField); //$NON-NLS-1$
 	}
 	// ensure there is not already such a field defined by the user
@@ -410,8 +427,7 @@ public FieldBinding addSyntheticFieldForEnumValues() {
 			this.scope.createArrayType(this,1),
 			ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic | ClassFileConstants.AccFinal,
 			this,
-			Constant.NotAConstant,
-			this.synthetics[SourceTypeBinding.FIELD_EMUL].size());
+			Constant.NotAConstant);
 		this.synthetics[SourceTypeBinding.FIELD_EMUL].put("enumConstantValues", synthField); //$NON-NLS-1$
 	}
 	// ensure there is not already such a field defined by the user
@@ -504,8 +520,7 @@ public SyntheticFieldBinding addSyntheticFieldForSwitchEnum(char[] fieldName, St
 			this.scope.createArrayType(TypeBinding.INT,1),
 			(isInterface() ? (ClassFileConstants.AccPublic | ClassFileConstants.AccFinal) : ClassFileConstants.AccPrivate | ClassFileConstants.AccVolatile) | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic,
 			this,
-			Constant.NotAConstant,
-			this.synthetics[SourceTypeBinding.FIELD_EMUL].size());
+			Constant.NotAConstant);
 		this.synthetics[SourceTypeBinding.FIELD_EMUL].put(key, synthField);
 	}
 	// ensure there is not already such a field defined by the user
@@ -3188,12 +3203,11 @@ public FieldBinding[] syntheticFields() {
 	if (fieldSize == 0) return null;
 	FieldBinding[] bindings = new FieldBinding[fieldSize];
 
-	// add innerclass synthetics
 	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] != null) {
 		Iterator elements = this.synthetics[SourceTypeBinding.FIELD_EMUL].values().iterator();
 		for (int i = 0; i < fieldSize; i++) {
 			SyntheticFieldBinding synthBinding = (SyntheticFieldBinding) elements.next();
-			bindings[synthBinding.index] = synthBinding;
+			bindings[i] = synthBinding;
 		}
 	}
 	return bindings;
