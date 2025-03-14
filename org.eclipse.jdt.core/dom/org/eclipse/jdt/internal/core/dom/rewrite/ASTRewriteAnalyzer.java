@@ -1027,7 +1027,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						endPos= getExtendedEnd(node);
 						if (endPos != previousEnd) {
 							// check if the end is a comment
-							TerminalTokens token = TerminalTokens.TokenNameEOF; // Refactored - was TokenScanner.END_OF_FILE -- shoudln't be possible
+							TerminalTokens token = TerminalTokens.TokenNameNotAToken; // Sentinel value - was TokenScanner.END_OF_FILE before refactor
 							try {
 								token = getScanner().readNext(previousEnd, false);
 							} catch(CoreException e) {
