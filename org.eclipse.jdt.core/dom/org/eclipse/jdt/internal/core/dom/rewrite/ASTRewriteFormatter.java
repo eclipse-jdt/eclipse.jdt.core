@@ -168,10 +168,11 @@ public final class ASTRewriteFormatter {
 	 *
 	 * @param node The node to flatten.
 	 * @param initialIndentationLevel The initial indentation level.
+	 * @param minimumIndentInSpaces The minimum indent to use in spaces
 	 * @param resultingMarkers Resulting the updated NodeMarkers.
 	 * @return Returns the serialized and formatted code.
 	 */
-	public String getFormattedResult(ASTNode node, int initialIndentationLevel, Collection resultingMarkers) {
+	public String getFormattedResult(ASTNode node, int initialIndentationLevel, int minimumIndentInSpaces, Collection resultingMarkers) {
 
 		ExtendedFlattener flattener= new ExtendedFlattener(this.eventStore);
 		node.accept(flattener);
@@ -180,11 +181,15 @@ public final class ASTRewriteFormatter {
 		Collections.addAll(resultingMarkers, markers);
 
 		String unformatted= flattener.getResult();
-		TextEdit edit= formatNode(node, unformatted, initialIndentationLevel);
+		TextEdit edit= formatNode(node, unformatted, initialIndentationLevel, minimumIndentInSpaces);
 		if (edit == null) {
 		    if (initialIndentationLevel > 0) {
 		        // at least correct the indent
 		        String indentString = createIndentString(initialIndentationLevel);
+		        int indentInSpaces= computeIndentInSpaces(indentString);
+		        if (indentInSpaces < minimumIndentInSpaces) {
+		        	indentString = " ".repeat(minimumIndentInSpaces - indentInSpaces) + indentString; //$NON-NLS-1$
+		        }
 				ReplaceEdit[] edits = IndentManipulation.getChangeIndentEdits(unformatted, 0, this.tabWidth, this.indentWidth, indentString);
 				edit= new MultiTextEdit();
 				edit.addChild(new InsertEdit(0, indentString));
@@ -200,11 +205,28 @@ public final class ASTRewriteFormatter {
     	return ToolFactory.createCodeFormatter(this.options).createIndentationString(indentationUnits);
     }
 
-	public String getIndentString(String currentLine) {
+    public String createIndentString(int indentationUnits, int minimumIndentInSpaces) {
+    	String indent= ToolFactory.createCodeFormatter(this.options).createIndentationString(indentationUnits);
+    	int indentInSpaces= computeIndentInSpaces(indent);
+    	if (indentInSpaces < minimumIndentInSpaces) {
+    		indent= indent + " ".repeat(minimumIndentInSpaces - indentInSpaces); //$NON-NLS-1$
+    	}
+    	return indent;
+    }
+
+    public String getIndentString(String currentLine) {
 		return IndentManipulation.extractIndentString(currentLine, this.tabWidth, this.indentWidth);
 	}
 
-	public String changeIndent(String code, int codeIndentLevel, String newIndent) {
+    public String getIndentStringWithSpaces(String currentLine) {
+    	int count= 0;
+    	while (count < currentLine.length() && IndentManipulation.isIndentChar(currentLine.charAt(count))) {
+    		++count;
+    	}
+    	return currentLine.substring(0, count);
+    }
+
+    public String changeIndent(String code, int codeIndentLevel, String newIndent) {
 		return IndentManipulation.changeIndent(code, codeIndentLevel, this.tabWidth, this.indentWidth, newIndent, this.lineDelimiter);
 	}
 
@@ -237,7 +259,7 @@ public final class ASTRewriteFormatter {
 			return doc.get();
 		} catch (BadLocationException e) {
 			//JavaPlugin.log(e); // bug in the formatter
-			Assert.isTrue(false, "Fromatter created edits with wrong positions: " + e.getMessage()); //$NON-NLS-1$
+			Assert.isTrue(false, "Formatter created edits with wrong positions: " + e.getMessage()); //$NON-NLS-1$
 		}
 		return null;
 	}
@@ -250,11 +272,13 @@ public final class ASTRewriteFormatter {
 	 * Creates edits that describe how to format the given string. Returns <code>null</code> if the code could not be formatted for the given kind.
 	 * @param node Node describing the type of the string
 	 * @param str The unformatted string
+	 * @param indentationLevel Indentation level in tab widths
+	 * @param minimumIndentInSpaces Minimum indent of item in spaces
 	 * @return Returns the edit representing the result of the formatter
 	 * @throws IllegalArgumentException If the offset and length are not inside the string, a
 	 *  IllegalArgumentException is thrown.
 	 */
-	private TextEdit formatNode(ASTNode node, String str, int indentationLevel) {
+	private TextEdit formatNode(ASTNode node, String str, int indentationLevel, int minimumIndentInSpaces) {
 		int code;
 		String prefix= ""; //$NON-NLS-1$
 		String suffix= ""; //$NON-NLS-1$
