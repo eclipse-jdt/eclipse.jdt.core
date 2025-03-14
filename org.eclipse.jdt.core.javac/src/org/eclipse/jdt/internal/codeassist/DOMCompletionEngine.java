@@ -72,6 +72,7 @@ import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.ChildPropertyDescriptor;
@@ -790,17 +791,25 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			}
 			if (context instanceof SimpleName) {
 				if (context.getParent() instanceof SimpleType simpleType
-						&& simpleType.getParent() instanceof FieldDeclaration fieldDeclaration
-						&& fieldDeclaration.getParent() instanceof AbstractTypeDeclaration typeDecl) {
+						&& (simpleType.getParent() instanceof FieldDeclaration || (simpleType.getParent() instanceof MethodDeclaration methodDecl && methodDecl.getReturnType2() == simpleType))
+						&& (simpleType.getParent().getParent() instanceof AbstractTypeDeclaration || simpleType.getParent().getParent() instanceof AnonymousClassDeclaration)) {
 					// eg.
 					// public class Foo {
 					//     ba|
 					// }
-					ITypeBinding typeDeclBinding = typeDecl.resolveBinding();
+					BodyDeclaration bodyDeclaration = (BodyDeclaration)simpleType.getParent();
+					
+					ITypeBinding typeDeclBinding;
+					if (simpleType.getParent().getParent() instanceof AbstractTypeDeclaration typeDecl) {
+						typeDeclBinding = typeDecl.resolveBinding();
+					} else {
+						typeDeclBinding = ((AnonymousClassDeclaration)simpleType.getParent().getParent()).resolveBinding();
+					}
+					
 					findOverridableMethods(typeDeclBinding, this.javaProject, context);
 					suggestClassDeclarationLikeKeywords();
 					suggestTypeKeywords(true);
-					suggestModifierKeywords(fieldDeclaration.getModifiers());
+					suggestModifierKeywords(bodyDeclaration.getModifiers());
 					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 						findTypes(this.prefix, IJavaSearchConstants.TYPE, null)
 							// don't care about annotations
@@ -3428,18 +3437,29 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 	private void findOverridableMethods(ITypeBinding typeBinding, IJavaProject javaProject, ASTNode toReplace) {
 		String originalPackageKey = typeBinding.getPackage().getKey();
+		
+		String currentPackageName = this.unit.getPackage() != null ? this.unit.getPackage().getName().toString() : "";
+		List<ITypeBinding> importedTypes = this.unit.imports().stream() //
+				.map(importDecl -> ((ImportDeclaration)importDecl).resolveBinding()) //
+				.filter(ITypeBinding.class::isInstance).map(ITypeBinding.class::cast) //
+				.toList();
 		Set<String> alreadySuggestedMethodKeys = new HashSet<>();
+		for (IMethodBinding declaredMethod : typeBinding.getDeclaredMethods()) {
+			alreadySuggestedMethodKeys.add(KeyUtils.getMethodKeyWithOwnerTypeAndReturnTypeRemoved(declaredMethod.getKey()));
+		}
 		if (typeBinding.getSuperclass() != null) {
-			findOverridableMethods0(typeBinding.getSuperclass(), alreadySuggestedMethodKeys, javaProject, originalPackageKey, toReplace);
+			findOverridableMethods0(typeBinding, typeBinding.getSuperclass(), alreadySuggestedMethodKeys, javaProject, originalPackageKey, currentPackageName, importedTypes, toReplace);
 		}
 		for (ITypeBinding superInterface : typeBinding.getInterfaces()) {
-			findOverridableMethods0(superInterface, alreadySuggestedMethodKeys, javaProject, originalPackageKey, toReplace);
+			findOverridableMethods0(typeBinding, superInterface, alreadySuggestedMethodKeys, javaProject, originalPackageKey, currentPackageName, importedTypes, toReplace);
 		}
 	}
 
-	private void findOverridableMethods0(ITypeBinding typeBinding, Set<String> alreadySuggestedKeys, IJavaProject javaProject, String originalPackageKey, ASTNode toReplace) {
+	private void findOverridableMethods0(ITypeBinding currentType, ITypeBinding typeBinding, Set<String> alreadySuggestedKeys, IJavaProject javaProject, String originalPackageKey,
+			String currentPackageName, List<ITypeBinding> importedTypes, ASTNode toReplace) {
 		next : for (IMethodBinding method : typeBinding.getDeclaredMethods()) {
-			if (alreadySuggestedKeys.contains(method.getKey())) {
+			String cleanedMethodKey = KeyUtils.getMethodKeyWithOwnerTypeAndReturnTypeRemoved(method.getKey());
+			if (alreadySuggestedKeys.contains(cleanedMethodKey)) {
 				continue next;
 			}
 			if (method.isSynthetic() || method.isConstructor()
@@ -3449,7 +3469,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					|| ((method.getModifiers() & (Modifier.PUBLIC | Modifier.PRIVATE | Modifier.PROTECTED)) == 0) && !typeBinding.getPackage().getKey().equals(originalPackageKey)) {
 				continue next;
 			}
-			alreadySuggestedKeys.add(method.getKey());
+			alreadySuggestedKeys.add(cleanedMethodKey);
 			if (Modifier.isFinal(method.getModifiers())) {
 				continue next;
 			}
@@ -3469,26 +3489,32 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			proposal.setDeclarationSignature(SignatureUtils.getSignatureChar(method.getDeclaringClass()));
 			proposal.setKey(method.getKey().toCharArray());
 			proposal.setSignature(SignatureUtils.getSignatureChar(method));
-			proposal.setParameterNames(Stream.of(method.getParameterNames()).map(name -> name.toCharArray()).toArray(char[][]::new));
+			
+			try {
+				proposal.setParameterNames(Stream.of(((IMethod)method.getJavaElement()).getParameterNames()).map(name -> name.toCharArray()).toArray(char[][]::new));
+			} catch (JavaModelException e) {
+				proposal.setParameterNames(Stream.of(method.getParameterNames()).map(name -> name.toCharArray()).toArray(char[][]::new));
+			}
 
 			int relevance = RelevanceConstants.R_DEFAULT
 					+ RelevanceConstants.R_RESOLVED
 					+ RelevanceConstants.R_INTERESTING
 					+ RelevanceConstants.R_METHOD_OVERIDE
 					+ (Modifier.isAbstract(method.getModifiers()) ? RelevanceConstants.R_ABSTRACT_METHOD : 0)
-					+ RelevanceConstants.R_NON_RESTRICTED;
+					+ RelevanceConstants.R_NON_RESTRICTED
+					+ RelevanceUtils.computeRelevanceForCaseMatching(this.prefix.toCharArray(), method.getName().toCharArray(), this.assistOptions);
 			proposal.setRelevance(relevance);
 
 			StringBuilder completion = new StringBuilder();
-			DOMCompletionEngineBuilder.createMethod(method, completion);
+			DOMCompletionEngineBuilder.createMethod(method, completion, currentType, importedTypes, currentPackageName);
 			proposal.setCompletion(completion.toString().toCharArray());
 			this.requestor.accept(proposal);
 		}
 		if (typeBinding.getSuperclass() != null) {
-			findOverridableMethods0(typeBinding.getSuperclass(), alreadySuggestedKeys, javaProject, originalPackageKey, toReplace);
+			findOverridableMethods0(currentType, typeBinding.getSuperclass(), alreadySuggestedKeys, javaProject, originalPackageKey, currentPackageName, importedTypes, toReplace);
 		}
 		for (ITypeBinding superInterface : typeBinding.getInterfaces()) {
-			findOverridableMethods0(superInterface, alreadySuggestedKeys, javaProject, originalPackageKey, toReplace);
+			findOverridableMethods0(currentType, superInterface, alreadySuggestedKeys, javaProject, originalPackageKey, currentPackageName, importedTypes, toReplace);
 		}
 	}
 

@@ -13,6 +13,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist;
 
+import java.util.List;
+
+import org.eclipse.jdt.core.Flags;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -26,8 +31,10 @@ class DOMCompletionEngineBuilder {
 	private static final String EXTENDS = "extends"; //$NON-NLS-1$
 	private static final String THROWS = "throws"; //$NON-NLS-1$
 	private static final String SUPER = "super"; //$NON-NLS-1$
+	
+	private static final String JAVA_LANG_PKG = "java.lang.";
 
-	static void createMethod(IMethodBinding methodBinding, StringBuilder completion) {
+	static void createMethod(IMethodBinding methodBinding, StringBuilder completion, ITypeBinding currentType, List<ITypeBinding> importedTypes, String currentPackage) {
 
 		// Modifiers
 		// flush uninteresting modifiers
@@ -47,14 +54,14 @@ class DOMCompletionEngineBuilder {
 					completion.append(',');
 					completion.append(' ');
 				}
-				createTypeVariable(typeVariableBindings[i], completion);
+				createTypeVariable(typeVariableBindings[i], completion, currentType, importedTypes, currentPackage);
 			}
 			completion.append('>');
 			completion.append(' ');
 		}
 
 		// Return type
-		createType(methodBinding.getReturnType(), completion);
+		createType(methodBinding.getReturnType(), completion, currentType, importedTypes, currentPackage);
 		completion.append(' ');
 
 		// Selector (name)
@@ -64,14 +71,19 @@ class DOMCompletionEngineBuilder {
 
 		// Parameters
 		ITypeBinding[] parameterTypes = methodBinding.getParameterTypes();
-		String[] parameterNames = methodBinding.getParameterNames();
+		String[] parameterNames;
+		try {
+			parameterNames = ((IMethod)methodBinding.getJavaElement()).getParameterNames();
+		} catch (JavaModelException e) {
+			parameterNames = methodBinding.getParameterNames();
+		}
 		int length = parameterTypes.length;
 		for (int i = 0; i < length; i++) {
 			if (i != 0) {
 				completion.append(',');
 				completion.append(' ');
 			}
-			createType(parameterTypes[i], completion);
+			createType(parameterTypes[i], completion, currentType, importedTypes, currentPackage);
 			completion.append(' ');
 			if (parameterNames != null) {
 				completion.append(parameterNames[i]);
@@ -94,42 +106,42 @@ class DOMCompletionEngineBuilder {
 					completion.append(' ');
 					completion.append(',');
 				}
-				createType(exceptions[i], completion);
+				createType(exceptions[i], completion, currentType, importedTypes, currentPackage);
 			}
 		}
 	}
 
-	static void createType(ITypeBinding type, StringBuilder completion) {
+	static void createType(ITypeBinding type, StringBuilder completion, ITypeBinding currentType, List<ITypeBinding> importedTypes, String currentPackage) {
 		if (type.isWildcardType() || type.isIntersectionType()) {
 			completion.append('?');
 			if (type.isUpperbound() && type.getBound() != null) {
 				completion.append(' ');
 				completion.append(EXTENDS);
 				completion.append(' ');
-				createType(type.getBound(), completion);
+				createType(type.getBound(), completion, currentType, importedTypes, currentPackage);
 				if (type.getTypeBounds() != null) {
 					for (ITypeBinding bound : type.getTypeBounds()) {
 						completion.append(' ');
 						completion.append('&');
 						completion.append(' ');
-						createType(bound, completion);
+						createType(bound, completion, currentType, importedTypes, currentPackage);
 					}
 				}
 			} else if (type.getBound() != null) {
 				completion.append(' ');
 				completion.append(SUPER);
 				completion.append(' ');
-				createType(type.getBound(), completion);
+				createType(type.getBound(), completion, currentType, importedTypes, currentPackage);
 			}
 		} else if (type.isArray()) {
-			createType(type.getElementType(), completion);
+			createType(type.getElementType(), completion, currentType, importedTypes, currentPackage);
 			int dim = type.getDimensions();
 			for (int i = 0; i < dim; i++) {
 				completion.append("[]"); //$NON-NLS-1$
 			}
 		} else if (type.isParameterizedType()) {
 			if (type.isMember()) {
-				createType(type.getDeclaringClass(), completion);
+				createType(type.getDeclaringClass(), completion, currentType, importedTypes, currentPackage);
 				completion.append('.');
 				completion.append(type.getName());
 			} else {
@@ -141,16 +153,38 @@ class DOMCompletionEngineBuilder {
 				for (int i = 0, length = typeArguments.length; i < length; i++) {
 					if (i != 0)
 						completion.append(',');
-					createType(typeArguments[i], completion);
+					createType(typeArguments[i], completion, currentType, importedTypes, currentPackage);
 				}
 				completion.append('>');
 			}
 		} else {
-			completion.append(type.getQualifiedName());
+			boolean appended = false;
+			for (ITypeBinding importedType : importedTypes) {
+				if (importedType.getKey().equals(type.getErasure().getKey())) {
+					completion.append(type.getName());
+					appended = true;
+					break;
+				}
+			}
+			ITypeBinding firstMatchingInheritedMemberType = getFirstMatchingInheritedMemberType(currentType, type.getName());
+			if (firstMatchingInheritedMemberType != null && firstMatchingInheritedMemberType.getKey().equals(type.getKey())) {
+				completion.append(type.getName());
+				appended = true;
+			}
+			if (!appended) {
+				String qualifiedName = type.getQualifiedName();
+				String packageName = type.getPackage() != null ? type.getPackage().getName() : "";
+				if (qualifiedName.startsWith(JAVA_LANG_PKG)) {
+					qualifiedName = qualifiedName.substring(JAVA_LANG_PKG.length());
+				} else if (!packageName.isEmpty() && currentPackage.startsWith(packageName)) {
+					qualifiedName = qualifiedName.substring(packageName.length() + 1);
+				}
+				completion.append(qualifiedName);
+			}
 		}
 	}
 
-	static void createTypeVariable(ITypeBinding typeVariable, StringBuilder completion) {
+	static void createTypeVariable(ITypeBinding typeVariable, StringBuilder completion, ITypeBinding currentType, List<ITypeBinding> importedTypes, String currentPackage) {
 		completion.append(typeVariable.getName());
 
 		if (typeVariable.getSuperclass() != null
@@ -158,7 +192,7 @@ class DOMCompletionEngineBuilder {
 			completion.append(' ');
 			completion.append(EXTENDS);
 			completion.append(' ');
-			createType(typeVariable.getSuperclass(), completion);
+			createType(typeVariable.getSuperclass(), completion, currentType, importedTypes, currentPackage);
 		}
 		if (typeVariable.getInterfaces() != null) {
 			if (!typeVariable.getTypeBounds()[0].getKey().equals(typeVariable.getSuperclass().getKey())) {
@@ -172,9 +206,25 @@ class DOMCompletionEngineBuilder {
 					completion.append(EXTENDS);
 					completion.append(' ');
 				}
-				createType(typeVariable.getInterfaces()[i], completion);
+				createType(typeVariable.getInterfaces()[i], completion, currentType, importedTypes, currentPackage);
 			}
 		}
+	}
+
+	static ITypeBinding getFirstMatchingInheritedMemberType(ITypeBinding typeBinding, String typeName) {
+		return getFirstMatchingInheritedMemberType(typeBinding, typeName, true);
+	}
+
+	static ITypeBinding getFirstMatchingInheritedMemberType(ITypeBinding typeBinding, String typeName, boolean canUsePrivate) {
+		for (ITypeBinding memberType : typeBinding.getDeclaredTypes()) {
+			if (typeName.equals(memberType.getName()) && (canUsePrivate || !Flags.isPrivate(memberType.getModifiers()))) {
+				return memberType;
+			}
+		}
+		if (typeBinding.getSuperclass() != null) {
+			return getFirstMatchingInheritedMemberType(typeBinding.getSuperclass(), typeName, false);
+		}
+		return null;
 	}
 
 }
