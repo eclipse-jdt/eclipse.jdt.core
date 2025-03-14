@@ -34,6 +34,7 @@ import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
+import org.eclipse.jdt.core.dom.JdtCoreDomPackagePrivateUtility;
 import org.eclipse.jdt.core.dom.LabeledStatement;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
@@ -58,6 +59,7 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 	private TypeReferenceLocator locator;
 	private List<IJavaElement> foundElements = new ArrayList<>();
 	private Set<org.eclipse.jdt.core.dom.Name> imports = new HashSet<>();
+	private MatchLocator matchLocator = null;
 	
 	public DOMTypeReferenceLocator(TypeReferenceLocator locator) {
 		super(locator.pattern);
@@ -76,6 +78,7 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 	}
 	@Override
 	public LocatorResponse match(Name name, NodeSetWrapper nodeSet, MatchLocator locator) {
+		this.matchLocator = locator;
 		if (name.getParent() instanceof AbstractTypeDeclaration) {
 			return toResponse(IMPOSSIBLE_MATCH);
 		}
@@ -124,6 +127,7 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 	}
 	@Override
 	public LocatorResponse match(org.eclipse.jdt.core.dom.ASTNode node, NodeSetWrapper nodeSet, MatchLocator locator) {
+		this.matchLocator = locator;
 		if (failsFineGrain(node, this.locator.fineGrain())) {
 			return toResponse(IMPOSSIBLE_MATCH);
 		}
@@ -169,6 +173,7 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 	
 	@Override
 	public LocatorResponse match(Type node, NodeSetWrapper nodeSet, MatchLocator locator) {
+		this.matchLocator = locator;
 		if (failsFineGrain(node, this.locator.fineGrain())) {
 			return toResponse(IMPOSSIBLE_MATCH);
 		}
@@ -204,6 +209,15 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 					r1 = matchTypeNodeReturnComponent(node, patternQualifiedString, fqqn, defaultLevel);
 					if( r1 != null ) return r1;
 				}
+//			} else {
+//				String[] qualifiedNameFromNodeSegments = qualifiedNameFromNode.split("\\.");
+//				String first = qualifiedNameFromNodeSegments == null ? null : qualifiedNameFromNodeSegments.length == 0 ? null : qualifiedNameFromNodeSegments[0];
+//				String fqqnImport = fqqnFromImport(first);
+//				if( fqqnImport != null ) {
+//					String fqqn = fqqnImport + qualifiedNameFromNode.substring(first.length());
+//					r1 = matchTypeNodeReturnComponent(node, qualifiedNameFromNode, fqqn, defaultLevel);
+//					if( r1 != null ) return r1;
+//				}
 			}
 		} else if (simpleNameFromNode != null ) {
 			if( this.locator.matchesName(this.locator.pattern.simpleName, simpleNameFromNode.toCharArray()) ) {
@@ -284,22 +298,18 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 				}
 				for( int j = 0; j < thisLevelTypeParams.length; j++ ) {
 					String typeFromPattern = new String(thisLevelTypeParams[j]);
+					IBinding patternTypeBinding = JdtCoreDomPackagePrivateUtility.findBindingForType(node, typeFromPattern);
 					IBinding b = DOMASTNodeUtils.getBinding((ASTNode)typeArgs.get(j));
 					String sig = b == null ? null : b instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : b.getKey();
 					if( sig.startsWith("+") && b instanceof ITypeBinding tb) {
-						boolean isQuestionMark = "+Ljava/lang/Object;".equals(sig);
-						if( isQuestionMark ) {
-							// TODO - if pattern is <Unresolved1,Unresolved2> we must return no_match
-							continue;
+						boolean canContinue = validateOneTypeParameterExtends(typeFromPattern, sig, tb, patternTypeBinding);
+						if( !canContinue) {
+							return TYPE_PARAMS_COUNT_MATCH;
 						}
-						String remaining = sig.substring(1);
-						ITypeBinding[] bounds = tb.getTypeBounds();
-						if( bounds != null && bounds.length == 1 && bounds[0] != null ) {
-							ITypeBinding b1 = bounds[0];
-							String boundSig = b1 == null ? null : b1 instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : b1.getKey();
-							if( !typeFromPattern.equals(boundSig)) {
-								return TYPE_PARAMS_COUNT_MATCH;
-							}
+					} else if( sig.startsWith("-") && b instanceof ITypeBinding tb) { 
+						boolean canContinue = validateOneTypeParameterSuper(typeFromPattern, sig, tb, patternTypeBinding);
+						if( !canContinue) {
+							return TYPE_PARAMS_COUNT_MATCH;
 						}
 					} else if( !typeFromPattern.equals(sig)) {
 						return TYPE_PARAMS_COUNT_MATCH;
@@ -322,6 +332,69 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		}
 		return TYPE_PARAMS_MATCH;
 	}
+	
+	private boolean validateOneTypeParameterExtends(String typeFromPattern, String sig, ITypeBinding tb, IBinding patternTypeBinding) {
+		boolean isQuestionMark = "+Ljava/lang/Object;".equals(sig);
+		if( isQuestionMark ) {
+			// TODO - if pattern is <Unresolved1,Unresolved2> we must return no_match
+			return true;
+		}
+		String remaining = sig.substring(1);
+		ITypeBinding[] bounds = tb.getTypeBounds();
+		if( bounds != null && bounds.length == 1 && bounds[0] != null ) {
+			ITypeBinding b1 = bounds[0];
+			String boundSig = b1 == null ? null : b1 instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : b1.getKey();
+			if( typeFromPattern.equals(boundSig)) {
+				return true;
+			}
+			if( patternTypeBinding instanceof ITypeBinding itb) {
+				ITypeBinding working = itb;
+				while(working != null) {
+					ITypeBinding superClaz = working.getSuperclass();
+					if( superClaz != null ) {
+						String superClazKey = b1 == null ? null : superClaz instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : superClaz.getKey();
+						if( superClazKey.equals(boundSig)) {
+							return true;
+						}
+					}
+					working = superClaz;
+				}
+				return false;
+			} else {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private boolean validateOneTypeParameterSuper(String typeFromPattern, String sig, ITypeBinding tb, IBinding patternTypeBinding) {
+		String remaining = sig.substring(1);
+		ITypeBinding b1 = tb.getBound();
+		if( b1 != null ) {
+			String boundSig = b1 == null ? null : b1 instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : b1.getKey();
+			if( typeFromPattern.equals(boundSig)) {
+				return true;
+			}
+			if( patternTypeBinding instanceof ITypeBinding itb) {
+				ITypeBinding working = b1;
+				while(working != null) {
+					ITypeBinding superClaz = working.getSuperclass();
+					if( superClaz != null ) {
+						String superClazKey = b1 == null ? null : superClaz instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : superClaz.getKey();
+						if( superClazKey.equals(typeFromPattern)) {
+							return true;
+						}
+					}
+					working = superClaz;
+				}
+				return false;
+			} else {
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	private String getQualifiedNameFromType(Type query) {
 		if( query instanceof QualifiedType qtt) {
 			String qualString = getQualifiedNameFromType(qtt.getQualifier());
@@ -426,16 +499,21 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			int v = resolveLevelForTypeBinding(node, typeBinding, locator);
 			boolean patternHasTypeArgs = this.locator.pattern.hasTypeArguments();
 			boolean patternHasTypeParameters = this.locator.pattern.hasTypeParameters();
+			boolean patternHasSignatures = this.locator.pattern.hasSignatures();
 			boolean erasureMatch = isPatternErasureMatch();
 			boolean equivMatch = isPatternEquivalentMatch();
-			if( patternHasTypeArgs && !(erasureMatch || equivMatch)) {
+			if( (patternHasTypeArgs && !(erasureMatch || equivMatch))) {
 				return toResponse(IMPOSSIBLE_MATCH);
 			}
-
 			if( node instanceof ParameterizedType pt) {
 				ASTNode n = preferParamaterizedNode() ? pt : pt.getType();
 				return new LocatorResponse(v, n != pt, n, false, false);
 			}
+			if( patternHasTypeArgs && !patternHasSignatures && !erasureMatch) {
+				// the search doesn't have type args in it, but the type does
+				return toResponse(IMPOSSIBLE_MATCH);
+			}
+
 			return toResponse(v);
 		}
 		if( binding instanceof IPackageBinding && node instanceof SimpleName sn) {
@@ -544,14 +622,17 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			}
 		}
 		if( newLevel == ACCURATE_MATCH && this.locator.pattern.hasTypeArguments() ) {
-			return resolveLevelForTypeBindingWithTypeArguments(typeBinding, node, newLevel, locator);
+			return resolveLevelForTypeBindingWithTypeArguments(typeBinding, node, locator);
 		}
 		return newLevel;
 	}
 
-	private int resolveLevelForTypeBindingWithTypeArguments(ITypeBinding typeBinding, ASTNode node, int newLevel,
+	private int resolveLevelForTypeBindingWithTypeArguments(ITypeBinding typeBinding, ASTNode node,
 			MatchLocator locator2) {
 		boolean patternHasTypeArgs = this.locator.pattern.hasTypeArguments();
+		boolean patternHasTypeParams = this.locator.pattern.hasTypeParameters();
+		boolean patternHasTypeSignatures = !(patternHasTypeArgs && patternHasTypeParams);
+		
 		char[][][] patternTypeArgArray = this.locator.pattern.getTypeArguments();
 		int patternTypeArgsLength = patternTypeArgArray == null ? -1 : 
 			patternTypeArgArray[0] == null ? -1 : 
@@ -568,14 +649,30 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		int bindingTypeArgsLength = bindingArgs == null ? -1 : bindingArgs.length;
 		// Compare arguments lengths
 		if (patternTypeArgsLength == bindingTypeArgsLength) {
+			Type t = node instanceof Type ? (Type)node : null;
+			if( t != null ) {
+				int typeArgsValidation = validateTypeParameters(t);
+				if( typeArgsValidation == TYPE_PARAMS_MATCH) {
+					if( !patternHasTypeSignatures) {
+						return ERASURE_MATCH;
+					}
+					return ACCURATE_MATCH;
+				}
+				if( typeArgsValidation == TYPE_PARAMS_COUNT_MATCH) {
+					return ERASURE_MATCH;
+				}
+				if( typeArgsValidation == TYPE_PARAMS_NO_MATCH) {
+					return ERASURE_MATCH;
+				}
+			}
 			if (!bindingIsRaw && patternHasTypeArgs) {
 				// generic patterns are always not compatible match
 				return ERASURE_MATCH;
 			}
-			return newLevel;
+			return ACCURATE_MATCH;
 		} else {
 			if (patternTypeArgsLength==0) {
-				return newLevel;
+				return ACCURATE_MATCH;
 			} else if (bindingTypeArgsLength==0) {
 				// If this is an import, we have to treat it differently
 				
@@ -585,13 +682,13 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 //				ITypeBinding[] declParams = decl.getTypeParameters();
 				// raw binding is always compatible
 				if( patternIsEquivMatch && bindingIsRaw) {
-					return IMPOSSIBLE_MATCH;
+					return ACCURATE_MATCH;
 				}
 				if( !bindingIsRaw && !(patternIsEquivMatch || patternIsErasureMatch)) {
 					return IMPOSSIBLE_MATCH;
 				}
 				if( !patternIsEquivMatch || bindingIsRaw)
-					return newLevel;
+					return ACCURATE_MATCH;
 			} 
 		}
 		return IMPOSSIBLE_MATCH;
@@ -712,6 +809,12 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			match.setLength(newLength);
 		}
 		
+//		boolean matchIsEr = match.isErasure();
+//		boolean matchIsEq = match.isEquivalent();
+//		boolean matchIsEx = match.isExact();
+//		boolean report = (this.isErasureMatch && match.isErasure()) 
+//				|| ((this.isErasureMatch || this.isEquivalentMatch) && match.isEquivalent()) 
+//				|| match.isExact();
 		boolean report = (this.isErasureMatch && match.isErasure()) || (this.isEquivalentMatch && match.isEquivalent()) || match.isExact();
 		if (!report) return;
 
