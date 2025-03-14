@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2024 IBM Corporation and others.
+ * Copyright (c) 2016, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -9084,6 +9084,33 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					markers);
 		} finally {
 			deleteProject(p11);
+		}
+	}
+
+	public void testIssue3797() throws Exception {
+		IJavaProject p1 = null, p2 = null;
+		try {
+			p1 = createJava21Project("AutoMod");
+			createFile("/AutoMod/src/X.java", "public class X { }");
+			createFolder("/AutoMod/src/p");
+			createFile("/AutoMod/src/p/Y.java",
+					"package p;\n" +
+					"public class Y {}\n");
+			p1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+			p2 = createJava21Project("Client");
+			addModularProjectEntry(p2, p1);
+			createFolder("/Client/src/p");
+			createFile("/Client/src/p/C.java", "package p;\n" + "public class C { }");
+
+			p2.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected Markers", "The package p conflicts with a package accessible from another module: AutoMod", markers);
+		} finally {
+			if (p1 != null)
+				deleteProject(p1);
+			if (p2 != null)
+				deleteProject(p2);
 		}
 	}
 
