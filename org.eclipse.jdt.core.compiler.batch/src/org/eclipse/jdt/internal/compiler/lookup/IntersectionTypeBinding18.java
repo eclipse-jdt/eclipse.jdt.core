@@ -153,7 +153,7 @@ public class IntersectionTypeBinding18 extends ReferenceBinding {
 	}
 
 	@Override
-	public ReferenceBinding [] superInterfaces() {
+	protected ReferenceBinding[] superInterfacesRecursive(Set<ReferenceBinding> visited) {
 		if (this.intersectingTypes[0].isClass()) {
 			ReferenceBinding [] superInterfaces = new ReferenceBinding[this.length - 1];
 			System.arraycopy(this.intersectingTypes, 1, superInterfaces, 0, this.length - 1);
