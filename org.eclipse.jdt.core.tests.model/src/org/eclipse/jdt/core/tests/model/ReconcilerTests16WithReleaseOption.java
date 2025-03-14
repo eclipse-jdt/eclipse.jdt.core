@@ -26,7 +26,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.AST;
 
-public class ReconcilerTests16 extends ModifyingResourceTests {
+public class ReconcilerTests16WithReleaseOption extends ModifyingResourceTests {
 
 	protected ICompilationUnit workingCopy;
 	protected ProblemRequestor problemRequestor;
@@ -34,7 +34,7 @@ public class ReconcilerTests16 extends ModifyingResourceTests {
 	/*package*/ @SuppressWarnings("deprecation")
 	static final int JLS_LATEST = AST.JLS16;
 
-public ReconcilerTests16(String name) {
+public ReconcilerTests16WithReleaseOption(String name) {
 	super(name);
 }
 // Use this static initializer to specify subset for tests
@@ -47,7 +47,7 @@ static {
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
 public static Test suite() {
-	return buildModelTestSuite(ReconcilerTests16.class);
+	return buildModelTestSuite(ReconcilerTests16WithReleaseOption.class);
 }
 protected void assertProblems(String message, String expected) {
 	assertProblems(message, expected, this.problemRequestor);
@@ -61,7 +61,7 @@ public void setUp() throws Exception {
 	this.problemRequestor =  new ProblemRequestor();
 	this.wcOwner = new WorkingCopyOwner() {
 		public IProblemRequestor getProblemRequestor(ICompilationUnit unit) {
-			return ReconcilerTests16.this.problemRequestor;
+			return ReconcilerTests16WithReleaseOption.this.problemRequestor;
 		}
 	};
 	this.workingCopy = getCompilationUnit("Reconciler16/src/module-info.java").getWorkingCopy(this.wcOwner, null);
@@ -73,11 +73,11 @@ public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
 	// Create project with 16 compliance
-	// This test is only effective with a JDK higher than 16
 	IJavaProject project16 = createJava9Project("Reconciler16");
 	project16.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_16);
 	project16.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
 	project16.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.WARNING);
+	project16.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 
 
 }
