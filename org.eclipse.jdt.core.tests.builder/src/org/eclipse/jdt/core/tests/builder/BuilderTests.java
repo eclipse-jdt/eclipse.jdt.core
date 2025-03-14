@@ -519,7 +519,7 @@ public class BuilderTests extends TestCase {
 	}
 
 	private static Class[] getAllTestClasses() {
-		Class[] classes = new Class[] {
+		Class<?>[] classes = new Class[] {
 			AbstractMethodTests.class,
 			BasicBuildTests.class,
 			BuildpathTests.class,
