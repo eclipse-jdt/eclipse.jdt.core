@@ -300,15 +300,16 @@ public class ElementsImpl9 extends ElementsImpl {
 						TypeDeclaration decl = qualAlloc.anonymousType;
 						if (decl == null)
 							return null;
-
-						SourceTypeBinding declaringClass = (SourceTypeBinding) field.declaringClass;
-						TypeDeclaration enumTypeDecl = declaringClass.scope.referenceContext;
-						// The following code is copied from BlockScope#addAnonymousType() to force
-						// resolution of the local type binding ahead of a full CU#resolve()
-						BlockScope scope = field.isStatic() ? enumTypeDecl.staticInitializerScope : enumTypeDecl.initializerScope;
-						if (scope != null) {
-							ClassScope anonymousClassScope = new ClassScope(scope, decl);
-							anonymousClassScope.buildAnonymousTypeBinding(scope.enclosingSourceType(), declaringClass);
+						if (decl.binding == null) {
+							SourceTypeBinding declaringClass = (SourceTypeBinding) field.declaringClass;
+							TypeDeclaration enumTypeDecl = declaringClass.scope.referenceContext;
+							// The following code is copied from BlockScope#addAnonymousType() to force
+							// resolution of the local type binding ahead of a full CU#resolve()
+							BlockScope scope = field.isStatic() ? enumTypeDecl.staticInitializerScope : enumTypeDecl.initializerScope;
+							if (scope != null) {
+								ClassScope anonymousClassScope = new ClassScope(scope, decl);
+								anonymousClassScope.buildAnonymousTypeBinding(declaringClass, declaringClass);
+							}
 						}
 						return decl.binding == null ? null : (TypeElement) this._env.getFactory().newElement(decl.binding);
 					}
