@@ -5394,7 +5394,7 @@ class ASTConverter {
 						startPosition = this.scanner.startPosition;
 						break;
 					default:
-						// NOP
+						break;
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -5474,7 +5474,7 @@ class ASTConverter {
 					case TokenNameELLIPSIS:
 						return this.scanner.startPosition - 1;
 					default:
-						// NOP
+						break;
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -5496,7 +5496,7 @@ class ASTConverter {
 					case TokenNameSEMICOLON:
 						return this.scanner.currentPosition - 1;
 					default:
-						// NOP
+						break;
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -5535,7 +5535,7 @@ class ASTConverter {
 						if (count > 0) break;
 						return new int[]{this.scanner.startPosition, this.scanner.currentPosition - 1};
 					default:
-						// NOP
+						break;
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -5641,7 +5641,7 @@ class ASTConverter {
 					case TokenNameIdentifier://110
 						return this.scanner.getCurrentTokenEndPosition();
 					default:
-						// NOP
+						break;
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -5719,7 +5719,7 @@ class ASTConverter {
 						if (balance == 0) return pos;
 						return -pos;
 					default:
-						// NOP
+						break;
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -5758,7 +5758,7 @@ class ASTConverter {
 						}
 						break;
 					default:
-						// NOP
+						break;
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -5786,7 +5786,7 @@ class ASTConverter {
 					case TokenNameSEMICOLON :
 						return this.scanner.currentPosition - 1;
 					default:
-						// NOP
+						break;
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -5808,7 +5808,7 @@ class ASTConverter {
 					case TokenNameRBRACE :
 						return this.scanner.currentPosition - 1;
 					default:
-						// NOP
+						break;
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -5830,7 +5830,7 @@ class ASTConverter {
 					case TokenNameLBRACE://110
 						return this.scanner.startPosition;
 					default:
-						// NOP
+						break;
 				}
 			}
 		} catch(InvalidInputException e) {
@@ -5852,7 +5852,7 @@ class ASTConverter {
 					case TokenNamecatch://225
 						return this.scanner.startPosition;
 					default:
-						// NOP
+						break;
 				}
 			}
 		} catch(InvalidInputException e) {

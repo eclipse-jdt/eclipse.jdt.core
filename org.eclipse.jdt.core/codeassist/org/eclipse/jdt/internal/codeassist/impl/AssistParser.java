@@ -862,7 +862,7 @@ protected void consumeModuleHeader() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = typeDecl.bodyStart;
 		this.currentElement = this.currentElement.add(typeDecl, 0);
-		this.lastIgnoredToken = TerminalTokens.TokenNameInvalid;
+		this.lastIgnoredToken = TokenNameInvalid;
 	}
 }
 
@@ -1090,7 +1090,7 @@ protected void consumeSingleModifierImportDeclarationName(int modifier) {
 	if (this.currentElement != null){
 		this.lastCheckPoint = reference.declarationSourceEnd+1;
 		this.currentElement = this.currentElement.add(reference, 0);
-		this.lastIgnoredToken = TerminalTokens.TokenNameInvalid;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
@@ -1149,7 +1149,7 @@ protected void consumeSingleTargetModuleName() {
 		// TODO
 		this.lastCheckPoint = reference.sourceEnd+1;
 		this.currentElement = ((RecoveredExportsStatement) this.currentElement).add(reference, 0);
-		this.lastIgnoredToken = TerminalTokens.TokenNameInvalid;
+		this.lastIgnoredToken = TokenNameInvalid;
 		//this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 
@@ -1190,7 +1190,7 @@ protected void consumeSingleRequiresModuleName() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = req.declarationSourceEnd + 1;
 		this.currentElement = this.currentElement.add(req, 0);
-		this.lastIgnoredToken = TerminalTokens.TokenNameInvalid;
+		this.lastIgnoredToken = TokenNameInvalid;
 	}
 
 }
@@ -1243,7 +1243,7 @@ protected void consumeSingleTypeImportDeclarationName() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = reference.declarationSourceEnd+1;
 		this.currentElement = this.currentElement.add(reference, 0);
-		this.lastIgnoredToken = TerminalTokens.TokenNameInvalid;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
@@ -1298,7 +1298,7 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = reference.declarationSourceEnd+1;
 		this.currentElement = this.currentElement.add(reference, 0);
-		this.lastIgnoredToken = TerminalTokens.TokenNameInvalid;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
@@ -1445,7 +1445,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = reference.declarationSourceEnd+1;
 		this.currentElement = this.currentElement.add(reference, 0);
-		this.lastIgnoredToken = TerminalTokens.TokenNameInvalid;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
