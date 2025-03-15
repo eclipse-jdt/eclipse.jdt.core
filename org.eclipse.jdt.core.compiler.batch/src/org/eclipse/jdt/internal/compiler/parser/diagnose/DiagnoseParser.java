@@ -161,7 +161,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 	public DiagnoseParser(Parser parser, TerminalTokens firstToken, int start, int end, int[] intervalStartToSkip, int[] intervalEndToSkip, int[] intervalFlagsToSkip, CompilerOptions options) {
 		this.parser = parser;
 		this.options = options;
-		this.lexStream = new LexStream(BUFF_SIZE, parser.scanner, intervalStartToSkip, intervalEndToSkip, intervalFlagsToSkip, firstToken.tokenNumber(), start, end);
+		this.lexStream = new LexStream(BUFF_SIZE, parser.scanner, intervalStartToSkip, intervalEndToSkip, intervalFlagsToSkip, firstToken, start, end);
 		this.recoveryScanner = parser.recoveryScanner;
 	}
 
@@ -241,7 +241,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 			this.stateStackTop = 0;
 			this.stack[this.stateStackTop] = act;
 
-			int tok = this.lexStream.kind(this.currentToken);
+			TerminalTokens tok = this.lexStream.kind(this.currentToken);
 			this.locationStack[this.stateStackTop] = this.currentToken;
 			this.locationStartStack[this.stateStackTop] = this.lexStream.start(this.currentToken);
 
@@ -266,7 +266,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 				for (int i = 0; i <= this.stateStackTop; i++)
 					this.tempStack[i] = this.stack[i];
 
-				act = Parser.tAction(act, tok);
+				act = Parser.tAction(act, tok.tokenNumber());
 				//
 				// When a reduce action is encountered, we compute all REDUCE
 				// and associated goto actions induced by the current token.
@@ -287,7 +287,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 						reallocateStacks();
 					pos = pos < this.tempStackTop ? pos : this.tempStackTop;
 					this.tempStack[this.tempStackTop + 1] = act;
-					act = Parser.tAction(act, tok);
+					act = Parser.tAction(act, tok.tokenNumber());
 				}
 
 				//
@@ -335,7 +335,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 					//
 					this.currentToken = this.lexStream.getToken();
 					tok = this.lexStream.kind(this.currentToken);
-					act = Parser.tAction(act, tok);
+					act = Parser.tAction(act, tok.tokenNumber());
 					while(act <= NUM_RULES) {
 						//
 						// ... Process all goto-reduce actions following
@@ -363,7 +363,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 
 						next_pos = next_pos < this.tempStackTop ? next_pos : this.tempStackTop;
 						this.tempStack[this.tempStackTop + 1] = act;
-						act = Parser.tAction(act, tok);
+						act = Parser.tAction(act, tok.tokenNumber());
 					}
 
 	//				if((tok != TokenNameRBRACE || (forceRecoveryToken != currentToken && (lexStream.flags(currentToken) & LexStream.LBRACE_MISSING) != 0))
@@ -445,7 +445,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 						this.locationStack[this.stateStackTop] = this.currentToken;
 						this.locationStartStack[this.stateStackTop] = this.lexStream.start(this.currentToken);
 					} else {
-						tok = candidate.symbol;
+						tok = TerminalTokens.of(candidate.symbol);
 						this.locationStack[this.stateStackTop] = candidate.location;
 						this.locationStartStack[this.stateStackTop] = this.lexStream.start(candidate.location);
 					}
@@ -497,7 +497,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 		this.errorTokenStart = this.lexStream.start(error_token);
 
 		int prevtok = this.lexStream.previous(error_token);
-		int prevtokKind = this.lexStream.kind(prevtok);
+		TerminalTokens prevtokKind = this.lexStream.kind(prevtok);
 
 		if(forcedError) {
 			int name_index = Parser.terminal_index[TokenNameLBRACE.tokenNumber()];
@@ -534,7 +534,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 			return candidate;
 		}
 
-		if (this.lexStream.kind(error_token) == EOFT_SYMBOL) {
+		if (this.lexStream.kind(error_token).tokenNumber() == EOFT_SYMBOL) {
 			reportError(EOF_CODE,
 						Parser.terminal_index[EOFT_SYMBOL],
 						prevtok,
@@ -551,7 +551,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 		// a successful recovery or have consumed the remaining input
 		// tokens.
 		//
-		while(this.lexStream.kind(this.buffer[BUFF_UBOUND]) != EOFT_SYMBOL) {
+		while(this.lexStream.kind(this.buffer[BUFF_UBOUND]).tokenNumber() != EOFT_SYMBOL) {
 			candidate = secondaryPhase(this.buffer[MAX_DISTANCE - MIN_DISTANCE + 2]);
 			if (candidate.symbol != 0) {
 				return candidate;
@@ -563,10 +563,10 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 		// remaining tokens in the input.
 		//
 		int i;
-		for (i = BUFF_UBOUND; this.lexStream.kind(this.buffer[i]) == EOFT_SYMBOL; i--){/*empty*/}
+		for (i = BUFF_UBOUND; this.lexStream.kind(this.buffer[i]).tokenNumber() == EOFT_SYMBOL; i--){/*empty*/}
 
 		reportError(DELETION_CODE,
-					Parser.terminal_index[prevtokKind],//Parser.terminal_index[lexStream.kind(prevtok)],
+					Parser.terminal_index[prevtokKind.tokenNumber()],//Parser.terminal_index[lexStream.kind(prevtok)],
 					error_token,
 					this.buffer[i]);
 
@@ -762,7 +762,8 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 //	   repair_code are assumed to be initialized.
 //
 	private PrimaryRepairInfo checkPrimaryDistance(int stck[], int stack_top, PrimaryRepairInfo repair) {
-		int i, j, k, next_state, max_pos, act, root, symbol, tok;
+		int i, j, k, next_state, max_pos, act, root, symbol;
+		TerminalTokens tok;
 
 		//
 	    //  First, try scope and manual recovery.
@@ -793,9 +794,9 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 		j = parseCheck(
 				stck,
 				stack_top,
-				this.lexStream.kind(this.buffer[repair.bufferPosition + 1]),
+				this.lexStream.kind(this.buffer[repair.bufferPosition + 1]).tokenNumber(),
 				repair.bufferPosition + 2);
-		if (this.lexStream.kind(this.buffer[repair.bufferPosition]) == EOLT_SYMBOL &&
+		if (this.lexStream.kind(this.buffer[repair.bufferPosition]).tokenNumber() == EOLT_SYMBOL &&
 			this.lexStream.afterEol(this.buffer[repair.bufferPosition+1])) {
 			 k = 10;
 		} else {
@@ -818,7 +819,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 
 		tok = this.lexStream.kind(this.buffer[repair.bufferPosition]);
 		this.lexStream.reset(this.buffer[repair.bufferPosition + 1]);
-		act = Parser.tAction(next_state, tok);
+		act = Parser.tAction(next_state, tok.tokenNumber());
 		while(act <= NUM_RULES) {
 			do {
 				this.tempStackTop -= (Parser.rhs[act]-1);
@@ -831,7 +832,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 			max_pos = max_pos < this.tempStackTop ? max_pos : this.tempStackTop;
 			this.tempStack[this.tempStackTop + 1] = act;
 			next_state = act;
-			act = Parser.tAction(next_state, tok);
+			act = Parser.tAction(next_state, tok.tokenNumber());
 		}
 
 		//
@@ -1072,7 +1073,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 			default: {// deletion
 				candidate.location = this.buffer[repair.bufferPosition + 1];
 				candidate.symbol =
-						  this.lexStream.kind(this.buffer[repair.bufferPosition + 1]);
+						  this.lexStream.kind(this.buffer[repair.bufferPosition + 1]).tokenNumber();
 				this.lexStream.reset(this.buffer[repair.bufferPosition + 2]);
 				break;
 			}
@@ -1152,7 +1153,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 						  // next move is shift or shift-reduce.
 		int threshold = this.tempStackTop;
 
-		tok = this.lexStream.kind(this.buffer[buffer_position]);
+		tok = this.lexStream.kind(this.buffer[buffer_position]).tokenNumber();
 		this.lexStream.reset(this.buffer[buffer_position + 1]);
 
 		if (act > ERROR_ACTION) {  // shift-reduce on candidate?
@@ -1206,7 +1207,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 //
 	private int getNtermIndex(int start, int sym, int buffer_position) {
 		int highest_symbol = sym - NT_OFFSET,
-			tok = this.lexStream.kind(this.buffer[buffer_position]);
+			tok = this.lexStream.kind(this.buffer[buffer_position]).tokenNumber();
 		this.lexStream.reset(this.buffer[buffer_position + 1]);
 
 		//
@@ -1511,7 +1512,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 	                        repair.distance = distance;
 	                    }
 
-	                    if (this.lexStream.kind(this.buffer[repair.bufferPosition]) == EOFT_SYMBOL &&
+	                    if (this.lexStream.kind(this.buffer[repair.bufferPosition]).tokenNumber() == EOFT_SYMBOL &&
 	                        repair.distance == previous_distance) {
 	                        this.scopeStackTop = indx;
 	                        repair.distance = MAX_DISTANCE;
@@ -1550,7 +1551,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 
 		for (top = stack_top - 1; top >= 0; top--) {
 			j = parseCheck(stck, top,
-						   this.lexStream.kind(this.buffer[buffer_position]),
+						   this.lexStream.kind(this.buffer[buffer_position]).tokenNumber(),
 						   buffer_position + 1);
 			if (((j - buffer_position + 1) > MIN_DISTANCE) && (j > distance))
 				return true;
@@ -1618,7 +1619,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 			//
 			for (next_last_index = MAX_DISTANCE - 1;
 				 next_last_index >= 1 &&
-				 this.lexStream.kind(this.buffer[next_last_index]) == EOFT_SYMBOL;
+				 this.lexStream.kind(this.buffer[next_last_index]).tokenNumber() == EOFT_SYMBOL;
 				 next_last_index--){/*empty*/}
 			next_last_index = next_last_index + 1;
 
@@ -1660,7 +1661,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 			this.buffer[k] = this.lexStream.next(this.buffer[k - 1]);
 
 		for (last_index = MAX_DISTANCE - 1;
-			 last_index >= 1 && this.lexStream.kind(this.buffer[last_index]) == EOFT_SYMBOL;
+			 last_index >= 1 && this.lexStream.kind(this.buffer[last_index]).tokenNumber() == EOFT_SYMBOL;
 			 last_index--){/*empty*/}
 		last_index++;
 
@@ -1745,7 +1746,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 	    // applicable at the end of the file after discarding some
 	    // states.
 	    //
-	    if (repair.code == 0 && this.lexStream.kind(this.buffer[last_index]) == EOFT_SYMBOL) {
+	    if (repair.code == 0 && this.lexStream.kind(this.buffer[last_index]).tokenNumber() == EOFT_SYMBOL) {
 	        PrimaryRepairInfo scope_repair = new PrimaryRepairInfo();
 
 	        scope_repair.bufferPosition = last_index;
@@ -1780,7 +1781,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 		switch(repair.code) {
 			case MISPLACED_CODE:
 				 candidate.location = this.buffer[2];
-				 candidate.symbol = this.lexStream.kind(this.buffer[2]);
+				 candidate.symbol = this.lexStream.kind(this.buffer[2]).tokenNumber();
 				 this.lexStream.reset(this.lexStream.next(this.buffer[2]));
 
 				 break;
@@ -1788,7 +1789,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 			case DELETION_CODE:
 				 candidate.location = this.buffer[repair.bufferPosition];
 				 candidate.symbol =
-						   this.lexStream.kind(this.buffer[repair.bufferPosition]);
+						   this.lexStream.kind(this.buffer[repair.bufferPosition]).tokenNumber();
 				 this.lexStream.reset(this.lexStream.next(this.buffer[repair.bufferPosition]));
 
 				 break;
@@ -1820,7 +1821,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 			}
 			previous_loc = this.locationStack[top];
 
-			int j = parseCheck(stck, top, this.lexStream.kind(this.buffer[2]), 3);
+			int j = parseCheck(stck, top, this.lexStream.kind(this.buffer[2]).tokenNumber(), 3);
 			if (j == MAX_DISTANCE) {
 				 j = last_index;
 			}
@@ -1855,7 +1856,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 			for (int i = 2;
 				 i <= (last_index - MIN_DISTANCE + 1) &&
 				 (repair.numDeletions >= (stack_deletions + i - 1)); i++) {
-				int j = parseCheck(stck, top, this.lexStream.kind(this.buffer[i]), i + 1);
+				int j = parseCheck(stck, top, this.lexStream.kind(this.buffer[i]).tokenNumber(), i + 1);
 
 				if (j == MAX_DISTANCE) {
 					 j = last_index;
@@ -1960,7 +1961,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 	private int parseCheck(int stck[], int stack_top, int first_token, int buffer_position) {
 		int max_pos;
 		int indx;
-		int ct;
+		TerminalTokens ct;
 		int act;
 
 		//
@@ -2018,7 +2019,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 
 			max_pos = this.tempStackTop;
 			indx = buffer_position - 1;
-			ct = first_token;
+			ct = TerminalTokens.of(first_token);
 			this.lexStream.reset(this.buffer[buffer_position]);
 		}
 
@@ -2030,7 +2031,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 				System.out.print("]\tprocess_terminal    \t"); //$NON-NLS-1$
 				System.out.print(ct);
 				System.out.print("\t"); //$NON-NLS-1$
-				System.out.print(Parser.name[Parser.terminal_index[ct]]);
+				System.out.print(Parser.name[Parser.terminal_index[ct.tokenNumber()]]);
 				System.out.println();
 			}
 
@@ -2038,7 +2039,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 				return indx;
 			this.tempStack[this.tempStackTop] = act;
 
-			act = Parser.tAction(act, ct);
+			act = Parser.tAction(act, ct.tokenNumber());
 
 			if (act <= NUM_RULES) {               // reduce action
 				this.tempStackTop--;
@@ -2134,8 +2135,8 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 
 		int errorStart = this.lexStream.start(token);
 		int errorEnd = this.lexStream.end(token);
-		int currentKind = this.lexStream.kind(token);
-		String errorTokenName = Parser.name[Parser.terminal_index[this.lexStream.kind(token)]];
+		int currentKind = this.lexStream.kind(token).tokenNumber();
+		String errorTokenName = Parser.name[Parser.terminal_index[this.lexStream.kind(token).tokenNumber()]];
 		char[] errorTokenSource = this.lexStream.name(token);
 		if (currentKind == TerminalTokens.TokenNameStringLiteral.tokenNumber()) {
 			errorTokenSource = displayEscapeCharacters(errorTokenSource, 1, errorTokenSource.length - 1);

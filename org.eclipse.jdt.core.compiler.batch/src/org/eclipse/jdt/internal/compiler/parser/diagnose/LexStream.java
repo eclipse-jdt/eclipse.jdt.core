@@ -27,7 +27,7 @@ public class LexStream {
 	public static final int LBRACE_MISSING = 2;
 
 	public static class Token{
-		int kind;
+		TerminalTokens kind;
 		char[] name;
 		int start;
 		int end;
@@ -59,7 +59,7 @@ public class LexStream {
 	private int currentInterval = -1;
 	private boolean awaitingColonColon;
 
-	public LexStream(int size, Scanner scanner, int[] intervalStartToSkip, int[] intervalEndToSkip, int[] intervalFlagsToSkip, int firstToken, int init, int eof) {
+	public LexStream(int size, Scanner scanner, int[] intervalStartToSkip, int[] intervalEndToSkip, int[] intervalFlagsToSkip, TerminalTokens firstToken, int init, int eof) {
 		this.tokenCache = new Token[size];
 		this.tokenCacheIndex = 0;
 		this.tokenCacheEOFIndex = Integer.MAX_VALUE;
@@ -99,7 +99,7 @@ public class LexStream {
 							nextInterval >= this.intervalStartToSkip.length ||
 							start < this.intervalStartToSkip[nextInterval]) {
 						Token token = new Token();
-						token.kind = tokenKind.tokenNumber();
+						token.kind = tokenKind;
 						token.name = this.scanner.getCurrentTokenSource();
 						token.start = start;
 						token.end = end;
@@ -123,7 +123,7 @@ public class LexStream {
 					int start = this.scanner.getCurrentTokenStartPosition();
 					int end = this.scanner.getCurrentTokenEndPosition();
 					Token token = new Token();
-					token.kind = tokenKind.tokenNumber();
+					token.kind = tokenKind;
 					token.name = CharOperation.NO_CHAR;
 					token.start = start;
 					token.end = end;
@@ -143,7 +143,7 @@ public class LexStream {
 	public Token token(int index) {
 		if(index < 0) {
 			Token eofToken = new Token();
-			eofToken.kind = TokenNameEOF.tokenNumber();
+			eofToken.kind = TokenNameEOF;
 			eofToken.name = CharOperation.NO_CHAR;
 			return eofToken;
 		}
@@ -193,7 +193,7 @@ public class LexStream {
 		return 0;
 	}
 
-	public int kind(int tokenIndex) {
+	public TerminalTokens kind(int tokenIndex) {
 		return token(tokenIndex).kind;
 	}
 
@@ -252,7 +252,7 @@ public class LexStream {
 			res.append(source.substring(previousEnd + 1));
 		} else {
 			Token token = token(this.currentIndex);
-			int curtokKind = token.kind;
+			TerminalTokens curtokKind = token.kind;
 			int curtokStart = token.start;
 			int curtokEnd = token.end;
 
@@ -284,7 +284,7 @@ public class LexStream {
 				res.append(source.substring(previousEnd + 1, curtokStart));
 				res.append('<');
 				res.append('#');
-				if(curtokKind == TokenNameEOF.tokenNumber()) {
+				if(curtokKind == TokenNameEOF) {
 					res.append("EOF#>"); //$NON-NLS-1$
 				} else {
 					res.append(source.substring(curtokStart, curtokEnd + 1));
