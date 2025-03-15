@@ -469,7 +469,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * 	- 0: only scan all tokens
 	 * 	- 1: scan all tokens and get each identifier
 	 */
-	void scanFile(String fileName, TerminalTokens kind) throws InvalidInputException, IOException {
+	void scanFile(String fileName, int kind) throws InvalidInputException, IOException {
 
 		// Test for scanner
 		long tokenCount = 0;
@@ -484,13 +484,13 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 			tokenize: while (true) {
 				TerminalTokens token = scanner.getNextToken();
 				switch (kind) {
-					case TokenNameNotAToken: // first case: only read tokens
+					case 0: // first case: only read tokens
 						switch (token) {
 							case TerminalTokens.TokenNameEOF:
 								break tokenize;
 						}
 						break;
-					case TokenNameDOT: // second case: read tokens + get ids
+					case 1: // second case: read tokens + get ids
 						switch (token) {
 							case TerminalTokens.TokenNameEOF:
 								break tokenize;
@@ -513,13 +513,13 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 				tokenize: while (true) {
 					TerminalTokens token = scanner.getNextToken();
 					switch (kind) {
-						case TokenNameNotAToken: // first case: only read tokens
+						case 0: // first case: only read tokens
 							switch (token) {
 								case TerminalTokens.TokenNameEOF:
 									break tokenize;
 							}
 							break;
-						case TokenNameDOT: // second case: read tokens + get ids
+						case 1: // second case: read tokens + get ids
 							switch (token) {
 								case TerminalTokens.TokenNameEOF:
 									break tokenize;
@@ -543,10 +543,10 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		// Debug
 		if (DEBUG) {
 			switch (kind) {
-				case TokenNameNotAToken:
+				case 0:
 					System.out.println(tokenCount + " tokens read.");
 					break;
-				case TokenNameDOT:
+				case 1:
 					System.out.print(tokenCount + " tokens were read ("+size+" characters)");
 					break;
 			}
@@ -587,7 +587,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		IWorkspaceRunnable compilation = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
 				try {
-					scanFile(workspacePath+PARSER_WORKING_COPY.getPath(), TerminalTokens.TokenNameDOT/*scan tokens+get identifiers*/);
+					scanFile(workspacePath+PARSER_WORKING_COPY.getPath(), 1/*scan tokens+get identifiers*/);
 				} catch (InvalidInputException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
