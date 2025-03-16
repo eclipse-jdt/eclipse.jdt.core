@@ -149,6 +149,12 @@ public class Util {
         if (Character.isLowerCase(container.charAt(0)) && container.charAt(1) == ':') {
             container = Character.toUpperCase(container.charAt(0)) + container.substring(1);
         }
+
+        try {
+            container = Path.of(container).normalize().toRealPath().toString();
+        } catch (IOException e) {
+            throw new RuntimeException("output_directory container cannot resolve to real path: " + container);
+        }
         File dir = new File(new File(container), "comptest");
 
         // If root directory already exists, clean it
