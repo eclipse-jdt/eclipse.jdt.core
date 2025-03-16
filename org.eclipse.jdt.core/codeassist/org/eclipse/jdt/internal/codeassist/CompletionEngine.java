@@ -9528,6 +9528,8 @@ public final class CompletionEngine
 					}
 					javadocCompletion.append(')');
 					completion = javadocCompletion.toString().toCharArray();
+					if (this.parser.assistNodeParent instanceof Javadoc jdoc && jdoc.isMarkdown)
+						completion = CharOperation.replace(completion, "[]".toCharArray(), "\\[\\]".toCharArray()); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			} else {
 				// nothing to insert - do not want to replace the existing selector & arguments

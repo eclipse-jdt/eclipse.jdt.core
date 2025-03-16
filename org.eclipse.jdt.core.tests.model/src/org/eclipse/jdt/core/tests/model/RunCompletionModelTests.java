@@ -66,6 +66,7 @@ public class RunCompletionModelTests extends junit.framework.TestCase {
 		COMPLETION_SUITES.add(JavadocCompletionContextTests.class);
 		COMPLETION_SUITES.add(JavadocModuleCompletionTests15.class);
 		COMPLETION_SUITES.add(JavadocCompletionContextTests_1_5.class);
+		COMPLETION_SUITES.add(JavadocMarkdownCompletionModelTest.class);
 	}
 
 	public static Class[] getTestClasses() {
