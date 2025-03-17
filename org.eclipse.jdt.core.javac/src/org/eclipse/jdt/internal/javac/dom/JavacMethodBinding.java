@@ -19,7 +19,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
@@ -32,12 +31,12 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
-import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
+import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.internal.codeassist.DOMCompletionUtil;
 import org.eclipse.jdt.internal.core.BinaryMethod;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -50,11 +49,11 @@ import org.eclipse.jdt.internal.core.util.Util;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ForAll;
 import com.sun.tools.javac.code.Type.JCNoType;
 import com.sun.tools.javac.code.Type.MethodType;
@@ -74,7 +73,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	final boolean explicitSynthetic;
 	// allows to discriminate generic vs parameterized
 	private final boolean isDeclaration;
-	private IJavaElement javaElement;
+	private IMethod javaElement;
 	private String key;
 
 	/**
@@ -202,14 +201,19 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	}
 
 	@Override
-	public IJavaElement getJavaElement() {
+	public IMethod getJavaElement() {
+		this.javaElement = resolved(getUnresolvedJavaElement());
+		return this.javaElement;
+	}
+	
+	IMethod getUnresolvedJavaElement() {
 		if (this.javaElement == null) {
-			this.javaElement = computeJavaElement();
+			this.javaElement = computeUnresolvedJavaElement();
 		}
 		return this.javaElement;
-	}	
+	}
 	
-	private IJavaElement computeJavaElement() {
+	private IMethod computeUnresolvedJavaElement() {
 		if (this.methodSymbol == null) {
 			return null;
 		}
@@ -231,7 +235,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 						.toArray(String[]::new);
 				IMethod[] methods = currentType.findMethods(currentType.getMethod(getName(), parametersResolved));
 				if (methods != null && methods.length > 0) {
-					return resolved(methods[0]);
+					return methods[0];
 				}
 				var parametersNotResolved = this.methodSymbol.params().stream()
 						.map(varSymbol -> varSymbol.type)
@@ -241,14 +245,14 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 						.toArray(String[]::new);
 				methods = currentType.findMethods(currentType.getMethod(getName(), parametersNotResolved));
 				if (methods != null && methods.length > 0) {
-					return resolved(methods[0]);
+					return methods[0];
 				}
 			}
 		}
 		return null;
 	}
 
-	private IJavaElement getJavaElementForMethodDeclaration(IType currentType, MethodDeclaration methodDeclaration) {
+	private IMethod getJavaElementForMethodDeclaration(IType currentType, MethodDeclaration methodDeclaration) {
 		ArrayList<String> typeParamsList = new ArrayList<>();
 		List<TypeParameter> typeParams = null;
 		typeParams = methodDeclaration.typeParameters();
@@ -270,7 +274,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 				}).toArray(String[]::new);
 		IMethod result = currentType.getMethod(getName(), params);
 		if (currentType.isBinary() || result.exists()) {
-			return resolved(result);
+			return result;
 		}
 		IMethod[] methods = null;
 		try {
@@ -282,10 +286,16 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		IMethod[] candidates = Member.findMethods(result, methods);
 		if (candidates == null || candidates.length == 0)
 			return null;
-		return resolved(candidates[0]);
+		return candidates[0];
 	}
 
 	private IMethod resolved(IMethod from) {
+		if (from == null) {
+			return null;
+		}
+		if (from.isResolved()) {
+			return from;
+		}
 		if (from instanceof SourceMethod && !(from instanceof ResolvedSourceMethod)) {
 			return new ResolvedSourceMethod((JavaElement)from.getParent(), from.getElementName(), from.getParameterTypes(), computeKeyWithThrowsFromJavadoc(from), from.getOccurrenceCount());
 		}
@@ -313,7 +323,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		return getKey() + Arrays.stream(exceptions).map(t -> '|' + t.replace('.', '/')).collect(Collectors.joining());
 	}
 
-	private IJavaElement getJavaElementForAnnotationTypeMemberDeclaration(IType currentType, AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration) {
+	private IMethod getJavaElementForAnnotationTypeMemberDeclaration(IType currentType, AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration) {
 		IMethod result = currentType.getMethod(getName(), new String[0]);
 		if (currentType.isBinary() || result.exists()) {
 			return result;

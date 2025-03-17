@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
@@ -68,7 +68,7 @@ public class JavacLambdaBinding extends JavacMethodBinding {
 	}
 
 	@Override
-	public IJavaElement getJavaElement() {
+	public IMethod getJavaElement() {
 		var member = getDeclaringMember();
 		if (member != null && member.getJavaElement() instanceof JavaElement parent) {
 			int arrowIndex = ((List<ASTNode>)this.declaration.parameters()).stream().mapToInt(param -> param.getStartPosition() + param.getLength()).max().orElse(this.declaration.getStartPosition());
