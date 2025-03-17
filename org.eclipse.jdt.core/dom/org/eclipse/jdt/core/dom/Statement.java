@@ -16,7 +16,7 @@ package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 
 /**
  * Abstract base class of AST nodes that represent statements.
@@ -137,9 +137,9 @@ public abstract class Statement extends ASTNode {
 			scanner.resetTo(0, source.length);
 			scanner.setSource(source);
 			try {
-				TerminalTokens token;
+				TerminalToken token;
 				boolean onlyOneComment = false;
-				while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+				while ((token = scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 					switch(token) {
 						case TokenNameCOMMENT_BLOCK :
 						case TokenNameCOMMENT_JAVADOC :

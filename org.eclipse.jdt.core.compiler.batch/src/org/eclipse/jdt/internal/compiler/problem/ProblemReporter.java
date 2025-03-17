@@ -111,7 +111,7 @@ import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -5210,11 +5210,11 @@ public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclar
 		this.referenceContext = savedContext;
 	}
 }
-private boolean isIdentifier(TerminalTokens token) {
-	return token == TerminalTokens.TokenNameIdentifier;
+private boolean isIdentifier(TerminalToken token) {
+	return token == TerminalToken.TokenNameIdentifier;
 }
 
-private boolean isLiteral(TerminalTokens token) {
+private boolean isLiteral(TerminalToken token) {
 	return Scanner.isLiteral(token);
 }
 
@@ -7607,7 +7607,7 @@ public void parameterizedMemberTypeMissingArguments(ASTNode location, TypeBindin
 public void parseError(
 	int startPosition,
 	int endPosition,
-	TerminalTokens currentToken,
+	TerminalToken currentToken,
 	char[] currentTokenSource,
 	String errorTokenName,
 	String[] possibleTokens) {
@@ -7675,7 +7675,7 @@ public void parseError(
 public void parseErrorDeleteToken(
 	int start,
 	int end,
-	TerminalTokens currentKind,
+	TerminalToken currentKind,
 	char[] errorTokenSource,
 	String errorTokenName){
 	syntaxError(
@@ -7701,7 +7701,7 @@ public void parseErrorDeleteTokens(
 public void parseErrorInsertAfterToken(
 	int start,
 	int end,
-	TerminalTokens currentKind,
+	TerminalToken currentKind,
 	char[] errorTokenSource,
 	String errorTokenName,
 	String expectedToken){
@@ -7717,7 +7717,7 @@ public void parseErrorInsertAfterToken(
 public void parseErrorInsertBeforeToken(
 	int start,
 	int end,
-	TerminalTokens currentKind,
+	TerminalToken currentKind,
 	char[] errorTokenSource,
 	String errorTokenName,
 	String expectedToken){
@@ -7771,7 +7771,7 @@ public void parseErrorInsertToCompleteScope(
 public void parseErrorInvalidToken(
 	int start,
 	int end,
-	TerminalTokens currentKind,
+	TerminalToken currentKind,
 	char[] errorTokenSource,
 	String errorTokenName,
 	String expectedToken){
@@ -7809,7 +7809,7 @@ public void parseErrorMisplacedConstruct(
 public void parseErrorNoSuggestion(
 	int start,
 	int end,
-	TerminalTokens currentKind,
+	TerminalToken currentKind,
 	char[] errorTokenSource,
 	String errorTokenName){
 	syntaxError(
@@ -7834,7 +7834,7 @@ public void parseErrorNoSuggestionForTokens(
 public void parseErrorReplaceToken(
 	int start,
 	int end,
-	TerminalTokens currentKind,
+	TerminalToken currentKind,
 	char[] errorTokenSource,
 	String errorTokenName,
 	String expectedToken){
@@ -8111,8 +8111,8 @@ private int retrieveClosingAngleBracketPosition(int start) {
 	int end = start;
 	int count = 0;
 	try {
-		TerminalTokens token;
-		loop: while ((token = this.positionScanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+		TerminalToken token;
+		loop: while ((token = this.positionScanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 			switch(token) {
 				case TokenNameLESS:
 					count++;
@@ -8150,9 +8150,9 @@ private int retrieveEndingPositionAfterOpeningParenthesis(int sourceStart, int s
 	this.positionScanner.setSource(contents);
 	this.positionScanner.resetTo(sourceStart, sourceEnd);
 	try {
-		TerminalTokens token;
+		TerminalToken token;
 		int previousSourceEnd = sourceEnd;
-		while ((token = this.positionScanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+		while ((token = this.positionScanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 			switch(token) {
 				case TokenNameRPAREN:
 					return previousSourceEnd;
@@ -8181,8 +8181,8 @@ private int retrieveStartingPositionAfterOpeningParenthesis(int sourceStart, int
 	this.positionScanner.resetTo(sourceStart, sourceEnd);
 	int count = 0;
 	try {
-		TerminalTokens token;
-		while ((token = this.positionScanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+		TerminalToken token;
+		while ((token = this.positionScanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 			switch(token) {
 				case TokenNameLPAREN:
 					count++;
@@ -8430,7 +8430,7 @@ private boolean handleSyntaxErrorOnNewTokens(
 	int id,
 	int start,
 	int end,
-	TerminalTokens currentKind,
+	TerminalToken currentKind,
 	char[] errorTokenSource,
 	String errorTokenName,
 	String expectedToken) {
@@ -8450,7 +8450,7 @@ private void handleSyntaxError(
 	int id,
 	int start,
 	int end,
-	TerminalTokens currentKind,
+	TerminalToken currentKind,
 	char[] errorTokenSource,
 	String errorTokenName,
 	String expectedToken) {
@@ -8477,18 +8477,18 @@ private void syntaxError(
 	int id,
 	int startPosition,
 	int endPosition,
-	TerminalTokens currentKind,
+	TerminalToken currentKind,
 	char[] currentTokenSource,
 	String errorTokenName,
 	String expectedToken) {
 
-	if (currentKind == TerminalTokens.TokenNameAT && expectedToken != null && expectedToken.equals("@")) { //$NON-NLS-1$
+	if (currentKind == TerminalToken.TokenNameAT && expectedToken != null && expectedToken.equals("@")) { //$NON-NLS-1$
 		// In the diagnose parser case, we don't have the wherewithal to discriminate when we should hand out @308 vs @. So we always answer @.
 		// We should silently recover so swallow the message.
 		return;
 	}
 
-	if (currentKind == TerminalTokens.TokenNameARROW && expectedToken != null && expectedToken.equals("CaseArrow")) { //$NON-NLS-1$
+	if (currentKind == TerminalToken.TokenNameARROW && expectedToken != null && expectedToken.equals("CaseArrow")) { //$NON-NLS-1$
 		/* Silently swallow the error: "Syntax error on token "->", CaseArrow expected": Diagnose Parser will apply this repair and chug along on its way ...
 		 * This can never be the only error in a program, so we are good suppressing this. In fact, this means there is NO penalty in the Scanner having to
 		 * failed to disambiguate between TokenNameARROW and TokenNameCaseArrow and that is beautiful!

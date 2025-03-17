@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 
 /**
  * Wraps a scanner and offers convenient methods for finding tokens
@@ -86,12 +86,12 @@ public class TokenScanner {
 	 * @exception CoreException Thrown when the end of the file has been reached (code END_OF_FILE)
 	 * or a lexical error was detected while scanning (code LEXICAL_ERROR)
 	 */
-	public TerminalTokens readNext(boolean ignoreComments) throws CoreException {
-		TerminalTokens curr= TerminalTokens.TokenNameNotAToken;
+	public TerminalToken readNext(boolean ignoreComments) throws CoreException {
+		TerminalToken curr= TerminalToken.TokenNameNotAToken;
 		do {
 			try {
 				curr= this.scanner.getNextToken();
-				if (curr == TerminalTokens.TokenNameEOF) {
+				if (curr == TerminalToken.TokenNameEOF) {
 					throw new CoreException(createError(END_OF_FILE, "End Of File", null)); //$NON-NLS-1$
 				}
 			} catch (InvalidInputException e) {
@@ -109,7 +109,7 @@ public class TokenScanner {
 	 * @exception CoreException Thrown when the end of the file has been reached (code END_OF_FILE)
 	 * or a lexical error was detected while scanning (code LEXICAL_ERROR)
 	 */
-	public TerminalTokens readNext(int offset, boolean ignoreComments) throws CoreException {
+	public TerminalToken readNext(int offset, boolean ignoreComments) throws CoreException {
 		setOffset(offset);
 		return readNext(ignoreComments);
 	}
@@ -146,8 +146,8 @@ public class TokenScanner {
 	 * @exception CoreException Thrown when the end of the file has been reached (code END_OF_FILE)
 	 * or a lexical error was detected while scanning (code LEXICAL_ERROR)
 	 */
-	public void readToToken(TerminalTokens tok) throws CoreException {
-		TerminalTokens curr= TerminalTokens.TokenNameNotAToken;
+	public void readToToken(TerminalToken tok) throws CoreException {
+		TerminalToken curr= TerminalToken.TokenNameNotAToken;
 		do {
 			curr= readNext(false);
 		} while (curr != tok);
@@ -160,7 +160,7 @@ public class TokenScanner {
 	 * @exception CoreException Thrown when the end of the file has been reached (code END_OF_FILE)
 	 * or a lexical error was detected while scanning (code LEXICAL_ERROR)
 	 */
-	public void readToToken(TerminalTokens tok, int offset) throws CoreException {
+	public void readToToken(TerminalToken tok, int offset) throws CoreException {
 		setOffset(offset);
 		readToToken(tok);
 	}
@@ -173,7 +173,7 @@ public class TokenScanner {
 	 * @exception CoreException Thrown when the end of the file has been reached (code END_OF_FILE)
 	 * or a lexical error was detected while scanning (code LEXICAL_ERROR)
 	 */
-	public int getTokenStartOffset(TerminalTokens token, int startOffset) throws CoreException {
+	public int getTokenStartOffset(TerminalToken token, int startOffset) throws CoreException {
 		readToToken(token, startOffset);
 		return getCurrentStartOffset();
 	}
@@ -186,7 +186,7 @@ public class TokenScanner {
 	 * @exception CoreException Thrown when the end of the file has been reached (code END_OF_FILE)
 	 * or a lexical error was detected while scanning (code LEXICAL_ERROR)
 	 */
-	public int getTokenEndOffset(TerminalTokens token, int startOffset) throws CoreException {
+	public int getTokenEndOffset(TerminalToken token, int startOffset) throws CoreException {
 		readToToken(token, startOffset);
 		return getCurrentEndOffset();
 	}
@@ -199,10 +199,10 @@ public class TokenScanner {
 	 * @exception CoreException Thrown when the end of the file has been reached (code END_OF_FILE)
 	 * or a lexical error was detected while scanning (code LEXICAL_ERROR)
 	 */
-	public int getPreviousTokenEndOffset(TerminalTokens token, int startOffset) throws CoreException {
+	public int getPreviousTokenEndOffset(TerminalToken token, int startOffset) throws CoreException {
 		setOffset(startOffset);
 		int res= startOffset;
-		TerminalTokens curr= readNext(false);
+		TerminalToken curr= readNext(false);
 		while (curr != token) {
 			res= getCurrentEndOffset();
 			curr= readNext(false);
@@ -210,12 +210,12 @@ public class TokenScanner {
 		return res;
 	}
 
-	public static boolean isComment(TerminalTokens token) {
-		return token == TerminalTokens.TokenNameCOMMENT_BLOCK || token == TerminalTokens.TokenNameCOMMENT_JAVADOC
-			|| token == TerminalTokens.TokenNameCOMMENT_LINE;
+	public static boolean isComment(TerminalToken token) {
+		return token == TerminalToken.TokenNameCOMMENT_BLOCK || token == TerminalToken.TokenNameCOMMENT_JAVADOC
+			|| token == TerminalToken.TokenNameCOMMENT_LINE;
 	}
 
-	public static boolean isModifier(TerminalTokens token) {
+	public static boolean isModifier(TerminalToken token) {
 		switch (token) {
 			case TokenNamepublic:
 			case TokenNameprotected:

@@ -31,7 +31,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.*;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.*;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
@@ -167,7 +167,7 @@ public class Parser implements ParserBasicInformation, ConflictedParser, Operato
 	private static final short TYPE_CLASS = 1;
 
 	public Scanner scanner;
-	public TerminalTokens currentToken;
+	public TerminalToken currentToken;
 
 	static {
 		try{
@@ -819,7 +819,7 @@ public class Parser implements ParserBasicInformation, ConflictedParser, Operato
 	protected int expressionPtr;
 	protected Expression[] expressionStack = new Expression[ExpressionStackIncrement];
 	protected int rBracketPosition;
-	public TerminalTokens firstToken ; // handle for multiple parsing goals
+	public TerminalToken firstToken ; // handle for multiple parsing goals
 
 	/* jsr308 -- Type annotation management, we now maintain type annotations in a separate stack
 	   as otherwise they get interspersed with other expressions and some of the code is not prepared
@@ -864,7 +864,7 @@ public class Parser implements ParserBasicInformation, ConflictedParser, Operato
 	protected int lastCheckPoint;
 	protected int lastErrorEndPosition;
 	protected int lastErrorEndPositionBeforeRecovery = -1;
-	protected TerminalTokens lastIgnoredToken, nextIgnoredToken;
+	protected TerminalToken lastIgnoredToken, nextIgnoredToken;
 
 	protected int listLength; // for recovering some incomplete list (interfaces, throws or parameters)
 
@@ -4983,7 +4983,7 @@ protected void consumeLocalVariableDeclarationStatement() {
 					position--;
 				}
 				if (position >= 0)
-					this.recoveryScanner.insertTokenAhead(TerminalTokens.TokenNameEQUAL, position);
+					this.recoveryScanner.insertTokenAhead(TerminalToken.TokenNameEQUAL, position);
 			}
 
 			if (this.currentElement != null) {
@@ -9442,7 +9442,7 @@ protected void consumeCaseLabelElements() {
 	}
 }
 
-protected void consumeToken(TerminalTokens type) {
+protected void consumeToken(TerminalToken type) {
 	/* remember the last consumed value */
 	/* try to minimize the number of build values */
 //	// clear the commentPtr of the scanner in case we read something different from a modifier
@@ -11101,7 +11101,7 @@ protected TypeReference getAnnotationType() {
 		return new QualifiedTypeReference(tokens, positions);
 	}
 }
-public TerminalTokens getFirstToken() {
+public TerminalToken getFirstToken() {
 	// the first token is a virtual token that
 	// allows the parser to parse several goals
 	// even if they aren't LALR(1)....
@@ -11749,9 +11749,9 @@ private void jumpOverType(){
 		this.scanner.diet = false; // quit jumping over method bodies
 
 		if(!isAnonymous) {
-			((RecoveryScanner)this.scanner).setPendingTokens(new TerminalTokens[]{TokenNameSEMICOLON, TokenNamebreak});
+			((RecoveryScanner)this.scanner).setPendingTokens(new TerminalToken[]{TokenNameSEMICOLON, TokenNamebreak});
 		} else {
-			((RecoveryScanner)this.scanner).setPendingTokens(new TerminalTokens[]{TokenNameIdentifier, TokenNameEQUAL, TokenNameIdentifier});
+			((RecoveryScanner)this.scanner).setPendingTokens(new TerminalToken[]{TokenNameIdentifier, TokenNameEQUAL, TokenNameIdentifier});
 		}
 
 		this.pendingRecoveredType = typeDeclaration;
@@ -11988,7 +11988,7 @@ protected void optimizedConcatNodeLists() {
 	this.astLengthStack[--this.astLengthPtr]++;
 }
 @Override
-public boolean atConflictScenario(TerminalTokens token) {
+public boolean atConflictScenario(TerminalToken token) {
 
 	/* Answer true if the parser is at a configuration where the scanner must look ahead and help disambiguate between (a) '<' as an operator and '<' as the
 	   start of <type argument> and (b) the use of '(' in '(' expression ')' and '( type ')' and '(' lambda formal parameters ')'. (c) whether the token @
@@ -12039,7 +12039,7 @@ protected void parse() {
 	}
 
 	boolean isDietParse = this.diet;
-	TerminalTokens oldFirstToken = getFirstToken();
+	TerminalToken oldFirstToken = getFirstToken();
 	this.hasError = false;
 
 	this.hasReportedError = false;
@@ -12074,7 +12074,7 @@ try {
 				if (act == ERROR_ACTION)
 					this.hasError = true;
 			}
-			TerminalTokens previousToken = this.currentToken;
+			TerminalToken previousToken = this.currentToken;
 			switch (resumeOnSyntaxError()) {
 				case HALT:
 					act = ERROR_ACTION; // this is suspect, but goes quite some way back in time ...
@@ -12249,7 +12249,7 @@ try {
 protected boolean restartRecovery() {
 	return this.restartRecovery;
 }
-protected TerminalTokens fetchNextToken() throws InvalidInputException {
+protected TerminalToken fetchNextToken() throws InvalidInputException {
 	return this.scanner.getNextToken();
 }
 public void parse(ConstructorDeclaration cd, CompilationUnitDeclaration unit, boolean recordLineSeparator) {
@@ -13367,7 +13367,7 @@ public void recoveryTokenCheck() {
 	this.ignoreNextOpeningBrace = false;
 }
 // A P I
-protected void reportSyntaxErrors(boolean isDietParse, TerminalTokens oldFirstToken) {
+protected void reportSyntaxErrors(boolean isDietParse, TerminalToken oldFirstToken) {
 	if(this.referenceContext instanceof MethodDeclaration methodDeclaration) {
 		if((methodDeclaration.bits & ASTNode.ErrorInSignature) != 0){
 			return;
@@ -13733,7 +13733,7 @@ public void copyState(Parser from) {
 public int automatonState() {
 	return this.stack[this.stateStackTop];
 }
-public boolean automatonWillShift(TerminalTokens token, int lastAction) {
+public boolean automatonWillShift(TerminalToken token, int lastAction) {
 	if (lastAction == ERROR_ACTION) {
 		return false;
 	}
@@ -13770,7 +13770,7 @@ public boolean automatonWillShift(TerminalTokens token, int lastAction) {
 }
 
 @Override
-public boolean automatonWillShift(TerminalTokens token) {
+public boolean automatonWillShift(TerminalToken token) {
 	return automatonWillShift(token, this.unstackedAct);
 }
 

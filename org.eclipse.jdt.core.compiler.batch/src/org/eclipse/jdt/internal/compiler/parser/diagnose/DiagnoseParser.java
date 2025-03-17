@@ -13,8 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser.diagnose;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameLBRACE;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameNotAToken;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameLBRACE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameNotAToken;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.ParserBasicInformation;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -154,11 +154,11 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 	    }
 	}
 
-	public DiagnoseParser(Parser parser, TerminalTokens firstToken, int start, int end, CompilerOptions options) {
+	public DiagnoseParser(Parser parser, TerminalToken firstToken, int start, int end, CompilerOptions options) {
 		this(parser, firstToken, start, end, Util.EMPTY_INT_ARRAY, Util.EMPTY_INT_ARRAY, Util.EMPTY_INT_ARRAY, options);
 	}
 
-	public DiagnoseParser(Parser parser, TerminalTokens firstToken, int start, int end, int[] intervalStartToSkip, int[] intervalEndToSkip, int[] intervalFlagsToSkip, CompilerOptions options) {
+	public DiagnoseParser(Parser parser, TerminalToken firstToken, int start, int end, int[] intervalStartToSkip, int[] intervalEndToSkip, int[] intervalFlagsToSkip, CompilerOptions options) {
 		this.parser = parser;
 		this.options = options;
 		this.lexStream = new LexStream(BUFF_SIZE, parser.scanner, intervalStartToSkip, intervalEndToSkip, intervalFlagsToSkip, firstToken, start, end);
@@ -241,7 +241,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 			this.stateStackTop = 0;
 			this.stack[this.stateStackTop] = act;
 
-			TerminalTokens tok = this.lexStream.kind(this.currentToken);
+			TerminalToken tok = this.lexStream.kind(this.currentToken);
 			this.locationStack[this.stateStackTop] = this.currentToken;
 			this.locationStartStack[this.stateStackTop] = this.lexStream.start(this.currentToken);
 
@@ -445,7 +445,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 						this.locationStack[this.stateStackTop] = this.currentToken;
 						this.locationStartStack[this.stateStackTop] = this.lexStream.start(this.currentToken);
 					} else {
-						tok = TerminalTokens.of(candidate.symbol);
+						tok = TerminalToken.of(candidate.symbol);
 						this.locationStack[this.stateStackTop] = candidate.location;
 						this.locationStartStack[this.stateStackTop] = this.lexStream.start(candidate.location);
 					}
@@ -497,7 +497,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 		this.errorTokenStart = this.lexStream.start(error_token);
 
 		int prevtok = this.lexStream.previous(error_token);
-		TerminalTokens prevtokKind = this.lexStream.kind(prevtok);
+		TerminalToken prevtokKind = this.lexStream.kind(prevtok);
 
 		if(forcedError) {
 			int name_index = Parser.terminal_index[TokenNameLBRACE.tokenNumber()];
@@ -763,7 +763,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 //
 	private PrimaryRepairInfo checkPrimaryDistance(int stck[], int stack_top, PrimaryRepairInfo repair) {
 		int i, j, k, next_state, max_pos, act, root, symbol;
-		TerminalTokens tok;
+		TerminalToken tok;
 
 		//
 	    //  First, try scope and manual recovery.
@@ -1961,7 +1961,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 	private int parseCheck(int stck[], int stack_top, int first_token, int buffer_position) {
 		int max_pos;
 		int indx;
-		TerminalTokens ct;
+		TerminalToken ct;
 		int act;
 
 		//
@@ -2019,7 +2019,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 
 			max_pos = this.tempStackTop;
 			indx = buffer_position - 1;
-			ct = TerminalTokens.of(first_token);
+			ct = TerminalToken.of(first_token);
 			this.lexStream.reset(this.buffer[buffer_position]);
 		}
 
@@ -2138,7 +2138,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 		int currentKind = this.lexStream.kind(token).tokenNumber();
 		String errorTokenName = Parser.name[Parser.terminal_index[this.lexStream.kind(token).tokenNumber()]];
 		char[] errorTokenSource = this.lexStream.name(token);
-		if (currentKind == TerminalTokens.TokenNameStringLiteral.tokenNumber()) {
+		if (currentKind == TerminalToken.TokenNameStringLiteral.tokenNumber()) {
 			errorTokenSource = displayEscapeCharacters(errorTokenSource, 1, errorTokenSource.length - 1);
 		}
 
@@ -2152,7 +2152,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 			case BEFORE_CODE:
 				if(this.recoveryScanner != null) {
 					if(addedToken > -1) {
-						this.recoveryScanner.insertToken(TerminalTokens.of(addedToken), -1, errorStart);
+						this.recoveryScanner.insertToken(TerminalToken.of(addedToken), -1, errorStart);
 					} else {
 						int[] template = getNTermTemplate(-addedToken);
 						if(template != null) {
@@ -2163,7 +2163,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 				if(this.reportProblem) problemReporter().parseErrorInsertBeforeToken(
 					errorStart,
 					errorEnd,
-					TerminalTokens.of(currentKind),
+					TerminalToken.of(currentKind),
 					errorTokenSource,
 					errorTokenName,
 					name);
@@ -2171,7 +2171,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 			case INSERTION_CODE:
 				if(this.recoveryScanner != null) {
 					if(addedToken > -1) {
-						this.recoveryScanner.insertToken(TerminalTokens.of(addedToken), -1, errorEnd);
+						this.recoveryScanner.insertToken(TerminalToken.of(addedToken), -1, errorEnd);
 					} else {
 						int[] template = getNTermTemplate(-addedToken);
 						if(template != null) {
@@ -2182,7 +2182,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 				if(this.reportProblem) problemReporter().parseErrorInsertAfterToken(
 					errorStart,
 					errorEnd,
-					TerminalTokens.of(currentKind),
+					TerminalToken.of(currentKind),
 					errorTokenSource,
 					errorTokenName,
 					name);
@@ -2194,7 +2194,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 				if(this.reportProblem) problemReporter().parseErrorDeleteToken(
 					errorStart,
 					errorEnd,
-					TerminalTokens.of(currentKind),
+					TerminalToken.of(currentKind),
 					errorTokenSource,
 					errorTokenName);
 				break;
@@ -2206,14 +2206,14 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 					if(this.reportProblem) problemReporter().parseErrorReplaceToken(
 						errorStart,
 						errorEnd,
-						TerminalTokens.of(currentKind),
+						TerminalToken.of(currentKind),
 						errorTokenSource,
 						errorTokenName,
 						name);
 				} else {
 					if(this.recoveryScanner != null) {
 						if(addedToken > -1) {
-							this.recoveryScanner.replaceTokens(TerminalTokens.of(addedToken), errorStart, errorEnd);
+							this.recoveryScanner.replaceTokens(TerminalToken.of(addedToken), errorStart, errorEnd);
 						} else {
 							int[] template = getNTermTemplate(-addedToken);
 							if(template != null) {
@@ -2224,7 +2224,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 					if(this.reportProblem) problemReporter().parseErrorInvalidToken(
 						errorStart,
 						errorEnd,
-						TerminalTokens.of(currentKind),
+						TerminalToken.of(currentKind),
 						errorTokenSource,
 						errorTokenName,
 						name);
@@ -2244,7 +2244,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 				if(this.reportProblem) problemReporter().parseErrorReplaceToken(
 					errorStart,
 					errorEnd,
-					TerminalTokens.of(currentKind),
+					TerminalToken.of(currentKind),
 					errorTokenSource,
 					errorTokenName,
 					name);
@@ -2303,7 +2303,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 	            }
 
 				if (scopeNameIndex != 0) {
-					if (insertedToken == TerminalTokens.TokenNameElidedSemicolonAndRightBrace.tokenNumber()) {
+					if (insertedToken == TerminalToken.TokenNameElidedSemicolonAndRightBrace.tokenNumber()) {
 						reportMisplacedConstruct(errorStart, errorEnd, false);
 						break;
 					}
@@ -2328,7 +2328,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 			case MERGE_CODE:
 				if(this.recoveryScanner != null) {
 					if(addedToken > -1) {
-						this.recoveryScanner.replaceTokens(TerminalTokens.of(addedToken), errorStart, errorEnd);
+						this.recoveryScanner.replaceTokens(TerminalToken.of(addedToken), errorStart, errorEnd);
 					} else {
 						int[] template = getNTermTemplate(-addedToken);
 						if(template != null) {
@@ -2357,13 +2357,13 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 					if(this.reportProblem) problemReporter().parseErrorNoSuggestion(
 						errorStart,
 						errorEnd,
-						TerminalTokens.of(currentKind),
+						TerminalToken.of(currentKind),
 						errorTokenSource,
 						errorTokenName);
 				} else {
 					if(this.recoveryScanner != null) {
 						if(addedToken > -1) {
-							this.recoveryScanner.replaceTokens(TerminalTokens.of(addedToken), errorStart, errorEnd);
+							this.recoveryScanner.replaceTokens(TerminalToken.of(addedToken), errorStart, errorEnd);
 						} else {
 							int[] template = getNTermTemplate(-addedToken);
 							if(template != null) {
@@ -2374,7 +2374,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 					if(this.reportProblem) problemReporter().parseErrorReplaceToken(
 						errorStart,
 						errorEnd,
-						TerminalTokens.of(currentKind),
+						TerminalToken.of(currentKind),
 						errorTokenSource,
 						errorTokenName,
 						name);
@@ -2521,7 +2521,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 	            	this.recoveryScanner.insertTokens(addedTokens, completedToken, errorEnd);
 	            }
 	            if (scopeNameIndex != 0) {
-	            	if (insertedToken == TerminalTokens.TokenNameElidedSemicolonAndRightBrace.tokenNumber()) {
+	            	if (insertedToken == TerminalToken.TokenNameElidedSemicolonAndRightBrace.tokenNumber()) {
 	            		reportMisplacedConstruct(errorStart, errorEnd, false);
 	            		break;
 					}
@@ -2540,7 +2540,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 			case MERGE_CODE:
 				if(this.recoveryScanner != null) {
 					if(addedToken > -1) {
-						this.recoveryScanner.replaceTokens(TerminalTokens.of(addedToken), errorStart, errorEnd);
+						this.recoveryScanner.replaceTokens(TerminalToken.of(addedToken), errorStart, errorEnd);
 					} else {
 						int[] template = getNTermTemplate(-addedToken);
 						if(template != null) {
@@ -2572,7 +2572,7 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 				} else {
 					if(this.recoveryScanner != null) {
 						if(addedToken >= -1) {
-							this.recoveryScanner.replaceTokens(TerminalTokens.of(addedToken), errorStart, errorEnd);
+							this.recoveryScanner.replaceTokens(TerminalToken.of(addedToken), errorStart, errorEnd);
 						} else {
 							int[] template = getNTermTemplate(-addedToken);
 							if(template != null) {
@@ -2614,18 +2614,18 @@ public class DiagnoseParser implements ParserBasicInformation, ConflictedParser 
 	}
 
 	@Override
-	public boolean atConflictScenario(TerminalTokens token) {
+	public boolean atConflictScenario(TerminalToken token) {
 		/* There is too much voodoo that goes on here in DiagnoseParser (multiple machines, lexer stream reset etc.)
 		   So we take a simple minded view that we will always ask for disambiguation, except there is one scenario
 		   that needs special handling, we let the lexer stream deal with that: In X<String>.Y<Integer>:: the second
 		   '<' should not be tagged for disambiguation. If a synthetic token gets injected there, there will be syntax
 		   error. See that this is not a problem for the regular/normal parser.
 		*/
-		return (token == TerminalTokens.TokenNameLPAREN || token == TerminalTokens.TokenNameAT || (token == TerminalTokens.TokenNameLESS && !this.lexStream.awaitingColonColon()));
+		return (token == TerminalToken.TokenNameLPAREN || token == TerminalToken.TokenNameAT || (token == TerminalToken.TokenNameLESS && !this.lexStream.awaitingColonColon()));
 	}
 
 	@Override
-	public boolean automatonWillShift(TerminalTokens token) {
+	public boolean automatonWillShift(TerminalToken token) {
 		return false; // Some day we will understand the world well enough, for now say no and deal with it (sigh)
 	}
 

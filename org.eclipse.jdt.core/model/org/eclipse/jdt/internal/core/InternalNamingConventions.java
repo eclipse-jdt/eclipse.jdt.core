@@ -22,7 +22,7 @@ import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.compiler.util.SimpleSetOfCharArray;
 
 public class InternalNamingConventions {
@@ -785,8 +785,8 @@ public class InternalNamingConventions {
 							nameScanner.setSource(suffixName);
 							switch (nameScanner.getNextToken()) {
 								case TokenNameIdentifier :
-									TerminalTokens token = nameScanner.getNextToken();
-									if (token == TerminalTokens.TokenNameEOF && nameScanner.startPosition == suffixName.length) {
+									TerminalToken token = nameScanner.getNextToken();
+									if (token == TerminalToken.TokenNameEOF && nameScanner.startPosition == suffixName.length) {
 										if (!foundNames.includes(suffixName)) {
 											acceptName(suffixName, prefixes[k], suffixes[l],  k == 0, l == 0, internalPrefix.length - matchingIndex, requestor);
 											foundNames.add(suffixName);
@@ -810,7 +810,7 @@ public class InternalNamingConventions {
 									switch (nameScanner.getNextToken()) {
 										case TokenNameIdentifier :
 											token = nameScanner.getNextToken();
-											if (token == TerminalTokens.TokenNameEOF && nameScanner.startPosition == suffixName.length) {
+											if (token == TerminalToken.TokenNameEOF && nameScanner.startPosition == suffixName.length) {
 												if (!foundNames.includes(suffixName)) {
 													acceptName(suffixName, prefixes[k], suffixes[l], k == 0, l == 0, internalPrefix.length - matchingIndex, requestor);
 													foundNames.add(suffixName);

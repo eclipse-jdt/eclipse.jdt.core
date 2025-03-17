@@ -14,10 +14,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameInvalid;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameLBRACE;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRBRACE;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamewhile;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameInvalid;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameLBRACE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameRBRACE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNamewhile;
 
 import java.util.ArrayList;
 import java.util.List;

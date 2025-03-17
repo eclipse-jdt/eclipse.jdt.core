@@ -15,15 +15,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.select;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCaseArrow;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameIdentifier;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameInvalid;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameLBRACE;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameNotAToken;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRBRACE;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameSEMICOLON;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameif;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamewhile;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCaseArrow;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameIdentifier;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameInvalid;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameLBRACE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameNotAToken;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameRBRACE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameSEMICOLON;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameif;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNamewhile;
 
 /*
  * Parser able to build specific completion parse nodes, given a cursorLocation.
@@ -45,7 +45,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.parser.JavadocParser;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredType;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -719,7 +719,7 @@ protected void consumeEnterVariable() {
 		this.isOrphanCompletionNode = false; // already attached inside variable decl
 	}
 
-	if (this.currentToken == TerminalTokens.TokenNameEQUAL)
+	if (this.currentToken == TerminalToken.TokenNameEQUAL)
 		pushOnElementStack(K_INSIDE_INITIALIZATION);
 }
 
@@ -1490,8 +1490,8 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 	}
 }
 @Override
-protected void consumeToken(TerminalTokens token) {
-	TerminalTokens lastToken = this.previousToken; // before super.consumeToken tramples on it
+protected void consumeToken(TerminalToken token) {
+	TerminalToken lastToken = this.previousToken; // before super.consumeToken tramples on it
 	boolean betweenCaseAndColonOrArrow = topKnownElementKind(SELECTION_OR_ASSIST_PARSER) == K_BETWEEN_CASE_AND_COLONORARROW; // before super.consumeToken tramples on it
 	super.consumeToken(token);
 

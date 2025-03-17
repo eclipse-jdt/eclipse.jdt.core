@@ -17,7 +17,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.*;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;

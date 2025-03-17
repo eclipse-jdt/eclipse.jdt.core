@@ -17,7 +17,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.parser.JavadocParser;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 
 public class SourceJavadocParser extends JavadocParser {
 
@@ -57,7 +57,7 @@ protected boolean parseIdentifierTag(boolean report) {
 			// Store optional additional category identifiers
 			consumeToken();
 			while (this.index < end) {
-				if (readTokenSafely() == TerminalTokens.TokenNameIdentifier && (this.scanner.currentCharacter == ' ' || ScannerHelper.isWhitespace(this.scanner.currentCharacter))) {
+				if (readTokenSafely() == TerminalToken.TokenNameIdentifier && (this.scanner.currentCharacter == ' ' || ScannerHelper.isWhitespace(this.scanner.currentCharacter))) {
 					if (this.index > (this.lineEnd+1)) break;
 					// valid additional identifier
 					if (++this.categoriesPtr >= length) {

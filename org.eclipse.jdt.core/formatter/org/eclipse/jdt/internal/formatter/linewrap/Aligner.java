@@ -16,12 +16,12 @@
 package org.eclipse.jdt.internal.formatter.linewrap;
 
 import static java.util.stream.Collectors.toList;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameARROW;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_BLOCK;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_LINE;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameEQUAL;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameIdentifier;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameInvalid;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameARROW;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_BLOCK;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_LINE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameEQUAL;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameIdentifier;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameInvalid;
 
 import java.util.ArrayList;
 import java.util.List;

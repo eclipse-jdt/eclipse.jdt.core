@@ -37,7 +37,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.core.ModuleDescriptionInfo.ModuleReferenceInfo;
 import org.eclipse.jdt.internal.core.ModuleDescriptionInfo.PackageExportInfo;
 import org.eclipse.jdt.internal.core.ModuleDescriptionInfo.ServiceInfo;
@@ -842,7 +842,7 @@ public class DOMToModelPopulator extends ASTVisitor {
 		Scanner scanner = new Scanner();
 		scanner.setSource(token.toCharArray());
 		try {
-			TerminalTokens tokenType = scanner.getNextToken();
+			TerminalToken tokenType = scanner.getNextToken();
 			return switch(tokenType) {
 				case TokenNameDoubleLiteral -> IMemberValuePair.K_DOUBLE;
 				case TokenNameIntegerLiteral -> IMemberValuePair.K_INT;

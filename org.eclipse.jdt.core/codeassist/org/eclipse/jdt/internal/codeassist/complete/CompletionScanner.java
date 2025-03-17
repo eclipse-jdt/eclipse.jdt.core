@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.complete;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.*;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.*;
 
 /*
  * Scanner aware of a cursor location so as to discard trailing portions of identifiers
@@ -30,7 +30,7 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 
 public class CompletionScanner extends Scanner {
 
@@ -127,7 +127,7 @@ public char[] getCurrentTokenSourceString() {
 	return super.getCurrentTokenSourceString();
 }
 @Override
-protected TerminalTokens getNextToken0() throws InvalidInputException {
+protected TerminalToken getNextToken0() throws InvalidInputException {
 
 	this.wasAcr = false;
 	this.unicodeCharSize = 0;
@@ -446,7 +446,7 @@ protected TerminalTokens getNextToken0() throws InvalidInputException {
 					throw invalidCharacter();
 				case '"' :
 					try {
-						TerminalTokens ret = scanForStringLiteral();
+						TerminalToken ret = scanForStringLiteral();
 						return ret;
 					} catch(InvalidInputException e){
 						if (Scanner.INVALID_CHAR_IN_STRING.equals(e.getMessage())) {
@@ -693,7 +693,7 @@ protected TerminalTokens getNextToken0() throws InvalidInputException {
 											this.currentPosition++;
 									} //jump over the \\
 								}
-								TerminalTokens token = isJavadoc ? TokenNameCOMMENT_JAVADOC : TokenNameCOMMENT_BLOCK;
+								TerminalToken token = isJavadoc ? TokenNameCOMMENT_JAVADOC : TokenNameCOMMENT_BLOCK;
 								recordComment(token);
 								this.commentTagStarts[this.commentPtr] = firstTag;
 								if (!isJavadoc && this.startPosition <= this.cursorLocation && this.cursorLocation < this.currentPosition-1){
@@ -784,8 +784,8 @@ protected TerminalTokens getNextToken0() throws InvalidInputException {
 	return TokenNameEOF;
 }
 @Override
-protected TerminalTokens getNextNotFakedToken() throws InvalidInputException {
-	TerminalTokens token;
+protected TerminalToken getNextNotFakedToken() throws InvalidInputException {
+	TerminalToken token;
 	boolean fromUnget = false;
 	if (this.nextToken != TokenNameNotAToken) {
 		token = this.nextToken;
@@ -834,9 +834,9 @@ public final void jumpOverBlock() {
 // * we pretend we read an identifier.
 // */
 @Override
-public TerminalTokens scanIdentifierOrKeyword() {
+public TerminalToken scanIdentifierOrKeyword() {
 
-	TerminalTokens id = super.scanIdentifierOrKeyword();
+	TerminalToken id = super.scanIdentifierOrKeyword();
 
 	if (this.startPosition <= this.cursorLocation+1
 			&& this.cursorLocation < this.currentPosition){
@@ -855,9 +855,9 @@ public TerminalTokens scanIdentifierOrKeyword() {
 }
 
 @Override
-public TerminalTokens scanNumber(boolean dotPrefix) throws InvalidInputException {
+public TerminalToken scanNumber(boolean dotPrefix) throws InvalidInputException {
 
-	TerminalTokens token = super.scanNumber(dotPrefix);
+	TerminalToken token = super.scanNumber(dotPrefix);
 
 	// consider completion just before a number to be ok, will insert before it
 	if (this.startPosition <= this.cursorLocation && this.cursorLocation < this.currentPosition){

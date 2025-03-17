@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 
 /**
  * TextBlock  AST node type.
@@ -179,7 +179,7 @@ public class TextBlock extends Expression {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length);
 		try {
-			TerminalTokens tokenType = scanner.getNextToken();
+			TerminalToken tokenType = scanner.getNextToken();
 			switch(tokenType) {
 				case TokenNameTextBlock:
 					break;

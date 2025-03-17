@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameInvalid;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameInvalid;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.core.util.PublicScanner;
 
 /**
@@ -41,8 +41,8 @@ import org.eclipse.jdt.internal.core.util.PublicScanner;
 public class PublicScannerTest extends AbstractRegressionTest {
 
 	private Map<Integer, String> ttValueToName;
-	private Map<String, TerminalTokens> ttNameToValue;
-	private TerminalTokens[] ttFields;
+	private Map<String, TerminalToken> ttNameToValue;
+	private TerminalToken[] ttFields;
 	private Map<Integer, String> tsValueToName;
 	private Map<String, Integer> tsNameToValue;
 	private Field[] tsFields;
@@ -52,47 +52,47 @@ public class PublicScannerTest extends AbstractRegressionTest {
 	 * Replacement map for tokens that shouldn't be exposed to clients
 	 * Key is the token, value is the replacement token
 	 */
-	static final Map<TerminalTokens, TerminalTokens> SYNTHETIC_REPLACE_TOKENS;
+	static final Map<TerminalToken, TerminalToken> SYNTHETIC_REPLACE_TOKENS;
 
 	/**
 	 * Replacement list for tokens that shouldn't be exposed to clients and scanner should
 	 * skip to next token
 	 */
-	static final List<TerminalTokens> SYNTHETIC_SKIP_TOKENS;
+	static final List<TerminalToken> SYNTHETIC_SKIP_TOKENS;
 
 	/**
 	 * List of tokens that shouldn't be exposed to clients because they can never be
 	 * produced without declaring the source to be "module-info.java".
 	 */
-	static final List<TerminalTokens> MODULE_TOKENS;
+	static final List<TerminalToken> MODULE_TOKENS;
 
 	static {
-		Map<TerminalTokens, TerminalTokens> map = new HashMap<>();
-		map.put(TerminalTokens.TokenNameAT308DOTDOTDOT, TerminalTokens.TokenNameAT);
-		map.put(TerminalTokens.TokenNameAT308, TerminalTokens.TokenNameAT);
-		map.put(TerminalTokens.TokenNameCaseArrow, TerminalTokens.TokenNameARROW);
+		Map<TerminalToken, TerminalToken> map = new HashMap<>();
+		map.put(TerminalToken.TokenNameAT308DOTDOTDOT, TerminalToken.TokenNameAT);
+		map.put(TerminalToken.TokenNameAT308, TerminalToken.TokenNameAT);
+		map.put(TerminalToken.TokenNameCaseArrow, TerminalToken.TokenNameARROW);
 		SYNTHETIC_REPLACE_TOKENS = Collections.unmodifiableMap(map);
 
-		List<TerminalTokens> list = new ArrayList<>();
-		list.add(TerminalTokens.TokenNameBeginCasePattern);
-		list.add(TerminalTokens.TokenNameBeginIntersectionCast);
-		list.add(TerminalTokens.TokenNameBeginLambda);
-		list.add(TerminalTokens.TokenNameBeginTypeArguments);
-		list.add(TerminalTokens.TokenNameElidedSemicolonAndRightBrace);
+		List<TerminalToken> list = new ArrayList<>();
+		list.add(TerminalToken.TokenNameBeginCasePattern);
+		list.add(TerminalToken.TokenNameBeginIntersectionCast);
+		list.add(TerminalToken.TokenNameBeginLambda);
+		list.add(TerminalToken.TokenNameBeginTypeArguments);
+		list.add(TerminalToken.TokenNameElidedSemicolonAndRightBrace);
 		list.add(TokenNameInvalid);
 		SYNTHETIC_SKIP_TOKENS = Collections.unmodifiableList(list);
 
 		list = new ArrayList<>();
-		list.add(TerminalTokens.TokenNamemodule);
-		list.add(TerminalTokens.TokenNamerequires);
-		list.add(TerminalTokens.TokenNameexports);
-		list.add(TerminalTokens.TokenNameto);
-		list.add(TerminalTokens.TokenNameopen);
-		list.add(TerminalTokens.TokenNameopens);
-		list.add(TerminalTokens.TokenNameprovides);
-		list.add(TerminalTokens.TokenNamewith);
-		list.add(TerminalTokens.TokenNametransitive);
-		list.add(TerminalTokens.TokenNameuses);
+		list.add(TerminalToken.TokenNamemodule);
+		list.add(TerminalToken.TokenNamerequires);
+		list.add(TerminalToken.TokenNameexports);
+		list.add(TerminalToken.TokenNameto);
+		list.add(TerminalToken.TokenNameopen);
+		list.add(TerminalToken.TokenNameopens);
+		list.add(TerminalToken.TokenNameprovides);
+		list.add(TerminalToken.TokenNamewith);
+		list.add(TerminalToken.TokenNametransitive);
+		list.add(TerminalToken.TokenNameuses);
 		MODULE_TOKENS = Collections.unmodifiableList(list);
 	}
 
@@ -113,8 +113,8 @@ public class PublicScannerTest extends AbstractRegressionTest {
 		super.setUp();
 		this.ttValueToName = new TreeMap<>();
 		this.ttNameToValue = new TreeMap<>();
-		this.ttFields = TerminalTokens.values();
-		for (TerminalTokens field : this.ttFields) {
+		this.ttFields = TerminalToken.values();
+		for (TerminalToken field : this.ttFields) {
 			// we are stuck with the clunkier names for API - map
 			String fName = field.name();
 			if (fName.equals("TokenNamesealed"))
@@ -143,14 +143,14 @@ public class PublicScannerTest extends AbstractRegressionTest {
 	}
 
 	/**
-	 * Tests that all constants defined in @link {@link TerminalTokens} are properly handled by {@link PublicScanner#getNextToken()}
+	 * Tests that all constants defined in @link {@link TerminalToken} are properly handled by {@link PublicScanner#getNextToken()}
 	 */
 	public void testGetNextToken() throws Exception {
-		Set<Entry<String, TerminalTokens>> entrySet = this.ttNameToValue.entrySet();
-		for (Entry<String, TerminalTokens> entry : entrySet) {
+		Set<Entry<String, TerminalToken>> entrySet = this.ttNameToValue.entrySet();
+		for (Entry<String, TerminalToken> entry : entrySet) {
 			this.ps.reset();
 			String fieldName = entry.getKey();
-			TerminalTokens fieldValue = entry.getValue();
+			TerminalToken fieldValue = entry.getValue();
 			if (MODULE_TOKENS.contains(fieldValue)) {
 				continue;
 			}
@@ -170,12 +170,12 @@ public class PublicScannerTest extends AbstractRegressionTest {
 				assertEquals("getNextToken() returns value not specified in ITerminalSymbols for token " + fieldName, actual, nextToken);
 				assertEquals(1, this.ps.nextTokenCalls);
 			} else {
-				TerminalTokens value = TerminalTokens.valueOf(fieldName);
+				TerminalToken value = TerminalToken.valueOf(fieldName);
 				if(SYNTHETIC_SKIP_TOKENS.contains(value)){
 					assertEquals(2, this.ps.nextTokenCalls);
 				} else {
 					assertEquals(1, this.ps.nextTokenCalls);
-					TerminalTokens target = SYNTHETIC_REPLACE_TOKENS.get(value);
+					TerminalToken target = SYNTHETIC_REPLACE_TOKENS.get(value);
 					if(target == null) {
 						fail("TerminalTokens." + fieldName + " should be added to ITerminalSymbols or SYNTHETIC_*_TOKENS in PublicScannerTest*!");
 					} else {
@@ -189,9 +189,9 @@ public class PublicScannerTest extends AbstractRegressionTest {
 	}
 
 	/**
-	 * Tests that all constants defined in {@link TerminalTokens} are either defined in {@link ITerminalSymbols}
+	 * Tests that all constants defined in {@link TerminalToken} are either defined in {@link ITerminalSymbols}
 	 * or defined in {@link #SYNTHETIC_REPLACE_TOKENS}, or {@link #SYNTHETIC_SKIP_TOKENS}, or {@link #MODULE_TOKENS}
-	 * and no constants defined in {@link ITerminalSymbols} are missing in {@link TerminalTokens}
+	 * and no constants defined in {@link ITerminalSymbols} are missing in {@link TerminalToken}
 	 */
 	public void testTokensAndSymbolsSync() throws Exception {
 		Set<Entry<String, Integer>> entrySet = this.tsNameToValue.entrySet();
@@ -201,17 +201,17 @@ public class PublicScannerTest extends AbstractRegressionTest {
 				fail("ITerminalSymbols." + fieldName + " does not exist in TerminalTokens");
 			}
 		}
-		Set<Entry<String, TerminalTokens>> ttEntrySet = this.ttNameToValue.entrySet();
-		for (Entry<String, TerminalTokens> entry : ttEntrySet) {
+		Set<Entry<String, TerminalToken>> ttEntrySet = this.ttNameToValue.entrySet();
+		for (Entry<String, TerminalToken> entry : ttEntrySet) {
 			String fieldName = entry.getKey();
 			if(this.tsNameToValue.containsKey(fieldName)) {
 				// OK, constant present
 			} else {
-				TerminalTokens value = entry.getValue();
+				TerminalToken value = entry.getValue();
 				if(SYNTHETIC_SKIP_TOKENS.contains(value) || MODULE_TOKENS.contains(value)){
 					// OK, constant present
 				} else {
-					TerminalTokens target = SYNTHETIC_REPLACE_TOKENS.get(value);
+					TerminalToken target = SYNTHETIC_REPLACE_TOKENS.get(value);
 					if(target != null) {
 						// OK, constant present
 					} else {
@@ -250,7 +250,7 @@ public class PublicScannerTest extends AbstractRegressionTest {
 			return myScanner;
 		}
 
-		void setNextToken(TerminalTokens next) {
+		void setNextToken(TerminalToken next) {
 			this.delegate.next = next;
 		}
 
@@ -277,7 +277,7 @@ public class PublicScannerTest extends AbstractRegressionTest {
 
 
 	class MyScanner extends Scanner {
-		TerminalTokens next;
+		TerminalToken next;
 		public MyScanner(boolean tokenizeComments, boolean tokenizeWhiteSpace,
 				boolean checkNonExternalizedStringLiterals, long sourceLevel, long complianceLevel, char[][] taskTags,
 				char[][] taskPriorities, boolean isTaskCaseSensitive, boolean isPreviewEnabled) {
@@ -287,13 +287,13 @@ public class PublicScannerTest extends AbstractRegressionTest {
 		}
 
 		@Override
-		public TerminalTokens getNextToken() throws InvalidInputException {
+		public TerminalToken getNextToken() throws InvalidInputException {
 			return this.next;
 		}
 	}
 
 	/**
-	 * Run this if {@link TerminalTokens} is updated and the test fails - that generates the body of the
+	 * Run this if {@link TerminalToken} is updated and the test fails - that generates the body of the
 	 * switch in the {@link PublicScanner#getNextToken()}
 	 */
 	public static void main(String[] args) throws Exception {
@@ -303,8 +303,8 @@ public class PublicScannerTest extends AbstractRegressionTest {
 	private static void printGeneratedSwitchForPublicScanner() throws Exception {
 		Map<Integer, String> valueToName = new TreeMap<>();
 		Map<String, Integer> nameToValue = new TreeMap<>();
-		TerminalTokens[] ttValues = TerminalTokens.values();
-		for (TerminalTokens field : ttValues) {
+		TerminalToken[] ttValues = TerminalToken.values();
+		for (TerminalToken field : ttValues) {
 			valueToName.put(field.tokenNumber(), field.name());
 			nameToValue.put(field.name(), field.tokenNumber());
 		}
@@ -318,14 +318,14 @@ public class PublicScannerTest extends AbstractRegressionTest {
 			if(tsSet.contains(ttName)) {
 				sb.append(ident + "case TerminalTokens." + ttName + " : nextToken = ITerminalSymbols." + ttName + "; break;\n");
 			} else {
-				TerminalTokens value = TerminalTokens.valueOf(ttName);
+				TerminalToken value = TerminalToken.valueOf(ttName);
 				if (MODULE_TOKENS.contains(value)) {
 					continue;
 				}
 				if(SYNTHETIC_SKIP_TOKENS.contains(value)){
 					sb.append(ident + "case TerminalTokens." + ttName + " : nextToken = getNextToken(); break;\n");
 				} else {
-					TerminalTokens target = SYNTHETIC_REPLACE_TOKENS.get(value);
+					TerminalToken target = SYNTHETIC_REPLACE_TOKENS.get(value);
 					if(target == null) {
 						sb.append("// TODO: add constant " + ttName + " to ITerminalSymbols or update SYNTHETIC_*_TOKENS in PublicScannerTest!\n");
 						sb.append("// case TerminalTokens." + ttName + " : nextToken = ITerminalSymbols." + ttName + "; break;\n");

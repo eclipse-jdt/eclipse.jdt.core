@@ -13,13 +13,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser.diagnose;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOLON_COLON;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameEOF;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOLON_COLON;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameEOF;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class LexStream {
@@ -27,7 +27,7 @@ public class LexStream {
 	public static final int LBRACE_MISSING = 2;
 
 	public static class Token{
-		TerminalTokens kind;
+		TerminalToken kind;
 		char[] name;
 		int start;
 		int end;
@@ -59,7 +59,7 @@ public class LexStream {
 	private int currentInterval = -1;
 	private boolean awaitingColonColon;
 
-	public LexStream(int size, Scanner scanner, int[] intervalStartToSkip, int[] intervalEndToSkip, int[] intervalFlagsToSkip, TerminalTokens firstToken, int init, int eof) {
+	public LexStream(int size, Scanner scanner, int[] intervalStartToSkip, int[] intervalEndToSkip, int[] intervalFlagsToSkip, TerminalToken firstToken, int init, int eof) {
 		this.tokenCache = new Token[size];
 		this.tokenCacheIndex = 0;
 		this.tokenCacheEOFIndex = Integer.MAX_VALUE;
@@ -84,8 +84,8 @@ public class LexStream {
 
 		while(tokenNotFound) {
 			try {
-				TerminalTokens tokenKind =  this.scanner.getNextToken();
-				if (tokenKind == TerminalTokens.TokenNameBeginTypeArguments) {
+				TerminalToken tokenKind =  this.scanner.getNextToken();
+				if (tokenKind == TerminalToken.TokenNameBeginTypeArguments) {
 					this.awaitingColonColon = true;
 				} else if (tokenKind == TokenNameCOLON_COLON) {
 					this.awaitingColonColon = false;
@@ -193,7 +193,7 @@ public class LexStream {
 		return 0;
 	}
 
-	public TerminalTokens kind(int tokenIndex) {
+	public TerminalToken kind(int tokenIndex) {
 		return token(tokenIndex).kind;
 	}
 
@@ -252,7 +252,7 @@ public class LexStream {
 			res.append(source.substring(previousEnd + 1));
 		} else {
 			Token token = token(this.currentIndex);
-			TerminalTokens curtokKind = token.kind;
+			TerminalToken curtokKind = token.kind;
 			int curtokStart = token.start;
 			int curtokEnd = token.end;
 

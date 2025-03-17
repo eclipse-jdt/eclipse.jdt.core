@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.*;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,7 +27,7 @@ import java.util.function.Predicate;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 
 public class SpacePreparator extends ASTVisitor {
 
@@ -1080,7 +1080,7 @@ public class SpacePreparator extends ASTVisitor {
 		}
 	}
 
-	private void handleToken(ASTNode node, TerminalTokens tokenType, boolean spaceBefore, boolean spaceAfter) {
+	private void handleToken(ASTNode node, TerminalToken tokenType, boolean spaceBefore, boolean spaceAfter) {
 		if (spaceBefore || spaceAfter) {
 			Token token = this.tm.get(this.tm.findIndex(node.getStartPosition(), tokenType, true));
 			// ^not the same as "firstTokenIn(node, tokenType)" - do not assert the token is inside the node
@@ -1088,14 +1088,14 @@ public class SpacePreparator extends ASTVisitor {
 		}
 	}
 
-	private void handleTokenBefore(ASTNode node, TerminalTokens tokenType, boolean spaceBefore, boolean spaceAfter) {
+	private void handleTokenBefore(ASTNode node, TerminalToken tokenType, boolean spaceBefore, boolean spaceAfter) {
 		if (spaceBefore || spaceAfter) {
 			Token token = this.tm.firstTokenBefore(node, tokenType);
 			handleToken(token, spaceBefore, spaceAfter);
 		}
 	}
 
-	private void handleTokenAfter(ASTNode node, TerminalTokens tokenType, boolean spaceBefore, boolean spaceAfter) {
+	private void handleTokenAfter(ASTNode node, TerminalToken tokenType, boolean spaceBefore, boolean spaceAfter) {
 		if (tokenType == TokenNameGREATER) {
 			// there could be ">>" or ">>>" instead, get rid of them
 			int index = this.tm.lastIndexIn(node, TokenNameInvalid);

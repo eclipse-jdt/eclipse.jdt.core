@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 
 /**
  * Number literal nodes.
@@ -156,7 +156,7 @@ public class NumberLiteral extends Expression {
 		scanner.tokenizeComments = false;
 		scanner.tokenizeWhiteSpace = false;
 		try {
-			TerminalTokens tokenType = scanner.getNextToken();
+			TerminalToken tokenType = scanner.getNextToken();
 			switch(tokenType) {
 				case TokenNameDoubleLiteral:
 				case TokenNameIntegerLiteral:

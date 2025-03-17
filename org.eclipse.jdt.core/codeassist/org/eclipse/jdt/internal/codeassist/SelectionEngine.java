@@ -48,7 +48,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -522,7 +522,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		int lastIdentifierStart = -1;
 		int lastIdentifierEnd = -1;
 		char[] lastIdentifier = null;
-		TerminalTokens token;
+		TerminalToken token;
 
 		if(selectionStart > selectionEnd){
 			int end = source.length - 1;
@@ -631,7 +631,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					default:
 						break;
 				}
-			} while (token != TerminalTokens.TokenNameEOF);
+			} while (token != TerminalToken.TokenNameEOF);
 		} else {
 			if (selectionStart == selectionEnd) { // Widen the selection to scan -> || :: if needed. No unicode handling for now.
 				if (selectionStart > 0 && selectionEnd < source.length - 1) {
@@ -707,7 +707,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					default :
 						return false;
 				}
-			} while (token != TerminalTokens.TokenNameEOF);
+			} while (token != TerminalToken.TokenNameEOF);
 		}
 		if (lastIdentifierStart > 0) {
 			this.actualSelectionStart = lastIdentifierStart;
@@ -719,7 +719,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	}
 	private boolean checkTypeArgument(Scanner scanner) {
 		int depth = 1;
-		TerminalTokens token;
+		TerminalToken token;
 		StringBuilder buffer = new StringBuilder();
 		do {
 			try {
@@ -771,7 +771,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			if(depth < 0) {
 				return false;
 			}
-		} while (depth != 0 && token != TerminalTokens.TokenNameEOF);
+		} while (depth != 0 && token != TerminalToken.TokenNameEOF);
 
 		if(depth == 0) {
 			int length = buffer.length() - 1;

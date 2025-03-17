@@ -13,8 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.eval;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameInvalid;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameTWIDDLE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameInvalid;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameTWIDDLE;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -22,7 +22,7 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 /**
@@ -821,7 +821,7 @@ private void recordLastStatementIfNeeded() {
 }
 
 @Override
-protected void reportSyntaxErrors(boolean isDietParse, TerminalTokens oldFirstToken) {
+protected void reportSyntaxErrors(boolean isDietParse, TerminalToken oldFirstToken) {
 	if (!isDietParse) {
 		this.scanner.initialPosition = this.lastStatement;
 		this.scanner.eofPosition = this.codeSnippetEnd + 1; // stop after expression

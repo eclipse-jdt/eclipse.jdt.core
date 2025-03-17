@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameEOF;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameEOF;
 
 import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
@@ -24,7 +24,7 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 
 @SuppressWarnings({ "rawtypes" })
 public class ScannerTest extends AbstractRegressionTest {
@@ -550,12 +550,12 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
-			TerminalTokens token;
+			TerminalToken token;
 			StringBuilder buffer = new StringBuilder();
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				try {
 					switch(token) {
-						case TerminalTokens.TokenNameEOF :
+						case TerminalToken.TokenNameEOF :
 							break;
 						default :
 							buffer.append(scanner.getCurrentTokenSource());
@@ -579,15 +579,15 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
-			TerminalTokens token;
+			TerminalToken token;
 			StringBuilder buffer = new StringBuilder();
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				try {
 					switch(token) {
-						case TerminalTokens.TokenNameStringLiteral :
+						case TerminalToken.TokenNameStringLiteral :
 							buffer.append(new String(scanner.getCurrentTokenSourceString()));
 							break;
-						case TerminalTokens.TokenNameEOF :
+						case TerminalToken.TokenNameEOF :
 							break;
 						default :
 							buffer.append(scanner.getCurrentTokenSource());
@@ -611,12 +611,12 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
-			TerminalTokens token;
+			TerminalToken token;
 			StringBuilder buffer = new StringBuilder();
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				try {
 					switch(token) {
-						case TerminalTokens.TokenNameEOF :
+						case TerminalToken.TokenNameEOF :
 							break;
 						default :
 							buffer.append(scanner.getCurrentTokenSource());
@@ -1460,17 +1460,17 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
-			TerminalTokens token;
+			TerminalToken token;
 			StringBuilder buffer = new StringBuilder();
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				try {
 					switch(token) {
-						case TerminalTokens.TokenNameTextBlock :
+						case TerminalToken.TokenNameTextBlock :
 							buffer.append( new String(scanner.getCurrentTextBlock()));
 							break;
-						case TerminalTokens.TokenNameStringLiteral :
+						case TerminalToken.TokenNameStringLiteral :
 							break;
-						case TerminalTokens.TokenNameEOF :
+						case TerminalToken.TokenNameEOF :
 							break;
 						default :
 							break;
@@ -1493,17 +1493,17 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
-			TerminalTokens token;
+			TerminalToken token;
 			StringBuilder buffer = new StringBuilder();
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				try {
 					switch(token) {
-						case TerminalTokens.TokenNameTextBlock :
+						case TerminalToken.TokenNameTextBlock :
 							buffer.append( new String(scanner.getCurrentTextBlock()));
 							break;
-						case TerminalTokens.TokenNameStringLiteral :
+						case TerminalToken.TokenNameStringLiteral :
 							break;
-						case TerminalTokens.TokenNameEOF :
+						case TerminalToken.TokenNameEOF :
 							break;
 						default :
 							break;
@@ -1552,8 +1552,8 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
-			TerminalTokens token = scanner.getNextToken();
-			assertEquals(TerminalTokens.TokenNameStringLiteral, token);
+			TerminalToken token = scanner.getNextToken();
+			assertEquals(TerminalToken.TokenNameStringLiteral, token);
 			assertEquals("Unexpected string literal content", "Hello world", scanner.getCurrentStringLiteral());
 		} catch (InvalidInputException e) {
 			fail("Should have accepted \\s");
@@ -1570,7 +1570,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
-			TerminalTokens token;
+			TerminalToken token;
 			StringBuilder buffer = new StringBuilder();
 			while ((token = scanner.getNextToken()) != TokenNameEOF) {
 				try {
@@ -1606,17 +1606,17 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
-			TerminalTokens token;
+			TerminalToken token;
 			StringBuilder buffer = new StringBuilder();
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				try {
 					switch(token) {
-						case TerminalTokens.TokenNameTextBlock :
+						case TerminalToken.TokenNameTextBlock :
 							buffer.append( new String(scanner.getCurrentTextBlock()));
 							break;
-						case TerminalTokens.TokenNameStringLiteral :
+						case TerminalToken.TokenNameStringLiteral :
 							break;
-						case TerminalTokens.TokenNameEOF :
+						case TerminalToken.TokenNameEOF :
 							break;
 						default :
 							break;
@@ -1889,20 +1889,20 @@ public class ScannerTest extends AbstractRegressionTest {
 	public void testTerminalTokensAPIs() {
 		char [][] ids = { "when".toCharArray(), "record".toCharArray(), "sealed".toCharArray(),
 				"permits".toCharArray(), "yield".toCharArray()};
-		TerminalTokens [] reskw = { TerminalTokens.TokenNameRestrictedIdentifierWhen,
-							TerminalTokens.TokenNameRestrictedIdentifierrecord,
-							TerminalTokens.TokenNameRestrictedIdentifiersealed,
-							TerminalTokens.TokenNameRestrictedIdentifierpermits,
-							TerminalTokens.TokenNameRestrictedIdentifierYield,};
+		TerminalToken [] reskw = { TerminalToken.TokenNameRestrictedIdentifierWhen,
+							TerminalToken.TokenNameRestrictedIdentifierrecord,
+							TerminalToken.TokenNameRestrictedIdentifiersealed,
+							TerminalToken.TokenNameRestrictedIdentifierpermits,
+							TerminalToken.TokenNameRestrictedIdentifierYield,};
 		int i = -1;
 		for (char [] id : ids) {
 			i++;
-			TerminalTokens t = TerminalTokens.getRestrictedKeyword(id);
-			assertTrue(t != TerminalTokens.TokenNameNotAToken);
-			assertTrue(TerminalTokens.isRestrictedKeyword(t));
+			TerminalToken t = TerminalToken.getRestrictedKeyword(id);
+			assertTrue(t != TerminalToken.TokenNameNotAToken);
+			assertTrue(TerminalToken.isRestrictedKeyword(t));
 			assertTrue(t == reskw[i]);
 		}
-		assertTrue(TerminalTokens.getRestrictedKeyword("When".toCharArray()) == TerminalTokens.TokenNameNotAToken);
-		assertTrue(TerminalTokens.getRestrictedKeyword("blah".toCharArray()) == TerminalTokens.TokenNameNotAToken);
+		assertTrue(TerminalToken.getRestrictedKeyword("When".toCharArray()) == TerminalToken.TokenNameNotAToken);
+		assertTrue(TerminalToken.getRestrictedKeyword("blah".toCharArray()) == TerminalToken.TokenNameNotAToken);
 	}
 }

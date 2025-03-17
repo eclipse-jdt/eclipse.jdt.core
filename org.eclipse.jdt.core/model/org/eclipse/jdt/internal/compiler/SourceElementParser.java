@@ -13,9 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMA;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameInvalid;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameSEMICOLON;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMA;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameInvalid;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameSEMICOLON;
 
 import java.util.HashMap;
 import org.eclipse.core.runtime.IProgressMonitor;

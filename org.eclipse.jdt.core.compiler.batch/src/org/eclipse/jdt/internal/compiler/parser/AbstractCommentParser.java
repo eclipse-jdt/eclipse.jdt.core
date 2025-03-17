@@ -13,9 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameEOF;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameInvalid;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameNotAToken;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameEOF;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameInvalid;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameNotAToken;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -59,7 +59,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	public Scanner scanner;
 	public char[] source;
 	protected Parser sourceParser;
-	private TerminalTokens currentTokenType = TokenNameInvalid;
+	private TerminalToken currentTokenType = TokenNameInvalid;
 
 	// Options
 	public boolean checkDocComment = false;
@@ -548,9 +548,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected abstract Object createMethodReference(Object receiver, List arguments) throws InvalidInputException;
 	protected Object createReturnStatement() { return null; }
 	protected abstract void createTag();
-	protected abstract Object createTypeReference(TerminalTokens primitiveToken);
-	protected abstract Object createTypeReference(TerminalTokens primitiveToken, boolean canBeModule);
-	protected abstract Object createModuleTypeReference(TerminalTokens primitiveToken, int moduleRefTokenCount);
+	protected abstract Object createTypeReference(TerminalToken primitiveToken);
+	protected abstract Object createTypeReference(TerminalToken primitiveToken, boolean canBeModule);
+	protected abstract Object createModuleTypeReference(TerminalToken primitiveToken, int moduleRefTokenCount);
 
 	private int getIndexPosition() {
 		if (this.index > this.lineEnd) {
@@ -587,7 +587,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	/**
 	 * @return Returns the currentTokenType.
 	 */
-	protected TerminalTokens getCurrentTokenType() {
+	protected TerminalToken getCurrentTokenType() {
 		return this.currentTokenType;
 	}
 
@@ -637,7 +637,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						break nextArg;
 				}
 				if (typeRef == null) {
-					if (firstArg && this.currentTokenType == TerminalTokens.TokenNameRPAREN) {
+					if (firstArg && this.currentTokenType == TerminalToken.TokenNameRPAREN) {
 						// verify characters after arguments declaration (expecting white space or end comment)
 						if (!verifySpaceOrEndComment()) {
 							int end = this.starPosition == -1 ? this.lineEnd : this.starPosition;
@@ -655,18 +655,18 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				// Read possible additional type info
 				dim = 0;
 				isVarargs = false;
-				if (readMarkdownEscapedToken(TerminalTokens.TokenNameLBRACKET)) {
+				if (readMarkdownEscapedToken(TerminalToken.TokenNameLBRACKET)) {
 					// array declaration
-					while (readMarkdownEscapedToken(TerminalTokens.TokenNameLBRACKET)) {
+					while (readMarkdownEscapedToken(TerminalToken.TokenNameLBRACKET)) {
 						int dimStart = this.scanner.getCurrentTokenStartPosition();
 						consumeToken();
-						if (!readMarkdownEscapedToken(TerminalTokens.TokenNameRBRACKET)) {
+						if (!readMarkdownEscapedToken(TerminalToken.TokenNameRBRACKET)) {
 							break nextArg;
 						}
 						consumeToken();
 						dimPositions[dim++] = (((long) dimStart) << 32) + this.scanner.getCurrentTokenEndPosition();
 					}
-				} else if (readToken() == TerminalTokens.TokenNameELLIPSIS) {
+				} else if (readToken() == TerminalToken.TokenNameELLIPSIS) {
 					// ellipsis declaration
 					int dimStart = this.scanner.getCurrentTokenStartPosition();
 					dimPositions[dim++] = (((long) dimStart) << 32) + this.scanner.getCurrentTokenEndPosition();
@@ -676,8 +676,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 
 				// Read argument name
 				argNamePos = -1;
-				TerminalTokens argumentName = readToken();
-				if (argumentName == TerminalTokens.TokenNameIdentifier || argumentName == TerminalTokens.TokenNameUNDERSCORE) {
+				TerminalToken argumentName = readToken();
+				if (argumentName == TerminalToken.TokenNameIdentifier || argumentName == TerminalToken.TokenNameUNDERSCORE) {
 					consumeToken();
 					if (firstArg) { // verify position
 						if (iToken != 1)
@@ -707,16 +707,16 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				}
 
 				// Read separator or end arguments declaration
-				TerminalTokens token = readToken();
+				TerminalToken token = readToken();
 				name = argName == null ? CharOperation.NO_CHAR : argName;
-				if (token == TerminalTokens.TokenNameCOMMA) {
+				if (token == TerminalToken.TokenNameCOMMA) {
 					// Create new argument
 					Object argument = createArgumentReference(name, dim, isVarargs, typeRef, dimPositions, argNamePos);
 					if (this.abort) return null; // May be aborted by specialized parser
 					arguments.add(argument);
 					consumeToken();
 					iToken++;
-				} else if (token == TerminalTokens.TokenNameRPAREN) {
+				} else if (token == TerminalToken.TokenNameRPAREN) {
 					// verify characters after arguments declaration (expecting white space or end comment)
 					if (checkVerifySpaceOrEndComment && !verifySpaceOrEndComment()) {
 						int end = this.starPosition == -1 ? this.lineEnd : this.starPosition;
@@ -784,18 +784,18 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			char currentChar = readChar();
 			if (currentChar == 'a' || currentChar == 'A') {
 				this.scanner.currentPosition = this.index;
-				TerminalTokens token = readToken();
-				if (token == TerminalTokens.TokenNameIdentifier || token == TerminalTokens.TokenNameUNDERSCORE) {
+				TerminalToken token = readToken();
+				if (token == TerminalToken.TokenNameIdentifier || token == TerminalToken.TokenNameUNDERSCORE) {
 					consumeToken();
 					try {
 						if (CharOperation.equals(this.scanner.getCurrentIdentifierSource(), HREF_TAG, false) &&
-							readToken() == TerminalTokens.TokenNameEQUAL) {
+							readToken() == TerminalToken.TokenNameEQUAL) {
 							consumeToken();
-							if (readToken() == TerminalTokens.TokenNameStringLiteral) {
+							if (readToken() == TerminalToken.TokenNameStringLiteral) {
 								consumeToken();
 								while (this.index < this.javadocEnd) { // main loop to search for the </a> pattern
 									// Skip all characters after string literal until closing '>' (see bug 68726)
-									while (readToken() != TerminalTokens.TokenNameGREATER) {
+									while (readToken() != TerminalToken.TokenNameGREATER) {
 										if (this.scanner.currentPosition >= this.scanner.eofPosition || this.scanner.currentCharacter == '@' ||
 												(this.inlineTagStarted && this.scanner.currentCharacter == '}')) {
 											// Reset position: we want to rescan last token
@@ -811,7 +811,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 										this.currentTokenType = TokenNameInvalid; // consume token without updating line end
 									}
 									consumeToken(); // update line end as new lines are allowed in URL description
-									while (readToken() != TerminalTokens.TokenNameLESS) {
+									while (readToken() != TerminalToken.TokenNameLESS) {
 										if (this.scanner.currentPosition >= this.scanner.eofPosition || this.scanner.currentCharacter == '@' ||
 												(this.inlineTagStarted && this.scanner.currentCharacter == '}')) {
 											// Reset position: we want to rescan last token
@@ -871,7 +871,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	 * Parse tag followed by an identifier
 	 */
 	protected boolean parseIdentifierTag(boolean report) {
-		TerminalTokens token = readTokenSafely();
+		TerminalToken token = readTokenSafely();
 		switch (token) {
 			case TokenNameUNDERSCORE:
 			case TokenNameIdentifier:
@@ -901,8 +901,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		this.memberStart = start;
 
 		// Get member identifier
-		TerminalTokens memberIdentifier = readToken();
-		if (memberIdentifier == TerminalTokens.TokenNameIdentifier || memberIdentifier == TerminalTokens.TokenNameUNDERSCORE) {
+		TerminalToken memberIdentifier = readToken();
+		if (memberIdentifier == TerminalToken.TokenNameIdentifier || memberIdentifier == TerminalToken.TokenNameUNDERSCORE) {
 			if (this.scanner.currentCharacter == '.') { // member name may be qualified (inner class constructor reference)
 				parseQualifiedName(true);
 			} else {
@@ -915,8 +915,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				// Look for next token to know whether it's a field or method reference
 				int previousPosition = this.index;
 				try {
-					TerminalTokens token = readToken();
-					if (token == TerminalTokens.TokenNameLPAREN) {
+					TerminalToken token = readToken();
+					if (token == TerminalToken.TokenNameLPAREN) {
 						consumeToken();
 						start = this.scanner.getCurrentTokenStartPosition();
 						try {
@@ -995,7 +995,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			boolean isTypeParam = false;
 			boolean valid = true, empty = true;
 			boolean mayBeGeneric = this.sourceLevel >= ClassFileConstants.JDK1_5;
-			TerminalTokens token = TokenNameInvalid;
+			TerminalToken token = TokenNameInvalid;
 			nextToken: while (true) {
 				this.currentTokenType = TokenNameInvalid;
 				try {
@@ -1025,7 +1025,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						}
 						// $FALL-THROUGH$ - fall through next case to report error
 					default:
-						if (token == TerminalTokens.TokenNameLEFT_SHIFT) isTypeParam = true;
+						if (token == TerminalToken.TokenNameLEFT_SHIFT) isTypeParam = true;
 						if (valid && !hasMultiLines) start = this.scanner.getCurrentTokenStartPosition();
 						valid = false;
 						if (!hasMultiLines) {
@@ -1148,7 +1148,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				} catch (InvalidInputException e) {
 					valid = false;
 				}
-				if (token == TerminalTokens.TokenNameWHITESPACE) {
+				if (token == TerminalToken.TokenNameWHITESPACE) {
 					this.scanner.resetTo(restart, this.javadocEnd);
 					this.index = restart;
 					return pushParamName(isTypeParam);
@@ -1161,7 +1161,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				// we only need end if we report problems
 				end = hasMultiLines ? this.lineEnd: this.scanner.getCurrentTokenEndPosition();
 				try {
-					while ((token=readToken()) != TerminalTokens.TokenNameWHITESPACE && token != TerminalTokens.TokenNameEOF) {
+					while ((token=readToken()) != TerminalToken.TokenNameWHITESPACE && token != TerminalToken.TokenNameEOF) {
 						this.currentTokenType = TokenNameInvalid;
 						end = hasMultiLines ? this.lineEnd: this.scanner.getCurrentTokenEndPosition();
 					}
@@ -1183,8 +1183,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		}
 	}
 
-	private boolean isTokenModule(TerminalTokens token, int moduleRefTokenCount) {
-		return ((token == TerminalTokens.TokenNameDIVIDE)
+	private boolean isTokenModule(TerminalToken token, int moduleRefTokenCount) {
+		return ((token == TerminalToken.TokenNameDIVIDE)
 				&& (moduleRefTokenCount > 0));
 	}
 
@@ -1204,10 +1204,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		}
 
 		// Scan tokens
-		TerminalTokens primitiveToken = TokenNameInvalid;
+		TerminalToken primitiveToken = TokenNameInvalid;
 		int parserKind = this.kind & PARSER_KIND;
-		TerminalTokens prevToken = TokenNameNotAToken;
-		TerminalTokens curToken = TokenNameNotAToken;
+		TerminalToken prevToken = TokenNameNotAToken;
+		TerminalToken curToken = TokenNameNotAToken;
 		int moduleRefTokenCount = 0;
 		boolean lookForModule = false;
 		boolean parsingJava15Plus = this.scanner != null ? this.scanner.sourceLevel >= ClassFileConstants.JDK15 : false;
@@ -1224,7 +1224,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					break;
 				}
 			}
-			TerminalTokens token = readTokenSafely();
+			TerminalToken token = readTokenSafely();
 			curToken= token;
 			switch (token) {
 				case TokenNameUNDERSCORE:
@@ -1390,7 +1390,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			// Get reference tokens
 			nextToken : while (this.index < this.scanner.eofPosition) {
 				previousPosition = this.index;
-				TerminalTokens token = readTokenSafely();
+				TerminalToken token = readTokenSafely();
 				this.scanner.tokenizeWhiteSpace = true;
 				switch (token) {
 					case TokenNameStringLiteral : // @see "string"
@@ -1580,8 +1580,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			snippetTag = createSnippetTag();
 			Map<String, String> snippetAttributes  = new HashMap();
 			if (!parseTillColon(snippetAttributes)) {
-				TerminalTokens token = readTokenSafely();
-				boolean eitherNameorClass = token == TerminalTokens.TokenNameIdentifier || token == TerminalTokens.TokenNameclass || token == TerminalTokens.TokenNameUNDERSCORE;
+				TerminalToken token = readTokenSafely();
+				boolean eitherNameorClass = token == TerminalToken.TokenNameIdentifier || token == TerminalToken.TokenNameclass || token == TerminalToken.TokenNameUNDERSCORE;
 				if (!eitherNameorClass ) {
 					this.setSnippetError(snippetTag, "Missing colon"); //$NON-NLS-1$
 					this.setSnippetIsValid(snippetTag, false);
@@ -1599,11 +1599,11 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							consumeToken();
 							int start = this.scanner.getCurrentTokenStartPosition();
 							token = readTokenSafely();
-							if (token==TerminalTokens.TokenNameEQUAL) {
+							if (token==TerminalToken.TokenNameEQUAL) {
 								consumeToken();
 								token = readTokenSafely();
 								String regionName = null;
-								if (token==TerminalTokens.TokenNameERROR||token==TerminalTokens.TokenNameStringLiteral){
+								if (token==TerminalToken.TokenNameERROR||token==TerminalToken.TokenNameStringLiteral){
 									String fileName = this.scanner.getCurrentTokenString();
 									int lastIndex = fileName.length() - 1;
 									if ((fileName.charAt(0) =='"' && fileName.charAt(lastIndex)=='"')
@@ -1627,11 +1627,11 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							consumeToken();
 							start = this.scanner.getCurrentTokenStartPosition();
 							token = readTokenSafely();
-							if (token==TerminalTokens.TokenNameEQUAL) {
+							if (token==TerminalToken.TokenNameEQUAL) {
 								consumeToken();
 								token = readTokenSafely();
 								String regionName = null;
-								if (token==TerminalTokens.TokenNameERROR||token==TerminalTokens.TokenNameStringLiteral){
+								if (token==TerminalToken.TokenNameERROR||token==TerminalToken.TokenNameStringLiteral){
 									String className = this.scanner.getCurrentTokenString();
 									int lastIndex = className.length() - 1;
 									if ((className.charAt(0) =='"' && className.charAt(lastIndex)=='"')
@@ -1662,8 +1662,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				}
 			} else {
 				if (this.index < this.scanner.eofPosition) {
-					TerminalTokens token = readTokenSafely();
-					if (token == TerminalTokens.TokenNameWHITESPACE) {
+					TerminalToken token = readTokenSafely();
+					if (token == TerminalToken.TokenNameWHITESPACE) {
 						if (containsNewLine(this.scanner.getCurrentTokenString())) {
 							consumeToken();
 						} else {
@@ -1687,7 +1687,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			}
 			int textEndPosition = this.index;
 			this.textStart = this.index;
-			TerminalTokens token;
+			TerminalToken token;
 			while (this.index < this.scanner.eofPosition) {
 				this.index = this.scanner.currentPosition;
 				if (openBraces == 0) {
@@ -1695,7 +1695,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				}
 				previousPosition = this.index;
 				token = readTokenSafely();
-				if (token == TerminalTokens.TokenNameEOF) {
+				if (token == TerminalToken.TokenNameEOF) {
 					break;
 				}
 				switch (token) {
@@ -1863,7 +1863,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 
 	private boolean readFileWithRegions(int start, String regionName, Path filePath, Object snippetTag) throws IOException {
 		boolean valid = false;
-		TerminalTokens token;
+		TerminalToken token;
 		int lastIndex;
 		String contents = Files.readString(filePath);
 		int end = this.scanner.getCurrentTokenEndPosition();
@@ -1872,11 +1872,11 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		final String REGION = "region"; //$NON-NLS-1$
 		while (this.index<this.scanner.eofPosition) {
 			token = readTokenSafely();
-			if (token == TerminalTokens.TokenNameRBRACE) {
+			if (token == TerminalToken.TokenNameRBRACE) {
 				end = this.index;
 				valid = true;
 				break;
-			} else if (token == TerminalTokens.TokenNameIdentifier || token == TerminalTokens.TokenNameUNDERSCORE) {
+			} else if (token == TerminalToken.TokenNameIdentifier || token == TerminalToken.TokenNameUNDERSCORE) {
 				consumeToken();
 				if (this.scanner.getCurrentTokenString().equals(REGION)) {
 					foundRegionDef = true;
@@ -1889,15 +1889,15 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 
 		if (foundRegionDef) {
 			token = readTokenSafely();
-			if (token!= TerminalTokens.TokenNameEQUAL) {
+			if (token!= TerminalToken.TokenNameEQUAL) {
 				valid = false;
 			}
 			consumeToken();
 			token = readTokenSafely();
-			if (token==TerminalTokens.TokenNameERROR
-					|| token==TerminalTokens.TokenNameStringLiteral
-					|| token==TerminalTokens.TokenNameIdentifier
-					|| token==TerminalTokens.TokenNameUNDERSCORE){
+			if (token==TerminalToken.TokenNameERROR
+					|| token==TerminalToken.TokenNameStringLiteral
+					|| token==TerminalToken.TokenNameIdentifier
+					|| token==TerminalToken.TokenNameUNDERSCORE){
 				regionName = this.scanner.getCurrentTokenString();
 				consumeToken();
 				lastIndex = regionName.length() - 1;
@@ -1908,7 +1908,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				}
 				while (this.index<this.scanner.eofPosition) {
 					token = readTokenSafely();
-					if (token == TerminalTokens.TokenNameRBRACE) {
+					if (token == TerminalToken.TokenNameRBRACE) {
 						end = this.index;
 						valid = true;
 						break;
@@ -1941,7 +1941,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		boolean newLineStarted = false;
 		try {
 			while (true) {
-				TerminalTokens tokenType;
+				TerminalToken tokenType;
 				previousPosition = indexPos;
 				tokenType = snippetScanner.getNextToken();
 
@@ -2046,7 +2046,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		}
 		int count = 0;
 		while (true) {
-			TerminalTokens tokenType = TokenNameNotAToken;
+			TerminalToken tokenType = TokenNameNotAToken;
 			try {
 				tokenType = snippetScanner.getNextToken();
 				if (!insideRegion && regionStarted) {
@@ -2054,7 +2054,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				}
 				if (tokenType == TokenNameEOF)
 					break;
-				if (tokenType == TerminalTokens.TokenNameCOMMENT_LINE) {
+				if (tokenType == TerminalToken.TokenNameCOMMENT_LINE) {
 					String commentLine = snippetScanner.getCurrentTokenString();
 					int noSingleLineComm = getNumberOfSingleLineCommentInSnippetTag(commentLine.substring(2));
 					int indexOfLastComment = 0;
@@ -2076,7 +2076,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					boolean getRegionValue = false;
 					String attribute = null;
 					while (true) {
-						TerminalTokens cType = commentScanner.getNextToken();
+						TerminalToken cType = commentScanner.getNextToken();
 						if (cType == TokenNameEOF) {
 							break;
 						}
@@ -2245,7 +2245,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	private boolean parseTillColon(Map<String, String> snippetAttributes) {
 		boolean isValid =  true;
 		boolean colonTokenFound = false;
-		TerminalTokens token;
+		TerminalToken token;
 		String key = null;
 		boolean lookForValue = false;
 		while (this.index < this.scanner.eofPosition) {
@@ -2256,7 +2256,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						consumeToken();
 						if (this.index < this.scanner.eofPosition) {
 							token = readTokenSafely();
-							if (token == TerminalTokens.TokenNameMULTIPLY) {
+							if (token == TerminalToken.TokenNameMULTIPLY) {
 								consumeToken();
 							} else {
 								isValid = false;
@@ -2292,7 +2292,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					if (lookForValue && key != null) {
 						String value = this.scanner.getCurrentTokenString();
 						snippetAttributes.put(key,
-								token == TerminalTokens.TokenNameStringLiteral ? value.substring(1, value.length() - 1)
+								token == TerminalToken.TokenNameStringLiteral ? value.substring(1, value.length() - 1)
 										: value);
 						lookForValue = false;
 						key = null;
@@ -2375,7 +2375,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			slScanner.setSource(tokenStringStripped.toCharArray());
 			while (true) {
 				try {
-					TerminalTokens tokenType = slScanner.getNextToken();
+					TerminalToken tokenType = slScanner.getNextToken();
 					if (tokenType == TokenNameEOF)
 						break;
 					switch (tokenType) {
@@ -2426,7 +2426,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				boolean firstTagProcessed = false;
 				while (true) {
 					try {
-						TerminalTokens tokenType = slScanner.getNextToken();
+						TerminalToken tokenType = slScanner.getNextToken();
 						if (tokenType == TokenNameEOF)
 							break;
 						mainSwitch : switch (tokenType) {
@@ -2964,13 +2964,13 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		sScanner.currentPosition = sScanner.getCurrentTokenStartPosition() + curPosition  + additionalIndex;
 		int allowedLength = sScanner.getCurrentTokenStartPosition() + curPosition + value.length();
 		this.index = sScanner.startPosition;
-		TerminalTokens oldToken = this.currentTokenType;
+		TerminalToken oldToken = this.currentTokenType;
 		this.currentTokenType = TokenNameInvalid;
 		boolean tokenizeWhiteSpaces = this.scanner.tokenizeWhiteSpace;
 		this.scanner.tokenizeWhiteSpace = false;
 		try {
 			while (this.scanner.currentPosition < allowedLength) {
-				TerminalTokens token = readTokenSafely();
+				TerminalToken token = readTokenSafely();
 				this.scanner.tokenizeWhiteSpace = true;
 				switch (token) {
 					case TokenNameERROR :
@@ -3338,13 +3338,13 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	/*
 	 * Read token only if previous was consumed
 	 */
-	protected TerminalTokens readToken() throws InvalidInputException {
+	protected TerminalToken readToken() throws InvalidInputException {
 		if (this.currentTokenType == TokenNameInvalid) {
 			this.tokenPreviousPosition = this.scanner.currentPosition;
 			this.currentTokenType = this.scanner.getNextToken();
 			if (this.scanner.currentPosition > (this.lineEnd+1)) { // be sure to be on next line (lineEnd is still on the same line)
 				this.lineStarted = false;
-				while (this.currentTokenType == TerminalTokens.TokenNameMULTIPLY) {
+				while (this.currentTokenType == TerminalToken.TokenNameMULTIPLY) {
 					this.currentTokenType = this.scanner.getNextToken();
 				}
 			}
@@ -3354,7 +3354,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		return this.currentTokenType;
 	}
 
-	protected boolean readMarkdownEscapedToken(TerminalTokens expectedToken) throws InvalidInputException {
+	protected boolean readMarkdownEscapedToken(TerminalToken expectedToken) throws InvalidInputException {
 		if (!this.markdown || (this.tagValue != TAG_LINK_VALUE && this.tagValue != TAG_LINKPLAIN_VALUE))
 			return readToken() == expectedToken;
 		if (this.currentTokenType == TokenNameInvalid) {
@@ -3374,8 +3374,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		return this.currentTokenType == expectedToken;
 	}
 
-	protected TerminalTokens readTokenAndConsume() throws InvalidInputException {
-		TerminalTokens token = readToken();
+	protected TerminalToken readTokenAndConsume() throws InvalidInputException {
+		TerminalToken token = readToken();
 		consumeToken();
 		return token;
 	}
@@ -3384,8 +3384,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	 * Read token without throwing any InvalidInputException exception.
 	 * Returns TerminalTokens.TokenNameERROR instead.
 	 */
-	protected TerminalTokens readTokenSafely() {
-		TerminalTokens token = TerminalTokens.TokenNameERROR;
+	protected TerminalToken readTokenSafely() {
+		TerminalToken token = TerminalToken.TokenNameERROR;
 		try {
 			token = readToken();
 		}
@@ -3434,7 +3434,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	/*
 	 * Entry point for recovery on invalid syntax
 	 */
-	protected Object syntaxRecoverQualifiedName(TerminalTokens primitiveToken) throws InvalidInputException {
+	protected Object syntaxRecoverQualifiedName(TerminalToken primitiveToken) throws InvalidInputException {
 		// do nothing, just an entry point for recovery
 		return null;
 	}
@@ -3442,7 +3442,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	/*
 	 * Entry point for recovery on invalid syntax
 	 */
-	protected Object syntaxRecoverModuleQualifiedName(TerminalTokens primitiveToken, int moduleTokenCount) throws InvalidInputException {
+	protected Object syntaxRecoverModuleQualifiedName(TerminalToken primitiveToken, int moduleTokenCount) throws InvalidInputException {
 		// do nothing, just an entry point for recovery
 		return null;
 	}

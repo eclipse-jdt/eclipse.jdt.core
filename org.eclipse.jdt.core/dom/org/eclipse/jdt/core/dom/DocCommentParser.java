@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 
 /**
  * Internal parser used for decoding doc comments.
@@ -533,12 +533,12 @@ class DocCommentParser extends AbstractCommentParser {
 
 
 	@Override
-	protected Object createTypeReference(TerminalTokens primitiveToken, boolean canBeModule) {
+	protected Object createTypeReference(TerminalToken primitiveToken, boolean canBeModule) {
 		return createTypeReference(primitiveToken);
 	}
 
 	@Override
-	protected Object createTypeReference(TerminalTokens primitiveToken) {
+	protected Object createTypeReference(TerminalToken primitiveToken) {
 		int size = this.identifierLengthStack[this.identifierLengthPtr];
 		String[] identifiers = new String[size];
 		int pos = this.identifierPtr - size + 1;
@@ -546,7 +546,7 @@ class DocCommentParser extends AbstractCommentParser {
 			identifiers[i] = new String(this.identifierStack[pos+i]);
 		}
 		ASTNode typeRef = null;
-		if (primitiveToken == TerminalTokens.TokenNameInvalid) {
+		if (primitiveToken == TerminalToken.TokenNameInvalid) {
 			typeRef = this.ast.internalNewName(identifiers);
 		} else {
 			switch (primitiveToken) {
@@ -647,7 +647,7 @@ class DocCommentParser extends AbstractCommentParser {
 	}
 
 	@Override
-	protected Object createModuleTypeReference(TerminalTokens primitiveToken, int  moduleRefTokenCount) {
+	protected Object createModuleTypeReference(TerminalToken primitiveToken, int  moduleRefTokenCount) {
 		int size = this.identifierLengthStack[this.identifierLengthPtr];
 		ModuleQualifiedName moduleRef= null;
 		Name typeRef= null;
@@ -668,7 +668,7 @@ class DocCommentParser extends AbstractCommentParser {
 			moduleRef= createModuleReference(moduleRefTokenCount);
 			pos = this.identifierPtr+moduleRefTokenCount - size + 1;
 
-			if (primitiveToken == TerminalTokens.TokenNameInvalid) {
+			if (primitiveToken == TerminalToken.TokenNameInvalid) {
 				typeRef = this.ast.internalNewName(identifiers);
 				// Update ref for whole name
 				int start = (int) (this.identifierPositionStack[pos] >>> 32);
@@ -811,7 +811,7 @@ class DocCommentParser extends AbstractCommentParser {
 
 		// Read tag name
 		int currentPosition = this.index;
-		TerminalTokens token = readTokenAndConsume();
+		TerminalToken token = readTokenAndConsume();
 		char[] tagName = CharOperation.NO_CHAR;
 		if (currentPosition == this.scanner.startPosition) {
 			this.tagSourceStart = this.scanner.getCurrentTokenStartPosition();
@@ -824,7 +824,7 @@ class DocCommentParser extends AbstractCommentParser {
 		// Try to get tag name other than java identifier
 		// (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=51660)
 		if (this.scanner.currentCharacter != ' ' && !ScannerHelper.isWhitespace(this.scanner.currentCharacter)) {
-			tagNameToken: while (token != TerminalTokens.TokenNameEOF && this.index < this.scanner.eofPosition) {
+			tagNameToken: while (token != TerminalToken.TokenNameEOF && this.index < this.scanner.eofPosition) {
 				int length = tagName.length;
 				// !, ", #, %, &, ', -, :, <, >, * chars and spaces are not allowed in tag names
 				switch (this.scanner.currentCharacter) {

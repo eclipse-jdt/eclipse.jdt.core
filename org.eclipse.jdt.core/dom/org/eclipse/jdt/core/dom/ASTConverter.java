@@ -41,7 +41,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.core.dom.SourceRangeVerifier;
 import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -96,10 +96,10 @@ class ASTConverter {
 		int rightParentCount = 0;
 		this.scanner.resetTo(start, end);
 		try {
-			TerminalTokens token = this.scanner.getNextToken();
+			TerminalToken token = this.scanner.getNextToken();
 			expression.sourceStart = this.scanner.currentPosition;
 			boolean stop = false;
-			while (!stop && ((token  = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF)) {
+			while (!stop && ((token  = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF)) {
 				switch(token) {
 					case TokenNameLPAREN:
 						leftParentCount++;
@@ -3957,9 +3957,9 @@ class ASTConverter {
 		this.scanner.fakeInModule = true;
 		this.scanner.resetTo(req.declarationSourceStart, req.sourceEnd);
 		try {
-			TerminalTokens token;
+			TerminalToken token;
 			ModuleModifier modifier;
-			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				switch(token) {
 					case TokenNamestatic:
 						modifier = createModuleModifier(ModuleModifier.ModuleModifierKeyword.STATIC_KEYWORD);
@@ -5204,10 +5204,10 @@ class ASTConverter {
 				// get method name start position
 				int start = methodRef.getStartPosition();
 				this.scanner.resetTo(start, start + name.getStartPosition()+name.getLength());
-				TerminalTokens token;
+				TerminalToken token;
 				try {
-					nextToken: while((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF && token != TerminalTokens.TokenNameLPAREN)  {
-						if (token == TerminalTokens.TokenNameERROR && this.scanner.currentCharacter == '#') {
+					nextToken: while((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF && token != TerminalToken.TokenNameLPAREN)  {
+						if (token == TerminalToken.TokenNameERROR && this.scanner.currentCharacter == '#') {
 							start = this.scanner.getCurrentTokenEndPosition()+1;
 							break nextToken;
 						}
@@ -5325,7 +5325,7 @@ class ASTConverter {
 	}
 	private int [] trimWhiteSpacesAndComments(int start, int end) {
 		int [] positions = new int[]{start, end};
-		TerminalTokens token;
+		TerminalToken token;
 		int trimLeftPosition = start;
 		int trimRightPosition = end;
 		boolean first = true;
@@ -5374,10 +5374,10 @@ class ASTConverter {
 	protected void removeLeadingAndTrailingCommentsFromLiteral(ASTNode node) {
 		int start = node.getStartPosition();
 		this.scanner.resetTo(start, start + node.getLength());
-		TerminalTokens token;
+		TerminalToken token;
 		int startPosition = -1;
 		try {
-			while((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF)  {
+			while((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF)  {
 				switch(token) {
 					case TokenNameIntegerLiteral :
 					case TokenNameFloatingPointLiteral :
@@ -5410,8 +5410,8 @@ class ASTConverter {
 		this.scanner.resetTo(start, this.compilationUnitSourceLength);
 		this.scanner.returnOnlyGreater = true;
 		try {
-			TerminalTokens token;
-			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			TerminalToken token;
+			while ((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				switch(token) {
 					case TokenNameGREATER:
 						return this.scanner.currentPosition - 1;
@@ -5435,7 +5435,7 @@ class ASTConverter {
 	 * This method fixes the length of the corresponding node.
 	 */
 	protected void retrieveColonPosition(ASTNode node) {
-		setNodeSourceEndPosition(node, TerminalTokens.TokenNameCOLON);
+		setNodeSourceEndPosition(node, TerminalToken.TokenNameCOLON);
 	}
 	/**
 	 * This method is used to set the right end position for switch labeled rules ie with '->'
@@ -5443,16 +5443,16 @@ class ASTConverter {
 	 * This method fixes the length of the corresponding node.
 	 */
 	private void retrieveArrowPosition(ASTNode node) {
-		setNodeSourceEndPosition(node, TerminalTokens.TokenNameARROW);
+		setNodeSourceEndPosition(node, TerminalToken.TokenNameARROW);
 	}
-	private void setNodeSourceEndPosition(ASTNode node, TerminalTokens expectedToken) {
+	private void setNodeSourceEndPosition(ASTNode node, TerminalToken expectedToken) {
 		int start = node.getStartPosition();
 		int length = node.getLength();
 		int end = start + length;
 		this.scanner.resetTo(end, this.compilationUnitSourceLength);
 		try {
-			TerminalTokens token;
-			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			TerminalToken token;
+			while ((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				if (token == expectedToken) {
 						node.setSourceRange(start, this.scanner.currentPosition - start);
 						return;
@@ -5468,8 +5468,8 @@ class ASTConverter {
 	protected int retrieveEllipsisStartPosition(int start, int end) {
 		this.scanner.resetTo(start, end);
 		try {
-			TerminalTokens token;
-			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			TerminalToken token;
+			while ((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				switch(token) {
 					case TokenNameELLIPSIS:
 						return this.scanner.startPosition - 1;
@@ -5490,8 +5490,8 @@ class ASTConverter {
 		int end = start + length;
 		this.scanner.resetTo(end, this.compilationUnitSourceLength);
 		try {
-			TerminalTokens token;
-			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			TerminalToken token;
+			while ((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				switch(token) {
 					case TokenNameSEMICOLON:
 						return this.scanner.currentPosition - 1;
@@ -5513,9 +5513,9 @@ class ASTConverter {
 	protected int[] retrieveEndOfElementTypeNamePosition(int start, int end) {
 		this.scanner.resetTo(start, end);
 		try {
-			TerminalTokens token;
+			TerminalToken token;
 			int count = 0;
-			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				switch(token) {
 					case TokenNameLPAREN:
 						++count;
@@ -5551,9 +5551,9 @@ class ASTConverter {
 	protected int retrieveEndOfRightParenthesisPosition(int start, int end) {
 		this.scanner.resetTo(start, end);
 		try {
-			TerminalTokens token;
+			TerminalToken token;
 			int count = 0;
-			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				switch(token) {
 					case TokenNameRPAREN:
 						count--;
@@ -5574,12 +5574,12 @@ class ASTConverter {
 
 	protected void retrieveDimensionAndSetPositions(int start, int end, Dimension dim) {
 		this.scanner.resetTo(start, end);
-		TerminalTokens token;
+		TerminalToken token;
 		int count = 0, lParenCount = 0;
 		boolean startSet = false;
 		try {
-			while((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF)  {
-				if (token != TerminalTokens.TokenNameWHITESPACE) {
+			while((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF)  {
+				if (token != TerminalToken.TokenNameWHITESPACE) {
 					if (!startSet) {
 						start = this.scanner.startPosition;
 						startSet = true;
@@ -5613,10 +5613,10 @@ class ASTConverter {
 	}
 	protected void retrieveIdentifierAndSetPositions(int start, int end, Name name) {
 		this.scanner.resetTo(start, end);
-		TerminalTokens token;
+		TerminalToken token;
 		try {
-			while((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF)  {
-				if (token == TerminalTokens.TokenNameIdentifier) {
+			while((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF)  {
+				if (token == TerminalToken.TokenNameIdentifier) {
 					int startName = this.scanner.startPosition;
 					int endName = this.scanner.currentPosition - 1;
 					name.setSourceRange(startName, endName - startName + 1);
@@ -5635,8 +5635,8 @@ class ASTConverter {
 	protected int retrieveIdentifierEndPosition(int start, int end) {
 		this.scanner.resetTo(start, end);
 		try {
-			TerminalTokens token;
-			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			TerminalToken token;
+			while ((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				switch(token) {
 					case TokenNameIdentifier://110
 						return this.scanner.getCurrentTokenEndPosition();
@@ -5658,10 +5658,10 @@ class ASTConverter {
 	 */
 	protected void retrieveInitAndSetPositions(int start, int end, Name name) {
 		this.scanner.resetTo(start, end);
-		TerminalTokens token;
+		TerminalToken token;
 		try {
-			while((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF)  {
-				if (token == TerminalTokens.TokenNamenew) {
+			while((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF)  {
+				if (token == TerminalToken.TokenNamenew) {
 					int startName = this.scanner.startPosition;
 					int endName = this.scanner.currentPosition;
 					name.setSourceRange(startName, endName - startName);
@@ -5684,14 +5684,14 @@ class ASTConverter {
 		int balance = 0;
 		int pos = initializerEnd > nameEnd ? initializerEnd - 1 : nameEnd;
 		try {
-			TerminalTokens token;
+			TerminalToken token;
 			int lParenCount = 0;
 			boolean hasAnnotations = false;
-			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				hasTokens = true;
 				if (hasAnnotations) {
-					if (token == TerminalTokens.TokenNameLPAREN) ++lParenCount;
-					else if (token == TerminalTokens.TokenNameRPAREN) {
+					if (token == TerminalToken.TokenNameLPAREN) ++lParenCount;
+					else if (token == TerminalToken.TokenNameRPAREN) {
 						--lParenCount;
 						continue;
 					}
@@ -5732,9 +5732,9 @@ class ASTConverter {
 	protected int retrieveProperRightBracketPosition(int bracketNumber, int start, int end) {
 		this.scanner.resetTo(start, this.compilationUnitSourceLength);
 		try {
-			TerminalTokens token;
+			TerminalToken token;
 			int count = 0, lParentCount = 0, balance = 0;
-			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				switch(token) {
 					case TokenNameLPAREN:
 						++lParentCount;
@@ -5778,8 +5778,8 @@ class ASTConverter {
 	protected int retrieveRightBraceOrSemiColonPosition(int start, int end) {
 		this.scanner.resetTo(start, end);
 		try {
-			TerminalTokens token;
-			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			TerminalToken token;
+			while ((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				switch(token) {
 					case TokenNameRBRACE :
 						return this.scanner.currentPosition - 1;
@@ -5802,8 +5802,8 @@ class ASTConverter {
 	protected int retrieveRightBrace(int start, int end) {
 		this.scanner.resetTo(start, end);
 		try {
-			TerminalTokens token;
-			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			TerminalToken token;
+			while ((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				switch(token) {
 					case TokenNameRBRACE :
 						return this.scanner.currentPosition - 1;
@@ -5824,8 +5824,8 @@ class ASTConverter {
 	protected int retrieveStartBlockPosition(int start, int end) {
 		this.scanner.resetTo(start, end);
 		try {
-			TerminalTokens token;
-			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			TerminalToken token;
+			while ((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				switch(token) {
 					case TokenNameLBRACE://110
 						return this.scanner.startPosition;
@@ -5846,8 +5846,8 @@ class ASTConverter {
 	protected int retrieveStartingCatchPosition(int start, int end) {
 		this.scanner.resetTo(start, end);
 		try {
-			TerminalTokens token;
-			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			TerminalToken token;
+			while ((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				switch(token) {
 					case TokenNamecatch://225
 						return this.scanner.startPosition;
@@ -5882,9 +5882,9 @@ class ASTConverter {
 	protected void setModifiers(List modifiers, org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations, int modifiersEnd) {
 		this.scanner.tokenizeWhiteSpace = false;
 		try {
-			TerminalTokens token;
+			TerminalToken token;
 			int indexInAnnotations = 0;
-			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				IExtendedModifier modifier = null;
 				switch(token) {
 					case TokenNameabstract:
@@ -6043,8 +6043,8 @@ class ASTConverter {
 				org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations = argument.annotations;
 				int indexInAnnotations = 0;
 				try {
-					TerminalTokens token;
-					while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+					TerminalToken token;
+					while ((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 						IExtendedModifier modifier = null;
 						switch(token) {
 							case TokenNameabstract:
@@ -6118,8 +6118,8 @@ class ASTConverter {
 			org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations = localDeclaration.annotations;
 			int indexInAnnotations = 0;
 			try {
-				TerminalTokens token;
-				while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+				TerminalToken token;
+				while ((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 					IExtendedModifier modifier = null;
 					switch(token) {
 						case TokenNameabstract:
@@ -6198,8 +6198,8 @@ class ASTConverter {
 				org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations = component.annotations;
 				int indexInAnnotations = 0;
 				try {
-					TerminalTokens token;
-					while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+					TerminalToken token;
+					while ((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 						IExtendedModifier modifier = null;
 						switch(token) {
 							case TokenNameabstract:
@@ -6291,8 +6291,8 @@ class ASTConverter {
 				org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations = localDeclaration.annotations;
 				int indexInAnnotations = 0;
 				try {
-					TerminalTokens token;
-					while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+					TerminalToken token;
+					while ((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 						IExtendedModifier modifier = null;
 						switch(token) {
 							case TokenNameabstract:
@@ -6368,8 +6368,8 @@ class ASTConverter {
 				org.eclipse.jdt.internal.compiler.ast.Annotation[] annotations = localDeclaration.annotations;
 				int indexInAnnotations = 0;
 				try {
-					TerminalTokens token;
-					while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+					TerminalToken token;
+					while ((token = this.scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 						IExtendedModifier modifier = null;
 						switch(token) {
 							case TokenNameabstract:

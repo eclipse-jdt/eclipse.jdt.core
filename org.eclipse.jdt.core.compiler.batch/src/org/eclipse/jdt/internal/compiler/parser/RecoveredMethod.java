@@ -15,8 +15,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameLPAREN;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameSEMICOLON;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameLPAREN;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameSEMICOLON;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -493,7 +493,7 @@ public void updateFromParserState(){
 					parser.astLengthStack[parser.astLengthPtr] --;
 					parser.astPtr --;
 					parser.listLength --;
-					parser.currentToken = TerminalTokens.TokenNameNotAToken;
+					parser.currentToken = TerminalToken.TokenNameNotAToken;
 				}
 				int argLength = parser.astLengthStack[parser.astLengthPtr];
 				int argStart = parser.astPtr - argLength + 1;
@@ -525,7 +525,7 @@ public void updateFromParserState(){
 							parser.astLengthStack[parser.astLengthPtr] = count;
 							parser.astPtr = argStart+count-1;
 							parser.listLength = count;
-							parser.currentToken = TerminalTokens.TokenNameNotAToken;
+							parser.currentToken = TerminalToken.TokenNameNotAToken;
 							break;
 						}
 						if (needUpdateRParenPos) parser.rParenPos = argument.sourceEnd + 1;
@@ -533,7 +533,7 @@ public void updateFromParserState(){
 						parser.astLengthStack[parser.astLengthPtr] = count;
 						parser.astPtr = argStart+count-1;
 						parser.listLength = count;
-						parser.currentToken = TerminalTokens.TokenNameNotAToken;
+						parser.currentToken = TerminalToken.TokenNameNotAToken;
 						break;
 					}
 				}

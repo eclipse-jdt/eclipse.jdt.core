@@ -15,7 +15,7 @@
 package org.eclipse.jdt.internal.formatter.linewrap;
 
 import static java.util.stream.Collectors.toList;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.*;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,7 +29,7 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions.Alignment;
 import org.eclipse.jdt.internal.formatter.Token;
@@ -225,7 +225,7 @@ public class WrapPreparator extends ASTVisitor {
 
 		List<Type> superInterfaceTypes = node.superInterfaceTypes();
 		if (!superInterfaceTypes.isEmpty()) {
-			TerminalTokens implementsToken = node.isInterface() ? TokenNameextends : TokenNameimplements;
+			TerminalToken implementsToken = node.isInterface() ? TokenNameextends : TokenNameimplements;
 			this.wrapParentIndex = this.tm.lastIndexIn(node.getName(), TokenNameInvalid);
 			this.wrapIndexes.add(this.tm.firstIndexBefore(superInterfaceTypes.get(0), implementsToken));
 			prepareElementsList(superInterfaceTypes, TokenNameCOMMA, TokenNameInvalid);
@@ -1036,7 +1036,7 @@ public class WrapPreparator extends ASTVisitor {
 		return true;
 	}
 
-	private void handleModuleStatement(List<Name> names, TerminalTokens joiningTokenType) {
+	private void handleModuleStatement(List<Name> names, TerminalToken joiningTokenType) {
 		if (names.isEmpty())
 			return;
 		int joiningTokenIndex = this.tm.firstIndexBefore(names.get(0), joiningTokenType);
@@ -1207,7 +1207,7 @@ public class WrapPreparator extends ASTVisitor {
 		}
 	}
 
-	private void prepareElementsList(List<? extends ASTNode> elements, TerminalTokens separatorType, TerminalTokens wrapParentType) {
+	private void prepareElementsList(List<? extends ASTNode> elements, TerminalToken separatorType, TerminalToken wrapParentType) {
 		for (int i = 0; i < elements.size(); i++) {
 			ASTNode element = elements.get(i);
 			this.wrapIndexes.add(this.tm.firstIndexIn(element, TokenNameInvalid));

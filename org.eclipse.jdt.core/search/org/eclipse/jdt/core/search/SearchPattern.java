@@ -14,7 +14,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.search;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameInvalid;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameInvalid;
 
 import java.io.IOException;
 import java.util.regex.Pattern;
@@ -27,7 +27,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.index.EntryResult;
 import org.eclipse.jdt.internal.core.index.Index;
@@ -948,18 +948,18 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 	scanner.setSource(patternString.toCharArray());
 	final int InsideDeclaringPart = 1;
 	final int InsideType = 2;
-	TerminalTokens lastToken = TokenNameInvalid;
+	TerminalToken lastToken = TokenNameInvalid;
 
 	String declaringType = null, fieldName = null;
 	String type = null;
 	int mode = InsideDeclaringPart;
-	TerminalTokens token;
+	TerminalToken token;
 	try {
 		token = scanner.getNextToken();
 	} catch (InvalidInputException e) {
 		return null;
 	}
-	while (token != TerminalTokens.TokenNameEOF) {
+	while (token != TerminalToken.TokenNameEOF) {
 		switch(mode) {
 			// read declaring type and fieldName
 			case InsideDeclaringPart :
@@ -975,7 +975,7 @@ private static SearchPattern createFieldPattern(String patternString, int limitT
 						fieldName = null;
 						break;
 					case TokenNameWHITESPACE:
-						if (!(TerminalTokens.TokenNameWHITESPACE == lastToken || TerminalTokens.TokenNameDOT == lastToken))
+						if (!(TerminalToken.TokenNameWHITESPACE == lastToken || TerminalToken.TokenNameDOT == lastToken))
 							mode = InsideType;
 						break;
 					default: // all other tokens are considered identifiers (see bug 21763 Problem in Java search [search])
@@ -1067,7 +1067,7 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 	final int InsideTypeArguments = 2;
 	final int InsideParameter = 3;
 	final int InsideReturnType = 4;
-	TerminalTokens lastToken = TokenNameInvalid;
+	TerminalToken lastToken = TokenNameInvalid;
 
 	String declaringType = null, selector = null, parameterType = null;
 	String[] parameterTypes = null;
@@ -1077,14 +1077,14 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 	String returnType = null;
 	boolean foundClosingParenthesis = false;
 	int mode = InsideSelector;
-	TerminalTokens token;
+	TerminalToken token;
 	int argCount = 0;
 	try {
 		token = scanner.getNextToken();
 	} catch (InvalidInputException e) {
 		return null;
 	}
-	while (token != TerminalTokens.TokenNameEOF) {
+	while (token != TerminalToken.TokenNameEOF) {
 		switch(mode) {
 			// read declaring type and selector
 			case InsideSelector :
@@ -1092,7 +1092,7 @@ private static SearchPattern createMethodOrConstructorPattern(String patternStri
 					switch (token) {
 						case TokenNameLESS:
 							argCount++;
-							if (selector == null || lastToken == TerminalTokens.TokenNameDOT) {
+							if (selector == null || lastToken == TerminalToken.TokenNameDOT) {
 								typeArgumentsString = scanner.getCurrentTokenString();
 								mode = InsideTypeArguments;
 								break;
@@ -2326,14 +2326,14 @@ private static SearchPattern createTypePattern(String patternString, int limitTo
 	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_7/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
 	scanner.setSource(patternString.toCharArray());
 	String type = null;
-	TerminalTokens token;
+	TerminalToken token;
 	try {
 		token = scanner.getNextToken();
 	} catch (InvalidInputException e) {
 		return null;
 	}
 	int argCount = 0;
-	while (token != TerminalTokens.TokenNameEOF) {
+	while (token != TerminalToken.TokenNameEOF) {
 		if (argCount == 0) {
 			switch (token) {
 				case TokenNameWHITESPACE:

@@ -19,7 +19,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.complete;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.*;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -4042,8 +4042,8 @@ protected void consumeSwitchRule(SwitchRuleKind kind) {
 	}
 }
 @Override
-protected TerminalTokens fetchNextToken() throws InvalidInputException {
-	TerminalTokens token = this.scanner.getNextToken();
+protected TerminalToken fetchNextToken() throws InvalidInputException {
+	TerminalToken token = this.scanner.getNextToken();
 	if (token != TokenNameEOF && this.scanner.currentPosition > this.cursorLocation) {
 		if (!this.diet || this.dietInt != 0) { // do this also when parsing field initializers:
 			if (this.currentToken == TokenNameIdentifier
@@ -4085,7 +4085,7 @@ protected TerminalTokens fetchNextToken() throws InvalidInputException {
  * Variant of parse() without side effects that stops when another token would need to be fetched.
  * Returns the name of the last reduced rule, or empty string if nothing reduced, or null if error was detected.
  */
-String reduce(TerminalTokens token) {
+String reduce(TerminalToken token) {
 	int myStackTop = this.stateStackTop;
 	int[] myStack = Arrays.copyOf(this.stack, this.stack.length);
 	int act = this.unstackedAct;
@@ -4123,7 +4123,7 @@ String reduce(TerminalTokens token) {
 	}
 }
 @Override
-protected void consumeToken(TerminalTokens token) {
+protected void consumeToken(TerminalToken token) {
 	if(this.isFirst) {
 		super.consumeToken(token);
 		return;
@@ -4134,7 +4134,7 @@ protected void consumeToken(TerminalTokens token) {
 		this.canBeExplicitConstructor = NO;
 	}
 
-	TerminalTokens previous = this.previousToken;
+	TerminalToken previous = this.previousToken;
 	int prevIdentifierPtr = this.previousIdentifierPtr;
 
 	isInsideEnhancedForLoopWithoutBlock(token);
@@ -4777,7 +4777,7 @@ protected void consumeToken(TerminalTokens token) {
 		}
 	}
 }
-private void isInsideEnhancedForLoopWithoutBlock(TerminalTokens token) {
+private void isInsideEnhancedForLoopWithoutBlock(TerminalToken token) {
 	if( this.consumedEnhancedFor == true && token != TokenNameLBRACE) {
 		consumeOpenFakeBlock();
 	}
@@ -6334,7 +6334,7 @@ private boolean isInsideBody(Statement statement, AbstractMethodDeclaration meth
 	// Note that diet parsing may not have found the '{' to properly set bodyStart, so the above check is not sufficient
 	this.scanner.resetTo(method.sourceEnd, statement.sourceStart);
 	try {
-		TerminalTokens tkn;
+		TerminalToken tkn;
 		while ((tkn = this.scanner.getNextToken()) != TokenNameEOF) {
 			if (tkn == TokenNameLBRACE)
 				return true;
@@ -6423,7 +6423,7 @@ protected int actFromTokenOrSynthetic(int previousAct) {
 	if (this.hasError && !this.diet && newAct == ERROR_ACTION && this.scanner.currentPosition > this.cursorLocation) {
 		if (requireExtendedRecovery()) {
 			// during extended recovery, if EOF would be wrong, try a few things to reduce our stacks:
-			for (TerminalTokens tok : RECOVERY_TOKENS) {
+			for (TerminalToken tok : RECOVERY_TOKENS) {
 				newAct = tAction(previousAct, tok.tokenNumber());
 				if (newAct != ERROR_ACTION) {
 					this.currentToken = tok; // this worked, pretend we really got this from the Scanner

@@ -17,7 +17,7 @@ import org.eclipse.jdt.core.compiler.IScanner;
 import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 
 /**
  * This class acts as a facade to the internal Scanner implementation and delegates
@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  * <p>
  * <b>Note for maintainers</b>
  * No additional logic should be added here except adopting NON-API constants
- * returned by {@link #getNextToken()} from {@link TerminalTokens} to {@link ITerminalSymbols}.
+ * returned by {@link #getNextToken()} from {@link TerminalToken} to {@link ITerminalSymbols}.
  */
 public class PublicScanner implements IScanner, ITerminalSymbols {
 
@@ -114,23 +114,23 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 
 	@Override
 	public int getNextToken() throws InvalidInputException {
-		TerminalTokens nextToken = this.delegate.getNextToken();
+		TerminalToken nextToken = this.delegate.getNextToken();
 		int symbol  = translateTokenToTerminalSymbol(nextToken);
 		return symbol;
 	}
 
 	/**
-	 * Translates internal generated constants from {@link TerminalTokens} to public constants defined in
+	 * Translates internal generated constants from {@link TerminalToken} to public constants defined in
 	 * {@link ITerminalSymbols}.
 	 * <p>
 	 * There is PublicScannerTest that validates the translation and can generate switch body for this method
 	 * on changes in Scanner / TerminalTokens.
 	 * <p>
-	 * Note for maintainers: new tokens from {@link TerminalTokens} should be added to {@link ITerminalSymbols} with
+	 * Note for maintainers: new tokens from {@link TerminalToken} should be added to {@link ITerminalSymbols} with
 	 * <b>adopted</b> numerical values (they differ in each interface).
 	 */
 	@Deprecated // uses deprecated TerminalTokensIdentifier
-	private int translateTokenToTerminalSymbol(TerminalTokens nextTokenEnum) throws InvalidInputException {
+	private int translateTokenToTerminalSymbol(TerminalToken nextTokenEnum) throws InvalidInputException {
 		int nextToken = nextTokenEnum.tokenNumber();
 		switch (nextTokenEnum) {
 			case TokenNameAND : nextToken = ITerminalSymbols.TokenNameAND; break;
