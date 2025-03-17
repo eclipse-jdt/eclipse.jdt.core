@@ -126,7 +126,7 @@ public class PublicScannerTest extends AbstractRegressionTest {
 		}
 		if(this.ttValueToName.size() != this.ttNameToValue.size()) {
 			this.ttNameToValue.keySet().removeAll(this.ttValueToName.values());
-			fail("TerminalTokens constants use already defined values: " + this.ttNameToValue.keySet());
+			fail("TerminalToken constants use already defined values: " + this.ttNameToValue.keySet());
 		}
 		this.tsValueToName = new TreeMap<>();
 		this.tsNameToValue = new TreeMap<>();
@@ -177,7 +177,7 @@ public class PublicScannerTest extends AbstractRegressionTest {
 					assertEquals(1, this.ps.nextTokenCalls);
 					TerminalToken target = SYNTHETIC_REPLACE_TOKENS.get(value);
 					if(target == null) {
-						fail("TerminalTokens." + fieldName + " should be added to ITerminalSymbols or SYNTHETIC_*_TOKENS in PublicScannerTest*!");
+						fail("TerminalToken." + fieldName + " should be added to ITerminalSymbols or SYNTHETIC_*_TOKENS in PublicScannerTest*!");
 					} else {
 						String replaceName = this.ttValueToName.get(target.tokenNumber());
 						Integer replaceValue = this.tsNameToValue.get(replaceName);
@@ -198,7 +198,7 @@ public class PublicScannerTest extends AbstractRegressionTest {
 		for (Entry<String, Integer> entry : entrySet) {
 			String fieldName = entry.getKey();
 			if (!this.ttNameToValue.containsKey(fieldName)) {
-				fail("ITerminalSymbols." + fieldName + " does not exist in TerminalTokens");
+				fail("ITerminalSymbols." + fieldName + " does not exist in TerminalToken");
 			}
 		}
 		Set<Entry<String, TerminalToken>> ttEntrySet = this.ttNameToValue.entrySet();
@@ -215,7 +215,7 @@ public class PublicScannerTest extends AbstractRegressionTest {
 					if(target != null) {
 						// OK, constant present
 					} else {
-						fail("TerminalTokens." + fieldName + " should be added to ITerminalSymbols or SYNTHETIC_*_TOKENS in PublicScannerTest*!");
+						fail("TerminalToken." + fieldName + " should be added to ITerminalSymbols or SYNTHETIC_*_TOKENS in PublicScannerTest*!");
 					}
 				}
 			}
@@ -316,22 +316,22 @@ public class PublicScannerTest extends AbstractRegressionTest {
 		String ident = "\t\t\t";
 		for (String ttName : ttNames) {
 			if(tsSet.contains(ttName)) {
-				sb.append(ident + "case TerminalTokens." + ttName + " : nextToken = ITerminalSymbols." + ttName + "; break;\n");
+				sb.append(ident + "case TerminalToken." + ttName + " : nextToken = ITerminalSymbols." + ttName + "; break;\n");
 			} else {
 				TerminalToken value = TerminalToken.valueOf(ttName);
 				if (MODULE_TOKENS.contains(value)) {
 					continue;
 				}
 				if(SYNTHETIC_SKIP_TOKENS.contains(value)){
-					sb.append(ident + "case TerminalTokens." + ttName + " : nextToken = getNextToken(); break;\n");
+					sb.append(ident + "case TerminalToken." + ttName + " : nextToken = getNextToken(); break;\n");
 				} else {
 					TerminalToken target = SYNTHETIC_REPLACE_TOKENS.get(value);
 					if(target == null) {
 						sb.append("// TODO: add constant " + ttName + " to ITerminalSymbols or update SYNTHETIC_*_TOKENS in PublicScannerTest!\n");
-						sb.append("// case TerminalTokens." + ttName + " : nextToken = ITerminalSymbols." + ttName + "; break;\n");
+						sb.append("// case TerminalToken." + ttName + " : nextToken = ITerminalSymbols." + ttName + "; break;\n");
 					} else {
 						String replaceName = target.name();
-						sb.append(ident + "case TerminalTokens." + ttName + " : nextToken = ITerminalSymbols." + replaceName + "; break;\n");
+						sb.append(ident + "case TerminalToken." + ttName + " : nextToken = ITerminalSymbols." + replaceName + "; break;\n");
 					}
 				}
 			}

@@ -37,7 +37,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  * IMPORTANT NOTE: Internal Scanner implementation. It is mirrored in
  * org.eclipse.jdt.core.compiler public package where it is API.
  * The mirror implementation is using the backward compatible ITerminalSymbols constant
- * definitions (stable with 2.0), whereas the internal implementation uses TerminalTokens
+ * definitions (stable with 2.0), whereas the internal implementation uses TerminalToken
  * which constant values reflect the latest parser generation state.
  */
 public class Scanner {
@@ -5881,7 +5881,7 @@ protected static InvalidInputException invalidBinary() {
 	return new InvalidInputException(INVALID_BINARY);
 }
 public static InvalidInputException invalidToken(TerminalToken token) {
-	return new InvalidInputException("Unknown token (check Scanner/TerminalTokens): " + token); //$NON-NLS-1$
+	return new InvalidInputException("Unknown token (check Scanner/TerminalToken): " + token); //$NON-NLS-1$
 }
 public static InvalidInputException invalidInput() {
 	return new InvalidInputException();

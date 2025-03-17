@@ -12027,7 +12027,7 @@ public boolean atConflictScenario(TerminalToken token) {
 /*main loop of the automat
 When a rule is reduced, the method consumeRule(int) is called with the number
 of the consumed rule. When a terminal is consumed, the method
-consumeToken(TerminalTokens) is
+consumeToken(TerminalToken) is
 called in order to remember (when needed) the consumed token */
 // (int)asr[asi(act)]
 // name[symbol_index[currentKind]]
