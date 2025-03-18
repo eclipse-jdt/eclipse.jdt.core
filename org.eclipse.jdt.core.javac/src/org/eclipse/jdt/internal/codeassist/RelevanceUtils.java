@@ -131,6 +131,10 @@ class RelevanceUtils {
 						relevance = CompletionEngine.R_EXPECTED_TYPE;
 					}
 				}
+				if ("Ljava/lang/Object;".equals(expectedType.getKey()) && proposalType.isPrimitive()) {
+					// can be autoboxed
+					relevance = CompletionEngine.R_EXPECTED_TYPE;
+				}
 			}
 			return relevance;
 		}
