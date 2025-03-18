@@ -335,9 +335,20 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 					.collect(Collectors.joining())
 				+ ">;";
 		} else if (isParameterizedType(t)) {
+			final String base2 = base;
+			final int[] counter = new int[] {0};
 			return base + '<'
 				+ Arrays.stream(getTypeArguments())
 					.map(parameterizedCallback)
+					.map(x -> {
+						String b33 = base2;
+						if( b33.length() > 0 && "LIZVCDBFJS[!".indexOf(x.charAt(0)) == -1) {
+							String ret = b33 + ";{" + counter[0] + "}" + x;
+							counter[0] = counter[0] + 1;
+							return ret;
+						}
+						return x;
+					})
 					.collect(Collectors.joining())
 				+ ">;";
 		} else if( isRawType(t)) {
