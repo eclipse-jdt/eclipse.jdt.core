@@ -96,6 +96,7 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.Javadoc;
@@ -107,6 +108,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NodeFinder;
@@ -147,8 +149,6 @@ import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
-import org.eclipse.jdt.core.dom.InfixExpression.Operator;
-import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -1335,6 +1335,21 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				suggestDefaultCompletions = false;
 			}
 			if (context instanceof MethodDeclaration methodDeclaration) {
+				int closingParenLocation = methodDeclaration.getName().getStartPosition() + methodDeclaration.getName().getLength();
+				boolean afterComma = true;
+				while (closingParenLocation < this.textContent.length() && this.textContent.charAt(closingParenLocation) != ')') {
+					if (afterComma) {
+						if (!Character.isWhitespace(this.textContent.charAt(closingParenLocation))) {
+							afterComma = false;
+						}
+					} else {
+						// TODO: handle \u002C
+						if (this.textContent.charAt(closingParenLocation) == ',') {
+							afterComma = true;
+						}
+					}
+					closingParenLocation++;
+				}
 				if (this.offset < methodDeclaration.getName().getStartPosition()) {
 					completeMethodModifiers(methodDeclaration);
 					// return type: suggest types from current CU
@@ -1347,8 +1362,21 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						publishFromScope(specificCompletionBindings);
 					}
 					suggestDefaultCompletions = false;
-				} else if (methodDeclaration.getBody() == null || (methodDeclaration.getBody() != null && this.offset <= methodDeclaration.getBody().getStartPosition())) {
+				} else if (methodDeclaration.getBody() == null || (methodDeclaration.getBody() != null && this.offset <= methodDeclaration.getBody().getStartPosition()) && closingParenLocation < this.offset) {
 					completeThrowsClause(methodDeclaration, specificCompletionBindings);
+					suggestDefaultCompletions = false;
+				} else if (methodDeclaration.getName().getStartPosition() + methodDeclaration.getName().getLength() < this.offset && this.offset <= closingParenLocation && !afterComma) {
+					// void myMethod(Integer a, Boolean |) { ...
+					SingleVariableDeclaration svd = (SingleVariableDeclaration)methodDeclaration.parameters().get(methodDeclaration.parameters().size() - 1);
+					ITypeBinding typeBinding = svd.getType().resolveBinding();
+					Block block = methodDeclaration.getBody();
+					Set<String> alreadySuggestedNames = new HashSet<>();
+					if (block != null) {
+						suggestUndeclaredVariableNames(block, typeBinding, alreadySuggestedNames);
+					} else {
+						suggestUndeclaredVariableNames(typeBinding, alreadySuggestedNames);
+					}
+					suggestVariableNamesForType(typeBinding, alreadySuggestedNames);
 					suggestDefaultCompletions = false;
 				} else if (this.offset > methodDeclaration.getStartPosition() + methodDeclaration.getLength()) {
 					suggestModifierKeywords(0);
@@ -2705,7 +2733,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	}
 
 	private boolean isParameterInNonParameterizedType(ASTNode context) {
-		if (DOMCompletionUtil.findParent(context, new int[] { ASTNode.PARAMETERIZED_TYPE }) != null) {
+		if (context instanceof ParameterizedType) {
+			return true;
+		} else if (DOMCompletionUtil.findParent(context, new int[] { ASTNode.PARAMETERIZED_TYPE }) != null) {
 			ASTNode cursor1 = context;
 			ASTNode cursor2 = context.getParent();
 			while (!(cursor2 instanceof ParameterizedType paramType)) {
@@ -3137,9 +3167,13 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 	private void completeThrowsClause(MethodDeclaration methodDeclaration, Bindings scope) {
 		if (methodDeclaration.thrownExceptionTypes().size() == 0) {
-			int startScanIndex = Math.max(
-					methodDeclaration.getName().getStartPosition() + methodDeclaration.getName().getLength(),
-					methodDeclaration.getReturnType2().getStartPosition() + methodDeclaration.getReturnType2().getLength());
+			int startScanIndex = -1;
+			if (methodDeclaration.getReturnType2() != null) {
+				startScanIndex = methodDeclaration.getReturnType2().getStartPosition() + methodDeclaration.getReturnType2().getLength();
+			}
+			if (methodDeclaration.getName() != null) {
+				startScanIndex = methodDeclaration.getName().getStartPosition() + methodDeclaration.getName().getLength();
+			}
 			if (!methodDeclaration.parameters().isEmpty()) {
 				SingleVariableDeclaration lastParam = (SingleVariableDeclaration)methodDeclaration.parameters().get(methodDeclaration.parameters().size() - 1);
 				startScanIndex = lastParam.getName().getStartPosition() + lastParam.getName().getLength();
@@ -3470,9 +3504,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				continue next;
 			}
 			if (method.isSynthetic() || method.isConstructor()
+					|| Modifier.isPrivate(method.getModifiers())
 					|| (this.assistOptions.checkDeprecation && isDeprecated(method.getJavaElement()))
 					|| Modifier.isStatic(method.getModifiers())
-					|| Modifier.isPrivate(method.getModifiers())
 					|| ((method.getModifiers() & (Modifier.PUBLIC | Modifier.PRIVATE | Modifier.PROTECTED)) == 0) && !typeBinding.getPackage().getKey().equals(originalPackageKey)) {
 				continue next;
 			}

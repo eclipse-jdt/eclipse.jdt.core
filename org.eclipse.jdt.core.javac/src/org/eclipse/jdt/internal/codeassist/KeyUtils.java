@@ -17,6 +17,8 @@ package org.eclipse.jdt.internal.codeassist;
  * Utility methods for manipulating binding keys.
  */
 public class KeyUtils {
+	
+	public static final String OBJECT_KEY = "Ljava/lang/Object;";
 
 	/**
 	 * Returns the given method key with the owner type and return type removed.

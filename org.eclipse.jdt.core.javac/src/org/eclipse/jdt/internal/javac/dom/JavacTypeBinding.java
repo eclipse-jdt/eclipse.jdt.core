@@ -58,6 +58,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.internal.codeassist.KeyUtils;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -314,10 +315,10 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	}
 	
 	private String computeKey() {
-		return getKeyWithPossibleGenerics(this.type, this.typeSymbol, ITypeBinding::getKey, true);
+		return getKeyWithPossibleGenerics(this.type, this.typeSymbol, tb -> tb != null ? tb.getKey() : KeyUtils.OBJECT_KEY, true);
 	}
 	public String getKeyWithPossibleGenerics(Type t, TypeSymbol s) {
-		return getKeyWithPossibleGenerics(t, s, ITypeBinding::getKey);
+		return getKeyWithPossibleGenerics(t, s, tb -> tb != null ? tb.getKey() : KeyUtils.OBJECT_KEY);
 	}
 	private String getKeyWithPossibleGenerics(Type t, TypeSymbol s, Function<ITypeBinding, String> parameterizedCallback) {
 		return getKeyWithPossibleGenerics(t, s, parameterizedCallback, false);
@@ -373,7 +374,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			return '[' + componentBinding.getGenericTypeSignature(useSlashes);
 		}
 		String ret = getKeyWithPossibleGenerics(t, s, 
-				x -> x instanceof JavacTypeBinding jtb ? jtb.getGenericTypeSignature(useSlashes) : x.getKey(),
+				x -> x instanceof JavacTypeBinding jtb ? jtb.getGenericTypeSignature(useSlashes) : x != null ? x.getKey() : KeyUtils.OBJECT_KEY,
 						useSlashes);
 		return ret;
 	}

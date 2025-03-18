@@ -194,6 +194,16 @@ public class ExpectedTypes {
 				}
 				break;
 			}
+			if (parent2 instanceof ParameterizedType parameterizedType) {
+				ITypeBinding typeBinding = parameterizedType.getType().resolveBinding().getTypeDeclaration();
+				// TODO: does this ever happen for other entries?
+				if (typeBinding.getTypeParameters()[0].isWildcardType() && typeBinding.getTypeParameters()[0].getBound() != null) {
+					this.expectedTypes.add(typeBinding.getTypeParameters()[0].getBound());
+				} else {
+					this.expectedTypes.add(parent2.getAST().resolveWellKnownType(Object.class.getName()));
+				}
+				return;
+			}
 			if (parent2.getLocationInParent() == MemberValuePair.VALUE_PROPERTY && parent2.getParent() instanceof MemberValuePair mvp) {
 				var binding = mvp.resolveMemberValuePairBinding();
 				if (binding != null) {
