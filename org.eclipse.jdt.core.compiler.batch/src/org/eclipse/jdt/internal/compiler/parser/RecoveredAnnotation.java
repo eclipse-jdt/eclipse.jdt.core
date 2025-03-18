@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameNotAToken;
+
 import org.eclipse.jdt.internal.compiler.ast.*;
 
 public class RecoveredAnnotation extends RecoveredElement {
@@ -27,7 +29,7 @@ public class RecoveredAnnotation extends RecoveredElement {
 	public boolean hasPendingMemberValueName;
 	public int memberValuPairEqualEnd = -1;
 	public Annotation annotation;
-	public TerminalToken errorToken;
+	public TerminalToken errorToken = TokenNameNotAToken;
 
 	public RecoveredAnnotation(int identifierPtr, int identifierLengthPtr, int sourceStart, RecoveredElement parent, int bracketBalance) {
 		super(parent, bracketBalance);

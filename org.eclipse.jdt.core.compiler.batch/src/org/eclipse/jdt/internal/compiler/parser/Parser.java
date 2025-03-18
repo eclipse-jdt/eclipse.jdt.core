@@ -167,7 +167,7 @@ public class Parser implements ParserBasicInformation, ConflictedParser, Operato
 	private static final short TYPE_CLASS = 1;
 
 	public Scanner scanner;
-	public TerminalToken currentToken;
+	public TerminalToken currentToken = TokenNameNotAToken;
 
 	static {
 		try{
@@ -819,7 +819,7 @@ public class Parser implements ParserBasicInformation, ConflictedParser, Operato
 	protected int expressionPtr;
 	protected Expression[] expressionStack = new Expression[ExpressionStackIncrement];
 	protected int rBracketPosition;
-	public TerminalToken firstToken ; // handle for multiple parsing goals
+	public TerminalToken firstToken = TokenNameNotAToken; // handle for multiple parsing goals
 
 	/* jsr308 -- Type annotation management, we now maintain type annotations in a separate stack
 	   as otherwise they get interspersed with other expressions and some of the code is not prepared
@@ -864,7 +864,7 @@ public class Parser implements ParserBasicInformation, ConflictedParser, Operato
 	protected int lastCheckPoint;
 	protected int lastErrorEndPosition;
 	protected int lastErrorEndPositionBeforeRecovery = -1;
-	protected TerminalToken lastIgnoredToken, nextIgnoredToken;
+	protected TerminalToken lastIgnoredToken = TokenNameNotAToken, nextIgnoredToken = TokenNameNotAToken;
 
 	protected int listLength; // for recovering some incomplete list (interfaces, throws or parameters)
 
