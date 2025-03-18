@@ -46,7 +46,7 @@ public abstract class AssistParser extends Parser {
 	int[] blockStarts = new int[30];
 
 	// the previous token read by the scanner
-	protected TerminalToken previousToken;
+	protected TerminalToken previousToken = TokenNameNotAToken;
 
 	// the index in the identifier stack of the previous identifier
 	protected int previousIdentifierPtr;

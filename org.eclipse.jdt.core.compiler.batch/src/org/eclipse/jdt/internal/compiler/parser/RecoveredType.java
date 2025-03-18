@@ -789,21 +789,19 @@ public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 				!= parser.scanner.searchLineNumber(braceEnd)){
 		 */
 		Parser parser = parser();
-		if (parser.lastIgnoredToken != null){
-			switch(parser.lastIgnoredToken){
-				case TokenNameInvalid :
-				case TokenNameextends :
-				case TokenNameimplements :
-				case TokenNameRestrictedIdentifierpermits:
-				case TokenNameGREATER :
-				case TokenNameRIGHT_SHIFT :
-				case TokenNameUNSIGNED_RIGHT_SHIFT :
-					if (parser.recoveredStaticInitializerStart == 0) break;
-				//$FALL-THROUGH$
-				default:
-					this.foundOpeningBrace = true;
-					this.bracketBalance = 1; // pretend the brace was already there
-			}
+		switch(parser.lastIgnoredToken){
+			case TokenNameInvalid :
+			case TokenNameextends :
+			case TokenNameimplements :
+			case TokenNameRestrictedIdentifierpermits:
+			case TokenNameGREATER :
+			case TokenNameRIGHT_SHIFT :
+			case TokenNameUNSIGNED_RIGHT_SHIFT :
+				if (parser.recoveredStaticInitializerStart == 0) break;
+			//$FALL-THROUGH$
+			default:
+				this.foundOpeningBrace = true;
+				this.bracketBalance = 1; // pretend the brace was already there
 		}
 	}
 	// might be an initializer

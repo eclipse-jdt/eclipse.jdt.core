@@ -5033,9 +5033,9 @@ private static final class VanguardScanner extends Scanner {
 
 private static class Goal {
 
-	TerminalToken first;      // steer the parser towards a single minded pursuit.
-	TerminalToken [] follow;  // the definite terminal symbols that signal the successful reduction to goal.
-	int[] rules;
+	final TerminalToken first;      // steer the parser towards a single minded pursuit.
+	final TerminalToken [] follow;  // the definite terminal symbols that signal the successful reduction to goal.
+	final int[] rules;
 
 	static int LambdaParameterListRule = 0;
 	static int IntersectionCastRule = 0;
