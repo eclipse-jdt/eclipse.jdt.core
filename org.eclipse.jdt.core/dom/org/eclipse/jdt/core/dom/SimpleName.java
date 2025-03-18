@@ -19,7 +19,7 @@ import java.util.List;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 
 /**
  * AST node for a simple name. A simple name is an identifier other than
@@ -237,8 +237,8 @@ public class SimpleName extends Name {
 			final int length = source.length;
 			scanner.resetTo(0, length - 1);
 			try {
-				int tokenType = scanner.scanIdentifier();
-				if (tokenType != TerminalTokens.TokenNameIdentifier) {
+				TerminalToken tokenType = scanner.scanIdentifier();
+				if (tokenType != TerminalToken.TokenNameIdentifier) {
 					throw new IllegalArgumentException("Invalid identifier : >" + identifier + "<");  //$NON-NLS-1$//$NON-NLS-2$
 				}
 				if (scanner.currentPosition != length) {

@@ -13,6 +13,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMA;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameInvalid;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameSEMICOLON;
+
 import java.util.HashMap;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -655,7 +659,7 @@ protected void consumeSingleTypeImportDeclarationName() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = impt.declarationSourceEnd+1;
 		this.currentElement = this.currentElement.add(impt, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 	if (this.reportReferenceInfo) {
@@ -703,7 +707,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = impt.declarationSourceEnd+1;
 		this.currentElement = this.currentElement.add(impt, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 	if (this.reportReferenceInfo) {

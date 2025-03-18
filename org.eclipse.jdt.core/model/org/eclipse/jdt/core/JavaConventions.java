@@ -34,7 +34,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -131,8 +131,8 @@ public final class JavaConventions {
 
 		try {
 			SCANNER.setSource(id.toCharArray());
-			int token = SCANNER.scanIdentifier();
-			if (token != TerminalTokens.TokenNameIdentifier) return null;
+			TerminalToken token = SCANNER.scanIdentifier();
+			if (token != TerminalToken.TokenNameIdentifier) return null;
 			if (SCANNER.currentPosition == SCANNER.eofPosition) { // to handle case where we had an ArrayIndexOutOfBoundsException
 				try {
 					char[] src= SCANNER.getCurrentIdentifierSource();

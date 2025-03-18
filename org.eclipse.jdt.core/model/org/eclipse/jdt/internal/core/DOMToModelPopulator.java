@@ -37,7 +37,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.core.ModuleDescriptionInfo.ModuleReferenceInfo;
 import org.eclipse.jdt.internal.core.ModuleDescriptionInfo.PackageExportInfo;
 import org.eclipse.jdt.internal.core.ModuleDescriptionInfo.ServiceInfo;
@@ -842,18 +842,18 @@ public class DOMToModelPopulator extends ASTVisitor {
 		Scanner scanner = new Scanner();
 		scanner.setSource(token.toCharArray());
 		try {
-			int tokenType = scanner.getNextToken();
+			TerminalToken tokenType = scanner.getNextToken();
 			return switch(tokenType) {
-				case TerminalTokens.TokenNameDoubleLiteral -> IMemberValuePair.K_DOUBLE;
-				case TerminalTokens.TokenNameIntegerLiteral -> IMemberValuePair.K_INT;
-				case TerminalTokens.TokenNameFloatingPointLiteral -> IMemberValuePair.K_FLOAT;
-				case TerminalTokens.TokenNameLongLiteral -> IMemberValuePair.K_LONG;
-				case TerminalTokens.TokenNameMINUS ->
+				case TokenNameDoubleLiteral -> IMemberValuePair.K_DOUBLE;
+				case TokenNameIntegerLiteral -> IMemberValuePair.K_INT;
+				case TokenNameFloatingPointLiteral -> IMemberValuePair.K_FLOAT;
+				case TokenNameLongLiteral -> IMemberValuePair.K_LONG;
+				case TokenNameMINUS ->
 					switch (scanner.getNextToken()) {
-						case TerminalTokens.TokenNameDoubleLiteral -> IMemberValuePair.K_DOUBLE;
-						case TerminalTokens.TokenNameIntegerLiteral -> IMemberValuePair.K_INT;
-						case TerminalTokens.TokenNameFloatingPointLiteral -> IMemberValuePair.K_FLOAT;
-						case TerminalTokens.TokenNameLongLiteral -> IMemberValuePair.K_LONG;
+						case TokenNameDoubleLiteral -> IMemberValuePair.K_DOUBLE;
+						case TokenNameIntegerLiteral -> IMemberValuePair.K_INT;
+						case TokenNameFloatingPointLiteral -> IMemberValuePair.K_FLOAT;
+						case TokenNameLongLiteral -> IMemberValuePair.K_LONG;
 						default -> throw new IllegalArgumentException("Invalid number literal : >" + token + "<"); //$NON-NLS-1$//$NON-NLS-2$
 					};
 				default -> throw new IllegalArgumentException("Invalid number literal : >" + token + "<"); //$NON-NLS-1$//$NON-NLS-2$

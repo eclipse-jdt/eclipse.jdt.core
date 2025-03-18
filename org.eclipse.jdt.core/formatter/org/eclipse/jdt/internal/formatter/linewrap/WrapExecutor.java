@@ -15,11 +15,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter.linewrap;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_BLOCK;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_JAVADOC;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_LINE;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameTextBlock;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameWHITESPACE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_BLOCK;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_JAVADOC;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_LINE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameTextBlock;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameWHITESPACE;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;

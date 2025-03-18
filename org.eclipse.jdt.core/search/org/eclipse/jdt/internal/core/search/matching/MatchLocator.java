@@ -16,6 +16,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameInvalid;
 import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 
 import java.io.File;
@@ -63,7 +64,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
@@ -2236,7 +2237,7 @@ protected void reportAccurateTypeReference(SearchMatch match, ASTNode typeRef, c
 		scanner.setSource(this.currentPossibleMatch.getContents());
 		scanner.resetTo(sourceStart, sourceEnd);
 
-		int token = -1;
+		TerminalToken token = TokenNameInvalid;
 		int currentPosition;
 		do {
 			currentPosition = scanner.currentPosition;
@@ -2245,14 +2246,14 @@ protected void reportAccurateTypeReference(SearchMatch match, ASTNode typeRef, c
 			} catch (InvalidInputException e) {
 				// ignore
 			}
-			if (token == TerminalTokens.TokenNameIdentifier && this.pattern.matchesName(name, scanner.getCurrentTokenSource())) {
+			if (token == TerminalToken.TokenNameIdentifier && this.pattern.matchesName(name, scanner.getCurrentTokenSource())) {
 				int length = scanner.currentPosition-currentPosition;
 				match.setOffset(currentPosition);
 				match.setLength(length);
 				report(match);
 				return;
 			}
-		} while (token != TerminalTokens.TokenNameEOF);
+		} while (token != TerminalToken.TokenNameEOF);
 	}
 
 	//	Report match
@@ -2296,7 +2297,7 @@ protected void reportAccurateParameterizedMethodReference(SearchMatch match, AST
 					lineStart = scanner.currentPosition+1;
 					scanner.resetTo(lineStart, end);
 					while (!scanner.atEnd()) {
-						if (scanner.getNextToken() == TerminalTokens.TokenNameLESS) {
+						if (scanner.getNextToken() == TerminalToken.TokenNameLESS) {
 							start = scanner.getCurrentTokenStartPosition();
 							break linesUp;
 						}
@@ -2405,9 +2406,9 @@ protected void reportAccurateEnumConstructorReference(SearchMatch match, FieldDe
 	scanner.setSource(this.currentPossibleMatch.getContents());
 	scanner.resetTo(sourceStart, sourceEnd);
 	try {
-		int token = scanner.getNextToken();
-		while (token != TerminalTokens.TokenNameEOF) {
-			if (token == TerminalTokens.TokenNameRPAREN) {
+		TerminalToken token = scanner.getNextToken();
+		while (token != TerminalToken.TokenNameEOF) {
+			if (token == TerminalToken.TokenNameRPAREN) {
 				sourceEnd = scanner.getCurrentTokenEndPosition();
 			}
 			token = scanner.getNextToken();
@@ -2442,7 +2443,7 @@ protected void reportAccurateFieldReference(SearchMatch[] matches, QualifiedName
 
 	int refSourceStart = -1, refSourceEnd = -1;
 	int length = tokens.length;
-	int token = -1;
+	TerminalToken token = TokenNameInvalid;
 	int previousValid = -1;
 	int i = 0;
 	int index = 0;
@@ -2454,7 +2455,7 @@ protected void reportAccurateFieldReference(SearchMatch[] matches, QualifiedName
 		} catch (InvalidInputException e) {
 			//ignore
 		}
-		if (token != TerminalTokens.TokenNameEOF) {
+		if (token != TerminalToken.TokenNameEOF) {
 			char[] currentTokenSource = scanner.getCurrentTokenSource();
 			boolean equals = false;
 			while (i < length && !(equals = this.pattern.matchesName(tokens[i++], currentTokenSource))){/*empty*/}
@@ -2495,7 +2496,7 @@ protected void reportAccurateFieldReference(SearchMatch[] matches, QualifiedName
 		if (index < matchesLength - 1) {
 			index++;
 		}
-	} while (token != TerminalTokens.TokenNameEOF);
+	} while (token != TerminalToken.TokenNameEOF);
 
 }
 protected void reportBinaryMemberDeclaration(IResource resource, IMember binaryMember, Binding binaryMemberBinding, IBinaryType info, int accuracy) throws CoreException {

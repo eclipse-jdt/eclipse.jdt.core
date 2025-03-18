@@ -20,13 +20,13 @@ public interface ConflictedParser {
 	   whether an @ begins a SE8 style type annotation or a SE5 declaration annotation. Where they can co-exist,
 	   we treat the type annotation as a declarative annotation.
 	*/
-	boolean atConflictScenario(int token);
+	boolean atConflictScenario(TerminalToken token);
 
 	/* Return true if at the configuration the parser finds itself in, it would shift the token.
 	   It is axiomatic of the push down automaton that corresponds to the LALR grammar that it
 	   will never shift on invalid input.
 	*/
-	boolean automatonWillShift(int token);
+	boolean automatonWillShift(TerminalToken token);
 
 	/*
 	 * Return true if the parser is parsing a module declaration. In Java 9, module, requires, exports,

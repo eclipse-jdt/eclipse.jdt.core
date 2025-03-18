@@ -16,7 +16,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.*;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,12 +44,12 @@ public class LineBreaksPreparator extends ASTVisitor {
 	@Override
 	public boolean visit(CompilationUnit node) {
 		List<ImportDeclaration> imports = node.imports();
-		if (!imports.isEmpty() && this.tm.firstIndexIn(imports.get(0), -1) > 0)
+		if (!imports.isEmpty() && this.tm.firstIndexIn(imports.get(0), TokenNameInvalid) > 0)
 			putBlankLinesBefore(imports.get(0), this.options.blank_lines_before_imports);
 
 		for (int i = 1; i < imports.size(); i++) {
-			int from = this.tm.lastIndexIn(imports.get(i - 1), -1);
-			int to = this.tm.firstIndexIn(imports.get(i), -1);
+			int from = this.tm.lastIndexIn(imports.get(i - 1), TokenNameInvalid);
+			int to = this.tm.firstIndexIn(imports.get(i), TokenNameInvalid);
 			for (int j = from; j < to; j++) {
 				Token token1 = this.tm.get(j);
 				Token token2 = this.tm.get(j + 1);
@@ -73,11 +73,11 @@ public class LineBreaksPreparator extends ASTVisitor {
 		if (node.getJavadoc() == null) {
 			putBlankLinesBefore(node, this.options.blank_lines_before_package);
 		} else {
-			putBlankLinesAfter(this.tm.lastTokenIn(node.getJavadoc(), -1), this.options.blank_lines_before_package);
+			putBlankLinesAfter(this.tm.lastTokenIn(node.getJavadoc(), TokenNameInvalid), this.options.blank_lines_before_package);
 		}
 
 		handleAnnotations(node.annotations(), this.options.insert_new_line_after_annotation_on_package);
-		putBlankLinesAfter(this.tm.lastTokenIn(node, -1), this.options.blank_lines_after_package);
+		putBlankLinesAfter(this.tm.lastTokenIn(node, TokenNameInvalid), this.options.blank_lines_after_package);
 		return true;
 	}
 
@@ -127,7 +127,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 		if (previous != null) {
 			ASTNode parent = previous.getParent();
 			if (!(parent instanceof TypeDeclaration && this.tm.isFake((TypeDeclaration) parent) || parent instanceof ImplicitTypeDeclaration)) {
-				Token lastToken = this.tm.lastTokenIn(parent, -1);
+				Token lastToken = this.tm.lastTokenIn(parent, TokenNameInvalid);
 				putBlankLinesBefore(lastToken, this.options.blank_lines_after_last_class_body_declaration);
 			}
 		}
@@ -170,7 +170,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 		// put breaks after semicolons
 		int index = enumConstants.isEmpty() ? this.tm.firstIndexAfter(node.getName(), TokenNameLBRACE) + 1
-				: this.tm.firstIndexAfter(enumConstants.get(enumConstants.size() - 1), -1);
+				: this.tm.firstIndexAfter(enumConstants.get(enumConstants.size() - 1), TokenNameInvalid);
 		for (;; index++) {
 			Token token = this.tm.get(index);
 			if (token.isComment())
@@ -281,7 +281,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 			if (blockIndex + 1 < siblings.size() && siblings.get(blockIndex + 1) instanceof EmptyStatement)
 				return;
 		}
-		putBlankLinesAfter(this.tm.lastTokenIn(blockStatement, -1), this.options.blank_lines_after_code_block);
+		putBlankLinesAfter(this.tm.lastTokenIn(blockStatement, TokenNameInvalid), this.options.blank_lines_after_code_block);
 	}
 
 	@Override
@@ -319,18 +319,18 @@ public class LineBreaksPreparator extends ASTVisitor {
 			for (Statement statement : statements) {
 				boolean isBreaking = isSwitchBreakingStatement(statement);
 				if (isBreaking && !(statement instanceof Block))
-					adjustEmptyLineAfter(this.tm.lastIndexIn(statement, -1), -1);
+					adjustEmptyLineAfter(this.tm.lastIndexIn(statement, TokenNameInvalid), -1);
 				if (statement instanceof SwitchCase) {
 					if (nonBreakStatementEnd >= 0) {
 						// indent only comments between previous and current statement
 						this.tm.get(nonBreakStatementEnd + 1).indent();
-						this.tm.firstTokenIn(statement, -1).unindent();
+						this.tm.firstTokenIn(statement, TokenNameInvalid).unindent();
 					}
 				} else if (!(statement instanceof BreakStatement || statement instanceof YieldStatement
 						|| statement instanceof Block)) {
 					indent(statement);
 				}
-				nonBreakStatementEnd = isBreaking ? -1 : this.tm.lastIndexIn(statement, -1);
+				nonBreakStatementEnd = isBreaking ? -1 : this.tm.lastIndexIn(statement, TokenNameInvalid);
 			}
 			if (nonBreakStatementEnd >= 0) {
 				// indent comments between last statement and closing brace
@@ -472,7 +472,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 			last = (Annotation) modifiers.get(i);
 		}
 		if (last != null && breakAfter) {
-			this.tm.lastTokenIn(last, -1).breakAfter();
+			this.tm.lastTokenIn(last, TokenNameInvalid).breakAfter();
 		}
 
 		if (i < modifiers.size()) {
@@ -510,7 +510,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 				&& !(body.getParent() instanceof IfStatement))
 			return;
 		breakLineBefore(body);
-		adjustEmptyLineAfter(this.tm.lastIndexIn(body, -1), -1);
+		adjustEmptyLineAfter(this.tm.lastIndexIn(body, TokenNameInvalid), -1);
 		indent(body);
 	}
 
@@ -580,7 +580,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 			return true;
 		Token block = this.tm.firstTokenIn(node, TokenNameTextBlock);
 		ArrayList<Token> lines = new ArrayList<>();
-		lines.add(new Token(block.originalStart, block.originalStart + 2, 0)); // first line; """
+		lines.add(new Token(block.originalStart, block.originalStart + 2, TokenNameNotAToken)); // first line; """
 		int incidentalWhitespace = Integer.MAX_VALUE;
 		int blankLines = -1; // will go to 0 on line break after first line
 		int i = block.originalStart + 3;
@@ -603,7 +603,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 				}
 			}
 			if (firstNonBlank != -1) {
-				Token line = new Token(lineStart, lastNonBlank, 0);
+				Token line = new Token(lineStart, lastNonBlank, TokenNameNotAToken);
 				line.putLineBreaksBefore(blankLines + 1);
 				blankLines = 0;
 				lines.add(line);
@@ -624,11 +624,11 @@ public class LineBreaksPreparator extends ASTVisitor {
 	}
 
 	private void breakLineBefore(ASTNode node) {
-		this.tm.firstTokenIn(node, -1).breakBefore();
+		this.tm.firstTokenIn(node, TokenNameInvalid).breakBefore();
 	}
 
 	private void putBlankLinesBefore(ASTNode node, int linesCount) {
-		int index = this.tm.firstIndexIn(node, -1);
+		int index = this.tm.firstIndexIn(node, TokenNameInvalid);
 		while (index > 0 && this.tm.get(index - 1).tokenType == TokenNameCOMMENT_JAVADOC)
 			index--;
 		putBlankLinesBefore(this.tm.get(index), linesCount);
@@ -701,11 +701,11 @@ public class LineBreaksPreparator extends ASTVisitor {
 	}
 
 	private void indent(ASTNode node) {
-		int startIndex = this.tm.firstIndexIn(node, -1);
+		int startIndex = this.tm.firstIndexIn(node, TokenNameInvalid);
 		while (startIndex > 0 && this.tm.get(startIndex - 1).isComment())
 			startIndex--;
 		this.tm.get(startIndex).indent();
-		int lastIndex = this.tm.lastIndexIn(node, -1);
+		int lastIndex = this.tm.lastIndexIn(node, TokenNameInvalid);
 		if (lastIndex + 1 < this.tm.size())
 			this.tm.get(lastIndex + 1).unindent();
 	}

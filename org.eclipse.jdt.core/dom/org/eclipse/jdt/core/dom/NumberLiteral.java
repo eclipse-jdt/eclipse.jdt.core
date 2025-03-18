@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 
 /**
  * Number literal nodes.
@@ -156,20 +156,20 @@ public class NumberLiteral extends Expression {
 		scanner.tokenizeComments = false;
 		scanner.tokenizeWhiteSpace = false;
 		try {
-			int tokenType = scanner.getNextToken();
+			TerminalToken tokenType = scanner.getNextToken();
 			switch(tokenType) {
-				case TerminalTokens.TokenNameDoubleLiteral:
-				case TerminalTokens.TokenNameIntegerLiteral:
-				case TerminalTokens.TokenNameFloatingPointLiteral:
-				case TerminalTokens.TokenNameLongLiteral:
+				case TokenNameDoubleLiteral:
+				case TokenNameIntegerLiteral:
+				case TokenNameFloatingPointLiteral:
+				case TokenNameLongLiteral:
 					break;
-				case TerminalTokens.TokenNameMINUS :
+				case TokenNameMINUS :
 					tokenType = scanner.getNextToken();
 					switch(tokenType) {
-						case TerminalTokens.TokenNameDoubleLiteral:
-						case TerminalTokens.TokenNameIntegerLiteral:
-						case TerminalTokens.TokenNameFloatingPointLiteral:
-						case TerminalTokens.TokenNameLongLiteral:
+						case TokenNameDoubleLiteral:
+						case TokenNameIntegerLiteral:
+						case TokenNameFloatingPointLiteral:
+						case TokenNameLongLiteral:
 							break;
 						default:
 							throw new IllegalArgumentException("Invalid number literal : >" + token + "<"); //$NON-NLS-1$//$NON-NLS-2$

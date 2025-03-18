@@ -16,7 +16,7 @@ package org.eclipse.jdt.core.dom;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
@@ -329,8 +329,8 @@ class DefaultCommentMapper {
 			} else if ((end+1) < previousStart) { // may be equals => then no scan is necessary
 				this.scanner.resetTo(end+1, previousStart);
 				try {
-					int token = this.scanner.getNextToken();
-					if (token != TerminalTokens.TokenNameWHITESPACE || this.scanner.currentPosition != previousStart) {
+					TerminalToken token = this.scanner.getNextToken();
+					if (token != TerminalToken.TokenNameWHITESPACE || this.scanner.currentPosition != previousStart) {
 						// stop search on condition 3)
 						// if first comment fails, then there's no extended position in fact
 						if (idx == endIdx) {
@@ -366,7 +366,7 @@ class DefaultCommentMapper {
 				this.scanner.resetTo(previousEnd, commentStart);
 				try {
 					while (this.scanner.currentPosition < commentStart) {
-						if (this.scanner.getNextToken() != TerminalTokens.TokenNameWHITESPACE) {
+						if (this.scanner.getNextToken() != TerminalToken.TokenNameWHITESPACE) {
 							lastTokenEnd =  this.scanner.getCurrentTokenEndPosition();
 						}
 					}
@@ -466,8 +466,8 @@ class DefaultCommentMapper {
 			} else if (previousEnd < commentStart) {
 				this.scanner.resetTo(previousEnd, commentStart);
 				try {
-					int token = this.scanner.getNextToken();
-					if (token != TerminalTokens.TokenNameWHITESPACE || this.scanner.currentPosition != commentStart) {
+					TerminalToken token = this.scanner.getNextToken();
+					if (token != TerminalToken.TokenNameWHITESPACE || this.scanner.currentPosition != commentStart) {
 						// stop search on condition 2)
 						// if first index fails, then there's no extended position in fact...
 						if (idx == startIdx) {

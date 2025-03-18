@@ -404,12 +404,12 @@ public class JavadocParser extends AbstractCommentParser {
 	}
 
 	@Override
-	protected Object createTypeReference(int primitiveToken) {
+	protected Object createTypeReference(TerminalToken primitiveToken) {
 		return createTypeReference(primitiveToken, false);
 	}
 
 	@Override
-	protected Object createTypeReference(int primitiveToken, boolean canBeModule) {
+	protected Object createTypeReference(TerminalToken primitiveToken, boolean canBeModule) {
 		TypeReference typeRef = null;
 		int size = this.identifierLengthStack[this.identifierLengthPtr];
 		if (size == 1) { // Single Type ref
@@ -440,7 +440,7 @@ public class JavadocParser extends AbstractCommentParser {
 	}
 
 	@Override
-	protected Object createModuleTypeReference(int primitiveToken, int moduleRefTokenCount) {
+	protected Object createModuleTypeReference(TerminalToken primitiveToken, int moduleRefTokenCount) {
 		JavadocModuleReference moduleRef= createModuleReference(moduleRefTokenCount);
 
 		TypeReference typeRef = null;

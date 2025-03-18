@@ -16,12 +16,12 @@ package org.eclipse.jdt.internal.compiler.parser;
 
 public class RecoveryScannerData {
 	public int insertedTokensPtr = -1;
-	public int[][] insertedTokens;
+	public TerminalToken[][] insertedTokens;
 	public int[] insertedTokensPosition;
 	public boolean[] insertedTokenUsed;
 
 	public int replacedTokensPtr = -1;
-	public int[][] replacedTokens;
+	public TerminalToken[][] replacedTokens;
 	public int[] replacedTokensStart;
 	public int[] replacedTokensEnd;
 	public boolean[] replacedTokenUsed;

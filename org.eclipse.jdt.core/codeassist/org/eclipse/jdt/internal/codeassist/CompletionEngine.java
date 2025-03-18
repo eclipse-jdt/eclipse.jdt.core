@@ -74,7 +74,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -97,7 +97,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public final class CompletionEngine
 	extends Engine
-	implements ISearchRequestor, TypeConstants , TerminalTokens , RelevanceConstants, SuffixConstants, ICompletionEngine {
+	implements ISearchRequestor, TypeConstants, RelevanceConstants, SuffixConstants, ICompletionEngine {
 
 	private static class AcceptedConstructor {
 		public int modifiers;
@@ -1388,10 +1388,10 @@ public final class CompletionEngine
 						} else if ((modifiers & ClassFileConstants.AccStatic) == 0) {
 							continue next;
 						} else {
-							completionName = appendUnlessNextToken(completionName, new char[] { ';' }, TerminalTokens.TokenNameSEMICOLON);
+							completionName = appendUnlessNextToken(completionName, new char[] { ';' }, TerminalToken.TokenNameSEMICOLON);
 						}
 					} else {
-						completionName = appendUnlessNextToken(completionName, new char[] {';'}, TerminalTokens.TokenNameSEMICOLON);
+						completionName = appendUnlessNextToken(completionName, new char[] {';'}, TerminalToken.TokenNameSEMICOLON);
 					}
 					int relevance = computeBaseRelevance();
 					relevance += computeRelevanceForResolution();
@@ -1549,7 +1549,7 @@ public final class CompletionEngine
 		}
 	}
 
-	private char[] appendUnlessNextToken(char[] completionName, char[] suffix, int nextToken) {
+	private char[] appendUnlessNextToken(char[] completionName, char[] suffix, TerminalToken nextToken) {
 		if (this.source == null)
 			return CharOperation.concat(completionName, suffix);
 

@@ -13,10 +13,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameNotAToken;
+
 import junit.framework.Test;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 @SuppressWarnings({ "rawtypes" })
 public class InternalScannerTest extends AbstractRegressionTest {
 
@@ -38,13 +40,13 @@ public class InternalScannerTest extends AbstractRegressionTest {
 		String source =	"//Comment";
 		Scanner scanner = new Scanner();
 		scanner.setSource(source.toCharArray());
-		int token = 0;
+		TerminalToken token = TokenNameNotAToken;
 		try {
 			token = scanner.getNextToken();
 		} catch (InvalidInputException e) {
 			// ignore
 		}
-		assertEquals("Wrong token type", TerminalTokens.TokenNameEOF, token);
+		assertEquals("Wrong token type", TerminalToken.TokenNameEOF, token);
 		assertEquals("Wrong comment start", 0,  scanner.commentStarts[0]);
 		assertEquals("Wrong comment start", -9, scanner.commentStops[0]);
 	}
@@ -56,13 +58,13 @@ public class InternalScannerTest extends AbstractRegressionTest {
 		Scanner scanner = new Scanner();
 		scanner.recordLineSeparator = true;
 		scanner.setSource("a\nb\nc\n".toCharArray());
-		int token = 0;
-		while (token !=  TerminalTokens.TokenNameEOF) {
+		TerminalToken token = TokenNameNotAToken;
+		while (token !=  TerminalToken.TokenNameEOF) {
 			token = scanner.getNextToken();
 		}
 		scanner.setSource("a\nb\n".toCharArray());
-		token = 0;
-		while (token !=  TerminalTokens.TokenNameEOF) {
+		token = TokenNameNotAToken;
+		while (token !=  TerminalToken.TokenNameEOF) {
 			token = scanner.getNextToken();
 		}
 		assertEquals("Wrong number of line ends", 2, scanner.getLineEnds().length);

@@ -14,14 +14,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_BLOCK;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_JAVADOC;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_LINE;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_MARKDOWN;
-
 import java.util.List;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 
 /**
  * Stores a token's type, position and all its properties like surrounding whitespace, wrapping behavior and so on.
@@ -93,8 +88,8 @@ public class Token {
 	public final int originalStart;
 	/** Position in source of the last character (this position is included in the token). */
 	public final int originalEnd;
-	/** Type of this token. See {@link TerminalTokens} for constants definition. */
-	public final int tokenType;
+	/** Type of this token. See {@link TerminalToken} for constants definition. */
+	public final TerminalToken tokenType;
 	private boolean spaceBefore, spaceAfter;
 	private int lineBreaksBefore, lineBreaksAfter;
 	private boolean preserveLineBreaksBefore = true, preserveLineBreaksAfter = true;
@@ -111,7 +106,7 @@ public class Token {
 
 	private List<Token> internalStructure;
 
-	public Token(int sourceStart, int sourceEnd, int tokenType) {
+	public Token(int sourceStart, int sourceEnd, TerminalToken tokenType) {
 		assert sourceStart <= sourceEnd;
 		this.originalStart = sourceStart;
 		this.originalEnd = sourceEnd;
@@ -122,7 +117,7 @@ public class Token {
 		this(tokenToCopy, tokenToCopy.originalStart, tokenToCopy.originalEnd, tokenToCopy.tokenType);
 	}
 
-	public Token(Token tokenToCopy, int newOriginalStart, int newOriginalEnd, int newTokenType) {
+	public Token(Token tokenToCopy, int newOriginalStart, int newOriginalEnd, TerminalToken newTokenType) {
 		this.originalStart = newOriginalStart;
 		this.originalEnd = newOriginalEnd;
 		this.tokenType = newTokenType;
@@ -139,10 +134,10 @@ public class Token {
 		this.internalStructure = tokenToCopy.internalStructure;
 	}
 
-	public static Token fromCurrent(Scanner scanner, int currentToken) {
+	public static Token fromCurrent(Scanner scanner, TerminalToken currentToken) {
 		int start = scanner.getCurrentTokenStartPosition();
 		int end = scanner.getCurrentTokenEndPosition();
-		if (currentToken == TokenNameCOMMENT_LINE || currentToken == TokenNameCOMMENT_MARKDOWN) {
+		if (currentToken == TerminalToken.TokenNameCOMMENT_LINE || currentToken == TerminalToken.TokenNameCOMMENT_MARKDOWN) {
 			// don't include line separator, but set break-after
 			while (end > start) {
 				char c = scanner.source[end];
@@ -329,8 +324,9 @@ public class Token {
 			case TokenNameCOMMENT_JAVADOC:
 			case TokenNameCOMMENT_LINE:
 				return true;
+			default:
+				return false;
 		}
-		return false;
 	}
 
 	public String toString(String source) {
