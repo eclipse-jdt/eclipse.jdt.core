@@ -39,6 +39,7 @@ public class MaxjTask extends Task{
 		private boolean listFiles;
 
 		private Path classpathPath;
+		private Path modulePath;
 		private Path srcPath;
 		private Path srcdirPath;
 		private Path srcpathPath;
@@ -67,6 +68,7 @@ public class MaxjTask extends Task{
 			this.listFiles = false;
 
 			this.classpathPath = null;
+			this.modulePath = null;
 			this.srcPath = null;
 			this.srcdirPath = null;
 			this.srcpathPath = null;
@@ -205,6 +207,18 @@ public class MaxjTask extends Task{
 				}
 				this.arguments.add(classPath.toString());
 			}
+			if(this.modulePath != null){
+				this.arguments.add("--module-path"); //$NON-NLS-1$
+				String[] classPaths = this.modulePath.list();
+				StringBuffer classPath= new StringBuffer();
+				for(int i = 0; i < classPaths.length; i++){
+					classPath.append(classPaths[i]);
+					if(i != classPaths.length - 1){
+						classPath.append(":");//$NON-NLS-1$
+					}
+				}
+				this.arguments.add(classPath.toString());
+			}
 
 			this.customDefaultOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
 			this.customDefaultOptions.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.DO_NOT_GENERATE);
@@ -297,6 +311,17 @@ public class MaxjTask extends Task{
 	    public void setClasspath(Path classpath) {
 		    if(this.classpathPath == null)
 				this.classpathPath = new Path(getProject());
+		    classpath.append(classpath);
+	    }
+
+		public Path createModulepath(){
+			if(this.modulePath == null)
+				this.modulePath = new Path(getProject());
+			return this.modulePath.createPath();
+		}
+	    public void setModulepath(Path classpath) {
+		    if(this.modulePath == null)
+				this.modulePath = new Path(getProject());
 		    classpath.append(classpath);
 	    }
 
