@@ -2782,20 +2782,12 @@ public void testBug506315() {
 			"    }\n" +
 			"}\n"
 		},
-		this.complianceLevel < ClassFileConstants.JDK1_8 ?
-			"----------\n" +
-			"1. ERROR in Test.java (at line 11)\n" +
-			"	str = \"String\";\n" +
-			"	^^^\n" +
-			"Cannot refer to the non-final local variable str defined in an enclosing scope\n" +
-			"----------\n"
-				:
-			"----------\n" +
-			"1. ERROR in Test.java (at line 11)\n" +
-			"	str = \"String\";\n" +
-			"	^^^\n" +
-			"Local variable str defined in an enclosing scope must be final or effectively final\n" +
-			"----------\n");
+		"----------\n" +
+		"1. ERROR in Test.java (at line 11)\n" +
+		"	str = \"String\";\n" +
+		"	^^^\n" +
+		"Local variable str defined in an enclosing scope must be final or effectively final\n" +
+		"----------\n");
 }
 public void _testBug533435() {
 	this.runConformTest(

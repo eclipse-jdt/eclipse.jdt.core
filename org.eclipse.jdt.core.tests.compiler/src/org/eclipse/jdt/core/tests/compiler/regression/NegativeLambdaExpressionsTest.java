@@ -37,7 +37,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class NegativeLambdaExpressionsTest extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "test401610i"};
+//	TESTS_NAMES = new String[] { "test404657_loop"};
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -1785,10 +1785,10 @@ public void test047() {
 					"}" ,
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 10)\n" +
-				"	System.out.println(var); // Error: var is not effectively final\n" +
-				"	                   ^^^\n" +
-				"Local variable var defined in an enclosing scope must be final or effectively final\n" +
+				"1. ERROR in X.java (at line 13)\n" +
+				"	var=2;\n" +
+				"	^^^\n" +
+				"Local variable var is required to be final or effectively final based on its usage\n" +
 				"----------\n"
 				);
 }
@@ -1812,10 +1812,10 @@ public void test048() {
 					"}" ,
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 8)\n" +
-				"	System.out.println(var); // Error: var is not effectively final\n" +
-				"	                   ^^^\n" +
-				"Local variable var defined in an enclosing scope must be final or effectively final\n" +
+				"1. ERROR in X.java (at line 10)\n" +
+				"	var=2;\n" +
+				"	^^^\n" +
+				"Local variable var is required to be final or effectively final based on its usage\n" +
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
@@ -1908,7 +1908,12 @@ public void test052() {
 					"}\n" ,
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 10)\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	s2 = \"Nice!\";\n" +
+				"	^^\n" +
+				"Local variable s2 is required to be final or effectively final based on its usage\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 10)\n" +
 				"	System.out.println(s2); // Error: var is not effectively final\n" +
 				"	                   ^^\n" +
 				"Local variable s2 defined in an enclosing scope must be final or effectively final\n" +
@@ -1990,7 +1995,7 @@ public void test055() {
 				"1. ERROR in X.java (at line 7)\n" +
 				"	x = 10;\n" +
 				"	^\n" +
-				"The final local variable x cannot be assigned. It must be blank and not using a compound assignment\n" +
+				"Local variable x defined in an enclosing scope must be final or effectively final\n" +
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
@@ -2014,7 +2019,7 @@ public void test056() {
 				"1. ERROR in X.java (at line 7)\n" +
 				"	{ x = 10; }\n" +
 				"	  ^\n" +
-				"The final local variable x cannot be assigned, since it is defined in an enclosing type\n" +
+				"Local variable x defined in an enclosing scope must be final or effectively final\n" +
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
@@ -2318,7 +2323,17 @@ public void test067() {
 				"	             ^\n" +
 				"The parameter p is hiding a field from type X\n" +
 				"----------\n" +
-				"2. ERROR in X.java (at line 11)\n" +
+				"2. ERROR in X.java (at line 9)\n" +
+				"	x = new X();\n" +
+				"	^\n" +
+				"Local variable x is required to be final or effectively final based on its usage\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 11)\n" +
+				"	x.p = i++;\n" +
+				"	^\n" +
+				"Local variable x defined in an enclosing scope must be final or effectively final\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 11)\n" +
 				"	x.p = i++;\n" +
 				"	      ^\n" +
 				"Local variable i defined in an enclosing scope must be final or effectively final\n" +
@@ -2351,7 +2366,12 @@ public void test068() {
 				"	             ^\n" +
 				"The parameter p is hiding a field from type X\n" +
 				"----------\n" +
-				"2. ERROR in X.java (at line 11)\n" +
+				"2. ERROR in X.java (at line 9)\n" +
+				"	x = new X();\n" +
+				"	^\n" +
+				"Local variable x is required to be final or effectively final based on its usage\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 11)\n" +
 				"	x.p = i;\n" +
 				"	^\n" +
 				"Local variable x defined in an enclosing scope must be final or effectively final\n" +
@@ -7325,10 +7345,10 @@ public void test404657_final() {
 					""
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	executeLater(() -> System.out.println(n)); // Error: n is not effectively final\n" +
-			"	                                      ^\n" +
-			"Local variable n defined in an enclosing scope must be final or effectively final\n" +
+			"1. ERROR in X.java (at line 10)\n" +
+			"	n = 23;\n" +
+			"	^\n" +
+			"Local variable n is required to be final or effectively final based on its usage\n" +
 			"----------\n"
 		);
 }
@@ -7352,10 +7372,10 @@ public void test404657_loop() {
 					""
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	executeLater(() -> System.out.println(n)); // Error: n is not effectively final\n" +
-			"	                                      ^\n" +
-			"Local variable n defined in an enclosing scope must be final or effectively final\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	n = i;\n" +
+			"	^\n" +
+			"Local variable n is required to be final or effectively final based on its usage\n" +
 			"----------\n"
 		);
 }
@@ -10354,6 +10374,103 @@ public void testIssue810() {
 				"	^^^^\n" +
 				"Zork cannot be resolved to a type\n" +
 				"----------\n");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3792
+// Silent Acceptance of Non-Final Variable in Unreachable Lambda Expression
+public void testIssue3792() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+				    public static void main(String[] strArr) {
+				        for (int i = 1; i < 10; i++) {
+				        	if (true) {
+				                Runnable r = () -> {
+				                    System.out.println(i);
+				                };
+				            };
+				            if (false) {
+				                Runnable r = () -> {
+				                    System.out.println(i);
+				                };
+				            };
+				        }
+				    }
+				}
+				"""
+				},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	for (int i = 1; i < 10; i++) {\n" +
+			"	                        ^\n" +
+			"Local variable i is required to be final or effectively final based on its usage\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 9)\n" +
+			"	if (false) {\n" +
+			"                Runnable r = () -> {\n" +
+			"                    System.out.println(i);\n" +
+			"                };\n" +
+			"            };\n" +
+			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Dead code\n" +
+			"----------\n");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3792
+// Silent Acceptance of Non-Final Variable in Unreachable Lambda Expression
+public void testIssue3792_full() {
+	this.runNegativeTest(
+			new String[] {
+				"Test.java",
+				"""
+				class Flags { static final boolean DEBUG = false; }
+
+				public class Test {
+
+				    public static void func(Object o) {
+				        System.out.println(o.hashCode());
+				    }
+
+				    public static void main(String[] strArr) {
+
+				        Object o = new Object();
+				        for (int i = 1; i < 10; i++) {
+
+				            o = new Object();
+				            if (Flags.DEBUG) {  //Identified as dead code in ecj
+				                Thread virtualThread = Thread.startVirtualThread(() -> {
+				                try {
+				                    java.lang.reflect.Method method = Test.class.getMethod("func", Object.class);
+				                    method.invoke(Object.class, o);
+				                } catch (Exception e) {
+				                    e.printStackTrace();
+				                }
+				                });
+				                try {
+				                    virtualThread.join();
+				                } catch (InterruptedException e) {
+				                    e.printStackTrace();
+				                }
+				            }
+
+				        }
+				    }
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in Test.java (at line 14)\n" +
+			"	o = new Object();\n" +
+			"	^\n" +
+			"Local variable o is required to be final or effectively final based on its usage\n" +
+			"----------\n" +
+			"2. ERROR in Test.java (at line 19)\n" +
+			"	method.invoke(Object.class, o);\n" +
+			"	                            ^\n" +
+			"Local variable o defined in an enclosing scope must be final or effectively final\n" +
+			"----------\n");
 }
 
 public static Class testClass() {

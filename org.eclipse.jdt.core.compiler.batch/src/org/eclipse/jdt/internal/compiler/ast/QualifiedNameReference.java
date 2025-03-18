@@ -99,6 +99,9 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			} else if (localBinding.useFlag == LocalVariableBinding.UNUSED) {
 				localBinding.useFlag = LocalVariableBinding.FAKE_USED;
 			}
+			if ((this.bits & (IsCapturedOuterLocal | IsUsedInPatternGuard)) != 0) {
+				localBinding.checkEffectiveFinality(currentScope, this);
+			}
 			if (needValue) {
 				checkInternalNPE(currentScope, flowContext, flowInfo, true);
 			}
@@ -205,6 +208,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				localBinding.useFlag = LocalVariableBinding.USED;
 			} else if (localBinding.useFlag == LocalVariableBinding.UNUSED) {
 				localBinding.useFlag = LocalVariableBinding.FAKE_USED;
+			}
+			if ((this.bits & (IsCapturedOuterLocal | IsUsedInPatternGuard)) != 0) {
+				localBinding.checkEffectiveFinality(currentScope, this);
 			}
 	}
 	if (needValue) {
@@ -576,8 +582,7 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 			lastGenericCast = null;
 			LocalVariableBinding localBinding = (LocalVariableBinding) this.binding;
 			lastReceiverType = localBinding.type;
-			// checkEffectiveFinality() returns if it's outer local
-			boolean capturedInOuter = checkEffectiveFinality(localBinding, currentScope);
+			boolean capturedInOuter = (this.bits & ASTNode.IsCapturedOuterLocal) != 0;
 			if (!needValue) break; // no value needed
 			// regular local variable read
 			Constant localConstant = localBinding.constant();
@@ -1018,10 +1023,6 @@ public TypeBinding resolveType(BlockScope scope) {
 					this.bits &= ~ASTNode.RestrictiveFlagMASK; // clear bits
 					this.bits |= Binding.LOCAL;
 					LocalVariableBinding local = (LocalVariableBinding) this.binding;
-					if (!local.isFinal() && (this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
-						if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8) // for 8, defer till effective finality could be ascertained.
-							scope.problemReporter().cannotReferToNonFinalOuterLocal((LocalVariableBinding) this.binding, this);
-					}
 					if (local.type != null && (local.type.tagBits & TagBits.HasMissingType) != 0) {
 						// only complain if field reference (for local, its type got flagged already)
 						return null;
