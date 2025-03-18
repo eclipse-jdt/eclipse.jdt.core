@@ -805,7 +805,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						typeDeclBinding = ((AnonymousClassDeclaration)simpleType.getParent().getParent()).resolveBinding();
 					}
 					
-					findOverridableMethods(typeDeclBinding, this.javaProject, context);
+					if (!typeDeclBinding.isAnnotation()) {
+						findOverridableMethods(typeDeclBinding, this.javaProject, context);
+					}
 					suggestClassDeclarationLikeKeywords();
 					suggestTypeKeywords(true);
 					suggestModifierKeywords(bodyDeclaration.getModifiers());
@@ -829,7 +831,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 							})
 							.map(this::toProposal).forEach(this.requestor::accept);
 					}
-					if (!this.requestor.isIgnored(CompletionProposal.POTENTIAL_METHOD_DECLARATION)) {
+					if (!this.requestor.isIgnored(CompletionProposal.POTENTIAL_METHOD_DECLARATION) && !typeDeclBinding.isAnnotation()) {
 						int cursorStart = this.offset - this.prefix.length() - 1;
 						while (cursorStart > 0 && Character.isWhitespace(this.textContent.charAt(cursorStart))) {
 							cursorStart--;
@@ -1172,7 +1174,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 						suggestDefaultCompletions = false;
 					} else if (qualifiedNameBinding instanceof IPackageBinding qualifierPackageBinding) {
-						if (!qualifierPackageBinding.isRecovered()) {
+						if (!qualifierPackageBinding.isRecovered() || (qualifiedName.getParent() instanceof Type && qualifiedName.getParent().getParent() instanceof VariableDeclaration)) {
 							// start of a known package
 							suggestPackages(null);
 							// suggests types in the package
@@ -3532,7 +3534,11 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			proposal.setSignature(SignatureUtils.getSignatureChar(method));
 			
 			try {
-				proposal.setParameterNames(Stream.of(((IMethod)method.getJavaElement()).getParameterNames()).map(name -> name.toCharArray()).toArray(char[][]::new));
+				if (method.getJavaElement() != null) {
+					proposal.setParameterNames(Stream.of(((IMethod)method.getJavaElement()).getParameterNames()).map(name -> name.toCharArray()).toArray(char[][]::new));
+				} else {
+					proposal.setParameterNames(Stream.of(method.getParameterNames()).map(name -> name.toCharArray()).toArray(char[][]::new));
+				}
 			} catch (JavaModelException e) {
 				proposal.setParameterNames(Stream.of(method.getParameterNames()).map(name -> name.toCharArray()).toArray(char[][]::new));
 			}
@@ -3794,10 +3800,10 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				.map(t -> processMembers(t, searchEngine, scope))
 				.flatMap(Function.identity()));
 	}
-
+	
 	private String getSignature(IMethodBinding method) {
 		return method.getName() + '(' +
-				Arrays.stream(method.getParameterTypes()).map(ITypeBinding::getName).collect(Collectors.joining(","))
+				Arrays.stream(method.getParameterTypes()).map(paramType -> paramType != null ? paramType.getName() : "Object").collect(Collectors.joining(","))
 				+ ')';
 	}
 

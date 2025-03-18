@@ -73,7 +73,11 @@ class DOMCompletionEngineBuilder {
 		ITypeBinding[] parameterTypes = methodBinding.getParameterTypes();
 		String[] parameterNames;
 		try {
-			parameterNames = ((IMethod)methodBinding.getJavaElement()).getParameterNames();
+			if (methodBinding.getJavaElement() != null) {
+				parameterNames = ((IMethod)methodBinding.getJavaElement()).getParameterNames();
+			} else {
+				parameterNames = methodBinding.getParameterNames();
+			}
 		} catch (JavaModelException e) {
 			parameterNames = methodBinding.getParameterNames();
 		}
