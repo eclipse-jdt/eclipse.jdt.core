@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2009 IBM Corporation and others.
+ * Copyright (c) 2005, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -20,6 +20,9 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class JavadocCompletionContextTests extends AbstractJavaModelCompletionTests {
 
+	static {
+		//TESTS_NAMES = new String[] {"test0058", "test0057"};
+	}
 public JavadocCompletionContextTests(String name) {
 	super(name);
 }
@@ -1638,5 +1641,65 @@ public void test0056() throws JavaModelException {
 		"expectedTypesKeys=null\n"+
 		"completion token location=UNKNOWN",
 		result.context);
+}
+public void test0057() throws JavaModelException {
+	String preview = COMPLETION_PROJECT.getOption(CompilerOptions.OPTION_EnablePreviews, false);
+	try {
+		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_24);
+		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src3/test0057/X.java",
+				"""
+				///
+				/// see method [#ma
+				///
+				public class X {
+					public static void main(String[] args) {}
+				}"""
+				);
+
+		String str = this.workingCopies[0].getSource();
+		int cursorLocation = str.lastIndexOf("#ma") + "#ma".length();
+
+		CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
+		assertResults(
+				"main[METHOD_REF]{main(String\\[\\]), Ltest0057.X;, ([Ljava.lang.String;)V, main, (args), 49}",
+					result.proposals);
+	} finally {
+		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_EnablePreviews, preview);
+	}
+}
+public void test0058() throws JavaModelException {
+	String preview = COMPLETION_PROJECT.getOption(CompilerOptions.OPTION_EnablePreviews, false);
+	try {
+		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_24);
+		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src3/test0057/X.java",
+				"""
+				/**
+				 * see [#ma
+				 */
+				public class X {
+					public static void main(String[] args) {}
+				}"""
+				);
+
+		String str = this.workingCopies[0].getSource();
+		int cursorLocation = str.lastIndexOf("#ma") + "#ma".length();
+
+		CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
+		assertResults(
+				"main[JAVADOC_METHOD_REF]{{@link #main(String[])}, Ltest0057.X;, ([Ljava.lang.String;)V, main, (args), 80}",
+					result.proposals);
+	} finally {
+		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_EnablePreviews, preview);
+	}
 }
 }
