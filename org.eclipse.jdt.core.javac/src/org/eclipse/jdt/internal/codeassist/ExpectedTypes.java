@@ -313,6 +313,10 @@ public class ExpectedTypes {
 							this.expectedTypes.add(methodBinding.getParameterTypes()[methodBinding.getParameterTypes().length - 1]);
 						}
 					}
+				} else {
+					if (methodBinding.getParameterTypes().length > 0) {
+						this.expectedTypes.add(methodBinding.getParameterTypes()[0]);
+					}
 				}
 			}
 		} else if(parent instanceof ClassInstanceCreation allocationExpression) {

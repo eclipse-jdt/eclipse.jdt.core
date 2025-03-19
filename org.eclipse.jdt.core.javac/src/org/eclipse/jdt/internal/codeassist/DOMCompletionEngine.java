@@ -873,12 +873,20 @@ public class DOMCompletionEngine implements ICompletionEngine {
 								this.requestor.accept(createLambdaExpressionProposal(potentialLambda));
 							}
 						}
-						CompletionProposal proposal = toProposal(methodBinding);
-						proposal.setCompletion(new char[0]);
-						proposal.setReplaceRange(this.offset, this.offset);
-						proposal.setTokenRange(this.offset, this.offset);
-						this.requestor.accept(proposal);
-						suggestDefaultCompletions = false;
+						if (!methodBinding.isRecovered() && methodBinding.getParameterTypes().length == 0) {
+							CompletionProposal proposal = toProposal(methodBinding);
+							proposal.setCompletion(new char[0]);
+							proposal.setReplaceRange(this.offset, this.offset);
+							proposal.setTokenRange(this.offset, this.offset);
+							this.requestor.accept(proposal);
+							suggestDefaultCompletions = false;
+						} else {
+							// Rather than completing the method name, we are completing the first argument.
+							// The prefix currently contains the name of the funciton being invoked,
+							// so remove that,
+							// and perform the default completion
+							this.prefix = "";
+						}
 					}
 				}
 			}
@@ -2122,7 +2130,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			if (shouldSuggestPackages(toComplete)) {
 				suggestPackages(toComplete);
 			}
-			if (context instanceof SimpleName simple && !(simple.getParent() instanceof Name)) {
+			if ((context instanceof SimpleName simple || context instanceof MethodInvocation) && !(context.getParent() instanceof Name)) {
 				for (ImportDeclaration importDecl : (List<ImportDeclaration>)this.unit.imports()) {
 					if (importDecl.isStatic()) {
 						if (!importDecl.isOnDemand()) {
@@ -3041,6 +3049,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				(this.toComplete.getParent() instanceof WhileStatement whileStatement
 						&& (WhileStatement.EXPRESSION_PROPERTY.getId().equals(this.toComplete.getLocationInParent().getId())
 						|| FAKE_IDENTIFIER.equals(whileStatement.getExpression().toString())))
+				||
+				this.toComplete instanceof MethodInvocation
 				||
 				(this.toComplete.getParent() instanceof Assignment)
 				||
@@ -4046,6 +4056,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			&& !inJavadoc) {
 			res.setReplaceRange(this.toComplete.getStartPosition(), this.offset);
 			res.setTokenRange(this.toComplete.getStartPosition(), this.offset);
+		} else if (this.toComplete instanceof MethodInvocation methodInvocation) {
+			res.setReplaceRange(this.offset, this.offset);
+			res.setTokenRange(this.offset, this.offset);
 		} else {
 			setRange(res);
 		}

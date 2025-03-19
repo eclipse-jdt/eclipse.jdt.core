@@ -444,4 +444,59 @@ public class JavacSpecificCompletionTests {
 		assertEquals("myField[FIELD_REF]{myField, Ljava.lang.Object;, I, myField, [146, 149], 82}", requestor.getResults());
 	}
 
+	@Test
+	public void testCompleteFirstParameter() throws Exception {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("HelloWorld.java",
+				"""
+				public class HelloWorld  {
+					static final int AAA = 1;
+					static final int BBB = 2;
+					public void myMethod() {
+						invocable();
+					}
+					public void invocable(int a, int b) {
+						System.out.println("sum: " + (a + b));
+					}
+				}
+				""");
+
+		// add the replace range to the results
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false, false, true);
+
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "invocable(";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		IProgressMonitor monitor = new NullProgressMonitor();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, WC_OWNER, monitor);
+
+		// The "invocable" result here is questionable (completing it does nothing),
+		// but it matches upstream behaviour
+		// The results here don't match upstream behaviour;
+		// upstream the results are filtered to those that match the expected type (int).
+		// however, if you type a character, then close and reopen completion, it's no longer filtered this way.
+		assertEquals("""
+				finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, [119, 119], 44}
+				invocable[METHOD_REF]{, LHelloWorld;, (II)V, invocable, [119, 119], 44}
+				myMethod[METHOD_REF]{myMethod(), LHelloWorld;, ()V, myMethod, [119, 119], 44}
+				notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, [119, 119], 44}
+				notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, [119, 119], 44}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, [119, 119], 44}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, [119, 119], 44}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, [119, 119], 44}
+				HelloWorld[TYPE_REF]{HelloWorld, , LHelloWorld;, null, [119, 119], 49}
+				clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, [119, 119], 49}
+				equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, [119, 119], 49}
+				getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, [119, 119], 49}
+				new[KEYWORD]{new, null, null, new, [109, 119], 49}
+				null[KEYWORD]{null, null, null, null, [109, 119], 49}
+				super[KEYWORD]{super, null, null, super, [109, 119], 49}
+				this[KEYWORD]{this, null, null, this, [109, 119], 49}
+				toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, [119, 119], 49}
+				AAA[FIELD_REF]{AAA, LHelloWorld;, I, AAA, [119, 119], 79}
+				BBB[FIELD_REF]{BBB, LHelloWorld;, I, BBB, [119, 119], 79}
+				hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, [119, 119], 79}""",
+				requestor.getResults());
+	}
+
 }
