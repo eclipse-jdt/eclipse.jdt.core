@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.IntConstant;
@@ -111,6 +112,9 @@ private void checkDuplicateDefault(BlockScope scope, ASTNode node) {
 }
 
 private Constant resolveConstantLabel(BlockScope scope, TypeBinding caseType, TypeBinding selectorType, Expression expression) {
+
+	if (this.swich.expression.resolvedType != null && this.swich.expression.resolvedType.id == TypeIds.T_void)
+		return Constant.NotAConstant;
 
 	if (expression instanceof NullLiteral) {
 		if (!caseType.isCompatibleWith(selectorType, scope))
@@ -382,5 +386,15 @@ public void traverse(ASTVisitor visitor, 	BlockScope blockScope) {
 			e.traverse(visitor, blockScope);
 	}
 	visitor.endVisit(this, blockScope);
+}
+
+public Boolean getBooleanConstantValue() {
+	if (this.constantExpressions != null) {
+		for (Expression expression : this.constantExpressions) {
+			if (expression.constant instanceof BooleanConstant bc)
+				return bc.booleanValue();
+		}
+	}
+	return null;
 }
 }

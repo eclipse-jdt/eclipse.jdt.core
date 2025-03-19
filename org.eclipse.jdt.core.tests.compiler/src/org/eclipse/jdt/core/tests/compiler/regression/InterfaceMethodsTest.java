@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2021 GK Software AG, IBM Corporation and others.
+ * Copyright (c) 2013, 2025 GK Software AG, IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -57,6 +57,19 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	public InterfaceMethodsTest(String name) {
 		super(name);
 	}
+
+	// ========= OPT-IN to run.javac mode: ===========
+	@Override
+	protected void setUp() throws Exception {
+		this.runJavacOptIn = true;
+		super.setUp();
+	}
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		this.runJavacOptIn = false; // do it last, so super can still clean up
+	}
+	// =================================================
 
 	// default methods with various modifiers, positive cases
 	public void testModifiers1() {

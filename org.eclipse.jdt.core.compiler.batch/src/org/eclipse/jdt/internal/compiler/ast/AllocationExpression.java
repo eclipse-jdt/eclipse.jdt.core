@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -362,6 +362,11 @@ public TypeBinding resolveType(BlockScope scope) {
 			this.resolvedType = scope.enclosingReceiverType();
 		} else {
 			this.resolvedType = this.type.resolveType(scope, true /* check bounds*/);
+		}
+		if (this.resolvedType instanceof LocalTypeBinding local && this.enumConstant == null) {
+			MethodScope allocationStaticEnclosing = scope.nearestEnclosingStaticScope();
+			if (allocationStaticEnclosing != null && allocationStaticEnclosing != local.scope.nearestEnclosingStaticScope())
+				scope.problemReporter().allocationInStaticContext(this, local);
 		}
 		if (this.type != null) {
 			checkIllegalNullAnnotation(scope, this.resolvedType);

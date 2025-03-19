@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -38991,7 +38991,7 @@ public void test1119() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=166963
 public void test1120() {
-	String msg = (this.complianceLevel < ClassFileConstants.JDK23) ?
+	String msg = (this.complianceLevel < ClassFileConstants.JDK24) ?
 						"Constructor call must be the first statement in a constructor\n" :
 							"Flexible Constructor Bodies is a preview feature and disabled by default. Use --enable-preview to enable\n";
 	this.runNegativeTest(

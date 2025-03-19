@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 IBM Corporation and others.
+ * Copyright (c) 2020, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -58,11 +58,6 @@ public class LocalEnumTest extends AbstractComparableTest {
 	@Override
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
-		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_16); // FIXME
-		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_16);
-		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_16);
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadocTags, CompilerOptions.ENABLED);
@@ -77,14 +72,20 @@ public class LocalEnumTest extends AbstractComparableTest {
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, this.reportMissingJavadocComments);
 		return options;
 	}
-	/* (non-Javadoc)
-	 * @see junit.framework.TestCase#setUp()
-	 */
+
+	// ========= OPT-IN to run.javac mode: ===========
 	@Override
 	protected void setUp() throws Exception {
+		this.runJavacOptIn = true;
 		super.setUp();
 		this.reportMissingJavadocComments = null;
 	}
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		this.runJavacOptIn = false; // do it last, so super can still clean up
+	}
+	// =================================================
 
 	@Override
 	protected void runConformTest(String[] testFiles) {
@@ -911,9 +912,12 @@ public void test021() {
 		"Cannot make a static reference to the non-static method foo() from the type Foo\n" +
 		"----------\n");
 }
-// 77151 - cannot use qualified name to denote enum constants in switch case label
+// Originally bug 77151 - cannot use qualified name to denote enum constants in switch case label
+// updated to conform test as this is legal since 21:
 public void test022() {
-	this.runNegativeTest(
+	if (this.complianceLevel < ClassFileConstants.JDK21)
+		return; // covered by EnumTest
+	this.runConformTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -930,22 +934,7 @@ public void test022() {
 			"	}\n" +
 			"}\n",
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 8)\n" +
-		"	case MX.BLEU : break;\n" +
-		"	     ^^^^^^^\n" +
-		"The qualified case label MX.BLEU must be replaced with the unqualified enum constant BLEU\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 9)\n" +
-		"	case MX.BLANC : break;\n" +
-		"	     ^^^^^^^^\n" +
-		"The qualified case label MX.BLANC must be replaced with the unqualified enum constant BLANC\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 10)\n" +
-		"	case MX.ROUGE : break;\n" +
-		"	     ^^^^^^^^\n" +
-		"The qualified case label MX.ROUGE must be replaced with the unqualified enum constant ROUGE\n" +
-		"----------\n");
+		"");
 }
 
 // 77212
@@ -2797,7 +2786,7 @@ public void test076() { // bridge method needed
 }
 
 public void test077() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -2821,12 +2810,24 @@ public void test077() {
 			"	}\n" +
 			"}\n"
 		},
-		"SUCCESS"
+		"""
+		----------
+		1. WARNING in X.java (at line 6)
+			void bar() {
+			     ^^^^^
+		The method bar() of type new E(){} should be tagged with @Override since it actually overrides a superclass method
+		----------
+		2. ERROR in X.java (at line 7)
+			new M();
+			^^^^^^^
+		Cannot instantiate local class 'E.M' in a static context
+		----------
+		"""
 	);
 }
 
 public void test078() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -2854,12 +2855,26 @@ public void test078() {
 			"	}\n" +
 			"}\n"
 		},
-		"SUCCESS"
+		"""
+		----------
+		1. WARNING in X.java (at line 6)
+			void bar() {
+			     ^^^^^
+		The method bar() of type new E(){} should be tagged with @Override since it actually overrides a superclass method
+		----------
+		2. ERROR in X.java (at line 9)
+			new M();
+			^^^^^^^
+		Cannot instantiate local class 'E.M' in a static context
+		----------
+		"""
 	);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=85397
 public void test079() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK17)
+		return; // covered by EnumTest
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -2874,7 +2889,12 @@ public void test079() throws Exception {
 			"}\n"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 6)\n" +
+		"1. WARNING in X.java (at line 6)\n" +
+		"	private strictfp Y() {}\n" +
+		"	        ^^^^^^^^\n" +
+		"Floating-point expressions are always strictly evaluated from source level 17. Keyword \'strictfp\' is not required.\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 6)\n" +
 		"	private strictfp Y() {}\n" +
 		"	                 ^^^\n" +
 		"Illegal modifier for the constructor in type Y; only public, protected & private are permitted\n" +
@@ -2897,9 +2917,9 @@ public void test079() throws Exception {
 	);
 
 	String[] expectedOutputs = new String[] {
-		"  private strictfp X$1Y(java.lang.String arg0, int arg1);\n",
-		"  public static strictfp new X(){}[] values();\n",
-		"  public static strictfp new X(){} valueOf(java.lang.String arg0);\n"
+		"  private X$1Y(java.lang.String arg0, int arg1);\n",
+		"  public static new X(){}[] values();\n",
+		"  public static new X(){} valueOf(java.lang.String arg0);\n"
 	};
 
 	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
@@ -4857,7 +4877,6 @@ public void test127() throws Exception {
 			ClassFileBytesDisassembler.DETAILED);
 
 	String expectedOutput =
-			"// Compiled from X.java (version 16 : 60.0, super bit)\n" +
 			"public class X {\n" +
 			"  \n" +
 			"  // Method descriptor #6 ()V\n" +
@@ -5503,7 +5522,10 @@ public void test139() {
 }
 //check final modifier
 public void test140() {
- this.runConformTest(
+	if (this.complianceLevel < ClassFileConstants.JDK17)
+		return; // covered by EnumTest
+	// An enum class E is implicitly sealed if its declaration contains at least one enum constant that has a class body
+	this.runNegativeTest(
      new String[] {
     	        "X.java",
     			"public class X {\n" +
@@ -5516,7 +5538,12 @@ public void test140() {
     			"	}\n" +
     			"}", // =================
      },
-	"");
+	"----------\n" +
+	"1. ERROR in X.java (at line 7)\n" +
+	"	Runnable r = (Runnable)y;\n" +
+	"	             ^^^^^^^^^^^\n" +
+	"Cannot cast from Y to Runnable\n" +
+	"----------\n");
 }
 //check final modifier
 public void test141() {
@@ -5935,16 +5962,7 @@ public void test151() throws Exception {
 		+ "     9  areturn\n"
 		+ "      Line numbers:\n"
 		+ "        [pc: 0, line: 1]\n"
-		+ "\n"
-		+ "  Inner classes:\n"
-		+ "    [inner class info: #1 p/X$1E, outer class info: #0\n"
-		+ "     inner name: #54 E, accessflags: 17416 abstract static],\n"
-		+ "    [inner class info: #14 p/X$1E$1, outer class info: #0\n"
-		+ "     inner name: #0, accessflags: 16392 static]\n"
-		+ "  Enclosing Method: #48  #50 p/X.main([Ljava/lang/String;)V\n"
-		+ "\n"
-		+ "Nest Host: #48 p/X\n"
-		+ "}";
+		+ "\n";
 
 	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"p" + File.separator + "X$1E.class"));
@@ -6664,25 +6682,64 @@ public void test168() {
 		"	             ^^\n" +
 		"Cannot reference a field before it is defined\n" +
 		"----------\n" +
-		"4. WARNING in X.java (at line 19)\n" +
+		"4. ERROR in X.java (at line 11)\n" +
+		"	static A X2 = new A(A.X2);//2 - OK\n" +
+		"	              ^^^^^^^^^^^\n" +
+		"Cannot instantiate local class \'A\' in a static context\n" +
+		"----------\n" +
+		"5. WARNING in X.java (at line 19)\n" +
 		"	A x1 = new A(x1);//6 - WRONG\n" +
 		"	  ^^\n" +
 		"The field Y.x1 is hiding a field from type A\n" +
 		"----------\n" +
-		"5. ERROR in X.java (at line 19)\n" +
+		"6. ERROR in X.java (at line 19)\n" +
 		"	A x1 = new A(x1);//6 - WRONG\n" +
 		"	             ^^\n" +
 		"Cannot reference a field before it is defined\n" +
 		"----------\n" +
-		"6. WARNING in X.java (at line 20)\n" +
+		"7. WARNING in X.java (at line 20)\n" +
 		"	static A X2 = new A(Y.X2);//7 - OK\n" +
 		"	         ^^\n" +
 		"The field Y.X2 is hiding a field from type A\n" +
 		"----------\n" +
-		"7. WARNING in X.java (at line 21)\n" +
+		"8. ERROR in X.java (at line 20)\n" +
+		"	static A X2 = new A(Y.X2);//7 - OK\n" +
+		"	              ^^^^^^^^^^^\n" +
+		"Cannot instantiate local class \'A\' in a static context\n" +
+		"----------\n" +
+		"9. WARNING in X.java (at line 21)\n" +
 		"	A x3 = new A(this.x3);//8 - OK\n" +
 		"	  ^^\n" +
 		"The field Y.x3 is hiding a field from type A\n" +
+		"----------\n");
+}
+public void test168_extract() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", // =================
+			"public class X { \n" +
+			"	public static void main(String[] args) {\n" +
+			"		class A {\n" +
+			"    		A(A a) {}\n" +
+			"    		static A X2 = new A(A.X2);\n" +
+			"		}\n" +
+			"		class Y extends A {\n" +
+			"    		static A X3 = new A(Y.X3);\n" +
+			"    		Y(Y y) { super(y); }\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n", // =================
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	static A X2 = new A(A.X2);\n" +
+		"	              ^^^^^^^^^^^\n" +
+		"Cannot instantiate local class \'A\' in a static context\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 8)\n" +
+		"	static A X3 = new A(Y.X3);\n" +
+		"	              ^^^^^^^^^^^\n" +
+		"Cannot instantiate local class \'A\' in a static context\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=255452 - variation

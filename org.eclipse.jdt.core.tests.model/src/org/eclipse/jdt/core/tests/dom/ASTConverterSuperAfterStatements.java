@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2024 IBM Corporation and others.
+ * Copyright (c) 2024, 2025 IBM Corporation and others.
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -34,11 +34,11 @@ public class ASTConverterSuperAfterStatements extends ConverterTestSetup {
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(getASTLatest(), true);
-		this.currentProject = getJavaProject("Converter_23");
-		if (this.ast.apiLevel() == AST.JLS23) {
-			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_23);
-			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_23);
-			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_23);
+		this.currentProject = getJavaProject("Converter_24");
+		if (this.ast.apiLevel() == AST.JLS24) {
+			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_24);
+			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_24);
+			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_24);
 			this.currentProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 			this.currentProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 		}
@@ -64,11 +64,11 @@ public class ASTConverterSuperAfterStatements extends ConverterTestSetup {
 	}
 
 	private void printJREError() {
-		System.err.println("Test "+getName()+" requires a JRE 23");
+		System.err.println("Test "+getName()+" requires a JRE 24");
 	}
 
 	public void test001() throws JavaModelException {
-		if (!isJRE23) {
+		if (!isJRE24) {
 			printJREError();
 			return;
 		}
@@ -86,7 +86,7 @@ public class ASTConverterSuperAfterStatements extends ConverterTestSetup {
 				}
 				""";
 
-		this.workingCopy = getWorkingCopy("/Converter_23/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_24/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Wrong type of statement", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
@@ -105,7 +105,7 @@ public class ASTConverterSuperAfterStatements extends ConverterTestSetup {
 	}
 
 	public void test002() throws JavaModelException {
-		if (!isJRE23) {
+		if (!isJRE24) {
 			printJREError();
 			return;
 		}
@@ -126,7 +126,7 @@ public class ASTConverterSuperAfterStatements extends ConverterTestSetup {
 					}
 				""";
 
-		this.workingCopy = getWorkingCopy("/Converter_23/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_24/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Wrong type of statement", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
@@ -144,7 +144,7 @@ public class ASTConverterSuperAfterStatements extends ConverterTestSetup {
 	}
 
 	public void test003() throws JavaModelException {
-		if (!isJRE23) {
+		if (!isJRE24) {
 			printJREError();
 			return;
 		}
@@ -174,7 +174,7 @@ public class ASTConverterSuperAfterStatements extends ConverterTestSetup {
 					}
 				}
 				""";
-		this.workingCopy = getWorkingCopy("/Converter_23/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_24/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Wrong type of statement", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
@@ -197,7 +197,7 @@ public class ASTConverterSuperAfterStatements extends ConverterTestSetup {
 	}
 
 	public void test004() throws JavaModelException {
-		if (!isJRE23) {
+		if (!isJRE24) {
 			printJREError();
 			return;
 		}
@@ -214,7 +214,7 @@ public class ASTConverterSuperAfterStatements extends ConverterTestSetup {
 				class S {}
 				""";
 
-		this.workingCopy = getWorkingCopy("/Converter_23/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_24/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Wrong type of statement", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;

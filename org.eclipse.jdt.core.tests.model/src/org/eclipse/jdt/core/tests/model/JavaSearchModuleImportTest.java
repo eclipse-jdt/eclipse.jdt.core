@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2024 GK Software SE and others.
+ * Copyright (c) 2024, 2025 GK Software SE and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,7 +14,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
-import junit.framework.Test;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -28,14 +28,16 @@ import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchPattern;
 
-public class JavaSearchBugs23Tests extends AbstractJavaSearchTests {
+import junit.framework.Test;
 
-	public JavaSearchBugs23Tests(String name) {
+public class JavaSearchModuleImportTest extends AbstractJavaSearchTests {
+
+	public JavaSearchModuleImportTest(String name) {
 		super(name);
 	}
 
 	public static Test suite() {
-		return buildModelTestSuite(JavaSearchBugs23Tests.class, BYTECODE_DECLARATION_ORDER);
+		return buildModelTestSuite(JavaSearchModuleImportTest.class, BYTECODE_DECLARATION_ORDER);
 	}
 
 	class TestCollector extends JavaSearchResultCollector {
@@ -63,7 +65,7 @@ public class JavaSearchBugs23Tests extends AbstractJavaSearchTests {
 	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		JAVA_PROJECT = setUpJavaProject("JavaSearchBugs23", "23");
+		JAVA_PROJECT = setUpJavaProject("JavaSearchBugs23", "24");
 		JAVA_PROJECT.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 	}
 	@Override

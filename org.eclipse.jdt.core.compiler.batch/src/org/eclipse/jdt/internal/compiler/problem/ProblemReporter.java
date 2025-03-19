@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -96,9 +96,14 @@ import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.EnumConstantSignature;
+import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
+import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
@@ -7366,12 +7371,18 @@ public void noSuchEnclosingInstance(TypeBinding targetType, ASTNode location, bo
 		id = IProblem.IncorrectEnclosingInstanceReference;
 	}
 
+	int end = location.sourceEnd;
+	if (location instanceof LambdaExpression lambda)
+		end = lambda.diagnosticsSourceEnd();
+	else if (location instanceof QualifiedAllocationExpression qae && qae.anonymousType != null)
+		end = qae.anonymousType.sourceEnd;
+
 	this.handle(
 		id,
 		new String[] { new String(targetType.readableName())},
 		new String[] { new String(targetType.shortReadableName())},
 		location.sourceStart,
-		location instanceof LambdaExpression ? ((LambdaExpression)location).diagnosticsSourceEnd() : location.sourceEnd);
+		end);
 }
 public void notCompatibleTypesError(ASTNode location, TypeBinding leftType, TypeBinding rightType) {
 	String leftName = new String(leftType.readableName());
@@ -9738,6 +9749,7 @@ public void problemNotAnalysed(Expression token, String optionKey) {
 // Try not to use this. Ideally, this should only be invoked through
 // validateJavaFeatureSupport()
 public void previewFeatureUsed(int sourceStart, int sourceEnd) {
+	this.referenceContext.compilationResult().usesPreview = true;
 	this.handle(
 			IProblem.PreviewFeatureUsed,
 			NoArgument,
@@ -9745,14 +9757,58 @@ public void previewFeatureUsed(int sourceStart, int sourceEnd) {
 			sourceStart,
 			sourceEnd);
 }
-public void previewAPIUsed(int sourceStart, int sourceEnd, boolean isFatal) {
-	this.handle(
-			IProblem.PreviewAPIUsed,
-			NoArgument,
-			NoArgument,
-			isFatal ? ProblemSeverities.Error | ProblemSeverities.Fatal : ProblemSeverities.Warning,
-			sourceStart,
-			sourceEnd);
+public void previewAPIUsed(Scope scope, int sourceStart, int sourceEnd, IBinaryAnnotation previewAnnotation) {
+	String featureName = null; // FIXME: do we need a default string to use if the name is not found below?
+	boolean isReflective = false;
+	for (IBinaryElementValuePair valuePair : previewAnnotation.getElementValuePairs()) {
+		if (valuePair.getValue() instanceof EnumConstantSignature enumSig) {
+			// extract the feature title from the enum constant:
+			char[] typeName = enumSig.getTypeName();
+			ReferenceBinding enumType = scope.environment().getTypeFromConstantPoolName(typeName, 1, typeName.length-1, false, null);
+			if (enumType.isUnresolvedType())
+				enumType = (ReferenceBinding) BinaryTypeBinding.resolveType(enumType, scope.environment(), false);
+			FieldBinding field = enumType.getField(enumSig.getEnumConstantName(), true);
+			for (AnnotationBinding annotationBinding : field.getAnnotations()) {
+				if (CharOperation.equals(annotationBinding.getAnnotationType().constantPoolName(),
+						ConstantPool.PREVIEW_FEATURE_JEP, 1, ConstantPool.PREVIEW_FEATURE_JEP.length-1)) { // skip 'L' and ';'
+					for (ElementValuePair elementValuePair : annotationBinding.getElementValuePairs()) {
+						if (CharOperation.equals(ConstantPool.TITLE, elementValuePair.getName())
+								&& elementValuePair.value instanceof StringConstant constant) {
+							featureName = constant.stringValue();
+							break;
+						}
+					}
+				}
+			}
+		} else
+			if (CharOperation.equals(valuePair.getName(), ConstantPool.REFLECTIVE)) {
+			if (valuePair.getValue() instanceof BooleanConstant bool)
+				isReflective = bool.booleanValue();
+		}
+	}
+
+
+	String[] arguments = { featureName };
+	int problemId = -1;
+	int severity = -1;
+	if (!this.options.enablePreviewFeatures) {
+		problemId = IProblem.PreviewAPIDisabled;
+		severity = isReflective ? ProblemSeverities.Warning : ProblemSeverities.Error;
+	} else {
+		this.referenceContext.compilationResult().usesPreview = true;
+		if (this.options.isAnyEnabled(IrritantSet.PREVIEW)) {
+			severity = ProblemSeverities.Warning;
+			problemId = IProblem.PreviewAPIUsed;
+		}
+	}
+	if (problemId != -1 && severity != -1)
+		this.handle(
+				problemId,
+				arguments,
+				arguments,
+				severity,
+				sourceStart,
+				sourceEnd);
 }
 //Returns true if the problem is handled and reported (only errors considered and not warnings)
 private boolean validateRestrictedKeywords(char[] name, int start, int end, boolean reportSyntaxError) {
@@ -9805,8 +9861,10 @@ public boolean validateJavaFeatureSupport(JavaFeature feature, int sourceStart, 
 			problemId = IProblem.PreviewFeatureNotSupported;
 		} else if (!this.options.enablePreviewFeatures) {
 			problemId = IProblem.PreviewFeatureDisabled;
-		} else if (this.options.isAnyEnabled(IrritantSet.PREVIEW)) {
-			problemId = IProblem.PreviewFeatureUsed;
+		} else {
+			if (this.options.isAnyEnabled(IrritantSet.PREVIEW))
+				problemId = IProblem.PreviewFeatureUsed;
+			this.referenceContext.compilationResult().usesPreview = true;
 		}
 	} else if (!versionInRange) {
 		problemId = IProblem.FeatureNotSupported;
@@ -11653,6 +11711,20 @@ public void invalidServiceRef(int problem, TypeReference type) {
 		NoArgument, new String[] { CharOperation.charToString(type.resolvedType.readableName()) },
 		type.sourceStart, type.sourceEnd);
 }
+public void modifierRequiresJavaBase(RequiresStatement stat, JavaFeature moduleImports) {
+	if (moduleImports != null) {
+		// don't use validateJavaFeatureSupport() as we want to give a more specific message if not enabled
+		if (moduleImports.isSupported(this.options)) {
+			previewFeatureUsed(stat.sourceStart, stat.sourceEnd);
+			return;
+		}
+		if (moduleImports.matchesCompliance(this.options)) {
+			this.handle(IProblem.ModifierOnRequiresJavaBasePreview, NoArgument, NoArgument, stat.modifiersSourceStart, stat.sourceEnd);
+			return;
+		}
+	}
+	this.handle(IProblem.ModifierOnRequiresJavaBase, NoArgument, NoArgument, stat.modifiersSourceStart, stat.sourceEnd);
+}
 
 public void unlikelyArgumentType(Expression argument, MethodBinding method, TypeBinding argumentType,
 							TypeBinding receiverType, DangerousMethod dangerousMethod)
@@ -12456,6 +12528,15 @@ public void allocationInEarlyConstructionContext(Expression expr, TypeBinding al
 		expr.sourceStart,
 		expr.sourceEnd);
 }
+public void allocationInStaticContext(ASTNode location, LocalTypeBinding allocatedType) {
+	this.handle(
+			IProblem.AllocatingLocalInStaticContext,
+			new String[] { String.valueOf(allocatedType.readableName()) },
+			new String[] { String.valueOf(allocatedType.shortReadableName()) },
+			location.sourceStart,
+			location.sourceEnd);
+}
+
 public void fieldReadInEarlyConstructionContext(char[] token, int sourceStart, int sourceEnd) {
 	String[] arguments = new String[] {String.valueOf(token)};
 	this.handle(
@@ -12481,6 +12562,14 @@ public void assignFieldWithInitializerInEarlyConstructionContext(char[] token, i
 		arguments,
 		sourceStart,
 		sourceEnd);
+}
+public void fieldAssignInEarlyConstructionContextInLambda(ASTNode location, FieldBinding field) {
+	this.handle(
+			IProblem.SuperFieldAssignInEarlyConstructionContextLambda,
+			new String[] {String.valueOf(field.name), String.valueOf(field.declaringClass.readableName())},
+			new String[] {String.valueOf(field.name), String.valueOf(field.declaringClass.shortReadableName())},
+			location.sourceStart,
+			location.sourceEnd);
 }
 public void errorReturnInEarlyConstructionContext(Statement stmt) {
 	String[] arguments = new String[] {stmt.toString()};

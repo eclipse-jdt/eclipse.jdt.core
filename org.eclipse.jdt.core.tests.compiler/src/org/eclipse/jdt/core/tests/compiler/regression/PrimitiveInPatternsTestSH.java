@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2024 IBM Corporation and others.
+ * Copyright (c) 2024, 2025 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,16 +12,19 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.IOException;
 import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 23 -Xlint:-preview");
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 24 -Xlint:-preview");
 	private static final String[] VMARGS = new String[] {"--enable-preview"};
 
 	private static final String[] PRIMITIVES = { "boolean", "byte", "char", "short", "int", "long", "float", "double" };
@@ -77,7 +80,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		return PrimitiveInPatternsTestSH.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_23);
+		return buildMinimalComplianceTestSuite(testClass(), F_24);
 	}
 	public PrimitiveInPatternsTestSH(String testName) {
 		super(testName);
@@ -99,9 +102,9 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_23);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_23);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_23);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_24);
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_24);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_24);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, preview ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
 		return defaultOptions;
@@ -132,20 +135,22 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput) {
 		runConformTest(testFiles, expectedOutput, getCompilerOptions(true), VMARGS, JAVAC_OPTIONS);
+		checkPreviewFlag(testFiles);
 	}
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
 		if(!isJRE23Plus)
 			return;
 		runConformTest(testFiles, expectedOutput, customOptions, VMARGS, JAVAC_OPTIONS);
+		checkPreviewFlag(testFiles);
 	}
 	protected void runConformTest(
-			String[] testFiles,
-			String expectedOutputString,
-			String[] classLibraries,
-			boolean shouldFlushOutputDirectory,
-			String[] vmArguments) {
-			runTest(
+		String[] testFiles,
+		String expectedOutputString,
+		String[] classLibraries,
+		boolean shouldFlushOutputDirectory,
+		String[] vmArguments) {
+		runTest(
 		 		// test directory preparation
 				shouldFlushOutputDirectory /* should flush output directory */,
 				testFiles /* test files */,
@@ -165,7 +170,21 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				null /* do not check error string */,
 				// javac options
 				JavacTestOptions.DEFAULT /* default javac test options */);
+		checkPreviewFlag(testFiles);
+	}
+	void checkPreviewFlag(String[] testFiles) {
+		String className = testFiles[0].replace(".java", ".class");
+		try {
+			verifyClassFile("version 24 : 68.65535", className, ClassFileBytesDisassembler.SYSTEM);
+		} catch (IOException|ClassFormatException e) {
+			e.printStackTrace();
+			fail(e.getMessage());
 		}
+	}
+	private void runConformTest_skipPreviewCheck(String[] testFiles, String expectedOutput) {
+		// FIXME we skip checkPreviewFlag() because it's not yet set in a few cases!
+		runConformTest(testFiles, expectedOutput, getCompilerOptions(true), VMARGS, JAVAC_OPTIONS);
+	}
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 		Map<String, String> customOptions = getCompilerOptions(true);
 		Runner runner = new Runner();
@@ -195,7 +214,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 	// https://cr.openjdk.org/~abimpoudis/instanceof/jep455-20240424/specs/instanceof-jls.html#jls-5.1.2
 	// 5.7 Testing Contexts
 	// Identity Conversion
-	public void testIdentity() {
+	public void testIdentity() throws IOException, ClassFormatException {
 		StringBuilder methods = new StringBuilder();
 		StringBuilder calls = new StringBuilder();
 		String methodTmpl =
@@ -224,6 +243,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		classX.append(calls);
 		classX.append("}}\n");
 		runConformTest(new String[] { "X.java", classX.toString() }, MAX_VALUES_STRING);
+		verifyClassFile("version 24 : 68.65535", "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testIdentityPattern() {
 		StringBuilder methods = new StringBuilder();
@@ -1082,7 +1102,8 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 	}
 
 	public void testNonPrim001() {
-		runConformTest(new String[] {
+		// no preview used
+		super.runConformTest(new String[] {
 			"X.java",
 				"""
 					class Y<T> {
@@ -1594,7 +1615,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 					}
 				}
 				""");
-		runConformTest(new String[] {"X.java", clazz.toString()}, expectedOuts, getCompilerOptions(true), VMARGS, JavacHasABug.JavacBug8341408);
+		runConformTest(new String[] {"X.java", clazz.toString()}, expectedOuts);
 	}
 	public void testInstanceof_widenUnbox_Byte() {
 		testInstanceof_widenUnbox("Byte", 1, "49+49|49+49|49+49|49.0+49.0|49.0+49.0|");
@@ -1612,6 +1633,68 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		testInstanceof_widenUnbox("Float", 6, "49.0+49.0|");
 	}
 
+	public void testInstanceof_widenUnboxWiden() {
+		// see https://bugs.openjdk.org/browse/JDK-8342397
+		// which links to our https://mail.openjdk.org/pipermail/compiler-dev/2024-September/027630.html
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				import java.util.List;
+				import java.util.Collections;
+				public class X {
+					static <T extends Short> void typeVariableSingle(T single) {
+						int i1 = single;
+						System.out.print(i1);
+						if (single instanceof int i)
+							System.out.print(i);
+						else
+							System.out.print('-');
+						switch (single) {
+							case int i -> System.out.print(i);
+							default -> System.out.print('-');
+						}
+						System.out.println();
+					}
+					static <T extends Short> void typeVariableList(List<T> list) {
+						int i1 = list.get(0);
+						System.out.print(i1);
+						if (list.get(0) instanceof int i)
+							System.out.print(i);
+						else
+							System.out.print('-');
+						switch (list.get(0)) {
+							case int i -> System.out.print(i);
+							default -> System.out.print('-');
+						}
+						System.out.println();
+					}
+					static void wildcard(List<? extends Short> list) {
+						int i1 = list.get(0);
+						System.out.print(i1);
+						if (list.get(0) instanceof int i)
+							System.out.print(i);
+						else
+							System.out.print('-');
+						switch (list.get(0)) {
+							case int i -> System.out.print(i);
+							default -> System.out.print('-');
+						}
+						System.out.println();
+					}
+					public static void main(String... args) {
+						Short s = 1;
+						typeVariableSingle(s);
+						typeVariableList(Collections.singletonList(s));
+						wildcard(Collections.singletonList(s));
+					}
+				}
+				"""
+			},
+			"""
+			111
+			111
+			111""");
+	}
 	public void testInstanceof_genericExpression() { // regression test for a checkCast which we failed to generate earlier
 		runConformTest(new String[] {
 				"X.java",
@@ -1901,11 +1984,11 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			String calls = fillIn(callsTmpl, i);
 			String classX = fillIn(classTmpl, i)
 					.replace("CALLS", calls);
-			runConformTest(new String[] { "XBOX.java".replace("BOX", BOXES[i]), classX }, "12-2");
+			runConformTest_skipPreviewCheck(new String[] { "XBOX.java".replace("BOX", BOXES[i]), classX }, "12-2");
 		}
 	}
 	public void testSwitchOn_Boolean_OK() {
-		runConformTest(new String[] {
+		runConformTest_skipPreviewCheck(new String[] {
 			"X.java",
 			"""
 			public class X {
@@ -2513,5 +2596,146 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			"Switch cannot have both boolean values and a default label\n" +
 			"----------\n");
 	}
+	public void testJDK8348410_negative() {
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions(false); // preview NOT enabled
+		runner.testFiles = new String[] {
+				"Test.java",
+				"""
+				 public class Test {
+					public static void main(String[] args) {
+						new Test().d(true);
+					}
 
+					void d(Boolean b) {
+						switch (b) {
+							case true -> System.out.println("1");
+							case false -> System.out.println("2");
+						};
+					}
+				}
+				"""
+			};
+		runner.expectedCompilerLog = """
+			----------
+			1. ERROR in Test.java (at line 7)
+				switch (b) {
+				        ^
+			An enhanced switch statement should be exhaustive; a default label expected
+			----------
+			2. ERROR in Test.java (at line 8)
+				case true -> System.out.println("1");
+				     ^^^^
+			Case constant of type boolean is incompatible with switch selector type Boolean
+			----------
+			3. ERROR in Test.java (at line 9)
+				case false -> System.out.println("2");
+				     ^^^^^
+			Case constant of type boolean is incompatible with switch selector type Boolean
+			----------
+			""";
+		runner.javacTestOptions = JavacHasABug.JavacBug8348410;
+		runner.runNegativeTest();
+	}
+	public void testJDK8348410_positive() {
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions(true); // preview enabled
+		runner.testFiles = new String[] {
+				"Test.java",
+				"""
+				 public class Test {
+					public static void main(String[] args) {
+						new Test().d(true);
+					}
+
+					void d(Boolean b) {
+						switch (b) {
+							case true -> System.out.println("1");
+							case false -> System.out.println("2");
+						};
+					}
+				}
+				"""
+			};
+		runner.vmArguments = VMARGS;
+		runner.expectedOutputString = "1";
+		runner.runConformTest();
+	}
+	public void testGH3128() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				class X {
+					public void foo(Boolean boxed) {
+						switch (boxed) {
+							case boolean b -> { System.out.print(b); }
+							default -> {}
+						}
+					}
+					public static void main(String... args) {
+						new X().foo(true);
+					}
+				}
+				"""
+			},
+			"true");
+	}
+	public void testJDK8348901() {
+		// according to https://bugs.openjdk.org/browse/JDK-8348901 the null type is to be admitted when case null is present
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						switch (null) {
+							case null -> System.out.println("Null");
+							default-> System.out.println("Default");
+						}
+					}
+				}
+				"""
+			},
+			"Null");
+	}
+	public void testGH3369_statement() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						switch (main(null)) {
+
+						}
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	switch (main(null)) {\n" +
+			"	        ^^^^^^^^^^\n" +
+			"This expression yields no value\n" +
+			"----------\n");
+	}
+	public void testGH3369_expression() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					int foo() {
+						return switch (bar()) {
+							default -> 1;
+						};
+					}
+					void bar() {}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	return switch (bar()) {\n" +
+			"	               ^^^^^\n" +
+			"This expression yields no value\n" +
+			"----------\n");
+	}
 }

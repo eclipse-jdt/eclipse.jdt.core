@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -46,6 +46,7 @@ import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
+import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -62,126 +63,165 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 
 	public TypeParameter[] typeParameters;
 
+	private ExceptionHandlingFlowContext prologueContext;
+	private FlowInfo prologueInfo;
+
 public ConstructorDeclaration(CompilationResult compilationResult){
 	super(compilationResult);
 }
+
+enum AnalysisMode { ALL, PROLOGUE, REST }
+
+FlowInfo getPrologueInfo() {
+	if (this.prologueInfo != null)
+		return this.prologueInfo;
+	return new UnconditionalFlowInfo();
+}
+
 /**
  * The flowInfo corresponds to non-static field initialization infos. It may be unreachable (155423), but still the explicit constructor call must be
  * analyzed as reachable, since it will be generated in the end.
  */
 public void analyseCode(ClassScope classScope, InitializationFlowContext initializerFlowContext, FlowInfo flowInfo, int initialReachMode) {
+	analyseCode(classScope, initializerFlowContext, flowInfo, initialReachMode, this.prologueInfo != null ? AnalysisMode.REST : AnalysisMode.ALL);
+}
+public void analyseCode(ClassScope classScope, InitializationFlowContext initializerFlowContext, FlowInfo flowInfo, int initialReachMode, AnalysisMode mode) {
+	// Effect of 'AnalysisMode mode':
+	// ALL: 		analyse in one go as normal.
+	// PROLOGUE:	analyse only statements *before* the explicit constructor call (if any)
+	// REST:		analyse only starting with the explicit constructor call, if none present behaves like ALL
+	// FlowContext and FlowInfo produced during PROLOGUE will be held in fields prologueContext and prologueInfo for use during REST
 	if (this.ignoreFurtherInvestigation)
 		return;
 
-	int nonStaticFieldInfoReachMode = flowInfo.reachMode();
-	flowInfo.setReachMode(initialReachMode);
-
-	checkUnused: {
-		MethodBinding constructorBinding;
-		if ((constructorBinding = this.binding) == null) break checkUnused;
-		if ((this.bits & ASTNode.IsDefaultConstructor) != 0) break checkUnused;
-		if (constructorBinding.isUsed()) break checkUnused;
-		if (constructorBinding.isPrivate()) {
-			if ((this.binding.declaringClass.tagBits & TagBits.HasNonPrivateConstructor) == 0)
-				break checkUnused; // tolerate as known pattern to block instantiation
-		} else if (!constructorBinding.isOrEnclosedByPrivateType()) {
-			break checkUnused;
- 		}
-		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=270446, When the AST built is an abridged version
-		// we don't have all tree nodes we would otherwise expect. (see ASTParser.setFocalPosition)
-		if (this.constructorCall == null)
-			break checkUnused;
-		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=264991, Don't complain about this
-		// constructor being unused if the base class doesn't have a no-arg constructor.
-		// See that a seemingly unused constructor that chains to another constructor with a
-		// this(...) can be flagged as being unused without hesitation.
-		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=265142
-		if (this.constructorCall.accessMode != ExplicitConstructorCall.This) {
-			ReferenceBinding superClass = constructorBinding.declaringClass.superclass();
-			if (superClass == null)
-				break checkUnused;
-			// see if there is a no-arg super constructor
-			MethodBinding methodBinding = superClass.getExactConstructor(Binding.NO_PARAMETERS);
-			if (methodBinding == null)
-				break checkUnused;
-			if (!methodBinding.canBeSeenBy(SuperReference.implicitSuperConstructorCall(), this.scope))
-				break checkUnused;
-			ReferenceBinding declaringClass = constructorBinding.declaringClass;
-			if (constructorBinding.isPublic() && constructorBinding.parameters.length == 0 &&
-					declaringClass.isStatic() &&
-					declaringClass.findSuperTypeOriginatingFrom(TypeIds.T_JavaIoExternalizable, false) != null)
-				break checkUnused;
-			// otherwise default super constructor exists, so go ahead and complain unused.
-		}
-		// complain unused
-		if ((this.bits & ASTNode.IsImplicit) == 0)
-			this.scope.problemReporter().unusedPrivateConstructor(this);
-	}
-
-	// check constructor recursion, once all constructor got resolved
-	if (isRecursive(null /*lazy initialized visited list*/)) {
-		this.scope.problemReporter().recursiveConstructorInvocation(this.constructorCall);
-	}
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385780
-	if (this.typeParameters != null  &&
-			!this.scope.referenceCompilationUnit().compilationResult.hasSyntaxError) {
-		for (TypeParameter typeParameter : this.typeParameters) {
-			if ((typeParameter.binding.modifiers & ExtraCompilerModifiers.AccLocallyUsed) == 0) {
-				this.scope.problemReporter().unusedTypeParameter(typeParameter);
-			}
-		}
-	}
 	try {
-		ExceptionHandlingFlowContext constructorContext =
-			new ExceptionHandlingFlowContext(
-				initializerFlowContext.parent,
-				this,
-				this.binding.thrownExceptions,
-				initializerFlowContext,
-				this.scope,
-				FlowInfo.DEAD_END);
-		initializerFlowContext.checkInitializerExceptions(
-			this.scope,
-			constructorContext,
-			flowInfo);
+		ExplicitConstructorCall lateConstructorCall = getLateConstructorCall();
+		if (mode == AnalysisMode.PROLOGUE
+				&& lateConstructorCall == null
+				&& (this.constructorCall == null || !this.constructorCall.hasArgumentNeedingAnalysis())) {
+			return; // no relevant prologue present
+		}
 
-		// anonymous constructor can gain extra thrown exceptions from unhandled ones
-		if (this.binding.declaringClass.isAnonymousType()) {
-			List computedExceptions = constructorContext.extendedExceptions;
-			if (computedExceptions != null){
-				int size;
-				if ((size = computedExceptions.size()) > 0){
-					ReferenceBinding[] actuallyThrownExceptions;
-					computedExceptions.toArray(actuallyThrownExceptions = new ReferenceBinding[size]);
-					this.binding.thrownExceptions = actuallyThrownExceptions;
+		int nonStaticFieldInfoReachMode = flowInfo.reachMode();
+		ExceptionHandlingFlowContext constructorContext;
+		if (mode == AnalysisMode.REST) {
+			// retrieve from first iteration (PROLOGUE):
+			constructorContext = this.prologueContext;
+			flowInfo = this.prologueInfo.addInitializationsFrom(flowInfo);
+			// skip the part already done during PROLOGUE analysis ...
+		} else {
+			flowInfo.setReachMode(initialReachMode);
+
+			checkUnused: {
+				MethodBinding constructorBinding;
+				if ((constructorBinding = this.binding) == null) break checkUnused;
+				if ((this.bits & ASTNode.IsDefaultConstructor) != 0) break checkUnused;
+				if (constructorBinding.isUsed()) break checkUnused;
+				if (constructorBinding.isPrivate()) {
+					if ((this.binding.declaringClass.tagBits & TagBits.HasNonPrivateConstructor) == 0)
+						break checkUnused; // tolerate as known pattern to block instantiation
+				} else if (!constructorBinding.isOrEnclosedByPrivateType()) {
+					break checkUnused;
+		 		}
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=270446, When the AST built is an abridged version
+				// we don't have all tree nodes we would otherwise expect. (see ASTParser.setFocalPosition)
+				if (this.constructorCall == null)
+					break checkUnused;
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=264991, Don't complain about this
+				// constructor being unused if the base class doesn't have a no-arg constructor.
+				// See that a seemingly unused constructor that chains to another constructor with a
+				// this(...) can be flagged as being unused without hesitation.
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=265142
+				if (this.constructorCall.accessMode != ExplicitConstructorCall.This) {
+					ReferenceBinding superClass = constructorBinding.declaringClass.superclass();
+					if (superClass == null)
+						break checkUnused;
+					// see if there is a no-arg super constructor
+					MethodBinding methodBinding = superClass.getExactConstructor(Binding.NO_PARAMETERS);
+					if (methodBinding == null)
+						break checkUnused;
+					if (!methodBinding.canBeSeenBy(SuperReference.implicitSuperConstructorCall(), this.scope))
+						break checkUnused;
+					ReferenceBinding declaringClass = constructorBinding.declaringClass;
+					if (constructorBinding.isPublic() && constructorBinding.parameters.length == 0 &&
+							declaringClass.isStatic() &&
+							declaringClass.findSuperTypeOriginatingFrom(TypeIds.T_JavaIoExternalizable, false) != null)
+						break checkUnused;
+					// otherwise default super constructor exists, so go ahead and complain unused.
 				}
+				// complain unused
+				if ((this.bits & ASTNode.IsImplicit) == 0)
+					this.scope.problemReporter().unusedPrivateConstructor(this);
 			}
-		}
 
-		// nullity, owning and mark as assigned
-		analyseArguments(classScope.environment(), flowInfo, initializerFlowContext, this.arguments, this.binding);
-
-		if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions())) {
-			this.scope.enterEarlyConstructionContext();
-		}
-
-		// propagate to constructor call
-		if (this.constructorCall != null) {
-			// if calling 'this(...)', then flag all non-static fields as definitely
-			// set since they are supposed to be set inside other local constructor
-			if (this.constructorCall.accessMode == ExplicitConstructorCall.This) {
-				FieldBinding[] fields = this.binding.declaringClass.fields();
-				for (FieldBinding field : fields) {
-					if (!field.isStatic()) {
-						flowInfo.markAsDefinitelyAssigned(field);
+			// check constructor recursion, once all constructor got resolved
+			if (isRecursive(null /*lazy initialized visited list*/)) {
+				this.scope.problemReporter().recursiveConstructorInvocation(this.constructorCall);
+			}
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385780
+			if (this.typeParameters != null  &&
+					!this.scope.referenceCompilationUnit().compilationResult.hasSyntaxError) {
+				for (TypeParameter typeParameter : this.typeParameters) {
+					if ((typeParameter.binding.modifiers & ExtraCompilerModifiers.AccLocallyUsed) == 0) {
+						this.scope.problemReporter().unusedTypeParameter(typeParameter);
 					}
 				}
 			}
-			flowInfo = this.constructorCall.analyseCode(this.scope, constructorContext, flowInfo);
-		}
+			constructorContext =
+				new ExceptionHandlingFlowContext(
+					initializerFlowContext.parent,
+					this,
+					this.binding.thrownExceptions,
+					initializerFlowContext,
+					this.scope,
+					FlowInfo.DEAD_END);
+			if (mode == AnalysisMode.PROLOGUE)
+				this.prologueContext = constructorContext; // save for REST
+			initializerFlowContext.checkInitializerExceptions(
+				this.scope,
+				constructorContext,
+				flowInfo);
 
-		// reuse the reachMode from non static field info
-		flowInfo.setReachMode(nonStaticFieldInfoReachMode);
+			// anonymous constructor can gain extra thrown exceptions from unhandled ones
+			if (this.binding.declaringClass.isAnonymousType()) {
+				List computedExceptions = constructorContext.extendedExceptions;
+				if (computedExceptions != null){
+					int size;
+					if ((size = computedExceptions.size()) > 0){
+						ReferenceBinding[] actuallyThrownExceptions;
+						computedExceptions.toArray(actuallyThrownExceptions = new ReferenceBinding[size]);
+						this.binding.thrownExceptions = actuallyThrownExceptions;
+					}
+				}
+			}
+
+			// nullity, owning and mark as assigned
+			analyseArguments(classScope.environment(), flowInfo, initializerFlowContext, this.arguments, this.binding);
+
+			if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions())) {
+				this.scope.enterEarlyConstructionContext();
+			}
+
+			// propagate to constructor call
+			if (this.constructorCall != null) {
+				flowInfo = this.constructorCall.analyseCode(this.scope, constructorContext, flowInfo);
+				if (mode == AnalysisMode.PROLOGUE && this.constructorCall.hasArgumentNeedingAnalysis())
+					this.prologueInfo = flowInfo.copy();
+				// if calling 'this(...)', then flag all non-static fields as definitely
+				// set since they are supposed to be set inside other local constructor
+				if (this.constructorCall.accessMode == ExplicitConstructorCall.This) {
+					FieldBinding[] fields = this.binding.declaringClass.fields();
+					for (FieldBinding field : fields) {
+						if (!field.isStatic()) {
+							flowInfo.markAsDefinitelyAssigned(field);
+						}
+					}
+				}
+			}
+
+			// reuse the reachMode from non static field info
+			flowInfo.setReachMode(nonStaticFieldInfoReachMode);
+		}
 
 		// propagate to statements
 		if (this.statements != null) {
@@ -189,6 +229,11 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			boolean enableSyntacticNullAnalysisForFields = compilerOptions.enableSyntacticNullAnalysisForFields;
 			int complaintLevel = (nonStaticFieldInfoReachMode & FlowInfo.UNREACHABLE) == 0 ? Statement.NOT_COMPLAINED : Statement.COMPLAINED_FAKE_REACHABLE;
 			for (Statement stat : this.statements) {
+				if (mode == AnalysisMode.REST && lateConstructorCall != null) {
+					if (stat == lateConstructorCall)	// if true this is where we start analysing
+						lateConstructorCall = null; 	// no more checking for subsequent statements
+					continue;							// skip statements already processed during PROLOGUE analysis
+				}
 				if ((complaintLevel = stat.complainIfUnreachable(flowInfo, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
 					flowInfo = stat.analyseCode(this.scope, constructorContext, flowInfo);
 				}
@@ -198,9 +243,14 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 				if (compilerOptions.analyseResourceLeaks) {
 					FakedTrackingVariable.cleanUpUnassigned(this.scope, stat, flowInfo, false);
 				}
+				if (mode == AnalysisMode.PROLOGUE && stat == lateConstructorCall) {
+					// lateConstructor implies no this.constructorCall (which is handled above)
+					this.prologueInfo = flowInfo;	// keep for second iteration, also signals the need for REST analysis
+					return;							// we're done for this time
+				}
 			}
 		}
-		// check for missing returning path
+	// check for missing returning path
 		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) == 0) {
 			this.bits |= ASTNode.NeedFreeReturn;
 		}
@@ -234,6 +284,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		this.ignoreFurtherInvestigation = true;
 	}
 }
+
 protected void doFieldReachAnalysis(FlowInfo flowInfo, FieldBinding[] fields) {
 	for (FieldBinding field : fields) {
 		if (!field.isStatic() && !flowInfo.isDefinitelyAssigned(field)) {
@@ -454,19 +505,15 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		if (this.constructorCall != null) {
 			this.constructorCall.generateCode(this.scope, codeStream);
 		}
+		ExplicitConstructorCall lateConstructorCall = getLateConstructorCall();
 		// generate field initialization - only if not invoking another constructor call of the same class
 		if (needFieldInitializations) {
 			if (!preInitSyntheticFields){
 				generateSyntheticFieldInitializationsIfNecessary(this.scope, codeStream, declaringClass);
 			}
-			// generate user field initialization
-			if (declaringType.fields != null) {
-				for (FieldDeclaration field : declaringType.fields) {
-					FieldDeclaration fieldDecl;
-					if (!(fieldDecl = field).isStatic()) {
-						fieldDecl.generateCode(initializerScope, codeStream);
-					}
-				}
+			if (lateConstructorCall == null) {
+				// traditionally field inits are generated before explicit statements
+				generateFieldInitializations(declaringType, codeStream, initializerScope);
 			}
 		}
 		// generate statements
@@ -475,6 +522,10 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 				statement.generateCode(this.scope, codeStream);
 				if (!this.compilationResult.hasErrors() && (codeStream.stackDepth != 0 || codeStream.operandStack.size() != 0)) {
 					this.scope.problemReporter().operandStackSizeInappropriate(this);
+				}
+				if (lateConstructorCall == statement) {
+					// with JEP 492 (Flexible Constructor Bodies) involved field inits are generated only *after* the explicit constructor
+					generateFieldInitializations(declaringType, codeStream, initializerScope);
 				}
 			}
 		}
@@ -514,6 +565,14 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		}
 	}
 	classFile.completeMethodInfo(this.binding, methodAttributeOffset, attributeNumber);
+}
+private void generateFieldInitializations(TypeDeclaration declaringType, CodeStream codeStream, MethodScope initializerScope) {
+	if (declaringType.fields != null) {
+		for (FieldDeclaration field : declaringType.fields) {
+			if (!field.isStatic())
+				field.generateCode(initializerScope, codeStream);
+		}
+	}
 }
 
 @Override

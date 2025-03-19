@@ -12,15 +12,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 import junit.framework.Test;
-import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
-import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
-import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -104,30 +99,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runner.runWarningTest();
 	}
 
-	private static void verifyClassFile(String expectedOutput, String unexpectedOutput, String classFileName, int mode)
-			throws IOException, ClassFormatException {
-		File f = new File(OUTPUT_DIR + File.separator + classFileName);
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String result = disassembler.disassemble(classFileBytes, "\n", mode);
-		int index = result.indexOf(expectedOutput);
-		if (index == -1 || expectedOutput.length() == 0) {
-			System.out.println(Util.displayString(result, 3));
-			System.out.println("...");
-		}
-		if (index == -1) {
-			assertEquals("Wrong contents", expectedOutput, result);
-		}
-		if (unexpectedOutput != null) {
-			index = result.indexOf(unexpectedOutput);
-			assertTrue("Unexpected output found", index == -1);
-		}
-	}
-
-	private static void verifyClassFile(String expectedOutput, String classFileName, int mode)
-			throws IOException, ClassFormatException {
-		verifyClassFile(expectedOutput, null, classFileName, mode);
-	}
 	public void testIssue57_001() {
 		runConformTest(
 			new String[] {
@@ -4152,7 +4123,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"		#1 p/Rec\n" +
 				"		#103 c\n" +
 				"		#104 REF_getField c:Lp/Rec$MyInterface;";
-		SwitchPatternTest.verifyClassFile(expectedOutput, "p/Rec.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "p/Rec.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug576785_001() {
 		runConformTest(
@@ -7421,7 +7392,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"    49  invokevirtual java.io.PrintStream.println(java.lang.String) : void [48]\n" +
 				"    52  return\n";
 
-		SwitchPatternTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/773
 	// [20][pattern switch] unnecessary code generated
@@ -9668,7 +9639,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		 "A");
 		String expectedOutput = "8  invokedynamic 0 enumSwitch(E, int) : int [22]\n";
 		String unexpectedOutput = "static synthetic int[] $SWITCH_TABLE$E();\n";
-		SwitchPatternTest.verifyClassFile(expectedOutput, unexpectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, unexpectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3559

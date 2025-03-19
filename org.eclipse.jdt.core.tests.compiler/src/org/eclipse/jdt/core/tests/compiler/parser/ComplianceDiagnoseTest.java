@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2337,7 +2337,7 @@ public void test0042() {
 		"}\n"
 	};
 
-	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK23) ?
+	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK24) ?
 			"""
 			----------
 			1. ERROR in X.java (at line 1)
@@ -2361,7 +2361,7 @@ public void test0042() {
 			1. ERROR in X.java (at line 1)
 				void ___eval() {
 				^
-			The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 23 and above
+			The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 24 and above
 			----------
 			2. ERROR in X.java (at line 1)
 				void ___eval() {

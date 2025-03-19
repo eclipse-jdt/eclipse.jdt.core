@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2379,7 +2379,20 @@ public void generateOuterAccess(Object[] mappingSequence, ASTNode invocationSite
 		aload_0();
 		fieldAccess(Opcodes.OPC_getfield, fieldBinding, null /* default declaringClass */);
 	} else {
-		load((LocalVariableBinding) mappingSequence[0]);
+		LocalVariableBinding localBinding = (LocalVariableBinding) mappingSequence[0];
+		if (localBinding instanceof SyntheticArgumentBinding synth && synth.accessingScope != null) {
+			if (!isOuterLocalInInstanceScope(scope, synth.accessingScope)) {
+				if (invocationSite instanceof AllocationExpression alloc
+						&& alloc.resolvedType instanceof LocalTypeBinding localType) {
+					scope.problemReporter().allocationInStaticContext(invocationSite, localType);
+					return;
+				} else {
+					scope.problemReporter().needImplementation(invocationSite); //TODO improve reporting if this is ever triggered
+					return;
+				}
+			}
+		}
+		load(localBinding);
 	}
 	for (int i = 1, length = mappingSequence.length; i < length; i++) {
 		if (mappingSequence[i] instanceof FieldBinding) {
@@ -2389,6 +2402,25 @@ public void generateOuterAccess(Object[] mappingSequence, ASTNode invocationSite
 			invoke(Opcodes.OPC_invokestatic, (MethodBinding) mappingSequence[i], null /* default declaringClass */);
 		}
 	}
+}
+
+private boolean isOuterLocalInInstanceScope(Scope scope, Scope accessingScope) {
+	Scope current = scope;
+	while (current != null) {
+		if (current == accessingScope)
+			return true;
+		if (current instanceof MethodScope ms && !ms.isConstructorCall && ms.isStatic) {
+			return false;
+		} else if (current instanceof ClassScope cs) {
+			SourceTypeBinding binding = cs.referenceContext.binding;
+			if (binding.superclass instanceof LocalTypeBinding superLocal) {
+				if (isOuterLocalInInstanceScope(superLocal.scope, accessingScope))
+					return true;
+			}
+		}
+		current = current.parent;
+	}
+	return false;
 }
 
 public void generateReturnBytecode(Expression expression) {
