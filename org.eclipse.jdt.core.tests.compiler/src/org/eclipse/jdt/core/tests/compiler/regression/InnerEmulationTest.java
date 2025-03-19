@@ -1456,7 +1456,7 @@ public void test033() {
 			"----------\n" +
 			"1. ERROR in p1\\A2.java (at line 20)\n" +
 			"	(new D.E(null, null, null, new F(get()) {}) {}).execute();	\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"No enclosing instance of type D is accessible. Must qualify the allocation with an enclosing instance of type D (e.g. x.new A() where x is an instance of D).\n" +
 			"----------\n"
 			:
@@ -1468,7 +1468,7 @@ public void test033() {
 			"----------\n" +
 			"2. ERROR in p1\\A2.java (at line 20)\n" +
 			"	(new D.E(null, null, null, new F(get()) {}) {}).execute();	\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"No enclosing instance of type D is accessible. Must qualify the allocation with an enclosing instance of type D (e.g. x.new A() where x is an instance of D).\n" +
 			"----------\n";
 	this.runNegativeTest(
@@ -2264,7 +2264,7 @@ public void test056() {
 		"----------\n" +
 		"1. ERROR in p1\\X.java (at line 9)\n" +
 		"	new L1.LM1(){};	//ko\n" +
-		"	^^^^^^^^^^^^^^\n" +
+		"	^^^^^^^^^^^^\n" +
 		"No enclosing instance of type L1 is accessible. Must qualify the allocation with an enclosing instance of type L1 (e.g. x.new A() where x is an instance of L1).\n" +
 		"----------\n"
 	);

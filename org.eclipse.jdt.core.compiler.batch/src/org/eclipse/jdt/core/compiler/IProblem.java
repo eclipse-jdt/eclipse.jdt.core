@@ -2095,6 +2095,13 @@ void setSourceStart(int sourceStart);
 	int UndefinedModuleAddReads = ModuleRelated + 1319;
 	/** @since 3.20 */
 	int ExportingForeignPackage = ModuleRelated + 1320;
+	/** @since 3.41 */
+	int ModifierOnRequiresJavaBase = ModuleRelated + 1321;
+	/**
+	 * @since 3.41
+	 * @noreference related to preview feature module imports
+	 */
+	int ModifierOnRequiresJavaBasePreview = ModuleRelated + 1322;
 
 
 	/** @since 3.14 */
@@ -2239,6 +2246,8 @@ void setSourceStart(int sourceStart);
 	int JavaVersionNotSupported = Compliance + 1109;
 	/** @since 3.40*/
 	int JavaVersionTooRecent = Compliance + 1110;
+	/** @since 3.41 */
+	int PreviewAPIDisabled = Compliance + 1111;
 
 	/** @since 3.13 */
 	int UnlikelyCollectionMethodArgumentType = 1200;
@@ -2759,6 +2768,17 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature
 	 */
 	int ConstructorCallNotAllowedHere = PreviewRelated + 2031;
+
+	/**
+	 * @since 3.41
+	 */
+	int AllocatingLocalInStaticContext = TypeRelated + 2032;
+
+	/**
+	 * @since 3.41
+	 * @noreference preview feature
+	 */
+	int SuperFieldAssignInEarlyConstructionContextLambda = PreviewRelated + 2033;
 
 	/**
 	 * @since 3.40

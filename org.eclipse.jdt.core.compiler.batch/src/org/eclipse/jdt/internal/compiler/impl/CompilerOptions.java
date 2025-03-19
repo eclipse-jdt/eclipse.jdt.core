@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -255,6 +255,7 @@ public class CompilerOptions {
 	public static final String VERSION_21 = "21"; //$NON-NLS-1$
 	public static final String VERSION_22 = "22"; //$NON-NLS-1$
 	public static final String VERSION_23 = "23"; //$NON-NLS-1$
+	public static final String VERSION_24 = "24"; //$NON-NLS-1$
 	/*
 	 * Note: Whenever a new version is added, make sure getLatestVersion()
 	 * is updated with it.
@@ -683,7 +684,7 @@ public class CompilerOptions {
 	 * Return the latest Java language version supported by the Eclipse compiler
 	 */
 	public static String getLatestVersion() {
-		return VERSION_23;
+		return VERSION_24;
 	}
 	/**
 	 * Return the most specific option key controlling this irritant. Note that in some case, some irritant is controlled by
@@ -1786,9 +1787,6 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_TargetPlatform)) != null) {
 			long level = versionToJdkLevel(optionValue);
 			if (level != 0) {
-				if (this.enablePreviewFeatures) {
-					level |= ClassFileConstants.MINOR_VERSION_PREVIEW;
-				}
 				this.targetJDK = level;
 			}
 		}
@@ -2224,8 +2222,6 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_EnablePreviews)) != null) {
 			if (ENABLED.equals(optionValue)) {
 				this.enablePreviewFeatures = true;
-				if (this.targetJDK != 0)
-					this.targetJDK |= ClassFileConstants.MINOR_VERSION_PREVIEW;
 			} else if (DISABLED.equals(optionValue)) {
 				this.enablePreviewFeatures = false;
 			}

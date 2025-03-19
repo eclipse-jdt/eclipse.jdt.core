@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2024 IBM Corporation and others.
+ * Copyright (c) 2020, 2025 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -70,7 +70,7 @@ public enum JavaFeature {
 			Messages.bind(Messages.unnamed_patterns_and_vars),
 			new char[][] {},
 			false),
-	IMPLICIT_CLASSES_AND_INSTANCE_MAIN_METHODS(ClassFileConstants.JDK23,
+	IMPLICIT_CLASSES_AND_INSTANCE_MAIN_METHODS(ClassFileConstants.JDK24,
 			Messages.bind(Messages.implicit_classes_and_instance_main_methods),
 			new char[][] {},
 			true),
@@ -98,15 +98,15 @@ public enum JavaFeature {
 	 * Uses some feature-specific help from BlockScope.getEmulationPath()
 	 * </dl>
 	 */
-	FLEXIBLE_CONSTRUCTOR_BODIES(ClassFileConstants.JDK23,
+	FLEXIBLE_CONSTRUCTOR_BODIES(ClassFileConstants.JDK24,
 			Messages.bind(Messages.flexible_constructor_bodies),
 			new char[][] {},
 			true),
-	PRIMITIVES_IN_PATTERNS(ClassFileConstants.JDK23,
+	PRIMITIVES_IN_PATTERNS(ClassFileConstants.JDK24,
 			Messages.bind(Messages.primitives_in_patterns),
 			new char[][] {},
 			true),
-	MODULE_IMPORTS(ClassFileConstants.JDK23,
+	MODULE_IMPORTS(ClassFileConstants.JDK24,
 			Messages.bind(Messages.module_imports),
 			CharOperation.NO_CHAR_CHAR,
 			true),

@@ -69,11 +69,11 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"	requires java.base;\n" +
 				"}"
 	        },
-			" -9 \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
-	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
+			" -9 \"" + getSourceDir() +  File.separator + "module-info.java\" "
+	        + "\"" + getSourceDir() +  File.separator + "p/X.java\"",
 	        "",
 	        "----------\n" +
-    		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 4)\n" +
+    		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" +
     		"	java.sql.Connection con = null;\n" +
     		"	^^^^^^^^^^^^^^^^^^^\n" +
     		"The type java.sql.Connection is not accessible\n" +
@@ -135,7 +135,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	        "",
 	        "",
 	        true);
-		String fileName = OUTPUT_DIR + File.separator + "module-info.class";
+		String fileName = getEcjOutputDir() + File.separator + "module-info.class";
 		assertClassFile("Missing modul-info.class: " + fileName, fileName, classFiles);
 	}
 	public void test005() {
@@ -160,12 +160,11 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 	        },
 			" -9 \"" + OUTPUT_DIR + File.separator + "module-info.java\" "
 			+ "\"" + OUTPUT_DIR + File.separator + "q/Y.java\" "
-	        + "\"" + OUTPUT_DIR + File.separator + "p/X.java\" "
-	        + "-d " + OUTPUT_DIR ,
+	        + "\"" + OUTPUT_DIR + File.separator + "p/X.java\"",
 	        "",
 	        "",
 	        true);
-		String fileName = OUTPUT_DIR  + File.separator + "module-info.class";
+		String fileName = getEcjOutputDir()  + File.separator + "module-info.class";
 		assertClassFile("Missing modul-info.class: " + fileName, fileName, classFiles);
 	}
 	public void test006() {
@@ -518,8 +517,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				outDir);
+				"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=487421
 	public void test011() {
@@ -617,8 +615,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				outDir);
+				"");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=495500
 	//-source 9
@@ -770,7 +767,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"----------\n" +
 				"1 problem (1 error)\n",
 				"does not read it",
-				OUTPUT_DIR + File.separator + out,
 				JavacTestOptions.JavacHasABug.JavacBug8207032);
 	}
 	public void test016() {
@@ -868,8 +864,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The type p.X is not accessible\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				"visible",
-				OUTPUT_DIR + File.separator + out);
+				"visible");
 	}
 	public void test018() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -996,8 +991,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				OUTPUT_DIR + File.separator + out);
+				"");
 	}
 
 	/*
@@ -1047,7 +1041,6 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"----------\n" +
 				"1 problem (1 error)\n",
 				"package s",
-				 OUTPUT_DIR + File.separator + out,
 				 JavacTestOptions.JavacHasABug.JavacBug8204534);
 	}
 	/*
@@ -1365,8 +1358,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The type p1.X1 is not accessible\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				"visible",
-				outDir);
+				"visible");
 	}
 	public void test029() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -1483,8 +1475,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 			"Connection cannot be resolved to a type\n"+
 			"----------\n"+
 			"2 problems (2 errors)\n",
-			"visible",
-			OUTPUT_DIR + File.separator + out);
+			"visible");
 	}
 	public void test031() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -1542,8 +1533,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 			"Connection cannot be resolved to a type\n"+
 			"----------\n"+
 			"2 problems (2 errors)\n",
-			"visible",
-			OUTPUT_DIR + File.separator + out);
+			"visible");
 	}
 	public void test032() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -1574,8 +1564,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		runConformModuleTest(files,
 			buffer,
 			"",
-			"",
-			OUTPUT_DIR + File.separator + out);
+			"");
 	}
 	/**
 	 * Test that a module can't access types/packages in a plain Jar put in classpath
@@ -1932,8 +1921,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The method m1(impl.SomeImpl) in the type C1 is not applicable for the arguments (impl.SomeImpl)\n" +
 				"----------\n" +
 				"2 problems (1 error, 0 warnings, 1 info)\n",
-				"incompatible",
-				OUTPUT_DIR + File.separator + out);
+				"incompatible");
 	}
 
 	// conflict even without any reference to the conflicting package
@@ -2172,8 +2160,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				"The package pm conflicts with a package accessible from another module: mod.one\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				"",
-				OUTPUT_DIR + File.separator + out);
+				"");
 	}
 	public void testPackageConflict4() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -2604,8 +2591,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 				buffer,
 				"",
 				"cannot specify both -source-path and --module-source-path\n",
-				"cannot specify both",
-				OUTPUT_DIR + File.separator + out);
+				"cannot specify both");
 	}
 
 	// causes: non-public type (C0), non-exported package (p.priv)
@@ -3081,8 +3067,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				outDir);
+				"");
 	}
 	public void testUnnamedPackage_Bug520839() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -3117,8 +3102,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 			"Must declare a named package because this compilation unit is associated to the named module \'mod.one\'\n" +
 			"----------\n" +
 			"1 problem (1 error)\n",
-			"unnamed package is not allowed in named modules",
-			OUTPUT_DIR + File.separator + out);
+			"unnamed package is not allowed in named modules");
 	}
 	public void testAutoModule1() throws Exception {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -3164,8 +3148,7 @@ public class ModuleCompilationTests extends AbstractModuleCompilationTest {
 			"	         ^^^^^\n" +
 			"Name of automatic module \'lib.x\' is unstable, it is derived from the module\'s file name.\n" +
 			"----------\n" +
-			"1 problem (1 info)\n",
-			OUTPUT_DIR + File.separator + out);
+			"1 problem (1 info)\n");
 	}
 	public void testBug521458a() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
@@ -3262,8 +3245,7 @@ public void testBug521362_emptyFile() {
 			"The package p1 does not exist or is empty\n" +
 			"----------\n" +
 			"1 problem (1 error)\n",
-			"empty",
-			OUTPUT_DIR + File.separator + out);
+			"empty");
 	}
 	public void testBug521362_mismatchingdeclaration() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -3297,8 +3279,7 @@ public void testBug521362_emptyFile() {
 			"The package p1 does not exist or is empty\n" +
 			"----------\n" +
 			"1 problem (1 error)\n",
-			"package is empty",
-			OUTPUT_DIR + File.separator + out);
+			"package is empty");
 	}
 	public void testBug521362_multiplePackages() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -3342,8 +3323,7 @@ public void testBug521362_emptyFile() {
 			"The package p2 does not exist or is empty\n" +
 			"----------\n" +
 			"2 problems (2 errors)\n",
-			"package is empty",
-			OUTPUT_DIR + File.separator + out);
+			"package is empty");
 	}
 	public void testBug521362_multiplePackages2() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -3387,8 +3367,7 @@ public void testBug521362_emptyFile() {
 			"The package p2 does not exist or is empty\n" +
 			"----------\n" +
 			"2 problems (2 errors)\n",
-			"package is empty",
-			OUTPUT_DIR + File.separator + out);
+			"package is empty");
 	}
 	/*
 	 * Test that when module-info is the only file being compiled, the class is still
@@ -3397,8 +3376,7 @@ public void testBug521362_emptyFile() {
 	public void testBug500170a() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
-		String out = "bin";
-		String directory = OUTPUT_DIR + File.separator + "src";
+		String directory = getSourceDir();
 		String moduleLoc = directory + File.separator + "mod.one";
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, moduleLoc, "module-info.java",
@@ -3406,7 +3384,7 @@ public void testBug521362_emptyFile() {
 						"	requires java.sql;\n" +
 						"}");
 		StringBuilder buffer = new StringBuilder();
-		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+		buffer.append("-d " + getEcjOutputDir() )
 			.append(" -9 ")
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
@@ -3420,7 +3398,7 @@ public void testBug521362_emptyFile() {
 				"",
 				"",
 				false);
-		String fileName = OUTPUT_DIR + File.separator + out + File.separator + "mod.one" + File.separator + "module-info.class";
+		String fileName = getEcjOutputDir() + File.separator + "mod.one" + File.separator + "module-info.class";
 		assertClassFile("Missing modul-info.class: " + fileName, fileName, classFiles);
 	}
 	/*
@@ -3843,21 +3821,21 @@ public void testBug521362_emptyFile() {
 				"module mod.one { \n" +
 				"}"
 			},
-			" --release 8 \"" + OUTPUT_DIR +  File.separator + "module-info.java\" ",
+			" --release 8 \"" + getSourceDir() +  File.separator + "module-info.java\" ",
 			"",
 			"""
 			----------
-			1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 1)
+			1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/module-info.java (at line 1)
 				module mod.one {\s
 				^^^^^^
 			Syntax error on token(s), misplaced construct(s)
 			----------
-			2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 1)
+			2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/module-info.java (at line 1)
 				module mod.one {\s
 				           ^^^
 			Syntax error, insert "Identifier (" to complete MethodHeaderName
 			----------
-			3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 1)
+			3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/module-info.java (at line 1)
 				module mod.one {\s
 				           ^^^
 			Syntax error, insert ")" to complete MethodDeclaration
@@ -3907,11 +3885,11 @@ public void testBug521362_emptyFile() {
 				"	}\n" +
 				"}"
 	        },
-			" -source 9 \"" + OUTPUT_DIR +  File.separator + "foo" + File.separator + "Module.java\" " +
-			"\"" +  OUTPUT_DIR +  File.separator + "bar" + File.separator + "X.java\" ",
+			" -source 9 \"" + getSourceDir() +  File.separator + "foo" + File.separator + "Module.java\" " +
+			"\"" +  getSourceDir() +  File.separator + "bar" + File.separator + "X.java\" ",
 	        "",
 	        "----------\n" +
-    		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/bar/X.java (at line 4)\n" +
+    		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/bar/X.java (at line 4)\n" +
     		"	public Module getModule(String name) {\n" +
     		"	       ^^^^^^\n" +
     		"The type Module is ambiguous\n" +
@@ -4690,8 +4668,7 @@ public void testBug521362_emptyFile() {
 		runConformModuleTest(files,
 				buffer,
 				"",
-				"",
-				OUTPUT_DIR + "javac");
+				"");
 	}
 	/*
 	 * Test that when module-info is not included in the command line, the class is still
@@ -5329,8 +5306,7 @@ public void testBug521362_emptyFile() {
 				+ "	       ^^^^^\n"
 				+ "The import x.y.z is never used\n"
 				+ "----------\n"
-				+ "2 problems (2 warnings)\n",
-				"package conflict");
+				+ "2 problems (2 warnings)\n");
 	}
 	/*
 	 * Same as above test case, but two binary modules export the package, without any .class files
@@ -5675,7 +5651,6 @@ public void testBug521362_emptyFile() {
 				"",
 				"location ---OUTPUT_DIR_PLACEHOLDER---/src1 is specified more than once in --patch-module\n",
 				"",
-				"",
 				JavacTestOptions.SKIP);
 	}
 
@@ -5699,7 +5674,6 @@ public void testBug521362_emptyFile() {
 				buffer,
 				"",
 				"location ---OUTPUT_DIR_PLACEHOLDER---/src1 is specified more than once in --patch-module\n",
-				"",
 				"",
 				JavacTestOptions.SKIP);
 	}
@@ -6065,7 +6039,6 @@ public void testBug521362_emptyFile() {
 					Name of automatic module 'autoModule' is unstable, it is derived from the module's file name.
 					----------
 					1 problem (1 warning)
-					""",
-					outFinal);
+					""");
 	}
 }

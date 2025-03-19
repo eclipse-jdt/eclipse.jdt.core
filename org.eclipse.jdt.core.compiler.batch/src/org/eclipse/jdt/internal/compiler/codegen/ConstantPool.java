@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -305,7 +305,10 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] CloneSignature = "()Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
 	public static final char[] BOOTSTRAP = "bootstrap".toCharArray(); //$NON-NLS-1$
 	public static final char[] JAVA_LANG_RUNTIME_OBJECTMETHOD_BOOTSTRAP_SIGNATURE = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
-	public static final char[] PREVIEW_FEATURE = "/PreviewFeature".toCharArray(); //$NON-NLS-1$
+	public static final char[] PREVIEW_FEATURE = "Ljdk/internal/javac/PreviewFeature;".toCharArray(); //$NON-NLS-1$
+	public static final char[] REFLECTIVE = "reflective".toCharArray(); //$NON-NLS-1$ attribute of PreviewFeature
+	public static final char[] PREVIEW_FEATURE_JEP = "Ljdk/internal/javac/PreviewFeature$JEP;".toCharArray(); //$NON-NLS-1$
+	public static final char[] TITLE = "title".toCharArray(); //$NON-NLS-1$ attribute of the above annotation "JEP"
 	public static final char[] TYPESWITCH = "typeSwitch".toCharArray(); //$NON-NLS-1$
 	public static final char[] ENUMSWITCH = "enumSwitch".toCharArray(); //$NON-NLS-1$
 	public static final char[] JAVA_LANG_RUNTIME_SWITCHBOOTSTRAPS_SWITCH_SIGNATURE = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;".toCharArray(); //$NON-NLS-1$

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -242,21 +242,25 @@ public static Test suite() {
 	 since_21.add(NullAnnotationTests21.class);
 	 since_21.add(BatchCompilerTest_21.class);
 	 since_21.add(JEP441SnippetsTest.class);
-	 
+
 
 	 // add 21 specific test here (check duplicates)
 	 ArrayList since_22 = new ArrayList();
-//	 since_22.add(SuperAfterStatementsTest.class);
 	 since_22.add(UnnamedPatternsAndVariablesTest.class);
 	 since_22.add(UseOfUnderscoreJava22Test.class);
 	 since_22.add(SwitchPatternTest22.class);
 
 	 ArrayList since_23 = new ArrayList();
-	 since_23.add(SuperAfterStatementsTest.class);
-	 since_23.add(ImplicitlyDeclaredClassesTest.class);
-	 since_23.add(PrimitiveInPatternsTest.class);
-	 since_23.add(PrimitiveInPatternsTestSH.class);
 	 since_23.add(MarkdownCommentsTest.class);
+
+	 ArrayList since_24 = new ArrayList();
+	 since_24.add(ModuleImportTests.class);
+	 since_24.add(SuperAfterStatementsTest.class);
+	 since_24.add(ImplicitlyDeclaredClassesTest.class);
+	 since_24.add(PrimitiveInPatternsTest.class);
+	 since_24.add(PrimitiveInPatternsTestSH.class);
+	 since_24.add(PreviewFlagTest.class);
+	 // Add new tests for Java 24 here and/or move preview tests being moved from 23 to 24
 
 	 // Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
@@ -550,6 +554,31 @@ public static Test suite() {
 		TestCase.resetForgottenFilters(tests_23);
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
 				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_23), tests_23));
+	}
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_24) != 0) {
+		ArrayList tests_24 = (ArrayList)standardTests.clone();
+		tests_24.addAll(since_1_4);
+		tests_24.addAll(since_1_5);
+		tests_24.addAll(since_1_6);
+		tests_24.addAll(since_1_7);
+		tests_24.addAll(since_1_8);
+		tests_24.addAll(since_9);
+		tests_24.addAll(since_10);
+		tests_24.addAll(since_11);
+		tests_24.addAll(since_12);
+		tests_24.addAll(since_13);
+		tests_24.addAll(since_14);
+		tests_24.addAll(since_15);
+		tests_24.addAll(since_16);
+		tests_24.addAll(since_17);
+		tests_24.addAll(since_18);
+		tests_24.addAll(since_21);
+		tests_24.addAll(since_22);
+		tests_24.addAll(since_23);
+		tests_24.addAll(since_24);
+		TestCase.resetForgottenFilters(tests_24);
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
+				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_24), tests_24));
 	}
 	all.addTest(new TestSuite(Jsr14Test.class));
 	return all;

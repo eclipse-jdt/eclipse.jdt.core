@@ -106,6 +106,7 @@ public class BinaryTypeBinding extends ReferenceBinding {
 	protected LookupEnvironment environment;
 
 	protected Map<Binding, AnnotationHolder> storedAnnotations = null; // keys are this ReferenceBinding & its fields and methods, value is an AnnotationHolder
+	public IBinaryAnnotation binaryPreviewAnnotation; // captures the exact preview feature of a preview API
 
 	private ReferenceBinding containerAnnotationType;
 	int defaultNullness = 0;
@@ -661,8 +662,8 @@ private void cachePartsFrom2(IBinaryType binaryType, boolean needFieldsAndMethod
 			}
 			for (IBinaryAnnotation annotation : declAnnotations) {
 				char[] typeName = annotation.getTypeName();
-				if (isPreviewFeature(typeName)) {
-					this.tagBits |= TagBits.AnnotationPreviewFeature;
+				if (CharOperation.equals(typeName, ConstantPool.PREVIEW_FEATURE)) {
+					this.binaryPreviewAnnotation = annotation;
 					break;
 				}
 			}
@@ -702,6 +703,7 @@ private void cachePartsFrom2(IBinaryType binaryType, boolean needFieldsAndMethod
 		this.environment.requestingType = previousRequester;
 	}
 }
+
 void markImplicitTerminalDeprecation(ReferenceBinding type) {
 	for (ReferenceBinding member : type.memberTypes()) {
 		member.tagBits |= TagBits.AnnotationTerminallyDeprecated;
@@ -860,16 +862,20 @@ private void createFields(IBinaryField[] iFields, IBinaryType binaryType, long s
 						? this.environment.getTypeFromSignature(binaryField.getTypeName(), 0, -1, false, this, missingTypeNames, walker)
 						: this.environment.getTypeFromTypeSignature(new SignatureWrapper(fieldSignature), Binding.NO_TYPE_VARIABLES, this, missingTypeNames, walker);
 					VariableBinding field = initialization.createBinding(this, binaryField, type);
+					boolean forceStoreAnnotations = false;
 					if (declAnnotations != null) {
 						for (IBinaryAnnotation annotation : declAnnotations) {
 							char[] typeName = annotation.getTypeName();
-							if (isPreviewFeature(typeName)) {
-								field.tagBits |= TagBits.AnnotationPreviewFeature;
+							if (CharOperation.equals(typeName, ConstantPool.PREVIEW_FEATURE) && field instanceof FieldBinding realField) {
+								realField.binaryPreviewAnnotation = annotation;
+								break;
+							} else if (CharOperation.equals(typeName, ConstantPool.PREVIEW_FEATURE_JEP)) {
+								forceStoreAnnotations = true;
 								break;
 							}
 						}
 					}
-					boolean forceStoreAnnotations = !this.environment.globalOptions.storeAnnotations
+					forceStoreAnnotations |= !this.environment.globalOptions.storeAnnotations
 							&& (this.environment.globalOptions.sourceLevel >= ClassFileConstants.JDK9
 							&& binaryField.getAnnotations() != null
 							&& (binaryField.getTagBits() & TagBits.AnnotationDeprecated) != 0);
@@ -906,14 +912,6 @@ private void createFields(IBinaryField[] iFields, IBinaryType binaryType, long s
 			initialization.setEmptyResult(this);
 		}
 	}
-}
-
-private boolean isPreviewFeature(char[] typeName) {
-	int index = CharOperation.lastIndexOf('/', typeName);
-	if (index != -1)
-		typeName = CharOperation.subarray(typeName, index, typeName.length);
-	index = CharOperation.indexOf(ConstantPool.PREVIEW_FEATURE, typeName, true);
-	return index == 0;
 }
 
 private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType, long sourceLevel, char[][][] missingTypeNames) {
@@ -1103,8 +1101,8 @@ private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType,
 	if (declAnnotations != null) {
 		for (IBinaryAnnotation annotation : declAnnotations) {
 			char[] typeName = annotation.getTypeName();
-			if (isPreviewFeature(typeName)) {
-				result.tagBits |= TagBits.AnnotationPreviewFeature;
+			if (CharOperation.equals(typeName, ConstantPool.PREVIEW_FEATURE)) {
+				result.binaryPreviewAnnotation = annotation;
 				break;
 			}
 		}

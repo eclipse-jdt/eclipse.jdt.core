@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2019 IBM Corporation and others.
+ * Copyright (c) 2015, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -123,6 +123,8 @@ public class ModuleDeclaration extends ASTNode implements ReferenceContext {
 			// create the result for a compiled type
 			LookupEnvironment env = this.scope.environment();
 			ClassFile classFile = env.classFilePool.acquireForModule(this.binding, env.globalOptions);
+			if (this.compilationResult.usesPreview)
+				classFile.targetJDK |= ClassFileConstants.MINOR_VERSION_PREVIEW;
 			classFile.initializeForModule(this.binding);
 
 			// finalize the compiled type result

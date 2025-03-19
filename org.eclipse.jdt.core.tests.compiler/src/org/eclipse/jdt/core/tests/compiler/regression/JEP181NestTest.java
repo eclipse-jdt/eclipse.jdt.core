@@ -76,10 +76,7 @@ private static String[] getTestSeriesClassic() {
 					"}\n",
 	};
 }
-private void verifyClassFile(String expectedOutput, String classFileName, int mode, boolean positive) throws IOException, ClassFormatException {
-	String result = getClassFileContents(classFileName, mode);
-	verifyOutput(result, expectedOutput, positive);
-}
+
 private String getClassFileContents( String classFileName, int mode) throws IOException,
 ClassFormatException {
 	File f = new File(OUTPUT_DIR + File.separator + classFileName);
@@ -109,14 +106,6 @@ private void verifyOutput(String result, String expectedOutput, boolean positive
 			assertEquals("Unexpected contents", "", result);
 		}
 	}
-}
-private void verifyClassFile(String expectedOutput, String classFileName, int mode) throws IOException,
-	ClassFormatException {
-	verifyClassFile(expectedOutput, classFileName, mode, true);
-}
-private void verifyNegativeClassFile(String unExpectedOutput, String classFileName, int mode) throws IOException,
-ClassFormatException {
-	verifyClassFile(unExpectedOutput, classFileName, mode, false);
 }
 public void testBug535851_001() throws Exception {
 	Map<String, String> options = getCompilerOptions();

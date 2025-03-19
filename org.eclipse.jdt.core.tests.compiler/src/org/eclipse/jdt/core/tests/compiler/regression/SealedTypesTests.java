@@ -18,12 +18,12 @@ import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class SealedTypesTests extends AbstractRegressionTest9 {
@@ -31,7 +31,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug564498_6"};
+//		TESTS_NAMES = new String[] { "testBug566846_001"};
 	}
 
 	public static Class<?> testClass() {
@@ -106,22 +106,6 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runner.expectedOutputString = expectedOutput;
 		runner.customOptions = getCompilerOptions();
 		runner.runWarningTest();
-	}
-
-	private static void verifyClassFile(String expectedOutput, String classFileName, int mode)
-			throws IOException, ClassFormatException {
-		File f = new File(OUTPUT_DIR + File.separator + classFileName);
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String result = disassembler.disassemble(classFileBytes, "\n", mode);
-		int index = result.indexOf(expectedOutput);
-		if (index == -1 || expectedOutput.length() == 0) {
-			System.out.println(Util.displayString(result, 3));
-			System.out.println("...");
-		}
-		if (index == -1) {
-			assertEquals("Wrong contents", expectedOutput, result);
-		}
 	}
 
 	public void testBug563430_001() {
@@ -4929,7 +4913,9 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		);
 	}
 
+	@SuppressWarnings({ "rawtypes" })
 	public void testBug566980_002() {
+		Map options = getCompilerOptions();
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4944,7 +4930,41 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Syntax error on token \"void\", delete this token\n" +
 			"----------\n",
 			null,
-			true
+			true,
+			options
+		);
+	}
+	@SuppressWarnings({ "rawtypes" })
+	public void testBug566846_001() {
+		Map options = getCompilerOptions();
+		String error = 	this.complianceLevel < ClassFileConstants.JDK24 ?
+				"The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 24 and above\n"
+				: "Implicitly Declared Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable\n";
+
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"record X;\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	record X;\n" +
+			"	^\n" +
+			error +
+			"----------\n" +
+			"2. ERROR in X.java (at line 1)\n" +
+			"	record X;\n" +
+			"	^^^^^^\n" +
+			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 1)\n" +
+			"	record X;\n" +
+			"	^\n" +
+			"Implicitly declared class must have a candidate main method\n" +
+			"----------\n",
+			null,
+			true,
+			options
 		);
 	}
 	public void testBug568428_001() {
@@ -5096,7 +5116,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"true");
 		String expectedOutput = "final enum Y$E$1 {\n";
-		SealedTypesTests.verifyClassFile(expectedOutput, "Y$E$1.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "Y$E$1.class", ClassFileBytesDisassembler.SYSTEM);
 		expectedOutput =
 				"  Inner classes:\n" +
 				"    [inner class info: #3 Y$E, outer class info: #20 Y\n" +
@@ -5104,7 +5124,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"    [inner class info: #1 Y$E$1, outer class info: #0\n" +
 				"     inner name: #0, accessflags: 16400 final]\n" +
 				"  Enclosing Method: #3  #0 Y$E\n";
-		SealedTypesTests.verifyClassFile(expectedOutput, "Y$E$1.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "Y$E$1.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug568854_001() {
 		this.runNegativeTest(

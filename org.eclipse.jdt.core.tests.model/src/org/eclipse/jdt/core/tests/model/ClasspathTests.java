@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -90,7 +90,7 @@ public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	setupExternalJCL("jclMin");
 	setupExternalJCL("jclMin1.8");
-	setupExternalJCL("jclMin23");
+	setupExternalJCL("jclMin24");
 }
 
 void restoreAutobuild(IWorkspaceDescription preferences, boolean autoBuild) throws CoreException {
@@ -433,7 +433,7 @@ public void test232816f() throws Exception {
 		assertStatus(
 			"should have complained about jdk level mismatch",
 			"Incompatible .class files version in required binaries. Project 'P' is targeting a " + CompilerOptions.getFirstSupportedJavaVersion()
-					+ " runtime, but is compiled against \'" + getExternalJCLPath("23").makeRelative() + "' (from the container 'container/default') which requires a 23 runtime",
+					+ " runtime, but is compiled against \'" + getExternalJCLPath("24").makeRelative() + "' (from the container 'container/default') which requires a 24 runtime",
 			status);
 	} finally {
 		deleteProject("P");

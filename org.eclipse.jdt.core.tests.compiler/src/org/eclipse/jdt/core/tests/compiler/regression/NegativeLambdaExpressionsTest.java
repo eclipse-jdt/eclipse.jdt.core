@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2024 IBM Corporation and others.
+ * Copyright (c) 2011, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -6754,6 +6754,54 @@ public void test406773() {
 			compilerOptions /* custom options */
 		);
 }
+public void test406773_positive() {
+	// demonstrate that access to 'local' works in ctors for Y and Z
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	X makeX(int x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	void foo() {\n" +
+				"		int local = 10;\n" +
+				"		class Y extends X {\n" +
+				"			class Z extends X {\n" +
+				"				void f() {\n" +
+				"					I i = X::new;\n" +
+				"					i.makeX(123456);\n" +
+				"					i = Y::new;\n" +
+				"					i.makeX(987654);\n" +
+				"					i = Z::new;\n" +
+				"					i.makeX(456789);\n" +
+				"				}\n" +
+				"				private Z(int z) {\n" +
+				"					System.out.print(local);\n" +
+				"				}\n" +
+				"				Z() {}\n" +
+				"			}\n" +
+				"			private Y(int y) {\n" +
+				"				System.out.print(local);\n" +
+				"			}\n" +
+				"			private Y() {\n" +
+				"			}\n" +
+				"		}\n" +
+				"		new Y().new Z().f();\n" +
+				"	}\n" +
+				"	private X(int x) {\n" +
+				"		System.out.print(\"X\");\n" +
+				"	}\n" +
+				"	X() {\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new X().foo();\n" +
+				"	}\n" +
+				"}\n"
+		},
+		"X1010"
+	);
+}
+
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=406859,  [1.8][compiler] Bad hint that method could be declared static
 public void test406859a() {
 		Map compilerOptions = getCompilerOptions();

@@ -30,6 +30,7 @@ import org.eclipse.jdt.internal.compiler.ast.FakedTrackingVariable;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
@@ -39,6 +40,7 @@ public class FieldBinding extends VariableBinding {
 
 	public FakedTrackingVariable closeTracker;
 	public long extendedTagBits;
+	public IBinaryAnnotation binaryPreviewAnnotation; // captures the exact preview feature of a preview API
 
 protected FieldBinding() {
 	super(null, null, 0, null);

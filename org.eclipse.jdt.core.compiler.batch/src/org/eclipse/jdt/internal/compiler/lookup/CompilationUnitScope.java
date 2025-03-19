@@ -243,7 +243,7 @@ void checkAndSetImports() {
 		ImportReference importReference = this.referenceContext.imports[i];
 		if ((importReference.bits & ASTNode.OnDemand) != 0) {
 			 if (importReference.isStatic()) {
-				 if (CharOperation.equals(TypeConstants.JAVA_IO_IO, importReference.tokens)) {
+				 if (this.referenceContext.isSimpleCompilationUnit() && CharOperation.equals(TypeConstants.JAVA_IO_IO, importReference.tokens)) {
 					 numberOfImports--;
 				 }
 			 } else {

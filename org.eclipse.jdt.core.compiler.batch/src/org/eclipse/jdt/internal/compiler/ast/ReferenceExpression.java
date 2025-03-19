@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -499,8 +499,10 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 			TypeBinding type = this.receiverType.leafComponentType();
 			if (type.isNestedType() &&
 				type instanceof ReferenceBinding && !((ReferenceBinding)type).isStatic()) {
-				currentScope.tagAsAccessingEnclosingInstanceStateOf((ReferenceBinding)type, false);
-				this.shouldCaptureInstance = true;
+				if (!type.isLocalType()) {
+					currentScope.tagAsAccessingEnclosingInstanceStateOf((ReferenceBinding)type, false);
+					this.shouldCaptureInstance = true;
+				}
 				ReferenceBinding allocatedTypeErasure = (ReferenceBinding) type.erasure();
 				if (allocatedTypeErasure.isLocalType()) {
 					((LocalTypeBinding) allocatedTypeErasure).addInnerEmulationDependent(currentScope, false);
@@ -714,6 +716,12 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
         if (isMethodReference) {
         	someMethod = scope.getMethod(this.receiverType, this.selector, descriptorParameters, this);
         } else {
+        	if (this.receiverType instanceof LocalTypeBinding local) {
+        		MethodScope enclosingMethodScope = local.scope.enclosingMethodScope();
+        		if (enclosingMethodScope != null && !enclosingMethodScope.isStatic && scope.isInStaticContext()) {
+        			scope.problemReporter().allocationInStaticContext(this, local);
+        		}
+        	}
         	if (argumentsTypeElided() && this.receiverType.isRawType()) {
         		boolean[] inferredReturnType = new boolean[1];
 	        	someMethod = AllocationExpression.inferDiamondConstructor(scope, this, this.receiverType, this.descriptor.parameters, inferredReturnType);

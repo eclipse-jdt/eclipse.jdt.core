@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1191,6 +1191,16 @@ public abstract class Scope {
 			}
 		}
 		return null; // may answer null if no method around
+	}
+	public final MethodScope nearestEnclosingStaticScope() {
+		Scope current = this;
+		while (current != null) {
+			MethodScope methodScope = current.methodScope();
+			if (methodScope != null && methodScope.isStatic)
+				return methodScope;
+			current = current.parent;
+		}
+		return null;
 	}
 
 	/* Answer the scope receiver type (could be parameterized)
@@ -2668,7 +2678,7 @@ public abstract class Scope {
 						if (methodBinding != null) { // skip it if we did not find anything
 							if (foundMethod == null) {
 								if (methodBinding.isValidBinding()) {
-									if (!methodBinding.isStatic() && (insideConstructorCall || insideStaticContext)) {
+									if (lacksRequiredInstanceScope(methodBinding, insideConstructorCall, insideStaticContext)) {
 										if (foundProblem != null && foundProblem.problemId() != ProblemReasons.NotVisible)
 											return foundProblem; // takes precedence
 										return new ProblemMethodBinding(
@@ -2873,6 +2883,18 @@ public abstract class Scope {
 			return foundProblem;
 
 		return new ProblemMethodBinding(selector, argumentTypes, ProblemReasons.NotFound);
+	}
+
+	boolean lacksRequiredInstanceScope(MethodBinding methodBinding, boolean insideConstructorCall, boolean insideStaticContext) {
+		if (methodBinding.isStatic())
+			return false; // target instance not needed
+		if (!insideConstructorCall && !insideStaticContext)
+			return false; // target instance available
+		if (insideConstructorCall && JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(compilerOptions())) {
+			if (!isInsideEarlyConstructionContext(methodBinding.declaringClass, false))
+				return false; // this case is excused
+		}
+		return true;
 	}
 
 	public final ReferenceBinding getJavaIoSerializable() {
@@ -3598,50 +3620,17 @@ public abstract class Scope {
 
 			// check on demand imports
 			if (imports != null) {
-				boolean foundInImport = false;
-				ReferenceBinding type = null;
-				for (ImportBinding someImport : imports) {
-					if (someImport.onDemand) {
-						Binding resolvedImport = someImport.getResolvedImport();
-						ReferenceBinding temp = null;
-						if (resolvedImport instanceof ModuleBinding) {
-							temp = findTypeInModule(name, (ModuleBinding) resolvedImport, currentPackage);
-						} else if (resolvedImport instanceof PackageBinding) {
-							temp = findType(name, (PackageBinding) resolvedImport, currentPackage);
-						} else if (someImport.isStatic()) {
-							// Imports are always resolved in the CU Scope (bug 520874)
-							temp = compilationUnitScope().findMemberType(name, (ReferenceBinding) resolvedImport); // static imports are allowed to see inherited member types
-							if (temp != null && !temp.isStatic())
-								temp = null;
-						} else {
-							temp = compilationUnitScope().findDirectMemberType(name, (ReferenceBinding) resolvedImport);
-						}
-						if (TypeBinding.notEquals(temp, type) && temp != null) {
-							if (temp.isValidBinding()) {
-								ImportReference importReference = someImport.reference;
-								if (importReference != null) {
-									importReference.bits |= ASTNode.Used;
-								}
-								if (foundInImport) {
-									// Answer error binding -- import on demand conflict; name found in two import on demand packages.
-									temp = new ProblemReferenceBinding(new char[][]{name}, type, ProblemReasons.Ambiguous);
-									if (typeOrPackageCache != null)
-										typeOrPackageCache.put(name, temp);
-									return temp;
-								}
-								type = temp;
-								foundInImport = true;
-							} else if (foundType == null) {
-								foundType = temp;
-							}
-						}
-					}
+				ReferenceBinding type = findTypeInOnDemandImports(imports, currentPackage, name, false, typeOrPackageCache);
+				if (type == null) { // module imports would otherwise be shadowed
+					type = findTypeInOnDemandImports(imports, currentPackage, name, true/*module imports*/, typeOrPackageCache);
 				}
-				if (type != null) {
+				if (type != null && type.isValidBinding()) {
 					if (typeOrPackageCache != null)
 						typeOrPackageCache.put(name, type);
 					return type;
 				}
+				if (foundType == null)
+					foundType = type;
 			}
 		}
 
@@ -3682,6 +3671,58 @@ public abstract class Scope {
 				typeOrPackageCache.put(name, foundType);
 		}
 		return foundType;
+	}
+
+	private ReferenceBinding findTypeInOnDemandImports(ImportBinding[] imports, PackageBinding currentPackage, char[] name,
+				boolean inModules, HashtableOfObject typeOrPackageCache) {
+		// this method is run in two iterations in order to let traditional imports shadow module imports
+		boolean foundInImport = false;
+		ReferenceBinding type = null;
+		ReferenceBinding problemType = null;
+		for (ImportBinding someImport : imports) {
+			if (someImport.onDemand) {
+				Binding resolvedImport = someImport.getResolvedImport();
+				ReferenceBinding temp = null;
+				if (inModules) {
+					if (resolvedImport instanceof ModuleBinding moduleBinding) {
+						temp = findTypeInModule(name, moduleBinding, currentPackage);
+					}
+				} else {
+					if (resolvedImport instanceof PackageBinding packageBinding) {
+						temp = findType(name, packageBinding, currentPackage);
+					} else if (resolvedImport instanceof ReferenceBinding referenceBinding) {
+						if (someImport.isStatic()) {
+							// Imports are always resolved in the CU Scope (bug 520874)
+							temp = compilationUnitScope().findMemberType(name, referenceBinding); // static imports are allowed to see inherited member types
+							if (temp != null && !temp.isStatic())
+								temp = null;
+						} else {
+							temp = compilationUnitScope().findDirectMemberType(name, referenceBinding);
+						}
+					}
+				}
+				if (TypeBinding.notEquals(temp, type) && temp != null) {
+					if (temp.isValidBinding()) {
+						ImportReference importReference = someImport.reference;
+						if (importReference != null) {
+							importReference.bits |= ASTNode.Used;
+						}
+						if (foundInImport) {
+							// Answer error binding -- import on demand conflict; name found in two import on demand packages.
+							temp = new ProblemReferenceBinding(new char[][]{name}, type, ProblemReasons.Ambiguous);
+							if (typeOrPackageCache != null)
+								typeOrPackageCache.put(name, temp);
+							return temp;
+						}
+						type = temp;
+						foundInImport = true;
+					} else if (problemType == null) {
+						problemType = temp;
+					}
+				}
+			}
+		}
+		return type != null ? type : problemType;
 	}
 
 	private ReferenceBinding findTypeInModule(char[] name, ModuleBinding moduleBinding, PackageBinding currentPackage) {
@@ -5639,21 +5680,25 @@ public abstract class Scope {
 				methodScope = methodScope.enclosingMethodScope();
 			}
 		}
+		boolean isFlexibleConstructorsEnabled = methodScope != null
+				&& JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(methodScope.compilerOptions());
 		MethodBinding enclosingMethod = enclosingType != null ? enclosingType.enclosingMethod() : null;
 		while (methodScope != null) {
 			while (methodScope != null && methodScope.referenceContext instanceof LambdaExpression) {
 				LambdaExpression lambda = (LambdaExpression) methodScope.referenceContext;
 				SourceTypeBinding lambdaEnclosingType = methodScope.classScope().referenceContext.binding;
-				if (methodScope.isConstructorCall) {
+				boolean insideEarlyConstructionContext = isFlexibleConstructorsEnabled &&
+						methodScope.isInsideEarlyConstructionContext(lambdaEnclosingType, false);
+				if (methodScope.isConstructorCall || insideEarlyConstructionContext) {
 					ReferenceBinding tmp = lambdaEnclosingType;
 					while ((tmp = tmp.enclosingType()) != null) {
 						if (!TypeBinding.equalsEquals(enclosingType, tmp)) continue;
-						lambda.mapSyntheticEnclosingTypes.computeIfAbsent((SourceTypeBinding) enclosingType, lambda::addSyntheticArgument);
+						lambda.ensureSyntheticOuterAccess((SourceTypeBinding) enclosingType);
 						lambda.hasOuterClassMemberReference = true; // ref to Outer class members allowed - interpreting 8.8.7.1
 						break;
 					}
 				}
-				if (!typeVariableAccess && !lambda.scope.isStatic && !lambda.hasOuterClassMemberReference)
+				if (!typeVariableAccess && !lambda.scope.isStatic && !lambda.hasOuterClassMemberReference && !insideEarlyConstructionContext)
 					lambda.shouldCaptureInstance = true;  // lambda can still be static, only when `this' is touched (implicitly or otherwise) it cannot be.
 				methodScope = methodScope.enclosingMethodScope();
 			}
@@ -5793,6 +5838,11 @@ public abstract class Scope {
 			skope = skope.parent;
 		}
 		return list;
+	}
+
+	public boolean isInStaticContext() {
+		MethodScope methodScope = methodScope();
+		return methodScope != null && methodScope.isStatic;
 	}
 
 	public void include(LocalVariableBinding[] bindings) {

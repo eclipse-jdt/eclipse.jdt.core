@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -8,6 +8,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
@@ -56,13 +57,13 @@ public static Class[] getAllTestClasses() {
 		ASTConverter_15Test.class,
 		ASTConverter_16Test.class,
 		ASTConverter_17Test.class,
-		ASTConverter_23Test.class,
+		ModuleImportASTConverterTest.class,
 		ASTConverter_GuardedPattern_Test.class,
 		ASTConverter_RecordPattern_Test.class,
 		ASTConverterSuperAfterStatements.class,
 		ASTConverterEitherOrMultiPatternTest.class,
 		CompilationUnitResolverDiscoveryTest.class,
-		//ASTConverterMarkdownTest.class
+		ASTConverterMarkdownTest.class
 	};
 }
 public static Test suite() {

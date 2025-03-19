@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023, 2024 Red Hat, Inc. and others.
+ * Copyright (c) 2023, 2025 Red Hat, Inc. and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,9 +11,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
@@ -30,7 +33,7 @@ import org.junit.Test;
 
 public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	public static boolean optimizeStringLiterals = false;
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 23");
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 24");
 	private static final String[] VMARGS = new String[] {"--enable-preview"};
 
 	static {
@@ -58,7 +61,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	}
 
 	public static junit.framework.Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_23);
+		return buildMinimalComplianceTestSuite(testClass(), F_24);
 	}
 	@Override
 	protected Map<String, String> getCompilerOptions() {
@@ -67,9 +70,9 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean previewFlag) {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_23);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_23);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_23);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_24);
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_24);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_24);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, previewFlag ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return defaultOptions;
@@ -78,7 +81,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	protected void runConformTest(String[] testFiles, String expectedOutput) {
 		if(!isJRE23Plus)
 			return;
-		runConformTest(testFiles, expectedOutput, null, VMARGS, new JavacTestOptions("-source 23 --enable-preview"));
+		runConformTest(testFiles, expectedOutput, null, VMARGS, new JavacTestOptions("-source 24 --enable-preview"));
 	}
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
@@ -98,7 +101,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 		runner.runNegativeTest();
 	}
 	private CompilationUnitDeclaration parse(String source, String testName) {
-		this.complianceLevel = ClassFileConstants.JDK23;
+		this.complianceLevel = ClassFileConstants.JDK24;
 		/* using regular parser in DIET mode */
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.enablePreviewFeatures = true;
@@ -259,7 +262,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	}
 	// Test implicit type with a valid candidate main method (public but no static, and String[] argument)
 	@Test
-	public void testImplicitType006() {
+	public void testImplicitType006() throws IOException, ClassFormatException {
 		try {
 			runConformTest(
 					new String[] {"X.java",
@@ -268,6 +271,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 							System.out.println("Hello");
 						}"""},
 					"Hello");
+			verifyClassFile("version 24 : 68.65535", "X.class", ClassFileBytesDisassembler.SYSTEM);
 		} finally {
 		}
 	}
@@ -376,6 +380,22 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 				"""
 		},
 		"Enter:",
+		null,
+		VMARGS,
+		JavacTestOptions.SKIP);
+	}
+	public void testGH3714() {
+		runConformTest(new String[] {
+				"Main.java",
+				"""
+				import static java.io.IO.*;
+				public class Main {
+					public static void main(String[] args) {
+						println("Hello");
+					}
+				}"""
+		},
+		"Hello",
 		null,
 		VMARGS,
 		JavacTestOptions.SKIP);

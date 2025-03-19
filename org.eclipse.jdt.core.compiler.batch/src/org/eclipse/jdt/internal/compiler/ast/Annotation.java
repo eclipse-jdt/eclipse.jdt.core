@@ -376,16 +376,6 @@ public abstract class Annotation extends Expression {
 					}
 				}
 				break;
-			case TypeIds.T_JdkInternalPreviewFeature :
-				tagBits |= TagBits.AnnotationPreviewFeature;
-				for (MemberValuePair memberValuePair : memberValuePairs()) {
-					if (CharOperation.equals(memberValuePair.name, TypeConstants.ESSENTIAL_API)) {
-						if (memberValuePair.value instanceof TrueLiteral) {
-							tagBits |= TagBits.EssentialAPI;
-						}
-					}
-				}
-				break;
 			// marker annotations
 			case TypeIds.T_JavaLangDeprecated :
 				tagBits |= TagBits.AnnotationDeprecated;
