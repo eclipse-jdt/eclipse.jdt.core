@@ -74,7 +74,6 @@ import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.ModuleType;
 import com.sun.tools.javac.code.Type.PackageType;
 import com.sun.tools.javac.code.Type.TypeVar;
-import com.sun.tools.javac.code.Type.UnknownType;
 import com.sun.tools.javac.comp.Modules;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.TreeInfo;
@@ -731,7 +730,7 @@ public class JavacBindingResolver extends BindingResolver {
 	ITypeBinding resolveType(TypeDeclaration type) {
 		resolve();
 		JCTree javacNode = this.converter.domToJavac.get(type);
-		if (javacNode instanceof JCClassDecl jcClassDecl && javacNode.type instanceof UnknownType && "<any?>".equals(javacNode.type.toString())) {
+		if (javacNode instanceof JCClassDecl jcClassDecl && "<any?>".equals(javacNode.type.toString())) {
 			return new JavacErrorTypeBinding(javacNode.type, javacNode.type.tsym, null, true, JavacBindingResolver.this, jcClassDecl.sym);
 		}
 		if (javacNode instanceof JCClassDecl jcClassDecl && jcClassDecl.type != null) {

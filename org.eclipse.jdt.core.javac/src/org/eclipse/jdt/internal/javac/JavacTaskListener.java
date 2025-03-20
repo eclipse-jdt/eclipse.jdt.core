@@ -52,7 +52,6 @@ import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ArrayType;
 import com.sun.tools.javac.code.Type.MethodType;
-import com.sun.tools.javac.code.Type.UnknownType;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCFieldAccess;
 import com.sun.tools.javac.tree.JCTree.JCIdent;
@@ -177,7 +176,7 @@ public class JavacTaskListener implements TaskListener {
 				public Void visitMemberSelect(MemberSelectTree node, Void p) {
 					if (node instanceof JCFieldAccess field) {
 						if (field.sym != null &&
-							!(field.type instanceof MethodType || field.type instanceof UnknownType)) {
+							!(field.type instanceof MethodType || "<any?>".equals(field.type.toString()))) {
 							recordQualifiedReference(node.toString(), false);
 							if (field.sym instanceof VarSymbol) {
 								TypeSymbol elementSymbol = field.type.tsym;

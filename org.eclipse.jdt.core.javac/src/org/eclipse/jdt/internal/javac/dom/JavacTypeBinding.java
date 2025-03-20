@@ -457,7 +457,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			builder.append(';');
 			return;
 		}
-		if (typeToBuild.hasTag(TypeTag.UNKNOWN)) {
+		if (typeToBuild.hasTag(TypeTag.NONE)) {
 			builder.append('*');
 			return;
 		}
@@ -596,7 +596,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		if (this.type.isPrimitive()) {
 			// use Javac signature to get correct variable name
 			StringBuilder res = new StringBuilder();
-			var generator = new Types.SignatureGenerator(this.types) {
+			var generator = this.types.new SignatureGenerator() {
 				@Override
 				protected void append(char ch) {
 					res.append(ch);
