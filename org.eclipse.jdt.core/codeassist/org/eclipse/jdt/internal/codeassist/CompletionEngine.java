@@ -2164,9 +2164,12 @@ public final class CompletionEngine
 							contextAccepted = true;
 							buildContext(importReference, null, parsedUnit, null, null);
 							if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
-								setSourceAndTokenRange(importReference.sourceStart, importReference.sourceEnd);
-								CompletionOnKeyword keyword = (CompletionOnKeyword)importReference;
-								findKeywords(keyword.getToken(), keyword.getPossibleKeywords(), false, parsedUnit.currentPackage != null);
+								// do not suggest `import` or `package` keywords if the cursor is before an existing package declaration
+								if (parsedUnit.currentPackage == null || importReference.sourceStart >= parsedUnit.currentPackage.sourceStart) {
+									setSourceAndTokenRange(importReference.sourceStart, importReference.sourceEnd);
+									CompletionOnKeyword keyword = (CompletionOnKeyword)importReference;
+									findKeywords(keyword.getToken(), keyword.getPossibleKeywords(), false, parsedUnit.currentPackage != null);
+								}
 							}
 							debugPrintf();
 							return;

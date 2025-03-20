@@ -9177,7 +9177,7 @@ public void testCompletionKeywordImport7() throws JavaModelException {
 		cu.codeComplete(cursorLocation, requestor);
 
 		assertEquals(
-			"element:import    completion:import    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
+			"",
 			requestor.getResults());
 }
 public void testCompletionKeywordImport8() throws JavaModelException {
