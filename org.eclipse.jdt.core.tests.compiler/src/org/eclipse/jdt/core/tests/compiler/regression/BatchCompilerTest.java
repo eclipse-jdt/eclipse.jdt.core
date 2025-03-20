@@ -13204,4 +13204,126 @@ public void test3445() {
 	}
 }
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3827
+// ECJ Incorrectly Compiles Java Switch Expressions from JEP 325 under --release 8 and --release 11
+public void testIssue3827() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+				    public static void main(String[] args) {
+				        int num = 0;
+				        switch(num) {
+				            case 0 ->
+				                System.out.println("Zero");
+				            case 1 ->
+				                System.out.println("One");
+				            default ->
+				                System.out.println("Other");
+				        }
+				    }
+				}
+				"""
+				},
+				"\"" + OUTPUT_DIR +  File.separator + "X.java\" "
+				+ " -failOnWarning"
+				+ " -1.8 "
+				+ "-d \"" + OUTPUT_DIR + "\"",
+				"",
+				"----------\n" +
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
+				"	case 0 ->\n" +
+				"	^^^^^^\n" +
+				"Arrow in case statement supported from Java 14 onwards only\n" +
+				"----------\n" +
+				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
+				"	case 1 ->\n" +
+				"	^^^^^^\n" +
+				"Arrow in case statement supported from Java 14 onwards only\n" +
+				"----------\n" +
+				"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 9)\n" +
+				"	default ->\n" +
+				"	^^^^^^^\n" +
+				"Arrow in case statement supported from Java 14 onwards only\n" +
+				"----------\n" +
+				"3 problems (3 errors)\n",
+				true);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3827
+// ECJ Incorrectly Compiles Java Switch Expressions from JEP 325 under --release 8 and --release 11
+public void testIssue3827_2() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+				    public static void main(String[] args) {
+				        int num = 0;
+				        switch(num) {
+				            case 0 ->
+				                System.out.println("Zero");
+				            case 1 ->
+				                System.out.println("One");
+				            default ->
+				                System.out.println("Other");
+				        }
+				    }
+				}
+				"""
+				},
+				"\"" + OUTPUT_DIR +  File.separator + "X.java\" "
+				+ " -failOnWarning"
+				+ " -13 "
+				+ "-d \"" + OUTPUT_DIR + "\"",
+				"",
+				"----------\n" +
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" +
+				"	case 0 ->\n" +
+				"	^^^^^^\n" +
+				"Arrow in case statement supported from Java 14 onwards only\n" +
+				"----------\n" +
+				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 7)\n" +
+				"	case 1 ->\n" +
+				"	^^^^^^\n" +
+				"Arrow in case statement supported from Java 14 onwards only\n" +
+				"----------\n" +
+				"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 9)\n" +
+				"	default ->\n" +
+				"	^^^^^^^\n" +
+				"Arrow in case statement supported from Java 14 onwards only\n" +
+				"----------\n" +
+				"3 problems (3 errors)\n",
+				true);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3827
+// ECJ Incorrectly Compiles Java Switch Expressions from JEP 325 under --release 8 and --release 11
+public void testIssue3827_3() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+				    public static void main(String[] args) {
+				        int num = 0;
+				        switch(num) {
+				            case 0 ->
+				                System.out.println("Zero");
+				            case 1 ->
+				                System.out.println("One");
+				            default ->
+				                System.out.println("Other");
+				        }
+				    }
+				}
+				"""
+				},
+				"\"" + OUTPUT_DIR +  File.separator + "X.java\" "
+				+ " -failOnWarning"
+				+ " -14 "
+				+ "-d \"" + OUTPUT_DIR + "\"",
+				"",
+				"",
+				true);
+}
 }
