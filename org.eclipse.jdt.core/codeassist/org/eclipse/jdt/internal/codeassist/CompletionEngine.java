@@ -51,7 +51,6 @@ import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.SearchRequestor;
 import org.eclipse.jdt.internal.codeassist.complete.*;
-import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 import org.eclipse.jdt.internal.codeassist.impl.AssistParser;
 import org.eclipse.jdt.internal.codeassist.impl.Engine;
 import org.eclipse.jdt.internal.codeassist.impl.Keywords;
@@ -4186,7 +4185,7 @@ public final class CompletionEngine
 		}
 	}
 
-	static int computeBaseRelevance(){
+	int computeBaseRelevance(){
 		return R_DEFAULT;
 	}
 
@@ -4805,10 +4804,6 @@ public final class CompletionEngine
 	}
 
 	int computeRelevanceForCaseMatching(char[] token, char[] proposalName) {
-		return computeRelevanceForCaseMatching(token, proposalName, this.options);
-	}
-
-	static int computeRelevanceForCaseMatching(char[] token, char[] proposalName, AssistOptions options) {
 		if (CharOperation.equals(token, proposalName, true)) {
 			return R_EXACT_NAME + R_CASE;
 		} else if (CharOperation.equals(token, proposalName, false)) {
@@ -4816,11 +4811,11 @@ public final class CompletionEngine
 		} else if (CharOperation.prefixEquals(token, proposalName, false)) {
 			if (CharOperation.prefixEquals(token, proposalName, true))
 				return R_CASE;
-		} else if (options.camelCaseMatch && CharOperation.camelCaseMatch(token, proposalName)) {
+		} else if (this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, proposalName)) {
 			return R_CAMEL_CASE;
-		} else if (options.substringMatch && CharOperation.substringMatch(token, proposalName)) {
+		} else if (this.options.substringMatch && CharOperation.substringMatch(token, proposalName)) {
 			return R_SUBSTRING;
-		} else if (options.subwordMatch && CharOperation.subWordMatch(token, proposalName)) {
+		} else if (this.options.subwordMatch && CharOperation.subWordMatch(token, proposalName)) {
 			return R_SUBWORD;
 		}
 		return 0;
@@ -5019,18 +5014,18 @@ public final class CompletionEngine
 		return 0;
 	}
 
-	static int computeRelevanceForResolution(){
+	int computeRelevanceForResolution(){
 		return computeRelevanceForResolution(true);
 	}
 
-	static int computeRelevanceForResolution(boolean isResolved){
+	int computeRelevanceForResolution(boolean isResolved){
 		if (isResolved) {
 			return R_RESOLVED;
 		}
 		return 0;
 	}
 
-	static int computeRelevanceForRestrictions(int accessRuleKind) {
+	int computeRelevanceForRestrictions(int accessRuleKind) {
 		if(accessRuleKind == IAccessRule.K_ACCESSIBLE) {
 			return R_NON_RESTRICTED;
 		}
@@ -13681,20 +13676,15 @@ public final class CompletionEngine
 	 * <code>false</code> otherwise
 	 */
 	private boolean isFailedMatch(char[] token, char[] name) {
-		return isFailedMatch(token, name, this.options);
-	}
-
-	static boolean isFailedMatch(char[] token, char[] name, AssistOptions opt) {
-		if ((opt.substringMatch && CharOperation.substringMatch(token, name))
-				|| (opt.camelCaseMatch && CharOperation.camelCaseMatch(token, name))
+		if ((this.options.substringMatch && CharOperation.substringMatch(token, name))
+				|| (this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, name))
 				|| CharOperation.prefixEquals(token, name, false)
-				|| (opt.subwordMatch && CharOperation.subWordMatch(token, name))) {
+				|| (this.options.subwordMatch && CharOperation.subWordMatch(token, name))) {
 			return false;
 		}
 
 		return true;
 	}
-
 	private boolean isForbidden(ReferenceBinding binding) {
 		for (int i = 0; i <= this.forbbidenBindingsPtr; i++) {
 			if(this.forbbidenBindings[i] == binding) {

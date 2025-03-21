@@ -70,7 +70,6 @@ import org.eclipse.text.edits.UndoEdit;
  */
 public class CompilationUnit extends Openable implements ICompilationUnit, org.eclipse.jdt.internal.compiler.env.ICompilationUnit, SuffixConstants {
 	public static boolean DOM_BASED_OPERATIONS = Boolean.getBoolean(CompilationUnit.class.getSimpleName() + ".DOM_BASED_OPERATIONS"); //$NON-NLS-1$
-
 	private static final IImportDeclaration[] NO_IMPORTS = new IImportDeclaration[0];
 
 	protected final String name;
@@ -449,10 +448,14 @@ public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyO
 
 @Override
 public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner workingCopyOwner, IProgressMonitor monitor) throws JavaModelException {
-
-	codeComplete(this,
+	codeComplete(
+			this,
 			isWorkingCopy() ? (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) getOriginalElement() : this,
-			offset, requestor, workingCopyOwner, this, monitor);
+			offset,
+			requestor,
+			workingCopyOwner,
+			this,
+			monitor);
 }
 
 /**

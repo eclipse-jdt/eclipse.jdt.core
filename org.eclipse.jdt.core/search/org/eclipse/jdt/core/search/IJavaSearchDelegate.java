@@ -24,7 +24,7 @@ import org.eclipse.jdt.internal.core.search.matching.PossibleMatch;
  *
  * This interface makes use of internal classes and is not considered stable or API.
  *
- * @since 3.42
+ * @since 3.41
  */
 public interface IJavaSearchDelegate {
 
