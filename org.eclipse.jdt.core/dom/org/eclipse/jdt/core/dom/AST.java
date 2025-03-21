@@ -511,7 +511,7 @@ public final class AST {
 	 * up to and including Java SE 24(aka JDK 24).
 	 * </p>
 	 *
-	 * @since 3.41
+	 * @since 3.42
 	 */
 	public static final int JLS24 = 24;
 	/**
