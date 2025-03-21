@@ -85,7 +85,7 @@
         	<groupId>org.eclipse.tycho</groupId>
         	<artifactId>target-platform-configuration</artifactId>
         	<configuration>
-        		<executionEnvironment>JavaSE-23</executionEnvironment> <!-- Overrides one from .target -->
+        		<executionEnvironment>JavaSE-24</executionEnvironment> <!-- Overrides one from .target -->
         	</configuration>
         </plugin>
         <plugin>

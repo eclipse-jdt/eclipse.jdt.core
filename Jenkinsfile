@@ -77,7 +77,7 @@ pipeline {
 						-pl org.eclipse.jdt.core.compiler.batch,org.eclipse.jdt.core,org.eclipse.jdt.core.javac,org.eclipse.jdt.core.javac.feature,org.eclipse.jdt.core.tests.model,org.eclipse.jdt.core.tests.compiler,repository
 
 					mvn verify --batch-mode -f org.eclipse.jdt.core.tests.javac -Dmaven.repo.local=$WORKSPACE/.m2/repository \
-						--fail-at-end -Ptest-on-javase-23 -Pbree-libs \
+						--fail-at-end -Ptest-on-javase-24 -Pbree-libs \
 						-DfailIfNoTests=false -DexcludedGroups=org.junit.Ignore -DproviderHint=junit47 \
 						-Papi-check -Djava.io.tmpdir=$WORKSPACE/tmp -Dproject.build.sourceEncoding=UTF-8 \
 						-Dmaven.test.failure.ignore=true -Dmaven.test.error.ignore=true  
