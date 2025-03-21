@@ -13220,7 +13220,7 @@ public final class CompletionEngine
 								continue next;
 
 							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=328674
-							if (local.declaration.initialization != null && !local.declaration.type.isTypeNameVar(null)) {
+							if (local.declaration.initialization != null && !local.declaration.isTypeNameVar(local.declaringScope)) {
 								// proposal being asked inside field's initialization. Don't propose this field.
 								continue next;
 							}
