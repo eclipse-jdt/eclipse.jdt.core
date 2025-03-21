@@ -25,7 +25,13 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.OperatorOverloadInvocationSite;
+import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class UnaryExpression extends OperatorExpression {
 
@@ -69,47 +75,22 @@ public class UnaryExpression extends OperatorExpression {
 		else
 			tb = this.expression.resolvedType;
 
-		final TypeBinding expectedTypeLocal = this.expectedType;
+		final TypeBinding targetType = tb;
+
 		OperatorOverloadInvocationSite fakeInvocationSite = new OperatorOverloadInvocationSite(){
 			@Override
-			public TypeBinding[] genericTypeArguments() { return null; }
-			@Override
-			public boolean isSuperAccess(){ return false; }
-			@Override
-			public boolean isTypeAccess() { return true; }
-			@Override
-			public void setActualReceiverType(ReferenceBinding actualReceiverType) { /* ignore */}
-			@Override
-			public void setDepth(int depth) { /* ignore */}
-			@Override
-			public void setFieldIndex(int depth){ /* ignore */}
-			@Override
-			public int sourceStart() { return 0; }
-			@Override
-			public int sourceEnd() { return 0; }
-			@Override
-			public TypeBinding getExpectedType() {
-				return expectedTypeLocal;
+			public TypeBinding invocationTargetType() {
+				return targetType;
 			}
 			@Override
-			public TypeBinding invocationTargetType() { return null; }
-			@Override
-			public boolean receiverIsImplicitThis() { return false; }
-			@Override
-			public InferenceContext18 freshInferenceContext(Scope s) { return null; }
-			@Override
-			public ExpressionContext getExpressionContext() { return null; }
-			@Override
-			public boolean isQualifiedSuper() { return false; }
-			@Override
-			public boolean checkingPotentialCompatibility() { return false; }
-			@Override
-			public void acceptPotentiallyCompatibleMethods(MethodBinding[] methods) {/* ignore */}
+			public Expression[] arguments() {
+				return null;
+			}
 		};
 
 		String ms = getMethodName();
 
-		MethodBinding mb2 = scope.getMethod(tb, ms.toCharArray(), new TypeBinding[]{},  fakeInvocationSite);
+		MethodBinding mb2 = scope.getMethod(tb, ms.toCharArray(), new TypeBinding[]{}, fakeInvocationSite);
 		return mb2;
 	}
 

@@ -9,11 +9,9 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.OperatorOverloadInvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -136,8 +134,8 @@ public Constant resolveCase(BlockScope scope, TypeBinding switchExpressionType, 
 		}
 		return Constant.NotAConstant;
 	}
-	switchStatement.cases[switchStatement.caseCount++] = this;
 	// add into the collection of cases of the associated switch statement
+	switchStatement.cases[switchStatement.caseCount++] = this;
 	if(this.constantExpression.resolvedType == null){
 		this.constantExpression.resolveType(scope);
 		if(this.constantExpression.resolvedType == null)
@@ -160,7 +158,7 @@ public Constant resolveCase(BlockScope scope, TypeBinding switchExpressionType, 
 			this.thisReference.resolveType(scope);
 		this.thisReference.computeConversion(scope, this.thisReference.resolvedType, this.thisReference.resolvedType);
 		this.constantExpression.computeConversion(scope, this.appropriateMethodForOverload.parameters[0], this.constantExpression.resolvedType);
-	}else{
+	} else {
 		scope.problemReporter().invalidOrMissingOverloadedOperator(this, getMethodName(), this.constantExpression.resolvedType);
 		return Constant.NotAConstant;
 	}
@@ -168,7 +166,7 @@ public Constant resolveCase(BlockScope scope, TypeBinding switchExpressionType, 
 }
 
 @Override
-public void traverse(ASTVisitor visitor, 	BlockScope blockScope) {
+public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {
 		if (this.constantExpression != null) this.constantExpression.traverse(visitor, blockScope);
 	}
@@ -179,8 +177,7 @@ public void traverse(ASTVisitor visitor, 	BlockScope blockScope) {
  * new Milan: CASE
  */
 
-public MethodBinding getMethodBindingForOverloadForCASE(BlockScope scope) {
-	TypeBinding tb = null;
+public MethodBinding getMethodBindingForOverloadForCASE(final BlockScope scope) {
 	TypeBinding [] tb_right;
 	String ms;
 	if(this.defaultStatement)
@@ -190,41 +187,21 @@ public MethodBinding getMethodBindingForOverloadForCASE(BlockScope scope) {
 
 	ms = getMethodName();
 
-	tb = scope.parent.classScope().referenceContext.binding;
-	InvocationSite fakeInvocationSite = new InvocationSite(){
+	final TypeBinding tb = scope.parent.classScope().referenceContext.binding;
+	final Expression [] arguments = new Expression[] { this.constantExpression };
+
+	InvocationSite fakeInvocationSite = new OperatorOverloadInvocationSite() {
 		@Override
-		public TypeBinding[] genericTypeArguments() { return null; }
+		public TypeBinding invocationTargetType() {
+			return CASE_Statement.this.expectedType();
+		}
 		@Override
-		public boolean isSuperAccess(){ return false; }
-		@Override
-		public boolean isTypeAccess() { return true; }
-		@Override
-		public void setActualReceiverType(ReferenceBinding actualReceiverType) { /* ignore */}
-		@Override
-		public void setDepth(int depth) { /* ignore */}
-		@Override
-		public void setFieldIndex(int depth){ /* ignore */}
-		@Override
-		public int sourceStart() { return 0; }
-		@Override
-		public int sourceEnd() { return 0; }
-		@Override
-		public TypeBinding invocationTargetType() { return null; }
-		@Override
-		public boolean receiverIsImplicitThis() { return false; }
-		@Override
-		public InferenceContext18 freshInferenceContext(Scope s) { return null; }
-		@Override
-		public ExpressionContext getExpressionContext() { return null; }
-		@Override
-		public boolean isQualifiedSuper() { return false; }
-		@Override
-		public boolean checkingPotentialCompatibility() { return false; }
-		@Override
-		public void acceptPotentiallyCompatibleMethods(MethodBinding[] methods) {/* ignore */}
+		public Expression[] arguments() {
+			return arguments;
+		}
 	};
 
-	MethodBinding mb2 = scope.parent.getMethod(tb, ms.toCharArray(), tb_right,  fakeInvocationSite);
+	MethodBinding mb2 = scope.parent.getMethod(tb, ms.toCharArray(), tb_right, fakeInvocationSite);
 	return mb2;
 }
 

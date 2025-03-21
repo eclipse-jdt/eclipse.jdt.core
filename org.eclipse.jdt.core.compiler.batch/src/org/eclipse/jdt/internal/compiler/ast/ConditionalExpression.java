@@ -46,7 +46,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class ConditionalExpression extends OperatorExpression implements IPolyExpression, InvocationSite {
+public class ConditionalExpression extends OperatorExpression implements IPolyExpression {
 
 	public Expression condition, valueIfTrue, valueIfFalse;
 	public Constant optimizedBooleanConstant;
@@ -947,56 +947,61 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	}
 
 	public MethodBinding getMethodBindingForOverload(BlockScope scope) {
-		TypeBinding tb_cond;
+		final TypeBinding tb_cond = this.condition.resolvedType == null ? this.condition.resolveType(scope) : this.condition.resolvedType;
+		this.originalValueIfFalseType = this.valueIfFalse.resolvedType == null ? this.valueIfFalse.resolveType(scope) : this.valueIfFalse.resolvedType;
+		this.originalValueIfTrueType = this.valueIfTrue.resolvedType == null ? this.valueIfTrue.resolveType(scope) : this.valueIfTrue.resolvedType;
+		final Expression [] arguments = new Expression[] { this.valueIfTrue, this.valueIfFalse };
 
-		if(this.condition.resolvedType == null)
-			tb_cond = this.condition.resolveType(scope);
-		else
-			tb_cond = this.condition.resolvedType;
-
-		if (tb_cond == null || tb_cond.isBoxedPrimitiveType() || tb_cond.isBaseType()) {
-			return null;
-		}
-
-		if(this.valueIfTrue.resolvedType == null)
-			this.originalValueIfTrueType = this.valueIfTrue.resolveType(scope);
-		else
-			this.originalValueIfTrueType = this.valueIfTrue.resolvedType;
-
-		if(this.valueIfFalse.resolvedType == null)
-			this.originalValueIfFalseType = this.valueIfFalse.resolveType(scope);
-		else
-			this.originalValueIfFalseType = this.valueIfFalse.resolvedType;
+		Invocation fakeInvocationSite = new OperatorOverloadInvocationSite(){
+			@Override
+			public TypeBinding invocationTargetType() {
+				return ConditionalExpression.this.expectedType();
+			}
+			@Override
+			public ExpressionContext getExpressionContext() {
+				return ConditionalExpression.this.getExpressionContext();
+			}
+			@Override
+			public Expression[] arguments() {
+				return arguments;
+			}
+		};
 
 		String ms = getMethodName();
 
 		MethodBinding mb2 = null;
 		if (this.originalValueIfTrueType != null && this.originalValueIfFalseType != null) {
-			this.resolvingMethod = true;
-			mb2 = scope.getMethod(tb_cond, ms.toCharArray(), new TypeBinding[]{this.originalValueIfTrueType, this.originalValueIfFalseType},  this);
+			mb2 = scope.getMethod(tb_cond, ms.toCharArray(), new TypeBinding[]{this.originalValueIfTrueType, this.originalValueIfFalseType}, fakeInvocationSite);
 		}
 		return mb2;
 	}
 
 	private MethodBinding existEqFunction(BlockScope scope, EqualExpression localCondition) {
-		TypeBinding tb_right = null;
-		TypeBinding tb_left = null;
+		final TypeBinding tb_right = localCondition.right.resolvedType == null ? localCondition.right.resolveType(scope) : localCondition.right.resolvedType;
+		final TypeBinding tb_left = localCondition.left.resolvedType == null ? localCondition.left.resolveType(scope) : localCondition.left.resolvedType;
+		final TypeBinding[] tb_args = new TypeBinding[] { tb_right };
+		final Expression[] arguments = new Expression[] { localCondition.left, localCondition.right };
 
-		if(localCondition.left.resolvedType == null)
-			tb_left = localCondition.left.resolveType(scope);
-		else
-			tb_left = localCondition.left.resolvedType;
-
-		if(localCondition.right.resolvedType == null)
-			tb_right = localCondition.right.resolveType(scope);
-		else
-			tb_right = localCondition.right.resolvedType;
+		OperatorOverloadInvocationSite fakeInvocationSite = new OperatorOverloadInvocationSite() {
+			@Override
+			public TypeBinding invocationTargetType() {
+				return ConditionalExpression.this.expectedType();
+			}
+			@Override
+			public ExpressionContext getExpressionContext() {
+				return ConditionalExpression.this.getExpressionContext();
+			}
+			@Override
+			public Expression[] arguments() {
+				return arguments;
+			}
+		};
 
 		String ms = "eq"; //$NON-NLS-1$
 
 		MethodBinding mb2 = null;
 		if ((tb_left!=null) && (tb_right!=null) /*&& (tb_left.id == tb_right.id)*/) {
-			mb2 = scope.getMethod(tb_left, ms.toCharArray(), new TypeBinding[]{tb_right}, localCondition);
+			mb2 = scope.getMethod(tb_left, ms.toCharArray(), tb_args, fakeInvocationSite);
 			if (mb2 == null || !mb2.isValidBinding() || TypeBinding.notEquals(tb_left, mb2.returnType)) {
 				return null;
 			}
@@ -1031,48 +1036,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 				else{
 					codeStream.invoke((original.declaringClass.isInterface()) ? Opcodes.OPC_invokeinterface : Opcodes.OPC_invokevirtual, original, original.declaringClass);
 				}
-				if (!this.appropriateMethodForOverload.returnType.isBaseType()) codeStream.checkcast(this.appropriateMethodForOverload.returnType);
+				if (!this.appropriateMethodForOverload.returnType.isBaseType())
+					codeStream.checkcast(this.appropriateMethodForOverload.returnType);
 
 			}
 			if (valueRequired) {
 				codeStream.generateImplicitConversion(this.implicitConversion);
 			}
 		}
-	}
-
-	@Override
-	public TypeBinding[] genericTypeArguments() {
-		return null;
-	}
-
-	@Override
-	public boolean isSuperAccess() {
-		return false;
-	}
-
-	@Override
-	public boolean isTypeAccess() {
-		return false;
-	}
-
-	@Override
-	public void setActualReceiverType(ReferenceBinding receiverType) {
-		// ignored
-	}
-
-	@Override
-	public void setDepth(int depth) {
-		// ignored
-	}
-
-	@Override
-	public void setFieldIndex(int depth) {
-		// ignored
-	}
-
-	@Override
-	public InferenceContext18 freshInferenceContext(Scope scope) {
-		return new InferenceContext18(scope, new Expression[] {this.valueIfTrue, this.valueIfFalse}, this, null);
 	}
 }
 

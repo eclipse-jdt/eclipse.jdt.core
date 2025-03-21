@@ -24,7 +24,15 @@ import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.OperatorOverloadInvocationSite;
+import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 public class ArrayReference extends Reference {
 
@@ -410,7 +418,7 @@ public MethodBinding getMethodBindingForOverload(BlockScope scope, Expression []
 	return getMethodBindingForOverload(scope, arguments, new TypeBinding[0], put);
 }
 
-public MethodBinding getMethodBindingForOverload(BlockScope scope, Expression [] arguments, TypeBinding[] types, boolean put) {
+public MethodBinding getMethodBindingForOverload(BlockScope scope, final Expression [] arguments, TypeBinding[] types, boolean put) {
 	//	if (set) return null;
 
 	TypeBinding [] tb_right = new TypeBinding[types.length + arguments.length];
@@ -433,46 +441,20 @@ public MethodBinding getMethodBindingForOverload(BlockScope scope, Expression []
 		tb_right[arguments.length + i] = types[i];
 		tbRightValid = tbRightValid && (tb_right[arguments.length + i] != null);
 	}
-	final TypeBinding expectedTypeLocal = this.expectedType;
-	OperatorOverloadInvocationSite fakeInvocationSite = new OperatorOverloadInvocationSite(){
+	if ((tb_left == null) || (!tbRightValid)) return null;
+	final TypeBinding targetType = tb_left;
+	OperatorOverloadInvocationSite fakeInvocationSite = new OperatorOverloadInvocationSite() {
 		@Override
-		public TypeBinding[] genericTypeArguments() { return null; }
-		@Override
-		public boolean isSuperAccess(){ return false; }
-		@Override
-		public boolean isTypeAccess() { return true; }
-		@Override
-		public void setActualReceiverType(ReferenceBinding actualReceiverType) { /* ignore */}
-		@Override
-		public void setDepth(int depth) { /* ignore */}
-		@Override
-		public void setFieldIndex(int depth){ /* ignore */}
-		@Override
-		public int sourceStart() { return 0; }
-		@Override
-		public int sourceEnd() { return 0; }
-		@Override
-		public TypeBinding getExpectedType() {
-			return expectedTypeLocal;
+		public TypeBinding invocationTargetType() {
+			return targetType;
 		}
 		@Override
-		public TypeBinding invocationTargetType() { return null; }
-		@Override
-		public boolean receiverIsImplicitThis() { return false; }
-		@Override
-		public InferenceContext18 freshInferenceContext(Scope s) { return null; }
-		@Override
-		public ExpressionContext getExpressionContext() { return null; }
-		@Override
-		public boolean isQualifiedSuper() { return false; }
-		@Override
-		public boolean checkingPotentialCompatibility() { return false; }
-		@Override
-		public void acceptPotentiallyCompatibleMethods(MethodBinding[] methods) {/* ignore */}
+		public Expression[] arguments() {
+			return arguments;
+		}
 	};
 
 	String ms = getMethodName(put);
-	if ((tb_left == null) || (!tbRightValid)) return null;
 	MethodBinding mb2 = scope.getMethod(tb_left, ms.toCharArray(), tb_right, fakeInvocationSite);
 	return mb2;
 }

@@ -26,7 +26,14 @@ import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.OperatorOverloadInvocationSite;
+import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class CompoundAssignment extends Assignment implements OperatorIds {
 	public int operator;
@@ -373,44 +380,18 @@ public String getBindingMethodName() {
 		return this.resolvedType = originalLhsType;
 	}
 
-	public MethodBinding getMethodBindingForOverload(BlockScope scope, TypeBinding left, TypeBinding right) {
+	public MethodBinding getMethodBindingForOverload(BlockScope scope, final TypeBinding left, TypeBinding right) {
 
-		final TypeBinding expectedTypeLocal = this.expectedType;
+		final Expression[] arguments = new Expression[] { this.expression };
 		OperatorOverloadInvocationSite fakeInvocationSite = new OperatorOverloadInvocationSite(){
 			@Override
-			public TypeBinding[] genericTypeArguments() { return null; }
-			@Override
-			public boolean isSuperAccess(){ return false; }
-			@Override
-			public boolean isTypeAccess() { return true; }
-			@Override
-			public void setActualReceiverType(ReferenceBinding actualReceiverType) { /* ignore */}
-			@Override
-			public void setDepth(int depth) { /* ignore */}
-			@Override
-			public void setFieldIndex(int depth){ /* ignore */}
-			@Override
-			public int sourceStart() { return 0; }
-			@Override
-			public int sourceEnd() { return 0; }
-			@Override
-			public TypeBinding getExpectedType() {
-				return expectedTypeLocal;
+			public TypeBinding invocationTargetType() {
+				return left;
 			}
 			@Override
-			public TypeBinding invocationTargetType() { return null; }
-			@Override
-			public boolean receiverIsImplicitThis() { return false; }
-			@Override
-			public InferenceContext18 freshInferenceContext(Scope s) { return null; }
-			@Override
-			public ExpressionContext getExpressionContext() { return null; }
-			@Override
-			public boolean isQualifiedSuper() { return false; }
-			@Override
-			public boolean checkingPotentialCompatibility() { return false; }
-			@Override
-			public void acceptPotentiallyCompatibleMethods(MethodBinding[] methods) {/* ignore */}
+			public Expression[] arguments() {
+				return arguments;
+			}
 		};
 
 		String ms = getBindingMethodName();

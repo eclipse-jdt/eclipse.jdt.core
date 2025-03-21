@@ -21,12 +21,9 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.SWITCH_FlowContext;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.OperatorOverloadInvocationSite;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -372,46 +369,24 @@ public class SWITCH_Statement extends Statement {
 		return "_END_SWITCH"; //$NON-NLS-1$
 	}
 
-	public MethodBinding getMethodBindingForOverloadForSWITCH(BlockScope localScope) {
-		TypeBinding tb = null;
-		TypeBinding [] tb_right = new TypeBinding[] {this.expression.resolvedType};
-		tb = localScope.parent.classScope().referenceContext.binding;
-		InvocationSite fakeInvocationSite = new InvocationSite(){
+	public MethodBinding getMethodBindingForOverloadForSWITCH(final BlockScope localScope) {
+		final TypeBinding [] tb_right = new TypeBinding[] {this.expression.resolvedType};
+		final TypeBinding tb = localScope.parent.classScope().referenceContext.binding;
+		final Expression[] arguments = new Expression[] { this.expression };
+		InvocationSite fakeInvocationSite = new OperatorOverloadInvocationSite(){
 			@Override
-			public TypeBinding[] genericTypeArguments() { return null; }
+			public TypeBinding invocationTargetType() {
+				return tb;
+			}
 			@Override
-			public boolean isSuperAccess(){ return false; }
-			@Override
-			public boolean isTypeAccess() { return true; }
-			@Override
-			public void setActualReceiverType(ReferenceBinding actualReceiverType) { /* ignore */}
-			@Override
-			public void setDepth(int depth) { /* ignore */}
-			@Override
-			public void setFieldIndex(int depth){ /* ignore */}
-			@Override
-			public int sourceStart() { return 0; }
-			@Override
-			public int sourceEnd() { return 0; }
-			@Override
-			public TypeBinding invocationTargetType() { return null; }
-			@Override
-			public boolean receiverIsImplicitThis() { return false; }
-			@Override
-			public InferenceContext18 freshInferenceContext(Scope s) { return null; }
-			@Override
-			public ExpressionContext getExpressionContext() { return null; }
-			@Override
-			public boolean isQualifiedSuper() { return false; }
-			@Override
-			public boolean checkingPotentialCompatibility() { return false; }
-			@Override
-			public void acceptPotentiallyCompatibleMethods(MethodBinding[] methods) {/* ignore */}
+			public Expression[] arguments() {
+				return arguments;
+			}
 		};
 
 		String ms = getMethodNameForSWITCH();
 
-		MethodBinding mb2 = localScope.parent.getMethod(tb, ms.toCharArray(), tb_right,  fakeInvocationSite);
+		MethodBinding mb2 = localScope.parent.getMethod(tb, ms.toCharArray(), tb_right, fakeInvocationSite);
 		return mb2;
 	}
 
@@ -442,50 +417,23 @@ public class SWITCH_Statement extends Statement {
 	/**
 	 * endswitch
 	 */
-	public MethodBinding getMethodBindingForOverloadForENDSWITCH(BlockScope localScope) {
-		TypeBinding tb = null;
-		TypeBinding [] tb_right = new TypeBinding[] {};
-		tb = localScope.parent.classScope().referenceContext.binding;
-		OperatorOverloadInvocationSite fakeInvocationSite = new OperatorOverloadInvocationSite(){
+	public MethodBinding getMethodBindingForOverloadForENDSWITCH(final BlockScope localScope) {
+		final TypeBinding [] tb_right = new TypeBinding[] {};
+		final TypeBinding tb = localScope.parent.classScope().referenceContext.binding;
+		InvocationSite fakeInvocationSite = new OperatorOverloadInvocationSite(){
 			@Override
-			public TypeBinding[] genericTypeArguments() { return null; }
-			@Override
-			public boolean isSuperAccess(){ return false; }
-			@Override
-			public boolean isTypeAccess() { return true; }
-			@Override
-			public void setActualReceiverType(ReferenceBinding actualReceiverType) { /* ignore */}
-			@Override
-			public void setDepth(int depth) { /* ignore */}
-			@Override
-			public void setFieldIndex(int depth){ /* ignore */}
-			@Override
-			public int sourceStart() { return 0; }
-			@Override
-			public int sourceEnd() { return 0; }
-			@Override
-			public TypeBinding getExpectedType() {
-				return null;
+			public TypeBinding invocationTargetType() {
+				return tb;
 			}
 			@Override
-			public TypeBinding invocationTargetType() { return null; }
-			@Override
-			public boolean receiverIsImplicitThis() { return false; }
-			@Override
-			public InferenceContext18 freshInferenceContext(Scope s) { return null; }
-			@Override
-			public ExpressionContext getExpressionContext() { return null; }
-			@Override
-			public boolean isQualifiedSuper() { return false; }
-			@Override
-			public boolean checkingPotentialCompatibility() { return false; }
-			@Override
-			public void acceptPotentiallyCompatibleMethods(MethodBinding[] methods) {/* ignore */}
+			public Expression[] arguments() {
+				return null;
+			}
 		};
 
 		String ms = getMethodNameForENDSWITCH();
 
-		MethodBinding mb2 = localScope.parent.getMethod(tb, ms.toCharArray(), tb_right,  fakeInvocationSite);
+		MethodBinding mb2 = localScope.parent.getMethod(tb, ms.toCharArray(), tb_right, fakeInvocationSite);
 		return mb2;
 	}
 
