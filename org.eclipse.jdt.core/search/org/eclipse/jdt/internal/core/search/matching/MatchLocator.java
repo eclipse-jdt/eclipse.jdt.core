@@ -1331,7 +1331,6 @@ protected void locateMatchesDefaultImpl(JavaProject javaProject, PossibleMatch[]
 					possibleMatch.cleanUp();
 			}
 		}
-
 		if (mustResolve)
 			this.lookupEnvironment.completeTypeBindings();
 
@@ -1525,7 +1524,7 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 				}
 				previousJavaProject = javaProject;
 			}
-			PossibleMatch possibleMatch = createPossibleMatch(this, resource, openable, searchDocument,this.pattern.mustResolve);
+			PossibleMatch possibleMatch = new PossibleMatch(this, resource, openable, searchDocument,this.pattern.mustResolve);
 			matchSet.add(possibleMatch);
 			if (pathString.endsWith(TypeConstants.AUTOMATIC_MODULE_NAME)) {
 				IPath path = resource.getFullPath();
@@ -1560,12 +1559,6 @@ public void locateMatches(SearchDocument[] searchDocuments) throws CoreException
 		this.bindingsByName = null;
 	}
 }
-
-protected PossibleMatch createPossibleMatch(MatchLocator locator, IResource resource, Openable openable, SearchDocument document, boolean mustResolve) {
-	return new PossibleMatch(locator, resource, openable, document, mustResolve);
-}
-
-
 private IJavaSearchScope getSubScope(String optionString, long value, boolean ref) {
 	if (this.subScope != null)
 		return this.subScope;
@@ -3324,8 +3317,7 @@ protected void reportMatching(TypeParameter[] typeParameters, IJavaElement enclo
 			if (level != null) {
 				if (level.intValue() > -1 && encloses(enclosingElement)) {
 					int offset = typeParameter.sourceStart;
-					int len = typeParameter.sourceEnd-offset+1;
-					SearchMatch match = this.patternLocator.newDeclarationMatch(typeParameter, enclosingElement, binding, level.intValue(), len, this, false);
+					SearchMatch match = this.patternLocator.newDeclarationMatch(typeParameter, enclosingElement, binding, level.intValue(), typeParameter.sourceEnd-offset+1, this);
 					report(match);
 				}
 			}
