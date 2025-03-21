@@ -54,11 +54,11 @@ import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
+import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.internal.codeassist.KeyUtils;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.core.BinaryType;
@@ -70,13 +70,10 @@ import org.eclipse.jdt.internal.core.SourceType;
 import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.code.TypeTag;
-import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.code.Kinds.Kind;
 import com.sun.tools.javac.code.Kinds.KindSelector;
 import com.sun.tools.javac.code.Scope.LookupKind;
+import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.CompletionFailure;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
@@ -85,6 +82,7 @@ import com.sun.tools.javac.code.Symbol.RootPackageSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ArrayType;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.ErrorType;
@@ -94,6 +92,8 @@ import com.sun.tools.javac.code.Type.JCVoidType;
 import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.TypeVar;
 import com.sun.tools.javac.code.Type.WildcardType;
+import com.sun.tools.javac.code.TypeTag;
+import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.code.Types.FunctionDescriptorLookupError;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Names;
@@ -342,15 +342,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			return base + '<'
 				+ Arrays.stream(getTypeArguments())
 					.map(parameterizedCallback)
-					.map(x -> {
-						String b33 = base2;
-						if( b33.length() > 0 && "LIZVCDBFJS[!".indexOf(x.charAt(0)) == -1) {
-							String ret = b33 + ";{" + counter[0] + "}" + x;
-							counter[0] = counter[0] + 1;
-							return ret;
-						}
-						return x;
-					})
+					.map(x -> prependBaseAndCount(x, base2, counter))
 					.collect(Collectors.joining())
 				+ ">;";
 		} else if( isRawType(t)) {
@@ -373,20 +365,12 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				String simpleName = s.getSimpleName().toString();
 				String typeArgs = ";";
 				if(t.getTypeArguments().nonEmpty() ) {
-					String typeArgBase = removeTrailingSemicolon(getKey(ct, ct.tsym.flatName(), false, useSlashes));
+					String simpleBase = removeTrailingSemicolon(getKey(t, s.flatName(), false, useSlashes));
 					final int[] counter = new int[] {0};
 					typeArgs = '<'
 							+ Arrays.stream(getTypeArguments())
 							.map(x -> x instanceof JavacTypeBinding jtb ? jtb.getGenericTypeSignature(useSlashes) : x.getKey())
-							.map(x -> {
-								String b33 = typeArgBase;
-								if( b33.length() > 0 && "LIZVCDBFJS[!".indexOf(x.charAt(0)) == -1) {
-									String ret = b33 + ";{" + counter[0] + "}" + x;
-									counter[0] = counter[0] + 1;
-									return ret;
-								}
-								return x;
-							})
+							.map(x -> prependBaseAndCount(x, simpleBase, counter))
 							.collect(Collectors.joining())
 						+ ">;";
 				}
@@ -403,7 +387,19 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		return ret;
 	}
 
-
+	private String prependBaseAndCount(String typeKey, String base, int[] counter) {
+		char c = typeKey.length() > 0 ? typeKey.charAt(0) : 0;
+		if( c == 0 || c == 'T') {
+			return typeKey;
+		}
+		if( base.length() > 0 && "LIZVCDBFJS[!".indexOf(c) == -1) {
+			String ret = base + ";{" + counter[0] + "}" + typeKey;
+			counter[0] = counter[0] + 1;
+			return ret;
+		}
+		return typeKey;
+	}
+	
 	private static String removeTrailingSemicolon(String key) {
 		return key.endsWith(";") ? key.substring(0, key.length() - 1) : key;
 	}

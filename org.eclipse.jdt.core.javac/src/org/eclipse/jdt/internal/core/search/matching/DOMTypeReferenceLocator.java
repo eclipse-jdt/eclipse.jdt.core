@@ -165,6 +165,10 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 				return new LocatorResponse(defaultLevel, replacementFound, replacedNode, false, false);
 			} else {
 				int ret = typeParamMatches == TYPE_PARAMS_COUNT_MATCH ? ERASURE_MATCH : IMPOSSIBLE_MATCH;
+				boolean isErasurePattern = isPatternErasureMatch();
+				boolean isEquivPattern = isPatternEquivalentMatch();
+				if( ret == ERASURE_MATCH && !isErasurePattern && !isEquivPattern) 
+					ret = IMPOSSIBLE_MATCH;
 				return new LocatorResponse(ret, replacementFound, replacedNode, false, false);
 			}
 		}
@@ -231,21 +235,26 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 					level = IMPOSSIBLE_MATCH;
 				
 				if( level != IMPOSSIBLE_MATCH ) {
-					Name n = getSimpleNameNodeFromType(node);
-					if( n != null ) {
-						
-						nodeSet.addMatch(n, level);
-						return new LocatorResponse(level, true, n, true, true);
-					} else {
-						int v = nodeSet.addMatch(node, level);
-						return toResponse(v, true);
+					if( !preferParamaterizedNode() || patternPrefersSimpleName()) {
+						Name n = getSimpleNameNodeFromType(node);
+						if( n != null ) {
+							nodeSet.addMatch(n, level);
+							return new LocatorResponse(level, true, n, true, true);
+						}
 					}
+					int v = nodeSet.addMatch(node, level);
+					return toResponse(v, true);
 				}
 			}
 		}
 		return toResponse(IMPOSSIBLE_MATCH);
 	}
 	
+	private boolean patternPrefersSimpleName() {
+		return false;
+//		char[] qual = this.locator.pattern.qualification;
+//		return qual == null;
+	}
 	private boolean isPatternErasureMatch() {
 		int r = this.locator.pattern.getMatchRule();
 		return (r & SearchPattern.R_ERASURE_MATCH) == SearchPattern.R_ERASURE_MATCH;
@@ -297,21 +306,41 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 					return TYPE_PARAMS_NO_MATCH;
 				}
 				for( int j = 0; j < thisLevelTypeParams.length; j++ ) {
-					String typeFromPattern = new String(thisLevelTypeParams[j]);
-					IBinding patternTypeBinding = JdtCoreDomPackagePrivateUtility.findBindingForType(node, typeFromPattern);
-					IBinding b = DOMASTNodeUtils.getBinding((ASTNode)typeArgs.get(j));
-					String sig = b == null ? null : b instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : b.getKey();
-					if( sig.startsWith("+") && b instanceof ITypeBinding tb) {
-						boolean canContinue = validateOneTypeParameterExtends(typeFromPattern, sig, tb, patternTypeBinding);
+					String patternSig = new String(thisLevelTypeParams[j]);
+					IBinding patternTypeBinding = JdtCoreDomPackagePrivateUtility.findBindingForType(node, patternSig);
+					IBinding domBinding = DOMASTNodeUtils.getBinding((ASTNode)typeArgs.get(j));
+					String domSig = domBinding == null ? null : domBinding instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : domBinding.getKey();
+					if( patternSig.equals(("*")))
+							continue;
+					if( patternSig.equals(domSig)) {
+						continue;
+					}
+					if( domSig.startsWith("+") && domBinding instanceof ITypeBinding domTypeBinding) {
+						boolean canContinue = validateOneTypeParameterExtends(domSig, domTypeBinding, patternSig, patternTypeBinding);
 						if( !canContinue) {
 							return TYPE_PARAMS_COUNT_MATCH;
 						}
-					} else if( sig.startsWith("-") && b instanceof ITypeBinding tb) { 
-						boolean canContinue = validateOneTypeParameterSuper(typeFromPattern, sig, tb, patternTypeBinding);
+					} else if( domSig.startsWith("-") && domBinding instanceof ITypeBinding domTypeBinding) { 
+						boolean canContinue = validateOneTypeParameterSuper(patternSig, patternTypeBinding, domSig, domTypeBinding);
 						if( !canContinue) {
 							return TYPE_PARAMS_COUNT_MATCH;
 						}
-					} else if( !typeFromPattern.equals(sig)) {
+					} else if( patternSig.startsWith("+") && patternTypeBinding instanceof ITypeBinding patternBinding) {
+						boolean canContinue = validateOneTypeParameterExtends(patternSig, patternBinding, domSig, domBinding);
+						if( !canContinue) {
+							return TYPE_PARAMS_COUNT_MATCH;
+						}
+					} else if( patternSig.startsWith("-") && patternTypeBinding instanceof ITypeBinding patternBinding) { 
+						boolean canContinue = validateOneTypeParameterSuper(domSig, domBinding, patternSig, patternBinding);
+						if( !canContinue) {
+							return TYPE_PARAMS_COUNT_MATCH;
+						}
+					} else if( patternSig.startsWith("Q")) {
+						String patternSig2 = patternSig.substring(1);
+						if( !patternSig2.equals(domSig.substring(1)) && !domSig.endsWith("." + patternSig2)) {
+							return TYPE_PARAMS_COUNT_MATCH;
+						}
+					} else if( !patternSig.equals(domSig)) {
 						return TYPE_PARAMS_COUNT_MATCH;
 					}
 				}
@@ -333,21 +362,32 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		return TYPE_PARAMS_MATCH;
 	}
 	
-	private boolean validateOneTypeParameterExtends(String typeFromPattern, String sig, ITypeBinding tb, IBinding patternTypeBinding) {
-		boolean isQuestionMark = "+Ljava/lang/Object;".equals(sig);
+	private boolean validateOneTypeParameterExtends(String criteriaSignature, ITypeBinding criteriaBinding, String evaluateSignature, IBinding evaluateBinding) {
+		boolean isQuestionMark = "+Ljava/lang/Object;".equals(criteriaSignature);
 		if( isQuestionMark ) {
 			// TODO - if pattern is <Unresolved1,Unresolved2> we must return no_match
 			return true;
 		}
-		String remaining = sig.substring(1);
-		ITypeBinding[] bounds = tb.getTypeBounds();
+		boolean evaluateSigIsUnresolved = false;
+		String evaluateSigTrimmed = null;
+		if( evaluateSignature.startsWith("Q")) {
+			evaluateSigTrimmed = evaluateSignature.substring(1);
+			evaluateSigIsUnresolved = true;
+		} else if( evaluateSignature.startsWith("+Q")) {
+			evaluateSigTrimmed = evaluateSignature.substring(2);
+			evaluateSigIsUnresolved = true;
+		}
+		ITypeBinding[] bounds = criteriaBinding.getTypeBounds();
 		if( bounds != null && bounds.length == 1 && bounds[0] != null ) {
 			ITypeBinding b1 = bounds[0];
 			String boundSig = b1 == null ? null : b1 instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : b1.getKey();
-			if( typeFromPattern.equals(boundSig)) {
+			if( evaluateSignature.equals(boundSig)) {
 				return true;
 			}
-			if( patternTypeBinding instanceof ITypeBinding itb) {
+			if( evaluateSigIsUnresolved && boundSig.endsWith("." + evaluateSigTrimmed)) {
+				return true;
+			}
+			if( !evaluateSigIsUnresolved && evaluateBinding instanceof ITypeBinding itb) {
 				ITypeBinding working = itb;
 				while(working != null) {
 					ITypeBinding superClaz = working.getSuperclass();
@@ -367,21 +407,43 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		return true;
 	}
 	
-	private boolean validateOneTypeParameterSuper(String typeFromPattern, String sig, ITypeBinding tb, IBinding patternTypeBinding) {
-		String remaining = sig.substring(1);
-		ITypeBinding b1 = tb.getBound();
+	private boolean validateOneTypeParameterSuper(String evaluateSig, IBinding evaluateBinding, String criteriaSig, ITypeBinding criteriaBinding) {
+		boolean evaluateSigIsUnresolved = evaluateSig.startsWith("Q");
+		String evaluateSigTrimmed = evaluateSig.substring(1);
+		ITypeBinding b1 = criteriaBinding.getBound();
 		if( b1 != null ) {
 			String boundSig = b1 == null ? null : b1 instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : b1.getKey();
-			if( typeFromPattern.equals(boundSig)) {
+			if( evaluateSig.equals(boundSig)) {
 				return true;
 			}
-			if( patternTypeBinding instanceof ITypeBinding itb) {
+			if(evaluateSigIsUnresolved) {
 				ITypeBinding working = b1;
 				while(working != null) {
 					ITypeBinding superClaz = working.getSuperclass();
 					if( superClaz != null ) {
 						String superClazKey = b1 == null ? null : superClaz instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : superClaz.getKey();
-						if( superClazKey.equals(typeFromPattern)) {
+						if( superClazKey != null && superClazKey.length() > 0) {
+							if( superClazKey.equals(evaluateSig)) {
+								return true;
+							}
+							if( superClazKey.substring(1).equals(evaluateSigTrimmed)) {
+								return true;
+							}
+							if( superClazKey.endsWith("." + evaluateSigTrimmed)) {
+								return true;
+							}
+						}
+					}
+					working = superClaz;
+				}
+				return false;
+			} else if( evaluateBinding instanceof ITypeBinding) {
+				ITypeBinding working = b1;
+				while(working != null) {
+					ITypeBinding superClaz = working.getSuperclass();
+					if( superClaz != null ) {
+						String superClazKey = b1 == null ? null : superClaz instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : superClaz.getKey();
+						if( superClazKey != null && superClazKey.equals(evaluateSig)) {
 							return true;
 						}
 					}
@@ -413,19 +475,16 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 	}
 	
 	private String getNameStringFromType(Type node) {
-		if (node instanceof SimpleType simple) {
-			if (simple.getName() instanceof SimpleName name) {
-				return name.getIdentifier();
-			}
-			if (simple.getName() instanceof QualifiedName name) {
-				return name.getName().getIdentifier();
-			}
-		} else if (node instanceof QualifiedType qualified) {
-			return qualified.getName().getIdentifier();
-		} else if( node instanceof ParameterizedType ptt) {
-			return getNameStringFromType(ptt.getType());
+		Name nnode = getNameNodeFromType(node);
+		nnode = (nnode instanceof QualifiedName qn ? qn.getName() : nnode);
+		return getNameStringFromNameObject(nnode);
+	}
+	
+	private String getNameStringFromNameObject(Name nnode) {
+		if (nnode instanceof SimpleName name) {
+			return name.getIdentifier();
 		}
-		return null;
+		return nnode == null ? null : nnode.toString();
 	}
 	
 	private org.eclipse.jdt.core.dom.Name getSimpleNameNodeFromType(Type node) {
@@ -449,6 +508,18 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		}
 		return null;
 	}
+	
+	private org.eclipse.jdt.core.dom.Name getQualifierNameNodeFromType(Type node) {
+		if (node instanceof SimpleType simple) {
+			return simple.getName();
+		} else if (node instanceof QualifiedType qualified) {
+			return getQualifierNameNodeFromType(qualified.getQualifier());
+		} else if( node instanceof ParameterizedType ptt) {
+			return getQualifierNameNodeFromType(ptt.getType());
+		}
+		return null;
+	}
+
 
 	private String fqqnFromImport(String firstSegment) {
 		if( firstSegment == null )
@@ -636,7 +707,7 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		char[][][] patternTypeArgArray = this.locator.pattern.getTypeArguments();
 		int patternTypeArgsLength = patternTypeArgArray == null ? -1 : 
 			patternTypeArgArray[0] == null ? -1 : 
-				patternTypeArgArray[0].length == 0 ? -1 : patternTypeArgArray[0].length;
+				patternTypeArgArray[0].length;
 		boolean bindingIsRaw = typeBinding.isRawType();
 		boolean bindingIsGeneric = typeBinding.isGenericType();
 		boolean bindingIsParameterized = typeBinding.isParameterizedType();
@@ -793,6 +864,16 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 	
 	@Override
 	public void reportSearchMatch(MatchLocator locator, ASTNode node, SearchMatch match) throws CoreException {
+//		boolean matchIsEr = match.isErasure();
+//		boolean matchIsEq = match.isEquivalent();
+//		boolean matchIsEx = match.isExact();
+//		boolean report = (this.isErasureMatch && match.isErasure()) 
+//				|| ((this.isErasureMatch || this.isEquivalentMatch) && match.isEquivalent()) 
+//				|| match.isExact();
+		boolean report = (this.isErasureMatch && match.isErasure()) || (this.isEquivalentMatch && match.isEquivalent()) || match.isExact();
+		if (!report) 
+			return;
+
 		ASTNode replacementNode = null;
 		if( node instanceof QualifiedType qtt) {
 			replacementNode = findNodeMatchingPatternQualifier(qtt.getQualifier());
@@ -809,16 +890,39 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			match.setLength(newLength);
 		}
 		
-//		boolean matchIsEr = match.isErasure();
-//		boolean matchIsEq = match.isEquivalent();
-//		boolean matchIsEx = match.isExact();
-//		boolean report = (this.isErasureMatch && match.isErasure()) 
-//				|| ((this.isErasureMatch || this.isEquivalentMatch) && match.isEquivalent()) 
-//				|| match.isExact();
-		boolean report = (this.isErasureMatch && match.isErasure()) || (this.isEquivalentMatch && match.isEquivalent()) || match.isExact();
-		if (!report) return;
-
+		ASTNode working = (replacementNode != null ? replacementNode : node);
+		int trimQualifierStart = findTrimQualifierStart(working);
+		if( trimQualifierStart != -1 ) {
+			int matchStart = match.getOffset();
+			int matchEnd = matchStart + match.getLength();
+			int newStart = trimQualifierStart;
+			int newLength = matchEnd - newStart;
+			match.setOffset(newStart);
+			match.setLength(newLength);
+		}
 		SearchMatchingUtility.reportSearchMatch(locator, match);
+	}
+	
+	
+	private int findTrimQualifierStart(ASTNode working) {
+		String needle = this.locator.pattern.qualification == null ? null : new String(this.locator.pattern.qualification);
+		if( needle == null && working instanceof Type workingType) {
+			ASTNode n1 = getSimpleNameNodeFromType(workingType);
+			if( n1 != null ) {
+				return n1.getStartPosition();
+			}
+		}
+		if( needle != null && working instanceof Type workingType ) {
+			Name n = getQualifierNameNodeFromType(workingType);
+			n = (n instanceof QualifiedName qn ? qn.getName() : n);
+			String asString = getNameStringFromNameObject(n);
+			if( asString != null ) {
+				if (this.locator.matchesName(this.locator.pattern.qualification, asString.toCharArray())) {
+					return n.getStartPosition();
+				}
+			}
+		}
+		return -1;
 	}
 	private ASTNode findNodeMatchingPatternQualifier(Type qualifier) {
 		if( qualifier instanceof ParameterizedType pt) {
