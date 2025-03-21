@@ -9678,4 +9678,22 @@ public void testPR3675() {
 			"A canonical constructor is allowed only in record classes\n" +
 			"----------\n");
 }
+public void _testThis() {
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+					record X(String s) {
+
+					    static int s;
+					}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	X {}\n" +
+			"	^\n" +
+			"A canonical constructor is allowed only in record classes\n" +
+			"----------\n");
+}
 }

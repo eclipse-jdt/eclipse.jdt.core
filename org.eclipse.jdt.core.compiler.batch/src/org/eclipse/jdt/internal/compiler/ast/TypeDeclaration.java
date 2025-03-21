@@ -105,8 +105,8 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 	// 1.5 support
 	public TypeParameter[] typeParameters;
 
-	// 14 Records preview support
-	public RecordComponent[] recordComponents;
+	// 16 Records preview support
+	public RecordComponent[] recordComponents = NO_RECORD_COMPONENTS;
 	public int nRecordComponents;
 	public static Set<String> disallowedComponentNames;
 
