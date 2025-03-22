@@ -1341,10 +1341,10 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 						+ "} ",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	case String o1 when o1.length() > len:\n" +
-				"	                                  ^^^\n" +
-				"Local variable len referenced from a guard must be final or effectively final\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	len = 0;\n" +
+				"	^^^\n" +
+				"Local variable len is required to be final or effectively final based on its usage\n" +
 				"----------\n");
 	}
 	// A non effectively final referenced from the LHS of the guarding expression
@@ -1367,10 +1367,10 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 						+ "} ",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	case String o1 when len < o1.length():\n" +
-				"	                    ^^^\n" +
-				"Local variable len referenced from a guard must be final or effectively final\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	len = 0;\n" +
+				"	^^^\n" +
+				"Local variable len is required to be final or effectively final based on its usage\n" +
 				"----------\n");
 	}
 	// An explicitly final local variable, also referenced in a guarding expression of a pattern
@@ -6536,10 +6536,15 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 								+ "} ",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	case String o1 when ((String) o).length() == o1.length() :\n" +
-				"	                              ^\n" +
-				"Local variable o referenced from a guard must be final or effectively final\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	o = null;\n" +
+				"	^\n" +
+				"Local variable o is required to be final or effectively final based on its usage\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 8)\n" +
+				"	o1 = null;\n" +
+				"	^^\n" +
+				"Local variable o1 is required to be final or effectively final based on its usage\n" +
 				"----------\n");
 	}
 	public void testIssue1351_2() {
@@ -6562,11 +6567,16 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 						+ "} ",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	case String o1 when o1.length() == ((String) o).length():\n" +
-				"	                    ^^\n" +
-				"Local variable o1 referenced from a guard must be final or effectively final\n" +
-				"----------\n");
+				"1. ERROR in X.java (at line 7)\n" +
+				"	o = null;\n" +
+				"	^\n" +
+				"Local variable o is required to be final or effectively final based on its usage\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 8)\n" +
+				"	o1 = null;\n" +
+				"	^^\n" +
+				"Local variable o1 is required to be final or effectively final based on its usage\n" +
+				"----------\n" );
 	}
 	public void testIssue1351_3() {
 		this.runNegativeTest(
@@ -6589,10 +6599,10 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 						+ "}",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 9)\n" +
-				"	case C c1 when c1.v == c1.value():\n" +
-				"	               ^^\n" +
-				"Local variable c1 referenced from a guard must be final or effectively final\n" +
+				"1. ERROR in X.java (at line 10)\n" +
+				"	c1 = null;\n" +
+				"	^^\n" +
+				"Local variable c1 is required to be final or effectively final based on its usage\n" +
 				"----------\n");
 	}
 	public void testIssue1351_3a() {
@@ -6616,10 +6626,10 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 						+ "} ",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 9)\n" +
-				"	case C c1 when c1.value() == c1.v:\n" +
-				"	               ^^\n" +
-				"Local variable c1 referenced from a guard must be final or effectively final\n" +
+				"1. ERROR in X.java (at line 10)\n" +
+				"	c1 = null;\n" +
+				"	^^\n" +
+				"Local variable c1 is required to be final or effectively final based on its usage\n" +
 				"----------\n");
 	}
 	public void testIssue1351_3b() {
@@ -6645,15 +6655,15 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 						+ "} ",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 10)\n" +
-				"	case I i1 when i1.v > i1.val():\n" +
-				"	               ^^\n" +
-				"Local variable i1 referenced from a guard must be final or effectively final\n" +
-				"----------\n" +
-				"2. WARNING in X.java (at line 10)\n" +
+				"1. WARNING in X.java (at line 10)\n" +
 				"	case I i1 when i1.v > i1.val():\n" +
 				"	                  ^\n" +
 				"The static field I.v should be accessed in a static way\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 11)\n" +
+				"	i1 = null;\n" +
+				"	^^\n" +
+				"Local variable i1 is required to be final or effectively final based on its usage\n" +
 				"----------\n");
 	}
 	public void testIssue1351_3c() {
@@ -6679,10 +6689,10 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 						+ "} ",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 10)\n" +
-				"	case I i1 when I.v > i1.val():\n" +
-				"	                     ^^\n" +
-				"Local variable i1 referenced from a guard must be final or effectively final\n" +
+				"1. ERROR in X.java (at line 11)\n" +
+				"	i1 = null;\n" +
+				"	^^\n" +
+				"Local variable i1 is required to be final or effectively final based on its usage\n" +
 				"----------\n");
 	}
 	public void testIssue1351_4() {
@@ -7712,8 +7722,18 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"""
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 13)\r\n" +
-			"	} && y != 0\r\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	y = 20;\n" +
+			"	^\n" +
+			"Local variable y is required to be final or effectively final based on its usage\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 8)\n" +
+			"	y = 30;\n" +
+			"	^\n" +
+			"Local variable y is required to be final or effectively final based on its usage\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 13)\n" +
+			"	} && y != 0\n" +
 			"	     ^\n" +
 			"Local variable y referenced from a guard must be final or effectively final\n" +
 			"----------\n");
@@ -7751,12 +7771,26 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"""
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 11)\r\n" +
-			"	case 1 -> { int y1 = 10; y1 = 30; yield y != y1; }\r\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	y = 20;\n" +
+			"	^\n" +
+			"Local variable y is required to be final or effectively final based on its usage\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 8)\n" +
+			"	y = 30;\n" +
+			"	^\n" +
+			"Local variable y is required to be final or effectively final based on its usage\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 11)\n" +
+			"	case 1 -> { int y1 = 10; y1 = 30; yield y != y1; }\n" +
 			"	                                        ^\n" +
 			"Local variable y referenced from a guard must be final or effectively final\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 13)\n" +
+			"	} && y != 0\n" +
+			"	     ^\n" +
+			"Local variable y referenced from a guard must be final or effectively final\n" +
 			"----------\n");
-		    // We throw AbortMethod after first error, so second error doesn't surface
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2318
 	// [Switch Expression] Assertion Error compiling switch + try + string concat at target platforms levels < 9
@@ -9681,6 +9715,97 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	case false -> System.out.println(\"2\");\n" +
 			"	     ^^^^^\n" +
 			"Case constant of type boolean is incompatible with switch selector type Boolean\n" +
+			"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3812
+	// [Enhanced Switch] ECJ allows non-final variables in guard expressions of a case label if the containing switch is unreachable
+	public void testIssue3812() throws Exception {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public final class X {
+					public static void main(String[] args) {
+						for (int i = 0; i < 10; i++) {
+							if (false) {
+								switch (args) {
+								case Object o when i == 3: break;
+								default : break;
+								}
+							}
+						}
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	for (int i = 0; i < 10; i++) {\n" +
+			"	                        ^\n" +
+			"Local variable i is required to be final or effectively final based on its usage\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 4)\n" +
+			"	if (false) {\n" +
+			"				switch (args) {\n" +
+			"				case Object o when i == 3: break;\n" +
+			"				default : break;\n" +
+			"				}\n" +
+			"			}\n" +
+			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Dead code\n" +
+			"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3840
+	// [Enhanced switch] ECJ allows assignments to locals declared outside of guard inside the guard
+	public void testIssue3840() throws Exception {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						int i;
+						switch (args) {
+						case Object o when (i = 10) == 10: break;
+						default : break;
+						}
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	case Object o when (i = 10) == 10: break;\n" +
+			"	                    ^\n" +
+			"Local variable i referenced from a guard must be final or effectively final\n" +
+			"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3840
+	// [Enhanced switch] ECJ allows assignments to locals declared outside of guard inside the guard
+	public void testIssue3840_2() throws Exception {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						final int i;
+						switch (args) {
+						case Object o when (i = 10) == 10: break;
+						default : break;
+						}
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	case Object o when (i = 10) == 10: break;\n" +
+			"	                    ^\n" +
+			"The final local variable i cannot be assigned, since it is defined in an enclosing type\n" +
 			"----------\n");
 	}
 }

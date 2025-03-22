@@ -1420,19 +1420,11 @@ public void cannotReadSource(CompilationUnitDeclaration unit, AbortCompilationUn
 			0,
 			0);
 }
-public void cannotReferToNonFinalOuterLocal(LocalVariableBinding local, ASTNode location) {
-	String[] arguments =new String[]{ new String(local.readableName())};
-	this.handle(
-		IProblem.OuterLocalMustBeFinal,
-		arguments,
-		arguments,
-		nodeSourceStart(local, location),
-		nodeSourceEnd(local, location));
-}
-public void cannotReferToNonEffectivelyFinalOuterLocal(VariableBinding local, ASTNode location) {
+public void localMustBeEffectivelyFinal(VariableBinding local, ASTNode location, boolean isResource, boolean isOuterLocal) {
 	String[] arguments = new String[] { new String(local.readableName()) };
 	this.handle(
-		IProblem.OuterLocalMustBeEffectivelyFinal,
+		isResource ? IProblem.ResourceLocalMustBeEffectivelyFinal :
+				isOuterLocal ? IProblem.OuterLocalMustBeEffectivelyFinal : IProblem.LocalMustBeEffectivelyFinal,
 		arguments,
 		arguments,
 		nodeSourceStart(local, location),

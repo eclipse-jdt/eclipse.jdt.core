@@ -2139,13 +2139,16 @@ public abstract class Scope {
 									if (invocationSite instanceof NameReference) {
 										NameReference nameReference = (NameReference) invocationSite;
 										nameReference.bits |= ASTNode.IsCapturedOuterLocal;
+										variableBinding.tagBits |= TagBits.HasToBeEffectivelyFinal;
 									} else if (invocationSite instanceof AbstractVariableDeclaration) {
 										AbstractVariableDeclaration variableDeclaration = (AbstractVariableDeclaration) invocationSite;
 										variableDeclaration.bits |= ASTNode.ShadowsOuterLocal;
 									}
 								}
-								if (resolvingGuardExpression && invocationSite instanceof NameReference nameReference)
+								if (resolvingGuardExpression && invocationSite instanceof NameReference nameReference) {
 									nameReference.bits |= ASTNode.IsUsedInPatternGuard;
+									variableBinding.tagBits |= TagBits.HasToBeEffectivelyFinal;
+								}
 								return variableBinding;
 							}
 							break;

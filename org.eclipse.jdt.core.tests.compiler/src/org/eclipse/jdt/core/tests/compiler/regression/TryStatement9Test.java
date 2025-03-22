@@ -230,15 +230,20 @@ public void testBug488569_007() {
 			"}",
 		},
 		"----------\n" +
-		"1. WARNING in X.java (at line 14)\n" +
+		"1. ERROR in X.java (at line 14)\n" +
+		"	y1 = new Y();\n" +
+		"	^^\n" +
+		"Local variable y1 used as a resource in a try with resources statement is required to be final or effectively final\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 14)\n" +
 		"	y1 = new Y();\n" +
 		"	^^^^^^^^^^^^\n" +
-		"Resource leak: \'y1\' is not closed at this location\n" +
+		"Resource leak: 'y1' is not closed at this location\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 15)\n" +
+		"3. ERROR in X.java (at line 15)\n" +
 		"	try (y1) { \n" +
 		"	     ^^\n" +
-		"Local variable y1 defined in an enclosing scope must be final or effectively final\n" +
+		"Local variable y1 used as a resource in a try with resources statement is required to be final or effectively final\n" +
 		"----------\n");
 }
 //check for the error for combination of NameRef and LocalVarDecl.
@@ -600,17 +605,17 @@ public void testBug488569_018() {
 		"1. ERROR in X.java (at line 10)\n" +
 		"	try (this.y2; super.yz;y2)  {  \n" +
 		"	          ^^\n" +
-		"Field y2 must be final\n" +
+		"Field y2 used as a resource in a try with resources statement must be declared final\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 10)\n" +
 		"	try (this.y2; super.yz;y2)  {  \n" +
 		"	                    ^^\n" +
-		"Field yz must be final\n" +
+		"Field yz used as a resource in a try with resources statement must be declared final\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 10)\n" +
 		"	try (this.y2; super.yz;y2)  {  \n" +
 		"	                       ^^\n" +
-		"Local variable y2 defined in an enclosing scope must be final or effectively final\n" +
+		"Field y2 used as a resource in a try with resources statement must be declared final\n" +
 		"----------\n");
 }
 //negative tests: duplicate fields
@@ -766,6 +771,56 @@ public void testGH1825() {
 		----------
 		""");
 }
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3841
+// [Try with Resources] Missing error about non-final field used as a resource when TWR is unreachble.
+public void testIssue3841() {
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.io.IOException;
+
+				class Flags {
+					static final boolean DEBUG = false;
+				}
+
+				class Z {
+					Y yz = new Y();
+				}
+
+				public class X extends Z {
+					Y y2 = new Y();
+
+					public void foo() {
+						if (Flags.DEBUG) {
+							try (this.y2) {
+								System.out.println("In Try");
+							} catch (IOException e) {
+							}
+						}
+					}
+
+					public static void main(String[] args) {
+						new X().foo();
+					}
+				}
+
+				class Y implements AutoCloseable {
+					@Override
+					public void close() throws IOException {
+						System.out.println("Closed");
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 16)\n" +
+			"	try (this.y2) {\n" +
+			"	          ^^\n" +
+			"Field y2 used as a resource in a try with resources statement must be declared final\n" +
+			"----------\n");
+	}
 
 public static Class testClass() {
 	return TryStatement9Test.class;

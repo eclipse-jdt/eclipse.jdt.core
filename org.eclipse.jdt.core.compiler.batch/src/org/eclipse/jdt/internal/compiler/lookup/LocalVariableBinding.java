@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FakedTrackingVariable;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
@@ -339,6 +340,25 @@ public class LocalVariableBinding extends VariableBinding {
 	}
 	public void markReferenced() {
 		// Signal that the name is used - This is for extension in subclasses
+	}
+
+	public void checkEffectiveFinality(Scope scope, Expression node) {
+		if ((this.tagBits & (TagBits.HasToBeEffectivelyFinal | TagBits.IsEffectivelyFinal)) == TagBits.HasToBeEffectivelyFinal) {
+			if ((node.bits & ASTNode.IsCapturedOuterLocal) != 0)
+				scope.problemReporter().localMustBeEffectivelyFinal(this, node, false /* resource ?*/, true /*outer local ?*/);
+			else if ((node.bits & ASTNode.IsUsedInPatternGuard) != 0)
+				scope.problemReporter().cannotReferToNonFinalLocalInGuard(this, node);
+			else if (node.resolvedType != null && node.resolvedType.findSuperTypeOriginatingFrom(TypeIds.T_JavaLangAutoCloseable, false /*AutoCloseable is not a class*/) != null)
+				scope.problemReporter().localMustBeEffectivelyFinal(this, node, true /* resource ?*/, false /*outer local ?*/);
+			else
+				scope.problemReporter().localMustBeEffectivelyFinal(this, node, false /* resource ?*/, false /*outer local ?*/);
+		}
+	}
+	@Override
+	public void clearEffectiveFinality(Scope scope, Expression node, boolean complain) {
+		this.tagBits &= ~TagBits.IsEffectivelyFinal;
+		if (complain)
+			checkEffectiveFinality(scope, node);
 	}
 
 	public boolean isUninitializedIn(Scope scope) {

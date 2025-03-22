@@ -428,6 +428,7 @@ void setSourceStart(int sourceStart);
 	int IncorrectEnclosingInstanceReference = TypeRelated + 22;
 	int IllegalEnclosingInstanceSpecification = TypeRelated + 23;
 	int CannotDefineStaticInitializerInLocalType = Internal + 24;
+	/** @deprecated - problem is no longer generated, use {@link #OuterLocalMustBeEffectivelyFinal} instead */
 	int OuterLocalMustBeFinal = Internal + 25;
 	int CannotDefineInterfaceInLocalType = Internal + 26;
 	int IllegalPrimitiveOrArrayTypeForEnclosingInstance = TypeRelated + 27;
@@ -1614,6 +1615,10 @@ void setSourceStart(int sourceStart);
 	int NullExpressionReference = Internal + 672;
 	/** @since 3.9 */
 	int PotentialNullExpressionReference = Internal + 673;
+	/** @since 3.42*/
+	int LocalMustBeEffectivelyFinal = Internal + 674;
+	/** @since 3.42*/
+	int ResourceLocalMustBeEffectivelyFinal = Internal + 675;
 
 	/**
 	 * Corrupted binaries
