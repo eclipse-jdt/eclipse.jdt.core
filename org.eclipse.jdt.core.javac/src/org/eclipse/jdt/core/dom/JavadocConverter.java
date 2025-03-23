@@ -27,7 +27,10 @@ import org.eclipse.core.runtime.ILog;
 import com.sun.source.doctree.DocTree.Kind;
 import com.sun.source.util.DocTreePath;
 import com.sun.source.util.TreePath;
+import com.sun.tools.javac.parser.Tokens.Comment.CommentStyle;
 import com.sun.tools.javac.tree.DCTree;
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.TreeScanner;
 import com.sun.tools.javac.tree.DCTree.DCAuthor;
 import com.sun.tools.javac.tree.DCTree.DCBlockTag;
 import com.sun.tools.javac.tree.DCTree.DCComment;
@@ -55,9 +58,7 @@ import com.sun.tools.javac.tree.DCTree.DCUnknownInlineTag;
 import com.sun.tools.javac.tree.DCTree.DCUses;
 import com.sun.tools.javac.tree.DCTree.DCValue;
 import com.sun.tools.javac.tree.DCTree.DCVersion;
-import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCArrayTypeTree;
-import com.sun.tools.javac.tree.TreeScanner;
 import com.sun.tools.javac.util.Convert;
 import com.sun.tools.javac.util.JCDiagnostic;
 
@@ -100,7 +101,7 @@ class JavadocConverter {
 	}
 
 	JavadocConverter(JavacConverter javacConverter, DCDocComment docComment, TreePath contextTreePath, boolean buildJavadoc) {
-		this(javacConverter, docComment, contextTreePath, docComment.comment.getPos().getStartPosition(), docComment.comment.getPos().getEndPosition(javacConverter.javacCompilationUnit.endPositions), buildJavadoc);
+		this(javacConverter, docComment, contextTreePath, docComment.comment.getPos().getStartPosition(), docComment.comment.getPos().getEndPosition(javacConverter.javacCompilationUnit.endPositions) + (docComment.comment.getStyle() == CommentStyle.JAVADOC_LINE ? 1 /* include line end */ : 0), buildJavadoc);
 	}
 
 	private void commonSettings(ASTNode res, DCTree javac) {
