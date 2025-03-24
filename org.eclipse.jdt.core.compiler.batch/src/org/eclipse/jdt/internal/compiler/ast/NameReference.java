@@ -19,7 +19,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import java.util.function.Predicate;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -31,8 +30,6 @@ import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
-import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 
 public abstract class NameReference extends Reference implements InvocationSite {
 
@@ -147,29 +144,6 @@ public void setFieldIndex(int index){
 public abstract String unboundReferenceErrorName();
 
 public abstract char[][] getName();
-
-/* Called during code generation to ensure that outer locals's effectively finality is guaranteed.
-   Aborts if constraints are violated. Due to various complexities, this check is not conveniently
-   implementable in resolve/analyze phases.
-   Another quirk here is this method tells the clients whether the below condition is true
-     (this.bits & ASTNode.IsCapturedOuterLocal) != 0
-*/
-public boolean checkEffectiveFinality(VariableBinding localBinding, Scope scope) {
-	Predicate<VariableBinding> test = local -> (!localBinding.isFinal() && !localBinding.isEffectivelyFinal());
-	if ((this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
-		if (test.test(localBinding)) {
-			scope.problemReporter().cannotReferToNonEffectivelyFinalOuterLocal(localBinding, this);
-			throw new AbortMethod(scope.referenceCompilationUnit().compilationResult, null);
-		}
-		return true;
-	} else if ((this.bits & ASTNode.IsUsedInPatternGuard) != 0) {
-		if (test.test(localBinding)) {
-			scope.problemReporter().cannotReferToNonFinalLocalInGuard(localBinding, this);
-			throw new AbortMethod(scope.referenceCompilationUnit().compilationResult, null);
-		}
-	}
-	return false;
-}
 
 @Override
 public boolean isType() {
