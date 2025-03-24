@@ -555,9 +555,13 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			this.condition.computeConversion(scope, TypeBinding.BOOLEAN, conditionType);
 
 			if (this.valueIfTrue instanceof CastExpression) this.valueIfTrue.bits |= DisableUnnecessaryCastCheck; // will check later on
-			this.originalValueIfTrueType = this.valueIfTrue.resolveTypeWithBindings(this.condition.bindingsWhenTrue(), scope);
+			// some types of nodes crash if you try to resolve them twice...
+			// (known case: QualifiedNameReference corrupts its own bits field on successful resolution)
+			this.originalValueIfTrueType = this.valueIfTrue.resolvedType;
+			//this.originalValueIfTrueType = this.valueIfTrue.resolveTypeWithBindings(this.condition.bindingsWhenTrue(), scope);
 			if (this.valueIfFalse instanceof CastExpression) this.valueIfFalse.bits |= DisableUnnecessaryCastCheck; // will check later on
-			this.originalValueIfFalseType = this.valueIfFalse.resolveTypeWithBindings(this.condition.bindingsWhenFalse(), scope);
+			this.originalValueIfFalseType = this.valueIfFalse.resolvedType;
+			//this.originalValueIfFalseType = this.valueIfFalse.resolveTypeWithBindings(this.condition.bindingsWhenFalse(), scope);
 
 			/*
 			 *
@@ -891,7 +895,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			return super.isCompatibleWith(left, scope);
 		}
 		if (!isPolyExpression())
-			super.isCompatibleWith(left, scope);
+			return super.isCompatibleWith(left, scope);
 
 		scope.include(this.condition.bindingsWhenTrue());
 		try {
