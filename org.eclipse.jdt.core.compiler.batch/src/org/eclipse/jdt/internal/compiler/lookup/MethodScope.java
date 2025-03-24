@@ -249,6 +249,8 @@ private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
 				methodBinding.tagBits |= TagBits.AnnotationOverride;
 			}
 		}
+	} else if (declaringClass.isRecord() && methodBinding.isNative()) {
+		problemReporter().recordIllegalNativeModifierInRecord((AbstractMethodDeclaration) this.referenceContext);
 	}
 
 	// check for abnormal modifiers

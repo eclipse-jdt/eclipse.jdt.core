@@ -1220,11 +1220,19 @@ public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
 			componentDecl.binding = null;
 			return null;
 		}
+		if (TypeDeclaration.disallowedComponentNames.contains(new String(componentDecl.name))) {
+			this.scope.problemReporter().recordIllegalComponentNameInRecord(componentDecl, this.scope.referenceContext);
+			componentDecl.binding = null;
+			return null;
+		}
 		if (componentType == TypeBinding.VOID) {
 			this.scope.problemReporter().recordComponentCannotBeVoid(componentDecl);
 			componentDecl.binding = null;
 			return null;
 		}
+		if (componentDecl.isVarArgs() && f < length - 1)
+			this.scope.problemReporter().recordIllegalVararg(componentDecl, this.scope.referenceContext);
+
 		if (componentType.isArrayType() && ((ArrayBinding) componentType).leafComponentType == TypeBinding.VOID) {
 			this.scope.problemReporter().variableTypeCannotBeVoidArray(componentDecl);
 			componentDecl.binding = null;

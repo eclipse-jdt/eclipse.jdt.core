@@ -134,14 +134,17 @@ public class Initializer extends FieldDeclaration {
 		try {
 			scope.initializedField = null;
 			scope.lastVisibleFieldID = this.lastVisibleFieldID;
+			ReferenceBinding declaringType = scope.enclosingSourceType();
 			if (isStatic()) {
-				ReferenceBinding declaringType = scope.enclosingSourceType();
 				if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK16) {
 					if (declaringType.isNestedType() && !declaringType.isStatic())
 						scope.problemReporter().innerTypesCannotDeclareStaticInitializers(
 							declaringType,
 							this);
 				}
+			} else {
+				if (declaringType.isRecord())
+					scope.problemReporter().recordInstanceInitializerBlockInRecord(this);
 			}
 			if (this.block != null) this.block.resolve(scope);
 		} finally {

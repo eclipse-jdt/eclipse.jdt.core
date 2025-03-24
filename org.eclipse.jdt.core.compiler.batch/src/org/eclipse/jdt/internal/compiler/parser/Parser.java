@@ -10457,10 +10457,6 @@ private void convertToFields(TypeDeclaration typeDecl, RecordComponent[] recComp
 	for (int i = 0, max = recComps.length; i < max; i++) {
 		RecordComponent recComp = recComps[i];
 		String argName = new String(recComp.name);
-		if (TypeDeclaration.disallowedComponentNames.contains(argName)) {
-			problemReporter().recordIllegalComponentNameInRecord(recComp, typeDecl);
-			continue;
-		}
 		if (argsSet.contains(argName)) {
 			// flag the error at the place where duplicate params of methods would have been flagged.
 			continue;
@@ -10469,8 +10465,6 @@ private void convertToFields(TypeDeclaration typeDecl, RecordComponent[] recComp
 			problemReporter().recordComponentCannotBeVoid(recComp);
 			continue;
 		}
-		if (recComp.isVarArgs() && i < max - 1)
-			problemReporter().recordIllegalVararg(recComp, typeDecl);
 
 		argsSet.add(argName);
 		FieldDeclaration f = fields[nFields++] = createFieldDeclaration(recComp.name, recComp.sourceStart, recComp.sourceEnd);
@@ -10645,17 +10639,8 @@ private void checkForRecordMemberErrors(TypeDeclaration typeDecl, int nCreatedFi
 	for (int i = nCreatedFields; i < typeDecl.fields.length; i++) {
 		FieldDeclaration f = typeDecl.fields[i];
 		if (f != null && !f.isStatic()) {
-			if (f instanceof Initializer initializer)
-				problemReporter().recordInstanceInitializerBlockInRecord(initializer);
-			else
+			if (!(f instanceof Initializer))
 				problemReporter().recordNonStaticFieldDeclarationInRecord(f);
-		}
-	}
-	if (typeDecl.methods != null) {
-		for (AbstractMethodDeclaration method : typeDecl.methods) {
-			if ((method.modifiers & ClassFileConstants.AccNative) != 0) {
-				problemReporter().recordIllegalNativeModifierInRecord(method);
-			}
 		}
 	}
 }

@@ -680,7 +680,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 7)\n" +
 			"	int z;\n" +
 			"	    ^\n" +
-			"User declared non-static fields z are not permitted in a record\n" +
+			"Instance fields may not be declared in a record class\n" +
 			"----------\n");
 	}
 	public void testBug550750_029() {
@@ -702,7 +702,17 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"interface I {}\n"
 				},
 			"----------\n" +
-			"1. ERROR in X.java (at line 11)\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	this.myInt = myInt;\n" +
+			"	^^^^^^^^^^\n" +
+			"Illegal explicit assignment of a final field myInt in compact constructor\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 9)\n" +
+			"	this.myZ = myZ;\n" +
+			"	^^^^^^^^\n" +
+			"Illegal explicit assignment of a final field myZ in compact constructor\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 11)\n" +
 			"	public native void foo();\n" +
 			"	                   ^^^^^\n" +
 			"Illegal modifier native for method foo; native methods are not allowed in record\n" +
@@ -914,7 +924,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 7)\n" +
 			"	private int f;\n" +
 			"	            ^\n" +
-			"User declared non-static fields f are not permitted in a record\n" +
+			"Instance fields may not be declared in a record class\n" +
 			"----------\n");
 	}
 	public void testBug550750_041() {

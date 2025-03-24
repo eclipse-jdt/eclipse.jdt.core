@@ -482,7 +482,6 @@ public abstract class AbstractMethodDeclaration
 	}
 
 	public boolean isCanonicalConstructor() {
-
 		return false;
 	}
 
