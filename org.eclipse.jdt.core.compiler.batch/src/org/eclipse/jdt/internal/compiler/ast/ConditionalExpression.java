@@ -551,12 +551,13 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 
 		if (this.constant != Constant.NotAConstant) {
 			this.constant = Constant.NotAConstant;
-			TypeBinding conditionType = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
+			// some types of nodes crash if you try to resolve them twice...
+			// (known case: QualifiedNameReference corrupts its own bits field on successful resolution)
+			TypeBinding conditionType = this.condition.resolvedType;
+			//TypeBinding conditionType = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
 			this.condition.computeConversion(scope, TypeBinding.BOOLEAN, conditionType);
 
 			if (this.valueIfTrue instanceof CastExpression) this.valueIfTrue.bits |= DisableUnnecessaryCastCheck; // will check later on
-			// some types of nodes crash if you try to resolve them twice...
-			// (known case: QualifiedNameReference corrupts its own bits field on successful resolution)
 			this.originalValueIfTrueType = this.valueIfTrue.resolvedType;
 			//this.originalValueIfTrueType = this.valueIfTrue.resolveTypeWithBindings(this.condition.bindingsWhenTrue(), scope);
 			if (this.valueIfFalse instanceof CastExpression) this.valueIfFalse.bits |= DisableUnnecessaryCastCheck; // will check later on
