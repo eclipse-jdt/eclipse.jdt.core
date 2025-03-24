@@ -51,6 +51,7 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
@@ -64,6 +65,8 @@ import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.CancelableNameEnvironment;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -323,7 +326,12 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 				// do nothing
 			}
 
-		}, opts, null, environment);
+		}, opts, new ProblemReporter(DefaultErrorHandlingPolicies.ignoreAllProblems() , null, new DefaultProblemFactory()) {
+			@Override
+			public int computeSeverity(int problemID) {
+				return ProblemSeverities.Ignore;
+			}
+		}, environment);
 
 		// resolve the requested bindings
 		for (String bindingKey : bindingKeys) {
