@@ -771,7 +771,11 @@ public class DOMToModelPopulator extends ASTVisitor {
 			return new SimpleEntry<>(null, IMemberValuePair.K_UNKNOWN);
 		}
 		if (dom instanceof StringLiteral stringValue) {
-			return new SimpleEntry<>(stringValue.getLiteralValue(), IMemberValuePair.K_STRING);
+			try {
+				return new SimpleEntry<>(stringValue.getLiteralValue(), IMemberValuePair.K_STRING);
+			} catch (IllegalArgumentException e) {
+				// lombok oddity, let's ignore
+			}
 		}
 		if (dom instanceof BooleanLiteral booleanValue) {
 			return new SimpleEntry<>(booleanValue.booleanValue(), IMemberValuePair.K_BOOLEAN);
