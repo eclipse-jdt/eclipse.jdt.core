@@ -312,13 +312,27 @@ class JavadocConverter {
 			});
 			res.fragments().addAll(convertElement(literal.body).toList());
 		} else if (javac instanceof DCLink link) {
-			res.setTagName(switch (link.getKind()) {
-				case LINK -> TagElement.TAG_LINK;
-				case LINK_PLAIN -> TagElement.TAG_LINKPLAIN;
-				default -> TagElement.TAG_LINK;
-			});
-			res.fragments().addAll(convertElement(link.ref).toList());
-			link.label.stream().flatMap(this::convertElement).forEach(res.fragments()::add);
+			res.setTagName(this.docComment.comment.getStyle() == CommentStyle.JAVADOC_LINE ? TagElement.TAG_LINK :
+				switch (link.getKind()) {
+					case LINK -> TagElement.TAG_LINK;
+					case LINK_PLAIN -> TagElement.TAG_LINKPLAIN;
+					default -> TagElement.TAG_LINK;
+				});
+			if (link.label != null && !link.label.isEmpty() && link.ref != null && link.label.getFirst().getStartPosition() < link.ref.getStartPosition()) {
+				// markdown style
+				link.label.stream().flatMap(this::convertElement).forEach(res.fragments()::add);
+				res.fragments().addAll(convertElement(link.ref).toList());
+				// workaround position not set by javadoc (not reported)
+			} else {
+				res.fragments().addAll(convertElement(link.ref).toList());
+				link.label.stream().flatMap(this::convertElement).forEach(res.fragments()::add);
+			}
+			if (res.getStartPosition() < 0) {
+				int start = ((ASTNode)res.fragments().getFirst()).getStartPosition() - 1 /* [ */;
+				ASTNode lastChild = (ASTNode)res.fragments().getLast(); 
+				int end = lastChild.getStartPosition() + lastChild.getLength() + 1 /* ) */;
+				res.setSourceRange(start, end - start);
+			}
 		} else if (javac instanceof DCValue dcv) {
 			res.setTagName(TagElement.TAG_VALUE);
 			res.fragments().addAll(convertElement(dcv.ref).toList());
@@ -603,10 +617,29 @@ class JavadocConverter {
 		if (javac instanceof DCText text) {
 			return splitLines(text, false).map(this::toTextElement);
 		} else if (javac instanceof DCRawText rawText) {
-			TextElement element = this.ast.newTextElement();
-			commonSettings(element, javac);
-			element.setText(rawText.getContent());
-			return Stream.of(element);
+			if (this.docComment.comment.getStyle() == CommentStyle.JAVADOC_LINE && rawText.getContent().contains("\n")) {
+				// un-combine multiple javadoc lines
+				String[] segments = rawText.getContent().split("\n");
+				List<TextElement> regions = new ArrayList<>(segments.length);
+				int currentStart = this.docComment.getSourcePosition(rawText.getStartPosition());
+				for (String segment : segments) {
+					int end = this.javacConverter.rawText.indexOf('\n', currentStart);
+					if (end < currentStart) {
+						end = this.docComment.getSourcePosition(rawText.getEndPosition());
+					}
+					TextElement element = this.ast.newTextElement();
+					element.setSourceRange(currentStart, segment.length());
+					element.setText(segment);
+					regions.add(element);
+					currentStart = this.javacConverter.rawText.indexOf("///", end);
+				}
+				return regions.stream();
+			} else {
+				TextElement element = this.ast.newTextElement();
+				commonSettings(element, javac);
+				element.setText(rawText.getContent());
+				return Stream.of(element);
+			}
 		} else if (javac instanceof DCIdentifier identifier) {
 			Name res = this.ast.newName(identifier.getName().toString());
 			commonSettings(res, javac);
