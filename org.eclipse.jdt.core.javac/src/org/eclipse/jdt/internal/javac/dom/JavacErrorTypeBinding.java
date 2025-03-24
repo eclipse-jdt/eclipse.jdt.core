@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.javac.dom;
 
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
 
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
@@ -68,6 +69,11 @@ public class JavacErrorTypeBinding extends JavacTypeBinding {
 		builder.append(typeName.replace(".", "$"));
 		builder.append(";");
 		return builder.toString();
+	}
+	
+	@Override
+	public ITypeBinding getErasure() {
+		return this.resolver.bindings.getTypeBinding(this.types.erasure(this.originatingSymbol.type));
 	}
 
 }
