@@ -44,6 +44,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -231,7 +232,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				if (getDeclaringMethod() != null && getDeclaringMethod().getJavaElement() instanceof IMethod method) {
 					// TODO find proper occurenceCount (eg checking the source range)
 					return resolved(method.getType(this.typeSymbol.name.toString(), 1));
-				}				
+				}
 			}
 			
 			JavaFileObject jfo = classSymbol == null ? null : classSymbol.sourcefile;
@@ -361,7 +362,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		return getGenericTypeSignature(this.type, this.typeSymbol, useSlashes);
 	}
 	public String getGenericTypeSignature(Type t, TypeSymbol s, boolean useSlashes) {
-		if( t instanceof ClassType ct && ct.getEnclosingType() != null ) {
+		if( t instanceof ClassType ct && !s.isAnonymous() && ct.getEnclosingType() != null ) {
 			// return 			Lg1/t/s/def/Generic<Ljava/lang/Exception;>.Member;  
 			// Don't return 	Lg1/t/s/def/Generic$Member<>;
 			Type enclosing = ct.getEnclosingType();
@@ -487,16 +488,17 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				}
 			}
 
-			/*
-			 * TODO - this name 'n' might be something like  test0502.A$1
-			 * but the test suite expects test0502.A$182,
-			 * where 182 is the location in the source of the symbol.
-			 */
 			String nameAsString = n.toString();
 			if (useSlashes) {
 				nameAsString = nameAsString.replace('.', '/');
 			}
 			nameAsString = nameAsString.replaceFirst("\\$([0-9]+)([A-Za-z$_][A-Za-z$_0-9]*)", "\\$$1\\$$2");
+			if (typeToBuild.tsym.isAnonymous()) {
+				ASTNode node = resolver.symbolToDeclaration.get(typeToBuild.tsym);
+				if (node != null && node.getParent() instanceof ClassInstanceCreation cic) {
+					nameAsString = nameAsString.replaceFirst("\\$([0-9]+)", "\\$" + cic.getType().getStartPosition());
+				}
+			}
 			builder.append(nameAsString);
 			// This is a hack and will likely need to be enhanced
 			if (typeToBuild.tsym instanceof ClassSymbol classSymbol && !(classSymbol.type instanceof ErrorType) && classSymbol.owner instanceof PackageSymbol) {

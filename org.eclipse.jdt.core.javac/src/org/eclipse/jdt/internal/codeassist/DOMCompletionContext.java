@@ -151,6 +151,9 @@ class DOMCompletionContext extends CompletionContext {
 		if (nodep instanceof TypeDeclaration typeDecl) {
 			return typeDecl.resolveBinding();
 		}
+		if (nodep instanceof AnonymousClassDeclaration anonymousClassDeclaration) {
+			return anonymousClassDeclaration.resolveBinding();
+		}
 		if (nodep instanceof MethodDeclaration methodDecl) {
 			return methodDecl.resolveBinding();
 		}
