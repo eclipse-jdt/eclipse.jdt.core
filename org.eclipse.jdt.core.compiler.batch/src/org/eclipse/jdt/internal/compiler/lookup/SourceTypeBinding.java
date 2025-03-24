@@ -263,8 +263,7 @@ public FieldBinding addSyntheticFieldForInnerclass(LocalVariableBinding actualOu
 			actualOuterLocalVariable.type,
 			ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal | ClassFileConstants.AccSynthetic,
 			this,
-			Constant.NotAConstant,
-			this.synthetics[SourceTypeBinding.FIELD_EMUL].size());
+			Constant.NotAConstant);
 		this.synthetics[SourceTypeBinding.FIELD_EMUL].put(actualOuterLocalVariable, synthField);
 	}
 
@@ -314,8 +313,7 @@ public FieldBinding addSyntheticFieldForInnerclass(ReferenceBinding enclosingTyp
 			enclosingType,
 			ClassFileConstants.AccDefault | ClassFileConstants.AccFinal | ClassFileConstants.AccSynthetic,
 			this,
-			Constant.NotAConstant,
-			this.synthetics[SourceTypeBinding.FIELD_EMUL].size());
+			Constant.NotAConstant);
 		this.synthetics[SourceTypeBinding.FIELD_EMUL].put(enclosingType, synthField);
 	}
 	// ensure there is not already such a field defined by the user
@@ -345,6 +343,20 @@ public FieldBinding addSyntheticFieldForInnerclass(ReferenceBinding enclosingTyp
 	} while (needRecheck);
 	return synthField;
 }
+/* For a record class, add a new synthetic instance field corresponding to a component in the record header
+ * Any clash with existing fields to be dealt with at call site
+ */
+public void addSyntheticRecordState(RecordComponent component, FieldBinding synthField) {
+
+	if (!isPrototype()) throw new IllegalStateException();
+
+	if (this.synthetics == null)
+		this.synthetics = new LinkedHashMap[MAX_SYNTHETICS];
+	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
+		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new LinkedHashMap(5);
+
+	this.synthetics[SourceTypeBinding.FIELD_EMUL].put(component, synthField);
+}
 /* Add a new synthetic field for the emulation of the assert statement.
 *	Answer the new field or the existing field if one already existed.
 */
@@ -364,8 +376,7 @@ public FieldBinding addSyntheticFieldForAssert(BlockScope blockScope) {
 			TypeBinding.BOOLEAN,
 			(isInterface() ? ClassFileConstants.AccPublic : ClassFileConstants.AccDefault) | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic | ClassFileConstants.AccFinal,
 			this,
-			Constant.NotAConstant,
-			this.synthetics[SourceTypeBinding.FIELD_EMUL].size());
+			Constant.NotAConstant);
 		this.synthetics[SourceTypeBinding.FIELD_EMUL].put("assertionEmulation", synthField); //$NON-NLS-1$
 	}
 	// ensure there is not already such a field defined by the user
@@ -410,8 +421,7 @@ public FieldBinding addSyntheticFieldForEnumValues() {
 			this.scope.createArrayType(this,1),
 			ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic | ClassFileConstants.AccFinal,
 			this,
-			Constant.NotAConstant,
-			this.synthetics[SourceTypeBinding.FIELD_EMUL].size());
+			Constant.NotAConstant);
 		this.synthetics[SourceTypeBinding.FIELD_EMUL].put("enumConstantValues", synthField); //$NON-NLS-1$
 	}
 	// ensure there is not already such a field defined by the user
@@ -504,8 +514,7 @@ public SyntheticFieldBinding addSyntheticFieldForSwitchEnum(char[] fieldName, St
 			this.scope.createArrayType(TypeBinding.INT,1),
 			(isInterface() ? (ClassFileConstants.AccPublic | ClassFileConstants.AccFinal) : ClassFileConstants.AccPrivate | ClassFileConstants.AccVolatile) | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic,
 			this,
-			Constant.NotAConstant,
-			this.synthetics[SourceTypeBinding.FIELD_EMUL].size());
+			Constant.NotAConstant);
 		this.synthetics[SourceTypeBinding.FIELD_EMUL].put(key, synthField);
 	}
 	// ensure there is not already such a field defined by the user
@@ -1220,11 +1229,19 @@ public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
 			componentDecl.binding = null;
 			return null;
 		}
+		if (TypeDeclaration.disallowedComponentNames.contains(new String(componentDecl.name))) {
+			this.scope.problemReporter().recordIllegalComponentNameInRecord(componentDecl, this.scope.referenceContext);
+			componentDecl.binding = null;
+			return null;
+		}
 		if (componentType == TypeBinding.VOID) {
 			this.scope.problemReporter().recordComponentCannotBeVoid(componentDecl);
 			componentDecl.binding = null;
 			return null;
 		}
+		if (componentDecl.isVarArgs() && f < length - 1)
+			this.scope.problemReporter().recordIllegalVararg(componentDecl, this.scope.referenceContext);
+
 		if (componentType.isArrayType() && ((ArrayBinding) componentType).leafComponentType == TypeBinding.VOID) {
 			this.scope.problemReporter().variableTypeCannotBeVoidArray(componentDecl);
 			componentDecl.binding = null;
@@ -1256,6 +1273,17 @@ public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
 
 		if (this.externalAnnotationProvider != null) {
 			ExternalAnnotationSuperimposer.annotateComponentBinding(component, this.externalAnnotationProvider, this.environment);
+		}
+		// As we resolve types for the component, patch up the corresponding instance variable
+		for (FieldBinding field : this.fields) {
+			if (CharOperation.equals(field.name, component.name)) {
+				field.type = componentType;
+				field.modifiers |= component.modifiers & ExtraCompilerModifiers.AccGenericSignature;
+				field.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
+				ASTNode.copyRecordComponentAnnotations(initializationScope, field, annotations);
+				// what else ?
+				break;
+			}
 		}
 		return component;
 	}
@@ -1302,6 +1330,16 @@ public FieldBinding[] fields() {
 					System.arraycopy(fieldsSnapshot, 0, resolvedFields = new FieldBinding[length], 0, length);
 				}
 				resolvedFields[i] = null;
+				if (this.isRecord() && !fieldsSnapshot[i].isStatic()) {
+					Iterator<Map.Entry<?, ?>> iterator = this.synthetics[SourceTypeBinding.FIELD_EMUL].entrySet().iterator();
+			        while (iterator.hasNext()) {
+			            Map.Entry<?, ?> entry = iterator.next();
+			            if (entry.getValue().equals(fieldsSnapshot[i])) {
+			                iterator.remove();
+			                break;
+			            }
+			        }
+				}
 				failed++;
 			}
 		}
@@ -2348,6 +2386,7 @@ private MethodBinding checkRecordCanonicalConstructor(MethodBinding explicitCano
 	if (explicitCanonicalConstructor.thrownExceptions != null && explicitCanonicalConstructor.thrownExceptions.length > 0)
 		this.scope.problemReporter().recordCanonicalConstructorHasThrowsClause(methodDecl);
 	checkCanonicalConstructorParameterNames(explicitCanonicalConstructor, methodDecl);
+	methodDecl.bits |= ASTNode.IsCanonicalConstructor;
 	explicitCanonicalConstructor.extendedTagBits |= ExtendedTagBits.IsCanonicalConstructor;
 //	checkAndFlagExplicitConstructorCallInCanonicalConstructor(methodDecl);
 	return explicitCanonicalConstructor;
@@ -2449,27 +2488,13 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 				field.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 			}
 
-			Annotation[] relevantRecordComponentAnnotations = null;
-			if (sourceLevel >= ClassFileConstants.JDK14) {
-				// copy annotations from record component if applicable
-				if (field.isRecordComponent()) {
-					RecordComponentBinding rcb = getRecordComponent(field.name);
-					if (rcb != null)
-						relevantRecordComponentAnnotations = ASTNode.copyRecordComponentAnnotations(initializationScope,
-								field, rcb.sourceRecordComponent().annotations);
-				}
+			Annotation [] annotations = fieldDecl.annotations;
+			if (annotations != null && annotations.length != 0) {
+				ASTNode.copySE8AnnotationsToType(initializationScope, field, annotations,
+						fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT); // type annotation is illegal on enum constant
 			}
-			if (sourceLevel >= ClassFileConstants.JDK1_8) {
-				Annotation [] annotations = fieldDecl.annotations;
-				if (annotations == null && relevantRecordComponentAnnotations != null) // field represents a record component.
-					annotations = relevantRecordComponentAnnotations;
+			Annotation.isTypeUseCompatible(fieldDecl.type, this.scope, annotations);
 
-				if (annotations != null && annotations.length != 0) {
-					ASTNode.copySE8AnnotationsToType(initializationScope, field, annotations,
-							fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT); // type annotation is illegal on enum constant
-				}
-				Annotation.isTypeUseCompatible(fieldDecl.type, this.scope, annotations);
-			}
 			// apply null default:
 			if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
 				// TODO(SH): different strategy for 1.8, or is "repair" below enough?
@@ -3189,13 +3214,13 @@ public FieldBinding[] syntheticFields() {
 	FieldBinding[] bindings = new FieldBinding[fieldSize];
 
 	// add innerclass synthetics
-	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] != null) {
-		Iterator elements = this.synthetics[SourceTypeBinding.FIELD_EMUL].values().iterator();
-		for (int i = 0; i < fieldSize; i++) {
-			SyntheticFieldBinding synthBinding = (SyntheticFieldBinding) elements.next();
-			bindings[synthBinding.index] = synthBinding;
-		}
+
+	Iterator elements = this.synthetics[SourceTypeBinding.FIELD_EMUL].values().iterator();
+	for (int i = 0; i < fieldSize; i++) {
+		SyntheticFieldBinding synthBinding = (SyntheticFieldBinding) elements.next();
+		bindings[i] = synthBinding;
 	}
+
 	return bindings;
 }
 @Override

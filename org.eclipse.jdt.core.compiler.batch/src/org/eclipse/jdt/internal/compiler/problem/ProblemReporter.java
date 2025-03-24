@@ -2073,13 +2073,13 @@ public void duplicateEnumSpecialMethod(SourceTypeBinding type, AbstractMethodDec
 		methodDecl.sourceEnd);
 }
 
-public void duplicateFieldInType(SourceTypeBinding type, FieldDeclaration fieldDecl) {
+public void duplicateFieldInType(SourceTypeBinding type, AbstractVariableDeclaration variableDeclaration) {
 	this.handle(
 		IProblem.DuplicateField,
-		new String[] {new String(type.sourceName()), new String(fieldDecl.name)},
-		new String[] {new String(type.shortReadableName()), new String(fieldDecl.name)},
-		fieldDecl.sourceStart,
-		fieldDecl.sourceEnd);
+		new String[] {new String(type.sourceName()), new String(variableDeclaration.name)},
+		new String[] {new String(type.shortReadableName()), new String(variableDeclaration.name)},
+		variableDeclaration.sourceStart,
+		variableDeclaration.sourceEnd);
 }
 public void duplicateImport(ImportReference importRef) {
 	String[] arguments = new String[] {CharOperation.toString(importRef.tokens)};

@@ -317,6 +317,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	// for all reference context entries.
 	public static final int HasFunctionalInterfaceTypes = ASTNode.Bit22;
 
+	public static final FieldDeclaration [] NO_FIELD_DECLARATIONS = new FieldDeclaration [0];
 	public static final Argument [] NO_ARGUMENTS = new Argument [0];
 	public static final RecordComponent [] NO_RECORD_COMPONENTS = new RecordComponent [0];
 	public static final TypePattern[] NO_TYPE_PATTERNS = new TypePattern[0];

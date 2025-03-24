@@ -19,13 +19,13 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
-public class CompletionTests14 extends AbstractJavaModelCompletionTests {
+public class CompletionTests16 extends AbstractJavaModelCompletionTests {
 
 	static {
 		//		TESTS_NAMES = new String[]{"test034"};
 	}
 
-	public CompletionTests14(String name) {
+	public CompletionTests16(String name) {
 		super(name);
 	}
 
@@ -40,7 +40,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 	}
 
 	public static Test suite() {
-		return buildModelTestSuite(CompletionTests14.class);
+		return buildModelTestSuite(CompletionTests16.class);
 	}
 
 	public void test001() throws JavaModelException {
@@ -923,11 +923,11 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				"R[TYPE_REF]{R, , LR;, null, null, " + +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"X[TYPE_REF]{X, , LX;, null, null, " + +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, " +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, " +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, " +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"implementMe[METHOD_DECLARATION]{public void implementMe(), LBaseInterface;, ()V, implementMe, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Record;, (Ljava.lang.Object;)Z, equals, (obj), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_ABSTRACT_METHOD) + "}\n" +
+				"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Record;, ()I, hashCode, null, " +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_ABSTRACT_METHOD) + "}\n" +
+				"implementMe[METHOD_DECLARATION]{public void implementMe(), LBaseInterface;, ()V, implementMe, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Record;, ()Ljava.lang.String;, toString, null, " +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_ABSTRACT_METHOD) + "}",
 				requestor.getResults());
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1095
@@ -976,10 +976,10 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				"R[TYPE_REF]{R, , LR;, null, null, " + +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"X[TYPE_REF]{X, , LX;, null, null, " + +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, " +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, " +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"implementMe[METHOD_DECLARATION]{public void implementMe(), LBaseInterface;, ()V, implementMe, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Record;, (Ljava.lang.Object;)Z, equals, (obj), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_ABSTRACT_METHOD) + "}\n" +
+				"implementMe[METHOD_DECLARATION]{public void implementMe(), LBaseInterface;, ()V, implementMe, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Record;, ()Ljava.lang.String;, toString, null, " +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_ABSTRACT_METHOD) + "}",
 				requestor.getResults());
 	}
 

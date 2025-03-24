@@ -43,11 +43,9 @@ import java.lang.Runtime.Version;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -2490,6 +2488,7 @@ protected void consumeClassBodyopt() {
 }
 protected void consumeClassDeclaration() {
 	// ClassDeclaration ::= ClassHeader ClassBody
+	// RecordDeclaration ::= RecordHeaderPart ClassBody
 
 	int length;
 	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
@@ -2503,11 +2502,14 @@ protected void consumeClassDeclaration() {
 	//convert constructor that do not have the type's name into methods
 	boolean hasConstructor = typeDecl.checkConstructors(this);
 
-	//add the default constructor when needed (interface don't have it)
-	if (!hasConstructor) {
+	// add the default constructor when needed (interface don't have it)
+	// availability of _some_ constructor for a record class does not obviate the need for canonical constructor, we go ahead and generate one weeding out
+	// duplicates later. This is how things have been forever, we retain the behavior for now, but this will change and get cleaned up later.
+	if (!hasConstructor || typeDecl.isRecord()) {
 		switch(TypeDeclaration.kind(typeDecl.modifiers)) {
 			case TypeDeclaration.CLASS_DECL :
 			case TypeDeclaration.ENUM_DECL :
+			case TypeDeclaration.RECORD_DECL :
 				boolean insideFieldInitializer = false;
 				if (this.diet) {
 					for (int i = this.nestedType; i > 0; i--){
@@ -2520,10 +2522,14 @@ protected void consumeClassDeclaration() {
 				typeDecl.createDefaultConstructor(!(this.diet && this.dietInt == 0) || insideFieldInitializer, true);
 		}
 	}
-	//always add <clinit> (will be remove at code gen time if empty)
+
+	if (typeDecl.isRecord())
+		typeDecl.getConstructor(this); // will get cleaned up in due course.
+
 	if (this.scanner.containsAssertKeyword) {
 		typeDecl.bits |= ASTNode.ContainsAssertion;
 	}
+	//always add <clinit> (will be remove at code gen time if empty)
 	typeDecl.addClinit();
 	typeDecl.bodyEnd = this.endStatementPosition;
 	if (length == 0 && !containsComment(typeDecl.bodyStart, typeDecl.bodyEnd)) {
@@ -2992,6 +2998,9 @@ protected void consumeConstructorHeaderName(boolean isCompact) {
 											return isCompact;
 										}
 									};
+
+	if (isCompact)
+		cd.bits |= ASTNode.IsCanonicalConstructor;
 
 	//name -- this is not really revelant but we do .....
 	cd.selector = this.identifierStack[this.identifierPtr];
@@ -7069,7 +7078,7 @@ protected void consumeRule(int act) {
 		    consumeInvalidConstructorDeclaration(false); 			break;
 
     case 331 : if (DEBUG) { System.out.println("RecordDeclaration ::= RecordHeaderPart ClassBody"); }  //$NON-NLS-1$
-		    consumeRecordDeclaration(); 			break;
+		    consumeClassDeclaration(); 			break;
 
     case 332 : if (DEBUG) { System.out.println("RecordHeaderPart ::= RecordHeaderName RecordHeader..."); }  //$NON-NLS-1$
 		    consumeRecordHeaderPart(); 			break;
@@ -10364,44 +10373,7 @@ protected void consumeWildcardWithBounds() {
 	// Nothing to do
 	// The wildcard is created by the consumeWildcardBoundsExtends or by consumeWildcardBoundsSuper
 }
-/* Java 14 preview - records */
-protected void consumeRecordDeclaration() {
-	// RecordDeclaration ::= RecordHeaderPart RecordBody
-
-	int length;
-	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
-		//there are length declarations
-		//dispatch according to the type of the declarations
-		dispatchDeclarationIntoRecordDeclaration(length);
-	}
-
-	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
-	problemReporter().validateJavaFeatureSupport(JavaFeature.RECORDS, typeDecl.sourceStart, typeDecl.sourceEnd);
-	/* create canonical constructor - check for the clash later at binding time */
-	/* https://github.com/eclipse-jdt/eclipse.jdt.core/issues/365 */
-	typeDecl.createDefaultConstructor(!(this.diet && this.dietInt == 0), true);
-	//convert constructor that do not have the type's name into methods
-	ConstructorDeclaration cd = typeDecl.getConstructor(this);
-	if (cd.isCompactConstructor()
-		|| ((typeDecl.recordComponents == null || typeDecl.recordComponents.length == 0)
-		&& (cd.arguments == null || cd.arguments.length == 0))) {
-		cd.bits |= ASTNode.IsCanonicalConstructor;
-	}
-	if (this.scanner.containsAssertKeyword) {
-		typeDecl.bits |= ASTNode.ContainsAssertion;
-	}
-	typeDecl.addClinit();
-	typeDecl.bodyEnd = this.endStatementPosition;
-	if (length == 0 && !containsComment(typeDecl.bodyStart, typeDecl.bodyEnd)) {
-		typeDecl.bits |= ASTNode.UndocumentedEmptyBlock;
-	}
-	char[][] sources = TypeConstants.JAVA_LANG_RECORD;
-	long[] poss = new long[sources.length];
-	Arrays.fill(poss, 0);
-	TypeReference superClass = new QualifiedTypeReference(sources, poss);
-	typeDecl.superclass = superClass;
-	typeDecl.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
-}
+/* Java 16 - records */
 protected void consumeRecordHeaderPart() {
 	// RecordHeaderPart ::= RecordHeaderName RecordHeader ClassHeaderImplementsopt
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
@@ -10436,7 +10408,7 @@ protected void consumeRecordComponentHeaderRightParen() {
 				0,
 				length);
 		typeDecl.recordComponents = recComps;
-		convertToFields(typeDecl, recComps);
+		typeDecl.nRecordComponents = recComps.length;
 	} else {
 		typeDecl.recordComponents = ASTNode.NO_RECORD_COMPONENTS;
 	}
@@ -10449,84 +10421,6 @@ protected void consumeRecordComponentHeaderRightParen() {
 	}
 	resetModifiers();
 }
-private void convertToFields(TypeDeclaration typeDecl, RecordComponent[] recComps) {
-	int length = recComps.length;
-	FieldDeclaration[] fields = new FieldDeclaration[length];
-	int nFields = 0;
-	Set<String> argsSet = new HashSet<>();
-	for (int i = 0, max = recComps.length; i < max; i++) {
-		RecordComponent recComp = recComps[i];
-		String argName = new String(recComp.name);
-		if (TypeDeclaration.disallowedComponentNames.contains(argName)) {
-			problemReporter().recordIllegalComponentNameInRecord(recComp, typeDecl);
-			continue;
-		}
-		if (argsSet.contains(argName)) {
-			// flag the error at the place where duplicate params of methods would have been flagged.
-			continue;
-		}
-		if (recComp.type.getLastToken() == TypeConstants.VOID) {
-			problemReporter().recordComponentCannotBeVoid(recComp);
-			continue;
-		}
-		if (recComp.isVarArgs() && i < max - 1)
-			problemReporter().recordIllegalVararg(recComp, typeDecl);
-
-		argsSet.add(argName);
-		FieldDeclaration f = fields[nFields++] = createFieldDeclaration(recComp.name, recComp.sourceStart, recComp.sourceEnd);
-		f.bits = recComp.bits;
-		f.declarationSourceStart = recComp.declarationSourceStart;
-		f.declarationEnd = recComp.declarationEnd;
-		f.declarationSourceEnd = recComp.declarationSourceEnd;
-		f.endPart1Position = recComp.sourceEnd; //TODO BETA_JAVA14 - recheck
-		f.endPart2Position = recComp.declarationSourceEnd;
-		f.modifiers = ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal;
-		// Note: JVMS 14 S 4.7.8 The Synthetic Attribute mandates do not mark Synthetic for Record compoents.
-		// hence marking this "explicitly" as implicit.
-		f.isARecordComponent = true;
-		/*
-		 * JLS 14 Sec 8.10.1 Record Header
-		 * The record header declares a number of record components. The record components
-		 * declare the fields of the record class. Each record component in the RecordHeader
-		 * declares one private final field in the record class whose name is same as the
-		 * Identifier in the record component.
-		 *
-		 * JLS 14 Sec 8.10.3 Record Components
-		 * For each record component appearing in the record component list:
-		 * An implicitly declared private final field with the same name as the record
-		 * component and the type as the declared type of the record component.
-		 */
-		f.modifiers |= ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal;
-		f.modifiers |= ExtraCompilerModifiers.AccRecord;
-		f.modifiersSourceStart = recComp.modifiersSourceStart;
-		f.sourceStart = recComp.sourceStart;
-		f.sourceEnd = recComp.sourceEnd;
-		f.type = recComp.type;
-		/*
-		 * JLS 14 SEC 8.10.3 Item 1 says the following:
-		 *  "This field is annotated with the annotation that appears on the corresponding
-		 *  record component, if this annotation type is applicable to a field declaration
-		 *  or type context."
-		 *
-		 *  However, at this point there is no sufficient information to conclude the ElementType
-		 *  targeted by the annotation. Hence, do a blanket assignment for now and later (read binding
-		 *  time) weed out the irrelevant ones.
-		 */
-//		f.annotations = recComp.annotations;
-//		comp.annotations = null;
-		if ((recComp.bits & ASTNode.HasTypeAnnotations) != 0) {
-			f.bits |= ASTNode.HasTypeAnnotations;
-		}
-	}
-	if (nFields < fields.length) {
-		// Note: This happens only if there are errors in the code.
-		FieldDeclaration[] tmp = new FieldDeclaration[nFields];
-		System.arraycopy(fields	, 0, tmp, 0, nFields);
-		fields = tmp;
-	}
-	typeDecl.fields = fields;
-	typeDecl.nRecordComponents = fields.length;
-}
 protected void consumeRecordHeader() {
 	//RecordHeader ::= '(' RecordComponentsopt RecordComponentHeaderRightParen
 	//TODO: BETA_JAVA14_RECORD flag TypeDeclaration.RECORD_DECL ?
@@ -10535,131 +10429,7 @@ protected void consumeRecordComponentsopt() {
 	// RecordComponentsopt ::= $empty
 	pushOnAstLengthStack(0);
 }
-protected void dispatchDeclarationIntoRecordDeclaration(int length) {
-	/* they are length on this.astStack that should go into
-	   methods fields constructors lists of the typeDecl
-
-	   Return if there is a constructor declaration in the methods declaration */
-
-
-	// Looks for the size of each array .
-
-	if (length == 0)
-		return;
-	int[] flag = new int[length + 1]; //plus one -- see <HERE>
-	int nFields = 0, size2 = 0, size3 = 0;
-	boolean hasAbstractMethods = false;
-	for (int i = length - 1; i >= 0; i--) {
-		ASTNode astNode = this.astStack[this.astPtr--];
-		if (astNode instanceof AbstractMethodDeclaration methodDeclaration) {
-			//methods and constructors have been regrouped into one single list
-			flag[i] = 2;
-			size2++;
-			if (methodDeclaration.isAbstract()) {
-				hasAbstractMethods = true;
-			}
-		} else if (astNode instanceof TypeDeclaration) {
-			flag[i] = 3;
-			size3++;
-		} else {
-			//field
-			flag[i] = 1;
-			nFields++;
-		}
-	}
-
-	//arrays creation
-	TypeDeclaration recordDecl = (TypeDeclaration) this.astStack[this.astPtr];
-	int nCreatedFields = recordDecl.fields != null ? recordDecl.fields.length : 0;
-	if (nFields != 0) {
-		FieldDeclaration[] tmp = new FieldDeclaration[(recordDecl.fields != null ? recordDecl.fields.length  : 0) + nFields];
-		if (recordDecl.fields != null)
-			System.arraycopy(
-					recordDecl.fields,
-					0,
-					tmp,
-					0,
-					recordDecl.fields.length);
-		recordDecl.fields = tmp;
-	}
-	if (size2 != 0) {
-		recordDecl.methods = new AbstractMethodDeclaration[size2];
-		if (hasAbstractMethods) recordDecl.bits |= ASTNode.HasAbstractMethods;
-	}
-	if (size3 != 0) {
-		recordDecl.memberTypes = new TypeDeclaration[size3];
-	}
-
-	//arrays fill up
-	nFields = nCreatedFields;
-	size2 = size3 = 0;
-	int flagI = flag[0], start = 0;
-	int length2;
-	for (int end = 0; end <= length; end++) //<HERE> the plus one allows to
-		{
-		if (flagI != flag[end]) //treat the last element as a ended flag.....
-			{ //array copy
-			switch (flagI) {
-				case 1 :
-					nFields += (length2 = end - start);
-					System.arraycopy(
-						this.astStack,
-						this.astPtr + start + 1,
-						recordDecl.fields,
-						nFields - length2,
-						length2);
-					break;
-				case 2 :
-					size2 += (length2 = end - start);
-					System.arraycopy(
-						this.astStack,
-						this.astPtr + start + 1,
-						recordDecl.methods,
-						size2 - length2,
-						length2);
-					break;
-				case 3 :
-					size3 += (length2 = end - start);
-					System.arraycopy(
-						this.astStack,
-						this.astPtr + start + 1,
-						recordDecl.memberTypes,
-						size3 - length2,
-						length2);
-					break;
-			}
-			flagI = flag[start = end];
-		}
-	}
-	checkForRecordMemberErrors(recordDecl, nCreatedFields);
-
-	if (recordDecl.memberTypes != null) {
-		for (int i = recordDecl.memberTypes.length - 1; i >= 0; i--) {
-			recordDecl.memberTypes[i].enclosingType = recordDecl;
-		}
-	}
-}
-private void checkForRecordMemberErrors(TypeDeclaration typeDecl, int nCreatedFields) {
-	if (typeDecl.fields == null)
-		return;
-	for (int i = nCreatedFields; i < typeDecl.fields.length; i++) {
-		FieldDeclaration f = typeDecl.fields[i];
-		if (f != null && !f.isStatic()) {
-			if (f instanceof Initializer initializer)
-				problemReporter().recordInstanceInitializerBlockInRecord(initializer);
-			else
-				problemReporter().recordNonStaticFieldDeclarationInRecord(f);
-		}
-	}
-	if (typeDecl.methods != null) {
-		for (AbstractMethodDeclaration method : typeDecl.methods) {
-			if ((method.modifiers & ClassFileConstants.AccNative) != 0) {
-				problemReporter().recordIllegalNativeModifierInRecord(method);
-			}
-		}
-	}
-}
-/* Java 14 preview - records - end*/
+/* Java 16 - Records - end */
 /**
  * Given the current comment stack, answer whether some comment is available in a certain exclusive range
  *

@@ -2416,10 +2416,7 @@ void setSourceStart(int sourceStart);
 	int RecordIllegalModifierForInnerRecord = TypeRelated + 1730;
 	/** @since 3.26 */
 	int RecordIllegalModifierForRecord = TypeRelated + 1731;
-	/** @since 3.26
-	 * JLS 14 Sec 8.10.1
-	 * it is always a compile-time error for a record header to declare a record component with the name
-	 * finalize, getClass, hashCode, notify, notifyAll, or toString. */
+	/** @since 3.26 */
 	int RecordIllegalComponentNameInRecord = TypeRelated + 1732;
 	/** @since 3.26
 	 */
