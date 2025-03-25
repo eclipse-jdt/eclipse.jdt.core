@@ -1143,7 +1143,7 @@ InterfaceMemberDeclaration -> RecordDeclaration
 -----------------------------------------------
 
 RecordDeclaration ::= RecordHeaderPart ClassBody
-/.$putCase consumeRecordDeclaration(); $break ./
+/.$putCase consumeClassDeclaration(); $break ./
 /:$readableName RecordDeclaration:/
 /:$compliance 16:/
 
@@ -3122,4 +3122,5 @@ UNDERSCORE ::= '_'
 
 $end
 -- need a carriage return after the $end
+
 

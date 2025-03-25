@@ -88,6 +88,7 @@ public class RecordComponent extends AbstractVariableDeclaration {
 		return RECORD_COMPONENT;
 	}
 
+	@Override
 	public void getAllAnnotationContexts(int targetType, List<AnnotationContext> allAnnotationContexts) {
 		AnnotationCollector collector = new AnnotationCollector(this, targetType, allAnnotationContexts);
 		for (Annotation annotation : this.annotations) {

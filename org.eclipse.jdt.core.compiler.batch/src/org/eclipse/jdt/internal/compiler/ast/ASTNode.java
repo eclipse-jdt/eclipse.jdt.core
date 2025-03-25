@@ -1281,6 +1281,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		}
 		return filteredAnnotations.toArray(new Annotation[0]);
 	}
+	// here
 	public static Annotation[] copyRecordComponentAnnotations(Scope scope, Binding recipient, Annotation[] annotations) {
 		if (annotations == null || annotations.length == 0 || recipient == null)
 			return null;

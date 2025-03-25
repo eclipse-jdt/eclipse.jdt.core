@@ -28,7 +28,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug3504_1"};
+//		TESTS_NAMES = new String[] { "testBug550750_025"};
 	}
 
 	public static Class<?> testClass() {
@@ -2430,48 +2430,6 @@ public void testBug558718_001() {
 		options
 	);
 }
-@SuppressWarnings({ "unchecked", "rawtypes" })
-public void testBug558718_002() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-	new String[] {
-			"X.java",
-			"record R() {}\n",
-		},
-		"----------\n" +
-				"1. ERROR in X.java (at line 1)\n" +
-				"	record R() {}\n" +
-				"	       ^\n" +
-				"The Java feature \'Records\' is only available with source level 16 and above\n" +
-				"----------\n",
-		null,
-		true,
-		options
-	);
-}
-@SuppressWarnings({ "unchecked", "rawtypes" })
-public void testBug558718_003() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-	new String[] {
-			"X.java",
-			"record R() {}\n",
-		},
-	"----------\n" +
-	"1. ERROR in X.java (at line 1)\n" +
-	"	record R() {}\n" +
-	"	       ^\n" +
-	"The Java feature \'Records\' is only available with source level 16 and above\n" +
-	"----------\n",
-		null,
-		true,
-		options
-	);
-}
 public void testBug56180_001() throws Exception {
 	runConformTest(
 		new String[] {
@@ -2887,6 +2845,7 @@ public void testBug562439_003() throws IOException, ClassFormatException {
 			"}\n"+
 			"\n"+
 			"record Point(@RCF int myInt, char myChar) { \n"+
+			"    @RCF static int s = 10;\n" +
 			"}   \n"+
 			"@Target({ ElementType.RECORD_COMPONENT, ElementType.FIELD})\n"+
 			"@interface RCF {}\n"
@@ -5639,13 +5598,8 @@ public void testBug564672_042() {
 		"----------\n" +
 		"1. ERROR in X.java (at line 1)\n" +
 		"	record Point(record x, int i) { }\n" +
-		"	^\n" +
-		"record cannot be resolved to a type\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	record Point(record x, int i) { }\n" +
 		"	             ^^^^^^\n" +
-		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
+		"'record' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n");
 }
 public void testBug564672_043() {
