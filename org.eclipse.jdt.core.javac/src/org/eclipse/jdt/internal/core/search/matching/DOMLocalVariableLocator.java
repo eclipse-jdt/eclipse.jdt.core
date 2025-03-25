@@ -12,6 +12,9 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import java.util.Objects;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ChildPropertyDescriptor;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -20,6 +23,7 @@ import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.search.LocatorResponse;
 
@@ -59,28 +63,71 @@ public class DOMLocalVariableLocator extends DOMPatternLocator {
 			return toResponse(IMPOSSIBLE_MATCH);
 		}
 		if (Objects.equals(binding.getJavaElement(), getLocalVariable())) {
-			return toResponse(ACCURATE_MATCH);
+			// We need to know if this is a reference request or a declaration request
+			if (this.locator.pattern.findReferences) {
+				return new LocatorResponse(ACCURATE_MATCH, false, node, false, false);
+			} else if (this.locator.pattern.findDeclarations) {
+				// we need to make sure the node has a VariableDeclaration in its ancestry
+				boolean isDecl = hasVariableDeclarationAncestor(node);
+				if( isDecl) {
+					return new LocatorResponse(ACCURATE_MATCH, false, node, false, false);
+				}
+				return toResponse(IMPOSSIBLE_MATCH);
+			}
 		}
 		return toResponse(INACCURATE_MATCH);
 	}
 
+	private boolean hasVariableDeclarationAncestor(ASTNode node) {
+		ASTNode working = node;
+		while(working != null ) {
+			if( working instanceof VariableDeclaration) {
+				return true;
+			}
+			working = working.getParent();
+		}
+		return false;
+	}
+
 	@Override
 	public LocatorResponse match(VariableDeclaration node, NodeSetWrapper nodeSet, MatchLocator locator) {
-		int referencesLevel = IMPOSSIBLE_MATCH;
-		if (this.locator.pattern.findReferences)
+		int defaultLevelOnMatch = this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+		if (this.locator.pattern.findReferences) {
 			// must be a write only access with an initializer
-			if (this.locator.pattern.writeAccess && !this.locator.pattern.readAccess && node.getInitializer() != null)
-				if (this.locator.matchesName(this.locator.pattern.name, node.getName().getIdentifier().toCharArray()))
-					referencesLevel = this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
-
-		int declarationsLevel = IMPOSSIBLE_MATCH;
-		if (this.locator.pattern.findDeclarations)
-			if (this.locator.matchesName(this.locator.pattern.name, node.getName().getIdentifier().toCharArray()))
-				if (getLocalVariable() != null && node.getStartPosition() == getLocalVariable().declarationSourceStart)
-					declarationsLevel = this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
-
-		// Use the stronger match
-		int level = nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel);
-		return toResponse(level, true);
+			if (this.locator.pattern.writeAccess && !this.locator.pattern.readAccess && node.getInitializer() != null) {
+				if (this.locator.matchesName(this.locator.pattern.name, node.getName().getIdentifier().toCharArray())) {
+					return toResponse(defaultLevelOnMatch, false);
+				}
+			}
+		}
+		
+		if (this.locator.pattern.findDeclarations) {
+			if (this.locator.matchesName(this.locator.pattern.name, node.getName().getIdentifier().toCharArray())) {
+				LocalVariable lvFromPattern = getLocalVariable();
+				if (lvFromPattern != null ) { 
+					if(node.getStartPosition() == lvFromPattern.declarationSourceStart) {
+						return toResponse(defaultLevelOnMatch, false);
+					} else if( node.getName().getStartPosition() == lvFromPattern.nameStart) {
+						return new LocatorResponse(defaultLevelOnMatch, true, node.getName(), false, false);
+					}
+				}
+			}
+		}
+		return toResponse(0, false);
 	}
+	
+	@Override
+	public void reportSearchMatch(MatchLocator locator, ASTNode node, SearchMatch match) throws CoreException {
+		if(this.locator.pattern.findDeclarations && hasVariableDeclarationAncestor(node) ) {
+			LocalVariable localVariable = getLocalVariable();
+			int offset = localVariable.nameStart;
+			int length = localVariable.nameEnd-offset+1;
+			IJavaElement element = localVariable;
+			SearchMatch newMatch = locator.newDeclarationMatch(element, null, match.getAccuracy(), offset, length);
+			SearchMatchingUtility.reportSearchMatch(locator, newMatch);
+		} else {
+			SearchMatchingUtility.reportSearchMatch(locator, match);
+		}
+	}
+
 }

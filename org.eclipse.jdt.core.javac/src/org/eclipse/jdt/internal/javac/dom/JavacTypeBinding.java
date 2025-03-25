@@ -372,9 +372,20 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				String simpleName = s.getSimpleName().toString();
 				String typeArgs = ";";
 				if(t.getTypeArguments().nonEmpty() ) {
+					String typeArgBase = removeTrailingSemicolon(getKey(ct, ct.tsym.flatName(), false, useSlashes));
+					final int[] counter = new int[] {0};
 					typeArgs = '<'
 							+ Arrays.stream(getTypeArguments())
 							.map(x -> x instanceof JavacTypeBinding jtb ? jtb.getGenericTypeSignature(useSlashes) : x.getKey())
+							.map(x -> {
+								String b33 = typeArgBase;
+								if( b33.length() > 0 && "LIZVCDBFJS[!".indexOf(x.charAt(0)) == -1) {
+									String ret = b33 + ";{" + counter[0] + "}" + x;
+									counter[0] = counter[0] + 1;
+									return ret;
+								}
+								return x;
+							})
 							.collect(Collectors.joining())
 						+ ">;";
 				}
