@@ -865,6 +865,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 
 	@Override
 	public boolean isPolyExpression() throws UnsupportedOperationException {
+		if (this.appropriateMethodForOverload != null) {
+			// overloaded operators cannot be poly
+			return false;
+		}
 
 		if (this.isPolyExpression)
 			return true;
