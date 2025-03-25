@@ -2048,6 +2048,15 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 			if (suggestDefaultCompletions) {
 				statementLikeKeywords();
+				if (this.expectedTypes.getExpectedTypes().size() == 1 && toComplete instanceof SimpleName simple) {
+					ITypeBinding expected = this.expectedTypes.getExpectedTypes().getFirst();
+					if (expected.isEnum()) {
+						Arrays.stream(expected.getDeclaredFields())
+							.filter(field -> field.getName().startsWith(this.prefix))
+							.map(this::toProposal)
+							.forEach(this.requestor::accept);
+					}
+				}
 				if (!this.prefix.isEmpty() && this.extendsOrImplementsInfo == null) {
 					suggestTypeKeywords(DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.BLOCK }) == null);
 				}
@@ -3896,20 +3905,13 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			}
 		} else if (kind == CompletionProposal.LOCAL_VARIABLE_REF) {
 			var variableBinding = (IVariableBinding) binding;
-			res.setSignature(
-					Signature.createTypeSignature(variableBinding.getType().getQualifiedName().toCharArray(), true)
-							.toCharArray());
+			res.setSignature(SignatureUtils.getSignatureChar(variableBinding.getType()));
 		} else if (kind == CompletionProposal.FIELD_REF) {
 			var variableBinding = (IVariableBinding) binding;
 			ITypeBinding declaringClass = variableBinding.getDeclaringClass();
-			res.setSignature(
-					Signature.createTypeSignature(variableBinding.getType().getQualifiedName().toCharArray(), true)
-							.toCharArray());
+			res.setSignature(SignatureUtils.getSignatureChar(variableBinding.getType()));
 			if (declaringClass != null && !declaringClass.getQualifiedName().isEmpty()) {
-				char[] declSignature = Signature
-						.createTypeSignature(
-								declaringClass.getQualifiedName().toCharArray(), true)
-						.toCharArray();
+				char[] declSignature = SignatureUtils.getSignatureChar(declaringClass);
 				res.setDeclarationSignature(declSignature);
 			} else if (declaringClass != null && declaringClass.isAnonymous()) {
 				res.setDeclarationSignature(SignatureUtils.getSignatureChar(declaringClass.getSuperclass()));
@@ -3917,7 +3919,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				res.setDeclarationSignature(new char[0]);
 			}
 
-			if ((variableBinding.getModifiers() & Flags.AccStatic) != 0) {
+			if ((variableBinding.getModifiers() & Flags.AccStatic) != 0 || variableBinding.isEnumConstant()) {
 				ITypeBinding topLevelClass = variableBinding.getDeclaringClass();
 				while (topLevelClass.getDeclaringClass() != null) {
 					topLevelClass = topLevelClass.getDeclaringClass();
@@ -3949,8 +3951,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			}
 		} else if (kind == CompletionProposal.TYPE_REF) {
 			var typeBinding = (ITypeBinding) binding;
-			res.setSignature(
-					Signature.createTypeSignature(typeBinding.getQualifiedName().toCharArray(), true).toCharArray());
+			res.setSignature(SignatureUtils.getSignatureChar(typeBinding));
 		} else if (kind == CompletionProposal.ANNOTATION_ATTRIBUTE_REF) {
 			var methodBinding = (IMethodBinding) binding;
 			StringBuilder annotationCompletion = new StringBuilder(completion);
@@ -3963,14 +3964,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				annotationCompletion.append(' ');
 			}
 			res.setCompletion(annotationCompletion.toString().toCharArray());
-			res.setSignature(Signature.createTypeSignature(qualifiedTypeName(methodBinding.getReturnType()), true)
-					.toCharArray());
-			res.setReceiverSignature(Signature
-					.createTypeSignature(methodBinding.getDeclaringClass().getQualifiedName().toCharArray(), true)
-					.toCharArray());
-			res.setDeclarationSignature(Signature
-					.createTypeSignature(methodBinding.getDeclaringClass().getQualifiedName().toCharArray(), true)
-					.toCharArray());
+			res.setSignature(SignatureUtils.getSignatureChar(methodBinding.getReturnType()));
+			res.setReceiverSignature(SignatureUtils.getSignatureChar(methodBinding.getDeclaringClass()));
+			res.setDeclarationSignature(SignatureUtils.getSignatureChar(methodBinding.getDeclaringClass()));
 		} else {
 			res.setSignature(new char[] {});
 			res.setReceiverSignature(new char[] {});
@@ -4068,7 +4064,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	private CompletionProposal toProposal(IType type) {
 		DOMInternalCompletionProposal res = createProposal(CompletionProposal.TYPE_REF);
 		char[] simpleName = type.getElementName().toCharArray();
-		char[] signature = Signature.createTypeSignature(type.getFullyQualifiedName(), true).toCharArray();
+		char[] signature = SignatureUtils.createSignature(type).toCharArray();
 
 		res.setSignature(signature);
 
@@ -4430,7 +4426,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 		IPackageFragment packageFragment = (IPackageFragment)declaringClass.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
 
-		res.setDeclarationSignature(Signature.createTypeSignature(declaringClass.getFullyQualifiedName(), true).toCharArray());
+		res.setDeclarationSignature(SignatureUtils.createSignature(declaringClass).toCharArray());
 		res.setDeclarationTypeName(simpleName);
 		res.setDeclarationPackageName(packageFragment.getElementName().toCharArray());
 		res.setParameterPackageNames(CharOperation.NO_CHAR_CHAR);
@@ -4492,7 +4488,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 		IPackageFragment packageFragment = (IPackageFragment)type.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
 
-		res.setDeclarationSignature(Signature.createTypeSignature(type.getFullyQualifiedName(), true).toCharArray());
+		res.setDeclarationSignature(SignatureUtils.createSignature(type).toCharArray());
 		res.setDeclarationTypeName(simpleName);
 		res.setDeclarationPackageName(packageFragment.getElementName().toCharArray());
 		res.setParameterPackageNames(CharOperation.NO_CHAR_CHAR);
@@ -4536,7 +4532,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 	private CompletionProposal toAnonymousConstructorProposal(IType type) {
 		DOMInternalCompletionProposal res = createProposal(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION);
-		res.setDeclarationSignature(Signature.createTypeSignature(type.getFullyQualifiedName(), true).toCharArray());
+		res.setDeclarationSignature(SignatureUtils.createSignature(type).toCharArray());
 		res.setDeclarationKey(type.getKey().toCharArray());
 		res.setSignature(
 				CompletionEngine.createMethodSignature(
@@ -4577,7 +4573,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 		DOMInternalCompletionProposal typeProposal = createProposal(CompletionProposal.TYPE_REF);
 		typeProposal.setDeclarationSignature(packageFragment.getElementName().toCharArray());
-		typeProposal.setSignature(Signature.createTypeSignature(type.getFullyQualifiedName(), true).toCharArray());
+		typeProposal.setSignature(SignatureUtils.createSignature(type).toCharArray());
 		typeProposal.setPackageName(packageFragment.getElementName().toCharArray());
 		typeProposal.setTypeName(type.getElementName().toCharArray());
 		typeProposal.setCompletion(type.getElementName().toCharArray());
@@ -4648,8 +4644,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			res = createProposal(CompletionProposal.FIELD_IMPORT);
 
 			res.setDeclarationSignature(SignatureUtils.getSignatureChar(variableBinding.getDeclaringClass()));
-			res.setSignature(Signature.createTypeSignature(variableBinding.getType().getQualifiedName().toCharArray(), true)
-					.toCharArray());
+			res.setSignature(SignatureUtils.getSignatureChar(variableBinding.getType()));;
 			res.setDeclarationPackageName(variableBinding.getDeclaringClass().getPackage().getName().toCharArray());
 			res.setDeclarationTypeName(variableBinding.getDeclaringClass().getQualifiedName().toCharArray());
 			if (variableBinding.getType().getPackage() != null) {
