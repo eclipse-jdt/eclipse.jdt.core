@@ -1196,7 +1196,7 @@ public abstract class Scope {
 		Scope current = this;
 		while (current != null) {
 			MethodScope methodScope = current.methodScope();
-			if (methodScope != null && methodScope.isStatic)
+			if (methodScope != null && !methodScope.isLambdaScope() && methodScope.isStatic)
 				return methodScope;
 			current = current.parent;
 		}

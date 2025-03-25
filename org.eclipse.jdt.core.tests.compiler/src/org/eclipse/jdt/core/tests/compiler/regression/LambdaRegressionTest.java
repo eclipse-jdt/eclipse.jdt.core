@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2024 IBM Corporation and others.
+ * Copyright (c) 2015, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1282,6 +1282,36 @@ public void testGH3207() {
 		No enclosing instance of type EnclosedInstance is accessible. Must qualify the allocation with an enclosing instance of type EnclosedInstance (e.g. x.new A() where x is an instance of EnclosedInstance).
 		----------
 		""");
+}
+public void testGH3831() {
+	runConformTest(new String[] {
+			"X.java",
+			"""
+			import java.util.function.Supplier;
+			public class X {
+				public static Supplier<Object> test() {
+					class A {}
+					return () -> new A();
+				}
+			}
+			"""
+	});
+}
+public void testGH3851() {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return; // uses 'record'
+	runConformTest(new String[] {
+			"X.java",
+			"""
+			import java.util.stream.Stream;
+			public class X {
+				public static void test() {
+				    record MyData(int value) { }
+				    Stream.of(42).map(i -> new MyData(i)).toList();
+				}
+			}
+			"""
+	});
 }
 public static Class testClass() {
 	return LambdaRegressionTest.class;
