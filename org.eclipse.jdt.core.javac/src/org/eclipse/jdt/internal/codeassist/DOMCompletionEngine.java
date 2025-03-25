@@ -3949,6 +3949,12 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					}
 				}
 			}
+			if (variableBinding.isEnumConstant()
+					&& toComplete.getLocationInParent() != FieldAccess.NAME_PROPERTY
+					&& toComplete.getLocationInParent() != SwitchCase.EXPRESSION_PROPERTY
+					&& toComplete.getLocationInParent() != SwitchCase.EXPRESSIONS2_PROPERTY) {
+				res.setCompletion((variableBinding.getDeclaringClass().getName() + '.' + variableBinding.getName()).toCharArray());
+			}
 		} else if (kind == CompletionProposal.TYPE_REF) {
 			var typeBinding = (ITypeBinding) binding;
 			res.setSignature(SignatureUtils.getSignatureChar(typeBinding));
