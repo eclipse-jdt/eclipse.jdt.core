@@ -40,7 +40,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.Runtime.Version;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -940,7 +947,6 @@ private boolean processingLambdaParameterList = false;
 private boolean expectTypeAnnotation = false;
 private boolean reparsingFunctionalExpression = false;
 
-private Map<TypeDeclaration, Integer[]> recordNestedMethodLevels;
 protected boolean parsingRecordComponents = false;
 
 public Parser () {
@@ -972,9 +978,6 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.realBlockStack = new int[30];
 	this.identifierPositionStack = new long[30];
 	this.variablesCounter = new int[30];
-
-	this.recordNestedMethodLevels = new HashMap<>();
-
 	// javadoc support
 	this.javadocParser = createJavadocParser();
 }
@@ -3438,45 +3441,6 @@ protected void consumeEnterMemberValueArrayInitializer() {
 		this.currentElement.bracketBalance++;
 	}
 }
-private boolean isAFieldDeclarationInRecord() {
-	if (this.options.sourceLevel < ClassFileConstants.JDK16)
-		return false;
-	int recordIndex = -1;
-	Integer[] nestingTypeAndMethod = null;
-	for (int i = this.astPtr; i >= 0; --i) {
-		if (this.astStack[i] instanceof TypeDeclaration node) {
-			if (!node.isRecord())
-				continue;
-			nestingTypeAndMethod = this.recordNestedMethodLevels.get(node);
-			if (nestingTypeAndMethod != null) { // record declaration is done yet
-				if (nestingTypeAndMethod[0] != this.nestedType
-					|| nestingTypeAndMethod[1] != this.nestedMethod[this.nestedType])
-					return false;
-				recordIndex = i;
-				break;
-			}
-		}
-	}
-	if (recordIndex < 0)
-		return false;
-	for (int i = recordIndex + 1; i <= this.astPtr; ++i) {
-		ASTNode node = this.astStack[i];
-		if (node instanceof TypeDeclaration) {
-			if (node.sourceEnd < 0) {
-				return false;
-			}
-		} else if (node instanceof AbstractMethodDeclaration) {
-			if (this.nestedType != nestingTypeAndMethod[0] ||
-					this.nestedMethod[this.nestedType] != nestingTypeAndMethod[1])
-				return false;
-		} else if (node instanceof FieldDeclaration) {
-			continue;
-		} else {
-			return false;
-		}
-	}
-	return true;
-}
 protected void consumeEnterVariable() {
 	// EnterVariable ::= $empty
 	// do nothing by default
@@ -3488,8 +3452,7 @@ protected void consumeEnterVariable() {
 	Annotation [][] annotationsOnExtendedDimensions = extendedDimensions == 0 ? null : getAnnotationsOnDimensions(extendedDimensions);
 	AbstractVariableDeclaration declaration;
 	// create the ast node
-	boolean isLocalDeclaration = this.nestedMethod[this.nestedType] != 0 &&
-									!isAFieldDeclarationInRecord();
+	boolean isLocalDeclaration = this.nestedMethod[this.nestedType] != 0;
 	if (isLocalDeclaration) {
 		// create the local variable declarations
 		declaration =
@@ -10413,7 +10376,6 @@ protected void consumeRecordDeclaration() {
 	}
 
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
-	this.recordNestedMethodLevels.remove(typeDecl);
 	problemReporter().validateJavaFeatureSupport(JavaFeature.RECORDS, typeDecl.sourceStart, typeDecl.sourceEnd);
 	/* create canonical constructor - check for the clash later at binding time */
 	/* https://github.com/eclipse-jdt/eclipse.jdt.core/issues/365 */
@@ -10465,10 +10427,6 @@ protected void consumeRecordComponentHeaderRightParen() {
 	int length = this.astLengthStack[this.astLengthPtr--];
 	this.astPtr -= length;
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
-	int nestedMethodLevel = this.nestedMethod[this.nestedType];
-	this.recordNestedMethodLevels.put(typeDecl, new Integer[] {this.nestedType, nestedMethodLevel});
-	this.astStack[this.astPtr] = typeDecl;
-//	rd.sourceEnd = 	this.rParenPos;
 	if (length != 0) {
 		RecordComponent[] recComps = new RecordComponent[length];
 		System.arraycopy(
@@ -13469,7 +13427,6 @@ protected void resetStacks() {
 	this.genericsLengthPtr = -1;
 	this.genericsPtr = -1;
 	this.valueLambdaNestDepth = -1;
-	this.recordNestedMethodLevels = new HashMap<>();
 }
 /*
  * Reset context so as to resume to regular parse loop
