@@ -14,10 +14,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeHierarchy;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -250,6 +252,31 @@ class RelevanceUtils {
 			}
 		}
 		return RelevanceConstants.R_INTERESTING;
+	}
+
+	/**
+	 * Returns the appropriate relevance number based on the access rule, taking into account if access warnings/errors are disabled.
+	 *
+	 * i.e. if the errors for accessing an inaccessible class are disabled,
+	 * the relevance number is the same as if there are no access restrictions.
+	 *
+	 * @param accessRuleKind the access rule
+	 * @param settings the compiler settings
+	 * @return the appropriate relevance number
+	 */
+	static int computeRelevanceForRestrictions(int accessRuleKind, Map<String, String> settings) {
+		if (accessRuleKind == IAccessRule.K_ACCESSIBLE) {
+			return RelevanceConstants.R_NON_RESTRICTED;
+		}
+		if (accessRuleKind == IAccessRule.K_NON_ACCESSIBLE
+				&& settings.get(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE).equals(JavaCore.IGNORE)) {
+			return RelevanceConstants.R_NON_RESTRICTED;
+		}
+		if (accessRuleKind == IAccessRule.K_DISCOURAGED
+				&& settings.get(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE).equals(JavaCore.IGNORE)) {
+			return RelevanceConstants.R_NON_RESTRICTED;
+		}
+		return 0;
 	}
 
 }

@@ -43,6 +43,7 @@ import org.eclipse.jdt.core.CompletionFlags;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.CompletionRequestor;
 import org.eclipse.jdt.core.Flags;
+import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
@@ -96,6 +97,7 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.Javadoc;
@@ -107,6 +109,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NodeFinder;
@@ -147,8 +150,6 @@ import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
-import org.eclipse.jdt.core.dom.InfixExpression.Operator;
-import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -814,15 +815,15 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 						findTypes(this.prefix, null)
 							// don't care about annotations
-							.filter(type -> {
+							.filter(typeMatch -> {
 								try {
-									return !type.isAnnotation();
+									return !typeMatch.getType().isAnnotation();
 								} catch (JavaModelException e) {
 									return true;
 								}
-							}).filter(type -> defaultCompletionBindings.all().map(typeBinding -> typeBinding.getJavaElement()).noneMatch(elt -> type.equals(elt)))
-							.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(), type.getElementName().toCharArray()))
-							.filter(type -> filterBasedOnExtendsOrImplementsInfo(type, this.extendsOrImplementsInfo))
+							}).filter(typeMatch -> defaultCompletionBindings.all().map(typeBinding -> typeBinding.getJavaElement()).noneMatch(elt -> typeMatch.getType().equals(elt)))
+							.filter(typeMatch -> this.pattern.matchesName(this.prefix.toCharArray(), typeMatch.getType().getElementName().toCharArray()))
+							.filter(typeMatch -> filterBasedOnExtendsOrImplementsInfo(typeMatch.getType(), this.extendsOrImplementsInfo))
 							.map(this::toProposal)
 							.forEach(this.requestor::accept);
 					}
@@ -936,13 +937,13 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				if (context.getParent() instanceof SimpleType simpleType && simpleType.getParent() instanceof MethodDeclaration
 						&& simpleType.getLocationInParent().getId().equals(MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY.getId())) {
 					findTypes(completeAfter, null)
-							.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(),
-									type.getElementName().toCharArray()))
+							.filter(typeMatch -> this.pattern.matchesName(this.prefix.toCharArray(),
+									typeMatch.getType().getElementName().toCharArray()))
 							// ideally we should filter out all classes that don't descend from Throwable
 							// however JDT doesn't do this yet from what I can tell
-							.filter(type -> {
+							.filter(typeMatch -> {
 								try {
-									return !type.isAnnotation() && !type.isInterface();
+									return !typeMatch.getType().isAnnotation() && !typeMatch.getType().isInterface();
 								} catch (JavaModelException e) {
 									return true;
 								}
@@ -1003,8 +1004,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						topLevelTypes(typeCompletionBindings);
 						typeCompletionBindings.all()
 							.filter(ITypeBinding.class::isInstance)
-							.map(typeBinding -> (IType)typeBinding.getJavaElement())
-							.filter(type -> filterBasedOnExtendsOrImplementsInfo(type, this.extendsOrImplementsInfo))
+							.filter(typeBinding -> filterBasedOnExtendsOrImplementsInfo((IType) typeBinding.getJavaElement(), this.extendsOrImplementsInfo))
 							.map(this::toProposal)
 							.forEach(this.requestor::accept);
 					} else {
@@ -1260,7 +1260,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 							publishFromScope(specificCompletionBindings);
 						} else {
 							// UnimportedType.|
-							List<IType> foundTypes = findTypes(qualifiedName.getQualifier().toString(), null).toList();
+							List<IType> foundTypes = findTypes(qualifiedName.getQualifier().toString(), null).map(TypeNameMatch::getType).toList();
 							// HACK: We requested exact matches from the search engine but some results aren't exact
 							foundTypes = foundTypes.stream().filter(type -> type.getElementName().equals(qualifiedName.getQualifier().toString())).toList();
 							if (!foundTypes.isEmpty()) {
@@ -1391,18 +1391,18 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						packageName = packageDecl.getName().toString();
 					}
 					this.findTypes(this.prefix, packageName)
-							.filter(type -> {
+							.filter(typeMatch -> {
 								try {
-									return !type.isAnnotation();
+									return !typeMatch.getType().isAnnotation();
 								} catch (JavaModelException e) {
 									return true;
 								}
 							}) //
-							.flatMap(type -> {
+							.flatMap(typeMatch -> {
 								if (this.prefix.isEmpty()) {
-									return Stream.of(toProposal(type));
+									return Stream.of(toProposal(typeMatch.getType()));
 								} else {
-									return toConstructorProposals(type, this.toComplete, false).stream();
+									return toConstructorProposals(typeMatch.getType(), this.toComplete, false).stream();
 								}
 							}) //
 							.forEach(this.requestor::accept);
@@ -1532,7 +1532,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 												packageName = ""; //$NON-NLS-1$
 											}
 										}
-										List<IType> potentialTypes = findTypes(classToComplete, packageName).toList();
+										List<IType> potentialTypes = findTypes(classToComplete, packageName).map(TypeNameMatch::getType).toList();
 										List<IType> sourceTypes = potentialTypes.stream().filter(type -> type instanceof SourceType).toList();
 										if (!potentialTypes.isEmpty()) {
 											IType typeToComplete;
@@ -1582,10 +1582,10 @@ public class DOMCompletionEngine implements ICompletionEngine {
 											.map(this::toProposal).forEach(this.requestor::accept);
 
 										findTypes(completeAfter, completeAfter.equals(this.qualifiedPrefix) ? null : this.qualifiedPrefix)
-											.filter(type -> {
-												return localTypeBindings.all().map(typeBinding -> typeBinding.getJavaElement()).noneMatch(elt -> type.equals(elt));
+											.filter(typeMatch -> {
+												return localTypeBindings.all().map(typeBinding -> typeBinding.getJavaElement()).noneMatch(elt -> typeMatch.getType().equals(elt));
 											})
-											.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(), type.getElementName().toCharArray()))
+											.filter(typeMatch -> this.pattern.matchesName(this.prefix.toCharArray(), typeMatch.getType().getElementName().toCharArray()))
 											.map(this::toProposal).forEach(this.requestor::accept);
 
 										suggestDefaultCompletions = false;
@@ -1708,7 +1708,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 									packageName = ""; //$NON-NLS-1$
 								}
 							}
-							List<IType> potentialTypes = findTypes(classToComplete, packageName).toList();
+							List<IType> potentialTypes = findTypes(classToComplete, packageName).map(TypeNameMatch::getType).toList();
 							List<IType> sourceTypes = potentialTypes.stream().filter(type -> type instanceof SourceType).toList();
 							if (!potentialTypes.isEmpty()) {
 								IType typeToComplete;
@@ -1861,31 +1861,31 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						AbstractTypeDeclaration typeDecl = DOMCompletionUtil.findParentTypeDeclaration(context);
 						ITypeBinding currentTypeBinding = typeDecl == null ? null : typeDecl.resolveBinding();
 						findTypes(completeAfter, null)
-							.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(),
-									type.getElementName().toCharArray()))
-							.filter(type -> {
+							.filter(typeMatch -> this.pattern.matchesName(this.prefix.toCharArray(),
+									typeMatch.getType().getElementName().toCharArray()))
+							.filter(typeMatch -> {
 								for (var scrapedBinding : catchExceptionBindings.all().toList()) {
 									if (scrapedBinding instanceof ITypeBinding scrapedTypeBinding) {
-										if (type.equals(scrapedTypeBinding.getJavaElement()) || type.getKey().equals(scrapedTypeBinding.getKey())) {
+										if (typeMatch.getType().equals(scrapedTypeBinding.getJavaElement()) || typeMatch.getType().getKey().equals(scrapedTypeBinding.getKey())) {
 											return false;
 										}
 									}
 								}
 								return true;
 							})
-							.filter(type -> {
+							.filter(typeMatch -> {
 								for (ITypeBinding caughtException : thrownExceptionFinder.getAlreadyCaughtExceptions()) {
-									if (type.getKey().equals(caughtException.getKey())) {
+									if (typeMatch.getType().getKey().equals(caughtException.getKey())) {
 										return false;
 									}
 								}
 								return true;
 							})
-							.filter(type -> {
-								if (alreadySuggestedFqn.contains(type.getFullyQualifiedName())) {
+							.filter(typeMatch -> {
+								if (alreadySuggestedFqn.contains(typeMatch.getType().getFullyQualifiedName())) {
 									return false;
 								}
-								alreadySuggestedFqn.add(type.getFullyQualifiedName());
+								alreadySuggestedFqn.add(typeMatch.getType().getFullyQualifiedName());
 								return true;
 							})
 							.map(this::toProposal).forEach(this.requestor::accept);
@@ -2072,22 +2072,22 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 						final Set<String> alreadySuggestedFqn = ConcurrentHashMap.newKeySet();
 						findTypes(completeAfter, -1, typeMatchRule, null)
-							.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(), type.getElementName().toCharArray()))
-							.filter(type -> {
+							.filter(typeMatch -> this.pattern.matchesName(this.prefix.toCharArray(), typeMatch.getType().getElementName().toCharArray()))
+							.filter(typeMatch -> {
 								for (var scrapedBinding : defaultCompletionBindings.all().toList()) {
 									if (scrapedBinding instanceof ITypeBinding scrapedTypeBinding) {
-										if (type.equals(scrapedTypeBinding.getJavaElement()) || type.getKey().equals(scrapedTypeBinding.getKey())) {
+										if (typeMatch.getType().equals(scrapedTypeBinding.getJavaElement()) || typeMatch.getType().getKey().equals(scrapedTypeBinding.getKey())) {
 											return false;
 										}
 									}
 								}
 								return true;
-							}).filter(type -> filterBasedOnExtendsOrImplementsInfo(type, this.extendsOrImplementsInfo))
-							.filter(type -> {
-								if (alreadySuggestedFqn.contains(type.getFullyQualifiedName())) {
+							}).filter(typeMatch -> filterBasedOnExtendsOrImplementsInfo(typeMatch.getType(), this.extendsOrImplementsInfo))
+							.filter(typeMatch -> {
+								if (alreadySuggestedFqn.contains(typeMatch.getType().getFullyQualifiedName())) {
 									return false;
 								}
-								alreadySuggestedFqn.add(type.getFullyQualifiedName());
+								alreadySuggestedFqn.add(typeMatch.getType().getFullyQualifiedName());
 								return true;
 							}).map(this::toProposal)
 							.forEach(this.requestor::accept);
@@ -2887,13 +2887,19 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				favouriteReference = favouriteReference.substring(0, favouriteReference.length() - 2);
 				String packageName = favouriteReference.indexOf('.') < 0 ? "" : favouriteReference.substring(0, favouriteReference.lastIndexOf('.')); //$NON-NLS-1$
 				String typeName = favouriteReference.indexOf('.') < 0 ? favouriteReference : favouriteReference.substring(favouriteReference.lastIndexOf('.') + 1);
-				findTypes(typeName, SearchPattern.R_EXACT_MATCH, IJavaSearchConstants.TYPE, packageName).filter(type -> type.getElementName().equals(typeName)).forEach(keysToResolve::add);
+				findTypes(typeName, SearchPattern.R_EXACT_MATCH, IJavaSearchConstants.TYPE, packageName) //
+					.map(TypeNameMatch::getType)
+					.filter(type -> type.getElementName().equals(typeName))
+					.forEach(keysToResolve::add);
 			} else if (favouriteReference.lastIndexOf('.') >= 0) {
 				String memberName = favouriteReference.substring(favouriteReference.lastIndexOf('.') + 1);
 				String typeFqn = favouriteReference.substring(0, favouriteReference.lastIndexOf('.'));
 				String packageName = typeFqn.indexOf('.') < 0 ? "" : typeFqn.substring(0, typeFqn.lastIndexOf('.')); //$NON-NLS-1$
 				String typeName = typeFqn.indexOf('.') < 0 ? typeFqn : typeFqn.substring(typeFqn.lastIndexOf('.') + 1);
-				findTypes(typeName, SearchPattern.R_EXACT_MATCH, IJavaSearchConstants.TYPE, packageName).filter(type -> type.getElementName().equals(typeName)).findFirst().ifPresent(type -> {
+				findTypes(typeName, SearchPattern.R_EXACT_MATCH, IJavaSearchConstants.TYPE, packageName) //
+					.map(TypeNameMatch::getType)
+					.filter(type -> type.getElementName().equals(typeName)) //
+					.findFirst().ifPresent(type -> {
 					try {
 						for (IMethod method : type.getMethods()) {
 							if (method.exists() && (method.getFlags() & Flags.AccStatic) != 0 && memberName.equals(method.getElementName())) {
@@ -3181,11 +3187,11 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 	private void suggestTypesInPackage(String packageName) {
 		if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-			List<IType> foundTypes = findTypes(this.prefix, packageName).toList();
+			List<TypeNameMatch> foundTypes = findTypes(this.prefix, packageName).toList();
 			AbstractTypeDeclaration typeDecl = DOMCompletionUtil.findParentTypeDeclaration(this.toComplete);
-			for (IType foundType : foundTypes) {
-				if (this.pattern.matchesName(this.prefix.toCharArray(), foundType.getElementName().toCharArray())) {
-					if (filterBasedOnExtendsOrImplementsInfo(foundType, this.extendsOrImplementsInfo)) {
+			for (TypeNameMatch foundType : foundTypes) {
+				if (this.pattern.matchesName(this.prefix.toCharArray(), foundType.getType().getElementName().toCharArray())) {
+					if (filterBasedOnExtendsOrImplementsInfo(foundType.getType(), this.extendsOrImplementsInfo)) {
 						this.requestor.accept(this.toProposal(foundType));
 					}
 				}
@@ -3340,8 +3346,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 	private void completeMarkerAnnotation(String completeAfter) {
 		findTypes(completeAfter, -1, IJavaSearchConstants.ANNOTATION_TYPE, null)
-			.filter(type -> this.pattern.matchesName(this.prefix.toCharArray(),
-					type.getElementName().toCharArray()))
+			.filter(typeMatch -> this.pattern.matchesName(this.prefix.toCharArray(),
+					typeMatch.getType().getElementName().toCharArray()))
 			.map(this::toProposal).forEach(this.requestor::accept);
 	}
 
@@ -3525,24 +3531,34 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		}
 	}
 
-	private Stream<IType> findTypes(String namePrefix, String packageName) {
+	private Stream<TypeNameMatch> findTypes(String namePrefix, String packageName) {
 		return findTypes(namePrefix, -1, IJavaSearchConstants.TYPE, packageName);
 	}
 
-	private Stream<IType> findTypes(String namePrefix, int typeMatchRule, int searchFor, String packageName) {
+	private Stream<TypeNameMatch> findTypes(String namePrefix, int typeMatchRule, int searchFor, String packageName) {
 		if (namePrefix == null) {
 			namePrefix = ""; //$NON-NLS-1$
 		}
-		List<IType> types = new ArrayList<>();
+		List<TypeNameMatch> types = new ArrayList<>();
 		var searchScope = SearchEngine.createJavaSearchScope(new IJavaElement[] { this.javaProject });
 		TypeNameMatchRequestor typeRequestor = new TypeNameMatchRequestor() {
 			@Override
-			public void acceptTypeNameMatch(org.eclipse.jdt.core.search.TypeNameMatch match) {
+			public void acceptTypeNameMatch(TypeNameMatch match) {
 				if (isVisible(match)) {
-					types.add(match.getType());
+					types.add(match);
 				}
 			}
 			private boolean isVisible(TypeNameMatch match) {
+				if (!DOMCompletionEngine.this.settings.get(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE).equals(JavaCore.IGNORE)
+						&& DOMCompletionEngine.this.assistOptions.checkForbiddenReference
+						&& match.getAccessibility() == IAccessRule.K_NON_ACCESSIBLE) {
+					return false;
+				}
+				if (!DOMCompletionEngine.this.settings.get(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE).equals(JavaCore.IGNORE)
+						&& DOMCompletionEngine.this.assistOptions.checkDiscouragedReference
+						&& match.getAccessibility() == IAccessRule.K_DISCOURAGED) {
+					return false;
+				}
 				if (match.getPackageName().isEmpty() && !currentTypeBinding().getPackage().getName().isEmpty()) {
 					// can only access classes in the default package from the default package
 					return false;
@@ -3793,7 +3809,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 	private CompletionProposal toProposal(IBinding binding, String completion) {
 		if (binding instanceof ITypeBinding && binding.getJavaElement() instanceof IType type) {
-			return toProposal(type);
+			return toProposal(type, IAccessRule.K_ACCESSIBLE);
 		}
 
 		int kind = -1;
@@ -4066,8 +4082,12 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			return typeBinding.getQualifiedName();
 		}
 	}
+	
+	private CompletionProposal toProposal(TypeNameMatch typeNameMatch) {
+		return toProposal(typeNameMatch.getType(), typeNameMatch.getAccessibility());
+	}
 
-	private CompletionProposal toProposal(IType type) {
+	private CompletionProposal toProposal(IType type, int access) {
 		DOMInternalCompletionProposal res = createProposal(CompletionProposal.TYPE_REF);
 		char[] simpleName = type.getElementName().toCharArray();
 		char[] signature = SignatureUtils.createSignature(type).toCharArray();
@@ -4177,7 +4197,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		int relevance = RelevanceConstants.R_DEFAULT
 				+ RelevanceConstants.R_RESOLVED
 				+ RelevanceUtils.computeRelevanceForInteresting(type, expectedTypes)
-				+ RelevanceConstants.R_NON_RESTRICTED
+				+ RelevanceUtils.computeRelevanceForRestrictions(access, this.settings)
 				+ (inCatchClause && DOMCompletionUtil.findInSupers(type, "Ljava/lang/Exception;", this.workingCopyOwner, this.typeHierarchyCache) ? RelevanceConstants.R_EXCEPTION : 0)
 				+ RelevanceUtils.computeRelevanceForInheritance(this.qualifyingType, type)
 				+ RelevanceUtils.computeRelevanceForQualification(!"java.lang".equals(type.getPackageFragment().getElementName()) && !nodeInImports && !fromCurrentCU && !inSamePackage && !typeIsImported, this.prefix, this.qualifiedPrefix)
@@ -4266,7 +4286,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 	private CompletionProposal toProposal(IJavaElement element) {
 		if (element instanceof IType type) {
-			return toProposal(type);
+			return toProposal(type, IAccessRule.K_ACCESSIBLE);
 		}
 		DOMInternalCompletionProposal res = null;
 		IType parentType = (IType)element.getAncestor(IJavaElement.TYPE);
