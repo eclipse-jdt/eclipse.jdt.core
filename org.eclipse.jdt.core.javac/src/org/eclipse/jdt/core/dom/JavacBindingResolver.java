@@ -730,7 +730,7 @@ public class JavacBindingResolver extends BindingResolver {
 	ITypeBinding resolveType(TypeDeclaration type) {
 		resolve();
 		JCTree javacNode = this.converter.domToJavac.get(type);
-		if (javacNode instanceof JCClassDecl jcClassDecl && "<any?>".equals(javacNode.type.toString())) {
+		if (javacNode instanceof JCClassDecl jcClassDecl && (javacNode.type != null && "<any?>".equals(javacNode.type.toString()))) {
 			return new JavacErrorTypeBinding(javacNode.type, javacNode.type.tsym, null, true, JavacBindingResolver.this, jcClassDecl.sym);
 		}
 		if (javacNode instanceof JCClassDecl jcClassDecl && jcClassDecl.type != null) {
