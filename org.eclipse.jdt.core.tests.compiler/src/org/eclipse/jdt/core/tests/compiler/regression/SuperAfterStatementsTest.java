@@ -3360,4 +3360,28 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		----------
 		""");
 	}
+
+	public void testGH3844() {
+		runConformTest(new String[] {
+			"SubClass.java",
+			"""
+			class Base {
+			  public Base(long n) {
+			  }
+			}
+
+			class SubClass extends Base {
+			  private final String anyFinalWithInitializer = "init";
+
+			  public SubClass() {
+			    super(System.currentTimeMillis());
+			  }
+			  public static void main(String... args) {
+			    SubClass s = new SubClass();
+			    System.out.print(s.anyFinalWithInitializer);
+			  }
+			}
+			"""},
+			"init");
+	}
 }
