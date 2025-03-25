@@ -54,7 +54,6 @@ public class ConditionalExpression extends OperatorExpression implements IPolyEx
 	public Constant optimizedIfFalseConstant;
 	public MethodBinding appropriateMethodForOverload = null;
 	public MethodBinding syntheticAccessor = null;
-	public boolean resolvingMethod; // unfortunately necessary due to daft special-casing deep in the inference code
 
 	// for local variables table attributes
 	int trueInitStateIndex = -1;
