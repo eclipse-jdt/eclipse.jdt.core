@@ -4023,7 +4023,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					binding instanceof IMethodBinding methodBinding ? methodBinding.getReturnType() :
 					binding instanceof IVariableBinding variableBinding ? variableBinding.getType() :
 					this.toComplete.getAST().resolveWellKnownType(Object.class.getName()), this.expectedTypes) +
-				(isInQualifiedName || res.getRequiredProposals() != null || inJavadoc ? 0 : RelevanceUtils.computeRelevanceForQualification(false, this.prefix, this.qualifiedPrefix)) +
+				(isInQualifiedName || res.getRequiredProposals() != null || inJavadoc ? 0 : RelevanceUtils.computeRelevanceForQualification(new String(res.getCompletion()).indexOf('.') >= 0, this.prefix, this.qualifiedPrefix)) +
 				RelevanceConstants.R_NON_RESTRICTED +
 				RelevanceUtils.computeRelevanceForInheritance(this.qualifyingType, binding) +
 				((insideQualifiedReference() && !staticOnly() && !Modifier.isStatic(binding.getModifiers())) || (inJavadoc && !res.isConstructor()) ? RelevanceConstants.R_NON_STATIC : 0) +
@@ -4180,7 +4180,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				+ RelevanceConstants.R_NON_RESTRICTED
 				+ (inCatchClause && DOMCompletionUtil.findInSupers(type, "Ljava/lang/Exception;", this.workingCopyOwner, this.typeHierarchyCache) ? RelevanceConstants.R_EXCEPTION : 0)
 				+ RelevanceUtils.computeRelevanceForInheritance(this.qualifyingType, type)
-				+ RelevanceUtils.computeRelevanceForQualification(!type.getFullyQualifiedName().startsWith("java.") && !nodeInImports && !fromCurrentCU && !inSamePackage && !typeIsImported, this.prefix, this.qualifiedPrefix)
+				+ RelevanceUtils.computeRelevanceForQualification(!"java.lang".equals(type.getPackageFragment().getElementName()) && !nodeInImports && !fromCurrentCU && !inSamePackage && !typeIsImported, this.prefix, this.qualifiedPrefix)
 				+ (type.getFullyQualifiedName().startsWith("java.") ? RelevanceConstants.R_JAVA_LIBRARY : 0)
 				// sometimes subclasses and superclasses are considered, sometimes they aren't
 				+ (inCatchClause ? RelevanceUtils.computeRelevanceForExpectingType(type, expectedTypes, this.workingCopyOwner, this.typeHierarchyCache) : RelevanceUtils.simpleComputeRelevanceForExpectingType(type, expectedTypes))
