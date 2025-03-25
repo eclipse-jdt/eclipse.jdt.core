@@ -98,6 +98,7 @@ import com.sun.tools.javac.tree.JCTree.JCPackageDecl;
 import com.sun.tools.javac.tree.JCTree.JCPrimitiveTypeTree;
 import com.sun.tools.javac.tree.JCTree.JCTypeApply;
 import com.sun.tools.javac.tree.JCTree.JCTypeCast;
+import com.sun.tools.javac.tree.JCTree.JCTypeIntersection;
 import com.sun.tools.javac.tree.JCTree.JCTypeParameter;
 import com.sun.tools.javac.tree.JCTree.JCTypeUnion;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
@@ -618,6 +619,13 @@ public class JavacBindingResolver extends BindingResolver {
 				alternativesArray[i] = unionType.alternatives.get(i).type;
 			}
 			return this.bindings.getTypeBinding(unionType.type, alternativesArray, false);
+		}
+		if (jcTree instanceof JCTypeIntersection intersectionType) {
+			com.sun.tools.javac.code.Type[] alternativesArray = new com.sun.tools.javac.code.Type[intersectionType.bounds.size()];
+			for (int i = 0 ; i < alternativesArray.length; i++) {
+				alternativesArray[i] = intersectionType.bounds.get(i).type;
+			}
+			return this.bindings.getTypeBinding(intersectionType.type, alternativesArray, false);
 		}
 
 //			return this.flowResult.stream().map(env -> env.enclClass)

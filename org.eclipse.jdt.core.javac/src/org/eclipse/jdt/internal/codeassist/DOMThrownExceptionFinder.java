@@ -218,6 +218,9 @@ public class DOMThrownExceptionFinder extends ASTVisitor {
 	}
 
 	private boolean isUncheckedException(ITypeBinding binding) {
+		if (binding.isArray()) {
+			return false;
+		}
 		ITypeBinding cursor = binding;
 		while (cursor != null) {
 			if ("Ljava/lang/RuntimeException;".equals(cursor.getKey())) {

@@ -475,15 +475,29 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			getKey(builder, arrayType.elemtype, isLeaf, includeParameters, useSlashes, resolver);
 			return;
 		}
+		if (typeToBuild instanceof Type.IntersectionClassType intersectionClassType) {
+			getKey(builder, intersectionClassType.interfaces_field.get(0), isLeaf, includeParameters, useSlashes, resolver);
+			return;
+		}
 		if (typeToBuild instanceof Type.WildcardType wildcardType) {
 			if (wildcardType.isUnbound()) {
 				builder.append("+Ljava/lang/Object;");
 			} else if (wildcardType.isExtendsBound()) {
-				builder.append('+');
-				getKey(builder, wildcardType.getExtendsBound(), isLeaf, includeParameters, useSlashes, resolver);
+				Type extendsBound = wildcardType.getExtendsBound();
+				if (extendsBound.isIntersection()) {
+					builder.append('*');
+				} else {
+					builder.append('+');
+					getKey(builder, extendsBound, isLeaf, includeParameters, useSlashes, resolver);
+				}
 			} else if (wildcardType.isSuperBound()) {
-				builder.append('-');
-				getKey(builder, wildcardType.getSuperBound(), isLeaf, includeParameters, useSlashes, resolver);
+				Type superBound = wildcardType.getSuperBound();
+				if (superBound.isIntersection()) {
+					builder.append('*');
+				} else {
+					builder.append('-');
+					getKey(builder, wildcardType.getSuperBound(), isLeaf, includeParameters, useSlashes, resolver);
+				}
 			}
 			return;
 		}
@@ -928,14 +942,11 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	
 	public String getName(boolean checkParameterized) {
 		if (this.isIntersectionType()) {
-			StringBuilder builder = new StringBuilder();
-			for (int i = 0; i < this.alternatives.length; i++) {
-				builder.append(this.resolver.bindings.getTypeBinding(this.alternatives[i]).getName());
-				if (i != this.alternatives.length - 1) {
-					builder.append("|");
-				}
+			if (this.alternatives != null) {
+				return this.resolver.bindings.getTypeBinding(this.alternatives[0]).getName();
+			} else if (type instanceof Type.IntersectionClassType intersectionClassType) {
+				return this.resolver.bindings.getTypeBinding(intersectionClassType.supertype_field).getName();
 			}
-			return builder.toString();
 		}
 		if (this.isArray()) {
 			StringBuilder builder = new StringBuilder(this.getElementType().getName());
@@ -1002,6 +1013,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		if (type instanceof NullType) {
 			return "null";
 		}
+		if (type instanceof Type.IntersectionClassType intersectionClassType) {
+			return "";
+		}
 		if (type instanceof ArrayType at) {
 			if( type.tsym.isAnonymous()) {
 				return "";
@@ -1009,7 +1023,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			return this.resolver.bindings.getTypeBinding(at.getComponentType()).getQualifiedName() + "[]";
 		}
 		if (type instanceof WildcardType wt) {
-			if (wt.type == null || this.resolver.resolveWellKnownType("java.lang.Object").equals(this.resolver.bindings.getTypeBinding(wt.type))) {
+			if (wt.type == null
+					|| this.resolver.resolveWellKnownType("java.lang.Object").equals(this.resolver.bindings.getTypeBinding(wt.type))
+					|| (this.resolver.bindings.getTypeBinding(wt.type).isIntersectionType() && this.resolver.resolveWellKnownType("java.lang.Object").equals(this.resolver.bindings.getTypeBinding(wt.type).getSuperclass()))) {
 				return "?";
 			}
 			StringBuilder builder = new StringBuilder("? ");
@@ -1143,9 +1159,14 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding[] getTypeBounds() {
-		if (this.alternatives != null && this.alternatives.length > 0) {
-			// union type
-			return Stream.of(this.alternatives).map(this.resolver.bindings::getTypeBinding).toArray(ITypeBinding[]::new);
+		if (this.isIntersectionType() || this.type.isUnion()) {
+			if (this.alternatives != null) {
+				return Stream.of(this.alternatives).map(this.resolver.bindings::getTypeBinding).toArray(ITypeBinding[]::new);
+			} else if (type instanceof Type.IntersectionClassType intersectionClassType) {
+				return intersectionClassType.interfaces_field.stream().map(this.resolver.bindings::getTypeBinding).toArray(ITypeBinding[]::new);
+			} else if (type instanceof Type.UnionClassType unionClassType) {
+				return unionClassType.interfaces_field.stream().map(this.resolver.bindings::getTypeBinding).toArray(ITypeBinding[]::new);
+			}
 		} else if (this.type instanceof ClassType classType) {
 			Type z1 = classType.supertype_field;
 			List<Type> z2 = classType.interfaces_field;
@@ -1392,6 +1413,21 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public String toString() {
+		if (this.isIntersectionType()) {
+			// intersection types are handled "correctly" in toString but not elsewhere
+			Type.IntersectionClassType intersectionClassType = (Type.IntersectionClassType) this.type;
+			StringBuilder builder = new StringBuilder();
+			builder.append(Arrays.stream(getAnnotations())
+					.map(Object::toString)
+					.map(ann -> ann + " ")
+					.collect(Collectors.joining()));
+			builder.append(this.resolver.bindings.getTypeBinding(intersectionClassType.supertype_field).getQualifiedName());
+			for (Type superinterface : intersectionClassType.interfaces_field) {
+				builder.append(" & ");
+				builder.append(this.resolver.bindings.getTypeBinding(superinterface).getQualifiedName());
+			}
+			return builder.toString();
+		}
 		return Arrays.stream(getAnnotations())
 					.map(Object::toString)
 					.map(ann -> ann + " ")
