@@ -914,7 +914,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				1 problem (1 warning)
 				""");
 		verifyClassFile("version 24 : 68.65535", "module-info.class", ClassFileBytesDisassembler.SYSTEM,
-				this.complianceLevel <= ClassFileConstants.JDK24); // Skipped for javac 24 due to https://bugs.openjdk.org/browse/JDK-8347646 - fixed in 25
+				this.complianceLevel <= ClassFileConstants.JDK25); // Skipped for javac 24 due to https://bugs.openjdk.org/browse/JDK-8347646 - fixed in 25
 	}
 
 	public void testIllegalModifierRequiresJavaBase_4() {

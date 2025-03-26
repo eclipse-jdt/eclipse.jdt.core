@@ -2337,7 +2337,7 @@ public void test0042() {
 		"}\n"
 	};
 
-	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK24) ?
+	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK25) ?
 			"""
 			----------
 			1. ERROR in X.java (at line 1)

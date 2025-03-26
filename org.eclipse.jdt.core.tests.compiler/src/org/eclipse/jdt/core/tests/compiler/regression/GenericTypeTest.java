@@ -38991,7 +38991,7 @@ public void test1119() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=166963
 public void test1120() {
-	String msg = (this.complianceLevel < ClassFileConstants.JDK24) ?
+	String msg = (this.complianceLevel < ClassFileConstants.JDK25) ?
 						"Constructor call must be the first statement in a constructor\n" :
 							"Flexible Constructor Bodies is a preview feature and disabled by default. Use --enable-preview to enable\n";
 	this.runNegativeTest(
