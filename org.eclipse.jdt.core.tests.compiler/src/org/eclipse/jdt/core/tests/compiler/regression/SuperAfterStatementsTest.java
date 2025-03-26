@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -23,7 +27,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 24");
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 25");
 	private static final String[] VMARGS = new String[] {"--enable-preview"};
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
@@ -36,7 +40,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		return SuperAfterStatementsTest.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_24);
+		return buildMinimalComplianceTestSuite(testClass(), F_25);
 	}
 	public SuperAfterStatementsTest(String testName) {
 		super(testName);
@@ -58,9 +62,9 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_24);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_24);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_24);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_25);
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_25);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_25);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, preview ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
 		return defaultOptions;
@@ -2175,7 +2179,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.runNegativeTest();
 	}
 
-	public void testGH2466() {
+	public void testGH666() {
 		Runner runner = new Runner(false);
 		runner.testFiles = new String[] {
 				"TestFlow.java",
@@ -2699,7 +2703,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 					"""
 				},
 				"");
-		verifyClassFile("version 24 : 68.65535", "X.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile("version 25 : 69.65535", "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void testFieldAssignment_OK() throws Exception {

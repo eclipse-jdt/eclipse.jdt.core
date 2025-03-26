@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -580,6 +584,34 @@ public static Test suite() {
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
 				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_24), tests_24));
 	}
+
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_25) != 0) {
+		ArrayList tests_25 = (ArrayList)standardTests.clone();
+		tests_25.addAll(since_1_4);
+		tests_25.addAll(since_1_5);
+		tests_25.addAll(since_1_6);
+		tests_25.addAll(since_1_7);
+		tests_25.addAll(since_1_8);
+		tests_25.addAll(since_9);
+		tests_25.addAll(since_10);
+		tests_25.addAll(since_11);
+		tests_25.addAll(since_12);
+		tests_25.addAll(since_13);
+		tests_25.addAll(since_14);
+		tests_25.addAll(since_15);
+		tests_25.addAll(since_16);
+		tests_25.addAll(since_17);
+		tests_25.addAll(since_18);
+		tests_25.addAll(since_21);
+		tests_25.addAll(since_22);
+		tests_25.addAll(since_23);
+		tests_25.addAll(since_24);
+		TestCase.resetForgottenFilters(tests_25);
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
+				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_25), tests_25));
+	}
+
+
 	all.addTest(new TestSuite(Jsr14Test.class));
 	return all;
 }
