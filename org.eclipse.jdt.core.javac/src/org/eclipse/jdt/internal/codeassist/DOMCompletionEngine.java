@@ -20,6 +20,7 @@ import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -1786,7 +1787,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				}
 			}
 			if (context instanceof VariableDeclarationFragment vdf) {
-				if (this.toComplete.equals(vdf.getName())) {
+				if (this.toComplete.equals(vdf.getName()) 
+					|| this.toComplete.getLength() == 0 /* recovered */) {
 					ITypeBinding typeBinding = null;
 					if (vdf.getParent() instanceof VariableDeclarationStatement vds) {
 						typeBinding = vds.getType().resolveBinding();
@@ -2211,16 +2213,35 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		}
 	}
 
+	private static boolean isCollection(ITypeBinding type) {
+		if (type == null) {
+			return false;
+		}
+		if (Collection.class.getName().equals(type.getErasure().getQualifiedName())) {
+			return true;
+		}
+		return isCollection(type.getSuperclass()) || Arrays.stream(type.getInterfaces()).anyMatch(DOMCompletionEngine::isCollection);
+	}
+
 	private void suggestVariableNamesForType(ITypeBinding typeBinding, Set<String> alreadySuggestedNames) {
 		if (typeBinding.isPrimitive() || typeBinding.isRecovered()) {
 			return;
 		}
+		Set<String> possibleNames = new LinkedHashSet<>();
 
-		String simpleName;
+		String simpleName = "";
+		boolean multiple = false;
 		if (typeBinding.isArray()) {
 			simpleName = typeBinding.getElementType().getName();
+			multiple = true;
+		} else if (typeBinding.isParameterizedType() && isCollection(typeBinding)) {
+			possibleNames.add(typeBinding.getErasure().getName().toLowerCase());
+			multiple = true;
+			if (typeBinding.getTypeArguments().length > 0) {
+				simpleName = typeBinding.getTypeArguments()[0].getErasure().getName();
+			}
 		} else {
-			simpleName = typeBinding.getName();
+			simpleName = typeBinding.getErasure().getName();
 		}
 
 		List<String> nameSegments = Stream.of(simpleName.split("(?=_)|(?<=_)")).flatMap(nameSegment -> Stream.of(nameSegment.split("(?<=[a-z0-9])(?=[A-Z])"))).filter(str -> !str.isEmpty()).toList();
@@ -2241,7 +2262,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			for (int j = i + 1; j < nameSegments.size(); j++) {
 				variablePortionOfName.append(nameSegments.get(j));
 			}
-			if (typeBinding.isArray()) {
+			if (multiple) {
 				if (variablePortionOfName.toString().endsWith("s")) {
 					variablePortionOfName.append("es");
 				} else {
@@ -2265,7 +2286,6 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		}
 		// there is always the implicit suffix of ""
 		suffixes.add("");
-		Set<String> possibleNames = new HashSet<>();
 		Map<String, Integer> additionalRelevances = new HashMap<>();
 		boolean firstPrefix = true;
 		boolean firstSuffix = true;
@@ -2374,7 +2394,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				alreadySuggestedNames.add(possibleName);
 				CompletionProposal res = createProposal(CompletionProposal.VARIABLE_DECLARATION);
 				
-				int additionalRelevance = additionalRelevances.get(possibleName);
+				int additionalRelevance = additionalRelevances.getOrDefault(possibleName, 0);
 				if (SourceVersion.isKeyword(possibleName)) {
 					possibleName += "1";
 				}
@@ -4075,14 +4095,6 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		return false;
 	}
 
-	private String qualifiedTypeName(ITypeBinding typeBinding) {
-		if (typeBinding.isTypeVariable()) {
-			return typeBinding.getName();
-		} else {
-			return typeBinding.getQualifiedName();
-		}
-	}
-	
 	private CompletionProposal toProposal(TypeNameMatch typeNameMatch) {
 		return toProposal(typeNameMatch.getType(), typeNameMatch.getAccessibility());
 	}

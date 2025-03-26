@@ -749,7 +749,7 @@ public class ExpectedTypes {
 	public List<ITypeBinding> getExpectedTypes() {
 		if (!this.isReady) {
 			computeExpectedTypes();
-			this.expectedTypes.removeIf(binding -> binding.isNullType());
+			this.expectedTypes.removeIf(ITypeBinding::isNullType);
 			this.isReady = true;
 		}
 		return new ArrayList<>(this.expectedTypes);

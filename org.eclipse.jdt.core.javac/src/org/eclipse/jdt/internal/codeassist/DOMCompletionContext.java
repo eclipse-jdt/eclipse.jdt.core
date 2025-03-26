@@ -71,10 +71,20 @@ class DOMCompletionContext extends CompletionContext {
 		this.modelUnit = modelUnit;
 		this.textContent = textContent;
 		this.offset = offset;
-		// Use the raw text to walk back the offset to the first non-whitespace spot
 		int adjustedOffset = this.offset;
+		if (adjustedOffset > 0 && Character.isJavaIdentifierPart(textContent.charAt(adjustedOffset - 1))) {
+			// workaround for cases where right node is empty and reported (wrongly) as starting at same offset
+			adjustedOffset--;
+		}
+		ASTNode currentNode = NodeFinder.perform(domUnit, adjustedOffset, 0);
+		// Use the raw text to walk back the offset to the first non-whitespace spot
+		adjustedOffset = this.offset;
 		if (adjustedOffset >= textContent.length()) {
 			adjustedOffset = textContent.length() - 1;
+		}
+		if (adjustedOffset > 0 && Character.isJavaIdentifierPart(textContent.charAt(adjustedOffset - 1))) {
+			// workaround for cases where right node is empty and reported (wrongly) as starting at same offset
+			adjustedOffset--;
 		}
 		if (adjustedOffset + 1 >= textContent.length()
 				|| !Character.isJavaIdentifierStart(textContent.charAt(adjustedOffset))) {
@@ -83,16 +93,16 @@ class DOMCompletionContext extends CompletionContext {
 			}
 		}
 		ASTNode previousNodeBeforeWhitespaces = NodeFinder.perform(domUnit, adjustedOffset, 0);
-//		if (cuBuffer.getChar(adjustedOffset - 1) == ',' && Character.isWhitespace(cuBuffer.getChar(adjustedOffset))) {
-//			// probably an empty parameter
-//			adjustedOffset = this.offset;
-//			while (adjustedOffset < cuBuffer.getLength() && Character.isWhitespace(cuBuffer.getChar(adjustedOffset))) {
-//				adjustedOffset++;
-//			}
-//		}
-		this.node = previousNodeBeforeWhitespaces instanceof SimpleName || previousNodeBeforeWhitespaces instanceof StringLiteral || previousNodeBeforeWhitespaces instanceof CharacterLiteral || previousNodeBeforeWhitespaces instanceof NumberLiteral
-			?  NodeFinder.perform(domUnit, this.offset, 0) // keep default node from initial offset
-			: previousNodeBeforeWhitespaces; // use previous node
+		adjustedOffset = this.offset;
+		if (adjustedOffset < textContent.length() - 1 && Character.isWhitespace(textContent.charAt(adjustedOffset)) ) {
+			adjustedOffset++;
+		}
+		ASTNode nextNodeAfterWhitespaces = NodeFinder.perform(domUnit, adjustedOffset, 0);
+		this.node = (nextNodeAfterWhitespaces.getLength() == 0 && nextNodeAfterWhitespaces.getParent() == currentNode)
+			? nextNodeAfterWhitespaces
+			: (previousNodeBeforeWhitespaces instanceof SimpleName || previousNodeBeforeWhitespaces instanceof StringLiteral || previousNodeBeforeWhitespaces instanceof CharacterLiteral || previousNodeBeforeWhitespaces instanceof NumberLiteral)
+				? currentNode
+				: previousNodeBeforeWhitespaces;
 		this.expectedTypes = new ExpectedTypes(assistOptions, this.node, offset);
 		this.token = tokenBefore(this.textContent).toCharArray();
 		this.bindingsAcquirer = bindings::all;
@@ -328,6 +338,9 @@ class DOMCompletionContext extends CompletionContext {
 	public int getTokenEnd() {
 		if (this.isJustAfterStringLiteral) {
 			return -1;
+		}
+		if (this.node.getLength() == 0) { // recovered
+			return this.offset - 1;
 		}
 		if (this.node instanceof SimpleName || this.node instanceof StringLiteral) {
 			return this.node.getStartPosition() + this.node.getLength() - 1;
