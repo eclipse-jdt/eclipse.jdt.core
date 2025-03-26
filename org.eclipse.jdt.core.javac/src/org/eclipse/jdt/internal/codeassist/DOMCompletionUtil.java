@@ -131,6 +131,9 @@ public class DOMCompletionUtil {
 		toCheck.add(root.getErasure());
 		while (!toCheck.isEmpty()) {
 			ITypeBinding current = toCheck.poll();
+			if (current == null) {
+				continue;
+			}
 			String currentKey = current.getErasure().getKey();
 			if (alreadyChecked.contains(currentKey)) {
 				continue;

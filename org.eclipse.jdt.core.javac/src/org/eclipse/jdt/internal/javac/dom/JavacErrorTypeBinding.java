@@ -13,9 +13,9 @@ package org.eclipse.jdt.internal.javac.dom;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
 
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
-import com.sun.tools.javac.code.Type;
 
 /**
  * Represents a binding for a type that javac struggles to recover,
@@ -52,6 +52,7 @@ public class JavacErrorTypeBinding extends JavacTypeBinding {
 			typeName = typeName.substring(packageName.length() + 1);
 		}
 		if (typeName.indexOf(".") < 0
+				&& ((ClassSymbol) originatingSymbol).sourcefile != null
 				&& !((ClassSymbol) originatingSymbol).sourcefile.getName().endsWith(typeName + ".java")) {
 			String fileName = ((ClassSymbol) originatingSymbol).sourcefile.toUri().getPath();
 			int lastSlash = fileName.lastIndexOf('/');

@@ -106,6 +106,17 @@ public class ExpectedTypes {
 			}
 			if (parent2 instanceof MethodInvocation method && this.offset > method.getName().getStartPosition() + method.getName().getLength()) {
 				if (method.arguments().size() == 1 && ((ASTNode)method.arguments().get(0)).getLength() == 0) {
+					if (method.getExpression() != null) {
+						var receiverType = method.getExpression().resolveTypeBinding();
+						if (receiverType != null) {
+							Arrays.stream(receiverType.getDeclaredMethods())
+								.filter(decl -> Objects.equals(decl.getName(), method.getName()))
+								.filter(decl -> decl.getParameterTypes().length > 0)
+								.map(decl -> decl.getParameterTypes()[0])
+								.forEach(this.expectedTypes::add);
+							break;
+						}
+					}
 					// just methodName( => consider type of requestor
 					// continue
 				} else {
@@ -575,7 +586,6 @@ public class ExpectedTypes {
 //		if((this.expectedTypesPtr > -1) && ((this.expectedTypesPtr + 1) != this.expectedTypes.length)) {
 //			System.arraycopy(this.expectedTypes, 0, this.expectedTypes = new TypeBinding[this.expectedTypesPtr + 1], 0, this.expectedTypesPtr + 1);
 //		}
-		this.isReady = true;
 	}
 
 	private void computeExpectedTypesForAllocationExpression(
@@ -739,6 +749,8 @@ public class ExpectedTypes {
 	public List<ITypeBinding> getExpectedTypes() {
 		if (!this.isReady) {
 			computeExpectedTypes();
+			this.expectedTypes.removeIf(binding -> binding.isNullType());
+			this.isReady = true;
 		}
 		return new ArrayList<>(this.expectedTypes);
 	}
