@@ -5309,13 +5309,8 @@ public final class CompletionEngine
 			case Binding.ARRAY_TYPE :
 				createType(type.leafComponentType(), scope, completion);
 				int dim = type.dimensions();
-				boolean markdown = this.parser.assistNodeParent instanceof Javadoc docComment && docComment.isMarkdown;
 				for (int i = 0; i < dim; i++) {
-					if (markdown)
-						completion.append('\\');
 					completion.append('[');
-					if (markdown)
-						completion.append('\\');
 					completion.append(']');
 				}
 				break;
@@ -9620,7 +9615,13 @@ public final class CompletionEngine
 						}
 						proposal.setRequiredProposals(subProposals);
 					}
-					proposal.setCompletion(completion);
+
+					if (this.parser.assistNodeParent instanceof Javadoc jdoc && jdoc.isMarkdown) {
+						proposal.displayString = completion;
+						proposal.setCompletion(CharOperation.replace(completion, "[]".toCharArray(), "\\[\\]".toCharArray()));  //$NON-NLS-1$//$NON-NLS-2$
+					} else {
+						proposal.setCompletion(completion);
+					}
 					proposal.setFlags(method.modifiers);
 					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
