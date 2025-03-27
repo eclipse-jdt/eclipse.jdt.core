@@ -22,6 +22,7 @@ import junit.framework.TestSuite;
 import org.eclipse.jdt.core.tests.compiler.CharDeduplicationTest;
 import org.eclipse.jdt.core.tests.compiler.DeduplicationUtilTest;
 import org.eclipse.jdt.core.tests.compiler.IrritantSetTest;
+import org.eclipse.jdt.core.tests.compiler.ProblemReporterTest;
 import org.eclipse.jdt.core.tests.compiler.map.CharArrayMapperTest;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.CleanupAfterSuiteTests;
@@ -257,6 +258,8 @@ private static Class[] getAllTestClasses() {
 		RecordsElementTests.class,
 
 		IrritantSetTest.class,
+
+		ProblemReporterTest.class,
 
 		// should always be the last one, to cleanup environment after messy tests
 		CleanupAfterSuiteTests.class
