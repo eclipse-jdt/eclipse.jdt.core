@@ -4063,4 +4063,26 @@ public void testIssue3054_5() {
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);
 }
+public void testGH3660() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_EQUALS_ARGUMENT_TYPE, JavaCore.ERROR);
+	runner.testFiles = new String[] {
+			"Snippet.java",
+			"""
+			import java.util.HashMap;
+			import java.util.concurrent.ConcurrentHashMap;
+
+			public class Snippet {
+				public static void main(String[] args) {
+					HashMap<Integer, Integer> map1 = new HashMap<>();
+					ConcurrentHashMap<Integer, Integer> map2 = new ConcurrentHashMap<>();
+					System.out.print(map1.equals(map2)); // true but unlikely-arg-type
+					System.out.print(map2.equals(map1)); // true but unlikely-arg-type
+				}
+			}
+			"""};
+	runner.expectedOutputString = "truetrue";
+	runner.runConformTest();
+}
 }
