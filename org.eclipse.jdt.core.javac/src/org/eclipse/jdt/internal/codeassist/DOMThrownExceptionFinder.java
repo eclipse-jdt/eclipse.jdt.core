@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.codeassist;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
@@ -51,10 +51,10 @@ public class DOMThrownExceptionFinder extends ASTVisitor {
 	 * thrown by the method and whose super type has been caught already.
 	 */
 	public void processThrownExceptions(TryStatement tryStatement) {
-		this.thrownExceptions = new HashSet<>();
+		this.thrownExceptions = new LinkedHashSet<>();
 		this.exceptionsStack = new Stack<>();
-		this.caughtExceptions = new HashSet<>();
-		this.discouragedExceptions = new HashSet<>();
+		this.caughtExceptions = new LinkedHashSet<>();
+		this.discouragedExceptions = new LinkedHashSet<>();
 		tryStatement.accept(this);
 		removeCaughtExceptions(tryStatement, true /* remove unchecked exceptions this time */);
 	}
@@ -139,7 +139,7 @@ public class DOMThrownExceptionFinder extends ASTVisitor {
 	@Override
 	public boolean visit(TryStatement tryStatement) {
 		this.exceptionsStack.push(this.thrownExceptions);
-		Set<ITypeBinding> exceptionSet = new HashSet<>();
+		Set<ITypeBinding> exceptionSet = new LinkedHashSet<>();
 		this.thrownExceptions = exceptionSet;
 		tryStatement.getBody().accept(this);
 
