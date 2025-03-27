@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -28,14 +29,16 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
-import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.core.dom.LambdaExpression;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
+import org.eclipse.jdt.internal.codeassist.DOMCompletionUtil;
 import org.eclipse.jdt.internal.core.BinaryMember;
 import org.eclipse.jdt.internal.core.DOMToModelPopulator;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -49,24 +52,22 @@ import org.eclipse.jdt.internal.core.util.Util;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.Type;
 
 public abstract class JavacVariableBinding implements IVariableBinding {
 
 	public final VarSymbol variableSymbol;
 	private final JavacBindingResolver resolver;
-	private final boolean isUnique;
 	private IJavaElement javaElement;
 	private String key;
 
-	public JavacVariableBinding(VarSymbol sym, JavacBindingResolver resolver, boolean isUnique) {
+	public JavacVariableBinding(VarSymbol sym, JavacBindingResolver resolver) {
 		this.variableSymbol = sym;
 		this.resolver = resolver;
-		this.isUnique = isUnique;
 	}
 
 	@Override
@@ -214,7 +215,7 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 			Type.MethodType toUse = methodSymbol.type instanceof Type.MethodType methodType ? methodType : null;
 			JavacMethodBinding.getKey(builder, methodSymbol, toUse, null, true, this.resolver);
 			// no need to get it right, just get it right enough
-			if (!isUnique) {
+			if (!isUnique()) {
 				builder.append(this.variableSymbol.pos);
 			}
 			builder.append("#");
@@ -224,6 +225,35 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 			return builder.toString();
 		}
 		throw new UnsupportedOperationException("unhandled `Symbol` subclass " + this.variableSymbol.owner.getClass().toString());
+	}
+
+	private boolean isUnique() {
+		ASTNode variable = this.resolver.findDeclaringNode(this); 
+		MethodDeclaration parentMethod = (MethodDeclaration)DOMCompletionUtil.findParent(variable, new int[] { ASTNode.METHOD_DECLARATION });
+		if (parentMethod == null) {
+			return true;
+		}
+		final String variableName = getName().toString();
+		class UniquenessVisitor extends ASTVisitor {
+			boolean isUnique = true;
+			@Override
+			public boolean visit(VariableDeclarationFragment node) {
+				if (node != variable && variableName.equals(node.getName().toString())) {
+					isUnique = false;
+				}
+				return super.visit(node);
+			}
+			@Override
+			public boolean visit(SingleVariableDeclaration node) {
+				if (node != variable && variableName.equals(node.getName().toString())) {
+					isUnique = false;
+				}
+				return super.visit(node);
+			}
+		}
+		UniquenessVisitor uniquenessVisitor = new UniquenessVisitor();
+		parentMethod.accept(uniquenessVisitor);
+		return uniquenessVisitor.isUnique;
 	}
 
 	@Override
