@@ -8,5 +8,5 @@ import java.lang.annotation.Target;
 record R4(@Marker4 int... i) {}
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE_USE, ElementType.PARAMETER}) 
+@Target({ElementType.TYPE_USE, ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD}) 
 @interface Marker4 {}

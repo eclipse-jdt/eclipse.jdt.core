@@ -590,6 +590,15 @@ public class RecordElementProcessor extends BaseElementProcessor {
 		VariableElement var = parameters.get(0);
 		assertEquals("component name incorrect", "i", var.getSimpleName().toString());
 		verifyAnnotations(var, new String[]{"@Marker4()"});
+		asType = var.asType();
+		verifyAnnotations(asType, new String[]{});
+
+		List<VariableElement> fieldsIn = ElementFilter.fieldsIn(enclosedElements);
+		assertEquals("incorrect method", 1, methodsIn.size());
+		VariableElement field = fieldsIn.get(0);
+		verifyAnnotations(field, new String[]{"@Marker4()"});
+		asType = field.asType();
+		verifyAnnotations(asType, new String[]{});
 	}
 	public void testRecordsConstructors() {
 		Set<? extends Element> elements = roundEnv.getRootElements();
