@@ -758,8 +758,9 @@ class JavadocConverter {
 		Name qualifier = convertReferenceToNameOnly(reference);
 		if( qualifier != null ) {
 			res.setQualifier(qualifier);
-			memberNameStart = qualifier.getStartPosition() + qualifier.getLength() + 1;
+			memberNameStart = qualifier.getStartPosition() + qualifier.getLength();
 		}
+		memberNameStart++;
 		if( reference.memberName != null ) {
 			SimpleName name = this.ast.newSimpleName(reference.memberName.toString());
 			name.setSourceRange(memberNameStart, Math.max(0, reference.memberName.toString().length()));
