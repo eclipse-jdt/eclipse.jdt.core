@@ -896,23 +896,27 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		if (!report) 
 			return;
 
-		ASTNode replacementNode = null;
-		if( node instanceof QualifiedType qtt) {
-			replacementNode = findNodeMatchingPatternQualifier(qtt.getQualifier());
-		} else if( node instanceof SimpleType st) {
-			replacementNode = findNodeMatchingPatternQualifier(st);
+		ASTNode replacementNodeForStartPosition = null;
+		ASTNode toCheck = node;
+		if( node instanceof ParameterizedType ptt) {
+			toCheck = ptt.getType();
+		}
+		if( toCheck instanceof QualifiedType qtt) {
+			replacementNodeForStartPosition = findNodeMatchingPatternQualifier(qtt.getQualifier());
+		} else if( toCheck instanceof SimpleType st) {
+			replacementNodeForStartPosition = findNodeMatchingPatternQualifier(st);
 		}
 		
-		if( replacementNode != null ) {
+		if( replacementNodeForStartPosition != null ) {
 			int matchStart = match.getOffset();
 			int matchEnd = matchStart + match.getLength();
-			int newStart = replacementNode.getStartPosition();
+			int newStart = replacementNodeForStartPosition.getStartPosition();
 			int newLength = matchEnd - newStart;
 			match.setOffset(newStart);
 			match.setLength(newLength);
 		}
 		
-		ASTNode working = (replacementNode != null ? replacementNode : node);
+		ASTNode working = (replacementNodeForStartPosition != null ? replacementNodeForStartPosition : node);
 		int trimQualifierStart = findTrimQualifierStart(working);
 		if( trimQualifierStart != -1 ) {
 			int matchStart = match.getOffset();
