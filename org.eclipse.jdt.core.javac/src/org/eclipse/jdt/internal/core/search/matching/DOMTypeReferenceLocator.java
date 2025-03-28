@@ -328,7 +328,15 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 				for( int j = 0; j < thisLevelTypeParams.length; j++ ) {
 					String patternSig = new String(thisLevelTypeParams[j]);
 					IBinding patternTypeBinding = JdtCoreDomPackagePrivateUtility.findBindingForType(node, patternSig);
-					IBinding domBinding = DOMASTNodeUtils.getBinding((ASTNode)typeArgs.get(j));
+					if( patternTypeBinding == null ) {
+						boolean plusOrMinus = patternSig.startsWith("+") || patternSig.startsWith("-");
+						String safePatternString = plusOrMinus ? patternSig.substring(1) : patternSig;
+						if( safePatternString.startsWith("Q")) {
+							patternTypeBinding = JdtCoreDomPackagePrivateUtility.findUnresolvedBindingForType(node, safePatternString);
+						}
+					}
+					ASTNode argj = (ASTNode)typeArgs.get(j);
+					IBinding domBinding = DOMASTNodeUtils.getBinding(argj);
 					String domSig = domBinding == null ? null : domBinding instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : domBinding.getKey();
 					if( patternSig.equals(("*")))
 							continue;
@@ -359,9 +367,18 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 						String patternSigWithoutPrefix = patternSig.startsWith("+") || patternSig.startsWith("-") ? patternSig.substring(1) : patternSig;
 						String domSigWithoutPrefix = domSig.startsWith("+") || domSig.startsWith("-") ? domSig.substring(1) : domSig;
 						String patternSig2 = patternSigWithoutPrefix.substring(1);
-						if( !patternSig2.equals(domSigWithoutPrefix.substring(1)) && !domSig.endsWith("." + patternSig2)) {
-							return TYPE_PARAMS_COUNT_MATCH;
+						if( patternSig2.equals(domSigWithoutPrefix.substring(1))) 
+							continue;
+						if( domSig.endsWith("." + patternSig2) ) 
+							continue;
+						if( argj instanceof SimpleType stt && stt.getName() instanceof SimpleName snn) {
+							String identifier = snn.getIdentifier();
+							String patternSig3 = patternSig2.endsWith(";") ? patternSig2.substring(0, patternSig2.length() - 1) : patternSig2;
+							if( matchesName(patternSig3.toCharArray(),	identifier.toCharArray()) ) {
+								continue;
+							}
 						}
+						return TYPE_PARAMS_COUNT_MATCH;
 					} else if( !patternSig.equals(domSig)) {
 						return TYPE_PARAMS_COUNT_MATCH;
 					}
@@ -409,7 +426,7 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			if( evaluateSigIsUnresolved && boundSig.endsWith("." + evaluateSigTrimmed)) {
 				return true;
 			}
-			if( !evaluateSigIsUnresolved && evaluateBinding instanceof ITypeBinding itb) {
+			if( evaluateBinding instanceof ITypeBinding itb) {
 				ITypeBinding working = itb;
 				while(working != null) {
 					ITypeBinding superClaz = working.getSuperclass();
