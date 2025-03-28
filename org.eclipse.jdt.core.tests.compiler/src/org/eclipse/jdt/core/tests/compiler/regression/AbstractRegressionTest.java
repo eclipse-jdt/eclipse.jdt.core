@@ -337,6 +337,8 @@ static class JavacCompiler {
 			return JavaCore.VERSION_23;
 		} else if(rawVersion.startsWith("24")) {
 			return JavaCore.VERSION_24;
+		} else if(rawVersion.startsWith("25")) {
+			return JavaCore.VERSION_25;
 		} else {
 			throw new RuntimeException("unknown javac version: " + rawVersion);
 		}
@@ -574,6 +576,14 @@ static class JavacCompiler {
 		if (version == JavaCore.VERSION_24) {
 			switch(rawVersion) {
 				case "24-ea", "24-beta", "24":
+					return 0000;
+				case "24.0.1": return 0100;
+				case "24.0.2": return 0200;
+			}
+		}
+		if (version == JavaCore.VERSION_25) {
+			switch(rawVersion) {
+				case "25-ea", "25-beta", "25":
 					return 0000;
 			}
 		}

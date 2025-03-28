@@ -211,7 +211,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 						"	}\n" +
 						"}\n",
 				};
-		if (this.complianceLevel < ClassFileConstants.JDK24) {
+		if (this.complianceLevel < ClassFileConstants.JDK25) {
 			runNegativeTest(
 				testFiles,
 				"----------\n" +

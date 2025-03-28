@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
  *******************************************************************************/
@@ -914,7 +918,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				1 problem (1 warning)
 				""");
 		verifyClassFile("version 24 : 68.65535", "module-info.class", ClassFileBytesDisassembler.SYSTEM,
-				this.complianceLevel <= ClassFileConstants.JDK24); // Skipped for javac 24 due to https://bugs.openjdk.org/browse/JDK-8347646 - fixed in 25
+				this.complianceLevel <= ClassFileConstants.JDK25); // Skipped for javac 24 due to https://bugs.openjdk.org/browse/JDK-8347646 - fixed in 25
 	}
 
 	public void testIllegalModifierRequiresJavaBase_4() {

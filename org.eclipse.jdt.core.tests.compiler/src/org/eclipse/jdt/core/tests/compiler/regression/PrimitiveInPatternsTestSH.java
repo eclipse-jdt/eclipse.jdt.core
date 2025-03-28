@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -24,7 +28,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 24 -Xlint:-preview");
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 25 -Xlint:-preview");
 	private static final String[] VMARGS = new String[] {"--enable-preview"};
 
 	private static final String[] PRIMITIVES = { "boolean", "byte", "char", "short", "int", "long", "float", "double" };
@@ -80,7 +84,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		return PrimitiveInPatternsTestSH.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_24);
+		return buildMinimalComplianceTestSuite(testClass(), F_25);
 	}
 	public PrimitiveInPatternsTestSH(String testName) {
 		super(testName);
@@ -102,9 +106,9 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_24);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_24);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_24);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_25);
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_25);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_25);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, preview ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
 		return defaultOptions;
@@ -175,7 +179,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 	void checkPreviewFlag(String[] testFiles) {
 		String className = testFiles[0].replace(".java", ".class");
 		try {
-			verifyClassFile("version 24 : 68.65535", className, ClassFileBytesDisassembler.SYSTEM);
+			verifyClassFile("version 25 : 69.65535", className, ClassFileBytesDisassembler.SYSTEM);
 		} catch (IOException|ClassFormatException e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -243,7 +247,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		classX.append(calls);
 		classX.append("}}\n");
 		runConformTest(new String[] { "X.java", classX.toString() }, MAX_VALUES_STRING);
-		verifyClassFile("version 24 : 68.65535", "X.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile("version 25 : 69.65535", "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testIdentityPattern() {
 		StringBuilder methods = new StringBuilder();
