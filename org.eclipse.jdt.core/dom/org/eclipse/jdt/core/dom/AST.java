@@ -1339,6 +1339,7 @@ public final class AST {
         t.put(JavaCore.VERSION_22, JLS22_INTERNAL);
         t.put(JavaCore.VERSION_23, JLS23_INTERNAL);
         t.put(JavaCore.VERSION_24, JLS24_INTERNAL);
+        t.put(JavaCore.VERSION_25, JLS25_INTERNAL);
         return Collections.unmodifiableMap(t);
 	}
 	/**
