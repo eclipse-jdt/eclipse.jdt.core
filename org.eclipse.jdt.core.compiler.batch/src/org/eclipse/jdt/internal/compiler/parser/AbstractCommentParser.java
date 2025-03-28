@@ -179,6 +179,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			boolean isDomParser = (this.kind & DOM_PARSER) != 0;
 			boolean isFormatterParser = (this.kind & FORMATTER_COMMENT_PARSER) != 0;
 			int lastStarPosition = -1;
+			boolean isTagElementClose = false;
 
 			// Init scanner position
 			this.markdown = this.source[this.javadocStart + 1] == '/';
@@ -347,6 +348,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						// Fix bug 51650
 						this.textStart = -1;
 						this.markdownHelper.resetAtLineEnd();
+						if (this.inlineTagStarted && this.markdown) {
+							isTagElementClose = true;
+						}
 						break;
 					case '}' :
 						if (verifText && this.tagValue == TAG_RETURN_VALUE && this.returnStatement != null) {
@@ -370,7 +374,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							}
 							if (!isFormatterParser && !considerTagAsPlainText)
 								this.textStart = this.index;
-							setInlineTagStarted(false);
+							if ((!isTagElementClose && this.markdown) || !this.markdown) {  //The comment parser should create a TagElement only if the previous one is closed - markdown.
+								setInlineTagStarted(false);
+							}
 							if (this.inlineReturn) {
 								addFragmentToInlineReturn();
 							}
