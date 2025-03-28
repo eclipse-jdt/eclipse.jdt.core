@@ -1839,4 +1839,23 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			}
 		}
 	}
+
+	public void testIllegelTagElement() throws JavaModelException {
+		String source= """
+				///{@link #getValue()
+				///value}
+				class IllegelTagElement {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/gh3761/IllegelTagElement.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> te = javadoc.tags();
+			assertEquals("TagElement length is grater than one", te.size(), 1);
+			List<TagElement> tes = (te.get(0)).fragments();
+			assertEquals("inner TagElement length is grater than one", tes.size(), 1);
+		}
+	}
 }
