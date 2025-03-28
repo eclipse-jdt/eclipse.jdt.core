@@ -17,17 +17,7 @@ import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.JarURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
-import java.net.UnknownHostException;
-import java.net.URISyntaxException;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -752,7 +742,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 				String value = attrib.getValue();
 				try {
 					return (new URI(value)).toURL();
-				} catch (MalformedURLException | URISyntaxException e) {
+				} catch (IllegalArgumentException | MalformedURLException | URISyntaxException e) {
 					throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC, value));
 				}
 			}
