@@ -176,6 +176,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			return getComponentType().isRecovered();
 		}
 		return this.typeSymbol.kind == Kinds.Kind.ERR ||
+			(!type.isPrimitiveOrVoid() && this.typeSymbol instanceof ClassSymbol symbol && symbol.sourcefile == null && symbol.classfile == null) ||
 			this.type.allparams().stream().anyMatch(param -> param.isErroneous()) ||
 			(Object.class.getName().equals(this.typeSymbol.getQualifiedName().toString())
 			&& getJavaElement() == null);
