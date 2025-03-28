@@ -106,7 +106,6 @@ public class RegressionTests {
 		IWorkspaceDescription wsDesc = ResourcesPlugin.getWorkspace().getDescription();
 		wsDesc.setAutoBuilding(false);
 		ResourcesPlugin.getWorkspace().setDescription(wsDesc);
-		project.build(IncrementalProjectBuilder.FULL_BUILD, null);
 		IProject dependent = importProject("projects/dependent");
 		// at this stage, no .class file exists, so we test that resolution through sourcePath/referenced projects work
 		ICompilationUnit unit = (ICompilationUnit)JavaCore.create(dependent).findElement(Path.fromOSString("D.java"));

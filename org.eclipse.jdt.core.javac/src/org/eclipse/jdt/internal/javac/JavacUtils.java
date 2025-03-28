@@ -280,7 +280,7 @@ public class JavacUtils {
 				sourcePathEnabled = true;
 			}
 			if (!sourcePathEnabled) {
-				fileManager.setLocation(StandardLocation.SOURCE_PATH, classpathEntriesToFiles(javaProject, entry -> entry.getEntryKind() == IClasspathEntry.CPE_SOURCE  && (isTest || !entry.isTest())));
+				fileManager.setLocation(StandardLocation.SOURCE_PATH, classpathEntriesToFiles(javaProject, true, entry -> (isTest || !entry.isTest())));
 			}
 			
 			boolean classpathEnabled = false;
@@ -315,7 +315,7 @@ public class JavacUtils {
 						})
 						.collect(Collectors.toSet());
 				
-				Collection<File> classpathFiles = classpathEntriesToFiles(javaProject, entry -> isTest || !entry.isTest());
+				Collection<File> classpathFiles = classpathEntriesToFiles(javaProject, false, entry -> isTest || !entry.isTest());
 				Collection<File> filteredFiles = classpathFiles.stream().filter(x -> x.length() != 0).toList();
 				fileManager.setLocation(StandardLocation.CLASS_PATH, filteredFiles);
 				classpathFiles.addAll(outDirectories(javaProject, entry -> isTest || !entry.isTest()));
@@ -368,7 +368,7 @@ public class JavacUtils {
 		return list == null || list.isEmpty();
 	}
 
-	private static Collection<File> classpathEntriesToFiles(JavaProject project, Predicate<IClasspathEntry> select) {
+	private static Collection<File> classpathEntriesToFiles(JavaProject project, boolean source, Predicate<IClasspathEntry> select) {
 		try {
 			LinkedHashSet<File> res = new LinkedHashSet<>();
 			ArrayList<IClasspathEntry> seen = new ArrayList<>();
@@ -395,13 +395,25 @@ public class JavacUtils {
 							}
 							if (moduleDescription == null) {
 								IPath path = referencedJavaProject.getOutputLocation();
-								addPath(referencedJavaProject, path, res);
+								if (!source) {
+									addPath(referencedJavaProject, path, res);
+								}
 								IClasspathEntry[] resolved = referencedJavaProject.resolveClasspath(referencedJavaProject.getExpandedClasspath());
 								for (IClasspathEntry transitiveEntry : resolved ) {
 									if (transitiveEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-										IPath outputLocation = transitiveEntry.getOutputLocation();
-										if (outputLocation != null && select.test(transitiveEntry)) {
-											addPath(referencedJavaProject, outputLocation, res);
+										if (select.test(transitiveEntry)) {
+											if (!source) {
+												IPath outputLocation = transitiveEntry.getOutputLocation();
+												if (outputLocation != null) {
+													addPath(referencedJavaProject, outputLocation, res);
+												}
+											}
+											if (source) {
+												IPath sourceLocation = transitiveEntry.getPath();
+												if (sourceLocation != null) {
+													addPath(referencedJavaProject, sourceLocation, res);
+												}
+											}
 										}
 									} else if (transitiveEntry.isExported() && !seen.contains(transitiveEntry)) {
 										toProcess.add(transitiveEntry);
@@ -411,7 +423,8 @@ public class JavacUtils {
 							}
 						}
 					}
-				} else if (select.test(current)) {
+				} else if (select.test(current) &&
+						((source && current.getEntryKind() == IClasspathEntry.CPE_SOURCE) || (!source && current.getEntryKind() != IClasspathEntry.CPE_SOURCE))) {
 					IPath path = current.getPath();
 					addPath(project, path, res);
 				}
