@@ -281,6 +281,14 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_24);
 			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_24);
 		}
+		setUpProjectAbove25();
+	}
+	protected void setUpProjectAbove25() throws Exception {
+		if (this.apiLevel == AST_INTERNAL_JLS25) {
+			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_25);
+			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_25);
+			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_25);
+		}
 	}
 
 	protected IJavaProject createProject(String projectName, String complianceVersion) throws CoreException {
