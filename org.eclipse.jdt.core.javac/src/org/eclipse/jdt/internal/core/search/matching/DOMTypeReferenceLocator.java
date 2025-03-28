@@ -213,15 +213,26 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 					r1 = matchTypeNodeReturnComponent(node, patternQualifiedString, fqqn, defaultLevel);
 					if( r1 != null ) return r1;
 				}
-//			} else {
-//				String[] qualifiedNameFromNodeSegments = qualifiedNameFromNode.split("\\.");
-//				String first = qualifiedNameFromNodeSegments == null ? null : qualifiedNameFromNodeSegments.length == 0 ? null : qualifiedNameFromNodeSegments[0];
-//				String fqqnImport = fqqnFromImport(first);
-//				if( fqqnImport != null ) {
-//					String fqqn = fqqnImport + qualifiedNameFromNode.substring(first.length());
-//					r1 = matchTypeNodeReturnComponent(node, qualifiedNameFromNode, fqqn, defaultLevel);
-//					if( r1 != null ) return r1;
-//				}
+			} else {
+				String[] qualifiedNameFromNodeSegments = qualifiedNameFromNode.split("\\.");
+				String[] qualifiedNamePatternSegments = patternQualifiedString.split("\\.");
+				String firstNodeSegment = qualifiedNameFromNodeSegments == null ? null : qualifiedNameFromNodeSegments.length == 0 ? null : qualifiedNameFromNodeSegments[0];
+				String firstPatternSegment = qualifiedNamePatternSegments == null ? null : qualifiedNamePatternSegments.length == 0 ? null : qualifiedNamePatternSegments[0];
+				String fqqnImportFromNode = fqqnFromImport(firstNodeSegment);
+				if( fqqnImportFromNode != null ) {
+					String fqqn = fqqnImportFromNode + qualifiedNameFromNode.substring(firstNodeSegment.length());
+					r1 = matchTypeNodeReturnComponent(node, qualifiedNameFromNode, fqqn, defaultLevel);
+					if( r1 != null ) 
+						return r1;
+				}
+				String fqqnImportFromPattern = fqqnFromImport(firstPatternSegment);
+				if( fqqnImportFromPattern != null ) {
+					String fqqn = fqqnImportFromPattern + patternQualifiedString.substring(firstPatternSegment.length());
+					r1 = matchTypeNodeReturnComponent(node, qualifiedNameFromNode, fqqn, defaultLevel);
+					if( r1 != null ) 
+						return r1;
+				}
+
 			}
 		} else if (simpleNameFromNode != null ) {
 			if( this.locator.matchesName(this.locator.pattern.simpleName, simpleNameFromNode.toCharArray()) ) {
@@ -335,9 +346,11 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 						if( !canContinue) {
 							return TYPE_PARAMS_COUNT_MATCH;
 						}
-					} else if( patternSig.startsWith("Q")) {
-						String patternSig2 = patternSig.substring(1);
-						if( !patternSig2.equals(domSig.substring(1)) && !domSig.endsWith("." + patternSig2)) {
+					} else if( patternSig.startsWith("Q") || patternSig.startsWith("+Q") || patternSig.startsWith("-Q")) {
+						String patternSigWithoutPrefix = patternSig.startsWith("+") || patternSig.startsWith("-") ? patternSig.substring(1) : patternSig;
+						String domSigWithoutPrefix = domSig.startsWith("+") || domSig.startsWith("-") ? domSig.substring(1) : domSig;
+						String patternSig2 = patternSigWithoutPrefix.substring(1);
+						if( !patternSig2.equals(domSigWithoutPrefix.substring(1)) && !domSig.endsWith("." + patternSig2)) {
 							return TYPE_PARAMS_COUNT_MATCH;
 						}
 					} else if( !patternSig.equals(domSig)) {
