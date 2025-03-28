@@ -33,6 +33,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NameQualifiedType;
+import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.QualifiedType;
@@ -303,4 +304,11 @@ class PatternLocatorVisitor extends ASTVisitor {
 		defaultVisitImplementation(node, (x,y) -> y.match(node, this.nodeSet, this.locator));
 		return true;
 	}
+	
+	@Override
+	public boolean visit(PackageDeclaration node) {
+		defaultVisitImplementation(node, (x,y) -> y.match(node, this.nodeSet, this.locator));
+		return true;
+	}
+
 }

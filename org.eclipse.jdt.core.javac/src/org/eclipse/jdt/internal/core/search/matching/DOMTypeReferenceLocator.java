@@ -60,6 +60,7 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 	private List<IJavaElement> foundElements = new ArrayList<>();
 	private Set<org.eclipse.jdt.core.dom.Name> imports = new HashSet<>();
 	private MatchLocator matchLocator = null;
+	private String packageName;
 	
 	public DOMTypeReferenceLocator(TypeReferenceLocator locator) {
 		super(locator.pattern);
@@ -147,6 +148,9 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			Name n = id.getName();
 			imports.add(n);
 		}
+		if( node instanceof PackageDeclaration pd) {
+			this.packageName = pd.getName().toString();
+		}
 		return toResponse(IMPOSSIBLE_MATCH);
 	}
 	
@@ -210,6 +214,11 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 				String fqqnImport = fqqnFromImport(firstSegment);
 				if( fqqnImport != null ) {
 					String fqqn = fqqnImport + qualifiedNameFromNode.substring(firstSegment.length());
+					r1 = matchTypeNodeReturnComponent(node, patternQualifiedString, fqqn, defaultLevel);
+					if( r1 != null ) return r1;
+				}
+				if( this.packageName != null ) {
+					String fqqn = this.packageName + "." + qualifiedNameFromNode;
 					r1 = matchTypeNodeReturnComponent(node, patternQualifiedString, fqqn, defaultLevel);
 					if( r1 != null ) return r1;
 				}

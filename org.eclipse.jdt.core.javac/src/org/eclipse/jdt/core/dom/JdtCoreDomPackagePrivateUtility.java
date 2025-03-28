@@ -19,5 +19,16 @@ public class JdtCoreDomPackagePrivateUtility {
 		}
 		return ret1;
 	}
+	
+	public static IBinding findUnresolvedBindingForType(ASTNode node, String signature) {
+		JavacBindingResolver jcbr = getJavacBindingResolverOrNull(node);
+		IBinding ret1 = jcbr instanceof JavacBindingResolver br2 ? br2.findBinding(signature) : null;
+		if( ret1 == null ) {
+			String sig2 = signature.replaceAll("\\.", "/");
+			ret1 = jcbr instanceof JavacBindingResolver br2 ? br2.findUnresolvedBinding(sig2) : null;
+		}
+		return ret1;
+	}
+
 
 }
