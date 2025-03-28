@@ -3764,8 +3764,11 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			}
 		}
 		ITypeBinding superclassBinding = typeBinding.getSuperclass();
-		if (superclassBinding != null) {
+		if (superclassBinding != null ) {
 			processMembers(superclassBinding, scope, false, includeProtected, originalPackageKey, isStaticContext, true, impossibleMethods, impossibleFields, impossibleClasses);
+		} else if (!Object.class.getName().equals(typeBinding.getQualifiedName()) && !typeBinding.isPrimitive()) {
+			ITypeBinding objectType = this.unit.getAST().resolveWellKnownType(Object.class.getName());
+			processMembers(objectType, scope, false, includeProtected, originalPackageKey, isStaticContext, true, impossibleMethods, impossibleFields, impossibleClasses);
 		}
 	}
 
