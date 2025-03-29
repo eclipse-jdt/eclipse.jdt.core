@@ -259,7 +259,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			this.bits |= ASTNode.NeedFreeReturn;
 		}
 
-		if (this.isCompactConstructor()) {
+		if (this.isCompactConstructor() || (this.isCanonicalConstructor() && (this.bits & IsImplicit) != 0)) {
 			for (FieldBinding field : this.binding.declaringClass.fields()) {
 				if (!field.isStatic()) {
 					flowInfo.markAsDefinitelyAssigned(field);
@@ -538,7 +538,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 			throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult, null);
 		}
 		if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
-			if (this.isCompactConstructor()) {
+			if (this.isCompactConstructor() || (this.isCanonicalConstructor() && (this.bits & IsImplicit) != 0)) {
 				// Note: the body of a compact constructor may not contain a return statement and so will need an injected return
 				for (RecordComponent rc : classScope.referenceContext.recordComponents) {
 					LocalVariableBinding parameter = this.scope.findVariable(rc.name);

@@ -266,4 +266,14 @@ public class TypeParameter extends AbstractVariableDeclaration {
 		}
 		resolveAnnotations(scope);
 	}
+
+	@Override
+	public TypeVariableBinding getBinding() {
+		return this.binding;
+	}
+
+	@Override
+	public void setBinding(Binding binding) {
+		this.binding = (TypeVariableBinding) binding;
+	}
 }

@@ -482,7 +482,6 @@ public abstract class AbstractMethodDeclaration
 	}
 
 	public boolean isCanonicalConstructor() {
-
 		return false;
 	}
 
@@ -731,7 +730,8 @@ public abstract class AbstractMethodDeclaration
 			resolveStatements(this.statements, this.scope);
 		} else if ((this.bits & UndocumentedEmptyBlock) != 0) {
 			if (!this.isConstructor() || this.arguments != null) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319626
-				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd+1);
+				if ((this.bits & IsImplicit) == 0)
+					this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd+1);
 			}
 		}
 	}

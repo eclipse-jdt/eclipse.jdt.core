@@ -22,12 +22,12 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
-public class CompilationUnitTests14 extends ModifyingResourceTests {
+public class CompilationUnitTests16 extends ModifyingResourceTests {
 	ICompilationUnit cu;
 	ICompilationUnit workingCopy;
 	IJavaProject testProject;
 
-public CompilationUnitTests14(String name) {
+public CompilationUnitTests16(String name) {
 	super(name);
 }
 
@@ -110,7 +110,7 @@ static {
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
 public static Test suite() {
-	return buildModelTestSuite(CompilationUnitTests14.class);
+	return buildModelTestSuite(CompilationUnitTests16.class);
 }
 protected void tearDown() throws Exception {
 	if (this.workingCopy != null)
@@ -136,8 +136,8 @@ public void testGetTypes() throws JavaModelException {
 		boolean[] isAnnotation = new boolean[] {false, false, false, false, false, false, true, false};
 		boolean[] isEnum = new boolean[] {false, false, false, false, false, true, false, false};
 		boolean[] isRecord = new boolean[] {false, false, false, false, false, false, false, true};
-		String[] superclassName = new String[] {null, null, null, null, null, null, null, "java.lang.Record"};
-		String[] superclassType = new String[] {null, null, null, null, null, null, null, "Qjava.lang.Record;"};
+		String[] superclassName = new String[] {null, null, null, null, null, null, null, null};
+		String[] superclassType = new String[] {null, null, null, null, null, null, null, null};
 		String[][] superInterfaceNames = new String[][] {
 				new String[] {"Runnable"}, new String[0], new String[0], new String[0], new String[] {"I2<E>"}, new String[0], new String[0], new String[0]
 		};

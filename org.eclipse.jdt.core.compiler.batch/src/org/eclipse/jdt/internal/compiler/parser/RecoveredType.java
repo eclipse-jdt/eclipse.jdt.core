@@ -805,12 +805,14 @@ public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 		}
 	}
 	// might be an initializer
-	if (this.bracketBalance == 1){
+	NonInit: if (this.bracketBalance == 1){
 		Block block = new Block(0);
 		Parser parser = parser();
 		block.sourceStart = parser.scanner.startPosition;
 		Initializer init;
-		if (parser.recoveredStaticInitializerStart == 0){
+		if (parser.recoveredStaticInitializerStart == 0) {
+			if (this.typeDeclaration.isRecord())
+				break NonInit;
 			init = new Initializer(block, ClassFileConstants.AccDefault);
 		} else {
 			init = new Initializer(block, ClassFileConstants.AccStatic);

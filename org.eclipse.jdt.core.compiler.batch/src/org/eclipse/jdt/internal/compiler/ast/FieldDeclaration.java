@@ -172,6 +172,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 //	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
+@Override
 public void getAllAnnotationContexts(int targetType, List<AnnotationContext> allAnnotationContexts) {
 	AnnotationCollector collector = new AnnotationCollector(this.type, targetType, allAnnotationContexts);
 	for (Annotation annotation : this.annotations) {
@@ -232,8 +233,10 @@ public void resolve(MethodScope initializationScope) {
 	ClassScope classScope = initializationScope.enclosingClassScope();
 
 	if (classScope != null) {
+		SourceTypeBinding declaringType = classScope.enclosingSourceType();
+		if (declaringType.isRecord() && !this.isStatic())
+			classScope.problemReporter().recordNonStaticFieldDeclarationInRecord(this);
 		checkHiding: {
-			SourceTypeBinding declaringType = classScope.enclosingSourceType();
 			checkHidingSuperField: {
 				if (declaringType.superclass == null) break checkHidingSuperField;
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=318171, find field skipping visibility checks
@@ -382,6 +385,16 @@ public void resolveJavadoc(MethodScope initializationScope) {
 			reporter.javadocMissing(this.sourceStart, this.sourceEnd, severity, javadocModifiers);
 		}
 	}
+}
+
+@Override
+public FieldBinding getBinding() {
+	return this.binding;
+}
+
+@Override
+public void setBinding(Binding binding) {
+	this.binding = (FieldBinding) binding;
 }
 
 public void traverse(ASTVisitor visitor, MethodScope scope) {
