@@ -809,14 +809,14 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				case Binding.RECORD_COMPONENT :
 				case Binding.LOCAL :
 					if ((recipient.extendedTagBits & ExtendedTagBits.AnnotationResolved) != 0) return annotations;
-					recipient.extendedTagBits |= (ExtendedTagBits.AnnotationResolved | ExtendedTagBits.DeprecatedAnnotationResolved);
+					recipient.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 					if (length > 0) {
 						annotations = new AnnotationBinding[length];
 						recipient.setAnnotations(annotations, scope, false);
 					}
 					break;
 				case Binding.TYPE_PARAMETER :
-					recipient.extendedTagBits |= ExtendedTagBits.AnnotationResolved;
+					recipient.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 					//$FALL-THROUGH$
 				case Binding.TYPE_USE :
 					// for TYPE_USE we deliberately don't set the annotation resolved tagbits,
@@ -1309,40 +1309,64 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		return typeRef.resolvedType;
 	}
 
-/**
- * Figures if @Deprecated annotation is specified, do not resolve entire annotations.
- */
-public static void resolveDeprecatedAnnotations(BlockScope scope, Annotation[] annotations, Binding recipient) {
-	if (recipient != null) {
-		if (annotations != null) {
-			int length;
-			if ((length = annotations.length) >= 0) {
-				if ((recipient.extendedTagBits & ExtendedTagBits.DeprecatedAnnotationResolved) != 0)
-					return;
-				for (int i = 0; i < length; i++) {
-					TypeReference annotationTypeRef = annotations[i].type;
-					// only resolve type name if 'Deprecated' last token
-					if (!CharOperation.equals(TypeConstants.JAVA_LANG_DEPRECATED[2], annotationTypeRef.getLastToken())) continue;
-					TypeBinding annotationType = annotations[i].type.resolveType(scope);
-					if(annotationType != null && annotationType.isValidBinding() && annotationType.id == TypeIds.T_JavaLangDeprecated) {
-						long deprecationTagBits = TagBits.AnnotationDeprecated;
-						if (scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK9) {
-							for (MemberValuePair memberValuePair : annotations[i].memberValuePairs()) {
-								if (CharOperation.equals(memberValuePair.name, TypeConstants.FOR_REMOVAL)) {
-									if (memberValuePair.value instanceof TrueLiteral)
-										deprecationTagBits |= TagBits.AnnotationTerminallyDeprecated;
-									break;
+	/**
+	 * Figures if @Deprecated annotation is specified, do not resolve entire annotations.
+	 */
+	public static void resolveDeprecatedAnnotations(BlockScope scope, Annotation[] annotations, Binding recipient) {
+		if (recipient != null) {
+			if (annotations != null) {
+				int length;
+				if ((length = annotations.length) >= 0) {
+					if ((recipient.extendedTagBits & ExtendedTagBits.DeprecatedAnnotationResolved) != 0)
+						return;
+					for (int i = 0; i < length; i++) {
+						TypeReference annotationTypeRef = annotations[i].type;
+						// only resolve type name if 'Deprecated' last token
+						if (!CharOperation.equals(TypeConstants.JAVA_LANG_DEPRECATED[2], annotationTypeRef.getLastToken())) continue;
+						TypeBinding annotationType = annotations[i].type.resolveType(scope);
+						if(annotationType != null && annotationType.isValidBinding() && annotationType.id == TypeIds.T_JavaLangDeprecated) {
+							long deprecationTagBits = TagBits.AnnotationDeprecated;
+							if (scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK9) {
+								for (MemberValuePair memberValuePair : annotations[i].memberValuePairs()) {
+									if (CharOperation.equals(memberValuePair.name, TypeConstants.FOR_REMOVAL)) {
+										if (memberValuePair.value instanceof TrueLiteral)
+											deprecationTagBits |= TagBits.AnnotationTerminallyDeprecated;
+										break;
+									}
 								}
 							}
+							recipient.tagBits |= deprecationTagBits;
 						}
-						recipient.tagBits |= deprecationTagBits;
+					}
+				}
+				recipient.extendedTagBits |= ExtendedTagBits.DeprecatedAnnotationResolved;
+			}
+		}
+	}
+	/**
+	 * Figures if @NonNullByDefault annotation is specified, do not resolve entire annotations.
+	 */
+	public static void resolveNullDefaultAnnotations(BlockScope scope, Annotation[] annotations, Binding recipient) {
+		if (recipient != null) {
+			if (annotations != null) {
+				int length;
+				if ((length = annotations.length) >= 0) {
+					if ((recipient.tagBits & ExtendedTagBits.NullDefaultAnnotationResolved) != 0) return;
+					for (int i = 0; i < length; i++) {
+						TypeReference annotationTypeRef = annotations[i].type;
+						// only resolve type name if 'NonNullByDefault' last token (or corresponding configured annotation name)
+						if (!scope.environment().isNonNullByDefaultSimpleName(annotationTypeRef.getLastToken())) continue;
+						TypeBinding annotationType = annotations[i].type.resolveType(scope);
+						if(annotationType != null && annotationType.isValidBinding() && annotationType.hasTypeBit(TypeIds.BitNonNullByDefaultAnnotation)) {
+							annotations[i].recipient = recipient;
+							annotations[i].resolveType(scope); // possibly feeds bits into recipient.defaultNullness
+						}
 					}
 				}
 			}
-			recipient.extendedTagBits |= ExtendedTagBits.DeprecatedAnnotationResolved;
+			recipient.extendedTagBits |= ExtendedTagBits.NullDefaultAnnotationResolved;
 		}
 	}
-}
 
 	// ---- "default methods" for InvocationSite. Can we move to 1.8 and spare ourselves this ugliness please ?
 	public boolean checkingPotentialCompatibility() {
