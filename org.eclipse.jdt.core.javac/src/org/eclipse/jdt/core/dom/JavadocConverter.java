@@ -29,8 +29,6 @@ import com.sun.source.util.DocTreePath;
 import com.sun.source.util.TreePath;
 import com.sun.tools.javac.parser.Tokens.Comment.CommentStyle;
 import com.sun.tools.javac.tree.DCTree;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.TreeScanner;
 import com.sun.tools.javac.tree.DCTree.DCAuthor;
 import com.sun.tools.javac.tree.DCTree.DCBlockTag;
 import com.sun.tools.javac.tree.DCTree.DCComment;
@@ -58,7 +56,9 @@ import com.sun.tools.javac.tree.DCTree.DCUnknownInlineTag;
 import com.sun.tools.javac.tree.DCTree.DCUses;
 import com.sun.tools.javac.tree.DCTree.DCValue;
 import com.sun.tools.javac.tree.DCTree.DCVersion;
+import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCArrayTypeTree;
+import com.sun.tools.javac.tree.TreeScanner;
 import com.sun.tools.javac.util.Convert;
 import com.sun.tools.javac.util.JCDiagnostic;
 
@@ -635,10 +635,23 @@ class JavadocConverter {
 				}
 				return regions.stream();
 			} else {
-				TextElement element = this.ast.newTextElement();
-				commonSettings(element, javac);
-				element.setText(rawText.getContent());
-				return Stream.of(element);
+				String content = rawText.getContent();
+				char last = content.charAt(content.length()-1);
+				if (last != 26 /* EOF */) {
+					// https://github.com/eclipse-jdtls/eclipse-jdt-core-incubator/issues/1185
+					// Possible error converting Javadoc
+					TextElement element = this.ast.newTextElement();
+					commonSettings(element, javac);
+					element.setText(rawText.getContent());
+					return Stream.of(element);
+				} else {
+					content = rawText.getContent().substring(0, content.length() - 1);
+					int currentStart = this.docComment.getSourcePosition(rawText.getStartPosition());
+					TextElement element = this.ast.newTextElement();
+					element.setSourceRange(currentStart, content.length());
+					element.setText(content);
+					return Stream.of(element);
+				}
 			}
 		} else if (javac instanceof DCIdentifier identifier) {
 			Name res = this.ast.newName(identifier.getName().toString());

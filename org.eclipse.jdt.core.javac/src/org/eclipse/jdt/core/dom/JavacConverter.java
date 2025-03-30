@@ -35,6 +35,7 @@ import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleModifier.ModuleModifierKeyword;
 import org.eclipse.jdt.core.dom.PrefixExpression.Operator;
 import org.eclipse.jdt.core.dom.PrimitiveType.Code;
+import org.eclipse.jdt.internal.codeassist.DOMCodeSelector;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 
@@ -140,6 +141,7 @@ import com.sun.tools.javac.util.Position.LineMap;
 @SuppressWarnings("unchecked")
 class JavacConverter {
 
+	private static final String MISSING_IDENTIFIER = "$missing$";
 	private static final String ERROR = "<error>";
 	private static final String FAKE_IDENTIFIER = new String(RecoveryScanner.FAKE_IDENTIFIER);
 	public final AST ast;
@@ -501,6 +503,8 @@ class JavacConverter {
 			// handle constructor length using type name instead of selector.
 			var length = isConstructor ? name.toString().length() : selector.length();
 			name.setSourceRange(start, length);
+		} else {
+			name.setSourceRange(0, 0);
 		}
 	}
 
@@ -510,6 +514,8 @@ class JavacConverter {
 		var start = javac.getPreferredPosition();
 		if (start > -1) {
 			name.setSourceRange(start, varName.length());
+		} else {
+			name.setSourceRange(0, 0);
 		}
 	}
 
@@ -607,6 +613,11 @@ class JavacConverter {
 			int namePosition = this.rawText.indexOf(simpName.getIdentifier(), searchNameFrom);
 			if (namePosition >= 0) {
 				simpName.setSourceRange(namePosition, simpName.getIdentifier().length());
+			} else if (!MISSING_IDENTIFIER.equals(simpName.getFullyQualifiedName())) {
+				// lombok case
+				if (DOMCodeSelector.isGenerated(res)) {
+					simpName.setSourceRange(0, 0);
+				}
 			}
 		}
 		res.modifiers().addAll(convert(javacClassDecl.mods, res));
@@ -2865,9 +2876,13 @@ class JavacConverter {
 				simpleName.delete();
 				return qualifierType;
 			} else {
-				// lombok case
-				// or empty (eg `test.`)
-				simpleName.setSourceRange(qualifierType.getStartPosition(), 0);
+				if (MISSING_IDENTIFIER.equals(simpleName.getFullyQualifiedName())) {
+					// empty (eg `test.`)
+					simpleName.setSourceRange(qualifierType.getStartPosition(), 0);
+				} else {
+					// lombok case
+					simpleName.setSourceRange(0, 0);
+				}
 			}
 			if(qualifierType instanceof SimpleType simpleType && simpleType.annotations().isEmpty()) {
 				simpleType.delete();
@@ -2876,13 +2891,18 @@ class JavacConverter {
 				QualifiedName name = this.ast.newQualifiedName(simpleType.getName(), simpleName);
 				commonSettings(name, javac);
 				int length = simpleType.getName().getLength() + 1 + simpleName.getLength();
-				if (name.getStartPosition() >= 0) {
+				if (simpleNameStart > 0 && name.getStartPosition() >= 0) {
 					name.setSourceRange(name.getStartPosition(), Math.max(0, length));
+				} else if (!MISSING_IDENTIFIER.equals(simpleName.getFullyQualifiedName())) {
+					// lombok case
+					name.setSourceRange(0, 0);
 				}
 				SimpleType res = this.ast.newSimpleType(name);
 				commonSettings(res, javac);
-				if (name.getStartPosition() >= 0) {
+				if (simpleNameStart > 0 && name.getStartPosition() >= 0) {
 					res.setSourceRange(name.getStartPosition(), Math.max(0, length));
+				} else if (!MISSING_IDENTIFIER.equals(simpleName.getFullyQualifiedName())) {
+					res.setSourceRange(0, 0);
 				}
 				return res;
 			} else {
@@ -3397,8 +3417,10 @@ class JavacConverter {
 
 		@Override
 		public void endVisit(QualifiedName node) {
-			if (node.getName().getStartPosition() >= 0) {
+			if (node.getName().getStartPosition() >= 0 && (node.getName().getStartPosition() + node.getName().getLength() - node.getQualifier().getStartPosition()) >= 0) {
 				node.setSourceRange(node.getQualifier().getStartPosition(), node.getName().getStartPosition() + node.getName().getLength() - node.getQualifier().getStartPosition());
+			} else if (!MISSING_IDENTIFIER.equals(node.getName().getIdentifier())) {
+				node.setSourceRange(0, 0);
 			}
 		}
 

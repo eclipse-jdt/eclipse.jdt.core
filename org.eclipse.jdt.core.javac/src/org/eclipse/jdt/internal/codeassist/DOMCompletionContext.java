@@ -72,37 +72,53 @@ class DOMCompletionContext extends CompletionContext {
 		this.textContent = textContent;
 		this.offset = offset;
 		int adjustedOffset = this.offset;
-		if (adjustedOffset > 0 && Character.isJavaIdentifierPart(textContent.charAt(adjustedOffset - 1))) {
-			// workaround for cases where right node is empty and reported (wrongly) as starting at same offset
-			adjustedOffset--;
-		}
-		ASTNode currentNode = NodeFinder.perform(domUnit, adjustedOffset, 0);
-		// Use the raw text to walk back the offset to the first non-whitespace spot
-		adjustedOffset = this.offset;
-		if (adjustedOffset >= textContent.length()) {
-			adjustedOffset = textContent.length() - 1;
-		}
-		if (adjustedOffset > 0 && Character.isJavaIdentifierPart(textContent.charAt(adjustedOffset - 1))) {
-			// workaround for cases where right node is empty and reported (wrongly) as starting at same offset
-			adjustedOffset--;
-		}
-		if (adjustedOffset + 1 >= textContent.length()
-				|| !Character.isJavaIdentifierStart(textContent.charAt(adjustedOffset))) {
-			while (adjustedOffset > 0 && Character.isWhitespace(textContent.charAt(adjustedOffset - 1)) ) {
+		boolean isGenerated = DOMCodeSelector.isGenerated(domUnit);
+		if (!isGenerated) {
+			if (adjustedOffset > 0 && Character.isJavaIdentifierPart(textContent.charAt(adjustedOffset - 1))) {
+				// workaround for cases where right node is empty and reported (wrongly) as starting at same offset
 				adjustedOffset--;
 			}
+			ASTNode currentNode = NodeFinder.perform(domUnit, adjustedOffset, 0);
+			// Use the raw text to walk back the offset to the first non-whitespace spot
+			adjustedOffset = this.offset;
+			if (adjustedOffset >= textContent.length()) {
+				adjustedOffset = textContent.length() - 1;
+			}
+			if (adjustedOffset > 0 && Character.isJavaIdentifierPart(textContent.charAt(adjustedOffset - 1))) {
+				// workaround for cases where right node is empty and reported (wrongly) as starting at same offset
+				adjustedOffset--;
+			}
+			if (adjustedOffset + 1 >= textContent.length()
+					|| !Character.isJavaIdentifierStart(textContent.charAt(adjustedOffset))) {
+				while (adjustedOffset > 0 && Character.isWhitespace(textContent.charAt(adjustedOffset - 1)) ) {
+					adjustedOffset--;
+				}
+			}
+			ASTNode previousNodeBeforeWhitespaces = NodeFinder.perform(domUnit, adjustedOffset, 0);
+			adjustedOffset = this.offset;
+			if (adjustedOffset < textContent.length() - 1 && Character.isWhitespace(textContent.charAt(adjustedOffset)) ) {
+				adjustedOffset++;
+			}
+			ASTNode nextNodeAfterWhitespaces = NodeFinder.perform(domUnit, adjustedOffset, 0);
+			this.node = (nextNodeAfterWhitespaces.getLength() == 0 && nextNodeAfterWhitespaces.getParent() == currentNode)
+				? nextNodeAfterWhitespaces
+				: (previousNodeBeforeWhitespaces instanceof SimpleName || previousNodeBeforeWhitespaces instanceof StringLiteral || previousNodeBeforeWhitespaces instanceof CharacterLiteral || previousNodeBeforeWhitespaces instanceof NumberLiteral)
+					? currentNode
+					: previousNodeBeforeWhitespaces;
+		} else {
+			if (adjustedOffset + 1 <= textContent.length()
+					|| !Character.isJavaIdentifierStart(textContent.charAt(adjustedOffset))) {
+				while (adjustedOffset > 0 && Character.isJavaIdentifierStart(textContent.charAt(adjustedOffset - 1))) {
+					adjustedOffset--;
+				}
+			}
+			int length = 0;
+			while (adjustedOffset + length <= textContent.length()
+					&& Character.isJavaIdentifierStart(textContent.charAt(adjustedOffset + length))) {
+				length++;
+			}
+			this.node = NodeFinder.perform(domUnit, adjustedOffset, length);
 		}
-		ASTNode previousNodeBeforeWhitespaces = NodeFinder.perform(domUnit, adjustedOffset, 0);
-		adjustedOffset = this.offset;
-		if (adjustedOffset < textContent.length() - 1 && Character.isWhitespace(textContent.charAt(adjustedOffset)) ) {
-			adjustedOffset++;
-		}
-		ASTNode nextNodeAfterWhitespaces = NodeFinder.perform(domUnit, adjustedOffset, 0);
-		this.node = (nextNodeAfterWhitespaces.getLength() == 0 && nextNodeAfterWhitespaces.getParent() == currentNode)
-			? nextNodeAfterWhitespaces
-			: (previousNodeBeforeWhitespaces instanceof SimpleName || previousNodeBeforeWhitespaces instanceof StringLiteral || previousNodeBeforeWhitespaces instanceof CharacterLiteral || previousNodeBeforeWhitespaces instanceof NumberLiteral)
-				? currentNode
-				: previousNodeBeforeWhitespaces;
 		this.expectedTypes = new ExpectedTypes(assistOptions, this.node, offset);
 		this.token = tokenBefore(this.textContent).toCharArray();
 		this.bindingsAcquirer = bindings::all;
