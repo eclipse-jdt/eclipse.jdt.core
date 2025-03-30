@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -307,10 +307,10 @@ public AnnotationBinding[] getAnnotations() {
 @Override
 public long getAnnotationTagBits() {
 	FieldBinding originalField = original();
-	if ((originalField.tagBits & TagBits.AnnotationResolved) == 0 && originalField.declaringClass instanceof SourceTypeBinding) {
+	if ((originalField.extendedTagBits & ExtendedTagBits.AnnotationResolved) == 0 && originalField.declaringClass instanceof SourceTypeBinding) {
 		ClassScope scope = ((SourceTypeBinding) originalField.declaringClass).scope;
 		if (scope == null) { // synthetic fields do not have a scope nor any annotations
-			this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+			this.extendedTagBits |= (ExtendedTagBits.AnnotationResolved | ExtendedTagBits.DeprecatedAnnotationResolved);
 			return 0;
 		}
 		TypeDeclaration typeDecl = scope.referenceContext;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -19,6 +19,6 @@ public class SyntheticFieldBinding extends FieldBinding {
 
 	public SyntheticFieldBinding(char[] name, TypeBinding type, int modifiers, ReferenceBinding declaringClass, Constant constant) {
 		super(name, type, modifiers, declaringClass, constant);
-		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+		this.extendedTagBits |= (ExtendedTagBits.AnnotationResolved | ExtendedTagBits.DeprecatedAnnotationResolved);
 	}
 }
