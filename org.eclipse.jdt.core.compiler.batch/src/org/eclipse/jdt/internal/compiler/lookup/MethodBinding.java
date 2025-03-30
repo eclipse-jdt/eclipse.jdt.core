@@ -64,8 +64,6 @@ public class MethodBinding extends Binding {
 	public ReferenceBinding declaringClass;
 	public TypeVariableBinding[] typeVariables = Binding.NO_TYPE_VARIABLES;
 	char[] signature;
-	public long tagBits;
-	public int extendedTagBits = 0; // See values in the interface ExtendedTagBits
 	public IBinaryAnnotation binaryPreviewAnnotation; // captures the exact preview feature of a preview API
 	// Used only for constructors
 	protected AnnotationBinding [] typeAnnotations = Binding.NO_ANNOTATIONS;
