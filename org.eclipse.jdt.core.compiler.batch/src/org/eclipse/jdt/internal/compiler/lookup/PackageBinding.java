@@ -306,8 +306,8 @@ public Binding getTypeOrPackage(char[] name, ModuleBinding mod, boolean splitPac
 	return problemBinding;
 }
 public final boolean isViewedAsDeprecated() {
-	if ((this.tagBits & TagBits.DeprecatedAnnotationResolved) == 0) {
-		this.tagBits |= TagBits.DeprecatedAnnotationResolved;
+	if ((this.extendedTagBits & ExtendedTagBits.DeprecatedAnnotationResolved) == 0) {
+		this.extendedTagBits |= ExtendedTagBits.DeprecatedAnnotationResolved;
 		if (this.compoundName != CharOperation.NO_CHAR_CHAR) {
 			ReferenceBinding packageInfo = this.getType(TypeConstants.PACKAGE_INFO_NAME, this.enclosingModule);
 			if (packageInfo != null) {
