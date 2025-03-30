@@ -39,7 +39,6 @@ public class FieldBinding extends VariableBinding {
 	public int compoundUseFlag = 0; // number or accesses via postIncrement or compoundAssignment
 
 	public FakedTrackingVariable closeTracker;
-	public long extendedTagBits;
 	public IBinaryAnnotation binaryPreviewAnnotation; // captures the exact preview feature of a preview API
 
 protected FieldBinding() {
