@@ -1653,6 +1653,19 @@ int getAnalysisAnnotationBit(char[][] qualifiedTypeName) {
 	Integer typeBit = this.allAnalysisAnnotations.get(qualifiedTypeString);
 	return typeBit == null ? 0 : typeBit;
 }
+
+public boolean isNonNullByDefaultSimpleName(char[] simpleName) {
+	char[][] qualified = this.globalOptions.nonNullByDefaultAnnotationName;
+	if (CharOperation.equals(qualified[qualified.length-1], simpleName))
+		return true;
+	String tail = '.'+String.valueOf(simpleName);
+	for (String qualifiedString : this.globalOptions.nonNullByDefaultAnnotationSecondaryNames) {
+		if (qualifiedString.endsWith(tail))
+			return true;
+	}
+	return false;
+}
+
 /**
  * Check if the given type is a missing type that could be relevant for static analysis.
  * @return A bit from {@link ExtendedTagBits} encoding the check result, or {@code 0}.

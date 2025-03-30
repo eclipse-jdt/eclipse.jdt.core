@@ -36,5 +36,6 @@ public interface ExtendedTagBits {
 
 	int AnnotationResolved = ASTNode.Bit6;
 	int DeprecatedAnnotationResolved = ASTNode.Bit7;
-
+	int NullDefaultAnnotationResolved = ASTNode.Bit8; // package, type, method or variable
+	int AllAnnotationsResolved = ExtendedTagBits.AnnotationResolved | ExtendedTagBits.DeprecatedAnnotationResolved | ExtendedTagBits.NullDefaultAnnotationResolved;
 }

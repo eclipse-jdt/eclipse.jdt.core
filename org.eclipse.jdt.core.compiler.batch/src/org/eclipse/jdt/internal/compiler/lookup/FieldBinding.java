@@ -310,7 +310,7 @@ public long getAnnotationTagBits() {
 	if ((originalField.extendedTagBits & ExtendedTagBits.AnnotationResolved) == 0 && originalField.declaringClass instanceof SourceTypeBinding) {
 		ClassScope scope = ((SourceTypeBinding) originalField.declaringClass).scope;
 		if (scope == null) { // synthetic fields do not have a scope nor any annotations
-			this.extendedTagBits |= (ExtendedTagBits.AnnotationResolved | ExtendedTagBits.DeprecatedAnnotationResolved);
+			this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 			return 0;
 		}
 		TypeDeclaration typeDecl = scope.referenceContext;

@@ -1359,6 +1359,23 @@ public long getAnnotationTagBits() {
 	}
 	return this.tagBits;
 }
+void initializeNullDefaultAnnotation() {
+	if (!isPrototype()) {
+		this.prototype.initializeNullDefaultAnnotation();
+		return;
+	}
+	if ((this.extendedTagBits & ExtendedTagBits.NullDefaultAnnotationResolved) == 0 && this.scope != null) {
+		TypeDeclaration typeDecl = this.scope.referenceContext;
+		boolean old = typeDecl.staticInitializerScope.insideTypeAnnotation;
+		try {
+			typeDecl.staticInitializerScope.insideTypeAnnotation = true;
+			ASTNode.resolveNullDefaultAnnotations(typeDecl.staticInitializerScope, typeDecl.annotations, this);
+			evaluateNullAnnotations();
+		} finally {
+			typeDecl.staticInitializerScope.insideTypeAnnotation = old;
+		}
+	}
+}
 @Override
 public boolean isReadyForAnnotations() {
 	if ((this.extendedTagBits & ExtendedTagBits.AnnotationResolved) != 0)
@@ -1793,7 +1810,7 @@ int getNullDefault() {
 	// ensure nullness defaults are initialized at all enclosing levels:
 	switch (this.nullnessDefaultInitialized) {
 	case 0:
-		getAnnotationTagBits(); // initialize
+		initializeNullDefaultAnnotation();
 		//$FALL-THROUGH$
 	case 1:
 		getPackage().isViewedAsDeprecated(); // initialize annotations
