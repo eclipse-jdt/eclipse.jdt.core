@@ -86,7 +86,7 @@ public class RecordComponentBinding extends VariableBinding {
 				originalRecordComponentBinding.declaringRecord instanceof SourceTypeBinding) {
 			ClassScope scope = ((SourceTypeBinding) originalRecordComponentBinding.declaringRecord).scope;
 			if (scope == null) {// should not be true - but safety net
-				this.extendedTagBits |= (ExtendedTagBits.AnnotationResolved | ExtendedTagBits.DeprecatedAnnotationResolved);
+				this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 				return 0;
 			}
 			TypeDeclaration typeDecl = scope.referenceContext;

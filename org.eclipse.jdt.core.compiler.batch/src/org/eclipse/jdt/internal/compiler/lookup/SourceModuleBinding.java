@@ -142,9 +142,8 @@ public class SourceModuleBinding extends ModuleBinding {
 			ASTNode.resolveAnnotations(module.scope, module.annotations, this);
 			if ((this.tagBits & TagBits.AnnotationDeprecated) != 0) {
 				this.modifiers |= ClassFileConstants.AccDeprecated;
-				this.extendedTagBits |= ExtendedTagBits.DeprecatedAnnotationResolved;
 			}
-			this.extendedTagBits |= ExtendedTagBits.AnnotationResolved;
+			this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 		}
 	}
 	@Override
