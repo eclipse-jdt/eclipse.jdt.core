@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -25,7 +25,6 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfType;
 
 public abstract class PackageBinding extends Binding implements TypeConstants {
-	public long tagBits = 0; // See values in the interface TagBits below
 
 	public char[][] compoundName;
 	PackageBinding parent;
