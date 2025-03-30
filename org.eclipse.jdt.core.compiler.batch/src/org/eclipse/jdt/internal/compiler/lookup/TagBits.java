@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -108,10 +108,10 @@ public interface TagBits {
 	long BeginAnnotationCheck = ASTNode.Bit32L;
 	long EndAnnotationCheck = ASTNode.Bit33L;
 
+	// currently unused: ASTNode.Bit34L, ASTNode.Bit34L
+
 	// standard annotations
 	// 9-bits for targets
-	long AnnotationResolved = ASTNode.Bit34L;
-	long DeprecatedAnnotationResolved = ASTNode.Bit35L;
 	long AnnotationTarget = ASTNode.Bit36L; // @Target({}) only sets this bit
 	long AnnotationForType = ASTNode.Bit37L;
 	long AnnotationForField = ASTNode.Bit38L;

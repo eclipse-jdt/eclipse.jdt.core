@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -808,15 +808,15 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				case Binding.FIELD :
 				case Binding.RECORD_COMPONENT :
 				case Binding.LOCAL :
-					if ((recipient.tagBits & TagBits.AnnotationResolved) != 0) return annotations;
-					recipient.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+					if ((recipient.extendedTagBits & ExtendedTagBits.AnnotationResolved) != 0) return annotations;
+					recipient.extendedTagBits |= (ExtendedTagBits.AnnotationResolved | ExtendedTagBits.DeprecatedAnnotationResolved);
 					if (length > 0) {
 						annotations = new AnnotationBinding[length];
 						recipient.setAnnotations(annotations, scope, false);
 					}
 					break;
 				case Binding.TYPE_PARAMETER :
-					recipient.tagBits |= TagBits.AnnotationResolved;
+					recipient.extendedTagBits |= ExtendedTagBits.AnnotationResolved;
 					//$FALL-THROUGH$
 				case Binding.TYPE_USE :
 					// for TYPE_USE we deliberately don't set the annotation resolved tagbits,
@@ -1317,7 +1317,7 @@ public static void resolveDeprecatedAnnotations(BlockScope scope, Annotation[] a
 		if (annotations != null) {
 			int length;
 			if ((length = annotations.length) >= 0) {
-				if ((recipient.tagBits & TagBits.DeprecatedAnnotationResolved) != 0)
+				if ((recipient.extendedTagBits & ExtendedTagBits.DeprecatedAnnotationResolved) != 0)
 					return;
 				for (int i = 0; i < length; i++) {
 					TypeReference annotationTypeRef = annotations[i].type;
@@ -1325,7 +1325,7 @@ public static void resolveDeprecatedAnnotations(BlockScope scope, Annotation[] a
 					if (!CharOperation.equals(TypeConstants.JAVA_LANG_DEPRECATED[2], annotationTypeRef.getLastToken())) continue;
 					TypeBinding annotationType = annotations[i].type.resolveType(scope);
 					if(annotationType != null && annotationType.isValidBinding() && annotationType.id == TypeIds.T_JavaLangDeprecated) {
-						long deprecationTagBits = TagBits.AnnotationDeprecated | TagBits.DeprecatedAnnotationResolved;
+						long deprecationTagBits = TagBits.AnnotationDeprecated;
 						if (scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK9) {
 							for (MemberValuePair memberValuePair : annotations[i].memberValuePairs()) {
 								if (CharOperation.equals(memberValuePair.name, TypeConstants.FOR_REMOVAL)) {
@@ -1339,7 +1339,7 @@ public static void resolveDeprecatedAnnotations(BlockScope scope, Annotation[] a
 					}
 				}
 			}
-			recipient.tagBits |= TagBits.DeprecatedAnnotationResolved;
+			recipient.extendedTagBits |= ExtendedTagBits.DeprecatedAnnotationResolved;
 		}
 	}
 }

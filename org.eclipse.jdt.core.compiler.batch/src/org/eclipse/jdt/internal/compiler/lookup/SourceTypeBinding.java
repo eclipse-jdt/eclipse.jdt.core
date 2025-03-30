@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1345,7 +1345,7 @@ public long getAnnotationTagBits() {
 	if (!isPrototype())
 		return this.prototype.getAnnotationTagBits();
 
-	if ((this.tagBits & TagBits.AnnotationResolved) == 0 && this.scope != null) {
+	if ((this.extendedTagBits & ExtendedTagBits.AnnotationResolved) == 0 && this.scope != null) {
 		TypeDeclaration typeDecl = this.scope.referenceContext;
 		boolean old = typeDecl.staticInitializerScope.insideTypeAnnotation;
 		try {
@@ -1361,7 +1361,7 @@ public long getAnnotationTagBits() {
 }
 @Override
 public boolean isReadyForAnnotations() {
-	if ((this.tagBits & TagBits.AnnotationResolved) != 0)
+	if ((this.extendedTagBits & ExtendedTagBits.AnnotationResolved) != 0)
 		return true;
 	TypeDeclaration type;
 	if (this.scope != null && (type = this.scope.referenceType()) != null) {
@@ -1751,13 +1751,13 @@ public void initializeDeprecatedAnnotationTagBits() {
 		this.prototype.initializeDeprecatedAnnotationTagBits();
 		return;
 	}
-	if ((this.tagBits & TagBits.DeprecatedAnnotationResolved) == 0) {
+	if ((this.extendedTagBits & ExtendedTagBits.DeprecatedAnnotationResolved) == 0) {
 		TypeDeclaration typeDecl = this.scope.referenceContext;
 		boolean old = typeDecl.staticInitializerScope.insideTypeAnnotation;
 		try {
 			typeDecl.staticInitializerScope.insideTypeAnnotation = true;
 			ASTNode.resolveDeprecatedAnnotations(typeDecl.staticInitializerScope, typeDecl.annotations, this);
-			this.tagBits |= TagBits.DeprecatedAnnotationResolved;
+			this.extendedTagBits |= ExtendedTagBits.DeprecatedAnnotationResolved;
 		} finally {
 			typeDecl.staticInitializerScope.insideTypeAnnotation = old;
 		}
@@ -2722,7 +2722,7 @@ private void maybeMarkTypeParametersNonNull() {
 		for (int i = 0; i < this.typeVariables.length; i++) {
 			TypeVariableBinding tvb = this.typeVariables[i];
 			TypeParameter typeParameter = this.scope.referenceContext.typeParameters[i];
-			if (typeParameter.annotations != null && (tvb.tagBits & TagBits.AnnotationResolved) == 0)
+			if (typeParameter.annotations != null && (tvb.extendedTagBits & ExtendedTagBits.AnnotationResolved) == 0)
 				continue; // not yet ready
 			if ((tvb.tagBits & TagBits.AnnotationNullMASK) == 0)
 				this.typeVariables[i] = (TypeVariableBinding) this.environment.createAnnotatedType(tvb, annots);
