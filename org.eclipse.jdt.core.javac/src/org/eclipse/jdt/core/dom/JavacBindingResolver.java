@@ -534,9 +534,10 @@ public class JavacBindingResolver extends BindingResolver {
 		compoundListWithAction(validNames, x -> x.endsWith(";") ? x.substring(0, x.length() - 1) : null);
 		compoundListWithAction(validNames, x -> x.startsWith("+") || x.startsWith("-") ? x.substring(1) : null);
 		compoundListWithAction(validNames, x -> x.lastIndexOf(".", x.length() - 1) != -1 ? x.substring(x.lastIndexOf(".") + 1) : null);
+		compoundListWithAction(validNames, x -> x.startsWith("Q") ? x.substring(1) : null);
 		
 		Collection<JavacTypeBinding> c = this.bindings.typeBinding.values();
-		List<JavacTypeBinding> possible = c.stream().filter(x -> validNames.contains(x.getName())).collect(Collectors.toList());
+		List<JavacTypeBinding> possible = c.stream().filter(x -> validNames.contains(x.getName()) || validNames.contains(x.getKey())).collect(Collectors.toList());
 		return possible.size() == 0 ? null : possible.get(0);
 	}
 	
