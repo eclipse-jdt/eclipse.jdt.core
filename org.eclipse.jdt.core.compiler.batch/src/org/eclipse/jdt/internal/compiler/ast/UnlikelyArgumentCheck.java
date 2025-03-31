@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.HashSet;
 import java.util.Set;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
@@ -71,6 +72,7 @@ public class UnlikelyArgumentCheck {
 				&& !expectedType2.isCompatibleWith(typeToCheck2, currentScope);
 		if (potentiallyDangerous
 				&& this.dangerousMethod == DangerousMethod.Equals
+				&& this.expectedType.kind() != Binding.ARRAY_TYPE
 				&& hasEqualsMethodInCommonSuperType(this.expectedType, this.typeToCheck, new HashSet<>())) {
 			return false;
 		}

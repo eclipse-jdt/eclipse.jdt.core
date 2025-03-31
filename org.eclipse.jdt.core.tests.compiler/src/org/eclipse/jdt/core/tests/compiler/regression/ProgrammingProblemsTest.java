@@ -4085,4 +4085,132 @@ public void testGH3660() {
 	runner.expectedOutputString = "truetrue";
 	runner.runConformTest();
 }
+public void testGH3870() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_EQUALS_ARGUMENT_TYPE, JavaCore.WARNING);
+	runner.testFiles = new String[] {
+		"BadEquals.java",
+		"""
+		@interface ExpectWarning {
+			String value();
+		}
+
+		public class BadEquals {
+		    public static void main(String args[]) {
+		        Object o[] = new Object[args.length];
+		        String s[] = new String[args.length];
+		        for (int i = 0; i < args.length; i++)
+		            o[i] = s[i] = args[i];
+		        test1(args, o, s);
+		        test2(args, args, s); // modified to demonstrate success of comparison
+		        test3(args, o, args); // modified to demonstrate success of comparison
+		        test4(args, o, s);
+		        test5(args, o, s);
+		    }
+
+		    @ExpectWarning("EC")
+		    public static void test1(String[] args, Object[] o, String[] s) {
+		        if (args.equals(args)) // ECJ does not report comparing equal values
+		            System.out.println("args.equals(args)");
+		    }
+
+		    @ExpectWarning("EC")
+		    public static void test2(String[] args, Object[] o, String[] s) {
+
+		        if (o.equals(args))
+		            System.out.println("o.equals(args)");
+		    }
+
+		    @ExpectWarning("EC")
+		    public static void test3(String[] args, Object[] o, String[] s) {
+
+		        if (s.equals(args))
+		            System.out.println("s.equals(args)");
+		    }
+
+		    @ExpectWarning("EC")
+		    public static void test4(String[] args, Object[] o, String[] s) {
+
+		        if (args.equals("test")) // #41
+		            System.out.println("FOund test");
+		    }
+
+		    @ExpectWarning("EC")
+		    public static void test5(String[] args, Object[] o, String[] s) {
+		        if ("test".equals(args)) // #47
+		            System.out.println("Found test 2");
+		    }
+
+		    @ExpectWarning("EC")
+		    public boolean b(int[] a, Object[] b) {
+		        return a.equals(b); // #53
+		    }
+
+		    @ExpectWarning("EC")
+		    public boolean b(int[] a, long[] b) {
+		        return a.equals(b); // #58
+		    }
+
+		    @ExpectWarning("EC")
+		    public boolean b(int[] a, String b) {
+		        return a.equals(b); // #63
+		    }
+
+		    @ExpectWarning("EC")
+		    public boolean b(int[] a, int[][] b) {
+		        return a.equals(b); // #68
+		    }
+
+		    @ExpectWarning("EC")
+		    public boolean b(int[] a, double[] b) {
+		        return a.equals(b); // #73
+		    }
+		}
+		"""
+	};
+	runner.expectedCompilerLog = """
+		----------
+		1. WARNING in BadEquals.java (at line 41)
+			if (args.equals("test")) // #41
+			                ^^^^^^
+		Unlikely argument type for equals(): String seems to be unrelated to String[]
+		----------
+		2. WARNING in BadEquals.java (at line 47)
+			if ("test".equals(args)) // #47
+			                  ^^^^
+		Unlikely argument type for equals(): String[] seems to be unrelated to String
+		----------
+		3. WARNING in BadEquals.java (at line 53)
+			return a.equals(b); // #53
+			                ^
+		Unlikely argument type for equals(): Object[] seems to be unrelated to int[]
+		----------
+		4. WARNING in BadEquals.java (at line 58)
+			return a.equals(b); // #58
+			                ^
+		Unlikely argument type for equals(): long[] seems to be unrelated to int[]
+		----------
+		5. WARNING in BadEquals.java (at line 63)
+			return a.equals(b); // #63
+			                ^
+		Unlikely argument type for equals(): String seems to be unrelated to int[]
+		----------
+		6. WARNING in BadEquals.java (at line 68)
+			return a.equals(b); // #68
+			                ^
+		Unlikely argument type for equals(): int[][] seems to be unrelated to int[]
+		----------
+		7. WARNING in BadEquals.java (at line 73)
+			return a.equals(b); // #73
+			                ^
+		Unlikely argument type for equals(): double[] seems to be unrelated to int[]
+		----------
+		""";
+	runner.expectedOutputString = """
+				args.equals(args)
+				o.equals(args)
+				s.equals(args)""";
+	runner.runConformTest();
+}
 }
