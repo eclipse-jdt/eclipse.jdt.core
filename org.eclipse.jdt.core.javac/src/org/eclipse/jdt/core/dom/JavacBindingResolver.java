@@ -12,9 +12,11 @@ package org.eclipse.jdt.core.dom;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -510,15 +512,32 @@ public class JavacBindingResolver extends BindingResolver {
 		return this.bindings.getBinding(bindingKey);
 	}
 	
-	public IBinding findUnresolvedBinding(String bindingKey) {
-		if( bindingKey.startsWith("Q") || bindingKey.startsWith("+Q")) {
-			int start = bindingKey.charAt(0) == '+' ? 2 : 1;
-			String remainder = bindingKey.substring(start, bindingKey.length() - 1);
-			Collection<JavacTypeBinding> c = this.bindings.typeBinding.values();
-			List<JavacTypeBinding> possible = c.stream().filter(x -> remainder.equals(x.getName())).collect(Collectors.toList());
-			return possible.size() == 0 ? null : possible.get(0);
+	private void compoundListWithAction(HashSet<String> list, Function<String, String> f) {
+		Iterator<String> it = new ArrayList<String>(list).iterator();
+		while(it.hasNext()) {
+			String transformed = f.apply(it.next());
+			if( transformed != null && !list.contains(transformed)) {
+				list.add(transformed);
+			}
 		}
-		return findBinding(bindingKey);
+	}
+	
+	public IBinding findUnresolvedBinding(String bindingKey) {
+		boolean isUnresolved = bindingKey.startsWith("Q") || bindingKey.startsWith("+Q") || bindingKey.startsWith("-Q");
+		if( !isUnresolved) {
+			return findBinding(bindingKey);
+		}
+		
+		HashSet<String> validNames = new HashSet<String>();
+		validNames.add(bindingKey);
+		compoundListWithAction(validNames, x -> x.replaceAll("\\.", "/"));
+		compoundListWithAction(validNames, x -> x.endsWith(";") ? x.substring(0, x.length() - 1) : null);
+		compoundListWithAction(validNames, x -> x.startsWith("+") || x.startsWith("-") ? x.substring(1) : null);
+		compoundListWithAction(validNames, x -> x.lastIndexOf(".", x.length() - 1) != -1 ? x.substring(x.lastIndexOf(".") + 1) : null);
+		
+		Collection<JavacTypeBinding> c = this.bindings.typeBinding.values();
+		List<JavacTypeBinding> possible = c.stream().filter(x -> validNames.contains(x.getName())).collect(Collectors.toList());
+		return possible.size() == 0 ? null : possible.get(0);
 	}
 	
 	@Override

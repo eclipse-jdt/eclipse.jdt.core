@@ -24,8 +24,7 @@ public class JdtCoreDomPackagePrivateUtility {
 		JavacBindingResolver jcbr = getJavacBindingResolverOrNull(node);
 		IBinding ret1 = jcbr instanceof JavacBindingResolver br2 ? br2.findBinding(signature) : null;
 		if( ret1 == null ) {
-			String sig2 = signature.replaceAll("\\.", "/");
-			ret1 = jcbr instanceof JavacBindingResolver br2 ? br2.findUnresolvedBinding(sig2) : null;
+			ret1 = jcbr instanceof JavacBindingResolver br2 ? br2.findUnresolvedBinding(signature) : null;
 		}
 		return ret1;
 	}
