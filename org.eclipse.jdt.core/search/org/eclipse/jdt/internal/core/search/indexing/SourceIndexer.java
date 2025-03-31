@@ -212,8 +212,8 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 		}
 	}
 
-	private String reduceDOM(org.eclipse.jdt.core.dom.ASTNode dom) {
-		dom.accept(new ASTVisitor(false) {
+	private String reduceDOM(org.eclipse.jdt.core.dom.ASTNode domParam) {
+		domParam.accept(new ASTVisitor(false) {
 			private boolean requiresBinding = false;
 			@Override
 			public boolean visit(org.eclipse.jdt.core.dom.TypeDeclaration node) {
@@ -239,7 +239,7 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 			public boolean visit(MethodDeclaration node) {
 				node.setJavadoc(null);
 				if (node.getParent() instanceof AbstractTypeDeclaration type &&
-					type.getParent() instanceof org.eclipse.jdt.core.dom.CompilationUnit unit) {
+					type.getParent() instanceof org.eclipse.jdt.core.dom.CompilationUnit) {
 					// reset
 					this.requiresBinding = false;
 				}
@@ -249,7 +249,7 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 			public void endVisit(MethodDeclaration node) {
 				if (!this.requiresBinding &&
 					node.getParent() instanceof AbstractTypeDeclaration type &&
-					type.getParent() instanceof org.eclipse.jdt.core.dom.CompilationUnit unit &&
+					type.getParent() instanceof org.eclipse.jdt.core.dom.CompilationUnit &&
 					node.getBody() != null) {
 					node.getBody().statements().clear();
 				}
@@ -280,7 +280,7 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 				return false;
 			}
 		});
-		return dom.toString();
+		return domParam.toString();
 	}
 	/**
 	 * Called prior to the unit being resolved. Reduce the parse tree where possible.
@@ -417,10 +417,10 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 		}
 		astParser.setStatementsRecovery(true);
 		astParser.setResolveBindings(this.document.shouldIndexResolvedDocument());
-		org.eclipse.jdt.core.dom.ASTNode dom = astParser.createAST(null);
-		if (dom != null) {
-			dom.accept(new DOMToIndexVisitor(this));
-			dom.accept(
+		org.eclipse.jdt.core.dom.ASTNode domLocal = astParser.createAST(null);
+		if (domLocal != null) {
+			domLocal.accept(new DOMToIndexVisitor(this));
+			domLocal.accept(
 					new ASTVisitor() {
 						@Override
 						public boolean preVisit2(org.eclipse.jdt.core.dom.ASTNode node) {
@@ -435,7 +435,7 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 						}
 					});
 			if (this.document.shouldIndexResolvedDocument()) {
-				this.dom = dom;
+				this.dom = domLocal;
 			}
 			return true;
 		}
