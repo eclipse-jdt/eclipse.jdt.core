@@ -101,6 +101,7 @@ import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.DiagnosticSource;
+import com.sun.tools.javac.util.Names;
 import com.sun.tools.javac.util.Options;
 
 /**
@@ -573,6 +574,12 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		return res;
 	}
 
+	private static Names names = new Names(new Context()) {
+		public void dispose() {
+			// do nothing, keep content for re-use
+		}
+	};
+
 	private Map<org.eclipse.jdt.internal.compiler.env.ICompilationUnit, CompilationUnit> parse(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] sourceUnits, int apiLevel, 
 			Map<String, String> compilerOptions, boolean resolveBindings, int flags, IJavaProject javaProject, WorkingCopyOwner workingCopyOwner, 
 			int focalPoint, IProgressMonitor monitor) {
@@ -581,6 +588,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		}
 		var compiler = ToolProvider.getSystemJavaCompiler();
 		Context context = new Context();
+		context.put(Names.namesKey, names);
 		CachingJarsJavaFileManager.preRegister(context);
 		CachingJDKPlatformArguments.preRegister(context);
 		Map<org.eclipse.jdt.internal.compiler.env.ICompilationUnit, CompilationUnit> result = new HashMap<>(sourceUnits.length, 1.f);
