@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -500,35 +500,7 @@ protected TerminalToken getNextToken0() throws InvalidInputException {
 								boolean isUnicode = false;
 								while (true) {
 									this.lastCommentLinePosition = this.currentPosition;
-									//get the next char
 									isUnicode = false;
-									if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
-										&& (this.source[this.currentPosition] == 'u')) {
-										isUnicode = true;
-										//-------------unicode traitement ------------
-										int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
-										this.currentPosition++;
-										while (this.source[this.currentPosition] == 'u') {
-											this.currentPosition++;
-										}
-										if ((c1 = ScannerHelper.getHexadecimalValue(this.source[this.currentPosition++])) > 15
-											|| c1 < 0
-											|| (c2 = ScannerHelper.getHexadecimalValue(this.source[this.currentPosition++])) > 15
-											|| c2 < 0
-											|| (c3 = ScannerHelper.getHexadecimalValue(this.source[this.currentPosition++])) > 15
-											|| c3 < 0
-											|| (c4 = ScannerHelper.getHexadecimalValue(this.source[this.currentPosition++])) > 15
-											|| c4 < 0) {
-											throw invalidUnicodeEscape();
-										} else {
-											this.currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
-										}
-									}
-									//handle the \\u case manually into comment
-									if (this.currentCharacter == '\\') {
-										if (this.source[this.currentPosition] == '\\')
-											this.currentPosition++;
-									} //jump over the \\
 									/*
 									 * We need to completely consume the line break
 									 */
@@ -572,6 +544,34 @@ protected TerminalToken getNextToken0() throws InvalidInputException {
 											break;
 										}
 									}
+									if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+										&& (this.source[this.currentPosition] == 'u')) {
+										isUnicode = true;
+										//-------------unicode traitement ------------
+										int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
+										this.currentPosition++;
+										while (this.source[this.currentPosition] == 'u') {
+											this.currentPosition++;
+										}
+										if ((c1 = ScannerHelper.getHexadecimalValue(this.source[this.currentPosition++])) > 15
+											|| c1 < 0
+											|| (c2 = ScannerHelper.getHexadecimalValue(this.source[this.currentPosition++])) > 15
+											|| c2 < 0
+											|| (c3 = ScannerHelper.getHexadecimalValue(this.source[this.currentPosition++])) > 15
+											|| c3 < 0
+											|| (c4 = ScannerHelper.getHexadecimalValue(this.source[this.currentPosition++])) > 15
+											|| c4 < 0) {
+											throw invalidUnicodeEscape();
+										} else {
+											this.currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+										}
+									}
+									//handle the \\u case manually into comment
+									if (this.currentCharacter == '\\') {
+										if (this.source[this.currentPosition] == '\\')
+											this.currentPosition++;
+									} //jump over the \\
+
 								}
 
 								recordComment(test == 0 ? TokenNameCOMMENT_LINE : TokenNameCOMMENT_MARKDOWN);
