@@ -868,4 +868,96 @@ public void testIssue3862_2() throws JavaModelException {
 	range = (cursorLocation - 3) + ", " + (cursorLocation);
 	assertResults("toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, [" + range +"], 60}", requestor.getResults());
 }
+public void testIssue3862_3() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Completion23/src/X.java",
+			"""
+			public class X {
+				public static void main(String[] args) {
+		String builder = new String();
+	    /// the auto completion popup is filled
+	    builder.toString().toString(/*1*/).toString(/*2*/).toString(/*3*/).toString();
+
+	    // the auto completion popup is not filled in line 2, 4 ("builder" line == 1)
+	    builder ///
+	            /*4*/.toString().toString().toString() //
+	            /*5*/.toString().toString().toString() ///
+	            /*6*/.toString().toString().toString() //
+	            /*7*/.toString().toString().toString() ///
+	            /*8*/.toString().toString().toString(/*9*/).toS;
+				}
+			}
+				""");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/*1*/).toS";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	String range = (cursorLocation - 3) + ", " + (cursorLocation + 5);
+	assertResults("toString[METHOD_REF]{toString, Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, [" + range +"], 60}", requestor.getResults());
+
+	requestor = new CompletionTestsRequestor2(true, true, true, false);
+	str = this.workingCopies[0].getSource();
+	completeBehind = "/*2*/).toS";
+	cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	range = (cursorLocation - 3) + ", " + (cursorLocation + 5);
+	assertResults("toString[METHOD_REF]{toString, Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, [" + range +"], 60}", requestor.getResults());
+
+	requestor = new CompletionTestsRequestor2(true, true, true, false);
+	str = this.workingCopies[0].getSource();
+	completeBehind = "/*3*/).toS";
+	cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	range = (cursorLocation - 3) + ", " + (cursorLocation + 8);
+	assertResults("toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, [" + range +"], 60}", requestor.getResults());
+
+	requestor = new CompletionTestsRequestor2(true, true, true, false);
+	str = this.workingCopies[0].getSource();
+	completeBehind = "/*4*/.toS";
+	cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	range = (cursorLocation - 3) + ", " + (cursorLocation + 5);
+	assertResults("toString[METHOD_REF]{toString, Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, [" + range +"], 60}", requestor.getResults());
+
+	requestor = new CompletionTestsRequestor2(true, true, true, false);
+	str = this.workingCopies[0].getSource();
+	completeBehind = "/*5*/.toS";
+	cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	range = (cursorLocation - 3) + ", " + (cursorLocation + 5);
+	assertResults("toString[METHOD_REF]{toString, Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, [" + range +"], 60}", requestor.getResults());
+
+	requestor = new CompletionTestsRequestor2(true, true, true, false);
+	str = this.workingCopies[0].getSource();
+	completeBehind = "/*6*/.toS";
+	cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	range = (cursorLocation - 3) + ", " + (cursorLocation + 5);
+	assertResults("toString[METHOD_REF]{toString, Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, [" + range +"], 60}", requestor.getResults());
+
+	requestor = new CompletionTestsRequestor2(true, true, true, false);
+	str = this.workingCopies[0].getSource();
+	completeBehind = "/*7*/.toS";
+	cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	range = (cursorLocation - 3) + ", " + (cursorLocation + 5);
+	assertResults("toString[METHOD_REF]{toString, Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, [" + range +"], 60}", requestor.getResults());
+
+	requestor = new CompletionTestsRequestor2(true, true, true, false);
+	str = this.workingCopies[0].getSource();
+	completeBehind = "/*8*/.toS";
+	cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	range = (cursorLocation - 3) + ", " + (cursorLocation + 5);
+	assertResults("toString[METHOD_REF]{toString, Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, [" + range +"], 60}", requestor.getResults());
+
+	requestor = new CompletionTestsRequestor2(true, true, true, false);
+	str = this.workingCopies[0].getSource();
+	completeBehind = "/*9*/).toS";
+	cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	range = (cursorLocation - 3) + ", " + (cursorLocation);
+	assertResults("toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, [" + range +"], 60}", requestor.getResults());
+}
 }
