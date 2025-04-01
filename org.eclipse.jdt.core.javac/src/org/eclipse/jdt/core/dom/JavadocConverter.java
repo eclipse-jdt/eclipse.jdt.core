@@ -29,6 +29,8 @@ import com.sun.source.util.DocTreePath;
 import com.sun.source.util.TreePath;
 import com.sun.tools.javac.parser.Tokens.Comment.CommentStyle;
 import com.sun.tools.javac.tree.DCTree;
+import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.TreeScanner;
 import com.sun.tools.javac.tree.DCTree.DCAuthor;
 import com.sun.tools.javac.tree.DCTree.DCBlockTag;
 import com.sun.tools.javac.tree.DCTree.DCComment;
@@ -56,9 +58,7 @@ import com.sun.tools.javac.tree.DCTree.DCUnknownInlineTag;
 import com.sun.tools.javac.tree.DCTree.DCUses;
 import com.sun.tools.javac.tree.DCTree.DCValue;
 import com.sun.tools.javac.tree.DCTree.DCVersion;
-import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCArrayTypeTree;
-import com.sun.tools.javac.tree.TreeScanner;
 import com.sun.tools.javac.util.Convert;
 import com.sun.tools.javac.util.JCDiagnostic;
 
@@ -722,7 +722,12 @@ class JavadocConverter {
 		
 		// TODO missing module reference
 		if (reference.qualifierExpression != null) {
-			Name qualifierExpressionName = toName(reference.qualifierExpression, res.getStartPosition());
+			Name qualifierExpressionName = null;
+			if (reference.qualifierExpression instanceof JCArrayTypeTree arrayType) {
+				qualifierExpressionName = toName(arrayType.elemtype, res.getStartPosition());
+			} else {
+				qualifierExpressionName = toName(reference.qualifierExpression, res.getStartPosition());
+			}
 			qualifierExpressionName.setSourceRange(currentOffset, Math.max(0, reference.qualifierExpression.toString().length()));
 			res.setQualifier(qualifierExpressionName);
 			currentOffset += qualifierExpressionName.getLength();
@@ -789,7 +794,12 @@ class JavadocConverter {
 			if( reference.moduleName != null) {
 				moduleQualifierLen = this.javacConverter.commonSettingsGetLength(null, reference.moduleName) + 1;
 			}
-			Name qualifierExpressionName = toName(reference.qualifierExpression, startPos + moduleQualifierLen);
+			Name qualifierExpressionName = null;
+			if (reference.qualifierExpression instanceof JCArrayTypeTree arrayType) {
+				qualifierExpressionName = toName(arrayType.elemtype, startPos + moduleQualifierLen);
+			} else {
+				qualifierExpressionName = toName(reference.qualifierExpression, startPos + moduleQualifierLen);
+			}
 			int len = Math.max(0, reference.qualifierExpression.toString().length());
 			qualifierExpressionName.setSourceRange(startPos + moduleQualifierLen, len);
 			if( reference.moduleName == null ) {

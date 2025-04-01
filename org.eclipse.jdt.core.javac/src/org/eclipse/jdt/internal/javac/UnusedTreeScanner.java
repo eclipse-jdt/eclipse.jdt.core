@@ -41,15 +41,16 @@ import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreeScanner;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.TypeTag;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type.JCPrimitiveType;
-import com.sun.tools.javac.code.TypeTag;
 import com.sun.tools.javac.parser.Tokens.Comment;
 import com.sun.tools.javac.parser.Tokens.Comment.CommentStyle;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
+import com.sun.tools.javac.tree.JCTree.JCArrayTypeTree;
 import com.sun.tools.javac.tree.JCTree.JCAssign;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
@@ -380,19 +381,26 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 		}
 
 		private void useImport(com.sun.tools.javac.tree.DCTree.DCReference ref) {
-			if (ref.qualifierExpression instanceof JCIdent qualifier) {
-				String fieldName = null;
-				// for static imports
-				if (ref.memberName instanceof JCIdent field) {
-					fieldName = field.toString();
-				}
-
+			JCIdent qualifier = null;
+			if (ref.qualifierExpression instanceof JCIdent ident) {
+				qualifier = ident;
+			} else if (ref.qualifierExpression instanceof JCArrayTypeTree arrayType && arrayType.elemtype instanceof JCIdent ident) {
+				qualifier = ident;
+			}
+			String fieldName = null;
+			// for static imports
+			if (ref.memberName instanceof JCIdent field) {
+				fieldName = field.toString();
+			}
+			if (qualifier != null) {
 				checkQualifier(qualifier, fieldName);
-				if (ref.paramTypes != null) {
-					for (JCTree paramType: ref.paramTypes) {
-						if (paramType instanceof JCIdent param) {
-							checkQualifier(param, fieldName);
-						}
+			}
+			if (ref.paramTypes != null) {
+				for (JCTree paramType: ref.paramTypes) {
+					if (paramType instanceof JCIdent param) {
+						checkQualifier(param, fieldName);
+					} else if (paramType instanceof JCArrayTypeTree arrayType && arrayType.elemtype instanceof JCIdent param) {
+						checkQualifier(param, fieldName);
 					}
 				}
 			}

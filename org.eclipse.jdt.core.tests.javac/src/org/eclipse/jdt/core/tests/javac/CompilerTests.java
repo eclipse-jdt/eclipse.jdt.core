@@ -14,10 +14,12 @@ import java.io.File;
 import java.nio.file.Files;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.junit.Test;
 
@@ -79,5 +81,81 @@ public class CompilerTests extends AbstractJavaModelTests {
 		var lines = Files.readAllLines(tmpOutput.toPath());
 		tmpOutput.delete();
 		assertEquals("1", lines.get(0));
+	}
+
+	@Test
+	public void testUnused() throws Exception {
+		IJavaProject javaProject = createJava21Project("A");
+		IFile file = createFile("A/src/SwitchExpr.java", """
+			import java.time.Month;
+			public class SwitchExpr {
+				public static void main(String[] args) {
+					System.err.println("1");
+				}
+			}
+			""");
+		javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_IMPORT, JavaCore.ERROR);
+		javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		javaProject.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+		IMarker[] markers = file.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
+		assertEquals(1, markers.length);
+	}
+
+	@Test
+	public void testUsedInJavadoc() throws Exception {
+		IJavaProject javaProject = createJava21Project("A");
+		createFile("A/src/MonthUtil.java", """
+				import java.time.Month;
+				public class MonthUtil {
+					public static void monthMethod(Month month) {
+					}
+				}
+				""");
+		IFile file = createFile("A/src/SwitchExpr.java", """
+			import java.time.Month;
+			public class SwitchExpr {
+				/**
+				 * @see MonthUtil#monthMethod(Month)
+				 */
+				public static void main(String[] args) {
+					System.err.println("1");
+				}
+			}
+			""");
+
+		javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_IMPORT, JavaCore.ERROR);
+		javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		javaProject.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+		IMarker[] markers = file.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
+		assertEquals(0, markers.length);
+	}
+
+	@Test
+	public void testUsedInJavadocArray() throws Exception {
+		IJavaProject javaProject = createJava21Project("A");
+		createFile("A/src/MonthUtil.java", """
+				import java.time.Month;
+				public class MonthUtil {
+					public static void monthMethod(Month[] month) {
+					}
+				}
+				""");
+		IFile file = createFile("A/src/SwitchExpr.java", """
+			import java.time.Month;
+			public class SwitchExpr {
+				/**
+				 * @see MonthUtil#monthMethod(Month[])
+				 */
+				public static void main(String[] args) {
+					System.err.println("1");
+				}
+			}
+			""");
+
+		javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_IMPORT, JavaCore.ERROR);
+		javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		javaProject.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+		IMarker[] markers = file.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
+		assertEquals(0, markers.length);
 	}
 }
