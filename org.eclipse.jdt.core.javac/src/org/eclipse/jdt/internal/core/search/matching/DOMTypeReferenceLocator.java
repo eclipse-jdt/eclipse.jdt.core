@@ -407,6 +407,10 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			// TODO - if pattern is <Unresolved1,Unresolved2> we must return no_match
 			return true;
 		}
+		if( criteriaSignature.startsWith("+") && evaluateSignature.startsWith("+") && !criteriaSignature.equals(evaluateSignature)) {
+			return false;
+		}
+		
 		boolean evaluateSigIsUnresolved = false;
 		String evaluateSigTrimmed = null;
 		if( evaluateSignature.startsWith("Q")) {
