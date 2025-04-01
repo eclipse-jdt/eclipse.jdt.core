@@ -221,6 +221,12 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		private List<IBinding> others = new ArrayList<>();
 		
 		private Set<IBinding> shadowed = new HashSet<>();
+		private boolean alreadyScrapedAccessibleBindings = false;
+		private boolean requestAccessibleBindings = false;
+
+		public void requestAccessibleBindings() {
+			this.requestAccessibleBindings = true;
+		}
 
 		public void add(IBinding binding) {
 			if (binding instanceof IMethodBinding methodBinding) {
@@ -248,6 +254,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			bindings.forEach(this::add);
 		}
 		public Stream<IBinding> all() {
+			if (!alreadyScrapedAccessibleBindings && requestAccessibleBindings) {
+				scrapeAccessibleBindings();
+			}
 			return this.others.stream().distinct();
 		}
 		public Stream<IMethodBinding> methods() {
@@ -287,6 +296,96 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					return toProposal(binding);
 				});
 		}
+
+		private void scrapeAccessibleBindings() {
+			if (alreadyScrapedAccessibleBindings) {
+				return;
+			}
+			alreadyScrapedAccessibleBindings = true; // set it early to prevent from infinite recursion
+			ASTNode current = toComplete;
+			while (current != null) {
+				Collection<? extends IBinding> gottenVisibleBindings = visibleBindings(current);
+				addAll(gottenVisibleBindings);
+				if (current instanceof AbstractTypeDeclaration typeDecl) {
+					processMembers(toComplete, typeDecl.resolveBinding(), this, false);
+				} else if (current instanceof AnonymousClassDeclaration anonymousClass) {
+					processMembers(toComplete, anonymousClass.resolveBinding(), this, false);
+				}
+				current = current.getParent();
+			}
+
+			// handle favourite members
+			if (requestor.getFavoriteReferences() == null) {
+				return;
+			}
+
+			Set<String> scopedMethods = methods().map(IBinding::getName).collect(Collectors.toSet());
+			Set<String> scopedVariables = variables().map(IBinding::getName).collect(Collectors.toSet());
+			Set<String> scopedTypes = all().filter(ITypeBinding.class::isInstance).map(IBinding::getName).collect(Collectors.toSet());
+
+			Set<IJavaElement> keysToResolve = new HashSet<>();
+			IJavaProject project = javaProject;
+			for (String favouriteReference: requestor.getFavoriteReferences()) {
+				if (favouriteReference.endsWith(".*")) { //$NON-NLS-1$
+					favouriteReference = favouriteReference.substring(0, favouriteReference.length() - 2);
+					String packageName = favouriteReference.indexOf('.') < 0 ? "" : favouriteReference.substring(0, favouriteReference.lastIndexOf('.')); //$NON-NLS-1$
+					String typeName = favouriteReference.indexOf('.') < 0 ? favouriteReference : favouriteReference.substring(favouriteReference.lastIndexOf('.') + 1);
+					findTypes(typeName, SearchPattern.R_EXACT_MATCH, IJavaSearchConstants.TYPE, packageName) //
+						.map(TypeNameMatch::getType)
+						.filter(type -> type.getElementName().equals(typeName))
+						.forEach(keysToResolve::add);
+				} else if (favouriteReference.lastIndexOf('.') >= 0) {
+					String memberName = favouriteReference.substring(favouriteReference.lastIndexOf('.') + 1);
+					String typeFqn = favouriteReference.substring(0, favouriteReference.lastIndexOf('.'));
+					String packageName = typeFqn.indexOf('.') < 0 ? "" : typeFqn.substring(0, typeFqn.lastIndexOf('.')); //$NON-NLS-1$
+					String typeName = typeFqn.indexOf('.') < 0 ? typeFqn : typeFqn.substring(typeFqn.lastIndexOf('.') + 1);
+					findTypes(typeName, SearchPattern.R_EXACT_MATCH, IJavaSearchConstants.TYPE, packageName) //
+						.map(TypeNameMatch::getType)
+						.filter(type -> type.getElementName().equals(typeName)) //
+						.findFirst().ifPresent(type -> {
+						try {
+							for (IMethod method : type.getMethods()) {
+								if (method.exists() && (method.getFlags() & Flags.AccStatic) != 0 && memberName.equals(method.getElementName())) {
+									keysToResolve.add(method);
+								}
+							}
+							IField field = type.getField(memberName);
+							if (field.exists() && (field.getFlags() & Flags.AccStatic) != 0) {
+								keysToResolve.add(type.getField(memberName));
+							}
+						} catch (JavaModelException e) {
+							// do nothing
+						}
+					});
+				}
+			}
+			Bindings favoriteBindings = new Bindings();
+			ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+			parser.setProject(project);
+			if (!keysToResolve.isEmpty()) {
+				IBinding[] bindings = parser.createBindings(keysToResolve.toArray(IJavaElement[]::new), monitor);
+				for (IBinding binding : bindings) {
+					if (binding instanceof ITypeBinding typeBinding) {
+						processMembers(toComplete, typeBinding, favoriteBindings, true);
+					} else if (binding instanceof IMethodBinding methodBinding) {
+						favoriteBindings.add(methodBinding);
+					} else {
+						favoriteBindings.add(binding);
+					}
+				}
+			}
+			favoriteBindings.all()
+				.filter(binding -> {
+					if (binding instanceof IMethodBinding) {
+						return !scopedMethods.contains(binding.getName());
+					} else if (binding instanceof IVariableBinding) {
+						return !scopedVariables.contains(binding.getName());
+					}
+					return !scopedTypes.contains(binding.getName());
+				})
+				.forEach(this::add);
+		}
+
 	}
 
 	public DOMCompletionEngine(SearchableEnvironment nameEnvironment, CompletionRequestor requestor, Map<String, String> settings, IJavaProject javaProject, WorkingCopyOwner workingCopyOwner, IProgressMonitor monitor) {
@@ -590,6 +689,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 		try {
 			Bindings defaultCompletionBindings = new Bindings();
+			defaultCompletionBindings.requestAccessibleBindings(); // will be used by DOMCompletionContext.getVisibleElements(), necessary for method parameter value suggestion
 			Bindings specificCompletionBindings = new Bindings();
 //			var completionContext = new DOMCompletionContext(this.offset, completeAfter.toCharArray(),
 //					computeEnclosingElement(), defaultCompletionBindings::stream, expectedTypes, this.toComplete);
@@ -901,7 +1001,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						// if there is no expected enum type, use the default completion.
 						// perhaps there is a suitable int or String constant
 						Bindings caseBindings = new Bindings();
-						scrapeAccessibleBindings(caseBindings);
+						caseBindings.scrapeAccessibleBindings();
 						caseBindings.all()
 							.filter(IVariableBinding.class::isInstance)
 							.map(IVariableBinding.class::cast)
@@ -962,7 +1062,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						// It thinks that our variable is a package or some other type. We know that it's a variable.
 						// Search the scope for the right binding
 						Bindings localBindings = new Bindings();
-						scrapeAccessibleBindings(localBindings);
+						localBindings.scrapeAccessibleBindings();
 						Optional<IVariableBinding> realBinding = localBindings.all() //
 								.filter(IVariableBinding.class::isInstance)
 								.map(IVariableBinding.class::cast)
@@ -1174,7 +1274,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						} else {
 							// likely the start of an incomplete field/method access
 							Bindings tempScope = new Bindings();
-							scrapeAccessibleBindings(tempScope);
+							tempScope.scrapeAccessibleBindings();
 							Optional<ITypeBinding> potentialBinding = tempScope.all() //
 									.filter(binding -> {
 										IJavaElement elt = binding.getJavaElement();
@@ -1248,7 +1348,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						Bindings tempScope = new Bindings();
 						String simpleName = qualifiedName.getQualifier() instanceof SimpleName simple ? simple.getIdentifier() : "";
 						if (!simpleName.isEmpty()) {
-							scrapeAccessibleBindings(tempScope);
+							tempScope.scrapeAccessibleBindings();
 						}
 						IVariableBinding v = tempScope.variables().filter(variable -> simpleName.equals(variable.getName())).findFirst().orElse(null);
 						if (v != null) {
@@ -1571,7 +1671,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 										final String finalizedCurrentPackage = currentPackage;
 
 										Bindings localTypeBindings = new Bindings();
-										scrapeAccessibleBindings(localTypeBindings);
+										localTypeBindings.scrapeAccessibleBindings();
 										localTypeBindings.all() //
 											.filter(binding -> binding instanceof ITypeBinding) //
 											.filter(type -> (this.qualifiedPrefix.equals(this.prefix) || this.qualifiedPrefix.equals(finalizedCurrentPackage)) && this.pattern.matchesName(this.prefix.toCharArray(), type.getName().toCharArray()))
@@ -1828,7 +1928,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					DOMThrownExceptionFinder thrownExceptionFinder = new DOMThrownExceptionFinder();
 					Bindings catchExceptionBindings = new Bindings();
 					Bindings contextBindings = new Bindings();
-					scrapeAccessibleBindings(contextBindings);
+					contextBindings.scrapeAccessibleBindings();
 					thrownExceptionFinder.processThrownExceptions((TryStatement) catchClause.getParent());
 					for (ITypeBinding thrownUncaughtException : thrownExceptionFinder.getThrownUncaughtExceptions()) {
 						ITypeBinding cursor = thrownUncaughtException;
@@ -2019,10 +2119,6 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				suggestDefaultCompletions = false;
 			}
 
-			// check for accessible bindings to potentially turn into completions.
-			// currently, this is always run, even when not using the default completion,
-			// because method argument guessing uses it.
-			scrapeAccessibleBindings(defaultCompletionBindings);
 			if (shouldSuggestPackages(toComplete)) {
 				suggestPackages(toComplete);
 			}
@@ -2871,91 +2967,6 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		if (includeVoid && !this.isFailedMatch(this.prefix.toCharArray(), VOID)) {
 			this.requestor.accept(createKeywordProposal(VOID, -1, -1));
 		}
-	}
-
-	private void scrapeAccessibleBindings(Bindings scope) {
-		ASTNode current = this.toComplete;
-		while (current != null) {
-			Collection<? extends IBinding> gottenVisibleBindings = visibleBindings(current);
-			scope.addAll(gottenVisibleBindings);
-			if (current instanceof AbstractTypeDeclaration typeDecl) {
-				processMembers(this.toComplete, typeDecl.resolveBinding(), scope, false);
-			} else if (current instanceof AnonymousClassDeclaration anonymousClass) {
-				processMembers(this.toComplete, anonymousClass.resolveBinding(), scope, false);
-			}
-			current = current.getParent();
-		}
-
-		// handle favourite members
-		if (this.requestor.getFavoriteReferences() == null) {
-			return;
-		}
-
-		Set<String> scopedMethods = scope.methods().map(IBinding::getName).collect(Collectors.toSet());
-		Set<String> scopedVariables = scope.all().filter(IVariableBinding.class::isInstance).map(IBinding::getName).collect(Collectors.toSet());
-		Set<String> scopedTypes = scope.all().filter(ITypeBinding.class::isInstance).map(IBinding::getName).collect(Collectors.toSet());
-
-		Set<IJavaElement> keysToResolve = new HashSet<>();
-		IJavaProject project = this.javaProject;
-		for (String favouriteReference: this.requestor.getFavoriteReferences()) {
-			if (favouriteReference.endsWith(".*")) { //$NON-NLS-1$
-				favouriteReference = favouriteReference.substring(0, favouriteReference.length() - 2);
-				String packageName = favouriteReference.indexOf('.') < 0 ? "" : favouriteReference.substring(0, favouriteReference.lastIndexOf('.')); //$NON-NLS-1$
-				String typeName = favouriteReference.indexOf('.') < 0 ? favouriteReference : favouriteReference.substring(favouriteReference.lastIndexOf('.') + 1);
-				findTypes(typeName, SearchPattern.R_EXACT_MATCH, IJavaSearchConstants.TYPE, packageName) //
-					.map(TypeNameMatch::getType)
-					.filter(type -> type.getElementName().equals(typeName))
-					.forEach(keysToResolve::add);
-			} else if (favouriteReference.lastIndexOf('.') >= 0) {
-				String memberName = favouriteReference.substring(favouriteReference.lastIndexOf('.') + 1);
-				String typeFqn = favouriteReference.substring(0, favouriteReference.lastIndexOf('.'));
-				String packageName = typeFqn.indexOf('.') < 0 ? "" : typeFqn.substring(0, typeFqn.lastIndexOf('.')); //$NON-NLS-1$
-				String typeName = typeFqn.indexOf('.') < 0 ? typeFqn : typeFqn.substring(typeFqn.lastIndexOf('.') + 1);
-				findTypes(typeName, SearchPattern.R_EXACT_MATCH, IJavaSearchConstants.TYPE, packageName) //
-					.map(TypeNameMatch::getType)
-					.filter(type -> type.getElementName().equals(typeName)) //
-					.findFirst().ifPresent(type -> {
-					try {
-						for (IMethod method : type.getMethods()) {
-							if (method.exists() && (method.getFlags() & Flags.AccStatic) != 0 && memberName.equals(method.getElementName())) {
-								keysToResolve.add(method);
-							}
-						}
-						IField field = type.getField(memberName);
-						if (field.exists() && (field.getFlags() & Flags.AccStatic) != 0) {
-							keysToResolve.add(type.getField(memberName));
-						}
-					} catch (JavaModelException e) {
-						// do nothing
-					}
-				});
-			}
-		}
-		Bindings favoriteBindings = new Bindings();
-		ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
-		parser.setProject(project);
-		if (!keysToResolve.isEmpty()) {
-			IBinding[] bindings = parser.createBindings(keysToResolve.toArray(IJavaElement[]::new), this.monitor);
-			for (IBinding binding : bindings) {
-				if (binding instanceof ITypeBinding typeBinding) {
-					processMembers(this.toComplete, typeBinding, favoriteBindings, true);
-				} else if (binding instanceof IMethodBinding methodBinding) {
-					favoriteBindings.add(methodBinding);
-				} else {
-					favoriteBindings.add(binding);
-				}
-			}
-		}
-		favoriteBindings.all()
-			.filter(binding -> {
-				if (binding instanceof IMethodBinding) {
-					return !scopedMethods.contains(binding.getName());
-				} else if (binding instanceof IVariableBinding) {
-					return !scopedVariables.contains(binding.getName());
-				}
-				return !scopedTypes.contains(binding.getName());
-			})
-			.forEach(scope::add);
 	}
 
 	private void topLevelTypes(Bindings scope) {
