@@ -671,6 +671,14 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 
 	private LocatorResponse resolveLevelForImportBinding(ASTNode node, ITypeBinding typeBinding,
 			MatchLocator locator2) {
+		if (this.locator.pattern.hasTypeArguments() && !this.isEquivalentMatch &&!this.isErasureMatch) {
+			return toResponse(0);
+		}
+
+		// Return if fine grain is on and does not concern import reference
+		if ((this.locator.pattern.fineGrain != 0 && (this.locator.pattern.fineGrain & IJavaSearchConstants.IMPORT_DECLARATION_TYPE_REFERENCE) == 0)) {
+			return toResponse(0);
+		}
 		int newLevel = this.resolveLevelForTypeFQN(this.locator.pattern.simpleName, 
 				this.locator.pattern.qualification, typeBinding, null);
 		return toResponse(newLevel);
