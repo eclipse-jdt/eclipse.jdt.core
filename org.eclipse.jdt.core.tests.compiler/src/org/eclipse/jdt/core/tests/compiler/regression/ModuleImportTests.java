@@ -30,7 +30,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 public class ModuleImportTests extends AbstractModuleCompilationTest {
 
 	static {
-//		 TESTS_NAMES = new String[] { "test001" };
+//		 TESTS_NAMES = new String[] { "test000_previewDisabled" };
 		// TESTS_NUMBERS = new int[] { 1 };
 		// TESTS_RANGE = new int[] { 298, -1 };
 	}
@@ -68,7 +68,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 			filtered.append(
 				log.toString().lines()
 					.filter(line -> !line.equals("Note: Recompile with -Xlint:preview for details."))
-					.filter(line -> !(line.startsWith("Note: ") && line.endsWith(" preview features of Java SE 24.")))
+					.filter(line -> !(line.startsWith("Note: ") && line.endsWith(" preview features of Java SE 25.")))
 					.collect(Collectors.joining("\n")));
 			return filtered;
 		}
@@ -95,7 +95,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					"""
 	        },
-			" -24 \"" + getSourceDir() +  File.separator + "module-info.java\" "
+			" -25 \"" + getSourceDir() +  File.separator + "module-info.java\" "
 	        + "\"" + getSourceDir() +  File.separator + "p/X.java\"",
 	        "",
 	        """
@@ -143,7 +143,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				Preview of features is supported only at the latest source level
 				""",
 	        true,
-	        "only supported for release 24");
+	        "only supported for release 25");
 	}
 
 	public void test001_simpleOK() throws IOException, ClassFormatException {
@@ -168,12 +168,12 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					"""
 	        },
-			" -24 --enable-preview \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
+			" -25 --enable-preview \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
 	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
 	        "",
 	        "",
 	        true);
-		verifyClassFile("version 24 : 68.65535", "p/X.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile("version 25 : 69.65535", "p/X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test002_moduleNotRead() {
@@ -196,7 +196,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					"""
 	        },
-			" -24 --enable-preview \"" + getSourceDir() +  File.separator + "module-info.java\" "
+			" -25 --enable-preview \"" + getSourceDir() +  File.separator + "module-info.java\" "
 	        + "\"" + getSourceDir() +  File.separator + "p/X.java\"",
 	        "",
 	        """
@@ -243,7 +243,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					"""
 	        },
-			" -24 --enable-preview \"" + getSourceDir() +  File.separator + "module-info.java\" "
+			" -25 --enable-preview \"" + getSourceDir() +  File.separator + "module-info.java\" "
 	        + "\"" + getSourceDir() +  File.separator + "p/X.java\"",
 	        "",
 	        """
@@ -296,14 +296,14 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -24 --enable-preview ");
+		commandLine.append(" -25 --enable-preview ");
 		runConformModuleTest(
 				files,
 				commandLine,
 				"",
 				"");
 		String classFile = String.join(File.separator, "p", "X.class");
-		verifyClassFile("version 24 : 68.65535", classFile, ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile("version 25 : 69.65535", classFile, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test005_selfImport_NOK() {
@@ -331,7 +331,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -24 --enable-preview ");
+		commandLine.append(" -25 --enable-preview ");
 
 		runNegativeModuleTest(
 				files,
@@ -377,13 +377,13 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -24 --enable-preview ");
+		commandLine.append(" -25 --enable-preview ");
 		runConformModuleTest(
 				files,
 				commandLine,
 				"",
 				"");
-		verifyClassFile("version 24 : 68.65535", "module-info.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile("version 25 : 69.65535", "module-info.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test007_shadowing() throws IOException, ClassFormatException {
@@ -415,7 +415,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -24 --enable-preview ");
+		commandLine.append(" -25 --enable-preview ");
 
 		runConformModuleTest(
 				files,
@@ -423,7 +423,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"",
 				"");
 		String classFile = String.join(File.separator, "p2", "Client.class");
-		verifyClassFile("version 24 : 68.65535", classFile, ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile("version 25 : 69.65535", classFile, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test008_shadowing() throws IOException, ClassFormatException {
@@ -455,7 +455,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -24 --enable-preview ");
+		commandLine.append(" -25 --enable-preview ");
 
 		runConformModuleTest(
 				files,
@@ -463,7 +463,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"",
 				"");
 		String classFile = String.join(File.separator, "p2", "Client.class");
-		verifyClassFile("version 24 : 68.65535", classFile, ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile("version 25 : 69.65535", classFile, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test008_shadowing_static_nested() throws IOException, ClassFormatException {
@@ -497,11 +497,11 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -24 --enable-preview ");
+		commandLine.append(" -25 --enable-preview ");
 
 		runConformModuleTest(files, commandLine, "", "");
 		String classFile = String.join(File.separator, "p2", "Client.class");
-		verifyClassFile("version 24 : 68.65535", classFile, ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile("version 25 : 69.65535", classFile, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test009_ambiguous_modules() {
@@ -553,7 +553,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -24 --enable-preview ");
+		commandLine.append(" -25 --enable-preview ");
 		commandLine.append(" --module-source-path \"").append(srcDir).append("\"");
 		commandLine.append(" -d \"").append(OUTPUT_DIR).append(File.separatorChar).append("bin").append("\"");
 
@@ -615,7 +615,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -24 --enable-preview ");
+		commandLine.append(" -25 --enable-preview ");
 		commandLine.append(" --module-source-path \"").append(srcDir).append("\"");
 		commandLine.append(" -d \"").append(OUTPUT_DIR).append(File.separatorChar).append("bin").append("\"");
 
@@ -675,7 +675,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -24 --enable-preview");
+		commandLine.append(" -25 --enable-preview");
 		commandLine.append(" --module-source-path ").append(srcDir);
 		commandLine.append(" -d ").append(OUTPUT_DIR+File.separator+"bin");
 
@@ -735,7 +735,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -24 --enable-preview");
+		commandLine.append(" -25 --enable-preview");
 		commandLine.append(" --module-source-path ").append(srcDir);
 
 		runConformModuleTest(
@@ -744,7 +744,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"",
 				"");
 		String classFile = String.join(File.separator, "mod.three", "p2", "Client.class");
-		verifyClassFile("version 24 : 68.65535", classFile, ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile("version 25 : 69.65535", classFile, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test012_redundant() {
@@ -771,7 +771,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					""");
 
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -24 --enable-preview");
+		commandLine.append(" -25 --enable-preview");
 
 		runNegativeModuleTest(
 				files,
@@ -807,12 +807,12 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					"""
 	        },
-			" -24 --enable-preview "
+			" -25 --enable-preview "
 	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
 	        "",
 	        "",
 	        true);
-		verifyClassFile("version 24 : 68.65535", "p/X.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile("version 25 : 69.65535", "p/X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test014_moduleAsPackageName_regular() {
@@ -828,7 +828,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					import module.Z;
 					public class X extends Z {}
 					""");
-		StringBuilder commandLine = new StringBuilder(" -24 --enable-preview");
+		StringBuilder commandLine = new StringBuilder(" -25 --enable-preview");
 		runConformModuleTest(files, commandLine, "", "");
 	}
 
@@ -847,7 +847,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 						uses Z;
 					}
 					""");
-		StringBuilder commandLine = new StringBuilder(" -24 --enable-preview");
+		StringBuilder commandLine = new StringBuilder(" -25 --enable-preview");
 		runConformModuleTest(files, commandLine, "", "");
 	}
 
@@ -860,7 +860,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		runNegativeModuleTest(files,
-				new StringBuilder(" --release 24"),
+				new StringBuilder(" --release 25"),
 				"",
 				"""
 				----------
@@ -883,7 +883,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		runNegativeModuleTest(files,
-				new StringBuilder(" --release 24"),
+				new StringBuilder(" --release 25"),
 				"",
 				"""
 				----------
@@ -906,7 +906,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		runConformModuleTest(files,
-				new StringBuilder(" --release 24 --enable-preview"),
+				new StringBuilder(" --release 25 --enable-preview"),
 				"",
 				"""
 				----------
@@ -917,8 +917,8 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				----------
 				1 problem (1 warning)
 				""");
-		verifyClassFile("version 24 : 68.65535", "module-info.class", ClassFileBytesDisassembler.SYSTEM,
-				this.complianceLevel <= ClassFileConstants.JDK25); // Skipped for javac 24 due to https://bugs.openjdk.org/browse/JDK-8347646 - fixed in 25
+		verifyClassFile("version 25 : 69.65535", "module-info.class", ClassFileBytesDisassembler.SYSTEM,
+				this.complianceLevel <= ClassFileConstants.JDK25); // Skipped for javac 25 due to https://bugs.openjdk.org/browse/JDK-8347646 - fixed in 25
 	}
 
 	public void testIllegalModifierRequiresJavaBase_4() {
@@ -930,7 +930,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		runNegativeModuleTest(files,
-				new StringBuilder(" --release 24 --enable-preview"),
+				new StringBuilder(" --release 25 --enable-preview"),
 				"",
 				"""
 				----------
@@ -963,7 +963,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				}
 				""");
 		runConformModuleTest(files,
-				new StringBuilder(" --release 24 --enable-preview"),
+				new StringBuilder(" --release 25 --enable-preview"),
 				"",
 				"""
 				----------
@@ -974,8 +974,8 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				----------
 				1 problem (1 warning)
 				""");
-		verifyClassFile("version 24 : 68.65535", "module-info.class", ClassFileBytesDisassembler.SYSTEM, true); // FIXME skip due to https://bugs.openjdk.org/browse/JDK-8347646
-		verifyClassFile("version 24 : 68.65535", "p1/Client.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile("version 25 : 69.65535", "module-info.class", ClassFileBytesDisassembler.SYSTEM, true); // FIXME skip due to https://bugs.openjdk.org/browse/JDK-8347646
+		verifyClassFile("version 25 : 69.65535", "p1/Client.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 
 }

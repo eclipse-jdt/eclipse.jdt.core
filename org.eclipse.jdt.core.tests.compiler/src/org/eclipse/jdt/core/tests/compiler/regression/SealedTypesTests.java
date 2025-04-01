@@ -4942,7 +4942,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug566846_001() {
 		Map options = getCompilerOptions();
 		String error = 	this.complianceLevel < ClassFileConstants.JDK25 ?
-				"The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 24 and above\n"
+				"The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 25 and above\n"
 				: "Implicitly Declared Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable\n";
 
 		this.runNegativeTest(

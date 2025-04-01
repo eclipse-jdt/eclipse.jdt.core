@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -88,6 +92,9 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		.filter(e -> !"JAVA_TOOL_OPTIONS".equals(e.getKey()) && !"_JAVA_OPTIONS".equals(e.getKey()))
 		.map(e -> e.getKey() + "=" + e.getValue())
 		.toArray(String[]::new);
+
+	protected static long PREVIEW_FEATURE_CLASS_FILE_CONST = ClassFileConstants.JDK25;
+	protected static int PREVIEW_FEATURE_LEVEL = 25;
 
 	protected class Runner {
 		boolean shouldFlushOutputDirectory = true;

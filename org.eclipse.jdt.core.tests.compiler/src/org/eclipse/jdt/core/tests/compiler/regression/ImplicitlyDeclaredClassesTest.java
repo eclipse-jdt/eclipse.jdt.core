@@ -85,7 +85,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	protected void runConformTest(String[] testFiles, String expectedOutput) {
 		if(!isJRE23Plus)
 			return;
-		runConformTest(testFiles, expectedOutput, null, VMARGS, new JavacTestOptions("-source 24 --enable-preview"));
+		runConformTest(testFiles, expectedOutput, null, VMARGS, new JavacTestOptions("-source 25 --enable-preview"));
 	}
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
@@ -275,7 +275,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 							System.out.println("Hello");
 						}"""},
 					"Hello");
-			verifyClassFile("version 24 : 68.65535", "X.class", ClassFileBytesDisassembler.SYSTEM);
+			verifyClassFile("version 25 : 69.65535", "X.class", ClassFileBytesDisassembler.SYSTEM);
 		} finally {
 		}
 	}

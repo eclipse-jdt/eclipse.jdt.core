@@ -3702,7 +3702,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		} else if ("25".equals(compliance)) {
 			if (JavaCore.getClasspathVariable("JCL_25_LIB") == null) {
-				setupExternalJCL("jclMin24");
+				setupExternalJCL("jclMin25");
 				JavaCore.setClasspathVariables(
 					new String[] {"JCL_25_LIB", "JCL_25_SRC", "JCL_SRCROOT"},
 					new IPath[] {getExternalJCLPath("25"), getExternalJCLSourcePath("25"), getExternalJCLRootSourcePath()},
