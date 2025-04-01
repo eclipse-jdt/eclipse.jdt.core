@@ -955,6 +955,50 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			match.setOffset(newStart);
 			match.setLength(newLength);
 		}
+		
+		// Compare arguments lengthes
+		int matchRule = match.getRule();
+		char[][][] fromPattern = this.locator.pattern.getTypeArguments();
+		int patternTypeArgsLength = (fromPattern == null || fromPattern.length == 0 || fromPattern[0] == null ? 0 : fromPattern.length <= 0 ? 0 : fromPattern[0].length);
+		int typeArgumentsLength = node instanceof ParameterizedType ptt ? ptt.typeArguments().size() : 0;
+		boolean hasTypeParameters = this.locator.pattern.hasTypeParameters();
+		
+		if (match.isRaw()) {
+			if (patternTypeArgsLength != 0) {
+				matchRule &= ~SearchPattern.R_FULL_MATCH;
+			}
+		}
+		if (hasTypeParameters) {
+			matchRule = SearchPattern.R_ERASURE_MATCH;
+		}
+
+		
+		
+		if (patternTypeArgsLength == typeArgumentsLength) {
+			if (!match.isRaw() && hasTypeParameters) {
+				// generic patterns are always not compatible match
+				match.setRule(SearchPattern.R_ERASURE_MATCH);
+			}
+		} else {
+			if (patternTypeArgsLength==0) {
+				if (!match.isRaw() || hasTypeParameters) {
+					match.setRule(matchRule & ~SearchPattern.R_FULL_MATCH);
+				}
+			} else  if (typeArgumentsLength==0) {
+				// raw binding is always compatible
+				match.setRule(matchRule & ~SearchPattern.R_FULL_MATCH);
+			} else {
+				match.setRule(0); // impossible match
+				return;
+			}
+		}
+		if (fromPattern == null || fromPattern.length == 0 || fromPattern[0] == null) {
+			match.setRule(matchRule);
+		}
+
+		report = (this.isErasureMatch && match.isErasure()) || (this.isEquivalentMatch && match.isEquivalent()) || match.isExact();
+		if (!report) 
+			return;
 		SearchMatchingUtility.reportSearchMatch(locator, match);
 	}
 	
