@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.Block;
@@ -38,6 +39,7 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.NumberLiteral;
@@ -72,7 +74,7 @@ class DOMCompletionContext extends CompletionContext {
 		this.textContent = textContent;
 		this.offset = offset;
 		int adjustedOffset = this.offset;
-		boolean isGenerated = DOMCodeSelector.isGenerated(domUnit);
+		boolean isGenerated = DOMCompletionContext.isGenerated(domUnit);
 		if (!isGenerated) {
 			if (adjustedOffset > 0 && Character.isJavaIdentifierPart(textContent.charAt(adjustedOffset - 1))) {
 				// workaround for cases where right node is empty and reported (wrongly) as starting at same offset
@@ -479,6 +481,29 @@ class DOMCompletionContext extends CompletionContext {
 			if (castCompatable(superInterface, sig2)) {
 				return true;
 			}
+		}
+		return false;
+	}
+
+	/// Checks if the node is generated
+	/// @param node the AST node
+	/// @return `true` if the node is generated.
+	private static boolean isGenerated(ASTNode node) {
+		if (node != null) {
+			boolean[] isGenerated = {false};
+			node.accept(new ASTVisitor() {
+
+				@Override
+				public void endVisit(MarkerAnnotation markerAnnotation) {
+					if (!isGenerated[0]) {
+						// check lombok only for now
+						isGenerated[0] = "lombok.Generated".equals(markerAnnotation.getTypeName().getFullyQualifiedName()); //$NON-NLS-1$
+						super.endVisit(markerAnnotation);
+					}
+				}
+
+			});
+			return isGenerated[0];
 		}
 		return false;
 	}
