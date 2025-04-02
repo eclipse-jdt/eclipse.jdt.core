@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
@@ -136,7 +137,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 
 	protected AbstractCommentParser(Parser sourceParser) {
 		this.sourceParser = sourceParser;
-		this.scanner = new Scanner(false, false, false, ClassFileConstants.JDK1_3, null, null, true/*taskCaseSensitive*/,
+		this.scanner = new Scanner(false, false, false, CompilerOptions.getFirstSupportedJdkLevel(), null, null, true/*taskCaseSensitive*/,
 				sourceParser != null ? this.sourceParser.options.enablePreviewFeatures : false);
 		this.identifierStack = new char[20][];
 		this.identifierPositionStack = new long[20];
@@ -1007,7 +1008,6 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			boolean hasMultiLines = this.scanner.currentPosition > (this.lineEnd+1);
 			boolean isTypeParam = false;
 			boolean valid = true, empty = true;
-			boolean mayBeGeneric = this.sourceLevel >= ClassFileConstants.JDK1_5;
 			TerminalToken token = TokenNameInvalid;
 			nextToken: while (true) {
 				this.currentTokenType = TokenNameInvalid;
@@ -1028,7 +1028,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						}
 						// $FALL-THROUGH$ - fall through next case to report error
 					case TokenNameLESS:
-						if (valid && mayBeGeneric) {
+						if (valid) {
 							// store '<' in identifiers stack as we need to add it to tag element (bug 79809)
 							pushIdentifier(true, true);
 							start = this.scanner.getCurrentTokenStartPosition();
@@ -1056,7 +1056,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						if (this.reportProblems)
 							if (empty)
 								this.sourceParser.problemReporter().javadocMissingParamName(start, end, this.sourceParser.modifiers);
-							else if (mayBeGeneric && isTypeParam)
+							else if (isTypeParam)
 								this.sourceParser.problemReporter().javadocInvalidParamTypeParameter(start, end);
 							else
 								this.sourceParser.problemReporter().javadocInvalidParamTagName(start, end);
@@ -1070,7 +1070,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			}
 
 			// Scan more tokens for type parameter declaration
-			if (isTypeParam && mayBeGeneric) {
+			if (isTypeParam) {
 				// Get type parameter name
 				nextToken: while (true) {
 					this.currentTokenType = TokenNameInvalid;
@@ -1181,7 +1181,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				} catch (InvalidInputException e) {
 					end = this.lineEnd;
 				}
-				if (mayBeGeneric && isTypeParam)
+				if (isTypeParam)
 					this.sourceParser.problemReporter().javadocInvalidParamTypeParameter(start, end);
 				else
 					this.sourceParser.problemReporter().javadocInvalidParamTagName(start, end);

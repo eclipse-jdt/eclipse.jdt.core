@@ -177,73 +177,8 @@ private void addDefaultAbstractMethods() {
 	if ((this.tagBits & TagBits.KnowsDefaultAbstractMethods) != 0) return;
 
 	this.tagBits |= TagBits.KnowsDefaultAbstractMethods;
-	if (isClass() && isAbstract()) {
-		if (this.scope.compilerOptions().targetJDK >= ClassFileConstants.JDK1_2)
-			return; // no longer added for post 1.2 targets
-
-		ReferenceBinding[] itsInterfaces = superInterfaces();
-		if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-			MethodBinding[] defaultAbstracts = null;
-			int defaultAbstractsCount = 0;
-			ReferenceBinding[] interfacesToVisit = itsInterfaces;
-			int nextPosition = interfacesToVisit.length;
-			for (int i = 0; i < nextPosition; i++) {
-				ReferenceBinding superType = interfacesToVisit[i];
-				if (superType.isValidBinding()) {
-					MethodBinding[] superMethods = superType.methods();
-					nextAbstractMethod: for (int m = superMethods.length; --m >= 0;) {
-						MethodBinding method = superMethods[m];
-						// explicitly implemented ?
-						if (implementsMethod(method))
-							continue nextAbstractMethod;
-						if (defaultAbstractsCount == 0) {
-							defaultAbstracts = new MethodBinding[5];
-						} else {
-							// already added as default abstract ?
-							for (int k = 0; k < defaultAbstractsCount; k++) {
-								MethodBinding alreadyAdded = defaultAbstracts[k];
-								if (CharOperation.equals(alreadyAdded.selector, method.selector) && alreadyAdded.areParametersEqual(method))
-									continue nextAbstractMethod;
-							}
-						}
-						MethodBinding defaultAbstract = new MethodBinding(
-								method.modifiers | ExtraCompilerModifiers.AccDefaultAbstract | ClassFileConstants.AccSynthetic,
-								method.selector,
-								method.returnType,
-								method.parameters,
-								method.thrownExceptions,
-								this);
-						if (defaultAbstractsCount == defaultAbstracts.length)
-							System.arraycopy(defaultAbstracts, 0, defaultAbstracts = new MethodBinding[2 * defaultAbstractsCount], 0, defaultAbstractsCount);
-						defaultAbstracts[defaultAbstractsCount++] = defaultAbstract;
-					}
-
-					if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
-						int itsLength = itsInterfaces.length;
-						if (nextPosition + itsLength >= interfacesToVisit.length)
-							System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
-						nextInterface : for (int a = 0; a < itsLength; a++) {
-							ReferenceBinding next = itsInterfaces[a];
-							for (int b = 0; b < nextPosition; b++)
-								if (TypeBinding.equalsEquals(next, interfacesToVisit[b])) continue nextInterface;
-							interfacesToVisit[nextPosition++] = next;
-						}
-					}
-				}
-			}
-			if (defaultAbstractsCount > 0) {
-				int length = this.methods.length;
-				System.arraycopy(this.methods, 0, setMethods(new MethodBinding[length + defaultAbstractsCount]), 0, length);
-				System.arraycopy(defaultAbstracts, 0, this.methods, length, defaultAbstractsCount);
-				// re-sort methods
-				length = length + defaultAbstractsCount;
-				if (length > 1)
-					ReferenceBinding.sortMethods(this.methods, 0, length);
-				// this.tagBits |= TagBits.AreMethodsSorted; -- already set in #methods()
-			}
-		}
-	}
 }
+
 /* Add a new synthetic field for <actualOuterLocalVariable>.
 *	Answer the new field or the existing field if one already existed.
 */
@@ -328,14 +263,10 @@ public FieldBinding addSyntheticFieldForInnerclass(ReferenceBinding enclosingTyp
 			for (int i = 0; i < max; i++) {
 				FieldDeclaration fieldDecl = fieldDeclarations[i];
 				if (fieldDecl.binding == existingField) {
-					if (this.scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_5) {
-						synthField.name = CharOperation.concat(
-							synthField.name,
-							"$".toCharArray()); //$NON-NLS-1$
-						needRecheck = true;
-					} else {
-						this.scope.problemReporter().duplicateFieldInType(this, fieldDecl);
-					}
+					synthField.name = CharOperation.concat(
+						synthField.name,
+						"$".toCharArray()); //$NON-NLS-1$
+					needRecheck = true;
 					break;
 				}
 			}
@@ -715,7 +646,6 @@ public SyntheticMethodBinding addSyntheticFactoryMethod(MethodBinding privateCon
  */
 public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMethodToBridge, MethodBinding targetMethod) {
 	if (!isPrototype()) throw new IllegalStateException();
-	if (isInterface() && this.scope.compilerOptions().sourceLevel <= ClassFileConstants.JDK1_7) return null; // only classes & enums get bridge methods, interfaces too at 1.8+
 	// targetMethod may be inherited
 	if (TypeBinding.equalsEquals(inheritedMethodToBridge.returnType.erasure(), targetMethod.returnType.erasure())
 		&& inheritedMethodToBridge.areParameterErasuresEqual(targetMethod)) {
@@ -762,9 +692,6 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
  */
 public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMethodToBridge) {
 	if (!isPrototype()) throw new IllegalStateException();
-	if (this.scope.compilerOptions().complianceLevel <= ClassFileConstants.JDK1_5) {
-		return null;
-	}
 	if (isInterface() && !inheritedMethodToBridge.isDefaultMethod()) return null;
 	if (inheritedMethodToBridge.isAbstract() || inheritedMethodToBridge.isFinal() || inheritedMethodToBridge.isStatic()) {
 		return null;
@@ -1257,14 +1184,11 @@ public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
 		Annotation [] annotations = componentDecl.annotations;
 		ASTNode.copyRecordComponentAnnotations(initializationScope, component, annotations);
 
-		long sourceLevel = this.scope.compilerOptions().sourceLevel;
-		if (sourceLevel >= ClassFileConstants.JDK1_8) {
-			if (annotations != null && annotations.length != 0) {
-				// piggybacking on an existing method to move type_use annotations to type in record component
-				ASTNode.copySE8AnnotationsToType(initializationScope, component, annotations, false);
-			}
-			Annotation.isTypeUseCompatible(componentDecl.type, this.scope, annotations);
+		if (annotations != null && annotations.length != 0) {
+			// piggybacking on an existing method to move type_use annotations to type in record component
+			ASTNode.copySE8AnnotationsToType(initializationScope, component, annotations, false);
 		}
+		Annotation.isTypeUseCompatible(componentDecl.type, this.scope, annotations);
 		// TODO Bug 562478: apply null default: - to check anything to be done? - SH
 //		if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {}
 
@@ -1575,14 +1499,11 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 				}
 			}
 			// check dup collisions
-			boolean isSource15 = this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
 			for (int i = start; i <= end; i++) {
 				MethodBinding method1 = this.methods[i];
 				for (int j = end; j > i; j--) {
 					MethodBinding method2 = this.methods[j];
-					boolean paramsMatch = isSource15
-						? method1.areParameterErasuresEqual(method2)
-						: method1.areParametersEqual(method2);
+					boolean paramsMatch = method1.areParameterErasuresEqual(method2);
 					if (paramsMatch) {
 						methods();
 						return getExactMethod(selector, argumentTypes, refScope); // try again since the problem methods have been removed
@@ -1743,13 +1664,10 @@ public MethodBinding[] getMethods(char[] selector) {
 	} else {
 		return Binding.NO_METHODS;
 	}
-	boolean isSource15 = this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
 	for (int i = 0, length = result.length - 1; i < length; i++) {
 		MethodBinding method = result[i];
 		for (int j = length; j > i; j--) {
-			boolean paramsMatch = isSource15
-				? method.areParameterErasuresEqual(result[j])
-				: method.areParametersEqual(result[j]);
+			boolean paramsMatch = method.areParameterErasuresEqual(result[j]);
 			if (paramsMatch) {
 				methods();
 				return getMethods(selector); // try again since the duplicate methods have been removed
@@ -2108,8 +2026,6 @@ public MethodBinding[] methods() {
 		}
 
 		// find & report collision cases
-		boolean complyTo15OrAbove = this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
-		boolean compliance16 = this.scope.compilerOptions().complianceLevel == ClassFileConstants.JDK1_6;
 		int recordCanonIndex = -1;
 		if (this.isRecordDeclaration) {
 			recordCanonIndex = getImplicitCanonicalConstructor();
@@ -2142,88 +2058,11 @@ public MethodBinding[] methods() {
 				if (!CharOperation.equals(selector, method2.selector))
 					break nextSibling; // methods with same selector are contiguous
 
-				if (complyTo15OrAbove) {
-					if (method.areParameterErasuresEqual(method2)) {
-						// we now ignore return types in 1.7 when detecting duplicates, just as we did before 1.5
-						// Only in 1.6, we have to make sure even return types are different
-						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=317719
-						if (compliance16 && method.returnType != null && method2.returnType != null) {
-							if (TypeBinding.notEquals(method.returnType.erasure(), method2.returnType.erasure())) {
-								// check to see if the erasure of either method is equal to the other
-								// if not, then change severity to WARNING
-								TypeBinding[] params1 = method.parameters;
-								TypeBinding[] params2 = method2.parameters;
-								int pLength = params1.length;
-								TypeVariableBinding[] vars = method.typeVariables;
-								TypeVariableBinding[] vars2 = method2.typeVariables;
-								boolean equalTypeVars = vars == vars2;
-								MethodBinding subMethod = method2;
-								if (!equalTypeVars) {
-									MethodBinding temp = method.computeSubstitutedMethod(method2, this.scope.environment());
-									if (temp != null) {
-										equalTypeVars = true;
-										subMethod = temp;
-									}
-								}
-								boolean equalParams = method.areParametersEqual(subMethod);
-								if (equalParams && equalTypeVars) {
-									// duplicates regardless of return types
-								} else if (vars != Binding.NO_TYPE_VARIABLES && vars2 != Binding.NO_TYPE_VARIABLES) {
-									// both have type arguments. Erasure of signature of one cannot be equal to signature of other
-									severity = ProblemSeverities.Warning;
-								} else if (pLength > 0) {
-									int index = pLength;
-									// is erasure of signature of m2 same as signature of m1?
-									for (; --index >= 0;) {
-										if (TypeBinding.notEquals(params1[index], params2[index].erasure())) {
-											// If one of them is a raw type
-											if (params1[index] instanceof RawTypeBinding) {
-												if (TypeBinding.notEquals(params2[index].erasure(), ((RawTypeBinding)params1[index]).actualType())) {
-													break;
-												}
-											} else  {
-												break;
-											}
-										}
-										if (TypeBinding.equalsEquals(params1[index], params2[index])) {
-											TypeBinding type = params1[index].leafComponentType();
-											if (type instanceof SourceTypeBinding && type.typeVariables() != Binding.NO_TYPE_VARIABLES) {
-												index = pLength; // handle comparing identical source types like X<T>... its erasure is itself BUT we need to answer false
-												break;
-											}
-										}
-									}
-									if (index >= 0 && index < pLength) {
-										// is erasure of signature of m1 same as signature of m2?
-										for (index = pLength; --index >= 0;)
-											if (TypeBinding.notEquals(params1[index].erasure(), params2[index])) {
-												// If one of them is a raw type
-												if (params2[index] instanceof RawTypeBinding) {
-													if (TypeBinding.notEquals(params1[index].erasure(), ((RawTypeBinding)params2[index]).actualType())) {
-														break;
-													}
-												} else  {
-													break;
-												}
-											}
-
-									}
-									if (index >= 0) {
-										// erasure of neither is equal to signature of other
-										severity = ProblemSeverities.Warning;
-									}
-								} else if (pLength != 0){
-									severity = ProblemSeverities.Warning;
-								} // pLength = 0 automatically makes erasure of arguments one equal to arguments of other.
-							}
-							// else return types also equal. All conditions satisfied
-							// to give error in 1.6 compliance as well.
-						}
-					} else {
-						continue nextSibling;
-					}
-				} else if (!method.areParametersEqual(method2)) {
-					// prior to 1.5, parameters identical meant a collision case
+				if (method.areParameterErasuresEqual(method2)) {
+					// we now ignore return types in 1.7 when detecting duplicates, just as we did before 1.5
+					// Only in 1.6, we have to make sure even return types are different
+					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=317719
+				} else {
 					continue nextSibling;
 				}
 				if (recordCanonIndex == i || recordCanonIndex == j) {
@@ -2436,11 +2275,8 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 	if ((field.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0)
 		return field;
 
-	long sourceLevel = this.scope.compilerOptions().sourceLevel;
-	if (sourceLevel >= ClassFileConstants.JDK1_5) {
-		if ((field.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
-			field.modifiers |= ClassFileConstants.AccDeprecated;
-	}
+	if ((field.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
+		field.modifiers |= ClassFileConstants.AccDeprecated;
 	if (isViewedAsDeprecated() && !field.isDeprecated()) {
 		field.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 		field.tagBits |= this.tagBits & TagBits.AnnotationTerminallyDeprecated;
@@ -2493,8 +2329,8 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 				ASTNode.copySE8AnnotationsToType(initializationScope, field, annotations,
 						fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT); // type annotation is illegal on enum constant
 			}
-			Annotation.isTypeUseCompatible(fieldDecl.type, this.scope, annotations);
 
+			Annotation.isTypeUseCompatible(fieldDecl.type, this.scope, annotations);
 			// apply null default:
 			if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
 				// TODO(SH): different strategy for 1.8, or is "repair" below enough?
@@ -2545,15 +2381,13 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 		return method;
 
 	final long sourceLevel = this.scope.compilerOptions().sourceLevel;
-	if (sourceLevel >= ClassFileConstants.JDK1_5) {
-		ReferenceBinding object = this.scope.getJavaLangObject();
-		TypeVariableBinding[] tvb = method.typeVariables;
-		for (int i = 0; i < tvb.length; i++)
-			tvb[i].superclass = object;		// avoid null (see https://bugs.eclipse.org/426048)
+	ReferenceBinding object = this.scope.getJavaLangObject();
+	TypeVariableBinding[] tvb = method.typeVariables;
+	for (int i = 0; i < tvb.length; i++)
+		tvb[i].superclass = object;		// avoid null (see https://bugs.eclipse.org/426048)
 
-		if ((method.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
-			method.modifiers |= ClassFileConstants.AccDeprecated;
-	}
+	if ((method.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
+		method.modifiers |= ClassFileConstants.AccDeprecated;
 	if (isViewedAsDeprecated() && !method.isDeprecated()) {
 		method.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 		method.tagBits |= this.tagBits & TagBits.AnnotationTerminallyDeprecated;
@@ -2667,19 +2501,17 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337799
-	if (sourceLevel >= ClassFileConstants.JDK1_7) {
-		if ((method.tagBits & TagBits.AnnotationSafeVarargs) != 0) {
-			if (!method.isVarargs()) {
-				methodDecl.scope.problemReporter().safeVarargsOnFixedArityMethod(method);
-			} else if (!method.isStatic() && !method.isFinal() && !method.isConstructor()
-					&& !(sourceLevel >= ClassFileConstants.JDK9 && method.isPrivate())) {
-				methodDecl.scope.problemReporter().safeVarargsOnNonFinalInstanceMethod(method);
-			}
-		} else {
-			/* https://github.com/eclipse-jdt/eclipse.jdt.core/issues/365 */
-			if (!this.isRecordDeclaration) {
-				checkAndFlagHeapPollution(method, methodDecl);
-			}
+	if ((method.tagBits & TagBits.AnnotationSafeVarargs) != 0) {
+		if (!method.isVarargs()) {
+			methodDecl.scope.problemReporter().safeVarargsOnFixedArityMethod(method);
+		} else if (!method.isStatic() && !method.isFinal() && !method.isConstructor()
+				&& !(sourceLevel >= ClassFileConstants.JDK9 && method.isPrivate())) {
+			methodDecl.scope.problemReporter().safeVarargsOnNonFinalInstanceMethod(method);
+		}
+	} else {
+		/* https://github.com/eclipse-jdt/eclipse.jdt.core/issues/365 */
+		if (!this.isRecordDeclaration) {
+			checkAndFlagHeapPollution(method, methodDecl);
 		}
 	}
 
@@ -2713,7 +2545,7 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 					method.tagBits |= TagBits.HasMissingType;
 				}
 				method.returnType = methodType;
-				if (sourceLevel >= ClassFileConstants.JDK1_8 && !method.isVoidMethod()) {
+				if (!method.isVoidMethod()) {
 					Annotation [] annotations = methodDecl.annotations;
 					if (annotations != null && annotations.length != 0) {
 						ASTNode.copySE8AnnotationsToType(methodDecl.scope, method, methodDecl.annotations, false);
@@ -2730,11 +2562,9 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 			}
 		}
 	} else {
-		if (sourceLevel >= ClassFileConstants.JDK1_8) {
-			Annotation [] annotations = methodDecl.annotations;
-			if (annotations != null && annotations.length != 0) {
-				ASTNode.copySE8AnnotationsToType(methodDecl.scope, method, methodDecl.annotations, false);
-			}
+		Annotation [] annotations = methodDecl.annotations;
+		if (annotations != null && annotations.length != 0) {
+			ASTNode.copySE8AnnotationsToType(methodDecl.scope, method, methodDecl.annotations, false);
 		}
 	}
 	if (foundArgProblem) {

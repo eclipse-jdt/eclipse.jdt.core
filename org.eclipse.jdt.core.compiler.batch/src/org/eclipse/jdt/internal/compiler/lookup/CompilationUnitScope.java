@@ -339,8 +339,6 @@ private int resolveImports(int numberOfStatements, ImportBinding[] resolvedImpor
  * Perform deferred check specific to parameterized types: bound checks, supertype collisions
  */
 void checkParameterizedTypes() {
-	if (compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) return;
-
 	for (SourceTypeBinding topLevelType : this.topLevelTypes) {
 		ClassScope scope = topLevelType.scope;
 		scope.checkParameterizedTypeBounds();
@@ -361,12 +359,9 @@ public char[] computeConstantPoolName(LocalTypeBinding localType) {
 	if (this.constantPoolNameUsage == null)
 		this.constantPoolNameUsage = new HashtableOfType();
 
-	ReferenceBinding outerMostEnclosingType = localType.scope.outerMostClassScope().enclosingSourceType();
-
 	// ensure there is not already such a local type name defined by the user
 	int index = 0;
 	char[] candidateName;
-	boolean isCompliant15 = compilerOptions().complianceLevel >= ClassFileConstants.JDK1_5;
 	while(true) {
 		if (localType.isMemberType()){
 			if (index == 0){
@@ -385,35 +380,18 @@ public char[] computeConstantPoolName(LocalTypeBinding localType) {
 					localType.sourceName);
 			}
 		} else if (localType.isAnonymousType()){
-			if (isCompliant15) {
-				// from 1.5 on, use immediately enclosing type name
-				candidateName = CharOperation.concat(
-					localType.enclosingType.constantPoolName(),
-					String.valueOf(index+1).toCharArray(),
-					'$');
-			} else {
-				candidateName = CharOperation.concat(
-					outerMostEnclosingType.constantPoolName(),
-					String.valueOf(index+1).toCharArray(),
-					'$');
-			}
+			// from 1.5 on, use immediately enclosing type name
+			candidateName = CharOperation.concat(
+				localType.enclosingType.constantPoolName(),
+				String.valueOf(index+1).toCharArray(),
+				'$');
 		} else {
-			// local type
-			if (isCompliant15) {
-				candidateName = CharOperation.concat(
-					CharOperation.concat(
-						localType.enclosingType().constantPoolName(),
-						String.valueOf(index+1).toCharArray(),
-						'$'),
-					localType.sourceName);
-			} else {
-				candidateName = CharOperation.concat(
-					outerMostEnclosingType.constantPoolName(),
-					'$',
+			candidateName = CharOperation.concat(
+				CharOperation.concat(
+					localType.enclosingType().constantPoolName(),
 					String.valueOf(index+1).toCharArray(),
-					'$',
-					localType.sourceName);
-			}
+					'$'),
+				localType.sourceName);
 		}
 		if (this.constantPoolNameUsage.get(candidateName) != null) {
 			index ++;
@@ -673,12 +651,7 @@ private Binding findImport(char[][] compoundName, int length) {
 			if (inaccessible != null)
 				return inaccessible;
 		}
-		if (compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
-			return problemType(compoundName, i, null);
-		type = findType(compoundName[0], this.environment.defaultPackage, this.environment.defaultPackage);
-		if (type == null || !type.isValidBinding())
-			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), null, ProblemReasons.NotFound);
-		i = 1; // reset to look for member types inside the default package type
+		return problemType(compoundName, i, null);
 	} else {
 		type = (ReferenceBinding) binding;
 	}
@@ -702,7 +675,7 @@ private Binding findSingleImport(char[][] compoundName, int mask, boolean findSt
 	if (compoundName.length == 1) {
 		// findType records the reference
 		// the name cannot be a package
-		if (compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4 && !this.referenceContext.isModuleInfo())
+		if (!this.referenceContext.isModuleInfo())
 			return new ProblemReferenceBinding(compoundName, null, ProblemReasons.NotFound);
 		ReferenceBinding typeBinding = findType(compoundName[0], this.environment.defaultPackage, this.fPackage);
 		if (typeBinding == null)

@@ -1103,7 +1103,7 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 		//		M() { this(new Object() { void baz() { foo(); }}); } // access to #foo() indirects through constructor synthetic arg: val$this$0
 		//	}
 		//}
-		if (!methodScope.isStatic && methodScope.isConstructorCall && currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_5) {
+		if (!methodScope.isStatic && methodScope.isConstructorCall) {
 			ReferenceBinding enclosing = nestedType.enclosingType();
 			if (enclosing.isNestedType()) {
 				NestedTypeBinding nestedEnclosing = (NestedTypeBinding)enclosing;
@@ -1357,8 +1357,7 @@ public void resolve() {
 		// resolve annotations and check @Deprecated annotation
 		long annotationTagBits = sourceType.getAnnotationTagBits();
 		if ((annotationTagBits & TagBits.AnnotationDeprecated) == 0
-				&& (sourceType.modifiers & ClassFileConstants.AccDeprecated) != 0
-				&& this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
+				&& (sourceType.modifiers & ClassFileConstants.AccDeprecated) != 0) {
 			this.scope.problemReporter().missingDeprecatedAnnotationForType(this);
 		}
 		if ((annotationTagBits & TagBits.AnnotationFunctionalInterface) != 0) {

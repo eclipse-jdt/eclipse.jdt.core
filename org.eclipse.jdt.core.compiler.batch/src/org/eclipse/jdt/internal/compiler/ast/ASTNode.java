@@ -355,8 +355,6 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		return INVOCATION_ARGUMENT_OK;
 	}
 	public static boolean checkInvocationArguments(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding method, Expression[] arguments, TypeBinding[] argumentTypes, boolean argsContainCast, InvocationSite invocationSite) {
-		long sourceLevel = scope.compilerOptions().sourceLevel;
-		boolean is1_7 = sourceLevel >= ClassFileConstants.JDK1_7;
 		TypeBinding[] params = method.parameters;
 		int paramLength = params.length;
 		boolean isRawMemberInvocation = !method.isStatic()
@@ -379,7 +377,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			if (method.isVarargs()) {
 				TypeBinding parameterType = ((ArrayBinding) params[paramLength-1]).elementsType(); // no element was supplied for vararg parameter
 				if (!parameterType.isReifiable()
-						&& (!is1_7 || ((method.tagBits & TagBits.AnnotationSafeVarargs) == 0))) {
+						&& (method.tagBits & TagBits.AnnotationSafeVarargs) == 0) {
 					scope.problemReporter().unsafeGenericArrayForVarargs(parameterType, (ASTNode)invocationSite);
 				}
 			}
@@ -399,7 +397,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					if (paramLength != argLength || parameterType.dimensions() != argumentTypes[lastIndex].dimensions()) {
 						parameterType = ((ArrayBinding) parameterType).elementsType(); // single element was provided for vararg parameter
 						if (!parameterType.isReifiable()
-								&& (!is1_7 || ((method.tagBits & TagBits.AnnotationSafeVarargs) == 0))) {
+								&& (method.tagBits & TagBits.AnnotationSafeVarargs) == 0) {
 							scope.problemReporter().unsafeGenericArrayForVarargs(parameterType, (ASTNode)invocationSite);
 						}
 						originalRawParam = rawOriginalGenericMethod == null ? null : ((ArrayBinding)rawOriginalGenericMethod.parameters[lastIndex]).elementsType();
@@ -454,8 +452,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				scope.problemReporter().unsafeRawGenericMethodInvocation((ASTNode)invocationSite, method, argumentTypes);
 				return true;
 			}
-			if (sourceLevel >= ClassFileConstants.JDK1_8)
-				return true; // signal to erase return type and exceptions, while keeping javac compatibility at 1.7-
+			return true; // signal to erase return type and exceptions, while keeping javac compatibility at 1.7-
 		}
 		return false;
 	}

@@ -366,10 +366,8 @@ public class ClassScope extends Scope {
 
 		LocalTypeBinding localType = buildLocalType(enclosingType, enclosingType.fPackage);
 		connectTypeHierarchy();
-		if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
-			checkParameterizedTypeBounds();
-			checkParameterizedSuperTypeCollisions();
-		}
+		checkParameterizedTypeBounds();
+		checkParameterizedSuperTypeCollisions();
 		this.referenceContext.updateSupertypesWithAnnotations(Collections.emptyMap());
 		buildFieldsAndMethods();
 		localType.faultInTypesForFieldsAndMethods();
@@ -763,7 +761,7 @@ public class ClassScope extends Scope {
 			/*
 			 * AccSynthetic must be set if the target is greater than 1.5. 1.5 VM don't support AccSynthetics flag.
 			 */
-			if (sourceType.sourceName == TypeConstants.PACKAGE_INFO_NAME && compilerOptions().targetJDK > ClassFileConstants.JDK1_5) {
+			if (sourceType.sourceName == TypeConstants.PACKAGE_INFO_NAME) {
 				modifiers |= ClassFileConstants.AccSynthetic;
 			}
 			modifiers |= ClassFileConstants.AccAbstract;
@@ -1391,7 +1389,7 @@ public class ClassScope extends Scope {
 		try {
 			sourceType.setSuperInterfaces(Binding.NO_SUPERINTERFACES);
 			if (this.referenceContext.superInterfaces == null) {
-				if (sourceType.isAnnotationType() && compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) { // do not connect if source < 1.5 as annotation already got flagged as syntax error) {
+				if (sourceType.isAnnotationType()) {
 					ReferenceBinding annotationType = getJavaLangAnnotationAnnotation();
 					boolean foundCycle = detectHierarchyCycle(sourceType, annotationType, null);
 					sourceType.setSuperInterfaces(new ReferenceBinding[] { annotationType });
