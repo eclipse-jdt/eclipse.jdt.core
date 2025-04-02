@@ -1098,6 +1098,8 @@ public class JavacProblemConverter {
 			case "compiler.warn.possible.this.escape.location" -> JavacProblemIds.PossibleThisEscapeLocation;
 			case "compiler.warn.possible.loss.of.precision" -> JavacProblemIds.PossibleLossOfPrescision;
 			case "compiler.warn.auxiliary.class.accessed.from.outside.of.its.source.file" -> JavacProblemIds.AuxiliaryClassAccessedOutsideItsSourceFile;
+			case "compiler.warn.restricted.method" -> IProblem.DiscouragedReference;
+			case "compiler.note.deprecated.filename.additional" -> IProblem.UsingDeprecatedMethod;
 			default -> {
 				ILog.get().error("Could not accurately convert diagnostic (" + diagnostic.getCode() + ")\n" + diagnostic);
 				if (diagnostic.getKind() == javax.tools.Diagnostic.Kind.ERROR && diagnostic.getCode().startsWith("compiler.err")) {
