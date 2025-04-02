@@ -1664,6 +1664,9 @@ public void test0057() throws JavaModelException {
 
 		CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
 		assertResults(
+				"main[METHOD_REF]{main(String[]), Ltest0057.X;, ([Ljava.lang.String;)V, main, (args), 49}",
+					result.proposalDisplays);
+		assertResults(
 				"main[METHOD_REF]{main(String\\[\\]), Ltest0057.X;, ([Ljava.lang.String;)V, main, (args), 49}",
 					result.proposals);
 	} finally {
@@ -1671,10 +1674,9 @@ public void test0057() throws JavaModelException {
 	}
 }
 public void test0058() throws JavaModelException {
-	String preview = COMPLETION_PROJECT.getOption(CompilerOptions.OPTION_EnablePreviews, false);
+	String source = COMPLETION_PROJECT.getOption(CompilerOptions.OPTION_Source, false);
 	try {
 		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_24);
-		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
@@ -1694,10 +1696,12 @@ public void test0058() throws JavaModelException {
 		CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation);
 		assertResults(
 				"main[JAVADOC_METHOD_REF]{{@link #main(String[])}, Ltest0057.X;, ([Ljava.lang.String;)V, main, (args), 80}",
+					result.proposalDisplays);
+		assertResults(
+				"main[JAVADOC_METHOD_REF]{{@link #main(String[])}, Ltest0057.X;, ([Ljava.lang.String;)V, main, (args), 80}",
 					result.proposals);
 	} finally {
-		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
-		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_EnablePreviews, preview);
+		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_Source, source);
 	}
 }
 }

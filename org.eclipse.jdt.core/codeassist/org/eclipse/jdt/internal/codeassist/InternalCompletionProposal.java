@@ -89,7 +89,7 @@ public class InternalCompletionProposal extends CompletionProposal {
 	/**
 	 * Completion display string; defaults to empty string.
 	 */
-	public char[] displayString = CharOperation.NO_CHAR;
+	public char[] displayString = null;
 	/**
 	 * Start position (inclusive) of source range in original buffer
 	 * to be replaced by completion string;
@@ -539,7 +539,9 @@ public class InternalCompletionProposal extends CompletionProposal {
 
 	@Override
 	public char[] getDisplayString() {
-		return this.displayString;
+		if  (this.displayString != null)
+			return this.displayString;
+		return getCompletion();
 	}
 
 	@Override
