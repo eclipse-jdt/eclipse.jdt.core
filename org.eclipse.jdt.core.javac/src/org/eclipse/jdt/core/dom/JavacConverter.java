@@ -2141,10 +2141,11 @@ class JavacConverter {
 		if (value instanceof Number) {
 			// to check if the literal is actually a prefix expression of it is a hex
 			// negative value we need to check the source char value.
-			char firstChar = this.rawText.substring(literal.getStartPosition(), literal.getStartPosition() + 1)
-					.charAt(0);
-
-			if( firstChar != '-' ) {
+			// fix ASTConverterAST8Test.test0049()/test0052()
+			boolean isNumberLiteral = (this.rawText.charAt(literal.getStartPosition()) != '-')
+					|| ((value instanceof Integer i) && i == Integer.MIN_VALUE)
+					|| ((value instanceof Long l) && l == Long.MIN_VALUE);
+			if( isNumberLiteral) {
 				NumberLiteral res = this.ast.newNumberLiteral();
 				commonSettings(res, literal);
 				String fromSrc = this.rawText.substring(res.getStartPosition(), res.getStartPosition() + res.getLength());
