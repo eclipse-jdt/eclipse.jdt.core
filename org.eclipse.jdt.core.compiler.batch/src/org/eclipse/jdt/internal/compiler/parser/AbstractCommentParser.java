@@ -94,6 +94,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected boolean lineStarted = false;
 	protected boolean inlineTagStarted = false;
 	protected boolean inlineReturn= false;
+	protected int inlineReturnOpenBraces= 0;
 	protected boolean abort = false;
 	protected int kind;
 	protected int tagValue = NO_TAG_VALUE;
@@ -361,18 +362,24 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						}
 						if (this.inlineTagStarted) {
 							textEndPosition = this.index - 1;
+							boolean treatAsText= considerTagAsPlainText || (this.inlineReturn && this.inlineReturnOpenBraces > 0);
 							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345: do not push text yet if ignoring tags
-							if (!considerTagAsPlainText) {
+							if (!treatAsText) {
 								if (this.lineStarted && this.textStart != -1 && this.textStart < textEndPosition) {
 									pushText(this.textStart, textEndPosition);
 								}
 								refreshInlineTagPosition(previousPosition);
 							}
-							if (!isFormatterParser && !considerTagAsPlainText)
+							if (!isFormatterParser && !treatAsText && (!this.inlineReturn || this.inlineReturnOpenBraces <= 0))
 								this.textStart = this.index;
 							setInlineTagStarted(false);
 							if (this.inlineReturn) {
-								addFragmentToInlineReturn();
+								if (this.inlineReturnOpenBraces > 0) {
+									--this.inlineReturnOpenBraces;
+									setInlineTagStarted(true);
+								} else {
+									addFragmentToInlineReturn();
+								}
 							}
 						} else {
 							if (!this.lineStarted) {
@@ -386,25 +393,31 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						if (verifText && this.tagValue == TAG_RETURN_VALUE && this.returnStatement != null) {
 							refreshReturnStatement();
 						}
-												// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345: count opening braces when ignoring tags
+						boolean doNotResetInlineTagStart= considerTagAsPlainText;
+						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345: count opening braces when ignoring tags
 						if (considerTagAsPlainText) {
 							openingBraces++;
 						} else if (this.inlineTagStarted) {
 							if (this.tagValue == TAG_RETURN_VALUE) {
 								this.inlineReturn= true;
 							}
-							if (this.lineStarted && this.textStart != -1 && this.textStart < textEndPosition) {
-								pushText(this.textStart, textEndPosition);
+							if (this.inlineReturn && peekChar() != '@') {
+								++this.inlineReturnOpenBraces;
+								doNotResetInlineTagStart= true;
+							} else {
+								if (this.lineStarted && this.textStart != -1 && this.textStart < textEndPosition) {
+									pushText(this.textStart, textEndPosition);
+								}
+								setInlineTagStarted(false);
+								// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53279
+								// Cannot have opening brace in inline comment
+								if (this.reportProblems && !this.inlineReturn) {
+									int end = previousPosition<invalidInlineTagLineEnd ? previousPosition : invalidInlineTagLineEnd;
+									this.sourceParser.problemReporter().javadocUnterminatedInlineTag(this.inlineTagStart, end);
+								}
+								refreshInlineTagPosition(textEndPosition);
+								textEndPosition = this.index;
 							}
-							setInlineTagStarted(false);
-							// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53279
-							// Cannot have opening brace in inline comment
-							if (this.reportProblems && !this.inlineReturn || peekChar() != '@') {
-								int end = previousPosition<invalidInlineTagLineEnd ? previousPosition : invalidInlineTagLineEnd;
-								this.sourceParser.problemReporter().javadocUnterminatedInlineTag(this.inlineTagStart, end);
-							}
-							refreshInlineTagPosition(textEndPosition);
-							textEndPosition = this.index;
 						} else if (peekChar() != '@') {
 							if (this.textStart == -1) this.textStart = previousPosition;
 							textEndPosition = this.index;
@@ -414,7 +427,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						}
 						this.lineStarted = true;
 						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345: do not update tag start position when ignoring tags
-						if (!considerTagAsPlainText) this.inlineTagStart = previousPosition;
+						if (!doNotResetInlineTagStart) this.inlineTagStart = previousPosition;
 						break;
 					case '\u000c' :	/* FORM FEED               */
 					case ' ' :			/* SPACE                   */
