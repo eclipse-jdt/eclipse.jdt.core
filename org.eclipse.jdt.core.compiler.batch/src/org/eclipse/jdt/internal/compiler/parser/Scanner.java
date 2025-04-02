@@ -209,7 +209,7 @@ public class Scanner {
 	private final CharDeduplication deduplication = CharDeduplication.getThreadLocalInstance();
 
 public Scanner() {
-	this(false /*comment*/, false /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/, true /*taskCaseSensitive*/);
+	this(false /*comment*/, false /*whitespace*/, false /*nls*/, CompilerOptions.getFirstSupportedJdkLevel() /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/, true /*taskCaseSensitive*/);
 }
 
 public Scanner(
@@ -1066,21 +1066,15 @@ private final void consumeDigits(int radix) throws InvalidInputException {
 }
 /*
  * This method consumes digits as well as underscores if underscores are located between digits
- * @throws InvalidInputException if underscores are not located between digits or if underscores are used in source < 1.7
+ * @throws InvalidInputException if underscores are not located between digits
  */
 private final void consumeDigits(int radix, boolean expectingDigitFirst) throws InvalidInputException {
 	final int USING_UNDERSCORE = 1;
 	final int INVALID_POSITION = 2;
 	switch(consumeDigits0(radix, USING_UNDERSCORE, INVALID_POSITION, expectingDigitFirst)) {
 		case USING_UNDERSCORE :
-			if (this.sourceLevel < ClassFileConstants.JDK1_7) {
-				throw invalidUnderscoresInLiterals();
-			}
 			break;
 		case INVALID_POSITION :
-			if (this.sourceLevel < ClassFileConstants.JDK1_7) {
-				throw invalidUnderscoresInLiterals();
-			}
 			throw invalidUnderscore();
 	}
 }
@@ -1209,11 +1203,6 @@ public boolean getNextCharAsJavaIdentifierPartWithBoundCheck() {
 		char c = this.currentCharacter;
 		boolean isJavaIdentifierPart = false;
 		if (c >= HIGH_SURROGATE_MIN_VALUE && c <= HIGH_SURROGATE_MAX_VALUE) {
-			if (this.complianceLevel < ClassFileConstants.JDK1_5) {
-				this.currentPosition = pos;
-				this.withoutUnicodePtr = temp2;
-				return false;
-			}
 			// Unicode 4 detection
 			char low = (char) getNextCharWithBoundChecks();
 			if (low < LOW_SURROGATE_MIN_VALUE || low > LOW_SURROGATE_MAX_VALUE) {
@@ -1279,11 +1268,6 @@ public boolean getNextCharAsJavaIdentifierPart() {
 		char c = this.currentCharacter;
 		boolean isJavaIdentifierPart = false;
 		if (c >= HIGH_SURROGATE_MIN_VALUE && c <= HIGH_SURROGATE_MAX_VALUE) {
-			if (this.complianceLevel < ClassFileConstants.JDK1_5) {
-				this.currentPosition = pos;
-				this.withoutUnicodePtr = temp2;
-				return false;
-			}
 			// Unicode 4 detection
 			char low = (char) getNextChar();
 			if (low < LOW_SURROGATE_MIN_VALUE || low > LOW_SURROGATE_MAX_VALUE) {
@@ -1406,9 +1390,6 @@ public TerminalToken scanIdentifier() throws InvalidInputException {
 		}
 		boolean isJavaIdStart;
 		if (c >= HIGH_SURROGATE_MIN_VALUE && c <= HIGH_SURROGATE_MAX_VALUE) {
-			if (this.complianceLevel < ClassFileConstants.JDK1_5) {
-				throw invalidUnicodeEscape();
-			}
 			// Unicode 4 detection
 			char low = (char) getNextCharWithBoundChecks();
 			if (low < LOW_SURROGATE_MIN_VALUE || low > LOW_SURROGATE_MAX_VALUE) {
@@ -1417,9 +1398,6 @@ public TerminalToken scanIdentifier() throws InvalidInputException {
 			}
 			isJavaIdStart = ScannerHelper.isJavaIdentifierStart(this.complianceLevel, c, low);
 		} else if (c >= LOW_SURROGATE_MIN_VALUE && c <= LOW_SURROGATE_MAX_VALUE) {
-			if (this.complianceLevel < ClassFileConstants.JDK1_5) {
-				throw invalidUnicodeEscape();
-			}
 			throw invalidHighSurrogate();
 		} else {
 			// optimized case already checked
@@ -2047,9 +2025,6 @@ protected TerminalToken getNextToken0() throws InvalidInputException {
 					}
 					boolean isJavaIdStart;
 					if (c >= HIGH_SURROGATE_MIN_VALUE && c <= HIGH_SURROGATE_MAX_VALUE) {
-						if (this.complianceLevel < ClassFileConstants.JDK1_5) {
-							throw invalidUnicodeEscape();
-						}
 						// Unicode 4 detection
 						char low = (char) getNextChar();
 						if (low < LOW_SURROGATE_MIN_VALUE || low > LOW_SURROGATE_MAX_VALUE) {
@@ -2059,9 +2034,6 @@ protected TerminalToken getNextToken0() throws InvalidInputException {
 						isJavaIdStart = ScannerHelper.isJavaIdentifierStart(this.complianceLevel, c, low);
 					}
 					else if (c >= LOW_SURROGATE_MIN_VALUE && c <= LOW_SURROGATE_MAX_VALUE) {
-						if (this.complianceLevel < ClassFileConstants.JDK1_5) {
-							throw invalidUnicodeEscape();
-						}
 						throw invalidHighSurrogate();
 					} else {
 						// optimized case already checked
@@ -2936,9 +2908,6 @@ public final void jumpOverMethodBody() {
 						}
 						boolean isJavaIdStart;
 						if (c >= HIGH_SURROGATE_MIN_VALUE && c <= HIGH_SURROGATE_MAX_VALUE) {
-							if (this.complianceLevel < ClassFileConstants.JDK1_5) {
-								throw invalidUnicodeEscape();
-							}
 							// Unicode 4 detection
 							char low = (char) getNextChar();
 							if (low < LOW_SURROGATE_MIN_VALUE || low > LOW_SURROGATE_MAX_VALUE) {
@@ -3557,13 +3526,8 @@ private TerminalToken internalScanIdentifierOrKeyword(int index, int length, cha
 						&& (data[++index] == 'e')
 						&& (data[++index] == 'r')
 						&& (data[++index] == 't')) {
-							if (this.sourceLevel >= ClassFileConstants.JDK1_4) {
-								this.containsAssertKeyword = true;
-								return TokenNameassert;
-							} else {
-								this.useAssertAsAnIndentifier = true;
-								return TokenNameIdentifier;
-							}
+							this.containsAssertKeyword = true;
+							return TokenNameassert;
 						} else {
 							return TokenNameIdentifier;
 						}
@@ -3689,12 +3653,7 @@ private TerminalToken internalScanIdentifierOrKeyword(int index, int length, cha
 					} else if ((data[index] == 'n')
 							&& (data[++index] == 'u')
 							&& (data[++index] == 'm')) {
-						if (this.sourceLevel >= ClassFileConstants.JDK1_5) {
-							return TokenNameenum;
-						} else {
-							this.useEnumAsAnIndentifier = true;
-							return TokenNameIdentifier;
-						}
+						return TokenNameenum;
 					}
 					return TokenNameIdentifier;
 				case 7 :
@@ -4272,9 +4231,6 @@ public TerminalToken scanNumber(boolean dotPrefix) throws InvalidInputException 
 				consumeDigits(16, true);
 				end = this.currentPosition;
 				if (hasNoDigitsBeforeDot && end == start) {
-					if (this.sourceLevel < ClassFileConstants.JDK1_5) {
-						throw illegalHexaLiteral();
-					}
 					throw invalidHexa();
 				}
 
@@ -4302,9 +4258,6 @@ public TerminalToken scanNumber(boolean dotPrefix) throws InvalidInputException 
 						}
 					}
 					if (!ScannerHelper.isDigit(this.currentCharacter)) {
-						if (this.sourceLevel < ClassFileConstants.JDK1_5) {
-							throw illegalHexaLiteral();
-						}
 						if (this.currentCharacter == '_') {
 							// wrongly place '_'
 							consumeDigits(10);
@@ -4314,38 +4267,20 @@ public TerminalToken scanNumber(boolean dotPrefix) throws InvalidInputException 
 					}
 					consumeDigits(10);
 					if (getNextChar('f', 'F') >= 0) {
-						if (this.sourceLevel < ClassFileConstants.JDK1_5) {
-							throw illegalHexaLiteral();
-						}
 						return TokenNameFloatingPointLiteral;
 					}
 					if (getNextChar('d', 'D') >= 0) {
-						if (this.sourceLevel < ClassFileConstants.JDK1_5) {
-							throw illegalHexaLiteral();
-						}
 						return TokenNameDoubleLiteral;
 					}
 					if (getNextChar('l', 'L') >= 0) {
-						if (this.sourceLevel < ClassFileConstants.JDK1_5) {
-							throw illegalHexaLiteral();
-						}
 						throw invalidHexa();
-					}
-					if (this.sourceLevel < ClassFileConstants.JDK1_5) {
-						throw illegalHexaLiteral();
 					}
 					return TokenNameDoubleLiteral;
 				} else {
-					if (this.sourceLevel < ClassFileConstants.JDK1_5) {
-						throw illegalHexaLiteral();
-					}
 					throw invalidHexa();
 				}
 			} else if (getNextChar('p', 'P') >= 0) { // consume next character
 				if (end == start) { // Has no digits before exponent
-					if (this.sourceLevel < ClassFileConstants.JDK1_5) {
-						throw illegalHexaLiteral();
-					}
 					throw invalidHexa();
 				}
 				this.unicodeAsBackSlash = false;
@@ -4371,9 +4306,6 @@ public TerminalToken scanNumber(boolean dotPrefix) throws InvalidInputException 
 					}
 				}
 				if (!ScannerHelper.isDigit(this.currentCharacter)) {
-					if (this.sourceLevel < ClassFileConstants.JDK1_5) {
-						throw illegalHexaLiteral();
-					}
 					if (this.currentCharacter == '_') {
 						// wrongly place '_'
 						consumeDigits(10);
@@ -4383,25 +4315,13 @@ public TerminalToken scanNumber(boolean dotPrefix) throws InvalidInputException 
 				}
 				consumeDigits(10);
 				if (getNextChar('f', 'F') >= 0) {
-					if (this.sourceLevel < ClassFileConstants.JDK1_5) {
-						throw illegalHexaLiteral();
-					}
 					return TokenNameFloatingPointLiteral;
 				}
 				if (getNextChar('d', 'D') >= 0) {
-					if (this.sourceLevel < ClassFileConstants.JDK1_5) {
-						throw illegalHexaLiteral();
-					}
 					return TokenNameDoubleLiteral;
 				}
 				if (getNextChar('l', 'L') >= 0) {
-					if (this.sourceLevel < ClassFileConstants.JDK1_5) {
-						throw illegalHexaLiteral();
-					}
 					throw invalidHexa();
-				}
-				if (this.sourceLevel < ClassFileConstants.JDK1_5) {
-					throw illegalHexaLiteral();
 				}
 				return TokenNameDoubleLiteral;
 			} else {
@@ -4414,19 +4334,10 @@ public TerminalToken scanNumber(boolean dotPrefix) throws InvalidInputException 
 			consumeDigits(2, true);
 			int end = this.currentPosition;
 			if (end == start) {
-				if (this.sourceLevel < ClassFileConstants.JDK1_7) {
-					throw invalidBinaryLiteral();
-				}
 				throw invalidBinary();
 			}
 			if (getNextChar('l', 'L') >= 0) {
-				if (this.sourceLevel < ClassFileConstants.JDK1_7) {
-					throw invalidBinaryLiteral();
-				}
 				return TokenNameLongLiteral;
-			}
-			if (this.sourceLevel < ClassFileConstants.JDK1_7) {
-				throw invalidBinaryLiteral();
 			}
 			return TokenNameIntegerLiteral;
 		}

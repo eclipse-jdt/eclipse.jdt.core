@@ -7032,7 +7032,7 @@ public void testBug418235() {
                     "@NonNullByDefault\n" +
                     "public class Implementation implements GenericInterface<Object> {\n" +
                     "\n" +
-                    (this.complianceLevel < ClassFileConstants.JDK1_6 ? "\n" : "      @Override\n" ) +
+                    "      @Override\n" +
                     "       public Object doSomethingGeneric(Object o) {\n" +
                     "               return o;\n" +
                     "       }\n" +
@@ -7216,12 +7216,8 @@ public void testBug424624a() {
 			"test/Test3.java",
 			"package test;\n" +
 			"import org.eclipse.jdt.annotation.NonNull;\n" +
-			(this.complianceLevel >= ClassFileConstants.JDK1_8 ?
 			"import java.lang.annotation.*;\n" +
-			"@Target(ElementType.TYPE_USE) @interface Marker {}\n"
-			:
-			""
-			)+
+			"@Target(ElementType.TYPE_USE) @interface Marker {}\n" +
 			"\n" +
 			"public class Test3 {\n" +
 			"\n" +
@@ -7283,12 +7279,8 @@ public void testBug424624b() {
 		new String[] {
 			"Test3.java",
 			"import org.eclipse.jdt.annotation.NonNull;\n" +
-			(this.complianceLevel >= ClassFileConstants.JDK1_8 ?
 			"import java.lang.annotation.*;\n" +
-			"@Target(ElementType.TYPE_USE) @interface Marker {}\n"
-			:
-			""
-			)+
+			"@Target(ElementType.TYPE_USE) @interface Marker {}\n" +
 			"\n" +
 			"public class Test3 {\n" +
 			"\n" +
@@ -7410,13 +7402,7 @@ public void testBug403674() {
 			"1. ERROR in X.java (at line 5)\n" +
 			"	switch (computeStringValue()) {}\n" +
 			"	        ^^^^^^^^^^^^^^^^^^^^\n" +
-			(this.complianceLevel < ClassFileConstants.JDK1_7
-			?
-			"Cannot switch on a value of type String for source level below 1.7. " +
-			"Only convertible int values or enum variables are permitted\n"
-			:
-			"Potential null pointer access: The method computeStringValue() may return null\n"
-			) +
+			"Potential null pointer access: The method computeStringValue() may return null\n" +
 			"----------\n");
 }
 // Bug 403674 - [compiler][null] Switching on @Nullable enum value does not trigger "Potential null pointer access" warning
@@ -7598,16 +7584,12 @@ public void testBug434374() {
 			"\n" +
 			"public class AdapterServiceImpl implements AdapterService {\n" +
 			"\n" +
-			(this.complianceLevel >= ClassFileConstants.JDK1_6
-			? "	@Override\n"
-			: "") +
+			"	@Override\n" +
 			"	public boolean canAdapt(@Nullable Object sourceObject, @NonNull Class<?> targetType) {\n" +
 			"		return false;\n" +
 			"	}\n" +
 			"\n" +
-			(this.complianceLevel >= ClassFileConstants.JDK1_6
-			? "	@Override\n"
-			: "") +
+			"	@Override\n" +
 			"	@Nullable\n" +
 			"	public <A> A adapt(@Nullable Object sourceObject, @NonNull Class<A> targetType, ValueAccess... valueAccesses) {\n" +
 			"		return null;\n" +
@@ -7637,9 +7619,7 @@ public void testBug434374a() {
 			"\n" +
 			"public class AdapterServiceImpl implements AdapterService {\n" +
 			"\n" +
-			(this.complianceLevel >= ClassFileConstants.JDK1_6
-			? "	@Override\n"
-			: "") +
+			"	@Override\n" +
 			"	@NonNull\n" +
 			"	public <A> Class<A> getClassOfA(A object) {\n" +
 			"		throw new RuntimeException();\n" +
@@ -7869,7 +7849,6 @@ public void testBug445147() {
 		"");
 }
 public void testBug445708() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // uses switch on string.
 	runNegativeTestWithLibs(
 		new String[] {
 			"SwitchTest.java",
@@ -8255,7 +8234,6 @@ public void testBug457210() {
 		customOptions);
 }
 public void testBug462790() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // multi catch used
 	Map<String,String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
 	runWarningTestWithLibs(

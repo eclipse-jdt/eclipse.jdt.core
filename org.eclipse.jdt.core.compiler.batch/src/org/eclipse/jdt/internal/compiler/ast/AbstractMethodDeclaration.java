@@ -620,17 +620,11 @@ public abstract class AbstractMethodDeclaration
 			resolveReceiver();
 			bindThrownExceptions();
 			resolveAnnotations(this.scope, this.annotations, this.binding, this.isConstructor());
-
-			long sourceLevel = this.scope.compilerOptions().sourceLevel;
-			if (sourceLevel < ClassFileConstants.JDK1_8) // otherwise already checked via Argument.createBinding
-				validateNullAnnotations(this.scope.environment().usesNullTypeAnnotations());
-
 			resolveStatements();
 			// check @Deprecated annotation presence
 			if (this.binding != null
 					&& (this.binding.getAnnotationTagBits() & TagBits.AnnotationDeprecated) == 0
-					&& (this.binding.modifiers & ClassFileConstants.AccDeprecated) != 0
-					&& sourceLevel >= ClassFileConstants.JDK1_5) {
+					&& (this.binding.modifiers & ClassFileConstants.AccDeprecated) != 0) {
 				this.scope.problemReporter().missingDeprecatedAnnotationForMethod(this);
 			}
 		} catch (AbortMethod e) {

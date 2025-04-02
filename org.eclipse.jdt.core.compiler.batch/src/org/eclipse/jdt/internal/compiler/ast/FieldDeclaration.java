@@ -101,10 +101,8 @@ public FlowInfo analyseCode(MethodScope initializationScope, FlowContext flowCon
 	CompilerOptions options = initializationScope.compilerOptions();
 	if (this.initialization != null && this.binding != null) {
 		if (options.isAnnotationBasedNullAnalysisEnabled) {
-			if (this.binding.isNonNull() || options.sourceLevel >= ClassFileConstants.JDK1_8) {
-				int nullStatus = this.initialization.nullStatus(flowInfo, flowContext);
-				NullAnnotationMatching.checkAssignment(initializationScope, flowContext, this.binding, flowInfo, nullStatus, this.initialization, this.initialization.resolvedType);
-			}
+			int nullStatus = this.initialization.nullStatus(flowInfo, flowContext);
+			NullAnnotationMatching.checkAssignment(initializationScope, flowContext, this.binding, flowInfo, nullStatus, this.initialization, this.initialization.resolvedType);
 		}
 		this.initialization.checkNPEbyUnboxing(initializationScope, flowContext, flowInfo);
 	}
@@ -289,8 +287,7 @@ public void resolve(MethodScope initializationScope) {
 
 		// check @Deprecated annotation presence
 		if ((this.binding.getAnnotationTagBits() & TagBits.AnnotationDeprecated) == 0
-				&& (this.binding.modifiers & ClassFileConstants.AccDeprecated) != 0
-				&& initializationScope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
+				&& (this.binding.modifiers & ClassFileConstants.AccDeprecated) != 0) {
 			initializationScope.problemReporter().missingDeprecatedAnnotationForField(this);
 		}
 		// the resolution of the initialization hasn't been done

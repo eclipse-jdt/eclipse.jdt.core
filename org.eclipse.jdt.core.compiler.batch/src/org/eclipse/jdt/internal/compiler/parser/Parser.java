@@ -211,15 +211,7 @@ public class Parser implements ParserBasicInformation, ConflictedParser, Operato
 					int index = Integer.parseInt(tokens[i + 1]);
 					String token = tokens[i + 2].trim();
 					long compliance = 0;
-					if("1.4".equals(token)) { //$NON-NLS-1$
-						compliance = ClassFileConstants.JDK1_4;
-					} else if("1.5".equals(token)) { //$NON-NLS-1$
-						compliance = ClassFileConstants.JDK1_5;
-					} else if("1.6".equals(token)) { //$NON-NLS-1$
-						compliance = ClassFileConstants.JDK1_6;
-					} else if("1.7".equals(token)) { //$NON-NLS-1$
-						compliance = ClassFileConstants.JDK1_7;
-					} else if("1.8".equals(token)) { //$NON-NLS-1$
+					if("1.8".equals(token)) { //$NON-NLS-1$
 						compliance = ClassFileConstants.JDK1_8;
 					}  else if("9".equals(token)) { //$NON-NLS-1$
 						compliance = ClassFileConstants.JDK9;
@@ -956,7 +948,7 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.options = problemReporter.options;
 	this.optimizeStringLiterals = optimizeStringLiterals;
 	initializeScanner();
-	this.parsingJava8Plus = this.options.sourceLevel >= ClassFileConstants.JDK1_8;
+	this.parsingJava8Plus = true;
 	this.parsingJava9Plus = this.options.sourceLevel >= ClassFileConstants.JDK9;
 	this.parsingJava11Plus = this.options.sourceLevel >= ClassFileConstants.JDK11;
 	this.parsingJava14Plus = this.options.sourceLevel >= ClassFileConstants.JDK14;
@@ -1295,22 +1287,12 @@ protected AllocationExpression newAllocationExpression(boolean isQualified) {
 protected void checkForDiamond(TypeReference allocType) {
 	if (allocType instanceof ParameterizedSingleTypeReference type) {
 		if (type.typeArguments == TypeReference.NO_TYPE_ARGUMENTS) {
-			if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
-				problemReporter().diamondNotBelow17(allocType);
-			}
-			if (this.options.sourceLevel > ClassFileConstants.JDK1_4) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=351965
-				type.bits |= ASTNode.IsDiamond;
-			} // else don't even bother to recognize this as <>
+			type.bits |= ASTNode.IsDiamond;
 		}
 	}
 	else if (allocType instanceof ParameterizedQualifiedTypeReference type) {
 		if (type.typeArguments[type.typeArguments.length - 1] == TypeReference.NO_TYPE_ARGUMENTS) { // Don't care for X<>.Y<> and X<>.Y<String>
-			if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
-				problemReporter().diamondNotBelow17(allocType, type.typeArguments.length - 1);
-			}
-			if (this.options.sourceLevel > ClassFileConstants.JDK1_4) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=351965
-				type.bits |= ASTNode.IsDiamond;
-			} // else don't even bother to recognize this as <>
+			type.bits |= ASTNode.IsDiamond;
 		}
 	}
 }
@@ -1598,11 +1580,6 @@ protected void consumeAnnotationTypeDeclarationHeaderName() {
 	annotationTypeDeclaration.javadoc = this.javadoc;
 	this.javadoc = null;
 	pushOnAstStack(annotationTypeDeclaration);
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		problemReporter().invalidUsageOfAnnotationDeclarations(annotationTypeDeclaration);
-	}
 
 	// recovery
 	if (this.currentElement != null){
@@ -1684,11 +1661,6 @@ protected void consumeAnnotationTypeDeclarationHeaderNameWithTypeParameters() {
 	annotationTypeDeclaration.javadoc = this.javadoc;
 	this.javadoc = null;
 	pushOnAstStack(annotationTypeDeclaration);
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		problemReporter().invalidUsageOfAnnotationDeclarations(annotationTypeDeclaration);
-	}
 
 	// recovery
 	if (this.currentElement != null){
@@ -2213,9 +2185,6 @@ protected void consumeCastExpressionLL1() {
 	cast.sourceEnd=exp.sourceEnd;
 }
 public IntersectionCastTypeReference createIntersectionCastTypeReference(TypeReference[] typeReferences) {
-	if (this.options.sourceLevel < ClassFileConstants.JDK1_8) {
-		problemReporter().intersectionCastNotBelow18(typeReferences);
-	}
 	return new IntersectionCastTypeReference(typeReferences);
 }
 protected void consumeCastExpressionLL1WithBounds() {
@@ -2441,9 +2410,6 @@ protected void consumeCatchType() {
 				length);
 		UnionTypeReference typeReference = new UnionTypeReference(typeReferences);
 		pushOnAstStack(typeReference);
-		if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
-			problemReporter().multiCatchNotBelow17(typeReference);
-		}
 	} else {
 		// push back the type reference
 		pushOnAstLengthStack(1);
@@ -3308,12 +3274,6 @@ protected void consumeEnhancedForStatementHeader(){
 	statement.elementVariable.declarationSourceEnd = collection.sourceEnd;
 	statement.elementVariable.declarationEnd = collection.sourceEnd;
 	statement.sourceEnd = this.rParenPos;
-
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		problemReporter().invalidUsageOfForeachStatements(statement.elementVariable, collection);
-	}
 }
 protected void consumeEnhancedForStatementHeaderInit(boolean hasModifiers) {
 	TypeReference type;
@@ -3830,13 +3790,6 @@ protected void consumeEnumHeaderName() {
 
 	this.listLength = 0; // will be updated when reading super-interfaces
 
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		//TODO this code will be never run while 'enum' is an identifier in 1.3 scanner
-		problemReporter().invalidUsageOfEnumDeclarations(enumDeclaration);
-	}
-
 	// recovery
 	if (this.currentElement != null){
 		this.lastCheckPoint = enumDeclaration.bodyStart;
@@ -3915,13 +3868,6 @@ protected void consumeEnumHeaderNameWithTypeParameters() {
 	pushOnAstStack(enumDeclaration);
 
 	this.listLength = 0; // will be updated when reading super-interfaces
-
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		//TODO this code will be never run while 'enum' is an identifier in 1.3 scanner
-		problemReporter().invalidUsageOfEnumDeclarations(enumDeclaration);
-	}
 
 	// recovery
 	if (this.currentElement != null){
@@ -4993,11 +4939,6 @@ protected void consumeMarkerAnnotation(boolean isTypeAnnotation) {
 	} else {
 		pushOnExpressionStack(markerAnnotation);
 	}
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		problemReporter().invalidUsageOfAnnotation(markerAnnotation);
-	}
 	this.recordStringLiterals = true;
 
 	if (this.currentElement instanceof RecoveredAnnotation recoveredAnnotation) {
@@ -5097,11 +5038,7 @@ protected void consumeMethodDeclaration(boolean isNotAbstract, boolean isDefault
 	md.bodyEnd = this.endPosition;
 	md.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
 	if (isDefaultMethod && !this.tolerateDefaultClassMethods) {
-		if (this.options.sourceLevel >= ClassFileConstants.JDK1_8) {
-			problemReporter().defaultModifierIllegallySpecified(md.sourceStart, md.sourceEnd);
-		} else {
-			problemReporter().illegalModifierForMethod(md);
-		}
+		problemReporter().defaultModifierIllegallySpecified(md.sourceStart, md.sourceEnd);
 	}
 }
 protected void consumeMethodHeader() {
@@ -5550,13 +5487,6 @@ protected void consumeTypeAnnotation() {
 	// TypeAnnotation ::= NormalTypeAnnotation
 	// TypeAnnotation ::= MarkerTypeAnnotation
 	// TypeAnnotation ::= SingleMemberTypeAnnotation
-
-	if (!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_8 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		Annotation annotation = this.typeAnnotationStack[this.typeAnnotationPtr];
-		problemReporter().invalidUsageOfTypeAnnotations(annotation);
-	}
 	this.dimensions = this.intStack[this.intPtr--]; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=417660
 }
 protected void consumeOneMoreTypeAnnotation() {
@@ -5625,11 +5555,6 @@ protected void consumeNormalAnnotation(boolean isTypeAnnotation) {
 		}
 	}
 
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		problemReporter().invalidUsageOfAnnotation(normalAnnotation);
-	}
 	this.recordStringLiterals = true;
 }
 protected void consumeOneDimLoop(boolean isAnnotated) {
@@ -5647,14 +5572,7 @@ protected void consumeOnlySynchronized() {
 	this.expressionLengthPtr--;
 }
 protected void consumeOnlyTypeArguments() {
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		int length = this.genericsLengthStack[this.genericsLengthPtr];
-		problemReporter().invalidUsageOfTypeArguments(
-			(TypeReference)this.genericsStack[this.genericsPtr - length + 1],
-			(TypeReference)this.genericsStack[this.genericsPtr]);
-	}
+// noop on 1.8+
 }
 protected void consumeOnlyTypeArgumentsForCastExpression() {
 	// OnlyTypeArgumentsForCastExpression ::= OnlyTypeArguments
@@ -5674,10 +5592,8 @@ protected void consumeOpenBlock() {
 }
 protected void consumePackageComment() {
 	// get possible comment for syntax since 1.5
-	if(this.options.sourceLevel >= ClassFileConstants.JDK1_5) {
-		checkComment();
-		resetModifiers();
-	}
+	checkComment();
+	resetModifiers();
 }
 protected void consumeInternalCompilationUnitWithModuleDeclaration() {
 	this.compilationUnit.moduleDeclaration = (ModuleDeclaration)this.astStack[this.astPtr--];
@@ -8708,12 +8624,6 @@ protected void consumeSingleMemberAnnotation(boolean isTypeAnnotation) {
 			this.currentElement = recoveredAnnotation.addAnnotation(singleMemberAnnotation, oldIndex);
 		}
 	}
-
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		problemReporter().invalidUsageOfAnnotation(singleMemberAnnotation);
-	}
 	this.recordStringLiterals = true;
 }
 protected void consumeSingleMemberAnnotationMemberValue() {
@@ -8765,13 +8675,6 @@ protected void consumeSingleModifierImportDeclarationName(int modifier) {
 	impt.declarationEnd = impt.declarationSourceEnd;
 	//this.endPosition is just before the ;
 	impt.declarationSourceStart = this.intStack[this.intPtr--];
-
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		impt.modifiers = ClassFileConstants.AccDefault; // convert the static import reference to a non-static importe reference
-		problemReporter().invalidUsageOfStaticImports(impt);
-	}
 
 	if (modifier == ClassFileConstants.AccModule)
 		impt.bits |= ASTNode.OnDemand; // implicitly
@@ -9145,9 +9048,6 @@ protected void consumeStatementTry(boolean withFinally, boolean hasResources) {
 
 		tryStmt.resources = stmts;
 
-		if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
-			problemReporter().autoManagedResourcesNotBelow17(stmts);
-		}
 		if (this.options.sourceLevel < ClassFileConstants.JDK9) {
 			for (Statement stmt : stmts) {
 				if (stmt instanceof FieldReference || stmt instanceof NameReference) {
@@ -9203,13 +9103,6 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 	impt.declarationEnd = impt.declarationSourceEnd;
 	//this.endPosition is just before the ;
 	impt.declarationSourceStart = this.intStack[this.intPtr--];
-
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		impt.modifiers = ClassFileConstants.AccDefault; // convert the static import reference to a non-static importe reference
-		problemReporter().invalidUsageOfStaticImports(impt);
-	}
 
 	// recovery
 	if (this.currentElement != null){
@@ -9850,15 +9743,6 @@ protected void consumeTypeArgumentReferenceType2() {
 protected void consumeTypeArguments() {
 	concatGenericsLists();
 	this.intPtr--;
-
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		int length = this.genericsLengthStack[this.genericsLengthPtr];
-		problemReporter().invalidUsageOfTypeArguments(
-			(TypeReference)this.genericsStack[this.genericsPtr - length + 1],
-			(TypeReference)this.genericsStack[this.genericsPtr]);
-	}
 }
 protected void consumeTypeDeclarations() {
 	// TypeDeclarations ::= TypeDeclarations TypeDeclaration
@@ -9996,16 +9880,6 @@ protected void consumeTypeParameters() {
 		System.arraycopy(this.genericsStack, this.genericsPtr - length + 1, typeParameters, 0, length);
 
 		recoveredType.add(typeParameters, startPos);
-	}
-
-
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5&&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		int length = this.genericsLengthStack[this.genericsLengthPtr];
-		problemReporter().invalidUsageOfTypeParameters(
-			(TypeParameter) this.genericsStack[this.genericsPtr - length + 1],
-			(TypeParameter) this.genericsStack[this.genericsPtr]);
 	}
 }
 protected void consumeTypeParameterWithExtends() {

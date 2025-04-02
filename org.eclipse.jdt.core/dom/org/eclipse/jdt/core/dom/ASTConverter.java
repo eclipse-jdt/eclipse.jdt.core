@@ -74,7 +74,7 @@ class ASTConverter {
 		long sourceLevel = CompilerOptions.versionToJdkLevel(sourceModeSetting);
 		if (sourceLevel == 0) {
 			// unknown sourceModeSetting
-			sourceLevel = ClassFileConstants.JDK1_3;
+			sourceLevel = CompilerOptions.getFirstSupportedJdkLevel();
 		}
 		this.scanner = new Scanner(
 			true /*comment*/,
@@ -960,7 +960,6 @@ class ASTConverter {
 
 	private AnnotationTypeDeclaration convertToAnnotationDeclaration(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
 		checkCanceled();
-		if (this.scanner.sourceLevel < ClassFileConstants.JDK1_5) return null;
 		AnnotationTypeDeclaration typeDecl = this.ast.newAnnotationTypeDeclaration();
 		setModifiers(typeDecl, typeDeclaration);
 		final SimpleName typeName = new SimpleName(this.ast);

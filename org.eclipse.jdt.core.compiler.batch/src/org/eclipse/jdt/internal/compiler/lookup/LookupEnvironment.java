@@ -219,7 +219,7 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.classFilePool = ClassFilePool.newInstance();
 	this.typesBeingConnected = new LinkedHashSet<>();
 	this.deferredEnumMethods = new ArrayList<>();
-	this.typeSystem = this.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8 && this.globalOptions.storeAnnotations ? new AnnotatableTypeSystem(this) : new TypeSystem(this);
+	this.typeSystem = this.globalOptions.storeAnnotations ? new AnnotatableTypeSystem(this) : new TypeSystem(this);
 	this.knownModules = new HashtableOfModule();
 	this.useModuleSystem = nameEnvironment instanceof IModuleAwareNameEnvironment && globalOptions.complianceLevel >= ClassFileConstants.JDK9;
 	this.resolutionListeners = new IQualifiedTypeResolutionListener[0];
