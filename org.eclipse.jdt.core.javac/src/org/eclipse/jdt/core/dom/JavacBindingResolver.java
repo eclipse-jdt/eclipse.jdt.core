@@ -1001,6 +1001,7 @@ public class JavacBindingResolver extends BindingResolver {
 	}
 
 	IBinding resolveCached(ASTNode node, Function<ASTNode, IBinding> l) {
+		resolve();
 		// Avoid using `computeIfAbsent` because it throws
 		// ConcurrentModificationException when nesting calls
 		var res = resolvedBindingsCache.get(node);
