@@ -6,6 +6,10 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/org/documents/edl-v10.php
 
+  This is an implementation of an early-draft specification developed under the Java
+  Community Process (JCP) and is made available for testing and evaluation purposes
+  only. The code is not compatible with any specification of the JCP.
+
   Contributors:
      Igor Fedorenko - initial implementation
      Mickael Istria (Red Hat Inc.) - 416912: tycho-surefire-plugin configuration
@@ -126,6 +130,27 @@
 		</build>
 		<properties>
 			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,17,21,24</tycho.surefire.argLine>
+		</properties>
+	</profile>
+	<profile>
+		<id>test-on-javase-25</id>
+		<build>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-toolchains-plugin</artifactId>
+					<configuration>
+						<toolchains>
+							<jdk>
+								<id>JavaSE-25</id>
+							</jdk>
+						</toolchains>
+					</configuration>
+				</plugin>
+			</plugins>
+		</build>
+		<properties>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,17,21,25</tycho.surefire.argLine>
 		</properties>
 	</profile>
 	</profiles>

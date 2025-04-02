@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -95,6 +99,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static boolean isJRE22 = false;
 	protected static boolean isJRE23 = false;
 	protected static boolean isJRE24 = false;
+	protected static boolean isJRE25 = false;
 	static {
 		String javaVersion = System.getProperty("java.version");
 		String vmName = System.getProperty("java.vm.name");
@@ -107,6 +112,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion.length() > 3 ? javaVersion.substring(0, 3) : javaVersion);
+		if (jdkLevel >= ClassFileConstants.JDK25) {
+			isJRE25 = true;
+		}
 		if (jdkLevel >= ClassFileConstants.JDK24) {
 			isJRE24 = true;
 		}
@@ -245,6 +253,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Internal synonym for constant AST.JSL24
 	 */
 	protected static final int AST_INTERNAL_JLS24 = AST.JLS24;
+	/**
+	 * Internal synonym for constant AST.JSL25
+	 */
+	protected static final int AST_INTERNAL_JLS25 = AST.JLS25;
 	/**
 	 * Internal synonym for the latest AST level.
 	 */
@@ -3470,7 +3482,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				newJclSrcString = "JCL18_FULL_SRC";
 			}
 		} else {
-			if (compliance.equals("24")) {
+			if (compliance.equals("25")) {
+				newJclLibString = "JCL_25_LIB";
+				newJclSrcString = "JCL_25_SRC";
+			} else if (compliance.equals("24")) {
 				newJclLibString = "JCL_24_LIB";
 				newJclSrcString = "JCL_24_SRC";
 			} else if (compliance.equals("23")) {
@@ -3683,6 +3698,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				JavaCore.setClasspathVariables(
 					new String[] {"JCL_24_LIB", "JCL_24_SRC", "JCL_SRCROOT"},
 					new IPath[] {getExternalJCLPath("24"), getExternalJCLSourcePath("24"), getExternalJCLRootSourcePath()},
+					null);
+			}
+		} else if ("25".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("JCL_25_LIB") == null) {
+				setupExternalJCL("jclMin25");
+				JavaCore.setClasspathVariables(
+					new String[] {"JCL_25_LIB", "JCL_25_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("25"), getExternalJCLSourcePath("25"), getExternalJCLRootSourcePath()},
 					null);
 			}
 		} else {

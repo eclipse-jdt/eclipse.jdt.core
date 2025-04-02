@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -54,7 +58,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test0593" };
+//		TESTS_NAMES = new String[] { "test1083" };
 //		TESTS_NUMBERS = new int[] { 470, 627 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
@@ -37574,6 +37578,18 @@ public void test1082() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106451 - variation
 public void test1083() {
+	String JDK8344943_msg = isJRE25Plus ?
+			"3. ERROR in X.java (at line 15)\n" +
+			"	java.util.List<Runtime> d = (LinkedList<Runtime>) a; // inconvertible / unchecked ?\n" +
+			"	                            ^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Cannot cast from List<capture#3-of ? extends Serializable> to LinkedList<Runtime>\n" +
+			"----------\n"
+			:
+			"3. WARNING in X.java (at line 15)\n" +
+			"	java.util.List<Runtime> d = (LinkedList<Runtime>) a; // inconvertible / unchecked ?\n" +
+			"	                            ^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type safety: Unchecked cast from List<capture#3-of ? extends Serializable> to LinkedList<Runtime>\n" +
+			"----------\n";
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -37609,11 +37625,7 @@ public void test1083() {
 		"	                            ^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type safety: Unchecked cast from List<capture#2-of ? extends Serializable> to LinkedList<Integer>\n" +
 		"----------\n" +
-		"3. WARNING in X.java (at line 15)\n" +
-		"	java.util.List<Runtime> d = (LinkedList<Runtime>) a; // inconvertible / unchecked ?\n" +
-		"	                            ^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: Unchecked cast from List<capture#3-of ? extends Serializable> to LinkedList<Runtime>\n" +
-		"----------\n" +
+		JDK8344943_msg +
 		"4. ERROR in X.java (at line 18)\n" +
 		"	Zork z;\n" +
 		"	^^^^\n" +
@@ -38991,7 +39003,7 @@ public void test1119() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=166963
 public void test1120() {
-	String msg = (this.complianceLevel < ClassFileConstants.JDK24) ?
+	String msg = (this.complianceLevel < ClassFileConstants.JDK25) ?
 						"Constructor call must be the first statement in a constructor\n" :
 							"Flexible Constructor Bodies is a preview feature and disabled by default. Use --enable-preview to enable\n";
 	this.runNegativeTest(

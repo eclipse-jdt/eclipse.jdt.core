@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
@@ -2554,7 +2558,7 @@ public void test078() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47227
  */
 public void test079() {
-	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK24) ?
+	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK25) ?
 			"""
 			----------
 			1. ERROR in X.java (at line 1)
@@ -2578,7 +2582,7 @@ public void test079() {
 			1. ERROR in X.java (at line 1)
 				void ___eval() {
 				^
-			The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 24 and above
+			The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 25 and above
 			----------
 			2. ERROR in X.java (at line 1)
 				void ___eval() {

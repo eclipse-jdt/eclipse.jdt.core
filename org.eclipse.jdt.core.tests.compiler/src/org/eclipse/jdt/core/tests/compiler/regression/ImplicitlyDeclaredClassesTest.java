@@ -6,6 +6,10 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * SPDX-License-Identifier: EPL-2.0
  *
  *******************************************************************************/
@@ -33,7 +37,7 @@ import org.junit.Test;
 
 public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	public static boolean optimizeStringLiterals = false;
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 24");
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 25");
 	private static final String[] VMARGS = new String[] {"--enable-preview"};
 
 	static {
@@ -61,7 +65,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	}
 
 	public static junit.framework.Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_24);
+		return buildMinimalComplianceTestSuite(testClass(), F_25);
 	}
 	@Override
 	protected Map<String, String> getCompilerOptions() {
@@ -70,9 +74,9 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean previewFlag) {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_24);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_24);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_24);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_25);
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_25);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_25);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, previewFlag ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return defaultOptions;
@@ -81,7 +85,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	protected void runConformTest(String[] testFiles, String expectedOutput) {
 		if(!isJRE23Plus)
 			return;
-		runConformTest(testFiles, expectedOutput, null, VMARGS, new JavacTestOptions("-source 24 --enable-preview"));
+		runConformTest(testFiles, expectedOutput, null, VMARGS, new JavacTestOptions("-source 25 --enable-preview"));
 	}
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
@@ -101,7 +105,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 		runner.runNegativeTest();
 	}
 	private CompilationUnitDeclaration parse(String source, String testName) {
-		this.complianceLevel = ClassFileConstants.JDK24;
+		this.complianceLevel = ClassFileConstants.JDK25;
 		/* using regular parser in DIET mode */
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.enablePreviewFeatures = true;
@@ -271,7 +275,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 							System.out.println("Hello");
 						}"""},
 					"Hello");
-			verifyClassFile("version 24 : 68.65535", "X.class", ClassFileBytesDisassembler.SYSTEM);
+			verifyClassFile("version 25 : 69.65535", "X.class", ClassFileBytesDisassembler.SYSTEM);
 		} finally {
 		}
 	}
