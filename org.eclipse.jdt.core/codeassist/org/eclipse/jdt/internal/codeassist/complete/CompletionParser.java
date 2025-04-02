@@ -1703,9 +1703,7 @@ private boolean checkKeywordAndRestrictedIdentifiers() {
 				}
 
 				keywordsAndRestrictedIndentifiers[count++] = Keywords.CLASS;
-				if (this.options.complianceLevel >= ClassFileConstants.JDK1_5) {
-					keywordsAndRestrictedIndentifiers[count++] = Keywords.ENUM;
-				}
+				keywordsAndRestrictedIndentifiers[count++] = Keywords.ENUM;
 				if((this.lastModifiers & ClassFileConstants.AccFinal) == 0) {
 					keywordsAndRestrictedIndentifiers[count++] = Keywords.INTERFACE;
 				}
@@ -3972,12 +3970,6 @@ protected void consumeNormalAnnotation(boolean isTypeAnnotation) {
 					this.currentElement = ((RecoveredAnnotation)this.currentElement).addAnnotation(annotation, this.identifierPtr);
 				}
 			}
-
-			if(!this.statementRecoveryActivated &&
-					this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-					this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-				problemReporter().invalidUsageOfAnnotation(annotation);
-			}
 			this.recordStringLiterals = true;
 			return;
 		}
@@ -5271,9 +5263,7 @@ boolean computeKeywords(int kind, List<char[]> keywords) {
 		if(this.canBeExplicitConstructor == YES) {
 			canBeExplicitConstructorCall = true;
 		}
-		if (this.options.complianceLevel >= ClassFileConstants.JDK1_4) {
-			keywords.add(Keywords.ASSERT);
-		}
+		keywords.add(Keywords.ASSERT);
 		keywords.add(Keywords.DO);
 		keywords.add(Keywords.FOR);
 		keywords.add(Keywords.IF);
@@ -5343,9 +5333,7 @@ boolean computeKeywords(int kind, List<char[]> keywords) {
 			keywords.add(Keywords.BREAK);
 			keywords.add(Keywords.CASE);
 			keywords.add(Keywords.YIELD);
-			if (this.options.complianceLevel >= ClassFileConstants.JDK1_4) {
-				keywords.add(Keywords.ASSERT);
-			}
+			keywords.add(Keywords.ASSERT);
 			keywords.add(Keywords.DO);
 			keywords.add(Keywords.FOR);
 			keywords.add(Keywords.IF);

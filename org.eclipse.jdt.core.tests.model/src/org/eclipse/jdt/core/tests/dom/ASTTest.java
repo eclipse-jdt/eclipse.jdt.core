@@ -1490,14 +1490,20 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 		}
 		// check that "assert" is not considered a keyword
-		// "assert" only became a keyword in J2SE 1.4 and we do *not* want to
-		// preclude the AST API from being used to analyze pre-1.4 code
-		x.setIdentifier("assert"); //$NON-NLS-1$
+		try {
+			x.setIdentifier("assert"); //$NON-NLS-1$
+			fail("Shouldn't accept enum as identifier");
+		} catch (Exception e) {
+			// expected
+		}
 
 		// check that "enum" is not considered a keyword
-		// "enum" only became a keyword in J2SE 1.5 and we do *not* want to
-		// preclude the AST API from being used to analyze pre-1.5 code
-		x.setIdentifier("enum"); //$NON-NLS-1$
+		try {
+			x.setIdentifier("enum"); //$NON-NLS-1$
+			fail("Shouldn't accept enum as identifier");
+		} catch (Exception e) {
+			// expected
+		}
 
 		// check that isDeclaration works
 		QualifiedName y = this.ast.newQualifiedName(this.ast.newSimpleName("a"), x); //$NON-NLS-1$

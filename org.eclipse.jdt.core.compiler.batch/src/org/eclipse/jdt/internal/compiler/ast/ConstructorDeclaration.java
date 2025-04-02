@@ -39,7 +39,6 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationCollector;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream;
@@ -494,9 +493,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		boolean needFieldInitializations = this.constructorCall == null || this.constructorCall.accessMode != ExplicitConstructorCall.This;
 
 		// post 1.4 target level, synthetic initializations occur prior to explicit constructor call
-		boolean preInitSyntheticFields = this.scope.compilerOptions().targetJDK >= ClassFileConstants.JDK1_4;
-
-		if (needFieldInitializations && preInitSyntheticFields){
+		if (needFieldInitializations){
 			generateSyntheticFieldInitializationsIfNecessary(this.scope, codeStream, declaringClass);
 			codeStream.recordPositionsFrom(0, this.bodyStart > 0 ? this.bodyStart : this.sourceStart);
 		}
@@ -512,9 +509,6 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		ExplicitConstructorCall lateConstructorCall = getLateConstructorCall();
 		// generate field initialization - only if not invoking another constructor call of the same class
 		if (needFieldInitializations) {
-			if (!preInitSyntheticFields){
-				generateSyntheticFieldInitializationsIfNecessary(this.scope, codeStream, declaringClass);
-			}
 			if (lateConstructorCall == null) {
 				// traditionally field inits are generated before explicit statements
 				generateFieldInitializations(declaringType, codeStream, initializerScope);

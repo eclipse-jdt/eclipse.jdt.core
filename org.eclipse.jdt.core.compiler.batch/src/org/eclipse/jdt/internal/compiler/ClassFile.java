@@ -204,8 +204,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 		boolean abstractMethodsOnly = false;
 		if (methodDecls != null) {
 			if (typeBinding.isInterface()) {
-				if (typeBinding.scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8)
-					abstractMethodsOnly = true;
 				// We generate a clinit which contains all the problems, since we may not be able to generate problem methods (< 1.8) and problem constructors (all levels).
 				classFile.addProblemClinit(problemsCopy);
 			}
@@ -259,23 +257,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.produceAttributes = options.produceDebugAttributes;
 		this.referenceBinding = typeBinding;
 		this.isNestedType = typeBinding.isNestedType();
-		if (this.targetJDK >= ClassFileConstants.JDK1_6) {
-			this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP_TABLE;
-			if (this.targetJDK >= ClassFileConstants.JDK1_8) {
-				this.produceAttributes |= ClassFileConstants.ATTR_TYPE_ANNOTATION;
-				this.codeStream = new TypeAnnotationCodeStream(this);
-				if (options.produceMethodParameters) {
-					this.produceAttributes |= ClassFileConstants.ATTR_METHOD_PARAMETERS;
-				}
-			} else {
-				this.codeStream = new StackMapFrameCodeStream(this);
-			}
-		} else if (this.targetJDK == ClassFileConstants.CLDC_1_1) {
-			this.targetJDK = ClassFileConstants.JDK1_1; // put back 45.3
-			this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP;
-			this.codeStream = new StackMapFrameCodeStream(this);
-		} else {
-			this.codeStream = new CodeStream(this);
+		this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP_TABLE;
+		this.produceAttributes |= ClassFileConstants.ATTR_TYPE_ANNOTATION;
+		this.codeStream = new TypeAnnotationCodeStream(this);
+		if (options.produceMethodParameters) {
+			this.produceAttributes |= ClassFileConstants.ATTR_METHOD_PARAMETERS;
 		}
 		initByteArrays(this.referenceBinding.methods().length + this.referenceBinding.fields().length);
 	}
@@ -346,26 +332,23 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (genericSignature != null) {
 			attributesNumber += generateSignatureAttribute(genericSignature);
 		}
-		if (this.targetJDK >= ClassFileConstants.JDK1_5
-				&& this.referenceBinding.isNestedType()
+		if (this.referenceBinding.isNestedType()
 				&& !this.referenceBinding.isMemberType()) {
 			// add enclosing method attribute (1.5 mode only)
 			attributesNumber += generateEnclosingMethodAttribute();
 		}
-		if (this.targetJDK >= ClassFileConstants.JDK1_4) {
-			TypeDeclaration typeDeclaration = this.referenceBinding.scope.referenceContext;
-			if (typeDeclaration != null) {
-				final Annotation[] annotations = typeDeclaration.annotations;
-				if (annotations != null) {
-					long targetMask;
-					if (typeDeclaration.isPackageInfo())
-						targetMask = TagBits.AnnotationForPackage;
-					else if (this.referenceBinding.isAnnotationType())
-						targetMask = TagBits.AnnotationForType | TagBits.AnnotationForAnnotationType;
-					else
-						targetMask = TagBits.AnnotationForType | TagBits.AnnotationForTypeUse; // 9.7.4 ... applicable to type declarations or in type contexts
-					attributesNumber += generateRuntimeAnnotations(annotations, targetMask);
-				}
+		TypeDeclaration typeDeclaration = this.referenceBinding.scope.referenceContext;
+		if (typeDeclaration != null) {
+			final Annotation[] annotations = typeDeclaration.annotations;
+			if (annotations != null) {
+				long targetMask;
+				if (typeDeclaration.isPackageInfo())
+					targetMask = TagBits.AnnotationForPackage;
+				else if (this.referenceBinding.isAnnotationType())
+					targetMask = TagBits.AnnotationForType | TagBits.AnnotationForAnnotationType;
+				else
+					targetMask = TagBits.AnnotationForType | TagBits.AnnotationForTypeUse; // 9.7.4 ... applicable to type declarations or in type contexts
+				attributesNumber += generateRuntimeAnnotations(annotations, targetMask);
 			}
 		}
 
@@ -515,9 +498,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (fieldConstant != Constant.NotAConstant){
 			attributesNumber += generateConstantValueAttribute(fieldConstant, fieldBinding, fieldAttributeOffset);
 		}
-		if (this.targetJDK < ClassFileConstants.JDK1_5 && fieldBinding.isSynthetic()) {
-			attributesNumber += generateSyntheticAttribute();
-		}
 		if (fieldBinding.isDeprecated()) {
 			attributesNumber += generateDeprecatedAttribute();
 		}
@@ -653,10 +633,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 		// Now we can generate all entries into the byte array
 		// First the accessFlags
 		int accessFlags = fieldBinding.getAccessFlags();
-		if (this.targetJDK < ClassFileConstants.JDK1_5) {
-			// pre 1.5, synthetic was an attribute, not a modifier
-			accessFlags &= ~ClassFileConstants.AccSynthetic;
-		}
 		this.contents[this.contentsOffset++] = (byte) (accessFlags >> 8);
 		this.contents[this.contentsOffset++] = (byte) accessFlags;
 		// Then the nameIndex
@@ -4353,83 +4329,73 @@ public class ClassFile implements TypeConstants, TypeIds {
 			// Deprecated attribute
 			attributesNumber += generateDeprecatedAttribute();
 		}
-		if (this.targetJDK < ClassFileConstants.JDK1_5) {
-			if (methodBinding.isSynthetic()) {
-				attributesNumber += generateSyntheticAttribute();
-			}
-			if (methodBinding.isVarargs()) {
-				attributesNumber += generateVarargsAttribute();
-			}
-		}
 		// add signature attribute
 		char[] genericSignature = methodBinding.genericSignature();
 		if (genericSignature != null) {
 			attributesNumber += generateSignatureAttribute(genericSignature);
 		}
-		if (this.targetJDK >= ClassFileConstants.JDK1_4) {
-			AbstractMethodDeclaration methodDeclaration = methodBinding.sourceMethod();
-			if (methodBinding instanceof SyntheticMethodBinding) {
-				SyntheticMethodBinding syntheticMethod = (SyntheticMethodBinding) methodBinding;
-				if (syntheticMethod.purpose == SyntheticMethodBinding.SuperMethodAccess && CharOperation.equals(syntheticMethod.selector, syntheticMethod.targetMethod.selector))
-					methodDeclaration = ((SyntheticMethodBinding)methodBinding).targetMethod.sourceMethod();
-				if (syntheticMethod.recordComponentBinding != null) {
-					assert methodDeclaration == null;
-					long rcMask = TagBits.AnnotationForMethod | TagBits.AnnotationForTypeUse;
-					// record component (field) accessor method
-					ReferenceBinding declaringClass = methodBinding.declaringClass;
-					RecordComponent comp = getRecordComponent(declaringClass, methodBinding.selector);
-					if (comp != null) {
-						Annotation[] annotations = ASTNode.getRelevantAnnotations(comp.annotations, rcMask, null);
-						if (annotations != null) {
-							assert !methodBinding.isConstructor();
-							attributesNumber += generateRuntimeAnnotations(annotations, TagBits.AnnotationForMethod);
+		AbstractMethodDeclaration methodDeclaration = methodBinding.sourceMethod();
+		if (methodBinding instanceof SyntheticMethodBinding) {
+			SyntheticMethodBinding syntheticMethod = (SyntheticMethodBinding) methodBinding;
+			if (syntheticMethod.purpose == SyntheticMethodBinding.SuperMethodAccess && CharOperation.equals(syntheticMethod.selector, syntheticMethod.targetMethod.selector))
+				methodDeclaration = ((SyntheticMethodBinding)methodBinding).targetMethod.sourceMethod();
+			if (syntheticMethod.recordComponentBinding != null) {
+				assert methodDeclaration == null;
+				long rcMask = TagBits.AnnotationForMethod | TagBits.AnnotationForTypeUse;
+				// record component (field) accessor method
+				ReferenceBinding declaringClass = methodBinding.declaringClass;
+				RecordComponent comp = getRecordComponent(declaringClass, methodBinding.selector);
+				if (comp != null) {
+					Annotation[] annotations = ASTNode.getRelevantAnnotations(comp.annotations, rcMask, null);
+					if (annotations != null) {
+						assert !methodBinding.isConstructor();
+						attributesNumber += generateRuntimeAnnotations(annotations, TagBits.AnnotationForMethod);
+					}
+					if ((this.produceAttributes & ClassFileConstants.ATTR_TYPE_ANNOTATION) != 0) {
+						List<AnnotationContext> allTypeAnnotationContexts = new ArrayList<>();
+						if (annotations != null && (comp.bits & ASTNode.HasTypeAnnotations) != 0) {
+							comp.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN, allTypeAnnotationContexts);
 						}
-						if ((this.produceAttributes & ClassFileConstants.ATTR_TYPE_ANNOTATION) != 0) {
-							List<AnnotationContext> allTypeAnnotationContexts = new ArrayList<>();
-							if (annotations != null && (comp.bits & ASTNode.HasTypeAnnotations) != 0) {
-								comp.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN, allTypeAnnotationContexts);
-							}
-							TypeReference compType = comp.type;
-							if (compType != null && ((compType.bits & ASTNode.HasTypeAnnotations) != 0)) {
-								compType.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN, allTypeAnnotationContexts);
-							}
-							int size = allTypeAnnotationContexts.size();
-							attributesNumber = completeRuntimeTypeAnnotations(attributesNumber,
-									null,
-									node -> size > 0,
-									() -> allTypeAnnotationContexts);
+						TypeReference compType = comp.type;
+						if (compType != null && ((compType.bits & ASTNode.HasTypeAnnotations) != 0)) {
+							compType.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN, allTypeAnnotationContexts);
 						}
+						int size = allTypeAnnotationContexts.size();
+						attributesNumber = completeRuntimeTypeAnnotations(attributesNumber,
+								null,
+								node -> size > 0,
+								() -> allTypeAnnotationContexts);
 					}
 				}
 			}
-			if (methodDeclaration != null) {
-				Annotation[] annotations = methodDeclaration.annotations;
-				if (annotations != null) {
-					attributesNumber += generateRuntimeAnnotations(annotations, methodBinding.isConstructor() ? TagBits.AnnotationForConstructor : TagBits.AnnotationForMethod);
+		}
+		if (methodDeclaration != null) {
+			Annotation[] annotations = methodDeclaration.annotations;
+			if (annotations != null) {
+				attributesNumber += generateRuntimeAnnotations(annotations, methodBinding.isConstructor() ? TagBits.AnnotationForConstructor : TagBits.AnnotationForMethod);
+			}
+			if ((methodBinding.tagBits & TagBits.HasParameterAnnotations) != 0) {
+				Argument[] arguments = methodDeclaration.arguments;
+				if (arguments != null) {
+					propagateRecordComponentArguments(methodDeclaration);
+					attributesNumber += generateRuntimeAnnotationsForParameters(arguments);
 				}
+			}
+		} else {
+			LambdaExpression lambda = methodBinding.sourceLambda();
+			if (lambda != null) {
 				if ((methodBinding.tagBits & TagBits.HasParameterAnnotations) != 0) {
-					Argument[] arguments = methodDeclaration.arguments;
+					Argument[] arguments = lambda.arguments();
 					if (arguments != null) {
-						propagateRecordComponentArguments(methodDeclaration);
-						attributesNumber += generateRuntimeAnnotationsForParameters(arguments);
-					}
-				}
-			} else {
-				LambdaExpression lambda = methodBinding.sourceLambda();
-				if (lambda != null) {
-					if ((methodBinding.tagBits & TagBits.HasParameterAnnotations) != 0) {
-						Argument[] arguments = lambda.arguments();
-						if (arguments != null) {
-							int parameterCount = methodBinding.parameters.length;
-							int argumentCount = arguments.length;
-							if (parameterCount > argumentCount) { // synthetics prefixed
-								int redShift = parameterCount - argumentCount;
-								System.arraycopy(arguments, 0, arguments = new Argument[parameterCount], redShift, argumentCount);
-								for (int i = 0; i < redShift; i++)
-									arguments[i] = new Argument(CharOperation.NO_CHAR, 0, null, 0);
-							}
-							attributesNumber += generateRuntimeAnnotationsForParameters(arguments);
+						int parameterCount = methodBinding.parameters.length;
+						int argumentCount = arguments.length;
+						if (parameterCount > argumentCount) { // synthetics prefixed
+							int redShift = parameterCount - argumentCount;
+							System.arraycopy(arguments, 0, arguments = new Argument[parameterCount], redShift, argumentCount);
+							for (int i = 0; i < redShift; i++)
+								arguments[i] = new Argument(CharOperation.NO_CHAR, 0, null, 0);
 						}
+						attributesNumber += generateRuntimeAnnotationsForParameters(arguments);
 					}
 				}
 			}
@@ -4526,11 +4492,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.methodCount++; // add one more method
 		if (this.contentsOffset + 10 >= this.contents.length) {
 			resizeContents(10);
-		}
-		if (this.targetJDK < ClassFileConstants.JDK1_5) {
-			// pre 1.5, synthetic is an attribute, not a modifier
-			// pre 1.5, varargs is an attribute, not a modifier (-target jsr14 mode)
-			accessFlags &= ~(ClassFileConstants.AccSynthetic | ClassFileConstants.AccVarargs);
 		}
 		if ((methodBinding.tagBits & TagBits.ClearPrivateModifier) != 0) {
 			accessFlags &= ~ClassFileConstants.AccPrivate;
@@ -4684,14 +4645,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 	}
 
-	private boolean jdk16packageInfoAnnotation(final long annotationMask, final long targetMask) {
-		if (this.targetJDK <= ClassFileConstants.JDK1_6 &&
-				targetMask == TagBits.AnnotationForPackage && annotationMask != 0 &&
-				(annotationMask & TagBits.AnnotationForPackage) == 0) {
-			return true;
-		}
-		return false;
-	}
 	/**
 	 * @param targetMask allowed targets
 	 * @return the number of attributes created while dumping the annotations in the .class file
@@ -4706,7 +4659,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			if ((annotation = annotations[i].getPersistibleAnnotation()) == null) continue; // already packaged into container.
 			long annotationMask = annotation.resolvedType != null ? annotation.resolvedType.getAnnotationTagBits() & TagBits.AnnotationTargetMASK : 0;
 			if (annotationMask != 0 && (annotationMask & targetMask) == 0) {
-				if (!jdk16packageInfoAnnotation(annotationMask, targetMask)) continue;
+				continue;
 			}
 			if (annotation.isRuntimeInvisible()) {
 				invisibleAnnotationsCounter++;
@@ -4737,7 +4690,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				if ((annotation = annotations[i].getPersistibleAnnotation()) == null) continue; // already packaged into container.
 				long annotationMask = annotation.resolvedType != null ? annotation.resolvedType.getAnnotationTagBits() & TagBits.AnnotationTargetMASK : 0;
 				if (annotationMask != 0 && (annotationMask & targetMask) == 0) {
-					if (!jdk16packageInfoAnnotation(annotationMask, targetMask)) continue;
+					continue;
 				}
 				if (annotation.isRuntimeInvisible()) {
 					int currentAnnotationOffset = this.contentsOffset;
@@ -4785,7 +4738,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				if ((annotation = annotations[i].getPersistibleAnnotation()) == null) continue; // already packaged into container.
 				long annotationMask = annotation.resolvedType != null ? annotation.resolvedType.getAnnotationTagBits() & TagBits.AnnotationTargetMASK : 0;
 				if (annotationMask != 0 && (annotationMask & targetMask) == 0) {
-					if (!jdk16packageInfoAnnotation(annotationMask, targetMask)) continue;
+					continue;
 				}
 				if (annotation.isRuntimeVisible()) {
 					visibleAnnotationsCounter--;
@@ -5776,24 +5729,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 		return attributesNumber;
 	}
 
-	private int generateSyntheticAttribute() {
-		int localContentsOffset = this.contentsOffset;
-		if (localContentsOffset + 6 >= this.contents.length) {
-			resizeContents(6);
-		}
-		int syntheticAttributeNameIndex =
-			this.constantPool.literalIndex(AttributeNamesConstants.SyntheticName);
-		this.contents[localContentsOffset++] = (byte) (syntheticAttributeNameIndex >> 8);
-		this.contents[localContentsOffset++] = (byte) syntheticAttributeNameIndex;
-		// the length of a synthetic attribute is equals to 0
-		this.contents[localContentsOffset++] = 0;
-		this.contents[localContentsOffset++] = 0;
-		this.contents[localContentsOffset++] = 0;
-		this.contents[localContentsOffset++] = 0;
-		this.contentsOffset = localContentsOffset;
-		return 1;
-	}
-
 	private void generateTypeAnnotation(AnnotationContext annotationContext, int currentOffset) {
 		Annotation annotation = annotationContext.annotation.getPersistibleAnnotation();
 		if (annotation == null || annotation.resolvedType == null)
@@ -5850,33 +5785,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 				node -> size > 0,
 				() -> allTypeAnnotationContexts);
 		return attributesNumber;
-	}
-
-
-
-
-	private int generateVarargsAttribute() {
-		int localContentsOffset = this.contentsOffset;
-		/*
-		 * handle of the target jsr14 for varargs in the source
-		 * Varargs attribute
-		 * Check that there is enough space to write the attribute
-		 */
-		if (localContentsOffset + 6 >= this.contents.length) {
-			resizeContents(6);
-		}
-		int varargsAttributeNameIndex =
-			this.constantPool.literalIndex(AttributeNamesConstants.VarargsName);
-		this.contents[localContentsOffset++] = (byte) (varargsAttributeNameIndex >> 8);
-		this.contents[localContentsOffset++] = (byte) varargsAttributeNameIndex;
-		// the length of a varargs attribute is equals to 0
-		this.contents[localContentsOffset++] = 0;
-		this.contents[localContentsOffset++] = 0;
-		this.contents[localContentsOffset++] = 0;
-		this.contents[localContentsOffset++] = 0;
-
-		this.contentsOffset = localContentsOffset;
-		return 1;
 	}
 
 	/**
@@ -6417,19 +6325,12 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		this.targetJDK = options.targetJDK;
 		this.produceAttributes = options.produceDebugAttributes;
-		if (this.targetJDK >= ClassFileConstants.JDK1_6) {
-			this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP_TABLE;
-			if (this.targetJDK >= ClassFileConstants.JDK1_8) {
-				this.produceAttributes |= ClassFileConstants.ATTR_TYPE_ANNOTATION;
-				if (!(this.codeStream instanceof TypeAnnotationCodeStream) && this.referenceBinding != null)
-					this.codeStream = new TypeAnnotationCodeStream(this);
-				if (options.produceMethodParameters) {
-					this.produceAttributes |= ClassFileConstants.ATTR_METHOD_PARAMETERS;
-				}
-			}
-		} else if (this.targetJDK == ClassFileConstants.CLDC_1_1) {
-			this.targetJDK = ClassFileConstants.JDK1_1; // put back 45.3
-			this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP;
+		this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP_TABLE;
+		this.produceAttributes |= ClassFileConstants.ATTR_TYPE_ANNOTATION;
+		if (!(this.codeStream instanceof TypeAnnotationCodeStream) && this.referenceBinding != null)
+			this.codeStream = new TypeAnnotationCodeStream(this);
+		if (options.produceMethodParameters) {
+			this.produceAttributes |= ClassFileConstants.ATTR_METHOD_PARAMETERS;
 		}
 		this.bytes = null;
 		this.constantPool.reset();

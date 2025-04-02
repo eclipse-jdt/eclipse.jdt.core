@@ -39,7 +39,6 @@ import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.batch.Main.ResourceBundleFactory;
 import org.eclipse.jdt.internal.compiler.batch.ModuleFinder;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
@@ -323,15 +322,6 @@ public class EclipseFileManager implements StandardJavaFileManager {
 
 	Iterable<? extends File> getDefaultBootclasspath() {
 		List<File> files = new ArrayList<>();
-		String javaversion = System.getProperty("java.version");//$NON-NLS-1$
-		if(javaversion.length() > 3)
-			javaversion = javaversion.substring(0, 3);
-		long jdkLevel = CompilerOptions.versionToJdkLevel(javaversion);
-		if (jdkLevel < ClassFileConstants.JDK1_6) {
-			// wrong jdk - 1.6 or above is required
-			return null;
-		}
-
 		for (FileSystem.Classpath classpath : org.eclipse.jdt.internal.compiler.util.Util.collectFilesNames()) {
 			files.add(new File(classpath.getPath()));
 		}
