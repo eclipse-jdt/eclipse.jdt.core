@@ -913,6 +913,16 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 							typeBinding);
 	}
 	
+	private boolean hasImportAncestor(ASTNode node) {
+		ASTNode working = node;
+		while(working != null) {
+			if( working instanceof ImportDeclaration ) 
+				return true;
+			working = working.getParent();
+		}
+		return false;
+	}
+	
 	@Override
 	public void reportSearchMatch(MatchLocator locator, ASTNode node, SearchMatch match) throws CoreException {
 //		boolean matchIsEr = match.isErasure();
@@ -925,36 +935,22 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		if (!report) 
 			return;
 
-		ASTNode replacementNodeForStartPosition = null;
-		ASTNode toCheck = node;
-		if( node instanceof ParameterizedType ptt) {
-			toCheck = ptt.getType();
-		}
-		if( toCheck instanceof QualifiedType qtt) {
-			replacementNodeForStartPosition = findNodeMatchingPatternQualifier(qtt.getQualifier());
-		} else if( toCheck instanceof SimpleType st) {
-			replacementNodeForStartPosition = findNodeMatchingPatternQualifier(st);
-		}
-		
-		if( replacementNodeForStartPosition != null ) {
-			int matchStart = match.getOffset();
-			int matchEnd = matchStart + match.getLength();
-			int newStart = replacementNodeForStartPosition.getStartPosition();
-			int newLength = matchEnd - newStart;
-			match.setOffset(newStart);
-			match.setLength(newLength);
-		}
-		
-		ASTNode working = (replacementNodeForStartPosition != null ? replacementNodeForStartPosition : node);
-		int trimQualifierStart = findTrimQualifierStart(working);
-		if( trimQualifierStart != -1 ) {
-			int matchStart = match.getOffset();
-			int matchEnd = matchStart + match.getLength();
-			int newStart = trimQualifierStart;
-			int newLength = matchEnd - newStart;
-			match.setOffset(newStart);
-			match.setLength(newLength);
-		}
+		updateMatchPositions(node, match);
+		updateMatchRule(node, match);
+
+		boolean isE = match.isErasure();
+		boolean isEq = match.isEquivalent();
+		boolean isEx = match.isExact();
+		report = (this.isErasureMatch && match.isErasure()) || (this.isEquivalentMatch && match.isEquivalent()) || match.isExact();
+		if (!report) 
+			return;
+		SearchMatchingUtility.reportSearchMatch(locator, match);
+	}
+	
+	
+	private void updateMatchRule(ASTNode node, SearchMatch match) {
+		if( hasImportAncestor(node))
+			return;
 		
 		// Compare arguments lengthes
 		int matchRule = match.getRule();
@@ -995,14 +991,39 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		if (fromPattern == null || fromPattern.length == 0 || fromPattern[0] == null) {
 			match.setRule(matchRule);
 		}
-
-		report = (this.isErasureMatch && match.isErasure()) || (this.isEquivalentMatch && match.isEquivalent()) || match.isExact();
-		if (!report) 
-			return;
-		SearchMatchingUtility.reportSearchMatch(locator, match);
 	}
-	
-	
+	private void updateMatchPositions(ASTNode node, SearchMatch match) {
+		ASTNode replacementNodeForStartPosition = null;
+		ASTNode toCheck = node;
+		if( node instanceof ParameterizedType ptt) {
+			toCheck = ptt.getType();
+		}
+		if( toCheck instanceof QualifiedType qtt) {
+			replacementNodeForStartPosition = findNodeMatchingPatternQualifier(qtt.getQualifier());
+		} else if( toCheck instanceof SimpleType st) {
+			replacementNodeForStartPosition = findNodeMatchingPatternQualifier(st);
+		}
+		
+		if( replacementNodeForStartPosition != null ) {
+			int matchStart = match.getOffset();
+			int matchEnd = matchStart + match.getLength();
+			int newStart = replacementNodeForStartPosition.getStartPosition();
+			int newLength = matchEnd - newStart;
+			match.setOffset(newStart);
+			match.setLength(newLength);
+		}
+		
+		ASTNode working = (replacementNodeForStartPosition != null ? replacementNodeForStartPosition : node);
+		int trimQualifierStart = findTrimQualifierStart(working);
+		if( trimQualifierStart != -1 ) {
+			int matchStart = match.getOffset();
+			int matchEnd = matchStart + match.getLength();
+			int newStart = trimQualifierStart;
+			int newLength = matchEnd - newStart;
+			match.setOffset(newStart);
+			match.setLength(newLength);
+		}
+	}
 	private int findTrimQualifierStart(ASTNode working) {
 		String needle = this.locator.pattern.qualification == null ? null : new String(this.locator.pattern.qualification);
 		if( needle == null && working instanceof Type workingType) {
