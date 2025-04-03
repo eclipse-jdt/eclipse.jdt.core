@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -283,6 +284,10 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		int r = this.locator.pattern.getMatchRule();
 		return (r & SearchPattern.R_EQUIVALENT_MATCH) == SearchPattern.R_EQUIVALENT_MATCH;
 	}
+	private boolean isPatternExactMatch() {
+		int r = this.locator.pattern.getMatchRule();
+		return (r & SearchPattern.R_EXACT_MATCH) == SearchPattern.R_EXACT_MATCH;
+	}
 	
 	
 	private static final int TYPE_PARAMS_MATCH = 1;
@@ -292,10 +297,11 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 	private int validateTypeParameters(Type node) {
 		// SimpleType with typeName=QualifiedName
 		boolean patternHasTypeArgs = this.locator.pattern.hasTypeArguments();
-		boolean patternHasTypeParameters = this.locator.pattern.hasTypeParameters();
+		//boolean patternHasTypeParameters = this.locator.pattern.hasTypeParameters();
 		boolean erasureMatch = isPatternErasureMatch();
 		boolean equivMatch = isPatternEquivalentMatch();
-		if( patternHasTypeArgs && !(erasureMatch || equivMatch)) {
+		boolean exactMatch = isPatternExactMatch();
+		if( patternHasTypeArgs && !(erasureMatch || equivMatch || exactMatch )) {
 			return TYPE_PARAMS_NO_MATCH;
 		}
 		
@@ -304,9 +310,6 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			return TYPE_PARAMS_MATCH;
 		}
 		if( node instanceof SimpleType st && (st.getName() instanceof QualifiedName || st.getName() instanceof SimpleName)) {
-			// JavaSearchGenericTypeEquivalentTests.testTypeMultipleArguments03 needs to return no_match
-			// JavaSearchGenericTypeTests.testTypeMultipleArguments03 needs to return params_match			
-			
 			if( fromPattern != null && fromPattern.length > 0 && fromPattern[0] != null && fromPattern[0].length != 0) {
 				if( !erasureMatch && !equivMatch)
 					return TYPE_PARAMS_NO_MATCH;
@@ -317,7 +320,6 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		Type working = node;
 		boolean done = false;
 		int i = 0;
-		boolean countMatchesAtAllLevels = true;
 		for( i = 0; i < fromPattern.length && !done; i++ ) {
 			char[][] thisLevelTypeParams = fromPattern[i];
 			if( thisLevelTypeParams != null && thisLevelTypeParams.length != 0 && working instanceof ParameterizedType pt) {
@@ -327,60 +329,85 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 				}
 				for( int j = 0; j < thisLevelTypeParams.length; j++ ) {
 					String patternSig = new String(thisLevelTypeParams[j]);
-					IBinding patternTypeBinding = JdtCoreDomPackagePrivateUtility.findBindingForType(node, patternSig);
-					if( patternTypeBinding == null ) {
+					IBinding patternBinding = JdtCoreDomPackagePrivateUtility.findBindingForType(node, patternSig);
+					if( patternBinding == null ) {
 						boolean plusOrMinus = patternSig.startsWith("+") || patternSig.startsWith("-");
 						String safePatternString = plusOrMinus ? patternSig.substring(1) : patternSig;
 						if( safePatternString.startsWith("Q")) {
-							patternTypeBinding = JdtCoreDomPackagePrivateUtility.findUnresolvedBindingForType(node, safePatternString);
+							patternBinding = JdtCoreDomPackagePrivateUtility.findUnresolvedBindingForType(node, safePatternString);
 						}
 					}
 					ASTNode argj = (ASTNode)typeArgs.get(j);
 					IBinding domBinding = DOMASTNodeUtils.getBinding(argj);
+					ITypeBinding domTypeBinding = domBinding instanceof ITypeBinding ? (ITypeBinding)domBinding : null;
 					String domSig = domBinding == null ? null : domBinding instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : domBinding.getKey();
 					if( patternSig.equals(("*")))
-							continue;
+						continue;
 					if( patternSig.equals(domSig)) {
 						continue;
 					}
-					if( domSig.startsWith("+") && domBinding instanceof ITypeBinding domTypeBinding) {
-						boolean canContinue = validateOneTypeParameterExtends(domSig, domTypeBinding, patternSig, patternTypeBinding);
-						if( !canContinue) {
+					
+					String patternKeyFromBinding = patternBinding == null ? null : patternBinding instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : patternBinding.getKey();
+					List<IBinding> patternAncestors = new ArrayList<>();
+					if( patternBinding instanceof ITypeBinding patternTypeBinding) {
+						if( patternSig.startsWith("+") || patternSig.startsWith("-")) {
+							patternAncestors = findAllSuperclassAndInterfaceBindingsForWildcard(patternTypeBinding);
+						} else {
+							patternAncestors = findAllSuperclassAndInterfaceBindings(patternTypeBinding);	
+						}
+					}
+					
+					List<String> patternAncestorKeys = patternAncestors.stream().map(x -> x instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : x.getKey()).collect(Collectors.toList());
+					int z = 5;
+					if( patternSig.startsWith("-")) {
+						if( domSig.startsWith("-") || !domSig.startsWith("+")) {
+							String domKey = domBinding instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : domBinding.getKey();
+							if( !patternAncestorKeys.contains(domKey)) {
+								return TYPE_PARAMS_COUNT_MATCH;
+							}
+						} else if( domSig.startsWith("+") && !isQuestionMark(domSig)) {
 							return TYPE_PARAMS_COUNT_MATCH;
 						}
-					} else if( domSig.startsWith("-") && domBinding instanceof ITypeBinding domTypeBinding) { 
-						boolean canContinue = validateOneTypeParameterSuper(patternSig, patternTypeBinding, domSig, domTypeBinding);
-						if( !canContinue) {
+					} else if( patternSig.startsWith("+")) {
+						if( domSig.startsWith("-")) {
+							// There's no way ALL ancestors of dom can be a subclass of pattern unless pattern is java.lang.Object
 							return TYPE_PARAMS_COUNT_MATCH;
-						}
-					} else if( patternSig.startsWith("+") && patternTypeBinding instanceof ITypeBinding patternBinding) {
-						boolean canContinue = validateOneTypeParameterExtends(patternSig, patternBinding, domSig, domBinding);
-						if( !canContinue) {
-							return TYPE_PARAMS_COUNT_MATCH;
-						}
-					} else if( patternSig.startsWith("-") && patternTypeBinding instanceof ITypeBinding patternBinding) { 
-						boolean canContinue = validateOneTypeParameterSuper(domSig, domBinding, patternSig, patternBinding);
-						if( !canContinue) {
-							return TYPE_PARAMS_COUNT_MATCH;
-						}
-					} else if( patternSig.startsWith("Q") || patternSig.startsWith("+Q") || patternSig.startsWith("-Q")) {
-						String patternSigWithoutPrefix = patternSig.startsWith("+") || patternSig.startsWith("-") ? patternSig.substring(1) : patternSig;
-						String domSigWithoutPrefix = domSig.startsWith("+") || domSig.startsWith("-") ? domSig.substring(1) : domSig;
-						String patternSig2 = patternSigWithoutPrefix.substring(1);
-						if( patternSig2.equals(domSigWithoutPrefix.substring(1))) 
-							continue;
-						if( domSig.endsWith("." + patternSig2) ) 
-							continue;
-						if( argj instanceof SimpleType stt && stt.getName() instanceof SimpleName snn) {
-							String identifier = snn.getIdentifier();
-							String patternSig3 = patternSig2.endsWith(";") ? patternSig2.substring(0, patternSig2.length() - 1) : patternSig2;
-							if( matchesName(patternSig3.toCharArray(),	identifier.toCharArray()) ) {
-								continue;
+						} else {
+							List<IBinding> domHeirarchy = findAllSuperclassAndInterfaceBindingsForWildcard(domTypeBinding);
+							List<String> domHeirarchyStrings = domHeirarchy.stream().map(x -> x instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : x.getKey()).collect(Collectors.toList());
+							if( patternKeyFromBinding != null ) {
+								if( !resolvedPatternMatchesDom(patternSig.substring(1), patternKeyFromBinding, domTypeBinding, domHeirarchyStrings)) {
+									return TYPE_PARAMS_COUNT_MATCH;
+								}
+							} else {
+								if( !unresolvedPatternMatchesDom(patternSig, domSig, domTypeBinding, domHeirarchyStrings)) {
+									return TYPE_PARAMS_COUNT_MATCH;
+								}
 							}
 						}
-						return TYPE_PARAMS_COUNT_MATCH;
-					} else if( !patternSig.equals(domSig)) {
-						return TYPE_PARAMS_COUNT_MATCH;
+					} else {
+						// pattern is a normal defined type, ex:  Exception
+						if( domSig.startsWith("-")) {
+							List<IBinding> domHeirarchy = findAllSuperclassAndInterfaceBindingsForWildcard(domTypeBinding);
+							List<String> domHeirarchyStrings = domHeirarchy.stream().map(x -> x instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : x.getKey()).collect(Collectors.toList());
+							if( patternKeyFromBinding == null && !domHeirarchyStrings.contains(patternKeyFromBinding))
+								return TYPE_PARAMS_COUNT_MATCH;
+						} else if( domSig.startsWith("+")) {
+							if( domTypeBinding != null ) {
+								ITypeBinding bound = domTypeBinding.getBound();
+								String boundKey = bound == null ? null : bound instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : bound.getKey();
+								if( !isQuestionMark(domSig) && (boundKey == null || !patternAncestorKeys.contains(boundKey))) {
+									return TYPE_PARAMS_COUNT_MATCH;
+								}
+							}
+						} else {
+							// Just two normal param types, see if they match
+							if( !patternSig.equals(domSig)) {
+								if( !unresolvedPatternMatchesDom(patternSig, domSig, domTypeBinding, new ArrayList<>())) {
+									return TYPE_PARAMS_COUNT_MATCH;
+								}
+							}
+						}
 					}
 				}
 			}
@@ -401,103 +428,93 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		return TYPE_PARAMS_MATCH;
 	}
 	
-	private boolean validateOneTypeParameterExtends(String criteriaSignature, ITypeBinding criteriaBinding, String evaluateSignature, IBinding evaluateBinding) {
-		boolean isQuestionMark = "+Ljava/lang/Object;".equals(criteriaSignature);
-		if( isQuestionMark ) {
-			// TODO - if pattern is <Unresolved1,Unresolved2> we must return no_match
+	private boolean resolvedPatternMatchesDom(String patternSig, String patternKeyFromBinding, ITypeBinding domTypeBinding,
+			List<String> domHeirarchyStrings) {
+		String k = domTypeBinding instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : domTypeBinding.getKey();
+		if( isQuestionMark(k))
 			return true;
-		}
-		if( criteriaSignature.startsWith("+") && evaluateSignature.startsWith("+") && !criteriaSignature.equals(evaluateSignature)) {
-			return false;
-		}
-		
-		boolean evaluateSigIsUnresolved = false;
-		String evaluateSigTrimmed = null;
-		if( evaluateSignature.startsWith("Q")) {
-			evaluateSigTrimmed = evaluateSignature.substring(1);
-			evaluateSigIsUnresolved = true;
-		} else if( evaluateSignature.startsWith("+Q")) {
-			evaluateSigTrimmed = evaluateSignature.substring(2);
-			evaluateSigIsUnresolved = true;
-		}
-		ITypeBinding[] bounds = criteriaBinding.getTypeBounds();
-		if( bounds != null && bounds.length == 1 && bounds[0] != null ) {
-			ITypeBinding b1 = bounds[0];
-			String boundSig = b1 == null ? null : b1 instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : b1.getKey();
-			if( evaluateSignature.equals(boundSig)) {
+		if( domHeirarchyStrings.contains(patternSig))
+			return true;
+		if( patternKeyFromBinding != null) {
+			if( domHeirarchyStrings.contains(patternKeyFromBinding))
+				return true;
+			if( patternKeyFromBinding.startsWith("+") && domHeirarchyStrings.contains(patternKeyFromBinding.substring(1))) {
 				return true;
 			}
-			if( evaluateSigIsUnresolved && boundSig.endsWith("." + evaluateSigTrimmed)) {
-				return true;
-			}
-			if( evaluateBinding instanceof ITypeBinding itb) {
-				ITypeBinding working = itb;
-				while(working != null) {
-					ITypeBinding superClaz = working.getSuperclass();
-					if( superClaz != null ) {
-						String superClazKey = b1 == null ? null : superClaz instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : superClaz.getKey();
-						if( superClazKey.equals(boundSig)) {
-							return true;
-						}
-					}
-					working = superClaz;
-				}
-				return false;
-			} else {
-				return false;
-			}
 		}
-		return true;
+		return false;
 	}
 	
-	private boolean validateOneTypeParameterSuper(String evaluateSig, IBinding evaluateBinding, String criteriaSig, ITypeBinding criteriaBinding) {
-		boolean evaluateSigIsUnresolved = evaluateSig.startsWith("Q");
-		String evaluateSigTrimmed = evaluateSig.substring(1);
-		ITypeBinding b1 = criteriaBinding.getBound();
-		if( b1 != null ) {
-			String boundSig = b1 == null ? null : b1 instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : b1.getKey();
-			if( evaluateSig.equals(boundSig)) {
+	private boolean unresolvedPatternMatchesDom(String patternSig, String domSig, ITypeBinding domTypeBinding,
+			List<String> domHeirarchyStrings) {
+		boolean patternSigIsUnresolved = false;
+		String patternSigTrimmed = null;
+		if( patternSig.startsWith("Q")) {
+			patternSigTrimmed = patternSig.substring(1);
+			patternSigIsUnresolved = true;
+		} else if( patternSig.startsWith("+Q")) {
+			patternSigTrimmed = patternSig.substring(2);
+			patternSigIsUnresolved = true;
+		}
+		if( patternSigIsUnresolved) {
+			// TODO this is insufficient
+			if( domSig.endsWith("." + patternSigTrimmed))
 				return true;
-			}
-			if(evaluateSigIsUnresolved) {
-				ITypeBinding working = b1;
-				while(working != null) {
-					ITypeBinding superClaz = working.getSuperclass();
-					if( superClaz != null ) {
-						String superClazKey = b1 == null ? null : superClaz instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : superClaz.getKey();
-						if( superClazKey != null && superClazKey.length() > 0) {
-							if( superClazKey.equals(evaluateSig)) {
-								return true;
-							}
-							if( superClazKey.substring(1).equals(evaluateSigTrimmed)) {
-								return true;
-							}
-							if( superClazKey.endsWith("." + evaluateSigTrimmed)) {
-								return true;
-							}
-						}
-					}
-					working = superClaz;
-				}
-				return false;
-			} else if( evaluateBinding instanceof ITypeBinding) {
-				ITypeBinding working = b1;
-				while(working != null) {
-					ITypeBinding superClaz = working.getSuperclass();
-					if( superClaz != null ) {
-						String superClazKey = b1 == null ? null : superClaz instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : superClaz.getKey();
-						if( superClazKey != null && superClazKey.equals(evaluateSig)) {
-							return true;
-						}
-					}
-					working = superClaz;
-				}
-				return false;
-			} else {
-				return false;
+		}
+
+		String patternSigWithoutPrefix = patternSig.startsWith("+") || patternSig.startsWith("-") ? patternSig.substring(1) : patternSig;
+		String domSigWithoutPrefix = domSig.startsWith("+") || domSig.startsWith("-") ? domSig.substring(1) : domSig;
+		String patternSig2 = patternSigWithoutPrefix.substring(1);
+		if( patternSig2.equals(domSigWithoutPrefix.substring(1))) 
+			return true;
+		if( domSig.endsWith("." + patternSig2) ) 
+			return true;
+		
+		return false;
+	}
+	private boolean isQuestionMark(String k) {
+		// wut ?
+		boolean isQuestionMark = "+Ljava/lang/Object;".equals(k) || "+Qjava.lang.Object;".equals(k);
+		return isQuestionMark;
+	}
+	private List<IBinding> findAllSuperclassAndInterfaceBindingsForWildcard(ITypeBinding binding) {
+		List<IBinding> ret = new ArrayList<>();
+		if( binding == null )
+			return ret;
+		// Sometimes we have a discovered binding which is already the bound... 
+		ITypeBinding param = binding.isWildcardType() ? binding.getBound() : binding;
+		if( param != null ) {
+			ret.add(param);
+			fillAllSuperclassAndInterfaceBindings(param, ret);
+		} else {
+			// for pure `?` 
+			ret.add(binding);
+		}
+		return ret;
+	}
+	private List<IBinding> findAllSuperclassAndInterfaceBindings(ITypeBinding binding) {
+		List<IBinding> ret = new ArrayList<>();
+		if( binding == null )
+			return ret;
+		fillAllSuperclassAndInterfaceBindings(binding, ret);
+		return ret;
+	}
+	private void fillAllSuperclassAndInterfaceBindings(ITypeBinding binding, List<IBinding> list) {
+		if( binding == null )
+			return;
+		ITypeBinding[] ifaces = binding.getInterfaces();
+		for( int q = 0; q < ifaces.length; q++ ) {
+			ITypeBinding oneInterface = ifaces[q];
+			if( oneInterface != null ) {
+				list.add(oneInterface);
+				fillAllSuperclassAndInterfaceBindings(oneInterface, list);
 			}
 		}
-		return true;
+		ITypeBinding superClaz = binding.getSuperclass();
+		if( superClaz != null ) {
+			list.add(superClaz);
+			fillAllSuperclassAndInterfaceBindings(superClaz, list);
+		}
 	}
 	
 	private String getQualifiedNameFromType(Type query) {
@@ -616,7 +633,8 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			boolean patternHasSignatures = this.locator.pattern.hasSignatures();
 			boolean erasureMatch = isPatternErasureMatch();
 			boolean equivMatch = isPatternEquivalentMatch();
-			if( (patternHasTypeArgs && !(erasureMatch || equivMatch))) {
+			boolean exactMatch = false; // TODO isPatternExactMatch();
+			if( (patternHasTypeArgs && !(erasureMatch || equivMatch || exactMatch))) {
 				return toResponse(IMPOSSIBLE_MATCH);
 			}
 			if( node instanceof ParameterizedType pt) {
