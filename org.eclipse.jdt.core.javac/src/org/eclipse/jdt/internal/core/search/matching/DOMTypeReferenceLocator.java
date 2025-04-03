@@ -248,6 +248,17 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			if( this.locator.matchesName(this.locator.pattern.simpleName, simpleNameFromNode.toCharArray()) ) {
 				int level = this.locator.pattern.mustResolve || this.locator.pattern.qualification == null ? POSSIBLE_MATCH : ACCURATE_MATCH;
 				int typeParamMatches = validateTypeParameters(node);
+				
+				if( typeParamMatches == TYPE_PARAMS_NO_MATCH && isPatternExactMatch()) {
+					boolean patternHasTypeArgs = this.locator.pattern.hasTypeArguments();
+					List nodeTypeArgs = node instanceof ParameterizedType pt ? pt.typeArguments() : null;
+					boolean nodeHasTypeArgs = nodeTypeArgs != null && nodeTypeArgs.size() > 0;
+					if( !patternHasTypeArgs && !nodeHasTypeArgs) {
+						return toResponse(level);
+					}
+					return new LocatorResponse(IMPOSSIBLE_MATCH, false, null, false, false);
+				}
+				
 				if( typeParamMatches == TYPE_PARAMS_NO_MATCH) level = IMPOSSIBLE_MATCH;
 				if( typeParamMatches == TYPE_PARAMS_COUNT_MATCH) level = ERASURE_MATCH;
 				boolean isErasurePattern = isPatternErasureMatch();
@@ -322,8 +333,14 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		int i = 0;
 		for( i = 0; i < fromPattern.length && !done; i++ ) {
 			char[][] thisLevelTypeParams = fromPattern[i];
-			if( thisLevelTypeParams != null && thisLevelTypeParams.length != 0 && working instanceof ParameterizedType pt) {
-				List typeArgs = pt.typeArguments();
+			List typeArgs = working instanceof ParameterizedType pt ? pt.typeArguments() : null;
+			boolean emptyPatternParams = thisLevelTypeParams == null || thisLevelTypeParams.length == 0;
+			if( emptyPatternParams) {
+				if( exactMatch && emptyPatternParams && (typeArgs == null || typeArgs.size() > 0) ) {
+					return TYPE_PARAMS_NO_MATCH;
+				}
+			}
+			if( !emptyPatternParams) {
 				if( typeArgs == null || typeArgs.size() != thisLevelTypeParams.length) {
 					return TYPE_PARAMS_NO_MATCH;
 				}
@@ -768,8 +785,10 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 				return simpleNameMatch;
 			}
 		}
-		if( newLevel == ACCURATE_MATCH && this.locator.pattern.hasTypeArguments() ) {
-			return resolveLevelForTypeBindingWithTypeArguments(typeBinding, node, locator);
+		if( newLevel == ACCURATE_MATCH ) {
+			if( this.locator.pattern.hasTypeArguments() ) {
+				return resolveLevelForTypeBindingWithTypeArguments(typeBinding, node, locator);
+			}
 		}
 		return newLevel;
 	}
