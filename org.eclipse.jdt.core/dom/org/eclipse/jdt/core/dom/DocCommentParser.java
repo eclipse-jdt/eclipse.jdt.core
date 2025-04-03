@@ -1400,6 +1400,7 @@ class DocCommentParser extends AbstractCommentParser {
 					}
 				} else {
 					this.inlineReturn= false;
+					this.inlineReturnOpenBraces= 0;
 				}
 			}
 		}
