@@ -64,8 +64,6 @@ public class MethodBinding extends Binding {
 	public ReferenceBinding declaringClass;
 	public TypeVariableBinding[] typeVariables = Binding.NO_TYPE_VARIABLES;
 	char[] signature;
-	public long tagBits;
-	public int extendedTagBits = 0; // See values in the interface ExtendedTagBits
 	public IBinaryAnnotation binaryPreviewAnnotation; // captures the exact preview feature of a preview API
 	// Used only for constructors
 	protected AnnotationBinding [] typeAnnotations = Binding.NO_ANNOTATIONS;
@@ -679,7 +677,7 @@ public AnnotationBinding[] getAnnotations() {
 @Override
 public long getAnnotationTagBits() {
 	MethodBinding originalMethod = original();
-	if ((originalMethod.tagBits & TagBits.AnnotationResolved) == 0 && originalMethod.declaringClass instanceof SourceTypeBinding) {
+	if ((originalMethod.extendedTagBits & ExtendedTagBits.AnnotationResolved) == 0 && originalMethod.declaringClass instanceof SourceTypeBinding) {
 		ClassScope scope = ((SourceTypeBinding) originalMethod.declaringClass).scope;
 		if (scope != null) {
 			TypeDeclaration typeDecl = scope.referenceContext;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -802,73 +802,28 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		int length = sourceAnnotations == null ? 0 : sourceAnnotations.length;
 		if (recipient != null) {
 			switch (recipient.kind()) {
+				case Binding.MODULE:
 				case Binding.PACKAGE :
-					PackageBinding packageBinding = (PackageBinding) recipient;
-					if ((packageBinding.tagBits & TagBits.AnnotationResolved) != 0) return annotations;
-					packageBinding.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
-					break;
 				case Binding.TYPE :
 				case Binding.GENERIC_TYPE :
-					ReferenceBinding type = (ReferenceBinding) recipient;
-					if ((type.tagBits & TagBits.AnnotationResolved) != 0) return annotations;
-					type.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
-					if (length > 0) {
-						annotations = new AnnotationBinding[length];
-						type.setAnnotations(annotations, false);
-					}
-					break;
 				case Binding.METHOD :
-					MethodBinding method = (MethodBinding) recipient;
-					if ((method.tagBits & TagBits.AnnotationResolved) != 0) return annotations;
-					method.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
-					if (length > 0) {
-						annotations = new AnnotationBinding[length];
-						method.setAnnotations(annotations, false);
-					}
-					break;
 				case Binding.FIELD :
-					FieldBinding field = (FieldBinding) recipient;
-					if ((field.tagBits & TagBits.AnnotationResolved) != 0) return annotations;
-					field.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
-					if (length > 0) {
-						annotations = new AnnotationBinding[length];
-						field.setAnnotations(annotations, false);
-					}
-					break;
 				case Binding.RECORD_COMPONENT :
-					RecordComponentBinding rcb = (RecordComponentBinding) recipient;
-					if ((rcb.tagBits & TagBits.AnnotationResolved) != 0) return annotations;
-					rcb.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
-					if (length > 0) {
-						annotations = new AnnotationBinding[length];
-						rcb.setAnnotations(annotations, false);
-					}
-					break;
 				case Binding.LOCAL :
-					LocalVariableBinding local = (LocalVariableBinding) recipient;
-					if ((local.tagBits & TagBits.AnnotationResolved) != 0) return annotations;
-					local.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+					if ((recipient.extendedTagBits & ExtendedTagBits.AnnotationResolved) != 0) return annotations;
+					recipient.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 					if (length > 0) {
 						annotations = new AnnotationBinding[length];
-						local.setAnnotations(annotations, scope, false);
+						recipient.setAnnotations(annotations, scope, false);
 					}
 					break;
 				case Binding.TYPE_PARAMETER :
-					((TypeVariableBinding) recipient).tagBits |= TagBits.AnnotationResolved;
+					recipient.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 					//$FALL-THROUGH$
 				case Binding.TYPE_USE :
 					// for TYPE_USE we deliberately don't set the annotation resolved tagbits,
 					// it is not material and also we are working with a dummy static object.
 					annotations = new AnnotationBinding[length];
-					break;
-				case Binding.MODULE:
-					ModuleBinding module = (ModuleBinding)recipient;
-					if ((module.tagBits & TagBits.AnnotationResolved) != 0) return annotations;
-					module.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
-					if (length > 0) {
-						annotations = new AnnotationBinding[length];
-						module.setAnnotations(annotations, scope, false);
-					}
 					break;
 				default :
 					return annotations;
@@ -882,28 +837,11 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			if (annotationRecipient != null && recipient != null) {
 				// only local and field can share annotations and their types.
 				switch (recipient.kind()) {
-					case Binding.TYPE_USE:
-						if (annotations != null) {
-							// need to fill the instances array
-							for (int j = 0; j < length; j++) {
-								annotations[j] = sourceAnnotations[j].getCompilerAnnotation();
-							}
-						}
-						break;
 					case Binding.FIELD :
-						FieldBinding field = (FieldBinding) recipient;
-						field.tagBits = ((FieldBinding) annotationRecipient).tagBits;
-						if (annotations != null) {
-							// need to fill the instances array
-							for (int j = 0; j < length; j++) {
-								Annotation annot = sourceAnnotations[j];
-								annotations[j] = annot.getCompilerAnnotation();
-							}
-						}
-						break;
 					case Binding.RECORD_COMPONENT :
-						RecordComponentBinding recordComponentBinding = (RecordComponentBinding) recipient;
-						recordComponentBinding.tagBits = ((RecordComponentBinding) annotationRecipient).tagBits;
+						recipient.tagBits = annotationRecipient.tagBits;
+						//$FALL-THROUGH$
+					case Binding.TYPE_USE: // deliberately not setting tagBits (see above)
 						if (annotations != null) {
 							// need to fill the instances array
 							for (int j = 0; j < length; j++) {
@@ -915,7 +853,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					case Binding.LOCAL :
 						LocalVariableBinding local = (LocalVariableBinding) recipient;
 						// Note for JDK>=14, this could be LVB or RCB, hence typecasting to VB
-						long otherLocalTagBits = ((VariableBinding) annotationRecipient).tagBits;
+						long otherLocalTagBits = annotationRecipient.tagBits;
 						// Make sure we retain the TagBits.IsArgument bit
 						local.tagBits = otherLocalTagBits | (local.tagBits & TagBits.IsArgument);
 						if ((otherLocalTagBits & TagBits.AnnotationSuppressWarnings) == 0) {
@@ -1373,126 +1311,64 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		return typeRef.resolvedType;
 	}
 
-/**
- * Figures if @Deprecated annotation is specified, do not resolve entire annotations.
- */
-public static void resolveDeprecatedAnnotations(BlockScope scope, Annotation[] annotations, Binding recipient) {
-	if (recipient != null) {
-		int kind = recipient.kind();
-		if (annotations != null) {
-			int length;
-			if ((length = annotations.length) >= 0) {
-				switch (kind) {
-					case Binding.PACKAGE :
-						PackageBinding packageBinding = (PackageBinding) recipient;
-						if ((packageBinding.tagBits & TagBits.DeprecatedAnnotationResolved) != 0) return;
-						break;
-					case Binding.TYPE :
-					case Binding.GENERIC_TYPE :
-						ReferenceBinding type = (ReferenceBinding) recipient;
-						if ((type.tagBits & TagBits.DeprecatedAnnotationResolved) != 0) return;
-						break;
-					case Binding.METHOD :
-						MethodBinding method = (MethodBinding) recipient;
-						if ((method.tagBits & TagBits.DeprecatedAnnotationResolved) != 0) return;
-						break;
-					case Binding.FIELD :
-						FieldBinding field = (FieldBinding) recipient;
-						if ((field.tagBits & TagBits.DeprecatedAnnotationResolved) != 0) return;
-						break;
-					case Binding.LOCAL :
-						LocalVariableBinding local = (LocalVariableBinding) recipient;
-						if ((local.tagBits & TagBits.DeprecatedAnnotationResolved) != 0) return;
-						break;
-					case Binding.RECORD_COMPONENT :
-						RecordComponentBinding recordComponentBinding = (RecordComponentBinding) recipient;
-						if ((recordComponentBinding.tagBits & TagBits.DeprecatedAnnotationResolved) != 0) return;
-						break;
-					default :
+	/**
+	 * Figures if @Deprecated annotation is specified, do not resolve entire annotations.
+	 */
+	public static void resolveDeprecatedAnnotations(BlockScope scope, Annotation[] annotations, Binding recipient) {
+		if (recipient != null) {
+			if (annotations != null) {
+				int length;
+				if ((length = annotations.length) >= 0) {
+					if ((recipient.extendedTagBits & ExtendedTagBits.DeprecatedAnnotationResolved) != 0)
 						return;
-				}
-				for (int i = 0; i < length; i++) {
-					TypeReference annotationTypeRef = annotations[i].type;
-					// only resolve type name if 'Deprecated' last token
-					if (!CharOperation.equals(TypeConstants.JAVA_LANG_DEPRECATED[2], annotationTypeRef.getLastToken())) continue;
-					TypeBinding annotationType = annotations[i].type.resolveType(scope);
-					if(annotationType != null && annotationType.isValidBinding() && annotationType.id == TypeIds.T_JavaLangDeprecated) {
-						long deprecationTagBits = TagBits.AnnotationDeprecated | TagBits.DeprecatedAnnotationResolved;
-						if (scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK9) {
-							for (MemberValuePair memberValuePair : annotations[i].memberValuePairs()) {
-								if (CharOperation.equals(memberValuePair.name, TypeConstants.FOR_REMOVAL)) {
-									if (memberValuePair.value instanceof TrueLiteral)
-										deprecationTagBits |= TagBits.AnnotationTerminallyDeprecated;
-									break;
+					for (int i = 0; i < length; i++) {
+						TypeReference annotationTypeRef = annotations[i].type;
+						// only resolve type name if 'Deprecated' last token
+						if (!CharOperation.equals(TypeConstants.JAVA_LANG_DEPRECATED[2], annotationTypeRef.getLastToken())) continue;
+						TypeBinding annotationType = annotations[i].type.resolveType(scope);
+						if(annotationType != null && annotationType.isValidBinding() && annotationType.id == TypeIds.T_JavaLangDeprecated) {
+							long deprecationTagBits = TagBits.AnnotationDeprecated;
+							if (scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK9) {
+								for (MemberValuePair memberValuePair : annotations[i].memberValuePairs()) {
+									if (CharOperation.equals(memberValuePair.name, TypeConstants.FOR_REMOVAL)) {
+										if (memberValuePair.value instanceof TrueLiteral)
+											deprecationTagBits |= TagBits.AnnotationTerminallyDeprecated;
+										break;
+									}
 								}
 							}
+							recipient.tagBits |= deprecationTagBits;
 						}
-						switch (kind) {
-							case Binding.PACKAGE :
-								PackageBinding packageBinding = (PackageBinding) recipient;
-								packageBinding.tagBits |= deprecationTagBits;
-								return;
-							case Binding.TYPE :
-							case Binding.GENERIC_TYPE :
-							case Binding.TYPE_PARAMETER :
-								ReferenceBinding type = (ReferenceBinding) recipient;
-								type.tagBits |= deprecationTagBits;
-								return;
-							case Binding.METHOD :
-								MethodBinding method = (MethodBinding) recipient;
-								method.tagBits |= deprecationTagBits;
-								return;
-							case Binding.FIELD :
-								FieldBinding field = (FieldBinding) recipient;
-								field.tagBits |= deprecationTagBits;
-								return;
-							case Binding.LOCAL :
-								LocalVariableBinding local = (LocalVariableBinding) recipient;
-								local.tagBits |= deprecationTagBits;
-								return;
-							case Binding.RECORD_COMPONENT :
-								RecordComponentBinding recordComponentBinding = (RecordComponentBinding) recipient;
-								recordComponentBinding.tagBits |= deprecationTagBits;
-								return;
-							default:
-								return;
+					}
+				}
+				recipient.extendedTagBits |= ExtendedTagBits.DeprecatedAnnotationResolved;
+			}
+		}
+	}
+	/**
+	 * Figures if @NonNullByDefault annotation is specified, do not resolve entire annotations.
+	 */
+	public static void resolveNullDefaultAnnotations(BlockScope scope, Annotation[] annotations, Binding recipient) {
+		if (recipient != null) {
+			if (annotations != null) {
+				int length;
+				if ((length = annotations.length) >= 0) {
+					if ((recipient.tagBits & ExtendedTagBits.NullDefaultAnnotationResolved) != 0) return;
+					for (int i = 0; i < length; i++) {
+						TypeReference annotationTypeRef = annotations[i].type;
+						// only resolve type name if 'NonNullByDefault' last token (or corresponding configured annotation name)
+						if (!scope.environment().isNonNullByDefaultSimpleName(annotationTypeRef.getLastToken())) continue;
+						TypeBinding annotationType = annotations[i].type.resolveType(scope);
+						if(annotationType != null && annotationType.isValidBinding() && annotationType.hasTypeBit(TypeIds.BitNonNullByDefaultAnnotation)) {
+							annotations[i].recipient = recipient;
+							annotations[i].resolveType(scope); // possibly feeds bits into recipient.defaultNullness
 						}
 					}
 				}
 			}
-		}
-		switch (kind) {
-			case Binding.PACKAGE :
-				PackageBinding packageBinding = (PackageBinding) recipient;
-				packageBinding.tagBits |= TagBits.DeprecatedAnnotationResolved;
-				return;
-			case Binding.TYPE :
-			case Binding.GENERIC_TYPE :
-			case Binding.TYPE_PARAMETER :
-				ReferenceBinding type = (ReferenceBinding) recipient;
-				type.tagBits |= TagBits.DeprecatedAnnotationResolved;
-				return;
-			case Binding.METHOD :
-				MethodBinding method = (MethodBinding) recipient;
-				method.tagBits |= TagBits.DeprecatedAnnotationResolved;
-				return;
-			case Binding.FIELD :
-				FieldBinding field = (FieldBinding) recipient;
-				field.tagBits |= TagBits.DeprecatedAnnotationResolved;
-				return;
-			case Binding.LOCAL :
-				LocalVariableBinding local = (LocalVariableBinding) recipient;
-				local.tagBits |= TagBits.DeprecatedAnnotationResolved;
-				return;
-			case Binding.RECORD_COMPONENT :
-				RecordComponentBinding recordComponentBinding = (RecordComponentBinding) recipient;
-				recordComponentBinding.tagBits |= TagBits.DeprecatedAnnotationResolved;
-				return;
-			default:
-				return;
+			recipient.extendedTagBits |= ExtendedTagBits.NullDefaultAnnotationResolved;
 		}
 	}
-}
 
 	// ---- "default methods" for InvocationSite. Can we move to 1.8 and spare ourselves this ugliness please ?
 	public boolean checkingPotentialCompatibility() {
