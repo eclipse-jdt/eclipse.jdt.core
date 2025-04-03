@@ -286,7 +286,7 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 	}
 	private boolean isPatternExactMatch() {
 		int r = this.locator.pattern.getMatchRule();
-		return (r & SearchPattern.R_EXACT_MATCH) == SearchPattern.R_EXACT_MATCH;
+		return (r & SearchPattern.R_FULL_MATCH) == SearchPattern.R_FULL_MATCH;
 	}
 	
 	
@@ -341,6 +341,14 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 					IBinding domBinding = DOMASTNodeUtils.getBinding(argj);
 					ITypeBinding domTypeBinding = domBinding instanceof ITypeBinding ? (ITypeBinding)domBinding : null;
 					String domSig = domBinding == null ? null : domBinding instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : domBinding.getKey();
+					
+					if( exactMatch ) {
+						if( patternSig.equals(domSig)) {
+							continue;
+						}
+						return TYPE_PARAMS_COUNT_MATCH;
+					}
+					
 					if( patternSig.equals(("*")))
 						continue;
 					if( patternSig.equals(domSig)) {
@@ -358,7 +366,6 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 					}
 					
 					List<String> patternAncestorKeys = patternAncestors.stream().map(x -> x instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : x.getKey()).collect(Collectors.toList());
-					int z = 5;
 					if( patternSig.startsWith("-")) {
 						if( domSig.startsWith("-") || !domSig.startsWith("+")) {
 							String domKey = domBinding instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : domBinding.getKey();
@@ -633,7 +640,7 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			boolean patternHasSignatures = this.locator.pattern.hasSignatures();
 			boolean erasureMatch = isPatternErasureMatch();
 			boolean equivMatch = isPatternEquivalentMatch();
-			boolean exactMatch = false; // TODO isPatternExactMatch();
+			boolean exactMatch = isPatternExactMatch();
 			if( (patternHasTypeArgs && !(erasureMatch || equivMatch || exactMatch))) {
 				return toResponse(IMPOSSIBLE_MATCH);
 			}
@@ -946,9 +953,6 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 //		boolean matchIsEr = match.isErasure();
 //		boolean matchIsEq = match.isEquivalent();
 //		boolean matchIsEx = match.isExact();
-//		boolean report = (this.isErasureMatch && match.isErasure()) 
-//				|| ((this.isErasureMatch || this.isEquivalentMatch) && match.isEquivalent()) 
-//				|| match.isExact();
 		boolean report = (this.isErasureMatch && match.isErasure()) || (this.isEquivalentMatch && match.isEquivalent()) || match.isExact();
 		if (!report) 
 			return;
@@ -956,9 +960,6 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		updateMatchPositions(node, match);
 		updateMatchRule(node, match);
 
-		boolean isE = match.isErasure();
-		boolean isEq = match.isEquivalent();
-		boolean isEx = match.isExact();
 		report = (this.isErasureMatch && match.isErasure()) || (this.isEquivalentMatch && match.isEquivalent()) || match.isExact();
 		if (!report) 
 			return;
