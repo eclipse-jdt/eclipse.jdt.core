@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -1325,6 +1326,7 @@ public class JavacProblemConverter {
 
 		return Stream.of(jcDiagnostic.getArgs()) //
 				.filter(Predicate.not(KindName.class::isInstance)) // can confuse JDT-LS
+				.filter(Objects::nonNull)
 				.map(Object::toString) //
 				.toArray(String[]::new);
 	}

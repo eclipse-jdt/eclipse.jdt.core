@@ -73,6 +73,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.dom.ICompilationUnitResolver;
 import org.eclipse.jdt.internal.core.util.BindingKeyParser;
+import org.eclipse.jdt.internal.javac.CachingClassSymbolClassReader;
 import org.eclipse.jdt.internal.javac.CachingJDKPlatformArguments;
 import org.eclipse.jdt.internal.javac.CachingJarsJavaFileManager;
 import org.eclipse.jdt.internal.javac.JavacProblemConverter;
@@ -144,7 +145,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			if (obj instanceof DiagnosticSource source) {
 				return findTargetDOM(filesToUnits, source.getFile());
 			}
-			if (obj instanceof Diagnostic diag) {
+			if (obj instanceof Diagnostic<?> diag) {
 				return findTargetDOM(filesToUnits, diag.getSource());
 			}
 			return Optional.empty();
@@ -593,6 +594,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		context.put(Names.namesKey, names);
 		CachingJarsJavaFileManager.preRegister(context);
 		CachingJDKPlatformArguments.preRegister(context);
+		CachingClassSymbolClassReader.preRegister(context);
 		Map<org.eclipse.jdt.internal.compiler.env.ICompilationUnit, CompilationUnit> result = new HashMap<>(sourceUnits.length, 1.f);
 		Map<JavaFileObject, CompilationUnit> filesToUnits = new HashMap<>();
 		final UnusedProblemFactory unusedProblemFactory = new UnusedProblemFactory(new DefaultProblemFactory(), compilerOptions);
