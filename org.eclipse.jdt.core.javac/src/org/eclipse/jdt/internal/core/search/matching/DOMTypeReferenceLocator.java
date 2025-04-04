@@ -323,9 +323,12 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			return TYPE_PARAMS_MATCH;
 		}
 		if( node instanceof SimpleType st && (st.getName() instanceof QualifiedName || st.getName() instanceof SimpleName)) {
-			if( fromPattern != null && fromPattern.length > 0 && fromPattern[0] != null && fromPattern[0].length != 0) {
-				if( !erasureMatch && !equivMatch)
-					return TYPE_PARAMS_NO_MATCH;
+			if( !erasureMatch && !equivMatch) {
+				for( int i = 0; i < fromPattern.length; i++ ) {
+					if( fromPattern[i] == null || fromPattern[i].length != 0 ) {
+						return TYPE_PARAMS_NO_MATCH;
+					}
+				}
 			}
 			return TYPE_PARAMS_MATCH;
 		}
@@ -828,11 +831,13 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 					}
 					return ACCURATE_MATCH;
 				}
-				if( typeArgsValidation == TYPE_PARAMS_COUNT_MATCH) {
-					return ERASURE_MATCH;
-				}
-				if( typeArgsValidation == TYPE_PARAMS_NO_MATCH) {
-					return ERASURE_MATCH;
+				
+				if( typeArgsValidation == TYPE_PARAMS_COUNT_MATCH || typeArgsValidation == TYPE_PARAMS_NO_MATCH) {
+					if( isPatternExactMatch()) {
+						return IMPOSSIBLE_MATCH;
+					} else {
+						return ERASURE_MATCH;
+					}
 				}
 			}
 			if (!bindingIsRaw && patternHasTypeArgs) {
