@@ -5452,7 +5452,7 @@ private boolean mayBeAtAnYieldStatement() {
 	}
 }
 TerminalToken disambiguateRecord() {
-	if (JavaFeature.RECORDS.isSupported(this.complianceLevel, this.previewEnabled)) {
+	if (JavaFeature.RECORDS.isSupported(this.sourceLevel, this.previewEnabled)) {
 		if (disambiguateRecordWithLookAhead())
 			return TokenNameRestrictedIdentifierrecord;
 	}
