@@ -248,19 +248,21 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			if( this.locator.matchesName(this.locator.pattern.simpleName, simpleNameFromNode.toCharArray()) ) {
 				int level = this.locator.pattern.mustResolve || this.locator.pattern.qualification == null ? POSSIBLE_MATCH : ACCURATE_MATCH;
 				int typeParamMatches = validateTypeParameters(node);
-				
-				if( typeParamMatches == TYPE_PARAMS_NO_MATCH && isPatternExactMatch()) {
-					boolean patternHasTypeArgs = this.locator.pattern.hasTypeArguments();
-					List nodeTypeArgs = node instanceof ParameterizedType pt ? pt.typeArguments() : null;
-					boolean nodeHasTypeArgs = nodeTypeArgs != null && nodeTypeArgs.size() > 0;
-					if( !patternHasTypeArgs && !nodeHasTypeArgs) {
-						return toResponse(level);
-					}
-					return new LocatorResponse(IMPOSSIBLE_MATCH, false, null, false, false);
-				}
-				
 				if( typeParamMatches == TYPE_PARAMS_NO_MATCH) level = IMPOSSIBLE_MATCH;
 				if( typeParamMatches == TYPE_PARAMS_COUNT_MATCH) level = ERASURE_MATCH;
+
+				if( isPatternExactMatch()) {
+					if( typeParamMatches == TYPE_PARAMS_NO_MATCH) {
+						boolean patternHasTypeArgs = this.locator.pattern.hasTypeArguments();
+						List nodeTypeArgs = node instanceof ParameterizedType pt ? pt.typeArguments() : null;
+						boolean nodeHasTypeArgs = nodeTypeArgs != null && nodeTypeArgs.size() > 0;
+						if( !patternHasTypeArgs && !nodeHasTypeArgs) {
+							return toResponse(level);
+						}
+						return new LocatorResponse(IMPOSSIBLE_MATCH, false, null, false, false);
+					}
+				}
+				
 				boolean isErasurePattern = isPatternErasureMatch();
 				boolean isEquivPattern = isPatternEquivalentMatch();
 				if( level == ERASURE_MATCH && !isErasurePattern && !isEquivPattern) 
@@ -361,6 +363,9 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 					
 					if( exactMatch ) {
 						if( patternSig.equals(domSig)) {
+							continue;
+						}
+						if( patternSig.equals("*") && isQuestionMark(domSig)) {
 							continue;
 						}
 						return TYPE_PARAMS_COUNT_MATCH;
@@ -648,10 +653,9 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			return toResponse(INACCURATE_MATCH);
 		}
 		if (binding instanceof ITypeBinding typeBinding) {
-			if( node.getParent() instanceof ImportDeclaration && !this.locator.isDeclarationOfReferencedTypesPattern) {
+			if( hasImportAncestor(node) && !this.locator.isDeclarationOfReferencedTypesPattern) {
 				return resolveLevelForImportBinding(node, typeBinding, locator);
 			}
-			int v = resolveLevelForTypeBinding(node, typeBinding, locator);
 			boolean patternHasTypeArgs = this.locator.pattern.hasTypeArguments();
 			boolean patternHasTypeParameters = this.locator.pattern.hasTypeParameters();
 			boolean patternHasSignatures = this.locator.pattern.hasSignatures();
@@ -661,6 +665,7 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			if( (patternHasTypeArgs && !(erasureMatch || equivMatch || exactMatch))) {
 				return toResponse(IMPOSSIBLE_MATCH);
 			}
+			int v = resolveLevelForTypeBinding(node, typeBinding, locator);
 			if( node instanceof ParameterizedType pt) {
 				ASTNode n = preferParamaterizedNode() ? pt : pt.getType();
 				return new LocatorResponse(v, n != pt, n, false, false);
@@ -669,7 +674,6 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 				// the search doesn't have type args in it, but the type does
 				return toResponse(IMPOSSIBLE_MATCH);
 			}
-
 			return toResponse(v);
 		}
 		if( binding instanceof IPackageBinding && node instanceof SimpleName sn) {
