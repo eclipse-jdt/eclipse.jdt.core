@@ -3693,6 +3693,13 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				if (impossibleClasses.contains(binding.getName())) {
 					return false;
 				}
+				if (canUseAbstract && isStaticContext) {
+					// must be accessed directly
+					// eg. given class OuterClass extends class SuperOuterClass, and SuperOuterClass contains class InnerClass
+					// - SuperOuterClass.InnerClass is valid
+					// - OuterClass.InnerClass is not valid
+					return false;
+				}
 			}
 			if (
 					// check private
@@ -3948,13 +3955,28 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				if (!inheritedValue && !isMethodInCurrentCU) {
 					if (this.qualifiedPrefix.equals(this.prefix) && !this.javaProject.getOption(JavaCore.CODEASSIST_SUGGEST_STATIC_IMPORTS, true).equals(JavaCore.DISABLED)) {
 						res.setRequiredProposals(new CompletionProposal[] { toStaticImportProposal(methodBinding) });
-					} else {
+					} else if (this.qualifiedPrefix.equals(this.prefix)) {
 						ITypeBinding directParentClass = methodBinding.getDeclaringClass();
 						res.setRequiredProposals(new CompletionProposal[] { toStaticImportProposal(directParentClass) });
 						StringBuilder builder = new StringBuilder(new String(res.getCompletion()));
 						builder.insert(0, '.');
 						builder.insert(0, directParentClass.getName());
 						res.setCompletion(builder.toString().toCharArray());
+					} else {
+						QualifiedName qualifiedName = (QualifiedName)DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.QUALIFIED_NAME });
+						if (qualifiedName != null) {
+							Name name = qualifiedName.getQualifier();
+							ITypeBinding directParentClass = methodBinding.getDeclaringClass();
+							if (name.toString().equals(directParentClass.getName())) {
+								CompletionProposal typeProposal = toProposal(directParentClass);
+								typeProposal.setReplaceRange(name.getStartPosition(), name.getStartPosition() + name.getLength());
+								typeProposal.setTokenRange(name.getStartPosition(), name.getStartPosition() + name.getLength());
+								typeProposal.setRequiredProposals(null);
+								res.setRequiredProposals(new CompletionProposal[] { typeProposal });
+							}
+						} else {
+							ILog.get().error("expected there to be a parent type, since this is a qualified static method completion");
+						}
 					}
 				}
 			}
@@ -3998,9 +4020,24 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						if (!isStaticallyImported(variableBinding) && !(variableBinding.isEnumConstant() && Set.of(SwitchCase.EXPRESSION_PROPERTY, SwitchCase.EXPRESSIONS2_PROPERTY).contains(this.toComplete.getLocationInParent()))) {
 							res.setRequiredProposals(new CompletionProposal[] { toStaticImportProposal(variableBinding) });
 						}
-					} else {
+					} else if (this.qualifiedPrefix.equals(this.prefix)) {
 						ITypeBinding directParentClass = variableBinding.getDeclaringClass();
 						res.setRequiredProposals(new CompletionProposal[] { toStaticImportProposal(directParentClass) });
+					} else {
+						QualifiedName qualifiedName = (QualifiedName)DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.QUALIFIED_NAME });
+						if (qualifiedName != null) {
+							Name name = qualifiedName.getQualifier();
+							ITypeBinding directParentClass = variableBinding.getDeclaringClass();
+							if (name.toString().equals(directParentClass.getName())) {
+								CompletionProposal typeProposal = toProposal(directParentClass);
+								typeProposal.setReplaceRange(name.getStartPosition(), name.getStartPosition() + name.getLength());
+								typeProposal.setTokenRange(name.getStartPosition(), name.getStartPosition() + name.getLength());
+								typeProposal.setRequiredProposals(null);
+								res.setRequiredProposals(new CompletionProposal[] { typeProposal });
+							}
+						} else {
+							ILog.get().error("expected there to be a parent type, since this is a qualified static method completion");
+						}
 					}
 				}
 			}
@@ -4156,8 +4193,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				&& type.getFullyQualifiedName().equals(((IType)parentTypeDeclaration.resolveBinding().getJavaElement()).getFullyQualifiedName())) {
 			completion.insert(0, cursor.getElementName());
 		} else {
-			ASTNode currentName = this.toComplete instanceof Name ? this.toComplete : null;
-			while (cursor instanceof IType currentType && (currentName == null || !Objects.equals(currentName.toString(), currentType.getFullyQualifiedName()))) {
+			ASTNode currentName = this.toComplete instanceof QualifiedName qn && FAKE_IDENTIFIER.equals(qn.getName().toString()) ? qn.getName() : this.toComplete instanceof Name ? this.toComplete : null;
+			while (cursor instanceof IType currentType && (completion.isEmpty() || currentName == null || (!Objects.equals(currentName.toString(), currentType.getElementName()) && !Objects.equals(currentName.toString(), currentType.getFullyQualifiedName())))) {
 				if (!completion.isEmpty()) {
 					completion.insert(0, '.');
 				}
@@ -4170,10 +4207,10 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				}
 			}
 		}
-		AbstractTypeDeclaration parentType = DOMCompletionUtil.findParentTypeDeclaration(this.toComplete);
+
 		Javadoc javadoc = (Javadoc) DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.JAVADOC });
-		if (parentType != null || javadoc != null) {
-			IPackageBinding currentPackageBinding = parentType == null ? null : parentType.resolveBinding().getPackage();
+		if (parentTypeDeclaration != null || javadoc != null) {
+			IPackageBinding currentPackageBinding = parentTypeDeclaration == null ? null : parentTypeDeclaration.resolveBinding().getPackage();
 			if (packageFrag != null && (currentPackageBinding == null
 					|| (!packageFrag.getElementName().equals(currentPackageBinding.getName())
 							&& !packageFrag.getElementName().equals("java.lang")))) { //$NON-NLS-1$
@@ -4288,7 +4325,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			}
 		}
 		res.setRelevance(relevance);
-		if (parentType != null) {
+		if (parentTypeDeclaration != null) {
 			String packageName = ""; //$NON-NLS-1$
 			PackageDeclaration packageDecl = this.unit.getPackage();
 			if (packageDecl != null) {
