@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
@@ -319,18 +320,22 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 		// In case the typeBinding is wrong, just lookup the declaration
 		// in AST to resolve the type definition directly
 		ASTNode node = this.resolver.findDeclaringNode(this);
+		if (node == null) {
+			return null;
+		}
+		org.eclipse.jdt.core.dom.Type declType = null;
 		if (node instanceof SingleVariableDeclaration decl) {
-			return decl.getType().resolveBinding();
+			declType = decl.getType();
 		} else if (node instanceof VariableDeclarationFragment fragment) {
 			if (fragment.getParent() instanceof VariableDeclarationExpression expr) {
-				return expr.getType().resolveBinding();
+				declType = expr.getType();
 			} else if (fragment.getParent() instanceof VariableDeclarationStatement expr) {
-				return expr.getType().resolveBinding();
+				declType = expr.getType();
 			} else if (fragment.getParent() instanceof FieldDeclaration fieldDecl) {
-				return fieldDecl.getType().resolveBinding();
+				declType = fieldDecl.getType();
 			}
 		}
-		return null;
+		return declType != null && (node.getAST().apiLevel() < AST.JLS10 || !declType.isVar()) ? declType.resolveBinding() : null;
 	}
 
 	@Override

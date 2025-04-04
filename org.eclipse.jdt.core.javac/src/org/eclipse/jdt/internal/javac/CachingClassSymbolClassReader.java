@@ -24,8 +24,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Map.Entry;
 import java.util.stream.StreamSupport;
 
 import javax.lang.model.element.ElementKind;
@@ -34,11 +34,16 @@ import javax.tools.JavaFileObject;
 import org.eclipse.core.runtime.ILog;
 
 import com.sun.tools.javac.code.Attribute;
+import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.SymbolMetadata;
+import com.sun.tools.javac.code.Symtab;
+import com.sun.tools.javac.code.Type;
+import com.sun.tools.javac.code.TypeTag;
+import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.code.Attribute.Array;
 import com.sun.tools.javac.code.Attribute.Compound;
 import com.sun.tools.javac.code.Attribute.Constant;
 import com.sun.tools.javac.code.Scope.WriteableScope;
-import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.CompletionFailure;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
@@ -47,14 +52,9 @@ import com.sun.tools.javac.code.Symbol.PackageSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.SymbolMetadata;
-import com.sun.tools.javac.code.Symtab;
-import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.TypeVar;
-import com.sun.tools.javac.code.TypeTag;
-import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.comp.Annotate;
 import com.sun.tools.javac.comp.Annotate.AnnotationTypeCompleter;
 import com.sun.tools.javac.comp.Annotate.AnnotationTypeMetadata;
@@ -219,10 +219,9 @@ public class CachingClassSymbolClassReader extends ClassReader {
 
 	private static class MethodSymbolTemplate {
 		private final long flags;
-		private final Name name;
-		private final String resTypeSignature;
-		private final List<String> thrownTypeSignatures;
-		private final List<VarSymbolTemplate> params;
+		private final String name;
+		private final String methodTypeSignature;
+ 		private final List<VarSymbolTemplate> params;
 		private final List<TypeVariableTemplate> typeVariables;
 		private final SymbolMetadataTemplate metadata;
 		private final AttributeTemplate<?> defaultValue;
@@ -231,10 +230,9 @@ public class CachingClassSymbolClassReader extends ClassReader {
 
 		public MethodSymbolTemplate(MethodSymbol sym, CachingClassSymbolClassReader reader) {
 			this.flags = sym.flags_field;
-			this.name = sym.name;
+			this.name = sym.name.toString();
 			this.params = sym.params().map(p -> new VarSymbolTemplate(p, reader));
-			this.resTypeSignature = reader.typeToSig(sym.getReturnType());
-			this.thrownTypeSignatures = sym.getThrownTypes().map(reader::typeToSig);
+			this.methodTypeSignature = reader.typeToSig(sym.type);
 			this.typeVariables = sym.getTypeParameters().map(t -> new TypeVariableTemplate(t, reader));
 			this.metadata = new SymbolMetadataTemplate(sym.getMetadata(), reader);
 			this.defaultValue = AttributeTemplate.of(sym.getDefaultValue(), reader);
@@ -246,12 +244,9 @@ public class CachingClassSymbolClassReader extends ClassReader {
 			this.typeVariables.stream()
 				.map(template -> template.create(owner, reader))
 				.forEach(reader.typevars::enter);
-			MethodType type = new MethodType(
-				com.sun.tools.javac.util.List.from(this.params.stream().map(v -> v.typeSignature).map(reader::sigToType).toList()),
-				reader.sigToType(this.resTypeSignature),
-				com.sun.tools.javac.util.List.from(this.thrownTypeSignatures.stream().map(reader::sigToType).filter(Objects::nonNull).toList()),
-				owner);
-			var res = new MethodSymbol(this.flags, this.name, type, owner);
+			Type type = reader.sigToType(methodTypeSignature);
+			var res = new MethodSymbol(this.flags, reader.localNames.fromString(this.name), type, owner);
+			res.params = com.sun.tools.javac.util.List.from(this.params.stream().map(param -> param.create(res, reader)).toList());
 			if (this.defaultValue != null) {
 				res.defaultValue = this.defaultValue.create(reader);
 			}
@@ -731,6 +726,12 @@ public class CachingClassSymbolClassReader extends ClassReader {
 			@Override
 			protected void append(Name name) {
 				res.append(name.toString());
+			}
+
+			// workaround to ensure exceptions are added
+			@Override
+			public boolean hasTypeVar(com.sun.tools.javac.util.List<Type> l) {
+				return l != null && !l.isEmpty();
 			}
 		};
 		generator.assembleSig(type);
