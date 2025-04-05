@@ -541,13 +541,26 @@ protected void finishedWith(String sourceLocator, CompilationResult result, char
 }
 
 protected IContainer createFolder(IPath packagePath, IContainer outputFolder) throws CoreException {
-	if (packagePath.isEmpty()) return outputFolder;
+	if (packagePath.isEmpty()) {
+		createFolder(outputFolder);
+		return outputFolder;
+	}
 	IFolder folder = outputFolder.getFolder(packagePath);
 	if (!folder.exists()) {
 		createFolder(packagePath.removeLastSegments(1), outputFolder);
 		folder.create(IResource.FORCE | IResource.DERIVED, true, null);
 	}
 	return folder;
+}
+
+private void createFolder(IContainer container) throws CoreException {
+	if (container.exists()) {
+		return;
+	}
+	if (container instanceof IFolder folder) {
+		createFolder(container.getParent());
+		folder.create(IResource.FORCE | IResource.DERIVED, true, null);
+	}
 }
 
 @Override
