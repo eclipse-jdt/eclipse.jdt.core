@@ -174,6 +174,19 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 	 * Returns the path of the added package fragment root.
 	 */
 	public IPath addPackageFragmentRoot(IPath projectPath, String sourceFolderName, IPath[] inclusionPatterns, IPath[] exclusionPatterns, String specificOutputLocation, boolean isTest) throws JavaModelException {
+		IClasspathAttribute[] extraAttributes = isTest ? new IClasspathAttribute[] {JavaCore.newClasspathAttribute(IClasspathAttribute.TEST, "true")} : ClasspathEntry.NO_EXTRA_ATTRIBUTES;
+		return addPackageFragmentRoot(projectPath, sourceFolderName, inclusionPatterns, exclusionPatterns,
+				specificOutputLocation, extraAttributes);
+	}
+
+	public IPath addPackageFragmentRoot(IPath projectPath, String sourceFolderName, IClasspathAttribute[] extraAttributes)
+			throws JavaModelException {
+		return addPackageFragmentRoot(projectPath, sourceFolderName, null, null, null, extraAttributes);
+	}
+
+	public IPath addPackageFragmentRoot(IPath projectPath, String sourceFolderName, IPath[] inclusionPatterns,
+			IPath[] exclusionPatterns, String specificOutputLocation, IClasspathAttribute[] extraAttributes)
+			throws JavaModelException {
 		checkAssertion("a workspace must be open", this.isOpen); //$NON-NLS-1$
 		IPath path = getPackageFragmentRootPath(projectPath, sourceFolderName);
 		createFolder(path);
@@ -187,7 +200,7 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 			inclusionPatterns == null ? new Path[0] : inclusionPatterns,
 			exclusionPatterns == null ? new Path[0] : exclusionPatterns,
 			outputPath,
-			isTest ? new IClasspathAttribute[] {JavaCore.newClasspathAttribute(IClasspathAttribute.TEST, "true")} : ClasspathEntry.NO_EXTRA_ATTRIBUTES);
+			extraAttributes);
 		addEntry(projectPath, entry);
 		return path;
 	}
