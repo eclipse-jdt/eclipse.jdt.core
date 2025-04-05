@@ -46,7 +46,7 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModule.IModuleReference;
 import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
-import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
+import org.eclipse.jdt.internal.compiler.env.IReleaseAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule.UpdateKind;
@@ -69,7 +69,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  *	uses the Java model as a search tool.
  */
 public class SearchableEnvironment
-	implements IModuleAwareNameEnvironment, IJavaSearchConstants {
+	implements IReleaseAwareNameEnvironment, IJavaSearchConstants {
 
 	public NameLookup nameLookup;
 	protected ICompilationUnit unitToSkip;
@@ -173,7 +173,7 @@ public class SearchableEnvironment
 	 * Returns the given type in the the given package if it exists,
 	 * otherwise <code>null</code>.
 	 */
-	protected NameEnvironmentAnswer find(String typeName, String packageName, IPackageFragmentRoot[] moduleContext) {
+	protected NameEnvironmentAnswer find(String typeName, String packageName, IPackageFragmentRoot[] moduleContext, int release) {
 		if (packageName == null)
 			packageName = IPackageFragment.DEFAULT_PACKAGE_NAME;
 		if (this.owner != null) {
@@ -195,7 +195,8 @@ public class SearchableEnvironment
 				false/*exact match*/,
 				NameLookup.ACCEPT_ALL,
 				this.checkAccessRestrictions,
-				moduleContext);
+				moduleContext,
+				release);
 		if (answer != null) {
 			// construct name env answer
 			if (answer.type instanceof BinaryType) { // BinaryType
@@ -532,7 +533,7 @@ public class SearchableEnvironment
 	 * @see org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment#findType(char[][],char[])
 	 */
 	@Override
-	public NameEnvironmentAnswer findType(char[][] compoundTypeName, char[] moduleName) {
+	public NameEnvironmentAnswer findType(char[][] compoundTypeName, char[] moduleName, int release) {
 		if (compoundTypeName == null) return null;
 
 		boolean isNamedStrategy = LookupStrategy.get(moduleName) == LookupStrategy.Named;
@@ -541,7 +542,7 @@ public class SearchableEnvironment
 		int length = compoundTypeName.length;
 		if (length <= 1) {
 			if (length == 0) return null;
-			return find(new String(compoundTypeName[0]), null, moduleLocations);
+			return find(new String(compoundTypeName[0]), null, moduleLocations, release);
 		}
 
 		int lengthM1 = length - 1;
@@ -551,14 +552,14 @@ public class SearchableEnvironment
 		return find(
 			DeduplicationUtil.toString(compoundTypeName[lengthM1]),
 			CharOperation.toString(packageName),
-			moduleLocations);
+			moduleLocations, release);
 	}
 
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment#findType(char[],char[][],char[])
 	 */
 	@Override
-	public NameEnvironmentAnswer findType(char[] name, char[][] packageName, char[] moduleName) {
+	public NameEnvironmentAnswer findType(char[] name, char[][] packageName, char[] moduleName, int release) {
 		if (name == null) return null;
 
 		boolean isNamedStrategy = LookupStrategy.get(moduleName) == LookupStrategy.Named;
@@ -566,7 +567,7 @@ public class SearchableEnvironment
 		return find(
 				DeduplicationUtil.toString(name),
 				packageName == null || packageName.length == 0 ? null : CharOperation.toString(packageName),
-			moduleLocations);
+			moduleLocations, release);
 	}
 
 	/**
