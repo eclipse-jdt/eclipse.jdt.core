@@ -635,6 +635,11 @@ public boolean isCanonicalConstructor() {
 }
 
 @Override
+public boolean isCompactConstructor() {
+	return (this.modifiers & ExtraCompilerModifiers.AccCompactConstructor) != 0;
+}
+
+@Override
 public boolean isDefaultConstructor() {
 	return (this.bits & ASTNode.IsDefaultConstructor) != 0;
 }

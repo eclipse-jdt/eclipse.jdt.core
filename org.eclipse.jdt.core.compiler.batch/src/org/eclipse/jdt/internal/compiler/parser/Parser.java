@@ -2992,12 +2992,7 @@ protected void consumeConstructorHeaderName(boolean isCompact) {
 
 	// ConstructorHeaderName ::=  Modifiersopt 'Identifier' '('
 	// CompactConstructorHeaderName ::= Modifiersopt 'Identifier'
-	ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationUnit.compilationResult) {
-										@Override
-										public boolean isCompactConstructor() {
-											return isCompact;
-										}
-									};
+	ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationUnit.compilationResult);
 
 	if (isCompact)
 		cd.bits |= ASTNode.IsCanonicalConstructor;
@@ -3011,7 +3006,8 @@ protected void consumeConstructorHeaderName(boolean isCompact) {
 	cd.declarationSourceStart = this.intStack[this.intPtr--];
 	cd.modifiers = this.intStack[this.intPtr--];
 	if (isCompact)
-		cd.modifiers |=  ExtraCompilerModifiers.AccCompactConstructor;
+		cd.modifiers |= ExtraCompilerModifiers.AccCompactConstructor;
+
 	// consume annotations
 	int length;
 	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
