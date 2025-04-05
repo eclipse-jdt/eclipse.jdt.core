@@ -20,15 +20,7 @@
 package org.eclipse.jdt.internal.core.builder;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.eclipse.core.resources.IContainer;
@@ -41,6 +33,7 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IModuleDescription;
@@ -50,9 +43,9 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
 import org.eclipse.jdt.internal.compiler.env.IMultiModuleEntry;
+import org.eclipse.jdt.internal.compiler.env.IReleaseAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule.UpdateKind;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
@@ -68,7 +61,7 @@ import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.ModuleUpdater;
 
-public class NameEnvironment implements IModuleAwareNameEnvironment, SuffixConstants {
+public class NameEnvironment implements IReleaseAwareNameEnvironment, SuffixConstants {
 
 boolean isIncrementalBuild;
 ClasspathMultiDirectory[] sourceLocations;
@@ -203,13 +196,23 @@ private void computeClasspathLocations(
 					}
 					bLocation.patchModuleName = patchedModuleName;
 				} else {
+					String release = Arrays.stream(entry.getExtraAttributes())
+							.filter(a -> IClasspathAttribute.RELEASE.equals(a.getName()))
+							.map(IClasspathAttribute::getValue).findFirst().orElse(null);
+					IContainer finalOutputFolder;
+					if (release == null) {
+						finalOutputFolder = outputFolder;
+					} else {
+						finalOutputFolder = outputFolder.getFolder(new Path(String.format("META-INF/versions/%s", release))); //$NON-NLS-1$
+					}
 					ClasspathLocation sourceLocation = ClasspathLocation.forSourceFolder(
 								(IContainer) target,
-								outputFolder,
+								finalOutputFolder,
 								entry.fullInclusionPatternChars(),
 								entry.fullExclusionPatternChars(),
 								entry.ignoreOptionalProblems(),
-								externalAnnotationPath);
+								externalAnnotationPath,
+								release==null?IReleaseAwareNameEnvironment.NO_RELEASE:Integer.parseInt(release));
 					if (patchedModule != null) {
 						ModuleEntryProcessor.combinePatchIntoModuleEntry(sourceLocation, patchedModule, moduleEntries);
 					}
@@ -536,7 +539,7 @@ private void createParentFolder(IContainer parent) throws CoreException {
 	}
 }
 
-private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName, LookupStrategy strategy, String moduleName) {
+private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName, LookupStrategy strategy, String moduleName, int release) {
 	if (this.notifier != null)
 		this.notifier.checkCancelWithinCompiler();
 
@@ -588,6 +591,23 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 		relevantLocations = this.binaryLocations;
 	}
 	NameEnvironmentAnswer suggestedAnswer = null;
+	if (release >= IReleaseAwareNameEnvironment.FIRST_MULTI_RELEASE) {
+		//we must filter and sort any classpath directory here:
+		//release locations that do not match (e.g larger than current release) must be omitted)
+		//and we need to sort by highest to lowest to have the same order like on runtime.
+		relevantLocations = Arrays.stream(relevantLocations).filter(loc->{
+			if (loc instanceof ClasspathMultiDirectory md) {
+				//only those with release lower or equal are valid here!
+				return md.release <= release;
+			}
+			return true;
+		}).sorted(Comparator.comparingInt(loc->{
+			if (loc instanceof ClasspathMultiDirectory md) {
+				return md.release;
+			}
+			return IReleaseAwareNameEnvironment.NO_RELEASE;
+		}).reversed()).toArray(ClasspathLocation[]::new);
+	}
 	for (ClasspathLocation classpathLocation : relevantLocations) {
 		if (!strategy.matches(classpathLocation, ClasspathLocation::hasModule)) {
 			continue;
@@ -612,23 +632,25 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 }
 
 @Override
-public NameEnvironmentAnswer findType(char[][] compoundName, char[] moduleName) {
+public NameEnvironmentAnswer findType(char[][] compoundName, char[] moduleName, int release) {
 	if (compoundName != null)
 		return findClass(
 			String.valueOf(CharOperation.concatWith(compoundName, '/')),
 			compoundName[compoundName.length - 1],
 			LookupStrategy.get(moduleName),
-			LookupStrategy.getStringName(moduleName));
+			LookupStrategy.getStringName(moduleName),
+			release);
 	return null;
 }
 
 @Override
-public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, char[] moduleName) {
+public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, char[] moduleName, int release) {
 	return findClass(
 			String.valueOf(CharOperation.concatWith(packageName, typeName, '/')),
 			typeName,
 			LookupStrategy.get(moduleName),
-			LookupStrategy.getStringName(moduleName));
+			LookupStrategy.getStringName(moduleName),
+			release);
 }
 
 @Override
