@@ -448,83 +448,7 @@ public void test013() throws Exception {
 	},
 	"333332323232323");
 
-	String expectedOutput = new CompilerOptions(getCompilerOptions()).complianceLevel < ClassFileConstants.JDK1_6
-		?	"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
-			"  // Stack: 2, Locals: 5\n" +
-			"  public static void main(java.lang.String[] args);\n" +
-			"      0  aconst_null\n" +
-			"      1  astore_2 [o]\n" +
-			"      2  iconst_0\n" +
-			"      3  istore_3 [i]\n" +
-			"      4  goto 103\n" +
-			"      7  iload_3 [i]\n" +
-			"      8  bipush 90\n" +
-			"     10  if_icmpge 100\n" +
-			"     13  new X [1]\n" +
-			"     16  dup\n" +
-			"     17  invokespecial X() [16]\n" +
-			"     20  astore_1 [x]\n" +
-			"     21  iload_3 [i]\n" +
-			"     22  iconst_4\n" +
-			"     23  if_icmple 37\n" +
-			"     26  new java.lang.Object [3]\n" +
-			"     29  dup\n" +
-			"     30  invokespecial java.lang.Object() [8]\n" +
-			"     33  astore_2 [o]\n" +
-			"     34  goto 39\n" +
-			"     37  aconst_null\n" +
-			"     38  astore_2 [o]\n" +
-			"     39  iconst_2\n" +
-			"     40  tableswitch default: 76\n" +
-			"          case 0: 60\n" +
-			"     60  aload_2 [o]\n" +
-			"     61  instanceof java.lang.String [17]\n" +
-			"     64  ifeq 92\n" +
-			"     67  getstatic java.lang.System.out : java.io.PrintStream [19]\n" +
-			"     70  ldc <String \"1\"> [25]\n" +
-			"     72  invokevirtual java.io.PrintStream.print(java.lang.String) : void [27]\n" +
-			"     75  return\n" +
-			"     76  aload_2 [o]\n" +
-			"     77  astore 4 [diff]\n" +
-			"     79  aload 4 [diff]\n" +
-			"     81  ifnull 92\n" +
-			"     84  getstatic java.lang.System.out : java.io.PrintStream [19]\n" +
-			"     87  ldc <String \"2\"> [33]\n" +
-			"     89  invokevirtual java.io.PrintStream.print(java.lang.String) : void [27]\n" +
-			"     92  getstatic java.lang.System.out : java.io.PrintStream [19]\n" +
-			"     95  ldc <String \"3\"> [35]\n" +
-			"     97  invokevirtual java.io.PrintStream.print(java.lang.String) : void [27]\n" +
-			"    100  iinc 3 1 [i]\n" +
-			"    103  iload_3 [i]\n" +
-			"    104  bipush 10\n" +
-			"    106  if_icmplt 7\n" +
-			"    109  return\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 5]\n" +
-			"        [pc: 2, line: 6]\n" +
-			"        [pc: 7, line: 7]\n" +
-			"        [pc: 13, line: 8]\n" +
-			"        [pc: 21, line: 9]\n" +
-			"        [pc: 26, line: 10]\n" +
-			"        [pc: 34, line: 11]\n" +
-			"        [pc: 37, line: 12]\n" +
-			"        [pc: 39, line: 14]\n" +
-			"        [pc: 60, line: 16]\n" +
-			"        [pc: 67, line: 17]\n" +
-			"        [pc: 75, line: 18]\n" +
-			"        [pc: 76, line: 23]\n" +
-			"        [pc: 79, line: 24]\n" +
-			"        [pc: 84, line: 25]\n" +
-			"        [pc: 92, line: 30]\n" +
-			"        [pc: 100, line: 6]\n" +
-			"        [pc: 109, line: 33]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 110] local: args index: 0 type: java.lang.String[]\n" +
-			"        [pc: 21, pc: 100] local: x index: 1 type: X\n" +
-			"        [pc: 2, pc: 110] local: o index: 2 type: java.lang.Object\n" +
-			"        [pc: 4, pc: 109] local: i index: 3 type: int\n" +
-			"        [pc: 79, pc: 92] local: diff index: 4 type: java.lang.Object\n"
-		:
+	String expectedOutput =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
 			"  // Stack: 2, Locals: 5\n" +
 			"  public static void main(java.lang.String[] args);\n" +
@@ -789,7 +713,6 @@ public void test018() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=314830
 public void test019() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	this.runConformTest(new String[] {
 		"X.java",
 		"public class X {\n" +
@@ -807,7 +730,6 @@ public void test019() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=314830
 public void test020() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	this.runConformTest(new String[] {
 		"X.java",
 		"public class X {\n" +
@@ -828,7 +750,6 @@ public void test020() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=314830
 public void test021() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	this.runConformTest(new String[] {
 		"X.java",
 		"public class X {\n" +
@@ -847,7 +768,6 @@ public void test021() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=314830
 public void test022() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	this.runConformTest(new String[] {
 		"X.java",
 		"public class X {\n" +
@@ -866,7 +786,6 @@ public void test022() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=314830
 public void test023() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	this.runConformTest(new String[] {
 		"X.java",
 		"public class X {\n" +
@@ -1009,9 +928,6 @@ public void testCaseTypeMismatch() {
 }
 // JDK7: Strings in Switch.
 public void testCaseTypeMismatch2() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
-		return;
-	}
 	String newMessage =
 		"----------\n" +
 		"1. ERROR in X.java (at line 7)\n" +
@@ -1044,9 +960,6 @@ public void testCaseTypeMismatch2() {
 }
 // JDK7: Strings in Switch.
 public void testCaseTypeMismatch3() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
-		return;
-	}
 	String newMessage =
 		"----------\n" +
 		"1. ERROR in X.java (at line 7)\n" +
@@ -1764,10 +1677,6 @@ public void testFallThrough2() {
 	}
 }
 public void testMarysLamb() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
-		return;
-	}
-
 	String errorMsg =
 		"----------\n" +
 		"1. ERROR in testMarysLamb.java (at line 4)\n" +
@@ -1829,9 +1738,6 @@ public void testBreakOut() {
 	}
 }
 public void testMultipleSwitches() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
-		return;
-	}
 	String errorMsg =
 		"----------\n" +
 		"1. ERROR in X.java (at line 6)\n" +
@@ -1931,9 +1837,6 @@ public void testMultipleSwitches() {
 	}
 }
 public void testNestedSwitches() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
-		return;
-	}
 	String errorMsg =
 		"----------\n" +
 		"1. ERROR in X.java (at line 4)\n" +
@@ -2223,8 +2126,6 @@ public void testBug380927b() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
 public void testBug380927c() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5)
-		return;
 	this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2338,8 +2239,6 @@ public void testBug380927f() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=380927
 public void testBug380927g() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5)
-		return;
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2393,9 +2292,7 @@ public void testBug383629() throws Exception {
 			"}",
 		}); // custom requestor
 
-	String expectedOutput = this.complianceLevel < ClassFileConstants.JDK1_6 ?
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 61] local: args index: 0 type: java.lang.String[]\n":
+	String expectedOutput =
 				"      Local variable table:\n" +
 				"        [pc: 0, pc: 61] local: args index: 0 type: java.lang.String[]\n" +
 				"      Stack map table: number of frames 4\n" +
@@ -2454,10 +2351,7 @@ public void testBug381172() throws Exception {
 			"}",
 		}); // custom requestor
 
-	String expectedOutput = this.complianceLevel < ClassFileConstants.JDK1_6 ?
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 1] local: this index: 0 type: X\n" +
-			"        [pc: 0, pc: 1] local: rc index: 1 type: int\n":
+	String expectedOutput =
 				"      Local variable table:\n" +
 				"        [pc: 0, pc: 63] local: this index: 0 type: X\n" +
 				"        [pc: 30, pc: 38] local: rc index: 1 type: int\n" +
@@ -2921,9 +2815,7 @@ public void test526911() {
 		"   }\n" +
 		"}",
 	};
-	if (this.complianceLevel >= ClassFileConstants.JDK1_8) {
-		this.runConformTest(sourceFiles, "1 11");
-	}
+	this.runConformTest(sourceFiles, "1 11");
 }
 public void test526911a() {
 	// target 1.8, run with 9, should work fine
@@ -3035,8 +2927,6 @@ public void test526911a() {
 	this.runConformTest(sourceFiles, "1 11", options);
 }
 public void testBug533475() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5)
-		return;
 	runConformTest(
 		new String[] {
 			"SwitchBug.java",
@@ -3069,7 +2959,7 @@ public void testBug533475() {
 		});
 }
 public void testBug545518() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8 || this.complianceLevel >= ClassFileConstants.JDK12)
+	if (this.complianceLevel >= ClassFileConstants.JDK12)
 		return;
 	String message =
 			"----------\n" +
@@ -3094,9 +2984,6 @@ public void testBug545518() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=576093
 public void testBug576093a() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
-		return;
-	}
 	this.runConformTest(
 			new String[] {
 					"X.java",
@@ -3124,9 +3011,6 @@ public void testBug576093a() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=576093
 public void testBug576093b() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
-		return;
-	}
 	this.runConformTest(
 			new String[] {
 				"X2.java",

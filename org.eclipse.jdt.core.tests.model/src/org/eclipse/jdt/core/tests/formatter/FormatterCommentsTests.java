@@ -35,7 +35,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -115,7 +114,7 @@ protected void assumeSourceEquals(String message, String expected, String actual
 
 private String expectedFormattedSource(String source) {
 	DefaultCodeFormatter codeFormatter = codeFormatter();
-	Scanner scanner = new Scanner(true, true, false/*nls*/, ClassFileConstants.JDK1_4/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/,
+	Scanner scanner = new Scanner(true, true, false/*nls*/, CompilerOptions.getFirstSupportedJdkLevel()/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/,
 			codeFormatter.previewEnabled);
 	CodeSnippetParsingUtil codeSnippetParsingUtil = new CodeSnippetParsingUtil();
 	CompilationUnitDeclaration compilationUnitDeclaration = codeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), getDefaultCompilerOptions(), true);

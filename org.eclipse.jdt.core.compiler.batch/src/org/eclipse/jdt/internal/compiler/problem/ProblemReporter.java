@@ -2018,7 +2018,7 @@ public void multiCatchNotBelow17(ASTNode node) {
 }
 public void duplicateAnnotation(Annotation annotation, long sourceLevel) {
 	this.handle(
-		sourceLevel >= ClassFileConstants.JDK1_8 ? IProblem.DuplicateAnnotationNotMarkedRepeatable : IProblem.DuplicateAnnotation,
+		IProblem.DuplicateAnnotationNotMarkedRepeatable,
 		new String[] {new String(annotation.resolvedType.readableName())},
 		new String[] {new String(annotation.resolvedType.shortReadableName())},
 		annotation.sourceStart,
@@ -2527,7 +2527,6 @@ public void finalMethodCannotBeOverridden(MethodBinding currentMethod, MethodBin
 		currentMethod.sourceEnd());
 }
 public void finalVariableBound(TypeVariableBinding typeVariable, TypeReference typeRef) {
-	if (this.options.sourceLevel < ClassFileConstants.JDK1_5) return;
 	int severity = computeSeverity(IProblem.FinalBoundForTypeVariable);
 	if (severity == ProblemSeverities.Ignore) return;
 	this.handle(
@@ -3093,7 +3092,7 @@ public void illegalModifierForInterfaceField(FieldDeclaration fieldDecl) {
 }
 public void illegalModifierForInterfaceMethod(AbstractMethodDeclaration methodDecl, long  level) {
 
-	int problem = level < ClassFileConstants.JDK1_8 ? IProblem.IllegalModifierForInterfaceMethod :
+	int problem =
 		level < ClassFileConstants.JDK9 ? IProblem.IllegalModifierForInterfaceMethod18 : IProblem.IllegalModifierForInterfaceMethod9;
 	// cannot include parameter types since they are not resolved yet
 	// and the error message would be too long
@@ -3683,39 +3682,12 @@ public void incorrectLocationForNonEmptyDimension(ArrayAllocationExpression expr
 		expression.dimensions[index].sourceEnd);
 }
 public void incorrectSwitchType(Expression expression, TypeBinding testType) {
-	if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
-		if (testType.id == TypeIds.T_JavaLangString) {
-			this.handle(
-					IProblem.SwitchOnStringsNotBelow17,
-					new String[] {new String(testType.readableName())},
-					new String[] {new String(testType.shortReadableName())},
-					expression.sourceStart,
-					expression.sourceEnd);
-		} else {
-			if (this.options.sourceLevel < ClassFileConstants.JDK1_5 && testType.isEnum()) {
-				this.handle(
-						IProblem.SwitchOnEnumNotBelow15,
-						new String[] {new String(testType.readableName())},
-						new String[] {new String(testType.shortReadableName())},
-						expression.sourceStart,
-						expression.sourceEnd);
-			} else {
-				this.handle(
-						IProblem.IncorrectSwitchType,
-						new String[] {new String(testType.readableName())},
-						new String[] {new String(testType.shortReadableName())},
-						expression.sourceStart,
-						expression.sourceEnd);
-			}
-		}
-	} else {
-		this.handle(
-				IProblem.IncorrectSwitchType17,
-				new String[] {new String(testType.readableName())},
-				new String[] {new String(testType.shortReadableName())},
-				expression.sourceStart,
-				expression.sourceEnd);
-	}
+	this.handle(
+			IProblem.IncorrectSwitchType17,
+			new String[] {new String(testType.readableName())},
+			new String[] {new String(testType.shortReadableName())},
+			expression.sourceStart,
+			expression.sourceEnd);
 }
 public void indirectAccessToStaticField(ASTNode location, FieldBinding field){
 	int severity = computeSeverity(IProblem.IndirectAccessToStaticField);
@@ -6643,7 +6615,7 @@ public void localVariableRedundantNullAssignment(LocalVariableBinding local, AST
 public void methodMustOverride(AbstractMethodDeclaration method, long complianceLevel) {
 	MethodBinding binding = method.binding;
 	this.handle(
-		complianceLevel == ClassFileConstants.JDK1_5 ? IProblem.MethodMustOverride : IProblem.MethodMustOverrideOrImplement,
+		IProblem.MethodMustOverrideOrImplement,
 		new String[] {new String(binding.selector), typesAsString(binding, false), new String(binding.declaringClass.readableName()), },
 		new String[] {new String(binding.selector), typesAsString(binding, true), new String(binding.declaringClass.shortReadableName()),},
 		method.sourceStart,
@@ -7930,7 +7902,6 @@ public void rawMemberTypeCannotBeParameterized(ASTNode location, ReferenceBindin
 		location.sourceEnd);
 }
 public void rawTypeReference(ASTNode location, TypeBinding type) {
-	if (this.options.sourceLevel < ClassFileConstants.JDK1_5) return; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=305259
 	type = type.leafComponentType();
     this.handle(
 		IProblem.RawTypeReference,
@@ -8077,9 +8048,6 @@ public void reset() {
 	this.positionScanner = null;
 }
 public void resourceHasToImplementAutoCloseable(TypeBinding binding, ASTNode reference) {
-	if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
-		return; // Not supported in 1.7 would have been reported. Hence another not required
-	}
 	this.handle(
 			IProblem.ResourceHasToImplementAutoCloseable,
 			new String[] {new String(binding.readableName())},
@@ -8719,12 +8687,6 @@ public void notAnnotationType(TypeBinding actualType, ASTNode location) {
 			location.sourceEnd);
 }
 public void typeMismatchError(TypeBinding actualType, TypeBinding expectedType, ASTNode location, ASTNode expectingLocation) {
-	if (this.options.sourceLevel < ClassFileConstants.JDK1_5) { // don't expose type variable names, complain on erased types
-		if (actualType instanceof TypeVariableBinding)
-			actualType = actualType.erasure();
-		if (expectedType instanceof TypeVariableBinding)
-			expectedType = expectedType.erasure();
-	}
 	if (actualType != null && (actualType.tagBits & TagBits.HasMissingType) != 0) { // improve secondary error
 		if (location instanceof Annotation) {
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=376977
@@ -9196,7 +9158,6 @@ public void unresolvableReference(NameReference nameRef, Binding binding) {
 		end);
 }
 public void unsafeCast(CastExpression castExpression, Scope scope) {
-	if (this.options.sourceLevel < ClassFileConstants.JDK1_5) return; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=305259
 	int severity = computeSeverity(IProblem.UnsafeGenericCast);
 	if (severity == ProblemSeverities.Ignore) return;
 	TypeBinding castedExpressionType = castExpression.expression.resolvedType;
@@ -9243,7 +9204,6 @@ public void unsafeGenericArrayForVarargs(TypeBinding leafComponentType, ASTNode 
 		location.sourceEnd);
 }
 public void unsafeRawFieldAssignment(FieldBinding field, TypeBinding expressionType, ASTNode location) {
-	if (this.options.sourceLevel < ClassFileConstants.JDK1_5) return; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=305259
 	int severity = computeSeverity(IProblem.UnsafeRawFieldAssignment);
 	if (severity == ProblemSeverities.Ignore) return;
 	this.handle(
@@ -9257,7 +9217,6 @@ public void unsafeRawFieldAssignment(FieldBinding field, TypeBinding expressionT
 		nodeSourceEnd(field, location));
 }
 public void unsafeRawGenericMethodInvocation(ASTNode location, MethodBinding rawMethod, TypeBinding[] argumentTypes) {
-	if (this.options.sourceLevel < ClassFileConstants.JDK1_5) return; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=305259
 	boolean isConstructor = rawMethod.isConstructor();
 	int severity = computeSeverity(isConstructor ? IProblem.UnsafeRawGenericConstructorInvocation : IProblem.UnsafeRawGenericMethodInvocation);
 	if (severity == ProblemSeverities.Ignore) return;
@@ -9300,7 +9259,6 @@ public void unsafeRawGenericMethodInvocation(ASTNode location, MethodBinding raw
     }
 }
 public void unsafeRawInvocation(ASTNode location, MethodBinding rawMethod) {
-	if (this.options.sourceLevel < ClassFileConstants.JDK1_5) return; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=305259
 	boolean isConstructor = rawMethod.isConstructor();
 	int severity = computeSeverity(isConstructor ? IProblem.UnsafeRawConstructorInvocation : IProblem.UnsafeRawMethodInvocation);
 	if (severity == ProblemSeverities.Ignore) return;
@@ -9341,9 +9299,6 @@ public void unsafeRawInvocation(ASTNode location, MethodBinding rawMethod) {
     }
 }
 public void unsafeReturnTypeOverride(MethodBinding currentMethod, MethodBinding inheritedMethod, SourceTypeBinding type) {
-	if (this.options.sourceLevel < ClassFileConstants.JDK1_5) {
-		return;
-	}
 	int severity = computeSeverity(IProblem.UnsafeReturnTypeOverride);
 	if (severity == ProblemSeverities.Ignore) return;
 	int start = type.sourceStart();
@@ -9381,7 +9336,6 @@ public void unsafeReturnTypeOverride(MethodBinding currentMethod, MethodBinding 
 			end);
 }
 public void unsafeTypeConversion(Expression expression, TypeBinding expressionType, TypeBinding expectedType) {
-	if (this.options.sourceLevel < ClassFileConstants.JDK1_5) return; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=305259
 	int severity = computeSeverity(IProblem.UnsafeTypeConversion);
 	if (severity == ProblemSeverities.Ignore) return;
 	if (!this.options.reportUnavoidableGenericTypeProblems && expression.forcedToBeRaw(this.referenceContext)) {
@@ -9396,7 +9350,6 @@ public void unsafeTypeConversion(Expression expression, TypeBinding expressionTy
 		expression.sourceEnd);
 }
 public void unsafeElementTypeConversion(Expression expression, TypeBinding expressionType, TypeBinding expectedType) {
-	if (this.options.sourceLevel < ClassFileConstants.JDK1_5) return; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=305259
 	int severity = computeSeverity(IProblem.UnsafeElementTypeConversion);
 	if (severity == ProblemSeverities.Ignore) return;
 	if (!this.options.reportUnavoidableGenericTypeProblems && expression.forcedToBeRaw(this.referenceContext)) {

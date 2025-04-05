@@ -317,7 +317,6 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			// For a record component accessor method, don't bother with checking for override (JLS 15 9.6.4.4)
 			if (this.binding == null || recordComponent != null) break checkOverride;
 			long complianceLevel = compilerOptions.complianceLevel;
-			if (complianceLevel < ClassFileConstants.JDK1_5) break checkOverride;
 			int bindingModifiers = this.binding.modifiers;
 			boolean hasOverrideAnnotation = (this.binding.tagBits & TagBits.AnnotationOverride) != 0;
 			boolean hasUnresolvedArguments = (this.binding.tagBits & TagBits.HasUnresolvedArguments) != 0;
@@ -327,8 +326,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 					break checkOverride;
 				//	in 1.5, strictly for overriding superclass method
 				//	in 1.6 and above, also tolerate implementing interface method
-				if (complianceLevel >= ClassFileConstants.JDK1_6
-						&& ((bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccImplementing)) == ExtraCompilerModifiers.AccImplementing))
+				if ((bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccImplementing)) == ExtraCompilerModifiers.AccImplementing)
 					break checkOverride;
 				// claims to override, and doesn't actually do so
 				this.scope.problemReporter().methodMustOverride(this, complianceLevel);
@@ -339,8 +337,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 						if((bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding) {
 							this.scope.problemReporter().missingOverrideAnnotation(this);
 						} else {
-							if(complianceLevel >= ClassFileConstants.JDK1_6
-								&& compilerOptions.reportMissingOverrideAnnotationForInterfaceMethodImplementation
+							if(compilerOptions.reportMissingOverrideAnnotationForInterfaceMethodImplementation
 								&& this.binding.isImplementing()) {
 									// actually overrides, but did not claim to do so
 									this.scope.problemReporter().missingOverrideAnnotationForInterfaceMethodImplementation(this);
@@ -351,8 +348,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 				else {	//For 1.6 and above only
 					//In case of a interface class method, we have to check if it overrides a method (isImplementing returns true in case it overrides)
 					//Also check if the method has a signature that is override-equivalent to that of any public method declared in Object.
-					if(complianceLevel >= ClassFileConstants.JDK1_6
-							&& compilerOptions.reportMissingOverrideAnnotationForInterfaceMethodImplementation
+					if(compilerOptions.reportMissingOverrideAnnotationForInterfaceMethodImplementation
 							&& (((bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding) || this.binding.isImplementing())){
 						// actually overrides, but did not claim to do so
 						this.scope.problemReporter().missingOverrideAnnotationForInterfaceMethodImplementation(this);
@@ -385,8 +381,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 				}
 				break;
 			case TypeDeclaration.INTERFACE_DECL :
-				if (compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8
-						&& (this.modifiers & (ExtraCompilerModifiers.AccSemicolonBody | ClassFileConstants.AccAbstract)) == ExtraCompilerModifiers.AccSemicolonBody) {
+				if ((this.modifiers & (ExtraCompilerModifiers.AccSemicolonBody | ClassFileConstants.AccAbstract)) == ExtraCompilerModifiers.AccSemicolonBody) {
 					boolean isPrivateMethod = compilerOptions.sourceLevel >= ClassFileConstants.JDK9 && (this.modifiers & ClassFileConstants.AccPrivate) != 0;
 					if (isPrivateMethod || ((this.modifiers & (ClassFileConstants.AccStatic | ExtraCompilerModifiers.AccDefaultMethod)) != 0)) {
 							this.scope.problemReporter().methodNeedBody(this);

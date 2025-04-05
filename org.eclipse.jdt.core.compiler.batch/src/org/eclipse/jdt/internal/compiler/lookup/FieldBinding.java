@@ -126,13 +126,8 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	if (isPrivate()) {
 		// answer true if the receiverType is the declaringClass
 		// AND the invocationType and the declaringClass have a common enclosingType
-		receiverCheck: {
-			if (TypeBinding.notEquals(receiverType, this.declaringClass)) {
-				// special tolerance for type variable direct bounds, but only if compliance <= 1.6, see: https://bugs.eclipse.org/bugs/show_bug.cgi?id=334622
-				if (scope.compilerOptions().complianceLevel <= ClassFileConstants.JDK1_6 && receiverType.isTypeVariable() && ((TypeVariableBinding) receiverType).isErasureBoundTo(this.declaringClass.erasure()))
-					break receiverCheck;
-				return false;
-			}
+		if (TypeBinding.notEquals(receiverType, this.declaringClass)) {
+			return false;
 		}
 
 		if (TypeBinding.notEquals(invocationType, this.declaringClass)) {

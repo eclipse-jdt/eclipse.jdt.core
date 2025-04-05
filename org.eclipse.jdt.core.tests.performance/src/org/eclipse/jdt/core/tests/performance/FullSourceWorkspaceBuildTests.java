@@ -41,7 +41,6 @@ import org.eclipse.jdt.internal.compiler.SourceElementRequestorAdapter;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.batch.Main;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
@@ -363,8 +362,8 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		File file = new File(fileName);
 		char[] content = Util.getFileCharContent(file, null);
 		CompilerOptions options = new CompilerOptions();
-		options.sourceLevel = ClassFileConstants.JDK1_4;
-		options.targetJDK = ClassFileConstants.JDK1_4;
+		options.sourceLevel = CompilerOptions.getFirstSupportedJdkLevel();
+		options.targetJDK = CompilerOptions.getFirstSupportedJdkLevel();
 		ProblemReporter problemReporter =
 				new ProblemReporter(
 					DefaultErrorHandlingPolicies.exitAfterAllProblems(),

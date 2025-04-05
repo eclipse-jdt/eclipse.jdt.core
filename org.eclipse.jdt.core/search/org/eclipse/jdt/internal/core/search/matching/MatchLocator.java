@@ -833,14 +833,7 @@ private boolean filterEnum(SearchMatch match) {
 	if (pkg != null) {
 		// enum was found in org.apache.commons.lang.enum at index 5
 		if (pkg.names.length == 5 && pkg.names[4].equals("enum")) {  //$NON-NLS-1$
-			if (this.options == null) {
-				IJavaProject proj = (IJavaProject)pkg.getAncestor(IJavaElement.JAVA_PROJECT);
-				String complianceStr = proj.getOption(CompilerOptions.OPTION_Source, true);
-				if (CompilerOptions.versionToJdkLevel(complianceStr) >= ClassFileConstants.JDK1_5)
-					return true;
-			} else if (this.options.sourceLevel >= ClassFileConstants.JDK1_5) {
-				return true;
-			}
+			return true;
 		}
 	}
 	return false;
@@ -1294,7 +1287,7 @@ protected void locateMatchesDefaultImpl(JavaProject javaProject, PossibleMatch[]
 	// create and resolve binding (equivalent to beginCompilation() in Compiler)
 	boolean mustResolvePattern = this.pattern.mustResolve;
 	boolean mustResolve = mustResolvePattern;
-	this.patternLocator.mayBeGeneric = this.options.sourceLevel >= ClassFileConstants.JDK1_5;
+	this.patternLocator.mayBeGeneric = true;
 	boolean bindingsWereCreated = mustResolve;
 	try {
 		for (int i = start, maxUnits = start + length; i < maxUnits; i++) {
