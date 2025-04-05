@@ -20,15 +20,7 @@
 package org.eclipse.jdt.internal.core.builder;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.eclipse.core.resources.IContainer;
@@ -41,6 +33,7 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IModuleDescription;
@@ -203,9 +196,18 @@ private void computeClasspathLocations(
 					}
 					bLocation.patchModuleName = patchedModuleName;
 				} else {
+					IClasspathAttribute[] extraAttributes = entry.getExtraAttributes();
+					Map<String, String> map = Arrays.stream(extraAttributes).collect(Collectors.toMap(IClasspathAttribute::getName, IClasspathAttribute::getValue));
+					String release = map.get(IClasspathAttribute.RELEASE);
+					IContainer finalOutputFolder;
+					if (release == null) {
+						finalOutputFolder = outputFolder;
+					} else {
+						finalOutputFolder = outputFolder.getFolder(new Path(String.format("META-INF/versions/%s", release))); //$NON-NLS-1$
+					}
 					ClasspathLocation sourceLocation = ClasspathLocation.forSourceFolder(
 								(IContainer) target,
-								outputFolder,
+								finalOutputFolder,
 								entry.fullInclusionPatternChars(),
 								entry.fullExclusionPatternChars(),
 								entry.ignoreOptionalProblems(),

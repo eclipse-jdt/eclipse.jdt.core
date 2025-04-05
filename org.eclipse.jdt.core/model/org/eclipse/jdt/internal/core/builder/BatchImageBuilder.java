@@ -160,23 +160,25 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 				IContainer outputFolder = sourceLocation.binaryFolder;
 				if (!visited.contains(outputFolder)) {
 					visited.add(outputFolder);
-					IResource[] members = outputFolder.members();
-					for (IResource member : members) {
-						if (!member.isDerived()) {
-							member.accept(
-								new IResourceVisitor() {
-									@Override
-									public boolean visit(IResource resource) throws CoreException {
-										resource.setDerived(true, null);
-										return resource.getType() != IResource.FILE;
+					if (outputFolder.exists()) {
+						IResource[] members = outputFolder.members();
+						for (IResource member : members) {
+							if (!member.isDerived()) {
+								member.accept(
+									new IResourceVisitor() {
+										@Override
+										public boolean visit(IResource resource) throws CoreException {
+											resource.setDerived(true, null);
+											return resource.getType() != IResource.FILE;
+										}
 									}
-								}
-							);
-						}
-						try {
-							member.delete(IResource.FORCE, null);
-						} catch(CoreException e) {
-							Util.log(e, "Error occurred while deleting: " + member.getFullPath()); //$NON-NLS-1$
+								);
+							}
+							try {
+								member.delete(IResource.FORCE, null);
+							} catch(CoreException e) {
+								Util.log(e, "Error occurred while deleting: " + member.getFullPath()); //$NON-NLS-1$
+							}
 						}
 					}
 				}
