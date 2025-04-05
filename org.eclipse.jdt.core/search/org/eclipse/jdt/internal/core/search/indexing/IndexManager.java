@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
@@ -1309,7 +1310,12 @@ private void readIndexMap() {
 			String savedSignature = DiskIndex.SIGNATURE;
 			if (savedSignature.equals(new String(names[0]))) {
 				for (int i = 1, l = names.length-1 ; i < l ; i+=2) {
-					IndexLocation indexPath = IndexLocation.createIndexLocation(new URL(new String(names[i])));
+					IndexLocation indexPath = null;
+					try {
+						indexPath = IndexLocation.createIndexLocation((new URI(new String(names[i])).toURL()));
+					} catch (URISyntaxException e) {
+						// Ignore the null path and continue
+					}
 					if (indexPath == null) continue;
 					this.indexLocations.put(new Path(new String(names[i+1])), indexPath );
 					this.indexStates.put(indexPath, REUSE_STATE);
