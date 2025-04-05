@@ -1125,4 +1125,30 @@ public class CompletionTests16 extends AbstractJavaModelCompletionTests {
 						+ R_EXACT_EXPECTED_TYPE)
 				+ "}", requestor.getResults());
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3898
+	// CodeCompletionTest16.testBug560674 fails in I20250404-0410
+	public void testIssue3898() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"public record X(int abcdef) {\n" +
+				"    abcd\n" +
+				"	}\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		requestor.allowAllRequiredProposals();
+		requestor.setRequireExtendedContext(true);
+		requestor.setComputeEnclosingElement(true);
+		requestor.setComputeVisibleElements(true);
+		requestor.setAssignableType("LX;");
+
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "abcd";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		requestor.getContext(); // triggers the CCE
+		assertEquals("abcd[POTENTIAL_METHOD_DECLARATION]{abcd, LX;, ()V, null, null, abcd, null, [34, 38], 39}" , requestor.getResults());
+	}
 }
