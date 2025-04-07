@@ -341,11 +341,10 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			List typeArgs = working instanceof ParameterizedType pt ? pt.typeArguments() : null;
 			boolean emptyPatternParams = thisLevelTypeParams == null || thisLevelTypeParams.length == 0;
 			if( emptyPatternParams) {
-				if( exactMatch && emptyPatternParams && (typeArgs == null || typeArgs.size() > 0) ) {
+				if( exactMatch && emptyPatternParams && (typeArgs != null && typeArgs.size() > 0) ) {
 					return TYPE_PARAMS_NO_MATCH;
 				}
-			}
-			if( !emptyPatternParams) {
+			} else {
 				if( typeArgs == null || typeArgs.size() != thisLevelTypeParams.length) {
 					return TYPE_PARAMS_NO_MATCH;
 				}
