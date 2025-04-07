@@ -164,7 +164,7 @@ public abstract class AbstractMethodDeclaration
 				}
 				return;
 			}
-			boolean used = this.binding.isAbstract() || this.binding.isNative();
+			boolean used = this.binding.isAbstract() || this.binding.isNative() || this.binding.isCompactConstructor() || (this.bits & ASTNode.IsImplicit) != 0;
 			AnnotationBinding[][] paramAnnotations = null;
 			for (int i = 0, length = this.arguments.length; i < length; i++) {
 				Argument argument = this.arguments[i];
