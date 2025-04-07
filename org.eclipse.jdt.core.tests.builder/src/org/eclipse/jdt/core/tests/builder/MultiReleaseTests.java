@@ -13,8 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
-import static org.junit.Assert.assertNotEquals;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -27,6 +25,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.IClassFileReader;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class MultiReleaseTests extends BuilderTests {
 
@@ -39,7 +38,7 @@ public class MultiReleaseTests extends BuilderTests {
 	}
 
 	public void testMultiReleaseCompile() throws JavaModelException, IOException {
-		IPath projectPath = env.addProject("P");
+		IPath projectPath = env.addProject("P", CompilerOptions.VERSION_1_8);
 		env.removePackageFragmentRoot(projectPath, "");
 		IPath defaultSrc = env.addPackageFragmentRoot(projectPath, "src");
 		IClasspathAttribute[] extraAttributes = new IClasspathAttribute[] {
@@ -68,20 +67,19 @@ public class MultiReleaseTests extends BuilderTests {
 		IPath defaultReleaseClass = projectPath.append("bin/p/MultiReleaseType.class");
 		IPath java9ReleaseClass = projectPath.append("bin/META-INF/versions/9/p/MultiReleaseType.class");
 		expectingPresenceOf(defaultReleaseClass);
-		assertEquals("Major version for release compilation is wrong", 9, getMajorVersionOfClass(java9ReleaseClass));
-		assertNotEquals("Major version for default compilation should be different", 9, getMajorVersionOfClass(defaultReleaseClass));
+		assertEquals("Major version for release compilation is wrong", 53, getMajorVersionOfClass(java9ReleaseClass));
+		assertEquals("Major version for default compilation is wrong", 52, getMajorVersionOfClass(defaultReleaseClass));
 	}
 
 	private int getMajorVersionOfClass(IPath clazz) throws IOException, FileNotFoundException {
 		expectingPresenceOf(clazz);
-		File java9ClassFile = env.getWorkspaceRootPath().append(clazz).toFile();
-		assertNotNull(java9ClassFile);
+		File classFile = env.getWorkspaceRootPath().append(clazz).toFile();
+		assertNotNull(classFile);
 		IClassFileReader reader;
-		try (FileInputStream stream = new FileInputStream(java9ClassFile)) {
+		try (FileInputStream stream = new FileInputStream(classFile)) {
 			reader = ToolFactory.createDefaultClassFileReader(stream, IClassFileReader.ALL);
 		}
-		int majorVersion = reader.getMajorVersion();
-		return majorVersion;
+		return reader.getMajorVersion();
 	}
 
 }
