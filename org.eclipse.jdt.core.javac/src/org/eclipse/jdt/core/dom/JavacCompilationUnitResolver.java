@@ -77,6 +77,7 @@ import org.eclipse.jdt.internal.javac.CachingJDKPlatformArguments;
 import org.eclipse.jdt.internal.javac.CachingJarsJavaFileManager;
 import org.eclipse.jdt.internal.javac.JavacProblemConverter;
 import org.eclipse.jdt.internal.javac.JavacUtils;
+import org.eclipse.jdt.internal.javac.ProcessorConfig;
 import org.eclipse.jdt.internal.javac.UnusedProblemFactory;
 import org.eclipse.jdt.internal.javac.UnusedTreeScanner;
 
@@ -675,7 +676,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			javacOptions.remove(Option.XDOCLINT.primaryName);
 			javacOptions.put(Option.XDOCLINT_CUSTOM, "none");
 		}
-		javacOptions.put(Option.PROC, "only");
+		javacOptions.put(Option.PROC, ProcessorConfig.isAnnotationProcessingEnabled(javaProject) ? "only" : "none");
 		Optional.ofNullable(Platform.getProduct())
 				.map(IProduct::getApplication)
 				// if application is not a test runner (so we don't have regressions with JDT test suite because of too many problems
