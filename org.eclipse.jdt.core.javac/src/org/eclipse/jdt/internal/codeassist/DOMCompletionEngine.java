@@ -212,14 +212,14 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	private ASTNode toComplete;
 	private String textContent;
 	private ExtendsOrImplementsInfo extendsOrImplementsInfo;
-	
+
 	private Map<String, ITypeHierarchy> typeHierarchyCache = new HashMap<>();
 
 	class Bindings {
 		// those need to be list since the order matters
 		// fields must be before methods
 		private List<IBinding> others = new ArrayList<>();
-		
+
 		private Set<IBinding> shadowed = new HashSet<>();
 		private boolean alreadyScrapedAccessibleBindings = false;
 		private boolean requestAccessibleBindings = false;
@@ -525,7 +525,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	 * @param falseBindings the bindings that are accessible when the expression is false
 	 */
 	record TrueFalseBindings(List<IVariableBinding> trueBindings, List<IVariableBinding> falseBindings) {}
-	
+
 	record TrueFalseCasts(List<ITypeBinding> trueCasts, List<ITypeBinding> falseCasts) {}
 
 	private TrueFalseBindings collectTrueFalseBindings(Expression e) {
@@ -554,7 +554,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			return new TrueFalseBindings(typePatternBindings, Collections.emptyList());
 		}
 	}
-	
+
 	private static TrueFalseCasts collectTrueFalseCasts(Expression e, IVariableBinding castedBinding) {
 		if (e instanceof PrefixExpression prefixExpression && prefixExpression.getOperator() == PrefixExpression.Operator.NOT) {
 			TrueFalseCasts notBindings = collectTrueFalseCasts(prefixExpression.getOperand(), castedBinding);
@@ -902,14 +902,14 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					//     ba|
 					// }
 					BodyDeclaration bodyDeclaration = (BodyDeclaration)simpleType.getParent();
-					
+
 					ITypeBinding typeDeclBinding;
 					if (simpleType.getParent().getParent() instanceof AbstractTypeDeclaration typeDecl) {
 						typeDeclBinding = typeDecl.resolveBinding();
 					} else {
 						typeDeclBinding = ((AnonymousClassDeclaration)simpleType.getParent().getParent()).resolveBinding();
 					}
-					
+
 					if (!typeDeclBinding.isAnnotation()) {
 						findOverridableMethods(typeDeclBinding, this.javaProject, context);
 					}
@@ -1890,7 +1890,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				}
 			}
 			if (context instanceof VariableDeclarationFragment vdf) {
-				if (this.toComplete.equals(vdf.getName()) 
+				if (this.toComplete.equals(vdf.getName())
 					|| this.toComplete.getLength() == 0 /* recovered */) {
 					ITypeBinding typeBinding = null;
 					if (vdf.getParent() instanceof VariableDeclarationStatement vds) {
@@ -2028,7 +2028,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						afterBrokenImport = true;
 					}
 				}
-				
+
 				if (!afterBrokenImport && startOffset <= this.offset) {
 					int existingModifiers = 0;
 					String[] potentialModifiers = this.textContent.substring(startOffset).split("\\s+");
@@ -2038,7 +2038,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 							existingModifiers |= potentialModifierKeyword.toFlagValue();
 						}
 					}
-					
+
 					suggestModifierKeywords(existingModifiers);
 					suggestClassDeclarationLikeKeywords();
 				}
@@ -2210,7 +2210,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			}
 		}
 	}
-	
+
 	private void suggestClassDeclarationLikeKeywords() {
 		if (!this.isFailedMatch(this.prefix.toCharArray(), Keywords.CLASS)) {
 			this.requestor.accept(createKeywordProposal(Keywords.CLASS, -1, -1));
@@ -2344,13 +2344,13 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		}
 
 		List<String> nameSegments = Stream.of(simpleName.split("(?=_)|(?<=_)")).flatMap(nameSegment -> Stream.of(nameSegment.split("(?<=[a-z0-9])(?=[A-Z])"))).filter(str -> !str.isEmpty()).toList();
-		
+
 		if (nameSegments.isEmpty()) {
 			return;
 		}
-		
+
 		List<String> variablePortionsOfName = new ArrayList<>();
-		
+
 		for (int i = 0; i < nameSegments.size(); i++) {
 			if (nameSegments.get(i).equals("_")) {
 				continue;
@@ -2370,7 +2370,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			}
 			variablePortionsOfName.add(variablePortionOfName.toString());
 		}
-		
+
 		List<String> prefixes = new ArrayList<>();
 		List<String> suffixes = new ArrayList<>();
 		if (this.assistOptions.localPrefixes != null) {
@@ -2394,7 +2394,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			if (this.prefix.length() < shortest) {
 				shortest = this.prefix.length();
 			}
-			
+
 			if (localPrefix.substring(0, shortest).equals(this.prefix.substring(0, shortest))) {
 				int outerAdditionalRelevance = 0;
 				if (firstPrefix) {
@@ -2492,15 +2492,15 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			if (!alreadySuggestedNames.contains(possibleName)) {
 				alreadySuggestedNames.add(possibleName);
 				CompletionProposal res = createProposal(CompletionProposal.VARIABLE_DECLARATION);
-				
+
 				int additionalRelevance = additionalRelevances.getOrDefault(possibleName, 0);
 				if (SourceVersion.isKeyword(possibleName)) {
 					possibleName += "1";
 				}
-				
+
 				res.setName(possibleName.toCharArray());
 				res.setCompletion(possibleName.toCharArray());
-				
+
 				res.setRelevance(RelevanceConstants.R_DEFAULT
 						+ RelevanceConstants.R_INTERESTING
 						+ RelevanceUtils.computeRelevanceForCaseMatching(this.prefix.toCharArray(), possibleName.toCharArray(), this.assistOptions)
@@ -2512,10 +2512,10 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			}
 		}
 	}
-	
+
 	/**
 	 * Returns the string with the first codepoint capitalized
-	 * 
+	 *
 	 * @param str the string to capitalize
 	 * @return the string with the first codepoint capitalized
 	 */
@@ -2635,7 +2635,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		completion.append(template.getCompletion());
 
 		res.setCompletion(completion.toString().toCharArray());
-		
+
 		// copy props from the template proposal
 		if (!castedType.isArray()) {
 			res.setDeclarationSignature(template.getDeclarationSignature());
@@ -3482,7 +3482,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 	private void findOverridableMethods(ITypeBinding typeBinding, IJavaProject javaProject, ASTNode toReplace) {
 		String originalPackageKey = typeBinding.getPackage().getKey();
-		
+
 		String currentPackageName = this.unit.getPackage() != null ? this.unit.getPackage().getName().toString() : "";
 		List<ITypeBinding> importedTypes = this.unit.imports().stream() //
 				.map(importDecl -> ((ImportDeclaration)importDecl).resolveBinding()) //
@@ -3534,7 +3534,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			proposal.setDeclarationSignature(SignatureUtils.getSignatureChar(method.getDeclaringClass()));
 			proposal.setKey(method.getKey().toCharArray());
 			proposal.setSignature(SignatureUtils.getSignatureChar(method));
-			
+
 			try {
 				if (method.getJavaElement() != null) {
 					proposal.setParameterNames(Stream.of(((IMethod)method.getJavaElement()).getParameterNames()).map(name -> name.toCharArray()).toArray(char[][]::new));
@@ -3842,7 +3842,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				.map(t -> processMembers(t, searchEngine, scope))
 				.flatMap(Function.identity()));
 	}
-	
+
 	private String getSignature(IMethodBinding method) {
 		return method.getName() + '(' +
 				Arrays.stream(method.getParameterTypes()).map(paramType -> paramType != null ? paramType.getName() : "Object").collect(Collectors.joining(","))
@@ -4105,25 +4105,21 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			res.setDeclarationPackageName(element.getAncestor(IJavaElement.PACKAGE_FRAGMENT).getElementName().toCharArray());
 		}
 
-		boolean isInQualifiedName = Set.of(QualifiedName.NAME_PROPERTY,
-				FieldAccess.NAME_PROPERTY,
-				ExpressionMethodReference.NAME_PROPERTY,
-				TypeMethodReference.NAME_PROPERTY,
-				SuperMethodReference.NAME_PROPERTY).contains(this.toComplete.getLocationInParent());
-		res.setRelevance(RelevanceConstants.R_DEFAULT +
-				RelevanceConstants.R_RESOLVED +
-				RelevanceConstants.R_INTERESTING +
-				(res.isConstructor() ? 0 : RelevanceUtils.computeRelevanceForCaseMatching(this.prefix.toCharArray(), binding.getName().toCharArray(), this.assistOptions)) +
-				RelevanceUtils.computeRelevanceForExpectingType(binding instanceof ITypeBinding typeBinding ? typeBinding :
+		boolean isInQualifiedName = DOMCompletionUtil.isInQualifiedName(this.toComplete);
+		int relevance = RelevanceConstants.R_DEFAULT;
+		relevance += RelevanceConstants.R_RESOLVED;
+		relevance += RelevanceConstants.R_INTERESTING;
+		relevance += (res.isConstructor() ? 0 : RelevanceUtils.computeRelevanceForCaseMatching(this.prefix.toCharArray(), binding.getName().toCharArray(), this.assistOptions));
+		relevance += RelevanceUtils.computeRelevanceForExpectingType(binding instanceof ITypeBinding typeBinding ? typeBinding :
 					binding instanceof IMethodBinding methodBinding ? methodBinding.getReturnType() :
 					binding instanceof IVariableBinding variableBinding ? variableBinding.getType() :
-					this.toComplete.getAST().resolveWellKnownType(Object.class.getName()), this.expectedTypes) +
-				(isInQualifiedName || res.getRequiredProposals() != null || inJavadoc ? 0 : RelevanceUtils.computeRelevanceForQualification(new String(res.getCompletion()).indexOf('.') >= 0, this.prefix, this.qualifiedPrefix)) +
-				RelevanceConstants.R_NON_RESTRICTED +
-				RelevanceUtils.computeRelevanceForInheritance(this.qualifyingType, binding) +
-				((insideQualifiedReference() && !staticOnly() && !Modifier.isStatic(binding.getModifiers())) || (inJavadoc && !res.isConstructor()) ? RelevanceConstants.R_NON_STATIC : 0) +
-				(binding instanceof IVariableBinding field && field.isEnumConstant() ? RelevanceConstants.R_ENUM + RelevanceConstants.R_ENUM_CONSTANT : 0)
-				);
+					this.toComplete.getAST().resolveWellKnownType(Object.class.getName()), this.expectedTypes);
+		relevance += (isInQualifiedName || res.getRequiredProposals() != null || inJavadoc ? 0 : RelevanceUtils.computeRelevanceForQualification(new String(res.getCompletion()).indexOf('.') >= 0, this.prefix, this.qualifiedPrefix));
+		relevance += RelevanceConstants.R_NON_RESTRICTED;
+		relevance += RelevanceUtils.computeRelevanceForInheritance(this.qualifyingType, binding);
+		relevance += ((isInQualifiedName && !staticOnly() && !Modifier.isStatic(binding.getModifiers())) || (inJavadoc && !res.isConstructor()) ? RelevanceConstants.R_NON_STATIC : 0) +
+				(binding instanceof IVariableBinding field && field.isEnumConstant() ? RelevanceConstants.R_ENUM + RelevanceConstants.R_ENUM_CONSTANT : 0);
+		res.setRelevance(relevance);
 		if (res.getRequiredProposals() != null) {
 			for (CompletionProposal req : res.getRequiredProposals()) {
 				req.setRelevance(res.getRelevance());
@@ -4137,14 +4133,6 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			.filter(ImportDeclaration::isStatic) //
 			.map(ImportDeclaration::resolveBinding) //
 			.anyMatch(importBinding -> binding.isEqualTo(importBinding) || getDeclaringClass(binding).isEqualTo(importBinding));
-	}
-
-	private boolean insideQualifiedReference() {
-		return this.toComplete instanceof QualifiedName ||
-			(this.toComplete instanceof SimpleName simple && (simple.getParent() instanceof QualifiedName || simple.getParent() instanceof FieldAccess)) ||
-			Set.of(ExpressionMethodReference.NAME_PROPERTY,
-				TypeMethodReference.NAME_PROPERTY,
-				SuperMethodReference.NAME_PROPERTY).contains(this.toComplete.getLocationInParent());
 	}
 
 	private boolean staticOnly() {
@@ -4269,17 +4257,17 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			inSamePackage = type.getPackageFragment().getElementName().isEmpty();
 		}
 		boolean inCatchClause = DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.CATCH_CLAUSE }) != null;
-		int relevance = RelevanceConstants.R_DEFAULT
-				+ RelevanceConstants.R_RESOLVED
-				+ RelevanceUtils.computeRelevanceForInteresting(type, expectedTypes)
-				+ RelevanceUtils.computeRelevanceForRestrictions(access, this.settings)
-				+ (inCatchClause && DOMCompletionUtil.findInSupers(type, "Ljava/lang/Exception;", this.workingCopyOwner, this.typeHierarchyCache) ? RelevanceConstants.R_EXCEPTION : 0)
-				+ RelevanceUtils.computeRelevanceForInheritance(this.qualifyingType, type)
-				+ RelevanceUtils.computeRelevanceForQualification(!"java.lang".equals(type.getPackageFragment().getElementName()) && !nodeInImports && !fromCurrentCU && !inSamePackage && !typeIsImported, this.prefix, this.qualifiedPrefix)
-				+ (type.getFullyQualifiedName().startsWith("java.") ? RelevanceConstants.R_JAVA_LIBRARY : 0)
-				// sometimes subclasses and superclasses are considered, sometimes they aren't
-				+ (inCatchClause ? RelevanceUtils.computeRelevanceForExpectingType(type, expectedTypes, this.workingCopyOwner, this.typeHierarchyCache) : RelevanceUtils.simpleComputeRelevanceForExpectingType(type, expectedTypes))
-				+ RelevanceUtils.computeRelevanceForCaseMatching(this.prefix.toCharArray(), simpleName, this.assistOptions);
+		int relevance = RelevanceConstants.R_DEFAULT;
+		relevance += RelevanceConstants.R_RESOLVED;
+		relevance += RelevanceUtils.computeRelevanceForInteresting(type, expectedTypes);
+		relevance += RelevanceUtils.computeRelevanceForRestrictions(access, this.settings);
+		relevance += (inCatchClause && DOMCompletionUtil.findInSupers(type, "Ljava/lang/Exception;", this.workingCopyOwner, this.typeHierarchyCache) ? RelevanceConstants.R_EXCEPTION : 0);
+		relevance += RelevanceUtils.computeRelevanceForInheritance(this.qualifyingType, type);
+		relevance += RelevanceUtils.computeRelevanceForQualification(!"java.lang".equals(type.getPackageFragment().getElementName()) && !nodeInImports && !fromCurrentCU && !inSamePackage && !typeIsImported, this.prefix, this.qualifiedPrefix);
+		relevance += (type.getFullyQualifiedName().startsWith("java.") ? RelevanceConstants.R_JAVA_LIBRARY : 0);
+		// sometimes subclasses and superclasses are considered, sometimes they aren't
+		relevance += (inCatchClause ? RelevanceUtils.computeRelevanceForExpectingType(type, expectedTypes, this.workingCopyOwner, this.typeHierarchyCache) : RelevanceUtils.simpleComputeRelevanceForExpectingType(type, expectedTypes));
+		relevance += RelevanceUtils.computeRelevanceForCaseMatching(this.prefix.toCharArray(), simpleName, this.assistOptions);
 		try {
 			if (type.isAnnotation()) {
 				ASTNode current = this.toComplete;
@@ -4375,7 +4363,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			}
 			res.setCompletion(field.getElementName().toCharArray());
 			setRange(res);
-			res.setRelevance(RelevanceConstants.R_DEFAULT + 
+			res.setRelevance(RelevanceConstants.R_DEFAULT +
 					RelevanceConstants.R_RESOLVED +
 					RelevanceConstants.R_INTERESTING +
 					RelevanceConstants.R_CASE +
@@ -5146,7 +5134,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		completionProposal.setReplaceRange(startPos, cursor);
 		completionProposal.setTokenRange(startPos, cursor);
 	}
-	
+
 	/**
 	 * Sets the token range of the completion based on the contents of the buffer.
 	 *
@@ -5269,5 +5257,5 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		}
 		return _currentTypeBinding;
 	}
-	
+
 }

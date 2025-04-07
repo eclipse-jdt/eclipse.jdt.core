@@ -27,7 +27,12 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.ExpressionMethodReference;
+import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.SuperMethodReference;
+import org.eclipse.jdt.core.dom.TypeMethodReference;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 
 public class DOMCompletionUtil {
@@ -100,10 +105,10 @@ public class DOMCompletionUtil {
 	public static boolean isJavaFieldOrMethodModifier(String potentialModifer) {
 		return JAVA_MODIFIERS.contains(potentialModifer);
 	}
-	
+
 	/**
 	 * Returns true if toFind is a superclass of root.
-	 * 
+	 *
 	 * @param root the class to begin searching in
 	 * @param toFind the class to find
 	 * @return true if toFind is a superclass of root
@@ -119,7 +124,7 @@ public class DOMCompletionUtil {
 
 	/**
 	 * Returns true if the type indicated by keyOfTypeToFind is a superclass of root.
-	 * 
+	 *
 	 * @param root the class to begin searching in
 	 * @param keyOfTypeToFind the key of the class to find
 	 * @return true if the type indicated by keyOfTypeToFind is a superclass of root
@@ -154,7 +159,7 @@ public class DOMCompletionUtil {
 
 	/**
 	 * Returns true if the type indicated by keyOfTypeToFind is a superclass of root.
-	 * 
+	 *
 	 * @param root             the class to begin searching in
 	 * @param keyOfTypeToFind  the key of the class to find
 	 * @param workignCopyOwner the working copy owner
@@ -177,7 +182,7 @@ public class DOMCompletionUtil {
 					hierarchy = typeToFind.newTypeHierarchy(root.getJavaProject(), workingCopyOwner, new NullProgressMonitor());
 					hierarchyCache.put(keyOfTypeToFind, hierarchy);
 				}
-				
+
 				for (IType subType : hierarchy.getAllSubtypes(typeToFind)) {
 					if (subType.getKey().equals(root.getKey())) {
 						return true;
@@ -188,6 +193,22 @@ public class DOMCompletionUtil {
 		} catch (JavaModelException e) {
 			return false;
 		}
+	}
+
+	/**
+	 * Returns true if the given node is in a qualified name and false otherwise.
+	 *
+	 * @return true if the given node is in a qualified name and false otherwise
+	 */
+	public static boolean isInQualifiedName(ASTNode node) {
+		return Set.of(QualifiedName.NAME_PROPERTY,
+				FieldAccess.NAME_PROPERTY,
+				ExpressionMethodReference.NAME_PROPERTY,
+				TypeMethodReference.NAME_PROPERTY,
+				SuperMethodReference.NAME_PROPERTY).contains(node.getLocationInParent())
+				|| node instanceof FieldAccess
+				|| node instanceof SuperMethodReference
+				|| node instanceof TypeMethodReference;
 	}
 
 }
