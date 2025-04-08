@@ -168,6 +168,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public boolean canBeInstantiated() {
 		return ((this.tagBits & TagBits.HasDirectWildcard) == 0) && super.canBeInstantiated(); // cannot instantiate param type with wildcard arguments
 	}
+	@Override
+	public TypeBinding findSuperTypeOriginatingFrom(TypeBinding otherType) {
+		TypeBinding capture = InferenceContext18.maybeCapture(this);
+		if (capture != this) //$IDENTITY-COMPARISON$
+			return capture.findSuperTypeOriginatingFrom(otherType);
+		return super.findSuperTypeOriginatingFrom(otherType);
+	}
 
 	/**
 	 * Perform capture conversion for a parameterized type with wildcard arguments
