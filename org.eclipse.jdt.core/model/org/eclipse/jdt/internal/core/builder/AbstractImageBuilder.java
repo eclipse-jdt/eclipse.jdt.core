@@ -74,6 +74,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.osgi.util.NLS;
 
 /**
  * The abstract superclass of Java builders.
@@ -441,17 +442,30 @@ protected void compile(SourceFile[] units, SourceFile[] additionalUnits, boolean
 	this.notifier.checkCancel();
 	try {
 		this.inCompiler = true;
-		Map<Integer, List<SourceFile>> collect = Arrays.stream(units).collect(Collectors.groupingBy(sf->sf.sourceLocation.release, TreeMap::new, Collectors.toList()));
+		Map<Integer, List<SourceFile>> collect = Arrays.stream(units)
+				.collect(Collectors.groupingBy(sf -> sf.sourceLocation.release, TreeMap::new, Collectors.toList()));
 		for (Entry<Integer, List<SourceFile>> entry : collect.entrySet()) {
 			long oldTarget = this.compiler.options.targetJDK;
 			try {
-				int release  = entry.getKey();
+				int release = entry.getKey();
 				if (release > 8) {
-					this.compiler.options.targetJDK = CompilerOptions.releaseToJDKLevel(Integer.toString(release));
+					long currentTarget = CompilerOptions.releaseToJDKLevel(Integer.toString(release));
+					this.compiler.options.targetJDK = currentTarget;
+					if (oldTarget >= currentTarget) {
+						List<IContainer> list = entry.getValue().stream().map(sf -> sf.sourceLocation.sourceFolder)
+								.distinct().toList();
+						for (IContainer container : list) {
+							createProblemFor(container, null,
+									NLS.bind(Messages.AbstractImageBuilder_mr_missmatch_main,
+											new Object[] { container.getProjectRelativePath().toPortableString(),
+													release, CompilerOptions.versionFromJdkLevel(oldTarget) }),
+									JavaCore.ERROR);
+						}
+					}
 				}
 				this.compiler.compile(entry.getValue().toArray(SourceFile[]::new));
 			} finally {
-				this.compiler.options.targetJDK=oldTarget;
+				this.compiler.options.targetJDK = oldTarget;
 			}
 		}
 	} catch (AbortCompilation ignored) {

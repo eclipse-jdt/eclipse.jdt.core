@@ -27,12 +27,10 @@ import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.IClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class MultiReleaseTests extends BuilderTests {
-
-	private static final int JAVA8 = 52;
-	private static final int JAVA9 = 53;
 
 	public MultiReleaseTests(String name) {
 		super(name);
@@ -47,6 +45,13 @@ public class MultiReleaseTests extends BuilderTests {
 		fullBuild();
 		expectingNoProblems();
 		expectingMultiReleaseClasses(projectPath);
+	}
+
+	public void testMultiReleaseCompileWithHigherMain() throws JavaModelException, IOException {
+		IPath projectPath = whenSetupMRRpoject(CompilerOptions.VERSION_11);
+		fullBuild();
+		IPath src9 = projectPath.append("src9");
+		expectingOnlySpecificProblemFor(src9, new Problem("", "Target release for src9 (9) is lower or equal to default release (11).", src9, 0, 1, -1, IMarker.SEVERITY_ERROR, "JDT"));
 	}
 
 	public void testMultiReleaseCompileWithMultipleFolders() throws JavaModelException, IOException {
@@ -65,7 +70,7 @@ public class MultiReleaseTests extends BuilderTests {
 		fullBuild();
 		expectingNoProblems();
 		expectingMultiReleaseClasses(projectPath);
-		assertJavaVersion(projectPath.append("bin/META-INF/versions/9/p/Release9Type.class"), JAVA9);
+		assertJavaVersion(projectPath.append("bin/META-INF/versions/9/p/Release9Type.class"), ClassFileConstants.MAJOR_VERSION_9);
 	}
 
 	public void testMultiReleaseCompileWithConflict() throws JavaModelException, IOException {
@@ -86,7 +91,11 @@ public class MultiReleaseTests extends BuilderTests {
 	}
 
 	private IPath whenSetupMRRpoject() throws JavaModelException {
-		IPath projectPath = env.addProject("P", CompilerOptions.VERSION_1_8);
+		return whenSetupMRRpoject(CompilerOptions.VERSION_1_8);
+	}
+
+	private IPath whenSetupMRRpoject(String compliance) throws JavaModelException {
+		IPath projectPath = env.addProject("P", compliance);
 		env.removePackageFragmentRoot(projectPath, "");
 		IPath defaultSrc = env.addPackageFragmentRoot(projectPath, "src");
 		IClasspathAttribute[] extraAttributes = new IClasspathAttribute[] {
@@ -116,8 +125,8 @@ public class MultiReleaseTests extends BuilderTests {
 	private void expectingMultiReleaseClasses(IPath projectPath) throws IOException, FileNotFoundException {
 		IPath defaultReleaseClass = projectPath.append("bin/p/MultiReleaseType.class");
 		IPath java9ReleaseClass = projectPath.append("bin/META-INF/versions/9/p/MultiReleaseType.class");
-		assertJavaVersion(defaultReleaseClass, JAVA8);
-		assertJavaVersion(java9ReleaseClass, JAVA9);
+		assertJavaVersion(defaultReleaseClass, ClassFileConstants.MAJOR_VERSION_1_8);
+		assertJavaVersion(java9ReleaseClass, ClassFileConstants.MAJOR_VERSION_9);
 	}
 
 	private void assertJavaVersion(IPath clazz, int javaVersion) throws IOException, FileNotFoundException {
