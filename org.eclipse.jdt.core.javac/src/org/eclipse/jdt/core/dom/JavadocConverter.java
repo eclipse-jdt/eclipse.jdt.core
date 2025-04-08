@@ -48,6 +48,7 @@ import com.sun.tools.javac.tree.DCTree.DCRawText;
 import com.sun.tools.javac.tree.DCTree.DCReference;
 import com.sun.tools.javac.tree.DCTree.DCReturn;
 import com.sun.tools.javac.tree.DCTree.DCSee;
+import com.sun.tools.javac.tree.DCTree.DCSerial;
 import com.sun.tools.javac.tree.DCTree.DCSince;
 import com.sun.tools.javac.tree.DCTree.DCSnippet;
 import com.sun.tools.javac.tree.DCTree.DCStartElement;
@@ -120,9 +121,9 @@ class JavadocConverter {
 			}
 		}
 	}
-	
+
 	public String getRawContent() {
-		if( this.rawContent == null ) 
+		if( this.rawContent == null )
 			this.rawContent = this.javacConverter.rawText.substring(this.initialOffset, this.endOffset);
 		return rawContent;
 	}
@@ -136,7 +137,7 @@ class JavadocConverter {
 						.flatMap(List::stream).toList();
 				List<IDocElement> elements2 = convertElementCombiningNodes(treeElements);
 				List<IDocElement> elements = convertNestedTagElements(elements2);
-				
+
 				TagElement host = null;
 				for (IDocElement docElement : elements) {
 					if (docElement instanceof TagElement tag && !isInline(tag)) {
@@ -154,7 +155,7 @@ class JavadocConverter {
 						} else if (docElement instanceof ASTNode extraNode && extraNode.getStartPosition() >= 0 && extraNode.getLength() >= 0){
 							host.setSourceRange(host.getStartPosition(), extraNode.getStartPosition() + extraNode.getLength() - host.getStartPosition());
 						}
-						
+
 						host.fragments().add(docElement);
 					}
 				}
@@ -177,14 +178,14 @@ class JavadocConverter {
 					TextElement innerMost = this.ast.newTextElement();
 					innerMost.setSourceRange(te.getStartPosition()+2, te.getLength()-3);
 					innerMost.setText(txt.substring(2, txt.length() - 1));
-					
+
 					TagElement nested = this.ast.newTagElement();
 					int atLoc = txt.indexOf("@");
 					String name = atLoc == -1 ? txt : ("@" + txt.substring(atLoc + 1)).split("\\s+")[0];
 					nested.setTagName(name);
 					nested.setSourceRange(te.getStartPosition(), te.getLength());
 					nested.fragments().add(innerMost);
-					
+
 					TagElement wrapper = this.ast.newTagElement();
 					wrapper.setSourceRange(te.getStartPosition(), te.getLength());
 					wrapper.fragments().add(nested);
@@ -236,7 +237,7 @@ class JavadocConverter {
 			int tagNameEnds = javac.getStartPosition() + res.getTagName().length();
 			if( param.isTypeParameter()) {
 				int stopSearchRelative = param.getEndPosition();
-				if( param.description != null && param.description.size() > 0 ) { 
+				if( param.description != null && param.description.size() > 0 ) {
 					stopSearchRelative = param.description.get(0).getEndPosition();
 				}
 				int stopSearchAbsolute = this.docComment.getSourcePosition(stopSearchRelative);
@@ -281,6 +282,9 @@ class JavadocConverter {
 		} else if (javac instanceof DCUnknownBlockTag unknown) {
 			res.setTagName("@" + unknown.getTagName());
 			convertElementCombiningNodes(unknown.content.stream().filter(x -> x != null).toList()).forEach(res.fragments::add);
+		} else if (javac instanceof DCSerial serial) {
+			res.setTagName(TagElement.TAG_SERIAL);
+			convertElementCombiningNodes(serial.description.stream().filter(x -> x != null).toList()).forEach(res.fragments::add);
 		} else {
 			return Optional.empty();
 		}
@@ -297,8 +301,8 @@ class JavadocConverter {
 		return Optional.of(res);
 	}
 
-	
-	
+
+
 	private Stream<IDocElement> convertInlineTag(DCTree javac) {
 		ArrayList<IDocElement> collector = new ArrayList<>();
 		TagElement res = this.ast.newTagElement();
@@ -329,7 +333,7 @@ class JavadocConverter {
 			}
 			if (res.getStartPosition() < 0) {
 				int start = ((ASTNode)res.fragments().getFirst()).getStartPosition() - 1 /* [ */;
-				ASTNode lastChild = (ASTNode)res.fragments().getLast(); 
+				ASTNode lastChild = (ASTNode)res.fragments().getLast();
 				int end = lastChild.getStartPosition() + lastChild.getLength() + 1 /* ) */;
 				res.setSourceRange(start, end - start);
 			}
@@ -409,9 +413,9 @@ class JavadocConverter {
 		res.setText(strippedLeading);
 		return res;
 	}
-	
+
 	private TextElement toTextElementPreserveWhitespace(Region line) {
-		TextElement res = this.ast.newTextElement();	
+		TextElement res = this.ast.newTextElement();
 		res.setSourceRange(line.startOffset, line.length);
 		res.setText(line.getContents());
 		return res;
@@ -420,7 +424,7 @@ class JavadocConverter {
 	private Stream<Region> splitLines(DCText text, boolean keepWhitespaces) {
 		return splitLines(text.getBody(), text.getStartPosition(), text.getEndPosition(), keepWhitespaces);
 	}
-	
+
 	private Stream<Region> splitLines(String body, int startPos, int endPos, boolean keepWhitespaces) {
 		String[] bodySplit = body.split("\n");
 		ArrayList<Region> regions = new ArrayList<>();
@@ -557,21 +561,21 @@ class JavadocConverter {
 				else
 					return Stream.of(res, postElement);
 			}
-		} 
-		
+		}
+
 		return Stream.of(toTextElement(line));
 	}
-	
+
 	private int findFirstWhitespace(String s) {
 		int len = s.length();
 		for (int index = 0; index < len; index++) {
-		   if (Character.isWhitespace(s.charAt(index))) { 
+		   if (Character.isWhitespace(s.charAt(index))) {
 		     return index;
 		   }
 		}
 		return -1;
 	}
-	
+
 	private List<IDocElement> convertElementCombiningNodes(List<DCTree> treeElements) {
 		List<IDocElement> elements = new ArrayList<>();
 		List<DCTree> combinable = new ArrayList<>();
@@ -595,21 +599,21 @@ class JavadocConverter {
 					}
 				}
 			}
-			
+
 			if( lineBreakBefore || !shouldCombine) {
 				if( combinable.size() > 0 ) {
 					elements.addAll(convertElementGroup(combinable.toArray(new DCTree[0])).toList());
 					combinable.clear();
 				}
 			}
-			
+
 			if( shouldCombine ) {
 				combinable.add(oneTree);
 			} else {
 				elements.addAll(convertElement(oneTree).toList());
 			}
 		}
-		if( combinable.size() > 0 ) 
+		if( combinable.size() > 0 )
 			elements.addAll(convertElementGroup(combinable.toArray(new DCTree[0])).toList());
 		return elements;
 	}
@@ -706,20 +710,20 @@ class JavadocConverter {
 			} else {
 				return Stream.of(convertReferenceToMemberRef(reference));
 			}
-		} 
+		}
 		// just return it as text
 		int startPosition = this.docComment.getSourcePosition(reference.getPreferredPosition());
 		TextElement res = this.ast.newTextElement();
 		res.setText(signature);
 		res.setSourceRange(startPosition, reference.getEndPos() - reference.pos);
-		return Stream.of(res);	
+		return Stream.of(res);
 	}
 
 	private IDocElement convertMemberReferenceWithParens(DCReference reference) {
 		MethodRef res = this.ast.newMethodRef();
 		commonSettings(res, reference);
 		int currentOffset = this.docComment.getSourcePosition(reference.getStartPosition());
-		
+
 		// TODO missing module reference
 		if (reference.qualifierExpression != null) {
 			Name qualifierExpressionName = null;
@@ -786,7 +790,7 @@ class JavadocConverter {
 		}
 		return res;
 	}
-	
+
 	private Name convertReferenceToNameOnly(DCReference reference) {
 		int startPos = this.docComment.getSourcePosition(reference.getStartPosition());
 		if (reference.qualifierExpression != null) {
@@ -849,7 +853,7 @@ class JavadocConverter {
 		}
 		return null;
 	}
-	
+
 	private MethodRef matchesMethodReference(DCErroneous tree, String body) {
 		if( body.startsWith("@see")) {
 			String value = body.substring(4);
@@ -885,7 +889,7 @@ class JavadocConverter {
 	private Name toName(String val, int startPosition) {
 		return JavacConverter.toName(val, startPosition, this.ast);
 	}
-	
+
 
 	private TextElement toDefaultTextElement(DCTree javac) {
 		TextElement res = this.ast.newTextElement();
@@ -922,14 +926,14 @@ class JavadocConverter {
 				.flatMap(t -> Stream.of(t.split("\s")))
 				.filter(t -> !t.isEmpty())
 				.toArray(String[]::new);
-		
+
 		Type jdtType = null;
 		if( segments.length > 0 && segments[segments.length-1].endsWith("...")) {
 			res.setVarargs(true);
 			if( type instanceof JCArrayTypeTree att) {
 				jdtType = this.javacConverter.convertToType(att.getType());
 			}
-		} 
+		}
 		if( jdtType == null ) {
 			jdtType = this.javacConverter.convertToType(type);
 		}
