@@ -62,7 +62,9 @@ public class DOMLocalVariableLocator extends DOMPatternLocator {
 		if (!(binding instanceof IVariableBinding)) {
 			return toResponse(IMPOSSIBLE_MATCH);
 		}
-		if (Objects.equals(binding.getJavaElement(), getLocalVariable())) {
+		Object bindingElement = binding.getJavaElement();
+		Object localVar = getLocalVariable();
+		if (Objects.equals(bindingElement, localVar)) {
 			// We need to know if this is a reference request or a declaration request
 			if (this.locator.pattern.findReferences) {
 				return new LocatorResponse(ACCURATE_MATCH, false, node, false, false);
@@ -75,7 +77,7 @@ public class DOMLocalVariableLocator extends DOMPatternLocator {
 				return toResponse(IMPOSSIBLE_MATCH);
 			}
 		}
-		return toResponse(INACCURATE_MATCH);
+		return toResponse(IMPOSSIBLE_MATCH);
 	}
 
 	private boolean hasVariableDeclarationAncestor(ASTNode node) {
