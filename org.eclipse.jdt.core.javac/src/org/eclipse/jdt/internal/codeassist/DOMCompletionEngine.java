@@ -4042,7 +4042,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				}
 			}
 			if (variableBinding.isEnumConstant()
-					&& toComplete.getLocationInParent() != FieldAccess.NAME_PROPERTY
+					&& !DOMCompletionUtil.isInQualifiedName(toComplete)
 					&& toComplete.getLocationInParent() != SwitchCase.EXPRESSION_PROPERTY
 					&& toComplete.getLocationInParent() != SwitchCase.EXPRESSIONS2_PROPERTY) {
 				res.setCompletion((variableBinding.getDeclaringClass().getName() + '.' + variableBinding.getName()).toCharArray());

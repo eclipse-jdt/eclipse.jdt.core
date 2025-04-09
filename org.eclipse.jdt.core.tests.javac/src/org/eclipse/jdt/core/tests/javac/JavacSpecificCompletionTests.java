@@ -499,4 +499,31 @@ public class JavacSpecificCompletionTests {
 				requestor.getResults());
 	}
 
+	@Test
+	public void testCompleteEnumAlreadyQualified() throws Exception {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("HelloWorld.java",
+				"""
+				public class HelloWorld  {
+					public enum MyEnum {
+						ONE, TWO, THREE;
+					}
+					public void myMethod() {
+						MyEnum val = MyEnum.
+					}
+				}
+				""");
+
+		// add the replace range to the results
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false, false, true);
+
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "MyEnum.";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		IProgressMonitor monitor = new NullProgressMonitor();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, WC_OWNER, monitor);
+		var expectedContent= "ONE[FIELD_REF]{ONE, LHelloWorld$MyEnum;, LHelloWorld$MyEnum;, ";
+		Assert.assertTrue(requestor.getResults().contains(expectedContent));
+	}
+
 }

@@ -207,6 +207,7 @@ public class DOMCompletionUtil {
 				TypeMethodReference.NAME_PROPERTY,
 				SuperMethodReference.NAME_PROPERTY).contains(node.getLocationInParent())
 				|| node instanceof FieldAccess
+				|| node instanceof QualifiedName
 				|| node instanceof SuperMethodReference
 				|| node instanceof TypeMethodReference;
 	}
