@@ -2219,4 +2219,12 @@ public class InferenceContext18 {
 		}
 		return type;
 	}
+
+	public static TypeBinding maybeUncapture(CaptureBinding capture) {
+		InferenceContext18 inst = instance.get();
+		if (inst != null) {
+			return capture.uncapture(inst.scope);
+		}
+		return capture;
+	}
 }

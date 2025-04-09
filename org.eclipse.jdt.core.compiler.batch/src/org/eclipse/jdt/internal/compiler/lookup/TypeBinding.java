@@ -1392,6 +1392,8 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 						for (TypeBinding intersectingType : intersectingTypes)
 							if (TypeBinding.equalsEquals(intersectingType, this))
 								return true;
+					} else if (otherBound instanceof CaptureBinding capture) {
+						otherBound = InferenceContext18.maybeUncapture(capture); // not backed by JLS
 					}
 					if (TypeBinding.equalsEquals(otherBound, this))
 						return true; // ? extends T  <=  ? extends ? extends T
@@ -1400,7 +1402,7 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 					TypeBinding match = upperBound.findSuperTypeOriginatingFrom(otherBound);
 					if (match != null && (match = match.leafComponentType()).isRawType()) {
 						return TypeBinding.equalsEquals(match, otherBound.leafComponentType()); // forbide: Collection <=  ? extends Collection<?>
-																												// forbide: Collection[] <=  ? extends Collection<?>[]
+																								// forbide: Collection[] <=  ? extends Collection<?>[]
 					}
 					return upperBound.isCompatibleWith(otherBound);
 

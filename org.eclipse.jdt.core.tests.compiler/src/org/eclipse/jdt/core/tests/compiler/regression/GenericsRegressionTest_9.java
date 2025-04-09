@@ -1069,6 +1069,29 @@ public void testGH3457() {
 		"""
 	});
 }
+public void testGH3457b() {
+	runConformTest(new String[] {
+		"QueryUtil.java",
+		"""
+		import java.util.ArrayList;
+		import java.util.Collection;
+
+		interface IQuery<T> { }
+
+		public class QueryUtil {
+			public static <T> IQuery<T> createCompoundQuery(IQuery<? extends T> query1, IQuery<T> query2, boolean and) {
+				ArrayList<IQuery<? extends T>> queries = new ArrayList<>(2);
+				queries.add(query1);
+				queries.add(query2);
+				return createCompoundQuery(queries, and);
+			}
+			public static <T> IQuery<T> createCompoundQuery(Collection<? extends IQuery<? extends T>> queries, boolean and) {
+				return null;
+			}
+		}
+		"""
+	});
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
