@@ -920,7 +920,7 @@ protected int lastJavadocEnd;
 public org.eclipse.jdt.internal.compiler.ReadManager readManager;
 protected int valueLambdaNestDepth = -1;
 private int stateStackLengthStack[] = new int[0];
-protected boolean parsingJava8Plus;
+final protected boolean parsingJava8Plus = true;
 protected boolean parsingJava9Plus;
 protected boolean parsingJava14Plus;
 protected boolean parsingJava15Plus;
@@ -948,7 +948,6 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.options = problemReporter.options;
 	this.optimizeStringLiterals = optimizeStringLiterals;
 	initializeScanner();
-	this.parsingJava8Plus = true;
 	this.parsingJava9Plus = this.options.sourceLevel >= ClassFileConstants.JDK9;
 	this.parsingJava11Plus = this.options.sourceLevel >= ClassFileConstants.JDK11;
 	this.parsingJava14Plus = this.options.sourceLevel >= ClassFileConstants.JDK14;
@@ -4815,13 +4814,8 @@ protected void consumeInterfaceMethodDeclaration(boolean hasSemicolonBody) {
 	boolean isStatic = (md.modifiers & ClassFileConstants.AccStatic) != 0;
 	boolean isPrivate = (md.modifiers & ClassFileConstants.AccPrivate) != 0;
 	boolean bodyAllowed = (this.parsingJava9Plus && isPrivate) || isDefault || isStatic;
-	if (this.parsingJava8Plus) {
-		if (bodyAllowed && hasSemicolonBody) {
-			md.modifiers |= ExtraCompilerModifiers.AccSemicolonBody; // avoid complaints regarding undocumented empty body
-		}
-	} else {
-		if (isDefault) problemReporter().defaultMethodsNotBelow18(md);
-		if (isStatic) problemReporter().staticInterfaceMethodsNotBelow18(md);
+	if (bodyAllowed && hasSemicolonBody) {
+		md.modifiers |= ExtraCompilerModifiers.AccSemicolonBody; // avoid complaints regarding undocumented empty body
 	}
 	if (!bodyAllowed && !this.statementRecoveryActivated && !hasSemicolonBody) {
 		problemReporter().abstractMethodNeedingNoBody(md);
@@ -8324,9 +8318,6 @@ protected void consumeLambdaExpression() {
 	if (body instanceof Expression expression && expression.isTrulyExpression()) {
 		expression.statementEnd = body.sourceEnd;
 	}
-	if (!this.parsingJava8Plus) {
-		problemReporter().lambdaExpressionsNotBelow18(lexp);
-	}
 	setArgumentsTypeVar(lexp);
 	pushOnExpressionStack(lexp);
 	if (this.currentElement != null) {
@@ -8537,9 +8528,6 @@ protected void consumeReferenceExpressionSuperForm() {
 }
 protected void consumeReferenceExpression(ReferenceExpression referenceExpression) {
 	pushOnExpressionStack(referenceExpression);
-	if (!this.parsingJava8Plus) {
-		problemReporter().referenceExpressionsNotBelow18(referenceExpression);
-	}
 	stashTextualRepresentation(referenceExpression);
 	this.referenceContext.compilationResult().hasFunctionalTypes = true;
 	markEnclosingMemberWithLocalOrFunctionalType(LocalTypeKind.METHOD_REFERENCE);

@@ -2000,22 +2000,7 @@ public void explitAnnotationTargetRequired(Annotation annotation) {
 			annotation.sourceStart,
 			annotation.sourceEnd);
 }
-public void polymorphicMethodNotBelow17(ASTNode node) {
-	this.handle(
-			IProblem.PolymorphicMethodNotBelow17,
-			NoArgument,
-			NoArgument,
-			node.sourceStart,
-			node.sourceEnd);
-}
-public void multiCatchNotBelow17(ASTNode node) {
-	this.handle(
-			IProblem.MultiCatchNotBelow17,
-			NoArgument,
-			NoArgument,
-			node.sourceStart,
-			node.sourceEnd);
-}
+
 public void duplicateAnnotation(Annotation annotation, long sourceLevel) {
 	this.handle(
 		IProblem.DuplicateAnnotationNotMarkedRepeatable,
@@ -3246,15 +3231,6 @@ public void illegalThisDeclaration(Argument argument) {
 		argument.sourceStart,
 		argument.sourceEnd);
 }
-public void illegalSourceLevelForThis(Argument argument) {
-	String[] arguments = NoArgument;
-	this.handle(
-		IProblem.ExplicitThisParameterNotBelow18,
-		arguments,
-		arguments,
-		argument.sourceStart,
-		argument.sourceEnd);
-}
 public void disallowedThisParameter(Receiver receiver) {
 	String[] arguments = NoArgument;
 	this.handle(
@@ -3297,46 +3273,6 @@ public void illegalThis(Argument argument) {
 		arguments,
 		argument.sourceStart,
 		argument.sourceEnd);
-}
-public void defaultMethodsNotBelow18(MethodDeclaration md) {
-	this.handle(
-			IProblem.DefaultMethodNotBelow18,
-			NoArgument,
-			NoArgument,
-			md.sourceStart,
-			md.sourceEnd);
-}
-public void interfaceSuperInvocationNotBelow18(QualifiedSuperReference qualifiedSuperReference) {
-	this.handle(
-			IProblem.InterfaceSuperInvocationNotBelow18,
-			NoArgument,
-			NoArgument,
-			qualifiedSuperReference.sourceStart,
-			qualifiedSuperReference.sourceEnd);
-}
-public void staticInterfaceMethodsNotBelow18(MethodDeclaration md) {
-	this.handle(
-			IProblem.StaticInterfaceMethodNotBelow18,
-			NoArgument,
-			NoArgument,
-			md.sourceStart,
-			md.sourceEnd);
-}
-public void referenceExpressionsNotBelow18(ReferenceExpression rexp) {
-	this.handle(
-			rexp.isMethodReference() ? IProblem.MethodReferenceNotBelow18 : IProblem.ConstructorReferenceNotBelow18,
-			NoArgument,
-			NoArgument,
-			rexp.sourceStart,
-			rexp.sourceEnd);
-}
-public void lambdaExpressionsNotBelow18(LambdaExpression lexp) {
-	this.handle(
-			IProblem.LambdaExpressionNotBelow18,
-			NoArgument,
-			NoArgument,
-			lexp.sourceStart,
-			lexp.diagnosticsSourceEnd());
 }
 public void illegalVisibilityModifierCombinationForField(ReferenceBinding type, FieldDeclaration fieldDecl) {
 	String[] arguments = new String[] {new String(fieldDecl.name)};
@@ -3651,28 +3587,7 @@ public void incorrectArityForParameterizedType(ASTNode location, TypeBinding typ
 		location.sourceStart,
 		nodeSourceEnd(null, location, index));
 }
-public void diamondNotBelow17(ASTNode location) {
-	diamondNotBelow17(location, Integer.MAX_VALUE);
-}
-public void diamondNotBelow17(ASTNode location, int index) {
-	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348493
-    if (location == null) {
-		this.handle(
-			IProblem.DiamondNotBelow17,
-			NoArgument,
-			NoArgument,
-			ProblemSeverities.AbortCompilation | ProblemSeverities.Error | ProblemSeverities.Fatal,
-			0,
-			0);
-		return; // not reached since aborted above
-    }
-	this.handle(
-		IProblem.DiamondNotBelow17,
-		NoArgument,
-		NoArgument,
-		location.sourceStart,
-		nodeSourceEnd(null, location, index));
-}
+
 public void incorrectLocationForNonEmptyDimension(ArrayAllocationExpression expression, int index) {
 	this.handle(
 		IProblem.IllegalDimension,
@@ -4538,20 +4453,6 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method, Scope s
 		case ProblemReasons.NonStaticOrAlienTypeReceiver:
 			nonStaticOrAlienTypeReceiver(messageSend, method);
 			return;
-		case ProblemReasons.InterfaceMethodInvocationNotBelow18:
-			this.handle(
-					IProblem.InterfaceStaticMethodInvocationNotBelow18,
-					new String[] {
-							new String(method.declaringClass.readableName()),
-					        new String(method.selector),
-					},
-					new String[] {
-							new String(method.declaringClass.shortReadableName()),
-					        new String(method.selector),
-					},
-					(int) (messageSend.nameSourcePosition >>> 32),
-					(int) messageSend.nameSourcePosition);
-			return;
 		case ProblemReasons.ReceiverTypeNotVisible :
 			this.handle(
 				IProblem.NotVisibleType,	// cannot occur in javadoc comments
@@ -5009,62 +4910,6 @@ public void invalidUnaryExpression(Expression expression) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void invalidUsageOfAnnotation(Annotation annotation) {
-	this.handle(
-		IProblem.InvalidUsageOfAnnotations,
-		NoArgument,
-		NoArgument,
-		annotation.sourceStart,
-		annotation.sourceEnd);
-}
-public void invalidUsageOfAnnotationDeclarations(TypeDeclaration annotationTypeDeclaration) {
-	this.handle(
-		IProblem.InvalidUsageOfAnnotationDeclarations,
-		NoArgument,
-		NoArgument,
-		annotationTypeDeclaration.sourceStart,
-		annotationTypeDeclaration.sourceEnd);
-}
-public void invalidUsageOfEnumDeclarations(TypeDeclaration enumDeclaration) {
-	this.handle(
-		IProblem.InvalidUsageOfEnumDeclarations,
-		NoArgument,
-		NoArgument,
-		enumDeclaration.sourceStart,
-		enumDeclaration.sourceEnd);
-}
-public void invalidUsageOfForeachStatements(LocalDeclaration elementVariable, Expression collection) {
-	this.handle(
-		IProblem.InvalidUsageOfForeachStatements,
-		NoArgument,
-		NoArgument,
-		elementVariable.declarationSourceStart,
-		collection.sourceEnd);
-}
-public void invalidUsageOfStaticImports(ImportReference staticImport) {
-	this.handle(
-		IProblem.InvalidUsageOfStaticImports,
-		NoArgument,
-		NoArgument,
-		staticImport.declarationSourceStart,
-		staticImport.declarationSourceEnd);
-}
-public void invalidUsageOfTypeArguments(TypeReference firstTypeReference, TypeReference lastTypeReference) {
-	this.handle(
-		IProblem.InvalidUsageOfTypeArguments,
-		NoArgument,
-		NoArgument,
-		firstTypeReference.sourceStart,
-		lastTypeReference.sourceEnd);
-}
-public void invalidUsageOfTypeParameters(TypeParameter firstTypeParameter, TypeParameter lastTypeParameter) {
-	this.handle(
-		IProblem.InvalidUsageOfTypeParameters,
-		NoArgument,
-		NoArgument,
-		firstTypeParameter.declarationSourceStart,
-		lastTypeParameter.declarationSourceEnd);
-}
 public void invalidUsageOfTypeParametersForAnnotationDeclaration(TypeDeclaration annotationTypeDeclaration) {
 	TypeParameter[] parameters = annotationTypeDeclaration.typeParameters;
 	int length = parameters.length;
@@ -5084,14 +4929,6 @@ public void invalidUsageOfTypeParametersForEnumDeclaration(TypeDeclaration annot
 			NoArgument,
 			parameters[0].declarationSourceStart,
 			parameters[length - 1].declarationSourceEnd);
-}
-public void invalidUsageOfVarargs(AbstractVariableDeclaration aVarDecl) {
-	this.handle(
-		IProblem.InvalidUsageOfVarargs,
-		NoArgument,
-		NoArgument,
-		aVarDecl.type.sourceStart,
-		aVarDecl.sourceEnd);
 }
 public void invalidUsageOfTypeAnnotations(Annotation annotation) {
 	this.handle(
@@ -8228,12 +8065,8 @@ public void scannerError(Parser parser, String errorTokenName) {
 		flag = IProblem.InvalidDigit;
 	else if (errorTokenName.equals(Scanner.INVALID_BINARY))
 		flag = IProblem.InvalidBinary;
-	else if (errorTokenName.equals(Scanner.BINARY_LITERAL_NOT_BELOW_17))
-		flag = IProblem.BinaryLiteralNotBelow17;
 	else if (errorTokenName.equals(Scanner.INVALID_UNDERSCORE))
 		flag = IProblem.IllegalUnderscorePosition;
-	else if (errorTokenName.equals(Scanner.UNDERSCORES_IN_LITERALS_NOT_BELOW_17))
-		flag = IProblem.UnderscoresInLiteralsNotBelow17;
 
 	String[] arguments = flag == IProblem.ParsingErrorNoSuggestion
 			? new String[] {errorTokenName}
@@ -10195,18 +10028,6 @@ public void wrongSequenceOfExceptionTypes(TypeReference typeRef, TypeBinding exc
 		typeRef.sourceEnd);
 }
 
-public void autoManagedResourcesNotBelow17(Statement[] resources) {
-	Statement stmt0 = resources[0];
-	Statement stmtn = resources[resources.length - 1];
-	int sourceStart = stmt0 instanceof LocalDeclaration ? ((LocalDeclaration) stmt0).declarationSourceStart : stmt0.sourceStart;
-	int sourceEnd = stmtn instanceof LocalDeclaration ? ((LocalDeclaration) stmtn).declarationSourceEnd : stmtn.sourceEnd;
-	this.handle(
-			IProblem.AutoManagedResourceNotBelow17,
-			NoArgument,
-			NoArgument,
-			sourceStart,
-			sourceEnd);
-}
 public void autoManagedVariableResourcesNotBelow9(Expression resource) {
 	this.handle(
 			IProblem.AutoManagedVariableResourceNotBelow9,
@@ -11282,16 +11103,6 @@ public void illegalArrayTypeInIntersectionCast(TypeReference typeReference) {
 			typeReference.sourceStart,
 			typeReference.sourceEnd);
 }
-public void intersectionCastNotBelow18(TypeReference[] typeReferences) {
-	int length = typeReferences.length;
-	this.handle(
-			IProblem.IntersectionCastNotBelow18,
-			NoArgument,
-			NoArgument,
-			typeReferences[0].sourceStart,
-			typeReferences[length -1].sourceEnd);
-}
-
 public void duplicateBoundInIntersectionCast(TypeReference typeReference) {
 	this.handle(
 			IProblem.DuplicateBoundInIntersectionCast,
@@ -11498,10 +11309,6 @@ public void incompatibleReturnType(ReferenceExpression expression, MethodBinding
 }
 
 public void illegalSuperAccess(TypeBinding superType, TypeBinding directSuperType, ASTNode location) {
-	if (directSuperType.problemId() == ProblemReasons.InterfaceMethodInvocationNotBelow18) {
-		interfaceSuperInvocationNotBelow18((QualifiedSuperReference) location);
-		return;
-	}
 	if (directSuperType.problemId() != ProblemReasons.AttemptToBypassDirectSuper)
 		needImplementation(location);
 	handle(IProblem.SuperAccessCannotBypassDirectSuper,
