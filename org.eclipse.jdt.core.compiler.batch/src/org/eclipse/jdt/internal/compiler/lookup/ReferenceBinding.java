@@ -1725,7 +1725,6 @@ public final boolean isStrictfp() {
  */
 public boolean isSuperclassOf(ReferenceBinding otherType) {
 	while ((otherType = otherType.superclass()) != null) {
-		otherType = (ReferenceBinding) InferenceContext18.maybeCapture(otherType);
 		if (otherType.isEquivalentTo(this)) return true;
 	}
 	return false;
