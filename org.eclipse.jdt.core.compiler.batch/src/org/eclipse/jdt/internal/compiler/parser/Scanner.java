@@ -147,9 +147,16 @@ public class Scanner {
 	private static final int[] EMPTY_LINE_ENDS = Util.EMPTY_INT_ARRAY;
 
 	public static final String INVALID_BINARY = "Invalid_Binary_Literal"; //$NON-NLS-1$
+
+	/** @deprecated - problem no longer generated in 1.8+ code */
+	@Deprecated(forRemoval = true)
 	public static final String BINARY_LITERAL_NOT_BELOW_17 = "Binary_Literal_Not_Below_17"; //$NON-NLS-1$
+
 	public static final String ILLEGAL_HEXA_LITERAL = "Illegal_Hexa_Literal"; //$NON-NLS-1$
 	public static final String INVALID_UNDERSCORE = "Invalid_Underscore"; //$NON-NLS-1$
+
+	/** @deprecated - problem no longer generated in 1.8+ code */
+	@Deprecated(forRemoval = true)
 	public static final String UNDERSCORES_IN_LITERALS_NOT_BELOW_17 = "Underscores_In_Literals_Not_Below_17"; //$NON-NLS-1$
 
 	// support for detecting non-externalized string literals
@@ -5773,9 +5780,6 @@ protected static InvalidInputException invalidEof() {
 protected static InvalidInputException invalidUnderscore() {
 	return new InvalidInputException(INVALID_UNDERSCORE);
 }
-protected static InvalidInputException invalidUnderscoresInLiterals() {
-	return new InvalidInputException(UNDERSCORES_IN_LITERALS_NOT_BELOW_17);
-}
 protected static InvalidInputException invalidEscape() {
 	return new InvalidInputException(INVALID_ESCAPE);
 }
@@ -5787,9 +5791,6 @@ protected static InvalidInputException illegalHexaLiteral() {
 }
 protected static InvalidInputException invalidFloat() {
 	return new InvalidInputException(INVALID_FLOAT);
-}
-protected static InvalidInputException invalidBinaryLiteral() {
-	return new InvalidInputException(BINARY_LITERAL_NOT_BELOW_17);
 }
 protected static InvalidInputException invalidBinary() {
 	return new InvalidInputException(INVALID_BINARY);
