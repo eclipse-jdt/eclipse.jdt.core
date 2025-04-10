@@ -1513,6 +1513,11 @@ protected void updateTimeStamp(CompilationUnit original) throws JavaModelExcepti
 }
 
 @Override
+public void updateTimeStamp() throws JavaModelException {
+	updateTimeStamp(this);
+}
+
+@Override
 protected IStatus validateExistence(IResource underlyingResource) {
 	// check if this compilation unit can be opened
 	if (!isWorkingCopy()) { // no check is done on root kind or exclusion pattern for working copies
