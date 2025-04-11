@@ -23,6 +23,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -71,6 +73,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.osgi.util.NLS;
 
 /**
  * The abstract superclass of Java builders.
@@ -196,11 +199,11 @@ public void acceptResult(CompilationResult result) {
 			// Look for a possible collision, if one exists, report an error but do not write the class file
 			if (isNestedType) {
 				String qualifiedTypeName = new String(classFile.outerMostEnclosingClassFile().fileName());
-				if (this.newState.isDuplicateLocator(qualifiedTypeName, typeLocator))
+				if (this.newState.isDuplicateLocator(qualifiedTypeName, typeLocator,compilationUnit.sourceLocation.release))
 					continue;
 			} else {
 				String qualifiedTypeName = new String(classFile.fileName()); // the qualified type name "p1/p2/A"
-				if (this.newState.isDuplicateLocator(qualifiedTypeName, typeLocator)) {
+				if (this.newState.isDuplicateLocator(qualifiedTypeName, typeLocator,compilationUnit.sourceLocation.release)) {
 					if (duplicateTypeNames == null)
 						duplicateTypeNames = new ArrayList();
 					duplicateTypeNames.add(compoundName);
@@ -226,7 +229,7 @@ public void acceptResult(CompilationResult result) {
 					}
 					continue;
 				}
-				this.newState.recordLocatorForType(qualifiedTypeName, typeLocator);
+				this.newState.recordLocatorForType(qualifiedTypeName, typeLocator,compilationUnit.sourceLocation.release);
 				if (result.checkSecondaryTypes && !qualifiedTypeName.equals(compilationUnit.initialTypeName))
 					acceptSecondaryType(classFile);
 			}
@@ -438,7 +441,32 @@ protected void compile(SourceFile[] units, SourceFile[] additionalUnits, boolean
 	this.notifier.checkCancel();
 	try {
 		this.inCompiler = true;
-		this.compiler.compile(units);
+		Map<Integer, List<SourceFile>> collect = Arrays.stream(units)
+				.collect(Collectors.groupingBy(sf -> sf.sourceLocation.release, TreeMap::new, Collectors.toList()));
+		for (Entry<Integer, List<SourceFile>> entry : collect.entrySet()) {
+			long oldTarget = this.compiler.options.targetJDK;
+			try {
+				int release = entry.getKey();
+				if (release > 8) {
+					long currentTarget = CompilerOptions.releaseToJDKLevel(Integer.toString(release));
+					this.compiler.options.targetJDK = currentTarget;
+					if (oldTarget >= currentTarget) {
+						List<IContainer> list = entry.getValue().stream().map(sf -> sf.sourceLocation.sourceFolder)
+								.distinct().toList();
+						for (IContainer container : list) {
+							createProblemFor(container, null,
+									NLS.bind(Messages.AbstractImageBuilder_mr_missmatch_main,
+											new Object[] { container.getProjectRelativePath().toPortableString(),
+													release, CompilerOptions.versionFromJdkLevel(oldTarget) }),
+									JavaCore.ERROR);
+						}
+					}
+				}
+				this.compiler.compile(entry.getValue().toArray(SourceFile[]::new));
+			} finally {
+				this.compiler.options.targetJDK = oldTarget;
+			}
+		}
 	} catch (AbortCompilation ignored) {
 		// ignore the AbortCompilcation coming from BuildNotifier.checkCancelWithinCompiler()
 		// the Compiler failed after the user has chose to cancel... likely due to an OutOfMemory error
@@ -540,13 +568,26 @@ protected void finishedWith(String sourceLocator, CompilationResult result, char
 }
 
 protected IContainer createFolder(IPath packagePath, IContainer outputFolder) throws CoreException {
-	if (packagePath.isEmpty()) return outputFolder;
+	if (packagePath.isEmpty()) {
+		createFolder(outputFolder);
+		return outputFolder;
+	}
 	IFolder folder = outputFolder.getFolder(packagePath);
 	if (!folder.exists()) {
 		createFolder(packagePath.removeLastSegments(1), outputFolder);
 		folder.create(IResource.FORCE | IResource.DERIVED, true, null);
 	}
 	return folder;
+}
+
+private void createFolder(IContainer container) throws CoreException {
+	if (container.exists()) {
+		return;
+	}
+	if (container instanceof IFolder folder) {
+		createFolder(container.getParent());
+		folder.create(IResource.FORCE | IResource.DERIVED, true, null);
+	}
 }
 
 @Override
