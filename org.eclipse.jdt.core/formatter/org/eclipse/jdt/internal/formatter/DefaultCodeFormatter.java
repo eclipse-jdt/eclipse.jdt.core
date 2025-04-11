@@ -198,7 +198,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	private boolean init(String source, int kind) {
 
 		// this is convenient for debugging (see Token.toString())
-		// Token.source = source;
+		Token.source = source;
 
 		this.sourceString = source;
 		this.sourceArray = source.toCharArray();
