@@ -164,7 +164,7 @@ public abstract class AbstractMethodDeclaration
 				}
 				return;
 			}
-			boolean used = this.binding.isAbstract() || this.binding.isNative() || this.binding.isCompactConstructor() || (this.bits & ASTNode.IsImplicit) != 0;
+			boolean used = this.binding.isAbstract() || this.binding.isNative() || this.binding.isCompactConstructor();
 			AnnotationBinding[][] paramAnnotations = null;
 			for (int i = 0, length = this.arguments.length; i < length; i++) {
 				Argument argument = this.arguments[i];
@@ -182,11 +182,22 @@ public abstract class AbstractMethodDeclaration
 				}
 			}
 			if (paramAnnotations == null) {
-				paramAnnotations = getPropagatedRecordComponentAnnotations();
+				paramAnnotations = getPropagatedRecordComponentAnnotations(); // Srikanth, check this!
 			}
 
 			if (paramAnnotations != null)
 				this.binding.setParameterAnnotations(paramAnnotations);
+		} else if (this.isCompactConstructor()) {
+			final RecordComponent[] recordComponents = this.scope.referenceType().recordComponents;
+			int length = recordComponents.length;
+			for (int i = 0; i < length; i++) {
+				this.scope.addLocalVariable(new LocalVariableBinding(recordComponents[i].name, recordComponents[i].type.resolvedType, recordComponents[i].modifiers, true));
+			}
+			/* Srikanth - check this
+			AnnotationBinding[][] paramAnnotations = getPropagatedRecordComponentAnnotations();
+			if (paramAnnotations != null)
+				this.binding.setParameterAnnotations(paramAnnotations);
+			*/
 		}
 	}
 
@@ -560,7 +571,9 @@ public abstract class AbstractMethodDeclaration
 			output.append('>');
 		}
 
-		printReturnType(0, output).append(this.selector).append('(');
+		printReturnType(0, output).append(this.selector);
+		if (!this.isCompactConstructor())
+			output.append('(');
 		if (this.receiver != null) {
 			this.receiver.print(0, output);
 		}
@@ -570,7 +583,8 @@ public abstract class AbstractMethodDeclaration
 				this.arguments[i].print(0, output);
 			}
 		}
-		output.append(')');
+		if (!this.isCompactConstructor())
+			output.append(')');
 		if (this.thrownExceptions != null) {
 			output.append(" throws "); //$NON-NLS-1$
 			for (int i = 0; i < this.thrownExceptions.length; i++) {
@@ -608,11 +622,6 @@ public abstract class AbstractMethodDeclaration
 
 		if (this.binding == null) {
 			this.ignoreFurtherInvestigation = true;
-		}
-
-		if (this.isCompactConstructor() && !upperScope.referenceContext.isRecord()) {
-			upperScope.problemReporter().compactConstructorsOnlyInRecords(this);
-			return;
 		}
 
 		try {
@@ -724,8 +733,7 @@ public abstract class AbstractMethodDeclaration
 			resolveStatements(this.statements, this.scope);
 		} else if ((this.bits & UndocumentedEmptyBlock) != 0) {
 			if (!this.isConstructor() || this.arguments != null) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319626
-				if ((this.bits & IsImplicit) == 0)
-					this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd+1);
+				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd+1);
 			}
 		}
 	}

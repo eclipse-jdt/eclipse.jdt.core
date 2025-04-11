@@ -385,6 +385,8 @@ public class SourceTypeConverter extends TypeConverter {
 		if (methodInfo.isConstructor()) {
 			ConstructorDeclaration decl = new ConstructorDeclaration(compilationResult);
 			decl.bits &= ~ASTNode.IsDefaultConstructor;
+			if (methodInfo.isCanonicalConstructor())
+				decl.bits |= ASTNode.IsCanonicalConstructor;
 			method = decl;
 			decl.typeParameters = typeParams;
 		} else {
@@ -514,7 +516,7 @@ public class SourceTypeConverter extends TypeConverter {
 			// Hence, use the one that does
 			type.modifiers |= ExtraCompilerModifiers.AccRecord;
 			IField[] recordComponents = typeHandle.getRecordComponents();
-			type.recordComponents = new RecordComponent[recordComponents.length];
+			type.recordComponents = new RecordComponent[type.nRecordComponents = recordComponents.length];
 			for(int i = 0; i < recordComponents.length; i++) {
 				type.recordComponents[i] = convertRecordComponents((SourceField)recordComponents[i], type, compilationResult);
 			}
@@ -603,7 +605,18 @@ public class SourceTypeConverter extends TypeConverter {
 		SourceField[] sourceFields = null;
 		int sourceFieldCount = 0;
 		if ((this.flags & FIELD) != 0) {
-			sourceFields = typeInfo.getFieldHandles();
+			SourceField[] allFields = typeInfo.getFieldHandles();
+			if (type.isRecord()) {
+				int staticFieldCount = 0;
+				for (int i = 0, length = allFields.length; i < length; i++) {
+					SourceFieldElementInfo elementInfo = (SourceFieldElementInfo) allFields[i].getElementInfo();
+					if ((elementInfo.getModifiers() & ClassFileConstants.AccStatic) != 0)
+						allFields[staticFieldCount++] = allFields[i];
+				}
+				System.arraycopy(allFields, 0, sourceFields = new SourceField[staticFieldCount], 0, staticFieldCount);
+			} else {
+				sourceFields = allFields;
+			}
 			sourceFieldCount = sourceFields.length;
 		}
 		int length = initializerCount + sourceFieldCount;

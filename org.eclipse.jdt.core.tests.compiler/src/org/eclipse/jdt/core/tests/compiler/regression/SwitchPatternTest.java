@@ -4116,8 +4116,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Bootstrap methods:\n" +
 				"  0 : # 95 invokestatic java/lang/runtime/SwitchBootstraps.typeSwitch:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;\n" +
 				"	Method arguments:\n" +
-				"		#32 p/Rec$MyInterface$MyClass1\n" +
-				"		#34 p/Rec$MyInterface$MyClass2,\n" +
+				"		#22 p/Rec$MyInterface$MyClass1\n" +
+				"		#24 p/Rec$MyInterface$MyClass2,\n" +
 				"  1 : # 102 invokestatic java/lang/runtime/ObjectMethods.bootstrap:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;\n" +
 				"	Method arguments:\n" +
 				"		#1 p/Rec\n" +

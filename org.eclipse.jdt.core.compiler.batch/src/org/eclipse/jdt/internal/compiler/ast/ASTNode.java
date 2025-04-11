@@ -237,7 +237,6 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	// for constructor declaration
 	public static final int IsDefaultConstructor = Bit8;
 	public static final int IsCanonicalConstructor = Bit10; // record declaration
-	public static final int IsImplicit = Bit11; // record declaration / generated statements in compact constructor
 
 	// for compilation unit
 	public static final int HasAllMethodBodies = Bit5;
@@ -322,6 +321,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final RecordComponent [] NO_RECORD_COMPONENTS = new RecordComponent [0];
 	public static final TypePattern[] NO_TYPE_PATTERNS = new TypePattern[0];
 	public static final LocalVariableBinding[] NO_VARIABLES = new LocalVariableBinding[0];
+	public static final Annotation[] NO_ANNOTATIONS = new Annotation[0];
 
 	public ASTNode() {
 

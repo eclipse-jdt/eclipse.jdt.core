@@ -560,12 +560,21 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 		return null;
 	}
 
-	String[] parameterTypeSignatures = new String[argCount];
-	if (arguments != null) {
-		for (int i = 0; i < argCount; i++) {
-			TypeReference typeRef = arguments[i].type;
-			char[] typeName = CharOperation.concatWith(typeRef.getParameterizedTypeName(), '.');
-			parameterTypeSignatures[i] = Signature.createTypeSignature(typeName, false);
+	String[] parameterTypeSignatures;
+	if (method.isCompactConstructor()) {
+		int len = method.binding == null || method.binding.parameters == null ? 0 :  method.binding.parameters.length;
+		parameterTypeSignatures = new String[len];
+		for (int i = 0; i < len; i++) {
+			parameterTypeSignatures[i] = new String(method.binding.parameters[i].signature());
+		}
+	} else {
+		parameterTypeSignatures = new String[argCount];
+		if (arguments != null) {
+			for (int i = 0; i < argCount; i++) {
+				TypeReference typeRef = arguments[i].type;
+				char[] typeName = CharOperation.concatWith(typeRef.getParameterizedTypeName(), '.');
+				parameterTypeSignatures[i] = Signature.createTypeSignature(typeName, false);
+			}
 		}
 	}
 
