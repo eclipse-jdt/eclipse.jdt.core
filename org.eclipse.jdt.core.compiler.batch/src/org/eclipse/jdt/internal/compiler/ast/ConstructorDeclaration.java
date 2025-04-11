@@ -150,8 +150,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 					// otherwise default super constructor exists, so go ahead and complain unused.
 				}
 				// complain unused
-				if ((this.bits & ASTNode.IsImplicit) == 0)
-					this.scope.problemReporter().unusedPrivateConstructor(this);
+				this.scope.problemReporter().unusedPrivateConstructor(this);
 			}
 
 			// check constructor recursion, once all constructor got resolved
@@ -197,6 +196,13 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 
 			// nullity, owning and mark as assigned
 			analyseArguments(classScope.environment(), flowInfo, initializerFlowContext, this.arguments, this.binding);
+
+			if (this.isCompactConstructor()) {
+				for (LocalVariableBinding local : this.scope.locals) {
+					if (local != null && local.isParameter())
+						flowInfo.markAsDefinitelyAssigned(local);
+				}
+			}
 
 			if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions())) {
 				this.scope.enterEarlyConstructionContext();
@@ -258,7 +264,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			this.bits |= ASTNode.NeedFreeReturn;
 		}
 
-		if (this.isCompactConstructor() || (this.isCanonicalConstructor() && (this.bits & IsImplicit) != 0)) {
+		if (this.isCompactConstructor()) {
 			for (FieldBinding field : this.binding.declaringClass.fields()) {
 				if (!field.isStatic()) {
 					flowInfo.markAsDefinitelyAssigned(field);
@@ -468,13 +474,29 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 			this.scope.computeLocalVariablePositions(1 + enumOffset,  codeStream);
 		}
 
-		if (this.arguments != null) {
-			for (Argument argument : this.arguments) {
-				// arguments initialization for local variable debug attributes
-				LocalVariableBinding argBinding;
-				codeStream.addVisibleLocalVariable(argBinding = argument.binding);
-				argBinding.recordInitializationStartPC(0);
-				switch(argBinding.type.id) {
+//		if (this.arguments != null) {
+//			for (Argument argument : this.arguments) {
+//				// arguments initialization for local variable debug attributes
+//				LocalVariableBinding argBinding;
+//				codeStream.addVisibleLocalVariable(argBinding = argument.binding);
+//				argBinding.recordInitializationStartPC(0);
+//				switch(argBinding.type.id) {
+//					case TypeIds.T_long :
+//					case TypeIds.T_double :
+//						argSlotSize += 2;
+//						break;
+//					default :
+//						argSlotSize++;
+//						break;
+//				}
+//			}
+//		}
+
+		for (LocalVariableBinding local : this.scope.locals) {
+			if (local != null && local.isParameter()) {
+				codeStream.addVisibleLocalVariable(local);
+				local.recordInitializationStartPC(0);
+				switch(local.type.id) {
 					case TypeIds.T_long :
 					case TypeIds.T_double :
 						argSlotSize += 2;
@@ -532,7 +554,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 			throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult, null);
 		}
 		if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
-			if (this.isCompactConstructor() || (this.isCanonicalConstructor() && (this.bits & IsImplicit) != 0)) {
+			if (this.isCompactConstructor()) {
 				// Note: the body of a compact constructor may not contain a return statement and so will need an injected return
 				for (RecordComponent rc : classScope.referenceContext.recordComponents) {
 					LocalVariableBinding parameter = this.scope.findVariable(rc.name);
@@ -576,7 +598,7 @@ private void generateFieldInitializations(TypeDeclaration declaringType, CodeStr
 @Override
 protected AnnotationBinding[][] getPropagatedRecordComponentAnnotations() {
 
-	if ((this.bits & (ASTNode.IsCanonicalConstructor | ASTNode.IsImplicit)) == 0)
+	if ((this.bits & ASTNode.IsCanonicalConstructor) == 0)
 		return null;
 	if (this.binding == null)
 		return null;
@@ -626,6 +648,11 @@ public boolean isConstructor() {
 @Override
 public boolean isCanonicalConstructor() {
 	return (this.bits & ASTNode.IsCanonicalConstructor) != 0;
+}
+
+@Override
+public boolean isCompactConstructor() {
+	return (this.modifiers & ExtraCompilerModifiers.AccCompactConstructor) != 0;
 }
 
 @Override
@@ -707,7 +734,6 @@ public void resolveJavadoc() {
 	if (this.binding == null || this.javadoc != null) {
 		super.resolveJavadoc();
 	} else if ((this.bits & ASTNode.IsDefaultConstructor) == 0 ) {
-		if((this.bits & ASTNode.IsImplicit) != 0 ) return;
 		if (this.binding.declaringClass != null && !this.binding.declaringClass.isLocalType()) {
 			// Set javadoc visibility
 			int javadocVisibility = this.binding.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
@@ -725,6 +751,16 @@ public void resolveJavadoc() {
 	}
 }
 
+@Override
+public void resolve(ClassScope upperScope) {
+
+	if (this.isCompactConstructor() && !upperScope.referenceContext.isRecord()) {
+		upperScope.problemReporter().compactConstructorsOnlyInRecords(this);
+		return;
+	}
+
+	super.resolve(upperScope);
+}
 /*
  * Type checking for constructor, just another method, except for special check
  * for recursive constructor invocations.

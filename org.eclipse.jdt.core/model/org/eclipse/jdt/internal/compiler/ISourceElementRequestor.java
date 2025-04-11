@@ -242,12 +242,4 @@ public interface ISourceElementRequestor {
 	default void exitModule(int declarationEnd) {
 		// do nothing
 	}
-
-	default void enterCompactConstructor(MethodInfo methodInfo) {
-		// do nothing
-	}
-
-	default void exitCompactConstructor(int declarationEnd) {
-		// do nothing
-	}
 }

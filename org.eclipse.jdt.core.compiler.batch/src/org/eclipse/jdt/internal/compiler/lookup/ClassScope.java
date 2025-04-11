@@ -491,7 +491,6 @@ public class ClassScope extends Scope {
 				problemReporter().abstractMethodInConcreteClass(sourceType);
 		}
 		if (sourceType.isRecord()) {
-			assert this.referenceContext.isRecord();
 			methodBindings = sourceType.checkAndAddSyntheticRecordMethods(methodBindings, count);
 			count = methodBindings.length;
 		}
