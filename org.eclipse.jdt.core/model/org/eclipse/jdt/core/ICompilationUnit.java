@@ -17,11 +17,13 @@ package org.eclipse.jdt.core;
 
 import java.util.Collections;
 import java.util.Map;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.internal.core.CompilationUnitElementInfo;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.text.edits.UndoEdit;
 
@@ -845,4 +847,12 @@ CompilationUnit reconcile(int astLevel, int reconcileFlags, WorkingCopyOwner own
  */
 @Override
 void restore() throws JavaModelException;
+
+/**
+ * Can be used to synchronize the {@link CompilationUnitElementInfo} timestamp to its corressponding {@link IResource}s timestamp.
+ * @throws JavaModelException if the updateTimeStamp(CompilationUnit)
+ */
+default void updateTimeStamp() throws JavaModelException {
+
+}
 }
