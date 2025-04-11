@@ -448,7 +448,11 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.extendedTagBits |= ExtendedTagBits.IsCanonicalConstructor;
 		this.extendedTagBits |= ExtendedTagBits.isImplicit;
 		this.parameters = rcb.length == 0 ? Binding.NO_PARAMETERS : new TypeBinding[rcb.length];
-		for (int i = 0; i < rcb.length; i++) this.parameters[i] = TypeBinding.VOID; // placeholder
+		this.parameterNames = rcb.length == 0 ? Binding.NO_PARAMETER_NAMES : new char[rcb.length][];
+		for (int i = 0; i < rcb.length; i++) {
+			this.parameters[i] = TypeBinding.VOID; // will be patched in when record components are resolved
+			this.parameterNames[i] = rcb[i].name;
+		}
 		this.selector = TypeConstants.INIT;
 		this.returnType = TypeBinding.VOID;
 		this.purpose = SyntheticMethodBinding.RecordCanonicalConstructor;
