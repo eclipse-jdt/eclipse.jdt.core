@@ -57,7 +57,7 @@ public abstract class JavacModuleBinding implements IModuleBinding {
 		this(decl.sym, (ModuleType)decl.sym.type, resolver);
 		this.moduleDecl = decl;
 	}
-	
+
 	public JavacModuleBinding(final ModuleSymbol moduleSymbol, final ModuleType moduleType, JavacBindingResolver resolver) {
 		this.moduleSymbol = moduleSymbol;
 		this.resolver = resolver;
@@ -120,9 +120,9 @@ public abstract class JavacModuleBinding implements IModuleBinding {
 	@Override
 	public IModuleBinding[] getRequiredModules() {
 		ArrayList<ModuleSymbol> mods = new ArrayList<>();
-		this.moduleSymbol.getDirectives().stream() 
-				.filter(x -> x.getKind() == DirectiveKind.REQUIRES) 
-				.map(x -> ((RequiresDirective)x).module) 
+		this.moduleSymbol.getDirectives().stream()
+				.filter(x -> x.getKind() == DirectiveKind.REQUIRES)
+				.map(x -> ((RequiresDirective)x).module)
 				.forEachOrdered(mods::add);
 		if( this.moduleDecl != null ) {
 			List<JCDirective> directives = this.moduleDecl.getDirectives();
@@ -162,7 +162,7 @@ public abstract class JavacModuleBinding implements IModuleBinding {
 		ExportsDirective[] arr = this.moduleSymbol.getDirectives().stream().filter((x) -> x.getKind() == DirectiveKind.EXPORTS).map((x) -> (ExportsDirective)x).toArray(ExportsDirective[]::new);
 		for( int i = 0; i < arr.length; i++ ) {
 			JavacPackageBinding tmp = this.resolver.bindings.getPackageBinding(arr[i].packge);
-			if( tmp.isUnnamed() == packageBinding.isUnnamed() && 
+			if( tmp.isUnnamed() == packageBinding.isUnnamed() &&
 					tmp.getName().equals(packageBinding.getName())) {
 				return arr[i].getTargetModules().stream().map(ModuleSymbol::toString).toArray(String[]::new);
 			}
@@ -185,7 +185,7 @@ public abstract class JavacModuleBinding implements IModuleBinding {
 		OpensDirective[] arr = this.moduleSymbol.getDirectives().stream().filter((x) -> x.getKind() == DirectiveKind.OPENS).map((x) -> (OpensDirective)x).toArray(OpensDirective[]::new);
 		for( int i = 0; i < arr.length; i++ ) {
 			JavacPackageBinding tmp = this.resolver.bindings.getPackageBinding(arr[i].packge);
-			if( tmp.isUnnamed() == packageBinding.isUnnamed() && 
+			if( tmp.isUnnamed() == packageBinding.isUnnamed() &&
 					tmp.getName().equals(packageBinding.getName())) {
 				return arr[i].getTargetModules().stream().map((x) -> x.toString()).toArray(String[]::new);
 			}

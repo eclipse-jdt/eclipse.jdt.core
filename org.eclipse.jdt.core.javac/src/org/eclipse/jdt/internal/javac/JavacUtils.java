@@ -282,7 +282,7 @@ public class JavacUtils {
 			if (!sourcePathEnabled) {
 				fileManager.setLocation(StandardLocation.SOURCE_PATH, classpathEntriesToFiles(javaProject, true, entry -> (isTest || !entry.isTest())));
 			}
-			
+
 			boolean classpathEnabled = false;
 			if (compilerConfig != null && !isEmpty(compilerConfig.classpaths())) {
 				fileManager.setLocation(StandardLocation.CLASS_PATH,
@@ -292,7 +292,7 @@ public class JavacUtils {
 						.toList());
 				classpathEnabled = true;
 			}
-			
+
 			if (compilerConfig != null && !isEmpty(compilerConfig.modulepaths())) {
 				fileManager.setLocation(StandardLocation.MODULE_PATH,
 					compilerConfig.modulepaths()
@@ -314,12 +314,12 @@ public class JavacUtils {
 							}
 						})
 						.collect(Collectors.toSet());
-				
+
 				Collection<File> classpathFiles = classpathEntriesToFiles(javaProject, false, entry -> isTest || !entry.isTest());
 				Collection<File> filteredFiles = classpathFiles.stream().filter(x -> x.length() != 0).toList();
 				fileManager.setLocation(StandardLocation.CLASS_PATH, filteredFiles);
 				classpathFiles.addAll(outDirectories(javaProject, entry -> isTest || !entry.isTest()));
-				
+
 				if (!moduleProjects.isEmpty()) {
 					fileManager.setLocation(StandardLocation.MODULE_PATH, moduleProjects.stream()
 							.map(project -> {
@@ -429,7 +429,7 @@ public class JavacUtils {
 					addPath(project, path, res);
 				}
 			}
-			
+
 			return res;
 		} catch (JavaModelException ex) {
 			ILog.get().error(ex.getMessage(), ex);

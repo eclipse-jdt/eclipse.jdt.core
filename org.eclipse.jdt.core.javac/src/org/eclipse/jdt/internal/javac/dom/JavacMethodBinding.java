@@ -31,11 +31,11 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
+import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
-import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.internal.core.BinaryMethod;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.Member;
@@ -47,11 +47,11 @@ import org.eclipse.jdt.internal.core.util.Util;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ForAll;
 import com.sun.tools.javac.code.Type.JCNoType;
 import com.sun.tools.javac.code.Type.MethodType;
@@ -97,7 +97,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	private static boolean isParameterized(Symbol symbol) {
 		while (symbol != null) {
-			if (symbol.type != null && 
+			if (symbol.type != null &&
 				(symbol.type.isParameterized() || symbol.type instanceof ForAll)) {
 				return true;
 			}
@@ -203,14 +203,14 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		this.javaElement = resolved(getUnresolvedJavaElement());
 		return this.javaElement;
 	}
-	
+
 	IMethod getUnresolvedJavaElement() {
 		if (this.javaElement == null) {
 			this.javaElement = computeUnresolvedJavaElement();
 		}
 		return this.javaElement;
 	}
-	
+
 	private IMethod computeUnresolvedJavaElement() {
 		if (this.methodSymbol == null) {
 			return null;
@@ -224,7 +224,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 				} else if (declaringNode instanceof AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration) {
 					return getJavaElementForAnnotationTypeMemberDeclaration(currentType, annotationTypeMemberDeclaration);
 				}
-	
+
 				var parametersResolved = this.methodSymbol.params().stream()
 						.map(varSymbol -> varSymbol.type)
 						.map(t ->
@@ -361,7 +361,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		}
 		return this.key;
 	}
-	
+
 	private String computeKey() {
 		try {
 			StringBuilder builder = new StringBuilder();
@@ -375,7 +375,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	static void getKey(StringBuilder builder, MethodSymbol methodSymbol, MethodType methodType, Type parentType, JavacBindingResolver resolver) throws BindingKeyException {
 		getKey(builder, methodSymbol, methodType, parentType, false, resolver);
 	}
-	
+
 	static void getKey(StringBuilder builder, MethodSymbol methodSymbol, MethodType methodType, Type parentType, boolean useSlashes, JavacBindingResolver resolver) throws BindingKeyException {
 
 		if (parentType != null) {
@@ -571,23 +571,23 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		}
 		return false;
 	}
-	
+
 	private boolean methodHasGenerics() {
 		boolean b1 = (isConstructor() && getDeclaringClass().isGenericType())
 				|| (!this.methodSymbol.getTypeParameters().isEmpty() && isDeclaration);
 		return b1;
 	}
-	
+
 	@Override
 	public boolean isParameterizedMethod() {
 		return !isRawMethod() && !methodHasGenerics() && methodMatchesParameterized();
 	}
-	
+
 	private boolean methodMatchesParameterized() {
-		return ((isConstructor() && getDeclaringClass().isParameterizedType()) 
+		return ((isConstructor() && getDeclaringClass().isParameterizedType())
 				|| (!this.methodSymbol.getTypeParameters().isEmpty() && !isDeclaration));
 	}
-	
+
 	@Override
 	public boolean isRawMethod() {
 		if (isConstructor()) {

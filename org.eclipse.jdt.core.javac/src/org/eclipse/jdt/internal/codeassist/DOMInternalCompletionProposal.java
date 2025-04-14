@@ -50,15 +50,15 @@ class DOMInternalCompletionProposal extends InternalCompletionProposal {
 		}
 		return false;
 	}
-	
+
 	public void setNameLookup(NameLookup nameLookup) {
 		this.nameLookup = nameLookup;
 	}
-	
+
 	public void setCompletionEngine(CompletionEngine completionEngine) {
 		this.completionEngine = completionEngine;
 	}
-	
+
 	@Override
 	protected void setDeclarationPackageName(char[] declarationPackageName) {
 		super.setDeclarationPackageName(declarationPackageName);
@@ -68,42 +68,42 @@ class DOMInternalCompletionProposal extends InternalCompletionProposal {
 	protected void setTypeName(char[] typeName) {
 		super.setTypeName(typeName);
 	}
-	
+
 	@Override
 	protected void setDeclarationTypeName(char[] declarationTypeName) {
 		super.setDeclarationTypeName(declarationTypeName);
 	}
-	
+
 	@Override
 	protected void setIsContructor(boolean isConstructor) {
 		super.setIsContructor(isConstructor);
 	}
-	
+
 	@Override
 	public void setParameterNames(char[][] parameterNames) {
 		super.setParameterNames(parameterNames);
 	}
-	
+
 	@Override
 	protected void setParameterTypeNames(char[][] parameterTypeNames) {
 		super.setParameterTypeNames(parameterTypeNames);
 	}
-	
+
 	@Override
 	protected void setParameterPackageNames(char[][] parameterPackageNames) {
 		super.setParameterPackageNames(parameterPackageNames);
 	}
-	
+
 	@Override
 	protected void setPackageName(char[] packageName) {
 		super.setPackageName(packageName);
 	}
-	
+
 	@Override
 	protected void setModuleName(char[] moduleName) {
 		super.setModuleName(moduleName);
 	}
-	
+
 	@Override
 	public boolean isConstructor() {
 		return this.isConstructor;

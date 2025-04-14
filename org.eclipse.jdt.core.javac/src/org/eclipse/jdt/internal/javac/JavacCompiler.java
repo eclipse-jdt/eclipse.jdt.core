@@ -61,10 +61,10 @@ import com.sun.tools.javac.main.Option;
 import com.sun.tools.javac.tree.JCTree.JCClassDecl;
 import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.util.Context;
-import com.sun.tools.javac.util.Options;
-import com.sun.tools.javac.util.Pair;
 import com.sun.tools.javac.util.Context.Factory;
 import com.sun.tools.javac.util.Context.Key;
+import com.sun.tools.javac.util.Options;
+import com.sun.tools.javac.util.Pair;
 
 public class JavacCompiler extends Compiler {
 	public static final Key<Set<JavaFileObject>> FILES_WITH_ERRORS_KEY = new Key<>();

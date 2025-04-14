@@ -35,7 +35,7 @@ import org.eclipse.jdt.internal.core.search.matching.TypeReferenceLocator;
 public class DOMPatternLocatorFactory {
 
 	public static DOMPatternLocator createWrapper(PatternLocator locator) {
-		// TODO implement all this. 
+		// TODO implement all this.
 		if( locator instanceof FieldLocator fl) {
 			return new DOMFieldLocator(fl);
 		}

@@ -114,7 +114,7 @@ public class ProceedOnErrorGen extends Gen {
 			super.visitLiteral(tree);
 		}
 	}
-	
+
 	@Override
 	public void visitNewClass(JCNewClass tree) {
 		if (tree.type == null || tree.type.isErroneous() || tree.args.stream().anyMatch(arg -> arg.type == null || arg.type.isErroneous())) {

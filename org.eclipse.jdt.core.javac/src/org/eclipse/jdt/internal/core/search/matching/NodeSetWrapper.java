@@ -25,15 +25,15 @@ public class NodeSetWrapper {
 	public NodeSetWrapper(boolean mustResolve) {
 		this.setMustResolve(mustResolve);
 	}
-	
+
 	public boolean mustResolve() {
 		return mustResolve;
 	}
-	
+
 	public void setMustResolve(boolean mustResolve) {
 		this.mustResolve = mustResolve;
 	}
-	
+
 	public int addMatch(org.eclipse.jdt.core.dom.ASTNode node, int matchLevel) {
 		int maskedLevel = matchLevel & PatternLocator.MATCH_LEVEL_MASK;
 		switch (maskedLevel) {

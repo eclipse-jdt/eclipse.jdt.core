@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Copied from eclipse.jdt.core/org.eclipse.jdt.apt.core/src/org/eclipse/jdt/apt/core/util/AptConfig.java
  *
  * Contributors:
@@ -122,7 +122,7 @@ public class ProcessorConfig {
 	/**
 	 * If the value starts with a path variable such as %ROOT%, replace it with the
 	 * absolute path.
-	 * 
+	 *
 	 * @param value the value of a -Akey=value command option
 	 */
 	private static String resolveVarPath(IJavaProject jproj, String value) {

@@ -13,9 +13,9 @@ package org.eclipse.jdt.internal.javac.dom;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
 
-import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
+import com.sun.tools.javac.code.Type;
 
 /**
  * Represents a binding for a type that javac struggles to recover,
@@ -71,7 +71,7 @@ public class JavacErrorTypeBinding extends JavacTypeBinding {
 		builder.append(";");
 		return builder.toString();
 	}
-	
+
 	@Override
 	public ITypeBinding getErasure() {
 		return this.resolver.bindings.getTypeBinding(this.types.erasure(this.originatingSymbol.type));

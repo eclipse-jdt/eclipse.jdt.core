@@ -37,6 +37,7 @@ import java.util.concurrent.CompletableFuture;
 import org.eclipse.core.runtime.ILog;
 
 import com.sun.tools.javac.file.CacheFSInfo;
+import com.sun.tools.javac.file.JavacFileManager;
 
 import sun.nio.ch.FileChannelImpl;
 
@@ -60,11 +61,11 @@ public class ZipFileSystemProviderWithCache extends FileSystemProvider {
 	/// We actually store `int` instead of an actual reference to allow the underlying
 	/// file managers to be garbage collected (and closed).
 	private final Set<Integer> fileManagersIdentitieis = new HashSet<>();
-	
+
 	public void closeFileManager(int cachingJarsJavaFileManagerIdentityHashCode) {
 		// We cannot keep a reference to JavaFileManager easily or it create leak in the context
 		// we instead keep refs to ids
-		
+
 		// One important limitation is that we can only clear the cache when we know that
 		// no relevant filesystem is still in use (called `.close()` or got GCed).
 		// Ideally, we would have finer grain cache that would clear the unused filesystems
@@ -130,7 +131,7 @@ public class ZipFileSystemProviderWithCache extends FileSystemProvider {
 			ILog.get().error(ex.getMessage(), ex);
 		}
 	}
-	
+
 	@Override
 	public FileSystem getFileSystem(URI uri) {
 		var res = getCachedFileSystem(getPath(uri));
@@ -144,7 +145,7 @@ public class ZipFileSystemProviderWithCache extends FileSystemProvider {
 	/// @return the cache filesystem, or `null` is filesystem
 	///         was not requested yet, or if the cached filesystem
 	///         is outdated and not suitable for usage any more.
-	private FileSystem getCachedFileSystem(Path file) { 
+	private FileSystem getCachedFileSystem(Path file) {
 		var cached = this.cachedFilesystems.get(file);
 		if (cached == null) {
 			return null;

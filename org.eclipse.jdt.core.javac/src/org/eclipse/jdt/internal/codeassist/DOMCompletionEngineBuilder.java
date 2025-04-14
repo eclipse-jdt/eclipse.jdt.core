@@ -31,7 +31,7 @@ class DOMCompletionEngineBuilder {
 	private static final String EXTENDS = "extends"; //$NON-NLS-1$
 	private static final String THROWS = "throws"; //$NON-NLS-1$
 	private static final String SUPER = "super"; //$NON-NLS-1$
-	
+
 	private static final String JAVA_LANG_PKG = "java.lang.";
 
 	static void createMethod(IMethodBinding methodBinding, StringBuilder completion, ITypeBinding currentType, List<ITypeBinding> importedTypes, String currentPackage) {

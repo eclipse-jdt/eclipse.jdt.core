@@ -41,16 +41,16 @@ public class DOMLocalVariableLocator extends DOMPatternLocator {
 			return lvp.localVariable;
 		return null;
 	}
-	
+
 	@Override
 	public LocatorResponse match(Name node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		if (node.getLocationInParent() instanceof ChildPropertyDescriptor descriptor
 				// local variable refs are either expressions as children
-				&& (descriptor.getChildType() == Expression.class 
+				&& (descriptor.getChildType() == Expression.class
 						// or dereferenced names
 						|| descriptor == QualifiedName.QUALIFIER_PROPERTY)
 				// local variables cannot be qualified
-				&& node instanceof SimpleName simple 
+				&& node instanceof SimpleName simple
 				&& Objects.equals(getLocalVariable() == null ? null : getLocalVariable().getElementName(), simple.getIdentifier())) {
 			return toResponse(POSSIBLE_MATCH);
 		}
@@ -102,11 +102,11 @@ public class DOMLocalVariableLocator extends DOMPatternLocator {
 				}
 			}
 		}
-		
+
 		if (this.locator.pattern.findDeclarations) {
 			if (this.locator.matchesName(this.locator.pattern.name, node.getName().getIdentifier().toCharArray())) {
 				LocalVariable lvFromPattern = getLocalVariable();
-				if (lvFromPattern != null ) { 
+				if (lvFromPattern != null ) {
 					if(node.getStartPosition() == lvFromPattern.declarationSourceStart) {
 						return toResponse(defaultLevelOnMatch, false);
 					} else if( node.getName().getStartPosition() == lvFromPattern.nameStart) {
@@ -117,7 +117,7 @@ public class DOMLocalVariableLocator extends DOMPatternLocator {
 		}
 		return toResponse(0, false);
 	}
-	
+
 	@Override
 	public void reportSearchMatch(MatchLocator locator, ASTNode node, SearchMatch match) throws CoreException {
 		if(this.locator.pattern.findDeclarations && hasVariableDeclarationAncestor(node) ) {

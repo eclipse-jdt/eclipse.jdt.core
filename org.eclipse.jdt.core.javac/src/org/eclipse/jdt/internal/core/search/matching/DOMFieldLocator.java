@@ -172,7 +172,7 @@ public class DOMFieldLocator extends DOMPatternLocator {
 					: PatternLocator.ACCURATE_MATCH;
 		}
 		// use the stronger match
-		int level = nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel); 
+		int level = nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel);
 		return toResponse(level, true);
 	}
 
@@ -197,7 +197,7 @@ public class DOMFieldLocator extends DOMPatternLocator {
 					: PatternLocator.ACCURATE_MATCH;
 		}
 		// use the stronger match
-		int level = nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel); 
+		int level = nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel);
 		return toResponse(level, true);
 	}
 

@@ -35,7 +35,7 @@ public abstract class JavacPackageBinding implements IPackageBinding {
 		this.nameString = packge.getQualifiedName().toString();
 		this.resolver = resolver;
 	}
-	
+
 	public JavacPackageBinding(String nameString, JavacBindingResolver resolver) {
 		this.nameString = nameString;
 		this.resolver = resolver;
@@ -43,8 +43,8 @@ public abstract class JavacPackageBinding implements IPackageBinding {
 
 	@Override
 	public IAnnotationBinding[] getAnnotations() {
-		return this.getPackageSymbol() == null ? 
-				new IAnnotationBinding[0] : 
+		return this.getPackageSymbol() == null ?
+				new IAnnotationBinding[0] :
 				this.getPackageSymbol().getAnnotationMirrors().stream()
 				.map(am -> this.resolver.bindings.getAnnotationBinding(am, this))
 				.toArray(IAnnotationBinding[]::new);
@@ -100,8 +100,8 @@ public abstract class JavacPackageBinding implements IPackageBinding {
 	}
 
 	@Override
-	public IModuleBinding getModule() { 
-		return this.getPackageSymbol() != null ? 
+	public IModuleBinding getModule() {
+		return this.getPackageSymbol() != null ?
 				this.resolver.bindings.getModuleBinding(this.getPackageSymbol().modle) :
 				null;
 	}
@@ -134,7 +134,7 @@ public abstract class JavacPackageBinding implements IPackageBinding {
 		return this.getPackageSymbol() != null ? this.getPackageSymbol().getQualifiedName().toString() :
 			this.nameString;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "package " + getName();
@@ -147,7 +147,7 @@ public abstract class JavacPackageBinding implements IPackageBinding {
 	public void setPackageSymbol(PackageSymbol packageSymbol) {
 		this.packageSymbol = packageSymbol;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(this.resolver, this.getPackageSymbol(), this.nameString);
@@ -157,7 +157,7 @@ public abstract class JavacPackageBinding implements IPackageBinding {
 	public boolean isEqualTo(IBinding binding) {
 		return binding instanceof IPackageBinding other && Objects.equals(getKey(), other.getKey());
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		return obj instanceof JavacPackageBinding other

@@ -29,9 +29,9 @@ import com.sun.tools.javac.util.Context.Factory;
 
 /// An implementation of [JavacFileManager] suitable for local parsing/resolution.
 /// It allows to reuse the filesystems for the referenced jars so they're not duplicated,
-/// 
+///
 /// Note that the main goal is to override the [#close()] method so it does _not_ close
-/// the underlying ZipFileSystem which might still be in use. 
+/// the underlying ZipFileSystem which might still be in use.
 public class CachingJarsJavaFileManager extends JavacFileManager {
 
 	private static final ZipFileSystemProviderWithCache zipCache = new ZipFileSystemProviderWithCache();

@@ -123,7 +123,7 @@ public class SignatureUtils {
 	public static String getSignatureForTypeKey(String key) {
 		return key.replace('/', '.').replaceFirst("(?<=\\.|L)[_$A-Za-z][_$A-Za-z0-9]*~", "");
 	}
-	
+
 	/**
 	 * Returns the signature of the given method binding as a character array.
 	 *

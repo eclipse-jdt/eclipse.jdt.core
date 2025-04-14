@@ -27,10 +27,11 @@ public class FindNextJavadocableSibling extends ASTVisitor {
 		this.javadocStart = javadocStart;
 		this.javadocLength = javadocLength;
 	}
+	@Override
 	public boolean preVisit2(ASTNode node) {
-		if( done ) 
+		if( done )
 			return false;
-		
+
 		preVisit(node);
 		return true;
 	}
@@ -43,13 +44,13 @@ public class FindNextJavadocableSibling extends ASTVisitor {
 		}
 		return this.nextNode;
 	}
-	
+
 	@Override
 	public void preVisit(ASTNode node) {
-		// If there's any overlap, abort. 
+		// If there's any overlap, abort.
 		//int nodeEnd = node.getStartPosition() + node.getLength();
 		int jdocEnd = this.javadocStart + this.javadocLength;
-		
+
 		if( isJavadocAble(node)) {
 			if( node.getStartPosition() == this.javadocStart ) {
 				this.nextNode = node;
@@ -61,7 +62,7 @@ public class FindNextJavadocableSibling extends ASTVisitor {
 					this.nextNode = node;
 				}
 		} else {
-			// Let's keep track of the non-jdocable next node in case. 
+			// Let's keep track of the non-jdocable next node in case.
 			// If there's a sysout between the jdoc and a type, it is invalid
 			if( node.getStartPosition() == this.javadocStart ) {
 				this.nonJavaDocableNextNode = node;
@@ -73,7 +74,7 @@ public class FindNextJavadocableSibling extends ASTVisitor {
 	}
 
 	private static boolean isJavadocAble(ASTNode node) {
-		return node instanceof PackageDeclaration || 
+		return node instanceof PackageDeclaration ||
 				node instanceof AbstractTypeDeclaration ||
 			node instanceof FieldDeclaration ||
 			node instanceof MethodDeclaration;

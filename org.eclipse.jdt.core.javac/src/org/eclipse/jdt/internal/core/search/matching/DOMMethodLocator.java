@@ -35,7 +35,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		super(locator.pattern);
 		this.locator = locator;
 	}
-	
+
 	private IMethodBinding getDOMASTMethodBinding(ITypeBinding type, String methodName, ITypeBinding[] argumentTypes) {
 		return Stream.of(type.getDeclaredMethods())
 			.filter(method -> Objects.equals(method.getName(), methodName))
@@ -62,11 +62,11 @@ public class DOMMethodLocator extends DOMPatternLocator {
 
 	@Override
 	public LocatorResponse match(org.eclipse.jdt.core.dom.MethodDeclaration node, NodeSetWrapper nodeSet, MatchLocator locator) {
-		if (!this.locator.pattern.findDeclarations) 
+		if (!this.locator.pattern.findDeclarations)
 			return toResponse(IMPOSSIBLE_MATCH);
 
 		// Verify method name
-		if (!this.locator.matchesName(this.locator.pattern.selector, node.getName().getIdentifier().toCharArray())) 
+		if (!this.locator.matchesName(this.locator.pattern.selector, node.getName().getIdentifier().toCharArray()))
 			return toResponse(IMPOSSIBLE_MATCH);
 
 		// Verify parameters types
@@ -75,7 +75,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 			int length = this.locator.pattern.parameterSimpleNames.length;
 			List<SingleVariableDeclaration> args = node.parameters();
 			int argsLength = args == null ? 0 : args.size();
-			if (length != argsLength) 
+			if (length != argsLength)
 				return toResponse(IMPOSSIBLE_MATCH);
 			for (int i = 0; i < argsLength; i++) {
 				var arg = args.get(i);
@@ -235,7 +235,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		}
 		return level;
 	}
-	
+
 	public IMethodBinding getDOMASTMethodBinding(MethodPattern methodPattern) {
 		// TODO
 		return null;
@@ -255,7 +255,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 			}
 
 			// declaring type
-			if (this.locator.pattern.declaringSimpleName == null && this.locator.pattern.declaringQualification == null) 
+			if (this.locator.pattern.declaringSimpleName == null && this.locator.pattern.declaringQualification == null)
 				return toResponse(methodLevel); // since any declaring class will do
 
 			boolean subType = ((method.getModifiers() & Modifier.STATIC) == 0) && ((method.getModifiers() & Modifier.PRIVATE) == 0);

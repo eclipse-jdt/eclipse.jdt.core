@@ -154,7 +154,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 	private interface GenericRequestor {
 		public void acceptBinding(String bindingKey, IBinding binding);
 	}
-	
+
 	public JavacCompilationUnitResolver() {
 		// 0-arg constructor
 	}
@@ -369,7 +369,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 					IBinaryType binaryType = answer.getBinaryType();
 					if (binaryType != null) {
 						BinaryTypeBinding binding = lu.cacheBinaryType(binaryType, null);
-						if( binding != null ) 
+						if( binding != null )
 							requestor.acceptBinding(bindingKey, new TypeBinding(bindingResolver, binding));
 					}
 				}
@@ -493,7 +493,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 					}
 				}
 			});
-			
+
 			if (!unit.types().isEmpty()) {
 				List<AbstractTypeDeclaration> types = unit.types();
 				for( int i = 0; i < types.size(); i++ ) {
@@ -564,7 +564,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			// intentionally overwrite the existing working copy entry for the same file
 			pathToUnit.put(pathOfClassUnderAnalysis, sourceUnit);
 		}
-		
+
 		//CompilationUnit res2  = CompilationUnitResolver.getInstance().toCompilationUnit(sourceUnit, resolveBindings, project, classpaths, focalPoint, apiLevel, compilerOptions, typeRootWorkingCopyOwner, typeRootWorkingCopyOwner, flags, monitor);
 		CompilationUnit res = parse(pathToUnit.values().toArray(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[]::new),
 				apiLevel, compilerOptions, resolveBindings, flags, project, workingCopyOwner, focalPoint, monitor).get(sourceUnit);
@@ -576,13 +576,14 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 	}
 
 	private static Names names = new Names(new Context()) {
+		@Override
 		public void dispose() {
 			// do nothing, keep content for re-use
 		}
 	};
 
-	private Map<org.eclipse.jdt.internal.compiler.env.ICompilationUnit, CompilationUnit> parse(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] sourceUnits, int apiLevel, 
-			Map<String, String> compilerOptions, boolean resolveBindings, int flags, IJavaProject javaProject, WorkingCopyOwner workingCopyOwner, 
+	private Map<org.eclipse.jdt.internal.compiler.env.ICompilationUnit, CompilationUnit> parse(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] sourceUnits, int apiLevel,
+			Map<String, String> compilerOptions, boolean resolveBindings, int flags, IJavaProject javaProject, WorkingCopyOwner workingCopyOwner,
 			int focalPoint, IProgressMonitor monitor) {
 		if (sourceUnits.length == 0) {
 			return Collections.emptyMap();
@@ -707,7 +708,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 					String lastSegment = split[split.length-1].replace(".class", ".java");
 					sourceUnitPath = Path.of(lastSegment);
 				}
-				if( sourceUnitPath == null ) 
+				if( sourceUnitPath == null )
 					sourceUnitPath = Path.of(new File("whatever.java").toURI());
 			} else {
 				sourceUnitPath = Path.of(unitFile.toURI());

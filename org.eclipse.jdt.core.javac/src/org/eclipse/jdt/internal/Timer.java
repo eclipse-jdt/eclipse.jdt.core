@@ -12,13 +12,13 @@ package org.eclipse.jdt.internal;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.Objects;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 public class Timer {
@@ -59,7 +59,7 @@ public class Timer {
 			Duration d = Duration.between(e.getValue(), Instant.now());
 			System.err.println(
 					current + " current:" + d.toMillis() + " total:" + durations.compute(current, (_, prev) -> prev == null ? d : prev.plus(d)).toMillis());
-			
+
 		}
 	}
 }

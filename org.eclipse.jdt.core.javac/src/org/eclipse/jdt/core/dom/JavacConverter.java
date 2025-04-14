@@ -163,7 +163,7 @@ class JavacConverter {
 		this.buildJavadoc = buildJavadoc;
 		this.focalPoint = -1;
 	}
-	public JavacConverter(AST ast, JCCompilationUnit javacCompilationUnit, 
+	public JavacConverter(AST ast, JCCompilationUnit javacCompilationUnit,
 			Context context, String rawText, boolean buildJavadoc, int focalPoint) {
 		this(ast, javacCompilationUnit, context, rawText, buildJavadoc);
 		this.focalPoint = focalPoint;
@@ -436,7 +436,7 @@ class JavacConverter {
 		}
 		return res;
 	}
-	
+
 	private ImportDeclaration convert(JCModuleImport javac) {
 		ImportDeclaration res = this.ast.newImportDeclaration();
 		commonSettings(res, javac);
@@ -456,7 +456,7 @@ class JavacConverter {
 			commonSettings(res, javac, length, true);
 		}
 	}
-	
+
 	int commonSettingsGetLength(ASTNode res, JCTree javac) {
 		int length = -1;
 		if( javac != null ) {
@@ -522,12 +522,12 @@ class JavacConverter {
 	private Name toName(JCTree expression) {
 		return toName(expression, null);
 	}
-	
+
 	Name toName(JCTree expression, BiConsumer<ASTNode, JCTree> extraSettings ) {
 		if (expression instanceof JCIdent ident) {
 			Name res = convertName(ident.getName());
 			commonSettings(res, expression);
-			if( extraSettings != null ) 
+			if( extraSettings != null )
 				extraSettings.accept(res, ident);
 			return res;
 		}
@@ -543,7 +543,7 @@ class JavacConverter {
 			Name qualifier = toName(faExpression, extraSettings);
 			QualifiedName res = this.ast.newQualifiedName(qualifier, n);
 			commonSettings(res, fieldAccess);
-			if( extraSettings != null ) 
+			if( extraSettings != null )
 				extraSettings.accept(res, fieldAccess);
 			// don't calculate source range if the identifier is not valid.
 			if (!fieldAccess.getIdentifier().contentEquals(FAKE_IDENTIFIER)
@@ -1071,7 +1071,7 @@ class JavacConverter {
 			res.setName(simpleName);
 		}
 		res.modifiers().addAll(convert(javac.getModifiers(), res));
-		
+
 		JCTree type = javac.getType();
 		if (type instanceof JCAnnotatedType annotatedType) {
 			annotatedType.getAnnotations().stream()
@@ -1079,7 +1079,7 @@ class JavacConverter {
 				.forEach(res.varargsAnnotations()::add);
 			type = annotatedType.getUnderlyingType();
 		}
-		
+
 		if ( (javac.mods.flags & VARARGS) != 0) {
 			// We have varity
 			if(type instanceof JCArrayTypeTree arr) {
@@ -1087,14 +1087,14 @@ class JavacConverter {
 			}
 			res.setVarargs(true);
 		}
-		
+
 		List<Dimension> dims = convertDimensionsAfterPosition(javac.getType(), javac.getPreferredPosition()); // +1 to exclude part of the type declared before name
 		if(!dims.isEmpty() ) {
 			// Some of the array dimensions are part of the variable name
 			res.extraDimensions().addAll(dims);
 			type = unwrapDimensions(type, dims.size());
-		} 
-		
+		}
+
 		// the array dimensions are part of the type
 		if (type != null) {
 			if( !(type instanceof JCErroneous)) {
@@ -3571,7 +3571,7 @@ class JavacConverter {
 			} else {
 				SimpleName sn = ast.newSimpleName(stripped.substring(lastDot+1));
 				sn.setSourceRange(startPosition + strippedAmt + lastDot+1, sn.getIdentifier().length());
-				
+
 				QualifiedName qn = ast.newQualifiedName(toName(stripped.substring(0,lastDot), startPosition + strippedAmt, ast), sn);
 				qn.setSourceRange(startPosition + strippedAmt, stripped.length());
 				return qn;

@@ -45,7 +45,7 @@ public class DOMPatternLocator extends PatternLocator {
 	public DOMPatternLocator(SearchPattern pattern) {
 		super(pattern);
 	}
-	
+
 	protected LocatorResponse toResponse(int val) {
 		return toResponse(val, false);
 	}
@@ -53,7 +53,7 @@ public class DOMPatternLocator extends PatternLocator {
 		return new LocatorResponse(val, false, null, alreadyAdded, true);
 	}
 
-	
+
 	// AST DOM Variants
 	public LocatorResponse match(org.eclipse.jdt.core.dom.Annotation node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		// each subtype should override if needed
@@ -150,7 +150,7 @@ public class DOMPatternLocator extends PatternLocator {
 	protected int resolveLevelForType(char[] simpleNamePattern, char[] qualificationPattern, ITypeBinding binding) {
 		return resolveLevelForTypeFQN(simpleNamePattern, qualificationPattern, binding, null);
 	}
-	
+
 	protected int resolveLevelForTypeFQN(char[] simpleNamePattern, char[] qualificationPattern, ITypeBinding binding, IImportDiscovery discovery) {
 		char[] qualifiedPattern = getQualifiedPattern(simpleNamePattern, qualificationPattern);
 		int level = resolveLevelForTypeFQN(qualifiedPattern, binding, discovery);
@@ -260,11 +260,11 @@ public class DOMPatternLocator extends PatternLocator {
 		}
 		return IMPOSSIBLE_MATCH;
 	}
-	
+
 	public static interface IImportDiscovery {
 		public String findImportForString(String s);
 	}
-	
+
 	protected int resolveLevelForTypeFQN(char[] qualifiedPattern, ITypeBinding type) {
 		return resolveLevelForTypeFQN(qualifiedPattern, type, null);
 	}
@@ -292,7 +292,7 @@ public class DOMPatternLocator extends PatternLocator {
 		int qnfbLastDot = qnfb.lastIndexOf('.');
 		int patternFirstDot = CharOperation.indexOf('.', qualifiedPattern);
 		if( qnfbLastDot != -1 && patternFirstDot == -1) {
-			// qnfb is actually qualified but the char array is not. 
+			// qnfb is actually qualified but the char array is not.
 			String qnfbLastSegment = qnfbLastDot == qnfb.length() - 1 ? null : qnfb.substring(qnfbLastDot+1);
 			if( qnfbLastSegment != null ) {
 				boolean match1 = CharOperation.match(qualifiedPattern, qnfbLastSegment.toCharArray(), this.isCaseSensitive);
@@ -307,8 +307,8 @@ public class DOMPatternLocator extends PatternLocator {
 		if( match1 ) {
 			return ACCURATE_MATCH;
 		}
-		
-		// There's a chance our "qualified name" is not fully qualified. 
+
+		// There's a chance our "qualified name" is not fully qualified.
 		if( patternFirstDot != -1 && discovery != null ) {
 			String firstSegment = new String(qualifiedPattern, 0, patternFirstDot);
 			String fqqnImport = discovery.findImportForString(firstSegment);

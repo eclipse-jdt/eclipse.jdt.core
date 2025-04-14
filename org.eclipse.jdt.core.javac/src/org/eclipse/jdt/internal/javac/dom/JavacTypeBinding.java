@@ -154,7 +154,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 					.map(am -> this.resolver.bindings.getAnnotationBinding(am, this))
 					.toArray(IAnnotationBinding[]::new);
 		}
-		
+
 	}
 
 	@Override
@@ -193,8 +193,8 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			this.javaElement = computeJavaElement();
 		}
 		return this.javaElement;
-	}	
-	
+	}
+
 	private IJavaElement computeJavaElement() {
 		if (isTypeVariable() && this.typeSymbol != null) {
 			if (this.typeSymbol.owner instanceof ClassSymbol ownerSymbol
@@ -205,12 +205,12 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				}
 			} else if (this.typeSymbol.owner instanceof MethodSymbol ownerSymbol
 					&& ownerSymbol.type != null ) {
-				JavacMethodBinding mb = this.resolver.bindings.getMethodBinding(ownerSymbol.type.asMethodType(), ownerSymbol, null, isGeneric); 
+				JavacMethodBinding mb = this.resolver.bindings.getMethodBinding(ownerSymbol.type.asMethodType(), ownerSymbol, null, isGeneric);
 				if( mb.getJavaElement() instanceof IMethod ownerMethod
 						&& ownerMethod.getTypeParameter(this.getName()) != null) {
 					return ownerMethod.getTypeParameter(this.getName());
 				}
-			}	
+			}
 		}
 		if (this.resolver.javaProject == null) {
 			return null;
@@ -235,7 +235,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 					return resolved(method.getType(this.typeSymbol.name.toString(), 1));
 				}
 			}
-			
+
 			JavaFileObject jfo = classSymbol == null ? null : classSymbol.sourcefile;
 			ITypeRoot typeRoot = null;
 			if (jfo != null) {
@@ -315,7 +315,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		}
 		return this.key;
 	}
-	
+
 	private String computeKey() {
 		return getKeyWithPossibleGenerics(this.type, this.typeSymbol, tb -> tb != null ? tb.getKey() : KeyUtils.OBJECT_KEY, true);
 	}
@@ -350,13 +350,13 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		}
 		return base1;
 	}
-	
+
 	public String getGenericTypeSignature(boolean useSlashes) {
 		return getGenericTypeSignature(this.type, this.typeSymbol, useSlashes);
 	}
 	public String getGenericTypeSignature(Type t, TypeSymbol s, boolean useSlashes) {
 		if( t instanceof ClassType ct && !s.isAnonymous() && ct.getEnclosingType() != null ) {
-			// return 			Lg1/t/s/def/Generic<Ljava/lang/Exception;>.Member;  
+			// return 			Lg1/t/s/def/Generic<Ljava/lang/Exception;>.Member;
 			// Don't return 	Lg1/t/s/def/Generic$Member<>;
 			Type enclosing = ct.getEnclosingType();
 			if( enclosing != null && enclosing != Type.noType) {
@@ -381,7 +381,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			JavacTypeBinding componentBinding = this.resolver.bindings.getTypeBinding(component);
 			return '[' + componentBinding.getGenericTypeSignature(useSlashes);
 		}
-		String ret = getKeyWithPossibleGenerics(t, s, 
+		String ret = getKeyWithPossibleGenerics(t, s,
 				x -> x instanceof JavacTypeBinding jtb ? jtb.getGenericTypeSignature(useSlashes) : x != null ? x.getKey() : KeyUtils.OBJECT_KEY,
 						useSlashes);
 		return ret;
@@ -399,7 +399,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		}
 		return typeKey;
 	}
-	
+
 	private static String removeTrailingSemicolon(String key) {
 		return key.endsWith(";") ? key.substring(0, key.length() - 1) : key;
 	}
@@ -436,7 +436,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	static void getKey(StringBuilder builder, Type typeToBuild, boolean isLeaf, JavacBindingResolver resolver) throws BindingKeyException {
 		getKey(builder, typeToBuild, typeToBuild.asElement().flatName(), isLeaf, false, false, resolver);
 	}
-	
+
 	static void getKey(StringBuilder builder, Type typeToBuild, boolean isLeaf, boolean includeParameters, JavacBindingResolver resolver) throws BindingKeyException {
 		getKey(builder, typeToBuild, typeToBuild.asElement().flatName(), isLeaf, includeParameters, false, resolver);
 	}
@@ -448,7 +448,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	static void getKey(StringBuilder builder, Type typeToBuild, Name n, boolean isLeaf, boolean includeParameters, JavacBindingResolver resolver) throws BindingKeyException {
 		getKey(builder, typeToBuild, n.toString(), isLeaf, includeParameters, false, resolver);
 	}
-	
+
 	static void getKey(StringBuilder builder, Type typeToBuild, Name n, boolean isLeaf, boolean includeParameters, boolean useSlashes, JavacBindingResolver resolver) throws BindingKeyException {
 		getKey(builder, typeToBuild, n.toString(), isLeaf, includeParameters, useSlashes, resolver);
 	}
@@ -625,12 +625,12 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				protected void append(char ch) {
 					res.append(ch);
 				}
-	
+
 				@Override
 				protected void append(byte[] ba) {
 					res.append(new String(ba));
 				}
-	
+
 				@Override
 				protected void append(Name name) {
 					res.append(name.toString());
@@ -719,7 +719,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				return ret;
 			}
 		}
-		
+
 		Stream<JavacMethodBinding> methods = StreamSupport.stream(this.typeSymbol.members().getSymbols(MethodSymbol.class::isInstance, LookupKind.NON_RECURSIVE).spliterator(), false)
 				.map(MethodSymbol.class::cast)
 				.map(sym -> {
@@ -743,7 +743,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			// recompute it relying on JDT model (which honors the order)
 			methods = methods.sorted(Comparator.comparingInt(binding -> {
 					var elt = binding.getUnresolvedJavaElement(); // unresolved is necessary, as resolved is too expensive
-					return elt != null ? orderedListFromModel.indexOf(elt) : -1; 
+					return elt != null ? orderedListFromModel.indexOf(elt) : -1;
 				}));
 		}
 		return methods.toArray(IMethodBinding[]::new);
@@ -939,7 +939,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	public String getName() {
 		return getName(true);
 	}
-	
+
 	public String getName(boolean checkParameterized) {
 		if (this.isIntersectionType()) {
 			if (this.alternatives != null) {
@@ -1005,7 +1005,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	public String getQualifiedName(boolean includeParams) {
 		return getQualifiedNameImpl(this.type, this.typeSymbol, this.typeSymbol.owner, includeParams);
 	}
-	
+
 	protected String getQualifiedNameImpl(Type type, TypeSymbol typeSymbol, Symbol owner, boolean includeParameters) {
 		if (owner instanceof MethodSymbol) {
 			return "";
@@ -1301,7 +1301,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		return !isRawType(t) && t.isParameterized() && this.isGeneric;
 	}
 
-	
+
 	@Override
 	public boolean isInterface() {
 		return this.typeSymbol.isInterface();

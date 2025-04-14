@@ -27,7 +27,7 @@ public abstract class JavacMemberValuePairBinding implements IMemberValuePairBin
 	public final JavacMethodBinding method;
 	public final Attribute value;
 	private final JavacBindingResolver resolver;
-	
+
 	public JavacMemberValuePairBinding(MethodSymbol key, Attribute value, JavacBindingResolver resolver) {
 		this.method = resolver.bindings.getMethodBinding(key.type.asMethodType(), key, null, true);
 		this.value = value;

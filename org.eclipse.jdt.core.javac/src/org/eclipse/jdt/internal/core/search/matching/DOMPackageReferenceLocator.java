@@ -39,7 +39,7 @@ public class DOMPackageReferenceLocator extends DOMPatternLocator {
 	}
 
 	@Override
-	public LocatorResponse match(org.eclipse.jdt.core.dom.ASTNode node, NodeSetWrapper nodeSet, MatchLocator locator) { 
+	public LocatorResponse match(org.eclipse.jdt.core.dom.ASTNode node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		// interested in ImportReference
 		if (node instanceof ImportDeclaration decl) {
 			return match(decl.getName(), nodeSet, locator);

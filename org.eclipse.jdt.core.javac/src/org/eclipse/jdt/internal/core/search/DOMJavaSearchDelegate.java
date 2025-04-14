@@ -89,7 +89,7 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 	public DOMJavaSearchDelegate() {
 
 	}
-	
+
 	@Override
 	public void locateMatches(MatchLocator locator, IJavaProject javaProject, PossibleMatch[] possibleMatches, int start,
 			int length) throws CoreException {
@@ -97,8 +97,8 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 		for( int i = 0; i < possibleMatches.length; i++ ) {
 			matchToWrapper.put(possibleMatches[i], wrapNodeSet(possibleMatches[i].nodeSet));
 		}
-		
-		
+
+
 		Map<String, String> map = javaProject.getOptions(true);
 		map.put(CompilerOptions.OPTION_TaskTags, org.eclipse.jdt.internal.compiler.util.Util.EMPTY_STRING);
 		locator.options = new CompilerOptions(map);
@@ -143,7 +143,7 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 			astParser.setWorkingCopyOwner(owner);
 
 		org.eclipse.jdt.core.dom.CompilationUnit[] domUnits = new org.eclipse.jdt.core.dom.CompilationUnit[possibleMatches.length];
-		
+
 		List<Integer> nonNullDomIndexes = new ArrayList<>();
 		astParser.createASTs(nonNullUnits, new String[0], new ASTRequestor() {
 			@Override
@@ -186,7 +186,7 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 			}
 		}
 	}
-	
+
 	private NodeSetWrapper wrapNodeSet(MatchingNodeSet nodeSet) {
 		return new NodeSetWrapper(nodeSet.mustResolve);
 	}

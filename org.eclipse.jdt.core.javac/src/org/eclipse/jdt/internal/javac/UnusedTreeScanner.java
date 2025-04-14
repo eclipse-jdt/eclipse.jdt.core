@@ -41,11 +41,11 @@ import com.sun.source.tree.VariableTree;
 import com.sun.source.util.TreeScanner;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.TypeTag;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type.JCPrimitiveType;
+import com.sun.tools.javac.code.TypeTag;
 import com.sun.tools.javac.parser.Tokens.Comment;
 import com.sun.tools.javac.parser.Tokens.Comment.CommentStyle;
 import com.sun.tools.javac.tree.JCTree;
@@ -72,9 +72,9 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 	private CompilationUnitTree unit = null;
 	private boolean classSuppressUnused = false;
 	private boolean methodSuppressUnused = false;
-	
+
 	private final UnusedDocTreeScanner unusedDocTreeScanner = new UnusedDocTreeScanner();
-	
+
 	@Override
 	public R scan(Tree tree, P p) {
 		if (tree == null) {
@@ -86,7 +86,7 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 		} else if (tree instanceof JCCompilationUnit currentUnit) {
 			jcUnit = currentUnit;
 		}
-		
+
 		if (jcUnit != null && tree instanceof JCTree jcTree) {
 			Comment c = jcUnit.docComments.getComment(jcTree);
 			if (c != null && (c.getStyle() == CommentStyle.JAVADOC_BLOCK || c.getStyle() == CommentStyle.JAVADOC_LINE)) {
@@ -350,7 +350,7 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 		}
 		return suppressed;
 	}
-	
+
 	private class UnusedDocTreeScanner extends com.sun.source.util.DocTreeScanner<R, P> {
 		@Override
 		public R visitLink(com.sun.source.doctree.LinkTree node, P p) {
@@ -371,7 +371,7 @@ public class UnusedTreeScanner<R, P> extends TreeScanner<R, P> {
 			}
 			return super.visitSee(node, p);
 		}
-		
+
 		@Override
 		public R visitThrows(ThrowsTree node, P p) {
 			if (node.getExceptionName() instanceof com.sun.tools.javac.tree.DCTree.DCReference ref) {

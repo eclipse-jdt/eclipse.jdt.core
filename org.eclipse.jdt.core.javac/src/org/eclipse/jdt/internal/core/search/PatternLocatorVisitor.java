@@ -71,7 +71,7 @@ class PatternLocatorVisitor extends ASTVisitor {
 		this.nodeSet = nodeSet;
 		this.locator = locator;
 	}
-	
+
 	private DOMPatternLocator getWrapper(PatternLocator locator) {
 		DOMPatternLocator l = wrapperMap.get(locator);
 		if(l == null ) {
@@ -87,12 +87,12 @@ class PatternLocatorVisitor extends ASTVisitor {
 	}
 
 	/*
-	 * TODO 
+	 * TODO
 	 * We really need to change this BiFunction into something that returns
 	 * a record with way more information.  Simply knowing if the current node matches
-	 * is nowhere near sufficient. 
-	 * 
-	 * We need to know if: 
+	 * is nowhere near sufficient.
+	 *
+	 * We need to know if:
 	 *   1) the current node matches or does not match
 	 *   2) We found a replacement node to consider
 	 *   3) We found a replacement node and added it already
@@ -113,7 +113,7 @@ class PatternLocatorVisitor extends ASTVisitor {
 			n2 = resp2.replacementNodeFound() ? resp2.replacement() : n2;
 			resp = new LocatorResponse(resp2.level(), resp.replacementNodeFound() || resp2.replacementNodeFound(), n2, resp2.added(), resp2.canVisitChildren());
 		}
-		boolean added = resp.added();  
+		boolean added = resp.added();
 		if( !added ) {
 			this.nodeSet.addMatch(n2, resp.level());
 		}
@@ -174,7 +174,7 @@ class PatternLocatorVisitor extends ASTVisitor {
 		LocatorResponse resp = defaultVisitImplementationWithFunc(node, (x,y) -> y.match(node, this.nodeSet, this.locator), DOMASTNodeUtils::getBinding);
 		return resp.level() == 0 && resp.canVisitChildren();
 	}
-	
+
 	@Override
 	public boolean visit(SimpleType type) {
 		visitType(type);
@@ -215,7 +215,7 @@ class PatternLocatorVisitor extends ASTVisitor {
 		visitAllDescendentTypeArguments(node);
 		return false;
 	}
-	
+
 	private void visitAllDescendentTypeArguments(Type node) {
 		// This feel suspect to me... maybe repeats nodes... idk yet
 		node.accept(new ASTVisitor() {
@@ -226,14 +226,14 @@ class PatternLocatorVisitor extends ASTVisitor {
 			}
 		});
 	}
-	
+
 	protected void visitTypeArgumentList(List typeArgs) {
 		ArrayList<Object> args = new ArrayList<Object>(typeArgs);
 		for( Object t : args ) {
 			((Type)t).accept(this);
 		}
 	}
-	
+
 	@Override
 	public boolean visit(IntersectionType node) {
 		return visitType(node);
@@ -268,7 +268,7 @@ class PatternLocatorVisitor extends ASTVisitor {
 		LocatorResponse resp = defaultVisitImplementationWithFunc(node, (x,y) -> y.match(node, this.nodeSet, this.locator), DOMASTNodeUtils::getBinding);
 		return resp.level() == 0 && resp.canVisitChildren();
 	}
-	
+
 	@Override
 	public boolean visit(VariableDeclarationFragment node) {
 		return defaultVisitImplementation(node, (x,y) -> y.match(node, this.nodeSet, this.locator));
@@ -304,7 +304,7 @@ class PatternLocatorVisitor extends ASTVisitor {
 		defaultVisitImplementation(node, (x,y) -> y.match(node, this.nodeSet, this.locator));
 		return true;
 	}
-	
+
 	@Override
 	public boolean visit(PackageDeclaration node) {
 		defaultVisitImplementation(node, (x,y) -> y.match(node, this.nodeSet, this.locator));

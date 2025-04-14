@@ -104,7 +104,7 @@ public class DOMThrownExceptionFinder extends ASTVisitor {
 	 * Returns all exceptions that are discouraged to use because (a) they are
 	 * already caught in some inner try-catch, or (b) their super exception has
 	 * already been caught.
-	 * 
+	 *
 	 * @return all discouraged exceptions
 	 */
 	public ITypeBinding[] getDiscouragedExceptions() {

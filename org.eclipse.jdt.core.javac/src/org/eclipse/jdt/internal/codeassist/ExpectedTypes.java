@@ -758,7 +758,7 @@ public class ExpectedTypes {
 		}
 		return new ArrayList<>(this.expectedTypes);
 	}
-	
+
 	public Collection<ITypeBinding> getUninterestingTypes() {
 		return this.uninterestingBindings;
 	}

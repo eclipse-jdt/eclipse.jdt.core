@@ -183,7 +183,7 @@ public class DOMConstructorLocator extends DOMPatternLocator {
 		}
 		return level;
 	}
-	
+
 	protected int matchLevelForDeclarations(MethodDeclaration constructor) {
 		// constructor name is stored in selector field
 		if (this.locator.pattern.declaringSimpleName != null && !this.locator.matchesName(this.locator.pattern.declaringSimpleName, constructor.getName().toString().toCharArray()))

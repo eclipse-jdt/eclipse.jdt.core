@@ -32,15 +32,15 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 /**
  * Helper methods for calculating the relevance numbers of completion proposals.
- * 
+ *
  * Most of these are adapted from {@link CompletionEngine}
  */
 class RelevanceUtils {
-	
+
 	/**
 	 * Returns the sum of the appropriate relevance constants based on how the
 	 * current name matches the given proposal name according to the enabled rules.
-	 * 
+	 *
 	 * @param token        the uncompleted content
 	 * @param proposalName the proposal text to check against the uncompleted
 	 *                     content
@@ -67,10 +67,10 @@ class RelevanceUtils {
 		}
 		return 0;
 	}
-	
+
 	/**
 	 * Returns the appropriate "qualified" relevance constant based on if the current content is qualified and if the content is expected to be qualified.
-	 * 
+	 *
 	 * @param prefixRequired true if the current completion item should be qualified, false otherwise
 	 * @param prefix the completion prefix; the java identifier that completion was triggered on
 	 * @param qualifiedPrefix the completion prefix with any qualifiers (eg. package qualifiers, type qualifiers, nested member access, etc.). May contain `.`
@@ -87,10 +87,10 @@ class RelevanceUtils {
 		}
 		return 0;
 	}
-	
+
 	/**
 	 * Returns the appropriate relevance constant based on if type associated with the proposal matches the expected types.
-	 * 
+	 *
 	 * @param proposalType the binding of the type associated with the proposal
 	 * @param expectedTypes the expected types
 	 * @return the appropriate relevance constant based on if type associated with the proposal matches the expected types
@@ -126,7 +126,7 @@ class RelevanceUtils {
 				// Just ensuring that the unitScope is not null, even though it's an unlikely case.
 				var oneErasure = expectedType.getErasure();
 				var otherErasure = proposalType.getErasure();
-				if ((oneErasure.isPrimitive() && otherErasure.getQualifiedName().startsWith("java.lang.")) || 
+				if ((oneErasure.isPrimitive() && otherErasure.getQualifiedName().startsWith("java.lang.")) ||
 					(otherErasure.isPrimitive() && oneErasure.getQualifiedName().startsWith("java.lang."))) {
 					if (oneErasure.getName().equalsIgnoreCase(otherErasure.getName()) ||
 						Set.of(oneErasure.getName().toLowerCase(), otherErasure.getName().toLowerCase()).equals(Set.of("char", "character"))) {
@@ -142,7 +142,7 @@ class RelevanceUtils {
 		}
 		return 0;
 	}
-	
+
 	static int computeRelevanceForExpectingType(IType proposalType, ExpectedTypes expectedTypes, WorkingCopyOwner workingCopyOwner, Map<String, ITypeHierarchy> typeHierarchyCache) {
 		if (proposalType != null) {
 			IPackageFragment packageFragment = (IPackageFragment)proposalType.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
@@ -184,10 +184,10 @@ class RelevanceUtils {
 		}
 		return 0;
 	}
-	
+
 	/**
 	 * Returns the appropriate relevance based on if the given type is expected, without taking into account sub/super classes.
-	 * 
+	 *
 	 * @param type the type completion to get the relevance of
 	 * @param expectedTypes the information on the expected type
 	 * @return the appropriate relevance based on if the given type is expected, without taking into account sub/super classes
@@ -200,7 +200,7 @@ class RelevanceUtils {
 
 	/**
 	 * Returns the appropriate relevance number based on if the given member is directly implemented in the qualifying type.
-	 * 
+	 *
 	 * @see CompletionEngine#computeRelevanceForInheritance(ReferenceBinding, ReferenceBinding)
 	 * @param qualifyingType the qualifying type
 	 * @param member the member to check if it's directly or indirectly inherited
@@ -225,10 +225,10 @@ class RelevanceUtils {
 		}
 		return 0;
 	}
-	
+
 	/**
 	 * Returns the appropriate relevance number based on if the given member type is directly implemented in the qualifying type.
-	 * 
+	 *
 	 * @see CompletionEngine#computeRelevanceForInheritance(ReferenceBinding, ReferenceBinding)
 	 * @param qualifyingType the qualifying type
 	 * @param memberType the member type to check if it's directly or indirectly inherited
@@ -243,7 +243,7 @@ class RelevanceUtils {
 		}
 		return 0;
 	}
-	
+
 	static int computeRelevanceForInteresting(IType potentiallyInterestingType, ExpectedTypes expectedTypes) {
 		String typeKey = potentiallyInterestingType.getKey();
 		for (ITypeBinding uninterestingType : expectedTypes.getUninterestingTypes()) {
