@@ -250,4 +250,11 @@ public interface ISourceElementRequestor {
 	default void exitCompactConstructor(int declarationEnd) {
 		// do nothing
 	}
+	// There's no node pass and nothing was created for a block. Just pass the offset
+	default void enterBlock(int sourceStart) {
+		// do nothing
+	}
+	default void exitBlock(int sourceEnd) {
+		// do nothing
+	}
 }
