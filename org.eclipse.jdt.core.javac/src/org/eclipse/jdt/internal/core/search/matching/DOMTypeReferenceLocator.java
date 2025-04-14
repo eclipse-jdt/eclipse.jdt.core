@@ -51,6 +51,7 @@ import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeDeclarationMatch;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
+import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.search.DOMASTNodeUtils;
 import org.eclipse.jdt.internal.core.search.LocatorResponse;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
@@ -645,7 +646,7 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 
 					TypeReferenceMatch typeMatch = new TypeReferenceMatch(enclosing, accuracy, node.getStartPosition(), node.getLength(), insideDocComment(node), locator.getParticipant(), r);
 					try {
-						locator.report(typeMatch);
+						reportSearchMatch(locator, node, typeMatch);
 					} catch(CoreException ce) {
 						// ignore
 					}
@@ -882,18 +883,28 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 				srg = sr.getSourceRange();
 				nameRange = sr.getNameRange();
 				IJavaElement ancestor = je.getAncestor(IJavaElement.COMPILATION_UNIT);
-				r = ancestor == null ? null : ancestor.getCorrespondingResource();
+				if( ancestor == null ) {
+					ancestor = je.getAncestor(IJavaElement.CLASS_FILE);
+				}
+				if( ancestor != null ) {
+					r = ancestor.getCorrespondingResource();
+				}
 			} catch(JavaModelException jme) {
 				// ignore
 			}
+			if( r == null ) {
+				if( je instanceof BinaryType) {
+					r = je.getJavaProject().getProject();
+				}
+			}
 			ISourceRange rangeToUse = (nameRange == null) ? srg : nameRange;
-			if( rangeToUse != null ) {
+			if( rangeToUse != null && r != null) {
 				TypeDeclarationMatch tdm = new TypeDeclarationMatch(je, newLevel,
 						rangeToUse.getOffset(), rangeToUse.getLength(),
 						locator.getParticipant(), r);
 				try {
+					SearchMatchingUtility.reportSearchMatch(locator, tdm);
 					this.foundElements.add(je);
-					locator.report(tdm);
 				} catch(CoreException ce) {
 					// ignore
 				}
@@ -978,6 +989,11 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 
 	@Override
 	public void reportSearchMatch(MatchLocator locator, ASTNode node, SearchMatch match) throws CoreException {
+		IResource resource = match.getResource();
+		if( resource == null ) {
+			return;
+		}
+
 //		boolean matchIsEr = match.isErasure();
 //		boolean matchIsEq = match.isEquivalent();
 //		boolean matchIsEx = match.isExact();
@@ -1129,5 +1145,6 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		}
 		return retNode[0];
 	}
+
 
 }
