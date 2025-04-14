@@ -214,7 +214,7 @@ public class JavacBindingResolver extends BindingResolver {
 			JavacPackageBinding newInstance = new JavacPackageBinding(n, JavacBindingResolver.this) {};
 			return preferentiallyInsertPackageBinding(newInstance);
 		}
-		
+
 		public JavacPackageBinding findExistingPackageBinding(Name name) {
 			String n = name == null ? null : name.toString();
 			if( n == null )
@@ -230,7 +230,7 @@ public class JavacBindingResolver extends BindingResolver {
 
 		private String packageNameToString(Name name) {
 			String n = null;
-			if( name instanceof QualifiedName ) 
+			if( name instanceof QualifiedName )
 				n = name.toString();
 			else if( name instanceof SimpleName) {
 				if( name.getParent() instanceof QualifiedName qn) {
@@ -243,11 +243,11 @@ public class JavacBindingResolver extends BindingResolver {
 			}
 			return n;
 		}
-		
+
 		private JavacPackageBinding preferentiallyInsertPackageBinding(JavacPackageBinding newest) {
-			// A package binding may be created while traversing something as simple as a name. 
-			// The binding using name-only logic should be instantiated, but 
-			// when a proper symbol is found, it should be added to that object. 
+			// A package binding may be created while traversing something as simple as a name.
+			// The binding using name-only logic should be instantiated, but
+			// when a proper symbol is found, it should be added to that object.
 			if( newest != null ) {
 				JavacPackageBinding current = packageBindings.get(newest);
 				if( current == null ) {
@@ -511,7 +511,7 @@ public class JavacBindingResolver extends BindingResolver {
 	public IBinding findBinding(String bindingKey) {
 		return this.bindings.getBinding(bindingKey);
 	}
-	
+
 	private void compoundListWithAction(HashSet<String> list, Function<String, String> f) {
 		Iterator<String> it = new ArrayList<String>(list).iterator();
 		while(it.hasNext()) {
@@ -521,13 +521,13 @@ public class JavacBindingResolver extends BindingResolver {
 			}
 		}
 	}
-	
+
 	public IBinding findUnresolvedBinding(String bindingKey) {
 		boolean isUnresolved = bindingKey.startsWith("Q") || bindingKey.startsWith("+Q") || bindingKey.startsWith("-Q");
 		if( !isUnresolved) {
 			return findBinding(bindingKey);
 		}
-		
+
 		HashSet<String> validNames = new HashSet<String>();
 		validNames.add(bindingKey);
 		compoundListWithAction(validNames, x -> x.replaceAll("\\.", "/"));
@@ -535,12 +535,12 @@ public class JavacBindingResolver extends BindingResolver {
 		compoundListWithAction(validNames, x -> x.startsWith("+") || x.startsWith("-") ? x.substring(1) : null);
 		compoundListWithAction(validNames, x -> x.lastIndexOf(".", x.length() - 1) != -1 ? x.substring(x.lastIndexOf(".") + 1) : null);
 		compoundListWithAction(validNames, x -> x.startsWith("Q") ? x.substring(1) : null);
-		
+
 		Collection<JavacTypeBinding> c = this.bindings.typeBinding.values();
 		List<JavacTypeBinding> possible = c.stream().filter(x -> validNames.contains(x.getName()) || validNames.contains(x.getKey())).collect(Collectors.toList());
 		return possible.size() == 0 ? null : possible.get(0);
 	}
-	
+
 	@Override
 	public ASTNode findDeclaringNode(String bindingKey) {
 		resolve();
@@ -935,7 +935,7 @@ public class JavacBindingResolver extends BindingResolver {
 		resolve();
 		JCTree javacElement = this.converter.domToJavac.get(method);
 		if (javacElement instanceof JCMethodDecl methodDecl && !(methodDecl.type instanceof ErrorType)) {
-			if (methodDecl.type != null ) { 
+			if (methodDecl.type != null ) {
 				return this.bindings.getMethodBinding(methodDecl.type.asMethodType(), methodDecl.sym, null, true);
 			}
 			if (methodDecl.sym instanceof MethodSymbol methodSymbol && methodSymbol.type != null) {
@@ -1078,6 +1078,9 @@ public class JavacBindingResolver extends BindingResolver {
 				|| name.getLocationInParent() == NameQualifiedType.NAME_PROPERTY) { // case of "var"
 			return resolveType((Type)parent);
 		}
+		if (name.getLocationInParent() == MethodInvocation.NAME_PROPERTY && name.getParent() instanceof MethodInvocation method) {
+			return resolveMethod(method);
+		}
 
 		JCTree tree = this.converter.domToJavac.get(name);
 		if( tree != null ) {
@@ -1092,7 +1095,7 @@ public class JavacBindingResolver extends BindingResolver {
 				return this.bindings.getBinding(symbol, null);
 			}
 		}
-		
+
 		PackageSymbol ps = findPackageSymbol(name);
 		if( ps != null && ps.exists()) {
 			return this.bindings.getPackageBinding(ps);
@@ -1118,12 +1121,12 @@ public class JavacBindingResolver extends BindingResolver {
 					if (parameterizedType != null) {
 						return parameterizedType;
 					}
-					
+
 				}
 			}
 		}
 		if( tree != null ) {
-			// Looks duplicate to top of method, but is not. Must remain. 
+			// Looks duplicate to top of method, but is not. Must remain.
 			IBinding ret = resolveNameToJavac(name, tree);
 			if (ret != null) {
 				return ret;
@@ -1179,7 +1182,7 @@ public class JavacBindingResolver extends BindingResolver {
 		}
 		return insideQualifier;
 	}
-	
+
 	private PackageSymbol findPackageSymbol(Name name) {
 		if( name instanceof SimpleName sn) {
 			ASTNode parent = sn.getParent();
@@ -1399,7 +1402,7 @@ public class JavacBindingResolver extends BindingResolver {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param t the type to check
 	 * @return whether this is actually a type (returns
 	 * {@code false} for things like {@link PackageType},
@@ -1692,12 +1695,12 @@ public class JavacBindingResolver extends BindingResolver {
 				}
 			}
 		}
-		// 
+		//
 		return null;
 	}
 
 	private IBinding getFieldAccessBinding(JCFieldAccess fieldAccess) {
-		JCFieldAccess jcfa2 = (fieldAccess.sym == null && fieldAccess.selected instanceof JCFieldAccess jcfa3) ? jcfa3 : fieldAccess; 
+		JCFieldAccess jcfa2 = (fieldAccess.sym == null && fieldAccess.selected instanceof JCFieldAccess jcfa3) ? jcfa3 : fieldAccess;
 		if( jcfa2.sym != null ) {
 			com.sun.tools.javac.code.Type typeToUse = jcfa2.type;
 			IBinding bRet = this.bindings.getBinding(jcfa2.sym, typeToUse);
@@ -1820,7 +1823,7 @@ public class JavacBindingResolver extends BindingResolver {
 	private boolean isBoxedVersion(NumberLiteral unboxed, ITypeBinding boxed) {
 		if( boxed instanceof JavacTypeBinding boxedBind ) {
 			String boxedString = boxedBind.typeSymbol == null ? null : boxedBind.typeSymbol.toString();
-			if("java.lang.Integer".equals(boxedString) 
+			if("java.lang.Integer".equals(boxedString)
 					|| "java.lang.Float".equals(boxedString)
 					|| "java.lang.Double".equals(boxedString)) {
 				return true;
