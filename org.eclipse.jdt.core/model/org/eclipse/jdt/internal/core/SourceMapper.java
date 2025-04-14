@@ -1119,7 +1119,14 @@ public class SourceMapper
 				this.methodParameterNames[this.typeDepth]);
 		}
 	}
-
+	@Override
+	public void enterBlock(int sourceStart) {
+		pushElementKind(IJavaElement.METHOD);
+	}
+	@Override
+	public void exitBlock(int sourceEnd) {
+		popElementKind();
+	}
 	/**
 	 * Locates and returns source code for the given (binary) type, in this
 	 * SourceMapper's ZIP file, or returns <code>null</code> if source
@@ -1406,6 +1413,15 @@ public class SourceMapper
 		PackageFragment pkg = (PackageFragment) classFile.getParent();
 		return pkg;
 	}
+	private int getLocalTypeCount(String nameKey) {
+		if (this.localTypeCounter == null) {
+			this.localTypeCounter = new HashMap<>();
+		}
+		Integer count = this.localTypeCounter.get(nameKey);
+		count = count == null ? 1 : count+1;
+		this.localTypeCounter.put(nameKey, count);
+		return count;
+	}
 	/**
 	 * Returns the type with the given <code>typeName</code>. Returns inner classes
 	 * as well. Note, in certain case when the supplied type is not the topmost of the given
@@ -1419,36 +1435,34 @@ public class SourceMapper
 		if (!(this.binaryTypeOrModule instanceof IType))
 			return null;
 		IType type = this.typeDepth == 0 ? null : this.types[this.typeDepth - 1];
-		String computedQualifiedName = null;
+		StringBuilder builder= new StringBuilder();
 		if (type != null) {
-			computedQualifiedName = type.getParent().getElementName(); // Gets us the .class file name with extension
-			int dotClass = computedQualifiedName.lastIndexOf('.');
-			computedQualifiedName = computedQualifiedName.substring(0, dotClass); // get rid of the extension
+			 // Gets us the .class file name with extension
+			builder.append(type.getParent().getElementName());
+			int dotClass = builder.lastIndexOf("."); //$NON-NLS-1$
+			 // get rid of the extension
+			builder.delete(dotClass, builder.length());
 			if ((typeInfo.node.bits & ASTNode.IsAnonymousType) != 0) {
-				computedQualifiedName = computedQualifiedName  + '$' + this.anonymousCounter;
+				builder.append('$').append(this.anonymousCounter);
 			} else {
-				String simpleName = new String(typeInfo.name);
-				if (this.elementKindPtr > 1 && this.elementKindStack[this.elementKindPtr - 2] == IJavaElement.METHOD) {
-					if (this.localTypeCounter == null) {
-						this.localTypeCounter = new HashMap<>();
-					}
-					Integer count = this.localTypeCounter.get(simpleName);
-					count = count == null ? 1 : count+1;
-					this.localTypeCounter.put(simpleName, count);
-					computedQualifiedName = computedQualifiedName + '$' + count + simpleName;
-				} else {
-					computedQualifiedName = computedQualifiedName + '$' + simpleName;
+				builder.append('$').append(typeInfo.name);
+				// Rewrite to include counter if found to be a local type
+				if (this.elementKindPtr > 1 &&
+						this.elementKindStack[this.elementKindPtr - 2] == IJavaElement.METHOD) {
+					int count = getLocalTypeCount(builder.toString());
+					builder.insert(builder.lastIndexOf("$") + 1, count); //$NON-NLS-1$
 				}
 			}
 		} else {
-			computedQualifiedName = new String(typeInfo.name);
+			builder.append(typeInfo.name);
 		}
-		if (computedQualifiedName.equals(this.binaryTypeOrModule.getElementName())) {
+		String classFileName = builder.toString();
+		if (classFileName.equals(this.binaryTypeOrModule.getElementName())) {
 			return (IType) this.binaryTypeOrModule;
 		}
 		PackageFragment pkg = getPackageFromTopElement();
 		String typeName = DeduplicationUtil.toString(typeInfo.name);
-		return new BinaryType(new ClassFile(pkg, DeduplicationUtil.intern(computedQualifiedName.toString())), typeName);
+		return new BinaryType(new ClassFile(pkg, DeduplicationUtil.intern(classFileName.toString())), typeName);
 	}
 
 	/**

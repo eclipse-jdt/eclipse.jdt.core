@@ -53,6 +53,11 @@ public class SourceElementNotifier {
 			return (TypeDeclaration) this.declaringTypes.get(size-1);
 		}
 		@Override
+		public boolean visit(Block block, BlockScope scope) {
+			notifySourceElementRequestor(null, block);
+			return false; // don't visit members as this was done during notifySourceElementRequestor(...)
+		}
+		@Override
 		public boolean visit(TypeDeclaration typeDeclaration, BlockScope scope) {
 			notifySourceElementRequestor(null, typeDeclaration, true, peekDeclaringType(), this.currentPackage);
 			return false; // don't visit members as this was done during notifySourceElementRequestor(...)
@@ -679,6 +684,16 @@ protected void notifySourceElementRequestor(ModuleDeclaration moduleDeclaration)
 //	}
 //
 //}
+protected void notifySourceElementRequestor(CompilationUnitDeclaration parsedUnit, Block block) {
+	boolean isInRange =
+			this.initialPosition <= block.sourceStart
+			&& this.eofPosition >= block.sourceEnd;
+	if (isInRange) {
+		this.requestor.enterBlock(block.sourceStart);
+		this.visitIfNeeded(block);
+		this.requestor.exitBlock(block.sourceEnd);
+	}
+}
 protected void notifySourceElementRequestor(CompilationUnitDeclaration parsedUnit, TypeDeclaration typeDeclaration, boolean notifyTypePresence, TypeDeclaration declaringType, ImportReference currentPackage) {
 
 	if (CharOperation.equals(TypeConstants.PACKAGE_INFO_NAME, typeDeclaration.name)) return;
@@ -980,6 +995,15 @@ private void visitIfNeeded(Initializer initializer) {
 			if (initializer.block != null) {
 				initializer.block.traverse(this.localDeclarationVisitor, null);
 			}
+	}
+}
+private void visitIfNeeded(Block block) {
+	if (this.localDeclarationVisitor != null) {
+		if (block.statements != null) {
+			int statementsLength = block.statements.length;
+			for (int i = 0; i < statementsLength; i++)
+				block.statements[i].traverse(this.localDeclarationVisitor, block.scope);
+		}
 	}
 }
 }
