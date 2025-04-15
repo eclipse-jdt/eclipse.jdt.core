@@ -368,15 +368,17 @@ public class RecordElementProcessor extends BaseElementProcessor {
 		assertEquals("incorrect parameters", 6, parameters.size());
 		for (VariableElement v : parameters) {
 			if (v.getSimpleName().toString().equals("comp_")) {
-				verifyAnnotations(v, new String[]{"@MyAnnot()"}); // ECJ fails
+				verifyAnnotations(v, new String[]{"@MyAnnot()"});
 			} else if (v.getSimpleName().toString().equals("comp2_")) {
 				verifyAnnotations(v, new String[]{"@MyAnnot2()"});
 			} else if (v.getSimpleName().toString().equals("comp3_")) {
-				verifyAnnotations(v, new String[]{}); // ECJ fails
+				verifyAnnotations(v, new String[]{"@MyAnnot5()"});
 			} else if (v.getSimpleName().toString().equals("comp4_")) {
-				verifyAnnotations(v, new String[]{}); // ECJ fails
-			} else if (v.getSimpleName().toString().equals("comp5_")) {
 				verifyAnnotations(v, new String[]{});
+			} else if (v.getSimpleName().toString().equals("comp5_")) {
+				verifyAnnotations(v, new String[]{"@MyAnnot5()"});
+			} else if (v.getSimpleName().toString().equals("comp6_")) {
+				verifyAnnotations(v, new String[]{"@MyAnnot6()"});
 			}
 		}
 	}

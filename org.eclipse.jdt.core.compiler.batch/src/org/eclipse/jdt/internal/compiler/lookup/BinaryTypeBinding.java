@@ -1277,7 +1277,7 @@ public ReferenceBinding enclosingType() {  // should not delegate to prototype.
 @Override
 public RecordComponentBinding[] components() {
 	if (!isPrototype()) {
-		return this.components = this.prototype.components;
+		return this.components = this.prototype.components();
 	}
 	if ((this.extendedTagBits & ExtendedTagBits.AreRecordComponentsComplete) != 0)
 		return this.components;
