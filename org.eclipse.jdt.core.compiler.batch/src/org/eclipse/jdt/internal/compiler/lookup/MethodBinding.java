@@ -861,14 +861,6 @@ public final boolean isImplementing() {
 	return (this.modifiers & ExtraCompilerModifiers.AccImplementing) != 0;
 }
 
-
-/* Answer true if the method is an implicit method - only for records
-*/
-public final boolean isImplicit() {
-	return (this.extendedTagBits & ExtendedTagBits.isImplicit) != 0;
-}
-
-
 /*
  * Answer true if the receiver is a "public static void main(String[])" method
  */
@@ -1545,6 +1537,13 @@ public boolean isWellknownMethod(char[][] compoundClassName, char[] wellKnownSel
 public boolean isWellknownMethod(int typeId, char[] wellKnownSelector) {
 	return this.declaringClass.id == typeId
 			&& CharOperation.equals(this.selector, wellKnownSelector);
+}
+public boolean isAsVisible(ReferenceBinding declaringType) {
+		if (declaringType.modifiers == this.modifiers || this.isPublic() || declaringType.isPrivate()) return true;
+		if (declaringType.isPublic()) return false;
+		if (this.isProtected()) return true;
+		if (declaringType.isProtected()) return false;
+		return !this.isPrivate();
 }
 }
 
