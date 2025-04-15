@@ -730,6 +730,7 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 	}
 	return accessMethod;
 }
+/* JLS 14 Record - Preview - begin */
 public MethodBinding[] checkAndAddSyntheticRecordMethods(MethodBinding[] methodBindings, int count) {
 	if (!this.isRecordDeclaration)
 		return methodBindings;
@@ -756,10 +757,10 @@ public List<MethodBinding> checkAndAddSyntheticRecordOverrideMethods(MethodBindi
 		MethodBinding m = addSyntheticRecordOverrideMethod(TypeConstants.EQUALS, implicitMethods.size());
 		implicitMethods.add(m);
 	}
-	if (this.isRecordDeclaration) {
+	if (this.isRecordDeclaration &&  getImplicitCanonicalConstructor() == -1) {
 		MethodBinding explicitCanon = null;
 		for (MethodBinding m : methodBindings) {
-			if (m.isCanonicalConstructor()) {
+			if (m.isCompactConstructor() || m.isCanonicalConstructor()) {
 				explicitCanon = m;
 				break;
 			}
@@ -1102,37 +1103,15 @@ public RecordComponentBinding[] components() {
 			}
 			setComponents(newComponents);
 		}
-		// fill in the type for SMB Constructor
+		//fill in the type for SMB Constructor
 		for (MethodBinding method : this.methods) {
 			if (method instanceof SyntheticMethodBinding) {
 				SyntheticMethodBinding smb = (SyntheticMethodBinding) method;
 				if (smb.purpose == SyntheticMethodBinding.RecordCanonicalConstructor
 						&& smb.parameters.length == this.components.length) {
-					AnnotationBinding[][] paramAnnotations = null;
 					for (int i = 0, l = smb.parameters.length; i < l; ++i) {
 						smb.parameters[i] = this.components[i].type;
-						TypeBinding leafType = this.components[i].type == null ? null : this.components[i].type.leafComponentType();
-						if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0) {
-							smb.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
-						}
-						long rcMask = TagBits.AnnotationForParameter | TagBits.AnnotationForTypeUse;
-						List<AnnotationBinding> relevantAnnotationBindings = new ArrayList<>();
-						Annotation[] relevantAnnotations = ASTNode.getRelevantAnnotations(this.components[i].sourceRecordComponent().annotations, rcMask, relevantAnnotationBindings);
-						if (relevantAnnotations != null) {
-							if (paramAnnotations == null) {
-								paramAnnotations = new AnnotationBinding[l][];
-								for (int j=0; j<i; j++) {
-									paramAnnotations[j] = Binding.NO_ANNOTATIONS;
-								}
-							}
-							smb.tagBits |= TagBits.HasParameterAnnotations;
-							paramAnnotations[i] = relevantAnnotationBindings.toArray(new AnnotationBinding[0]);
-						} else if (paramAnnotations != null) {
-							paramAnnotations[i] = Binding.NO_ANNOTATIONS;
-						}
 					}
-					if (paramAnnotations != null)
-						smb.setParameterAnnotations(paramAnnotations);
 					if (this.isVarArgs == true) {
 						smb.modifiers |= ClassFileConstants.AccVarargs;
 					}
@@ -1477,6 +1456,19 @@ public MethodBinding getExactConstructor(TypeBinding[] argumentTypes) {
 	return null;
 }
 
+/* package */ MethodBinding getSyntheticCanon() {
+	if (this.isRecordDeclaration) {
+		SyntheticMethodBinding[] smbs = this.syntheticMethods();
+		int len = smbs != null ? smbs.length : 0;
+		if (len > 0) {
+			for (MethodBinding method : smbs) {
+				if ((CharOperation.equals(TypeConstants.INIT, method.selector)))
+					return method;
+			}
+		}
+	}
+	return null;
+}
 //NOTE: the return type, arg & exception types of each method of a source type are resolved when needed
 //searches up the hierarchy as long as no potential (but not exact) match was found.
 @Override
@@ -2192,6 +2184,14 @@ public MethodBinding[] methods() {
 		// handle forward references to potential default abstract methods
 		addDefaultAbstractMethods();
 		this.tagBits |= TagBits.AreMethodsComplete;
+		if (this.isRecordDeclaration) {
+			/* https://github.com/eclipse-jdt/eclipse.jdt.core/issues/365 */
+			for (MethodBinding method : this.methods) {
+				if ((method.tagBits & TagBits.AnnotationSafeVarargs) == 0 && method.sourceMethod() != null) {
+					checkAndFlagHeapPollution(method, method.sourceMethod());
+				}
+			}
+		}
 	}
 	return this.methods;
 }
@@ -2241,8 +2241,7 @@ private MethodBinding checkRecordCanonicalConstructor(MethodBinding explicitCano
 		this.scope.problemReporter().recordCanonicalConstructorShouldNotBeGeneric(methodDecl);
 	if (explicitCanonicalConstructor.thrownExceptions != null && explicitCanonicalConstructor.thrownExceptions.length > 0)
 		this.scope.problemReporter().recordCanonicalConstructorHasThrowsClause(methodDecl);
-	if (!methodDecl.isCompactConstructor())
-		checkCanonicalConstructorParameterNames(explicitCanonicalConstructor, methodDecl);
+	checkCanonicalConstructorParameterNames(explicitCanonicalConstructor, methodDecl);
 	methodDecl.bits |= ASTNode.IsCanonicalConstructor;
 	explicitCanonicalConstructor.extendedTagBits |= ExtendedTagBits.IsCanonicalConstructor;
 //	checkAndFlagExplicitConstructorCallInCanonicalConstructor(methodDecl);
@@ -2492,7 +2491,12 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 			if (parameterType == null) {
 				foundArgProblem = true;
 			} else if (parameterType == TypeBinding.VOID) {
-				methodDecl.scope.problemReporter().argumentTypeCannotBeVoid(methodDecl, arg);
+				if (this.isRecordDeclaration &&
+						methodDecl instanceof ConstructorDeclaration &&
+						((methodDecl.bits & ASTNode.IsImplicit) != 0)) {
+					// do nothing - already raised for record component.
+				} else
+					methodDecl.scope.problemReporter().argumentTypeCannotBeVoid(methodDecl, arg);
 				foundArgProblem = true;
 			} else {
 				if ((parameterType.tagBits & TagBits.HasMissingType) != 0) {
@@ -2511,13 +2515,6 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 		if (!foundArgProblem) {
 			method.parameters = newParameters;
 		}
-	} else if (methodDecl.isCompactConstructor()) {
-		int size = this.scope.referenceContext.recordComponents.length;
-		method.parameters = new TypeBinding[size];
-		for (int i = 0; i < size; i++ ) {
-			TypeBinding resolvedType = this.scope.referenceContext.recordComponents[i].type.resolvedType;
-			method.parameters[i] = resolvedType != null ? resolvedType : this.scope.getJavaLangObject(); // error scenarios default to jLO, rather than propagate null.
-		}
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337799
@@ -2529,7 +2526,10 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 			methodDecl.scope.problemReporter().safeVarargsOnNonFinalInstanceMethod(method);
 		}
 	} else {
-		checkAndFlagHeapPollution(method, methodDecl);
+		/* https://github.com/eclipse-jdt/eclipse.jdt.core/issues/365 */
+		if (!this.isRecordDeclaration) {
+			checkAndFlagHeapPollution(method, methodDecl);
+		}
 	}
 
 	boolean foundReturnTypeProblem = false;
@@ -2625,10 +2625,7 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 private void checkAndFlagHeapPollution(MethodBinding method, AbstractMethodDeclaration methodDecl) {
 	if (method.parameters != null && method.parameters.length > 0 && method.isVarargs()) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795
 		if (!method.parameters[method.parameters.length - 1].isReifiable()) {
-			AbstractVariableDeclaration argument = methodDecl.isCompactConstructor() ?
-					this.scope.referenceContext.recordComponents[method.parameters.length - 1] :
-					methodDecl.arguments[methodDecl.arguments.length - 1];
-			methodDecl.scope.problemReporter().possibleHeapPollutionFromVararg(argument);
+				methodDecl.scope.problemReporter().possibleHeapPollutionFromVararg(methodDecl.arguments[methodDecl.arguments.length - 1]);
 		}
 	}
 }

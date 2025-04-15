@@ -2464,16 +2464,17 @@ protected void consumeClassDeclaration() {
 
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
 
-	// convert constructors that do not have the type's name into methods
-	boolean needDefaultConstructor = !typeDecl.checkConstructors(this);
-	if (typeDecl.isRecord())
-		needDefaultConstructor = false; // records require canonical constructors, not default no-arg constructors
+	//convert constructor that do not have the type's name into methods
+	boolean hasConstructor = typeDecl.checkConstructors(this);
 
 	// add the default constructor when needed (interface don't have it)
-	if (needDefaultConstructor) {
+	// availability of _some_ constructor for a record class does not obviate the need for canonical constructor, we go ahead and generate one weeding out
+	// duplicates later. This is how things have been forever, we retain the behavior for now, but this will change and get cleaned up later.
+	if (!hasConstructor || typeDecl.isRecord()) {
 		switch(TypeDeclaration.kind(typeDecl.modifiers)) {
 			case TypeDeclaration.CLASS_DECL :
 			case TypeDeclaration.ENUM_DECL :
+			case TypeDeclaration.RECORD_DECL :
 				boolean insideFieldInitializer = false;
 				if (this.diet) {
 					for (int i = this.nestedType; i > 0; i--){
@@ -2486,6 +2487,9 @@ protected void consumeClassDeclaration() {
 				typeDecl.createDefaultConstructor(!(this.diet && this.dietInt == 0) || insideFieldInitializer, true);
 		}
 	}
+
+	if (typeDecl.isRecord())
+		typeDecl.getConstructor(this); // will get cleaned up in due course.
 
 	if (this.scanner.containsAssertKeyword) {
 		typeDecl.bits |= ASTNode.ContainsAssertion;
@@ -2953,7 +2957,12 @@ protected void consumeConstructorHeaderName(boolean isCompact) {
 
 	// ConstructorHeaderName ::=  Modifiersopt 'Identifier' '('
 	// CompactConstructorHeaderName ::= Modifiersopt 'Identifier'
-	ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationUnit.compilationResult);
+	ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationUnit.compilationResult) {
+										@Override
+										public boolean isCompactConstructor() {
+											return isCompact;
+										}
+									};
 
 	if (isCompact)
 		cd.bits |= ASTNode.IsCanonicalConstructor;
@@ -2967,8 +2976,7 @@ protected void consumeConstructorHeaderName(boolean isCompact) {
 	cd.declarationSourceStart = this.intStack[this.intPtr--];
 	cd.modifiers = this.intStack[this.intPtr--];
 	if (isCompact)
-		cd.modifiers |= ExtraCompilerModifiers.AccCompactConstructor;
-
+		cd.modifiers |=  ExtraCompilerModifiers.AccCompactConstructor;
 	// consume annotations
 	int length;
 	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
@@ -12218,9 +12226,9 @@ private ASTNode[] parseBodyDeclarations(char[] source, int offset, int length, C
 		final List bodyDeclarations = new ArrayList();
 		unit.ignoreFurtherInvestigation = false;
 		Predicate<MethodDeclaration> methodPred = classRecordType == TYPE_CLASS ?
-				mD -> !mD.isDefaultConstructor() : mD -> true;
+				mD -> !mD.isDefaultConstructor() : mD -> (mD.bits & ASTNode.IsImplicit) == 0;
 		Consumer<FieldDeclaration> fieldAction = classRecordType == TYPE_CLASS ?
-				fD -> bodyDeclarations.add(fD) : fD -> { bodyDeclarations.add(fD);} ;
+				fD -> bodyDeclarations.add(fD) : fD -> { if ((fD.bits & ASTNode.IsImplicit) == 0 ) bodyDeclarations.add(fD);} ;
 		ASTVisitor visitor = new ASTVisitor() {
 			@Override
 			public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {

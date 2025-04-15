@@ -63,7 +63,6 @@ import org.eclipse.jdt.internal.compiler.problem.AbortType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.problem.ShouldNotImplement;
-import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -549,13 +548,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 			}
 		}
 		return null;
-	}
-	private RecordComponent[] getRecordComponents(ReferenceBinding declaringClass) {
-		RecordComponentBinding [] rcbs = declaringClass.components();
-		RecordComponent [] recordComponents = new RecordComponent[rcbs.length];
-		for (int i = 0, length = rcbs.length; i < length; i++)
-			recordComponents[i] = rcbs[i].sourceRecordComponent();
-		return recordComponents;
 	}
 	private int addComponentAttributes(RecordComponentBinding recordComponentBinding, int componetAttributeOffset) {
 		// See JVMS 14 Table 4.7-C - Record Preview for allowed attributes
@@ -1123,7 +1115,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 				.referenceCompilationUnit()
 				.compilationResult
 				.getLineSeparatorPositions());
-		completeMethodInfo(methodBinding, methodAttributeOffset, attributeNumber);
+		// update the number of attributes
+		this.contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
+		this.contents[methodAttributeOffset] = (byte) attributeNumber;
 	}
 
 	private void addSyntheticRecordOverrideMethods(TypeDeclaration typeDecl, SyntheticMethodBinding methodBinding, int purpose) {
@@ -2319,9 +2313,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 				((SourceTypeBinding) binding.declaringClass).scope);
 	}
 
-	private void completeArgumentAnnotationInfo(AbstractVariableDeclaration[] arguments, List<AnnotationContext> allAnnotationContexts) {
+	private void completeArgumentAnnotationInfo(Argument[] arguments, List<AnnotationContext> allAnnotationContexts) {
 		for (int i = 0, max = arguments.length; i < max; i++) {
-			AbstractVariableDeclaration argument = arguments[i];
+			Argument argument = arguments[i];
 			if ((argument.bits & ASTNode.HasTypeAnnotations) != 0) {
 				argument.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_FORMAL_PARAMETER, i, allAnnotationContexts);
 			}
@@ -2382,9 +2376,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 						}
 					}
 				}
-			} else if (binding instanceof SyntheticMethodBinding syntheticMethod && syntheticMethod.isCanonicalConstructor()) {
-				AbstractVariableDeclaration[] parameters = getRecordComponents(syntheticMethod.declaringClass);
-				completeArgumentAnnotationInfo(parameters, allTypeAnnotationContexts);
 			} else if (binding.sourceLambda() != null) { // SyntheticMethodBinding, purpose : LambdaMethod.
 				LambdaExpression lambda = binding.sourceLambda();
 				if ((lambda.bits & ASTNode.HasTypeAnnotations) != 0) {
@@ -4182,7 +4173,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			LocalVariableBinding localVariable = this.codeStream.locals[i];
 			int initializationCount = localVariable.initializationCount;
 			if (initializationCount == 0) continue;
-			if (localVariable.declaration == null && !(localVariable.declaringScope != null && localVariable.declaringScope.referenceContext() instanceof ConstructorDeclaration cd && cd.isCompactConstructor())) continue;
+			if (localVariable.declaration == null) continue;
 			final TypeBinding localVariableTypeBinding = localVariable.type;
 			boolean isParameterizedType = localVariableTypeBinding.isParameterizedType() || localVariableTypeBinding.isTypeVariable();
 			if (isParameterizedType) {
@@ -4344,10 +4335,12 @@ public class ClassFile implements TypeConstants, TypeIds {
 			attributesNumber += generateSignatureAttribute(genericSignature);
 		}
 		AbstractMethodDeclaration methodDeclaration = methodBinding.sourceMethod();
-		if (methodBinding instanceof SyntheticMethodBinding syntheticMethod) {
+		if (methodBinding instanceof SyntheticMethodBinding) {
+			SyntheticMethodBinding syntheticMethod = (SyntheticMethodBinding) methodBinding;
 			if (syntheticMethod.purpose == SyntheticMethodBinding.SuperMethodAccess && CharOperation.equals(syntheticMethod.selector, syntheticMethod.targetMethod.selector))
 				methodDeclaration = ((SyntheticMethodBinding)methodBinding).targetMethod.sourceMethod();
 			if (syntheticMethod.recordComponentBinding != null) {
+				assert methodDeclaration == null;
 				long rcMask = TagBits.AnnotationForMethod | TagBits.AnnotationForTypeUse;
 				// record component (field) accessor method
 				ReferenceBinding declaringClass = methodBinding.declaringClass;
@@ -4374,9 +4367,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 								() -> allTypeAnnotationContexts);
 					}
 				}
-			} else if (syntheticMethod.isCanonicalConstructor()) {
-				AbstractVariableDeclaration[] parameters = getRecordComponents(syntheticMethod.declaringClass);
-				attributesNumber += generateRuntimeAnnotationsForParameters(parameters);
 			}
 		}
 		if (methodDeclaration != null) {
@@ -4385,9 +4375,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 				attributesNumber += generateRuntimeAnnotations(annotations, methodBinding.isConstructor() ? TagBits.AnnotationForConstructor : TagBits.AnnotationForMethod);
 			}
 			if ((methodBinding.tagBits & TagBits.HasParameterAnnotations) != 0) {
-				AbstractVariableDeclaration[] arguments = methodBinding.isCompactConstructor() ?
-													getRecordComponents(methodBinding.declaringClass) : methodDeclaration.arguments;
+				Argument[] arguments = methodDeclaration.arguments;
 				if (arguments != null) {
+					propagateRecordComponentArguments(methodDeclaration);
 					attributesNumber += generateRuntimeAnnotationsForParameters(arguments);
 				}
 			}
@@ -4440,6 +4430,26 @@ public class ClassFile implements TypeConstants, TypeIds {
 			}
 		}
 		return attributesNumber;
+	}
+	private void propagateRecordComponentArguments(AbstractMethodDeclaration methodDeclaration) {
+		if ((methodDeclaration.bits & ASTNode.IsImplicit) == 0)
+			return;
+		ReferenceBinding declaringClass = methodDeclaration.binding.declaringClass;
+		if (declaringClass instanceof SourceTypeBinding) {
+			assert declaringClass.isRecord();
+			RecordComponentBinding[] rcbs = ((SourceTypeBinding) declaringClass).components();
+			Argument[] arguments = methodDeclaration.arguments;
+			for (int i = 0, length = rcbs.length; i < length; i++) {
+				RecordComponentBinding rcb = rcbs[i];
+				RecordComponent recordComponent = rcb.sourceRecordComponent();
+				if ((recordComponent.bits & ASTNode.HasTypeAnnotations) != 0) {
+					methodDeclaration.bits |= ASTNode.HasTypeAnnotations;
+					arguments[i].bits |= ASTNode.HasTypeAnnotations;
+				}
+				long rcMask = TagBits.AnnotationForParameter | TagBits.AnnotationForTypeUse;
+				arguments[i].annotations = ASTNode.getRelevantAnnotations(recordComponent.annotations, rcMask, null);
+			}
+		}
 	}
 
 	public int generateMethodInfoAttributes(MethodBinding methodBinding, AnnotationMethodDeclaration declaration) {
@@ -4756,7 +4766,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		return attributesNumber;
 	}
 
-	private int generateRuntimeAnnotationsForParameters(AbstractVariableDeclaration[] arguments) {
+	private int generateRuntimeAnnotationsForParameters(Argument[] arguments) {
 		final int argumentsLength = arguments.length;
 		final int VISIBLE_INDEX = 0;
 		final int INVISIBLE_INDEX = 1;
@@ -4764,7 +4774,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		int visibleParametersAnnotationsCounter = 0;
 		int[][] annotationsCounters = new int[argumentsLength][2];
 		for (int i = 0; i < argumentsLength; i++) {
-			AbstractVariableDeclaration argument = arguments[i];
+			Argument argument = arguments[i];
 			Annotation[] annotations = argument.annotations;
 			if (annotations != null) {
 				for (Annotation a : annotations) {
@@ -4811,7 +4821,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					this.contentsOffset += 2;
 					int counter = 0;
 					if (numberOfInvisibleAnnotations != 0) {
-						AbstractVariableDeclaration argument = arguments[i];
+						Argument argument = arguments[i];
 						Annotation[] annotations = argument.annotations;
 						for (Annotation a : annotations) {
 							Annotation annotation;
@@ -4872,7 +4882,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					this.contentsOffset += 2;
 					int counter = 0;
 					if (numberOfVisibleAnnotations != 0) {
-						AbstractVariableDeclaration argument = arguments[i];
+						Argument argument = arguments[i];
 						Annotation[] annotations = argument.annotations;
 						for (Annotation a : annotations) {
 							Annotation annotation;
@@ -5026,7 +5036,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 		AbstractMethodDeclaration methodDeclaration = binding.sourceMethod();
 
 		boolean isConstructor = binding.isConstructor();
-		boolean isCanonicalConstructor = binding.isCanonicalConstructor();
 		TypeBinding[] targetParameters = binding.parameters;
 		ReferenceBinding declaringClass = binding.declaringClass;
 
@@ -5041,8 +5050,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			}
 		}
 
-		boolean needSynthetics = isCanonicalConstructor ? false : // WYSIWYG
-										isConstructor && !isCanonicalConstructor && declaringClass.isNestedType();
+		boolean needSynthetics = isConstructor && declaringClass.isNestedType();
 		if (needSynthetics) {
 			// Take into account the synthetic argument names
 			// This tracks JLS8, paragraph 8.8.9
@@ -5070,31 +5078,19 @@ public class ClassFile implements TypeConstants, TypeIds {
 			}
 		}
 		if (targetParameters != Binding.NO_PARAMETERS) {
-			if (binding.isCompactConstructor()) {
-				LocalVariableBinding [] locals = binding.sourceMethod().scope.locals;
-				for (LocalVariableBinding local : locals) {
-					if (local == null || !local.isParameter())
-						continue;
-					int modifiers = local.modifiers | ClassFileConstants.AccMandated;
-					length = writeArgumentName(local.name, modifiers, length);
-				}
-			} else if (binding.isCanonicalConstructor() && methodDeclaration == null) { // synthetic
-				for (RecordComponentBinding component : binding.declaringClass.components()) {
-					length = writeArgumentName(component.name, ClassFileConstants.AccDefault, length);
-				}
-			} else {
-				Argument[] arguments = null;
-				if (methodDeclaration != null && methodDeclaration.arguments != null) {
-					arguments = methodDeclaration.arguments;
-				}
-				for (int i = 0, max = targetParameters.length, argumentsLength = arguments != null ? arguments.length : 0; i < max; i++) {
-					if (argumentsLength > i && arguments[i] != null) {
-						Argument argument = arguments[i];
-						int modifiers = argument.binding.modifiers;
-						length = writeArgumentName(argument.name, modifiers, length);
-					} else {
-						throw EclipseCompiler.UNEXPECTED_CONTROL_FLOW;
-					}
+			Argument[] arguments = null;
+			if (methodDeclaration != null && methodDeclaration.arguments != null) {
+				arguments = methodDeclaration.arguments;
+			}
+			for (int i = 0, max = targetParameters.length, argumentsLength = arguments != null ? arguments.length : 0; i < max; i++) {
+				if (argumentsLength > i && arguments[i] != null) {
+					Argument argument = arguments[i];
+					int modifiers = argument.binding.modifiers;
+					if (binding.isCompactConstructor())
+						modifiers |= ClassFileConstants.AccMandated;
+					length = writeArgumentName(argument.name, modifiers, length);
+				} else {
+					length = writeArgumentName(null, ClassFileConstants.AccSynthetic, length);
 				}
 			}
 		}

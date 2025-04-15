@@ -36,7 +36,6 @@ import static org.eclipse.jdt.internal.compiler.lookup.MethodBinding.PARAM_NULLA
 import static org.eclipse.jdt.internal.compiler.lookup.MethodBinding.PARAM_NULLITY;
 import static org.eclipse.jdt.internal.compiler.lookup.MethodBinding.PARAM_OWNING;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -165,40 +164,34 @@ public abstract class AbstractMethodDeclaration
 				}
 				return;
 			}
-		}
-
-		boolean used = this.binding == null || this.binding.isAbstract() || this.binding.isNative();
-		AnnotationBinding[][] paramAnnotations = null;
-		AbstractVariableDeclaration [] methodArguments = this.arguments != null ? this.arguments : this.isCompactConstructor() ? this.scope.referenceType().recordComponents : NO_ARGUMENTS;
-		for (int i = 0, length = methodArguments.length; i < length; i++) {
-			AbstractVariableDeclaration methodArgument = methodArguments[i];
-			AnnotationBinding [] param_i_Annotations;
-			if (methodArgument instanceof Argument argument) {
+			boolean used = this.binding.isAbstract() || this.binding.isNative() || this.binding.isCompactConstructor() || (this.bits & ASTNode.IsImplicit) != 0;
+			AnnotationBinding[][] paramAnnotations = null;
+			for (int i = 0, length = this.arguments.length; i < length; i++) {
+				Argument argument = this.arguments[i];
 				this.binding.parameters[i] = argument.bind(this.scope, this.binding.parameters[i], used);
-				param_i_Annotations = argument.annotations != null ? argument.binding.getAnnotations() : null;
-			} else {
-				this.scope.addLocalVariable(new LocalVariableBinding(methodArgument.name, methodArgument.type.resolvedType, methodArgument.modifiers, true)); // LVB is not holding annotation ??
-				List<AnnotationBinding> relevantAnnotationBindings = new ArrayList<>();
-				ASTNode.getRelevantAnnotations(methodArgument.annotations, TagBits.AnnotationForParameter | TagBits.AnnotationForTypeUse, relevantAnnotationBindings);
-				param_i_Annotations = relevantAnnotationBindings.toArray(new AnnotationBinding[0]);
+				if (argument.annotations != null) {
+					if (paramAnnotations == null) {
+						paramAnnotations = new AnnotationBinding[length][];
+						for (int j=0; j<i; j++) {
+							paramAnnotations[j] = Binding.NO_ANNOTATIONS;
+						}
+					}
+					paramAnnotations[i] = argument.binding.getAnnotations();
+				} else if (paramAnnotations != null) {
+					paramAnnotations[i] = Binding.NO_ANNOTATIONS;
+				}
+			}
+			if (paramAnnotations == null) {
+				paramAnnotations = getPropagatedRecordComponentAnnotations();
 			}
 
-			if (param_i_Annotations != null && param_i_Annotations.length > 0) {
-				if (paramAnnotations == null) {
-					paramAnnotations = new AnnotationBinding[length][];
-					for (int j=0; j<i; j++) {
-						paramAnnotations[j] = Binding.NO_ANNOTATIONS;
-					}
-				}
-				paramAnnotations[i] = param_i_Annotations;
-			} else if (paramAnnotations != null) {
-				paramAnnotations[i] = Binding.NO_ANNOTATIONS;
-			}
+			if (paramAnnotations != null)
+				this.binding.setParameterAnnotations(paramAnnotations);
 		}
-		if (paramAnnotations != null) {
-			this.binding.tagBits |= TagBits.HasParameterAnnotations;
-			this.binding.setParameterAnnotations(paramAnnotations);
-		}
+	}
+
+	protected AnnotationBinding[][] getPropagatedRecordComponentAnnotations() {
+		return null;
 	}
 
 	/**
@@ -567,9 +560,7 @@ public abstract class AbstractMethodDeclaration
 			output.append('>');
 		}
 
-		printReturnType(0, output).append(this.selector);
-		if (!this.isCompactConstructor())
-			output.append('(');
+		printReturnType(0, output).append(this.selector).append('(');
 		if (this.receiver != null) {
 			this.receiver.print(0, output);
 		}
@@ -579,8 +570,7 @@ public abstract class AbstractMethodDeclaration
 				this.arguments[i].print(0, output);
 			}
 		}
-		if (!this.isCompactConstructor())
-			output.append(')');
+		output.append(')');
 		if (this.thrownExceptions != null) {
 			output.append(" throws "); //$NON-NLS-1$
 			for (int i = 0; i < this.thrownExceptions.length; i++) {
@@ -618,6 +608,11 @@ public abstract class AbstractMethodDeclaration
 
 		if (this.binding == null) {
 			this.ignoreFurtherInvestigation = true;
+		}
+
+		if (this.isCompactConstructor() && !upperScope.referenceContext.isRecord()) {
+			upperScope.problemReporter().compactConstructorsOnlyInRecords(this);
+			return;
 		}
 
 		try {
@@ -729,7 +724,8 @@ public abstract class AbstractMethodDeclaration
 			resolveStatements(this.statements, this.scope);
 		} else if ((this.bits & UndocumentedEmptyBlock) != 0) {
 			if (!this.isConstructor() || this.arguments != null) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319626
-				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd+1);
+				if ((this.bits & IsImplicit) == 0)
+					this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd+1);
 			}
 		}
 	}

@@ -526,7 +526,9 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		assertTrue(elements[0] instanceof LocalVariable);
 		search(elements[0], REFERENCES, EXACT_RULE);
 		assertSearchResults(
-				"src/X.java Point(int) [comp_] EXACT_MATCH");
+				"src/X.java Point(int) [comp_] EXACT_MATCH\n" +
+				"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
+				"src/X.java void Point.method() [comp_] EXACT_MATCH");
 	}
 	public void testBug558812_016a() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -582,7 +584,10 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		assertTrue(elements[0] instanceof LocalVariable);
 		search(elements[0], REFERENCES, EXACT_RULE);
 		assertSearchResults(
-				"src/X.java Point(int) [comp_] EXACT_MATCH");
+				"src/X.java Point(int) [comp_] EXACT_MATCH\n" +
+				"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
+				"src/X.java void Point.method() [comp_] EXACT_MATCH\n" +
+				"src/X.java void Point.method() [comp_] EXACT_MATCH");
 	}
 	public void testBug558812_017a() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -855,7 +860,8 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		assertTrue(elements[0] instanceof LocalVariable);
 		search(elements[0], REFERENCES, EXACT_RULE);
 		assertSearchResults(
-				"src/X.java Point(int) [comp_] EXACT_MATCH");
+				"src/X.java Point(int) [comp_] EXACT_MATCH\n" +
+				"src/X.java void Point.method() [comp_] EXACT_MATCH");
 	}
 
 	//selection  - select local field in a compact constructor in record and search3
@@ -883,7 +889,9 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		assertTrue(elements[0] instanceof LocalVariable);
 		search(elements[0], REFERENCES, EXACT_RULE);
 		assertSearchResults(
-				"src/X.java Point(int) [comp_] EXACT_MATCH");
+				"src/X.java Point(int) [comp_] EXACT_MATCH\n" +
+				"src/X.java void Point.method() [comp_] EXACT_MATCH\n"+
+				"src/X.java void Point.method() [comp_] EXACT_MATCH");
 	}
 
 	//selection  - select record in another file

@@ -201,7 +201,10 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 			assertEquals("type should be a record", IJavaElement.LOCAL_VARIABLE, element.getElementType());
 			element = element.getParent();
 			assertNotNull("should not be null", element);
-			assertEquals("should be a method", IJavaElement.METHOD, element.getElementType());
+			// unlike constructors whose parameters are explicitly declared,
+			// in case of compact constructors, the element is attached as a child of
+			// the field that represents the record component.
+			assertEquals("should be a method", IJavaElement.FIELD, element.getElementType());
 		}
 		finally {
 			deleteProject("RecordsElement");
