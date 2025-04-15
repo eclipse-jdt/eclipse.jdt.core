@@ -120,7 +120,8 @@ private void checkAndSetModifiersForConstructor(MethodBinding methodBinding) {
 		problemReporter().duplicateModifierForMethod(declaringClass, (AbstractMethodDeclaration) this.referenceContext);
 
 	int astNodeBits = ((ConstructorDeclaration) this.referenceContext).bits;
-	if ((astNodeBits & ASTNode.IsDefaultConstructor) != 0)  {
+	if ((astNodeBits & ASTNode.IsDefaultConstructor) != 0
+			||((astNodeBits & ASTNode.IsImplicit) != 0 && (astNodeBits & ASTNode.IsCanonicalConstructor) != 0))  {
 		// certain flags are propagated from declaring class onto constructor
 		final int DECLARING_FLAGS = ClassFileConstants.AccEnum|ClassFileConstants.AccPublic|ClassFileConstants.AccProtected;
 		final int VISIBILITY_FLAGS = ClassFileConstants.AccPrivate|ClassFileConstants.AccPublic|ClassFileConstants.AccProtected;
@@ -304,7 +305,7 @@ private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
 }
 
 public void checkUnusedParameters(MethodBinding method) {
-	if (method.isAbstract() || method.isCompactConstructor()
+	if (method.isAbstract()
 			|| (method.isImplementing() && !compilerOptions().reportUnusedParameterWhenImplementingAbstract)
 			|| (method.isOverriding() && !method.isImplementing() && !compilerOptions().reportUnusedParameterWhenOverridingConcrete)
 			|| method.isMain()) {
@@ -396,8 +397,7 @@ MethodBinding createMethod(AbstractMethodDeclaration method) {
 	this.referenceContext = method;
 	method.scope = this;
 	long sourceLevel = compilerOptions().sourceLevel;
-	TypeDeclaration referenceType = referenceType();
-	SourceTypeBinding declaringClass = referenceType.binding;
+	SourceTypeBinding declaringClass = referenceType().binding;
 	int modifiers = method.modifiers | ExtraCompilerModifiers.AccUnresolved;
 	if (method.isConstructor()) {
 		if (method.isDefaultConstructor())
@@ -420,26 +420,24 @@ MethodBinding createMethod(AbstractMethodDeclaration method) {
 	}
 	this.isStatic = method.binding.isStatic();
 
-	AbstractVariableDeclaration[] argTypes = method.arguments != null ? method.arguments : method.isCompactConstructor() ? referenceType.recordComponents : null;
+	Argument[] argTypes = method.arguments;
 	int argLength = argTypes == null ? 0 : argTypes.length;
 	if (argLength > 0) {
-		AbstractVariableDeclaration argument = argTypes[argLength - 1];
+		Argument argument = argTypes[argLength - 1];
 		method.binding.parameterNames = new char[argLength][];
 		method.binding.parameterNames[--argLength] = argument.name;
 		if (argument.isVarArgs())
 			method.binding.modifiers |= ClassFileConstants.AccVarargs;
-		if (method.arguments != null && CharOperation.equals(argument.name, ConstantPool.This)) {
+		if (CharOperation.equals(argument.name, ConstantPool.This)) {
 			problemReporter().illegalThisDeclaration(argument);
 		}
 		while (--argLength >= 0) {
 			argument = argTypes[argLength];
 			method.binding.parameterNames[argLength] = argument.name;
-			if (method.arguments != null) {
-				if (argument.isVarArgs())
-					problemReporter().illegalVararg(argument, method);
-				if (CharOperation.equals(argument.name, ConstantPool.This)) {
-					problemReporter().illegalThisDeclaration(argument);
-				}
+			if (argument.isVarArgs())
+				problemReporter().illegalVararg(argument, method);
+			if (CharOperation.equals(argument.name, ConstantPool.This)) {
+				problemReporter().illegalThisDeclaration(argument);
 			}
 		}
 	}
@@ -457,7 +455,15 @@ MethodBinding createMethod(AbstractMethodDeclaration method) {
 		method.binding.typeVariables = createTypeVariables(typeParameters, method.binding);
 		method.binding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 	}
-    return method.binding;
+    checkAndSetRecordCanonicalConsAndMethods(method);
+	return method.binding;
+}
+private void checkAndSetRecordCanonicalConsAndMethods(AbstractMethodDeclaration am) {
+	if (am.binding != null && (am.bits & ASTNode.IsImplicit) != 0) {
+		am.binding.extendedTagBits |= ExtendedTagBits.isImplicit;
+		if ((am.bits & ASTNode.IsCanonicalConstructor) != 0)
+			am.binding.extendedTagBits |= ExtendedTagBits.IsCanonicalConstructor;
+	}
 }
 
 /**

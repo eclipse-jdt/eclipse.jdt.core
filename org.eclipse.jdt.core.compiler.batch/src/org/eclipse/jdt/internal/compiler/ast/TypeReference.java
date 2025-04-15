@@ -108,7 +108,7 @@ static class AnnotationCollector extends ASTVisitor {
 	}
 
 	public AnnotationCollector(
-			AbstractVariableDeclaration localDeclaration,
+			LocalDeclaration localDeclaration,
 			int targetType,
 			int parameterIndex,
 			List<AnnotationContext> annotationContexts) {

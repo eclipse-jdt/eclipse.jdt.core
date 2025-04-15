@@ -96,14 +96,6 @@ public class RecordComponent extends AbstractVariableDeclaration {
 		}
 	}
 
-	// for record canonical constructor parameters
-	@Override
-	public void getAllAnnotationContexts(int targetType, int parameterIndex, List<AnnotationContext> allAnnotationContexts) {
-		AnnotationCollector collector = new AnnotationCollector(this, targetType, parameterIndex, allAnnotationContexts);
-		this.traverse(collector, (BlockScope) null);
-	}
-
-	@Override
 	public boolean isVarArgs() {
 		return this.type != null &&  (this.type.bits & IsVarArgs) != 0;
 	}

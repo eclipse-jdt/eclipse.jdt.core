@@ -90,10 +90,6 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 		return false;
 	}
 
-	public boolean isVarArgs() {
-		return false;
-	}
-
 	@Override
 	public StringBuilder printStatement(int indent, StringBuilder output) {
 		printAsExpression(indent, output);
@@ -163,10 +159,6 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 	}
 
 	public void getAllAnnotationContexts(int targetType, List<AnnotationContext> allAnnotationContexts) {
-		// do nothing
-	}
-
-	public void getAllAnnotationContexts(int targetType, int parameterIndex, List<AnnotationContext> allAnnotationContexts) {
 		// do nothing
 	}
 

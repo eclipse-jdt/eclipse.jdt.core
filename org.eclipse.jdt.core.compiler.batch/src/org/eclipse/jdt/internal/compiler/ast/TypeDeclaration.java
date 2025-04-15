@@ -365,7 +365,72 @@ public CompilationResult compilationResult() {
 	return this.compilationResult;
 }
 
-public ConstructorDeclaration createDefaultConstructor(boolean needExplicitConstructorCall, boolean needToInsert) {
+
+public ConstructorDeclaration createDefaultConstructorForRecord(boolean needToInsert) {
+	//Add to method'set, the default constuctor that just recall the
+	//super constructor with no arguments
+	//The arguments' type will be positionned by the TC so just use
+	//the default int instead of just null (consistency purpose)
+
+	ConstructorDeclaration constructor = new ConstructorDeclaration(this.compilationResult);
+	constructor.bits |= ASTNode.IsCanonicalConstructor | ASTNode.IsImplicit;
+	constructor.selector = this.name;
+	constructor.modifiers = this.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
+//	constructor.modifiers = this.modifiers & ClassFileConstants.AccPublic;
+//	constructor.modifiers |= ClassFileConstants.AccPublic; // JLS 14 8.10.5
+	constructor.arguments = getArgumentsFromComponents(this.recordComponents);
+
+	for (Argument argument : constructor.arguments) {
+		if ((argument.bits & ASTNode.HasTypeAnnotations) != 0) {
+			constructor.bits |= ASTNode.HasTypeAnnotations;
+			break;
+		}
+	}
+	constructor.declarationSourceStart = constructor.sourceStart =
+			constructor.bodyStart = this.sourceStart;
+	constructor.declarationSourceEnd =
+		constructor.sourceEnd = constructor.bodyEnd =  this.sourceStart - 1;
+
+	// the super call inside the constructor
+	constructor.constructorCall = SuperReference.implicitSuperConstructorCall();
+	constructor.constructorCall.sourceStart = this.sourceStart;
+	constructor.constructorCall.sourceEnd = this.sourceEnd;
+
+	//adding the constructor in the methods list: rank is not critical since bindings will be sorted
+	if (needToInsert) {
+		if (this.methods == null) {
+			this.methods = new AbstractMethodDeclaration[] { constructor };
+		} else {
+			AbstractMethodDeclaration[] newMethods;
+			System.arraycopy(
+				this.methods,
+				0,
+				newMethods = new AbstractMethodDeclaration[this.methods.length + 1],
+				1,
+				this.methods.length);
+			newMethods[0] = constructor;
+			this.methods = newMethods;
+		}
+	}
+	return constructor;
+}
+
+
+private Argument[] getArgumentsFromComponents(RecordComponent[] comps) {
+	Argument[] args2 = comps == null || comps.length == 0 ? ASTNode.NO_ARGUMENTS :
+		new Argument[comps.length];
+	int count = 0;
+	for (RecordComponent comp : comps) {
+		Argument argument = new Argument(comp.name, ((long)comp.sourceStart) << 32 | comp.sourceEnd,
+				comp.type, 0); // no modifiers allowed for record components - enforce
+		args2[count++] = argument;
+	}
+	return args2;
+}
+
+public ConstructorDeclaration createDefaultConstructor(	boolean needExplicitConstructorCall, boolean needToInsert) {
+	if (this.isRecord())
+		return createDefaultConstructorForRecord(needToInsert);
 	//Add to method'set, the default constuctor that just recall the
 	//super constructor with no arguments
 	//The arguments' type will be positionned by the TC so just use
@@ -585,6 +650,47 @@ public CompilationUnitDeclaration getCompilationUnitDeclaration() {
 		return this.scope.compilationUnitScope().referenceContext;
 	}
 	return null;
+}
+
+/**
+ * This is applicable only for records - ideally get the canonical constructor, if not
+ * get a constructor and at the client side tentatively marked as canonical constructor
+ * which gets checked at the binding time. If there are no constructors, then null is returned.
+ **/
+public ConstructorDeclaration getConstructor(Parser parser) {
+	ConstructorDeclaration cd = null;
+	if (this.methods != null) {
+		for (int i = this.methods.length; --i >= 0;) {
+			AbstractMethodDeclaration am;
+			if ((am = this.methods[i]).isConstructor()) {
+				if (!CharOperation.equals(am.selector, this.name)) {
+					// the constructor was in fact a method with no return type
+					// unless an explicit constructor call was supplied
+					ConstructorDeclaration c = (ConstructorDeclaration) am;
+					if (c.constructorCall == null || c.constructorCall.isImplicitSuper()) { //changed to a method
+						MethodDeclaration m = parser.convertToMethodDeclaration(c, this.compilationResult);
+						this.methods[i] = m;
+					}
+				} else {
+					if (am instanceof ConstructorDeclaration ccd && ccd.isCompactConstructor()) {
+						if (ccd.arguments == null)
+							ccd.arguments = getArgumentsFromComponents(this.recordComponents);
+						return ccd;
+					}
+					// now we are looking at a "normal" constructor
+					if ((this.recordComponents == null || this.recordComponents.length == 0)
+							&& am.arguments == null)
+						return (ConstructorDeclaration) am;
+					cd = (ConstructorDeclaration) am; // just return the last constructor
+				}
+			}
+		}
+	}
+//	/* At this point we can only say that there is high possibility that there is a constructor
+//	 * If it is a CCD, then definitely it is there (except for empty one); else we need to check
+//	 * the bindings to say that there is a canonical constructor. To take care at binding resolution time.
+//	 */
+	return cd; // the last constructor
 }
 
 /**

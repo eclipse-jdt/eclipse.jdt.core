@@ -174,32 +174,11 @@ private void addDefaultConstructorIfNecessary(TypeInfo typeInfo) {
 	}
 
 	if (!hasConstructor) {
-		if (typeDeclaration.isRecord()) {
-			int argCount = typeDeclaration.recordComponents.length;
-			char [][] parameterTypes = new char[argCount][];
-			char [][] parameterNames = new char[argCount][];
-			for (int i = 0; i < argCount; i++) {
-				parameterTypes[i] = typeDeclaration.recordComponents[i].type.getLastToken(); // ??
-				parameterNames[i] = typeDeclaration.recordComponents[i].name;
-			}
-			this.indexer.addConstructorDeclaration(
-					typeInfo.name,
-					argCount,
-					null, // ??
-					parameterTypes,
-					parameterNames,
-					typeInfo.modifiers,
-					this.packageName == null ? CharOperation.NO_CHAR : this.packageName,
-					typeInfo.modifiers,
-					CharOperation.NO_CHAR_CHAR,
-					getMoreExtraFlags(typeInfo.extraFlags));
-		} else {
-				this.indexer.addDefaultConstructorDeclaration(
+		this.indexer.addDefaultConstructorDeclaration(
 				typeInfo.name,
 				this.packageName == null ? CharOperation.NO_CHAR : this.packageName,
 				typeInfo.modifiers,
 				getMoreExtraFlags(typeInfo.extraFlags));
-		}
 	}
 }
 /*
@@ -557,5 +536,13 @@ public void pushTypeName(char[] typeName) {
 	if (this.depth == this.enclosingTypeNames.length)
 		System.arraycopy(this.enclosingTypeNames, 0, this.enclosingTypeNames = new char[this.depth*2][], 0, this.depth);
 	this.enclosingTypeNames[this.depth++] = typeName;
+}
+@Override
+public void enterCompactConstructor(MethodInfo methodInfo) {
+	this.enterConstructor(methodInfo);
+}
+@Override
+public void exitCompactConstructor(int declarationEnd) {
+	this.exitConstructor(declarationEnd);
 }
 }
