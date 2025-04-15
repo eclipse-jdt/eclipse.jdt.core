@@ -730,7 +730,6 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 	}
 	return accessMethod;
 }
-/* JLS 14 Record - Preview - begin */
 public MethodBinding[] checkAndAddSyntheticRecordMethods(MethodBinding[] methodBindings, int count) {
 	if (!this.isRecordDeclaration)
 		return methodBindings;
@@ -757,10 +756,10 @@ public List<MethodBinding> checkAndAddSyntheticRecordOverrideMethods(MethodBindi
 		MethodBinding m = addSyntheticRecordOverrideMethod(TypeConstants.EQUALS, implicitMethods.size());
 		implicitMethods.add(m);
 	}
-	if (this.isRecordDeclaration &&  getImplicitCanonicalConstructor() == -1) { // Srikanth, simplify this.
+	if (this.isRecordDeclaration) {
 		MethodBinding explicitCanon = null;
 		for (MethodBinding m : methodBindings) {
-			if (m.isCompactConstructor() || m.isCanonicalConstructor()) {
+			if (m.isCanonicalConstructor()) {
 				explicitCanon = m;
 				break;
 			}
@@ -2222,11 +2221,9 @@ private void checkCanonicalConstructorParameterNames(MethodBinding explicitCanon
 	SourceTypeBinding recordBinding = (SourceTypeBinding) enclosingRecord;
 	RecordComponentBinding[] comps = recordBinding.components();
 	Argument[] args = methodDecl.arguments;
-	if (args != null) {
-		for (int i = 0; i < l; ++i) {
-			if (!CharOperation.equals(args[i].name, comps[i].name))
-				this.scope.problemReporter().recordIllegalParameterNameInCanonicalConstructor(comps[i], args[i]);
-		}
+	for (int i = 0; i < l; ++i) {
+		if (!CharOperation.equals(args[i].name, comps[i].name))
+			this.scope.problemReporter().recordIllegalParameterNameInCanonicalConstructor(comps[i], args[i]);
 	}
 }
 
@@ -2244,7 +2241,8 @@ private MethodBinding checkRecordCanonicalConstructor(MethodBinding explicitCano
 		this.scope.problemReporter().recordCanonicalConstructorShouldNotBeGeneric(methodDecl);
 	if (explicitCanonicalConstructor.thrownExceptions != null && explicitCanonicalConstructor.thrownExceptions.length > 0)
 		this.scope.problemReporter().recordCanonicalConstructorHasThrowsClause(methodDecl);
-	checkCanonicalConstructorParameterNames(explicitCanonicalConstructor, methodDecl);
+	if (!methodDecl.isCompactConstructor())
+		checkCanonicalConstructorParameterNames(explicitCanonicalConstructor, methodDecl);
 	methodDecl.bits |= ASTNode.IsCanonicalConstructor;
 	explicitCanonicalConstructor.extendedTagBits |= ExtendedTagBits.IsCanonicalConstructor;
 //	checkAndFlagExplicitConstructorCallInCanonicalConstructor(methodDecl);

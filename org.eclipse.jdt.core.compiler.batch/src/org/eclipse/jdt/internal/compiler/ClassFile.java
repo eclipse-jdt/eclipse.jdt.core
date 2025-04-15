@@ -5094,7 +5094,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 						length = writeArgumentName(argument.name, modifiers, length);
 					} else {
 						throw EclipseCompiler.UNEXPECTED_CONTROL_FLOW;
-						// length = writeArgumentName(null, ClassFileConstants.AccSynthetic, length);
 					}
 				}
 			}

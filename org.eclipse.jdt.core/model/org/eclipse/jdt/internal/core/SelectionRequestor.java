@@ -441,7 +441,6 @@ public void acceptLocalVariable(LocalVariableBinding binding, org.eclipse.jdt.in
 		} else {
 			typeSig = Signature.createTypeSignature(binding.type.signableName(), true);
 			localName = binding.name;
-			// Srikanth, raise a ticket for the next two lines.
 			localDeclarationSourceStart = localDeclarationSourceEnd = localSourceStart = localSourceEnd = 0;
 			localAnnotations = ASTNode.NO_ANNOTATIONS;
 			localModifiers = 0;
