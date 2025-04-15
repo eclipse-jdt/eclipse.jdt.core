@@ -98,7 +98,6 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
-import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.Javadoc;
@@ -110,7 +109,6 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.Modifier;
-import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NodeFinder;
@@ -151,6 +149,8 @@ import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
+import org.eclipse.jdt.core.dom.InfixExpression.Operator;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -3129,9 +3129,11 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				|| initializer != null && !STATIC.equals(this.textContent.substring(initializer.getStartPosition(), initializer.getStartPosition() + STATIC.length()))) {
 			keywords.add(Keywords.THIS);
 		}
-		for (char[] keyword : keywords) {
-			if (!isFailedMatch(this.prefix.toCharArray(), keyword)) {
-				this.requestor.accept(createKeywordProposal(keyword, this.toComplete.getStartPosition(), this.offset));
+		if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
+			for (char[] keyword : keywords) {
+				if (!isFailedMatch(this.prefix.toCharArray(), keyword)) {
+					this.requestor.accept(createKeywordProposal(keyword, this.toComplete.getStartPosition(), this.offset));
+				}
 			}
 		}
 		// Z means boolean
