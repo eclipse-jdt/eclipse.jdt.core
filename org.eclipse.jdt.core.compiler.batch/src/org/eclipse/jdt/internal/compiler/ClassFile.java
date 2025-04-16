@@ -4337,8 +4337,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 		AbstractMethodDeclaration methodDeclaration = methodBinding.sourceMethod();
 		if (methodBinding instanceof SyntheticMethodBinding) {
 			SyntheticMethodBinding syntheticMethod = (SyntheticMethodBinding) methodBinding;
-			if (syntheticMethod.purpose == SyntheticMethodBinding.SuperMethodAccess && CharOperation.equals(syntheticMethod.selector, syntheticMethod.targetMethod.selector))
-				methodDeclaration = ((SyntheticMethodBinding)methodBinding).targetMethod.sourceMethod();
+			if (syntheticMethod.purpose == SyntheticMethodBinding.BridgeMethod
+					|| (syntheticMethod.purpose == SyntheticMethodBinding.SuperMethodAccess
+							&& CharOperation.equals(syntheticMethod.selector, syntheticMethod.targetMethod.selector))) {
+				methodDeclaration = ((SyntheticMethodBinding) methodBinding).targetMethod.sourceMethod();
+			}
 			if (syntheticMethod.recordComponentBinding != null) {
 				assert methodDeclaration == null;
 				long rcMask = TagBits.AnnotationForMethod | TagBits.AnnotationForTypeUse;
