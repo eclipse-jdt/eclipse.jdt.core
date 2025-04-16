@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -247,8 +247,6 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 		parser.setMethodsFullRecovery(true);
 		parser.setStatementsRecovery((reconcileFlags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
 
-		if (!computeProblems && !resolveBindings && !createAST) // disable javadoc parsing if not computing problems, not resolving and not creating ast
-			parser.javadocParser.checkDocComment = false;
 		requestor.parser = parser;
 
 		// compute other problems if needed
