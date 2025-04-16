@@ -52,14 +52,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
@@ -2088,7 +2081,11 @@ public ReferenceBinding superclass() {
 }
 
 @Override
-public ReferenceBinding[] superInterfaces() {
+public final ReferenceBinding[] superInterfaces() {
+	return superInterfacesRecursive(Collections.newSetFromMap(new IdentityHashMap<>()));
+}
+
+protected ReferenceBinding[] superInterfacesRecursive(Set<ReferenceBinding> visited) {
 	return Binding.NO_SUPERINTERFACES;
 }
 
