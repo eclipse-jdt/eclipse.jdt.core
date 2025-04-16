@@ -688,11 +688,14 @@ public class Util implements SuffixConstants {
 		}
 		return true;
 	}
+	public final static boolean isClassFileName(String name) {
+		return isDotClassFileName(name) || isSignatureClassFileName(name);
+	}
 	/**
 	 * Returns true iff str.toLowerCase().endsWith(".class")
 	 * implementation is not creating extra strings.
 	 */
-	public final static boolean isClassFileName(String name) {
+	public final static boolean isDotClassFileName(String name) {
 		int nameLength = name == null ? 0 : name.length();
 		int suffixLength = SUFFIX_CLASS.length;
 		if (nameLength < suffixLength) return false;
@@ -701,6 +704,18 @@ public class Util implements SuffixConstants {
 			char c = name.charAt(nameLength - i - 1);
 			int suffixIndex = suffixLength - i - 1;
 			if (c != SUFFIX_class[suffixIndex] && c != SUFFIX_CLASS[suffixIndex]) return false;
+		}
+		return true;
+	}
+	public final static boolean isSignatureClassFileName(String name) {
+		int nameLength = name == null ? 0 : name.length();
+		int suffixLength = SUFFIX_SIG.length;
+		if (nameLength < suffixLength) return false;
+
+		for (int i = 0; i < suffixLength; i++) {
+			char c = name.charAt(nameLength - i - 1);
+			int suffixIndex = suffixLength - i - 1;
+			if (c != SUFFIX_sig[suffixIndex] && c != SUFFIX_SIG[suffixIndex]) return false;
 		}
 		return true;
 	}
