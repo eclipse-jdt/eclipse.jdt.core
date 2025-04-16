@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2020 IBM Corporation and others.
+ * Copyright (c) 2008, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -561,6 +561,12 @@ protected void notifySourceElementRequestor(AbstractVariableDeclaration fieldDec
 				ISourceElementRequestor.FieldInfo fieldInfo = new ISourceElementRequestor.FieldInfo();
 				fieldInfo.typeAnnotated = ((fieldDeclaration.bits & ASTNode.HasTypeAnnotations) != 0);
 				fieldInfo.declarationStart = fieldDeclaration.declarationSourceStart;
+				if (fieldDeclaration instanceof FieldDeclaration duplicateFieldDeclration) {
+					if(duplicateFieldDeclration.javadoc != null) {
+						fieldInfo.declarationStart = duplicateFieldDeclration.javadoc.sourceStart;
+					}
+				}
+
 				fieldInfo.name = fieldDeclaration.name;
 				fieldInfo.modifiers = deprecated ? (currentModifiers & ExtraCompilerModifiers.AccJustFlag) | ClassFileConstants.AccDeprecated : currentModifiers & ExtraCompilerModifiers.AccJustFlag;
 				if (fieldDeclaration.getKind() == AbstractVariableDeclaration.RECORD_COMPONENT) {
