@@ -85,7 +85,7 @@ abstract class BaseElementProcessor extends BaseProcessor {
 		return false;
 	}
 
-	private boolean invokeTestMethods(Map<String, String> options) throws Throwable {
+	protected boolean invokeTestMethods(Map<String, String> options) throws Throwable {
 		Method testMethod = null;
 		Set<String> keys = options.keySet();
 		boolean testsFound = false;
@@ -98,9 +98,9 @@ abstract class BaseElementProcessor extends BaseProcessor {
 						testMethod.invoke(this,  new Object[0]);
 					}
 				} catch (InvocationTargetException e) {
-					throw e.getCause();
+					reportError(e.getCause());
 				} catch (Exception e) {
-					super.reportError(getExceptionStackTrace(e));
+					reportError(getExceptionStackTrace(e));
 				}
 			}
 		}
@@ -109,10 +109,16 @@ abstract class BaseElementProcessor extends BaseProcessor {
 
 	protected abstract void testAll() throws AssertionFailedError, IOException;
 
-	@Override
-	public void reportError(String msg) {
-		throw new AssertionFailedError(msg + " (Binary mode= " + isBinaryMode + ")");
+	public void reportError(String value) {
+		throw new AssertionFailedError(value);
 	}
+
+	public void reportError(Throwable ex) {
+		String trace = getExceptionStackTrace(ex);
+		//throw new AssertionFailedError(trace + " (Binary mode= " + isBinaryMode + ")");
+		super.reportError(trace);
+	}
+
 	protected String getExceptionStackTrace(Throwable t) {
 		StringBuilder buf = new StringBuilder(t.getMessage());
 		StackTraceElement[] traces = t.getStackTrace();
