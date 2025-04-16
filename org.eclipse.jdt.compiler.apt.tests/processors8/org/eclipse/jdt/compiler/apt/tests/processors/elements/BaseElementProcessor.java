@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 IBM Corporation.
+ * Copyright (c) 2020, 2025 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -110,12 +110,11 @@ abstract class BaseElementProcessor extends BaseProcessor {
 	protected abstract void testAll() throws AssertionFailedError, IOException;
 
 	public void reportError(String value) {
-		throw new AssertionFailedError(value);
+		throw new AssertionFailedError(value + " (Binary mode= " + isBinaryMode + ")");
 	}
 
 	public void reportError(Throwable ex) {
 		String trace = getExceptionStackTrace(ex);
-		//throw new AssertionFailedError(trace + " (Binary mode= " + isBinaryMode + ")");
 		super.reportError(trace);
 	}
 
