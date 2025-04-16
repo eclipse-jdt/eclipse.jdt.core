@@ -101,4 +101,9 @@ public abstract class JavacErrorMethodBinding extends JavacMethodBinding {
 		return this.originatingSymbol.getAnnotationMirrors().stream().map(ann -> this.resolver.bindings.getAnnotationBinding(ann, this)).toArray(IAnnotationBinding[]::new);
 	}
 
+	@Override
+	public boolean isVarargs() {
+		return false;
+	}
+
 }
