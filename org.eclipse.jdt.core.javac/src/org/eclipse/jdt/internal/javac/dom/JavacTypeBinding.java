@@ -502,11 +502,12 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			return;
 		}
 		if (typeToBuild.isReference()) {
+			String currentTypeSignature = "";
 			if (!isLeaf) {
 				if (typeToBuild.tsym instanceof Symbol.TypeVariableSymbol) {
-					builder.append('T');
+					currentTypeSignature += "T";
 				} else {
-					builder.append('L');
+					currentTypeSignature += "L";
 				}
 			}
 
@@ -521,9 +522,8 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 					nameAsString = nameAsString.replaceFirst("\\$([0-9]+)", "\\$" + cic.getType().getStartPosition());
 				}
 			}
-			builder.append(nameAsString);
-
-			String currentTypeSignature = builder.toString();
+			currentTypeSignature += nameAsString;
+			builder.append(currentTypeSignature);
 
 			// This is a hack and will likely need to be enhanced
 			if (typeToBuild.tsym instanceof ClassSymbol classSymbol && !(classSymbol.type instanceof ErrorType) && classSymbol.owner instanceof PackageSymbol) {
@@ -565,7 +565,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 					getKey(tmp, typeArgument, typeArgument.asElement().flatName().toString(),
 							false, includeParameters, useSlashes, resolver);
 					String paramType = tmp.toString();
-					if( paramType.startsWith("+")) {
+					if( paramType.startsWith("+") && !paramType.equals("+Ljava/lang/Object;")) {
 						builder.append("!");
 						builder.append(currentTypeSignature);
 						builder.append(";{1}");// TODO
