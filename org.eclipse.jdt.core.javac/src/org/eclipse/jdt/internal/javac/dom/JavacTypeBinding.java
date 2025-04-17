@@ -522,6 +522,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				}
 			}
 			builder.append(nameAsString);
+
+			String currentTypeSignature = builder.toString();
+
 			// This is a hack and will likely need to be enhanced
 			if (typeToBuild.tsym instanceof ClassSymbol classSymbol && !(classSymbol.type instanceof ErrorType) && classSymbol.owner instanceof PackageSymbol) {
 				JavaFileObject sourcefile = classSymbol.sourcefile;
@@ -558,7 +561,19 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			if ((b1 || b2) && includeParameters) {
 				builder.append('<');
 				for (var typeArgument : typeToBuild.getTypeArguments()) {
-					getKey(builder, typeArgument, false, includeParameters, useSlashes, resolver);
+					StringBuilder tmp = new StringBuilder();
+					getKey(tmp, typeArgument, typeArgument.asElement().flatName().toString(),
+							false, includeParameters, useSlashes, resolver);
+					String paramType = tmp.toString();
+					if( paramType.startsWith("+")) {
+						builder.append("!");
+						builder.append(currentTypeSignature);
+						builder.append(";{1}");// TODO
+						builder.append(paramType);
+						builder.append("1;");// TODO
+					} else {
+						builder.append(paramType);
+					}
 				}
 				builder.append('>');
 			}

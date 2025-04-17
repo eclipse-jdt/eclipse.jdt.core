@@ -318,7 +318,8 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		if (exceptions == null || exceptions.length == 0) {
 			exceptions = Arrays.stream(getExceptionTypes()).map(ITypeBinding::getKey).toArray(String[]::new);
 		}
-		return getKey() + Arrays.stream(exceptions).map(t -> '|' + t.replace('.', '/')).collect(Collectors.joining());
+		String exceptionsAsString = Arrays.stream(exceptions).map(t -> '|' + t.replace('.', '/')).collect(Collectors.joining());
+		return getKey() + exceptionsAsString;
 	}
 
 	private IMethod getJavaElementForAnnotationTypeMemberDeclaration(IType currentType, AnnotationTypeMemberDeclaration annotationTypeMemberDeclaration) {
@@ -379,7 +380,9 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	static void getKey(StringBuilder builder, MethodSymbol methodSymbol, MethodType methodType, Type parentType, boolean useSlashes, JavacBindingResolver resolver) throws BindingKeyException {
 
 		if (parentType != null) {
-			builder.append(resolver.bindings.getTypeBinding(parentType).getKey(true, true));
+			JavacTypeBinding parentBinding = resolver.bindings.getTypeBinding(parentType);
+			String parentKey = parentBinding.getKey(true, true);
+			builder.append(parentKey);
 		} else {
 			Symbol ownerSymbol = methodSymbol.owner;
 			while (ownerSymbol != null && !(ownerSymbol instanceof TypeSymbol)) {
