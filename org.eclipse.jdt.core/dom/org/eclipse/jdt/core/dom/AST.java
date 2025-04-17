@@ -1228,8 +1228,8 @@ public final class AST {
 	 *    	<li>
 	 *    	<li><code>"1.8"</code> implies the respective source JDK level 1.8 and api level {@link #JLS8}.</li>
 	 *    	<li><code>"9", "10", "11" up to "23"</code> implies the respective JDK levels 9, 10, 11 up to 23
-	 *     	and api levels {@link #JLS9}, {@link #JLS10}, {@link #JLS11} up to {@link #JLS23}.</li>
-	 *    	<li>Additional legal values may be added later.</li>
+	 *     	and api levels {@link #JLS9}, {@link #JLS10}, {@link #JLS11} up to {@link #JLS24}.</li>
+	 *    	<li>Additional legal values may be added later. Illegal values will default to latest known JLS version.</li>
 	 *    </ul>
 	 * 	<li><code>"org.eclipse.jdt.core.compiler.problem.enablePreviewFeatures"</code> -
 	 *    	indicates whether the preview is enabled or disabled
@@ -1243,7 +1243,7 @@ public final class AST {
 	 * @see JavaCore#getDefaultOptions()
 	 */
 	public AST(Map options) {
-		this(apiLevelMap.get(options.get(JavaCore.COMPILER_SOURCE)),
+		this(apiLevelMap.getOrDefault(JavaCore.COMPILER_SOURCE, JLS_INTERNAL_Latest),
 				JavaCore.ENABLED.equals(options.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)));
 
 		long sourceLevel = AST.jdkLevelMap.get(options.get(JavaCore.COMPILER_SOURCE));
