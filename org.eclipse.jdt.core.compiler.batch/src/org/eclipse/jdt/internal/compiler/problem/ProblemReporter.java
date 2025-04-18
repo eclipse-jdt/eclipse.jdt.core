@@ -3204,7 +3204,7 @@ public void illegalUsageOfWildcard(TypeReference wildcard) {
 		wildcard.sourceStart,
 		wildcard.sourceEnd);
 }
-public void illegalVararg(Argument argType, AbstractMethodDeclaration methodDecl) {
+public void illegalVararg(AbstractVariableDeclaration argType, AbstractMethodDeclaration methodDecl) {
 	String[] arguments = new String[] {CharOperation.toString(argType.type.getTypeName()), new String(methodDecl.selector)};
 	this.handle(
 		IProblem.IllegalVararg,
@@ -3222,7 +3222,7 @@ public void illegalVarargInLambda(Argument argType) {
 		argType.sourceStart,
 		argType.sourceEnd);
 }
-public void illegalThisDeclaration(Argument argument) {
+public void illegalThisDeclaration(AbstractVariableDeclaration argument) {
 	String[] arguments = NoArgument;
 	this.handle(
 		IProblem.IllegalDeclarationOfThisParameter,

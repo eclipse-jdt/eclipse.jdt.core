@@ -196,9 +196,6 @@ public class ClassScope extends Scope {
 		if (count != componentBindings.length)
 			System.arraycopy(componentBindings, 0, componentBindings = new RecordComponentBinding[count], 0, count);
 		sourceType.setComponents(componentBindings);
-		if (size > 0) {
-			sourceType.isVarArgs = recComps[size-1].isVarArgs();
-		}
 	}
 	private void checkAndSetModifiersForComponents(RecordComponentBinding compBinding, RecordComponent comp) {
 		int modifiers = compBinding.modifiers;
@@ -491,7 +488,6 @@ public class ClassScope extends Scope {
 				problemReporter().abstractMethodInConcreteClass(sourceType);
 		}
 		if (sourceType.isRecord()) {
-			assert this.referenceContext.isRecord();
 			methodBindings = sourceType.checkAndAddSyntheticRecordMethods(methodBindings, count);
 			count = methodBindings.length;
 		}
