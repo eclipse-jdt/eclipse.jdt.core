@@ -254,6 +254,15 @@ public class DOMMethodLocator extends DOMPatternLocator {
 				}
 			}
 
+			if( node instanceof Name) {
+				// We are a simple name and can't match complex pattern with type args
+				boolean patternHasTypeArgs = this.locator.pattern.parameterSimpleNames != null && this.locator.pattern.parameterSimpleNames.length > 0
+						&& this.locator.pattern.parameterSimpleNames[0] != null;
+				if(patternHasTypeArgs) {
+					return toResponse(IMPOSSIBLE_MATCH);
+				}
+			}
+
 			// declaring type
 			if (this.locator.pattern.declaringSimpleName == null && this.locator.pattern.declaringQualification == null)
 				return toResponse(methodLevel); // since any declaring class will do
