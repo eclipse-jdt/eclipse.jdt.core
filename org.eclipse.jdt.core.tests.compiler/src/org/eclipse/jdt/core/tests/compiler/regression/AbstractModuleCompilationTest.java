@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
  *******************************************************************************/
@@ -26,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import junit.framework.AssertionFailedError;
 import org.eclipse.jdt.core.util.ClassFormatException;
@@ -35,6 +40,7 @@ public abstract class AbstractModuleCompilationTest extends AbstractBatchCompile
 
 	// use -source rather than --release but suppress: warning: [options] bootstrap class path not set in conjunction with -source 9:
 	protected static final String JAVAC_SOURCE_9_OPTIONS = "-source 9 -Xlint:-options";
+	protected static Pattern ECJ_VERSION_OPTION_PATTERN = Pattern.compile("-([0-9]+)");
 
 	public AbstractModuleCompilationTest(String name) {
 		super(name);
@@ -297,26 +303,10 @@ public abstract class AbstractModuleCompilationTest extends AbstractBatchCompile
 				skipNext = false;
 				continue;
 			}
-			switch (tokens[i].trim()) {
-			case "-9":
+			java.util.regex.Matcher matcher = ECJ_VERSION_OPTION_PATTERN.matcher(tokens[i].trim());
+			if (matcher.matches()) {
 				if (versionOptions == null)
-					buf.append(' ').append(" --release 9 ");
-				continue;
-			case "-8":
-				if (versionOptions == null)
-					buf.append(' ').append(" --release 8 ");
-				continue;
-			case "-22":
-				if (versionOptions == null)
-					buf.append(' ').append(" --release 22 ");
-				continue;
-			case "-23":
-				if (versionOptions == null)
-					buf.append(' ').append(" --release 23 ");
-				continue;
-			case "-24":
-				if (versionOptions == null)
-					buf.append(' ').append(" --release 24 ");
+					buf.append(' ').append(" --release ").append(matcher.group(1)).append(' ');
 				continue;
 			}
 			if (tokens[i].startsWith("-warn") || tokens[i].startsWith("-err") || tokens[i].startsWith("-info")) {
