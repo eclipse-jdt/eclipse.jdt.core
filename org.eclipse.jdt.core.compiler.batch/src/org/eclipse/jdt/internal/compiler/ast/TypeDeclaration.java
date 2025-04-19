@@ -24,14 +24,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -105,8 +101,8 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 	// 1.5 support
 	public TypeParameter[] typeParameters;
 
-	// 14 Records preview support
-	public RecordComponent[] recordComponents;
+	// 16 Records support
+	public RecordComponent[] recordComponents = NO_RECORD_COMPONENTS;
 	public int nRecordComponents;
 	public static Set<String> disallowedComponentNames;
 
@@ -370,7 +366,7 @@ public CompilationResult compilationResult() {
 }
 
 
-public ConstructorDeclaration createDefaultConstructorForRecord(boolean needExplicitConstructorCall, boolean needToInsert) {
+public ConstructorDeclaration createDefaultConstructorForRecord(boolean needToInsert) {
 	//Add to method'set, the default constuctor that just recall the
 	//super constructor with no arguments
 	//The arguments' type will be positionned by the TC so just use
@@ -395,32 +391,10 @@ public ConstructorDeclaration createDefaultConstructorForRecord(boolean needExpl
 	constructor.declarationSourceEnd =
 		constructor.sourceEnd = constructor.bodyEnd =  this.sourceStart - 1;
 
-	//the super call inside the constructor
-	if (needExplicitConstructorCall) {
-		constructor.constructorCall = SuperReference.implicitSuperConstructorCall();
-		constructor.constructorCall.sourceStart = this.sourceStart;
-		constructor.constructorCall.sourceEnd = this.sourceEnd;
-	}
-/* The body of the implicitly declared canonical constructor initializes each field corresponding
-	 * to a record component with the corresponding formal parameter in the order that they appear
-	 * in the record component list.*/
-	List<Statement> statements = new ArrayList<>();
-	int l = this.recordComponents != null ? this.recordComponents.length : 0;
-	if (l > 0 && this.fields != null) {
-		List<String> fNames = Arrays.stream(this.fields)
-				.filter(f -> f.isARecordComponent)
-				.map(f ->new String(f.name))
-				.collect(Collectors.toList());
-		for (int i = 0; i < l; ++i) {
-			RecordComponent component = this.recordComponents[i];
-			if (!fNames.contains(new String(component.name)))
-				continue;
-			FieldReference lhs = new FieldReference(component.name, 0);
-			lhs.receiver = ThisReference.implicitThis();
-			statements.add(new Assignment(lhs, new SingleNameReference(component.name, 0), 0));
-		}
-	}
-	constructor.statements = statements.toArray(new Statement[0]);
+	// the super call inside the constructor
+	constructor.constructorCall = SuperReference.implicitSuperConstructorCall();
+	constructor.constructorCall.sourceStart = this.sourceStart;
+	constructor.constructorCall.sourceEnd = this.sourceEnd;
 
 	//adding the constructor in the methods list: rank is not critical since bindings will be sorted
 	if (needToInsert) {
@@ -456,7 +430,7 @@ private Argument[] getArgumentsFromComponents(RecordComponent[] comps) {
 
 public ConstructorDeclaration createDefaultConstructor(	boolean needExplicitConstructorCall, boolean needToInsert) {
 	if (this.isRecord())
-		return createDefaultConstructorForRecord(needExplicitConstructorCall, needToInsert);
+		return createDefaultConstructorForRecord(needToInsert);
 	//Add to method'set, the default constuctor that just recall the
 	//super constructor with no arguments
 	//The arguments' type will be positionned by the TC so just use
@@ -759,7 +733,7 @@ public void generateCode(ClassFile enclosingClassFile) {
 			}
 		}
 
-		// generate all fiels
+		// generate all fields
 		classFile.addFieldInfos();
 
 		if (this.memberTypes != null) {
@@ -1129,7 +1103,7 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 		//		M() { this(new Object() { void baz() { foo(); }}); } // access to #foo() indirects through constructor synthetic arg: val$this$0
 		//	}
 		//}
-		if (!methodScope.isStatic && methodScope.isConstructorCall && currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_5) {
+		if (!methodScope.isStatic && methodScope.isConstructorCall) {
 			ReferenceBinding enclosing = nestedType.enclosingType();
 			if (enclosing.isNestedType()) {
 				NestedTypeBinding nestedEnclosing = (NestedTypeBinding)enclosing;
@@ -1304,13 +1278,11 @@ public StringBuilder printHeader(int indent, StringBuilder output) {
 	output.append(this.name);
 	if (this.isRecord()) {
 		output.append('(');
-		if (this.nRecordComponents > 0 && this.fields != null) {
-			for (int i = 0; i < this.nRecordComponents; i++) {
-				if (i > 0) output.append(", "); //$NON-NLS-1$
-				output.append(this.fields[i].type.getTypeName()[0]);
-				output.append(' ');
-				output.append(this.fields[i].name);
-			}
+		for (int i = 0; i < this.nRecordComponents; i++) {
+			if (i > 0) output.append(", "); //$NON-NLS-1$
+			output.append(this.recordComponents[i].type.getTypeName()[0]);
+			output.append(' ');
+			output.append(this.recordComponents[i].name);
 		}
 		output.append(')');
 	}
@@ -1385,8 +1357,7 @@ public void resolve() {
 		// resolve annotations and check @Deprecated annotation
 		long annotationTagBits = sourceType.getAnnotationTagBits();
 		if ((annotationTagBits & TagBits.AnnotationDeprecated) == 0
-				&& (sourceType.modifiers & ClassFileConstants.AccDeprecated) != 0
-				&& this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
+				&& (sourceType.modifiers & ClassFileConstants.AccDeprecated) != 0) {
 			this.scope.problemReporter().missingDeprecatedAnnotationForType(this);
 		}
 		if ((annotationTagBits & TagBits.AnnotationFunctionalInterface) != 0) {
@@ -1476,6 +1447,7 @@ public void resolve() {
 		}
 		if (this.recordComponents != null) {
 			for (RecordComponent rc : this.recordComponents) {
+				localMaxFieldCount++;
 				rc.resolve(this.initializerScope);
 			}
 		}

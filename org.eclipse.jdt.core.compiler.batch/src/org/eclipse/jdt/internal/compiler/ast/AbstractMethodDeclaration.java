@@ -164,7 +164,7 @@ public abstract class AbstractMethodDeclaration
 				}
 				return;
 			}
-			boolean used = this.binding.isAbstract() || this.binding.isNative();
+			boolean used = this.binding.isAbstract() || this.binding.isNative() || this.binding.isCompactConstructor() || (this.bits & ASTNode.IsImplicit) != 0;
 			AnnotationBinding[][] paramAnnotations = null;
 			for (int i = 0, length = this.arguments.length; i < length; i++) {
 				Argument argument = this.arguments[i];
@@ -482,7 +482,6 @@ public abstract class AbstractMethodDeclaration
 	}
 
 	public boolean isCanonicalConstructor() {
-
 		return false;
 	}
 
@@ -621,17 +620,11 @@ public abstract class AbstractMethodDeclaration
 			resolveReceiver();
 			bindThrownExceptions();
 			resolveAnnotations(this.scope, this.annotations, this.binding, this.isConstructor());
-
-			long sourceLevel = this.scope.compilerOptions().sourceLevel;
-			if (sourceLevel < ClassFileConstants.JDK1_8) // otherwise already checked via Argument.createBinding
-				validateNullAnnotations(this.scope.environment().usesNullTypeAnnotations());
-
 			resolveStatements();
 			// check @Deprecated annotation presence
 			if (this.binding != null
 					&& (this.binding.getAnnotationTagBits() & TagBits.AnnotationDeprecated) == 0
-					&& (this.binding.modifiers & ClassFileConstants.AccDeprecated) != 0
-					&& sourceLevel >= ClassFileConstants.JDK1_5) {
+					&& (this.binding.modifiers & ClassFileConstants.AccDeprecated) != 0) {
 				this.scope.problemReporter().missingDeprecatedAnnotationForMethod(this);
 			}
 		} catch (AbortMethod e) {
@@ -731,7 +724,8 @@ public abstract class AbstractMethodDeclaration
 			resolveStatements(this.statements, this.scope);
 		} else if ((this.bits & UndocumentedEmptyBlock) != 0) {
 			if (!this.isConstructor() || this.arguments != null) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319626
-				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd+1);
+				if ((this.bits & IsImplicit) == 0)
+					this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd+1);
 			}
 		}
 	}

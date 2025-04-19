@@ -56,8 +56,8 @@ private static Class[] getAllTestClasses() {
 
 		// Compilation unit tests
 		CompilationUnitTests.class,
-		// Compilation unitTests (Java 14)
-		CompilationUnitTests14.class,
+		// Compilation unitTests (Java 16)
+		CompilationUnitTests16.class,
 
 		// Source attachment tests
 		AttachSourceTests.class,

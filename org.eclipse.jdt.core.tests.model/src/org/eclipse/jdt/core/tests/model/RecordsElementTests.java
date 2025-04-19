@@ -108,7 +108,7 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 				IField[] fields = types[0].getFields();
 				assertEquals("Incorret no of fields", 0, fields.length);
 				IField[] recordComponents = types[0].getRecordComponents();
-				assertNotNull("should be null", recordComponents);
+				assertNotNull("should not be null", recordComponents);
 				assertEquals("Incorret no of components", 2, recordComponents.length);
 				IField comp = recordComponents[0];
 				assertEquals("type should be a record component", IJavaElement.FIELD, comp.getElementType());

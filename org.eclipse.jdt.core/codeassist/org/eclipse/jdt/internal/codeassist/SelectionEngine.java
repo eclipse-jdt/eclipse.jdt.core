@@ -18,6 +18,7 @@ package org.eclipse.jdt.internal.codeassist;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Stream;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
@@ -1698,9 +1699,11 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			if(selectDeclaration(memberTypes[i], assistIdentifier, packageName))
 				return true;
 		}
-		FieldDeclaration[] fields = typeDeclaration.fields;
-		for (int i = 0, length = fields == null ? 0 : fields.length; i < length; i++){
-			if (fields[i].name == assistIdentifier){
+		FieldDeclaration[] fields = typeDeclaration.fields == null ? ASTNode.NO_FIELD_DECLARATIONS : typeDeclaration.fields;
+		RecordComponent [] recordComponents = typeDeclaration.recordComponents;
+		AbstractVariableDeclaration[] variables = Stream.concat(Stream.of(recordComponents), Stream.of(fields)).toArray(AbstractVariableDeclaration[]::new);
+		for (int i = 0, length = variables.length; i < length; i++){
+			if (variables[i].name == assistIdentifier){
 				char[] qualifiedSourceName = null;
 
 				TypeDeclaration enclosingType = typeDeclaration;
@@ -1708,13 +1711,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					qualifiedSourceName = CharOperation.concat(enclosingType.name, qualifiedSourceName, '.');
 					enclosingType = enclosingType.enclosingType;
 				}
-				FieldDeclaration field = fields[i];
+				AbstractVariableDeclaration variable = variables[i];
 				this.requestor.acceptField(
 					packageName,
 					qualifiedSourceName,
-					field.name,
+					variable.name,
 					true,
-					field.binding != null ? field.binding.computeUniqueKey() : null,
+					variable.getBinding() != null ? variable.getBinding().computeUniqueKey() : null,
 					this.actualSelectionStart,
 					this.actualSelectionEnd);
 

@@ -64,8 +64,6 @@ public class MethodBinding extends Binding {
 	public ReferenceBinding declaringClass;
 	public TypeVariableBinding[] typeVariables = Binding.NO_TYPE_VARIABLES;
 	char[] signature;
-	public long tagBits;
-	public int extendedTagBits = 0; // See values in the interface ExtendedTagBits
 	public IBinaryAnnotation binaryPreviewAnnotation; // captures the exact preview feature of a preview API
 	// Used only for constructors
 	protected AnnotationBinding [] typeAnnotations = Binding.NO_ANNOTATIONS;
@@ -311,9 +309,6 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 
 	SourceTypeBinding invocationType = scope.enclosingSourceType();
 	if (this.declaringClass.isInterface() && isStatic() && !isPrivate()) {
-		// Static interface methods can be explicitly invoked only through the type reference of the declaring interface or implicitly in the interface itself or via static import.
-		if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8)
-			return false;
 		if ((invocationSite.isTypeAccess() || invocationSite.receiverIsImplicitThis()) && TypeBinding.equalsEquals(receiverType, this.declaringClass))
 			return true;
 		return false;
@@ -365,13 +360,8 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	if (isPrivate()) {
 		// answer true if the receiverType is the declaringClass
 		// AND the invocationType and the declaringClass have a common enclosingType
-		receiverCheck: {
-			if (TypeBinding.notEquals(receiverType, this.declaringClass)) {
-				// special tolerance for type variable direct bounds, but only if compliance <= 1.6, see: https://bugs.eclipse.org/bugs/show_bug.cgi?id=334622
-				if (scope.compilerOptions().complianceLevel <= ClassFileConstants.JDK1_6 && receiverType.isTypeVariable() && ((TypeVariableBinding) receiverType).isErasureBoundTo(this.declaringClass.erasure()))
-					break receiverCheck;
-				return false;
-			}
+		if (TypeBinding.notEquals(receiverType, this.declaringClass)) {
+			return false;
 		}
 
 		if (TypeBinding.notEquals(invocationType, this.declaringClass)) {
@@ -679,7 +669,7 @@ public AnnotationBinding[] getAnnotations() {
 @Override
 public long getAnnotationTagBits() {
 	MethodBinding originalMethod = original();
-	if ((originalMethod.tagBits & TagBits.AnnotationResolved) == 0 && originalMethod.declaringClass instanceof SourceTypeBinding) {
+	if ((originalMethod.extendedTagBits & ExtendedTagBits.AnnotationResolved) == 0 && originalMethod.declaringClass instanceof SourceTypeBinding) {
 		ClassScope scope = ((SourceTypeBinding) originalMethod.declaringClass).scope;
 		if (scope != null) {
 			TypeDeclaration typeDecl = scope.referenceContext;

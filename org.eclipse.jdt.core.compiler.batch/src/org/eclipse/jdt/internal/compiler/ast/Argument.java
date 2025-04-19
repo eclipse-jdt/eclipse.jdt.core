@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -77,7 +77,7 @@ public class Argument extends LocalDeclaration {
 				}
 			}
 		}
-		if ((this.binding.tagBits & TagBits.AnnotationResolved) == 0) {
+		if ((this.binding.extendedTagBits & ExtendedTagBits.AnnotationResolved) == 0) {
 			Annotation[] annots = this.annotations;
 			long sourceLevel = scope.compilerOptions().sourceLevel;
 			if (sourceLevel >= ClassFileConstants.JDK14 && annots == null) {
@@ -87,10 +87,9 @@ public class Argument extends LocalDeclaration {
 			}
 			if (annots != null)
 				resolveAnnotations(scope, annots, this.binding, true);
-			if (sourceLevel >= ClassFileConstants.JDK1_8) {
-				Annotation.isTypeUseCompatible(this.type, scope, annots);
-				scope.validateNullAnnotation(this.binding.tagBits, this.type, annots);
-			}
+
+			Annotation.isTypeUseCompatible(this.type, scope, annots);
+			scope.validateNullAnnotation(this.binding.tagBits, this.type, annots);
 		}
 		this.binding.declaration = this;
 		return this.binding.type; // might have been updated during resolveAnnotations (for typeAnnotations)

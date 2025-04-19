@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.compiler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor.ParameterInfo;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor.TypeParameterInfo;
@@ -50,6 +51,11 @@ public class SourceElementNotifier {
 			int size = this.declaringTypes.size();
 			if (size == 0) return null;
 			return (TypeDeclaration) this.declaringTypes.get(size-1);
+		}
+		@Override
+		public boolean visit(Block block, BlockScope scope) {
+			notifySourceElementRequestor(null, block);
+			return false; // don't visit members as this was done during notifySourceElementRequestor(...)
 		}
 		@Override
 		public boolean visit(TypeDeclaration typeDeclaration, BlockScope scope) {
@@ -510,7 +516,7 @@ public void notifySourceElementRequestor(
 /*
 * Update the bodyStart of the corresponding parse node
 */
-protected void notifySourceElementRequestor(FieldDeclaration fieldDeclaration, TypeDeclaration declaringType) {
+protected void notifySourceElementRequestor(AbstractVariableDeclaration fieldDeclaration, TypeDeclaration declaringType) {
 
 	// range check
 	boolean isInRange =
@@ -530,6 +536,7 @@ protected void notifySourceElementRequestor(FieldDeclaration fieldDeclaration, T
 				}
 			}
 			// $FALL-THROUGH$
+		case AbstractVariableDeclaration.RECORD_COMPONENT:
 		case AbstractVariableDeclaration.FIELD:
 			int fieldEndPosition = this.sourceEnds.get(fieldDeclaration);
 			if (fieldEndPosition == -1) {
@@ -556,7 +563,7 @@ protected void notifySourceElementRequestor(FieldDeclaration fieldDeclaration, T
 				fieldInfo.declarationStart = fieldDeclaration.declarationSourceStart;
 				fieldInfo.name = fieldDeclaration.name;
 				fieldInfo.modifiers = deprecated ? (currentModifiers & ExtraCompilerModifiers.AccJustFlag) | ClassFileConstants.AccDeprecated : currentModifiers & ExtraCompilerModifiers.AccJustFlag;
-				if (fieldDeclaration.isARecordComponent) {
+				if (fieldDeclaration.getKind() == AbstractVariableDeclaration.RECORD_COMPONENT) {
 					fieldInfo.modifiers |= ExtraCompilerModifiers.AccRecord;
 					fieldInfo.isRecordComponent = true;
 				}
@@ -677,6 +684,16 @@ protected void notifySourceElementRequestor(ModuleDeclaration moduleDeclaration)
 //	}
 //
 //}
+protected void notifySourceElementRequestor(CompilationUnitDeclaration parsedUnit, Block block) {
+	boolean isInRange =
+			this.initialPosition <= block.sourceStart
+			&& this.eofPosition >= block.sourceEnd;
+	if (isInRange) {
+		this.requestor.enterBlock(block.sourceStart);
+		this.visitIfNeeded(block);
+		this.requestor.exitBlock(block.sourceEnd);
+	}
+}
 protected void notifySourceElementRequestor(CompilationUnitDeclaration parsedUnit, TypeDeclaration typeDeclaration, boolean notifyTypePresence, TypeDeclaration declaringType, ImportReference currentPackage) {
 
 	if (CharOperation.equals(TypeConstants.PACKAGE_INFO_NAME, typeDeclaration.name)) return;
@@ -686,10 +703,13 @@ protected void notifySourceElementRequestor(CompilationUnitDeclaration parsedUni
 		this.initialPosition <= typeDeclaration.declarationSourceStart
 		&& this.eofPosition >= typeDeclaration.declarationSourceEnd;
 
-	FieldDeclaration[] fields = typeDeclaration.fields;
+	FieldDeclaration[] fields = typeDeclaration.fields == null ? ASTNode.NO_FIELD_DECLARATIONS : typeDeclaration.fields;
+	RecordComponent [] recordComponents = typeDeclaration.recordComponents;
+	AbstractVariableDeclaration[] variableDeclarartions = Stream.concat(Stream.of(recordComponents), Stream.of(fields)).toArray(AbstractVariableDeclaration[]::new);
+
 	AbstractMethodDeclaration[] methods = typeDeclaration.methods;
 	TypeDeclaration[] memberTypes = typeDeclaration.memberTypes;
-	int fieldCounter = fields == null ? 0 : fields.length;
+	int fieldCounter = variableDeclarartions.length;
 	int methodCounter = methods == null ? 0 : methods.length;
 	int memberTypeCounter = memberTypes == null ? 0 : memberTypes.length;
 	int fieldIndex = 0;
@@ -775,14 +795,14 @@ protected void notifySourceElementRequestor(CompilationUnitDeclaration parsedUni
 	while ((fieldIndex < fieldCounter)
 			|| (memberTypeIndex < memberTypeCounter)
 			|| (methodIndex < methodCounter)) {
-		FieldDeclaration nextFieldDeclaration = null;
+		AbstractVariableDeclaration nextFieldDeclaration = null;
 		AbstractMethodDeclaration nextMethodDeclaration = null;
 		TypeDeclaration nextMemberDeclaration = null;
 
 		int position = Integer.MAX_VALUE;
 		int nextDeclarationType = -1;
 		if (fieldIndex < fieldCounter) {
-			nextFieldDeclaration = fields[fieldIndex];
+			nextFieldDeclaration = variableDeclarartions[fieldIndex];
 			if (nextFieldDeclaration.declarationSourceStart < position) {
 				position = nextFieldDeclaration.declarationSourceStart;
 				nextDeclarationType = 0; // FIELD
@@ -955,7 +975,7 @@ private void visitIfNeeded(AbstractMethodDeclaration method) {
 	}
 }
 
-private void visitIfNeeded(FieldDeclaration field, TypeDeclaration declaringType) {
+private void visitIfNeeded(AbstractVariableDeclaration field, TypeDeclaration declaringType) {
 	if (this.localDeclarationVisitor != null
 		&& (field.bits & ASTNode.HasLocalType) != 0) {
 			if (field.initialization != null) {
@@ -975,6 +995,15 @@ private void visitIfNeeded(Initializer initializer) {
 			if (initializer.block != null) {
 				initializer.block.traverse(this.localDeclarationVisitor, null);
 			}
+	}
+}
+private void visitIfNeeded(Block block) {
+	if (this.localDeclarationVisitor != null) {
+		if (block.statements != null) {
+			int statementsLength = block.statements.length;
+			for (int i = 0; i < statementsLength; i++)
+				block.statements[i].traverse(this.localDeclarationVisitor, block.scope);
+		}
 	}
 }
 }

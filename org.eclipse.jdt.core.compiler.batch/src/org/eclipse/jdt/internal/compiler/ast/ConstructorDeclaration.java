@@ -39,7 +39,6 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationCollector;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream;
@@ -96,9 +95,10 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 
 	try {
 		ExplicitConstructorCall lateConstructorCall = getLateConstructorCall();
+		boolean hasArgumentNeedingAnalysis = this.constructorCall != null && this.constructorCall.hasArgumentNeedingAnalysis();
 		if (mode == AnalysisMode.PROLOGUE
 				&& lateConstructorCall == null
-				&& (this.constructorCall == null || !this.constructorCall.hasArgumentNeedingAnalysis())) {
+				&& (!hasArgumentNeedingAnalysis)) {
 			return; // no relevant prologue present
 		}
 
@@ -205,7 +205,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			// propagate to constructor call
 			if (this.constructorCall != null) {
 				flowInfo = this.constructorCall.analyseCode(this.scope, constructorContext, flowInfo);
-				if (mode == AnalysisMode.PROLOGUE && this.constructorCall.hasArgumentNeedingAnalysis())
+				if (mode == AnalysisMode.PROLOGUE && hasArgumentNeedingAnalysis)
 					this.prologueInfo = flowInfo.copy();
 				// if calling 'this(...)', then flag all non-static fields as definitely
 				// set since they are supposed to be set inside other local constructor
@@ -244,10 +244,13 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 					FakedTrackingVariable.cleanUpUnassigned(this.scope, stat, flowInfo, false);
 				}
 				if (mode == AnalysisMode.PROLOGUE && stat == lateConstructorCall) {
-					// lateConstructor implies no this.constructorCall (which is handled above)
-					this.prologueInfo = flowInfo;	// keep for second iteration, also signals the need for REST analysis
-					return;							// we're done for this time
+					break;
 				}
+			}
+			if (mode == AnalysisMode.PROLOGUE) {
+				if (this.prologueInfo == null)		// don't overwrite info stored in the context of this.constructorCall
+					this.prologueInfo = flowInfo;	// keep for second iteration, also signals the need for REST analysis
+				return;								// we're done for this time
 			}
 		}
 	// check for missing returning path
@@ -255,7 +258,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			this.bits |= ASTNode.NeedFreeReturn;
 		}
 
-		if (this.isCompactConstructor()) {
+		if (this.isCompactConstructor() || (this.isCanonicalConstructor() && (this.bits & IsImplicit) != 0)) {
 			for (FieldBinding field : this.binding.declaringClass.fields()) {
 				if (!field.isStatic()) {
 					flowInfo.markAsDefinitelyAssigned(field);
@@ -490,9 +493,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		boolean needFieldInitializations = this.constructorCall == null || this.constructorCall.accessMode != ExplicitConstructorCall.This;
 
 		// post 1.4 target level, synthetic initializations occur prior to explicit constructor call
-		boolean preInitSyntheticFields = this.scope.compilerOptions().targetJDK >= ClassFileConstants.JDK1_4;
-
-		if (needFieldInitializations && preInitSyntheticFields){
+		if (needFieldInitializations){
 			generateSyntheticFieldInitializationsIfNecessary(this.scope, codeStream, declaringClass);
 			codeStream.recordPositionsFrom(0, this.bodyStart > 0 ? this.bodyStart : this.sourceStart);
 		}
@@ -508,9 +509,6 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		ExplicitConstructorCall lateConstructorCall = getLateConstructorCall();
 		// generate field initialization - only if not invoking another constructor call of the same class
 		if (needFieldInitializations) {
-			if (!preInitSyntheticFields){
-				generateSyntheticFieldInitializationsIfNecessary(this.scope, codeStream, declaringClass);
-			}
 			if (lateConstructorCall == null) {
 				// traditionally field inits are generated before explicit statements
 				generateFieldInitializations(declaringType, codeStream, initializerScope);
@@ -534,7 +532,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 			throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult, null);
 		}
 		if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
-			if (this.isCompactConstructor()) {
+			if (this.isCompactConstructor() || (this.isCanonicalConstructor() && (this.bits & IsImplicit) != 0)) {
 				// Note: the body of a compact constructor may not contain a return statement and so will need an injected return
 				for (RecordComponent rc : classScope.referenceContext.recordComponents) {
 					LocalVariableBinding parameter = this.scope.findVariable(rc.name);

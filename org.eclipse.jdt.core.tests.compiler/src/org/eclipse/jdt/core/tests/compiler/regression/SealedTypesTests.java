@@ -2685,11 +2685,6 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 1)\n" +
 			"	record X(permits p) {\n" +
-			"	^\n" +
-			"permits cannot be resolved to a type\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
-			"	record X(permits p) {\n" +
 			"	         ^^^^^^^\n" +
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
@@ -2703,11 +2698,6 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"----------\n" +
 			"1. ERROR in X.java (at line 1)\n" +
-			"	record X(permits p) {\n" +
-			"	^\n" +
-			"permits cannot be resolved to a type\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
 			"	record X(permits p) {\n" +
 			"	         ^^^^^^^\n" +
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
@@ -4187,11 +4177,6 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 1)\n" +
 			"	record X(sealed p) {\n" +
-			"	^\n" +
-			"sealed cannot be resolved to a type\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
-			"	record X(sealed p) {\n" +
 			"	         ^^^^^^\n" +
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
@@ -4206,11 +4191,6 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"----------\n" +
 			"1. ERROR in X.java (at line 1)\n" +
-			"	record X(sealed p) {\n" +
-			"	^\n" +
-			"sealed cannot be resolved to a type\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
 			"	record X(sealed p) {\n" +
 			"	         ^^^^^^\n" +
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +

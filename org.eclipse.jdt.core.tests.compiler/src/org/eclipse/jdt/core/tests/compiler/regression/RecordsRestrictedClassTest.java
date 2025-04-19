@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import junit.framework.Test;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
@@ -684,7 +685,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 7)\n" +
 			"	int z;\n" +
 			"	    ^\n" +
-			"User declared non-static fields z are not permitted in a record\n" +
+			"Instance fields may not be declared in a record class\n" +
 			"----------\n");
 	}
 	public void testBug550750_029() {
@@ -706,7 +707,17 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"interface I {}\n"
 				},
 			"----------\n" +
-			"1. ERROR in X.java (at line 11)\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	this.myInt = myInt;\n" +
+			"	^^^^^^^^^^\n" +
+			"Illegal explicit assignment of a final field myInt in compact constructor\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 9)\n" +
+			"	this.myZ = myZ;\n" +
+			"	^^^^^^^^\n" +
+			"Illegal explicit assignment of a final field myZ in compact constructor\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 11)\n" +
 			"	public native void foo();\n" +
 			"	                   ^^^^^\n" +
 			"Illegal modifier native for method foo; native methods are not allowed in record\n" +
@@ -918,7 +929,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 7)\n" +
 			"	private int f;\n" +
 			"	            ^\n" +
-			"User declared non-static fields f are not permitted in a record\n" +
+			"Instance fields may not be declared in a record class\n" +
 			"----------\n");
 	}
 	public void testBug550750_041() {
@@ -2416,51 +2427,19 @@ public void testBug558718_001() {
 		"----------\n" +
 		"1. ERROR in X.java (at line 1)\n" +
 		"	record R() {}\n" +
-		"	       ^\n" +
-		"The Java feature \'Records\' is only available with source level 16 and above\n" +
-		"----------\n",
-		null,
-		true,
-		options
-	);
-}
-@SuppressWarnings({ "unchecked", "rawtypes" })
-public void testBug558718_002() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-	new String[] {
-			"X.java",
-			"record R() {}\n",
-		},
+		"	^\n" +
+		"The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 25 and above\n" +
 		"----------\n" +
-				"1. ERROR in X.java (at line 1)\n" +
-				"	record R() {}\n" +
-				"	       ^\n" +
-				"The Java feature \'Records\' is only available with source level 16 and above\n" +
-				"----------\n",
-		null,
-		true,
-		options
-	);
-}
-@SuppressWarnings({ "unchecked", "rawtypes" })
-public void testBug558718_003() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-	new String[] {
-			"X.java",
-			"record R() {}\n",
-		},
-	"----------\n" +
-	"1. ERROR in X.java (at line 1)\n" +
-	"	record R() {}\n" +
-	"	       ^\n" +
-	"The Java feature \'Records\' is only available with source level 16 and above\n" +
-	"----------\n",
+		"2. ERROR in X.java (at line 1)\n" +
+		"	record R() {}\n" +
+		"	^^^^^^\n" +
+		"'record' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 1)\n" +
+		"	record R() {}\n" +
+		"	^\n" +
+		"Implicitly declared class must have a candidate main method\n" +
+		"----------\n",
 		null,
 		true,
 		options
@@ -2545,7 +2524,7 @@ public void testBug561528_004() {
 			},
 		"0");
 }
-public void testBug561528_005() {
+public void testBug561528_005() { // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3880 - second error is due to bad recovery
 	this.runNegativeTest(
 			new String[] {
 					"X.java",
@@ -2565,6 +2544,11 @@ public void testBug561528_005() {
 		"	record R <N extends Node<AB<CD<N>>>>> (N value){\n" +
 		"	                                ^^^\n" +
 		"Syntax error on token \">>>\", >> expected\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 12)\n" +
+		"	record R <N extends Node<AB<CD<N>>>>> (N value){\n" +
+		"	                                         ^^^^^\n" +
+		"Instance fields may not be declared in a record class\n" +
 		"----------\n",
 		null,
 		true
@@ -5087,10 +5071,15 @@ public void testBug564672_019() {
 		"----------\n" +
 		"2. ERROR in X.java (at line 3)\n" +
 		"	record r=new record(i,j);\n" +
+		"	       ^\n" +
+		"Instance fields may not be declared in a record class\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 3)\n" +
+		"	record r=new record(i,j);\n" +
 		"	             ^^^^^^\n" +
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n" +
-		"3. ERROR in X.java (at line 4)\n" +
+		"4. ERROR in X.java (at line 4)\n" +
 		"	return r;\n" +
 		"	^^^^^^\n" +
 		"Syntax error on token \"return\", byte expected\n" +
@@ -5124,14 +5113,19 @@ public void testBug564672_020() {
 		"----------\n" +
 		"3. ERROR in X.java (at line 4)\n" +
 		"	record r=new record();\n" +
+		"	       ^\n" +
+		"Instance fields may not be declared in a record class\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 4)\n" +
+		"	record r=new record();\n" +
 		"	             ^^^^^^\n" +
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n" +
-		"4. ERROR in X.java (at line 5)\n" +
+		"5. ERROR in X.java (at line 5)\n" +
 		"	return r;\n" +
 		"	^^^^^^\n" +
 		"Syntax error on token \"return\", byte expected\n" +
-			"----------\n");
+		"----------\n");
 }
 public void testBug564672_021() {
 	this.runConformTest(
@@ -5632,11 +5626,6 @@ public void testBug564672_042() {
 		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 1)\n" +
-		"	record Point(record x, int i) { }\n" +
-		"	^\n" +
-		"record cannot be resolved to a type\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
 		"	record Point(record x, int i) { }\n" +
 		"	             ^^^^^^\n" +
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
@@ -6331,10 +6320,15 @@ public void testBug564672b_019() {
 		"----------\n" +
 		"2. ERROR in X.java (at line 3)\n" +
 		"	record r=new record(i,j);\n" +
+		"	       ^\n" +
+		"Instance fields may not be declared in a record class\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 3)\n" +
+		"	record r=new record(i,j);\n" +
 		"	             ^^^^^^\n" +
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n" +
-		"3. ERROR in X.java (at line 4)\n" +
+		"4. ERROR in X.java (at line 4)\n" +
 		"	return r;\n" +
 		"	^^^^^^\n" +
 		"Syntax error on token \"return\", byte expected\n" +
@@ -9681,5 +9675,100 @@ public void testPR3675() {
 			"	^\n" +
 			"A canonical constructor is allowed only in record classes\n" +
 			"----------\n");
+}
+
+public void testGH3891() {
+	runNegativeTest(new String[] {
+		"Test.java",
+		"""
+		public class Test {
+			{
+				super();
+			}
+		}
+		"""
+		},
+		"""
+		----------
+		1. ERROR in Test.java (at line 3)
+			super();
+			^^^^^^^^
+		Constructor call must be the first statement in a constructor
+		----------
+		""");
+}
+public void testGH3891_preview() {
+	if (this.complianceLevel < ClassFileConstants.JDK24) return;
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+	runner.testFiles = new String[] {
+		"Test.java",
+		"""
+		public class Test {
+			{
+				super();
+			}
+		}
+		"""
+		};
+	runner.expectedCompilerLog =
+		"""
+		----------
+		1. ERROR in Test.java (at line 3)
+			super();
+			^^^^^^^^
+		Constructor call must be the first statement in a constructor
+		----------
+		""";
+	runner.runNegativeTest();
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3904
+// Unused parameters warning reported for record components
+public void testIssue3904() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.ERROR);
+	this.runNegativeTest(
+	new String[] {
+			"X.java",
+			"class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Pair p = new Pair(\"4\", \"2\");\n" +
+			"		System.out.println(p.fTag() + p.fContent());\n" +
+			"	}\n" +
+			"	public record Pair(String fTag, String fContent) {}\n" + // should NOT warn on implicit constructor
+			"   public void foo(int unused) {\n" + // should warn on unused parameter of non-constructor
+			"   }\n" +
+			"   public record Person(String name, int age) {\n" +
+			"       public Person(String name, int age) {\n" + // Should warn here
+			"           this.name = null; this.age = 0;\n" +
+			"       }\n" +
+			"   }\n" +
+			"   public record Point (int x, int y) {\n" +
+			"       public Point {}\n" + // no warning here
+			"   }\n"+
+			"\n" +
+			"}\n",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	public void foo(int unused) {\n" +
+		"	                    ^^^^^^\n" +
+		"The value of the parameter unused is not used\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 10)\n" +
+		"	public Person(String name, int age) {\n" +
+		"	                     ^^^^\n" +
+		"The value of the parameter name is not used\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 10)\n" +
+		"	public Person(String name, int age) {\n" +
+		"	                               ^^^\n" +
+		"The value of the parameter age is not used\n" +
+		"----------\n",
+		null,
+		true,
+		options
+	);
 }
 }

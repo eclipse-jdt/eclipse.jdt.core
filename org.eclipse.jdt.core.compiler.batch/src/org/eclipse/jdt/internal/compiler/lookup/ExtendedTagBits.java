@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2024 IBM Corporation and others.
+ * Copyright (c) 2020, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -33,4 +33,9 @@ public interface ExtendedTagBits {
 	int IsClosingMethod = ASTNode.Bit1; // method
 
 	int HasMissingOwningAnnotation = ASTNode.Bit2; // method/ctor or field
+
+	int AnnotationResolved = ASTNode.Bit6;
+	int DeprecatedAnnotationResolved = ASTNode.Bit7;
+	int NullDefaultAnnotationResolved = ASTNode.Bit8; // package, type, method or variable
+	int AllAnnotationsResolved = ExtendedTagBits.AnnotationResolved | ExtendedTagBits.DeprecatedAnnotationResolved | ExtendedTagBits.NullDefaultAnnotationResolved;
 }

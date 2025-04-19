@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 IBM Corporation and others.
+ * Copyright (c) 2020, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -82,11 +82,11 @@ public class RecordComponentBinding extends VariableBinding {
 	@Override
 	public long getAnnotationTagBits() {
 		RecordComponentBinding originalRecordComponentBinding = original();
-		if ((originalRecordComponentBinding.tagBits & TagBits.AnnotationResolved) == 0 &&
+		if ((originalRecordComponentBinding.extendedTagBits & ExtendedTagBits.AnnotationResolved) == 0 &&
 				originalRecordComponentBinding.declaringRecord instanceof SourceTypeBinding) {
 			ClassScope scope = ((SourceTypeBinding) originalRecordComponentBinding.declaringRecord).scope;
 			if (scope == null) {// should not be true - but safety net
-				this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+				this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 				return 0;
 			}
 			TypeDeclaration typeDecl = scope.referenceContext;
