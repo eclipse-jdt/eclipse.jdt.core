@@ -40,7 +40,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.Runtime.Version;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -206,15 +211,7 @@ public class Parser implements ParserBasicInformation, ConflictedParser, Operato
 					int index = Integer.parseInt(tokens[i + 1]);
 					String token = tokens[i + 2].trim();
 					long compliance = 0;
-					if("1.4".equals(token)) { //$NON-NLS-1$
-						compliance = ClassFileConstants.JDK1_4;
-					} else if("1.5".equals(token)) { //$NON-NLS-1$
-						compliance = ClassFileConstants.JDK1_5;
-					} else if("1.6".equals(token)) { //$NON-NLS-1$
-						compliance = ClassFileConstants.JDK1_6;
-					} else if("1.7".equals(token)) { //$NON-NLS-1$
-						compliance = ClassFileConstants.JDK1_7;
-					} else if("1.8".equals(token)) { //$NON-NLS-1$
+					if("1.8".equals(token)) { //$NON-NLS-1$
 						compliance = ClassFileConstants.JDK1_8;
 					}  else if("9".equals(token)) { //$NON-NLS-1$
 						compliance = ClassFileConstants.JDK9;
@@ -923,7 +920,7 @@ protected int lastJavadocEnd;
 public org.eclipse.jdt.internal.compiler.ReadManager readManager;
 protected int valueLambdaNestDepth = -1;
 private int stateStackLengthStack[] = new int[0];
-protected boolean parsingJava8Plus;
+final protected boolean parsingJava8Plus = true;
 protected boolean parsingJava9Plus;
 protected boolean parsingJava14Plus;
 protected boolean parsingJava15Plus;
@@ -940,7 +937,6 @@ private boolean processingLambdaParameterList = false;
 private boolean expectTypeAnnotation = false;
 private boolean reparsingFunctionalExpression = false;
 
-private Map<TypeDeclaration, Integer[]> recordNestedMethodLevels;
 protected boolean parsingRecordComponents = false;
 
 public Parser () {
@@ -952,7 +948,6 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.options = problemReporter.options;
 	this.optimizeStringLiterals = optimizeStringLiterals;
 	initializeScanner();
-	this.parsingJava8Plus = this.options.sourceLevel >= ClassFileConstants.JDK1_8;
 	this.parsingJava9Plus = this.options.sourceLevel >= ClassFileConstants.JDK9;
 	this.parsingJava11Plus = this.options.sourceLevel >= ClassFileConstants.JDK11;
 	this.parsingJava14Plus = this.options.sourceLevel >= ClassFileConstants.JDK14;
@@ -972,9 +967,6 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.realBlockStack = new int[30];
 	this.identifierPositionStack = new long[30];
 	this.variablesCounter = new int[30];
-
-	this.recordNestedMethodLevels = new HashMap<>();
-
 	// javadoc support
 	this.javadocParser = createJavadocParser();
 }
@@ -1294,22 +1286,12 @@ protected AllocationExpression newAllocationExpression(boolean isQualified) {
 protected void checkForDiamond(TypeReference allocType) {
 	if (allocType instanceof ParameterizedSingleTypeReference type) {
 		if (type.typeArguments == TypeReference.NO_TYPE_ARGUMENTS) {
-			if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
-				problemReporter().diamondNotBelow17(allocType);
-			}
-			if (this.options.sourceLevel > ClassFileConstants.JDK1_4) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=351965
-				type.bits |= ASTNode.IsDiamond;
-			} // else don't even bother to recognize this as <>
+			type.bits |= ASTNode.IsDiamond;
 		}
 	}
 	else if (allocType instanceof ParameterizedQualifiedTypeReference type) {
 		if (type.typeArguments[type.typeArguments.length - 1] == TypeReference.NO_TYPE_ARGUMENTS) { // Don't care for X<>.Y<> and X<>.Y<String>
-			if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
-				problemReporter().diamondNotBelow17(allocType, type.typeArguments.length - 1);
-			}
-			if (this.options.sourceLevel > ClassFileConstants.JDK1_4) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=351965
-				type.bits |= ASTNode.IsDiamond;
-			} // else don't even bother to recognize this as <>
+			type.bits |= ASTNode.IsDiamond;
 		}
 	}
 }
@@ -1597,11 +1579,6 @@ protected void consumeAnnotationTypeDeclarationHeaderName() {
 	annotationTypeDeclaration.javadoc = this.javadoc;
 	this.javadoc = null;
 	pushOnAstStack(annotationTypeDeclaration);
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		problemReporter().invalidUsageOfAnnotationDeclarations(annotationTypeDeclaration);
-	}
 
 	// recovery
 	if (this.currentElement != null){
@@ -1683,11 +1660,6 @@ protected void consumeAnnotationTypeDeclarationHeaderNameWithTypeParameters() {
 	annotationTypeDeclaration.javadoc = this.javadoc;
 	this.javadoc = null;
 	pushOnAstStack(annotationTypeDeclaration);
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		problemReporter().invalidUsageOfAnnotationDeclarations(annotationTypeDeclaration);
-	}
 
 	// recovery
 	if (this.currentElement != null){
@@ -2212,9 +2184,6 @@ protected void consumeCastExpressionLL1() {
 	cast.sourceEnd=exp.sourceEnd;
 }
 public IntersectionCastTypeReference createIntersectionCastTypeReference(TypeReference[] typeReferences) {
-	if (this.options.sourceLevel < ClassFileConstants.JDK1_8) {
-		problemReporter().intersectionCastNotBelow18(typeReferences);
-	}
 	return new IntersectionCastTypeReference(typeReferences);
 }
 protected void consumeCastExpressionLL1WithBounds() {
@@ -2440,9 +2409,6 @@ protected void consumeCatchType() {
 				length);
 		UnionTypeReference typeReference = new UnionTypeReference(typeReferences);
 		pushOnAstStack(typeReference);
-		if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
-			problemReporter().multiCatchNotBelow17(typeReference);
-		}
 	} else {
 		// push back the type reference
 		pushOnAstLengthStack(1);
@@ -2487,6 +2453,7 @@ protected void consumeClassBodyopt() {
 }
 protected void consumeClassDeclaration() {
 	// ClassDeclaration ::= ClassHeader ClassBody
+	// RecordDeclaration ::= RecordHeaderPart ClassBody
 
 	int length;
 	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
@@ -2500,11 +2467,14 @@ protected void consumeClassDeclaration() {
 	//convert constructor that do not have the type's name into methods
 	boolean hasConstructor = typeDecl.checkConstructors(this);
 
-	//add the default constructor when needed (interface don't have it)
-	if (!hasConstructor) {
+	// add the default constructor when needed (interface don't have it)
+	// availability of _some_ constructor for a record class does not obviate the need for canonical constructor, we go ahead and generate one weeding out
+	// duplicates later. This is how things have been forever, we retain the behavior for now, but this will change and get cleaned up later.
+	if (!hasConstructor || typeDecl.isRecord()) {
 		switch(TypeDeclaration.kind(typeDecl.modifiers)) {
 			case TypeDeclaration.CLASS_DECL :
 			case TypeDeclaration.ENUM_DECL :
+			case TypeDeclaration.RECORD_DECL :
 				boolean insideFieldInitializer = false;
 				if (this.diet) {
 					for (int i = this.nestedType; i > 0; i--){
@@ -2517,10 +2487,14 @@ protected void consumeClassDeclaration() {
 				typeDecl.createDefaultConstructor(!(this.diet && this.dietInt == 0) || insideFieldInitializer, true);
 		}
 	}
-	//always add <clinit> (will be remove at code gen time if empty)
+
+	if (typeDecl.isRecord())
+		typeDecl.getConstructor(this); // will get cleaned up in due course.
+
 	if (this.scanner.containsAssertKeyword) {
 		typeDecl.bits |= ASTNode.ContainsAssertion;
 	}
+	//always add <clinit> (will be remove at code gen time if empty)
 	typeDecl.addClinit();
 	typeDecl.bodyEnd = this.endStatementPosition;
 	if (length == 0 && !containsComment(typeDecl.bodyStart, typeDecl.bodyEnd)) {
@@ -2990,6 +2964,9 @@ protected void consumeConstructorHeaderName(boolean isCompact) {
 										}
 									};
 
+	if (isCompact)
+		cd.bits |= ASTNode.IsCanonicalConstructor;
+
 	//name -- this is not really revelant but we do .....
 	cd.selector = this.identifierStack[this.identifierPtr];
 	long selectorSource = this.identifierPositionStack[this.identifierPtr--];
@@ -3296,12 +3273,6 @@ protected void consumeEnhancedForStatementHeader(){
 	statement.elementVariable.declarationSourceEnd = collection.sourceEnd;
 	statement.elementVariable.declarationEnd = collection.sourceEnd;
 	statement.sourceEnd = this.rParenPos;
-
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		problemReporter().invalidUsageOfForeachStatements(statement.elementVariable, collection);
-	}
 }
 protected void consumeEnhancedForStatementHeaderInit(boolean hasModifiers) {
 	TypeReference type;
@@ -3438,45 +3409,6 @@ protected void consumeEnterMemberValueArrayInitializer() {
 		this.currentElement.bracketBalance++;
 	}
 }
-private boolean isAFieldDeclarationInRecord() {
-	if (this.options.sourceLevel < ClassFileConstants.JDK16)
-		return false;
-	int recordIndex = -1;
-	Integer[] nestingTypeAndMethod = null;
-	for (int i = this.astPtr; i >= 0; --i) {
-		if (this.astStack[i] instanceof TypeDeclaration node) {
-			if (!node.isRecord())
-				continue;
-			nestingTypeAndMethod = this.recordNestedMethodLevels.get(node);
-			if (nestingTypeAndMethod != null) { // record declaration is done yet
-				if (nestingTypeAndMethod[0] != this.nestedType
-					|| nestingTypeAndMethod[1] != this.nestedMethod[this.nestedType])
-					return false;
-				recordIndex = i;
-				break;
-			}
-		}
-	}
-	if (recordIndex < 0)
-		return false;
-	for (int i = recordIndex + 1; i <= this.astPtr; ++i) {
-		ASTNode node = this.astStack[i];
-		if (node instanceof TypeDeclaration) {
-			if (node.sourceEnd < 0) {
-				return false;
-			}
-		} else if (node instanceof AbstractMethodDeclaration) {
-			if (this.nestedType != nestingTypeAndMethod[0] ||
-					this.nestedMethod[this.nestedType] != nestingTypeAndMethod[1])
-				return false;
-		} else if (node instanceof FieldDeclaration) {
-			continue;
-		} else {
-			return false;
-		}
-	}
-	return true;
-}
 protected void consumeEnterVariable() {
 	// EnterVariable ::= $empty
 	// do nothing by default
@@ -3488,8 +3420,7 @@ protected void consumeEnterVariable() {
 	Annotation [][] annotationsOnExtendedDimensions = extendedDimensions == 0 ? null : getAnnotationsOnDimensions(extendedDimensions);
 	AbstractVariableDeclaration declaration;
 	// create the ast node
-	boolean isLocalDeclaration = this.nestedMethod[this.nestedType] != 0 &&
-									!isAFieldDeclarationInRecord();
+	boolean isLocalDeclaration = this.nestedMethod[this.nestedType] != 0;
 	if (isLocalDeclaration) {
 		// create the local variable declarations
 		declaration =
@@ -3858,13 +3789,6 @@ protected void consumeEnumHeaderName() {
 
 	this.listLength = 0; // will be updated when reading super-interfaces
 
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		//TODO this code will be never run while 'enum' is an identifier in 1.3 scanner
-		problemReporter().invalidUsageOfEnumDeclarations(enumDeclaration);
-	}
-
 	// recovery
 	if (this.currentElement != null){
 		this.lastCheckPoint = enumDeclaration.bodyStart;
@@ -3943,13 +3867,6 @@ protected void consumeEnumHeaderNameWithTypeParameters() {
 	pushOnAstStack(enumDeclaration);
 
 	this.listLength = 0; // will be updated when reading super-interfaces
-
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		//TODO this code will be never run while 'enum' is an identifier in 1.3 scanner
-		problemReporter().invalidUsageOfEnumDeclarations(enumDeclaration);
-	}
 
 	// recovery
 	if (this.currentElement != null){
@@ -4897,13 +4814,8 @@ protected void consumeInterfaceMethodDeclaration(boolean hasSemicolonBody) {
 	boolean isStatic = (md.modifiers & ClassFileConstants.AccStatic) != 0;
 	boolean isPrivate = (md.modifiers & ClassFileConstants.AccPrivate) != 0;
 	boolean bodyAllowed = (this.parsingJava9Plus && isPrivate) || isDefault || isStatic;
-	if (this.parsingJava8Plus) {
-		if (bodyAllowed && hasSemicolonBody) {
-			md.modifiers |= ExtraCompilerModifiers.AccSemicolonBody; // avoid complaints regarding undocumented empty body
-		}
-	} else {
-		if (isDefault) problemReporter().defaultMethodsNotBelow18(md);
-		if (isStatic) problemReporter().staticInterfaceMethodsNotBelow18(md);
+	if (bodyAllowed && hasSemicolonBody) {
+		md.modifiers |= ExtraCompilerModifiers.AccSemicolonBody; // avoid complaints regarding undocumented empty body
 	}
 	if (!bodyAllowed && !this.statementRecoveryActivated && !hasSemicolonBody) {
 		problemReporter().abstractMethodNeedingNoBody(md);
@@ -5021,11 +4933,6 @@ protected void consumeMarkerAnnotation(boolean isTypeAnnotation) {
 	} else {
 		pushOnExpressionStack(markerAnnotation);
 	}
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		problemReporter().invalidUsageOfAnnotation(markerAnnotation);
-	}
 	this.recordStringLiterals = true;
 
 	if (this.currentElement instanceof RecoveredAnnotation recoveredAnnotation) {
@@ -5125,11 +5032,7 @@ protected void consumeMethodDeclaration(boolean isNotAbstract, boolean isDefault
 	md.bodyEnd = this.endPosition;
 	md.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
 	if (isDefaultMethod && !this.tolerateDefaultClassMethods) {
-		if (this.options.sourceLevel >= ClassFileConstants.JDK1_8) {
-			problemReporter().defaultModifierIllegallySpecified(md.sourceStart, md.sourceEnd);
-		} else {
-			problemReporter().illegalModifierForMethod(md);
-		}
+		problemReporter().defaultModifierIllegallySpecified(md.sourceStart, md.sourceEnd);
 	}
 }
 protected void consumeMethodHeader() {
@@ -5578,13 +5481,6 @@ protected void consumeTypeAnnotation() {
 	// TypeAnnotation ::= NormalTypeAnnotation
 	// TypeAnnotation ::= MarkerTypeAnnotation
 	// TypeAnnotation ::= SingleMemberTypeAnnotation
-
-	if (!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_8 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		Annotation annotation = this.typeAnnotationStack[this.typeAnnotationPtr];
-		problemReporter().invalidUsageOfTypeAnnotations(annotation);
-	}
 	this.dimensions = this.intStack[this.intPtr--]; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=417660
 }
 protected void consumeOneMoreTypeAnnotation() {
@@ -5653,11 +5549,6 @@ protected void consumeNormalAnnotation(boolean isTypeAnnotation) {
 		}
 	}
 
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		problemReporter().invalidUsageOfAnnotation(normalAnnotation);
-	}
 	this.recordStringLiterals = true;
 }
 protected void consumeOneDimLoop(boolean isAnnotated) {
@@ -5675,14 +5566,7 @@ protected void consumeOnlySynchronized() {
 	this.expressionLengthPtr--;
 }
 protected void consumeOnlyTypeArguments() {
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		int length = this.genericsLengthStack[this.genericsLengthPtr];
-		problemReporter().invalidUsageOfTypeArguments(
-			(TypeReference)this.genericsStack[this.genericsPtr - length + 1],
-			(TypeReference)this.genericsStack[this.genericsPtr]);
-	}
+// noop on 1.8+
 }
 protected void consumeOnlyTypeArgumentsForCastExpression() {
 	// OnlyTypeArgumentsForCastExpression ::= OnlyTypeArguments
@@ -5702,10 +5586,8 @@ protected void consumeOpenBlock() {
 }
 protected void consumePackageComment() {
 	// get possible comment for syntax since 1.5
-	if(this.options.sourceLevel >= ClassFileConstants.JDK1_5) {
-		checkComment();
-		resetModifiers();
-	}
+	checkComment();
+	resetModifiers();
 }
 protected void consumeInternalCompilationUnitWithModuleDeclaration() {
 	this.compilationUnit.moduleDeclaration = (ModuleDeclaration)this.astStack[this.astPtr--];
@@ -7106,7 +6988,7 @@ protected void consumeRule(int act) {
 		    consumeInvalidConstructorDeclaration(false); 			break;
 
     case 331 : if (DEBUG) { System.out.println("RecordDeclaration ::= RecordHeaderPart ClassBody"); }  //$NON-NLS-1$
-		    consumeRecordDeclaration(); 			break;
+		    consumeClassDeclaration(); 			break;
 
     case 332 : if (DEBUG) { System.out.println("RecordHeaderPart ::= RecordHeaderName RecordHeader..."); }  //$NON-NLS-1$
 		    consumeRecordHeaderPart(); 			break;
@@ -8436,9 +8318,6 @@ protected void consumeLambdaExpression() {
 	if (body instanceof Expression expression && expression.isTrulyExpression()) {
 		expression.statementEnd = body.sourceEnd;
 	}
-	if (!this.parsingJava8Plus) {
-		problemReporter().lambdaExpressionsNotBelow18(lexp);
-	}
 	setArgumentsTypeVar(lexp);
 	pushOnExpressionStack(lexp);
 	if (this.currentElement != null) {
@@ -8649,9 +8528,6 @@ protected void consumeReferenceExpressionSuperForm() {
 }
 protected void consumeReferenceExpression(ReferenceExpression referenceExpression) {
 	pushOnExpressionStack(referenceExpression);
-	if (!this.parsingJava8Plus) {
-		problemReporter().referenceExpressionsNotBelow18(referenceExpression);
-	}
 	stashTextualRepresentation(referenceExpression);
 	this.referenceContext.compilationResult().hasFunctionalTypes = true;
 	markEnclosingMemberWithLocalOrFunctionalType(LocalTypeKind.METHOD_REFERENCE);
@@ -8736,12 +8612,6 @@ protected void consumeSingleMemberAnnotation(boolean isTypeAnnotation) {
 			this.currentElement = recoveredAnnotation.addAnnotation(singleMemberAnnotation, oldIndex);
 		}
 	}
-
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		problemReporter().invalidUsageOfAnnotation(singleMemberAnnotation);
-	}
 	this.recordStringLiterals = true;
 }
 protected void consumeSingleMemberAnnotationMemberValue() {
@@ -8793,13 +8663,6 @@ protected void consumeSingleModifierImportDeclarationName(int modifier) {
 	impt.declarationEnd = impt.declarationSourceEnd;
 	//this.endPosition is just before the ;
 	impt.declarationSourceStart = this.intStack[this.intPtr--];
-
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		impt.modifiers = ClassFileConstants.AccDefault; // convert the static import reference to a non-static importe reference
-		problemReporter().invalidUsageOfStaticImports(impt);
-	}
 
 	if (modifier == ClassFileConstants.AccModule)
 		impt.bits |= ASTNode.OnDemand; // implicitly
@@ -9173,9 +9036,6 @@ protected void consumeStatementTry(boolean withFinally, boolean hasResources) {
 
 		tryStmt.resources = stmts;
 
-		if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
-			problemReporter().autoManagedResourcesNotBelow17(stmts);
-		}
 		if (this.options.sourceLevel < ClassFileConstants.JDK9) {
 			for (Statement stmt : stmts) {
 				if (stmt instanceof FieldReference || stmt instanceof NameReference) {
@@ -9231,13 +9091,6 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 	impt.declarationEnd = impt.declarationSourceEnd;
 	//this.endPosition is just before the ;
 	impt.declarationSourceStart = this.intStack[this.intPtr--];
-
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		impt.modifiers = ClassFileConstants.AccDefault; // convert the static import reference to a non-static importe reference
-		problemReporter().invalidUsageOfStaticImports(impt);
-	}
 
 	// recovery
 	if (this.currentElement != null){
@@ -9878,15 +9731,6 @@ protected void consumeTypeArgumentReferenceType2() {
 protected void consumeTypeArguments() {
 	concatGenericsLists();
 	this.intPtr--;
-
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		int length = this.genericsLengthStack[this.genericsLengthPtr];
-		problemReporter().invalidUsageOfTypeArguments(
-			(TypeReference)this.genericsStack[this.genericsPtr - length + 1],
-			(TypeReference)this.genericsStack[this.genericsPtr]);
-	}
 }
 protected void consumeTypeDeclarations() {
 	// TypeDeclarations ::= TypeDeclarations TypeDeclaration
@@ -10024,16 +9868,6 @@ protected void consumeTypeParameters() {
 		System.arraycopy(this.genericsStack, this.genericsPtr - length + 1, typeParameters, 0, length);
 
 		recoveredType.add(typeParameters, startPos);
-	}
-
-
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5&&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		int length = this.genericsLengthStack[this.genericsLengthPtr];
-		problemReporter().invalidUsageOfTypeParameters(
-			(TypeParameter) this.genericsStack[this.genericsPtr - length + 1],
-			(TypeParameter) this.genericsStack[this.genericsPtr]);
 	}
 }
 protected void consumeTypeParameterWithExtends() {
@@ -10401,45 +10235,7 @@ protected void consumeWildcardWithBounds() {
 	// Nothing to do
 	// The wildcard is created by the consumeWildcardBoundsExtends or by consumeWildcardBoundsSuper
 }
-/* Java 14 preview - records */
-protected void consumeRecordDeclaration() {
-	// RecordDeclaration ::= RecordHeaderPart RecordBody
-
-	int length;
-	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
-		//there are length declarations
-		//dispatch according to the type of the declarations
-		dispatchDeclarationIntoRecordDeclaration(length);
-	}
-
-	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
-	this.recordNestedMethodLevels.remove(typeDecl);
-	problemReporter().validateJavaFeatureSupport(JavaFeature.RECORDS, typeDecl.sourceStart, typeDecl.sourceEnd);
-	/* create canonical constructor - check for the clash later at binding time */
-	/* https://github.com/eclipse-jdt/eclipse.jdt.core/issues/365 */
-	typeDecl.createDefaultConstructor(!(this.diet && this.dietInt == 0), true);
-	//convert constructor that do not have the type's name into methods
-	ConstructorDeclaration cd = typeDecl.getConstructor(this);
-	if (cd.isCompactConstructor()
-		|| ((typeDecl.recordComponents == null || typeDecl.recordComponents.length == 0)
-		&& (cd.arguments == null || cd.arguments.length == 0))) {
-		cd.bits |= ASTNode.IsCanonicalConstructor;
-	}
-	if (this.scanner.containsAssertKeyword) {
-		typeDecl.bits |= ASTNode.ContainsAssertion;
-	}
-	typeDecl.addClinit();
-	typeDecl.bodyEnd = this.endStatementPosition;
-	if (length == 0 && !containsComment(typeDecl.bodyStart, typeDecl.bodyEnd)) {
-		typeDecl.bits |= ASTNode.UndocumentedEmptyBlock;
-	}
-	char[][] sources = TypeConstants.JAVA_LANG_RECORD;
-	long[] poss = new long[sources.length];
-	Arrays.fill(poss, 0);
-	TypeReference superClass = new QualifiedTypeReference(sources, poss);
-	typeDecl.superclass = superClass;
-	typeDecl.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
-}
+/* Java 16 - records */
 protected void consumeRecordHeaderPart() {
 	// RecordHeaderPart ::= RecordHeaderName RecordHeader ClassHeaderImplementsopt
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
@@ -10465,10 +10261,6 @@ protected void consumeRecordComponentHeaderRightParen() {
 	int length = this.astLengthStack[this.astLengthPtr--];
 	this.astPtr -= length;
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
-	int nestedMethodLevel = this.nestedMethod[this.nestedType];
-	this.recordNestedMethodLevels.put(typeDecl, new Integer[] {this.nestedType, nestedMethodLevel});
-	this.astStack[this.astPtr] = typeDecl;
-//	rd.sourceEnd = 	this.rParenPos;
 	if (length != 0) {
 		RecordComponent[] recComps = new RecordComponent[length];
 		System.arraycopy(
@@ -10478,7 +10270,7 @@ protected void consumeRecordComponentHeaderRightParen() {
 				0,
 				length);
 		typeDecl.recordComponents = recComps;
-		convertToFields(typeDecl, recComps);
+		typeDecl.nRecordComponents = recComps.length;
 	} else {
 		typeDecl.recordComponents = ASTNode.NO_RECORD_COMPONENTS;
 	}
@@ -10491,84 +10283,6 @@ protected void consumeRecordComponentHeaderRightParen() {
 	}
 	resetModifiers();
 }
-private void convertToFields(TypeDeclaration typeDecl, RecordComponent[] recComps) {
-	int length = recComps.length;
-	FieldDeclaration[] fields = new FieldDeclaration[length];
-	int nFields = 0;
-	Set<String> argsSet = new HashSet<>();
-	for (int i = 0, max = recComps.length; i < max; i++) {
-		RecordComponent recComp = recComps[i];
-		String argName = new String(recComp.name);
-		if (TypeDeclaration.disallowedComponentNames.contains(argName)) {
-			problemReporter().recordIllegalComponentNameInRecord(recComp, typeDecl);
-			continue;
-		}
-		if (argsSet.contains(argName)) {
-			// flag the error at the place where duplicate params of methods would have been flagged.
-			continue;
-		}
-		if (recComp.type.getLastToken() == TypeConstants.VOID) {
-			problemReporter().recordComponentCannotBeVoid(recComp);
-			continue;
-		}
-		if (recComp.isVarArgs() && i < max - 1)
-			problemReporter().recordIllegalVararg(recComp, typeDecl);
-
-		argsSet.add(argName);
-		FieldDeclaration f = fields[nFields++] = createFieldDeclaration(recComp.name, recComp.sourceStart, recComp.sourceEnd);
-		f.bits = recComp.bits;
-		f.declarationSourceStart = recComp.declarationSourceStart;
-		f.declarationEnd = recComp.declarationEnd;
-		f.declarationSourceEnd = recComp.declarationSourceEnd;
-		f.endPart1Position = recComp.sourceEnd; //TODO BETA_JAVA14 - recheck
-		f.endPart2Position = recComp.declarationSourceEnd;
-		f.modifiers = ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal;
-		// Note: JVMS 14 S 4.7.8 The Synthetic Attribute mandates do not mark Synthetic for Record compoents.
-		// hence marking this "explicitly" as implicit.
-		f.isARecordComponent = true;
-		/*
-		 * JLS 14 Sec 8.10.1 Record Header
-		 * The record header declares a number of record components. The record components
-		 * declare the fields of the record class. Each record component in the RecordHeader
-		 * declares one private final field in the record class whose name is same as the
-		 * Identifier in the record component.
-		 *
-		 * JLS 14 Sec 8.10.3 Record Components
-		 * For each record component appearing in the record component list:
-		 * An implicitly declared private final field with the same name as the record
-		 * component and the type as the declared type of the record component.
-		 */
-		f.modifiers |= ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal;
-		f.modifiers |= ExtraCompilerModifiers.AccRecord;
-		f.modifiersSourceStart = recComp.modifiersSourceStart;
-		f.sourceStart = recComp.sourceStart;
-		f.sourceEnd = recComp.sourceEnd;
-		f.type = recComp.type;
-		/*
-		 * JLS 14 SEC 8.10.3 Item 1 says the following:
-		 *  "This field is annotated with the annotation that appears on the corresponding
-		 *  record component, if this annotation type is applicable to a field declaration
-		 *  or type context."
-		 *
-		 *  However, at this point there is no sufficient information to conclude the ElementType
-		 *  targeted by the annotation. Hence, do a blanket assignment for now and later (read binding
-		 *  time) weed out the irrelevant ones.
-		 */
-//		f.annotations = recComp.annotations;
-//		comp.annotations = null;
-		if ((recComp.bits & ASTNode.HasTypeAnnotations) != 0) {
-			f.bits |= ASTNode.HasTypeAnnotations;
-		}
-	}
-	if (nFields < fields.length) {
-		// Note: This happens only if there are errors in the code.
-		FieldDeclaration[] tmp = new FieldDeclaration[nFields];
-		System.arraycopy(fields	, 0, tmp, 0, nFields);
-		fields = tmp;
-	}
-	typeDecl.fields = fields;
-	typeDecl.nRecordComponents = fields.length;
-}
 protected void consumeRecordHeader() {
 	//RecordHeader ::= '(' RecordComponentsopt RecordComponentHeaderRightParen
 	//TODO: BETA_JAVA14_RECORD flag TypeDeclaration.RECORD_DECL ?
@@ -10577,131 +10291,7 @@ protected void consumeRecordComponentsopt() {
 	// RecordComponentsopt ::= $empty
 	pushOnAstLengthStack(0);
 }
-protected void dispatchDeclarationIntoRecordDeclaration(int length) {
-	/* they are length on this.astStack that should go into
-	   methods fields constructors lists of the typeDecl
-
-	   Return if there is a constructor declaration in the methods declaration */
-
-
-	// Looks for the size of each array .
-
-	if (length == 0)
-		return;
-	int[] flag = new int[length + 1]; //plus one -- see <HERE>
-	int nFields = 0, size2 = 0, size3 = 0;
-	boolean hasAbstractMethods = false;
-	for (int i = length - 1; i >= 0; i--) {
-		ASTNode astNode = this.astStack[this.astPtr--];
-		if (astNode instanceof AbstractMethodDeclaration methodDeclaration) {
-			//methods and constructors have been regrouped into one single list
-			flag[i] = 2;
-			size2++;
-			if (methodDeclaration.isAbstract()) {
-				hasAbstractMethods = true;
-			}
-		} else if (astNode instanceof TypeDeclaration) {
-			flag[i] = 3;
-			size3++;
-		} else {
-			//field
-			flag[i] = 1;
-			nFields++;
-		}
-	}
-
-	//arrays creation
-	TypeDeclaration recordDecl = (TypeDeclaration) this.astStack[this.astPtr];
-	int nCreatedFields = recordDecl.fields != null ? recordDecl.fields.length : 0;
-	if (nFields != 0) {
-		FieldDeclaration[] tmp = new FieldDeclaration[(recordDecl.fields != null ? recordDecl.fields.length  : 0) + nFields];
-		if (recordDecl.fields != null)
-			System.arraycopy(
-					recordDecl.fields,
-					0,
-					tmp,
-					0,
-					recordDecl.fields.length);
-		recordDecl.fields = tmp;
-	}
-	if (size2 != 0) {
-		recordDecl.methods = new AbstractMethodDeclaration[size2];
-		if (hasAbstractMethods) recordDecl.bits |= ASTNode.HasAbstractMethods;
-	}
-	if (size3 != 0) {
-		recordDecl.memberTypes = new TypeDeclaration[size3];
-	}
-
-	//arrays fill up
-	nFields = nCreatedFields;
-	size2 = size3 = 0;
-	int flagI = flag[0], start = 0;
-	int length2;
-	for (int end = 0; end <= length; end++) //<HERE> the plus one allows to
-		{
-		if (flagI != flag[end]) //treat the last element as a ended flag.....
-			{ //array copy
-			switch (flagI) {
-				case 1 :
-					nFields += (length2 = end - start);
-					System.arraycopy(
-						this.astStack,
-						this.astPtr + start + 1,
-						recordDecl.fields,
-						nFields - length2,
-						length2);
-					break;
-				case 2 :
-					size2 += (length2 = end - start);
-					System.arraycopy(
-						this.astStack,
-						this.astPtr + start + 1,
-						recordDecl.methods,
-						size2 - length2,
-						length2);
-					break;
-				case 3 :
-					size3 += (length2 = end - start);
-					System.arraycopy(
-						this.astStack,
-						this.astPtr + start + 1,
-						recordDecl.memberTypes,
-						size3 - length2,
-						length2);
-					break;
-			}
-			flagI = flag[start = end];
-		}
-	}
-	checkForRecordMemberErrors(recordDecl, nCreatedFields);
-
-	if (recordDecl.memberTypes != null) {
-		for (int i = recordDecl.memberTypes.length - 1; i >= 0; i--) {
-			recordDecl.memberTypes[i].enclosingType = recordDecl;
-		}
-	}
-}
-private void checkForRecordMemberErrors(TypeDeclaration typeDecl, int nCreatedFields) {
-	if (typeDecl.fields == null)
-		return;
-	for (int i = nCreatedFields; i < typeDecl.fields.length; i++) {
-		FieldDeclaration f = typeDecl.fields[i];
-		if (f != null && !f.isStatic()) {
-			if (f instanceof Initializer initializer)
-				problemReporter().recordInstanceInitializerBlockInRecord(initializer);
-			else
-				problemReporter().recordNonStaticFieldDeclarationInRecord(f);
-		}
-	}
-	if (typeDecl.methods != null) {
-		for (AbstractMethodDeclaration method : typeDecl.methods) {
-			if ((method.modifiers & ClassFileConstants.AccNative) != 0) {
-				problemReporter().recordIllegalNativeModifierInRecord(method);
-			}
-		}
-	}
-}
-/* Java 14 preview - records - end*/
+/* Java 16 - Records - end */
 /**
  * Given the current comment stack, answer whether some comment is available in a certain exclusive range
  *
@@ -13469,7 +13059,6 @@ protected void resetStacks() {
 	this.genericsLengthPtr = -1;
 	this.genericsPtr = -1;
 	this.valueLambdaNestDepth = -1;
-	this.recordNestedMethodLevels = new HashMap<>();
 }
 /*
  * Reset context so as to resume to regular parse loop

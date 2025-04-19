@@ -355,16 +355,8 @@ public boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding invoc
 	if (isPrivate()) {
 		// answer true if the receiverType is the receiver or its enclosingType
 		// AND the invocationType and the receiver have a common enclosingType
-		receiverCheck: {
-			if (!(TypeBinding.equalsEquals(receiverType, this) || TypeBinding.equalsEquals(receiverType, enclosingType()))) {
-				// special tolerance for type variable direct bounds, but only if compliance <= 1.6, see: https://bugs.eclipse.org/bugs/show_bug.cgi?id=334622
-				if (receiverType.isTypeVariable()) {
-					TypeVariableBinding typeVariable = (TypeVariableBinding) receiverType;
-					if (typeVariable.environment.globalOptions.complianceLevel <= ClassFileConstants.JDK1_6 && (typeVariable.isErasureBoundTo(erasure()) || typeVariable.isErasureBoundTo(enclosingType().erasure())))
-						break receiverCheck;
-				}
-				return false;
-			}
+		if (!(TypeBinding.equalsEquals(receiverType, this) || TypeBinding.equalsEquals(receiverType, enclosingType()))) {
+			return false;
 		}
 
 		if (TypeBinding.notEquals(invocationType, this)) {
@@ -1725,6 +1717,7 @@ public final boolean isStrictfp() {
  */
 public boolean isSuperclassOf(ReferenceBinding otherType) {
 	while ((otherType = otherType.superclass()) != null) {
+		otherType = (ReferenceBinding) InferenceContext18.maybeCapture(otherType);
 		if (otherType.isEquivalentTo(this)) return true;
 	}
 	return false;

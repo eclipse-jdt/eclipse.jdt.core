@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -177,73 +177,8 @@ private void addDefaultAbstractMethods() {
 	if ((this.tagBits & TagBits.KnowsDefaultAbstractMethods) != 0) return;
 
 	this.tagBits |= TagBits.KnowsDefaultAbstractMethods;
-	if (isClass() && isAbstract()) {
-		if (this.scope.compilerOptions().targetJDK >= ClassFileConstants.JDK1_2)
-			return; // no longer added for post 1.2 targets
-
-		ReferenceBinding[] itsInterfaces = superInterfaces();
-		if (itsInterfaces != Binding.NO_SUPERINTERFACES) {
-			MethodBinding[] defaultAbstracts = null;
-			int defaultAbstractsCount = 0;
-			ReferenceBinding[] interfacesToVisit = itsInterfaces;
-			int nextPosition = interfacesToVisit.length;
-			for (int i = 0; i < nextPosition; i++) {
-				ReferenceBinding superType = interfacesToVisit[i];
-				if (superType.isValidBinding()) {
-					MethodBinding[] superMethods = superType.methods();
-					nextAbstractMethod: for (int m = superMethods.length; --m >= 0;) {
-						MethodBinding method = superMethods[m];
-						// explicitly implemented ?
-						if (implementsMethod(method))
-							continue nextAbstractMethod;
-						if (defaultAbstractsCount == 0) {
-							defaultAbstracts = new MethodBinding[5];
-						} else {
-							// already added as default abstract ?
-							for (int k = 0; k < defaultAbstractsCount; k++) {
-								MethodBinding alreadyAdded = defaultAbstracts[k];
-								if (CharOperation.equals(alreadyAdded.selector, method.selector) && alreadyAdded.areParametersEqual(method))
-									continue nextAbstractMethod;
-							}
-						}
-						MethodBinding defaultAbstract = new MethodBinding(
-								method.modifiers | ExtraCompilerModifiers.AccDefaultAbstract | ClassFileConstants.AccSynthetic,
-								method.selector,
-								method.returnType,
-								method.parameters,
-								method.thrownExceptions,
-								this);
-						if (defaultAbstractsCount == defaultAbstracts.length)
-							System.arraycopy(defaultAbstracts, 0, defaultAbstracts = new MethodBinding[2 * defaultAbstractsCount], 0, defaultAbstractsCount);
-						defaultAbstracts[defaultAbstractsCount++] = defaultAbstract;
-					}
-
-					if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
-						int itsLength = itsInterfaces.length;
-						if (nextPosition + itsLength >= interfacesToVisit.length)
-							System.arraycopy(interfacesToVisit, 0, interfacesToVisit = new ReferenceBinding[nextPosition + itsLength + 5], 0, nextPosition);
-						nextInterface : for (int a = 0; a < itsLength; a++) {
-							ReferenceBinding next = itsInterfaces[a];
-							for (int b = 0; b < nextPosition; b++)
-								if (TypeBinding.equalsEquals(next, interfacesToVisit[b])) continue nextInterface;
-							interfacesToVisit[nextPosition++] = next;
-						}
-					}
-				}
-			}
-			if (defaultAbstractsCount > 0) {
-				int length = this.methods.length;
-				System.arraycopy(this.methods, 0, setMethods(new MethodBinding[length + defaultAbstractsCount]), 0, length);
-				System.arraycopy(defaultAbstracts, 0, this.methods, length, defaultAbstractsCount);
-				// re-sort methods
-				length = length + defaultAbstractsCount;
-				if (length > 1)
-					ReferenceBinding.sortMethods(this.methods, 0, length);
-				// this.tagBits |= TagBits.AreMethodsSorted; -- already set in #methods()
-			}
-		}
-	}
 }
+
 /* Add a new synthetic field for <actualOuterLocalVariable>.
 *	Answer the new field or the existing field if one already existed.
 */
@@ -263,8 +198,7 @@ public FieldBinding addSyntheticFieldForInnerclass(LocalVariableBinding actualOu
 			actualOuterLocalVariable.type,
 			ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal | ClassFileConstants.AccSynthetic,
 			this,
-			Constant.NotAConstant,
-			this.synthetics[SourceTypeBinding.FIELD_EMUL].size());
+			Constant.NotAConstant);
 		this.synthetics[SourceTypeBinding.FIELD_EMUL].put(actualOuterLocalVariable, synthField);
 	}
 
@@ -314,8 +248,7 @@ public FieldBinding addSyntheticFieldForInnerclass(ReferenceBinding enclosingTyp
 			enclosingType,
 			ClassFileConstants.AccDefault | ClassFileConstants.AccFinal | ClassFileConstants.AccSynthetic,
 			this,
-			Constant.NotAConstant,
-			this.synthetics[SourceTypeBinding.FIELD_EMUL].size());
+			Constant.NotAConstant);
 		this.synthetics[SourceTypeBinding.FIELD_EMUL].put(enclosingType, synthField);
 	}
 	// ensure there is not already such a field defined by the user
@@ -330,20 +263,30 @@ public FieldBinding addSyntheticFieldForInnerclass(ReferenceBinding enclosingTyp
 			for (int i = 0; i < max; i++) {
 				FieldDeclaration fieldDecl = fieldDeclarations[i];
 				if (fieldDecl.binding == existingField) {
-					if (this.scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_5) {
-						synthField.name = CharOperation.concat(
-							synthField.name,
-							"$".toCharArray()); //$NON-NLS-1$
-						needRecheck = true;
-					} else {
-						this.scope.problemReporter().duplicateFieldInType(this, fieldDecl);
-					}
+					synthField.name = CharOperation.concat(
+						synthField.name,
+						"$".toCharArray()); //$NON-NLS-1$
+					needRecheck = true;
 					break;
 				}
 			}
 		}
 	} while (needRecheck);
 	return synthField;
+}
+/* For a record class, add a new synthetic instance field corresponding to a component in the record header
+ * Any clash with existing fields to be dealt with at call site
+ */
+public void addSyntheticRecordState(RecordComponent component, FieldBinding synthField) {
+
+	if (!isPrototype()) throw new IllegalStateException();
+
+	if (this.synthetics == null)
+		this.synthetics = new LinkedHashMap[MAX_SYNTHETICS];
+	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
+		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new LinkedHashMap(5);
+
+	this.synthetics[SourceTypeBinding.FIELD_EMUL].put(component, synthField);
 }
 /* Add a new synthetic field for the emulation of the assert statement.
 *	Answer the new field or the existing field if one already existed.
@@ -364,8 +307,7 @@ public FieldBinding addSyntheticFieldForAssert(BlockScope blockScope) {
 			TypeBinding.BOOLEAN,
 			(isInterface() ? ClassFileConstants.AccPublic : ClassFileConstants.AccDefault) | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic | ClassFileConstants.AccFinal,
 			this,
-			Constant.NotAConstant,
-			this.synthetics[SourceTypeBinding.FIELD_EMUL].size());
+			Constant.NotAConstant);
 		this.synthetics[SourceTypeBinding.FIELD_EMUL].put("assertionEmulation", synthField); //$NON-NLS-1$
 	}
 	// ensure there is not already such a field defined by the user
@@ -410,8 +352,7 @@ public FieldBinding addSyntheticFieldForEnumValues() {
 			this.scope.createArrayType(this,1),
 			ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic | ClassFileConstants.AccFinal,
 			this,
-			Constant.NotAConstant,
-			this.synthetics[SourceTypeBinding.FIELD_EMUL].size());
+			Constant.NotAConstant);
 		this.synthetics[SourceTypeBinding.FIELD_EMUL].put("enumConstantValues", synthField); //$NON-NLS-1$
 	}
 	// ensure there is not already such a field defined by the user
@@ -504,8 +445,7 @@ public SyntheticFieldBinding addSyntheticFieldForSwitchEnum(char[] fieldName, St
 			this.scope.createArrayType(TypeBinding.INT,1),
 			(isInterface() ? (ClassFileConstants.AccPublic | ClassFileConstants.AccFinal) : ClassFileConstants.AccPrivate | ClassFileConstants.AccVolatile) | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic,
 			this,
-			Constant.NotAConstant,
-			this.synthetics[SourceTypeBinding.FIELD_EMUL].size());
+			Constant.NotAConstant);
 		this.synthetics[SourceTypeBinding.FIELD_EMUL].put(key, synthField);
 	}
 	// ensure there is not already such a field defined by the user
@@ -706,7 +646,6 @@ public SyntheticMethodBinding addSyntheticFactoryMethod(MethodBinding privateCon
  */
 public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMethodToBridge, MethodBinding targetMethod) {
 	if (!isPrototype()) throw new IllegalStateException();
-	if (isInterface() && this.scope.compilerOptions().sourceLevel <= ClassFileConstants.JDK1_7) return null; // only classes & enums get bridge methods, interfaces too at 1.8+
 	// targetMethod may be inherited
 	if (TypeBinding.equalsEquals(inheritedMethodToBridge.returnType.erasure(), targetMethod.returnType.erasure())
 		&& inheritedMethodToBridge.areParameterErasuresEqual(targetMethod)) {
@@ -753,9 +692,6 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
  */
 public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMethodToBridge) {
 	if (!isPrototype()) throw new IllegalStateException();
-	if (this.scope.compilerOptions().complianceLevel <= ClassFileConstants.JDK1_5) {
-		return null;
-	}
 	if (isInterface() && !inheritedMethodToBridge.isDefaultMethod()) return null;
 	if (inheritedMethodToBridge.isAbstract() || inheritedMethodToBridge.isFinal() || inheritedMethodToBridge.isStatic()) {
 		return null;
@@ -1220,11 +1156,19 @@ public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
 			componentDecl.binding = null;
 			return null;
 		}
+		if (TypeDeclaration.disallowedComponentNames.contains(new String(componentDecl.name))) {
+			this.scope.problemReporter().recordIllegalComponentNameInRecord(componentDecl, this.scope.referenceContext);
+			componentDecl.binding = null;
+			return null;
+		}
 		if (componentType == TypeBinding.VOID) {
 			this.scope.problemReporter().recordComponentCannotBeVoid(componentDecl);
 			componentDecl.binding = null;
 			return null;
 		}
+		if (componentDecl.isVarArgs() && f < length - 1)
+			this.scope.problemReporter().recordIllegalVararg(componentDecl, this.scope.referenceContext);
+
 		if (componentType.isArrayType() && ((ArrayBinding) componentType).leafComponentType == TypeBinding.VOID) {
 			this.scope.problemReporter().variableTypeCannotBeVoidArray(componentDecl);
 			componentDecl.binding = null;
@@ -1240,14 +1184,11 @@ public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
 		Annotation [] annotations = componentDecl.annotations;
 		ASTNode.copyRecordComponentAnnotations(initializationScope, component, annotations);
 
-		long sourceLevel = this.scope.compilerOptions().sourceLevel;
-		if (sourceLevel >= ClassFileConstants.JDK1_8) {
-			if (annotations != null && annotations.length != 0) {
-				// piggybacking on an existing method to move type_use annotations to type in record component
-				ASTNode.copySE8AnnotationsToType(initializationScope, component, annotations, false);
-			}
-			Annotation.isTypeUseCompatible(componentDecl.type, this.scope, annotations);
+		if (annotations != null && annotations.length != 0) {
+			// piggybacking on an existing method to move type_use annotations to type in record component
+			ASTNode.copySE8AnnotationsToType(initializationScope, component, annotations, false);
 		}
+		Annotation.isTypeUseCompatible(componentDecl.type, this.scope, annotations);
 		// TODO Bug 562478: apply null default: - to check anything to be done? - SH
 //		if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {}
 
@@ -1256,6 +1197,17 @@ public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
 
 		if (this.externalAnnotationProvider != null) {
 			ExternalAnnotationSuperimposer.annotateComponentBinding(component, this.externalAnnotationProvider, this.environment);
+		}
+		// As we resolve types for the component, patch up the corresponding instance variable
+		for (FieldBinding field : this.fields) {
+			if (CharOperation.equals(field.name, component.name)) {
+				field.type = componentType;
+				field.modifiers |= component.modifiers & ExtraCompilerModifiers.AccGenericSignature;
+				field.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
+				ASTNode.copyRecordComponentAnnotations(initializationScope, field, annotations);
+				// what else ?
+				break;
+			}
 		}
 		return component;
 	}
@@ -1302,6 +1254,16 @@ public FieldBinding[] fields() {
 					System.arraycopy(fieldsSnapshot, 0, resolvedFields = new FieldBinding[length], 0, length);
 				}
 				resolvedFields[i] = null;
+				if (this.isRecord() && !fieldsSnapshot[i].isStatic()) {
+					Iterator<Map.Entry<?, ?>> iterator = this.synthetics[SourceTypeBinding.FIELD_EMUL].entrySet().iterator();
+			        while (iterator.hasNext()) {
+			            Map.Entry<?, ?> entry = iterator.next();
+			            if (entry.getValue().equals(fieldsSnapshot[i])) {
+			                iterator.remove();
+			                break;
+			            }
+			        }
+				}
 				failed++;
 			}
 		}
@@ -1383,7 +1345,7 @@ public long getAnnotationTagBits() {
 	if (!isPrototype())
 		return this.prototype.getAnnotationTagBits();
 
-	if ((this.tagBits & TagBits.AnnotationResolved) == 0 && this.scope != null) {
+	if ((this.extendedTagBits & ExtendedTagBits.AnnotationResolved) == 0 && this.scope != null) {
 		TypeDeclaration typeDecl = this.scope.referenceContext;
 		boolean old = typeDecl.staticInitializerScope.insideTypeAnnotation;
 		try {
@@ -1397,9 +1359,26 @@ public long getAnnotationTagBits() {
 	}
 	return this.tagBits;
 }
+void initializeNullDefaultAnnotation() {
+	if (!isPrototype()) {
+		this.prototype.initializeNullDefaultAnnotation();
+		return;
+	}
+	if ((this.extendedTagBits & ExtendedTagBits.NullDefaultAnnotationResolved) == 0 && this.scope != null) {
+		TypeDeclaration typeDecl = this.scope.referenceContext;
+		boolean old = typeDecl.staticInitializerScope.insideTypeAnnotation;
+		try {
+			typeDecl.staticInitializerScope.insideTypeAnnotation = true;
+			ASTNode.resolveNullDefaultAnnotations(typeDecl.staticInitializerScope, typeDecl.annotations, this);
+			evaluateNullAnnotations();
+		} finally {
+			typeDecl.staticInitializerScope.insideTypeAnnotation = old;
+		}
+	}
+}
 @Override
 public boolean isReadyForAnnotations() {
-	if ((this.tagBits & TagBits.AnnotationResolved) != 0)
+	if ((this.extendedTagBits & ExtendedTagBits.AnnotationResolved) != 0)
 		return true;
 	TypeDeclaration type;
 	if (this.scope != null && (type = this.scope.referenceType()) != null) {
@@ -1537,14 +1516,11 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 				}
 			}
 			// check dup collisions
-			boolean isSource15 = this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
 			for (int i = start; i <= end; i++) {
 				MethodBinding method1 = this.methods[i];
 				for (int j = end; j > i; j--) {
 					MethodBinding method2 = this.methods[j];
-					boolean paramsMatch = isSource15
-						? method1.areParameterErasuresEqual(method2)
-						: method1.areParametersEqual(method2);
+					boolean paramsMatch = method1.areParameterErasuresEqual(method2);
 					if (paramsMatch) {
 						methods();
 						return getExactMethod(selector, argumentTypes, refScope); // try again since the problem methods have been removed
@@ -1705,13 +1681,10 @@ public MethodBinding[] getMethods(char[] selector) {
 	} else {
 		return Binding.NO_METHODS;
 	}
-	boolean isSource15 = this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
 	for (int i = 0, length = result.length - 1; i < length; i++) {
 		MethodBinding method = result[i];
 		for (int j = length; j > i; j--) {
-			boolean paramsMatch = isSource15
-				? method.areParameterErasuresEqual(result[j])
-				: method.areParametersEqual(result[j]);
+			boolean paramsMatch = method.areParameterErasuresEqual(result[j]);
 			if (paramsMatch) {
 				methods();
 				return getMethods(selector); // try again since the duplicate methods have been removed
@@ -1795,13 +1768,13 @@ public void initializeDeprecatedAnnotationTagBits() {
 		this.prototype.initializeDeprecatedAnnotationTagBits();
 		return;
 	}
-	if ((this.tagBits & TagBits.DeprecatedAnnotationResolved) == 0) {
+	if ((this.extendedTagBits & ExtendedTagBits.DeprecatedAnnotationResolved) == 0) {
 		TypeDeclaration typeDecl = this.scope.referenceContext;
 		boolean old = typeDecl.staticInitializerScope.insideTypeAnnotation;
 		try {
 			typeDecl.staticInitializerScope.insideTypeAnnotation = true;
 			ASTNode.resolveDeprecatedAnnotations(typeDecl.staticInitializerScope, typeDecl.annotations, this);
-			this.tagBits |= TagBits.DeprecatedAnnotationResolved;
+			this.extendedTagBits |= ExtendedTagBits.DeprecatedAnnotationResolved;
 		} finally {
 			typeDecl.staticInitializerScope.insideTypeAnnotation = old;
 		}
@@ -1837,7 +1810,7 @@ int getNullDefault() {
 	// ensure nullness defaults are initialized at all enclosing levels:
 	switch (this.nullnessDefaultInitialized) {
 	case 0:
-		getAnnotationTagBits(); // initialize
+		initializeNullDefaultAnnotation();
 		//$FALL-THROUGH$
 	case 1:
 		getPackage().isViewedAsDeprecated(); // initialize annotations
@@ -2070,8 +2043,6 @@ public MethodBinding[] methods() {
 		}
 
 		// find & report collision cases
-		boolean complyTo15OrAbove = this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
-		boolean compliance16 = this.scope.compilerOptions().complianceLevel == ClassFileConstants.JDK1_6;
 		int recordCanonIndex = -1;
 		if (this.isRecordDeclaration) {
 			recordCanonIndex = getImplicitCanonicalConstructor();
@@ -2104,88 +2075,11 @@ public MethodBinding[] methods() {
 				if (!CharOperation.equals(selector, method2.selector))
 					break nextSibling; // methods with same selector are contiguous
 
-				if (complyTo15OrAbove) {
-					if (method.areParameterErasuresEqual(method2)) {
-						// we now ignore return types in 1.7 when detecting duplicates, just as we did before 1.5
-						// Only in 1.6, we have to make sure even return types are different
-						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=317719
-						if (compliance16 && method.returnType != null && method2.returnType != null) {
-							if (TypeBinding.notEquals(method.returnType.erasure(), method2.returnType.erasure())) {
-								// check to see if the erasure of either method is equal to the other
-								// if not, then change severity to WARNING
-								TypeBinding[] params1 = method.parameters;
-								TypeBinding[] params2 = method2.parameters;
-								int pLength = params1.length;
-								TypeVariableBinding[] vars = method.typeVariables;
-								TypeVariableBinding[] vars2 = method2.typeVariables;
-								boolean equalTypeVars = vars == vars2;
-								MethodBinding subMethod = method2;
-								if (!equalTypeVars) {
-									MethodBinding temp = method.computeSubstitutedMethod(method2, this.scope.environment());
-									if (temp != null) {
-										equalTypeVars = true;
-										subMethod = temp;
-									}
-								}
-								boolean equalParams = method.areParametersEqual(subMethod);
-								if (equalParams && equalTypeVars) {
-									// duplicates regardless of return types
-								} else if (vars != Binding.NO_TYPE_VARIABLES && vars2 != Binding.NO_TYPE_VARIABLES) {
-									// both have type arguments. Erasure of signature of one cannot be equal to signature of other
-									severity = ProblemSeverities.Warning;
-								} else if (pLength > 0) {
-									int index = pLength;
-									// is erasure of signature of m2 same as signature of m1?
-									for (; --index >= 0;) {
-										if (TypeBinding.notEquals(params1[index], params2[index].erasure())) {
-											// If one of them is a raw type
-											if (params1[index] instanceof RawTypeBinding) {
-												if (TypeBinding.notEquals(params2[index].erasure(), ((RawTypeBinding)params1[index]).actualType())) {
-													break;
-												}
-											} else  {
-												break;
-											}
-										}
-										if (TypeBinding.equalsEquals(params1[index], params2[index])) {
-											TypeBinding type = params1[index].leafComponentType();
-											if (type instanceof SourceTypeBinding && type.typeVariables() != Binding.NO_TYPE_VARIABLES) {
-												index = pLength; // handle comparing identical source types like X<T>... its erasure is itself BUT we need to answer false
-												break;
-											}
-										}
-									}
-									if (index >= 0 && index < pLength) {
-										// is erasure of signature of m1 same as signature of m2?
-										for (index = pLength; --index >= 0;)
-											if (TypeBinding.notEquals(params1[index].erasure(), params2[index])) {
-												// If one of them is a raw type
-												if (params2[index] instanceof RawTypeBinding) {
-													if (TypeBinding.notEquals(params1[index].erasure(), ((RawTypeBinding)params2[index]).actualType())) {
-														break;
-													}
-												} else  {
-													break;
-												}
-											}
-
-									}
-									if (index >= 0) {
-										// erasure of neither is equal to signature of other
-										severity = ProblemSeverities.Warning;
-									}
-								} else if (pLength != 0){
-									severity = ProblemSeverities.Warning;
-								} // pLength = 0 automatically makes erasure of arguments one equal to arguments of other.
-							}
-							// else return types also equal. All conditions satisfied
-							// to give error in 1.6 compliance as well.
-						}
-					} else {
-						continue nextSibling;
-					}
-				} else if (!method.areParametersEqual(method2)) {
-					// prior to 1.5, parameters identical meant a collision case
+				if (method.areParameterErasuresEqual(method2)) {
+					// we now ignore return types in 1.7 when detecting duplicates, just as we did before 1.5
+					// Only in 1.6, we have to make sure even return types are different
+					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=317719
+				} else {
 					continue nextSibling;
 				}
 				if (recordCanonIndex == i || recordCanonIndex == j) {
@@ -2348,6 +2242,7 @@ private MethodBinding checkRecordCanonicalConstructor(MethodBinding explicitCano
 	if (explicitCanonicalConstructor.thrownExceptions != null && explicitCanonicalConstructor.thrownExceptions.length > 0)
 		this.scope.problemReporter().recordCanonicalConstructorHasThrowsClause(methodDecl);
 	checkCanonicalConstructorParameterNames(explicitCanonicalConstructor, methodDecl);
+	methodDecl.bits |= ASTNode.IsCanonicalConstructor;
 	explicitCanonicalConstructor.extendedTagBits |= ExtendedTagBits.IsCanonicalConstructor;
 //	checkAndFlagExplicitConstructorCallInCanonicalConstructor(methodDecl);
 	return explicitCanonicalConstructor;
@@ -2397,11 +2292,8 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 	if ((field.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0)
 		return field;
 
-	long sourceLevel = this.scope.compilerOptions().sourceLevel;
-	if (sourceLevel >= ClassFileConstants.JDK1_5) {
-		if ((field.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
-			field.modifiers |= ClassFileConstants.AccDeprecated;
-	}
+	if ((field.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
+		field.modifiers |= ClassFileConstants.AccDeprecated;
 	if (isViewedAsDeprecated() && !field.isDeprecated()) {
 		field.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 		field.tagBits |= this.tagBits & TagBits.AnnotationTerminallyDeprecated;
@@ -2449,27 +2341,13 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 				field.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 			}
 
-			Annotation[] relevantRecordComponentAnnotations = null;
-			if (sourceLevel >= ClassFileConstants.JDK14) {
-				// copy annotations from record component if applicable
-				if (field.isRecordComponent()) {
-					RecordComponentBinding rcb = getRecordComponent(field.name);
-					if (rcb != null)
-						relevantRecordComponentAnnotations = ASTNode.copyRecordComponentAnnotations(initializationScope,
-								field, rcb.sourceRecordComponent().annotations);
-				}
+			Annotation [] annotations = fieldDecl.annotations;
+			if (annotations != null && annotations.length != 0) {
+				ASTNode.copySE8AnnotationsToType(initializationScope, field, annotations,
+						fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT); // type annotation is illegal on enum constant
 			}
-			if (sourceLevel >= ClassFileConstants.JDK1_8) {
-				Annotation [] annotations = fieldDecl.annotations;
-				if (annotations == null && relevantRecordComponentAnnotations != null) // field represents a record component.
-					annotations = relevantRecordComponentAnnotations;
 
-				if (annotations != null && annotations.length != 0) {
-					ASTNode.copySE8AnnotationsToType(initializationScope, field, annotations,
-							fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT); // type annotation is illegal on enum constant
-				}
-				Annotation.isTypeUseCompatible(fieldDecl.type, this.scope, annotations);
-			}
+			Annotation.isTypeUseCompatible(fieldDecl.type, this.scope, annotations);
 			// apply null default:
 			if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
 				// TODO(SH): different strategy for 1.8, or is "repair" below enough?
@@ -2520,15 +2398,13 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 		return method;
 
 	final long sourceLevel = this.scope.compilerOptions().sourceLevel;
-	if (sourceLevel >= ClassFileConstants.JDK1_5) {
-		ReferenceBinding object = this.scope.getJavaLangObject();
-		TypeVariableBinding[] tvb = method.typeVariables;
-		for (int i = 0; i < tvb.length; i++)
-			tvb[i].superclass = object;		// avoid null (see https://bugs.eclipse.org/426048)
+	ReferenceBinding object = this.scope.getJavaLangObject();
+	TypeVariableBinding[] tvb = method.typeVariables;
+	for (int i = 0; i < tvb.length; i++)
+		tvb[i].superclass = object;		// avoid null (see https://bugs.eclipse.org/426048)
 
-		if ((method.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
-			method.modifiers |= ClassFileConstants.AccDeprecated;
-	}
+	if ((method.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
+		method.modifiers |= ClassFileConstants.AccDeprecated;
 	if (isViewedAsDeprecated() && !method.isDeprecated()) {
 		method.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 		method.tagBits |= this.tagBits & TagBits.AnnotationTerminallyDeprecated;
@@ -2642,19 +2518,17 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337799
-	if (sourceLevel >= ClassFileConstants.JDK1_7) {
-		if ((method.tagBits & TagBits.AnnotationSafeVarargs) != 0) {
-			if (!method.isVarargs()) {
-				methodDecl.scope.problemReporter().safeVarargsOnFixedArityMethod(method);
-			} else if (!method.isStatic() && !method.isFinal() && !method.isConstructor()
-					&& !(sourceLevel >= ClassFileConstants.JDK9 && method.isPrivate())) {
-				methodDecl.scope.problemReporter().safeVarargsOnNonFinalInstanceMethod(method);
-			}
-		} else {
-			/* https://github.com/eclipse-jdt/eclipse.jdt.core/issues/365 */
-			if (!this.isRecordDeclaration) {
-				checkAndFlagHeapPollution(method, methodDecl);
-			}
+	if ((method.tagBits & TagBits.AnnotationSafeVarargs) != 0) {
+		if (!method.isVarargs()) {
+			methodDecl.scope.problemReporter().safeVarargsOnFixedArityMethod(method);
+		} else if (!method.isStatic() && !method.isFinal() && !method.isConstructor()
+				&& !(sourceLevel >= ClassFileConstants.JDK9 && method.isPrivate())) {
+			methodDecl.scope.problemReporter().safeVarargsOnNonFinalInstanceMethod(method);
+		}
+	} else {
+		/* https://github.com/eclipse-jdt/eclipse.jdt.core/issues/365 */
+		if (!this.isRecordDeclaration) {
+			checkAndFlagHeapPollution(method, methodDecl);
 		}
 	}
 
@@ -2688,7 +2562,7 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 					method.tagBits |= TagBits.HasMissingType;
 				}
 				method.returnType = methodType;
-				if (sourceLevel >= ClassFileConstants.JDK1_8 && !method.isVoidMethod()) {
+				if (!method.isVoidMethod()) {
 					Annotation [] annotations = methodDecl.annotations;
 					if (annotations != null && annotations.length != 0) {
 						ASTNode.copySE8AnnotationsToType(methodDecl.scope, method, methodDecl.annotations, false);
@@ -2705,11 +2579,9 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 			}
 		}
 	} else {
-		if (sourceLevel >= ClassFileConstants.JDK1_8) {
-			Annotation [] annotations = methodDecl.annotations;
-			if (annotations != null && annotations.length != 0) {
-				ASTNode.copySE8AnnotationsToType(methodDecl.scope, method, methodDecl.annotations, false);
-			}
+		Annotation [] annotations = methodDecl.annotations;
+		if (annotations != null && annotations.length != 0) {
+			ASTNode.copySE8AnnotationsToType(methodDecl.scope, method, methodDecl.annotations, false);
 		}
 	}
 	if (foundArgProblem) {
@@ -2867,7 +2739,7 @@ private void maybeMarkTypeParametersNonNull() {
 		for (int i = 0; i < this.typeVariables.length; i++) {
 			TypeVariableBinding tvb = this.typeVariables[i];
 			TypeParameter typeParameter = this.scope.referenceContext.typeParameters[i];
-			if (typeParameter.annotations != null && (tvb.tagBits & TagBits.AnnotationResolved) == 0)
+			if (typeParameter.annotations != null && (tvb.extendedTagBits & ExtendedTagBits.AnnotationResolved) == 0)
 				continue; // not yet ready
 			if ((tvb.tagBits & TagBits.AnnotationNullMASK) == 0)
 				this.typeVariables[i] = (TypeVariableBinding) this.environment.createAnnotatedType(tvb, annots);
@@ -3189,13 +3061,13 @@ public FieldBinding[] syntheticFields() {
 	FieldBinding[] bindings = new FieldBinding[fieldSize];
 
 	// add innerclass synthetics
-	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] != null) {
-		Iterator elements = this.synthetics[SourceTypeBinding.FIELD_EMUL].values().iterator();
-		for (int i = 0; i < fieldSize; i++) {
-			SyntheticFieldBinding synthBinding = (SyntheticFieldBinding) elements.next();
-			bindings[synthBinding.index] = synthBinding;
-		}
+
+	Iterator elements = this.synthetics[SourceTypeBinding.FIELD_EMUL].values().iterator();
+	for (int i = 0; i < fieldSize; i++) {
+		SyntheticFieldBinding synthBinding = (SyntheticFieldBinding) elements.next();
+		bindings[i] = synthBinding;
 	}
+
 	return bindings;
 }
 @Override

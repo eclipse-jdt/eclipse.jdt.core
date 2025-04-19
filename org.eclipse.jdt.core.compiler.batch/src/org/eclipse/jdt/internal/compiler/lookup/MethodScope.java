@@ -201,7 +201,7 @@ private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
 		int expectedModifiers = ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract;
 		boolean isDefaultMethod = (modifiers & ExtraCompilerModifiers.AccDefaultMethod) != 0; // no need to check validity, is done by the parser
 		boolean reportIllegalModifierCombination = false;
-		if (sourceLevel >= ClassFileConstants.JDK1_8 && !declaringClass.isAnnotationType()) {
+		if (!declaringClass.isAnnotationType()) {
 			expectedModifiers |= ClassFileConstants.AccStrictfp
 					| ExtraCompilerModifiers.AccDefaultMethod | ClassFileConstants.AccStatic;
 			expectedModifiers |= sourceLevel >= ClassFileConstants.JDK9 ? ClassFileConstants.AccPrivate : 0;
@@ -249,6 +249,8 @@ private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
 				methodBinding.tagBits |= TagBits.AnnotationOverride;
 			}
 		}
+	} else if (declaringClass.isRecord() && methodBinding.isNative()) {
+		problemReporter().recordIllegalNativeModifierInRecord((AbstractMethodDeclaration) this.referenceContext);
 	}
 
 	// check for abnormal modifiers
@@ -424,7 +426,7 @@ MethodBinding createMethod(AbstractMethodDeclaration method) {
 		Argument argument = argTypes[argLength - 1];
 		method.binding.parameterNames = new char[argLength][];
 		method.binding.parameterNames[--argLength] = argument.name;
-		if (argument.isVarArgs() && sourceLevel >= ClassFileConstants.JDK1_5)
+		if (argument.isVarArgs())
 			method.binding.modifiers |= ClassFileConstants.AccVarargs;
 		if (CharOperation.equals(argument.name, ConstantPool.This)) {
 			problemReporter().illegalThisDeclaration(argument);
@@ -432,7 +434,7 @@ MethodBinding createMethod(AbstractMethodDeclaration method) {
 		while (--argLength >= 0) {
 			argument = argTypes[argLength];
 			method.binding.parameterNames[argLength] = argument.name;
-			if (argument.isVarArgs() && sourceLevel >= ClassFileConstants.JDK1_5)
+			if (argument.isVarArgs())
 				problemReporter().illegalVararg(argument, method);
 			if (CharOperation.equals(argument.name, ConstantPool.This)) {
 				problemReporter().illegalThisDeclaration(argument);
@@ -440,9 +442,6 @@ MethodBinding createMethod(AbstractMethodDeclaration method) {
 		}
 	}
 	if (method.receiver != null) {
-		if (sourceLevel <= ClassFileConstants.JDK1_7) {
-			problemReporter().illegalSourceLevelForThis(method.receiver);
-		}
 		if (method.receiver.annotations != null) {
 			method.bits |= ASTNode.HasTypeAnnotations;
 		}

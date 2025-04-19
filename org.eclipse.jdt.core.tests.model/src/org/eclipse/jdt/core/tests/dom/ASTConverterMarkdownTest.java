@@ -1839,4 +1839,57 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			}
 		}
 	}
+
+	public void testIllegelTagElement_01() throws JavaModelException {
+		String source= """
+				///{@link #getValue()
+				///value}
+				class IllegelTagElement {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/gh3761/IllegelTagElement.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> te = javadoc.tags();
+			assertEquals("TagElement length is grater than one", 1, te.size());
+			List<TagElement> tes = (te.get(0)).fragments();
+			assertEquals("inner TagElement length is grater than one", 1, tes.size());
+			assertEquals("TagName", "@link", tes.get(0).getTagName());
+			List<?> fragments = tes.get(0).fragments();
+			assertEquals("fragments count does not match", 2, fragments.size());
+			assertTrue(fragments.get(0) instanceof MethodRef);
+			assertTrue(fragments.get(1) instanceof TextElement);
+			assertEquals("Incorrect text", "value", fragments.get(1).toString());
+			assertEquals("Incorrect name", "#getValue()", fragments.get(0).toString());
+		}
+	}
+
+	//this is a malfound test. Need to to analysis how it works
+	public void testIllegelTagElement_02() throws JavaModelException {
+		String source= """
+				///{@link #getValue()
+				///value{}}
+				class IllegelTagElement {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/gh3761/IllegelTagElement.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> te = javadoc.tags();
+			assertEquals("TagElement length is grater than one", 1, te.size());
+			List<TagElement> tes = (te.get(0)).fragments();
+			assertEquals("fragments count does not match", 1, tes.size());
+			assertEquals("TagName", "@link", tes.get(0).getTagName());
+			List<?> fragments = tes.get(0).fragments();
+			assertTrue(fragments.get(0) instanceof MethodRef);
+			assertTrue(fragments.get(1) instanceof TextElement);
+			assertEquals("Incorrect text", "value", fragments.get(1).toString());
+			assertEquals("Incorrect name", "#getValue()", fragments.get(0).toString());
+			assertTrue(te.get(0).getLength() < tes.get(0).getLength());
+		}
+	}
 }

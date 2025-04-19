@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -168,42 +168,90 @@ private void setUpGenericJar() throws IOException, CoreException {
 private void setUpInnerClassesJar() throws IOException, CoreException {
 	String[] pathAndContents = new String[] {
 		"inner/X.java",
-		"package inner;\n" +
-		"public class X {\n" +
-		"  void foo() {\n" +
-		"    new X() {};\n" +
-		"    class Y {}\n" +
-		"    new Y() {\n" +
-		"      class Z {}\n" +
-		"    };\n" +
-		"    class W {\n" +
-		"      void bar() {\n" +
-		"        new W() {};\n" +
-		"      }\n" +
-		"    }\n" +
-		"    new Object() {\n" +
-		"      class U {\n" +
-		"        U(String s) {\n" +
-		"        }\n" +
-		"      }\n" +
-		"    };\n" +
-		"  }\n" +
-		"  class V {\n" +
-		"    V(String s) {\n" +
-		"    }\n" +
-		"  }\n" +
-		"  class Inner {\n" +
-		"    Inner() {\n" +
-		"    }\n" +
-		"    class WW {\n" +
-		"      WW() {}\n" +
-		"      class WWW {\n" +
-		"        WWW() {}\n" +
-		"      }\n" +
-		"    }\n" +
-		"  }\n" +
-		"}"
-	};
+		"""
+	    package inner;
+	    public class X {
+	      void foo() {
+	        new X() {};
+	        class Y {}
+	        new Y() {
+	          class Z {}
+	        };
+	        class W {
+	          {
+	            class Y { // One
+	            }
+	          }
+	          void bar() {
+	            new W() {};
+	            {
+	              class Y { // Two
+	              }
+	            }
+	            {
+	              class Y { // Three
+	              }
+	            }
+	          }
+	        }
+	        new Object() {
+	          class U {
+	            U(String s) {
+	            }
+	          }
+	        };
+	      }
+	      class V {
+	        V(String s) {
+	        }
+	      }
+	      class Inner {
+	        Inner() {
+	        }
+	        class WW {
+	          WW() {}
+	          class WWW {
+	            WWW() {}
+	          }
+	        }
+	      }
+	      void foo1() {
+	        class W1 {
+	          void bar() {
+	            new W1() {
+	              class W2 {
+	                void foobar() {
+	                  new W2() {
+	                    void foobar2() {
+	                      class W3 {
+	                        void foobar3() {
+	                          new W3() {
+	                            void foobar4() {
+	                              class W4 {
+	                                void foobar5() {
+	                                  new W4();
+	                                }
+	                              }
+	                            }
+	                          };
+	                        }
+	                      }
+	                    }
+	                  };
+	                }
+	              }
+	            };
+	          }
+	        }
+	      }
+	      void foo2 () {
+	        class W1 {
+	          void bar() {
+	            new W1() {};
+	          }
+	        }
+	      }
+	    }"""};
 	addLibrary("innerClasses.jar", "innerClassessrc.zip", pathAndContents, CompilerOptions.getFirstSupportedJavaVersion());
 }
 @Override
@@ -893,8 +941,20 @@ public void testInnerClass1() throws JavaModelException {
 		"      class Z {}\n" +
 		"    };\n" +
 		"    class W {\n" +
+		"      {\n" +
+		"        class Y { // One\n" +
+		"        }\n" +
+		"      }\n" +
 		"      void bar() {\n" +
 		"        new W() {};\n" +
+		"        {\n" +
+		"          class Y { // Two\n" +
+		"          }\n" +
+		"        }\n" +
+		"        {\n" +
+		"          class Y { // Three\n" +
+		"          }\n" +
+		"        }\n" +
 		"      }\n" +
 		"    }\n" +
 		"    new Object() {\n" +
@@ -918,7 +978,43 @@ public void testInnerClass1() throws JavaModelException {
 		"      }\n" +
 		"    }\n" +
 		"  }\n" +
-		"}",
+		"  void foo1() {\n"
+		+ "    class W1 {\n"
+		+ "      void bar() {\n"
+		+ "        new W1() {\n"
+		+ "          class W2 {\n"
+		+ "            void foobar() {\n"
+		+ "              new W2() {\n"
+		+ "                void foobar2() {\n"
+		+ "                  class W3 {\n"
+		+ "                    void foobar3() {\n"
+		+ "                      new W3() {\n"
+		+ "                        void foobar4() {\n"
+		+ "                          class W4 {\n"
+		+ "                            void foobar5() {\n"
+		+ "                              new W4();\n"
+		+ "                            }\n"
+		+ "                          }\n"
+		+ "                        }\n"
+		+ "                      };\n"
+		+ "                    }\n"
+		+ "                  }\n"
+		+ "                }\n"
+		+ "              };\n"
+		+ "            }\n"
+		+ "          }\n"
+		+ "        };\n"
+		+ "      }\n"
+		+ "    }\n"
+		+ "  }\n"
+		+ "  void foo2 () {\n"
+		+ "    class W1 {\n"
+		+ "      void bar() {\n"
+		+ "        new W1() {};\n"
+		+ "      }\n"
+		+ "    }\n"
+		+ "  }\n"
+		+ "}",
 		type.getSource());
 	attachSource(root, null, null); // detach source
 }
@@ -965,7 +1061,7 @@ public void testInnerClass4() throws JavaModelException {
 	attachSource(root, "/AttachSourceTests/innerClassessrc.zip", null);
 	IPackageFragment fragment = root.getPackageFragment("inner");
 
-	IType type = fragment.getOrdinaryClassFile("X$3.class").getType();
+	IType type = fragment.getOrdinaryClassFile("X$1W$1.class").getType();
 	assertSourceEquals(
 		"Unexpected source",
 		"new W() {}",
@@ -1001,8 +1097,20 @@ public void testInnerClass6() throws JavaModelException {
 	assertSourceEquals(
 		"Unexpected source",
 		"class W {\n" +
+		"      {\n" +
+		"        class Y { // One\n" +
+		"        }\n" +
+		"      }\n" +
 		"      void bar() {\n" +
 		"        new W() {};\n" +
+		"        {\n" +
+		"          class Y { // Two\n" +
+		"          }\n" +
+		"        }\n" +
+		"        {\n" +
+		"          class Y { // Three\n" +
+		"          }\n" +
+		"        }\n" +
 		"      }\n" +
 		"    }",
 		type.getSource());
@@ -1047,14 +1155,12 @@ public void testInnerClass8() throws JavaModelException {
  * Ensures that the source of an inner class can be retrieved.
  * (regression test for bug 124611 IAE in Signature.createCharArrayTypeSignature)
  */
-public void _2551_testInnerClass9() throws JavaModelException {
+public void testInnerClass9() throws JavaModelException {
 	IJavaProject project = this.getJavaProject("/AttachSourceTests");
 	IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/AttachSourceTests/innerClasses.jar"));
 	attachSource(root, "/AttachSourceTests/innerClassessrc.zip", null);
 	IPackageFragment fragment = root.getPackageFragment("inner");
-	// TODO: source mapping for inner classes on Java 1.8 broken.
-	// See BinaryType.getSource() where SourceMapper can't find source for inner classes for source compiled with Java 8 target (works with 1.4)
-	IType type = fragment.getOrdinaryClassFile("X$4$U.class").getType();
+	IType type = fragment.getOrdinaryClassFile("X$3$U.class").getType();
 	assertSourceEquals(
 		"Unexpected source",
 		"class U {\n" +
@@ -1088,6 +1194,133 @@ public void testInnerClass10() throws JavaModelException {
 		"        WWW() {}\n" +
 		"      }",
 		type.getSource());
+	attachSource(root, null, null); // detach source
+}
+public void testInnerClass11() throws JavaModelException {
+	IJavaProject project = this.getJavaProject("/AttachSourceTests");
+	IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/AttachSourceTests/innerClasses.jar"));
+	attachSource(root, "/AttachSourceTests/innerClassessrc.zip", null);
+	IPackageFragment fragment = root.getPackageFragment("inner");
+	IType type = fragment.getOrdinaryClassFile("X$1W1$1$W2$1$1W3$1$1W4.class").getType();
+	assertSourceEquals(
+		"Unexpected source",
+		"class W4 {\n"
+		+ "                            void foobar5() {\n"
+		+ "                              new W4();\n"
+		+ "                            }\n"
+		+ "                          }",
+		type.getSource());
+	attachSource(root, null, null); // detach source
+}
+public void testInnerClass12() throws JavaModelException {
+	IJavaProject project = this.getJavaProject("/AttachSourceTests");
+	IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/AttachSourceTests/innerClasses.jar"));
+	attachSource(root, "/AttachSourceTests/innerClassessrc.zip", null);
+	IPackageFragment fragment = root.getPackageFragment("inner");
+	IType type = fragment.getOrdinaryClassFile("X$1W1$1$W2$1$1W3$1.class").getType();
+	assertSourceEquals(
+		"Unexpected source",
+		"new W3() {\n"
+		+ "                        void foobar4() {\n"
+		+ "                          class W4 {\n"
+		+ "                            void foobar5() {\n"
+		+ "                              new W4();\n"
+		+ "                            }\n"
+		+ "                          }\n"
+		+ "                        }\n"
+		+ "                      }",
+		type.getSource());
+	attachSource(root, null, null); // detach source
+}
+public void testInnerClass13() throws JavaModelException {
+	IJavaProject project = this.getJavaProject("/AttachSourceTests");
+	IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/AttachSourceTests/innerClasses.jar"));
+	attachSource(root, "/AttachSourceTests/innerClassessrc.zip", null);
+	IPackageFragment fragment = root.getPackageFragment("inner");
+	IType type = fragment.getOrdinaryClassFile("X$1W1$1$W2$1$1W3.class").getType();
+	assertSourceEquals(
+		"Unexpected source",
+		"class W3 {\n"
+		+ "                    void foobar3() {\n"
+		+ "                      new W3() {\n"
+		+ "                        void foobar4() {\n"
+		+ "                          class W4 {\n"
+		+ "                            void foobar5() {\n"
+		+ "                              new W4();\n"
+		+ "                            }\n"
+		+ "                          }\n"
+		+ "                        }\n"
+		+ "                      };\n"
+		+ "                    }\n"
+		+ "                  }",
+		type.getSource());
+	attachSource(root, null, null); // detach source
+}
+public void testInnerClass14() throws JavaModelException {
+	IJavaProject project = this.getJavaProject("/AttachSourceTests");
+	IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/AttachSourceTests/innerClasses.jar"));
+	attachSource(root, "/AttachSourceTests/innerClassessrc.zip", null);
+	IPackageFragment fragment = root.getPackageFragment("inner");
+	IType type = fragment.getOrdinaryClassFile("X$2W1.class").getType();
+	assertSourceEquals(
+		"Unexpected source",
+		"class W1 {\n"
+		+ "      void bar() {\n"
+		+ "        new W1() {};\n"
+		+ "      }\n"
+		+ "    }",
+		type.getSource());
+	attachSource(root, null, null); // detach source
+}
+public void testInnerClass15() throws JavaModelException {
+	IJavaProject project = this.getJavaProject("/AttachSourceTests");
+	IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/AttachSourceTests/innerClasses.jar"));
+	attachSource(root, "/AttachSourceTests/innerClassessrc.zip", null);
+	IPackageFragment fragment = root.getPackageFragment("inner");
+	IType type = fragment.getOrdinaryClassFile("X$2W1$1.class").getType();
+	assertSourceEquals(
+			"Unexpected source",
+			"new W1() {}",
+			type.getSource());
+	attachSource(root, null, null); // detach source
+}
+public void testInnerClass16() throws JavaModelException {
+	IJavaProject project = this.getJavaProject("/AttachSourceTests");
+	IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/AttachSourceTests/innerClasses.jar"));
+	attachSource(root, "/AttachSourceTests/innerClassessrc.zip", null);
+	IPackageFragment fragment = root.getPackageFragment("inner");
+	IType type = fragment.getOrdinaryClassFile("X$1W$1Y.class").getType();
+	assertSourceEquals(
+			"Unexpected source",
+			"class Y { // One\n" +
+					"        }",
+			type.getSource());
+	attachSource(root, null, null); // detach source
+}
+public void testInnerClass17() throws JavaModelException {
+	IJavaProject project = this.getJavaProject("/AttachSourceTests");
+	IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/AttachSourceTests/innerClasses.jar"));
+	attachSource(root, "/AttachSourceTests/innerClassessrc.zip", null);
+	IPackageFragment fragment = root.getPackageFragment("inner");
+	IType type = fragment.getOrdinaryClassFile("X$1W$2Y.class").getType();
+	assertSourceEquals(
+			"Unexpected source",
+			"class Y { // Two\n" +
+					"          }",
+			type.getSource());
+	attachSource(root, null, null); // detach source
+}
+public void testInnerClass18() throws JavaModelException {
+	IJavaProject project = this.getJavaProject("/AttachSourceTests");
+	IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/AttachSourceTests/innerClasses.jar"));
+	attachSource(root, "/AttachSourceTests/innerClassessrc.zip", null);
+	IPackageFragment fragment = root.getPackageFragment("inner");
+	IType type = fragment.getOrdinaryClassFile("X$1W$3Y.class").getType();
+	assertSourceEquals(
+			"Unexpected source",
+			"class Y { // Three\n" +
+					"          }",
+			type.getSource());
 	attachSource(root, null, null); // detach source
 }
 /**

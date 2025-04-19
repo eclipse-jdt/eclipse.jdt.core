@@ -35,12 +35,14 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -209,12 +211,8 @@ public class ClassScope extends Scope {
 	void buildFields() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		if (sourceType.areFieldsInitialized()) return;
-		if (this.referenceContext.fields == null) {
-			sourceType.setFields(Binding.NO_FIELDS);
-			return;
-		}
 		// count the number of fields vs. initializers
-		FieldDeclaration[] fields = this.referenceContext.fields;
+		FieldDeclaration[] fields = this.referenceContext.fields == null ? ASTNode.NO_FIELD_DECLARATIONS : this.referenceContext.fields;
 		int size = fields.length;
 		int count = 0;
 		for (int i = 0; i < size; i++) {
@@ -225,40 +223,62 @@ public class ClassScope extends Scope {
 			}
 		}
 
+		RecordComponent [] recordComponents = this.referenceContext.recordComponents;
+		count += recordComponents.length;
+
+		if (count == 0) {
+			sourceType.setFields(Binding.NO_FIELDS);
+			return;
+		}
 		// iterate the field declarations to create the bindings, lose all duplicates
 		FieldBinding[] fieldBindings = new FieldBinding[count];
 		HashtableOfObject knownFieldNames = new HashtableOfObject(count);
 		count = 0;
-		for (int i = 0; i < size; i++) {
-			FieldDeclaration field = fields[i];
-			if (field.getKind() == AbstractVariableDeclaration.INITIALIZER) {
+
+		AbstractVariableDeclaration variableDeclarartions[] = Stream.concat(Stream.of(recordComponents), Stream.of(fields)).toArray(AbstractVariableDeclaration[]::new);
+
+
+		int i = -1;
+		nextVariable:
+		for (AbstractVariableDeclaration variableDeclaration : variableDeclarartions) {
+			FieldBinding fieldBinding;
+			++i;
+			if (variableDeclaration.getKind() == AbstractVariableDeclaration.INITIALIZER) {
 				// We used to report an error for initializers declared inside interfaces, but
 				// now this error reporting is moved into the parser itself. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=212713
-			} else {
-				FieldBinding fieldBinding = new FieldBinding(field, null, field.modifiers | ExtraCompilerModifiers.AccUnresolved, sourceType);
-				fieldBinding.id = count;
-				// field's type will be resolved when needed for top level types
+				continue;
+			}
+			// Create a field binding for the declared or derived field - its type will be patched up later while resolving for field
+			if (variableDeclaration instanceof FieldDeclaration field) {
+				fieldBinding = new FieldBinding(field, null, field.modifiers | ExtraCompilerModifiers.AccUnresolved, sourceType);
 				checkAndSetModifiersForField(fieldBinding, field);
-
-				if (knownFieldNames.containsKey(field.name)) {
-					FieldBinding previousBinding = (FieldBinding) knownFieldNames.get(field.name);
-					if (previousBinding != null) {
-						for (int f = 0; f < i; f++) {
-							FieldDeclaration previousField = fields[f];
-							if (previousField.binding == previousBinding) {
-								problemReporter().duplicateFieldInType(sourceType, previousField);
-								break;
-							}
+			} else {
+				fieldBinding = new SyntheticFieldBinding(variableDeclaration.name, null,
+						ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal | ExtraCompilerModifiers.AccRecord | ExtraCompilerModifiers.AccBlankFinal | ExtraCompilerModifiers.AccUnresolved,
+						sourceType, Constant.NotAConstant);
+			}
+			fieldBinding.id = count;
+			if (knownFieldNames.containsKey(variableDeclaration.name)) {
+				FieldBinding previousBinding = (FieldBinding) knownFieldNames.get(variableDeclaration.name);
+				if (previousBinding != null) {
+					for (int f = 0; f < i; f++) {
+						AbstractVariableDeclaration previousField = variableDeclarartions[f];
+						if (CharOperation.equals(previousField.name,variableDeclaration.name)) {
+							if (previousField.getKind() == AbstractVariableDeclaration.RECORD_COMPONENT && variableDeclaration.getKind() == AbstractVariableDeclaration.RECORD_COMPONENT)
+								continue nextVariable; // already complained about duplicate components, don't also complain about fields
+							problemReporter().duplicateFieldInType(sourceType, previousField);
+							break;
 						}
 					}
-					knownFieldNames.put(field.name, null); // ensure that the duplicate field is found & removed
-					problemReporter().duplicateFieldInType(sourceType, field);
-					field.binding = null;
-				} else {
-					knownFieldNames.put(field.name, fieldBinding);
-					// remember that we have seen a field with this name
-					fieldBindings[count++] = fieldBinding;
 				}
+				knownFieldNames.put(variableDeclaration.name, null); // ensure that the duplicate field is found & removed
+				problemReporter().duplicateFieldInType(sourceType, variableDeclaration);
+				variableDeclaration.setBinding(null);
+			} else {
+				knownFieldNames.put(variableDeclaration.name, fieldBinding);
+				fieldBindings[count++] = fieldBinding;
+				if (variableDeclaration instanceof RecordComponent componentDecl && fieldBinding instanceof SyntheticFieldBinding)
+					sourceType.addSyntheticRecordState(componentDecl, fieldBinding);
 			}
 		}
 		// remove duplicate fields
@@ -346,10 +366,8 @@ public class ClassScope extends Scope {
 
 		LocalTypeBinding localType = buildLocalType(enclosingType, enclosingType.fPackage);
 		connectTypeHierarchy();
-		if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
-			checkParameterizedTypeBounds();
-			checkParameterizedSuperTypeCollisions();
-		}
+		checkParameterizedTypeBounds();
+		checkParameterizedSuperTypeCollisions();
 		this.referenceContext.updateSupertypesWithAnnotations(Collections.emptyMap());
 		buildFieldsAndMethods();
 		localType.faultInTypesForFieldsAndMethods();
@@ -743,7 +761,7 @@ public class ClassScope extends Scope {
 			/*
 			 * AccSynthetic must be set if the target is greater than 1.5. 1.5 VM don't support AccSynthetics flag.
 			 */
-			if (sourceType.sourceName == TypeConstants.PACKAGE_INFO_NAME && compilerOptions().targetJDK > ClassFileConstants.JDK1_5) {
+			if (sourceType.sourceName == TypeConstants.PACKAGE_INFO_NAME) {
 				modifiers |= ClassFileConstants.AccSynthetic;
 			}
 			modifiers |= ClassFileConstants.AccAbstract;
@@ -1163,8 +1181,10 @@ public class ClassScope extends Scope {
 			return true; // do not propagate Object's hierarchy problems down to every subtype
 		}
 		if (this.referenceContext.superclass == null) {
-			if (sourceType.isEnum() && compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) // do not connect if source < 1.5 as enum already got flagged as syntax error
+			if (sourceType.isEnum())
 				return connectEnumSuperclass();
+			if (sourceType.isRecord())
+				return connectRecordSuperclass();
 			sourceType.setSuperClass(getJavaLangObject());
 			return !detectHierarchyCycle(sourceType, sourceType.superclass, null);
 		}
@@ -1184,11 +1204,7 @@ public class ClassScope extends Scope {
 			} else if (superclass.erasure().id == TypeIds.T_JavaLangEnum) {
 				problemReporter().cannotExtendEnum(sourceType, superclassRef, superclass);
 			} else if (superclass.erasure().id == TypeIds.T_JavaLangRecord) {
-				if (!(this.referenceContext.isRecord())) {
-					problemReporter().recordCannotExtendRecord(sourceType, superclassRef, superclass);
-				} else {
-					return connectRecordSuperclass();
-				}
+				problemReporter().recordCannotExtendRecord(sourceType, superclassRef, superclass);
 			} else if (superclass.isSealed() && sourceType.isLocalType()) {
 				sourceType.setSuperClass(superclass);
 				problemReporter().localTypeMayNotBePermittedType(sourceType, superclassRef, superclass);
@@ -1210,7 +1226,7 @@ public class ClassScope extends Scope {
 			}
 		}
 		sourceType.tagBits |= TagBits.HierarchyHasProblems;
-		sourceType.setSuperClass(sourceType.isRecord() ? getJavaLangRecord() : getJavaLangObject());
+		sourceType.setSuperClass(getJavaLangObject());
 		if ((sourceType.superclass.tagBits & TagBits.BeginHierarchyCheck) == 0)
 			detectHierarchyCycle(sourceType, sourceType.superclass, null);
 		return false; // reported some error against the source type
@@ -1373,7 +1389,7 @@ public class ClassScope extends Scope {
 		try {
 			sourceType.setSuperInterfaces(Binding.NO_SUPERINTERFACES);
 			if (this.referenceContext.superInterfaces == null) {
-				if (sourceType.isAnnotationType() && compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) { // do not connect if source < 1.5 as annotation already got flagged as syntax error) {
+				if (sourceType.isAnnotationType()) {
 					ReferenceBinding annotationType = getJavaLangAnnotationAnnotation();
 					boolean foundCycle = detectHierarchyCycle(sourceType, annotationType, null);
 					sourceType.setSuperInterfaces(new ReferenceBinding[] { annotationType });

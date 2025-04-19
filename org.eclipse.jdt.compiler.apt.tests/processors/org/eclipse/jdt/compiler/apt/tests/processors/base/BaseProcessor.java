@@ -40,7 +40,8 @@ public abstract class BaseProcessor extends AbstractProcessor
 	 * Report success to the test case code
 	 */
 	public void reportSuccess() {
-		System.setProperty(this.getClass().getName(), "succeeded");
+		if (System.getProperty(this.getClass().getName()) == null)
+			System.setProperty(this.getClass().getName(), "succeeded");
 	}
 
 	public void reportFailure() {

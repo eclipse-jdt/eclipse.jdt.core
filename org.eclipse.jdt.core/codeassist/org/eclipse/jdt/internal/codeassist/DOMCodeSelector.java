@@ -113,10 +113,7 @@ public class DOMCodeSelector {
 			} while (changed);
 		}
 		String trimmedText = rawText.trim();
-		NodeFinder finder = new NodeFinder(currentAST, offset, length);
-		final ASTNode node = finder.getCoveredNode() != null && finder.getCoveredNode().getStartPosition() > offset && finder.getCoveringNode().getStartPosition() + finder.getCoveringNode().getLength() > offset + length ?
-			finder.getCoveredNode() :
-			finder.getCoveringNode();
+		final ASTNode node = NodeFinder.perform(currentAST, offset, length);
 		if (node instanceof TagElement tagElement && TagElement.TAG_INHERITDOC.equals(tagElement.getTagName())) {
 			ASTNode javadocNode = node;
 			while (javadocNode != null && !(javadocNode instanceof Javadoc)) {
@@ -300,8 +297,10 @@ public class DOMCodeSelector {
 		int finalLength = length;
 		do {
 			newChildFound = false;
+			boolean isGeneratedByLombok = isGenerated(currentAST);
 			if (currentElement instanceof IParent parentElement) {
 				Optional<IJavaElement> candidate = Stream.of(parentElement.getChildren())
+					.filter(e -> (!isGeneratedByLombok || e.getElementName().equals(trimmedText)))
 					.filter(ISourceReference.class::isInstance)
 					.map(ISourceReference.class::cast)
 					.filter(sourceRef -> {
@@ -620,5 +619,31 @@ public class DOMCodeSelector {
 		int end = offset + 1;
 		while (end < source.length() && Character.isJavaIdentifierPart(source.charAt(end))) end++;
 		return source.substring(start, end);
+	}
+
+	/**
+	 * Checks if the node is generated
+	 *
+	 * @param node the AST node
+	 * @return true if the node is generated.
+	 */
+	public static boolean isGenerated(ASTNode node) {
+		if (node != null) {
+			boolean[] isGenerated = {false};
+			node.accept(new ASTVisitor() {
+
+				@Override
+				public void endVisit(MarkerAnnotation markerAnnotation) {
+					if (!isGenerated[0]) {
+						// check lombok only for now
+						isGenerated[0] = "lombok.Generated".equals(markerAnnotation.getTypeName().getFullyQualifiedName()); //$NON-NLS-1$
+						super.endVisit(markerAnnotation);
+					}
+				}
+
+			});
+			return isGenerated[0];
+		}
+		return false;
 	}
 }

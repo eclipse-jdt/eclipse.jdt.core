@@ -59,7 +59,6 @@ import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants.BoundCheckStatus;
 
@@ -168,6 +167,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public boolean canBeInstantiated() {
 		return ((this.tagBits & TagBits.HasDirectWildcard) == 0) && super.canBeInstantiated(); // cannot instantiate param type with wildcard arguments
 	}
+	@Override
+	public TypeBinding findSuperTypeOriginatingFrom(TypeBinding otherType) {
+		TypeBinding capture = InferenceContext18.maybeCapture(this);
+		if (capture != this) //$IDENTITY-COMPARISON$
+			return capture.findSuperTypeOriginatingFrom(otherType);
+		return super.findSuperTypeOriginatingFrom(otherType);
+	}
 
 	/**
 	 * Perform capture conversion for a parameterized type with wildcard arguments
@@ -188,8 +194,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 
 		CompilationUnitScope compilationUnitScope = scope.compilationUnitScope();
 		ASTNode cud = compilationUnitScope.referenceContext;
-		long sourceLevel = this.environment.globalOptions.sourceLevel;
-		final boolean needUniqueCapture = sourceLevel >= ClassFileConstants.JDK1_8;
 
 		for (int i = 0; i < length; i++) {
 			TypeBinding argument = originalArguments[i];
@@ -197,10 +201,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				final WildcardBinding wildcard = (WildcardBinding) argument;
 				if (wildcard.boundKind == Wildcard.SUPER && wildcard.bound.id == TypeIds.T_JavaLangObject)
 					capturedArguments[i] = wildcard.bound;
-				else if (needUniqueCapture)
-					capturedArguments[i] = this.environment.createCapturedWildcard(wildcard, contextType, start, end, cud, compilationUnitScope::nextCaptureID);
 				else
-					capturedArguments[i] = new CaptureBinding(wildcard, contextType, start, end, cud, compilationUnitScope.nextCaptureID());
+					capturedArguments[i] = this.environment.createCapturedWildcard(wildcard, contextType, start, end, cud, compilationUnitScope::nextCaptureID);
 			} else {
 				capturedArguments[i] = argument;
 			}

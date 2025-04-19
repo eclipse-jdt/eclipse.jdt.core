@@ -92,10 +92,7 @@ public static Test suite() {
 }
 
 void runTestsExpectingErrorsOnlyIn17(String[] testFiles, String errorsIn17, Map options) {
-	if (this.complianceLevel >= ClassFileConstants.JDK1_7)
-		runLeakTest(testFiles, errorsIn17, options);
-	else
-		runConformTest(testFiles, "", null, true, null, options, null);
+	runLeakTest(testFiles, errorsIn17, options);
 }
 
 protected void runLeakTest(String[] testFiles, String expectedCompileError, Map options) {
@@ -232,7 +229,6 @@ public void test056b() {
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // a method uses an AutoCloseable properly within try-with-resources.
 public void test056c() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
@@ -319,7 +315,6 @@ public void test056d() {
 //- one closeable may be unclosed at a conditional return
 //- the other is only conditionally closed
 public void test056d_suppress() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // annotations used
 	Map options = getCompilerOptions();
 	enableAllWarningsForIrritants(options, IrritantSet.RESOURCE);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -775,19 +770,7 @@ public void test056k() {
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, CompilerOptions.ERROR);
-	String expectedProblems = this.complianceLevel < ClassFileConstants.JDK1_7 ?
-				"----------\n" +
-				"1. ERROR in X.java (at line 15)\n" +
-				"	ra2 = new FileReader(file);\n" +
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Resource leak: \'ra2\' is never closed\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 28)\n" +
-				"	rb2 = new FileReader(file);\n" +
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Resource leak: \'rb2\' is never closed\n" +
-				"----------\n"
-			:
+	String expectedProblems =
 				"----------\n" +
 				"1. ERROR in X.java (at line 12)\n" +
 				"	FileReader ra1 = null, ra2 = null;\n" +
@@ -874,7 +857,7 @@ public void test056l() {
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, CompilerOptions.ERROR);
-	String expectedProblems = this.complianceLevel >= ClassFileConstants.JDK1_7 ?
+	String expectedProblems =
 				"----------\n" +
 				"1. ERROR in X.java (at line 8)\n" +
 				"	FileReader fileReader = getReader();\n" +
@@ -895,18 +878,6 @@ public void test056l() {
 				"	new X(r2).foo(new FileReader(new File(\"notthere\"))); // potential problem: foo may/may not close the new FileReader\n" +
 				"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				potentialLeakOrCloseNotShown("<unassigned Closeable value>") +
-				"----------\n"
-			:
-				"----------\n" +
-				"1. ERROR in X.java (at line 24)\n" +
-				"	FileReader r2 = new FileReader(new File(\"inexist\")); // only potential problem: ctor X below might close r2\n" +
-				"	           ^^\n" +
-				"Potential resource leak: 'r2' may not be closed\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 25)\n" +
-				"	new X(r2).foo(new FileReader(new File(\"notthere\"))); // potential problem: foo may/may not close the new FileReader\n" +
-				"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" +
 				"----------\n";
 	runLeakTest(
 		new String[] {
@@ -1074,7 +1045,6 @@ public void test056o() {
 // Bug 362332 - Only report potential leak when closeable not created in the local scope
 // a method uses an AutoCloseable without ever closing it, type from a type variable
 public void test056p() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // generics used
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -1208,7 +1178,6 @@ public void test056r() {
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // resource inside t-w-r is re-assigned, shouldn't even record an errorLocation
 public void test056s() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
 	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.WARNING);
@@ -1284,7 +1253,6 @@ public void test056t() {
 // resource is reassigned within t-w-r with different resource
 // was initially broken due to https://bugs.eclipse.org/358827
 public void test056u() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
 	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.WARNING);
@@ -1342,7 +1310,7 @@ public void test056v() {
 	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.WARNING);
 	options.put(JavaCore.COMPILER_PB_EXPLICITLY_CLOSED_AUTOCLOSEABLE, CompilerOptions.WARNING);
 	options.put(JavaCore.COMPILER_PB_DEAD_CODE, CompilerOptions.ERROR);
-	String expectedProblems = this.complianceLevel >= ClassFileConstants.JDK1_7 ?
+	String expectedProblems =
 				"----------\n" +
 				"1. ERROR in X.java (at line 4)\n" +
 				"	FileReader reader = new FileReader(\"file\");\n" +
@@ -1355,18 +1323,6 @@ public void test056v() {
 				"Resource 'reader111' should be managed by try-with-resource\n" +
 				"----------\n" +
 				"3. ERROR in X.java (at line 42)\n" +
-				"	return;\n" +
-				"	^^^^^^^\n" +
-				"Resource leak: 'reader2' is not closed at this location\n" +
-				"----------\n"
-			:
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	FileReader reader = new FileReader(\"file\");\n" +
-				"	           ^^^^^^\n" +
-				"Resource leak: 'reader' is never closed\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 42)\n" +
 				"	return;\n" +
 				"	^^^^^^^\n" +
 				"Resource leak: 'reader2' is not closed at this location\n" +
@@ -2695,7 +2651,6 @@ public void test061f4() throws IOException {
 // Bug 358903 - Filter practically unimportant resource leak warnings
 // a t-w-r wraps an existing resource
 public void test061p() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -2725,7 +2680,6 @@ public void test061p() {
 // a t-w-r potentially wraps an existing resource
 // DISABLED, fails because we currently don't include t-w-r managed resources in the analysis
 public void _test061q() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -3090,7 +3044,6 @@ public void test063e() {
 // Bug 368709 - Endless loop in FakedTrackingVariable.markPassedToOutside
 // original test case from jgit
 public void testBug368709a() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	String JDK8225763_Fix = isJRE25Plus ?
 			"2. ERROR in X.java (at line 17)\n" +
 			"	in = new BufferedInputStream(new InflaterInputStream(in, wc.inflater(), 8192), 8192);\n" +
@@ -3165,7 +3118,6 @@ public void testBug368709a() {
 // Bug 368709 - Endless loop in FakedTrackingVariable.markPassedToOutside
 // minimal test case: constructing an indirect self-wrapper
 public void testBug368709b() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	String JDK8225763_Fix = isJRE25Plus ?
 			"2. ERROR in X.java (at line 6)\n" +
 			"	in = new BufferedInputStream(new InflaterInputStream(in, inflater(), 8192), 8192);\n" +
@@ -3439,7 +3391,6 @@ public void test068() {
 // Bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
 // example from comment 16
 public void test069() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // generics used
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4077,7 +4028,6 @@ public void testBug381445_1() {
 // Bug 405569 - Resource leak check false positive when using DbUtils.closeQuietly
 // A resource is closed using more known close helpers
 public void testBug381445_1b() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // need AutoCloseable in apache's DbUtils
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -4175,7 +4125,6 @@ public void testBug381445_2() {
 // Bug 381445 - [compiler][resource] Can the resource leak check be made aware of Closeables.closeQuietly?
 // A close helper is referenced in various ways:
 public void testBug381445_3() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // using static import
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -4511,7 +4460,6 @@ public void testBug376053() {
 
 // https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
 public void testBug411098_test1() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -4532,7 +4480,6 @@ public void testBug411098_test1() {
 
 // https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
 public void testBug411098_test2() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -4561,7 +4508,6 @@ public void testBug411098_test2() {
 
 // https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
 public void testBug411098_test3() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -4591,7 +4537,6 @@ public void testBug411098_test3() {
 
 // https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
 public void testBug411098_test4() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -4616,7 +4561,6 @@ public void testBug411098_test4() {
 
 // https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
 public void testBug411098_test5() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -4637,7 +4581,6 @@ public void testBug411098_test5() {
 
 // https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
 public void testBug411098_test6() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -4659,7 +4602,6 @@ public void testBug411098_test6() {
 // https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
 // challenge nested resource allocations
 public void testBug411098_test7() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -4702,8 +4644,6 @@ public void testBug411098_comment19() {
 }
 // normal java.util.stream.Stream doesn't hold on to any resources
 public void testStream1() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return; // uses JRE 8 API
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -4724,8 +4664,6 @@ public void testStream1() {
 }
 // normal java.util.stream.IntStream doesn't hold on to any resources
 public void testStream1_Int() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return; // uses JRE 8 API
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -4747,8 +4685,6 @@ public void testStream1_Int() {
 }
 // normal java.util.stream.{Double,Long}Stream doesn't hold on to any resources
 public void testStream1_Double_Long() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return; // uses JRE 8 API
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -4770,8 +4706,6 @@ public void testStream1_Double_Long() {
 }
 // normal java.util.stream.{Double,Long}Stream doesn't hold on to any resources
 public void testStreamEx_572707() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // uses JRE 8 API
-
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -4791,8 +4725,6 @@ public void testStreamEx_572707() {
 		options);
 }
 public void testStreamEx_GH2919() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // uses JRE 8 API
-
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -4813,8 +4745,6 @@ public void testStreamEx_GH2919() {
 }
 // Functions java.nio.file.Files.x() returning *Stream* do produce a resource needing closing
 public void testStream2() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return; // uses JRE 8 API
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -4841,8 +4771,6 @@ public void testStream2() {
 }
 // closeable, but Stream, but produced by Files.m, but only potentially closed:
 public void testStream3() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return; // uses JRE 8 API
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -4870,8 +4798,6 @@ public void testStream3() {
 }
 // special stream from Files.m is properly handled by t-w-r
 public void testStream4() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return; // uses JRE 8 API
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -4892,8 +4818,6 @@ public void testStream4() {
 		);
 }
 public void testBug415790_ex2() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5)
-		return; // uses foreach
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -5004,7 +4928,6 @@ public void testBug371614_comment0() {
 		options);
 }
 public void testBug371614_comment2() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -5049,7 +4972,6 @@ public void testBug371614_comment2() {
 		options);
 }
 public void testBug371614_comment8() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -5074,7 +4996,6 @@ public void testBug371614_comment8() {
 		options);
 }
 public void testBug462371_orig() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -5190,7 +5111,6 @@ public void testBug421035() {
 		options);
 }
 public void testBug444964() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -5222,7 +5142,6 @@ public void testBug444964() {
 		options);
 }
 public void testBug397204() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -5283,7 +5202,6 @@ public void testBug397204() {
 		options);
 }
 public void testBug397204_comment4() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -5306,7 +5224,6 @@ public void testBug397204_comment4() {
 		options);
 }
 public void testBug433510() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -5420,7 +5337,6 @@ protected String getTestBug440282_log() {
 		"----------\n";
 }
 public void testBug390064() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // generics used
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -5535,7 +5451,6 @@ public void testBug396575() {
 		options);
 }
 public void testBug473317() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // using diamond
 	Map<String, String> compilerOptions = getCompilerOptions();
 	compilerOptions.put(JavaCore.COMPILER_PB_SYNTHETIC_ACCESS_EMULATION, JavaCore.IGNORE);
 	Runner runner = new Runner();
@@ -5620,7 +5535,6 @@ public void testBug473317() {
 	runner.runWarningTest(); // javac warns about exception thrown from close() method
 }
 public void testBug541705() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // uses diamond
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
 	runner.customOptions.put(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, CompilerOptions.ERROR);
@@ -5859,7 +5773,6 @@ public void testBug542707_003() {
 		options);
 }
 public void testBug486506() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8) return;
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
 	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -5941,7 +5854,6 @@ public void testBug463320() {
 		options);
 }
 public void testBug463320_comment8() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // required version of java.nio.file.*
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -5976,8 +5888,6 @@ public void testBug463320_comment8() {
 		options);
 }
 public void testBug558574() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses varargs signatures
-
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -6009,7 +5919,6 @@ public void testBug558574() {
 		options);
 }
 public void testBug560460() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // uses try-with-resources
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -6052,8 +5961,6 @@ public void testBug463320_comment19() {
 		options);
 }
 public void testBug552521() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // uses try-with-resources
-
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
@@ -6198,8 +6105,6 @@ public void testBug552521() {
 		options);
 }
 public void testBug552521_comment14() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses foreach
-
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -6238,8 +6143,6 @@ public void testBug552521_comment14() {
 		options);
 }
 public void testBug552521_comment14b() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses foreach
-
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -6286,8 +6189,6 @@ public void testBug552521_comment14b() {
 		options);
 }
 public void testBug519740() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // uses try-with-resources
-
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -6307,8 +6208,6 @@ public void testBug519740() {
 		options);
 }
 public void testBug552441() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // uses try-with-resources
-
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -6442,7 +6341,6 @@ public void testBug527761() {
 		options);
 }
 public void testBug527761_otherClose() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses generics
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -6497,7 +6395,6 @@ public void testBug527761_neg() {
 }
 // regression caused by Bug 527761
 public void testBug558759() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses generics
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -6530,7 +6427,6 @@ public void testBug558759() {
 			"", "", "", null);
 }
 public void testBug559119() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses @Override
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
@@ -6568,7 +6464,6 @@ public void testBug559119() {
 		options);
 }
 public void testBug560610() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses enum
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
@@ -6594,7 +6489,6 @@ public void testBug560610() {
 		options);
 }
 public void testBug560671() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // uses t-w-r
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
@@ -7079,8 +6973,6 @@ public void testBug499037_010_since_9() {
 		options);
 }
 public void testGH1762() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7)
-		return; // uses t-w-r
 	runLeakTest(
 		new String[] {
 			"X.java",
@@ -7153,8 +7045,6 @@ public void testGH1867() {
 		options);
 }
 public void testGH1867_dupes() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8) // uses lambda
-		return;
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -7214,8 +7104,6 @@ public void testGH1867_dupes() {
 		options);
 }
 public void testGH2207_1() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return;
 	// relevant only since 19, where ExecutorService implements AutoCloseable
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -7242,8 +7130,6 @@ public void testGH2207_1() {
 		options);
 }
 public void testGH2129() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_6) // override for implementing interface method
-		return;
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
