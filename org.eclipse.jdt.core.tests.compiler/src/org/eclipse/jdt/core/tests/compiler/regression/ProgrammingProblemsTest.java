@@ -4168,4 +4168,45 @@ public void testGH3870() {
 				s.equals(args)""";
 	runner.runConformTest();
 }
+//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3944
+//Don't report unused parameter for methods implementing a functional interface by method reference
+public void testGH3944() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.ERROR);
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, CompilerOptions.DISABLED);
+	this.runConformTest(
+			new String[] {
+					"Showcase.java",
+					"""
+					public class Showcase {
+					    @FunctionalInterface
+					    interface MyFunction {
+					        int apply(int someParam, int someOtherParam);
+					    }
+
+					    public static void main(String[] args) {
+					        test(Showcase::methodImplementation);
+					    }
+
+					    private static void test(MyFunction func) {
+					        int result = func.apply(42, 9001);
+					        System.out.println("Result: " + result);
+					    }
+
+					    // someParam marked as unused, even if "Ignore in overriding and implementing method" is checked
+					    private static int methodImplementation(int someParam, int someOtherParam) {
+					        return someOtherParam;
+					    }
+					}
+					"""
+			},
+			"Result: 9001",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			null/*vmArguments*/,
+			customOptions,
+			null/*requestor*/);
+}
 }

@@ -715,6 +715,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
         MethodBinding someMethod = null;
         if (isMethodReference) {
         	someMethod = scope.getMethod(this.receiverType, this.selector, descriptorParameters, this);
+        	someMethod.modifiers |= ExtraCompilerModifiers.AccImplementing;
         } else {
         	if (this.receiverType instanceof LocalTypeBinding local) {
         		MethodScope enclosingMethodScope = local.scope.enclosingMethodScope();
