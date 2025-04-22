@@ -81,7 +81,7 @@ public abstract class JavacErrorMethodBinding extends JavacMethodBinding {
 	@Override
 	public ITypeBinding getDeclaringClass() {
 		if (this.originatingSymbol instanceof ClassSymbol clazz && clazz.owner instanceof ClassSymbol actualOwner) {
-			this.resolver.bindings.getTypeBinding(actualOwner.type);
+			return this.resolver.bindings.getTypeBinding(actualOwner.type);
 		}
 		return null;
 	}

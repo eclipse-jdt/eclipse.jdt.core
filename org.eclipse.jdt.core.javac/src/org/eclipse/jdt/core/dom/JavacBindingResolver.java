@@ -403,7 +403,7 @@ public class JavacBindingResolver extends BindingResolver {
 			if (binding != null) {
 				return binding;
 			}
-			binding = this.typeBinding.values()
+			binding = new ArrayList<>(this.typeBinding.values())
 					.stream()
 					.filter(typeBinding -> key.equals(typeBinding.getKey()))
 					.findAny()
@@ -829,6 +829,26 @@ public class JavacBindingResolver extends BindingResolver {
 		var sym = javacElement instanceof JCIdent ident ? ident.sym :
 			javacElement instanceof JCFieldAccess fieldAccess ? fieldAccess.sym :
 				null;
+
+		// Let's handle error types first
+		if (type instanceof ErrorType errorType ) {
+			com.sun.tools.javac.code.Type original = errorType.getOriginalType();
+			if( original instanceof ForAll fa) {
+				original = fa.asMethodType();
+			}
+			if( original instanceof MethodType methodType) {
+				if (sym.owner instanceof TypeSymbol typeSymbol) {
+					Iterator<Symbol> methods = typeSymbol.members().getSymbolsByName(sym.getSimpleName(), m -> m instanceof MethodSymbol && methodType.equals(m.type)).iterator();
+					if (methods.hasNext()) {
+						return this.bindings.getMethodBinding(methodType, (MethodSymbol)methods.next(), null, false);
+					}
+				}
+				return this.bindings.getErrorMethodBinding(methodType, sym);
+			}
+		}
+
+
+
 		if (type instanceof MethodType methodType && sym instanceof MethodSymbol methodSymbol) {
 			com.sun.tools.javac.code.Type parentType = null;
 			if (methodSymbol.owner instanceof ClassSymbol ownerClass && isTypeOfType(ownerClass.type)) {
@@ -841,15 +861,6 @@ public class JavacBindingResolver extends BindingResolver {
 				}
 			}
 			return this.bindings.getMethodBinding(methodType, methodSymbol, parentType, false);
-		}
-		if (type instanceof ErrorType errorType && errorType.getOriginalType() instanceof MethodType methodType) {
-			if (sym.owner instanceof TypeSymbol typeSymbol) {
-				Iterator<Symbol> methods = typeSymbol.members().getSymbolsByName(sym.getSimpleName(), m -> m instanceof MethodSymbol && methodType.equals(m.type)).iterator();
-				if (methods.hasNext()) {
-					return this.bindings.getMethodBinding(methodType, (MethodSymbol)methods.next(), null, false);
-				}
-			}
-			return this.bindings.getErrorMethodBinding(methodType, sym);
 		}
 		if (type == null && sym instanceof MethodSymbol methodSym && methodSym.type instanceof ForAll methodTemplateType) {
 			// build type from template

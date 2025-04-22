@@ -73,5 +73,9 @@ public class NodeSetWrapper {
 	void addTrustedMatch(org.eclipse.jdt.core.dom.ASTNode node, Integer level) {
 		this.trustedASTNodeLevels.put(node, level);
 	}
+	int getTrustedMatch(org.eclipse.jdt.core.dom.ASTNode node) {
+		Integer i = this.trustedASTNodeLevels.get(node);
+		return i == null ? 0 : i.intValue();
+	}
 
 }

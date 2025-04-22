@@ -12,18 +12,23 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.JdtCoreDomPackagePrivateUtility;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
+import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.BinaryMethod;
 import org.eclipse.jdt.internal.core.search.DOMASTNodeUtils;
 import org.eclipse.jdt.internal.core.search.LocatorResponse;
@@ -136,6 +141,11 @@ public class DOMMethodLocator extends DOMPatternLocator {
 
 	@Override
 	public LocatorResponse match(Name node, NodeSetWrapper nodeSet, MatchLocator locator) {
+		if( node.getParent() instanceof MethodInvocation mi && mi.getName() == node) {
+//			if( nodeSet.getTrustedMatch(mi) > IMPOSSIBLE_MATCH ) {
+				return toResponse(IMPOSSIBLE_MATCH);
+//			}
+		}
 		String name = node.toString();
 		String[] segments = name.split("\\."); //$NON-NLS-1$
 		String lastSegment = segments == null || segments.length == 0 ? null : segments[segments.length-1];
@@ -147,22 +157,114 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		return toResponse(level);
 	}
 
-
-	protected int matchMethod(IMethodBinding method, boolean skipImpossibleArg) {
+	protected int matchMethod(ASTNode node, IMethodBinding method, boolean skipImpossibleArg) {
 		if (!this.locator.matchesName(this.locator.pattern.selector, method.getName().toCharArray())) return IMPOSSIBLE_MATCH;
 
+		int level = matchMethodBindingName(method);
+		if (level == IMPOSSIBLE_MATCH)
+			return level;
+
+		level = matchMethodBindingParameters(method, skipImpossibleArg, level);
+		if (level == IMPOSSIBLE_MATCH)
+			return level;
+
+		level = matchMethodBindingTypeArguments(node, method, skipImpossibleArg, level);
+		return level;
+	}
+
+	private boolean isPatternErasureMatch() {
+		int r = this.locator.pattern.getMatchRule();
+		return (r & SearchPattern.R_ERASURE_MATCH) == SearchPattern.R_ERASURE_MATCH;
+	}
+	private boolean isPatternEquivalentMatch() {
+		int r = this.locator.pattern.getMatchRule();
+		return (r & SearchPattern.R_EQUIVALENT_MATCH) == SearchPattern.R_EQUIVALENT_MATCH;
+	}
+	private boolean isPatternExactMatch() {
+		int r = this.locator.pattern.getMatchRule();
+		return (r & SearchPattern.R_FULL_MATCH) == SearchPattern.R_FULL_MATCH;
+	}
+
+	private int matchMethodBindingTypeArguments(ASTNode node, IMethodBinding method, boolean skipImpossibleArg, int level) {
+		boolean potentialMatchOnly = false;
+		if (this.locator.pattern.hasMethodArguments()) {
+			ITypeBinding[] argBindings = method.getTypeArguments();
+			char[][] goal = this.locator.pattern.methodArguments;
+			if( goal == null ) {
+				return level;
+			}
+			if( argBindings == null || argBindings.length == 0 ) {
+				// just check from the node real quick
+				List<ASTNode> typeArgsFromNode = null;
+				if( node instanceof MethodInvocation mi) {
+					typeArgsFromNode = mi.typeArguments();
+					potentialMatchOnly = true;
+				} else if( node instanceof MethodDeclaration md) {
+					typeArgsFromNode = md.typeParameters();
+				}
+				if(typeArgsFromNode != null && typeArgsFromNode.size() > 0 ) {
+					// Something is wrong with the binding. Maybe an error node
+					List<ITypeBinding> tmp = typeArgsFromNode.stream().map(DOMASTNodeUtils::getBinding).
+							filter(x -> x instanceof ITypeBinding).
+							map(x -> (ITypeBinding)x).
+							collect(Collectors.toList());
+					argBindings = tmp.toArray(new ITypeBinding[tmp.size()]);
+				}
+			}
+			if( argBindings == null || argBindings.length == 0 ) {
+				return goal == null || goal.length == 0 ? level : IMPOSSIBLE_MATCH;
+			}
+
+			// Now we need to do the hard work of comparing one to another
+			if( argBindings.length != goal.length  )
+				return IMPOSSIBLE_MATCH;
+
+			boolean isExactPattern = isPatternExactMatch();
+			boolean isErasurePattern = isPatternErasureMatch();
+			boolean isEquivPattern = isPatternEquivalentMatch();
+
+			for( int i = 0; i < argBindings.length; i++ ) {
+				// Compare each
+				String goaliString = new String(goal[i]);
+				IBinding patternBinding = JdtCoreDomPackagePrivateUtility.findBindingForType(node, goaliString);
+				boolean match = TypeArgumentMatchingUtility.validateSingleTypeArgMatches(isExactPattern, goaliString, patternBinding, argBindings[i]);
+				if( !match ) {
+					if( isExactPattern) {
+						return IMPOSSIBLE_MATCH;
+					}
+					if( !isErasurePattern && !isEquivPattern ) {
+						return IMPOSSIBLE_MATCH;
+					}
+
+					if( potentialMatchOnly ) {
+						return INACCURATE_MATCH;
+					}
+					return ERASURE_MATCH;
+				}
+			}
+		}
+
+		return level;
+	}
+
+	protected int matchMethodBindingName(IMethodBinding binding) {
 		int level = ACCURATE_MATCH;
 		// look at return type only if declaring type is not specified
 		if (this.locator.pattern.declaringSimpleName == null) {
 			// TODO (frederic) use this call to refine accuracy on return type
 			// int newLevel = resolveLevelForType(this.locator.pattern.returnSimpleName, this.locator.pattern.returnQualification, this.locator.pattern.returnTypeArguments, 0, method.returnType);
-			int newLevel = resolveLevelForType(this.locator.pattern.returnSimpleName, this.locator.pattern.returnQualification, method.getReturnType());
+			int newLevel = resolveLevelForType(this.locator.pattern.returnSimpleName, this.locator.pattern.returnQualification,
+					binding.getReturnType());
 			if (level > newLevel) {
-				if (newLevel == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
+				if (newLevel == IMPOSSIBLE_MATCH)
+					return IMPOSSIBLE_MATCH;
 				level = newLevel; // can only be downgraded
 			}
 		}
+		return level;
+	}
 
+	private int matchMethodBindingParameters(IMethodBinding method, boolean skipImpossibleArg, int level) {
 		// parameter types
 		int parameterCount = this.locator.pattern.parameterSimpleNames == null ? -1 : this.locator.pattern.parameterSimpleNames.length;
 		if (parameterCount > -1) {
@@ -244,9 +346,10 @@ public class DOMMethodLocator extends DOMPatternLocator {
 	public LocatorResponse resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
 		if (binding instanceof IMethodBinding method) {
 			boolean skipVerif = this.locator.pattern.findDeclarations && this.locator.mayBeGeneric;
-			int methodLevel = matchMethod(method, skipVerif);
+			int methodLevel = matchMethod(node, method, skipVerif);
 			if (methodLevel == IMPOSSIBLE_MATCH) {
-				if (method != method.getMethodDeclaration()) methodLevel = matchMethod(method.getMethodDeclaration(), skipVerif);
+				if (method != method.getMethodDeclaration())
+					methodLevel = matchMethod(node, method.getMethodDeclaration(), skipVerif);
 				if (methodLevel == IMPOSSIBLE_MATCH) {
 					return toResponse(IMPOSSIBLE_MATCH);
 				} else {
@@ -271,9 +374,10 @@ public class DOMMethodLocator extends DOMPatternLocator {
 			if (subType && this.locator.pattern.declaringQualification != null && method.getDeclaringClass() != null && method.getDeclaringClass().getPackage() != null) {
 				subType = CharOperation.compareWith(this.locator.pattern.declaringQualification, method.getDeclaringClass().getPackage().getName().toCharArray()) == 0;
 			}
+			ITypeBinding declaring = method.getDeclaringClass();
 			int declaringLevel = subType
-				? resolveLevelAsSubtype(this.locator.pattern.declaringSimpleName, this.locator.pattern.declaringQualification, method.getDeclaringClass(), method.getName(), null, method.getDeclaringClass().getPackage().getName(), (method.getModifiers() & Modifier.DEFAULT) != 0)
-				: this.resolveLevelForType(this.locator.pattern.declaringSimpleName, this.locator.pattern.declaringQualification, method.getDeclaringClass());
+				? resolveLevelAsSubtype(this.locator.pattern.declaringSimpleName, this.locator.pattern.declaringQualification, declaring, method.getName(), null, declaring.getPackage().getName(), (method.getModifiers() & Modifier.DEFAULT) != 0)
+				: this.resolveLevelForType(this.locator.pattern.declaringSimpleName, this.locator.pattern.declaringQualification, declaring);
 			int level = (methodLevel & PatternLocator.MATCH_LEVEL_MASK) > (declaringLevel & PatternLocator.MATCH_LEVEL_MASK) ? declaringLevel : methodLevel; // return the weaker match
 			return toResponse(level);
 		}

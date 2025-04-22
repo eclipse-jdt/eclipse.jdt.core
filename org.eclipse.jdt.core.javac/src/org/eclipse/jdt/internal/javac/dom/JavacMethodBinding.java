@@ -136,6 +136,9 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public IAnnotationBinding[] getAnnotations() {
+		if( methodSymbol == null ) {
+			return new IAnnotationBinding[0];
+		}
 		return methodSymbol.getAnnotationMirrors().stream().map(ann -> this.resolver.bindings.getAnnotationBinding(ann, this)).toArray(IAnnotationBinding[]::new);
 	}
 
@@ -185,17 +188,17 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public boolean isDeprecated() {
-		return this.methodSymbol.isDeprecated();
+		return this.methodSymbol != null ? this.methodSymbol.isDeprecated() : false;
 	}
 
 	@Override
 	public boolean isRecovered() {
-		return this.methodSymbol.kind == Kinds.Kind.ERR;
+		return this.methodSymbol == null ? true : this.methodSymbol.kind == Kinds.Kind.ERR;
 	}
 
 	@Override
 	public boolean isSynthetic() {
-		return (this.methodSymbol.flags() & Flags.SYNTHETIC) != 0;
+		return this.methodSymbol != null && (this.methodSymbol.flags() & Flags.SYNTHETIC) != 0;
 	}
 
 	@Override
@@ -488,7 +491,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		if (this.parentType != null) {
 			return this.resolver.bindings.getTypeBinding(this.parentType, isDeclaration);
 		}
-		if (this.methodSymbol.owner instanceof ClassSymbol clazz) {
+		if (this.methodSymbol != null && this.methodSymbol.owner instanceof ClassSymbol clazz) {
 			return this.resolver.bindings.getTypeBinding(clazz.type, isDeclaration);
 		}
 		return null;
@@ -553,9 +556,18 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		if (this.getTypeArguments().length != 0) {
 			return NO_TYPE_PARAMS;
 		}
-		return this.methodSymbol.getTypeParameters().stream()
-				.map(symbol -> this.resolver.bindings.getTypeBinding(symbol.type))
-				.toArray(ITypeBinding[]::new);
+		if( this.methodSymbol != null ) {
+			return this.methodSymbol.getTypeParameters().stream()
+					.map(symbol -> this.resolver.bindings.getTypeBinding(symbol.type))
+					.toArray(ITypeBinding[]::new);
+		}
+		// We have no methodSymbol, most likely an error node
+		if( this.methodType != null ) {
+			List<Type> testing = this.methodType.getTypeArguments();
+			System.out.println("abc");
+		}
+		String zzz = this.toString();
+		return new ITypeBinding[0];
 	}
 
 	@Override
@@ -605,12 +617,20 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		// we must compute the arguments ourselves by computing a mapping from the method with type variables
 		// to the specific instance that potentially has the type variables substituted for real types
 		Map<Type, Type> typeMap = new HashMap<>();
+		Type methodSymbolType = null;
+		if( this.methodSymbol != null ) {
+			methodSymbolType = this.methodSymbol.type;
+		} else {
+			methodSymbolType = methodType;
+		}
+
 		// scrape the parameters
-		for (int i = 0; i < methodSymbol.type.getParameterTypes().size(); i++) {
+		List<Type> paramTypes = methodSymbolType.getParameterTypes();
+		for (int i = 0; i < paramTypes.size(); i++) {
 			ListBuffer<Type> originalTypes = new ListBuffer<>();
 			ListBuffer<Type> substitutedTypes = new ListBuffer<>();
 			this.resolver.getTypes().adapt(
-					methodSymbol.type.getParameterTypes().get(i),
+					paramTypes.get(i),
 					methodType.getParameterTypes().get(i), originalTypes, substitutedTypes);
 			List<Type> originalTypesList = originalTypes.toList();
 			List<Type> substitutedTypesList = substitutedTypes.toList();
@@ -622,7 +642,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 			// also scrape the return type
 			ListBuffer<Type> originalTypes = new ListBuffer<>();
 			ListBuffer<Type> substitutedTypes = new ListBuffer<>();
-			this.resolver.getTypes().adapt(methodSymbol.type.getReturnType(), methodType.getReturnType(), originalTypes, substitutedTypes);
+			this.resolver.getTypes().adapt(methodSymbolType.getReturnType(), methodType.getReturnType(), originalTypes, substitutedTypes);
 			List<Type> originalTypesList = originalTypes.toList();
 			List<Type> substitutedTypesList = substitutedTypes.toList();
 			for (int j = 0; j < originalTypesList.size(); j++) {
@@ -645,10 +665,13 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 			return NO_TYPE_ARGUMENTS;
 		}
 
-		return this.methodSymbol.getTypeParameters().stream() //
-				.map(tvSym -> typeMap.get(tvSym.type)) //
-				.map(this.resolver.bindings::getTypeBinding) //
-				.toArray(ITypeBinding[]::new);
+		if( this.methodSymbol != null ) {
+			return this.methodSymbol.getTypeParameters().stream() //
+					.map(tvSym -> typeMap.get(tvSym.type)) //
+					.map(this.resolver.bindings::getTypeBinding) //
+					.toArray(ITypeBinding[]::new);
+		}
+		return NO_TYPE_ARGUMENTS;
 	}
 
 	@Override
@@ -656,7 +679,8 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		// This method intentionally converts the type to its generic type,
 		// i.e. drops the type arguments
 		// i.e. <code>this.<String>getValue(12);</code> will be converted back to <code><T> T getValue(int i) {</code>
-		return this.resolver.bindings.getMethodBinding(methodSymbol.type.asMethodType(), methodSymbol, null, true);
+		MethodType mt = (this.methodSymbol == null ? this.methodType : this.methodSymbol.type.asMethodType());
+		return this.resolver.bindings.getMethodBinding(mt, methodSymbol, null, true);
 	}
 
 	@Override
@@ -678,14 +702,22 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 			return false;
 		}
 		if (method instanceof JavacMethodBinding javacMethod) {
+			if( this.methodSymbol == null ) {
+				return javacMethod.methodSymbol == null;
+			}
+
 			return Objects.equals(this.methodSymbol.name, javacMethod.methodSymbol.name)
-				&&this.methodSymbol.overrides(((JavacMethodBinding)method).methodSymbol, javacMethod.methodSymbol.enclClass(), this.resolver.getTypes(), true);
+				&& this.methodSymbol.overrides(((JavacMethodBinding)method).methodSymbol, javacMethod.methodSymbol.enclClass(), this.resolver.getTypes(), true);
 		}
 		return false;
 	}
 
 	@Override
 	public IVariableBinding[] getSyntheticOuterLocals() {
+		if( this.methodSymbol == null ) {
+			return new IVariableBinding[0];
+		}
+
 		if (!this.methodSymbol.isLambdaMethod()) {
 			return new IVariableBinding[0];
 		}
@@ -698,13 +730,13 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	public boolean isSyntheticRecordMethod() {
 		return this.explicitSynthetic || (!this.methodSymbol.isStatic()
 				&& !isConstructor()
-				&& (this.methodSymbol.flags() & (Flags.GENERATED_MEMBER | Flags.SYNTHETIC | Flags.RECORD)) != 0
+				&& (this.methodSymbol != null && (this.methodSymbol.flags() & (Flags.GENERATED_MEMBER | Flags.SYNTHETIC | Flags.RECORD)) != 0)
 				&& getDeclaringClass().isRecord());
 	}
 
 	@Override
 	public String[] getParameterNames() {
-		if (this.methodSymbol.getParameters() == null) {
+		if (this.methodSymbol == null || this.methodSymbol.getParameters() == null) {
 			return new String[0];
 		}
 		return this.methodSymbol.getParameters().stream() //
