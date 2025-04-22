@@ -64,6 +64,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -2082,6 +2083,10 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					// case or default label required before regular body statements
 					suggestDefaultCompletions = false;
 				}
+			}
+			if (context instanceof ArrayInitializer) {
+				publishFromScope(defaultCompletionBindings);
+				suggestDefaultCompletions = false;
 			}
 			if (context != null && context.getLocationInParent() == QualifiedType.NAME_PROPERTY && context.getParent() instanceof QualifiedType qType) {
 				Type qualifier = qType.getQualifier();
