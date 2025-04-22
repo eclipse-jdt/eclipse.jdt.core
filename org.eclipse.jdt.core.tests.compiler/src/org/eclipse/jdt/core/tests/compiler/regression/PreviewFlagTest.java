@@ -218,4 +218,28 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 		runner.expectedOutputString = "42";
 		runner.runConformTest();
 	}
+	public void testIssue3943_001() throws IOException, ClassFormatException {
+		Map<String, String> options = getCompilerOptions();
+		String str = options.get(CompilerOptions.OPTION_EnablePreviews);
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_24);
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_24);
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_24);
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						ScopedValue<Integer> si = ScopedValue.newInstance();
+						System.out.println(si == null ? "hello" : "world");
+					}
+				}
+				"""},
+			"world",
+			options);
+		options.put(CompilerOptions.OPTION_Compliance, str);
+		options.put(CompilerOptions.OPTION_Source, str);
+		options.put(CompilerOptions.OPTION_TargetPlatform, str);
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	}
 }

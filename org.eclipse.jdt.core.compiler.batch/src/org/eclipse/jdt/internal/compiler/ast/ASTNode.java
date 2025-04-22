@@ -458,7 +458,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		return this;
 	}
 	private void reportPreviewAPI(Scope scope, IBinaryAnnotation previewAnnotation) {
-		if(previewAnnotation != null) {
+		if(previewAnnotation != null &&
+				scope.compilerOptions().complianceLevel >= ClassFileConstants.getLatestJDKLevel()) {
 			scope.problemReporter().previewAPIUsed(scope, this.sourceStart, this.sourceEnd, previewAnnotation);
 		}
 	}
