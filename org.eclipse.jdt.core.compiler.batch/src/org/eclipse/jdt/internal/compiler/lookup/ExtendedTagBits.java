@@ -27,7 +27,6 @@ public interface ExtendedTagBits {
 
 	// Java 16 Records
 	int IsCanonicalConstructor = ASTNode.Bit4; // constructor
-	int isImplicit  = ASTNode.Bit5; // constructor and method
 
 	// @Owning / closing
 	int IsClosingMethod = ASTNode.Bit1; // method

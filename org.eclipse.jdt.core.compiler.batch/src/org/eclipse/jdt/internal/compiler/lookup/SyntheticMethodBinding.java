@@ -19,9 +19,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
@@ -437,25 +441,56 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.index = nextSmbIndex();
 	}
 
-	public SyntheticMethodBinding(ReferenceBinding declaringClass, RecordComponentBinding[] rcb) {
-		SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
-		assert declaringSourceType.isRecord();
-		this.declaringClass = declaringSourceType;
+	public SyntheticMethodBinding(SourceTypeBinding declaringClass, RecordComponentBinding[] rcb) {
+		this.declaringClass = declaringClass;
 		this.modifiers = declaringClass.modifiers & (ClassFileConstants.AccPublic|ClassFileConstants.AccPrivate|ClassFileConstants.AccProtected);
 		if (this.declaringClass.isStrictfp())
 			this.modifiers |= ClassFileConstants.AccStrictfp;
 		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 		this.extendedTagBits |= ExtendedTagBits.IsCanonicalConstructor;
-		this.extendedTagBits |= ExtendedTagBits.isImplicit;
 		this.parameters = rcb.length == 0 ? Binding.NO_PARAMETERS : new TypeBinding[rcb.length];
-		for (int i = 0; i < rcb.length; i++) this.parameters[i] = TypeBinding.VOID; // placeholder
+		this.parameterNames = rcb.length == 0 ? Binding.NO_PARAMETER_NAMES : new char[rcb.length][];
+		this.modifiers |= ExtraCompilerModifiers.AccUnresolved;
+		AnnotationBinding[][] paramAnnotations = null;
+		for (int i = 0, length = rcb.length; i < length; i++) {
+			this.parameters[i] = rcb[i].type;
+			this.parameterNames[i] = rcb[i].name;
+			TypeBinding leafType = rcb[i].type == null ? null : rcb[i].type.leafComponentType();
+			if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
+				this.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
+
+			List<AnnotationBinding> relevantAnnotationBindings = new ArrayList<>();
+			Annotation[] relevantAnnotations = ASTNode.getRelevantAnnotations(rcb[i].sourceRecordComponent().annotations, TagBits.AnnotationForParameter, relevantAnnotationBindings);
+			if (relevantAnnotations != null && relevantAnnotations.length > 0) {
+				if (paramAnnotations == null) {
+					paramAnnotations = new AnnotationBinding[length][];
+					for (int j=0; j<i; j++) {
+						paramAnnotations[j] = Binding.NO_ANNOTATIONS;
+					}
+				}
+				this.tagBits |= TagBits.HasParameterAnnotations;
+				paramAnnotations[i] = relevantAnnotationBindings.toArray(new AnnotationBinding[0]);
+			} else if (paramAnnotations != null) {
+				paramAnnotations[i] = Binding.NO_ANNOTATIONS;
+			}
+		}
+		if (paramAnnotations != null)
+			this.setParameterAnnotations(paramAnnotations);
+
+		if (rcb.length > 0) {
+			RecordComponent lastComponent = rcb[rcb.length-1].sourceRecordComponent();
+			if (lastComponent.isVarArgs()) {
+				this.modifiers |= ClassFileConstants.AccVarargs;
+				declaringClass.checkAndFlagHeapPollution(this, lastComponent);
+			}
+		}
 		this.selector = TypeConstants.INIT;
 		this.returnType = TypeBinding.VOID;
 		this.purpose = SyntheticMethodBinding.RecordCanonicalConstructor;
 		this.thrownExceptions = Binding.NO_EXCEPTIONS;
-		this.declaringClass = declaringSourceType;
 		this.index = nextSmbIndex();
 	}
+
 	public SyntheticMethodBinding(ReferenceBinding declaringClass, RecordComponentBinding rcb, int index) {
 		SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
 		assert declaringSourceType.isRecord();

@@ -90,6 +90,10 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 		return false;
 	}
 
+	public boolean isVarArgs() {
+		return false;
+	}
+
 	@Override
 	public StringBuilder printStatement(int indent, StringBuilder output) {
 		printAsExpression(indent, output);
@@ -154,11 +158,15 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 	 *
 	 * @param scope used to determine source level
 	 */
-	public boolean isUnnamed(BlockScope scope) {
+	public boolean isUnnamed(Scope scope) {
 		return this.name.length == 1 && this.name[0] == '_' && JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(scope.compilerOptions().sourceLevel, scope.compilerOptions().enablePreviewFeatures);
 	}
 
 	public void getAllAnnotationContexts(int targetType, List<AnnotationContext> allAnnotationContexts) {
+		// do nothing
+	}
+
+	public void getAllAnnotationContexts(int targetType, int parameterIndex, List<AnnotationContext> allAnnotationContexts) {
 		// do nothing
 	}
 

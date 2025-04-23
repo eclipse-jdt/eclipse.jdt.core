@@ -53,6 +53,7 @@ public class TypeParameter extends AbstractVariableDeclaration {
 		}
 	}
 
+	@Override
 	public void getAllAnnotationContexts(int targetType, int typeParameterIndex, List<AnnotationContext> allAnnotationContexts) {
 		AnnotationCollector collector = new AnnotationCollector(this, targetType, typeParameterIndex, allAnnotationContexts);
 		if (this.annotations != null) {
