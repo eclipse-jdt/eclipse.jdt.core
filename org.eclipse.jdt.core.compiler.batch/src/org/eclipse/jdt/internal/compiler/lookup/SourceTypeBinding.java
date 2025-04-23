@@ -2400,6 +2400,9 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 		method.parameters = new TypeBinding[length];
 		for (int i = 0; i < length; i++ ) {
 			method.parameters[i] = rcbs[i].type;
+			TypeBinding leafType = rcbs[i].type == null ? null : rcbs[i].type.leafComponentType();
+			if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
+				method.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 		}
 	}
 

@@ -10176,4 +10176,49 @@ public void testUnderscoreName() {
 						"As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters\n" +
 						"----------\n");
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3951
+// [Records] Generic signature is not preserved for compact constructors by PR #3928
+public void testIssue3951() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"""
+			import java.lang.annotation.Annotation;
+			import java.util.List;
+
+			public record X (List<Class<? extends Annotation>> classes) {
+				public X {
+
+				}
+
+				public static void main(String [] args) {
+					System.out.println("Ok!");
+				}
+			}
+			"""
+		},
+	 "Ok!");
+	String expectedOutput =
+			"  // Method descriptor #10 (Ljava/util/List;)V\n" +
+			"  // Signature: (Ljava/util/List<Ljava/lang/Class<+Ljava/lang/annotation/Annotation;>;>;)V\n" +
+			"  // Stack: 2, Locals: 2\n" +
+			"  public X(java.util.List classes);\n" +
+			"     0  aload_0 [this]\n" +
+			"     1  invokespecial java.lang.Record() [13]\n" +
+			"     4  aload_0 [this]\n" +
+			"     5  aload_1 [classes]\n" +
+			"     6  putfield X.classes : java.util.List [16]\n" +
+			"     9  return\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 5]\n" +
+			"        [pc: 4, line: 7]\n" +
+			"      Local variable table:\n" +
+			"        [pc: 0, pc: 10] local: this index: 0 type: X\n" +
+			"        [pc: 0, pc: 10] local: classes index: 1 type: java.util.List\n" +
+			"      Local variable type table:\n" +
+			"        [pc: 0, pc: 10] local: classes index: 1 type: java.util.List<java.lang.Class<? extends java.lang.annotation.Annotation>>\n" +
+			"      Method Parameters:\n" +
+			"        mandated classes\n";
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+}
 }
