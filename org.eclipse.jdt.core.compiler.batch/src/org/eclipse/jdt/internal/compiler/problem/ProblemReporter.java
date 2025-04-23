@@ -9560,18 +9560,21 @@ public void previewAPIUsed(Scope scope, int sourceStart, int sourceEnd, IBinaryA
 			}
 		} else
 			if (CharOperation.equals(valuePair.getName(), ConstantPool.REFLECTIVE)) {
-			if (valuePair.getValue() instanceof BooleanConstant bool)
-				isReflective = bool.booleanValue();
+				if (valuePair.getValue() instanceof BooleanConstant bool)
+					isReflective = bool.booleanValue();
 		}
 	}
 
-
-	String[] arguments = { featureName };
 	int problemId = -1;
 	int severity = -1;
 	if (!this.options.enablePreviewFeatures) {
-		problemId = IProblem.PreviewAPIDisabled;
-		severity = isReflective ? ProblemSeverities.Warning : ProblemSeverities.Error;
+		if (this.options.complianceLevel < ClassFileConstants.getLatestJDKLevel()) {
+			problemId = IProblem.PreviewAPIUsed;
+			severity = ProblemSeverities.Warning;
+		} else {
+			problemId = IProblem.PreviewAPIDisabled;
+			severity = isReflective ? ProblemSeverities.Warning : ProblemSeverities.Error;
+		}
 	} else {
 		this.referenceContext.compilationResult().usesPreview = true;
 		if (this.options.isAnyEnabled(IrritantSet.PREVIEW)) {
@@ -9579,14 +9582,9 @@ public void previewAPIUsed(Scope scope, int sourceStart, int sourceEnd, IBinaryA
 			problemId = IProblem.PreviewAPIUsed;
 		}
 	}
-	if (problemId != -1 && severity != -1)
-		this.handle(
-				problemId,
-				arguments,
-				arguments,
-				severity,
-				sourceStart,
-				sourceEnd);
+	if (problemId == -1 || severity == -1) return;
+	String[] arguments = { featureName };
+	this.handle(problemId, arguments, arguments, severity, sourceStart, sourceEnd);
 }
 //Returns true if the problem is handled and reported (only errors considered and not warnings)
 private boolean validateRestrictedKeywords(char[] name, int start, int end, boolean reportSyntaxError) {
