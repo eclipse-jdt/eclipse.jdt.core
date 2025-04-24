@@ -487,10 +487,6 @@ public class ClassScope extends Scope {
 			if (hasAbstractMethods)
 				problemReporter().abstractMethodInConcreteClass(sourceType);
 		}
-		if (sourceType.isRecord()) {
-			methodBindings = sourceType.checkAndAddSyntheticRecordMethods(methodBindings, count);
-			count = methodBindings.length;
-		}
 		if (count != methodBindings.length)
 			System.arraycopy(methodBindings, 0, methodBindings = new MethodBinding[count], 0, count);
 		sourceType.tagBits &= ~(TagBits.AreMethodsSorted|TagBits.AreMethodsComplete); // in case some static imports reached already into this type

@@ -98,6 +98,11 @@ public class RecordComponentBinding extends VariableBinding {
 		return originalRecordComponentBinding.tagBits;
 	}
 
+	@Override
+	public ReferenceBinding getDeclaringClass() {
+		return this.declaringRecord;
+	}
+
 	public final boolean isDeprecated() {
 		return (this.modifiers & ClassFileConstants.AccDeprecated) != 0;
 	}
