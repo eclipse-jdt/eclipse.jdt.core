@@ -722,7 +722,7 @@ public class JavacProblemConverter {
 					default -> IProblem.ParameterMismatch;
 				};
 			case "compiler.err.premature.eof" -> IProblem.ParsingErrorUnexpectedEOF; // syntax error
-			case "compiler.err.report.access" -> convertNotVisibleAccess(diagnostic);
+			case "compiler.err.report.access", "compiler.err.not.def.access.class.intf.cant.access" -> convertNotVisibleAccess(diagnostic);
 			case "compiler.err.does.not.override.abstract" -> {
 				Object[] args = getDiagnosticArguments(diagnostic);
 				if (args.length > 2
@@ -856,6 +856,7 @@ public class JavacProblemConverter {
 			case "compiler.warn.unchecked.varargs.non.reifiable.type", "compiler.warn.varargs.unsafe.use.varargs.param" -> IProblem.PotentialHeapPollutionFromVararg;
 			case "compiler.err.var.might.already.be.assigned" -> IProblem.FinalFieldAssignment;
 			case "compiler.err.annotation.missing.default.value.1" -> IProblem.MissingValueForAnnotationMember;
+			case "compiler.err.wrong.number.type.args" -> IProblem.TypeArgumentMismatch;
 			case "compiler.warn.static.not.qualified.by.type" -> {
 				var kind = getDiagnosticArgumentByType(diagnostic, Kinds.KindName.class);
 				yield kind == null ? IProblem.NonStaticAccessToStaticField :
