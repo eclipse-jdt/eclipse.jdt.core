@@ -83,6 +83,13 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 
 	@Override
 	public IAnnotationBinding[] getAnnotations() {
+		if (isRecordComponent()) {
+			return Arrays.stream(getDeclaringClass().getDeclaredMethods())
+				.filter(method -> getName().equals(method.getName()))
+				.findAny()
+				.map(IMethodBinding::getAnnotations)
+				.orElseGet(() -> new IAnnotationBinding[0]);
+		}
 		return this.variableSymbol.getAnnotationMirrors().stream()
 				.map(am -> this.resolver.bindings.getAnnotationBinding(am, this))
 				.toArray(IAnnotationBinding[]::new);
