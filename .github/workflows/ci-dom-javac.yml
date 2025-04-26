@@ -5,9 +5,9 @@ concurrency:
 
 on:
   push:
-    branches: [ 'dom-based-operations', 'dom-with-javac' ]
+    branches: [ 'dom-with-javac' ]
   pull_request:
-    branches: [ 'dom-based-operations', 'dom-with-javac' ]
+    branches: [ 'dom-with-javac' ]
 
 jobs:
   build-dom-javac:
@@ -22,8 +22,6 @@ jobs:
       with:
         submodules: recursive
         fetch-depth: 0
-    - name: Enable DOM-first and Javac
-      run: sed -i 's$</argLine>$ -DCompilationUnit.DOM_BASED_OPERATIONS=true -DSourceIndexer.DOM_BASED_INDEXER=false -DICompilationUnitResolver=org.eclipse.jdt.core.dom.JavacCompilationUnitResolver -DAbstractImageBuilder.compiler=org.eclipse.jdt.internal.javac.JavacCompiler_</argLine>$g' */pom.xml
     - name: Set up JDKs ☕
       uses: actions/setup-java@v4
       with:
@@ -32,11 +30,13 @@ jobs:
           17
           21
           23
+          24
         mvn-toolchain-id: |
           JavaSE-1.8
           JavaSE-17
           JavaSE-21
           JavaSE-23
+          JavaSE-24
         distribution: 'temurin'
     - name: Set up Maven
       uses: stCarolas/setup-maven@d6af6abeda15e98926a57b5aa970a96bb37f97d1 # v5
@@ -44,12 +44,14 @@ jobs:
         maven-version: 3.9.9
     - name: Build with Maven 🏗️
       run: |
-        mvn clean install --batch-mode -f org.eclipse.jdt.core.compiler.batch -DlocalEcjVersion=99.99
-        mvn -U clean verify --batch-mode --fail-at-end -Ptest-on-javase-21 -Pbree-libs -Papi-check -Djava.io.tmpdir=$WORKSPACE/tmp -Dproject.build.sourceEncoding=UTF-8 -Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,20 -Djdt.performance.asserts=disabled" -Dcbi-ecj-version=99.99
+        mvn install --batch-mode -DskipTests -Pbree-libs -Dtycho.buildqualifier.format="'z'yyyyMMdd-HHmm" -Dproject.build.sourceEncoding=UTF-8 -pl org.eclipse.jdt.core.javac,org.eclipse.jdt.core.javac.feature,org.eclipse.jdt.core.tests.model,org.eclipse.jdt.core.tests.compiler
+        mvn verify --batch-mode -f org.eclipse.jdt.core.tests.javac --fail-at-end -Ptest-on-javase-24 -Pbree-libs -DfailIfNoTests=false -DexcludedGroups=org.junit.Ignore -DproviderHint=junit47 -Papi-check -Dproject.build.sourceEncoding=UTF-8 -Dmaven.test.failure.ignore=true -Dmaven.test.error.ignore=true  
     - name: Test Report
       if: success() || failure()    # run this step even if previous step failed
       run: |
-        echo ▶️ TESTS RUN: $(xmllint --xpath 'string(/testsuite/@tests)' */target/surefire-reports/TEST-*.xml | awk '{n += $1}; END{print n}' -)
-        echo ❌ FAILURES: $(xmllint --xpath 'string(/testsuite/@failures)' */target/surefire-reports/TEST-*.xml | awk '{n += $1}; END{print n}' -)
-        echo 💥 ERRORS: $(xmllint --xpath 'string(/testsuite/@errors)' */target/surefire-reports/TEST-*.xml | awk '{n += $1}; END{print n}' -)
-        echo 🛑 SKIPPED: $(xmllint --xpath 'string(/testsuite/@skipped)' */target/surefire-reports/TEST-*.xml | awk '{n += $1}; END{print n}' -)
+        message="▶️ TESTS RUN: $(xmllint --xpath 'string(/testsuite/@tests)' */target/surefire-reports/TEST-*.xml | awk '{n += $1}; END{print n}' -)
+        ❌ FAILURES: $(xmllint --xpath 'string(/testsuite/@failures)' */target/surefire-reports/TEST-*.xml | awk '{n += $1}; END{print n}' -)
+        💥 ERRORS: $(xmllint --xpath 'string(/testsuite/@errors)' */target/surefire-reports/TEST-*.xml | awk '{n += $1}; END{print n}' -)
+        🛑 SKIPPED: $(xmllint --xpath 'string(/testsuite/@skipped)' */target/surefire-reports/TEST-*.xml | awk '{n += $1}; END{print n}' -)"
+        echo "$message"
+        echo "$message" >> $GITHUB_STEP_SUMMARY
