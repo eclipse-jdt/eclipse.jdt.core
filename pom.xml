@@ -103,4 +103,29 @@
       </plugins>
     </pluginManagement>
   </build>
+
+	<repositories>
+		<repository>
+			<id>workaround-eclipse-outage</id>
+			<url>https://raw.githubusercontent.com/mickaelistria/bordel/refs/heads/main/eclipseInfraOutage/mavenRepo/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>workaround-eclipse-outage</id>
+			<url>https://raw.githubusercontent.com/mickaelistria/bordel/refs/heads/main/eclipseInfraOutage/mavenRepo/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
 </project>
