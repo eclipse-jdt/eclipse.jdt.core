@@ -157,7 +157,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		return toResponse(level);
 	}
 
-	protected int matchMethod(ASTNode node, IMethodBinding method, boolean skipImpossibleArg) {
+	protected int matchMethod(ASTNode node, IMethodBinding method, boolean skipImpossibleArg, boolean bindingIsDeclaration) {
 		if (!this.locator.matchesName(this.locator.pattern.selector, method.getName().toCharArray())) return IMPOSSIBLE_MATCH;
 
 		int level = matchMethodBindingName(method);
@@ -168,7 +168,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		if (level == IMPOSSIBLE_MATCH)
 			return level;
 
-		level = matchMethodBindingTypeArguments(node, method, skipImpossibleArg, level);
+		level = matchMethodBindingTypeArguments(node, method, skipImpossibleArg, level, bindingIsDeclaration);
 		return level;
 	}
 
@@ -185,12 +185,13 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		return (r & SearchPattern.R_FULL_MATCH) == SearchPattern.R_FULL_MATCH;
 	}
 
-	private int matchMethodBindingTypeArguments(ASTNode node, IMethodBinding method, boolean skipImpossibleArg, int level) {
+	private int matchMethodBindingTypeArguments(ASTNode node, IMethodBinding method,
+			boolean skipImpossibleArg, int level, boolean bindingIsDeclaration) {
 		boolean potentialMatchOnly = false;
 		if (this.locator.pattern.hasMethodArguments()) {
 			ITypeBinding[] argBindings = method.getTypeArguments();
 			char[][] goal = this.locator.pattern.methodArguments;
-			if( goal == null ) {
+			if( goal == null || goal.length == 0) {
 				return level;
 			}
 			if( argBindings == null || argBindings.length == 0 ) {
@@ -198,7 +199,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 				List<ASTNode> typeArgsFromNode = null;
 				if( node instanceof MethodInvocation mi) {
 					typeArgsFromNode = mi.typeArguments();
-					potentialMatchOnly = true;
+					potentialMatchOnly = !bindingIsDeclaration ? true : false;
 				} else if( node instanceof MethodDeclaration md) {
 					typeArgsFromNode = md.typeParameters();
 				}
@@ -211,17 +212,32 @@ public class DOMMethodLocator extends DOMPatternLocator {
 					argBindings = tmp.toArray(new ITypeBinding[tmp.size()]);
 				}
 			}
+
+			boolean isExactPattern = isPatternExactMatch();
+			boolean isErasurePattern = isPatternErasureMatch();
+			boolean isEquivPattern = isPatternEquivalentMatch();
+
 			if( argBindings == null || argBindings.length == 0 ) {
-				return goal == null || goal.length == 0 ? level : IMPOSSIBLE_MATCH;
+				if( goal == null || goal.length == 0 )
+					return level;
+				// we have a raw usage of this method with no type params in use
+				if( isExactPattern || (!isErasurePattern && !isEquivPattern)) {
+					return IMPOSSIBLE_MATCH;
+				}
+				if( !bindingIsDeclaration ) {
+					return IMPOSSIBLE_MATCH;
+				}
+				// Now we have only declarations, so you need to check type Params instead of type args.
+				ITypeBinding[] tmp = method.getTypeParameters();
+				if( tmp != null && tmp.length > 0 ) {
+					return goal != null && goal.length == tmp.length ? ERASURE_MATCH : IMPOSSIBLE_MATCH;
+				}
+				return ERASURE_MATCH;
 			}
 
 			// Now we need to do the hard work of comparing one to another
 			if( argBindings.length != goal.length  )
 				return IMPOSSIBLE_MATCH;
-
-			boolean isExactPattern = isPatternExactMatch();
-			boolean isErasurePattern = isPatternErasureMatch();
-			boolean isEquivPattern = isPatternEquivalentMatch();
 
 			for( int i = 0; i < argBindings.length; i++ ) {
 				// Compare each
@@ -229,13 +245,9 @@ public class DOMMethodLocator extends DOMPatternLocator {
 				IBinding patternBinding = JdtCoreDomPackagePrivateUtility.findBindingForType(node, goaliString);
 				boolean match = TypeArgumentMatchingUtility.validateSingleTypeArgMatches(isExactPattern, goaliString, patternBinding, argBindings[i]);
 				if( !match ) {
-					if( isExactPattern) {
+					if( isExactPattern || (!isErasurePattern && !isEquivPattern)) {
 						return IMPOSSIBLE_MATCH;
 					}
-					if( !isErasurePattern && !isEquivPattern ) {
-						return IMPOSSIBLE_MATCH;
-					}
-
 					if( potentialMatchOnly ) {
 						return INACCURATE_MATCH;
 					}
@@ -346,10 +358,12 @@ public class DOMMethodLocator extends DOMPatternLocator {
 	public LocatorResponse resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
 		if (binding instanceof IMethodBinding method) {
 			boolean skipVerif = this.locator.pattern.findDeclarations && this.locator.mayBeGeneric;
-			int methodLevel = matchMethod(node, method, skipVerif);
+			int methodLevel = matchMethod(node, method, skipVerif, false);
 			if (methodLevel == IMPOSSIBLE_MATCH) {
-				if (method != method.getMethodDeclaration())
-					methodLevel = matchMethod(node, method.getMethodDeclaration(), skipVerif);
+				IMethodBinding decl = method.getMethodDeclaration();
+				if (method != decl) {
+					methodLevel = matchMethod(node, decl, skipVerif, true);
+				}
 				if (methodLevel == IMPOSSIBLE_MATCH) {
 					return toResponse(IMPOSSIBLE_MATCH);
 				} else {

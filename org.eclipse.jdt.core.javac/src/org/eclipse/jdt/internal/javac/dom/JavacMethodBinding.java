@@ -581,7 +581,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 			return true;
 		}
 		// instead of the methodType, get a less typed Type and check if it is a ForAll
-		if( this.methodSymbol.type instanceof ForAll) {
+		if( this.methodSymbol != null && this.methodSymbol.type instanceof ForAll) {
 			return !methodMatchesParameterized();
 		}
 		return false;
@@ -589,7 +589,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	private boolean methodHasGenerics() {
 		boolean b1 = (isConstructor() && getDeclaringClass().isGenericType())
-				|| (!this.methodSymbol.getTypeParameters().isEmpty() && isDeclaration);
+				|| (this.methodSymbol != null && !this.methodSymbol.getTypeParameters().isEmpty() && isDeclaration);
 		return b1;
 	}
 
@@ -600,7 +600,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	private boolean methodMatchesParameterized() {
 		return ((isConstructor() && getDeclaringClass().isParameterizedType())
-				|| (!this.methodSymbol.getTypeParameters().isEmpty() && !isDeclaration));
+				|| (this.methodSymbol != null && !this.methodSymbol.getTypeParameters().isEmpty() && !isDeclaration));
 	}
 
 	@Override
@@ -608,7 +608,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		if (isConstructor()) {
 			return getDeclaringClass().isRawType() && this.methodSymbol.getTypeParameters().isEmpty();
 		}
-		return (this.parentType != null && this.parentType.isRaw()) || this.methodSymbol.getTypeParameters().isEmpty() && !this.methodSymbol.getTypeParameters().isEmpty();
+		return (this.parentType != null && this.parentType.isRaw()) || (this.methodSymbol != null && !this.methodSymbol.getTypeParameters().isEmpty());
 	}
 
 	@Override
