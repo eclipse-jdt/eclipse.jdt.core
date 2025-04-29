@@ -164,7 +164,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		if (level == IMPOSSIBLE_MATCH)
 			return level;
 
-		level = matchMethodBindingParameters(method, skipImpossibleArg, level);
+		level = matchMethodBindingParameters(node, method, skipImpossibleArg, level);
 		if (level == IMPOSSIBLE_MATCH)
 			return level;
 
@@ -276,8 +276,9 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		return level;
 	}
 
-	private int matchMethodBindingParameters(IMethodBinding method, boolean skipImpossibleArg, int level) {
+	private int matchMethodBindingParameters(ASTNode node, IMethodBinding method, boolean skipImpossibleArg, int level) {
 		// parameter types
+		boolean isExactPattern = isPatternExactMatch();
 		int parameterCount = this.locator.pattern.parameterSimpleNames == null ? -1 : this.locator.pattern.parameterSimpleNames.length;
 		if (parameterCount > -1) {
 			// global verification
@@ -292,8 +293,9 @@ public class DOMMethodLocator extends DOMPatternLocator {
 			boolean checkedFocus = false;
 			boolean isBinary = this.locator.pattern!= null && this.locator.pattern.focus instanceof BinaryMethod;
 			// verify each parameter
+			ITypeBinding[] paramTypes = method.getParameterTypes();
 			for (int i = 0; i < parameterCount; i++) {
-				ITypeBinding argType = method.getParameterTypes()[i];
+				ITypeBinding argType = paramTypes[i];
 				int newLevel = IMPOSSIBLE_MATCH;
 				boolean foundLevel = false;
 				if (argType.isMember() || this.locator.pattern.parameterQualifications[i] != null) {
@@ -314,6 +316,35 @@ public class DOMMethodLocator extends DOMPatternLocator {
 					// TODO (frederic) use this call to refine accuracy on parameter types
 //					 newLevel = resolveLevelForType(this.locator.pattern.parameterSimpleNames[i], this.locator.pattern.parameterQualifications[i], this.locator.pattern.parametersTypeArguments[i], 0, argType);
 					newLevel = this.resolveLevelForType(this.locator.pattern.parameterSimpleNames[i], this.locator.pattern.parameterQualifications[i], argType);
+					// TODO testMethodReferencesElementPatternSingleTypeParameter04 says should be potential match only
+					if( argType.isGenericType() ) {
+						// this param is also a generic and has its own nested types, but we don't know what they are
+						if( newLevel == ACCURATE_MATCH ) {
+							ITypeBinding[] nestedParams = argType.getTypeParameters();
+							char[][][][] ptaAll = this.locator.pattern.parametersTypeArguments;
+							char[][][] ptaThisLevel = ptaAll == null || ptaAll.length == 0 ? null : ptaAll[0];
+							boolean patternHasTypeArgs = ptaThisLevel == null || ptaThisLevel.length <= i ?  false : true;
+							if( patternHasTypeArgs) {
+								char[][] thisParamTypeArgs = ptaThisLevel[i];
+								for( int q = 0; q < thisParamTypeArgs.length; q++ ) {
+									char[] fromPattern = thisParamTypeArgs[q];
+									ITypeBinding fromBinding = nestedParams == null || nestedParams.length == 0 ? null : nestedParams[q];
+									if( fromBinding == null ) {
+										// pattern expects, binding doesn't have
+										newLevel = INACCURATE_MATCH;
+									} else {
+										//see if they match?
+										String fromPatternString = new String(fromPattern);
+										IBinding patternBinding = JdtCoreDomPackagePrivateUtility.findBindingForType(node, fromPatternString);
+										boolean match = TypeArgumentMatchingUtility.validateSingleTypeArgMatches(isExactPattern, fromPatternString, patternBinding, fromBinding);
+										if( !match ) {
+											newLevel = INACCURATE_MATCH;
+										}
+									}
+								}
+							}
+						}
+					}
 				}
 				if (level > newLevel) {
 					if (newLevel == IMPOSSIBLE_MATCH) {

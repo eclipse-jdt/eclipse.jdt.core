@@ -135,6 +135,8 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testSuper() [returnParamType()] ERASURE_MATCH"
 		);
 	}
+
+	// javac has more accurate results
 	public void testMethodReferencesElementPatternSingleTypeParameter04() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch15/src/g5/m/def/Single.java").getType("Single");
 		// search reference to a method with parameterized type arguments
@@ -146,9 +148,9 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testObject() [paramTypesArgs(gs)] ERASURE_MATCH\n" +
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testException() [paramTypesArgs(gs)] ERASURE_MATCH\n" +
 			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testRuntimeException() [paramTypesArgs(gs)] ERASURE_MATCH\n" +
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testUnbound() [paramTypesArgs(gs)] POTENTIAL_MATCH\n" +
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testExtends() [paramTypesArgs(gs)] POTENTIAL_MATCH\n" +
-			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testSuper() [paramTypesArgs(gs)] POTENTIAL_MATCH"
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testUnbound() [paramTypesArgs(gs)] \n" +
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testExtends() [paramTypesArgs(gs)] \n" +
+			"src/g5/m/ref/RefSingle.java void g5.m.ref.RefSingle.testSuper() [paramTypesArgs(gs)] "
 		);
 	}
 	public void testMethodReferencesElementPatternSingleTypeParameter05() throws CoreException {

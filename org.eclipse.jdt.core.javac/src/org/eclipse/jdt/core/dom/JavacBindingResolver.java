@@ -269,12 +269,24 @@ public class JavacBindingResolver extends BindingResolver {
 			if (type == null) {
 				return null;
 			}
-			return getTypeBinding(type.baseType() /* remove metadata for constant values */, false);
+
+			boolean likelyGeneric = false;
+			if( type instanceof ClassType ct && ct.isParameterized()) {
+				 List<com.sun.tools.javac.code.Type> typeArgs = ct.getTypeArguments();
+				 int size = typeArgs.size();
+				 for( int i = 0; i < size && !likelyGeneric; i++ ) {
+					 if( typeArgs.get(i) instanceof TypeVar) {
+						 likelyGeneric = true;
+					 }
+				 }
+			}
+
+			return getTypeBinding(type.baseType() /* remove metadata for constant values */, likelyGeneric);
 		}
-		public JavacTypeBinding getTypeBinding(com.sun.tools.javac.code.Type type, boolean isDeclaration) {
-			return getTypeBinding(type, null, isDeclaration);
+		public JavacTypeBinding getTypeBinding(com.sun.tools.javac.code.Type type, boolean isGeneric) {
+			return getTypeBinding(type, null, isGeneric);
 		}
-		public JavacTypeBinding getTypeBinding(com.sun.tools.javac.code.Type type, com.sun.tools.javac.code.Type[] alternatives, boolean isDeclaration) {
+		public JavacTypeBinding getTypeBinding(com.sun.tools.javac.code.Type type, com.sun.tools.javac.code.Type[] alternatives, boolean isGeneric) {
 			if (type instanceof com.sun.tools.javac.code.Type.TypeVar typeVar) {
 				return getTypeVariableBinding(typeVar);
 			}
@@ -287,7 +299,7 @@ public class JavacBindingResolver extends BindingResolver {
 						&& !(originalType instanceof com.sun.tools.javac.code.Type.MethodType)
 						&& !(originalType instanceof com.sun.tools.javac.code.Type.ForAll)
 						&& !(originalType instanceof com.sun.tools.javac.code.Type.ErrorType)) {
-					JavacTypeBinding newInstance = new JavacTypeBinding(originalType, type.tsym, alternatives, isDeclaration, JavacBindingResolver.this) { };
+					JavacTypeBinding newInstance = new JavacTypeBinding(originalType, type.tsym, alternatives, isGeneric, JavacBindingResolver.this) { };
 					typeBinding.putIfAbsent(newInstance, newInstance);
 					JavacTypeBinding jcb = typeBinding.get(newInstance);
 					jcb.setRecovered(true);
@@ -295,7 +307,7 @@ public class JavacBindingResolver extends BindingResolver {
 				} else if (errorType.tsym instanceof ClassSymbol classErrorSymbol &&
 							Character.isJavaIdentifierStart(classErrorSymbol.getSimpleName().charAt(0))) {
 					// non usable original type: try symbol
-					JavacTypeBinding newInstance = new JavacTypeBinding(classErrorSymbol.type, classErrorSymbol, alternatives, isDeclaration, JavacBindingResolver.this) { };
+					JavacTypeBinding newInstance = new JavacTypeBinding(classErrorSymbol.type, classErrorSymbol, alternatives, isGeneric, JavacBindingResolver.this) { };
 					typeBinding.putIfAbsent(newInstance, newInstance);
 					JavacTypeBinding jcb = typeBinding.get(newInstance);
 					jcb.setRecovered(true);
@@ -313,7 +325,7 @@ public class JavacBindingResolver extends BindingResolver {
 				// Fail back to an hopefully better type
 				type = type.tsym.type;
 			}
-			JavacTypeBinding newInstance = new JavacTypeBinding(type, type.tsym, alternatives, isDeclaration, JavacBindingResolver.this) { };
+			JavacTypeBinding newInstance = new JavacTypeBinding(type, type.tsym, alternatives, isGeneric, JavacBindingResolver.this) { };
 			typeBinding.putIfAbsent(newInstance, newInstance);
 			return typeBinding.get(newInstance);
 		}

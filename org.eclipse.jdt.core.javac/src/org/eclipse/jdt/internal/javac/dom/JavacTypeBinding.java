@@ -113,13 +113,13 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	private IJavaElement javaElement;
 	private String key;
 
-	public JavacTypeBinding(Type type, final TypeSymbol typeSymbol, Type[] alternatives, boolean isDeclaration, JavacBindingResolver resolver) {
+	public JavacTypeBinding(Type type, final TypeSymbol typeSymbol, Type[] alternatives, boolean likelyGeneric, JavacBindingResolver resolver) {
 		if (!JavacBindingResolver.isTypeOfType(type)) {
 			if (typeSymbol != null) {
 				type = typeSymbol.type;
 			}
 		}
-		this.isGeneric = type.isParameterized() && isDeclaration;
+		this.isGeneric = type.isParameterized() && likelyGeneric;
 		this.typeSymbol = (typeSymbol == null || typeSymbol.kind == Kind.ERR) && type != null? type.tsym : typeSymbol;
 		this.type = this.isGeneric || type == null ? this.typeSymbol.type /*generic*/ : type /*specific instance*/;
 		this.resolver = resolver;
