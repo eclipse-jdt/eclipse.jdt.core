@@ -45,7 +45,13 @@ jobs:
     - name: Build with Maven 🏗️
       run: |
         mvn install --batch-mode -DskipTests -Pbree-libs -Dtycho.buildqualifier.format="'z'yyyyMMdd-HHmm" -Dproject.build.sourceEncoding=UTF-8 -pl org.eclipse.jdt.core.javac,org.eclipse.jdt.core.javac.feature,org.eclipse.jdt.core.tests.model,org.eclipse.jdt.core.tests.compiler
-        mvn verify --batch-mode -f org.eclipse.jdt.core.tests.javac --fail-at-end -Ptest-on-javase-24 -Pbree-libs -DfailIfNoTests=false -DexcludedGroups=org.junit.Ignore -DproviderHint=junit47 -Papi-check -Dproject.build.sourceEncoding=UTF-8 -Dmaven.test.failure.ignore=true -Dmaven.test.error.ignore=true  
+        mvn verify --batch-mode -f org.eclipse.jdt.core.tests.javac --fail-at-end -Ptest-on-javase-24 -Pbree-libs -DfailIfNoTests=false -DexcludedGroups=org.junit.Ignore -DproviderHint=junit47 -Papi-check -Dproject.build.sourceEncoding=UTF-8 -Dmaven.test.failure.ignore=true -Dmaven.test.error.ignore=true
+    - name: 'Upload Artifact'
+      if: success() || failure()    # run this step even if previous step failed
+      uses: actions/upload-artifact@v4
+      with:
+        name: Test results
+        path: '*/target/surefire-reports/TEST-*.xml' 
     - name: Test Report
       if: success() || failure()    # run this step even if previous step failed
       run: |
