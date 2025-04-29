@@ -61,3 +61,8 @@ jobs:
         🛑 SKIPPED: $(xmllint --xpath 'string(/testsuite/@skipped)' */target/surefire-reports/TEST-*.xml | awk '{n += $1}; END{print n}' -)"
         echo "$message"
         echo "$message" >> $GITHUB_STEP_SUMMARY
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        files: '*/target/surefire-reports/TEST-*.xml'
