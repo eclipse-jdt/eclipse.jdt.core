@@ -215,10 +215,13 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	}
 
 	private IMethod computeUnresolvedJavaElement() {
+		Object possibleTypeBinding = null;
 		if (this.methodSymbol == null) {
-			return null;
+			possibleTypeBinding = this.resolver.bindings.getBinding(this.methodType.restype.tsym, this.methodType.restype);
+		} else {
+			possibleTypeBinding = this.resolver.bindings.getBinding(this.methodSymbol.owner, this.methodType);
 		}
-		if (this.resolver.bindings.getBinding(this.methodSymbol.owner, this.methodType) instanceof ITypeBinding typeBinding) {
+		if (possibleTypeBinding instanceof ITypeBinding typeBinding) {
 			if (typeBinding != null && typeBinding.getJavaElement() instanceof IType currentType) {
 				// prefer DOM object (for type parameters)
 				ASTNode declaringNode = this.resolver.findDeclaringNode(this);
@@ -228,22 +231,35 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 					return getJavaElementForAnnotationTypeMemberDeclaration(currentType, annotationTypeMemberDeclaration);
 				}
 
-				var parametersResolved = this.methodSymbol.params().stream()
+				String[] parametersResolved = new String[0];
+				if( this.methodSymbol != null ) {
+					parametersResolved = this.methodSymbol.params().stream()
 						.map(varSymbol -> varSymbol.type)
 						.map(t ->
 							t instanceof TypeVar typeVar ? Signature.C_TYPE_VARIABLE + typeVar.tsym.name.toString() + ";" : // check whether a better constructor exists for it
 								Signature.createTypeSignature(resolveTypeName(t, true), true))
 						.toArray(String[]::new);
+				} else {
+					parametersResolved = this.methodType.argtypes.stream()
+							.map(t ->
+								t instanceof TypeVar typeVar ? Signature.C_TYPE_VARIABLE + typeVar.tsym.name.toString() + ";" : // check whether a better constructor exists for it
+									Signature.createTypeSignature(resolveTypeName(t, true), true))
+							.toArray(String[]::new);
+				}
+
 				IMethod[] methods = currentType.findMethods(currentType.getMethod(getName(), parametersResolved));
 				if (methods != null && methods.length > 0) {
 					return methods[0];
 				}
-				var parametersNotResolved = this.methodSymbol.params().stream()
+				String[] parametersNotResolved = new String[0];
+				if( this.methodSymbol != null ) {
+						parametersNotResolved = this.methodSymbol.params().stream()
 						.map(varSymbol -> varSymbol.type)
 						.map(t ->
 							t instanceof TypeVar typeVar ? Signature.C_TYPE_VARIABLE + typeVar.tsym.name.toString() + ";" : // check whether a better constructor exists for it
 								Signature.createTypeSignature(resolveTypeName(t, false), false))
 						.toArray(String[]::new);
+				}
 				methods = currentType.findMethods(currentType.getMethod(getName(), parametersNotResolved));
 				if (methods != null && methods.length > 0) {
 					return methods[0];

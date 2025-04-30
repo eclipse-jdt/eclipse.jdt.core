@@ -290,7 +290,8 @@ public class DOMCodeSelector {
 				}
 			}
 		}
-		// fallback: crawl the children of this unit
+
+		// fallback #1: crawl the children of this unit
 		IJavaElement currentElement = this.unit;
 		boolean newChildFound;
 		int finalOffset = offset;
@@ -341,7 +342,8 @@ public class DOMCodeSelector {
 				return new IJavaElement[] { type };
 			}
 		}
-		// failback to lookup search
+
+		// failback #2 - lookup search
 		ASTNode currentNode = node;
 		while (currentNode != null && !(currentNode instanceof Type)) {
 			currentNode = currentNode.getParent();
@@ -371,6 +373,14 @@ public class DOMCodeSelector {
 				return indexResult;
 			}
 		}
+
+		// Fallback #3
+		IBinding binding = resolveBinding(node);
+		IJavaElement element = binding.getJavaElement();
+		if (element != null && (element instanceof IPackageFragment || element.exists())) {
+			return new IJavaElement[] { element };
+		}
+
 		// no good idea left
 		return new IJavaElement[0];
 	}
