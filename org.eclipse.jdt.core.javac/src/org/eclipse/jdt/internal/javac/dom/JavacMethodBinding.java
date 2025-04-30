@@ -578,11 +578,6 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 					.toArray(ITypeBinding[]::new);
 		}
 		// We have no methodSymbol, most likely an error node
-		if( this.methodType != null ) {
-			List<Type> testing = this.methodType.getTypeArguments();
-			System.out.println("abc");
-		}
-		String zzz = this.toString();
 		return new ITypeBinding[0];
 	}
 
