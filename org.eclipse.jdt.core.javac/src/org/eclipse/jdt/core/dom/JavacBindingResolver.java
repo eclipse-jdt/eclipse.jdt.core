@@ -359,7 +359,7 @@ public class JavacBindingResolver extends BindingResolver {
 			if (recoveredSymbol != null) {
 				return getBinding(recoveredSymbol, recoveredSymbol.type);
 			}
-			if (type != null && (type instanceof ErrorType || owner.owner == null || owner.owner.type == com.sun.tools.javac.code.Type.noType)) {
+			if (type != null && (type instanceof ErrorType || owner == null || owner.owner == null || owner.owner.type == com.sun.tools.javac.code.Type.noType)) {
 				if (type.getOriginalType() instanceof MethodType missingMethodType) {
 					return getErrorMethodBinding(missingMethodType, owner);
 				}
