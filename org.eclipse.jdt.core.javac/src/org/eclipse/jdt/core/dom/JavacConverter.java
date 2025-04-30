@@ -421,6 +421,10 @@ class JavacConverter {
 				ModifierKeyword keyword = null;
 				if (javac.isStatic()) {
 					keyword = ModifierKeyword.STATIC_KEYWORD;
+					Modifier preExisting = (Modifier)res.modifiers().stream().filter(x -> x instanceof Modifier && ((Modifier)x).isStatic()).findFirst().orElse(null);
+					if( preExisting != null ) {
+						res.modifiers().remove(preExisting);
+					}
 				}
 				if (javac.isModule()) {
 					keyword = ModifierKeyword.MODULE_KEYWORD;
