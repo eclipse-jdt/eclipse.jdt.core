@@ -376,7 +376,7 @@ public class DOMCodeSelector {
 
 		// Fallback #3
 		IBinding binding = resolveBinding(node);
-		IJavaElement element = binding.getJavaElement();
+		IJavaElement element = binding == null ? null : binding.getJavaElement();
 		if (element != null && (element instanceof IPackageFragment || element.exists())) {
 			return new IJavaElement[] { element };
 		}
