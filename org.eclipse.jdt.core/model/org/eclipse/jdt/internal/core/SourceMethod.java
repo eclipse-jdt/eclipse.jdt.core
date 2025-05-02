@@ -243,6 +243,10 @@ public boolean isConstructor() throws JavaModelException {
 	SourceMethodElementInfo info = (SourceMethodElementInfo) getElementInfo();
 	return info.isConstructor();
 }
+@Override
+public boolean isClinit() throws JavaModelException {
+	return false;
+}
 /**
  * @see IMethod#isMainMethod()
  */

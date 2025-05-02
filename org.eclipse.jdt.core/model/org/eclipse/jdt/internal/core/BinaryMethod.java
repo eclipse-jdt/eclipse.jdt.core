@@ -619,6 +619,13 @@ public boolean isConstructor() throws JavaModelException {
 	IBinaryMethod info = (IBinaryMethod) getElementInfo();
 	return info.isConstructor();
 }
+@Override
+public boolean isClinit() throws JavaModelException {
+	if ("<clinit>".equals(getElementName())) {
+		return true;
+	}
+	return false;
+}
 /*
  * @see IMethod#isMainMethod()
  */

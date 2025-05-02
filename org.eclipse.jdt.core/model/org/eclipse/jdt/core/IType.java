@@ -43,6 +43,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * nested types. However, the {@link #getParent() parent} of such a nested binary type is
  * <em>not</em> the enclosing type, but that nested type's {@link IClassFile}!
  * </p>
+ * <p>
+ * Another Caveat: The {@link #getChildren() children} of a {@link #isBinary() binary} type may
+ * include an <code>IMethod</code> representing <code>&lt;clinit&gt;</code>.
+ * </p>
  *
  * @noimplement This interface is not intended to be implemented by clients.
  */

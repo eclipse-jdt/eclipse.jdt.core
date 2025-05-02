@@ -247,6 +247,15 @@ ITypeParameter getTypeParameter(String name);
 boolean isConstructor() throws JavaModelException;
 
 /**
+ * Returns whether this method is a class initializer.
+ *
+ * @return true if this element is a class initialize, false otherwise
+ * @throws JavaModelException
+ * @since 3.42
+ */
+boolean isClinit() throws JavaModelException;
+
+/**
  * Returns whether this method is a main method.
  * It is a main method if:
  * <ul>
