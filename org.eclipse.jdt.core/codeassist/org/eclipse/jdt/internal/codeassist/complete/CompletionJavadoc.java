@@ -205,14 +205,15 @@ public class CompletionJavadoc extends Javadoc {
 		AbstractMethodDeclaration md = methScope.referenceMethod();
 		int paramTagsSize = this.paramReferences == null ? 0 : this.paramReferences.length;
 		if (md == null) return null;
-		int argumentsSize = md.arguments == null ? 0 : md.arguments.length;
+		Argument [] arguments = md.getArguments();
+		int argumentsSize = arguments == null ? 0 : arguments.length;
 		if (argumentsSize == 0) return null;
 
 		// Store all method arguments if there's no @param in javadoc
 		if (paramTagsSize == 0) {
 			char[][] missingParams = new char[argumentsSize][];
 			for (int i = 0; i < argumentsSize; i++) {
-				missingParams[i] = md.arguments[i].name;
+				missingParams[i] = arguments[i].name;
 			}
 			return missingParams;
 		}
@@ -221,7 +222,7 @@ public class CompletionJavadoc extends Javadoc {
 		char[][] missingParams = new char[argumentsSize][];
 		int size = 0;
 		for (int i = 0; i < argumentsSize; i++) {
-			Argument arg = md.arguments[i];
+			Argument arg = arguments[i];
 			boolean found = false;
 			int paramNameRefCount = 0;
 			for (int j = 0; j < paramTagsSize && !found; j++) {

@@ -104,7 +104,9 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 					FlowInfo.DEAD_END);
 
 			// nullity, owning and mark as assigned
-			analyseArguments(classScope.environment(), flowInfo, flowContext, this.arguments, this.binding);
+			@SuppressWarnings("hiding")
+			final Argument[] arguments = this.getArguments();
+			analyseArguments(classScope.environment(), flowInfo, flowContext, arguments, this.binding);
 
 			BiPredicate<TypeBinding, ReferenceBinding> condition = (argType, declClass) -> {
 				ReferenceBinding enclosingType = argType.enclosingType();
@@ -119,8 +121,8 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 				if (condition.test(this.binding.returnType, declaringClass)) {
 					referencesGenericType = true;
 				}
-				if (!referencesGenericType && this.binding.parameters != null && this.arguments != null) {
-					int length = Math.min(this.binding.parameters.length, this.arguments.length);
+				if (!referencesGenericType && this.binding.parameters != null && arguments != null) {
+					int length = Math.min(this.binding.parameters.length, arguments.length);
 					for (int i = 0; i < length; i++) {
 						if (condition.test(this.binding.parameters[i], this.binding.declaringClass)) {
 							referencesGenericType = true;
@@ -235,7 +237,9 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 
 	@Override
 	public RecordComponent getRecordComponent() {
-		if (this.arguments != null && this.arguments.length != 0)
+		@SuppressWarnings("hiding")
+		final Argument[] arguments = this.getArguments();
+		if (arguments != null && arguments.length != 0)
 			return null;
 		ClassScope skope = this.scope.classScope();
 		TypeDeclaration typeDecl = skope.referenceContext;
@@ -425,10 +429,12 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			}
 			if (this.returnType != null)
 				this.returnType.traverse(visitor, this.scope);
-			if (this.arguments != null) {
-				int argumentLength = this.arguments.length;
+			@SuppressWarnings("hiding")
+			final Argument[] arguments = this.getArguments();
+			if (arguments != null) {
+				int argumentLength = arguments.length;
 				for (int i = 0; i < argumentLength; i++)
-					this.arguments[i].traverse(visitor, this.scope);
+					arguments[i].traverse(visitor, this.scope);
 			}
 			if (this.thrownExceptions != null) {
 				int thrownExceptionsLength = this.thrownExceptions.length;

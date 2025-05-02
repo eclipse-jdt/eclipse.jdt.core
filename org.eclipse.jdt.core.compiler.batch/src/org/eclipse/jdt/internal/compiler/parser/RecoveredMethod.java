@@ -150,12 +150,13 @@ private boolean recoverAsArgument(FieldDeclaration fieldDeclaration) {
 			&& this.incompleteParameterAnnotationSeen) { // misparsed parameter?
 		long position = ((long) fieldDeclaration.sourceStart << 32)+fieldDeclaration.sourceEnd;
 		Argument arg = new Argument(fieldDeclaration.name, position, fieldDeclaration.type, fieldDeclaration.modifiers);
-		if (this.methodDeclaration.arguments == null) {
-			this.methodDeclaration.arguments = new Argument[] { arg };
+		Argument [] arguments = this.methodDeclaration.getArguments();
+		if (arguments == null) {
+			this.methodDeclaration.setArguments(new Argument[] { arg });
 		} else {
-			int len = this.methodDeclaration.arguments.length;
-			this.methodDeclaration.arguments = Arrays.copyOf(this.methodDeclaration.arguments, len+1);
-			this.methodDeclaration.arguments[len] = arg;
+			int len = arguments.length;
+			this.methodDeclaration.setArguments(arguments = Arrays.copyOf(arguments, len+1));
+			arguments[len] = arg;
 		}
 		int annotCount = this.pendingAnnotationCount;
 		if (this.pendingAnnotations != null) {
@@ -558,8 +559,9 @@ public void updateFromParserState(){
 						parser.consumeMethodHeaderRightParen();
 						/* fix-up positions, given they were updated against rParenPos, which did not get set */
 						if (parser.currentElement == this){ // parameter addition might have added an awaiting (no return type) method - see 1FVXQZ4 */
-							if (this.methodDeclaration.arguments != null) {
-								this.methodDeclaration.sourceEnd = this.methodDeclaration.arguments[this.methodDeclaration.arguments.length-1].sourceEnd;
+							Argument [] arguments = this.methodDeclaration.getArguments();
+							if (arguments != null) {
+								this.methodDeclaration.sourceEnd = arguments[arguments.length-1].sourceEnd;
 							} else {
 								this.methodDeclaration.sourceEnd = this.methodDeclaration.receiver.sourceEnd;
 							}

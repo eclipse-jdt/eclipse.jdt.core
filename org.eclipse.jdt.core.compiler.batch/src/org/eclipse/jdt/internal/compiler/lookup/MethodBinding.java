@@ -1362,9 +1362,10 @@ public ParameterNonNullDefaultProvider hasNonNullDefaultForParameter(AbstractMet
 	boolean[] result = new boolean[len];
 	boolean trueFound = false;
 	boolean falseFound = false;
+	Argument [] arguments = srcMethod == null ? null : srcMethod.getArguments(); // TODO(Stephan): To confirm whether you want to see proto-argument declarations from record header here
 	for (int i = 0; i < len; i++) {
-		int start = srcMethod == null || srcMethod.arguments == null || srcMethod.arguments.length == 0 ? -1
-				: srcMethod.arguments[i].declarationSourceStart;
+		int start = arguments == null || arguments.length == 0 ? -1
+				: arguments[i].declarationSourceStart;
 		int nonNullByDefaultValue = srcMethod != null && start >= 0
 				? srcMethod.scope.localNonNullByDefaultValue(start)
 				: 0;

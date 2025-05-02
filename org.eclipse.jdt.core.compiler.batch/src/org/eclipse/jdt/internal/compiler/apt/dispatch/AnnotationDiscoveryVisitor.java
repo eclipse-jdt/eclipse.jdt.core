@@ -88,7 +88,7 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 			}
 		}
 
-		Argument[] arguments = constructorDeclaration.arguments;
+		Argument[] arguments = constructorDeclaration.getArguments();
 		if (arguments != null) {
 			int argumentLength = arguments.length;
 			for (int i = 0; i < argumentLength; i++) {
@@ -183,7 +183,7 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 			}
 		}
 
-		Argument[] arguments = methodDeclaration.arguments;
+		Argument[] arguments = methodDeclaration.getArguments();
 		if (arguments != null) {
 			int argumentLength = arguments.length;
 			for (int i = 0; i < argumentLength; i++) {

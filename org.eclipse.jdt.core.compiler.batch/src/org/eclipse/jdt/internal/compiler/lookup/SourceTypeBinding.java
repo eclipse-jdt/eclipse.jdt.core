@@ -2198,7 +2198,7 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 	final boolean reportUnavoidableGenericTypeProblems = this.scope.compilerOptions().reportUnavoidableGenericTypeProblems;
 	boolean foundArgProblem = false;
 	boolean checkAPIleak = methodDecl.scope.shouldCheckAPILeaks(this, method.isPublic());
-	Argument[] arguments = methodDecl.arguments;
+	Argument[] arguments = methodDecl.getArguments();
 	if (arguments != null) {
 		int size = arguments.length;
 		method.parameters = Binding.NO_PARAMETERS;
@@ -2269,15 +2269,8 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 			methodDecl.scope.problemReporter().safeVarargsOnNonFinalInstanceMethod(method);
 		}
 	} else {
-		AbstractVariableDeclaration argument = null;
-		if (method.isCompactConstructor()) {
-			if (this.scope.referenceContext.recordComponents.length > 0)
-				argument = this.scope.referenceContext.recordComponents[this.scope.referenceContext.recordComponents.length - 1];
-		} else {
-			if (methodDecl.arguments != null && methodDecl.arguments.length > 0)
-				argument = methodDecl.arguments[methodDecl.arguments.length - 1];
-		}
-
+		AbstractVariableDeclaration [] argv = methodDecl.getArguments(true);
+		AbstractVariableDeclaration argument = argv != null && argv.length > 0 ? argv[argv.length - 1] : null;
 		if (argument != null)
 			checkAndFlagHeapPollution(method, argument);
 	}
@@ -2512,11 +2505,12 @@ protected boolean hasMethodWithNumArgs(char[] selector, int numArgs) {
 	if (this.scope != null && this.scope.referenceContext.methods != null) {
 		for (AbstractMethodDeclaration method : this.scope.referenceContext.methods) {
 			if (CharOperation.equals(method.selector, selector)) {
+				AbstractVariableDeclaration [] arguments = method.getArguments(true);
 				if (numArgs == 0) {
-					if (method.arguments == null)
+					if (arguments == null)
 						return true;
 				} else {
-					if (method.arguments != null && method.arguments.length == numArgs)
+					if (arguments != null && arguments.length == numArgs)
 						return true;
 				}
 			}

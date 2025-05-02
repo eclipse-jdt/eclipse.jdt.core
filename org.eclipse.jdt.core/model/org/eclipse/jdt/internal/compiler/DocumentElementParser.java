@@ -329,7 +329,7 @@ protected void consumeConstructorHeader() {
 		return;
 	}
 	ConstructorDeclaration cd = (ConstructorDeclaration) this.astStack[this.astPtr];
-	Argument[] arguments = cd.arguments;
+	Argument[] arguments = cd.getArguments();
 	char[][] argumentTypes = null;
 	char[][] argumentNames = null;
 	int[] argumentTypeStarts = null;
@@ -999,7 +999,7 @@ protected void consumeMethodHeader() {
 
 	TypeReference returnType = md.returnType;
 	char[] returnTypeName = returnTypeName(returnType);
-	Argument[] arguments = md.arguments;
+	Argument[] arguments = md.getArguments();
 	char[][] argumentTypes = null;
 	char[][] argumentNames = null;
 	int[] argumentTypeStarts = null;

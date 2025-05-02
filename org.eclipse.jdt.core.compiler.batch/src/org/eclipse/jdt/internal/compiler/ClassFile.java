@@ -63,7 +63,6 @@ import org.eclipse.jdt.internal.compiler.problem.AbortType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.problem.ShouldNotImplement;
-import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -2345,9 +2344,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			AbstractMethodDeclaration methodDeclaration = binding.sourceMethod();
 			if (methodDeclaration != null) {
 				if ((methodDeclaration.bits & ASTNode.HasTypeAnnotations) != 0) {
-					AbstractVariableDeclaration[] arguments = binding.isCompactConstructor() ?
-							getRecordComponents(binding.declaringClass) : methodDeclaration.arguments;
-
+					AbstractVariableDeclaration[] arguments = methodDeclaration.getArguments(true);
 					if (arguments != null) {
 						completeArgumentAnnotationInfo(arguments, allTypeAnnotationContexts);
 					}
@@ -4390,8 +4387,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				attributesNumber += generateRuntimeAnnotations(annotations, methodBinding.isConstructor() ? TagBits.AnnotationForConstructor : TagBits.AnnotationForMethod);
 			}
 			if ((methodBinding.tagBits & TagBits.HasParameterAnnotations) != 0) {
-				AbstractVariableDeclaration[] arguments = methodBinding.isCompactConstructor() ?
-													getRecordComponents(methodBinding.declaringClass) : methodDeclaration.arguments;
+				AbstractVariableDeclaration[] arguments = methodDeclaration.getArguments(true);
 				if (arguments != null) {
 					attributesNumber += generateRuntimeAnnotationsForParameters(arguments);
 				}
@@ -5075,30 +5071,21 @@ public class ClassFile implements TypeConstants, TypeIds {
 			}
 		}
 		if (targetParameters != Binding.NO_PARAMETERS) {
-			if (binding.isCompactConstructor()) {
-				LocalVariableBinding [] locals = binding.sourceMethod().scope.locals;
-				for (LocalVariableBinding local : locals) {
-					if (local == null || !local.isParameter())
-						continue;
-					int modifiers = local.modifiers | ClassFileConstants.AccMandated;
-					length = writeArgumentName(local.name, modifiers, length);
-				}
-			} else if (binding.isCanonicalConstructor() && methodDeclaration == null) { // synthetic
+			if (binding.isCanonicalConstructor() && methodDeclaration == null) { // synthetic
 				for (RecordComponentBinding component : binding.declaringClass.components()) {
 					length = writeArgumentName(component.name, ClassFileConstants.AccDefault, length);
 				}
 			} else {
-				Argument[] arguments = null;
-				if (methodDeclaration != null && methodDeclaration.arguments != null) {
-					arguments = methodDeclaration.arguments;
-				}
+				AbstractVariableDeclaration[] arguments = methodDeclaration == null ? null : methodDeclaration.getArguments(true);
 				for (int i = 0, max = targetParameters.length, argumentsLength = arguments != null ? arguments.length : 0; i < max; i++) {
 					if (argumentsLength > i && arguments[i] != null) {
-						Argument argument = arguments[i];
-						int modifiers = argument.binding.modifiers;
+						AbstractVariableDeclaration argument = arguments[i];
+						int modifiers = argument.getBinding() instanceof VariableBinding variable ? variable.modifiers : ClassFileConstants.AccDefault;
+						if (binding.isCompactConstructor())
+							modifiers |= ClassFileConstants.AccMandated;
 						length = writeArgumentName(argument.name, modifiers, length);
 					} else {
-						throw EclipseCompiler.UNEXPECTED_CONTROL_FLOW;
+						length = writeArgumentName(null, ClassFileConstants.AccSynthetic, length);
 					}
 				}
 			}

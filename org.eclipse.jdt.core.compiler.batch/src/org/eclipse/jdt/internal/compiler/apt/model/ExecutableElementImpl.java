@@ -121,8 +121,9 @@ public class ExecutableElementImpl extends ElementImpl implements
 			AbstractMethodDeclaration methodDeclaration = binding.sourceMethod();
 			List<VariableElement> params = new ArrayList<>(length);
 			if (methodDeclaration != null) {
-				if (methodDeclaration.arguments != null) {
-					for (Argument argument : methodDeclaration.arguments) {
+				Argument [] arguments = methodDeclaration.getArguments();
+				if (arguments != null) {
+					for (Argument argument : arguments) {
 						VariableElement param = new VariableElementImpl(this._env, argument.binding);
 						params.add(param);
 					}

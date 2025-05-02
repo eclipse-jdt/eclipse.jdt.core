@@ -323,7 +323,7 @@ public class UnresolvedReferenceNameFinder extends ASTVisitor {
 	@Override
 	public boolean visit(MethodDeclaration methodDeclaration, ClassScope classScope) {
 		removeLocals(
-				methodDeclaration.arguments,
+				methodDeclaration.getArguments(),
 				methodDeclaration.declarationSourceStart,
 				methodDeclaration.declarationSourceEnd);
 		removeLocals(

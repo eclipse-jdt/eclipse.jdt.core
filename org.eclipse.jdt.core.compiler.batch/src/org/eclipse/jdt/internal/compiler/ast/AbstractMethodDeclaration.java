@@ -111,6 +111,18 @@ public abstract class AbstractMethodDeclaration
 		}
 	}
 
+	public Argument [] getArguments () {
+		return this.arguments;
+	}
+
+	public AbstractVariableDeclaration [] getArguments (boolean includedElided) {
+		return this.arguments; // overridden in compact constructor.
+	}
+
+	public Argument [] setArguments(Argument [] arguments) {
+		return this.arguments = arguments;
+	}
+
 	/**
 	 * When a method is accessed via SourceTypeBinding.resolveTypesFor(MethodBinding)
 	 * we create the argument binding and resolve annotations in order to compute null annotation tagbits.

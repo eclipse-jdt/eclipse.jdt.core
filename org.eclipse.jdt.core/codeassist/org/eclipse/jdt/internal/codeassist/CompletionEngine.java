@@ -6380,7 +6380,7 @@ public final class CompletionEngine
 					next : for (AbstractMethodDeclaration method : methods) {
 						if (!method.isConstructor()) continue next;
 
-						Argument[] arguments = method.arguments;
+						AbstractVariableDeclaration[] arguments = method.getArguments(true);
 						int argumentsLength = arguments == null ? 0 : arguments.length;
 
 						if (parameterCount != argumentsLength) continue next;
@@ -8117,7 +8117,7 @@ public final class CompletionEngine
 								MethodDeclaration method = (MethodDeclaration) methodDeclaration;
 								MethodBinding methodBinding = method.binding;
 								if (methodBinding == null || methodBinding.returnType == null  || (methodBinding.returnType.tagBits & TagBits.HasMissingType) != 0) {
-									Argument[] parameters = method.arguments;
+									Argument[] parameters = method.getArguments();
 									int parametersLength = parameters == null ? 0 : parameters.length;
 									int argumentsLength = arguments == null ? 0 : arguments.length;
 
@@ -10916,7 +10916,7 @@ public final class CompletionEngine
 					AbstractMethodDeclaration methodDecl = parsedType.declarationOf(method.original());
 
 					if (methodDecl != null){
-						Argument[] arguments = methodDecl.arguments;
+						AbstractVariableDeclaration[] arguments = methodDecl.getArguments(true);
 						parameterNames = new char[length][];
 
 						for(int i = 0 ; i < length ; i++){

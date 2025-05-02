@@ -2955,9 +2955,6 @@ protected void consumeConstructorHeaderName(boolean isCompact) {
 	// CompactConstructorHeaderName ::= Modifiersopt 'Identifier'
 	ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationUnit.compilationResult);
 
-	if (isCompact)
-		cd.bits |= ASTNode.IsCanonicalConstructor;
-
 	//name -- this is not really revelant but we do .....
 	cd.selector = this.identifierStack[this.identifierPtr];
 	long selectorSource = this.identifierPositionStack[this.identifierPtr--];
@@ -2966,8 +2963,6 @@ protected void consumeConstructorHeaderName(boolean isCompact) {
 	//modifiers
 	cd.declarationSourceStart = this.intStack[this.intPtr--];
 	cd.modifiers = this.intStack[this.intPtr--];
-	if (isCompact)
-		cd.modifiers |= ExtraCompilerModifiers.AccCompactConstructor;
 
 	// consume annotations
 	int length;
@@ -2991,6 +2986,20 @@ protected void consumeConstructorHeaderName(boolean isCompact) {
 	cd.bodyStart = isCompact ? cd.sourceStart + cd.selector.length : this.lParenPos+1;
 
 	this.listLength = 0; // initialize this.listLength before reading parameters/throws
+
+	if (isCompact) {
+		cd.modifiers |= ExtraCompilerModifiers.AccCompactConstructor;
+		cd.bits |= ASTNode.IsCanonicalConstructor;
+		for (int i = this.astPtr; i >=0; i--) {
+			if (this.astStack[i] instanceof TypeDeclaration declaringClass) {
+				if (declaringClass.isRecord())
+					cd.protoArguments = declaringClass.recordComponents;
+				else
+					problemReporter().compactConstructorsOnlyInRecords(cd);
+				break;
+			}
+		}
+	}
 
 	// recovery
 	if (this.currentElement != null){
@@ -5244,6 +5253,7 @@ protected void consumeMethodHeaderRightParen() {
 	md.sourceEnd = 	this.rParenPos;
 	//arguments
 	if (length != 0) {
+		Argument [] arguments = null;
 		Argument arg = (Argument) this.astStack[this.astPtr + 1];
 		if (arg.isReceiver()) {
 			md.receiver = (Receiver) arg;
@@ -5251,7 +5261,7 @@ protected void consumeMethodHeaderRightParen() {
 				System.arraycopy(
 					this.astStack,
 					this.astPtr + 2,
-					md.arguments = new Argument[length - 1],
+					arguments = new Argument[length - 1],
 					0,
 					length - 1);
 			}
@@ -5276,16 +5286,17 @@ protected void consumeMethodHeaderRightParen() {
 			System.arraycopy(
 					this.astStack,
 					this.astPtr + 1,
-					md.arguments = new Argument[length],
+					arguments = new Argument[length],
 					0,
 					length);
-			for (Argument argument : md.arguments) {
+			for (Argument argument : arguments) {
 				if ((argument.bits & ASTNode.HasTypeAnnotations) != 0) {
 					md.bits |= ASTNode.HasTypeAnnotations;
 					break;
 				}
 			}
 		}
+		md.setArguments(arguments);
 	}
 	md.bodyStart = this.rParenPos+1;
 	this.listLength = 0; // reset this.listLength after having read all parameters
@@ -10318,7 +10329,7 @@ public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, Co
 	m.statements = c.statements;
 	m.modifiers = c.modifiers;
 	m.annotations = c.annotations;
-	m.arguments = c.arguments;
+	m.setArguments(c.getArguments());
 	m.thrownExceptions = c.thrownExceptions;
 	m.explicitDeclarations = c.explicitDeclarations;
 	m.returnType = null;

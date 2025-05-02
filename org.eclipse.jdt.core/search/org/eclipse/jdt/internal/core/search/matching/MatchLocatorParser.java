@@ -490,7 +490,7 @@ protected void consumeMethodHeaderRightParen() {
 	if ((this.patternFineGrain & IJavaSearchConstants.PARAMETER_DECLARATION_TYPE_REFERENCE) != 0) {
 		// when no fine grain flag is set, type reference match is evaluated in getTypeReference(int) method
 		AbstractMethodDeclaration methodDeclaration = (AbstractMethodDeclaration) this.astStack[this.astPtr];
-		Argument[] arguments = methodDeclaration.arguments;
+		Argument[] arguments = methodDeclaration.getArguments();
 		if (arguments != null) {
 			int argLength = arguments.length;
 			for (int i=0; i<argLength; i++) {

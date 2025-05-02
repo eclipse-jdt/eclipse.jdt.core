@@ -5857,8 +5857,9 @@ public CompilationUnitDeclaration parse(ICompilationUnit sourceUnit, Compilation
 }
 @Override
 public void parseBlockStatements(AbstractMethodDeclaration md, CompilationUnitDeclaration unit) {
-	if (md.arguments != null) {
-		for (Argument argument : md.arguments) {
+	Argument [] arguments = md.getArguments();
+	if (arguments != null) {
+		for (Argument argument : arguments) {
 			if (argument instanceof CompletionOnArgumentName && argument == this.assistNode)
 				return; // no need to parse more
 		}
@@ -5876,8 +5877,9 @@ public void parseBlockStatements(
 	ConstructorDeclaration cd,
 	CompilationUnitDeclaration unit) {
 	this.canBeExplicitConstructor = 1;
-	if (cd.arguments != null) {
-		for (Argument argument : cd.arguments) {
+	Argument [] arguments = cd.getArguments();
+	if (arguments != null) {
+		for (Argument argument : arguments) {
 			if (argument instanceof CompletionOnArgumentName && argument == this.assistNode)
 				return; // no need to parse more
 		}

@@ -14,6 +14,7 @@
 package org.eclipse.jdt.internal.codeassist.complete;
 
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 
@@ -32,10 +33,12 @@ public class CompletionOnMethodName extends MethodDeclaration implements Complet
 		printModifiers(this.modifiers, output);
 		printReturnType(0, output);
 		output.append(this.selector).append('(');
-		if (this.arguments != null) {
-			for (int i = 0; i < this.arguments.length; i++) {
+		@SuppressWarnings("hiding")
+		Argument [] arguments = getArguments();
+		if (arguments != null) {
+			for (int i = 0; i < arguments.length; i++) {
 				if (i > 0) output.append(", "); //$NON-NLS-1$
-				this.arguments[i].print(0, output);
+				arguments[i].print(0, output);
 			}
 		}
 		output.append(')');

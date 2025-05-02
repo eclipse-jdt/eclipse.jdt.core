@@ -445,13 +445,13 @@ public class SourceTypeConverter extends TypeConverter {
 		if (argumentCount > 0) {
 			ILocalVariable[] parameters = methodHandle.getParameters();
 			long position = ((long) start << 32) + end;
-			method.arguments = new Argument[argumentCount];
+			Argument [] arguments = new Argument[argumentCount];
 			for (int i = 0; i < argumentCount; i++) {
 				TypeReference typeReference = createTypeReference(argumentTypeSignatures[i], start, end);
 				if (isVarargs && i == argumentCount-1) {
 					typeReference.bits |= ASTNode.IsVarArgs;
 				}
-				method.arguments[i] =
+				arguments[i] =
 					new Argument(
 						argumentNames[i],
 						position,
@@ -460,8 +460,9 @@ public class SourceTypeConverter extends TypeConverter {
 				// do not care whether was final or not
 				// convert 1.5 specific constructs
 				/* convert annotations */
-				method.arguments[i].annotations = convertAnnotations(parameters[i]);
+				arguments[i].annotations = convertAnnotations(parameters[i]);
 			}
+			method.setArguments(arguments);
 		}
 
 		/* convert thrown exceptions */

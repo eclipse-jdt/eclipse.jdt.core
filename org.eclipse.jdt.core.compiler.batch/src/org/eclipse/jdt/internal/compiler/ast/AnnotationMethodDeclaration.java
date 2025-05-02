@@ -81,10 +81,12 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 		}
 
 		printReturnType(0, output).append(this.selector).append('(');
-		if (this.arguments != null) {
-			for (int i = 0; i < this.arguments.length; i++) {
+		@SuppressWarnings("hiding")
+		Argument [] arguments = getArguments();
+		if (arguments != null) {
+			for (int i = 0; i < arguments.length; i++) {
 				if (i > 0) output.append(", "); //$NON-NLS-1$
-				this.arguments[i].print(0, output);
+				arguments[i].print(0, output);
 			}
 		}
 		output.append(')');
@@ -109,7 +111,7 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 	public void resolveStatements() {
 
 		super.resolveStatements();
-		if (this.arguments != null || this.receiver != null) {
+		if (this.getArguments() != null || this.receiver != null) {
 			this.scope.problemReporter().annotationMembersCannotHaveParameters(this);
 		}
 		if (this.typeParameters != null) {

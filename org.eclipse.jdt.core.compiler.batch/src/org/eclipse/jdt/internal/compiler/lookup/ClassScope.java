@@ -84,7 +84,7 @@ public class ClassScope extends Scope {
 			AbstractMethodDeclaration[] methods = this.referenceContext.methods;
 			if (methods != null) {
 				for (AbstractMethodDeclaration method : methods) {
-					if (CharOperation.equals(TypeConstants.CLOSE, method.selector) && method.arguments == null) {
+					if (CharOperation.equals(TypeConstants.CLOSE, method.selector) && method.getArguments() == null) {
 						inheritedBits &= TypeIds.InheritableBits;
 						break;
 					}

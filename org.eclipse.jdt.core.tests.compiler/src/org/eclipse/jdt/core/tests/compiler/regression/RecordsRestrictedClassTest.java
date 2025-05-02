@@ -10176,6 +10176,49 @@ public void testUnderscoreName() {
 						"As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters\n" +
 						"----------\n");
 }
+public void testCompactConstuctorTypeAnnotations() {
+	runConformTest(
+			new String[] {
+					"X.java",
+					"""
+					import java.lang.annotation.*;
+					import java.lang.reflect.*;
+
+					@Target(ElementType.TYPE_USE)
+					@Retention(RetentionPolicy.RUNTIME)
+					@interface MyTypeAnno {
+					    String value();
+					}
+
+					public record X(@MyTypeAnno("constructor param") int x) {
+
+					    // Constructor with a type annotation on its parameter
+					    public X {
+					        // no-op
+					    }
+
+					    public static void main(String[] args) throws Exception {
+					        // Get the Constructor object for X(int)
+					        Constructor<X> constructor = X.class.getConstructor(int.class);
+
+					        // Get annotated types of the parameters
+					        AnnotatedType[] annotatedParams = constructor.getAnnotatedParameterTypes();
+
+					        // Print each annotation on each parameter
+					        for (int i = 0; i < annotatedParams.length; i++) {
+					            System.out.println("Constructor parameter " + i + " annotations:");
+					            for (Annotation annotation : annotatedParams[i].getAnnotations()) {
+					                System.out.println("  " + annotation);
+					            }
+					        }
+					    }
+					}
+					"""
+			},
+			"Constructor parameter 0 annotations:\n" +
+					"  @MyTypeAnno(\"constructor param\")"
+);
+}
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3951
 // [Records] Generic signature is not preserved for compact constructors by PR #3928
 public void testIssue3951() throws Exception {

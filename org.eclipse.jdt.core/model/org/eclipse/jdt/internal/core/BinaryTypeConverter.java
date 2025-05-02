@@ -175,7 +175,8 @@ public class BinaryTypeConverter extends TypeConverter {
 		// Ignore synthetic arguments (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=212224)
 		int startIndex = (method.isConstructor() && type.isMember() && !Flags.isStatic(type.getFlags())) ? 1 : 0;
 		argumentCount -= startIndex;
-		methodDeclaration.arguments = new Argument[argumentCount];
+		Argument [] arguments = new Argument[argumentCount];
+		methodDeclaration.setArguments(arguments);
 		for (int i = 0; i < argumentCount; i++) {
 			String argumentTypeName = argumentTypeNames[startIndex+i];
 			TypeReference typeReference = createTypeReference(argumentTypeName);
@@ -183,7 +184,7 @@ public class BinaryTypeConverter extends TypeConverter {
 			if (isVarargs && i == argumentCount-1) {
 				typeReference.bits |= ASTNode.IsVarArgs;
 			}
-			methodDeclaration.arguments[i] = new Argument(
+			arguments[i] = new Argument(
 				argumentNames[i].toCharArray(),
 				0,
 				typeReference,

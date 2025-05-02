@@ -295,7 +295,7 @@ protected void notifySourceElementRequestor(AbstractMethodDeclaration methodDecl
 	char[][] argumentTypes = null;
 	char[][] argumentNames = null;
 	boolean isVarArgs = false;
-	AbstractVariableDeclaration[] arguments = methodDeclaration.isCompactConstructor() ? declaringType.recordComponents : methodDeclaration.arguments;
+	AbstractVariableDeclaration[] arguments = methodDeclaration.getArguments(true);
 	ParameterInfo[] parameterInfos = null;
 	ISourceElementRequestor.MethodInfo methodInfo = new ISourceElementRequestor.MethodInfo();
 	methodInfo.typeAnnotated = ((methodDeclaration.bits & ASTNode.HasTypeAnnotations) != 0);

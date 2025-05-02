@@ -442,7 +442,7 @@ void reportRawReferences() {
 				AbstractMethodDeclaration methodDecl = currentMethod.sourceMethod();
 				if (methodDecl == null) return;
 				TypeBinding [] parameterTypes = currentMethod.parameters;
-				Argument[] arguments = methodDecl.arguments;
+				Argument[] arguments = methodDecl.getArguments();
 				for (int j = 0, size = currentMethod.parameters.length; j < size; j++) {
 					TypeBinding parameterType = parameterTypes[j];
 					Argument arg = arguments[j];
@@ -477,7 +477,7 @@ public void reportRawReferences(MethodBinding currentMethod, MethodBinding inher
 	if (methodDecl == null) return;
 	TypeBinding [] parameterTypes = currentMethod.parameters;
 	TypeBinding [] inheritedParameterTypes = inheritedMethod.parameters;
-	Argument[] arguments = methodDecl.arguments;
+	Argument[] arguments = methodDecl.getArguments();
 	for (int j = 0, size = currentMethod.parameters.length; j < size; j++) {
 		TypeBinding parameterType = parameterTypes[j];
 		TypeBinding inheritedParameterType = inheritedParameterTypes[j];

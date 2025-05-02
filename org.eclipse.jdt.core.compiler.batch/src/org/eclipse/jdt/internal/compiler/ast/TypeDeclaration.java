@@ -199,7 +199,7 @@ public MethodDeclaration addMissingAbstractMethodFor(MethodBinding methodBinding
 
 	if (argumentsLength > 0) {
 		String baseName = "arg";//$NON-NLS-1$
-		Argument[] arguments = (methodDeclaration.arguments = new Argument[argumentsLength]);
+		Argument[] arguments = (methodDeclaration.setArguments(new Argument[argumentsLength]));
 		for (int i = argumentsLength; --i >= 0;) {
 			arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, ClassFileConstants.AccDefault);
 		}
@@ -429,7 +429,7 @@ public MethodBinding createDefaultConstructorWithBinding(MethodBinding inherited
 	constructor.bits |= ASTNode.IsDefaultConstructor;
 
 	if (argumentsLength > 0) {
-		Argument[] arguments = (constructor.arguments = new Argument[argumentsLength]);
+		Argument[] arguments = (constructor.setArguments(new Argument[argumentsLength]));
 		for (int i = argumentsLength; --i >= 0;) {
 			arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, ClassFileConstants.AccDefault);
 		}
@@ -872,12 +872,12 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 				}
 			} else { // regular method
 				// JUnit 5 only accepts methods without arguments for method sources
-				if (method.arguments == null && jUnitMethodSourceValues.includes(method.selector) && method.binding != null) {
+				if (method.getArguments() == null && jUnitMethodSourceValues.includes(method.selector) && method.binding != null) {
 					method.binding.modifiers |= ExtraCompilerModifiers.AccLocallyUsed;
 				}
 				// pass down the parentContext (NOT an initializer context, see above):
 				((MethodDeclaration)method).analyseCode(this.scope, parentContext, flowInfo.copy());
-				if (fieldNeedingClose != null && CharOperation.equals(TypeConstants.CLOSE, method.selector) && method.arguments == null) {
+				if (fieldNeedingClose != null && CharOperation.equals(TypeConstants.CLOSE, method.selector) && method.getArguments() == null) {
 					fieldNeedingClose = null;
 				}
 			}
