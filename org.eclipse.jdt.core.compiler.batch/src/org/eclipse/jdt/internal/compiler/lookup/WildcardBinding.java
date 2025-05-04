@@ -927,10 +927,10 @@ public class WildcardBinding extends ReferenceBinding implements HotSwappable{
     }
 
     @Override
-	public ReferenceBinding[] superInterfaces() {
-        if (this.superInterfaces == null) {
+    protected ReferenceBinding[] superInterfacesRecursive(Set<ReferenceBinding> visited) {
+        if (this.superInterfaces == null && visited.add(this)) {
         	if (typeVariable() != null) {
-        		this.superInterfaces = this.typeVariable.superInterfaces();
+        		this.superInterfaces = this.typeVariable.superInterfacesRecursive(visited);// TODO (visjee) protect from duplicated calls
         	} else {
         		this.superInterfaces = Binding.NO_SUPERINTERFACES;
         	}

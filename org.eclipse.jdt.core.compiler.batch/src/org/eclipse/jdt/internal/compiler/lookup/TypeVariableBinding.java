@@ -935,7 +935,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	}
 
 	@Override
-	public ReferenceBinding[] superInterfaces() {
+	protected ReferenceBinding[] superInterfacesRecursive(Set<ReferenceBinding> visited) {
 		return this.superInterfaces;
 	}
 
