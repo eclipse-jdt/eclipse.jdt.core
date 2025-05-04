@@ -2345,7 +2345,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 			AbstractMethodDeclaration methodDeclaration = binding.sourceMethod();
 			if (methodDeclaration != null) {
 				if ((methodDeclaration.bits & ASTNode.HasTypeAnnotations) != 0) {
-					Argument[] arguments = methodDeclaration.arguments;
+					AbstractVariableDeclaration[] arguments = binding.isCompactConstructor() ?
+							getRecordComponents(binding.declaringClass) : methodDeclaration.arguments;
+
 					if (arguments != null) {
 						completeArgumentAnnotationInfo(arguments, allTypeAnnotationContexts);
 					}
@@ -3758,7 +3760,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 		assert type instanceof SourceTypeBinding;
 		SourceTypeBinding sourceType = (SourceTypeBinding) type;
-		FieldBinding[] recordComponents = sourceType.getImplicitComponentFields();
+		RecordComponentBinding[] recordComponents = sourceType.components();
 
 		int numArgs = 2 + recordComponents.length;
 		this.contents[numArgsLocation++] = (byte) (numArgs >> 8);
@@ -3776,10 +3778,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (recordComponents.length * 2 + localContentsOffset >= this.contents.length) {
 			resizeContents(recordComponents.length * 2);
 		}
-		for (FieldBinding field : recordComponents) {
+		for (RecordComponentBinding component : recordComponents) {
 			int methodHandleIndex = this.constantPool.literalIndexForMethodHandleFieldRef(
 					ClassFileConstants.MethodHandleRefKindGetField,
-					recordName, field.name, field.type.signature());
+					recordName, component.name, component.type.signature());
 
 			this.contents[localContentsOffset++] = (byte) (methodHandleIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) methodHandleIndex;

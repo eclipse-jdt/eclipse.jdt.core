@@ -16,17 +16,11 @@ package org.eclipse.jdt.internal.compiler.ast;
 import java.util.List;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationCollector;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationContext;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.flow.FlowContext;
-import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
-import org.eclipse.jdt.internal.compiler.lookup.SyntheticMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -38,6 +32,7 @@ public class RecordComponent extends AbstractVariableDeclaration {
 		char[] name,
 		int sourceStart,
 		int sourceEnd) {
+
 
 		this.name = name;
 		this.sourceStart = sourceStart;
@@ -55,27 +50,10 @@ public class RecordComponent extends AbstractVariableDeclaration {
 	}
 
 	@Override
-	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-		//TODO: Add error checking if relevant.
-		return flowInfo;
-	}
-
-	public void checkModifiers() {
-
-		//only potential valid modifier is <<final>>
-		if (((this.modifiers & ExtraCompilerModifiers.AccJustFlag) & ~ClassFileConstants.AccFinal) != 0)
-			//AccModifierProblem -> other (non-visibility problem)
-			//AccAlternateModifierProblem -> duplicate modifier
-			//AccModifierProblem | AccAlternateModifierProblem -> visibility problem"
-
-			this.modifiers = (this.modifiers & ~ExtraCompilerModifiers.AccAlternateModifierProblem) | ExtraCompilerModifiers.AccModifierProblem;
-	}
-
-	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
 		if ((this.bits & IsReachable) == 0) {
-			return; // TODO: can this ever happen?
+			return;
 		}
 		codeStream.recordPositionsFrom(codeStream.position, this.sourceStart);
 	}
@@ -117,18 +95,6 @@ public class RecordComponent extends AbstractVariableDeclaration {
 				TypeBinding resolvedAnnotationType = annotation.resolvedType;
 				if (resolvedAnnotationType != null && (resolvedAnnotationType.getAnnotationTagBits() & TagBits.AnnotationForTypeUse) != 0) {
 					this.bits |= ASTNode.HasTypeAnnotations;
-					// also update the accessor's return type:
-					if (this.binding != null && this.binding.declaringRecord != null) {
-						for (MethodBinding methodBinding : this.binding.declaringRecord.methods()) {
-							if (methodBinding instanceof SyntheticMethodBinding) {
-								SyntheticMethodBinding smb = (SyntheticMethodBinding) methodBinding;
-								if (smb.purpose == SyntheticMethodBinding.FieldReadAccess && smb.recordComponentBinding == this.binding) {
-									smb.returnType = this.binding.type;
-									break;
-								}
-							}
-						}
-					}
 					break;
 				}
 			}

@@ -701,11 +701,30 @@ public void resolveJavadoc() {
 @Override
 public void resolve(ClassScope upperScope) {
 
-	if (this.isCompactConstructor() && !upperScope.referenceContext.isRecord()) {
-		upperScope.problemReporter().compactConstructorsOnlyInRecords(this);
-		return;
-	}
+	if (this.binding != null && this.binding.isCanonicalConstructor()) {
+		RecordComponentBinding[] rcbs = upperScope.referenceContext.binding.components();
+		for (int i = 0; i < rcbs.length; ++i) {
+			TypeBinding mpt = this.binding.parameters[i];
+			TypeBinding rct = rcbs[i].type;
+			if (TypeBinding.notEquals(mpt, rct))
+				upperScope.problemReporter().recordErasureIncompatibilityInCanonicalConstructor(this.arguments[i].type);
+		}
 
+		if (!this.binding.isAsVisible(this.binding.declaringClass))
+			this.scope.problemReporter().recordCanonicalConstructorVisibilityReduced(this);
+		if (this.typeParameters != null && this.typeParameters.length > 0)
+			this.scope.problemReporter().recordCanonicalConstructorShouldNotBeGeneric(this);
+		if (this.binding.thrownExceptions != null && this.binding.thrownExceptions.length > 0)
+			this.scope.problemReporter().recordCanonicalConstructorHasThrowsClause(this);
+		if (this.isCompactConstructor()) {
+			if (!upperScope.referenceContext.isRecord())
+				upperScope.problemReporter().compactConstructorsOnlyInRecords(this);
+		} else {
+			for (int i = 0; i < rcbs.length; i++)
+				if (!CharOperation.equals(this.arguments[i].name, rcbs[i].name))
+					this.scope.problemReporter().recordIllegalParameterNameInCanonicalConstructor(rcbs[i], this.arguments[i]);
+		}
+	}
 	super.resolve(upperScope);
 }
 /*

@@ -1334,8 +1334,8 @@ public void fdiv() {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_fdiv;
 }
 
-public void fieldAccess(byte opcode, FieldBinding fieldBinding, TypeBinding declaringClass) {
-	if (declaringClass == null) declaringClass = fieldBinding.declaringClass;
+public void fieldAccess(byte opcode, VariableBinding fieldBinding, TypeBinding declaringClass) {
+	if (declaringClass == null) declaringClass = fieldBinding.getDeclaringClass();
 	if ((declaringClass.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
 		Util.recordNestedType(this.classFile, declaringClass);
 	}
@@ -2862,7 +2862,7 @@ public void generateSyntheticBodyForEnumInitializationMethod(SyntheticMethodBind
 	return_();
 }
 public void generateSyntheticBodyForFieldReadAccess(SyntheticMethodBinding accessMethod) {
-	FieldBinding fieldBinding = accessMethod.targetReadField;
+	VariableBinding fieldBinding = accessMethod.targetReadField;
 	// target method declaring class may not be accessible (247953);
 	TypeBinding declaringClass = accessMethod.purpose == SyntheticMethodBinding.SuperFieldReadAccess
 			? accessMethod.declaringClass.superclass()
@@ -3025,7 +3025,7 @@ ReferenceBinding findDirectSuperTypeTowards(SyntheticMethodBinding accessMethod,
 public void generateSyntheticBodyForSwitchTable(SyntheticMethodBinding methodBinding) {
 	ClassScope scope = ((SourceTypeBinding)methodBinding.declaringClass).scope;
 	final BranchLabel nullLabel = new BranchLabel(this);
-	FieldBinding syntheticFieldBinding = methodBinding.targetReadField;
+	VariableBinding syntheticFieldBinding = methodBinding.targetReadField;
 	fieldAccess(Opcodes.OPC_getstatic, syntheticFieldBinding, null /* default declaringClass */);
 	dup();
 	ifnull(nullLabel);
@@ -3152,11 +3152,11 @@ public void generateSyntheticBodyForRecordCanonicalConstructor(SyntheticMethodBi
 	aload_0();
 	invoke(Opcodes.OPC_invokespecial, superCons, superClass);
 	int resolvedPosition;
-	FieldBinding[] fields =  declaringClass.getImplicitComponentFields();
+	VariableBinding[] fields =  declaringClass.components();
 	int len = fields != null ? fields.length : 0;
 	resolvedPosition = 1;
 	for (int i = 0;  i < len; ++i) {
-		FieldBinding field = fields[i];
+		VariableBinding field = fields[i];
 		aload_0();
 	    TypeBinding type = field.type;
 		load(type, resolvedPosition);

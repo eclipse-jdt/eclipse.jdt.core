@@ -35,7 +35,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class SyntheticMethodBinding extends MethodBinding {
 
-	public FieldBinding targetReadField;		// read access to a field
+	public VariableBinding targetReadField;		// read access to a field
 	public FieldBinding targetWriteField;		// write access to a field
 	public MethodBinding targetMethod;			// method or constructor
 	public TypeBinding targetEnumType; 			// enum type
@@ -282,26 +282,39 @@ public class SyntheticMethodBinding extends MethodBinding {
 	}
 
 	/**
-	 * Construct enum special methods: values or valueOf methods
+	 * Construct enum special methods: values or valueOf (OR)
+	 *        records special methods: hashCode, equals, toString
 	 */
-	public SyntheticMethodBinding(SourceTypeBinding declaringEnum, char[] selector) {
-	    this.declaringClass = declaringEnum;
+	public SyntheticMethodBinding(SourceTypeBinding declaringClass, char[] selector) {
+	    this.declaringClass = declaringClass;
 	    this.selector = selector;
-	    this.modifiers = ClassFileConstants.AccPublic | ClassFileConstants.AccStatic;
-		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
-		LookupEnvironment environment = declaringEnum.scope.environment();
+	    this.modifiers = ClassFileConstants.AccPublic | (declaringClass.isEnum() ? ClassFileConstants.AccStatic : ClassFileConstants.AccFinal);
+	    this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
+		LookupEnvironment environment = declaringClass.scope.environment();
 	    this.thrownExceptions = Binding.NO_EXCEPTIONS;
 		if (selector == TypeConstants.VALUES) {
-		    this.returnType = environment.createArrayType(environment.convertToParameterizedType(declaringEnum), 1);
+		    this.returnType = environment.createArrayType(environment.convertToParameterizedType(declaringClass), 1);
 		    this.parameters = Binding.NO_PARAMETERS;
 		    this.purpose = SyntheticMethodBinding.EnumValues;
 		} else if (selector == TypeConstants.VALUEOF) {
-		    this.returnType = environment.convertToParameterizedType(declaringEnum);
-		    this.parameters = new TypeBinding[]{ declaringEnum.scope.getJavaLangString() };
+		    this.returnType = environment.convertToParameterizedType(declaringClass);
+		    this.parameters = new TypeBinding[]{ declaringClass.scope.getJavaLangString() };
 		    this.purpose = SyntheticMethodBinding.EnumValueOf;
+		} else if (selector == TypeConstants.TOSTRING) {
+			this.returnType = declaringClass.scope.getJavaLangString();
+		    this.parameters = Binding.NO_PARAMETERS;
+		    this.purpose = SyntheticMethodBinding.RecordOverrideToString;
+		} else if (selector == TypeConstants.HASHCODE) {
+			this.returnType = TypeBinding.INT;
+		    this.parameters = Binding.NO_PARAMETERS;
+		    this.purpose = SyntheticMethodBinding.RecordOverrideHashCode;
+		} else if (selector == TypeConstants.EQUALS) {
+			this.returnType = TypeBinding.BOOLEAN;
+		    this.parameters = new TypeBinding[] {declaringClass.scope.getJavaLangObject()};
+		    this.purpose = SyntheticMethodBinding.RecordOverrideEquals;
 		}
 		this.index = nextSmbIndex();
-		if (declaringEnum.isStrictfp()) {
+		if (declaringClass.isStrictfp()) {
 			this.modifiers |= ClassFileConstants.AccStrictfp;
 		}
 	}
@@ -491,54 +504,29 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.index = nextSmbIndex();
 	}
 
-	public SyntheticMethodBinding(ReferenceBinding declaringClass, RecordComponentBinding rcb, int index) {
-		SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
-		assert declaringSourceType.isRecord();
-		this.declaringClass = declaringSourceType;
+	public SyntheticMethodBinding(SourceTypeBinding declaringClass, RecordComponentBinding rcb) {
+		this.declaringClass = declaringClass;
 		this.modifiers = ClassFileConstants.AccPublic;
-		// rcb not resolved fully yet - to be filled in later - see STB.components()
-//		if (rcb.type instanceof TypeVariableBinding ||
-//				rcb.type instanceof ParameterizedTypeBinding)
-//			this.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
+
+		TypeBinding leafType = rcb.type == null ? null : rcb.type.leafComponentType();
+		if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
+			this.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
+
 		if (this.declaringClass.isStrictfp())
 			this.modifiers |= ClassFileConstants.AccStrictfp;
 		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 		this.parameters = Binding.NO_PARAMETERS;
-//		this.returnType = rcb.type; Not resolved yet - to be filled in later
+		this.returnType = rcb.type;
 		this.selector = rcb.name;
 		this.recordComponentBinding = rcb;
-//		this.targetReadField = ??; // not fully resolved yet - to be filled in later
+		this.targetReadField = rcb;
 		this.purpose = SyntheticMethodBinding.FieldReadAccess;
 		this.thrownExceptions = Binding.NO_EXCEPTIONS;
-		this.declaringClass = declaringSourceType;
 		this.index = nextSmbIndex();
 		this.sourceStart = rcb.sourceRecordComponent().sourceStart;
+		ASTNode.copyRecordComponentAnnotations(declaringClass.scope, this, rcb.sourceRecordComponent().annotations);
 	}
-	public SyntheticMethodBinding(ReferenceBinding declaringClass, char[] selector, int index) {
-		SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
-		assert declaringSourceType.isRecord();
-		this.declaringClass = declaringSourceType;
-		this.modifiers = ClassFileConstants.AccPublic | ClassFileConstants.AccFinal;
-		if (this.declaringClass.isStrictfp())
-				this.modifiers |= ClassFileConstants.AccStrictfp;
-		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
-	    this.selector = selector;
-	    this.thrownExceptions = Binding.NO_EXCEPTIONS;
-		if (selector == TypeConstants.TOSTRING) {
-			this.returnType = declaringSourceType.scope.getJavaLangString();
-		    this.parameters = Binding.NO_PARAMETERS;
-		    this.purpose = SyntheticMethodBinding.RecordOverrideToString;
-		} else if (selector == TypeConstants.HASHCODE) {
-			this.returnType = TypeBinding.INT;
-		    this.parameters = Binding.NO_PARAMETERS;
-		    this.purpose = SyntheticMethodBinding.RecordOverrideHashCode;
-		} else if (selector == TypeConstants.EQUALS) {
-			this.returnType = TypeBinding.BOOLEAN;
-		    this.parameters = new TypeBinding[] {declaringSourceType.scope.getJavaLangObject()};
-		    this.purpose = SyntheticMethodBinding.RecordOverrideEquals;
-		}
-		this.index = nextSmbIndex();
-	}
+
 	/**
 	 * An constructor accessor is a constructor with an extra argument (declaringClass), in case of
 	 * collision with an existing constructor, then add again an extra argument (declaringClass again).

@@ -55,6 +55,10 @@ public abstract class VariableBinding extends Binding {
 	@Override
 	public abstract AnnotationBinding[] getAnnotations();
 
+	public ReferenceBinding getDeclaringClass() {
+		return null;
+	}
+
 	public final boolean isBlankFinal(){
 		return (this.modifiers & ExtraCompilerModifiers.AccBlankFinal) != 0;
 	}
@@ -65,6 +69,12 @@ public abstract class VariableBinding extends Binding {
 	*/
 	public final boolean isFinal() {
 		return (this.modifiers & ClassFileConstants.AccFinal) != 0;
+	}
+
+	/* Answer true if the receiver is a static field
+	*/
+	public final boolean isStatic() {
+		return (this.modifiers & ClassFileConstants.AccStatic) != 0;
 	}
 
 	public final boolean isEffectivelyFinal() {
