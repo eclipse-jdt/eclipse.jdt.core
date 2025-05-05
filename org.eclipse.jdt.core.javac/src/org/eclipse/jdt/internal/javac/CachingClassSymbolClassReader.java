@@ -72,7 +72,6 @@ import com.sun.tools.javac.util.Pair;
 /// For signatures and annotations, this requires access to various internal content.
 public class CachingClassSymbolClassReader extends ClassReader {
 
-	private static final byte[] _2000_BYTES = new byte[2000];
 	private static Map<JavaFileObject, ClassSymbolTemplate> CACHE = Collections.synchronizedMap(new HashMap<>());
 
 	/// Allows to replace default strategy of ClassReader by one based on local templates
@@ -138,6 +137,8 @@ public class CachingClassSymbolClassReader extends ClassReader {
 	private final Names localNames;
 	private final Symtab localSyms;
 	private final StoringQueriesAnnotate localAnnotate;
+	private final byte[] signatureBuffer = new byte[2000]; // big enough to handle any signature
+	private Method superSigToTypeMethod = null;
 
 	protected CachingClassSymbolClassReader(Context context) {
 		super(context);
@@ -145,6 +146,19 @@ public class CachingClassSymbolClassReader extends ClassReader {
 		this.localNames = Names.instance(context);
 		this.localSyms = Symtab.instance(context);
 		this.localAnnotate = (StoringQueriesAnnotate)Annotate.instance(context);
+		//
+		try {
+			Field utf8ValidationField = ClassReader.class.getDeclaredField("utf8validation");
+			utf8ValidationField.setAccessible(true);
+			utf8ValidationField.set(this, Convert.Validation.STRICT);
+			Field field = ClassReader.class.getDeclaredField("signatureBuffer");
+			field.setAccessible(true);
+			field.set(this, signatureBuffer); // long enough to tolerate any type
+			superSigToTypeMethod = ClassReader.class.getDeclaredMethod("sigToType", byte[].class, int.class, int.class);
+			superSigToTypeMethod.setAccessible(true);
+		} catch (Exception ex) {
+			ILog.get().error(ex.getMessage(), ex);
+		}
 	}
 
 	private static class VarSymbolTemplate {
@@ -687,20 +701,12 @@ public class CachingClassSymbolClassReader extends ClassReader {
 	}
 
 	Type sigToType(String typeSignature) {
-		if (typeSignature == null) {
+		if (typeSignature == null || superSigToTypeMethod == null) {
 			return Type.noType;
 		}
 		try {
-			Field utf8ValidationField = ClassReader.class.getDeclaredField("utf8validation");
-			utf8ValidationField.setAccessible(true);
-			utf8ValidationField.set(this, Convert.Validation.STRICT);
-			Field field = ClassReader.class.getDeclaredField("signatureBuffer");
-			field.setAccessible(true);
-			field.set(this, _2000_BYTES); // long enough to tolerate any type
-			Method method = ClassReader.class.getDeclaredMethod("sigToType", byte[].class, int.class, int.class);
-			method.setAccessible(true);
 			byte[] bytes = typeSignature.getBytes();
-			return (Type)method.invoke(this, bytes, 0, bytes.length);
+			return (Type)superSigToTypeMethod.invoke(this, bytes, 0, bytes.length);
 		} catch (Exception ex) {
 			ILog.get().error(ex.getMessage(), ex);
 			return null;
