@@ -723,9 +723,7 @@ public SyntheticMethodBinding addSyntheticCanonicalConstructor() {
 	SyntheticMethodBinding canonicalConstructor = new SyntheticMethodBinding(this, this.components);
 	SyntheticMethodBinding[] accessors = new SyntheticMethodBinding[2];
 	this.synthetics[SourceTypeBinding.METHOD_EMUL].put(TypeConstants.INIT, accessors);
-	accessors[0] = canonicalConstructor;
-	resolveTypesFor(canonicalConstructor);
-	return canonicalConstructor;
+	return accessors[0] = canonicalConstructor;
 }
 /* Add a new synthetic component accessor for the record class */
 public SyntheticMethodBinding addSyntheticRecordComponentAccessor(RecordComponentBinding rcb) {

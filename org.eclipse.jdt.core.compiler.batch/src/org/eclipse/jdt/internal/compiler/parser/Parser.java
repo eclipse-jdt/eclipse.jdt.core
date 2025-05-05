@@ -46,8 +46,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -169,7 +167,6 @@ public class Parser implements ParserBasicInformation, ConflictedParser, Operato
 	protected static final int HALT = 0;     // halt and throw up hands.
 	protected static final int RESTART = 1;  // stacks adjusted, alternate goal from check point.
 	protected static final int RESUME = 2;   // stacks untouched, just continue from where left off.
-	private static final short TYPE_CLASS = 1;
 
 	public Scanner scanner;
 	public TerminalToken currentToken = TokenNameNotAToken;
@@ -10271,7 +10268,6 @@ protected void consumeRecordComponentHeaderRightParen() {
 				0,
 				length);
 		typeDecl.recordComponents = recComps;
-		typeDecl.nRecordComponents = recComps.length;
 	} else {
 		typeDecl.recordComponents = ASTNode.NO_RECORD_COMPONENTS;
 	}
@@ -12174,16 +12170,12 @@ public void parse(MethodDeclaration md, CompilationUnitDeclaration unit) {
 	}
 }
 public ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int length, CompilationUnitDeclaration unit) {
-	/* automaton initialization */
-	initialize();
-	goForClassBodyDeclarations();
-	return parseBodyDeclarations(source, offset, length, unit, TYPE_CLASS);
-}
-
-private ASTNode[] parseBodyDeclarations(char[] source, int offset, int length, CompilationUnitDeclaration unit, short classRecordType) {
 	boolean oldDiet = this.diet;
 	int oldInt = this.dietInt;
 	boolean oldTolerateDefaultClassMethods = this.tolerateDefaultClassMethods;
+	/* automaton initialization */
+	initialize();
+	goForClassBodyDeclarations();
 	/* scanner initialization */
 	this.scanner.setSource(source);
 	this.scanner.resetTo(offset, offset + length - 1);
@@ -12223,24 +12215,19 @@ private ASTNode[] parseBodyDeclarations(char[] source, int offset, int length, C
 		if (!this.options.performMethodsFullRecovery && !this.options.performStatementsRecovery) {
 			return null;
 		}
-		// collect all body declaration inside the compilation unit except the default constructor and implicit  methods and fields for records
+		// collect all body declaration inside the compilation unit except the default constructor
 		final List bodyDeclarations = new ArrayList();
-		unit.ignoreFurtherInvestigation = false;
-		Predicate<MethodDeclaration> methodPred = classRecordType == TYPE_CLASS ?
-				mD -> !mD.isDefaultConstructor() : mD -> true;
-		Consumer<FieldDeclaration> fieldAction = classRecordType == TYPE_CLASS ?
-				fD -> bodyDeclarations.add(fD) : fD -> { bodyDeclarations.add(fD);} ;
 		ASTVisitor visitor = new ASTVisitor() {
 			@Override
 			public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
-				if (methodPred.test(methodDeclaration)) {
+				if (!methodDeclaration.isDefaultConstructor()) {
 					bodyDeclarations.add(methodDeclaration);
 				}
 				return false;
 			}
 			@Override
 			public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
-				fieldAction.accept(fieldDeclaration);
+				bodyDeclarations.add(fieldDeclaration);
 				return false;
 			}
 			@Override
@@ -12249,6 +12236,7 @@ private ASTNode[] parseBodyDeclarations(char[] source, int offset, int length, C
 				return false;
 			}
 		};
+		unit.ignoreFurtherInvestigation = false;
 		unit.traverse(visitor, unit.scope);
 		unit.ignoreFurtherInvestigation = true;
 		result = (ASTNode[]) bodyDeclarations.toArray(new ASTNode[bodyDeclarations.size()]);

@@ -516,7 +516,7 @@ public class SourceTypeConverter extends TypeConverter {
 			// Hence, use the one that does
 			type.modifiers |= ExtraCompilerModifiers.AccRecord;
 			IField[] recordComponents = typeHandle.getRecordComponents();
-			type.recordComponents = new RecordComponent[type.nRecordComponents = recordComponents.length];
+			type.recordComponents = new RecordComponent[recordComponents.length];
 			for(int i = 0; i < recordComponents.length; i++) {
 				type.recordComponents[i] = convertRecordComponents((SourceField)recordComponents[i], type, compilationResult);
 			}

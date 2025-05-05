@@ -79,14 +79,8 @@ public class Argument extends LocalDeclaration {
 		}
 		if ((this.binding.extendedTagBits & ExtendedTagBits.AnnotationResolved) == 0) {
 			Annotation[] annots = this.annotations;
-			long sourceLevel = scope.compilerOptions().sourceLevel;
-			if (sourceLevel >= ClassFileConstants.JDK14 && annots == null) {
-				annots = ASTNode.copyRecordComponentAnnotations(scope,
-							this.binding, annots);
-			}
 			if (annots != null)
 				resolveAnnotations(scope, annots, this.binding, true);
-
 			Annotation.isTypeUseCompatible(this.type, scope, annots);
 			scope.validateNullAnnotation(this.binding.tagBits, this.type, annots);
 		}

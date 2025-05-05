@@ -144,7 +144,7 @@ public class CompletionOnJavadocTag extends JavadocSingleNameReference implement
 							switch (scope.kind) {
 								case Scope.CLASS_SCOPE:
 									TypeDeclaration typeDecl = ((ClassScope)scope).referenceContext;
-									boolean isRecordWithComponent = typeDecl.isRecord() && typeDecl.nRecordComponents >0 ;
+									boolean isRecordWithComponent = typeDecl.isRecord() && typeDecl.recordComponents.length > 0;
 									if (((ClassScope)scope).referenceContext.binding.isGenericType() || isRecordWithComponent) {
 										filteredTags[size++] = possibleTag;
 									}

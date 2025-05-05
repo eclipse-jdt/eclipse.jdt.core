@@ -103,7 +103,6 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 
 	// 16 Records support
 	public RecordComponent[] recordComponents = NO_RECORD_COMPONENTS;
-	public int nRecordComponents;
 	public static Set<String> disallowedComponentNames;
 
 	// 17 Sealed Type support
@@ -1172,7 +1171,7 @@ public StringBuilder printHeader(int indent, StringBuilder output) {
 	output.append(this.name);
 	if (this.isRecord()) {
 		output.append('(');
-		for (int i = 0; i < this.nRecordComponents; i++) {
+		for (int i = 0, length = this.recordComponents.length; i < length; i++) {
 			if (i > 0) output.append(", "); //$NON-NLS-1$
 			output.append(this.recordComponents[i].type.getTypeName()[0]);
 			output.append(' ');
