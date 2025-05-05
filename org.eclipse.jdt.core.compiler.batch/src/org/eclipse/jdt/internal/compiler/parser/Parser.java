@@ -2955,9 +2955,6 @@ protected void consumeConstructorHeaderName(boolean isCompact) {
 	// CompactConstructorHeaderName ::= Modifiersopt 'Identifier'
 	ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationUnit.compilationResult);
 
-	if (isCompact)
-		cd.bits |= ASTNode.IsCanonicalConstructor;
-
 	//name -- this is not really revelant but we do .....
 	cd.selector = this.identifierStack[this.identifierPtr];
 	long selectorSource = this.identifierPositionStack[this.identifierPtr--];
@@ -2966,8 +2963,6 @@ protected void consumeConstructorHeaderName(boolean isCompact) {
 	//modifiers
 	cd.declarationSourceStart = this.intStack[this.intPtr--];
 	cd.modifiers = this.intStack[this.intPtr--];
-	if (isCompact)
-		cd.modifiers |= ExtraCompilerModifiers.AccCompactConstructor;
 
 	// consume annotations
 	int length;
@@ -2991,6 +2986,20 @@ protected void consumeConstructorHeaderName(boolean isCompact) {
 	cd.bodyStart = isCompact ? cd.sourceStart + cd.selector.length : this.lParenPos+1;
 
 	this.listLength = 0; // initialize this.listLength before reading parameters/throws
+
+	if (isCompact) {
+		cd.modifiers |= ExtraCompilerModifiers.AccCompactConstructor;
+		cd.bits |= ASTNode.IsCanonicalConstructor;
+		for (int i = this.astPtr; i >=0; i--) {
+			if (this.astStack[i] instanceof TypeDeclaration declaringClass) {
+				if (declaringClass.isRecord())
+					cd.protoArguments = declaringClass.recordComponents;
+				else
+					problemReporter().compactConstructorsOnlyInRecords(cd);
+				break;
+			}
+		}
+	}
 
 	// recovery
 	if (this.currentElement != null){
