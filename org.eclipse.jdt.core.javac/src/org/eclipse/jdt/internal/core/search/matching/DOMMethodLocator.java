@@ -10,16 +10,20 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JdtCoreDomPackagePrivateUtility;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
@@ -164,12 +168,68 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		if (level == IMPOSSIBLE_MATCH)
 			return level;
 
+		level = matchMethodBindingReturnType(node, method);
+		if (level == IMPOSSIBLE_MATCH)
+			return level;
+
+
 		level = matchMethodBindingParameters(node, method, skipImpossibleArg, level);
 		if (level == IMPOSSIBLE_MATCH)
 			return level;
 
 		level = matchMethodBindingTypeArguments(node, method, skipImpossibleArg, level, bindingIsDeclaration);
 		return level;
+	}
+
+	private int matchMethodBindingReturnType(ASTNode node, IMethodBinding method) {
+		boolean isExactPattern = isPatternExactMatch();
+		boolean isErasurePattern = isPatternErasureMatch();
+		boolean isEquivPattern = isPatternEquivalentMatch();
+
+		ITypeBinding returnTypeFromBinding = method.getReturnType();
+		char[][] sigs = this.locator.pattern.returnTypeSignatures;
+		if( sigs != null && sigs.length > 0 && sigs[0] != null ) {
+			String patternSig = new String(sigs[0]);
+			IBinding patternBinding = JdtCoreDomPackagePrivateUtility.findBindingForType(node, patternSig);
+			if( patternBinding == null ) {
+				boolean plusOrMinus = patternSig.startsWith("+") || patternSig.startsWith("-");
+				String safePatternString = plusOrMinus ? patternSig.substring(1) : patternSig;
+				if( safePatternString.startsWith("Q")) {
+					patternBinding = JdtCoreDomPackagePrivateUtility.findUnresolvedBindingForType(node, safePatternString);
+				}
+			}
+
+			boolean match = TypeArgumentMatchingUtility.validateSingleTypeArgMatches(isExactPattern, patternSig, patternBinding, returnTypeFromBinding);
+			if( match ) {
+				// Do some extra checks
+				if( node instanceof MethodInvocation mi) {
+					Expression e = mi.getExpression();
+					IBinding b = DOMASTNodeUtils.getBinding(e);
+					if( b != null ) {
+						if( b instanceof IVariableBinding ivb) {
+							ITypeBinding t1 = ivb.getType();
+							ITypeBinding[] bindingTypeArgs = t1.getTypeArguments();
+							String[] bindingTypeArgsSimple = Arrays.asList(bindingTypeArgs).stream().map(x -> Signature.getSignatureSimpleName(x.getKey())).toArray(String[]::new);
+							String[] patternTypeArgsArr = Signature.getTypeArguments(patternSig);
+							String[] patternTypeArgsSimple = Arrays.asList(patternTypeArgsArr).stream().map(x -> Signature.getSignatureSimpleName(x)).toArray(String[]::new);
+							if( patternTypeArgsSimple.length != bindingTypeArgs.length) {
+								match = false;
+							} else if( !Arrays.equals(bindingTypeArgsSimple, patternTypeArgsSimple)) {
+								match = false;
+							}
+						}
+					}
+				}
+			}
+			if( !match ) {
+				if( isExactPattern || (!isErasurePattern && !isEquivPattern)) {
+					return IMPOSSIBLE_MATCH;
+				}
+				return ERASURE_MATCH;
+			}
+		}
+
+		return ACCURATE_MATCH;
 	}
 
 	private boolean isPatternErasureMatch() {

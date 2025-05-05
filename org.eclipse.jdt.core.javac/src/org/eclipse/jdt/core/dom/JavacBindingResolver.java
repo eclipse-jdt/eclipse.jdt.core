@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.lang.model.element.Element;
@@ -30,6 +29,7 @@ import javax.lang.model.type.TypeKind;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.javac.dom.JavacAnnotationBinding;
 import org.eclipse.jdt.internal.javac.dom.JavacErrorMethodBinding;
@@ -547,10 +547,26 @@ public class JavacBindingResolver extends BindingResolver {
 		compoundListWithAction(validNames, x -> x.startsWith("+") || x.startsWith("-") ? x.substring(1) : null);
 		compoundListWithAction(validNames, x -> x.lastIndexOf(".", x.length() - 1) != -1 ? x.substring(x.lastIndexOf(".") + 1) : null);
 		compoundListWithAction(validNames, x -> x.startsWith("Q") ? x.substring(1) : null);
+		compoundListWithAction(validNames, x -> x.contains("<Q") ? x.replaceAll("<Q", "<") : null);
+		String bindingKeySimpleName = Signature.getSignatureSimpleName(bindingKey);
+		validNames.add(bindingKeySimpleName);
 
 		Collection<JavacTypeBinding> c = this.bindings.typeBinding.values();
-		List<JavacTypeBinding> possible = c.stream().filter(x -> validNames.contains(x.getName()) || validNames.contains(x.getKey())).collect(Collectors.toList());
-		return possible.size() == 0 ? null : possible.get(0);
+		List<JavacTypeBinding> strongMatch = new ArrayList<>();
+		c.stream().forEach(x -> {
+			String n = x.getName();
+			if( validNames.contains(n)) {
+				strongMatch.add(x);
+				return;
+			}
+			String k = x.getKey();
+			if( validNames.contains(k)) {
+				strongMatch.add(x);
+				return;
+			}
+		});
+
+		return strongMatch.size() > 0 ? strongMatch.get(0) : null;
 	}
 
 	@Override

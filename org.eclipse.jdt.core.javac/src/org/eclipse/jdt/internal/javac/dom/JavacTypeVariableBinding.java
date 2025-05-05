@@ -39,14 +39,26 @@ public abstract class JavacTypeVariableBinding extends JavacTypeBinding {
 
 	@Override
 	public String getKey() {
+		return getKeyWithCaptureCode();
+	}
+
+	public String getKeyWithCaptureCode() {
+		return getKeyWithOptionalCaptureCode(true);
+	}
+	public String getKeyWithoutCaptureCode() {
+		return getKeyWithOptionalCaptureCode(false);
+	}
+	public String getKeyWithOptionalCaptureCode(boolean includeCode) {
 		StringBuilder builder = new StringBuilder();
 		if (this.typeVar instanceof Type.CapturedType capturedType) {
 			try {
 				builder.append('!');
 				JavacTypeBinding.getKey(builder, capturedType.wildcard, false, true, this.resolver);
 				// taken from Type.CapturedType.toString()
-				builder.append((capturedType.hashCode() & 0xFFFFFFFFL) % 997);
-				builder.append(';');
+				if( includeCode ) {
+					builder.append((capturedType.hashCode() & 0xFFFFFFFFL) % 997);
+					builder.append(';');
+				}
 				return builder.toString();
 			} catch (BindingKeyException e) {
 				return null;

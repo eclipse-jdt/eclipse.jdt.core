@@ -557,7 +557,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public ITypeBinding getReturnType() {
-		return this.resolver.bindings.getTypeBinding(this.methodType.getReturnType());
+		return this.resolver.bindings.getTypeBinding(this.methodType.getReturnType(), false);
 	}
 
 	@Override

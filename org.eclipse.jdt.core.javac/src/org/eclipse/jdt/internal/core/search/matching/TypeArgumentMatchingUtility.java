@@ -12,23 +12,45 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.internal.core.util.KeyToSignature;
 import org.eclipse.jdt.internal.javac.dom.JavacTypeBinding;
 
 public class TypeArgumentMatchingUtility {
 
 	public static boolean validateSingleTypeArgMatches(boolean requiresExactMatch, String patternSig, IBinding patternBinding, IBinding domBinding) {
 		ITypeBinding domTypeBinding = domBinding instanceof ITypeBinding ? (ITypeBinding)domBinding : null;
-		String domSig = domBinding == null ? null : domBinding instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : domBinding.getKey();
+		String domKey1 = domBinding == null ? null : domBinding.getKey();
+		String domSig = null;
+		if( domKey1 != null ) {
+			try {
+				KeyToSignature ks = new KeyToSignature(domKey1, KeyToSignature.SIGNATURE);
+				ks.parse();
+				domSig = ks.toString();
+			} catch(RuntimeException re ) {
+				// TODO ignore
+			}
+		}
+		//String domSig = domKey1 == null ? null : domBinding instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : domBinding.getKey();
 		if( requiresExactMatch ) {
-			if( patternSig.equals(domSig)) {
+
+			if( Objects.equals(patternSig, domSig)) {
 				return true;
 			}
 			if( patternSig.equals("*") && isQuestionMark(domSig)) {
 				return true;
+			}
+			if( patternSig.startsWith("Q")) {
+				String patternSimpleName = Signature.getSignatureSimpleName(patternSig);
+				String bindingSimpleName = Signature.getSignatureSimpleName(domSig);
+				if( Objects.equals(patternSimpleName, bindingSimpleName)) {
+					return true;
+				}
 			}
 			return false;
 		}
