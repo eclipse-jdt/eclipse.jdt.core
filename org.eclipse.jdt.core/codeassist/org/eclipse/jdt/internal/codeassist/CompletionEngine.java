@@ -6380,7 +6380,7 @@ public final class CompletionEngine
 					next : for (AbstractMethodDeclaration method : methods) {
 						if (!method.isConstructor()) continue next;
 
-						Argument[] arguments = method.arguments;
+						AbstractVariableDeclaration[] arguments = method.arguments(true);
 						int argumentsLength = arguments == null ? 0 : arguments.length;
 
 						if (parameterCount != argumentsLength) continue next;
@@ -10916,7 +10916,7 @@ public final class CompletionEngine
 					AbstractMethodDeclaration methodDecl = parsedType.declarationOf(method.original());
 
 					if (methodDecl != null){
-						Argument[] arguments = methodDecl.arguments;
+						AbstractVariableDeclaration[] arguments = methodDecl.arguments(true);
 						parameterNames = new char[length][];
 
 						for(int i = 0 ; i < length ; i++){

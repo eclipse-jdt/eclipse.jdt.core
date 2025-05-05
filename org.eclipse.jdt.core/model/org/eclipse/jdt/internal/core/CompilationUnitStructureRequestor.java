@@ -460,7 +460,7 @@ private SourceMethodElementInfo createMethodInfo(MethodInfo methodInfo, SourceMe
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=334783
 	// Process the parameter annotations from the arguments
 	if (methodInfo.node != null) {
-		AbstractVariableDeclaration [] arguments = methodInfo.node.isCompactConstructor() ? methodInfo.enclosingType.recordComponents : methodInfo.node.arguments;
+		AbstractVariableDeclaration [] arguments = methodInfo.node.arguments(true);
 		if (arguments != null)
 			info.arguments = acceptMethodParameters(arguments, handle, methodInfo);
 	}

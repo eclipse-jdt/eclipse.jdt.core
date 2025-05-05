@@ -65,6 +65,8 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 	private ExceptionHandlingFlowContext prologueContext;
 	private FlowInfo prologueInfo;
 
+	public AbstractVariableDeclaration [] protoArguments; // for compact constructors; we don't have a back pointer to declaring class.
+
 public ConstructorDeclaration(CompilationResult compilationResult){
 	super(compilationResult);
 }
@@ -292,6 +294,11 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 	} catch (AbortMethod e) {
 		this.ignoreFurtherInvestigation = true;
 	}
+}
+
+@Override
+public AbstractVariableDeclaration[] arguments(boolean includedElided) {
+	return includedElided && this.isCompactConstructor() ? this.protoArguments : super.arguments(includedElided);
 }
 
 protected void doFieldReachAnalysis(FlowInfo flowInfo, FieldBinding[] fields) {
@@ -716,10 +723,7 @@ public void resolve(ClassScope upperScope) {
 			this.scope.problemReporter().recordCanonicalConstructorShouldNotBeGeneric(this);
 		if (this.binding.thrownExceptions != null && this.binding.thrownExceptions.length > 0)
 			this.scope.problemReporter().recordCanonicalConstructorHasThrowsClause(this);
-		if (this.isCompactConstructor()) {
-			if (!upperScope.referenceContext.isRecord())
-				upperScope.problemReporter().compactConstructorsOnlyInRecords(this);
-		} else {
+		if (!this.isCompactConstructor()) {
 			for (int i = 0; i < rcbs.length; i++)
 				if (!CharOperation.equals(this.arguments[i].name, rcbs[i].name))
 					this.scope.problemReporter().recordIllegalParameterNameInCanonicalConstructor(rcbs[i], this.arguments[i]);

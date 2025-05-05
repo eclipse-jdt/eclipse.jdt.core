@@ -682,16 +682,14 @@ class ASTConverter {
 		org.eclipse.jdt.internal.compiler.ast.Argument[] parameters = methodDeclaration.arguments;
 		int parametersLength = parameters == null ? 0 : parameters.length;
 		if (parametersLength > 0) {
-			if (!(DOMASTUtil.isRecordDeclarationSupported(this.ast) && methodDecl.isCompactConstructor())) {
-				SingleVariableDeclaration parameter;
-				int i = 0;
-				do {
-					parameter = convert(parameters[i++]);
-					methodDecl.parameters().add(parameter);
-				} while (i < parametersLength);
-				if (thrownExceptionsLength == 0) {
-					methodHeaderEnd = parameter.getStartPosition() + parameter.getLength();
-				}
+			SingleVariableDeclaration parameter;
+			int i = 0;
+			do {
+				parameter = convert(parameters[i++]);
+				methodDecl.parameters().add(parameter);
+			} while (i < parametersLength);
+			if (thrownExceptionsLength == 0) {
+				methodHeaderEnd = parameter.getStartPosition() + parameter.getLength();
 			}
 		}
 		org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall explicitConstructorCall = null;

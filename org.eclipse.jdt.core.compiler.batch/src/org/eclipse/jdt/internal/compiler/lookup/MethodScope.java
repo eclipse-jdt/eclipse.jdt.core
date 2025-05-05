@@ -420,21 +420,21 @@ MethodBinding createMethod(AbstractMethodDeclaration method) {
 	}
 	this.isStatic = method.binding.isStatic();
 
-	AbstractVariableDeclaration[] argTypes = method.arguments != null ? method.arguments : method.isCompactConstructor() ? referenceType.recordComponents : null;
-	int argLength = argTypes == null ? 0 : argTypes.length;
+	AbstractVariableDeclaration[] arguments = method.arguments(true);
+	int argLength = arguments == null ? 0 : arguments.length;
 	if (argLength > 0) {
-		AbstractVariableDeclaration argument = argTypes[argLength - 1];
+		AbstractVariableDeclaration argument = arguments[argLength - 1];
 		method.binding.parameterNames = new char[argLength][];
 		method.binding.parameterNames[--argLength] = argument.name;
 		if (argument.isVarArgs())
 			method.binding.modifiers |= ClassFileConstants.AccVarargs;
-		if (method.arguments != null && CharOperation.equals(argument.name, ConstantPool.This)) {
+		if (!method.isCompactConstructor() && CharOperation.equals(argument.name, ConstantPool.This)) { // no double jeopardy
 			problemReporter().illegalThisDeclaration(argument);
 		}
 		while (--argLength >= 0) {
-			argument = argTypes[argLength];
+			argument = arguments[argLength];
 			method.binding.parameterNames[argLength] = argument.name;
-			if (method.arguments != null) {
+			if (!method.isCompactConstructor()) { // no double jeopardy
 				if (argument.isVarArgs())
 					problemReporter().illegalVararg(argument, method);
 				if (CharOperation.equals(argument.name, ConstantPool.This)) {

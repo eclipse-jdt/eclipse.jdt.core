@@ -13,6 +13,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 
@@ -430,6 +431,70 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n" +
 				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n" +
 				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+				requestor.getResults());
+	}
+	public void testConstructor7() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"package test;"+
+			"public class Test {\n" +
+			"        public void foo(Object o) {\n" +
+			"                new TestConstructor\n" +
+			"        }\n" +
+			"}");
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/TestConstructor1.java",
+			"package test;"+
+			"public record TestConstructor1(int[] i) {\n" +
+			"        public TestConstructor1 {\n" +
+			"        }\n" +
+			"}");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "TestConstructor";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+
+		assertResults(
+				"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, ([I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
+				"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
+				requestor.getResults());
+	}
+
+	public void testCompletionFindConstructor() throws JavaModelException {
+		this.wc = getWorkingCopy(
+	            "/Completion/src/CompletionFindConstructor.java",
+	            "public record CompletionFindConstructor(int i, int [] ia) {\n"+
+	            "	public CompletionFindConstructor {\n"+
+	            "	}\n"+
+	            "	public void foo(){\n"+
+	            "		int x = 45;\n"+
+	            "		new CompletionFindConstructor(i);\n"+
+	            "	}\n"+
+	            "}");
+
+
+	    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+
+	    String str = this.wc.getSource();
+	    String completeBehind = "CompletionFindConstructor(";
+	    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	    this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	    assertResults(
+	            "expectedTypesSignatures={I}\n"+
+	            "expectedTypesKeys={I}",
+	            requestor.getContext());
+
+	   assertResults(
+			   "CompletionFindConstructor[METHOD_REF<CONSTRUCTOR>]{, LCompletionFindConstructor;, (I[I)V, CompletionFindConstructor, (i, ia), 39}\n" +
+					   "hashCode[METHOD_REF]{hashCode(), LCompletionFindConstructor;, ()I, hashCode, null, 52}\n" +
+					   "i[FIELD_REF]{i, LCompletionFindConstructor;, I, i, null, 52}\n" +
+					   "i[METHOD_REF]{i(), LCompletionFindConstructor;, ()I, i, null, 52}\n" +
+					   "x[LOCAL_VARIABLE_REF]{x, null, I, x, null, 52}",
 				requestor.getResults());
 	}
 }
