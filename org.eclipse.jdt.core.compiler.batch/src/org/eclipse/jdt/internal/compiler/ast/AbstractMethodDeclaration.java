@@ -185,10 +185,15 @@ public abstract class AbstractMethodDeclaration
 				this.binding.parameters[i] = argument.bind(this.scope, this.binding.parameters[i], used);
 				param_i_Annotations = argument.annotations != null ? argument.binding.getAnnotations() : null;
 			} else {
-				this.scope.addLocalVariable(new LocalVariableBinding(methodArgument.name, methodArgument.type.resolvedType, methodArgument.modifiers, true)); // LVB is not annotated - FIXME
+				final LocalVariableBinding implicitArgument = new LocalVariableBinding(methodArgument.name, methodArgument.type.resolvedType, methodArgument.modifiers, true);
+				this.scope.addLocalVariable(implicitArgument);
 				List<AnnotationBinding> relevantAnnotationBindings = new ArrayList<>();
 				ASTNode.getRelevantAnnotations(methodArgument.annotations, TagBits.AnnotationForParameter, relevantAnnotationBindings);
 				param_i_Annotations = relevantAnnotationBindings.toArray(new AnnotationBinding[0]);
+				if (param_i_Annotations != null && param_i_Annotations.length > 0) {
+					implicitArgument.setAnnotations(param_i_Annotations, this.scope, true);
+					implicitArgument.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
+				}
 			}
 
 			if (param_i_Annotations != null && param_i_Annotations.length > 0) {
