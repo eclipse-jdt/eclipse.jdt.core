@@ -463,7 +463,6 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.extendedTagBits |= ExtendedTagBits.IsCanonicalConstructor;
 		this.parameters = rcb.length == 0 ? Binding.NO_PARAMETERS : new TypeBinding[rcb.length];
 		this.parameterNames = rcb.length == 0 ? Binding.NO_PARAMETER_NAMES : new char[rcb.length][];
-		this.modifiers |= ExtraCompilerModifiers.AccUnresolved;
 		AnnotationBinding[][] paramAnnotations = null;
 		for (int i = 0, length = rcb.length; i < length; i++) {
 			this.parameters[i] = rcb[i].type;

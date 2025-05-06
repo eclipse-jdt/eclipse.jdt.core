@@ -5043,7 +5043,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 
 		boolean needSynthetics = isCanonicalConstructor ? false : // WYSIWYG
-										isConstructor && !isCanonicalConstructor && declaringClass.isNestedType();
+										isConstructor && declaringClass.isNestedType();
 		if (needSynthetics) {
 			// Take into account the synthetic argument names
 			// This tracks JLS8, paragraph 8.8.9

@@ -235,7 +235,7 @@ public class Javadoc extends ASTNode {
 		// @param tags
 		int paramTagsSize = this.paramReferences == null ? 0 : this.paramReferences.length;
 		for (int i = 0; i < paramTagsSize; i++) {
-			if(scope.referenceContext.nRecordComponents > 0) {
+			if(scope.referenceContext.recordComponents.length > 0) {
 				break;
 			}
 			JavadocSingleNameReference param = this.paramReferences[i];

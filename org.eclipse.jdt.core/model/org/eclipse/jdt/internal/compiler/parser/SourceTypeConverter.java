@@ -516,7 +516,7 @@ public class SourceTypeConverter extends TypeConverter {
 			// Hence, use the one that does
 			type.modifiers |= ExtraCompilerModifiers.AccRecord;
 			IField[] recordComponents = typeHandle.getRecordComponents();
-			type.recordComponents = new RecordComponent[type.nRecordComponents = recordComponents.length];
+			type.recordComponents = new RecordComponent[recordComponents.length];
 			for(int i = 0; i < recordComponents.length; i++) {
 				type.recordComponents[i] = convertRecordComponents((SourceField)recordComponents[i], type, compilationResult);
 			}
@@ -602,21 +602,10 @@ public class SourceTypeConverter extends TypeConverter {
 			initializers = typeInfo.getInitializers();
 			initializerCount = initializers.length;
 		}
-		SourceField[] sourceFields = null;
+		IField[] sourceFields = null;
 		int sourceFieldCount = 0;
 		if ((this.flags & FIELD) != 0) {
-			SourceField[] allFields = typeInfo.getFieldHandles();
-			if (type.isRecord()) {
-				int staticFieldCount = 0;
-				for (int i = 0, length = allFields.length; i < length; i++) {
-					SourceFieldElementInfo elementInfo = (SourceFieldElementInfo) allFields[i].getElementInfo();
-					if ((elementInfo.getModifiers() & ClassFileConstants.AccStatic) != 0)
-						allFields[staticFieldCount++] = allFields[i];
-				}
-				System.arraycopy(allFields, 0, sourceFields = new SourceField[staticFieldCount], 0, staticFieldCount);
-			} else {
-				sourceFields = allFields;
-			}
+			sourceFields = typeHandle.getFields();
 			sourceFieldCount = sourceFields.length;
 		}
 		int length = initializerCount + sourceFieldCount;
@@ -627,7 +616,7 @@ public class SourceTypeConverter extends TypeConverter {
 			}
 			int index = 0;
 			for (int i = initializerCount; i < length; i++) {
-				type.fields[i] = convert(sourceFields[index++], type, compilationResult);
+				type.fields[i] = convert((SourceField) sourceFields[index++], type, compilationResult);
 			}
 		}
 
