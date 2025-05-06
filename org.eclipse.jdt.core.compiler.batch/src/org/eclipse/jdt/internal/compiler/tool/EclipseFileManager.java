@@ -216,6 +216,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	private Iterable<? extends File> concatFiles(Iterable<? extends File> iterable, Iterable<? extends File> iterable2) {
 		ArrayList<File> list = new ArrayList<>();
 		if (iterable2 == null) return iterable;
+		if (iterable == null) return iterable2;
 		for (File file : iterable) {
 			list.add(file);
 		}
@@ -786,10 +787,6 @@ public class EclipseFileManager implements StandardJavaFileManager {
 						throw new IllegalArgumentException();
 					}
 				case "-extdirs": //$NON-NLS-1$
-					if (this.isOnJvm9) {
-						// XXX this should check -target == 8, not the running JVM version!
-						throw new IllegalArgumentException();
-					}
 					if (remaining.hasNext()) {
 						Iterable<? extends File> iterable = getLocation(StandardLocation.PLATFORM_CLASS_PATH);
 						setLocation(StandardLocation.PLATFORM_CLASS_PATH,
