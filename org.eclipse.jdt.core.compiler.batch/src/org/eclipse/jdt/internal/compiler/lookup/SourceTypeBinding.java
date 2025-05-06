@@ -2248,6 +2248,7 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 		RecordComponentBinding[] rcbs = components();
 		int length = rcbs.length;
 		method.parameters = new TypeBinding[length];
+		AnnotationBinding[][] methodsParameterAnnotations = null;
 		for (int i = 0; i < length; i++ ) {
 			method.parameters[i] = rcbs[i].type;
 			TypeBinding leafType = rcbs[i].type == null ? null : rcbs[i].type.leafComponentType();
@@ -2255,6 +2256,29 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 				method.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 			if (rcbs[i].type.hasTypeAnnotations())
 				methodDecl.bits |= ASTNode.HasTypeAnnotations;
+			// bind the implicit argument already.
+			final LocalVariableBinding implicitArgument = new LocalVariableBinding(rcbs[i].name, rcbs[i].type, rcbs[i].modifiers, true);
+			methodDecl.scope.addLocalVariable(implicitArgument);
+			List<AnnotationBinding> propagatedAnnotations = new ArrayList<>();
+			ASTNode.getRelevantAnnotations(rcbs[i].sourceRecordComponent().annotations, TagBits.AnnotationForParameter, propagatedAnnotations);
+			AnnotationBinding[] annotationsForParameter = propagatedAnnotations.toArray(new AnnotationBinding[0]);
+			if (annotationsForParameter != null && annotationsForParameter.length > 0) {
+				implicitArgument.setAnnotations(annotationsForParameter, this.scope, true);
+				implicitArgument.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
+				if (methodsParameterAnnotations == null) {
+					methodsParameterAnnotations = new AnnotationBinding[length][];
+					for (int j = 0; j < i; j++) {
+						methodsParameterAnnotations[j] = Binding.NO_ANNOTATIONS;
+					}
+				}
+				methodsParameterAnnotations[i] = annotationsForParameter;
+			} else if (methodsParameterAnnotations != null) {
+				methodsParameterAnnotations[i] = Binding.NO_ANNOTATIONS;
+			}
+		}
+		if (methodsParameterAnnotations != null) {
+			methodDecl.binding.tagBits |= TagBits.HasParameterAnnotations;
+			methodDecl.binding.setParameterAnnotations(methodsParameterAnnotations);
 		}
 	}
 
