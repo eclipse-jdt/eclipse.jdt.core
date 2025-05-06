@@ -3887,7 +3887,10 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 		DOMInternalCompletionProposal res = createProposal(kind);
 		res.setName(binding.getName().toCharArray());
-		if (kind == CompletionProposal.METHOD_REF) {
+		int endOffset = this.toComplete instanceof SimpleName name && name.getStartPosition() >= 0 ?
+				name.getStartPosition() + name.getLength() : -1;
+		if (kind == CompletionProposal.METHOD_REF
+			&& (endOffset < 0 || this.textContent.length() <= endOffset || this.textContent.charAt(endOffset) != '(')) {
 			completion += "()"; //$NON-NLS-1$
 		}
 		if (toComplete instanceof MethodInvocation method && Objects.equals(binding.getName(), method.getName().getIdentifier())) {
@@ -4098,8 +4101,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			&& !Set.of(QualifiedName.QUALIFIER_PROPERTY, ExpressionMethodReference.NAME_PROPERTY).contains(this.toComplete.getLocationInParent())
 			&& !this.prefix.isEmpty()
 			&& !inJavadoc) {
-			res.setReplaceRange(this.toComplete.getStartPosition(), this.offset);
-			res.setTokenRange(this.toComplete.getStartPosition(), this.offset);
+			res.setReplaceRange(this.toComplete.getStartPosition(), endOffset);
+			res.setTokenRange(this.toComplete.getStartPosition(), endOffset);
 		} else if (this.toComplete instanceof MethodInvocation methodInvocation) {
 			res.setReplaceRange(this.offset, this.offset);
 			res.setTokenRange(this.offset, this.offset);
