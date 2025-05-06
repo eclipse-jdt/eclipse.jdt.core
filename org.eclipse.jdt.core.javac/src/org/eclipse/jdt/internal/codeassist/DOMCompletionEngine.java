@@ -64,7 +64,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -73,6 +72,7 @@ import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
+import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
@@ -2564,7 +2564,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				if (!Flags.isStrictfp(existingModifiers)) {
 					viableMods.add(Modifier.ModifierKeyword.STRICTFP_KEYWORD.toString().toCharArray());
 				}
-				if (!Flags.isDefaultMethod(existingModifiers)) {
+				if (!Flags.isDefaultMethod(existingModifiers) && DOMCompletionUtil.findParentTypeDeclaration(toComplete) instanceof TypeDeclaration decl && decl.isInterface()) {
 					viableMods.add(Modifier.ModifierKeyword.DEFAULT_KEYWORD.toString().toCharArray());
 				}
 			}
