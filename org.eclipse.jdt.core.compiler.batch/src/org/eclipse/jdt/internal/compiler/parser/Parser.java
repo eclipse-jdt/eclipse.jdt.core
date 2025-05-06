@@ -3649,12 +3649,24 @@ protected void consumeEnumConstantNoClassBody() {
 	final FieldDeclaration fieldDeclaration = (FieldDeclaration) this.astStack[this.astPtr];
 	fieldDeclaration.declarationEnd = endOfEnumConstant;
 	fieldDeclaration.declarationSourceEnd = endOfEnumConstant;
+
 	// initialize the starting position of the allocation expression
 	ASTNode initialization = fieldDeclaration.initialization;
 	if (initialization != null) {
 		initialization.sourceEnd = endOfEnumConstant;
 	}
+
+	// conditionally flush comments only if a comment starts inside the enum constant's source range
+	if (this.scanner.commentPtr >= 0) {
+		int startOfEnumConstant = fieldDeclaration.sourceStart;
+
+		int lastCommentStart = Math.abs(this.scanner.commentStarts[this.scanner.commentPtr]);
+		if (lastCommentStart >= startOfEnumConstant && lastCommentStart <= endOfEnumConstant) {
+			this.scanner.commentPtr = -1; // flush, it's a trailing comment inside the enum constant
+		}
+	}
 }
+
 protected void consumeEnumConstants() {
 	concatNodeLists();
 }
