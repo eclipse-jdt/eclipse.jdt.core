@@ -25,7 +25,10 @@ import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
@@ -179,13 +182,14 @@ private void addDefaultConstructorIfNecessary(TypeInfo typeInfo) {
 			char [][] parameterTypes = new char[argCount][];
 			char [][] parameterNames = new char[argCount][];
 			for (int i = 0; i < argCount; i++) {
-				parameterTypes[i] = typeDeclaration.recordComponents[i].type.getLastToken(); // ??
+				final TypeReference type = typeDeclaration.recordComponents[i].type;
+				parameterTypes[i] = type instanceof SingleTypeReference str ? str.token : CharOperation.concatWith(((QualifiedTypeReference)type).tokens, '.');
 				parameterNames[i] = typeDeclaration.recordComponents[i].name;
 			}
 			this.indexer.addConstructorDeclaration(
 					typeInfo.name,
 					argCount,
-					null, // ??
+					null, // a la enterConstructor(MethodInfo)
 					parameterTypes,
 					parameterNames,
 					typeInfo.modifiers,
