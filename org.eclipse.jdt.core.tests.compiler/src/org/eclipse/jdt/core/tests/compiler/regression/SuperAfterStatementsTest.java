@@ -3388,4 +3388,29 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"""},
 			"init");
 	}
+
+	public void testJDK8346380() {
+		runNegativeTest(new String[] {
+			"O.java",
+			"""
+			@SuppressWarnings("unused")
+			class O {
+				static void foo(int x) { // static context, so no enclosing instance
+					class X { /* capture x */ } // inner local class in a static context
+					class U {
+						static void test() { new X(){  }; } // just as bad as saying `new X()`
+					}
+				}
+			}
+			"""
+			},
+			"""
+			----------
+			1. ERROR in O.java (at line 6)
+				static void test() { new X(){  }; } // just as bad as saying `new X()`
+				                         ^^^
+			Cannot instantiate local class 'X' in a static context
+			----------
+			""");
+	}
 }
