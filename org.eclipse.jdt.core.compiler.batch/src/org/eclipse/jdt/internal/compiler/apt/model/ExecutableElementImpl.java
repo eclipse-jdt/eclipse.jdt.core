@@ -22,10 +22,8 @@ import javax.lang.model.element.*;
 import javax.lang.model.type.TypeMirror;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
-import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class ExecutableElementImpl extends ElementImpl implements
@@ -126,18 +124,11 @@ public class ExecutableElementImpl extends ElementImpl implements
 						VariableElement param = new VariableElementImpl(this._env, argument.binding);
 						params.add(param);
 					}
-				} else if (methodDeclaration.isCompactConstructor()) {
-					RecordComponentBinding[] components = binding.declaringClass.components();
-					for (int i = 0; i < length; i++) {
-						List<AnnotationBinding> relevantAnnotations = new ArrayList<>();
-						ASTNode.getRelevantAnnotations(components[i].sourceRecordComponent().annotations, TagBits.AnnotationForParameter, relevantAnnotations);
-						LocalVariableBinding pi = new LocalVariableBinding(binding.parameterNames[i], binding.parameters[i], ClassFileConstants.AccDefault, true) {
-							@Override
-							public AnnotationBinding[] getAnnotations() {
-								return relevantAnnotations.toArray(new AnnotationBinding[0]);
-							}
-						};
-						VariableElement param = new VariableElementImpl(this._env, pi);
+				} else if (methodDeclaration.isCompactConstructor()) { // can't fold if-else into one as normal argument bindings are not added to scope yet
+					for (LocalVariableBinding local : methodDeclaration.scope.locals) {
+						if (local == null || !local.isParameter())
+							continue;
+						VariableElement param = new VariableElementImpl(this._env, local);
 						params.add(param);
 					}
 				}
