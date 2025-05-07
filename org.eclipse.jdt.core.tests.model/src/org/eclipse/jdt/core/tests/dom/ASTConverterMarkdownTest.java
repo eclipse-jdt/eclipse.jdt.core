@@ -675,6 +675,10 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 		Iterator elements = tagElement.fragments().listIterator();
 		while (elements.hasNext()) {
 			ASTNode fragment = (ASTNode) elements.next();
+			// skip whitespace characters that are not included in fragment
+			while (Character.isWhitespace(source[tagStart]) && tagStart < fragment.getStartPosition()) {
+				tagStart++;
+			}
 			if (fragment.getNodeType() == ASTNode.TEXT_ELEMENT) {
 				if (previousFragment == null && TagElement.TAG_PARAM.equals(tagName) && ((TextElement)fragment).getText().equals("<")) { // special case here for @param <E> syntax
 					int start = tagStart;
