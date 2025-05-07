@@ -235,7 +235,7 @@ public class Javadoc extends ASTNode {
 		// @param tags
 		int paramTagsSize = this.paramReferences == null ? 0 : this.paramReferences.length;
 		for (int i = 0; i < paramTagsSize; i++) {
-			if(scope.referenceContext.nRecordComponents > 0) {
+			if(scope.referenceContext.recordComponents.length > 0) {
 				break;
 			}
 			JavadocSingleNameReference param = this.paramReferences[i];
@@ -560,11 +560,12 @@ public class Javadoc extends ASTNode {
 		}
 
 		// If no param tags then report a problem for each method argument
-		int argumentsSize = methodDecl.arguments == null ? 0 : methodDecl.arguments.length;
+		AbstractVariableDeclaration [] arguments = methodDecl.arguments(true);
+		int argumentsSize = arguments == null ? 0 : arguments.length;
 		if (paramTagsSize == 0) {
-			if (reportMissing) {
+			if (reportMissing && !methodDecl.isCompactConstructor()) {
 				for (int i = 0; i < argumentsSize; i++) {
-					Argument arg = methodDecl.arguments[i];
+					AbstractVariableDeclaration arg = arguments[i];
 					scope.problemReporter().javadocMissingParamTag(arg.name, arg.sourceStart, arg.sourceEnd, methodDecl.binding.modifiers);
 				}
 			}
@@ -594,11 +595,12 @@ public class Javadoc extends ASTNode {
 			// Look for undocumented arguments
 			if (reportMissing) {
 				for (int i = 0; i < argumentsSize; i++) {
-					Argument arg = methodDecl.arguments[i];
+					AbstractVariableDeclaration arg = arguments[i];
+					LocalVariableBinding argBinding = arg instanceof Argument argument ? argument.binding : scope.findVariable(arg.name);
 					boolean found = false;
 					for (int j = 0; j < maxBindings; j++) {
 						LocalVariableBinding binding = bindings[j];
-						if (arg.binding == binding) {
+						if (argBinding == binding) {
 							found = true;
 							break;
 						}

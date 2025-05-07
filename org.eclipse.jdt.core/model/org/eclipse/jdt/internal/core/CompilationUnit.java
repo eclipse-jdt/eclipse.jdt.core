@@ -46,6 +46,7 @@ import org.eclipse.jdt.internal.codeassist.DOMCodeSelector;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -1583,7 +1584,7 @@ public Map<String, String> getCustomOptions() {
 			IJavaProject parentProject = getJavaProject();
 			Map<String, String> parentOptions = parentProject == null ? JavaCore.getOptions() : parentProject.getOptions(true);
 			if (JavaCore.ENABLED.equals(parentOptions.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)) &&
-				AST.newAST(parentOptions).apiLevel() < AST.getJLSLatest()) {
+				CompilerOptions.versionToJdkLevel(parentOptions.getOrDefault(JavaCore.COMPILER_SOURCE, JavaCore.latestSupportedJavaVersion())) < ClassFileConstants.getLatestJDKLevel()) {
 				// Disable preview features for older Java releases as it causes the compiler to fail later
 				if (customOptions != null) {
 					customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);

@@ -91,13 +91,13 @@ public SourceElementNotifier(ISourceElementRequestor requestor, boolean reportLo
 	this.superTypeNames = new char[4][];
 	this.nestedTypeIndex = 0;
 }
-protected Object[][] getArgumentInfos(Argument[] arguments) {
+protected Object[][] getArgumentInfos(AbstractVariableDeclaration[] arguments) {
 	int argumentLength = arguments.length;
 	char[][] argumentTypes = new char[argumentLength][];
 	char[][] argumentNames = new char[argumentLength][];
 	ParameterInfo[] parameterInfos = new ParameterInfo[argumentLength];
 	for (int i = 0; i < argumentLength; i++) {
-		Argument argument = arguments[i];
+		AbstractVariableDeclaration argument = arguments[i];
 		argumentTypes[i] = CharOperation.concatWith(argument.type.getParameterizedTypeName(), '.');
 		char[] name = argument.name;
 		argumentNames[i] = name;
@@ -268,8 +268,6 @@ protected void notifySourceElementRequestor(AbstractMethodDeclaration methodDecl
 		return;
 	}
 
-	final boolean isImplicit = (methodDeclaration.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsImplicit) != 0;
-
 	if (methodDeclaration.isDefaultConstructor()) {
 		if (this.reportReferenceInfo) {
 			ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) methodDeclaration;
@@ -297,7 +295,7 @@ protected void notifySourceElementRequestor(AbstractMethodDeclaration methodDecl
 	char[][] argumentTypes = null;
 	char[][] argumentNames = null;
 	boolean isVarArgs = false;
-	Argument[] arguments = methodDeclaration.arguments;
+	AbstractVariableDeclaration[] arguments = methodDeclaration.arguments(true);
 	ParameterInfo[] parameterInfos = null;
 	ISourceElementRequestor.MethodInfo methodInfo = new ISourceElementRequestor.MethodInfo();
 	methodInfo.typeAnnotated = ((methodDeclaration.bits & ASTNode.HasTypeAnnotations) != 0);
@@ -341,11 +339,8 @@ protected void notifySourceElementRequestor(AbstractMethodDeclaration methodDecl
 			methodInfo.declaringTypeModifiers = declaringType.modifiers;
 			methodInfo.extraFlags = ExtraFlags.getExtraFlags(declaringType);
 			methodInfo.node = methodDeclaration;
-			if(isImplicit) {
-				this.requestor.enterCompactConstructor(methodInfo);
-			} else {
-				this.requestor.enterConstructor(methodInfo);
-			}
+			methodInfo.enclosingType = declaringType;
+			this.requestor.enterConstructor(methodInfo);
 		}
 		if (this.reportReferenceInfo) {
 			ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) methodDeclaration;
@@ -370,11 +365,7 @@ protected void notifySourceElementRequestor(AbstractMethodDeclaration methodDecl
 		}
 		this.visitIfNeeded(methodDeclaration);
 		if (isInRange){
-			if(isImplicit) {
-				this.requestor.exitCompactConstructor(methodDeclaration.declarationSourceEnd);
-			} else {
-				this.requestor.exitConstructor(methodDeclaration.declarationSourceEnd);
-			}
+			this.requestor.exitConstructor(methodDeclaration.declarationSourceEnd);
 		}
 		return;
 	}

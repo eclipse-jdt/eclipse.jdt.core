@@ -385,6 +385,8 @@ public class SourceTypeConverter extends TypeConverter {
 		if (methodInfo.isConstructor()) {
 			ConstructorDeclaration decl = new ConstructorDeclaration(compilationResult);
 			decl.bits &= ~ASTNode.IsDefaultConstructor;
+			if (methodInfo.isCanonicalConstructor())
+				decl.bits |= ASTNode.IsCanonicalConstructor;
 			method = decl;
 			decl.typeParameters = typeParams;
 		} else {
@@ -600,10 +602,10 @@ public class SourceTypeConverter extends TypeConverter {
 			initializers = typeInfo.getInitializers();
 			initializerCount = initializers.length;
 		}
-		SourceField[] sourceFields = null;
+		IField[] sourceFields = null;
 		int sourceFieldCount = 0;
 		if ((this.flags & FIELD) != 0) {
-			sourceFields = typeInfo.getFieldHandles();
+			sourceFields = typeHandle.getFields();
 			sourceFieldCount = sourceFields.length;
 		}
 		int length = initializerCount + sourceFieldCount;
@@ -614,7 +616,7 @@ public class SourceTypeConverter extends TypeConverter {
 			}
 			int index = 0;
 			for (int i = initializerCount; i < length; i++) {
-				type.fields[i] = convert(sourceFields[index++], type, compilationResult);
+				type.fields[i] = convert((SourceField) sourceFields[index++], type, compilationResult);
 			}
 		}
 

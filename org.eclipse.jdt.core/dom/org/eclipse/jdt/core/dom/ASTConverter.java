@@ -305,17 +305,10 @@ class ASTConverter {
 			}
 			if (methodsIndex < methodsLength) {
 				nextMethodDeclaration = methods[methodsIndex];
-				if ((nextMethodDeclaration.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsImplicit) == 0) {
-					if (nextMethodDeclaration.declarationSourceStart < position) {
-						position = nextMethodDeclaration.declarationSourceStart;
-						nextDeclarationType = 1; // METHOD
-					}
-
-			  } else {
-				  methodsIndex++;
-				  continue;
-			  }
-
+				if (nextMethodDeclaration.declarationSourceStart < position) {
+					position = nextMethodDeclaration.declarationSourceStart;
+					nextDeclarationType = 1; // METHOD
+				}
 			}
 			if (membersIndex < membersLength) {
 				nextMemberDeclaration = members[membersIndex];
@@ -689,16 +682,14 @@ class ASTConverter {
 		org.eclipse.jdt.internal.compiler.ast.Argument[] parameters = methodDeclaration.arguments;
 		int parametersLength = parameters == null ? 0 : parameters.length;
 		if (parametersLength > 0) {
-			if (!(DOMASTUtil.isRecordDeclarationSupported(this.ast) && methodDecl.isCompactConstructor())) {
-				SingleVariableDeclaration parameter;
-				int i = 0;
-				do {
-					parameter = convert(parameters[i++]);
-					methodDecl.parameters().add(parameter);
-				} while (i < parametersLength);
-				if (thrownExceptionsLength == 0) {
-					methodHeaderEnd = parameter.getStartPosition() + parameter.getLength();
-				}
+			SingleVariableDeclaration parameter;
+			int i = 0;
+			do {
+				parameter = convert(parameters[i++]);
+				methodDecl.parameters().add(parameter);
+			} while (i < parametersLength);
+			if (thrownExceptionsLength == 0) {
+				methodHeaderEnd = parameter.getStartPosition() + parameter.getLength();
 			}
 		}
 		org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall explicitConstructorCall = null;
@@ -779,7 +770,7 @@ class ASTConverter {
 					org.eclipse.jdt.internal.compiler.ast.Statement astStatement = statements[i];
 					if (astStatement instanceof org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) {
 						checkAndAddMultipleLocalDeclaration(statements, i, block.statements());
-					} else if ((astStatement.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsImplicit) == 0 ){ // Don't convert Implicit statements
+					} else {
 						final Statement statement = convert(astStatement);
 						if (statement != null) {
 							block.statements().add(statement);

@@ -46,8 +46,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
-import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -169,7 +167,6 @@ public class Parser implements ParserBasicInformation, ConflictedParser, Operato
 	protected static final int HALT = 0;     // halt and throw up hands.
 	protected static final int RESTART = 1;  // stacks adjusted, alternate goal from check point.
 	protected static final int RESUME = 2;   // stacks untouched, just continue from where left off.
-	private static final short TYPE_CLASS = 1;
 
 	public Scanner scanner;
 	public TerminalToken currentToken = TokenNameNotAToken;
@@ -2464,17 +2461,16 @@ protected void consumeClassDeclaration() {
 
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
 
-	//convert constructor that do not have the type's name into methods
-	boolean hasConstructor = typeDecl.checkConstructors(this);
+	// convert constructors that do not have the type's name into methods
+	boolean needDefaultConstructor = !typeDecl.checkConstructors(this);
+	if (typeDecl.isRecord())
+		needDefaultConstructor = false; // records require canonical constructors, not default no-arg constructors
 
 	// add the default constructor when needed (interface don't have it)
-	// availability of _some_ constructor for a record class does not obviate the need for canonical constructor, we go ahead and generate one weeding out
-	// duplicates later. This is how things have been forever, we retain the behavior for now, but this will change and get cleaned up later.
-	if (!hasConstructor || typeDecl.isRecord()) {
+	if (needDefaultConstructor) {
 		switch(TypeDeclaration.kind(typeDecl.modifiers)) {
 			case TypeDeclaration.CLASS_DECL :
 			case TypeDeclaration.ENUM_DECL :
-			case TypeDeclaration.RECORD_DECL :
 				boolean insideFieldInitializer = false;
 				if (this.diet) {
 					for (int i = this.nestedType; i > 0; i--){
@@ -2487,9 +2483,6 @@ protected void consumeClassDeclaration() {
 				typeDecl.createDefaultConstructor(!(this.diet && this.dietInt == 0) || insideFieldInitializer, true);
 		}
 	}
-
-	if (typeDecl.isRecord())
-		typeDecl.getConstructor(this); // will get cleaned up in due course.
 
 	if (this.scanner.containsAssertKeyword) {
 		typeDecl.bits |= ASTNode.ContainsAssertion;
@@ -2957,15 +2950,7 @@ protected void consumeConstructorHeaderName(boolean isCompact) {
 
 	// ConstructorHeaderName ::=  Modifiersopt 'Identifier' '('
 	// CompactConstructorHeaderName ::= Modifiersopt 'Identifier'
-	ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationUnit.compilationResult) {
-										@Override
-										public boolean isCompactConstructor() {
-											return isCompact;
-										}
-									};
-
-	if (isCompact)
-		cd.bits |= ASTNode.IsCanonicalConstructor;
+	ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationUnit.compilationResult);
 
 	//name -- this is not really revelant but we do .....
 	cd.selector = this.identifierStack[this.identifierPtr];
@@ -2975,8 +2960,7 @@ protected void consumeConstructorHeaderName(boolean isCompact) {
 	//modifiers
 	cd.declarationSourceStart = this.intStack[this.intPtr--];
 	cd.modifiers = this.intStack[this.intPtr--];
-	if (isCompact)
-		cd.modifiers |=  ExtraCompilerModifiers.AccCompactConstructor;
+
 	// consume annotations
 	int length;
 	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
@@ -2999,6 +2983,20 @@ protected void consumeConstructorHeaderName(boolean isCompact) {
 	cd.bodyStart = isCompact ? cd.sourceStart + cd.selector.length : this.lParenPos+1;
 
 	this.listLength = 0; // initialize this.listLength before reading parameters/throws
+
+	if (isCompact) {
+		cd.modifiers |= ExtraCompilerModifiers.AccCompactConstructor;
+		cd.bits |= ASTNode.IsCanonicalConstructor;
+		for (int i = this.astPtr; i >=0; i--) {
+			if (this.astStack[i] instanceof TypeDeclaration declaringClass) {
+				if (declaringClass.isRecord())
+					cd.protoArguments = declaringClass.recordComponents;
+				else
+					problemReporter().compactConstructorsOnlyInRecords(cd);
+				break;
+			}
+		}
+	}
 
 	// recovery
 	if (this.currentElement != null){
@@ -3648,12 +3646,24 @@ protected void consumeEnumConstantNoClassBody() {
 	final FieldDeclaration fieldDeclaration = (FieldDeclaration) this.astStack[this.astPtr];
 	fieldDeclaration.declarationEnd = endOfEnumConstant;
 	fieldDeclaration.declarationSourceEnd = endOfEnumConstant;
+
 	// initialize the starting position of the allocation expression
 	ASTNode initialization = fieldDeclaration.initialization;
 	if (initialization != null) {
 		initialization.sourceEnd = endOfEnumConstant;
 	}
+
+	// conditionally flush comments only if a comment starts inside the enum constant's source range
+	if (this.scanner.commentPtr >= 0) {
+		int startOfEnumConstant = fieldDeclaration.sourceStart;
+
+		int lastCommentStart = Math.abs(this.scanner.commentStarts[this.scanner.commentPtr]);
+		if (lastCommentStart >= startOfEnumConstant && lastCommentStart <= endOfEnumConstant) {
+			this.scanner.commentPtr = -1; // flush, it's a trailing comment inside the enum constant
+		}
+	}
 }
+
 protected void consumeEnumConstants() {
 	concatNodeLists();
 }
@@ -10270,7 +10280,6 @@ protected void consumeRecordComponentHeaderRightParen() {
 				0,
 				length);
 		typeDecl.recordComponents = recComps;
-		typeDecl.nRecordComponents = recComps.length;
 	} else {
 		typeDecl.recordComponents = ASTNode.NO_RECORD_COMPONENTS;
 	}
@@ -12173,16 +12182,12 @@ public void parse(MethodDeclaration md, CompilationUnitDeclaration unit) {
 	}
 }
 public ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int length, CompilationUnitDeclaration unit) {
-	/* automaton initialization */
-	initialize();
-	goForClassBodyDeclarations();
-	return parseBodyDeclarations(source, offset, length, unit, TYPE_CLASS);
-}
-
-private ASTNode[] parseBodyDeclarations(char[] source, int offset, int length, CompilationUnitDeclaration unit, short classRecordType) {
 	boolean oldDiet = this.diet;
 	int oldInt = this.dietInt;
 	boolean oldTolerateDefaultClassMethods = this.tolerateDefaultClassMethods;
+	/* automaton initialization */
+	initialize();
+	goForClassBodyDeclarations();
 	/* scanner initialization */
 	this.scanner.setSource(source);
 	this.scanner.resetTo(offset, offset + length - 1);
@@ -12222,24 +12227,19 @@ private ASTNode[] parseBodyDeclarations(char[] source, int offset, int length, C
 		if (!this.options.performMethodsFullRecovery && !this.options.performStatementsRecovery) {
 			return null;
 		}
-		// collect all body declaration inside the compilation unit except the default constructor and implicit  methods and fields for records
+		// collect all body declaration inside the compilation unit except the default constructor
 		final List bodyDeclarations = new ArrayList();
-		unit.ignoreFurtherInvestigation = false;
-		Predicate<MethodDeclaration> methodPred = classRecordType == TYPE_CLASS ?
-				mD -> !mD.isDefaultConstructor() : mD -> (mD.bits & ASTNode.IsImplicit) == 0;
-		Consumer<FieldDeclaration> fieldAction = classRecordType == TYPE_CLASS ?
-				fD -> bodyDeclarations.add(fD) : fD -> { if ((fD.bits & ASTNode.IsImplicit) == 0 ) bodyDeclarations.add(fD);} ;
 		ASTVisitor visitor = new ASTVisitor() {
 			@Override
 			public boolean visit(MethodDeclaration methodDeclaration, ClassScope scope) {
-				if (methodPred.test(methodDeclaration)) {
+				if (!methodDeclaration.isDefaultConstructor()) {
 					bodyDeclarations.add(methodDeclaration);
 				}
 				return false;
 			}
 			@Override
 			public boolean visit(FieldDeclaration fieldDeclaration, MethodScope scope) {
-				fieldAction.accept(fieldDeclaration);
+				bodyDeclarations.add(fieldDeclaration);
 				return false;
 			}
 			@Override
@@ -12248,6 +12248,7 @@ private ASTNode[] parseBodyDeclarations(char[] source, int offset, int length, C
 				return false;
 			}
 		};
+		unit.ignoreFurtherInvestigation = false;
 		unit.traverse(visitor, unit.scope);
 		unit.ignoreFurtherInvestigation = true;
 		result = (ASTNode[]) bodyDeclarations.toArray(new ASTNode[bodyDeclarations.size()]);

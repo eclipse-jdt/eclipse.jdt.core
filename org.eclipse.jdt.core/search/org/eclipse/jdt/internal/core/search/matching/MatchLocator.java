@@ -500,7 +500,7 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 	if (!(parent instanceof IType)) return parent;
 
 	IType type = (IType) parent;
-	Argument[] arguments = method.arguments;
+	AbstractVariableDeclaration[] arguments = method.arguments(true);
 	int argCount = arguments == null ? 0 : arguments.length;
 	if (type.isBinary()) {
 		// don't cache the methods of the binary type
