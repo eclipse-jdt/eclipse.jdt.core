@@ -11753,4 +11753,33 @@ public void testIssue3971_5() {
 		"----------\n"
 	);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
+// [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+public void testIssue3971_6() {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return;
+	runNegativeTest(
+			new String[] {
+				"R2.java",
+				"""
+				import org.eclipse.jdt.annotation.NonNull;
+
+				public record R2(@NonNull String s) {
+
+					public R2(String s) {
+						this.s = s;
+					}
+				}
+				"""
+			},
+
+			"----------\n" +
+			"1. WARNING in R2.java (at line 6)\n" +
+			"	this.s = s;\n" +
+			"	         ^\n" +
+			"Null type safety (type annotations): The expression of type 'String' needs unchecked conversion to conform to '@NonNull String'\n" +
+			"----------\n",
+			this.LIBS,
+			false/*shouldFlush*/);
+}
 }

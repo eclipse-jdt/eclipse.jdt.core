@@ -1022,7 +1022,7 @@ public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
 		// As we resolve types for the component, patch up the corresponding instance variable
 		for (FieldBinding field : this.fields) {
 			if (CharOperation.equals(field.name, component.name)) {
-				field.type = componentType;
+				field.type = component.type;
 				field.modifiers |= component.modifiers & ExtraCompilerModifiers.AccGenericSignature;
 				field.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
 				ASTNode.copyRecordComponentAnnotations(initializationScope, field, annotations);
