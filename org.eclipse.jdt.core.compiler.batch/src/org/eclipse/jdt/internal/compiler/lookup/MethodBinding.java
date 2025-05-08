@@ -534,7 +534,8 @@ protected void fillInDefaultNonNullness(AbstractMethodDeclaration sourceMethod, 
 				argumentBindings[i].tagBits |= TagBits.AnnotationNonNull;
 			}
 		} else if (sourceMethod != null && (this.parameterFlowBits[i] & PARAM_NONNULL) != 0) {
-			sourceMethod.scope.problemReporter().nullAnnotationIsRedundant(sourceMethod, i);
+			if (!sourceMethod.isCompactConstructor()) // Don't complain about implicit parameter. Also component nullity applies to more than just the parameter.
+				sourceMethod.scope.problemReporter().nullAnnotationIsRedundant(sourceMethod, i);
 		}
 	}
 	if (added)
