@@ -10898,6 +10898,9 @@ public final class CompletionEngine
 		TypeBinding erasure =  method.declaringClass.erasure();
 		if(!(erasure instanceof ReferenceBinding)) return null;
 
+		if (method.isCanonicalConstructor() && method instanceof SyntheticMethodBinding synthesizedCCtor)
+			return synthesizedCCtor.parameterNames;
+
 		char[][] parameterNames = null;
 
 		int length = parameterTypeNames.length;
