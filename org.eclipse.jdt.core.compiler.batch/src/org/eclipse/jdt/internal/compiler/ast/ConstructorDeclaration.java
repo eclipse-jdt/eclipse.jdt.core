@@ -197,14 +197,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			}
 
 			// nullity, owning and mark as assigned
-			analyseArguments(classScope.environment(), flowInfo, initializerFlowContext, this.arguments, this.binding);
-
-			if (this.isCompactConstructor()) {
-				for (LocalVariableBinding local : this.scope.locals) {
-					if (local != null && local.isParameter())
-						flowInfo.markAsDefinitelyAssigned(local);
-				}
-			}
+			analyseArguments(classScope.environment(), flowInfo, initializerFlowContext, this.arguments(true), this.binding, this.scope);
 
 			if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions())) {
 				this.scope.enterEarlyConstructionContext();
