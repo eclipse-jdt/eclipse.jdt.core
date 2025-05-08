@@ -497,4 +497,78 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 					   "x[LOCAL_VARIABLE_REF]{x, null, I, x, null, 52}",
 				requestor.getResults());
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3983
+	// [Records][Completion] Canonical constructor argument names missing from completion proposals
+	public void testIssue3983() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/XIssue3983.java",
+				"""
+				record RecordWithSynthCCtor(int from, int to, double length, Object profile) {
+					void foo() {
+						new RecordWithSynthCCtor
+					}
+				}
+				"""
+				);
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+
+		String completeBehind = "new RecordWithSynthCCtor";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+		assertResults("RecordWithSynthCCtor[CONSTRUCTOR_INVOCATION]{(), LRecordWithSynthCCtor;, (IIDLjava.lang.Object;)V, RecordWithSynthCCtor, (from, to, length, profile), 59}", requestor.getResults());
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3983
+	// [Records][Completion] Canonical constructor argument names missing from completion proposals
+	public void testIssue3983_2() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/XIssue3983.java",
+				"""
+				record CompactCtorContainingRecord(int from, int to, double length, Object profile) {
+				    CompactCtorContainingRecord {}
+					void foo() {
+						new CompactCtorContainingRecord
+					}
+				}
+				"""
+				);
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+
+		String completeBehind = "new CompactCtorContainingRecord";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+		assertResults("CompactCtorContainingRecord[CONSTRUCTOR_INVOCATION]{(), LCompactCtorContainingRecord;, (IIDLjava.lang.Object;)V, CompactCtorContainingRecord, (from, to, length, profile), 59}", requestor.getResults());
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3983
+	// [Records][Completion] Canonical constructor argument names missing from completion proposals
+	public void testIssue3983_3() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/XIssue3983.java",
+				"""
+				record ExplicitCCtorContainingRecord(int from, int to, double length, Object profile) {
+				    ExplicitCCtorContainingRecord(int from, int to, double length, Object profile) {}
+					void foo() {
+						new ExplicitCCtorContainingRecord
+					}
+				}
+				"""
+				);
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+
+		String completeBehind = "new ExplicitCCtorContainingRecord";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+		assertResults("ExplicitCCtorContainingRecord[CONSTRUCTOR_INVOCATION]{(), LExplicitCCtorContainingRecord;, (IIDLjava.lang.Object;)V, ExplicitCCtorContainingRecord, (from, to, length, profile), 59}", requestor.getResults());
+	}
 }
