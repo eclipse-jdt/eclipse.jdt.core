@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipException;
@@ -44,9 +45,11 @@ public class JrtFileSystem extends Archive {
 	Map<String, Path> modulePathMap;
 	Path modules;
 	private java.nio.file.FileSystem jrtfs;
+	final Supplier<String> getRelease;
 
-	public JrtFileSystem(File file) throws ZipException, IOException {
+	public JrtFileSystem(File file, String release) throws ZipException, IOException {
 		this.file = file;
+		this.getRelease = () -> release;
 		initialize();
 	}
 
@@ -60,7 +63,7 @@ public class JrtFileSystem extends Archive {
 			return;
 		}
 
-		org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(this.file,
+		org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(this.file, this.getRelease.get(),
 				new org.eclipse.jdt.internal.compiler.util.JRTUtil.JrtFileVisitor<Path>() {
 			@Override
 			public FileVisitResult visitModule(Path path, String name) throws IOException {
@@ -69,7 +72,6 @@ public class JrtFileSystem extends Archive {
 			}
 		}, JRTUtil.NOTIFY_MODULES);
 	}
-
 	public List<JrtFileObject> list(ModuleLocationWrapper location, String packageName,
 			Set<JavaFileObject.Kind> kinds, boolean recurse, Charset charset) {
     	String module = location.modName;
@@ -94,13 +96,13 @@ public class JrtFileSystem extends Archive {
         }
         List<JrtFileObject> result = new ArrayList<>();
         for (Path p: files) {
-        	result.add(new JrtFileObject(this.file, p, module, charset));
+        	result.add(new JrtFileObject(this.file, this.getRelease, p, module, charset));
         }
         return result;
     }
 	@Override
 	public ArchiveFileObject getArchiveFileObject(String fileName, String module, Charset charset) {
-		return new JrtFileObject(this.file, this.modules.resolve(module).resolve(fileName), module, charset);
+		return new JrtFileObject(this.file, this.getRelease, this.modules.resolve(module).resolve(fileName), module, charset);
 	}
 
 	@Override
@@ -117,8 +119,10 @@ public class JrtFileSystem extends Archive {
 	class JrtFileObject extends ArchiveFileObject {
 		String module;
 		Path path;
-		private JrtFileObject(File file, Path path, String module, Charset charset) {
+		Supplier<String> releaseSupplier;
+		private JrtFileObject(File file,Supplier<String> release, Path path, String module, Charset charset) {
 			super(file, path.toString(), charset);
+			this.releaseSupplier = release;
 			this.path = path;
 			this.module = module;
 		}
@@ -127,7 +131,7 @@ public class JrtFileSystem extends Archive {
 		protected ClassFileReader getClassReader() {
 			ClassFileReader reader = null;
 			try {
-				byte[] content = JRTUtil.getClassfileContent(this.file, this.entryName, this.module);
+				byte[] content = JRTUtil.getClassfileContent(this.file, this.releaseSupplier.get(), this.entryName, this.module);
 				if (content == null) return null;
 				return new ClassFileReader(this.path.toUri(), content, this.entryName.toCharArray());
 			} catch (ClassFormatException e) {
@@ -145,7 +149,7 @@ public class JrtFileSystem extends Archive {
 		@Override
 		public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
 			return Util.getCharContents(this, ignoreEncodingErrors,
-					org.eclipse.jdt.internal.compiler.util.JRTUtil.getClassfileContent(this.file, this.entryName, this.module),
+					org.eclipse.jdt.internal.compiler.util.JRTUtil.getClassfileContent(this.file, this.releaseSupplier.get(), this.entryName, this.module),
 					this.charset.name());
 		}
 
