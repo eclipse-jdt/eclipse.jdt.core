@@ -1151,8 +1151,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 						recordComponent.bits |= HasTypeAnnotations;
 						recordComponent.type.bits |= HasTypeAnnotations;
 						recordComponentBinding.type = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, recordComponent.type,
-								Binding.DefaultLocationField, recordComponentBinding.type);
-						if(scope.environment().usesNullTypeAnnotations()) { //TODO Bug 562478
+								Binding.DefaultLocationRecordComponent, recordComponentBinding.type);
+						if (scope.environment().usesNullTypeAnnotations()) { //TODO Bug 562478
 							recordComponentBinding.tagBits &= ~(se8nullBits);
 						}
 					}

@@ -516,6 +516,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 		if (this.declaringClass.isStrictfp())
 			this.modifiers |= ClassFileConstants.AccStrictfp;
 		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
+		this.tagBits |= rcb.tagBits & (TagBits.AnnotationNullMASK | TagBits.AnnotationOwningMASK);
 		this.parameters = Binding.NO_PARAMETERS;
 		this.returnType = rcb.type;
 		if (this.returnType != null && (this.returnType.tagBits & TagBits.HasMissingType) != 0)

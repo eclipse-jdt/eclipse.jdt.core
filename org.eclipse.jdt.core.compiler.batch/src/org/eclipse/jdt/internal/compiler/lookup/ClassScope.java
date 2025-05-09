@@ -190,6 +190,8 @@ public class ClassScope extends Scope {
 				fieldBinding = new SyntheticFieldBinding(variableDeclaration.name, variableDeclaration.type.resolvedType,
 						ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal | ExtraCompilerModifiers.AccBlankFinal,
 						sourceType, Constant.NotAConstant);
+				if (variableDeclaration instanceof RecordComponent componentDeclaration && componentDeclaration.binding != null)
+					fieldBinding.tagBits |= componentDeclaration.binding.tagBits & (TagBits.AnnotationNullMASK | TagBits.AnnotationOwningMASK);
 			}
 			fieldBinding.id = count;
 			if (knownFieldNames.containsKey(variableDeclaration.name)) {
