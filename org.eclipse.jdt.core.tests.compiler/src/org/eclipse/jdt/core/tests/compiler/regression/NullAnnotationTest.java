@@ -11854,4 +11854,57 @@ public void testIssue3971_7() {
 			"Null type safety: The expression of type 'String' needs unchecked conversion to conform to '@NonNull String'\n" +
 			"----------\n");
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971#issuecomment-2863645113
+// [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+public void testIssue3971_8() {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return;
+	runNegativeTest(
+			new String[] {
+				"R.java",
+				"""
+				import org.eclipse.jdt.annotation.*;
+
+				@NonNullByDefault
+				public record R(@NonNull String name, @Nullable Integer i, Object obj) {
+
+					void m(@NonNull String n) {
+						@NonNull Integer a = i;
+						@NonNull Integer b = i();
+
+						@NonNull Object o2 = obj();
+						@NonNull Object o1 = obj;
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. WARNING in R.java (at line 4)\n" +
+			"	public record R(@NonNull String name, @Nullable Integer i, Object obj) {\n" +
+			"	                ^^^^^^^^^^^^^^^\n" +
+			"The nullness annotation is redundant with a default that applies to this location\n" +
+			"----------\n" +
+			"2. WARNING in R.java (at line 6)\n" +
+			"	void m(@NonNull String n) {\n" +
+			"	       ^^^^^^^^^^^^^^^\n" +
+			"The nullness annotation is redundant with a default that applies to this location\n" +
+			"----------\n" +
+			"3. ERROR in R.java (at line 7)\n" +
+			"	@NonNull Integer a = i;\n" +
+			"	                     ^\n" +
+			"Null type mismatch (type annotations): required '@NonNull Integer' but this expression has type '@Nullable Integer'\n" +
+			"----------\n" +
+			"4. ERROR in R.java (at line 8)\n" +
+			"	@NonNull Integer b = i();\n" +
+			"	                     ^^^\n" +
+			"Null type mismatch (type annotations): required '@NonNull Integer' but this expression has type '@Nullable Integer'\n" +
+			"----------\n" +
+			"5. WARNING in R.java (at line 11)\n" +
+			"	@NonNull Object o1 = obj;\n" +
+			"	                     ^^^\n" +
+			"Null type safety (type annotations): The expression of type 'Object' needs unchecked conversion to conform to '@NonNull Object'\n" +
+			"----------\n",
+			this.LIBS,
+			false/*shouldFlush*/);
+}
 }
