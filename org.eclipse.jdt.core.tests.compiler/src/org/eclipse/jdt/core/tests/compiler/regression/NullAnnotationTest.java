@@ -11769,6 +11769,9 @@ public void testIssue3971_6() {
 					public R2(String s) {
 						this.s = s;
 					}
+					void foo() {
+					    @NonNull String st = s(); // no warning here
+					}
 				}
 				"""
 			},
@@ -11781,5 +11784,74 @@ public void testIssue3971_6() {
 			"----------\n",
 			this.LIBS,
 			false/*shouldFlush*/);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
+// [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
+public void testIssue3971_7() {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
+	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "annotation.NonNull");
+	customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "annotation.NonNullByDefault");
+	customOptions.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.IGNORE);
+	runConformTestWithLibs(
+		new String[] {
+			"annotation/DefaultLocation.java",
+			"package annotation;\n" +
+			"\n" +
+			"public enum DefaultLocation {\n" +
+			"    PARAMETER, RETURN_TYPE, FIELD\n" +
+			"}\n" +
+			"",
+			"annotation/NonNull.java",
+			"package annotation;\n" +
+			"\n" +
+			"public @interface NonNull {\n" +
+			"}\n" +
+			"",
+			"annotation/NonNullByDefault.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.*;\n" +
+			" \n" +
+			"public @interface NonNullByDefault {\n" +
+			"	DefaultLocation[] value() default { PARAMETER, RETURN_TYPE, FIELD };\n" +
+			"}\n" +
+			"",
+			"annotation/Nullable.java",
+			"package annotation;\n" +
+			"\n" +
+			"public @interface Nullable {\n" +
+			"}\n" +
+			"",
+		},
+		customOptions,
+		""
+	);
+	runNegativeTestWithLibs(
+			new String[] {
+					"R2.java",
+					"""
+					import annotation.*;
+
+					public record R2(@NonNull String s) {
+
+						public R2(String s) {
+							this.s = s;
+						}
+						void foo() {
+						    @NonNull String st = s(); // no warning here
+						}
+					}
+					"""
+			},
+			customOptions,
+			"----------\n" +
+			"1. WARNING in R2.java (at line 6)\n" +
+			"	this.s = s;\n" +
+			"	         ^\n" +
+			"Null type safety: The expression of type 'String' needs unchecked conversion to conform to '@NonNull String'\n" +
+			"----------\n");
 }
 }
