@@ -51,6 +51,9 @@ public class TypeArgumentMatchingUtility {
 				if( Objects.equals(patternSimpleName, bindingSimpleName)) {
 					return true;
 				}
+				if( patternSimpleName.startsWith(bindingSimpleName + "<")) {
+					return true;
+				}
 			}
 			return false;
 		}

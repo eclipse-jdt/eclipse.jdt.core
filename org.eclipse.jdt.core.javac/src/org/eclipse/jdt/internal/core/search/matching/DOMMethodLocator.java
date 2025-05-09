@@ -190,15 +190,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		char[][] sigs = this.locator.pattern.returnTypeSignatures;
 		if( sigs != null && sigs.length > 0 && sigs[0] != null ) {
 			String patternSig = new String(sigs[0]);
-			IBinding patternBinding = JdtCoreDomPackagePrivateUtility.findBindingForType(node, patternSig);
-			if( patternBinding == null ) {
-				boolean plusOrMinus = patternSig.startsWith("+") || patternSig.startsWith("-");
-				String safePatternString = plusOrMinus ? patternSig.substring(1) : patternSig;
-				if( safePatternString.startsWith("Q")) {
-					patternBinding = JdtCoreDomPackagePrivateUtility.findUnresolvedBindingForType(node, safePatternString);
-				}
-			}
-
+			IBinding patternBinding = findPossiblyUnresolvedBindingForType(node, patternSig);
 			boolean match = TypeArgumentMatchingUtility.validateSingleTypeArgMatches(isExactPattern, patternSig, patternBinding, returnTypeFromBinding);
 			if( match ) {
 				// Do some extra checks
@@ -230,6 +222,18 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		}
 
 		return ACCURATE_MATCH;
+	}
+
+	private IBinding findPossiblyUnresolvedBindingForType(ASTNode node, String patternSig) {
+		IBinding patternBinding = JdtCoreDomPackagePrivateUtility.findBindingForType(node, patternSig);
+		if( patternBinding == null ) {
+			boolean plusOrMinus = patternSig.startsWith("+") || patternSig.startsWith("-");
+			String safePatternString = plusOrMinus ? patternSig.substring(1) : patternSig;
+			if( safePatternString.startsWith("Q")) {
+				patternBinding = JdtCoreDomPackagePrivateUtility.findUnresolvedBindingForType(node, safePatternString);
+			}
+		}
+		return patternBinding;
 	}
 
 	private boolean isPatternErasureMatch() {
@@ -302,7 +306,10 @@ public class DOMMethodLocator extends DOMPatternLocator {
 			for( int i = 0; i < argBindings.length; i++ ) {
 				// Compare each
 				String goaliString = new String(goal[i]);
-				IBinding patternBinding = JdtCoreDomPackagePrivateUtility.findBindingForType(node, goaliString);
+				IBinding patternBinding = findPossiblyUnresolvedBindingForType(node, goaliString);
+				if( argBindings[i].isTypeVariable() && patternBinding == null ) {
+					continue;
+				}
 				boolean match = TypeArgumentMatchingUtility.validateSingleTypeArgMatches(isExactPattern, goaliString, patternBinding, argBindings[i]);
 				if( !match ) {
 					if( isExactPattern || (!isErasurePattern && !isEquivPattern)) {
@@ -395,7 +402,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 									} else {
 										//see if they match?
 										String fromPatternString = new String(fromPattern);
-										IBinding patternBinding = JdtCoreDomPackagePrivateUtility.findBindingForType(node, fromPatternString);
+										IBinding patternBinding = findPossiblyUnresolvedBindingForType(node, fromPatternString);
 										boolean match = TypeArgumentMatchingUtility.validateSingleTypeArgMatches(isExactPattern, fromPatternString, patternBinding, fromBinding);
 										if( !match ) {
 											newLevel = INACCURATE_MATCH;
