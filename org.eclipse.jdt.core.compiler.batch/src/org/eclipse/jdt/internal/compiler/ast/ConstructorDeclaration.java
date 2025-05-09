@@ -708,6 +708,9 @@ public void resolve(ClassScope upperScope) {
 
 	if (this.binding != null && this.binding.isCanonicalConstructor()) {
 		RecordComponentBinding[] rcbs = upperScope.referenceContext.binding.components();
+		boolean lastComponentVarargs = rcbs.length > 0 && rcbs[rcbs.length - 1].sourceRecordComponent().isVarArgs();
+		if (this.binding.isVarargs() != lastComponentVarargs)
+			upperScope.problemReporter().recordErasureIncompatibilityInCanonicalConstructor(this.arguments[this.arguments.length - 1].type);
 		for (int i = 0; i < rcbs.length; ++i) {
 			TypeBinding mpt = this.binding.parameters[i];
 			TypeBinding rct = rcbs[i].type;
