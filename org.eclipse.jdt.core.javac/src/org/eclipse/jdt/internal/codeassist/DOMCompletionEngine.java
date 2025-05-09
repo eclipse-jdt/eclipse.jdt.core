@@ -836,8 +836,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				suggestDefaultCompletions = false;
 			}
 			if (context instanceof MethodInvocation invocation) {
-				if (this.offset >= invocation.getName().getStartPosition() && this.offset <= invocation.getName().getStartPosition() + invocation.getName().getLength()) {
-					Expression expression = invocation.getExpression();
+				Expression expression = invocation.getExpression();
+				if ((this.offset >= invocation.getName().getStartPosition() && this.offset <= invocation.getName().getStartPosition() + invocation.getName().getLength()) // on method name
+					|| (this.toComplete == invocation && expression != null && this.offset > expression.getStartPosition() + expression.getLength()) /* after dot */) {
 					ITypeBinding type = expression == null
 							? DOMCompletionUtil.findParentTypeDeclaration(context).resolveBinding()
 							: expression.resolveTypeBinding();

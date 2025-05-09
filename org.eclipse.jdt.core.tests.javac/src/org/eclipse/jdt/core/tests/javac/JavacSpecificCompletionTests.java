@@ -526,4 +526,31 @@ public class JavacSpecificCompletionTests {
 		Assert.assertTrue(requestor.getResults().contains(expectedContent));
 	}
 
+	@Test
+	public void testCompleteBeforeDereference() throws Exception {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("HelloWorld.java",
+			"""
+			public class HelloWorld  {
+				void m() {
+				String s = "";
+				s.
+				m();
+			}
+			}
+			""");
+
+		// add the replace range to the results
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false, false, true);
+
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "s.";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		IProgressMonitor monitor = new NullProgressMonitor();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, WC_OWNER, monitor);
+		var expectedContent= "getChars[METHOD_REF]{getChars(), Ljava.lang.String;, (II[CI)V, ";
+		Assert.assertTrue(requestor.getResults().contains(expectedContent));
+	}
+
+
 }
