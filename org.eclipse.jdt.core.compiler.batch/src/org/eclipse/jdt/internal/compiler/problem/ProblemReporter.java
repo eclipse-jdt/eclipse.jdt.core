@@ -6671,6 +6671,18 @@ public void missingOverrideAnnotation(AbstractMethodDeclaration method) {
 		method.sourceStart,
 		method.sourceEnd);
 }
+public void recordAccessorMissingOverrideAnnotation(AbstractMethodDeclaration method) {
+	int severity = computeSeverity(IProblem.MissingOverrideAnnotation);
+	if (severity == ProblemSeverities.Ignore) return;
+	MethodBinding binding = method.binding;
+	this.handle(
+		IProblem.RecordAccessorMissingOverrideAnnotation,
+		new String[] {new String(binding.selector), typesAsString(binding, false), new String(binding.declaringClass.readableName()), },
+		new String[] {new String(binding.selector), typesAsString(binding, true), new String(binding.declaringClass.shortReadableName()),},
+		severity,
+		method.sourceStart,
+		method.sourceEnd);
+}
 public void missingOverrideAnnotationForInterfaceMethodImplementation(AbstractMethodDeclaration method) {
 	int severity = computeSeverity(IProblem.MissingOverrideAnnotationForInterfaceMethodImplementation);
 	if (severity == ProblemSeverities.Ignore) return;
