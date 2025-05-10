@@ -28,6 +28,7 @@ public final class Messages extends NLS {
 		// Do not instantiate
 	}
 
+	public static String AbstractImageBuilder_mr_missmatch_main;
 	public static String hierarchy_nullProject;
 	public static String hierarchy_nullRegion;
 	public static String hierarchy_nullFocusType;
