@@ -927,7 +927,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 								} catch (JavaModelException e) {
 									return true;
 								}
-							}).filter(typeMatch -> defaultCompletionBindings.all().map(typeBinding -> typeBinding.getJavaElement()).noneMatch(elt -> typeMatch.getType().equals(elt)))
+							})
+							// no need to filter out defaults, since we aren't performing default completion
 							.filter(typeMatch -> this.pattern.matchesName(this.prefix.toCharArray(), typeMatch.getType().getElementName().toCharArray()))
 							.filter(typeMatch -> filterBasedOnExtendsOrImplementsInfo(typeMatch.getType(), this.extendsOrImplementsInfo))
 							.map(this::toProposal)
