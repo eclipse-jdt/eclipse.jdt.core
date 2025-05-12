@@ -27,7 +27,9 @@ public class TypeArgumentMatchingUtility {
 		ITypeBinding domTypeBinding = domBinding instanceof ITypeBinding ? (ITypeBinding)domBinding : null;
 		String domKey1 = domBinding == null ? null : domBinding.getKey();
 		String domSig = null;
-		if( domKey1 != null ) {
+		if( "+Ljava/lang/Object;".equals(domKey1)) {
+			domSig = domKey1;
+		} else if( domKey1 != null ) {
 			try {
 				KeyToSignature ks = new KeyToSignature(domKey1, KeyToSignature.SIGNATURE);
 				ks.parse();
@@ -38,7 +40,6 @@ public class TypeArgumentMatchingUtility {
 		}
 		//String domSig = domKey1 == null ? null : domBinding instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : domBinding.getKey();
 		if( requiresExactMatch ) {
-
 			if( Objects.equals(patternSig, domSig)) {
 				return true;
 			}

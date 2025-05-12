@@ -481,6 +481,8 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		}
 		if (typeToBuild instanceof Type.WildcardType wildcardType) {
 			if (wildcardType.isUnbound()) {
+				// This is very wrong and is not parseable by KeyToSignature
+				// Should be something like Lg1/t/m/def/Generic;{0}*
 				builder.append("+Ljava/lang/Object;");
 			} else if (wildcardType.isExtendsBound()) {
 				Type extendsBound = wildcardType.getExtendsBound();
