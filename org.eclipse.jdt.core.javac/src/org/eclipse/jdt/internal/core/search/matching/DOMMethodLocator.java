@@ -196,6 +196,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		boolean matchesPrefix = this.locator.pattern.declaringPackageName == null ? true :
 			name.startsWith(new String(this.locator.pattern.declaringPackageName));
 		int level = matchesLastSegment && matchesPrefix ? POSSIBLE_MATCH : IMPOSSIBLE_MATCH;
+		nodeSet.setMustResolve(true);
 		return toResponse(level);
 	}
 
