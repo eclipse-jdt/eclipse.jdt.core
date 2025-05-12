@@ -3046,6 +3046,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	}
 
 	private void statementLikeKeywords() {
+		if (this.toComplete instanceof Block block && block.statements().isEmpty()) {
+			return;
+		}
 		List<char[]> keywords = new ArrayList<>();
 		boolean isExpressionExpected =
 				(this.toComplete.getParent() instanceof IfStatement ifStatement
