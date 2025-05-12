@@ -185,7 +185,7 @@ public class TypeArgumentMatchingUtility {
 	}
 	private static boolean isQuestionMark(String k) {
 		// wut ?
-		boolean isQuestionMark = "+Ljava/lang/Object;".equals(k) || "+Qjava.lang.Object;".equals(k);
+		boolean isQuestionMark = "+Ljava/lang/Object;".equals(k) || "+Ljava.lang.Object;".equals(k) || "+Qjava.lang.Object;".equals(k);
 		return isQuestionMark;
 	}
 	private static List<IBinding> findAllSuperclassAndInterfaceBindingsForWildcard(ITypeBinding binding) {

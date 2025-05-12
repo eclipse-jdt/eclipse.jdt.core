@@ -317,7 +317,16 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	}
 
 	private String computeKey() {
-		return getKeyWithPossibleGenerics(this.type, this.typeSymbol, tb -> tb != null ? tb.getKey() : KeyUtils.OBJECT_KEY, true);
+		String b3 = getKeyWithPossibleGenerics(this.type, this.typeSymbol, tb -> tb != null ? tb.getKey() : KeyUtils.OBJECT_KEY, true);
+		if( (this.type.isSuperBound() || this.type.isExtendsBound()) && this.type instanceof WildcardType wt) {
+			String base1 = getKey(this.type, this.typeSymbol.flatName(), false, true);
+			String base = removeTrailingSemicolon(base1);
+			final int[] counter = new int[] {0};
+			String base4 = getKey(wt.type, wt.type.tsym.flatName(), false, true);
+			String r = prependBaseAndCount(base, removeTrailingSemicolon(base4), counter);
+			return r;
+		}
+		return b3;
 	}
 	public String getKeyWithPossibleGenerics(Type t, TypeSymbol s) {
 		return getKeyWithPossibleGenerics(t, s, tb -> tb != null ? tb.getKey() : KeyUtils.OBJECT_KEY);
@@ -327,8 +336,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	}
 	private String getKeyWithPossibleGenerics(Type t, TypeSymbol s, Function<ITypeBinding, String> parameterizedCallback, boolean useSlashes) {
 		String base1 = getKey(t, s.flatName(), false, useSlashes);
-		boolean removingSemi = base1.endsWith(";");
-		String base = removingSemi ? removeTrailingSemicolon(base1) : base1;
+		String base = removeTrailingSemicolon(base1);
 		if (isGenericType(t)) {
 			return base + '<'
 				+ Arrays.stream(getTypeParameters())
