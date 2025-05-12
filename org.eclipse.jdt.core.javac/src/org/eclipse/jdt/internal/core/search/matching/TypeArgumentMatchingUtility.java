@@ -46,12 +46,22 @@ public class TypeArgumentMatchingUtility {
 				return true;
 			}
 			if( patternSig.startsWith("Q")) {
-				String patternSimpleName = Signature.getSignatureSimpleName(patternSig);
-				String bindingSimpleName = Signature.getSignatureSimpleName(domSig);
+				String patternSimpleName = null;
+				try {
+					patternSimpleName = Signature.getSignatureSimpleName(patternSig);
+				} catch(IllegalArgumentException iae) {
+					// Ignore
+				}
+				String bindingSimpleName = null;
+				try {
+					bindingSimpleName = Signature.getSignatureSimpleName(domSig);
+				} catch(IllegalArgumentException iae) {
+					// Ignore
+				}
 				if( Objects.equals(patternSimpleName, bindingSimpleName)) {
 					return true;
 				}
-				if( patternSimpleName.startsWith(bindingSimpleName + "<")) {
+				if( patternSimpleName != null && patternSimpleName.startsWith(bindingSimpleName + "<")) {
 					return true;
 				}
 			}
