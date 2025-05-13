@@ -1394,6 +1394,11 @@ public boolean isClass() {
 	return (this.modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccAnnotation | ClassFileConstants.AccEnum)) == 0;
 }
 
+@Override
+public boolean isRecord() {
+	return (this.modifiers & ExtraCompilerModifiers.AccRecord) != 0;
+}
+
 private static SourceTypeBinding getSourceTypeBinding(ReferenceBinding ref) {
 	if (ref instanceof SourceTypeBinding)
 		return (SourceTypeBinding) ref;

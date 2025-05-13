@@ -124,14 +124,10 @@ public class RecordComponentBinding extends VariableBinding {
 	}
 
 	public RecordComponent sourceRecordComponent() {
-		if (!(this.declaringRecord instanceof SourceTypeBinding))
-			return null;
-		SourceTypeBinding sourceType = (SourceTypeBinding) this.declaringRecord;
-		RecordComponent[] recordComponents = sourceType.scope.referenceContext.recordComponents;
-		if (recordComponents != null) {
-			for (int i = recordComponents.length; --i >= 0;)
-				if (this == recordComponents[i].binding)
-					return recordComponents[i];
+		if (this.declaringRecord instanceof SourceTypeBinding sourceType) {
+			for (RecordComponent component : sourceType.scope.referenceContext.recordComponents)
+				if (this == component.binding)
+					return component;
 		}
 		return null;
 	}

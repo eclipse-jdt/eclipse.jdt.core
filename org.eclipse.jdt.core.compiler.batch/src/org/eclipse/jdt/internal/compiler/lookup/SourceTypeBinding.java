@@ -957,7 +957,7 @@ public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
 	if (hasRestrictedAccess())
 		component.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 	RecordComponent[] componentDecls = this.scope.referenceContext.recordComponents;
-	int length = componentDecls == null ? 0 : componentDecls.length;
+	int length = componentDecls.length;
 	for (int f = 0; f < length; f++) {
 		if (componentDecls[f].binding != component)
 			continue;
@@ -1478,6 +1478,10 @@ public MethodBinding[] getMethods(char[] selector) {
 			ReferenceBinding.sortMethods(this.methods, 0, length);
 		this.tagBits |= TagBits.AreMethodsSorted;
 	}
+	if (this.isRecord()) {
+		methods();
+		return getMethods(selector); // try again with special record methods synthesized
+	}
 	MethodBinding[] result;
 	long range;
 	if ((range = ReferenceBinding.binarySearch(selector, this.methods)) >= 0) {
@@ -1492,10 +1496,6 @@ public MethodBinding[] getMethods(char[] selector) {
 		int length = end - start + 1;
 		System.arraycopy(this.methods, start, result = new MethodBinding[length], 0, length);
 	} else {
-		if (this.isRecord()) {
-			methods();
-			return getMethods(selector); // try again with special record methods synthesized
-		}
 		return Binding.NO_METHODS;
 	}
 	for (int i = 0, length = result.length - 1; i < length; i++) {
@@ -1996,11 +1996,6 @@ public TypeBinding prototype() {
 
 public boolean isPrototype() {
 	return this == this.prototype;  //$IDENTITY-COMPARISON$
-}
-
-@Override
-public boolean isRecord() {
-	return (this.modifiers & ExtraCompilerModifiers.AccRecord) != 0;
 }
 
 @Override
