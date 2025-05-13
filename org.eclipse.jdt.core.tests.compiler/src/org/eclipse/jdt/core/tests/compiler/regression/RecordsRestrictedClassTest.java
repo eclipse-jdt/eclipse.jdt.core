@@ -8964,7 +8964,7 @@ public void testBug577251_001() {
 		"2. ERROR in X.java (at line 3)\n" +
 		"	Entry(int value, Entry entry) { // Entry is a raw type here\n" +
 		"	                 ^^^^^\n" +
-		"Erasure incompatibility in argument X.Entry of canonical constructor in record\n" +
+		"Type or arity incompatibility in argument X.Entry of canonical constructor in record class\n" +
 		"----------\n");
 }
 
@@ -10267,5 +10267,79 @@ public void testIssue3951() throws Exception {
 			"      Method Parameters:\n" +
 			"        mandated classes\n";
 	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3957
+// [Records] Missing @Override annotation on component accessors not complained about by ECJ
+public void testIssue3957() {
+	Map<String, String> customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
+			CompilerOptions.ERROR);
+
+	this.runNegativeTest(
+			true,
+    		new String[] {
+					"X.java",
+					"""
+					public record X(int x) {
+					    public int x() {
+					        return this.x;
+				        }
+					}
+					""",
+	            },
+	null, customOptions,
+	"----------\n" +
+	"1. ERROR in X.java (at line 2)\n" +
+	"	public int x() {\n" +
+	"	           ^^^\n" +
+	"The component accessor method x() of record class X should be tagged with @Override\n" +
+	"----------\n",
+	JavacTestOptions.SKIP);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3663
+// [Records] ECJ compiles arity mismatched canonical constructor
+public void testIssue3663() {
+	this.runNegativeTest(
+ 		new String[] {
+					"X.java",
+					"""
+					record R(int ... x) {
+
+						R(int [] x) {
+							this.x = x;
+						}
+
+					}
+					""",
+	            },
+
+ 		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	R(int [] x) {\n" +
+		"	  ^^^^^^\n" +
+		"Type or arity incompatibility in argument int[] of canonical constructor in record class\n" +
+		"----------\n");
+
+	this.runNegativeTest(
+	 		new String[] {
+						"X.java",
+						"""
+						record R(int [] x) {
+
+							R(int ... x) {
+								this.x = x;
+							}
+
+						}
+						""",
+		            },
+
+	 		"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	R(int ... x) {\n" +
+			"	  ^^^^^^^\n" +
+			"Type or arity incompatibility in argument int[] of canonical constructor in record class\n" +
+			"----------\n");
 }
 }

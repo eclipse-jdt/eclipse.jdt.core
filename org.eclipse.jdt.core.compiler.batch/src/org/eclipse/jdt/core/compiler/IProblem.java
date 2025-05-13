@@ -2490,8 +2490,6 @@ void setSourceStart(int sourceStart);
 	/** @since 3.22 */
 	int SwitchExpressionsReturnWithinSwitchExpression  = Syntax + 1724;
 
-	/* Java 14 errors end */
-	/* Java 15 errors begin */
 	/* records - begin */
 
 	/** @since 3.26 */
@@ -2597,8 +2595,6 @@ void setSourceStart(int sourceStart);
 	 */
 	int SafeVarargsOnSyntheticRecordAccessor = TypeRelated + 1764;
 
-
-	/* records - end */
 	/* Local and Nested Static Declarations - Begin */
 	/** @since 3.28 */
 	int LocalStaticsIllegalVisibilityModifierForInterfaceLocalType = TypeRelated + 1765;
@@ -2610,6 +2606,8 @@ void setSourceStart(int sourceStart);
 	int RecordErasureIncompatibilityInCanonicalConstructor = TypeRelated + 1768;
 	/** @since 3.41 */
 	int CompactConstructorOnlyInRecords = TypeRelated + 1769;
+	/** @since 3.42 */
+	int RecordAccessorMissingOverrideAnnotation = TypeRelated + 1770;
 	/* records - end */
 
 

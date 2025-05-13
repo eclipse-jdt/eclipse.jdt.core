@@ -1022,7 +1022,7 @@ public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
 		// As we resolve types for the component, patch up the corresponding instance variable
 		for (FieldBinding field : this.fields) {
 			if (CharOperation.equals(field.name, component.name)) {
-				field.type = componentType;
+				field.type = component.type;
 				field.modifiers |= component.modifiers & ExtraCompilerModifiers.AccGenericSignature;
 				field.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
 				ASTNode.copyRecordComponentAnnotations(initializationScope, field, annotations);
@@ -2258,6 +2258,7 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 				methodDecl.bits |= ASTNode.HasTypeAnnotations;
 			// bind the implicit argument already.
 			final LocalVariableBinding implicitArgument = new LocalVariableBinding(rcbs[i].name, rcbs[i].type, rcbs[i].modifiers, true);
+			implicitArgument.tagBits |= rcbs[i].tagBits & (TagBits.AnnotationNullMASK | TagBits.AnnotationOwningMASK);
 			methodDecl.scope.addLocalVariable(implicitArgument);
 			List<AnnotationBinding> propagatedAnnotations = new ArrayList<>();
 			ASTNode.getRelevantAnnotations(rcbs[i].sourceRecordComponent().annotations, TagBits.AnnotationForParameter, propagatedAnnotations);

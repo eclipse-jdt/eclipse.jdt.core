@@ -197,14 +197,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			}
 
 			// nullity, owning and mark as assigned
-			analyseArguments(classScope.environment(), flowInfo, initializerFlowContext, this.arguments, this.binding);
-
-			if (this.isCompactConstructor()) {
-				for (LocalVariableBinding local : this.scope.locals) {
-					if (local != null && local.isParameter())
-						flowInfo.markAsDefinitelyAssigned(local);
-				}
-			}
+			analyseArguments(classScope.environment(), flowInfo, initializerFlowContext, this.arguments(true), this.binding, this.scope);
 
 			if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions())) {
 				this.scope.enterEarlyConstructionContext();
@@ -299,6 +292,11 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 @Override
 public AbstractVariableDeclaration[] arguments(boolean includedElided) {
 	return includedElided && this.isCompactConstructor() ? this.protoArguments : super.arguments(includedElided);
+}
+
+@Override
+public LocalVariableBinding[] argumentBindings() {
+	return this.isCompactConstructor() ? this.scope == null ? Binding.NO_ARGUMENT_BINDINGS : this.scope.argumentBindings() : super.argumentBindings();
 }
 
 protected void doFieldReachAnalysis(FlowInfo flowInfo, FieldBinding[] fields) {
@@ -710,6 +708,9 @@ public void resolve(ClassScope upperScope) {
 
 	if (this.binding != null && this.binding.isCanonicalConstructor()) {
 		RecordComponentBinding[] rcbs = upperScope.referenceContext.binding.components();
+		boolean lastComponentVarargs = rcbs.length > 0 && rcbs[rcbs.length - 1].sourceRecordComponent().isVarArgs();
+		if (this.binding.isVarargs() != lastComponentVarargs)
+			upperScope.problemReporter().recordErasureIncompatibilityInCanonicalConstructor(this.arguments[this.arguments.length - 1].type);
 		for (int i = 0; i < rcbs.length; ++i) {
 			TypeBinding mpt = this.binding.parameters[i];
 			TypeBinding rct = rcbs[i].type;
