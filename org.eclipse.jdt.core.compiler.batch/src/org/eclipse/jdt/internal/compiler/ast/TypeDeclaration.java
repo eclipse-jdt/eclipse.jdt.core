@@ -541,9 +541,9 @@ public AbstractMethodDeclaration declarationOf(MethodBinding methodBinding) {
  * Find the matching parse node, answers null if nothing found
  */
 public RecordComponent declarationOf(RecordComponentBinding recordComponentBinding) {
-	for (RecordComponent recordComponent : this.recordComponents) {
-		if (recordComponent.binding == recordComponentBinding)
-			return recordComponent;
+	for (RecordComponent component : this.recordComponents) {
+		if (component.binding == recordComponentBinding)
+			return component;
 	}
 	return null;
 }
@@ -1614,17 +1614,16 @@ public void traverse(ASTVisitor visitor, CompilationUnitScope unitScope) {
 				}
 			}
 
-			int length = this.recordComponents.length;
-			for (int i = 0; i < length; i++)
-				this.recordComponents[i].traverse(visitor, this.initializerScope);
+			for (RecordComponent component : this.recordComponents)
+				component.traverse(visitor, this.initializerScope);
 
 			if (this.memberTypes != null) {
-				length = this.memberTypes.length;
+				int length = this.memberTypes.length;
 				for (int i = 0; i < length; i++)
 					this.memberTypes[i].traverse(visitor, this.scope);
 			}
 			if (this.fields != null) {
-				length = this.fields.length;
+				int length = this.fields.length;
 				for (int i = 0; i < length; i++) {
 					FieldDeclaration field;
 					if ((field = this.fields[i]).isStatic()) {
@@ -1635,7 +1634,7 @@ public void traverse(ASTVisitor visitor, CompilationUnitScope unitScope) {
 				}
 			}
 			if (this.methods != null) {
-				length = this.methods.length;
+				int length = this.methods.length;
 				for (int i = 0; i < length; i++)
 					this.methods[i].traverse(visitor, this.scope);
 			}
@@ -1680,17 +1679,16 @@ public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 				}
 			}
 
-			int length = this.recordComponents.length;
-			for (int i = 0; i < length; i++)
-				this.recordComponents[i].traverse(visitor, this.initializerScope);
+			for (RecordComponent component : this.recordComponents)
+				component.traverse(visitor, this.initializerScope);
 
 			if (this.memberTypes != null) {
-				length = this.memberTypes.length;
+				int length = this.memberTypes.length;
 				for (int i = 0; i < length; i++)
 					this.memberTypes[i].traverse(visitor, this.scope);
 			}
 			if (this.fields != null) {
-				length = this.fields.length;
+				int length = this.fields.length;
 				for (int i = 0; i < length; i++) {
 					FieldDeclaration field = this.fields[i];
 					if (field.isStatic() && !field.isFinal()) {
@@ -1701,7 +1699,7 @@ public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 				}
 			}
 			if (this.methods != null) {
-				length = this.methods.length;
+				int length = this.methods.length;
 				for (int i = 0; i < length; i++)
 					this.methods[i].traverse(visitor, this.scope);
 			}
@@ -1745,17 +1743,16 @@ public void traverse(ASTVisitor visitor, ClassScope classScope) {
 				}
 			}
 
-			int length = this.recordComponents.length;
-			for (int i = 0; i < length; i++)
-				this.recordComponents[i].traverse(visitor, this.initializerScope);
+			for (RecordComponent component : this.recordComponents)
+				component.traverse(visitor, this.initializerScope);
 
 			if (this.memberTypes != null) {
-				length = this.memberTypes.length;
+				int length = this.memberTypes.length;
 				for (int i = 0; i < length; i++)
 					this.memberTypes[i].traverse(visitor, this.scope);
 			}
 			if (this.fields != null) {
-				length = this.fields.length;
+				int length = this.fields.length;
 				for (int i = 0; i < length; i++) {
 					FieldDeclaration field;
 					if ((field = this.fields[i]).isStatic()) {
@@ -1766,7 +1763,7 @@ public void traverse(ASTVisitor visitor, ClassScope classScope) {
 				}
 			}
 			if (this.methods != null) {
-				length = this.methods.length;
+				int length = this.methods.length;
 				for (int i = 0; i < length; i++)
 					this.methods[i].traverse(visitor, this.scope);
 			}

@@ -1478,6 +1478,10 @@ public MethodBinding[] getMethods(char[] selector) {
 			ReferenceBinding.sortMethods(this.methods, 0, length);
 		this.tagBits |= TagBits.AreMethodsSorted;
 	}
+	if (this.isRecord()) {
+		methods();
+		return getMethods(selector); // try again with special record methods synthesized
+	}
 	MethodBinding[] result;
 	long range;
 	if ((range = ReferenceBinding.binarySearch(selector, this.methods)) >= 0) {
@@ -1492,10 +1496,6 @@ public MethodBinding[] getMethods(char[] selector) {
 		int length = end - start + 1;
 		System.arraycopy(this.methods, start, result = new MethodBinding[length], 0, length);
 	} else {
-		if (this.isRecord()) {
-			methods();
-			return getMethods(selector); // try again with special record methods synthesized
-		}
 		return Binding.NO_METHODS;
 	}
 	for (int i = 0, length = result.length - 1; i < length; i++) {

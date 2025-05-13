@@ -275,7 +275,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			if (this.typeParameters != null)
 				this.scope.problemReporter().recordAccessorMethodShouldNotBeGeneric(this);
 			if (this.binding != null) {
-				if (!(this.binding.isPublic()))
+				if (!this.binding.isPublic())
 					this.scope.problemReporter().recordAccessorMethodShouldBePublic(this);
 				if (this.binding.isStatic())
 					this.scope.problemReporter().recordAccessorMethodShouldNotBeStatic(this);
@@ -308,7 +308,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		// check @Override annotation
 		final CompilerOptions compilerOptions = this.scope.compilerOptions();
 		checkOverride: {
-			// For a record component accessor method, don't bother with checking for override (JLS 15 9.6.4.4)
+			// For a record component accessor method, don't bother with checking for override
 			if (this.binding == null || recordComponent != null) break checkOverride;
 			long complianceLevel = compilerOptions.complianceLevel;
 			int bindingModifiers = this.binding.modifiers;
