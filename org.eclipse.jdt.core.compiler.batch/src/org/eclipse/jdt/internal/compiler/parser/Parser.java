@@ -2989,6 +2989,8 @@ protected void consumeConstructorHeaderName(boolean isCompact) {
 		cd.bits |= ASTNode.IsCanonicalConstructor;
 		for (int i = this.astPtr; i >=0; i--) {
 			if (this.astStack[i] instanceof TypeDeclaration declaringClass) {
+				if (declaringClass.declarationSourceEnd > 0)
+					continue; // skip preceding member types
 				if (declaringClass.isRecord())
 					cd.protoArguments = declaringClass.recordComponents;
 				else
@@ -10248,9 +10250,6 @@ protected void consumeWildcardWithBounds() {
 /* Java 16 - records */
 protected void consumeRecordHeaderPart() {
 	// RecordHeaderPart ::= RecordHeaderName RecordHeader ClassHeaderImplementsopt
-	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
-	assert typeDecl.isRecord();
-	// do nothing
 }
 protected void consumeRecordHeaderNameWithTypeParameters() {
 	// RecordHeaderName ::= RecordHeaderName1 TypeParameters
