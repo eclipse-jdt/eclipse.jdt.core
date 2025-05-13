@@ -539,13 +539,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		return attributesNumber;
 	}
 	private RecordComponent getRecordComponent(ReferenceBinding declaringClass, char[] name) {
-		if (declaringClass instanceof SourceTypeBinding) {
-			SourceTypeBinding sourceTypeBinding = (SourceTypeBinding) declaringClass;
-			RecordComponentBinding rcb = sourceTypeBinding.getRecordComponent(name);
-			if (rcb != null) {
-				RecordComponent recordComponent  = rcb.sourceRecordComponent();
-				return recordComponent;
-			}
+		for (RecordComponent component : getRecordComponents(declaringClass)) {
+			if (CharOperation.equals(name, component.name))
+				return component;
 		}
 		return null;
 	}
@@ -4352,22 +4348,21 @@ public class ClassFile implements TypeConstants, TypeIds {
 			if (syntheticMethod.recordComponentBinding != null) {
 				long rcMask = TagBits.AnnotationForMethod | TagBits.AnnotationForTypeUse;
 				// record component (field) accessor method
-				ReferenceBinding declaringClass = methodBinding.declaringClass;
-				RecordComponent comp = getRecordComponent(declaringClass, methodBinding.selector);
-				if (comp != null) {
-					Annotation[] annotations = ASTNode.getRelevantAnnotations(comp.annotations, rcMask, null);
+				RecordComponent component = syntheticMethod.sourceRecordComponent();
+				if (component != null) {
+					Annotation[] annotations = ASTNode.getRelevantAnnotations(component.annotations, rcMask, null);
 					if (annotations != null) {
 						assert !methodBinding.isConstructor();
 						attributesNumber += generateRuntimeAnnotations(annotations, TagBits.AnnotationForMethod);
 					}
 					if ((this.produceAttributes & ClassFileConstants.ATTR_TYPE_ANNOTATION) != 0) {
 						List<AnnotationContext> allTypeAnnotationContexts = new ArrayList<>();
-						if (annotations != null && (comp.bits & ASTNode.HasTypeAnnotations) != 0) {
-							comp.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN, allTypeAnnotationContexts);
+						if (annotations != null && (component.bits & ASTNode.HasTypeAnnotations) != 0) {
+							component.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN, allTypeAnnotationContexts);
 						}
-						TypeReference compType = comp.type;
-						if (compType != null && ((compType.bits & ASTNode.HasTypeAnnotations) != 0)) {
-							compType.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN, allTypeAnnotationContexts);
+						TypeReference componentType = component.type;
+						if (componentType != null && ((componentType.bits & ASTNode.HasTypeAnnotations) != 0)) {
+							componentType.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN, allTypeAnnotationContexts);
 						}
 						int size = allTypeAnnotationContexts.size();
 						attributesNumber = completeRuntimeTypeAnnotations(attributesNumber,

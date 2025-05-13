@@ -1276,13 +1276,14 @@ public ReferenceBinding enclosingType() {  // should not delegate to prototype.
 }
 @Override
 public RecordComponentBinding[] components() {
+	if (!this.isRecord())
+		return NO_COMPONENTS;
 	if (!isPrototype()) {
 		return this.components = this.prototype.components();
 	}
 	if ((this.extendedTagBits & ExtendedTagBits.AreRecordComponentsComplete) != 0)
 		return this.components;
 
-	// Should we sort?
 	for (int i = this.components.length; --i >= 0;) {
 		resolveTypeFor(this.components[i]);
 	}
@@ -1478,26 +1479,6 @@ public FieldBinding getField(char[] fieldName, boolean needResolve) {
 	}
 	FieldBinding field = ReferenceBinding.binarySearch(fieldName, this.fields);
 	return needResolve && field != null ? resolveTypeFor(field) : field;
-}
-
-@Override
-public RecordComponentBinding getRecordComponent(char[] name) {
-	if (this.components != null) {
-		for (RecordComponentBinding rcb : this.components) {
-			if (CharOperation.equals(name, rcb.name))
-				return rcb;
-		}
-	}
-	return null;
-}
-
-@Override
-public RecordComponentBinding getComponent(char[] componentName, boolean needResolve) {
-	if (!isPrototype())
-		return this.prototype.getComponent(componentName, needResolve);
-	// Note : components not sorted and hence not using binary search
-	RecordComponentBinding component = getRecordComponent(componentName);
-	return needResolve && component != null ? resolveTypeFor(component) : component;
 }
 
 /**
@@ -2692,14 +2673,6 @@ public FieldBinding[] unResolvedFields() {
 
 	return this.fields;
 }
-
-@Override
-public RecordComponentBinding[] unResolvedComponents() {
-	if (!isPrototype())
-		return this.prototype.unResolvedComponents();
-	return this.components;
-}
-
 
 @Override
 public ModuleBinding module() {

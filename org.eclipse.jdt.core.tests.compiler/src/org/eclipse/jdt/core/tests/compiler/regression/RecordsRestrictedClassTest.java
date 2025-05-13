@@ -9641,15 +9641,35 @@ public void testPR3675() {
 				"X.java",
 				"""
 					class X {
+					       record Y() {}
 					       X {}
 					}
 				"""
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
+			"1. ERROR in X.java (at line 3)\n" +
 			"	X {}\n" +
 			"	^\n" +
-			"A canonical constructor is allowed only in record classes\n" +
+			"A compact constructor is allowed only in record classes\n" +
+			"----------\n");
+}
+
+public void testPR3675_2() {
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+					public record X() {
+					       class Y {}
+					       X {}
+					}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	X {}\n" +
+			"	^\n" +
+			"Cannot reduce the visibility of a canonical constructor X from that of the record\n" +
 			"----------\n");
 }
 

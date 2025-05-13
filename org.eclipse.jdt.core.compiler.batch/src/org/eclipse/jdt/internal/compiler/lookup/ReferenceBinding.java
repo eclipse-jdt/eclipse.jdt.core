@@ -1104,13 +1104,7 @@ public MethodBinding getExactMethod(char[] selector, TypeBinding[] argumentTypes
 public FieldBinding getField(char[] fieldName, boolean needResolve) {
 	return null;
 }
-public RecordComponentBinding getComponent(char[] componentName, boolean needResolve) {
-	return null;
-}
-// adding this since we don't use sorting for components
-public RecordComponentBinding getRecordComponent(char[] name) {
-	return null;
-}
+
 /**
  * @see org.eclipse.jdt.internal.compiler.env.IDependent#getFileName()
  */
@@ -2113,9 +2107,6 @@ public FieldBinding[] unResolvedFields() {
 	return Binding.NO_FIELDS;
 }
 
-public RecordComponentBinding[] unResolvedComponents() {
-	return Binding.NO_COMPONENTS;
-}
 /*
  * If a type - known to be a Closeable - is mentioned in one of our white lists
  * answer the typeBit for the white list (BitWrapperCloseable or BitResourceFreeCloseable).
