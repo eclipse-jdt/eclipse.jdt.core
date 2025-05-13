@@ -860,7 +860,11 @@ public class JavacBindingResolver extends BindingResolver {
 
 		// Let's handle error types first
 		if (type instanceof ErrorType errorType ) {
-			com.sun.tools.javac.code.Type original = errorType.getOriginalType();
+			com.sun.tools.javac.code.Type original = errorType;
+			while(original instanceof ErrorType et && original != et.getOriginalType()) {
+				original = et.getOriginalType();
+			}
+
 			if( original instanceof ForAll fa) {
 				original = fa.asMethodType();
 			}
