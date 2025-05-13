@@ -50,7 +50,6 @@ import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
-import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
 import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ForAll;
@@ -621,8 +620,8 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 			return getDeclaringClass().isRawType() && this.methodSymbol.getTypeParameters().isEmpty();
 		}
 		boolean parentNullOrRaw = (this.parentType != null && this.parentType.isRaw());
-		List<TypeVariableSymbol> tvs = this.methodSymbol.getTypeParameters();
-		return parentNullOrRaw || tvs.isEmpty();
+		boolean emptyParams = this.methodSymbol == null || this.methodSymbol.getTypeParameters().isEmpty();
+		return parentNullOrRaw || emptyParams;
 	}
 
 	@Override
