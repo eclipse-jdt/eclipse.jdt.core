@@ -1846,10 +1846,6 @@ public TypeBinding prototype() {
 private boolean isPrototype() {
 	return this == this.prototype; //$IDENTITY-COMPARISON$
 }
-@Override
-public boolean isRecord() {
-	return (this.modifiers & ExtraCompilerModifiers.AccRecord) != 0;
-}
 
 @Override
 public MethodBinding getRecordComponentAccessor(char[] name) {

@@ -3791,7 +3791,7 @@ class ASTConverter {
 
 	private RecordDeclaration convertToRecordDeclaration(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
 		checkCanceled();
-		// record declaration cannot be built if the source is not >= 14, since record is then seen as an identifier
+		// record declaration cannot be built if the source is not >= 16, since record is then seen as an identifier
 		final RecordDeclaration recordDeclaration = new RecordDeclaration(this.ast);
 		setModifiers(recordDeclaration, typeDeclaration);
 		final SimpleName typeName = new SimpleName(this.ast);
@@ -3813,12 +3813,10 @@ class ASTConverter {
 				recordDeclaration.typeParameters().add(convert(typeParameter));
 			}
 		}
-		RecordComponent[] recComps = typeDeclaration.recordComponents;
-		if (recComps != null) {
-			for (RecordComponent recComp : recComps) {
-				recordDeclaration.recordComponents().add(convert(recComp));
-			}
+		for (RecordComponent component : typeDeclaration.recordComponents) {
+			recordDeclaration.recordComponents().add(convert(component));
 		}
+
 		buildBodyDeclarations(typeDeclaration, recordDeclaration, false);
 		if (this.resolveBindings) {
 			recordNodes(recordDeclaration, typeDeclaration);

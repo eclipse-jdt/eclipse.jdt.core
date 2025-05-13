@@ -28,12 +28,7 @@ public class RecordComponent extends AbstractVariableDeclaration {
 
 	public RecordComponentBinding binding;
 
-	public RecordComponent(
-		char[] name,
-		int sourceStart,
-		int sourceEnd) {
-
-
+	public RecordComponent(char[] name, int sourceStart, int sourceEnd) {
 		this.name = name;
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
@@ -51,7 +46,6 @@ public class RecordComponent extends AbstractVariableDeclaration {
 
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
-
 		if ((this.bits & IsReachable) == 0) {
 			return;
 		}
@@ -99,22 +93,10 @@ public class RecordComponent extends AbstractVariableDeclaration {
 				}
 			}
 		}
-		// check @Deprecated annotation presence - Mostly in the future :)
-//		if ((this.binding.getAnnotationTagBits() & TagBits.AnnotationDeprecated) == 0
-//				&& (this.binding.modifiers & ClassFileConstants.AccDeprecated) != 0
-//				&& scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
-//			scope.problemReporter().missingDeprecatedAnnotationForRecordComponent(this);
-//		}
-	}
-	// TODO: check when to call/relevance?
-	void validateNullAnnotations(BlockScope scope) {
-		if (!scope.validateNullAnnotation(this.binding.tagBits, this.type, this.annotations))
-			this.binding.tagBits &= ~TagBits.AnnotationNullMASK;
 	}
 
 	@Override
 	public StringBuilder print(int indent, StringBuilder output) {
-
 		printIndent(indent, output);
 		printModifiers(this.modifiers, output);
 		if (this.annotations != null) {
@@ -132,13 +114,11 @@ public class RecordComponent extends AbstractVariableDeclaration {
 
 	@Override
 	public StringBuilder printStatement(int indent, StringBuilder output) {
-
 		return print(indent, output).append(';');
 	}
 
 	@Override
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
-
 		if (visitor.visit(this, scope)) {
 			if (this.annotations != null) {
 				int annotationsLength = this.annotations.length;
@@ -146,8 +126,6 @@ public class RecordComponent extends AbstractVariableDeclaration {
 					this.annotations[i].traverse(visitor, scope);
 			}
 			this.type.traverse(visitor, scope);
-			if (this.initialization != null)
-				this.initialization.traverse(visitor, scope);
 		}
 		visitor.endVisit(this, scope);
 	}
@@ -161,5 +139,4 @@ public class RecordComponent extends AbstractVariableDeclaration {
 	public void setBinding(Binding binding) {
 		this.binding = (RecordComponentBinding) binding;
 	}
-
 }

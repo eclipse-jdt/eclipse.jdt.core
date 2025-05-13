@@ -29,7 +29,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 import java.util.zip.ZipFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -3243,9 +3242,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 	matchedClassContainer = matchedClassContainer && typeInHierarchy;
 
 	// Visit fields and record components ...
-	FieldDeclaration[] fields = type.fields == null ? ASTNode.NO_FIELD_DECLARATIONS : type.fields;
-	RecordComponent [] recordComponents = type.recordComponents;
-	AbstractVariableDeclaration[] variables = Stream.concat(Stream.of(recordComponents), Stream.of(fields)).toArray(AbstractVariableDeclaration[]::new);
+	AbstractVariableDeclaration[] variables = type.protoFieldDeclarations();
 	if (variables != null) {
 		if (nodeSet.matchingNodes.isEmpty()) return;	// end as all matching nodes were reported
 		FieldDeclaration[] otherFields = null;

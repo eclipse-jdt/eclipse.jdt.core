@@ -957,7 +957,7 @@ public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
 	if (hasRestrictedAccess())
 		component.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 	RecordComponent[] componentDecls = this.scope.referenceContext.recordComponents;
-	int length = componentDecls == null ? 0 : componentDecls.length;
+	int length = componentDecls.length;
 	for (int f = 0; f < length; f++) {
 		if (componentDecls[f].binding != component)
 			continue;
@@ -1996,11 +1996,6 @@ public TypeBinding prototype() {
 
 public boolean isPrototype() {
 	return this == this.prototype;  //$IDENTITY-COMPARISON$
-}
-
-@Override
-public boolean isRecord() {
-	return (this.modifiers & ExtraCompilerModifiers.AccRecord) != 0;
 }
 
 @Override

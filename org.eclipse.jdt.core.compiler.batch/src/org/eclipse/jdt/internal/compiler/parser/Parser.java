@@ -10294,7 +10294,6 @@ protected void consumeRecordComponentHeaderRightParen() {
 }
 protected void consumeRecordHeader() {
 	//RecordHeader ::= '(' RecordComponentsopt RecordComponentHeaderRightParen
-	//TODO: BETA_JAVA14_RECORD flag TypeDeclaration.RECORD_DECL ?
 }
 protected void consumeRecordComponentsopt() {
 	// RecordComponentsopt ::= $empty

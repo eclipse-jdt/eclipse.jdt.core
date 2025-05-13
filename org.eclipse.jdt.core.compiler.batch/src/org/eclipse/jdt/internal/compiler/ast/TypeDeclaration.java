@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -62,9 +63,6 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 	public static final int INTERFACE_DECL = 2;
 	public static final int ENUM_DECL = 3;
 	public static final int ANNOTATION_TYPE_DECL = 4;
-	/*
-	 * @noreference This field is not intended to be referenced by clients as it is a part of Java preview feature.
-	 */
 	public static final int RECORD_DECL = 5;
 
 	public int modifiers = ClassFileConstants.AccDefault;
@@ -543,11 +541,9 @@ public AbstractMethodDeclaration declarationOf(MethodBinding methodBinding) {
  * Find the matching parse node, answers null if nothing found
  */
 public RecordComponent declarationOf(RecordComponentBinding recordComponentBinding) {
-	if (recordComponentBinding != null && this.recordComponents != null) {
-		for (RecordComponent recordComponent : this.recordComponents) {
-			if (recordComponent.binding == recordComponentBinding)
-				return recordComponent;
-		}
+	for (RecordComponent recordComponent : this.recordComponents) {
+		if (recordComponent.binding == recordComponentBinding)
+			return recordComponent;
 	}
 	return null;
 }
@@ -1224,6 +1220,10 @@ public StringBuilder printStatement(int tab, StringBuilder output) {
 	return print(tab, output);
 }
 
+public AbstractVariableDeclaration [] protoFieldDeclarations() {
+	return Stream.concat(Stream.of(this.recordComponents), Stream.of(this.fields == null ? ASTNode.NO_FIELD_DECLARATIONS : this.fields)).toArray(AbstractVariableDeclaration[]::new);
+}
+
 /*
  * Keep track of number of lambda/method reference expressions in this type declaration.
  * Return the 0 based "ordinal" in the TypeDeclaration.
@@ -1338,12 +1338,12 @@ public void resolve() {
 				memberType.resolve(this.scope);
 			}
 		}
-		if (this.recordComponents != null) {
-			for (RecordComponent rc : this.recordComponents) {
-				localMaxFieldCount++;
-				rc.resolve(this.initializerScope);
-			}
+
+		for (RecordComponent rc : this.recordComponents) {
+			localMaxFieldCount++;
+			rc.resolve(this.initializerScope);
 		}
+
 		if (this.fields != null) {
 			for (int i = 0, count = this.fields.length; i < count; i++) {
 				FieldDeclaration field = this.fields[i];
@@ -1613,18 +1613,18 @@ public void traverse(ASTVisitor visitor, CompilationUnitScope unitScope) {
 					this.typeParameters[i].traverse(visitor, this.scope);
 				}
 			}
-			if (this.recordComponents != null) {
-				int length = this.recordComponents.length;
-				for (int i = 0; i < length; i++)
-					this.recordComponents[i].traverse(visitor, this.initializerScope);
-			}
+
+			int length = this.recordComponents.length;
+			for (int i = 0; i < length; i++)
+				this.recordComponents[i].traverse(visitor, this.initializerScope);
+
 			if (this.memberTypes != null) {
-				int length = this.memberTypes.length;
+				length = this.memberTypes.length;
 				for (int i = 0; i < length; i++)
 					this.memberTypes[i].traverse(visitor, this.scope);
 			}
 			if (this.fields != null) {
-				int length = this.fields.length;
+				length = this.fields.length;
 				for (int i = 0; i < length; i++) {
 					FieldDeclaration field;
 					if ((field = this.fields[i]).isStatic()) {
@@ -1635,7 +1635,7 @@ public void traverse(ASTVisitor visitor, CompilationUnitScope unitScope) {
 				}
 			}
 			if (this.methods != null) {
-				int length = this.methods.length;
+				length = this.methods.length;
 				for (int i = 0; i < length; i++)
 					this.methods[i].traverse(visitor, this.scope);
 			}
@@ -1679,18 +1679,18 @@ public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 					this.typeParameters[i].traverse(visitor, this.scope);
 				}
 			}
-			if (this.recordComponents != null) {
-				int length = this.recordComponents.length;
-				for (int i = 0; i < length; i++)
-					this.recordComponents[i].traverse(visitor, this.initializerScope);
-			}
+
+			int length = this.recordComponents.length;
+			for (int i = 0; i < length; i++)
+				this.recordComponents[i].traverse(visitor, this.initializerScope);
+
 			if (this.memberTypes != null) {
-				int length = this.memberTypes.length;
+				length = this.memberTypes.length;
 				for (int i = 0; i < length; i++)
 					this.memberTypes[i].traverse(visitor, this.scope);
 			}
 			if (this.fields != null) {
-				int length = this.fields.length;
+				length = this.fields.length;
 				for (int i = 0; i < length; i++) {
 					FieldDeclaration field = this.fields[i];
 					if (field.isStatic() && !field.isFinal()) {
@@ -1701,7 +1701,7 @@ public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 				}
 			}
 			if (this.methods != null) {
-				int length = this.methods.length;
+				length = this.methods.length;
 				for (int i = 0; i < length; i++)
 					this.methods[i].traverse(visitor, this.scope);
 			}
@@ -1744,18 +1744,18 @@ public void traverse(ASTVisitor visitor, ClassScope classScope) {
 					this.typeParameters[i].traverse(visitor, this.scope);
 				}
 			}
-			if (this.recordComponents != null) {
-				int length = this.recordComponents.length;
-				for (int i = 0; i < length; i++)
-					this.recordComponents[i].traverse(visitor, this.initializerScope);
-			}
+
+			int length = this.recordComponents.length;
+			for (int i = 0; i < length; i++)
+				this.recordComponents[i].traverse(visitor, this.initializerScope);
+
 			if (this.memberTypes != null) {
-				int length = this.memberTypes.length;
+				length = this.memberTypes.length;
 				for (int i = 0; i < length; i++)
 					this.memberTypes[i].traverse(visitor, this.scope);
 			}
 			if (this.fields != null) {
-				int length = this.fields.length;
+				length = this.fields.length;
 				for (int i = 0; i < length; i++) {
 					FieldDeclaration field;
 					if ((field = this.fields[i]).isStatic()) {
@@ -1766,7 +1766,7 @@ public void traverse(ASTVisitor visitor, ClassScope classScope) {
 				}
 			}
 			if (this.methods != null) {
-				int length = this.methods.length;
+				length = this.methods.length;
 				for (int i = 0; i < length; i++)
 					this.methods[i].traverse(visitor, this.scope);
 			}

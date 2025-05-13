@@ -35,7 +35,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Stream;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -151,13 +150,12 @@ public class ClassScope extends Scope {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		if (!sourceType.isRecord()) return;
 		if (sourceType.areComponentsInitialized()) return;
-		if (this.referenceContext.recordComponents == null) {
+		if (this.referenceContext.recordComponents.length == 0) {
 			sourceType.setComponents(Binding.NO_COMPONENTS);
 			return;
 		}
-		// count the number of fields vs. initializers
-		RecordComponent[] recComps = this.referenceContext.recordComponents;
-		int size = recComps.length;
+		RecordComponent[] components = this.referenceContext.recordComponents;
+		int size = components.length;
 		int count = size;
 
 		// iterate the field declarations to create the bindings, lose all duplicates
@@ -165,31 +163,31 @@ public class ClassScope extends Scope {
 		HashtableOfObject knownComponentNames = new HashtableOfObject(count);
 		count = 0;
 		for (int i = 0; i < size; i++) {
-			RecordComponent recComp = recComps[i];
-			RecordComponentBinding compBinding = new RecordComponentBinding(sourceType, recComp, null,
-					recComp.modifiers | ExtraCompilerModifiers.AccUnresolved);
-			compBinding.id = count;
-			checkAndSetModifiersForComponents(compBinding, recComp);
+			RecordComponent component = components[i];
+			RecordComponentBinding componentBinding = new RecordComponentBinding(sourceType, component, null, component.modifiers | ExtraCompilerModifiers.AccUnresolved);
+			componentBinding.id = count;
+			if ((componentBinding.modifiers & ExtraCompilerModifiers.AccJustFlag) != 0){
+				problemReporter().recordComponentsCannotHaveModifiers(component);
+			}
 
-			if (knownComponentNames.containsKey(recComp.name)) {
-				RecordComponentBinding previousBinding = (RecordComponentBinding) knownComponentNames.get(recComp.name);
+			if (knownComponentNames.containsKey(component.name)) {
+				RecordComponentBinding previousBinding = (RecordComponentBinding) knownComponentNames.get(component.name);
 				if (previousBinding != null) {
 					for (int f = 0; f < i; f++) {
-						RecordComponent previousComponent = recComps[f];
+						RecordComponent previousComponent = components[f];
 						if (previousComponent.binding == previousBinding) {
-							// flag the duplicate component name error here.
 							problemReporter().recordDuplicateComponent(previousComponent);
 							break;
 						}
 					}
 				}
-				knownComponentNames.put(recComp.name, null); // ensure that the duplicate field is found & removed
-				problemReporter().recordDuplicateComponent(recComp);
-				recComp.binding = null;
+				knownComponentNames.put(component.name, null); // ensure that the duplicate field is found & removed
+				problemReporter().recordDuplicateComponent(component);
+				component.binding = null;
 			} else {
-				knownComponentNames.put(recComp.name, compBinding);
+				knownComponentNames.put(component.name, componentBinding);
 				// remember that we have seen a component with this name
-				componentBindings[count++] = compBinding;
+				componentBindings[count++] = componentBinding;
 			}
 		}
 		// remove duplicate components
@@ -197,14 +195,6 @@ public class ClassScope extends Scope {
 			System.arraycopy(componentBindings, 0, componentBindings = new RecordComponentBinding[count], 0, count);
 		sourceType.setComponents(componentBindings);
 	}
-	private void checkAndSetModifiersForComponents(RecordComponentBinding compBinding, RecordComponent comp) {
-		int modifiers = compBinding.modifiers;
-		int realModifiers = modifiers & ExtraCompilerModifiers.AccJustFlag;
-		if (realModifiers  != 0 && comp != null){
-			problemReporter().recordComponentsCannotHaveModifiers(comp);
-		}
-	}
-
 	void buildFields() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		if (sourceType.areFieldsInitialized()) return;
@@ -232,9 +222,7 @@ public class ClassScope extends Scope {
 		HashtableOfObject knownFieldNames = new HashtableOfObject(count);
 		count = 0;
 
-		AbstractVariableDeclaration variableDeclarartions[] = Stream.concat(Stream.of(recordComponents), Stream.of(fields)).toArray(AbstractVariableDeclaration[]::new);
-
-
+		AbstractVariableDeclaration variableDeclarartions[] = this.referenceContext.protoFieldDeclarations();
 		int i = -1;
 		nextVariable:
 		for (AbstractVariableDeclaration variableDeclaration : variableDeclarartions) {
@@ -251,7 +239,7 @@ public class ClassScope extends Scope {
 				checkAndSetModifiersForField(fieldBinding, field);
 			} else {
 				fieldBinding = new SyntheticFieldBinding(variableDeclaration.name, null,
-						ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal | ExtraCompilerModifiers.AccRecord | ExtraCompilerModifiers.AccBlankFinal | ExtraCompilerModifiers.AccUnresolved,
+						ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal | ExtraCompilerModifiers.AccBlankFinal | ExtraCompilerModifiers.AccUnresolved,
 						sourceType, Constant.NotAConstant);
 			}
 			fieldBinding.id = count;

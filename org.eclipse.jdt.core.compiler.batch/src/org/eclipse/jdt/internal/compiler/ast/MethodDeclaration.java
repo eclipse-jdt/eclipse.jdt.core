@@ -237,20 +237,12 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 	public RecordComponent getRecordComponent() {
 		if (this.arguments != null && this.arguments.length != 0)
 			return null;
-		ClassScope skope = this.scope.classScope();
-		TypeDeclaration typeDecl = skope.referenceContext;
-		if (!typeDecl.isRecord())
-			return null;
-		if (!(skope.referenceContext.isRecord()))
-			return null;
-		RecordComponent[] recComps = typeDecl.recordComponents;
-		if (recComps == null || recComps.length == 0)
-			return null;
-		for (RecordComponent recComp : recComps) {
-			if (recComp == null || recComp.name == null)
-				continue;
-			if (CharOperation.equals(this.selector, recComp.name)) {
-				return recComp;
+		TypeDeclaration typeDecl = this.scope.referenceType();
+		if (typeDecl.isRecord()) {
+			for (RecordComponent component : typeDecl.recordComponents) {
+				if (CharOperation.equals(this.selector, component.name)) {
+					return component;
+				}
 			}
 		}
 		return null;
@@ -278,7 +270,6 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		}
 		RecordComponent recordComponent = getRecordComponent();
 		if (recordComponent != null) {
-			/* JLS 14 Records Sec 8.10.3 */
 			if (this.returnType != null && TypeBinding.notEquals(this.returnType.resolvedType, recordComponent.type.resolvedType))
 				this.scope.problemReporter().recordIllegalAccessorReturnType(this.returnType, recordComponent.type.resolvedType);
 			if (this.typeParameters != null)

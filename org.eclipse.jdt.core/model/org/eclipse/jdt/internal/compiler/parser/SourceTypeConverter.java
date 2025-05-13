@@ -254,31 +254,31 @@ public class SourceTypeConverter extends TypeConverter {
 	}
 
 	/*
-	 * Convert a field source element into a parsed field declaration
+	 * Convert a record component source element into a parsed record component declaration
 	 */
-	private RecordComponent convertRecordComponents(SourceField component,
+	private RecordComponent convertRecordComponent(SourceField componentHandle,
 										TypeDeclaration type,
 										CompilationResult compilationResult) throws JavaModelException {
 
-		SourceFieldElementInfo compInfo = (SourceFieldElementInfo) component.getElementInfo();
-		RecordComponent comp = new RecordComponent(null, -1, -1);
+		SourceFieldElementInfo componentInfo = (SourceFieldElementInfo) componentHandle.getElementInfo();
+		RecordComponent component = new RecordComponent(null, -1, -1);
 
-		int start = compInfo.getNameSourceStart();
-		int end = compInfo.getNameSourceEnd();
+		int start = componentInfo.getNameSourceStart();
+		int end = componentInfo.getNameSourceEnd();
 
-		comp.name = component.getElementName().toCharArray();
-		comp.sourceStart = start;
-		comp.sourceEnd = end;
-		comp.declarationSourceStart = compInfo.getDeclarationSourceStart();
-		comp.declarationSourceEnd = compInfo.getDeclarationSourceEnd();
-		comp.type = createTypeReference(compInfo.getTypeName(), start, end);
+		component.name = componentHandle.getElementName().toCharArray();
+		component.sourceStart = start;
+		component.sourceEnd = end;
+		component.declarationSourceStart = componentInfo.getDeclarationSourceStart();
+		component.declarationSourceEnd = componentInfo.getDeclarationSourceEnd();
+		component.type = createTypeReference(componentInfo.getTypeName(), start, end);
 
 		/* convert annotations */
-		comp.annotations = convertAnnotations(component);
-		return comp;
+		component.annotations = convertAnnotations(componentHandle);
+		return component;
 	}
 	/*
-	 * Convert a record component source element into a parsed record component declaration
+	 * Convert a field source element into a parsed field declaration
 	 */
 	private FieldDeclaration convert(SourceField fieldHandle, TypeDeclaration type, CompilationResult compilationResult) throws JavaModelException {
 
@@ -512,13 +512,11 @@ public class SourceTypeConverter extends TypeConverter {
 		/* create type/record declaration - can be member type */
 		TypeDeclaration type = new TypeDeclaration(compilationResult);
 		if ((TypeDeclaration.kind(typeInfo.getModifiers()) == TypeDeclaration.RECORD_DECL)) {
-			// The first choice constructor that takes CompilationResult as arg is not setting all the fields
-			// Hence, use the one that does
 			type.modifiers |= ExtraCompilerModifiers.AccRecord;
 			IField[] recordComponents = typeHandle.getRecordComponents();
 			type.recordComponents = new RecordComponent[recordComponents.length];
-			for(int i = 0; i < recordComponents.length; i++) {
-				type.recordComponents[i] = convertRecordComponents((SourceField)recordComponents[i], type, compilationResult);
+			for (int i = 0, length = recordComponents.length; i < length; i++) {
+				type.recordComponents[i] = convertRecordComponent((SourceField)recordComponents[i], type, compilationResult);
 			}
 		}
 		if (typeInfo.getEnclosingType() == null) {
