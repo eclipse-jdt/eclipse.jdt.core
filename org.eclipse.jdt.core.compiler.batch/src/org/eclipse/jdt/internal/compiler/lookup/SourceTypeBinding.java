@@ -1025,6 +1025,7 @@ public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
 				field.type = component.type;
 				field.modifiers |= component.modifiers & ExtraCompilerModifiers.AccGenericSignature;
 				field.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
+				field.tagBits |= component.tagBits & (TagBits.AnnotationNullMASK | TagBits.AnnotationOwningMASK);
 				ASTNode.copyRecordComponentAnnotations(initializationScope, field, annotations);
 				// what else ?
 				break;

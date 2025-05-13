@@ -567,6 +567,7 @@ public interface TypeConstants {
 	char[] DEFAULT_LOCATION__TYPE_PARAMETER = "TYPE_PARAMETER".toCharArray(); //$NON-NLS-1$
 	char[] DEFAULT_LOCATION__TYPE_BOUND = "TYPE_BOUND".toCharArray(); //$NON-NLS-1$
 	char[] DEFAULT_LOCATION__ARRAY_CONTENTS = "ARRAY_CONTENTS".toCharArray(); //$NON-NLS-1$
+	char[] DEFAULT_LOCATION__RECORD_COMPONENT = "RECORD_COMPONENT".toCharArray(); //$NON-NLS-1$
 
 
 	// synthetic package-info name
