@@ -715,6 +715,9 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 			return false;
 		}
 		if (method instanceof JavacMethodBinding javacMethod) {
+			if( this.methodSymbol.isStatic() || javacMethod.methodSymbol.isStatic())
+				return false;
+
 			if( this.methodSymbol == null ) {
 				return javacMethod.methodSymbol == null;
 			}
