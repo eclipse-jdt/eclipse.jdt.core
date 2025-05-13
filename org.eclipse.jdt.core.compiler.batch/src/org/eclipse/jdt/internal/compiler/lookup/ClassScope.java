@@ -119,11 +119,9 @@ public class ClassScope extends Scope {
 					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
 					anonymousType.setSuperClass(getJavaLangObject());
 				} else if (supertype.erasure().id == TypeIds.T_JavaLangRecord) {
-					if (!(this.referenceContext.isRecord())) {
-						problemReporter().recordCannotExtendRecord(anonymousType, typeReference, supertype);
-						anonymousType.tagBits |= TagBits.HierarchyHasProblems;
-						anonymousType.setSuperClass(getJavaLangObject());
-					}
+					problemReporter().recordCannotExtendRecord(anonymousType, typeReference, supertype);
+					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
+					anonymousType.setSuperClass(getJavaLangObject());
 				} else if (supertype.isFinal()) {
 					problemReporter().anonymousClassCannotExtendFinalClass(typeReference, supertype);
 					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
