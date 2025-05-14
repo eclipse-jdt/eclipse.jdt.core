@@ -358,6 +358,8 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 						String safePatternString = plusOrMinus ? patternSig.substring(1) : patternSig;
 						if( safePatternString.startsWith("Q")) {
 							patternBinding = JdtCoreDomPackagePrivateUtility.findUnresolvedBindingForType(node, safePatternString);
+						} else {
+							patternBinding = JdtCoreDomPackagePrivateUtility.findBindingForType(node, safePatternString);
 						}
 					}
 					boolean singleTypeArgMatches = TypeArgumentMatchingUtility.validateSingleTypeArgMatches(exactMatch, patternSig, patternBinding, domBinding);
@@ -504,8 +506,9 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 				return toResponse(IMPOSSIBLE_MATCH);
 			}
 			int v = resolveLevelForTypeBinding(node, typeBinding, locator);
+			boolean prefersParameterized = preferParamaterizedNode();
 			if( node instanceof ParameterizedType pt) {
-				ASTNode n = preferParamaterizedNode() ? pt : pt.getType();
+				ASTNode n = prefersParameterized ? pt : pt.getType();
 				return new LocatorResponse(v, n != pt, n, false, false);
 			}
 			if( patternHasTypeArgs && !patternHasSignatures && !erasureMatch) {
