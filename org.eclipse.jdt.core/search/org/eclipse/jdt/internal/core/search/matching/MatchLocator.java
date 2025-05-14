@@ -265,7 +265,7 @@ public static IBinaryType classFileReader(IType type) {
 		if (org.eclipse.jdt.internal.compiler.util.Util.isJrt(rootPath)) {
 			String classFileName = classFile.getElementName();
 			String path = Util.concatWith(pkg.names, classFileName, '/');
-			return ClassFileReader.readFromJrt(new File(rootPath), null, path);
+			return ClassFileReader.readFromJrt(new File(rootPath), null, null, path);
 		} else {
 			ZipFile zipFile = null;
 			try {

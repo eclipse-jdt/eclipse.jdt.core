@@ -139,20 +139,22 @@ public static ClassFileReader read(
 
 public static ClassFileReader readFromJrt(
 		File jrt,
+		String release,
 		IModule module,
 		String filename)
 
 		throws ClassFormatException, java.io.IOException {
-		return JRTUtil.getClassfile(jrt, filename, module == null ? null : new String(module.name()));
+		return JRTUtil.getClassfile(jrt, release, filename, module == null ? null : new String(module.name()));
 	}
 public static ClassFileReader readFromModule(
 		File jrt,
+		String release,
 		String moduleName,
 		String filename,
 		Predicate<String> moduleNameFilter)
 
 		throws ClassFormatException, java.io.IOException {
-		return JRTUtil.getClassfile(jrt, filename, moduleName, moduleNameFilter);
+		return JRTUtil.getClassfile(jrt, release, filename, moduleName, moduleNameFilter);
 }
 
 public static ClassFileReader read(java.util.zip.ZipFile zip, String filename, boolean fullyInitialize)
