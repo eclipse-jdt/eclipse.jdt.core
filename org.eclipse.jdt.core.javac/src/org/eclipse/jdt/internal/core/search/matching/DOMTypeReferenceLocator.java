@@ -362,7 +362,7 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 							patternBinding = JdtCoreDomPackagePrivateUtility.findBindingForType(node, safePatternString);
 						}
 					}
-					boolean singleTypeArgMatches = TypeArgumentMatchingUtility.validateSingleTypeArgMatches(exactMatch, patternSig, patternBinding, domBinding);
+					boolean singleTypeArgMatches = TypeArgumentMatchingUtility.validateSingleTypeArgMatches(exactMatch, patternSig, patternBinding, domBinding, this.locator);
 					if( !singleTypeArgMatches ) {
 						return TYPE_PARAMS_COUNT_MATCH;
 					}

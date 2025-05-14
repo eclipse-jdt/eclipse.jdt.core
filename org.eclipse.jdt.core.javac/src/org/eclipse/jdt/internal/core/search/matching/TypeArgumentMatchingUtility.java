@@ -24,6 +24,10 @@ import org.eclipse.jdt.internal.javac.dom.JavacTypeBinding;
 public class TypeArgumentMatchingUtility {
 
 	public static boolean validateSingleTypeArgMatches(boolean requiresExactMatch, String patternSig, IBinding patternBinding, IBinding domBinding) {
+		return validateSingleTypeArgMatches(requiresExactMatch, patternSig, patternBinding, domBinding, null);
+	}
+
+	public static boolean validateSingleTypeArgMatches(boolean requiresExactMatch, String patternSig, IBinding patternBinding, IBinding domBinding, PatternLocator locator) {
 		ITypeBinding domTypeBinding = domBinding instanceof ITypeBinding ? (ITypeBinding)domBinding : null;
 		String domKey1 = domBinding == null ? null : domBinding.getKey();
 		String domSig = null;
@@ -130,9 +134,22 @@ public class TypeArgumentMatchingUtility {
 			} else {
 				// Just two normal param types, see if they match
 				if( !patternSig.equals(domSig)) {
-					if( !unresolvedPatternMatchesDom(patternSig, domSig, domTypeBinding, new ArrayList<>())) {
-						return false;
+					boolean unresolvedMatch = unresolvedPatternMatchesDom(patternSig, domSig, domTypeBinding, new ArrayList<>());
+					if( unresolvedMatch ) {
+						return true;
 					}
+					if( locator != null && patternSig.startsWith("Q") && domSig != null) {
+						String patSig1 = patternSig.substring(1);
+						String dSig = domSig.lastIndexOf(".") == -1 ? null : domSig.substring(domSig.lastIndexOf(".") + 1);
+						if( dSig != null ) {
+							boolean stringMatch = locator.matchesName(patSig1.toCharArray(), dSig.toCharArray());
+							if( stringMatch ) {
+								return true;
+							}
+						}
+					}
+
+					return false;
 				}
 			}
 		}
