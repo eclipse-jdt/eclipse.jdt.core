@@ -355,6 +355,9 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				+ ">;";
 		} else if( isRawType(t)) {
 			return base + "<>;";
+		} else if( !this.isGeneric && this instanceof JavacTypeVariableBinding jctvb ) {
+			String ret = jctvb.getKeyWithOptionalCaptureCode(false);
+			return ret;
 		}
 		return base1;
 	}
