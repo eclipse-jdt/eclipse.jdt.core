@@ -27,7 +27,7 @@ public class TypeArgumentMatchingUtility {
 		ITypeBinding domTypeBinding = domBinding instanceof ITypeBinding ? (ITypeBinding)domBinding : null;
 		String domKey1 = domBinding == null ? null : domBinding.getKey();
 		String domSig = null;
-		if( "+Ljava/lang/Object;".equals(domKey1)) {
+		if( isQuestionMark(domKey1)) {
 			domSig = domKey1;
 		} else if( domKey1 != null ) {
 			try {
