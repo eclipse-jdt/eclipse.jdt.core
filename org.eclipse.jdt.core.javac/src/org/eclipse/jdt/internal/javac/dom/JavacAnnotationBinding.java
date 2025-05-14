@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.javac.dom;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -107,11 +108,17 @@ public abstract class JavacAnnotationBinding implements IAnnotationBinding {
 
 	@Override
 	public IMemberValuePairBinding[] getAllMemberValuePairs() {
-		// TODO see testBug405908 - expected to return all POSSIBLE pairs declared on the annotation definition, not user??
-		return this.annotation.getElementValues().entrySet().stream()
-			.map(entry -> this.resolver.bindings.getMemberValuePairBinding(entry.getKey(), entry.getValue()))
-			.filter(Objects::nonNull)
-			.toArray(IMemberValuePairBinding[]::new);
+		IMemberValuePairBinding[] declared = getDeclaredMemberValuePairs();
+		var implicitDefaultMethods = new ArrayList<>(Arrays.asList(getAnnotationType().getDeclaredMethods()));
+		var explicitedMethods = Arrays.stream(declared).map(IMemberValuePairBinding::getMethodBinding).toList();
+		implicitDefaultMethods.removeAll(explicitedMethods);
+		if (implicitDefaultMethods.isEmpty()) {
+			return declared;
+		}
+		var defaults = implicitDefaultMethods.stream().map(this.resolver.bindings::getDefaultMemberValuePairBinding).filter(Objects::nonNull).toArray();
+		var res = Arrays.copyOf(declared, declared.length + defaults.length);
+		System.arraycopy(defaults, 0, res, declared.length, defaults.length);
+		return res;
 	}
 
 	@Override
@@ -121,7 +128,10 @@ public abstract class JavacAnnotationBinding implements IAnnotationBinding {
 
 	@Override
 	public IMemberValuePairBinding[] getDeclaredMemberValuePairs() {
-		return getAllMemberValuePairs();
+		return this.annotation.getElementValues().entrySet().stream()
+				.map(entry -> this.resolver.bindings.getMemberValuePairBinding(entry.getKey(), entry.getValue()))
+				.filter(Objects::nonNull)
+				.toArray(IMemberValuePairBinding[]::new);
 	}
 
 	@Override

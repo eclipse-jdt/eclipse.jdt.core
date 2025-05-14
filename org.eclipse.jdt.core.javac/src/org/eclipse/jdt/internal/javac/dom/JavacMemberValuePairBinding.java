@@ -25,12 +25,18 @@ import com.sun.tools.javac.code.Symbol.MethodSymbol;
 public abstract class JavacMemberValuePairBinding implements IMemberValuePairBinding {
 
 	public final JavacMethodBinding method;
-	public final Attribute value;
+	public final Object value; // might be an attribute or a direct value
 	private final JavacBindingResolver resolver;
 
 	public JavacMemberValuePairBinding(MethodSymbol key, Attribute value, JavacBindingResolver resolver) {
 		this.method = resolver.bindings.getMethodBinding(key.type.asMethodType(), key, null, true);
 		this.value = value;
+		this.resolver = resolver;
+	}
+
+	public JavacMemberValuePairBinding(IMethodBinding defaultAnnotationMethod, JavacBindingResolver resolver) {
+		this.method = (JavacMethodBinding)defaultAnnotationMethod;
+		this.value = defaultAnnotationMethod.getDefaultValue();
 		this.resolver = resolver;
 	}
 
@@ -105,12 +111,12 @@ public abstract class JavacMemberValuePairBinding implements IMemberValuePairBin
 
 	@Override
 	public Object getValue() {
-		return this.resolver.getValueFromAttribute(this.value);
+		return this.value instanceof Attribute attr ? this.resolver.getValueFromAttribute(attr) : this.value;
 	}
 
 	@Override
 	public boolean isDefault() {
-		return this.value == this.method.methodSymbol.defaultValue;
+		return !(this.value instanceof Attribute attr) || this.value == this.method.methodSymbol.defaultValue;
 	}
 
 	@Override
