@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
-package org.eclipse.jdt.core.dom;
+package org.eclipse.jdt.internal.core.dom;
 
 import java.util.Objects;
 import org.eclipse.core.runtime.CoreException;
@@ -18,19 +18,25 @@ import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.internal.core.dom.ICompilationUnitResolver;
 
-class CompilationUnitResolverDiscovery {
+public class CompilationUnitResolverDiscovery {
 	private static final String SELECTED_SYSPROP = "ICompilationUnitResolver"; //$NON-NLS-1$
+	private static final String ECJ_DEFAULT_IMPL = "org.eclipse.jdt.core.compilationUnitResolver.ecj"; //$NON-NLS-1$
 	private static final String COMPILATION_UNIT_RESOLVER_EXTPOINT_ID = "compilationUnitResolver" ; //$NON-NLS-1$
 	private static boolean ERROR_LOGGED = false;
 
 	private static String lastId;
 	private static IConfigurationElement lastExtension;
 
-	static ICompilationUnitResolver getInstance() {
-		String id = System.getProperty(SELECTED_SYSPROP);
+	public static ICompilationUnitResolver getInstance() {
+		String id = System.getProperty(SELECTED_SYSPROP, ECJ_DEFAULT_IMPL);
 		IConfigurationElement configElement = getConfigurationElement(id);
+		if (configElement == null) {
+			if (!setErrorLogged()) {
+				ILog.get().error("Could not find extension '" + id + "' for extension point '" + COMPILATION_UNIT_RESOLVER_EXTPOINT_ID + "'. Defaulting to '" + ECJ_DEFAULT_IMPL + "'."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			}
+			configElement = getConfigurationElement(ECJ_DEFAULT_IMPL);
+		}
 		lastId = id;
 		lastExtension = configElement;
 		if (configElement != null) {
@@ -47,7 +53,7 @@ class CompilationUnitResolverDiscovery {
 				}
 			}
 		}
-		return CompilationUnitResolver.getInstance();
+		return null;
 	}
 
 	/**
