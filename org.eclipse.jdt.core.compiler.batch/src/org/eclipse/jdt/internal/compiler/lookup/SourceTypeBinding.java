@@ -762,7 +762,7 @@ boolean areComponentsInitialized() {
 		return this.prototype.areComponentsInitialized();
 	return this.components != Binding.UNINITIALIZED_COMPONENTS;
 }
-/* JLS 14 Record - Preview - end */
+
 boolean areFieldsInitialized() {
 	if (!isPrototype())
 		return this.prototype.areFieldsInitialized();
@@ -892,19 +892,19 @@ public RecordComponentBinding[] components() {
 
 	if (!this.isRecord())
 		return NO_COMPONENTS;
-	if (!isPrototype()) {
-		if ((this.extendedTagBits & ExtendedTagBits.AreRecordComponentsComplete) != 0)
-			return this.components;
-		this.extendedTagBits |= ExtendedTagBits.AreRecordComponentsComplete;
-		return this.components = this.prototype.components();
-	}
 
 	if ((this.extendedTagBits & ExtendedTagBits.AreRecordComponentsComplete) != 0)
 		return this.components;
 
+	if (!isPrototype()) {
+		this.extendedTagBits |= ExtendedTagBits.AreRecordComponentsComplete;
+		return this.components = this.prototype.components();
+	}
+
 	if (!areComponentsInitialized()) {
 		this.scope.buildComponents();
 	}
+
 	int failed = 0;
 	RecordComponentBinding[] resolvedComponents = this.components;
 	try {
@@ -913,7 +913,6 @@ public RecordComponentBinding[] components() {
 		for (int i = 0, length = componentsSnapshot.length; i < length; i++) {
 			if (resolveTypeFor(componentsSnapshot[i]) == null) {
 				// do not alter original component array until resolution is over, due to reentrance (143259)
-				// TODO: to check for relevance
 				if (resolvedComponents == componentsSnapshot) {
 					System.arraycopy(componentsSnapshot, 0, resolvedComponents = new RecordComponentBinding[length], 0, length);
 				}
@@ -947,8 +946,8 @@ public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
 		return component;
 
 	component.getAnnotationTagBits();
-	if ((component.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)  // TODO: Watch out the spec changes
-		component.modifiers |= ClassFileConstants.AccDeprecated;  // expected to be available soon.
+	if ((component.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
+		component.modifiers |= ClassFileConstants.AccDeprecated;
 
 	if (isViewedAsDeprecated() && !component.isDeprecated()) {
 		component.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
@@ -956,83 +955,75 @@ public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
 	}
 	if (hasRestrictedAccess())
 		component.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
-	RecordComponent[] componentDecls = this.scope.referenceContext.recordComponents;
-	int length = componentDecls.length;
-	for (int f = 0; f < length; f++) {
-		if (componentDecls[f].binding != component)
-			continue;
 
-		// component cannot be static, hence no static initializer scope
-		MethodScope initializationScope = this.scope.referenceContext.initializerScope;
-		RecordComponent componentDecl = componentDecls[f];
-		TypeBinding componentType = componentDecl.type.resolveType(initializationScope, true /* check bounds*/);
-		component.type = componentType;
-		component.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
-		if (componentType == null) {
-			componentDecl.binding = null;
-			return null;
-		}
-		if (TypeDeclaration.disallowedComponentNames.contains(new String(componentDecl.name))) {
-			this.scope.problemReporter().recordIllegalComponentNameInRecord(componentDecl, this.scope.referenceContext);
-			componentDecl.binding = null;
-			return null;
-		}
-		if (componentDecl.isUnnamed(this.scope)) {
-			this.scope.problemReporter().illegalUseOfUnderscoreAsAnIdentifier(componentDecl.sourceStart, componentDecl.sourceEnd, this.scope.compilerOptions().sourceLevel > ClassFileConstants.JDK1_8, true);
-			componentDecl.binding = null;
-			return null;
-		}
-		if (componentType == TypeBinding.VOID) {
-			this.scope.problemReporter().recordComponentCannotBeVoid(componentDecl);
-			componentDecl.binding = null;
-			return null;
-		}
-		if (componentDecl.isVarArgs() && f < length - 1)
-			this.scope.problemReporter().recordIllegalVararg(componentDecl, this.scope.referenceContext);
+	MethodScope initializationScope = this.scope.referenceContext.initializerScope; 	// component cannot be static, hence no static initializer scope
+	RecordComponent componentDeclaration = component.sourceRecordComponent();
+	TypeBinding componentType = componentDeclaration.type.resolveType(initializationScope, true /* check bounds*/);
+	component.type = componentType;
+	component.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
+	if (componentType == null) {
+		componentDeclaration.binding = null;
+		return null;
+	}
+	if (TypeDeclaration.disallowedComponentNames.contains(new String(componentDeclaration.name))) {
+		this.scope.problemReporter().recordIllegalComponentNameInRecord(componentDeclaration, this.scope.referenceContext);
+		componentDeclaration.binding = null;
+		return null;
+	}
+	if (componentDeclaration.isUnnamed(this.scope)) {
+		this.scope.problemReporter().illegalUseOfUnderscoreAsAnIdentifier(componentDeclaration.sourceStart, componentDeclaration.sourceEnd, this.scope.compilerOptions().sourceLevel > ClassFileConstants.JDK1_8, true);
+		componentDeclaration.binding = null;
+		return null;
+	}
+	if (componentType == TypeBinding.VOID) {
+		this.scope.problemReporter().recordComponentCannotBeVoid(componentDeclaration);
+		componentDeclaration.binding = null;
+		return null;
+	}
+	RecordComponent[] recordComponents = this.scope.referenceContext.recordComponents;
+	if (componentDeclaration.isVarArgs() && recordComponents[recordComponents.length - 1] != componentDeclaration)
+		this.scope.problemReporter().recordIllegalVararg(componentDeclaration, this.scope.referenceContext);
 
-		if (componentType.isArrayType() && ((ArrayBinding) componentType).leafComponentType == TypeBinding.VOID) {
-			this.scope.problemReporter().variableTypeCannotBeVoidArray(componentDecl);
-			componentDecl.binding = null;
-			return null;
-		}
-		if ((componentType.tagBits & TagBits.HasMissingType) != 0) {
-			component.tagBits |= TagBits.HasMissingType;
-		}
-		TypeBinding leafType = componentType.leafComponentType();
-		if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0) {
-			component.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
-		}
-		Annotation [] annotations = componentDecl.annotations;
-		ASTNode.copyRecordComponentAnnotations(initializationScope, component, annotations);
+	if (componentType.isArrayType() && ((ArrayBinding) componentType).leafComponentType == TypeBinding.VOID) {
+		this.scope.problemReporter().variableTypeCannotBeVoidArray(componentDeclaration);
+		componentDeclaration.binding = null;
+		return null;
+	}
+	if ((componentType.tagBits & TagBits.HasMissingType) != 0) {
+		component.tagBits |= TagBits.HasMissingType;
+	}
+	TypeBinding leafType = componentType.leafComponentType();
+	if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0) {
+		component.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
+	}
+	Annotation [] annotations = componentDeclaration.annotations;
+	ASTNode.copyRecordComponentAnnotations(initializationScope, component, annotations);
 
-		if (annotations != null && annotations.length != 0) {
-			// piggybacking on an existing method to move type_use annotations to type in record component
-			ASTNode.copySE8AnnotationsToType(initializationScope, component, annotations, false);
-		}
-		Annotation.isTypeUseCompatible(componentDecl.type, this.scope, annotations);
-		// TODO Bug 562478: apply null default: - to check anything to be done? - SH
+	if (annotations != null && annotations.length != 0) {
+		ASTNode.copySE8AnnotationsToType(initializationScope, component, annotations, false);
+	}
+	Annotation.isTypeUseCompatible(componentDeclaration.type, this.scope, annotations);
+	// TODO Bug 562478: apply null default: - to check anything to be done? - SH
 //		if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {}
 
-		if (initializationScope.shouldCheckAPILeaks(this, component.isPublic()) && componentDecl.type != null) // fieldDecl.type is null for enum constants
-			initializationScope.detectAPILeaks(componentDecl.type, componentType);
+	if (initializationScope.shouldCheckAPILeaks(this, component.isPublic()) && componentDeclaration.type != null) // fieldDecl.type is null for enum constants
+		initializationScope.detectAPILeaks(componentDeclaration.type, componentType);
 
-		if (this.externalAnnotationProvider != null) {
-			ExternalAnnotationSuperimposer.annotateComponentBinding(component, this.externalAnnotationProvider, this.environment);
-		}
-		// As we resolve types for the component, patch up the corresponding instance variable
-		for (FieldBinding field : this.fields) {
-			if (CharOperation.equals(field.name, component.name)) {
-				field.type = component.type;
-				field.modifiers |= component.modifiers & ExtraCompilerModifiers.AccGenericSignature;
-				field.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
-				ASTNode.copyRecordComponentAnnotations(initializationScope, field, annotations);
-				// what else ?
-				break;
-			}
-		}
-		return component;
+	if (this.externalAnnotationProvider != null) {
+		ExternalAnnotationSuperimposer.annotateComponentBinding(component, this.externalAnnotationProvider, this.environment);
 	}
-	return null; // should never reach this point
+	// As we resolve types for the component, patch up the corresponding instance variable
+	for (FieldBinding field : this.fields) {
+		if (CharOperation.equals(field.name, component.name)) {
+			field.type = component.type;
+			field.modifiers |= component.modifiers & ExtraCompilerModifiers.AccGenericSignature;
+			field.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
+			ASTNode.copyRecordComponentAnnotations(initializationScope, field, annotations);
+			// what else ?
+			break;
+		}
+	}
+	return component;
 }
 
 private void internalFaultInTypeForFieldsAndMethods() {
@@ -1407,45 +1398,6 @@ public FieldBinding getField(char[] fieldName, boolean needResolve) {
 						newFields[index++] = f;
 					}
 					setFields(newFields);
-				}
-			}
-		}
-	}
-	return null;
-}
-
-//NOTE: the type of a record component of a source type is resolved when needed
-@Override
-public RecordComponentBinding getComponent(char[] componentName, boolean needResolve) {
-	if (!isPrototype())
-		return this.prototype.getComponent(componentName, needResolve);
-
-	if ((this.extendedTagBits & ExtendedTagBits.AreRecordComponentsComplete) != 0) {
-		// not sorted since the order is important. ReferenceBinding.binarySearch(fieldName, this.components)
-		return getRecordComponent(componentName);
-	}
-
-	// always resolve anyway on source types
-	RecordComponentBinding component = getRecordComponent(componentName);
-	if (component != null) {
-		RecordComponentBinding result = null;
-		try {
-			result = resolveTypeFor(component);
-			return result;
-		} finally {
-			if (result == null) {
-				// ensure record components are consistent reqardless of the error
-				int newSize = this.components.length - 1;
-				if (newSize == 0) {
-					setComponents(Binding.NO_COMPONENTS);
-				} else {
-					RecordComponentBinding[] newComponents = new RecordComponentBinding[newSize];
-					int index = 0;
-					for (RecordComponentBinding rcb : this.components) {
-						if (rcb == component) continue;
-						newComponents[index++] = rcb;
-					}
-					setComponents(newComponents);
 				}
 			}
 		}
@@ -1907,7 +1859,7 @@ private void addRequiredSpecialRecordMethods() {
 	int rcLength = rcbs.length;
 
 	List<MethodBinding> syntheticMethods = new ArrayList<>();
-	List<RecordComponentBinding> missingAccessors = new ArrayList<>(Arrays.asList(this.components));
+	List<RecordComponentBinding> missingAccessors = new ArrayList<>(Arrays.asList(rcbs));
 	boolean needHashCode = true, needEquals = true, needToString = true, needConstructor = true;
 
 nextMethod:
@@ -2559,21 +2511,20 @@ public void tagAsHavingDefectiveContainerType() {
 		this.containerAnnotationType = new ProblemReferenceBinding(this.containerAnnotationType.compoundName, this.containerAnnotationType, ProblemReasons.DefectiveContainerAnnotationType);
 }
 
-// Record Declaration - Java 14 - preview
-//Propagate writes to all annotated variants so the clones evolve along.
-public RecordComponentBinding[] setComponents(RecordComponentBinding[] comps) {
+// Propagate writes to all annotated variants so the clones evolve along.
+public RecordComponentBinding[] setComponents(RecordComponentBinding[] components) {
 
 	if (!isPrototype())
-		return this.prototype.setComponents(comps);
+		return this.prototype.setComponents(components);
 
 	if ((this.tagBits & TagBits.HasAnnotatedVariants) != 0) {
 		TypeBinding [] annotatedTypes = this.scope.environment().getAnnotatedTypes(this);
 		for (int i = 0, length = annotatedTypes == null ? 0 : annotatedTypes.length; i < length; i++) {
 			SourceTypeBinding annotatedType = (SourceTypeBinding) annotatedTypes[i];
-			annotatedType.components = comps;
+			annotatedType.components = components;
 		}
 	}
-	return this.components = comps;
+	return this.components = components;
 }
 
 // Propagate writes to all annotated variants so the clones evolve along.
@@ -2958,13 +2909,6 @@ public FieldBinding[] unResolvedFields() {
 	return this.fields;
 }
 
-@Override
-public RecordComponentBinding[] unResolvedComponents() {
-	if (!isPrototype())
-		return this.prototype.unResolvedComponents();
-	return this.components;
-}
-
 public void tagIndirectlyAccessibleMembers() {
 	if (!isPrototype()) {
 		this.prototype.tagIndirectlyAccessibleMembers();
@@ -3009,17 +2953,6 @@ public boolean isNestmateOf(SourceTypeBinding other) {
 	return TypeBinding.equalsEquals(this, other) ||
 			TypeBinding.equalsEquals(this.nestHost == null ? this : this.nestHost,
 					otherHost == null ? other : otherHost);
-}
-
-@Override
-public RecordComponentBinding getRecordComponent(char[] name) {
-	if (this.isRecord() && this.components != null) {
-		for (RecordComponentBinding rcb : this.components) {
-			if (CharOperation.equals(name, rcb.name))
-				return rcb;
-		}
-	}
-	return null;
 }
 
 @Override

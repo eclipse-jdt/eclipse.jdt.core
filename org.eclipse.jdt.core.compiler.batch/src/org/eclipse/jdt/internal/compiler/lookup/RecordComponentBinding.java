@@ -22,7 +22,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 public class RecordComponentBinding extends VariableBinding {
 
 	public ReferenceBinding declaringRecord;
-	public BlockScope declaringScope; // back-pointer to its declaring scope
 
 	public RecordComponentBinding(ReferenceBinding declaringRecord, RecordComponent declaration, TypeBinding type, int modifiers) {
 		super(declaration.name, type, modifiers,  null);

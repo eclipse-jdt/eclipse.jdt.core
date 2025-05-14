@@ -826,32 +826,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		return ReferenceBinding.binarySearch(fieldName, this.fields);
 	}
 
-	 /**
-	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getComponent(char[], boolean)
-	 */
-	@Override
-	public RecordComponentBinding getComponent(char[] name, boolean needResolve) {
-		if (((this.extendedTagBits & ExtendedTagBits.AreRecordComponentsComplete) == 0)) {
-			for (RecordComponentBinding rcb : this.type.unResolvedComponents()) {
-				if (CharOperation.equals(name, rcb.name)) {
-					return rcb;
-				}
-			}
-			return null;
-		}
-		components(); // ensure record components have been initialized
-		return getRecordComponent(name);
-	}
-	@Override
-	public RecordComponentBinding getRecordComponent(char[] name) {
-		if (this.components != null) {
-			for (RecordComponentBinding rcb : this.components) {
-				if (CharOperation.equals(name, rcb.name))
-					return rcb;
-			}
-		}
-		return null;
-	}
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getMethods(char[])
 	 */
@@ -1723,10 +1697,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	@Override
 	public FieldBinding[] unResolvedFields() {
 		return this.fields;
-	}
-	@Override
-	public RecordComponentBinding[] unResolvedComponents() {
-		return this.components;
 	}
 
 	@Override
