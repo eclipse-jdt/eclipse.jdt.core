@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -5818,7 +5818,9 @@ private MessageSend internalNewMessageSend() {
 	long nameStart = this.identifierPositionStack[this.identifierPtr] >>> 32;
 	if (this.assistNode == null && this.lParenPos > this.cursorLocation && nameStart <= this.cursorLocation + 1) {
 		boolean nextIsCast = this.expressionPtr > -1 && this.expressionStack[this.expressionPtr] instanceof CastExpression;
-		m = new CompletionOnMessageSendName(null, 0, 0, nextIsCast); // positions will be set in consumeMethodInvocationName(), if that's who called us
+		CompletionOnMessageSendName send = new CompletionOnMessageSendName(null, 0, 0, nextIsCast); // positions will be set in consumeMethodInvocationName(), if that's who called us
+		send.cursorIsToTheLeftOfTheLParen = true;
+		m = send;
 	} else if (this.assistNode != null && this.lParenPos == this.assistNode.sourceEnd) {
 		// this branch corresponds to work done in checkParemeterizedMethodName(), just the latter isn't called in absence of a syntax error
 		if (this.expressionPtr != -1 && this.expressionStack[this.expressionPtr] == this.assistNode) {
