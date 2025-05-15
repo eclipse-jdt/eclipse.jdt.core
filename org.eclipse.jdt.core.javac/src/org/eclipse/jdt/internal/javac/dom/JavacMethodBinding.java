@@ -31,11 +31,11 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
-import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
+import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.internal.core.BinaryMethod;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.Member;
@@ -47,11 +47,11 @@ import org.eclipse.jdt.internal.core.util.Util;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
-import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ForAll;
 import com.sun.tools.javac.code.Type.JCNoType;
 import com.sun.tools.javac.code.Type.MethodType;
@@ -616,12 +616,10 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 	@Override
 	public boolean isRawMethod() {
-		if (isConstructor()) {
-			return getDeclaringClass().isRawType() && this.methodSymbol.getTypeParameters().isEmpty();
-		}
-		boolean parentNullOrRaw = (this.parentType != null && this.parentType.isRaw());
-		boolean emptyParams = this.methodSymbol == null || this.methodSymbol.getTypeParameters().isEmpty();
-		return parentNullOrRaw || emptyParams;
+		return this.methodType.isRaw() ||
+				(getDeclaringClass() != null && getDeclaringClass().isRawType() &&
+						(isConstructor() || !this.methodType.getParameterTypes().isEmpty())) ||
+				(this.methodSymbol == null && !this.methodType.getParameterTypes().isEmpty());
 	}
 
 	@Override
