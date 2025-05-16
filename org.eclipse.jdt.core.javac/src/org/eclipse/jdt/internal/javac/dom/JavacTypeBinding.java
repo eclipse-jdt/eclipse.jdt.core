@@ -364,11 +364,22 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		return getKeyWithPossibleGenerics(t, s, parameterizedCallback, false);
 	}
 	private String getKeyWithPossibleGenerics(Type t, TypeSymbol s, Function<ITypeBinding, String> parameterizedCallback, boolean useSlashes) {
+		if( !this.isGeneric && this instanceof JavacTypeVariableBinding jctvb ) {
+			String ret = jctvb.getKeyWithOptionalCaptureCode(false);
+			return ret;
+		}
+
 		String base1 = getKey(t, s.flatName(), false, useSlashes);
 		String base = removeTrailingSemicolon(base1);
+		if( isRawType(t)) {
+			return base + "<>;";
+		}
+
+
+
 		if (isGenericType(t)) {
 			return base + '<'
-				+ Arrays.stream(getTypeParameters())
+				+ Arrays.stream(getTypeParametersForBase(t))
 					.map(ITypeBinding::getName)
 					.map(name -> 'T' + name + ';')
 					.collect(Collectors.joining())
@@ -377,16 +388,11 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			final String base2 = base;
 			final int[] counter = new int[] {0};
 			return base + '<'
-				+ Arrays.stream(getTypeArguments())
+				+ Arrays.stream(getTypeArgumentsForBase(this.type, this.typeSymbol))
 					.map(parameterizedCallback)
 					.map(x -> prependBaseAndCount(x, base2, counter))
 					.collect(Collectors.joining())
 				+ ">;";
-		} else if( isRawType(t)) {
-			return base + "<>;";
-		} else if( !this.isGeneric && this instanceof JavacTypeVariableBinding jctvb ) {
-			String ret = jctvb.getKeyWithOptionalCaptureCode(false);
-			return ret;
 		}
 		return base1;
 	}
@@ -1189,11 +1195,23 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding[] getTypeArguments() {
-		if (!isParameterizedType() || isTargettingPreGenerics()) {
+		return getTypeArguments(this.type, this.typeSymbol);
+	}
+
+	private ITypeBinding[] getTypeArgumentsForBase(Type t, TypeSymbol ts) {
+		if( t instanceof Type.ArrayType at) {
+			return getTypeArguments(at.elemtype, at.tsym);
+		}
+		return getTypeArguments(t, ts);
+	}
+
+	private ITypeBinding[] getTypeArguments(Type t, TypeSymbol ts) {
+		if (!isParameterizedType(t) || isTargettingPreGenerics()) {
 			return NO_TYPE_ARGUMENTS;
 		}
-		return getUncheckedTypeArguments(this.type, this.typeSymbol);
+		return getUncheckedTypeArguments(t, ts);
 	}
+
 
 	private ITypeBinding[] getUncheckedTypeArguments(Type t, TypeSymbol ts) {
 		return t.getTypeArguments()
@@ -1272,13 +1290,25 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public ITypeBinding[] getTypeParameters() {
-		if(!isGenericType() || isTargettingPreGenerics()) {
+		return getTypeParameters(this.type);
+	}
+
+	public ITypeBinding[] getTypeParametersForBase(Type t) {
+		if( t instanceof Type.ArrayType at) {
+			return getTypeParameters(at.elemtype);
+		}
+		return getTypeParameters(t);
+	}
+
+	public ITypeBinding[] getTypeParameters(Type t) {
+		if(!isGenericType(t) || isTargettingPreGenerics() || !(t instanceof ClassType)) {
 			return new ITypeBinding[0];
 		}
-		return ((ClassType)this.type).getTypeArguments()
+		return ((ClassType)t).getTypeArguments()
 				.map(this.resolver.bindings::getTypeBinding)
 				.toArray(ITypeBinding[]::new);
 	}
+
 
 	@Override
 	public ITypeBinding getWildcard() {
