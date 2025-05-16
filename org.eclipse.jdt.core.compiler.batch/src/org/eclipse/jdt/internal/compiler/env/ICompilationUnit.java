@@ -65,7 +65,7 @@ default ModuleBinding module(LookupEnvironment environment) {
 		char[] moduleName = modEnv.isOnModulePath(this) ? getModuleName() : ModuleBinding.UNNAMED;
 		return environment.getModule(moduleName);
 	}
-	return null;
+	return environment.getModule(ModuleBinding.UNNAMED);
 }
 /**
  * Returns the name of the module to which this compilation unit is associated.
