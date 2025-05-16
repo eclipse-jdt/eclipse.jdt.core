@@ -42,7 +42,10 @@ public class TypeArgumentMatchingUtility {
 				// TODO ignore
 			}
 		}
-		//String domSig = domKey1 == null ? null : domBinding instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : domBinding.getKey();
+		if( domSig == null && domBinding != null ) {
+			domSig = domBinding instanceof JavacTypeBinding jctb ? jctb.getGenericTypeSignature(false) : domBinding.getKey();
+		}
+
 		if( requiresExactMatch ) {
 			if( Objects.equals(patternSig, domSig)) {
 				return true;
