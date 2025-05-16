@@ -133,13 +133,19 @@ public class DOMPatternLocator extends PatternLocator {
 		}
 		ITypeBinding type = binding.isArray() ? binding.getComponentType() : binding;
 		String simpleName = type instanceof JavacTypeBinding ? ((JavacTypeBinding)type).getName(false) : binding.getName();
-		if (type.isLocal()) {
-			return qualifiedSourceName(type.getDeclaringClass()) + ".1." + simpleName; //$NON-NLS-1$
-		} else if (type.isMember()) {
-			return qualifiedSourceName(type.getDeclaringClass()) + '.' + simpleName;
-		} else {
-			return simpleName;
+		String qualifier = qualifiedSourceName(type.getDeclaringClass());
+		if( qualifier == null && type instanceof JavacTypeBinding jctb) {
+			String qualifiedName = jctb.getQualifiedName(false);
+			if( qualifiedName != null ) {
+				return qualifiedName;
+			}
 		}
+		if (type.isLocal()) {
+			return qualifier + ".1." + simpleName; //$NON-NLS-1$
+		} else if (type.isMember()) {
+			return qualifier + '.' + simpleName;
+		}
+		return binding.getName();
 	}
 	protected int resolveLevelForType(char[] simpleNamePattern, char[] qualificationPattern, ITypeBinding binding) {
 		return resolveLevelForTypeFQN(simpleNamePattern, qualificationPattern, binding, null);
