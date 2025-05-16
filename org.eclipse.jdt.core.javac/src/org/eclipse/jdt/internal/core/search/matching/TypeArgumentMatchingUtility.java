@@ -53,7 +53,7 @@ public class TypeArgumentMatchingUtility {
 			if( patternSig.equals("*") && isQuestionMark(domSig)) {
 				return true;
 			}
-			if( patternSig.startsWith("Q")) {
+			if( patternSig.startsWith("Q") || patternSig.startsWith("+Q") || patternSig.startsWith("-Q")) {
 				String patternSimpleName = null;
 				try {
 					patternSimpleName = Signature.getSignatureSimpleName(patternSig);

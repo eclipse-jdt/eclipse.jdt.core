@@ -15,6 +15,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -548,6 +549,11 @@ public class JavacBindingResolver extends BindingResolver {
 			return findBinding(bindingKey);
 		}
 
+		final boolean bkExtends = bindingKey.startsWith("+");
+		final boolean bkSuper = bindingKey.startsWith("-");
+
+		String withoutSuperExtends = bindingKey.startsWith("+") || bindingKey.startsWith("-") ? bindingKey.substring(1) : bindingKey;
+
 		HashSet<String> validNames = new HashSet<String>();
 		validNames.add(bindingKey);
 		compoundListWithAction(validNames, x -> x.replaceAll("\\.", "/"));
@@ -556,25 +562,41 @@ public class JavacBindingResolver extends BindingResolver {
 		compoundListWithAction(validNames, x -> x.lastIndexOf(".", x.length() - 1) != -1 ? x.substring(x.lastIndexOf(".") + 1) : null);
 		compoundListWithAction(validNames, x -> x.startsWith("Q") ? x.substring(1) : null);
 		compoundListWithAction(validNames, x -> x.contains("<Q") ? x.replaceAll("<Q", "<") : null);
-		String bindingKeySimpleName = Signature.getSignatureSimpleName(bindingKey);
+		compoundListWithAction(validNames, x -> x.startsWith("+Q") ? x.replaceAll("\\+Q", "? extends ") : null);
+		compoundListWithAction(validNames, x -> x.startsWith("-Q") ? x.replaceAll("-Q", "? super ") : null);
+		String bindingKeySimpleName = Signature.getSignatureSimpleName(withoutSuperExtends);
 		validNames.add(bindingKeySimpleName);
 
 		Collection<JavacTypeBinding> c = new ArrayList<>(this.bindings.typeBinding.values());
-		List<JavacTypeBinding> strongMatch = new ArrayList<>();
+		int matchesKey = 0x80;
+		int matchesSimpleName = 0x40;
+		int matchesSuperExtends = 0x10;
+		record Pair(JavacTypeBinding binding, int weight) {};
+		List<Pair> collector = new ArrayList<Pair>();
+
 		c.stream().forEach(x -> {
+			int total = 0;
+			String k = x.getKey();
+			if( validNames.contains(k))
+				total += matchesKey;
 			String n = x.getName();
 			if( validNames.contains(n)) {
-				strongMatch.add(x);
-				return;
+				total += matchesSimpleName;
 			}
-			String k = x.getKey();
-			if( validNames.contains(k)) {
-				strongMatch.add(x);
-				return;
+			if( bkExtends || bkSuper ) {
+				if( x.isWildcardType() && x.getBound() != null ) {
+					if( bkExtends && x.isUpperbound()) {
+						total += matchesSuperExtends;
+					} else if( bkSuper && !x.isUpperbound() ) {
+						total += matchesSuperExtends;
+					}
+				}
 			}
+			collector.add(new Pair(x, total));
 		});
 
-		return strongMatch.size() > 0 ? strongMatch.get(0) : null;
+		Collections.sort(collector, (o1, o2) -> o2.weight - o1.weight);
+		return collector.size() > 0 ? collector.get(0).binding : null;
 	}
 
 	@Override

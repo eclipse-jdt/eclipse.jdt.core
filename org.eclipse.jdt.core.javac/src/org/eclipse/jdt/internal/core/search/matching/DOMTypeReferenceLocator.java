@@ -355,7 +355,7 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 						boolean plusOrMinus = patternSig.startsWith("+") || patternSig.startsWith("-");
 						String safePatternString = plusOrMinus ? patternSig.substring(1) : patternSig;
 						if( safePatternString.startsWith("Q")) {
-							patternBinding = JdtCoreDomPackagePrivateUtility.findUnresolvedBindingForType(node, safePatternString);
+							patternBinding = JdtCoreDomPackagePrivateUtility.findUnresolvedBindingForType(node, patternSig);
 						} else {
 							patternBinding = JdtCoreDomPackagePrivateUtility.findBindingForType(node, safePatternString);
 						}
