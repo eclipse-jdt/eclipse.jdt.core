@@ -592,7 +592,8 @@ public class JavacBindingResolver extends BindingResolver {
 					}
 				}
 			}
-			collector.add(new Pair(x, total));
+			if( total > 0 )
+				collector.add(new Pair(x, total));
 		});
 
 		Collections.sort(collector, (o1, o2) -> o2.weight - o1.weight);
