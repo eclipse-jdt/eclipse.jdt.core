@@ -260,8 +260,8 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 			}
 
 			units.forEach((a,b) -> {
-				if (bindingResolver[0] == null && (JavacBindingResolver)b.ast.getBindingResolver() != null) {
-					bindingResolver[0] = (JavacBindingResolver)b.ast.getBindingResolver();
+				if (bindingResolver[0] == null && b.ast.getBindingResolver() instanceof JavacBindingResolver javacBindingResolver) {
+					bindingResolver[0] = javacBindingResolver;
 				}
 				resolveBindings(b, bindingMap, apiLevel);
 				requestor.acceptAST(a,b);
@@ -725,7 +725,6 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		}
 
 
-		JCCompilationUnit javacCompilationUnit = null;
 		Iterable<String> options = configureAPIfNecessary(fileManager) ? null : Arrays.asList("-proc:none");
 		JavacTask task = ((JavacTool)compiler).getTask(null, fileManager, null /* already added to context */, options, List.of() /* already set */, fileObjects, context);
 		{
@@ -764,28 +763,23 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 
 			Throwable cachedThrown = null;
 
-			for (int i = 0 ; i < sourceUnits.length; i++) {
-				if (elements.hasNext() && elements.next() instanceof JCCompilationUnit u) {
-					javacCompilationUnit = u;
-					javacCompilationUnits.add(u);
-					if (sourceUnits.length == 1 && focalPoint >= 0) {
-						JavacUtils.trimUnvisibleContent(u, focalPoint, context);
-					}
-				} else {
-					return Map.of();
+			while (elements.hasNext() && elements.next() instanceof JCCompilationUnit u) {
+				javacCompilationUnits.add(u);
+				if (sourceUnits.length == 1 && focalPoint >= 0) {
+					JavacUtils.trimUnvisibleContent(u, focalPoint, context);
 				}
 				try {
 					String rawText = null;
 					try {
-						rawText = fileObjects.get(i).getCharContent(true).toString();
+						rawText = u.getSourceFile().getCharContent(true).toString();
 					} catch( IOException ioe) {
 						ILog.get().error(ioe.getMessage(), ioe);
 						return null;
 					}
-					CompilationUnit res = result.get(sourceUnits[i]);
+					CompilationUnit res = filesToUnits.get(u.getSourceFile());
 					AST ast = res.ast;
-					JavacConverter converter = new JavacConverter(ast, javacCompilationUnit, context, rawText, docEnabled, focalPoint);
-					converter.populateCompilationUnit(res, javacCompilationUnit);
+					JavacConverter converter = new JavacConverter(ast, u, context, rawText, docEnabled, focalPoint);
+					converter.populateCompilationUnit(res, u);
 					// javadoc problems explicitly set as they're not sent to DiagnosticListener (maybe find a flag to do it?)
 					var javadocProblems = converter.javadocDiagnostics.stream()
 							.map(problemConverter::createJavacProblem)
@@ -873,7 +867,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 					if (cachedThrown == null) {
 						cachedThrown = thrown;
 					}
-					ILog.get().error("Internal failure while parsing or converting AST for unit " + new String(sourceUnits[i].getFileName()));
+					ILog.get().error("Internal failure while parsing or converting AST for unit " + u.sourcefile);
 					ILog.get().error(thrown.getMessage(), thrown);
 				}
 			}
