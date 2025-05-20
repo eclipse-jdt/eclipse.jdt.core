@@ -169,6 +169,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 	@Override
 	public TypeBinding findSuperTypeOriginatingFrom(TypeBinding otherType) {
+		if (otherType instanceof ReferenceBinding otherRef && TypeBinding.equalsEquals(this.type, otherRef.actualType()))
+			return this;
+
 		TypeBinding capture = InferenceContext18.maybeCapture(this);
 		if (capture != this) //$IDENTITY-COMPARISON$
 			return capture.findSuperTypeOriginatingFrom(otherType);
