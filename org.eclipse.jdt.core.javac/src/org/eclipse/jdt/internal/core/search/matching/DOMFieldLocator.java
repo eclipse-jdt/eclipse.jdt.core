@@ -24,7 +24,9 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.search.FieldDeclarationMatch;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
@@ -68,7 +70,7 @@ public class DOMFieldLocator extends DOMPatternLocator {
 
 	@Override
 	public LocatorResponse match(Name name, NodeSetWrapper nodeSet, MatchLocator locator) {
-		if (this.fieldLocator.pattern.findDeclarations) {
+		if (name.getLocationInParent() == SingleVariableDeclaration.NAME_PROPERTY || name.getLocationInParent() == VariableDeclarationFragment.NAME_PROPERTY) {
 			return toResponse(PatternLocator.IMPOSSIBLE_MATCH); // already caught by match(VariableDeclaration)
 		}
 
