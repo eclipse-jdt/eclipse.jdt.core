@@ -152,10 +152,9 @@ public class DOMPatternLocator extends PatternLocator {
 	}
 
 	protected int resolveLevelForTypeFQN(char[] simpleNamePattern, char[] qualificationPattern, ITypeBinding binding, IImportDiscovery discovery) {
-		ITypeBinding type = binding.isArray() ? binding.getComponentType() : binding;
 		int level = 0;
 		if (qualificationPattern == null && simpleNamePattern != null) {
-			level = resolveLevelForTypeSourceName(simpleNamePattern, type.getErasure().getName().toCharArray(), type);
+			level = resolveLevelForTypeSourceName(simpleNamePattern, binding.getErasure().getName().toCharArray(), binding);
 		}
 		if (level == ACCURATE_MATCH || level == ERASURE_MATCH) {
 			return level;
@@ -165,7 +164,7 @@ public class DOMPatternLocator extends PatternLocator {
 		if (level == ACCURATE_MATCH || binding == null)
 			return level;
 
-		type = binding.isArray() ? binding.getComponentType() : binding;
+		ITypeBinding type = binding.isArray() ? binding.getComponentType() : binding;
 		char[] sourceName = null;
 		if (type.isMember() || type.isLocal()) {
 			if (qualificationPattern != null) {
