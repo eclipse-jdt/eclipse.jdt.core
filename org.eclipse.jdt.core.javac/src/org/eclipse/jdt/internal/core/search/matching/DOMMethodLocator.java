@@ -462,6 +462,10 @@ public class DOMMethodLocator extends DOMPatternLocator {
 	}
 	@Override
 	public LocatorResponse resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
+		boolean isExactPattern = isPatternExactMatch();
+		boolean isErasurePattern = isPatternErasureMatch();
+		boolean isEquivPattern = isPatternEquivalentMatch();
+
 		if (binding instanceof IMethodBinding method) {
 			boolean skipVerif = this.locator.pattern.findDeclarations && this.locator.mayBeGeneric;
 			int methodLevel = matchMethod(node, method, skipVerif, false);
@@ -473,7 +477,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 				if (methodLevel == IMPOSSIBLE_MATCH) {
 					return toResponse(IMPOSSIBLE_MATCH);
 				} else {
-					method = method.getMethodDeclaration();
+					method = decl;
 				}
 			}
 
@@ -498,11 +502,32 @@ public class DOMMethodLocator extends DOMPatternLocator {
 			int declaringLevel = subType
 				? resolveLevelAsSubtype(this.locator.pattern.declaringSimpleName, this.locator.pattern.declaringQualification, declaring, method.getName(), null, declaring.getPackage().getName(), (method.getModifiers() & Modifier.DEFAULT) != 0)
 				: this.resolveLevelForType(this.locator.pattern.declaringSimpleName, this.locator.pattern.declaringQualification, declaring);
-			int level = (methodLevel & PatternLocator.MATCH_LEVEL_MASK) > (declaringLevel & PatternLocator.MATCH_LEVEL_MASK) ? declaringLevel : methodLevel; // return the weaker match
-			return toResponse(level);
+			int weakerLevel = findWeakerLevel((methodLevel & PatternLocator.MATCH_LEVEL_MASK), (declaringLevel & PatternLocator.MATCH_LEVEL_MASK));
+			int matchLevel = (weakerLevel & PatternLocator.MATCH_LEVEL_MASK);
+			if( matchLevel != ACCURATE_MATCH) {
+				if( isExactPattern || (!isErasurePattern && !isEquivPattern)) {
+					return toResponse(IMPOSSIBLE_MATCH);
+				} else if( isEquivPattern && matchLevel == ERASURE_MATCH) {
+					return toResponse(IMPOSSIBLE_MATCH);
+				}
+			}
+
+			return toResponse(weakerLevel);
 		}
 		 return toResponse(INACCURATE_MATCH);
 	}
+	private int findWeakerLevel(int i, int j) {
+		int[] ints = {DOMPatternLocator.IMPOSSIBLE_MATCH,
+				DOMPatternLocator.POSSIBLE_MATCH,
+				DOMPatternLocator.INACCURATE_MATCH,
+				DOMPatternLocator.ERASURE_MATCH,
+				DOMPatternLocator.ACCURATE_MATCH};
+		List<Integer> list = Arrays.stream(ints).boxed().collect(Collectors.toList());
+		int iIndex = list.indexOf(i);
+		int jIndex = list.indexOf(j);
+		return iIndex > jIndex ? j : i;
+	}
+
 	protected int resolveLevelAsSubtype(char[] simplePattern, char[] qualifiedPattern, ITypeBinding type, String methodName, ITypeBinding[] argumentTypes, String packageName, boolean isDefault) {
 		if (type == null) return INACCURATE_MATCH;
 
