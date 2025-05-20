@@ -222,17 +222,25 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 			if (isAnonymous()) {
 				if (getDeclaringMethod() != null && getDeclaringMethod().getJavaElement() instanceof IMethod method) {
 					// TODO find proper occurenceCount (eg checking the source range)
-					return resolved(method.getType("", 1));
+					if( !method.isBinary()) {
+						return resolved(method.getType("", 1));
+					}
 				} else if( getDeclaringMember() instanceof IBinding gdm && gdm != null && gdm.getJavaElement() instanceof IField field) {
-					return resolved(field.getType("", 1));
+					if( !field.isBinary()) {
+						return resolved(field.getType("", 1));
+					}
 				} else if (getDeclaringClass() != null && getDeclaringClass().getJavaElement() instanceof IType type) {
-					return resolved(type.getType("", 1));
+					if(!type.isBinary()) {
+						return resolved(type.getType("", 1));
+					}
 				}
 			}
 			if( this.typeSymbol.owner instanceof MethodSymbol) {
 				if (getDeclaringMethod() != null && getDeclaringMethod().getJavaElement() instanceof IMethod method) {
 					// TODO find proper occurenceCount (eg checking the source range)
-					return resolved(method.getType(this.typeSymbol.name.toString(), 1));
+					if( !method.isBinary()) {
+						return resolved(method.getType(this.typeSymbol.name.toString(), 1));
+					}
 				}
 			}
 
@@ -267,7 +275,11 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				}
 				boolean done = false;
 				for( int i = 0; i < cleaned.length && !done; i++ ) {
-					candidate = (candidate == null ? tmp.getType(cleaned[i]) : candidate.getType(cleaned[i]));
+					if( candidate == null ) {
+						candidate = tmp.getType(cleaned[i]);
+					} else if( !candidate.isBinary()) {
+						candidate = candidate.getType(cleaned[i]);
+					}
 					done |= (candidate == null);
 				}
 				if(candidate != null && candidate.exists()) {
