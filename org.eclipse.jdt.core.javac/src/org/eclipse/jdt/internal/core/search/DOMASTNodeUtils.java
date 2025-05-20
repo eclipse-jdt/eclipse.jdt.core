@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
@@ -167,6 +168,9 @@ public class DOMASTNodeUtils {
 		}
 		if (astNode instanceof SuperMethodReference superRef) {
 			return superRef.resolveMethodBinding();
+		}
+		if (astNode instanceof ConstructorInvocation superRef) {
+			return superRef.resolveConstructorBinding();
 		}
 		if (astNode instanceof SuperConstructorInvocation superRef) {
 			return superRef.resolveConstructorBinding();

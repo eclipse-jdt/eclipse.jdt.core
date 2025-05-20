@@ -45,6 +45,7 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTRequestor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
+import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.CreationReference;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -275,6 +276,12 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 					DOMASTNodeUtils.getEnclosingJavaElement(
 							node.getParent().getParent()) /* we don't want the variable decl */,
 					accuracy, newInstance.getStartPosition(), newInstance.getLength(), true,
+					newInstance.resolveConstructorBinding().isSynthetic(), false, insideDocComment(node),
+					getParticipant(locator), resource);
+		}
+		if (node instanceof ConstructorInvocation newInstance) {
+			return new MethodReferenceMatch(DOMASTNodeUtils.getEnclosingJavaElement(node), accuracy,
+					newInstance.getStartPosition(), newInstance.getLength(), true,
 					newInstance.resolveConstructorBinding().isSynthetic(), false, insideDocComment(node),
 					getParticipant(locator), resource);
 		}

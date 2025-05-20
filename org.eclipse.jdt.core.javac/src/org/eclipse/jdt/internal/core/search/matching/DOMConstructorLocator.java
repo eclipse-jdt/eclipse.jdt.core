@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
+import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.CreationReference;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
@@ -22,6 +23,7 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.internal.codeassist.DOMCompletionUtil;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.core.search.DOMASTNodeUtils;
@@ -73,7 +75,18 @@ public class DOMConstructorLocator extends DOMPatternLocator {
 	public LocatorResponse match(org.eclipse.jdt.core.dom.ASTNode node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		if (!this.locator.pattern.findReferences)
 			return toResponse(IMPOSSIBLE_MATCH);
-		if (node instanceof SuperConstructorInvocation superRef) {
+		if (node instanceof ConstructorInvocation constructorInvocation) {
+			if (!matchParametersCount(node, constructorInvocation.arguments())) {
+				return toResponse(IMPOSSIBLE_MATCH);
+			}
+			if (this.locator.pattern.declaringSimpleName != null) {
+				if (!this.matchesName(this.locator.pattern.declaringSimpleName, DOMCompletionUtil.findParentTypeDeclaration(node).getName().getIdentifier().toCharArray())) {
+					return toResponse(IMPOSSIBLE_MATCH);
+				}
+			}
+			int level = this.locator.pattern.mustResolve ? POSSIBLE_MATCH : INACCURATE_MATCH;
+			return toResponse(level, true);
+		} else if (node instanceof SuperConstructorInvocation superRef) {
 			if (!matchParametersCount(node, superRef.arguments())) {
 				return toResponse(IMPOSSIBLE_MATCH);
 			}
