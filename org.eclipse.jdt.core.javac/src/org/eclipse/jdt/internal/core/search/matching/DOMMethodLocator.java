@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -367,15 +368,14 @@ public class DOMMethodLocator extends DOMPatternLocator {
 				boolean foundLevel = false;
 				if (argType.isMember() || this.locator.pattern.parameterQualifications[i] != null) {
 					if (!checkedFocus) {
-						focusMethodBinding = getDOMASTMethodBinding(this.locator.pattern);
+						focusMethodBinding = getDOMASTMethodBinding(this.locator.pattern, node.getAST());
 						checkedFocus = true;
 					}
 					if (focusMethodBinding != null) {// textual comparison insufficient
 						ITypeBinding[] parameters = focusMethodBinding.getParameterTypes();
 						if (parameters.length >= parameterCount) {
-							// TODO
-//							newLevel = (isBinary ? argType.getErasure().isEqualTo((parameters[i].getErasureCompatibleType(null)())) :argType.isEquivalentTo((parameters[i]))) ?
-//									ACCURATE_MATCH : IMPOSSIBLE_MATCH;
+							newLevel = (isBinary ? argType.getErasure().isEqualTo(parameters[i].getErasure()) : argType.isEqualTo((parameters[i]))) ?
+									ACCURATE_MATCH : IMPOSSIBLE_MATCH;
 							foundLevel = true;
 						}
 					}
@@ -435,7 +435,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 				if (!Modifier.isStatic(method.getModifiers()) && !Modifier.isPrivate(method.getModifiers())) {
 					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=123836, No point in textually comparing type variables, captures etc with concrete types.
 					if (!checkedFocus)
-						focusMethodBinding = getDOMASTMethodBinding(this.locator.pattern);
+						focusMethodBinding = getDOMASTMethodBinding(this.locator.pattern, node.getAST());
 					if (focusMethodBinding != null
 						/* && matchOverriddenMethod(focusMethodBinding.getDeclaringClass(), focusMethodBinding, method)*/
 						 && (focusMethodBinding.overrides(method) || method.overrides(focusMethodBinding))) {
@@ -448,8 +448,16 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		return level;
 	}
 
-	public IMethodBinding getDOMASTMethodBinding(MethodPattern methodPattern) {
-		// TODO
+	public IMethodBinding getDOMASTMethodBinding(MethodPattern methodPattern, AST ast) {
+		char[] typeName = PatternLocator.qualifiedPattern(methodPattern.declaringSimpleName, methodPattern.declaringQualification);
+		var type = ast.resolveWellKnownType(new String(typeName));
+		if (type != null) {
+			for (IMethodBinding method : type.getDeclaredMethods()) {
+				if (Objects.equals(method.getJavaElement(), methodPattern.focus)) {
+					return method;
+				}
+			}
+		}
 		return null;
 	}
 	@Override
