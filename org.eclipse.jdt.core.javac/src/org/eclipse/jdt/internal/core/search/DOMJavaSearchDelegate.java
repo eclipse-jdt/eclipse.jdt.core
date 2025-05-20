@@ -162,8 +162,7 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 							nonNullDomIndexes.add(i);
 							locator.currentPossibleMatch = pm;
 							NodeSetWrapper wrapper = matchToWrapper.get(possibleMatches[i]);
-							ast.accept(new PatternLocatorVisitor(locator.patternLocator,
-									wrapper, locator));
+							ast.accept(new PatternLocatorVisitor(locator, wrapper));
 							return;
 						}
 					}
@@ -181,7 +180,7 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 				int level = wrapper.trustedASTNodeLevels.get(node);
 				SearchMatch match = toMatch(locator, node, level, possibleMatch);
 				if (match != null && match.getElement() != null) {
-					DOMPatternLocator locator2 = DOMPatternLocatorFactory.createWrapper(locator.patternLocator);
+					DOMPatternLocator locator2 = DOMPatternLocatorFactory.createWrapper(locator.patternLocator, locator.pattern);
 					locator2.reportSearchMatch(locator, node, match);
 				}
 			}

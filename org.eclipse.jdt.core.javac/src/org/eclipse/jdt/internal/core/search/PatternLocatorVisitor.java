@@ -11,7 +11,6 @@
 package org.eclipse.jdt.internal.core.search;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -61,27 +60,16 @@ import org.eclipse.jdt.internal.core.search.matching.PatternLocator;
  */
 class PatternLocatorVisitor extends ASTVisitor {
 
-	private final PatternLocator patternLocator;
+	private final DOMPatternLocator domPatternLocator;
 	private final NodeSetWrapper nodeSet;
 	private MatchLocator locator;
-	private HashMap<PatternLocator, DOMPatternLocator> wrapperMap = new HashMap<>();
 
-	public PatternLocatorVisitor(PatternLocator patternLocator, NodeSetWrapper nodeSet, MatchLocator locator) {
+	public PatternLocatorVisitor(MatchLocator locator, NodeSetWrapper nodeSet) {
 		super(true);
-		this.patternLocator = patternLocator;
 		this.nodeSet = nodeSet;
 		this.locator = locator;
+		this.domPatternLocator = DOMPatternLocatorFactory.createWrapper(this.locator.patternLocator, locator.pattern);
 	}
-
-	private DOMPatternLocator getWrapper(PatternLocator locator) {
-		DOMPatternLocator l = wrapperMap.get(locator);
-		if(l == null ) {
-			l = DOMPatternLocatorFactory.createWrapper(locator);
-			wrapperMap.put(locator, l);
-		}
-		return l;
-	}
-
 	private <T extends ASTNode> boolean defaultVisitImplementation(T node, BiFunction<T, DOMPatternLocator, LocatorResponse> levelFunc) {
 		defaultVisitImplementationWithFunc(node, levelFunc, DOMASTNodeUtils::getBinding);
 		return true;
@@ -103,14 +91,13 @@ class PatternLocatorVisitor extends ASTVisitor {
 			T node,
 			BiFunction<T, DOMPatternLocator, LocatorResponse> levelFunc,
 			Function<ASTNode, IBinding> bindingFunc) {
-		boolean mustResolve = (this.nodeSet.mustResolve() || this.patternLocator.isMustResolve());
-		DOMPatternLocator wrapper = getWrapper(this.patternLocator);
-		LocatorResponse resp = levelFunc.apply(node, wrapper);
+		boolean mustResolve = (this.nodeSet.mustResolve() || this.locator.patternLocator.isMustResolve());
+		LocatorResponse resp = levelFunc.apply(node, this.domPatternLocator);
 		boolean nodeReplaced = resp.replacementNodeFound();
 		ASTNode n2 = nodeReplaced ? resp.replacement() : node;
 		n2 = n2 == null ? node : n2;
 		if (resp.level() == PatternLocator.POSSIBLE_MATCH && mustResolve) {
-			LocatorResponse resp2 = wrapper.resolveLevel(n2, bindingFunc.apply(n2), this.locator);
+			LocatorResponse resp2 = this.domPatternLocator.resolveLevel(n2, bindingFunc.apply(n2), this.locator);
 			n2 = resp2.replacementNodeFound() ? resp2.replacement() : n2;
 			resp = new LocatorResponse(resp2.level(), resp.replacementNodeFound() || resp2.replacementNodeFound(), n2, resp2.added(), resp2.canVisitChildren());
 		}
@@ -285,12 +272,12 @@ class PatternLocatorVisitor extends ASTVisitor {
 	}
 	@Override
 	public boolean visit(EnumConstantDeclaration node) {
-		LocatorResponse response = getWrapper(this.patternLocator).match(node, this.nodeSet, this.locator);
-		boolean mustResolve = (this.nodeSet.mustResolve() || this.patternLocator.isMustResolve());
+		LocatorResponse response = this.domPatternLocator.match(node, this.nodeSet, this.locator);
+		boolean mustResolve = (this.nodeSet.mustResolve() || this.locator.patternLocator.isMustResolve());
 		int retLevel = response.level();
 		if ((response.level() & PatternLocator.MATCH_LEVEL_MASK) == PatternLocator.POSSIBLE_MATCH && mustResolve) {
-			LocatorResponse l1 = getWrapper(this.patternLocator).resolveLevel(node, node.resolveVariable(), this.locator);
-			LocatorResponse l2 = getWrapper(this.patternLocator).resolveLevel(node, node.resolveConstructorBinding(), this.locator);
+			LocatorResponse l1 = this.domPatternLocator.resolveLevel(node, node.resolveVariable(), this.locator);
+			LocatorResponse l2 = this.domPatternLocator.resolveLevel(node, node.resolveConstructorBinding(), this.locator);
 			retLevel = Math.max(l1.level(), l2.level());
 		}
 		this.nodeSet.addMatch(node, retLevel);
