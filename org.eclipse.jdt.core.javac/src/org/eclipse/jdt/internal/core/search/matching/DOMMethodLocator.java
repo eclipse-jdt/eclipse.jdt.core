@@ -450,11 +450,13 @@ public class DOMMethodLocator extends DOMPatternLocator {
 
 	public IMethodBinding getDOMASTMethodBinding(MethodPattern methodPattern, AST ast) {
 		char[] typeName = PatternLocator.qualifiedPattern(methodPattern.declaringSimpleName, methodPattern.declaringQualification);
-		var type = ast.resolveWellKnownType(new String(typeName));
-		if (type != null) {
-			for (IMethodBinding method : type.getDeclaredMethods()) {
-				if (Objects.equals(method.getJavaElement(), methodPattern.focus)) {
-					return method;
+		if( typeName != null ) {
+			var type = ast.resolveWellKnownType(new String(typeName));
+			if (type != null) {
+				for (IMethodBinding method : type.getDeclaredMethods()) {
+					if (Objects.equals(method.getJavaElement(), methodPattern.focus)) {
+						return method;
+					}
 				}
 			}
 		}
