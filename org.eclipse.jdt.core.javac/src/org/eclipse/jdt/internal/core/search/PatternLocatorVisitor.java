@@ -255,6 +255,7 @@ class PatternLocatorVisitor extends ASTVisitor {
 			loc == TypeDeclaration.NAME_PROPERTY ||
 			loc == EnumDeclaration.NAME_PROPERTY ||
 			loc == EnumConstantDeclaration.NAME_PROPERTY ||
+			loc == AnnotationTypeDeclaration.NAME_PROPERTY ||
 			loc == MethodDeclaration.NAME_PROPERTY) {
 			return false; // skip as parent was most likely already matched
 		}
