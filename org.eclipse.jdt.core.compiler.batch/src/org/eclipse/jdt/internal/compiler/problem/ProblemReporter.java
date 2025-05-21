@@ -371,6 +371,7 @@ public static int getIrritant(int problemID) {
 		case IProblem.ConstNonNullFieldComparisonYieldsFalse:
 		case IProblem.FieldComparisonYieldsFalse:
 		case IProblem.UnnecessaryNullCaseInSwitchOverNonNull:
+		case IProblem.RedundantNullCheckNullValueExpression:
 			return CompilerOptions.RedundantNullCheck;
 
 		case IProblem.RequiredNonNullButProvidedNull:
