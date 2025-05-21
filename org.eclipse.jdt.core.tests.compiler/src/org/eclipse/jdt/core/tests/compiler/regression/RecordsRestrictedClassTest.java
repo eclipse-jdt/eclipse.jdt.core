@@ -10502,4 +10502,25 @@ public void testIssue4015_4() {
 
 		"ARecord[]");
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4025
+// [Records] Record component by name equals with an explicit accessor leads to ClassFormatError
+public void testIssue4025() {
+	this.runConformTest(
+		new String[] {
+					"X.java",
+					"""
+					public record X(boolean equals)  {
+					    public boolean equals() {
+					        return equals;
+					    }
+
+					    public static void main(String argv[]) {
+					        System.out.println("Ok!");
+					    }
+					}
+					""",
+	            },
+
+		"Ok!");
+}
 }
