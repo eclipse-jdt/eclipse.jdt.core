@@ -15,9 +15,12 @@ import java.util.regex.Pattern;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
+import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IModuleBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.internal.core.search.LocatorResponse;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
@@ -31,6 +34,9 @@ public class DOMTypeDeclarationLocator extends DOMPatternLocator {
 	}
 	@Override
 	public LocatorResponse match(AbstractTypeDeclaration node, NodeSetWrapper nodeSet, MatchLocator locator) {
+		if (!matchSearchForTypeSuffix(node, this.locator.pattern.typeSuffix)) {
+			return toResponse(IMPOSSIBLE_MATCH);
+		}
 		if (this.locator.pattern.simpleName == null || this.locator.matchesName(this.locator.pattern.simpleName, node.getName().getIdentifier().toCharArray())) {
 			int level = nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 			return toResponse(level, true);
@@ -38,6 +44,35 @@ public class DOMTypeDeclarationLocator extends DOMPatternLocator {
 
 		return toResponse(IMPOSSIBLE_MATCH);
 	}
+
+	private boolean matchSearchForTypeSuffix(AbstractTypeDeclaration type, char typeSuffix) {
+		return switch (typeSuffix) {
+			case IIndexConstants.CLASS_SUFFIX -> type instanceof TypeDeclaration decl && !decl.isInterface();
+			case IIndexConstants.CLASS_AND_INTERFACE_SUFFIX -> type instanceof TypeDeclaration;
+			case IIndexConstants.CLASS_AND_ENUM_SUFFIX -> (type instanceof TypeDeclaration decl && !decl.isInterface()) || type instanceof EnumDeclaration;
+			case IIndexConstants.INTERFACE_SUFFIX -> type instanceof TypeDeclaration decl && decl.isInterface();
+			case IIndexConstants.INTERFACE_AND_ANNOTATION_SUFFIX -> (type instanceof TypeDeclaration decl && !decl.isInterface()) || type instanceof AnnotationTypeDeclaration;
+			case IIndexConstants.ENUM_SUFFIX -> type instanceof EnumDeclaration;
+			case IIndexConstants.ANNOTATION_TYPE_SUFFIX -> type instanceof AnnotationTypeDeclaration;
+			case IIndexConstants.TYPE_SUFFIX -> true;
+			default -> false;
+		};
+	}
+
+	static boolean matchSearchForTypeSuffix(ITypeBinding type, char typeSuffix) {
+		return switch (typeSuffix) {
+			case IIndexConstants.CLASS_SUFFIX -> type.isClass();
+			case IIndexConstants.CLASS_AND_INTERFACE_SUFFIX -> type.isClass() || (type.isInterface() && !type.isAnnotation());
+			case IIndexConstants.CLASS_AND_ENUM_SUFFIX -> type.isClass() || type.isEnum();
+			case IIndexConstants.INTERFACE_SUFFIX -> type.isInterface() && !type.isAnnotation();
+			case IIndexConstants.INTERFACE_AND_ANNOTATION_SUFFIX -> type.isInterface() || type.isAnnotation();
+			case IIndexConstants.ENUM_SUFFIX -> type.isEnum();
+			case IIndexConstants.ANNOTATION_TYPE_SUFFIX -> type.isAnnotation();
+			case IIndexConstants.TYPE_SUFFIX -> true;
+			default -> false;
+		};
+	}
+
 	@Override
 	public LocatorResponse resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
 		if (binding == null) return toResponse(INACCURATE_MATCH);
@@ -45,29 +80,8 @@ public class DOMTypeDeclarationLocator extends DOMPatternLocator {
 
 		ITypeBinding type = (ITypeBinding) binding;
 
-		switch (this.locator.pattern.typeSuffix) {
-			case IIndexConstants.CLASS_SUFFIX:
-				if (!type.isClass()) return toResponse(IMPOSSIBLE_MATCH);;
-				break;
-			case IIndexConstants.CLASS_AND_INTERFACE_SUFFIX:
-				if (!(type.isClass() || (type.isInterface() && !type.isAnnotation()))) return toResponse(IMPOSSIBLE_MATCH);;
-				break;
-			case IIndexConstants.CLASS_AND_ENUM_SUFFIX:
-				if (!(type.isClass() || type.isEnum())) return toResponse(IMPOSSIBLE_MATCH);;
-				break;
-			case IIndexConstants.INTERFACE_SUFFIX:
-				if (!type.isInterface() || type.isAnnotation()) return toResponse(IMPOSSIBLE_MATCH);;
-				break;
-			case IIndexConstants.INTERFACE_AND_ANNOTATION_SUFFIX:
-				if (!(type.isInterface() || type.isAnnotation())) return toResponse(IMPOSSIBLE_MATCH);;
-				break;
-			case IIndexConstants.ENUM_SUFFIX:
-				if (!type.isEnum()) return toResponse(IMPOSSIBLE_MATCH);;
-				break;
-			case IIndexConstants.ANNOTATION_TYPE_SUFFIX:
-				if (!type.isAnnotation()) return toResponse(IMPOSSIBLE_MATCH);;
-				break;
-			case IIndexConstants.TYPE_SUFFIX : // nothing
+		if (!matchSearchForTypeSuffix(type, this.locator.pattern.typeSuffix)) {
+			return toResponse(IMPOSSIBLE_MATCH);
 		}
 
 		if (this.matchModule(this.locator.pattern, type) == IMPOSSIBLE_MATCH) {

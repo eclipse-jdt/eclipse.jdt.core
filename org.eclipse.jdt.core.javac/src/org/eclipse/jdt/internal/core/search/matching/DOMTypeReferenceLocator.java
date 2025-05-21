@@ -26,7 +26,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.BreakStatement;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
@@ -42,11 +41,9 @@ import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.QualifiedType;
-import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.Type;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchPattern;
@@ -492,6 +489,9 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			return toResponse(INACCURATE_MATCH);
 		}
 		if (binding instanceof ITypeBinding typeBinding) {
+			if (!DOMTypeDeclarationLocator.matchSearchForTypeSuffix(typeBinding, this.locator.pattern.typeSuffix)) {
+				return toResponse(IMPOSSIBLE_MATCH);
+			}
 			if( hasImportAncestor(node) && !this.locator.isDeclarationOfReferencedTypesPattern) {
 				return resolveLevelForImportBinding(node, typeBinding, locator);
 			}
