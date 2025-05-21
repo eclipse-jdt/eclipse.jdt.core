@@ -6059,6 +6059,30 @@ public void localVariableNullComparedToNonNull(LocalVariableBinding local, ASTNo
 }
 
 /**
+ * @param expr expression being compared for null or non-null
+ * @param isExpressionNull true if flow info shows null, false if flow info is non-null
+ */
+
+public void expressionRedundantNullComparison(Expression expr, boolean isExpressionNull) {
+	if (expr.resolvedType == null)
+		return;
+
+	int problemId = isExpressionNull ? IProblem.RedundantNullCheckNullValueExpression
+			: IProblem.RedundantNullCheckOnNonNullExpression;
+	int severity = computeSeverity(problemId);
+	if (severity == ProblemSeverities.Ignore) return;
+	String[] arguments = new String[] {new String(expr.toString())};
+	this.handle(
+		problemId,
+		arguments,
+		arguments,
+		severity,
+		nodeSourceStart(expr),
+		nodeSourceEnd(expr));
+}
+
+
+/**
  * @param expr expression being compared for null or nonnull
  * @param checkForNull true if checking for null, false if checking for nonnull
  */
