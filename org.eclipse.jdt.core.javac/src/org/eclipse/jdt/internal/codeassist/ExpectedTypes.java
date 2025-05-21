@@ -145,6 +145,7 @@ public class ExpectedTypes {
 			}
 			if (parent2 instanceof ClassInstanceCreation newObj && this.offset > newObj.getType().getStartPosition() + newObj.getType().getLength()) {
 				ITypeBinding binding = newObj.resolveTypeBinding();
+
 				if(binding != null) {
 					computeExpectedTypesForAllocationExpression(
 						binding,

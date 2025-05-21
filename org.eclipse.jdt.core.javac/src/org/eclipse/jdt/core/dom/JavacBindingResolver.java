@@ -1408,6 +1408,20 @@ public class JavacBindingResolver extends BindingResolver {
 		if (jcTree instanceof JCNewClass newClass
 			&& newClass.type != null
 			&& Symtab.instance(this.context).errSymbol == newClass.type.tsym) {
+			if (newClass.encl != null) {
+				String className = newClass.clazz instanceof JCTypeApply typeApply ? typeApply.clazz.toString() : newClass.clazz.toString();
+				ITypeBinding enclosingTypeBinding = resolveExpressionType(((ClassInstanceCreation)expr).getExpression());
+				List<ITypeBinding> potentialTypes = Stream.of(enclosingTypeBinding.getDeclaredTypes()).filter(innerType -> {
+					String cleanedName = innerType.getName();
+					if (cleanedName.endsWith(">")) {
+						cleanedName = cleanedName.substring(0, cleanedName.lastIndexOf("<"));
+					}
+					return className.equals(cleanedName);
+				}).toList();
+				if (!potentialTypes.isEmpty()) {
+					return potentialTypes.get(0);
+				}
+			}
 			jcTree = newClass.getIdentifier();
 		}
 		if (jcTree instanceof JCFieldAccess jcFieldAccess) {
@@ -1464,7 +1478,8 @@ public class JavacBindingResolver extends BindingResolver {
 			}
 			// workaround Javac missing bindings in some cases
 			if (expr instanceof ClassInstanceCreation classInstanceCreation) {
-				return createRecoveredTypeBinding(classInstanceCreation.getType());
+				return classInstanceCreation.getType().resolveBinding();
+//				return createRecoveredTypeBinding(classInstanceCreation.getType());
 			}
 		}
 		return null;

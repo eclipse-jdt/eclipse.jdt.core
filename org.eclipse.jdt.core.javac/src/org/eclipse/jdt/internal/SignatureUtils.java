@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
@@ -158,6 +159,10 @@ public class SignatureUtils {
 		return key.replace('/', '.').replaceFirst("(?<=\\.|L)[_$A-Za-z][_$A-Za-z0-9]*~", "");
 	}
 
+	public static String getSignature(IMethodBinding methodBinding) {
+		return getSignatureForMethodKey(methodBinding.getKey());
+	}
+
 	/**
 	 * Returns the signature of the given method binding as a character array.
 	 *
@@ -166,6 +171,10 @@ public class SignatureUtils {
 	 */
 	public static char[] getSignatureChar(IMethodBinding methodBinding) {
 		return getSignatureForMethodKey(methodBinding.getKey()).toCharArray();
+	}
+
+	public static char[] getSignatureChar(IMethod method) {
+		return getSignatureForMethodKey(method.getKey()).toCharArray();
 	}
 
 	/**
@@ -185,6 +194,13 @@ public class SignatureUtils {
 		} else {
 			return removeName;
 		}
+	}
+
+	public static String stripTypeArgumentsFromKey(String key) {
+		if (key.indexOf(">;") < 0) {
+			return key;
+		}
+		return key.substring(0, key.lastIndexOf("<")) + "<>;";
 	}
 
 	/**
