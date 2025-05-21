@@ -31,6 +31,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IOpenable;
@@ -41,6 +42,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.SourceRange;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTRequestor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
@@ -178,12 +180,16 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 			NodeSetWrapper wrapper = this.matchToWrapper.get(possibleMatch);
 			for (org.eclipse.jdt.core.dom.ASTNode node : wrapper.trustedASTNodeLevels.keySet()) {
 				int level = wrapper.trustedASTNodeLevels.get(node);
-				SearchMatch match = toMatch(locator, node, level, possibleMatch);
-				if (match != null && match.getElement() != null) {
-					DOMPatternLocator locator2 = DOMPatternLocatorFactory.createWrapper(locator.patternLocator, locator.pattern);
-					locator2.reportSearchMatch(locator, node, match);
-				}
+				convertAndReportMatch(locator, node, level, possibleMatch);
 			}
+		}
+	}
+
+	protected void convertAndReportMatch(MatchLocator locator, ASTNode node, int level, PossibleMatch possibleMatch) throws CoreException {
+		SearchMatch match = toMatch(locator, node, level, possibleMatch);
+		if (match != null && match.getElement() != null) {
+			DOMPatternLocator locator2 = DOMPatternLocatorFactory.createWrapper(locator.patternLocator, locator.pattern);
+			locator2.reportSearchMatch(locator, node, match);
 		}
 	}
 
@@ -341,8 +347,13 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 			}
 			if (b instanceof IVariableBinding variable) {
 				if (variable.isField()) {
-					return new FieldReferenceMatch(enclosing, accuracy, node.getStartPosition(), node.getLength(), true,
-							true, insideDocComment(node), getParticipant(locator), resource);
+					IJavaElement je = b.getJavaElement();
+					if( je == null ) je = enclosing;
+					IJavaElement selected = (je instanceof IField jefield ? jefield : null);
+					if( selected != null ) {
+						return new FieldReferenceMatch(selected, accuracy, node.getStartPosition(), node.getLength(), true,
+								true, insideDocComment(node), getParticipant(locator), resource);
+					}
 				}
 				return new LocalVariableReferenceMatch(enclosing, accuracy, node.getStartPosition(), node.getLength(),
 						true, true, insideDocComment(node), getParticipant(locator), resource);
