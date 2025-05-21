@@ -37,7 +37,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class NegativeLambdaExpressionsTest extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "test404657_loop"};
+//	TESTS_NAMES = new String[] { "testIssue3956"};
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
