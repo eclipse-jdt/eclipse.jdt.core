@@ -22,10 +22,12 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IMemberValuePairBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JdtCoreDomPackagePrivateUtility;
+import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
@@ -151,6 +153,14 @@ public class DOMMethodLocator extends DOMPatternLocator {
 				return toResponse(IMPOSSIBLE_MATCH);
 //			}
 		}
+
+		if (node.getLocationInParent() == MemberValuePair.NAME_PROPERTY
+			&& this.locator.pattern.parameterCount == 0
+			&& node instanceof SimpleName simpleName
+			&& matchesName(simpleName.getIdentifier().toCharArray(), this.locator.pattern.selector)) {
+			return toResponse(POSSIBLE_MATCH);
+		}
+
 		String name = node.toString();
 		String[] segments = name.split("\\."); //$NON-NLS-1$
 		String lastSegment = segments == null || segments.length == 0 ? null : segments[segments.length-1];
@@ -470,6 +480,9 @@ public class DOMMethodLocator extends DOMPatternLocator {
 
 		if (binding instanceof IMethodBinding method) {
 			boolean skipVerif = this.locator.pattern.findDeclarations && this.locator.mayBeGeneric;
+			if (Objects.equals(binding.getJavaElement(), this.locator.pattern.focus)) {
+				return toResponse(ACCURATE_MATCH);
+			}
 			int methodLevel = matchMethod(node, method, skipVerif, false);
 			if (methodLevel == IMPOSSIBLE_MATCH) {
 				IMethodBinding decl = method.getMethodDeclaration();

@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.Initializer;
+import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
@@ -190,6 +191,9 @@ public class DOMASTNodeUtils {
 		}
 		if (astNode instanceof TypeParameter ref) {
 			return ref.resolveBinding();
+		}
+		if (astNode instanceof MemberValuePair ref) {
+			return ref.resolveMemberValuePairBinding();
 		}
 		// TODO more...
 		return null;

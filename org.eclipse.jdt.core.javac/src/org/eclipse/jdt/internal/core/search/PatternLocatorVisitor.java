@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.dom.ExpressionMethodReference;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.IntersectionType;
+import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Name;
@@ -301,6 +302,11 @@ class PatternLocatorVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(PackageDeclaration node) {
+		defaultVisitImplementation(node, (x,y) -> y.match(node, this.nodeSet, this.locator));
+		return true;
+	}
+	@Override
+	public boolean visit(MemberValuePair node) {
 		defaultVisitImplementation(node, (x,y) -> y.match(node, this.nodeSet, this.locator));
 		return true;
 	}
