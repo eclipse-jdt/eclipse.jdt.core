@@ -183,6 +183,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 				if (InferenceContext18.DEBUG) {
 					System.out.println("Infer applicability for "+invocationSite+":\n"+infCtx18); //$NON-NLS-1$ //$NON-NLS-2$
 				}
+				infCtx18.enter();
 				result = infCtx18.solve(true);
 				if (InferenceContext18.DEBUG) {
 					System.out.println("Result=\n"+result); //$NON-NLS-1$
@@ -288,6 +289,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			return null;
 		} finally {
 			environment.currentInferenceContext = previousContext;
+			InferenceContext18.leave();
 		}
 	}
 

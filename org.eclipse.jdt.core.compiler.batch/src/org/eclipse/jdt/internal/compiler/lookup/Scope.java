@@ -651,6 +651,8 @@ public abstract class Scope {
 				    				}
 				    			}
 				        	}
+							if (substitutedBound instanceof CaptureBinding capture && wildcard.boundKind == Wildcard.EXTENDS)
+								substitutedBound = InferenceContext18.maybeUncapture(capture);
 			        		return wildcard.environment.createWildcard(wildcard.genericType, wildcard.rank, substitutedBound, substitutedOtherBounds, wildcard.boundKind, wildcard.getTypeAnnotations());
 				        }
 			        }

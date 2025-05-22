@@ -9931,7 +9931,14 @@ public void test432759() {
 			"	}\n" +
 			"}\n"
 	},
-	"");
+	"""
+	----------
+	1. ERROR in X.java (at line 16)
+		BinaryOperator<Subsumer<? super T>> attempt_X_3 = Subsumer::andThe3;
+		                                                  ^^^^^^^^^^^^^^^^^
+	The type Subsumer does not define andThe3(Subsumer<capture#7-of ? super T>, Subsumer<capture#7-of ? super T>) that is applicable here
+	----------
+	""");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=437444#c36,  NPE in broken code
 public void test437444() {
@@ -10548,12 +10555,12 @@ public void testIssue3956() {
 			"2. ERROR in TestMe.java (at line 19)\n" +
 			"	return update().handleAsync(() -> recording.process());\n" +
 			"	                ^^^^^^^^^^^\n" +
-			"The method handleAsync(BiFunction<? super capture#1-of ?,Throwable,? extends U>) in the type CompletableFuture<capture#1-of ?> is not applicable for the arguments (() -> {})\n" +
+			"The method handleAsync(BiFunction<? super ?,Throwable,? extends U>) in the type CompletableFuture<capture#1-of ?> is not applicable for the arguments (() -> {})\n" +
 			"----------\n" +
 			"3. ERROR in TestMe.java (at line 19)\n" +
 			"	return update().handleAsync(() -> recording.process());\n" +
 			"	                            ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Lambda expression's signature does not match the signature of the functional interface method apply(? super capture#1-of ?, Throwable)\n" +
+			"Lambda expression's signature does not match the signature of the functional interface method apply(? super ?, Throwable)\n" +
 			"----------\n" +
 			"4. ERROR in TestMe.java (at line 19)\n" +
 			"	return update().handleAsync(() -> recording.process());\n" +
