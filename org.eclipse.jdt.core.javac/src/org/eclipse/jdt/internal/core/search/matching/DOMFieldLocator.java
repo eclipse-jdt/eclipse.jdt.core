@@ -12,13 +12,11 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.ISourceReference;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -30,7 +28,6 @@ import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.search.FieldDeclarationMatch;
-import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.core.search.DOMASTNodeUtils;
@@ -115,16 +112,6 @@ public class DOMFieldLocator extends DOMPatternLocator {
 							}
 						}
 					}
-					return toResponse(PatternLocator.IMPOSSIBLE_MATCH);
-				}
-			} else {
-				// Not looking for the declaration, so just make sure it's even a field
-				IBinding b = name.resolveBinding();
-				if( b instanceof IVariableBinding vb ) {
-					if(!vb.isField()) {
-						return toResponse(PatternLocator.IMPOSSIBLE_MATCH);
-					}
-				} else {
 					return toResponse(PatternLocator.IMPOSSIBLE_MATCH);
 				}
 			}
@@ -283,11 +270,5 @@ public class DOMFieldLocator extends DOMPatternLocator {
 		int fieldNameMatch = this.resolveLevelForType(fieldPattern.typeSimpleName,
 				fieldPattern.typeQualification, fieldTypeBinding);
 		return fieldNameMatch;
-	}
-	@Override
-	public void reportSearchMatch(MatchLocator locator, ASTNode node, SearchMatch match) throws CoreException {
-		if( match.getElement() instanceof IField ) {
-			SearchMatchingUtility.reportSearchMatch(locator, match);
-		}
 	}
 }
