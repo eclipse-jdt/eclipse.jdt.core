@@ -20,9 +20,10 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Annotation;
+import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.IMemberValuePairBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
@@ -33,6 +34,7 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.search.SearchPattern;
@@ -118,7 +120,21 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		int level = nodeSet.addMatch(node, resolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 		return toResponse(level, true);
 	}
-	private int matchReference(SimpleName name, List<?> args, NodeSetWrapper nodeSet) {
+
+	@Override
+	public LocatorResponse match(AnnotationTypeMemberDeclaration node, NodeSetWrapper nodeSet, MatchLocator locator) {
+		return toResponse(this.locator.pattern.findDeclarations && this.locator.matchesName(this.locator.pattern.selector, node.getName().getIdentifier().toCharArray()) ?
+			POSSIBLE_MATCH : IMPOSSIBLE_MATCH);
+	}
+
+	@Override
+	public LocatorResponse match(Annotation node, NodeSetWrapper nodeSet, MatchLocator locator) {
+		return toResponse(this.locator.pattern.findReferences && node instanceof SingleMemberAnnotation singleMemberAnnot ?
+			POSSIBLE_MATCH : IMPOSSIBLE_MATCH);
+	}
+
+
+	private int matchReference(SimpleName name, List<?> args) {
 		if (!this.locator.pattern.findReferences) return IMPOSSIBLE_MATCH;
 
 		if (!this.locator.matchesName(this.locator.pattern.selector, name.getIdentifier().toCharArray())) return IMPOSSIBLE_MATCH;
@@ -131,14 +147,14 @@ public class DOMMethodLocator extends DOMPatternLocator {
 	}
 	@Override
 	public LocatorResponse match(MethodInvocation node, NodeSetWrapper nodeSet, MatchLocator locator) {
-		int level = this.matchReference(node.getName(), node.arguments(), nodeSet);
+		int level = this.matchReference(node.getName(), node.arguments());
 		if( level == IMPOSSIBLE_MATCH )
 			return toResponse(IMPOSSIBLE_MATCH);
 		return toResponse(nodeSet.addMatch(node, level), true);
 	}
 	@Override
 	public LocatorResponse match(org.eclipse.jdt.core.dom.Expression expression, NodeSetWrapper nodeSet, MatchLocator locator) {
-		int level = expression instanceof SuperMethodInvocation node ? this.matchReference(node.getName(), node.arguments(), nodeSet) :
+		int level = expression instanceof SuperMethodInvocation node ? this.matchReference(node.getName(), node.arguments()) :
 			IMPOSSIBLE_MATCH;
 		if( level == IMPOSSIBLE_MATCH)
 			return toResponse(IMPOSSIBLE_MATCH);
@@ -156,9 +172,8 @@ public class DOMMethodLocator extends DOMPatternLocator {
 
 		if (node.getLocationInParent() == MemberValuePair.NAME_PROPERTY
 			&& this.locator.pattern.parameterCount == 0
-			&& node instanceof SimpleName simpleName
-			&& matchesName(simpleName.getIdentifier().toCharArray(), this.locator.pattern.selector)) {
-			return toResponse(POSSIBLE_MATCH);
+			&& node instanceof SimpleName simpleName) {
+			return toResponse(matchReference(simpleName, null));
 		}
 
 		String name = node.toString();
@@ -478,6 +493,12 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		boolean isErasurePattern = isPatternErasureMatch();
 		boolean isEquivPattern = isPatternEquivalentMatch();
 
+		if (node instanceof SingleMemberAnnotation singleMemberAnnotation) {
+			var valuePairs = singleMemberAnnotation.resolveAnnotationBinding().getDeclaredMemberValuePairs();
+			if (valuePairs != null && valuePairs.length > 0) {
+				binding = valuePairs[0].getMethodBinding();
+			}
+		}
 		if (binding instanceof IMethodBinding method) {
 			boolean skipVerif = this.locator.pattern.findDeclarations && this.locator.mayBeGeneric;
 			if (Objects.equals(binding.getJavaElement(), this.locator.pattern.focus)) {

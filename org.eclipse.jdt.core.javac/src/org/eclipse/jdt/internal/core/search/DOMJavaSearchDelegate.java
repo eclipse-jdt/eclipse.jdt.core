@@ -44,6 +44,7 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTRequestor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.CreationReference;
@@ -241,7 +242,7 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 	private SearchMatch toCoreMatch(MatchLocator locator, org.eclipse.jdt.core.dom.ASTNode node, int accuracy, PossibleMatch possibleMatch) {
 		IResource resource = possibleMatch.resource;
 		if (node instanceof MethodDeclaration || node instanceof AbstractTypeDeclaration
-				|| node instanceof VariableDeclaration) {
+				|| node instanceof VariableDeclaration || node instanceof AnnotationTypeMemberDeclaration) {
 			IJavaElement javaElement = DOMASTNodeUtils.getDeclaringJavaElement(node);
 			if (javaElement != null) {
 				ISourceRange range = new SourceRange(node.getStartPosition(), node.getLength());
