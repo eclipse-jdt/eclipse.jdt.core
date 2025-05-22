@@ -365,7 +365,9 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 					return null;
 				}
 				JavacMethodBinding res = this.resolver.bindings.getMethodBinding(methodType, method, null, false);
-				if (this.resolver.findDeclaringNode(this).getParent() instanceof LambdaExpression lambda) {
+				ASTNode declaring = this.resolver.findDeclaringNode(this);
+				ASTNode parent = declaring == null ? null : declaring.getParent();
+				if (parent instanceof LambdaExpression lambda) {
 					return lambda.resolveMethodBinding();
 				}
 				return res;

@@ -612,8 +612,15 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 
 	private int resolveLevelForTypeBinding(org.eclipse.jdt.core.dom.ASTNode node, ITypeBinding typeBinding,
 			MatchLocator locator) {
-		if (this.matchLocator.pattern.focus != null) {
-			return Objects.equals(typeBinding.getJavaElement(), this.matchLocator.pattern.focus) ?
+		TypeReferencePattern trp = (locator != null && locator.pattern instanceof TypeReferencePattern tp ? tp : null);
+		trp = (trp == null && this.locator != null ? this.locator.pattern : trp);
+		if( trp == null ) {
+			// We don't even have a pattern
+			return IMPOSSIBLE_MATCH;
+		}
+
+		if (trp.focus != null) {
+			return Objects.equals(typeBinding.getJavaElement(), locator.pattern.focus) ?
 					ACCURATE_MATCH : IMPOSSIBLE_MATCH;
 		}
 		IImportDiscovery importDiscovery = new IImportDiscovery() {
@@ -623,9 +630,9 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			}
 		};
 
-		int newLevel = this.resolveLevelForTypeFQN(this.locator.pattern.simpleName,
-				this.locator.pattern.qualification, typeBinding, importDiscovery);
-		if( this.locator.isDeclarationOfReferencedTypesPattern) {
+		int newLevel = this.resolveLevelForTypeFQN(trp.simpleName,
+				trp.qualification, typeBinding, importDiscovery);
+		if( this.locator != null && this.locator.isDeclarationOfReferencedTypesPattern) {
 			return resolveLevelForTypeBindingDeclarationOfReferencedTypes(typeBinding, node, newLevel, locator);
 		}
 		if( newLevel == IMPOSSIBLE_MATCH ) {
@@ -636,7 +643,7 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			}
 		}
 		if( newLevel == ACCURATE_MATCH ) {
-			if( this.locator.pattern.hasTypeArguments() ) {
+			if( trp.hasTypeArguments() ) {
 				return resolveLevelForTypeBindingWithTypeArguments(typeBinding, node, locator);
 			}
 		}

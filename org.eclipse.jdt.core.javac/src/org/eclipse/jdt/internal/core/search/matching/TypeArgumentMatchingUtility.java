@@ -69,6 +69,11 @@ public class TypeArgumentMatchingUtility {
 				if( Objects.equals(patternSimpleName, bindingSimpleName)) {
 					return true;
 				}
+				char[] patternCharArr = patternSimpleName == null ? null : patternSimpleName.toCharArray();
+				char[] bindingCharArr = bindingSimpleName == null ? null : bindingSimpleName.toCharArray();
+				if(locator != null && locator.matchesName(patternCharArr, bindingCharArr)) {
+					return true;
+				}
 				if( patternSimpleName != null && patternSimpleName.startsWith(bindingSimpleName + "<")) {
 					return true;
 				}

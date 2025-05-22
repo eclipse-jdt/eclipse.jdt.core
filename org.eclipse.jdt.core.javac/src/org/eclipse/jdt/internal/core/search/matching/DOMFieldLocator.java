@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
@@ -134,8 +135,10 @@ public class DOMFieldLocator extends DOMPatternLocator {
 						variableBinding.getName().toCharArray()))
 					return toResponse(PatternLocator.IMPOSSIBLE_MATCH);
 				FieldPattern fieldPattern = (FieldPattern) this.fieldLocator.pattern;
+				IMethodBinding declaring = variableBinding == null ? null : variableBinding.getDeclaringMethod();
+				ITypeBinding tb = declaring == null ? null : declaring.getDeclaringClass();
 				int level = this.resolveLevelForType(fieldPattern.declaringSimpleName,
-						fieldPattern.declaringQualification, variableBinding.getDeclaringMethod().getDeclaringClass());
+						fieldPattern.declaringQualification, tb);
 				return toResponse(level);
 			}
 			if (variableBinding.isField()) {
