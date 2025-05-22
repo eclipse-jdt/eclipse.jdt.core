@@ -15,6 +15,7 @@ import static org.eclipse.jdt.internal.core.search.DOMASTNodeUtils.insideDocComm
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
@@ -240,7 +241,8 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 				}
 
 			}
-		} else if (simpleNameFromNode != null ) {
+		}
+		if (simpleNameFromNode != null ) {
 			if( this.locator.matchesName(this.locator.pattern.simpleName, simpleNameFromNode.toCharArray()) ) {
 				int level = this.locator.pattern.mustResolve || this.locator.pattern.qualification == null ? POSSIBLE_MATCH : ACCURATE_MATCH;
 				int typeParamMatches = validateTypeParameters(node);
@@ -610,6 +612,10 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 
 	private int resolveLevelForTypeBinding(org.eclipse.jdt.core.dom.ASTNode node, ITypeBinding typeBinding,
 			MatchLocator locator) {
+		if (this.matchLocator.pattern.focus != null) {
+			return Objects.equals(typeBinding.getJavaElement(), this.matchLocator.pattern.focus) ?
+					ACCURATE_MATCH : IMPOSSIBLE_MATCH;
+		}
 		IImportDiscovery importDiscovery = new IImportDiscovery() {
 			@Override
 			public String findImportForString(String s) {
