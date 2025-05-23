@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2017 IBM Corporation and others.
+ * Copyright (c) 2005, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -754,6 +754,8 @@ public class WildcardBinding extends ReferenceBinding implements HotSwappable{
 		}
 		haveSubstitution |= currentOtherBounds != null;
 		if (haveSubstitution) {
+			if (currentBound instanceof CaptureBinding capture && this.boundKind == Wildcard.EXTENDS)
+				currentBound = InferenceContext18.maybeUncapture(capture);
 			WildcardBinding wildcard = this.environment.createWildcard(this.genericType, this.rank, currentBound, currentOtherBounds, this.boundKind);
 			return propagateNonConflictingNullAnnotations(wildcard);
 		}
