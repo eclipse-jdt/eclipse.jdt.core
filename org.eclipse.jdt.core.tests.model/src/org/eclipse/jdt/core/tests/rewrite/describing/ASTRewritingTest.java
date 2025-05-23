@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -351,6 +351,10 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 
 	public static TypeDeclaration findTypeDeclaration(CompilationUnit astRoot, String simpleTypeName) {
 		return (TypeDeclaration) findAbstractTypeDeclaration(astRoot, simpleTypeName);
+	}
+
+	public static EnumDeclaration findEnumDeclaration(CompilationUnit astRoot, String simpleTypeName) {
+		return (EnumDeclaration) findAbstractTypeDeclaration(astRoot, simpleTypeName);
 	}
 
 	public static AbstractTypeDeclaration findAbstractTypeDeclaration(CompilationUnit astRoot, String simpleTypeName) {
