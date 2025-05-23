@@ -56,15 +56,7 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
-import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
-import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
-import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
-import org.eclipse.jdt.internal.compiler.env.INameEnvironmentExtension;
-import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
-import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
@@ -282,7 +274,7 @@ public ReferenceBinding askForType(char[][] compoundName, /*@NonNull*/ModuleBind
 		answers = askForTypeFromModules(clientModule, clientModule.getAllRequiredModules(),
 				mod -> moduleEnv.findType(compoundName, mod.nameForLookup()));
 	} else {
-		NameEnvironmentAnswer answer = this.nameEnvironment.findType(compoundName);
+		NameEnvironmentAnswer answer = findType(compoundName);
 		if (answer != null) {
 			answer.moduleBinding = this.module;
 			answers = new NameEnvironmentAnswer[] { answer };
@@ -342,7 +334,7 @@ ReferenceBinding askForType(PackageBinding packageBinding, char[] name, ModuleBi
 		answers = askForTypeFromModules(null, packageBinding.getDeclaringModules(),
 				mod -> fromSplitPackageOrOracle(moduleEnv, mod, pack, name));
 	} else {
-		NameEnvironmentAnswer answer = this.nameEnvironment.findType(name, packageBinding.compoundName);
+		NameEnvironmentAnswer answer = findType(name, packageBinding.compoundName);
 		if (answer != null) {
 			answer.moduleBinding = this.module;
 			answers = new NameEnvironmentAnswer[] { answer };
@@ -1171,7 +1163,7 @@ public PlainPackageBinding createPlainPackage(char[][] compoundName) {
 					return null;
 				}
 			} else {
-				if (this.nameEnvironment.findType(compoundName[i], parent.compoundName) != null) {
+				if (findType(compoundName[i], parent.compoundName) != null) {
 					return null;
 				}
 			}
@@ -1187,6 +1179,28 @@ public PlainPackageBinding createPlainPackage(char[][] compoundName) {
 		}
 	}
 	return packageBinding.getIncarnation(this.module);
+}
+
+private NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
+	if (this.nameEnvironment instanceof IReleaseAwareNameEnvironment releaseAware) {
+		return releaseAware.findType(typeName, packageName, getRelease());
+	}
+	return this.nameEnvironment.findType(typeName, packageName);
+}
+
+private NameEnvironmentAnswer findType(char[][] typeName) {
+	if (this.nameEnvironment instanceof IReleaseAwareNameEnvironment releaseAware) {
+		return releaseAware.findType(typeName, getRelease());
+	}
+	return this.nameEnvironment.findType(typeName);
+}
+
+private int getRelease() {
+	int release =  (int) Double.parseDouble(CompilerOptions.versionFromJdkLevel(this.globalOptions.targetJDK));
+	if (release >= IReleaseAwareNameEnvironment.FIRST_MULTI_RELEASE) {
+		return release;
+	}
+	return IReleaseAwareNameEnvironment.DEFAULT_RELEASE;
 }
 
 public ParameterizedGenericMethodBinding createParameterizedGenericMethod(MethodBinding genericMethod, RawTypeBinding rawType) {
