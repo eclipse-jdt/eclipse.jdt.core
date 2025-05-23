@@ -1211,6 +1211,30 @@ public void testGH4033() {
 			"""
 		});
 }
+public void testGH4039() {
+	runConformTest(new String[] {
+		"CollectionsSortReproducer.java",
+		"""
+		import java.util.Collection;
+		import java.util.Collections;
+		import java.util.Iterator;
+		import java.util.List;
+
+		public class CollectionsSortReproducer {
+			class Cranberry<T_Value> implements Comparable<Cranberry<T_Value>> {
+				@Override
+				public int compareTo(Cranberry<T_Value> o) { return 0; }
+			}
+
+			public static void main(String[] args) {
+				List<Cranberry<?>> l = Collections.emptyList();
+			    Collections.sort(l);
+			}
+		}
+		"""
+	});
+}
+
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
