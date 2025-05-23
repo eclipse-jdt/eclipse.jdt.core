@@ -290,31 +290,31 @@ public final class JavaConventions {
 	public static IStatus validateClassFileName(String name, String sourceLevel, String complianceLevel) {
 		if (name == null) {
 			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.convention_classFile_nullName, null);		}
-		if (!org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name)) {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.convention_classFile_notClassFileName, null);
-		}
-		String identifier;
-		int index;
-		index = name.lastIndexOf('.');
-		if (index == -1) {
-			return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.convention_classFile_notClassFileName, null);
-		}
-		identifier = name.substring(0, index);
-		// JSR-175 metadata strongly recommends "package-info.java" as the
-		// file in which to store package annotations and
-		// the package-level spec (replaces package.html)
-		if (!CharOperation.equals(identifier.toCharArray(), TypeConstants.PACKAGE_INFO_NAME)
-				&& !CharOperation.equals(identifier.toCharArray(), TypeConstants.MODULE_INFO_NAME)) {
-			IStatus status = validateIdentifier(identifier, sourceLevel, complianceLevel);
+		if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name)) {
+			String identifier;
+			int index;
+			index = name.lastIndexOf('.');
+			if (index == -1) {
+				return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.convention_classFile_notClassFileName, null);
+			}
+			identifier = name.substring(0, index);
+			// JSR-175 metadata strongly recommends "package-info.java" as the
+			// file in which to store package annotations and
+			// the package-level spec (replaces package.html)
+			if (!CharOperation.equals(identifier.toCharArray(), TypeConstants.PACKAGE_INFO_NAME)
+					&& !CharOperation.equals(identifier.toCharArray(), TypeConstants.MODULE_INFO_NAME)) {
+				IStatus status = validateIdentifier(identifier, sourceLevel, complianceLevel);
+				if (!status.isOK()) {
+					return status;
+				}
+			}
+			IStatus status = ResourcesPlugin.getWorkspace().validateName(name, IResource.FILE);
 			if (!status.isOK()) {
 				return status;
 			}
+			return JavaModelStatus.VERIFIED_OK;
 		}
-		IStatus status = ResourcesPlugin.getWorkspace().validateName(name, IResource.FILE);
-		if (!status.isOK()) {
-			return status;
-		}
-		return JavaModelStatus.VERIFIED_OK;
+		return new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.convention_classFile_notClassFileName, null);
 	}
 
 	/**
