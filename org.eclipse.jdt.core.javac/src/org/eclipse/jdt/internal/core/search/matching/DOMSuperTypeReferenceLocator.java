@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import java.util.Set;
+
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.QualifiedName;
@@ -17,6 +20,7 @@ import org.eclipse.jdt.core.dom.QualifiedType;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.internal.core.search.LocatorResponse;
 
 public class DOMSuperTypeReferenceLocator extends DOMPatternLocator {
@@ -39,8 +43,12 @@ public class DOMSuperTypeReferenceLocator extends DOMPatternLocator {
 
 	@Override
 	public LocatorResponse match(Type node, NodeSetWrapper nodeSet, MatchLocator locator) {
-		if (this.locator.flavors != PatternLocator.SUPERTYPE_REF_FLAVOR)
+		if (Set.of(TypeDeclaration.SUPERCLASS_TYPE_PROPERTY, TypeDeclaration.SUPER_INTERFACE_TYPES_PROPERTY, ClassInstanceCreation.TYPE_PROPERTY).contains(node)) {
 			return toResponse(IMPOSSIBLE_MATCH);
+		}
+		if (node.getLocationInParent() == ClassInstanceCreation.TYPE_PROPERTY && node.getParent() instanceof ClassInstanceCreation newInst && newInst.getAnonymousClassDeclaration() == null) {
+			return toResponse(IMPOSSIBLE_MATCH);
+		}
 		if (this.locator.pattern.superSimpleName == null) {
 			int level = nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 			return toResponse(level, true);
