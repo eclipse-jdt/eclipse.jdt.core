@@ -21,6 +21,9 @@ import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
+import org.eclipse.jdt.core.dom.ArrayInitializer;
+import org.eclipse.jdt.core.dom.BooleanLiteral;
+import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.CreationReference;
@@ -35,6 +38,8 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NameQualifiedType;
+import org.eclipse.jdt.core.dom.NullLiteral;
+import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.QualifiedName;
@@ -49,6 +54,7 @@ import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodReference;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.UnionType;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -316,4 +322,35 @@ class PatternLocatorVisitor extends ASTVisitor {
 		return true;
 	}
 
+	// following ones are for values in SingleMemberAnnotation
+	@Override
+	public boolean visit(NumberLiteral node) {
+		defaultVisitImplementation(node, (x,y) -> y.match(node, this.nodeSet, this.locator));
+		return true;
+	}
+	@Override
+	public boolean visit(CharacterLiteral node) {
+		defaultVisitImplementation(node, (x,y) -> y.match(node, this.nodeSet, this.locator));
+		return true;
+	}
+	@Override
+	public boolean visit(BooleanLiteral node) {
+		defaultVisitImplementation(node, (x,y) -> y.match(node, this.nodeSet, this.locator));
+		return true;
+	}
+	@Override
+	public boolean visit(ArrayInitializer node) {
+		defaultVisitImplementation(node, (x,y) -> y.match(node, this.nodeSet, this.locator));
+		return true;
+	}
+	@Override
+	public boolean visit(TypeLiteral node) {
+		defaultVisitImplementation(node, (x,y) -> y.match(node, this.nodeSet, this.locator));
+		return true;
+	}
+	@Override
+	public boolean visit(NullLiteral node) {
+		defaultVisitImplementation(node, (x,y) -> y.match(node, this.nodeSet, this.locator));
+		return true;
+	}
 }

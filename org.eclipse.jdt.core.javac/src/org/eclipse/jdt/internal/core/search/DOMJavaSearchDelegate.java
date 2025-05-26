@@ -60,6 +60,7 @@ import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.Type;
@@ -83,6 +84,7 @@ import org.eclipse.jdt.internal.core.NamedMember;
 import org.eclipse.jdt.internal.core.search.matching.DOMPatternLocator;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.jdt.internal.core.search.matching.MatchingNodeSet;
+import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 import org.eclipse.jdt.internal.core.search.matching.NodeSetWrapper;
 import org.eclipse.jdt.internal.core.search.matching.PossibleMatch;
 
@@ -232,6 +234,9 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 	}
 
 	private SearchMatch toMatch(MatchLocator locator, org.eclipse.jdt.core.dom.ASTNode node, int accuracy, PossibleMatch possibleMatch) {
+		if (node == null) {
+			return null;
+		}
 		SearchMatch sm = toCoreMatch(locator, node, accuracy, possibleMatch);
 		if( accuracy == SearchPattern.R_ERASURE_MATCH) {
 			sm.setRule(SearchPattern.R_ERASURE_MATCH);
@@ -297,6 +302,12 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 					constructorRef.resolveMethodBinding().isSynthetic(), true, insideDocComment(node), getParticipant(locator),
 					resource);
 		}
+		if (node.getLocationInParent() == SingleMemberAnnotation.VALUE_PROPERTY && locator.pattern instanceof MethodPattern) {
+			return new MethodReferenceMatch(DOMASTNodeUtils.getEnclosingJavaElement(node), accuracy,
+					node.getStartPosition(), node.getLength(), true,
+					false, true, insideDocComment(node), getParticipant(locator),
+					resource);
+		}
 		if (node instanceof EnumConstantDeclaration enumConstantDeclaration) {
 			int start = enumConstantDeclaration.getStartPosition();
 			int len = enumConstantDeclaration.getLength();
@@ -359,7 +370,7 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 			// more...?
 		}
 		if (node.getLocationInParent() == SimpleType.NAME_PROPERTY
-				|| node.getLocationInParent() == QualifiedName.NAME_PROPERTY) {
+			|| node.getLocationInParent() == QualifiedName.NAME_PROPERTY) {
 			// more...?
 			return toMatch(locator, node.getParent(), accuracy, possibleMatch);
 		}

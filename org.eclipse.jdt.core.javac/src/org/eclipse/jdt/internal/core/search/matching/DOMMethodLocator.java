@@ -130,7 +130,6 @@ public class DOMMethodLocator extends DOMPatternLocator {
 			POSSIBLE_MATCH : IMPOSSIBLE_MATCH);
 	}
 
-
 	private int matchReference(SimpleName name, List<?> args) {
 		if (!this.locator.pattern.findReferences) return IMPOSSIBLE_MATCH;
 
@@ -151,13 +150,20 @@ public class DOMMethodLocator extends DOMPatternLocator {
 	}
 	@Override
 	public LocatorResponse match(org.eclipse.jdt.core.dom.Expression expression, NodeSetWrapper nodeSet, MatchLocator locator) {
-		int level = expression instanceof SuperMethodInvocation node ? this.matchReference(node.getName(), node.arguments()) :
-			IMPOSSIBLE_MATCH;
+		int level = IMPOSSIBLE_MATCH;
+		if (expression instanceof SuperMethodInvocation node) {
+			level = this.matchReference(node.getName(), node.arguments());
+		}
+		if (expression.getLocationInParent() == SingleMemberAnnotation.VALUE_PROPERTY
+			&& this.locator.pattern.matchesName(this.locator.pattern.selector, "value".toCharArray())
+			&& this.locator.pattern.parameterCount == 0) {
+			// TODO: also check annotation name matches pattern (if available)
+			level = POSSIBLE_MATCH;
+		}
 		if( level == IMPOSSIBLE_MATCH)
 			return toResponse(IMPOSSIBLE_MATCH);
 		return toResponse(nodeSet.addMatch(expression, level), true);
 	}
-
 
 	@Override
 	public LocatorResponse match(Name node, NodeSetWrapper nodeSet, MatchLocator locator) {
@@ -447,7 +453,8 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		boolean isErasurePattern = isPatternErasureMatch();
 		boolean isEquivPattern = isPatternEquivalentMatch();
 
-		if (node instanceof SingleMemberAnnotation singleMemberAnnotation) {
+		if (node.getLocationInParent() == SingleMemberAnnotation.VALUE_PROPERTY
+			&& node.getParent() instanceof SingleMemberAnnotation singleMemberAnnotation) {
 			var valuePairs = singleMemberAnnotation.resolveAnnotationBinding().getDeclaredMemberValuePairs();
 			if (valuePairs != null && valuePairs.length > 0) {
 				binding = valuePairs[0].getMethodBinding();
