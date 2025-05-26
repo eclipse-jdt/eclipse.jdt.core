@@ -55,6 +55,7 @@ import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
+import org.eclipse.jdt.core.dom.JavacCompilationUnitResolver;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.RecordDeclaration;
@@ -255,7 +256,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				}
 			}
 			ITypeRoot typeRoot = null;
-			if (jfo != null) {
+			if (jfo != null && !jfo.getName().endsWith(JavacCompilationUnitResolver.MOCK_NAME_FOR_CLASSES)) {
 				var jfoFile = new File(jfo.getName());
 				var jfoPath = new Path(jfo.getName());
 				Stream<IFile> fileStream = jfoFile.isFile()	?
@@ -577,7 +578,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 					} catch (IllegalArgumentException e) {
 						// probably: uri is not a valid path
 					}
-					if (fileName != null && !fileName.startsWith(classSymbol.getSimpleName().toString())) {
+					if (fileName != null && !fileName.startsWith(classSymbol.getSimpleName().toString()) && !fileName.endsWith(JavacCompilationUnitResolver.MOCK_NAME_FOR_CLASSES)) {
 						// There are multiple top-level types in this file,
 						// inject 'FileName~' before the type name to show that this type came from `FileName.java`
 						// (eg. Lorg/eclipse/jdt/FileName~MyTopLevelType;)

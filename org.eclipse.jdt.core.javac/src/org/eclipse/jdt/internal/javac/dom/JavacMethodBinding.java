@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
@@ -36,6 +37,7 @@ import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
+import org.eclipse.jdt.internal.SignatureUtils;
 import org.eclipse.jdt.internal.core.BinaryMethod;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.Member;
@@ -280,6 +282,10 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 			typeParamsList.add(typeParams.get(i).getName().toString());
 		}
 
+		IMethod result = currentType.getMethod(getName(), Stream.of(getParameterTypes()).map(SignatureUtils::getSignature).toArray(String[]::new));
+		if (result.exists()) {
+			return result;
+		}
 		List<SingleVariableDeclaration> p = methodDeclaration.parameters();
 		String[] params = p.stream() //
 				.map(param -> {
@@ -289,10 +295,11 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 					}
 					return sig;
 				}).toArray(String[]::new);
-		IMethod result = currentType.getMethod(getName(), params);
-		if (currentType.isBinary() || result.exists()) {
+		result = currentType.getMethod(getName(), params);
+		if (result.exists()) {
 			return result;
 		}
+
 		IMethod[] methods = null;
 		try {
 			methods = currentType.getMethods();

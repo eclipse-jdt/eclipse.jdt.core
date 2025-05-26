@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.dom.ExpressionMethodReference;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
+import org.eclipse.jdt.internal.SignatureUtils;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SuperMethodReference;
 import org.eclipse.jdt.core.dom.TypeMethodReference;

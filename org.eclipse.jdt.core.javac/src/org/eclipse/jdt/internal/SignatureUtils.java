@@ -8,10 +8,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *******************************************************************************/
-package org.eclipse.jdt.internal.codeassist;
+package org.eclipse.jdt.internal;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -95,23 +97,54 @@ public class SignatureUtils {
 	}
 
 	/**
-	 * Returns the signature of the given type binding.
-	 *
-	 * @param typeBinding the type binding to get the signature of
-	 * @return the signature of the given type binding
-	 */
-	public static String getSignature(ITypeBinding typeBinding) {
-		return SignatureUtils.getSignatureForTypeKey(typeBinding.getKey());
-	}
-
-	/**
 	 * Returns the signature of the given type binding as a character array.
 	 *
 	 * @param typeBinding the type binding to get the signature of
 	 * @return the signature of the given type binding as a character array
 	 */
 	public static char[] getSignatureChar(ITypeBinding typeBinding) {
-		return SignatureUtils.getSignatureForTypeKey(typeBinding.getKey()).toCharArray();
+		return SignatureUtils.getSignature(typeBinding).toCharArray();
+	}
+
+	/**
+	 * Returns the signature of the given type binding.
+	 *
+	 * @param typeBinding the type binding to get the signature of
+	 * @return the signature of the given type binding
+	 */
+	public static String getSignature(ITypeBinding typeBinding) {
+		if (typeBinding.isArray()) {
+			return Signature.createArraySignature(getSignature(typeBinding.getComponentType()), 1);
+		}
+		if (typeBinding.isWildcardType()) {
+			return Signature.createTypeParameterSignature(typeBinding.getName(), typeBinding.getBound() != null ? new String[] { getSignature(typeBinding.getBound()) } : null);
+		}
+		ITypeBinding[] typeBounds = typeBinding.getTypeBounds();
+		if (typeBinding.isTypeVariable() || typeBinding.isWildcardType()) {
+			return Signature.C_TYPE_VARIABLE + typeBinding.getName() + Signature.C_NAME_END;
+		}
+		if (typeBinding.isIntersectionType()) {
+			return Signature.createIntersectionTypeSignature(Stream.of(typeBounds).map(SignatureUtils::getSignature).toArray(String[]::new));
+		}
+		if (typeBinding.isParameterizedType()) {
+			StringBuilder res = new StringBuilder(Signature.createTypeSignature(typeBinding.getErasure().getQualifiedName(), true));
+			res.deleteCharAt(res.length() - 1);
+			return res.toString()
+				+ Signature.C_GENERIC_START
+				+ Stream.of(typeBinding.getTypeArguments()).map(SignatureUtils::getSignature).collect(Collectors.joining())
+				+ Signature.C_GENERIC_END
+				+ Signature.C_NAME_END;
+		}
+		if (typeBinding.isGenericType()) {
+			StringBuilder res = new StringBuilder(Signature.createTypeSignature(typeBinding.getErasure().getQualifiedName(), true));
+			res.deleteCharAt(res.length() - 1);
+			return res.toString()
+				+ Signature.C_GENERIC_START
+				+ Stream.of(typeBinding.getTypeParameters()).map(SignatureUtils::getSignature).collect(Collectors.joining())
+				+ Signature.C_GENERIC_END
+				+ Signature.C_NAME_END;
+		}
+		return SignatureUtils.getSignatureForTypeKey(typeBinding.getKey());
 	}
 
 	/**

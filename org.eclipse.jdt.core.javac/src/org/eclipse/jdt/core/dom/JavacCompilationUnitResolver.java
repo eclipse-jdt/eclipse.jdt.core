@@ -112,6 +112,8 @@ import com.sun.tools.javac.util.Options;
  */
 public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 
+	public static final String MOCK_NAME_FOR_CLASSES = "whatever_InvalidNameWE_HOP3_n00ne_will_Ever_use_in_real_file.java";
+	
 	private final class ForwardDiagnosticsAsDOMProblems implements DiagnosticListener<JavaFileObject> {
 		public final Map<JavaFileObject, CompilationUnit> filesToUnits;
 		private final JavacProblemConverter problemConverter;
@@ -711,7 +713,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 					sourceUnitPath = Path.of(lastSegment);
 				}
 				if( sourceUnitPath == null )
-					sourceUnitPath = Path.of(new File("whatever.java").toURI());
+					sourceUnitPath = Path.of(new File(MOCK_NAME_FOR_CLASSES).toURI());
 			} else {
 				sourceUnitPath = Path.of(unitFile.toURI());
 			}

@@ -159,6 +159,7 @@ import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeNameMatch;
 import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
+import org.eclipse.jdt.internal.SignatureUtils;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 import org.eclipse.jdt.internal.codeassist.impl.Keywords;
 import org.eclipse.jdt.internal.codeassist.impl.RestrictedIdentifiers;
