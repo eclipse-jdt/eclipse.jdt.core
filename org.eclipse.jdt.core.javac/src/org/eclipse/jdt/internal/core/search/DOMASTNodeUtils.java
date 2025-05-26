@@ -37,6 +37,7 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.MethodReference;
 import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
@@ -57,6 +58,7 @@ public class DOMASTNodeUtils {
 			|| node instanceof FieldDeclaration
 			|| node instanceof Initializer
 			|| node instanceof ImportDeclaration
+			|| node instanceof PackageDeclaration
 			|| node instanceof CompilationUnit
 			|| node instanceof AnnotationTypeMemberDeclaration
 			|| node.getLocationInParent() == FieldDeclaration.FRAGMENTS_PROPERTY) {
@@ -79,7 +81,7 @@ public class DOMASTNodeUtils {
 
 	private static IJavaElement findElementForNodeCustom(ASTNode key) {
 		if( key instanceof FieldDeclaration fd ) {
-			List fragments = fd.fragments();
+			List<?> fragments = fd.fragments();
 			if( fragments.size() > 0 ) {
 				VariableDeclarationFragment vdf = (VariableDeclarationFragment)fragments.get(0);
 				if( vdf != null ) {
@@ -92,7 +94,7 @@ public class DOMASTNodeUtils {
 			ASTNode parentNode = i.getParent();
 			int domOccurance = -1;
 			if( parentNode instanceof AbstractTypeDeclaration typeDecl) {
-				List parentBody = typeDecl.bodyDeclarations();
+				List<?> parentBody = typeDecl.bodyDeclarations();
 				for( int z = 0; z < parentBody.size() && domOccurance == -1; z++ ) {
 					if( parentBody.get(z) == key) {
 						domOccurance = z + 1;
@@ -119,9 +121,13 @@ public class DOMASTNodeUtils {
 		if( key instanceof ImportDeclaration id) {
 			ASTNode parentNode = id.getParent();
 			if( parentNode instanceof CompilationUnit unit) {
-				IJavaElement parentEl = ((CompilationUnit)id.getParent()).getJavaElement();
+				IJavaElement parentEl = unit.getJavaElement();
 				return ((org.eclipse.jdt.internal.core.CompilationUnit) parentEl).getImport(id.getName().toString());
 			}
+		}
+		if (key instanceof PackageDeclaration pack && pack.getParent() instanceof CompilationUnit unit) {
+			IJavaElement parentEl = unit.getJavaElement();
+			return ((org.eclipse.jdt.internal.core.CompilationUnit) parentEl).getPackageDeclaration(pack.getName().getFullyQualifiedName());
 		}
 		return null;
 	}
