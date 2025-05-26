@@ -1154,6 +1154,7 @@ public class WrapPreparator extends ASTVisitor {
 			}
 		}
 
+		//System.out.println("WP: parent " + tm.get(parentIndex));
 		Token previous = null;
 		int from = this.tm.firstIndexIn(node, TokenNameInvalid);
 		int to = this.tm.lastIndexIn(node, TokenNameInvalid);
@@ -1164,6 +1165,7 @@ public class WrapPreparator extends ASTVisitor {
 				int extraIndent = token.getIndent() + indentChange;
 				token.setWrapPolicy(new WrapPolicy(WrapMode.BLOCK_INDENT, parentIndex, extraIndent));
 				token.setIndent(parentIndent + extraIndent);
+				//System.out.println("WP: " + token + " => " + parentIndent + " + " + extraIndent);
 			}
 			previous = token;
 		}
