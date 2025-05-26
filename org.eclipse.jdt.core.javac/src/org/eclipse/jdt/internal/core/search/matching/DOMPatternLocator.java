@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import java.util.Arrays;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -152,13 +154,16 @@ public class DOMPatternLocator extends PatternLocator {
 		return binding.getName();
 	}
 	protected int resolveLevelForType(char[] simpleNamePattern, char[] qualificationPattern, ITypeBinding binding) {
-		return resolveLevelForTypeFQN(simpleNamePattern, qualificationPattern, binding, null);
+		return
+			binding == null && simpleNamePattern == null && qualificationPattern == null ? ACCURATE_MATCH :
+			binding != null && binding.isArray() && new String(simpleNamePattern).endsWith("[]") ? resolveLevelForType(Arrays.copyOf(simpleNamePattern, simpleNamePattern.length - 2), qualificationPattern, binding.getComponentType()) :
+			resolveLevelForTypeFQN(simpleNamePattern, qualificationPattern, binding, null);
 	}
 
 	protected int resolveLevelForTypeFQN(char[] simpleNamePattern, char[] qualificationPattern, ITypeBinding binding, IImportDiscovery discovery) {
 		int level = 0;
 		if (qualificationPattern == null && simpleNamePattern != null) {
-			level = resolveLevelForTypeSourceName(simpleNamePattern, binding.getErasure().getName().toCharArray(), binding);
+			level = resolveLevelForTypeSourceName(simpleNamePattern, (binding.isArray() ? binding : binding.getErasure()).getName().toCharArray(), binding);
 		}
 		if (level == ACCURATE_MATCH || level == ERASURE_MATCH) {
 			return level;
