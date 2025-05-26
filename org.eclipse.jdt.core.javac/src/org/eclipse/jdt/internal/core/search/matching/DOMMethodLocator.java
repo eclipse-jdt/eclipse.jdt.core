@@ -16,17 +16,14 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
-import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JdtCoreDomPackagePrivateUtility;
 import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -194,7 +191,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		if (level == IMPOSSIBLE_MATCH)
 			return level;
 
-		level = matchMethodBindingReturnType(node, method);
+		level = resolveLevelForType(this.locator.pattern.returnSimpleName, this.locator.pattern.returnQualification, method.getReturnType());
 		if (level == IMPOSSIBLE_MATCH)
 			return level;
 
@@ -205,49 +202,6 @@ public class DOMMethodLocator extends DOMPatternLocator {
 
 		level = matchMethodBindingTypeArguments(node, method, skipImpossibleArg, level, bindingIsDeclaration);
 		return level;
-	}
-
-	private int matchMethodBindingReturnType(ASTNode node, IMethodBinding method) {
-		boolean isExactPattern = isPatternExactMatch();
-		boolean isErasurePattern = isPatternErasureMatch();
-		boolean isEquivPattern = isPatternEquivalentMatch();
-
-		ITypeBinding returnTypeFromBinding = method.getReturnType();
-		char[][] sigs = this.locator.pattern.returnTypeSignatures;
-		if( sigs != null && sigs.length > 0 && sigs[0] != null ) {
-			String patternSig = new String(sigs[0]);
-			IBinding patternBinding = findPossiblyUnresolvedBindingForType(node, patternSig);
-			boolean match = TypeArgumentMatchingUtility.validateSingleTypeArgMatches(isExactPattern, patternSig, patternBinding, returnTypeFromBinding);
-			if( match ) {
-				// Do some extra checks
-				if( node instanceof MethodInvocation mi) {
-					Expression e = mi.getExpression();
-					IBinding b = DOMASTNodeUtils.getBinding(e);
-					if( b != null ) {
-						if( b instanceof IVariableBinding ivb) {
-							ITypeBinding t1 = ivb.getType();
-							ITypeBinding[] bindingTypeArgs = t1.getTypeArguments();
-							String[] bindingTypeArgsSimple = Arrays.asList(bindingTypeArgs).stream().map(x -> Signature.getSignatureSimpleName(x.getKey())).toArray(String[]::new);
-							String[] patternTypeArgsArr = Signature.getTypeArguments(patternSig);
-							String[] patternTypeArgsSimple = Arrays.asList(patternTypeArgsArr).stream().map(x -> Signature.getSignatureSimpleName(x)).toArray(String[]::new);
-							if( patternTypeArgsSimple.length != bindingTypeArgs.length) {
-								match = false;
-							} else if( !Arrays.equals(bindingTypeArgsSimple, patternTypeArgsSimple)) {
-								match = false;
-							}
-						}
-					}
-				}
-			}
-			if( !match ) {
-				if( isExactPattern || (!isErasurePattern && !isEquivPattern)) {
-					return IMPOSSIBLE_MATCH;
-				}
-				return ERASURE_MATCH;
-			}
-		}
-
-		return ACCURATE_MATCH;
 	}
 
 	private IBinding findPossiblyUnresolvedBindingForType(ASTNode node, String patternSig) {
@@ -501,9 +455,6 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		}
 		if (binding instanceof IMethodBinding method) {
 			boolean skipVerif = this.locator.pattern.findDeclarations && this.locator.mayBeGeneric;
-			if (Objects.equals(binding.getJavaElement(), this.locator.pattern.focus)) {
-				return toResponse(ACCURATE_MATCH);
-			}
 			int methodLevel = matchMethod(node, method, skipVerif, false);
 			if (methodLevel == IMPOSSIBLE_MATCH) {
 				IMethodBinding decl = method.getMethodDeclaration();
