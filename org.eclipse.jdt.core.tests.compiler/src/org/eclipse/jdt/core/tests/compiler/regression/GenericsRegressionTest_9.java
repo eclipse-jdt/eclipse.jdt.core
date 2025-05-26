@@ -1186,6 +1186,31 @@ public void testGH4022b() {
 			"""
 		});
 }
+public void testGH4033() {
+	runConformTest(new String[] {
+			"Snippet.java",
+			"""
+			import java.util.Collection;
+			import java.util.Iterator;
+			
+			public class Snippet {
+				interface Apple {}
+				interface Banana<T1, T2> {}
+				interface Smoothie<T extends Apple, M extends Apple> extends Banana<T, String> {}
+			
+				public static void main(String[] args) {
+					Collection<Smoothie<? extends Apple, ? extends Apple>> c = null;
+					method(c);
+				}
+			
+				static final <S extends Banana<? extends T, ?>, T> Iterator<T> method(
+						Collection<S> c) {
+					return null;
+				}
+			}
+			"""
+		});
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
