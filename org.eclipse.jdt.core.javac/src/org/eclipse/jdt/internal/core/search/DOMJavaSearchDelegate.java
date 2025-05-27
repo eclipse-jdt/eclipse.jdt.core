@@ -64,6 +64,7 @@ import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.search.FieldDeclarationMatch;
 import org.eclipse.jdt.core.search.FieldReferenceMatch;
@@ -329,6 +330,9 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 				if (((ParameterizedType) nt).typeArguments().size() == 0) {
 					ret.setRaw(true);
 				}
+			}
+			if (nt.getParent() instanceof TypeParameter typeParam) {
+				ret.setLocalElement(typeParam.resolveBinding().getJavaElement());
 			}
 			return ret;
 		}
