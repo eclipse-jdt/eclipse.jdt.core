@@ -115,6 +115,9 @@ public class DOMTypeParameterLocator extends DOMPatternLocator {
 		if (variable.getDeclaringMember() != null && this.locator.matchesName(variable.getDeclaringMember().getName().toCharArray(), this.locator.pattern.declaringMemberName)) {
 			return ACCURATE_MATCH;
 		}
+		if (variable.getDeclaringClass() != null && this.locator.matchesName(variable.getDeclaringClass().getName().toCharArray(), this.locator.pattern.declaringMemberName)) {
+			return ACCURATE_MATCH;
+		}
 		return IMPOSSIBLE_MATCH;
 	}
 

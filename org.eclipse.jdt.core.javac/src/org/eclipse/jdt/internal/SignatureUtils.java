@@ -117,7 +117,8 @@ public class SignatureUtils {
 			return Signature.createArraySignature(getSignature(typeBinding.getComponentType()), 1);
 		}
 		if (typeBinding.isWildcardType()) {
-			return Signature.createTypeParameterSignature(typeBinding.getName(), typeBinding.getBound() != null ? new String[] { getSignature(typeBinding.getBound()) } : null);
+			// TODO if typeBinding.getBounds(): C_EXTENDS, C_SUPER
+			return Character.toString(Signature.C_STAR);
 		}
 		ITypeBinding[] typeBounds = typeBinding.getTypeBounds();
 		if (typeBinding.isTypeVariable() || typeBinding.isWildcardType()) {
