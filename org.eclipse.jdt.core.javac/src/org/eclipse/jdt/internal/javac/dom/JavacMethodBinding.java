@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -284,7 +285,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 
 		IMethod result = currentType.getMethod(getName(), Stream.of(getParameterTypes()).map(SignatureUtils::getSignature).toArray(String[]::new));
 		if (result.exists()) {
-			return result;
+			return declaredMethod(result).orElse(result);
 		}
 		List<SingleVariableDeclaration> p = methodDeclaration.parameters();
 		String[] params = p.stream() //
@@ -299,18 +300,19 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		if (result.exists()) {
 			return result;
 		}
+		return declaredMethod(result).orElse(null);
+	}
 
+	private Optional<IMethod> declaredMethod(IMethod method) {
 		IMethod[] methods = null;
 		try {
-			methods = currentType.getMethods();
+			methods = method.getDeclaringType().getMethods();
 		} catch (JavaModelException e) {
 			// declaring type doesn't exist
-			return null;
+			return Optional.empty();
 		}
-		IMethod[] candidates = Member.findMethods(result, methods);
-		if (candidates == null || candidates.length == 0)
-			return null;
-		return candidates[0];
+		IMethod[] candidates = Member.findMethods(method, methods);
+		return candidates == null || candidates.length == 0 ? Optional.empty() : Optional.of(candidates[0]);
 	}
 
 	private IMethod resolved(IMethod from) {
