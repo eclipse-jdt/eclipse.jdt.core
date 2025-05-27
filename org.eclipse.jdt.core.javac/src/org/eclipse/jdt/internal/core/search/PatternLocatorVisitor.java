@@ -48,6 +48,7 @@ import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
@@ -325,6 +326,11 @@ class PatternLocatorVisitor extends ASTVisitor {
 	// following ones are for values in SingleMemberAnnotation
 	@Override
 	public boolean visit(NumberLiteral node) {
+		defaultVisitImplementation(node, (x,y) -> y.match(node, this.nodeSet, this.locator));
+		return true;
+	}
+	@Override
+	public boolean visit(StringLiteral node) {
 		defaultVisitImplementation(node, (x,y) -> y.match(node, this.nodeSet, this.locator));
 		return true;
 	}
