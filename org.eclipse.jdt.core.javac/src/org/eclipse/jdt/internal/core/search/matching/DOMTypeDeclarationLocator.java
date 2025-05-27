@@ -45,7 +45,7 @@ public class DOMTypeDeclarationLocator extends DOMPatternLocator {
 		return toResponse(IMPOSSIBLE_MATCH);
 	}
 
-	private boolean matchSearchForTypeSuffix(AbstractTypeDeclaration type, char typeSuffix) {
+	static boolean matchSearchForTypeSuffix(AbstractTypeDeclaration type, char typeSuffix) {
 		return switch (typeSuffix) {
 			case IIndexConstants.CLASS_SUFFIX -> type instanceof TypeDeclaration decl && !decl.isInterface();
 			case IIndexConstants.CLASS_AND_INTERFACE_SUFFIX -> type instanceof TypeDeclaration;

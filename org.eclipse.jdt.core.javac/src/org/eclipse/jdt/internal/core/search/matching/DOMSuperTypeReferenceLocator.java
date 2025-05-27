@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import java.util.Set;
 
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -43,10 +44,13 @@ public class DOMSuperTypeReferenceLocator extends DOMPatternLocator {
 
 	@Override
 	public LocatorResponse match(Type node, NodeSetWrapper nodeSet, MatchLocator locator) {
-		if (Set.of(TypeDeclaration.SUPERCLASS_TYPE_PROPERTY, TypeDeclaration.SUPER_INTERFACE_TYPES_PROPERTY, ClassInstanceCreation.TYPE_PROPERTY).contains(node)) {
+		if (!Set.of(TypeDeclaration.SUPERCLASS_TYPE_PROPERTY, TypeDeclaration.SUPER_INTERFACE_TYPES_PROPERTY, ClassInstanceCreation.TYPE_PROPERTY).contains(node.getLocationInParent())) {
 			return toResponse(IMPOSSIBLE_MATCH);
 		}
 		if (node.getLocationInParent() == ClassInstanceCreation.TYPE_PROPERTY && node.getParent() instanceof ClassInstanceCreation newInst && newInst.getAnonymousClassDeclaration() == null) {
+			return toResponse(IMPOSSIBLE_MATCH);
+		}
+		if (node.getParent() instanceof AbstractTypeDeclaration decl && !DOMTypeDeclarationLocator.matchSearchForTypeSuffix(decl, this.locator.pattern.typeSuffix)) {
 			return toResponse(IMPOSSIBLE_MATCH);
 		}
 		if (this.locator.pattern.superSimpleName == null) {
@@ -82,23 +86,18 @@ public class DOMSuperTypeReferenceLocator extends DOMPatternLocator {
 
 		var type = (ITypeBinding) binding;
 		int level = IMPOSSIBLE_MATCH;
-		if (this.locator.pattern.superRefKind != SuperTypeReferencePattern.ONLY_SUPER_INTERFACES) {
+		if (this.locator.pattern.superRefKind != SuperTypeReferencePattern.ONLY_SUPER_INTERFACES || node.getLocationInParent() == TypeDeclaration.SUPER_INTERFACE_TYPES_PROPERTY) {
 			level = this.resolveLevelForType(this.locator.pattern.superSimpleName, this.locator.pattern.superQualification,
-					type.getSuperclass());
+					type);
 			if (level == ACCURATE_MATCH)
 				return toResponse(ACCURATE_MATCH);
 		}
 
-		if (this.locator.pattern.superRefKind != SuperTypeReferencePattern.ONLY_SUPER_CLASSES) {
-			for (ITypeBinding superInterface : type.getInterfaces()) {
-				int newLevel = this.resolveLevelForType(this.locator.pattern.superSimpleName, this.locator.pattern.superQualification,
-						superInterface);
-				if (newLevel > level) {
-					if (newLevel == ACCURATE_MATCH)
-						return toResponse(ACCURATE_MATCH);
-					level = newLevel;
-				}
-			}
+		if (this.locator.pattern.superRefKind != SuperTypeReferencePattern.ONLY_SUPER_CLASSES || node.getLocationInParent() == TypeDeclaration.SUPERCLASS_TYPE_PROPERTY) {
+			level = this.resolveLevelForType(this.locator.pattern.superSimpleName, this.locator.pattern.superQualification,
+					type);
+			if (level == ACCURATE_MATCH)
+				return toResponse(ACCURATE_MATCH);
 		}
 		return toResponse(level);
 	}
