@@ -190,9 +190,12 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		}
 		String qualifiedNameFromNode = getQualifiedNameFromType(node);
 		String simpleNameFromNode = getNameStringFromType(node);
+		String patternQualifiedString = null;
 		if( qualifiedNameFromNode != null && this.locator.pattern.qualification != null) {
 			// we have a qualified name in the node, and our pattern is searching for a qualified name
-			String patternQualifiedString = (new String(this.locator.pattern.qualification) + "." + new String(this.locator.pattern.simpleName));
+			String q1 = new String(this.locator.pattern.qualification);
+			String sn1 = new String(this.locator.pattern.simpleName);
+			patternQualifiedString = !q1.isEmpty() ? (q1 + "." + sn1) : sn1;
 			LocatorResponse r1 = matchTypeNodeReturnComponent(node, patternQualifiedString, qualifiedNameFromNode, defaultLevel);
 			if( r1 != null ) return r1;
 
@@ -206,7 +209,7 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 					r1 = matchTypeNodeReturnComponent(node, qualifiedNameFromNode, fqqn, defaultLevel);
 					if( r1 != null ) return r1;
 				}
-			} else if( patternQualifiedString.endsWith(qualifiedNameFromNode)) {
+			} else if( patternQualifiedString.equals(qualifiedNameFromNode) || patternQualifiedString.endsWith("." + qualifiedNameFromNode)) {
 				String[] qualifiedNameFromNodeStringSegments = qualifiedNameFromNode.split("\\.");
 				String firstSegment = qualifiedNameFromNodeStringSegments == null || qualifiedNameFromNodeStringSegments.length == 0 ? null : qualifiedNameFromNodeStringSegments[0];
 				String fqqnImport = fqqnFromImport(firstSegment);
@@ -240,6 +243,7 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 						return r1;
 				}
 
+				return toResponse(IMPOSSIBLE_MATCH);
 			}
 		}
 		if (simpleNameFromNode != null ) {
