@@ -24,7 +24,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class BatchCompilerTest2 extends AbstractBatchCompilerTest {
 
 	static {
-//		TESTS_NAMES = new String[] { "testIssue147" };
+		TESTS_NAMES = new String[] { "testGH4053" };
 //		TESTS_NUMBERS = new int[] { 306 };
 //		TESTS_RANGE = new int[] { 298, -1 };
 	}
@@ -465,5 +465,116 @@ public void testIssue147() throws Exception {
 				true);
 	String expectedOutput = "java.lang.invoke.MethodHandle.invoke(java.lang.Object)";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+public void testGH4053() {
+//	Map<String, String> options = getCompilerOptions();
+//	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
+//	options.put(CompilerOptions.OPTION_AnnotationBasedResourceAnalysis, CompilerOptions.ENABLED);
+	String currentWorkingDirectoryPath = System.getProperty("user.dir");
+	String libPath = currentWorkingDirectoryPath + File.separator + "gh4053.jar";
+	try {
+		Util.createJar(
+			new String[] {
+				"test/Color.java;\n",
+				"""
+				package test;
+				enum Color {
+					BLUE, RED;
+				}
+				""",
+				"test/MyAnnot1.java;\n",
+				"""
+				package test;
+				import java.lang.annotation.ElementType;
+				import java.lang.annotation.Retention;
+				import java.lang.annotation.RetentionPolicy;
+				import java.lang.annotation.Target;
+				@Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })
+				@Retention(RetentionPolicy.RUNTIME)
+				public @interface MyAnnot1 {
+					String value() default "";
+					String[] anotherValue() default {};
+					Class type() default Object.class;
+					Override annot() default @Override();
+					Color col() default Color.BLUE;
+				}
+				""",
+				"test/MyAnnot2.java;\n",
+				"""
+				package test;
+				import java.lang.annotation.ElementType;
+				import java.lang.annotation.Retention;
+				import java.lang.annotation.RetentionPolicy;
+				import java.lang.annotation.Target;
+				@Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })
+				@Retention(RetentionPolicy.RUNTIME)
+				public @interface MyAnnot2 {
+					String value() default "";
+				}
+				""",
+				"test/MyAnnot3.java;\n",
+				"""
+				package test;
+				import java.lang.annotation.ElementType;
+				import java.lang.annotation.Retention;
+				import java.lang.annotation.RetentionPolicy;
+				import java.lang.annotation.Target;
+				@Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })
+				@Retention(RetentionPolicy.RUNTIME)
+				public @interface MyAnnot3 {
+				}
+				""",
+				"test/TestBase.java;\n",
+				"""
+				package test;
+				abstract class TestBase {
+					@MyAnnot1(value = "abc", anotherValue = {"def", "ghi"}, type = String.class, annot = @Override(), col = Color.BLUE)
+					@MyAnnot2("xyz")
+					@MyAnnot3
+					public void testBase() {
+					}
+				}
+				"""
+			},
+			libPath,
+			JavaCore.VERSION_11,
+			false);
+		this.runConformTest(
+				new String[] {
+					"test/TestSub.java",
+					"""
+					package test;
+					public class TestSub extends TestBase {
+						@MyAnnot1(value = "abc", anotherValue = {"def", "ghi"}, type = String.class, annot = @Override(), col = Color.BLUE)
+						@MyAnnot2("xyz")
+						@MyAnnot3
+						public void testSub() {
+						}
+					}
+					"""
+				},
+				"\"" + OUTPUT_DIR +  File.separator + "test" + File.separator + "TestSub.java\"" +
+						" -cp " + libPath + // relative
+						" -source " + CompilerOptions.getLatestVersion() +
+						" -target " + CompilerOptions.getLatestVersion() + " ",
+						"",
+						"",
+						true);
+		String expectedOutput = "  // Method descriptor #6 ()V\n" +
+				"  // Stack: 1, Locals: 1\n" +
+				"  @test.MyAnnot1(value=\"abc\",\n" +
+				"    anotherValue={\"def\",\"ghi\"},\n" +
+				"    type=java.lang.Class,\n" +
+				"    annot=@java.lang.Override,\n" +
+				"    col=test.Color.BLUE)\n" +
+				"  @test.MyAnnot2(value=\"xyz\")\n" +
+				"  @test.MyAnnot3\n" +
+				"  public bridge synthetic void testBase();\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "test" + File.separator + "TestSub.class", "TestSub", expectedOutput);
+	} catch (Exception e) {
+		System.err.println("BatchCompilerTest2#testGH4053 could not write to current working directory " + currentWorkingDirectoryPath);
+	} finally {
+		new File(libPath).delete();
+	}
 }
 }
