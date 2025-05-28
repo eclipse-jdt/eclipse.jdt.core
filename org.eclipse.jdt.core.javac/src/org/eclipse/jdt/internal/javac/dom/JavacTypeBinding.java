@@ -744,7 +744,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	}
 
 	@Override
-	public ITypeBinding getComponentType() {
+	public JavacTypeBinding getComponentType() {
 		if (this.type instanceof ArrayType arrayType) {
 			return this.resolver.bindings.getTypeBinding(arrayType.elemtype);
 		}
@@ -933,7 +933,12 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 	}
 
 	@Override
-	public ITypeBinding getErasure() {
+	public JavacTypeBinding getErasure() {
+		if (isArray()) {
+			JavacTypeBinding component = getComponentType().getErasure();
+			ArrayType arrayType = this.types.makeArrayType(component.type);
+			return this.resolver.bindings.getTypeBinding(arrayType, false);
+		}
 		if (isParameterizedType()) {
 			// generic binding
 			return this.resolver.bindings.getTypeBinding(this.type, true);
