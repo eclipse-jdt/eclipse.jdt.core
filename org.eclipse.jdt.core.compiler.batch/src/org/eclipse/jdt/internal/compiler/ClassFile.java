@@ -41,6 +41,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.IntPredicate;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -2446,6 +2447,70 @@ public class ClassFile implements TypeConstants, TypeIds {
 		return this.constantPool.UTF8Cache.returnKeyFor(2);
 	}
 
+	private void generateAnnotation(AnnotationBinding annotation, int currentOffset) {
+		int startingContentsOffset = currentOffset;
+		if (this.contentsOffset + 4 >= this.contents.length) {
+			resizeContents(4);
+		}
+		TypeBinding annotationTypeBinding = annotation.getAnnotationType();
+		if (annotationTypeBinding == null) {
+			this.contentsOffset = startingContentsOffset;
+			return;
+		}
+		if (annotationTypeBinding.isMemberType()) {
+			this.recordInnerClasses(annotationTypeBinding);
+		}
+		final int typeIndex = this.constantPool.literalIndex(annotationTypeBinding.signature());
+		this.contents[this.contentsOffset++] = (byte) (typeIndex >> 8);
+		this.contents[this.contentsOffset++] = (byte) typeIndex;
+
+		ElementValuePair[] elementValuePairs = annotation.getElementValuePairs();
+		int memberSize = elementValuePairs == null ? 0 : elementValuePairs.length;
+		if (memberSize >= 1) {
+			int memberValuePairOffset = this.contentsOffset;
+			if (elementValuePairs != null) {
+				int memberValuePairsCount = 0;
+				int memberValuePairsLengthPosition = this.contentsOffset;
+				this.contentsOffset += 2; // leave space to fill in the pair count later
+				int resetPosition = this.contentsOffset;
+				final int memberValuePairsLength = elementValuePairs.length;
+				loop: for (int i = 0; i < memberValuePairsLength; i++) {
+					ElementValuePair memberValuePair = elementValuePairs[i];
+					if (this.contentsOffset + 2 >= this.contents.length) {
+						resizeContents(2);
+					}
+					final int elementNameIndex = this.constantPool.literalIndex(memberValuePair.name);
+					this.contents[this.contentsOffset++] = (byte) (elementNameIndex >> 8);
+					this.contents[this.contentsOffset++] = (byte) elementNameIndex;
+					MethodBinding methodBinding = memberValuePair.binding;
+					if (methodBinding == null) {
+						this.contentsOffset = resetPosition;
+					} else {
+						try {
+							generateElementValue(memberValuePairOffset, memberValuePair.value, methodBinding.returnType);
+							if (this.contentsOffset == memberValuePairOffset) {
+								// ignore all annotation values
+								this.contents[this.contentsOffset++] = 0;
+								this.contents[this.contentsOffset++] = 0;
+								break loop;
+							}
+							memberValuePairsCount++;
+							resetPosition = this.contentsOffset;
+						} catch(ClassCastException | ShouldNotImplement e) {
+							this.contentsOffset = resetPosition;
+						}
+					}
+				}
+				this.contents[memberValuePairsLengthPosition++] = (byte) (memberValuePairsCount >> 8);
+				this.contents[memberValuePairsLengthPosition++] = (byte) memberValuePairsCount;
+				return;
+			}
+		}
+		// this is a marker annotation (no member value pairs)
+		this.contents[this.contentsOffset++] = 0;
+		this.contents[this.contentsOffset++] = 0;
+	}
+
 	private void generateAnnotation(Annotation annotation, int currentOffset) {
 		int startingContentsOffset = currentOffset;
 		if (this.contentsOffset + 4 >= this.contents.length) {
@@ -3143,6 +3208,68 @@ public class ClassFile implements TypeConstants, TypeIds {
 			}
 		}
 	}
+	/**
+	 * Generates code for element value that comes from a Binary binding.
+	 * This does the opposite of AnnotationInfo#decodeDefaultValue()
+	 */
+	private void generateElementValue(int attributeOffset, Object defaultValue, TypeBinding binding) {
+		if (defaultValue instanceof Constant) {
+			// Pass null for the expression, which has no impact for a binary
+			generateElementValue(attributeOffset, null, (Constant) defaultValue, binding);
+		} else if (defaultValue instanceof AnnotationBinding annotation) {
+			if (this.contentsOffset + 1 >= this.contents.length) {
+				resizeContents(1);
+			}
+			this.contents[this.contentsOffset++] = (byte) '@';
+			generateAnnotation(annotation, attributeOffset);
+		} else if (binding.isArrayType()) {
+			if (this.contentsOffset + 3 >= this.contents.length) {
+				resizeContents(3);
+			}
+			this.contents[this.contentsOffset++] = (byte) '[';
+			if (defaultValue instanceof Object[] values) {
+				int arrayLength = values.length;
+				this.contents[this.contentsOffset++] = (byte) (arrayLength >> 8);
+				this.contents[this.contentsOffset++] = (byte) arrayLength;
+				for (int i = 0; i < arrayLength; i++) {
+					generateElementValue(attributeOffset, values[i], binding.leafComponentType());
+				}
+			} else { // null possibility
+				this.contentsOffset = attributeOffset;
+			}
+		} else {
+			if (binding.isEnum()) {
+				if (this.contentsOffset + 5 >= this.contents.length) {
+					resizeContents(5);
+				}
+				this.contents[this.contentsOffset++] = (byte) 'e';
+				if (defaultValue instanceof FieldBinding field) {
+					final int enumConstantTypeNameIndex = this.constantPool.literalIndex(binding.signature());
+					final int enumConstantNameIndex = this.constantPool.literalIndex(field.name);
+					this.contents[this.contentsOffset++] = (byte) (enumConstantTypeNameIndex >> 8);
+					this.contents[this.contentsOffset++] = (byte) enumConstantTypeNameIndex;
+					this.contents[this.contentsOffset++] = (byte) (enumConstantNameIndex >> 8);
+					this.contents[this.contentsOffset++] = (byte) enumConstantNameIndex;
+				} else {
+					this.contentsOffset = attributeOffset;
+				}
+			} else if (binding.erasure().id == TypeIds.T_JavaLangClass) {
+				if (this.contentsOffset + 3 >= this.contents.length) {
+					resizeContents(3);
+				}
+				this.contents[this.contentsOffset++] = (byte) 'c';
+				if (binding.signature() != null) {
+					final int classInfoIndex = this.constantPool.literalIndex(binding.signature());
+					this.contents[this.contentsOffset++] = (byte) (classInfoIndex >> 8);
+					this.contents[this.contentsOffset++] = (byte) classInfoIndex;
+				} else {
+					this.contentsOffset = attributeOffset;
+				}
+			} else {
+				this.contentsOffset = attributeOffset; // no constant value
+			}
+		}
+	}
 	private void generateElementValue(int attributeOffset, Expression defaultValue, Constant constant, TypeBinding binding) {
 		if (this.contentsOffset + 3 >= this.contents.length) {
 			resizeContents(3);
@@ -3212,7 +3339,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 					if (!this.creatingProblemType) {
 						// report an error and abort: will lead to a problem type classfile creation
 						TypeDeclaration typeDeclaration = this.referenceBinding.scope.referenceContext;
-						typeDeclaration.scope.problemReporter().stringConstantIsExceedingUtf8Limit(defaultValue);
+						if (defaultValue != null) {
+							typeDeclaration.scope.problemReporter().stringConstantIsExceedingUtf8Limit(defaultValue);
+						}
 					} else {
 						// already inside a problem type creation : no attribute
 						this.contentsOffset = attributeOffset;
@@ -4283,6 +4412,15 @@ public class ClassFile implements TypeConstants, TypeIds {
 			} else if (syntheticMethod.isCanonicalConstructor()) {
 				AbstractVariableDeclaration[] parameters = syntheticMethod.declaringClass.getRecordComponents();
 				attributesNumber += generateRuntimeAnnotationsForParameters(parameters);
+			}  else if (methodDeclaration == null){
+				MethodBinding target = ((SyntheticMethodBinding) methodBinding).targetMethod;
+				if (target != null && target.declaringClass instanceof BinaryTypeBinding) {
+					AnnotationBinding[] annotations = target.getAnnotations();
+					if (annotations != null) {
+						attributesNumber += generateRuntimeAnnotations(annotations,
+								methodBinding.isConstructor() ? TagBits.AnnotationForConstructor : TagBits.AnnotationForMethod);
+					}
+				}
 			}
 		}
 		if (methodDeclaration != null) {
@@ -4541,24 +4679,28 @@ public class ClassFile implements TypeConstants, TypeIds {
 	}
 
 	/**
+	 * @param length number of annotations
+	 * @param skipAnnotation
+	 * @param runtimeInvisible
+	 * @param runtimeVisible
+	 * @param processAnnot
 	 * @param targetMask allowed targets
 	 * @return the number of attributes created while dumping the annotations in the .class file
 	 */
-	private int generateRuntimeAnnotations(final Annotation[] annotations, final long targetMask) {
+	private int generateRuntimeAnnotations(int length, IntPredicate skipAnnotation,
+													IntPredicate runtimeInvisible,
+													IntPredicate runtimeVisible,
+													BiIntConsumer processAnnot,
+													final long targetMask) {
 		int attributesNumber = 0;
-		final int length = annotations.length;
 		int visibleAnnotationsCounter = 0;
 		int invisibleAnnotationsCounter = 0;
 		for (int i = 0; i < length; i++) {
-			Annotation annotation;
-			if ((annotation = annotations[i].getPersistibleAnnotation()) == null) continue; // already packaged into container.
-			long annotationMask = annotation.resolvedType != null ? annotation.resolvedType.getAnnotationTagBits() & TagBits.AnnotationTargetMASK : 0;
-			if (annotationMask != 0 && (annotationMask & targetMask) == 0) {
-				continue;
-			}
-			if (annotation.isRuntimeInvisible()) {
+			if (skipAnnotation.test(i)) continue;
+
+			if (runtimeInvisible.test(i)) {
 				invisibleAnnotationsCounter++;
-			} else if (annotation.isRuntimeVisible()) {
+			} else if (runtimeVisible.test(i)) {
 				visibleAnnotationsCounter++;
 			}
 		}
@@ -4581,15 +4723,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 			int counter = 0;
 			loop: for (int i = 0; i < length; i++) {
 				if (invisibleAnnotationsCounter == 0) break loop;
-				Annotation annotation;
-				if ((annotation = annotations[i].getPersistibleAnnotation()) == null) continue; // already packaged into container.
-				long annotationMask = annotation.resolvedType != null ? annotation.resolvedType.getAnnotationTagBits() & TagBits.AnnotationTargetMASK : 0;
-				if (annotationMask != 0 && (annotationMask & targetMask) == 0) {
-					continue;
-				}
-				if (annotation.isRuntimeInvisible()) {
+				if (skipAnnotation.test(i)) continue;
+
+				if (runtimeInvisible.test(i)) {
 					int currentAnnotationOffset = this.contentsOffset;
-					generateAnnotation(annotation, currentAnnotationOffset);
+					processAnnot.accept(i, currentAnnotationOffset);
 					invisibleAnnotationsCounter--;
 					if (this.contentsOffset != currentAnnotationOffset) {
 						counter++;
@@ -4629,16 +4767,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 			int counter = 0;
 			loop: for (int i = 0; i < length; i++) {
 				if (visibleAnnotationsCounter == 0) break loop;
-				Annotation annotation;
-				if ((annotation = annotations[i].getPersistibleAnnotation()) == null) continue; // already packaged into container.
-				long annotationMask = annotation.resolvedType != null ? annotation.resolvedType.getAnnotationTagBits() & TagBits.AnnotationTargetMASK : 0;
-				if (annotationMask != 0 && (annotationMask & targetMask) == 0) {
-					continue;
-				}
-				if (annotation.isRuntimeVisible()) {
+				if (skipAnnotation.test(i)) continue;
+				if (runtimeVisible.test(i)) {
 					visibleAnnotationsCounter--;
 					int currentAnnotationOffset = this.contentsOffset;
-					generateAnnotation(annotation, currentAnnotationOffset);
+					processAnnot.accept(i, currentAnnotationOffset);
 					if (this.contentsOffset != currentAnnotationOffset) {
 						counter++;
 					}
@@ -4659,6 +4792,61 @@ public class ClassFile implements TypeConstants, TypeIds {
 			}
 		}
 		return attributesNumber;
+	}
+
+
+	public interface BiIntConsumer {
+	    void accept(int value1, int value2);
+	}
+
+	/**
+	 * @param targetMask allowed targets
+	 * @return the number of attributes created while dumping the annotations in the .class file
+	 */
+	private int generateRuntimeAnnotations(final Annotation[] annotations, final long targetMask) {
+		IntPredicate skipAnnot = (index) -> {
+			Annotation annotation;
+			if ((annotation = annotations[index].getPersistibleAnnotation()) == null) return true; // already packaged into container.
+			long annotationMask = annotation.resolvedType != null ? annotation.resolvedType.getAnnotationTagBits() & TagBits.AnnotationTargetMASK : 0;
+			if (annotationMask != 0 && (annotationMask & targetMask) == 0) {
+				return true;
+			}
+			return false;
+		};
+		IntPredicate runtimeVisible = (index) -> {
+			return annotations[index].isRuntimeVisible();
+		};
+		IntPredicate runtimeInvisible = (index) -> {
+			return annotations[index].isRuntimeInvisible();
+		};
+		BiIntConsumer processAnnot = (index, offset) -> {
+			generateAnnotation(annotations[index], offset);
+		};
+		return generateRuntimeAnnotations(annotations.length, skipAnnot, runtimeInvisible, runtimeVisible, processAnnot, targetMask);
+	}
+
+	private int generateRuntimeAnnotations(final AnnotationBinding[] annotations, final long targetMask) {
+		IntPredicate skipAnnot = (index) -> {
+			AnnotationBinding annotation = annotations[index];
+			long annotationTagBits = annotation.getAnnotationType().getAnnotationTagBits();
+			long annotationMask = annotationTagBits & TagBits.AnnotationTargetMASK;
+			if (annotationMask != 0 && (annotationMask & targetMask) == 0) {
+				return true;
+			}
+			return false;
+		};
+		IntPredicate runtimeVisible = (index) -> {
+			long annotationTagBits = annotations[index].getAnnotationType().getAnnotationTagBits();
+			return ((annotationTagBits & TagBits.AnnotationRuntimeRetention) != 0) ;
+		};
+		IntPredicate runtimeInvisible = (index) -> {
+			long annotationTagBits = annotations[index].getAnnotationType().getAnnotationTagBits();
+			return ((annotationTagBits & TagBits.AnnotationRuntimeRetention) == 0) ;
+		};
+		BiIntConsumer processAnnot = (index, offset) -> {
+			generateAnnotation(annotations[index], offset);
+		};
+		return generateRuntimeAnnotations(annotations.length, skipAnnot, runtimeInvisible, runtimeVisible, processAnnot, targetMask);
 	}
 
 	private int generateRuntimeAnnotationsForParameters(AbstractVariableDeclaration[] arguments) {
