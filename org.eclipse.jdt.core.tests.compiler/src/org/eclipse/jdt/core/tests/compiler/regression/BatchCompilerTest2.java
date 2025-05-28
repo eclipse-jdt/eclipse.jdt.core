@@ -466,4 +466,64 @@ public void testIssue147() throws Exception {
 	String expectedOutput = "java.lang.invoke.MethodHandle.invoke(java.lang.Object)";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
+public void testGH4053() {
+	String currentWorkingDirectoryPath = System.getProperty("user.dir");
+	String libPath = currentWorkingDirectoryPath + File.separator + "gh4053.jar";
+	try {
+	Util.createJar(
+		new String[] {
+			"test/MyAnnot.java;\n",
+			"""
+			package test;
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Retention;
+			import java.lang.annotation.RetentionPolicy;
+			import java.lang.annotation.Target;
+
+			@Target({ ElementType.ANNOTATION_TYPE, ElementType.METHOD })
+			@Retention(RetentionPolicy.RUNTIME)
+			public @interface MyAnnot {
+			}
+			""",
+			"test/TestBase.java;\n",
+			"""
+			package test;
+			abstract class TestBase {
+				@MyAnnot()
+				public void testBase() {
+				}
+			}
+			"""
+		},
+		libPath,
+		JavaCore.VERSION_11,
+		false);
+	this.runConformTest(
+			new String[] {
+					"test/TestSub.java",
+					"""
+					package test;
+					public class TestSub extends TestBase {
+						@MyAnnot
+						public void testSub() {
+						}
+					}
+					"""
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "test" + File.separator + "TestSub.java\"" +
+					" -cp " + libPath + // relative
+					" -source " + CompilerOptions.getLatestVersion() +
+					" -target " + CompilerOptions.getLatestVersion() + " ",
+					"",
+					"",
+					true);
+	String expectedOutput = "  @test.MyAnnot\n"
+						+ "  public bridge synthetic void testBase();\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "test" + File.separator + "TestSub.class", "TestSub", expectedOutput);
+	} catch (Exception e) {
+		System.err.println("BatchCompilerTest2#testGH4053 could not write to current working directory " + currentWorkingDirectoryPath);
+	} finally {
+		new File(libPath).delete();
+	}
+}
 }
