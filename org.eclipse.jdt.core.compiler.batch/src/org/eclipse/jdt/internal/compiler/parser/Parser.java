@@ -2989,6 +2989,8 @@ protected void consumeConstructorHeaderName(boolean isCompact) {
 		cd.bits |= ASTNode.IsCanonicalConstructor;
 		for (int i = this.astPtr; i >=0; i--) {
 			if (this.astStack[i] instanceof TypeDeclaration declaringClass) {
+				if (declaringClass.declarationSourceEnd > 0)
+					continue; // skip preceding member types
 				if (declaringClass.isRecord())
 					cd.protoArguments = declaringClass.recordComponents;
 				else
@@ -7015,9 +7017,6 @@ protected void consumeRule(int act) {
     case 336 : if (DEBUG) { System.out.println("RecordComponentHeaderRightParen ::= RPAREN"); }  //$NON-NLS-1$
 		    consumeRecordComponentHeaderRightParen(); 			break;
 
-    case 337 : if (DEBUG) { System.out.println("RecordHeader ::= LPAREN RecordComponentListOpt..."); }  //$NON-NLS-1$
-		    consumeRecordHeader(); 			break;
-
     case 338 : if (DEBUG) { System.out.println("RecordComponentListOpt ::="); }  //$NON-NLS-1$
 		    consumeRecordComponentsopt(); 			break;
 
@@ -10248,9 +10247,6 @@ protected void consumeWildcardWithBounds() {
 /* Java 16 - records */
 protected void consumeRecordHeaderPart() {
 	// RecordHeaderPart ::= RecordHeaderName RecordHeader ClassHeaderImplementsopt
-	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
-	assert typeDecl.isRecord();
-	// do nothing
 }
 protected void consumeRecordHeaderNameWithTypeParameters() {
 	// RecordHeaderName ::= RecordHeaderName1 TypeParameters
@@ -10291,10 +10287,6 @@ protected void consumeRecordComponentHeaderRightParen() {
 		if (this.currentElement.parseTree() == typeDecl) return;
 	}
 	resetModifiers();
-}
-protected void consumeRecordHeader() {
-	//RecordHeader ::= '(' RecordComponentsopt RecordComponentHeaderRightParen
-	//TODO: BETA_JAVA14_RECORD flag TypeDeclaration.RECORD_DECL ?
 }
 protected void consumeRecordComponentsopt() {
 	// RecordComponentsopt ::= $empty

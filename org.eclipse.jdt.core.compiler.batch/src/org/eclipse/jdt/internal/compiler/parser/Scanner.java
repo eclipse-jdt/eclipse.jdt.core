@@ -5370,9 +5370,23 @@ private boolean mayBeAtAnYieldStatement() {
 	}
 }
 TerminalToken disambiguateRecord() {
-	if (JavaFeature.RECORDS.isSupported(this.sourceLevel, this.previewEnabled)) {
-		if (disambiguateRecordWithLookAhead())
-			return TokenNameRestrictedIdentifierrecord;
+	if (JavaFeature.RECORDS.isSupported(this.sourceLevel, this.previewEnabled) && !isInModuleDeclaration()) {
+		getVanguardParser();
+		this.vanguardScanner.resetTo(this.currentPosition, this.eofPosition - 1);
+		try {
+			if (this.vanguardScanner.getNextToken() == TokenNameIdentifier) {
+				TerminalToken lookAhead = this.vanguardScanner.getNextToken();
+				lookAhead = lookAhead == TokenNameLESS ? getNextTokenAfterTypeParameterHeader() : lookAhead;
+				if (lookAhead == TokenNameLPAREN || lookAhead == TokenNameLBRACE) // tolerate record X {} or record X<T> {} at this level, will be complained elsewhere.
+					return TokenNameRestrictedIdentifierrecord;
+			}
+		} catch (InvalidInputException e) {
+			if (e.getMessage().equals(INVALID_CHAR_IN_STRING)) {
+				//Ignore
+			} else {
+				e.printStackTrace(); // Shouldn't happen, but log the error
+			}
+		}
 	}
 	return TokenNameIdentifier;
 }
@@ -5388,9 +5402,9 @@ private TerminalToken getNextTokenAfterTypeParameterHeader() {
 			if (token == TokenNameGREATER)
 				--count;
 			if (token == TokenNameRIGHT_SHIFT)
-				count= count -2;
+				count = count - 2;
 			if (token == TokenNameUNSIGNED_RIGHT_SHIFT)
-				count= count -3;
+				count = count - 3;
 			if (count <= 0)
 				return this.vanguardScanner.getNextToken();
 		}
@@ -5404,34 +5418,6 @@ private TerminalToken getNextTokenAfterTypeParameterHeader() {
 	}
 	return TokenNameEOF;
 }
-private boolean disambiguateRecordWithLookAhead() {
-	if (isInModuleDeclaration())
-		return false;
-	getVanguardParser();
-	this.vanguardScanner.resetTo(this.currentPosition, this.eofPosition - 1);
-	try {
-		TerminalToken lookAhead1 = this.vanguardScanner.getNextToken();
-		if (lookAhead1 == TokenNameIdentifier) {
-			TerminalToken lookAhead2 = this.vanguardScanner.getNextToken();
-			lookAhead2 = lookAhead2 == TokenNameLESS ? getNextTokenAfterTypeParameterHeader() : lookAhead2;
-			if (lookAhead2 == TokenNameLBRACE) {
-				// record X {} is considered a record (albeit illegal),
-				// This is so that we can issue an appropriate syntax error
-				return true;
-			}
-			return lookAhead2 == TokenNameLPAREN;
-		}
-	} catch (InvalidInputException e) {
-		if (e.getMessage().equals(INVALID_CHAR_IN_STRING)) {
-			//Ignore
-		} else {
-			// Shouldn't happen, but log the error
-			e.printStackTrace();
-		}
-	}
-	return false; // IIE event;
-}
-
 TerminalToken disambiguateWhen() {
 	return this.activeParser == null || !this.activeParser.automatonWillShift(TokenNameRestrictedIdentifierWhen) ?
 					TokenNameIdentifier : TokenNameRestrictedIdentifierWhen;

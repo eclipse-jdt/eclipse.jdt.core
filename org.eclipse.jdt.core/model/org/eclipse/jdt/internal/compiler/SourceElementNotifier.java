@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.compiler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor.ParameterInfo;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor.TypeParameterInfo;
@@ -555,7 +554,6 @@ protected void notifySourceElementRequestor(AbstractVariableDeclaration fieldDec
 				fieldInfo.name = fieldDeclaration.name;
 				fieldInfo.modifiers = deprecated ? (currentModifiers & ExtraCompilerModifiers.AccJustFlag) | ClassFileConstants.AccDeprecated : currentModifiers & ExtraCompilerModifiers.AccJustFlag;
 				if (fieldDeclaration.getKind() == AbstractVariableDeclaration.RECORD_COMPONENT) {
-					fieldInfo.modifiers |= ExtraCompilerModifiers.AccRecord;
 					fieldInfo.isRecordComponent = true;
 				}
 				fieldInfo.type = typeName;
@@ -694,10 +692,7 @@ protected void notifySourceElementRequestor(CompilationUnitDeclaration parsedUni
 		this.initialPosition <= typeDeclaration.declarationSourceStart
 		&& this.eofPosition >= typeDeclaration.declarationSourceEnd;
 
-	FieldDeclaration[] fields = typeDeclaration.fields == null ? ASTNode.NO_FIELD_DECLARATIONS : typeDeclaration.fields;
-	RecordComponent [] recordComponents = typeDeclaration.recordComponents;
-	AbstractVariableDeclaration[] variableDeclarartions = Stream.concat(Stream.of(recordComponents), Stream.of(fields)).toArray(AbstractVariableDeclaration[]::new);
-
+	AbstractVariableDeclaration[] variableDeclarartions = typeDeclaration.protoFieldDeclarations();
 	AbstractMethodDeclaration[] methods = typeDeclaration.methods;
 	TypeDeclaration[] memberTypes = typeDeclaration.memberTypes;
 	int fieldCounter = variableDeclarartions.length;

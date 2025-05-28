@@ -22,7 +22,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 public class RecordComponentBinding extends VariableBinding {
 
 	public ReferenceBinding declaringRecord;
-	public BlockScope declaringScope; // back-pointer to its declaring scope
 
 	public RecordComponentBinding(ReferenceBinding declaringRecord, RecordComponent declaration, TypeBinding type, int modifiers) {
 		super(declaration.name, type, modifiers,  null);
@@ -124,14 +123,10 @@ public class RecordComponentBinding extends VariableBinding {
 	}
 
 	public RecordComponent sourceRecordComponent() {
-		if (!(this.declaringRecord instanceof SourceTypeBinding))
-			return null;
-		SourceTypeBinding sourceType = (SourceTypeBinding) this.declaringRecord;
-		RecordComponent[] recordComponents = sourceType.scope.referenceContext.recordComponents;
-		if (recordComponents != null) {
-			for (int i = recordComponents.length; --i >= 0;)
-				if (this == recordComponents[i].binding)
-					return recordComponents[i];
+		if (this.declaringRecord instanceof SourceTypeBinding sourceType) {
+			for (RecordComponent component : sourceType.scope.referenceContext.recordComponents)
+				if (this == component.binding)
+					return component;
 		}
 		return null;
 	}

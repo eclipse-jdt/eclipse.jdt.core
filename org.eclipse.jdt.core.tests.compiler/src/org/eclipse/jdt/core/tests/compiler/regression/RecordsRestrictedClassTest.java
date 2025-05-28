@@ -9645,15 +9645,35 @@ public void testPR3675() {
 				"X.java",
 				"""
 					class X {
+					       record Y() {}
 					       X {}
 					}
 				"""
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
+			"1. ERROR in X.java (at line 3)\n" +
 			"	X {}\n" +
 			"	^\n" +
-			"A canonical constructor is allowed only in record classes\n" +
+			"A compact constructor is allowed only in record classes\n" +
+			"----------\n");
+}
+
+public void testPR3675_2() {
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+					public record X() {
+					       class Y {}
+					       X {}
+					}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	X {}\n" +
+			"	^\n" +
+			"Cannot reduce the visibility of a canonical constructor X from that of the record\n" +
 			"----------\n");
 }
 
@@ -10341,5 +10361,170 @@ public void testIssue3663() {
 			"	  ^^^^^^^\n" +
 			"Type or arity incompatibility in argument int[] of canonical constructor in record class\n" +
 			"----------\n");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4015
+// [Records] Incorrect error "Cannot instantiate local class 'ARecord' in a static context"
+public void testIssue4015() {
+	this.runConformTest(
+		new String[] {
+					"X.java",
+					"""
+					import java.util.function.Supplier;
+
+					public class X {
+
+						public String method() {
+
+							record ARecord() {
+								public static ARecord of() {
+									return new ARecord();
+								}
+							}
+
+							ARecord ar = ARecord.of();
+							return ar.toString();
+						}
+
+						public static Supplier<Object> test() {
+							class A {}
+							return () -> new A();
+						}
+
+					    public static void main(String [] args) {
+					        System.out.println(new X().method());
+					    }
+					}
+					""",
+	            },
+
+		"ARecord[]");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4015
+// [Records] Incorrect error "Cannot instantiate local class 'ARecord' in a static context"
+public void testIssue4015_2() {
+	// test again with static enclosing method
+	this.runConformTest(
+			new String[] {
+						"X.java",
+						"""
+						import java.util.function.Supplier;
+
+						public class X {
+
+							public static String staticMethod() {
+
+								record ARecord() {
+									public static ARecord of() {
+										return new ARecord();
+									}
+								}
+
+								ARecord ar = ARecord.of();
+								return ar.toString();
+							}
+
+							public static Supplier<Object> test() {
+								class A {}
+								return () -> new A();
+							}
+
+						    public static void main(String [] args) {
+						        System.out.println(staticMethod());
+						    }
+						}
+						""",
+		            },
+
+			"ARecord[]");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4015
+// [Records] Incorrect error "Cannot instantiate local class 'ARecord' in a static context"
+public void testIssue4015_3() {
+	this.runConformTest(
+			new String[] {
+						"X.java",
+						"""
+						import java.util.function.Supplier;
+
+						public class X {
+
+							interface I {}
+
+							public String method() {
+
+								record ARecord() implements I {
+									public static ARecord of() {
+										Supplier<I> si = ARecord::new;
+										return (ARecord) si.get();
+									}
+								}
+								return ARecord.of().toString();
+							}
+
+							public static void main(String [] args) {
+						        System.out.println(new X().method());
+						    }
+						}
+						""",
+		            },
+
+			"ARecord[]");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4015
+// [Records] Incorrect error "Cannot instantiate local class 'ARecord' in a static context"
+public void testIssue4015_4() {
+	// test again with static enclosing method
+	this.runConformTest(
+		new String[] {
+					"X.java",
+					"""
+					import java.util.function.Supplier;
+
+					public class X {
+
+						interface I {}
+
+						public static String staticMethod() {
+
+							record ARecord() implements I {
+								public static ARecord of() {
+									Supplier<I> si = ARecord::new;
+									return (ARecord) si.get();
+								}
+							}
+							return ARecord.of().toString();
+						}
+
+						public static void main(String [] args) {
+					        System.out.println(staticMethod());
+					    }
+					}
+					""",
+	            },
+
+		"ARecord[]");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4025
+// [Records] Record component by name equals with an explicit accessor leads to ClassFormatError
+public void testIssue4025() {
+	this.runConformTest(
+		new String[] {
+					"X.java",
+					"""
+					public record X(boolean equals)  {
+					    public boolean equals() {
+					        return equals;
+					    }
+
+					    public static void main(String argv[]) {
+					        System.out.println("Ok!");
+					    }
+					}
+					""",
+	            },
+
+		"Ok!");
 }
 }
