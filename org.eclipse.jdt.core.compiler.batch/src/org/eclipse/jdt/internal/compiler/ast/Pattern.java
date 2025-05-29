@@ -110,11 +110,6 @@ public abstract class Pattern extends Expression {
 		return false;
 	}
 
-	// Given a non-null instance of same type, would the pattern always match ?
-	public boolean matchFailurePossible() {
-		return false;
-	}
-
 	public boolean isUnconditional(TypeBinding t, Scope scope) {
 		return false;
 	}

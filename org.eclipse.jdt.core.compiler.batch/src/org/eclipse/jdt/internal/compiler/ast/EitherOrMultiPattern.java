@@ -79,17 +79,6 @@ public class EitherOrMultiPattern extends Pattern {
 	}
 
 	@Override
-	public boolean matchFailurePossible() {
-		if (!isUnguarded())
-			return true;
-		for (Pattern p : this.patterns) {
-			if (p.matchFailurePossible())
-				return true;
-		}
-		return false;
-	}
-
-	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel patternMatchLabel, BranchLabel matchFailLabel) {
 		/* JVM Stack on entry - [expression] // && expression instanceof _one of the_ EitherOrMultiPattern, we don't know which one
 		   JVM stack on exit with successful pattern match or failed match -> []
