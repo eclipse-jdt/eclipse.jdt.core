@@ -1099,4 +1099,111 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 				},
 			"First guard\nSecond guard\nDefault");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4038
+	// [Record patterns] Verify error with record patterns
+	public void testIssue4038() {
+		runConformTest(new String[] {
+				"Problem.java",
+				"""
+				public class Problem {
+
+				    record R(Object o)  {}
+
+				    static void execute(R stmt) {
+				        switch (stmt) {
+				            case R(var _) -> {
+				                while (cond(null)) {
+				                    execute(null);
+				                }
+				            }
+				        }
+				    }
+
+				    static boolean cond(Object object) {
+				        return true;
+				    }
+
+				    public static void main(String[] args) {
+				    	System.out.println("012012345678");
+				    }
+				}
+				"""
+			},
+			"012012345678");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4038
+	// [Record patterns] Verify error with record patterns
+	public void testIssue4038_2() {
+		runConformTest(new String[] {
+				"Problem.java",
+				"""
+				public class Problem {
+
+				    record R(Object o)  {}
+
+				    static void execute(R stmt) {
+				        switch (stmt) {
+				            case R(Object _) -> {
+				                while (cond(null)) {
+				                    execute(null);
+				                }
+				            }
+				        }
+				    }
+
+				    static boolean cond(Object object) {
+				        return true;
+				    }
+
+				    public static void main(String[] args) {
+				    	System.out.println("012012345678");
+				    }
+				}
+				"""
+			},
+			"012012345678");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4038
+	// [Record patterns] Verify error with record patterns
+	public void testIssue4038_3() {
+		runConformTest(new String[] {
+				"Problem.java",
+				"""
+				public class Problem {
+
+				    record R(Object o)  {}
+
+				    static int execute(R stmt) {
+				    	int retVal = -1;
+				        switch (stmt) {
+				            case R(String _) -> {
+				            	try {
+					                while (cond(null)) {
+					                    execute(null);
+					                }
+				                } catch(NullPointerException npe) {
+				                    retVal = 654321;
+			                    }
+			                    return retVal;
+				            }
+				            default -> { return 123456; }
+				        }
+				    }
+
+				    static boolean cond(Object object) {
+				        return true;
+				    }
+
+				    public static void main(String[] args) {
+				    	System.out.println(execute(new R("Hello")));
+				    	System.out.println(execute(new R(new Problem())));
+				    }
+				}
+				"""
+			},
+			"654321\n123456");
+	}
 }

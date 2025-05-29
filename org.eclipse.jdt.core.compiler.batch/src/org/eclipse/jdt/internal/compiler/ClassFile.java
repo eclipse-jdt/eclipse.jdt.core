@@ -6679,6 +6679,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			if (hasExceptionMarkers && exceptionMarker.pc == currentPC) {
 				frame.numberOfStackItems = 0;
 				frame.addStackItem(new VerificationTypeInfo(exceptionMarker.getBinding()));
+				frame.adoptStackShape = true; // good to go.
 				indexInExceptionMarkers++;
 				if (indexInExceptionMarkers < exceptionsMarkersLength) {
 					exceptionMarker = exceptionMarkers[indexInExceptionMarkers];
@@ -6714,6 +6715,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			}
 			byte opcode = (byte) u1At(bytecodes, 0, pc);
 			inspectFrame(currentPC, frame);
+			frame.adoptStackShape = true;
 			switch (opcode) {
 				case Opcodes.OPC_nop:
 					pc++;
@@ -7270,6 +7272,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding), scope);
 					pc += 3;
 					addRealJumpTarget(realJumpTarget, pc - codeOffset);
+					frame.adoptStackShape = false;
 					break;
 				case Opcodes.OPC_tableswitch:
 					frame.numberOfStackItems--;
@@ -7292,6 +7295,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 						addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding), scope);
 						pc += 4;
 					}
+					frame.adoptStackShape = false;
 					break;
 				case Opcodes.OPC_lookupswitch:
 					frame.numberOfStackItems--;
@@ -7311,6 +7315,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 						addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding), scope);
 						pc += 4;
 					}
+					frame.adoptStackShape = false;
 					break;
 				case Opcodes.OPC_ireturn:
 				case Opcodes.OPC_lreturn:
@@ -7320,10 +7325,12 @@ public class ClassFile implements TypeConstants, TypeIds {
 					frame.numberOfStackItems--;
 					pc++;
 					addRealJumpTarget(realJumpTarget, pc - codeOffset);
+					frame.adoptStackShape = false;
 					break;
 				case Opcodes.OPC_return:
 					pc++;
 					addRealJumpTarget(realJumpTarget, pc - codeOffset);
+					frame.adoptStackShape = false;
 					break;
 				case Opcodes.OPC_getstatic:
 					index = u2At(bytecodes, 1, pc);
@@ -7561,6 +7568,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					frame.numberOfStackItems--;
 					pc++;
 					addRealJumpTarget(realJumpTarget, pc - codeOffset);
+					frame.adoptStackShape = false;
 					break;
 				case Opcodes.OPC_checkcast:
 					index = u2At(bytecodes, 1, pc);
@@ -7665,6 +7673,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding), scope);
 					pc += 5;
 					addRealJumpTarget(realJumpTarget, pc - codeOffset); // handle infinite loop
+					frame.adoptStackShape = false;
 					break;
 				default: // should not occur
 					if (this.codeStream.methodDeclaration != null) {
