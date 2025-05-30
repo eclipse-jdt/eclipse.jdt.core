@@ -246,10 +246,6 @@ public void aconst_null() {
 
 public void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
 	// Required to fix 1PR0XVS: LFRE:WINNT - Compiler: variable table for method appears incorrect
-	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
-			| ClassFileConstants.ATTR_STACK_MAP_TABLE
-			| ClassFileConstants.ATTR_STACK_MAP)) == 0)
-		return;
 	for (int i = 0; i < this.visibleLocalsCount; i++) {
 		LocalVariableBinding localBinding = this.visibleLocals[i];
 		if (localBinding != null) {
@@ -283,11 +279,6 @@ public void addVariable(LocalVariableBinding localBinding) {
 }
 
 public void addVisibleLocalVariable(LocalVariableBinding localBinding) {
-	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
-			| ClassFileConstants.ATTR_STACK_MAP_TABLE
-			| ClassFileConstants.ATTR_STACK_MAP)) == 0)
-		return;
-
 	if (this.visibleLocalsCount >= this.visibleLocals.length)
 		System.arraycopy(this.visibleLocals, 0, this.visibleLocals = new LocalVariableBinding[this.visibleLocalsCount * 2], 0, this.visibleLocalsCount);
 	this.visibleLocals[this.visibleLocalsCount++] = localBinding;
@@ -1157,10 +1148,6 @@ public void dup2_x2() {
 
 public void exitUserScope(BlockScope currentScope, Predicate<LocalVariableBinding> condition) {
 	// mark all the scope's locals as losing their definite assignment
-	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
-			| ClassFileConstants.ATTR_STACK_MAP_TABLE
-			| ClassFileConstants.ATTR_STACK_MAP)) == 0)
-		return;
 	int index = this.visibleLocalsCount - 1;
 	while (index >= 0) {
 		LocalVariableBinding visibleLocal = this.visibleLocals[index];
@@ -6612,10 +6599,6 @@ public void pushOnStack(TypeBinding binding) {
 }
 
 public void record(LocalVariableBinding local) {
-	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
-			| ClassFileConstants.ATTR_STACK_MAP_TABLE
-			| ClassFileConstants.ATTR_STACK_MAP)) == 0)
-		return;
 	if (this.allLocalsCounter == this.locals.length) {
 		// resize the collection
 		System.arraycopy(this.locals, 0, this.locals = new LocalVariableBinding[this.allLocalsCounter + LOCALS_INCREMENT], 0, this.allLocalsCounter);
@@ -6783,10 +6766,6 @@ public void registerExceptionHandler(ExceptionLabel anExceptionLabel) {
 public void removeNotDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
 	// given some flow info, make sure we did not loose some variables initialization
 	// if this happens, then we must update their pc entries to reflect it in debug attributes
-	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
-			| ClassFileConstants.ATTR_STACK_MAP_TABLE
-			| ClassFileConstants.ATTR_STACK_MAP)) == 0)
-		return;
 	for (int i = 0; i < this.visibleLocalsCount; i++) {
 		LocalVariableBinding localBinding = this.visibleLocals[i];
 		if (localBinding != null && !isDefinitelyAssigned(scope, initStateIndex, localBinding) && localBinding.initializationCount > 0) {
@@ -6857,12 +6836,6 @@ public void reset(AbstractMethodDeclaration referenceMethod, ClassFile targetCla
 }
 
 private OperandStack createOperandStack(CompilerOptions compilerOptions) {
-	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
-			| ClassFileConstants.ATTR_STACK_MAP_TABLE
-			| ClassFileConstants.ATTR_STACK_MAP)) == 0) {
-		return new OperandStack.NullStack();
-	}
-
 	return JavaFeature.SWITCH_EXPRESSIONS.isSupported(compilerOptions.sourceLevel, compilerOptions.enablePreviewFeatures) ?
 										new OperandStack(this.classFile) : new OperandStack.NullStack();
 }
@@ -7390,11 +7363,6 @@ public TypeBinding retrieveLocalType(int currentPC, int resolvedPosition) {
 
 	if (this.operandStack instanceof OperandStack.NullStack)
 		return null;
-
-	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
-			| ClassFileConstants.ATTR_STACK_MAP_TABLE
-			| ClassFileConstants.ATTR_STACK_MAP)) == 0)
-		return null; // can't retrieve what we didn't record.
 
 	for (int i = this.allLocalsCounter  - 1 ; i >= 0; i--) {
 		LocalVariableBinding localVariable = this.locals[i];

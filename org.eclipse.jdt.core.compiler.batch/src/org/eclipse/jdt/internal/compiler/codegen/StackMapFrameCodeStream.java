@@ -21,7 +21,6 @@ import java.util.Set;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -87,7 +86,6 @@ public class StackMapFrameCodeStream extends CodeStream {
 
 	public StackMapFrameCodeStream(ClassFile givenClassFile) {
 		super(givenClassFile);
-		this.generateAttributes |= ClassFileConstants.ATTR_STACK_MAP;
 	}
 
 	@Override
