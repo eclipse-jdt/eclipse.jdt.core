@@ -140,7 +140,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			//AccAlternateModifierProblem -> duplicate modifier
 			//AccModifierProblem | AccAlternateModifierProblem -> visibility problem"
 
-			this.modifiers = (this.modifiers & ~ExtraCompilerModifiers.AccAlternateModifierProblem) | ExtraCompilerModifiers.AccModifierProblem;
+			this.modifiers &= ~ExtraCompilerModifiers.AccAlternateModifierProblem;
 	}
 
 	/**
