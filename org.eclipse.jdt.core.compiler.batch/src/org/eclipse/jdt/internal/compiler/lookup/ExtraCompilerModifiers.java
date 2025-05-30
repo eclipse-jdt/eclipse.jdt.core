@@ -39,7 +39,6 @@ public interface ExtraCompilerModifiers { // modifier constant
 	// bit21 - use by ClassFileConstants.AccDeprecated
 	final int AccDeprecatedImplicitly = ASTNode.Bit22; // record whether deprecated itself or contained by a deprecated type
 	final int AccAlternateModifierProblem = ASTNode.Bit23;
-	final int AccModifierProblem = ASTNode.Bit24;
 	final int AccSemicolonBody = ASTNode.Bit25;
 	final int AccRecord = ASTNode.Bit25;
 	final int AccUnresolved = ASTNode.Bit26;
