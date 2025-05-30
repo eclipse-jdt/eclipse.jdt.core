@@ -277,21 +277,21 @@ public void place() { // Currently lacking wide support.
 					this.codeStream.lastEntryPC = this.position;
 				}
 				// end of new code
-				if ((this.codeStream.generateAttributes & (ClassFileConstants.ATTR_VARS | ClassFileConstants.ATTR_STACK_MAP_TABLE | ClassFileConstants.ATTR_STACK_MAP)) != 0) {
-					LocalVariableBinding locals[] = this.codeStream.locals;
-					for (LocalVariableBinding local : locals) {
-						if ((local != null) && (local.initializationCount > 0)) {
-							if (local.initializationPCs[((local.initializationCount - 1) << 1) + 1] == oldPosition) {
-								// we want to prevent interval of size 0 to have a negative size.
-								// see PR 1GIRQLA: ITPJCORE:ALL - ClassFormatError for local variable attribute
-								local.initializationPCs[((local.initializationCount - 1) << 1) + 1] = this.position;
-							}
-							if (local.initializationPCs[(local.initializationCount - 1) << 1] == oldPosition) {
-								local.initializationPCs[(local.initializationCount - 1) << 1] = this.position;
-							}
+
+				LocalVariableBinding locals[] = this.codeStream.locals;
+				for (LocalVariableBinding local : locals) {
+					if ((local != null) && (local.initializationCount > 0)) {
+						if (local.initializationPCs[((local.initializationCount - 1) << 1) + 1] == oldPosition) {
+							// we want to prevent interval of size 0 to have a negative size.
+							// see PR 1GIRQLA: ITPJCORE:ALL - ClassFormatError for local variable attribute
+							local.initializationPCs[((local.initializationCount - 1) << 1) + 1] = this.position;
+						}
+						if (local.initializationPCs[(local.initializationCount - 1) << 1] == oldPosition) {
+							local.initializationPCs[(local.initializationCount - 1) << 1] = this.position;
 						}
 					}
 				}
+
 				if ((this.codeStream.generateAttributes & ClassFileConstants.ATTR_LINES) != 0) {
 					// we need to remove all entries that is beyond this.position inside the pcToSourcerMap table
 					this.codeStream.removeUnusedPcToSourceMapEntries();
