@@ -1814,6 +1814,60 @@ public final ReferenceBinding outermostEnclosingType() {
 	}
 }
 
+/** return all type variables involved left to right */
+public TypeVariableBinding [] typeVariablesIncludingEnclosing() {
+
+	ReferenceBinding enclosingType = enclosingType();
+	TypeVariableBinding [] ownVariables = typeVariables();
+	TypeVariableBinding [] outerVariables = hasEnclosingInstanceContext() && enclosingType != null ? enclosingType.typeVariablesIncludingEnclosing() : Binding.NO_TYPE_VARIABLES;
+
+	if (outerVariables == null || outerVariables == Binding.NO_TYPE_VARIABLES)
+		return ownVariables == null ? Binding.NO_TYPE_VARIABLES : ownVariables;
+
+	if (ownVariables == null || ownVariables == Binding.NO_TYPE_VARIABLES)
+		return outerVariables;
+
+	int outerVariablesCount = outerVariables.length;
+	TypeVariableBinding [] allVariables;
+	System.arraycopy(outerVariables,
+			            0,
+			            allVariables = new TypeVariableBinding[outerVariablesCount + ownVariables.length],
+			            0,
+			         outerVariablesCount);
+	System.arraycopy(ownVariables,
+                         0,
+                         allVariables,
+                 outerVariablesCount,
+              ownVariables.length);
+	return allVariables;
+}
+
+public TypeBinding[] typeArgumentsIncludingEnclosing() {
+	ReferenceBinding enclosingType = enclosingType();
+	TypeBinding [] ownArguments = typeArguments();
+	TypeBinding [] outerArguments = hasEnclosingInstanceContext() && enclosingType != null ? enclosingType.typeArguments() : Binding.NO_TYPES;
+
+	if (outerArguments == null || outerArguments == Binding.NO_TYPES)
+		return ownArguments == null ? Binding.NO_TYPES : ownArguments;
+
+	if (ownArguments == null || ownArguments == Binding.NO_TYPES)
+		return outerArguments;
+
+	int outerArgumentsCount = outerArguments.length;
+	TypeBinding [] allArguments;
+	System.arraycopy(outerArguments,
+			            0,
+			            allArguments = new TypeBinding[outerArgumentsCount + ownArguments.length],
+			            0,
+			            outerArgumentsCount);
+	System.arraycopy(ownArguments,
+                         0,
+                         allArguments,
+                         outerArgumentsCount,
+              ownArguments.length);
+	return allArguments;
+}
+
 /**
  * Answer the source name for the type.
  * In the case of member types, as the qualified name from its top level type.
