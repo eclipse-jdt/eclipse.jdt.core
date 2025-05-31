@@ -6688,5 +6688,54 @@ public void testIssue3624() {
 			}
 		);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3897
+// Compilation error on ECJ but not with JavaC
+public void testIssue3897() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X<T> {
+				    T value;
+
+				    public void set(T val) {
+				        this.value = val;
+				    }
+
+				    public T get() {
+				        return value;
+				    }
+
+				    public void unsafePut(Object obj) {
+				        this.set(((X<T>) obj).get()); // <-- unchecked cast - causes ClassCastException further down
+				    }
+
+				    public static void main(String[] args) {
+				        X<String> xStr = new X<>();
+				        xStr.set("hello");
+
+				        X<Integer> xInt = new X<>();
+				        xInt.set(42);
+
+				        xStr.unsafePut(xInt);
+				        System.out.println(xStr.get()); // 🚨 ClassCastException at runtime
+				        Zork z;
+				    }
+				}
+				"""
+			},
+			"----------\n" +
+			"1. WARNING in X.java (at line 13)\n" +
+			"	this.set(((X<T>) obj).get()); // <-- unchecked cast - causes ClassCastException further down\n" +
+			"	         ^^^^^^^^^^^^\n" +
+			"Type safety: Unchecked cast from Object to X<T>\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 25)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n"
+		);
+}
 }
 
