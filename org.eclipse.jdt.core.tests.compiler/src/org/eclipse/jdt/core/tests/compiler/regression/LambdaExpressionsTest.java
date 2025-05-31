@@ -8608,6 +8608,61 @@ public void testGHIssue2096() {
     		"----------\n");
 }
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3798
+// BootstrapMethodError / LambdaConversionException using ECJ
+public void testIssue3798() {
+	this.runConformTest(
+         new String[] {
+             "X.java",
+             """
+			import java.util.Optional;
+			import java.util.stream.Stream;
+
+			public class X {
+			    private static interface Value1 {
+			        int getValue1();
+			    }
+
+			    private static interface Value2 {
+			        String getValue2();
+			    }
+
+			    private static class ObjectA implements Value1, Value2 {
+			        @Override
+			        public String getValue2() {
+			            return "A2";
+			        }
+
+			        @Override
+			        public int getValue1() {
+			            return 'A' + 1;
+			        }
+			    }
+
+			    private static class ObjectB implements Value1, Value2 {
+			        @Override
+			        public String getValue2() {
+			            return "B2";
+			        }
+
+			        @Override
+			        public int getValue1() {
+			            return 'B' + 1;
+			        }
+			    }
+
+			    public static void main(String[] args) {
+			        Stream.of(Optional.<ObjectA>empty(), Optional.of(new ObjectA()), Optional.of(new ObjectB()))
+			                .filter(Optional::isPresent)
+			                .map(Optional::get)
+			                .map(Value2::getValue2)
+			                .forEach(System.out::println);
+			    }
+			}
+             """},
+         "A2\nB2");
+}
+
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
