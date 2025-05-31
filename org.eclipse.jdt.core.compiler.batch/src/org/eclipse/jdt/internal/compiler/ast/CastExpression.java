@@ -458,10 +458,24 @@ public static boolean checkUnsafeCast(Expression expression, Scope scope, TypeBi
 						expression.bits |= ASTNode.UnsafeCast; // upcast since castType is known to be bound paramType
 						return true;
 					default :
-						if (isNarrowing){
-							// match is not parameterized or raw, then any other subtype of match will erase  to |T|
-							expression.bits |= ASTNode.UnsafeCast;
-							return true;
+						if (isNarrowing) {
+							//  JLS 5.1.6.2
+							ParameterizedTypeBinding ParameterizedCastType = (ParameterizedTypeBinding) castType;
+							TypeBinding [] typeArguments = ParameterizedCastType.arguments;
+							ReferenceBinding genericType = ParameterizedCastType.genericType();
+							TypeBinding [] typeVariables = genericType.typeVariables();
+							if (typeArguments != null && typeVariables != null && typeArguments.length == typeVariables.length) {
+								for (int i = 0, length = typeArguments.length; i < length; i++) {
+									if (typeVariables[i].isTypeArgumentContainedBy(typeArguments[i]))
+										continue;
+									expression.bits |= ASTNode.UnsafeCast;
+								}
+								return true;
+							} else {
+								// match is not parameterized or raw, then any other subtype of match will erase  to |T|
+								expression.bits |= ASTNode.UnsafeCast;
+								return true;
+							}
 						}
 						break;
 				}
