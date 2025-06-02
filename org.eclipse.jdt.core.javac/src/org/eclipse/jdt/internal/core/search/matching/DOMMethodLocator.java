@@ -574,5 +574,4 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		return IMPOSSIBLE_MATCH;
 	}
 
-
 }

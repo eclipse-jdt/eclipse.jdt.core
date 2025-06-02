@@ -105,6 +105,8 @@ import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.DiagnosticSource;
 import com.sun.tools.javac.util.Names;
 import com.sun.tools.javac.util.Options;
+import com.sun.tools.javac.util.Context.Key;
+import com.sun.tools.javac.util.Context.Key;
 
 /**
  * Allows to create and resolve DOM ASTs using Javac
@@ -113,7 +115,8 @@ import com.sun.tools.javac.util.Options;
 public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 
 	public static final String MOCK_NAME_FOR_CLASSES = "whatever_InvalidNameWE_HOP3_n00ne_will_Ever_use_in_real_file.java";
-	
+	public static final Key<Map<JavaFileObject, File>> FILE_OBJECTS_TO_JAR_KEY = new Key<>();
+
 	private final class ForwardDiagnosticsAsDOMProblems implements DiagnosticListener<JavaFileObject> {
 		public final Map<JavaFileObject, CompilationUnit> filesToUnits;
 		private final JavacProblemConverter problemConverter;
@@ -669,6 +672,8 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 		});
 		// must be 1st thing added to context
 		context.put(DiagnosticListener.class, diagnosticListener);
+		Map<JavaFileObject, File> fileObjectsToJars = new HashMap<>();
+		context.put(FILE_OBJECTS_TO_JAR_KEY, fileObjectsToJars);
 		boolean docEnabled = JavaCore.ENABLED.equals(compilerOptions.get(JavaCore.COMPILER_DOC_COMMENT_SUPPORT));
 		JavacUtils.configureJavacContext(context, compilerOptions, javaProject, JavacUtils.isTest(javaProject, sourceUnits));
 		Options javacOptions = Options.instance(context);
@@ -718,6 +723,9 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 				sourceUnitPath = Path.of(unitFile.toURI());
 			}
 			var fileObject = fileManager.getJavaFileObject(sourceUnitPath);
+			if (unitFile.getName().endsWith(".jar")) {
+				fileObjectsToJars.put(fileObject, unitFile);
+			} 
 			fileManager.cache(fileObject, CharBuffer.wrap(sourceUnit.getContents()));
 			AST ast = createAST(compilerOptions, apiLevel, context, flags);
 			CompilationUnit res = ast.newCompilationUnit();
@@ -1181,4 +1189,5 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 
 		return false;
 	}
+
 }

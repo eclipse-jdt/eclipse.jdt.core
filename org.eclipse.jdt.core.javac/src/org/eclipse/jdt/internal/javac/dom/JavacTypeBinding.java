@@ -29,14 +29,18 @@ import javax.lang.model.type.TypeKind;
 import javax.tools.JavaFileObject;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.ILog;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IOrdinaryClassFile;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaCore;
@@ -256,20 +260,34 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				}
 			}
 			ITypeRoot typeRoot = null;
-			if (jfo != null && !jfo.getName().endsWith(JavacCompilationUnitResolver.MOCK_NAME_FOR_CLASSES)) {
-				var jfoFile = new File(jfo.getName());
-				var jfoPath = new Path(jfo.getName());
-				Stream<IFile> fileStream = jfoFile.isFile()	?
-						Arrays.stream(this.resolver.javaProject.getResource().getWorkspace().getRoot().findFilesForLocationURI(jfoFile.toURI())) :
-						jfoPath.segmentCount() > 1 ?
-							Stream.of(this.resolver.javaProject.getResource().getWorkspace().getRoot().getFile(jfoPath)) :
-							Stream.of();
-				typeRoot = fileStream
-					.map(JavaCore::create)
-					.filter(ITypeRoot.class::isInstance)
-					.map(ITypeRoot.class::cast)
-					.findAny()
-					.orElse(null);
+			if (jfo != null) {
+				var jarFile = this.resolver.context.get(JavacCompilationUnitResolver.FILE_OBJECTS_TO_JAR_KEY).get(jfo);
+				if (jarFile != null) {
+					IFile jarFileResource = ((IWorkspaceRoot)this.resolver.javaProject.getProject().getParent()).getFileForLocation(IPath.fromFile(jarFile));
+					if (jarFileResource != null
+						&& jarFileResource.exists()
+						&& JavaCore.create(jarFileResource) instanceof IPackageFragmentRoot pkgFragmentRoot) {
+						IClassFile classFile = pkgFragmentRoot.getPackageFragment(getPackage().getName()).getClassFile(getName() + ".class");
+						if (classFile.exists() && classFile instanceof IOrdinaryClassFile ordinary) {
+							return resolved(ordinary.getType());
+						}
+					}
+				}
+				if (!jfo.getName().endsWith(JavacCompilationUnitResolver.MOCK_NAME_FOR_CLASSES)) {
+					var jfoFile = new File(jfo.getName());
+					var jfoPath = new Path(jfo.getName());
+					Stream<IFile> fileStream = jfoFile.isFile()	?
+							Arrays.stream(this.resolver.javaProject.getResource().getWorkspace().getRoot().findFilesForLocationURI(jfoFile.toURI())) :
+							jfoPath.segmentCount() > 1 ?
+								Stream.of(this.resolver.javaProject.getResource().getWorkspace().getRoot().getFile(jfoPath)) :
+								Stream.of();
+					typeRoot = fileStream
+						.map(JavaCore::create)
+						.filter(ITypeRoot.class::isInstance)
+						.map(ITypeRoot.class::cast)
+						.findAny()
+						.orElse(null);
+				}
 			}
 			IType candidate = null;
 			if(typeRoot instanceof ICompilationUnit tmp) {
