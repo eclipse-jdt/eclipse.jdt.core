@@ -30,7 +30,7 @@ public abstract class Pattern extends Expression {
 
 	boolean isTotalTypeNode = false;
 
-	private Pattern enclosingPattern;
+	private RecordPattern enclosingPattern;
 
 	protected MethodBinding accessorMethod;
 
@@ -58,7 +58,7 @@ public abstract class Pattern extends Expression {
 
 	record TestContextRecord(TypeBinding left, TypeBinding right, PrimitiveConversionRoute route) {}
 
-	public Pattern getEnclosingPattern() {
+	public RecordPattern getEnclosingPattern() {
 		return this.enclosingPattern;
 	}
 
