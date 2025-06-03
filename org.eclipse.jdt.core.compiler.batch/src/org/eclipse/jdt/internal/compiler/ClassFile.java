@@ -5871,16 +5871,18 @@ public class ClassFile implements TypeConstants, TypeIds {
 					}
 				}
 			} else {
+				if (methodBinding instanceof SyntheticMethodBinding smb && smb.purpose == SyntheticMethodBinding.DeserializeLambda) {
+					// For the branching complexities in the generated $deserializeLambda$ we need the local variable
+					LocalVariableBinding lvb = new LocalVariableBinding(" synthetic0".toCharArray(), this.referenceBinding.scope.getJavaLangInvokeSerializedLambda(), 0, true); //$NON-NLS-1$
+					lvb.resolvedPosition = 0;
+					this.codeStream.record(lvb);
+					lvb.recordInitializationStartPC(0);
+					lvb.recordInitializationEndPC(codeLength);
+				}
 				TypeBinding[] arguments;
 				if ((arguments = methodBinding.parameters) != null) {
 					for (int i = 0, max = arguments.length; i < max; i++) {
 						final TypeBinding typeBinding = arguments[i];
-						// For the branching complexities in the generated $deserializeLambda$ we need the local variable
-						LocalVariableBinding localVariableBinding = new LocalVariableBinding((" synthetic"+i).toCharArray(), typeBinding, 0, true); //$NON-NLS-1$
-						localVariableBinding.resolvedPosition = i;
-						this.codeStream.record(localVariableBinding);
-						localVariableBinding.recordInitializationStartPC(0);
-						localVariableBinding.recordInitializationEndPC(codeLength);
 						frame.putLocal(resolvedPosition,
 								new VerificationTypeInfo(typeBinding));
 						switch (typeBinding.id) {
