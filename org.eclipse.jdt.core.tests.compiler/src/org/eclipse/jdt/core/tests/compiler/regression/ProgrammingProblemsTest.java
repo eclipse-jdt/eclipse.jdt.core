@@ -4040,7 +4040,7 @@ public void testGH3660() {
 	runner.expectedOutputString = "truetrue";
 	runner.runConformTest();
 }
-public void testGH3870() {
+public void testGH3870a() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
 	runner.customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_EQUALS_ARGUMENT_TYPE, JavaCore.WARNING);
@@ -4168,6 +4168,47 @@ public void testGH3870() {
 				s.equals(args)""";
 	runner.runConformTest();
 }
+public void testGH3870b() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"Dc.java",
+			"""
+			public class Dc {
+				public String state;
+			}
+			""",
+			"UPSDc.java",
+			"""
+			import java.util.Objects;
+
+			public class UPSDc {
+
+				boolean state;
+
+				@Override
+				public boolean equals(Object o) {
+					if (o == this)
+						return true;
+					if (!(o instanceof Dc)) {
+						return false;
+					}
+					Dc dc = (Dc) o;
+					return Objects.equals(state, dc.state);
+				}
+			}
+			"""
+		};
+	runner.expectedCompilerLog = """
+			----------
+			1. INFO in UPSDc.java (at line 15)
+				return Objects.equals(state, dc.state);
+				                             ^^^^^^^^
+			Unlikely argument type for equals(): String seems to be unrelated to boolean
+			----------
+			""";
+	runner.runConformTest();
+}
+
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4065
 // [Null][Record] Invalid "dead code" warning for record pattern with null-guard on component
 public void testIssue4065() {
