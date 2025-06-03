@@ -69,7 +69,8 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 			return patternInfo; // exclude anonymous blokes from flow analysis.
 
 		patternInfo.markAsDefinitelyAssigned(this.local.binding);
-		patternInfo.markAsDefinitelyNonNull(this.local.binding);
+		if (this.getEnclosingPattern() == null)
+			patternInfo.markAsDefinitelyNonNull(this.local.binding); // can't say the same for members of a record being deconstructed.
 		return patternInfo;
 	}
 

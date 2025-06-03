@@ -4168,4 +4168,66 @@ public void testGH3870() {
 				s.equals(args)""";
 	runner.runConformTest();
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4065
+// [Null][Record] Invalid "dead code" warning for record pattern with null-guard on component
+public void testIssue4065() {
+	if (this.complianceLevel < ClassFileConstants.JDK21)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+				"InvalidDeadCodeWarning.java",
+				"""
+				public class InvalidDeadCodeWarning {
+
+				    public static void main(String[] args) {
+				        try {
+				            int xxx = 42;
+				            new InvalidDeadCodeWarning(new MyRecord(null));
+				        } catch (IllegalArgumentException e) {
+				            System.out.println(e);
+				        }
+
+				        try {
+				            new InvalidDeadCodeWarning(new MyRecord("  "));
+				        } catch (IllegalArgumentException e) {
+				            System.out.println(e);
+				        }
+
+				        try {
+				            new InvalidDeadCodeWarning(null);
+				        } catch (IllegalArgumentException e) {
+				            System.out.println(e);
+				        }
+				    }
+
+
+				    record MyRecord(String value) {
+				    }
+
+				    final MyRecord myRecord;
+
+				    InvalidDeadCodeWarning(MyRecord myRecord) {
+				        this.myRecord = switch (myRecord) {
+				            case MyRecord(var value) when value == null -> throw new IllegalArgumentException("myRecord contained null value"); // "Dead code" warning
+				            case MyRecord(var value) when value.isBlank() -> throw new IllegalArgumentException("myRecord contained blank value '" + value + "'");
+				            case null -> throw new IllegalArgumentException("myRecord was null");
+				            default -> myRecord;
+				        };
+				    }
+				}
+
+				"""
+			},
+			"----------\n" +
+			"1. WARNING in InvalidDeadCodeWarning.java (at line 5)\n" +
+			"	int xxx = 42;\n" +
+			"	    ^^^\n" +
+			"The value of the local variable xxx is not used\n" +
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
 }
