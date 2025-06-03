@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import org.eclipse.core.runtime.CoreException;
@@ -30,6 +32,7 @@ import org.eclipse.jdt.internal.core.search.LocatorResponse;
 public class DOMLocalVariableLocator extends DOMPatternLocator {
 
 	private LocalVariableLocator locator;
+	private List<LocalVariable> foundDeclarations = new ArrayList<>();
 
 	public DOMLocalVariableLocator(LocalVariableLocator lcl) {
 		super(lcl.pattern);
@@ -63,7 +66,7 @@ public class DOMLocalVariableLocator extends DOMPatternLocator {
 			return toResponse(IMPOSSIBLE_MATCH);
 		}
 		Object bindingElement = binding.getJavaElement();
-		Object localVar = getLocalVariable();
+		LocalVariable localVar = getLocalVariable();
 		if (Objects.equals(bindingElement, localVar)) {
 			// We need to know if this is a reference request or a declaration request
 			if (this.locator.pattern.findReferences) {
@@ -72,7 +75,10 @@ public class DOMLocalVariableLocator extends DOMPatternLocator {
 				// we need to make sure the node has a VariableDeclaration in its ancestry
 				boolean isDecl = hasVariableDeclarationAncestor(node);
 				if( isDecl) {
-					return new LocatorResponse(ACCURATE_MATCH, false, node, false, false);
+					if( !alreadyFound(localVar)) {
+						foundDeclarations.add(localVar);
+						return new LocatorResponse(ACCURATE_MATCH, false, node, false, false);
+					}
 				}
 				return toResponse(IMPOSSIBLE_MATCH);
 			}
@@ -120,16 +126,22 @@ public class DOMLocalVariableLocator extends DOMPatternLocator {
 
 	@Override
 	public void reportSearchMatch(MatchLocator locator, ASTNode node, SearchMatch match) throws CoreException {
+		SearchMatch matchToReport = match;
 		if(this.locator.pattern.findDeclarations && hasVariableDeclarationAncestor(node) ) {
 			LocalVariable localVariable = getLocalVariable();
 			int offset = localVariable.nameStart;
 			int length = localVariable.nameEnd-offset+1;
 			IJavaElement element = localVariable;
-			SearchMatch newMatch = locator.newDeclarationMatch(element, null, match.getAccuracy(), offset, length);
-			SearchMatchingUtility.reportSearchMatch(locator, newMatch);
-		} else {
-			SearchMatchingUtility.reportSearchMatch(locator, match);
+			matchToReport = locator.newDeclarationMatch(element, null, match.getAccuracy(), offset, length);
 		}
+		if( matchToReport != null) {
+			SearchMatchingUtility.reportSearchMatch(locator, matchToReport);
+		}
+	}
+
+	private boolean alreadyFound(LocalVariable matchToReport) {
+		boolean found = foundDeclarations.stream().filter(x -> matchToReport.toString().equals(x.toString())).findFirst().isPresent();
+		return found;
 	}
 
 }
