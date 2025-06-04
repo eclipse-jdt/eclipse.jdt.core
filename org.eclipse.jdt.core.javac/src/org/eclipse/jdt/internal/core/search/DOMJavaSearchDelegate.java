@@ -87,6 +87,7 @@ import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.jdt.internal.core.search.matching.MatchingNodeSet;
 import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 import org.eclipse.jdt.internal.core.search.matching.NodeSetWrapper;
+import org.eclipse.jdt.internal.core.search.matching.PatternLocator;
 import org.eclipse.jdt.internal.core.search.matching.PossibleMatch;
 
 public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
@@ -268,13 +269,13 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 			boolean isSynthetic = mb != null && mb.isSynthetic();
 			return new MethodReferenceMatch(enclosing, accuracy, method.getName().getStartPosition(),
 					method.getStartPosition() + method.getLength() - method.getName().getStartPosition(), false,
-					isSynthetic, false, insideDocComment(node), getParticipant(locator), resource);
+					isSynthetic, (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node), getParticipant(locator), resource);
 		}
 		if (node instanceof SuperMethodInvocation method) {
 			return new MethodReferenceMatch(DOMASTNodeUtils.getEnclosingJavaElement(node.getParent()), accuracy,
 					method.getName().getStartPosition(),
 					method.getStartPosition() + method.getLength() - method.getName().getStartPosition(), false,
-					method.resolveMethodBinding().isSynthetic(), true, insideDocComment(node), getParticipant(locator),
+					method.resolveMethodBinding().isSynthetic(), (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node), getParticipant(locator),
 					resource);
 		}
 		if (node instanceof ClassInstanceCreation newInstance) {
@@ -282,31 +283,31 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 					DOMASTNodeUtils.getEnclosingJavaElement(
 							node.getParent().getParent()) /* we don't want the variable decl */,
 					accuracy, newInstance.getStartPosition(), newInstance.getLength(), true,
-					newInstance.resolveConstructorBinding().isSynthetic(), false, insideDocComment(node),
+					newInstance.resolveConstructorBinding().isSynthetic(), (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node),
 					getParticipant(locator), resource);
 		}
 		if (node instanceof ConstructorInvocation newInstance) {
 			return new MethodReferenceMatch(DOMASTNodeUtils.getEnclosingJavaElement(node), accuracy,
 					newInstance.getStartPosition(), newInstance.getLength(), true,
-					newInstance.resolveConstructorBinding().isSynthetic(), false, insideDocComment(node),
+					newInstance.resolveConstructorBinding().isSynthetic(), (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node),
 					getParticipant(locator), resource);
 		}
 		if (node instanceof SuperConstructorInvocation newInstance) {
 			return new MethodReferenceMatch(DOMASTNodeUtils.getEnclosingJavaElement(node), accuracy,
 					newInstance.getStartPosition(), newInstance.getLength(), true,
-					newInstance.resolveConstructorBinding().isSynthetic(), false, insideDocComment(node),
+					newInstance.resolveConstructorBinding().isSynthetic(), (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node),
 					getParticipant(locator), resource);
 		}
 		if (node instanceof CreationReference constructorRef) {
 			return new MethodReferenceMatch(DOMASTNodeUtils.getEnclosingJavaElement(node), accuracy,
 					constructorRef.getStartPosition(), constructorRef.getLength(), true,
-					constructorRef.resolveMethodBinding().isSynthetic(), true, insideDocComment(node), getParticipant(locator),
+					constructorRef.resolveMethodBinding().isSynthetic(), (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node), getParticipant(locator),
 					resource);
 		}
 		if (node.getLocationInParent() == SingleMemberAnnotation.VALUE_PROPERTY && locator.pattern instanceof MethodPattern) {
 			return new MethodReferenceMatch(DOMASTNodeUtils.getEnclosingJavaElement(node), accuracy,
 					node.getStartPosition(), node.getLength(), true,
-					false, true, insideDocComment(node), getParticipant(locator),
+					false, (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node), getParticipant(locator),
 					resource);
 		}
 		if (node instanceof EnumConstantDeclaration enumConstantDeclaration) {

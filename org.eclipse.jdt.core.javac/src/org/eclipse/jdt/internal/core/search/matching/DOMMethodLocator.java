@@ -10,12 +10,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
+
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -36,15 +40,20 @@ import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.BinaryMethod;
+import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.DOMASTNodeUtils;
 import org.eclipse.jdt.internal.core.search.LocatorResponse;
 
 public class DOMMethodLocator extends DOMPatternLocator {
 
 	private MethodLocator locator;
+	private MethodPattern pattern;
+	private char[][][] allSuperDeclaringTypeNames;
+	private char[][][] samePkgSuperDeclaringTypeNames;
 	public DOMMethodLocator(MethodLocator locator) {
 		super(locator.pattern);
 		this.locator = locator;
+		this.pattern = locator.pattern;
 	}
 
 	private IMethodBinding getDOMASTMethodBinding(ITypeBinding type, String methodName, ITypeBinding[] argumentTypes) {
@@ -499,6 +508,15 @@ public class DOMMethodLocator extends DOMPatternLocator {
 			int weakerLevel = findWeakerLevel((methodLevel & PatternLocator.MATCH_LEVEL_MASK), (declaringLevel & PatternLocator.MATCH_LEVEL_MASK));
 			int matchLevel = (weakerLevel & PatternLocator.MATCH_LEVEL_MASK);
 			if( matchLevel != ACCURATE_MATCH) {
+				char[][][] superTypeNames = (Modifier.isDefault(method.getModifiers()) && this.pattern.focus == null) ? this.samePkgSuperDeclaringTypeNames: this.allSuperDeclaringTypeNames;
+				if (superTypeNames != null && resolveLevelAsSuperInvocation(method.getDeclaringClass(), method.getParameterTypes(), superTypeNames, true)) {
+						declaringLevel = methodLevel // since this is an ACCURATE_MATCH so return the possibly weaker match
+							| SUPER_INVOCATION_FLAVOR; // this is an overridden method => add flavor to returned level
+				}
+				if ((declaringLevel & FLAVORS_MASK) != 0) {
+					// level got some flavors => return it
+					return toResponse(declaringLevel);
+				}
 				if( isExactPattern || (!isErasurePattern && !isEquivPattern)) {
 					return toResponse(IMPOSSIBLE_MATCH);
 				} else if( isEquivPattern && matchLevel == ERASURE_MATCH) {
@@ -573,5 +591,62 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		}
 		return IMPOSSIBLE_MATCH;
 	}
+	/*
+	 * Return whether the given type binding or one of its possible super interfaces
+	 * matches a type in the declaring type names hierarchy.
+	 */
+	private boolean resolveLevelAsSuperInvocation(ITypeBinding type, ITypeBinding[] argumentTypes, char[][][] superTypeNames, boolean methodAlreadyVerified) {
+		char[][] compoundName = Arrays.stream(type.getQualifiedName().split("\\.")).map(String::toCharArray).toArray(char[][]::new);
+		for (char[][] superTypeName : superTypeNames) {
+			if (CharOperation.equals(superTypeName, compoundName)) {
+				// need to verify if the type implements the pattern method
+				if (methodAlreadyVerified) return true; // already verified before enter into this method (see resolveLevel(MessageSend))
+				if (Arrays.stream(type.getDeclaredMethods())
+					.filter(method -> this.locator.matchesName(this.locator.pattern.selector, method.getName().toCharArray()))
+					.anyMatch(method -> Arrays.equals(method.getParameterTypes(), argumentTypes, Comparator.comparing(t -> t.getErasure().getKey())))) {
+					return true;
+				}
+			}
+		}
 
+		// If the given type is an interface then a common super interface may be found
+		// in a parallel branch of the super hierarchy, so we need to verify all super interfaces.
+		// If it's a class then there's only one possible branch for the hierarchy and
+		// this branch has been already verified by the test above
+		if (type.isInterface()) {
+			ITypeBinding[] interfaces = type.getInterfaces();
+			if (interfaces == null) return false;
+			for (ITypeBinding ref : interfaces) {
+				if (resolveLevelAsSuperInvocation(ref, argumentTypes, superTypeNames, false)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public void initializePolymorphicSearch(MatchLocator locator) {
+		long start = 0;
+		if (BasicSearchEngine.VERBOSE) {
+			start = System.currentTimeMillis();
+		}
+		try {
+			SuperTypeNamesCollector namesCollector =
+				new SuperTypeNamesCollector(
+					this.pattern,
+					this.pattern.declaringSimpleName,
+					this.pattern.declaringQualification,
+					locator,
+					this.pattern.declaringType,
+					locator.progressMonitor);
+			this.allSuperDeclaringTypeNames = namesCollector.collect();
+			this.samePkgSuperDeclaringTypeNames = namesCollector.getSamePackageSuperTypeNames();
+		} catch (JavaModelException e) {
+			// inaccurate matches will be found
+		}
+		if (BasicSearchEngine.VERBOSE) {
+			trace("Time to initialize polymorphic search: "+(System.currentTimeMillis()-start)); //$NON-NLS-1$
+		}
+	}
 }

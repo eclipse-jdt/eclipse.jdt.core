@@ -78,6 +78,9 @@ class PatternLocatorVisitor extends ASTVisitor {
 		this.nodeSet = nodeSet;
 		this.locator = locator;
 		this.domPatternLocator = DOMPatternLocatorFactory.createWrapper(this.locator.patternLocator, locator.pattern);
+		if (this.domPatternLocator != null) {
+			domPatternLocator.initializePolymorphicSearch(locator);
+		}
 	}
 	private <T extends ASTNode> boolean defaultVisitImplementation(T node, BiFunction<T, DOMPatternLocator, LocatorResponse> levelFunc) {
 		defaultVisitImplementationWithFunc(node, levelFunc, DOMASTNodeUtils::getBinding);

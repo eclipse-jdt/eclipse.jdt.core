@@ -105,4 +105,10 @@ public class DOMOrLocator extends DOMPatternLocator {
 					.orElse(toResponse(PatternLocator.IMPOSSIBLE_MATCH));
 	}
 
+	@Override
+	public void initializePolymorphicSearch(MatchLocator locator) {
+		for (PatternLocator patternLocator : this.children)
+			patternLocator.initializePolymorphicSearch(locator);
+	}
+
 }
