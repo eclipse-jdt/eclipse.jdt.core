@@ -718,14 +718,16 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 					sourceUnitPath = Path.of(lastSegment);
 				}
 				if( sourceUnitPath == null )
-					sourceUnitPath = Path.of(new File(MOCK_NAME_FOR_CLASSES).toURI());
+					sourceUnitPath = Path.of(new File(System.identityHashCode(sourceUnit) + '/' + MOCK_NAME_FOR_CLASSES).toURI());
+			} else if (unitFile.getName().endsWith(".jar")) {
+				sourceUnitPath = Path.of(unitFile.toURI()).resolve(System.identityHashCode(sourceUnit) + '/' + MOCK_NAME_FOR_CLASSES);
 			} else {
 				sourceUnitPath = Path.of(unitFile.toURI());
 			}
 			var fileObject = fileManager.getJavaFileObject(sourceUnitPath);
 			if (unitFile.getName().endsWith(".jar")) {
 				fileObjectsToJars.put(fileObject, unitFile);
-			} 
+			}
 			fileManager.cache(fileObject, CharBuffer.wrap(sourceUnit.getContents()));
 			AST ast = createAST(compilerOptions, apiLevel, context, flags);
 			CompilationUnit res = ast.newCompilationUnit();

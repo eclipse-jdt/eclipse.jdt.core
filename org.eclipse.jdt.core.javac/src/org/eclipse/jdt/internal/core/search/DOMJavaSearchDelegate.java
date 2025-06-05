@@ -16,6 +16,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search;
 
+import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 import static org.eclipse.jdt.internal.core.search.DOMASTNodeUtils.insideDocComment;
 
 import java.util.ArrayList;
@@ -25,13 +26,17 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -78,17 +83,31 @@ import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeParameterReferenceMatch;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.core.BinaryType;
+import org.eclipse.jdt.internal.core.ClassFile;
+import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.LocalVariable;
+import org.eclipse.jdt.internal.core.ModularClassFile;
 import org.eclipse.jdt.internal.core.NamedMember;
+import org.eclipse.jdt.internal.core.PackageFragment;
+import org.eclipse.jdt.internal.core.PackageFragmentRoot;
+import org.eclipse.jdt.internal.core.search.matching.ClassFileMatchLocator;
 import org.eclipse.jdt.internal.core.search.matching.DOMPatternLocator;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.jdt.internal.core.search.matching.MatchingNodeSet;
 import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
+import org.eclipse.jdt.internal.core.search.matching.ModularClassFileMatchLocator;
 import org.eclipse.jdt.internal.core.search.matching.NodeSetWrapper;
 import org.eclipse.jdt.internal.core.search.matching.PatternLocator;
 import org.eclipse.jdt.internal.core.search.matching.PossibleMatch;
+import org.eclipse.jdt.internal.core.search.processing.JobManager;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 	private Map<PossibleMatch, NodeSetWrapper> matchToWrapper = new HashMap<>();
@@ -117,13 +136,19 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 
 		Map<org.eclipse.jdt.core.ICompilationUnit, PossibleMatch> cuToMatch = new HashMap<>();
 		for (int i = 0; i < possibleMatches.length; i++) {
-			if (!skipMatch(locator, javaProject, possibleMatches[i])) {
+			var currentPossibleMatch = possibleMatches[i];
+			locator.currentPossibleMatch = currentPossibleMatch;
+			if (!skipMatch(locator, javaProject, currentPossibleMatch)) {
 				org.eclipse.jdt.core.ICompilationUnit u = findUnitForPossibleMatch(locator, javaProject, possibleMatches[i]);
 				unitArray[i] = u;
-				cuToMatch.put(u, possibleMatches[i]);
+				if (u != null) {
+					cuToMatch.put(u, possibleMatches[i]);
+				} else if (currentPossibleMatch.openable instanceof IClassFile classFile) {
+					locateMatchesForBinary(currentPossibleMatch, locator);
+				}
 			}
 		}
-		org.eclipse.jdt.core.ICompilationUnit[] nonNullUnits = Arrays.asList(unitArray).stream().filter(x -> x != null)
+		org.eclipse.jdt.core.ICompilationUnit[] nonNullUnits = Arrays.asList(unitArray).stream().filter(Objects::nonNull)
 				.toArray(org.eclipse.jdt.core.ICompilationUnit[]::new);
 		if (nonNullUnits.length == 0) {
 			return;
@@ -224,6 +249,9 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 								toOpen = tr2;
 							}
 						}
+					}
+					if (toOpen instanceof IClassFile classFile && classFile.getBuffer() == null) {
+						return null;
 					}
 					org.eclipse.jdt.core.ICompilationUnit ret = toOpen.getWorkingCopy(null, new NullProgressMonitor());
 					return ret;
@@ -383,6 +411,67 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 	}
 	public SearchParticipant getParticipant(MatchLocator locator) {
 		return locator.currentPossibleMatch.document.getParticipant();
+	}
+
+	private void locateMatchesForBinary(PossibleMatch possibleMatch, MatchLocator locator) {
+		if (possibleMatch.openable instanceof ClassFile classFile) {
+			IBinaryType info = null;
+			try {
+				info = getBinaryInfo(classFile, classFile.resource());
+			} catch (CoreException ce) {
+				ILog.get().error(ce.getMessage(), ce);
+			}
+			if (info != null) {
+				try {
+					new ClassFileMatchLocator().locateMatches(locator, classFile, info);
+				} catch (CoreException e) {
+					ILog.get().error(e.getMessage(), e);
+				}
+			}
+		} else if (possibleMatch.openable instanceof ModularClassFile modularClassFile) { // no source
+			try {
+				new ModularClassFileMatchLocator().locateMatches(locator, modularClassFile);
+			} catch (CoreException e) {
+				ILog.get().error(e.getMessage(), e);
+			}
+		}
+	}
+
+	protected IBinaryType getBinaryInfo(ClassFile classFile, IResource resource) throws CoreException {
+		BinaryType binaryType = (BinaryType) classFile.getType();
+		if (classFile.isOpen())
+			return binaryType.getElementInfo(); // reuse the info from the java model cache
+
+		// create a temporary info
+		IBinaryType info;
+		try {
+			PackageFragment pkg = (PackageFragment) classFile.getParent();
+			PackageFragmentRoot root = (PackageFragmentRoot) pkg.getParent();
+			if (root.isArchive()) {
+				// class file in a jar
+				String classFileName = classFile.getElementName();
+				String classFilePath = Util.concatWith(pkg.names, classFileName, '/');
+				ZipFile zipFile = null;
+				try {
+					zipFile = ((JarPackageFragmentRoot) root).getJar();
+					info = ClassFileReader.read(zipFile, classFilePath);
+				} finally {
+					JavaModelManager.getJavaModelManager().closeZipFile(zipFile);
+				}
+			} else {
+				// class file in a directory
+				info = Util.newClassFileReader(resource);
+			}
+			if (info == null) throw binaryType.newNotPresentException();
+			return info;
+		} catch (ClassFormatException e) {
+			if (JobManager.VERBOSE) {
+				trace("", e); //$NON-NLS-1$
+			}
+			return null;
+		} catch (java.io.IOException e) {
+			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+		}
 	}
 
 }
