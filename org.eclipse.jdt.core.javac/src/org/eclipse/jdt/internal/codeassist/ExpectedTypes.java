@@ -53,7 +53,9 @@ import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
 import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchExpression;
 import org.eclipse.jdt.core.dom.SwitchStatement;
+import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.TryStatement;
+import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -232,6 +234,15 @@ public class ExpectedTypes {
 					this.expectedTypes.add(binding.getReturnType());
 					break;
 				}
+			}
+			if (parent2 instanceof TagElement te) {
+				if (TagElement.TAG_THROWS.equals(te.getTagName())) {
+					Javadoc javadoc = (Javadoc)DOMCompletionUtil.findParent(te, new int[] { ASTNode.JAVADOC });
+					if (javadoc.getParent() instanceof MethodDeclaration methodDecl) {
+						this.expectedTypes.addAll(((List<Type>)methodDecl.thrownExceptionTypes()).stream().map(Type::resolveBinding).toList());
+					}
+				}
+				break;
 			}
  			parent2 = parent2.getParent();
 		}

@@ -465,6 +465,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			visibleBindings.addAll(((List<VariableDeclaration>) m.parameters()).stream()
 					.filter(decl -> !FAKE_IDENTIFIER.equals(decl.getName().toString()))
 					.map(VariableDeclaration::resolveBinding).toList());
+			visibleBindings.addAll(((List<Type>)m.thrownExceptionTypes()).stream().map(Type::resolveBinding).toList());
 		}
 
 		if (node instanceof LambdaExpression le) {
@@ -1807,6 +1808,23 @@ public class DOMCompletionEngine implements ICompletionEngine {
 										suggestDefaultCompletions = false;
 									}
 								}
+								break;
+
+							}
+							case TagElement.TAG_THROWS: {
+								// we only want types here
+								if (completeAfter.isBlank()) {
+									defaultCompletionBindings.all()
+									.filter(binding -> binding instanceof ITypeBinding)
+									.map(this::toProposal)
+									.forEach(this.requestor::accept);
+								} else {
+									findTypes(completeAfter, null)
+										.filter(typeMatch -> this.pattern.matchesName(this.prefix.toCharArray(), typeMatch.getType().getElementName().toCharArray()))
+										.map(this::toProposal)
+										.forEach(this.requestor::accept);
+								}
+								suggestDefaultCompletions = false;
 								break;
 							}
 						}
@@ -4467,17 +4485,18 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		} else {
 			inSamePackage = type.getPackageFragment().getElementName().isEmpty();
 		}
-		boolean inCatchClause = DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.CATCH_CLAUSE }) != null;
+		boolean isExceptionExpected = DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.CATCH_CLAUSE }) != null //
+				|| (DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.TAG_ELEMENT }) instanceof TagElement te && TagElement.TAG_THROWS.equals(te.getTagName()));
 		int relevance = RelevanceConstants.R_DEFAULT;
 		relevance += RelevanceConstants.R_RESOLVED;
 		relevance += RelevanceUtils.computeRelevanceForInteresting(type, expectedTypes);
 		relevance += RelevanceUtils.computeRelevanceForRestrictions(access, this.settings);
-		relevance += (inCatchClause && DOMCompletionUtil.findInSupers(type, "Ljava/lang/Exception;", this.workingCopyOwner, this.typeHierarchyCache) ? RelevanceConstants.R_EXCEPTION : 0);
+		relevance += (isExceptionExpected && DOMCompletionUtil.findInSupers(type, "Ljava/lang/Exception;", this.workingCopyOwner, this.typeHierarchyCache) ? RelevanceConstants.R_EXCEPTION : 0);
 		relevance += RelevanceUtils.computeRelevanceForInheritance(this.qualifyingType, type);
 		relevance += RelevanceUtils.computeRelevanceForQualification(!"java.lang".equals(type.getPackageFragment().getElementName()) && !nodeInImports && !fromCurrentCU && !inSamePackage && !typeIsImported, this.prefix, this.qualifiedPrefix);
 		relevance += (type.getFullyQualifiedName().startsWith("java.") ? RelevanceConstants.R_JAVA_LIBRARY : 0);
 		// sometimes subclasses and superclasses are considered, sometimes they aren't
-		relevance += (inCatchClause ? RelevanceUtils.computeRelevanceForExpectingType(type, expectedTypes, this.workingCopyOwner, this.typeHierarchyCache) : RelevanceUtils.simpleComputeRelevanceForExpectingType(type, expectedTypes));
+		relevance += (isExceptionExpected ? RelevanceUtils.computeRelevanceForExpectingType(type, expectedTypes, this.workingCopyOwner, this.typeHierarchyCache) : RelevanceUtils.simpleComputeRelevanceForExpectingType(type, expectedTypes));
 		relevance += RelevanceUtils.computeRelevanceForCaseMatching(this.prefix.toCharArray(), simpleName, this.assistOptions);
 		try {
 			if (type.isAnnotation()) {
