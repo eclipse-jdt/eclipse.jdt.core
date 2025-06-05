@@ -938,7 +938,10 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				}
 			}
 			if (context instanceof ModuleDeclaration mod) {
-				findModules(this.prefix.toCharArray(), this.javaProject, this.assistOptions, Set.of(mod.getName().toString()));
+				ImportDeclaration importDecl = (ImportDeclaration) DOMCompletionUtil.findParent(this.toComplete, new int[] {ASTNode.IMPORT_DECLARATION});
+				int startPos= importDecl.getName().getStartPosition();
+				int endPos = importDecl.getName().getStartPosition() + importDecl.getName().getLength();
+				findModules(this.prefix.toCharArray(), this.javaProject, this.assistOptions, Set.of(mod.getName().toString()), startPos, endPos);
 			}
 			if (context instanceof SimpleName) {
 				if (context.getParent() instanceof SimpleType simpleType
@@ -1137,7 +1140,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						&& this.javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true).equals(JavaCore.ENABLED)) {
 					for (Modifier modifier : (List<Modifier>)importDeclaration.modifiers()) {
 						if (modifier.getKeyword() == ModifierKeyword.MODULE_KEYWORD) {
-							findModules(this.qualifiedPrefix.toCharArray(), this.javaProject, this.assistOptions, Collections.emptySet());
+							int startPos = importDeclaration.getName().getStartPosition();
+							int endPos = importDeclaration.getName().getStartPosition() + importDeclaration.getName().getLength();
+							findModules(this.qualifiedPrefix.toCharArray(), this.javaProject, this.assistOptions, Collections.emptySet(), startPos, endPos);
 							suggestDefaultCompletions = false;
 							break;
 						}
@@ -1222,7 +1227,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					if(importDecl.getAST().apiLevel() >= AST.JLS23
 						&& this.javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true).equals(JavaCore.ENABLED)
 						&& importDecl.modifiers().stream().anyMatch(node -> node instanceof Modifier modifier && modifier.getKeyword() == ModifierKeyword.MODULE_KEYWORD)) {
-						findModules((this.qualifiedPrefix + "." + this.prefix).toCharArray(), this.javaProject, this.assistOptions, Collections.emptySet()); //$NON-NLS-1$
+						int startPos = importDecl.getName().getStartPosition();
+						int endPos = importDecl.getName().getStartPosition() + importDecl.getName().getLength();
+						findModules((this.qualifiedPrefix + "." + this.prefix).toCharArray(), this.javaProject, this.assistOptions, Collections.emptySet(), startPos, endPos); //$NON-NLS-1$
 						suggestDefaultCompletions = false;
 					} else {
 						suggestPackages(context);
@@ -1691,7 +1698,15 @@ public class DOMCompletionEngine implements ICompletionEngine {
 										publishFromScope(javadocScope);
 										suggestAccessibleConstructorsForType(typeBinding);
 									} else {
-										String packageName = classToComplete.lastIndexOf('.') < 0 ? null : classToComplete.substring(0, classToComplete.lastIndexOf('.'));
+										String packageName;
+										String moduleName = null;
+										if (classToComplete.contains("/")) {
+											moduleName = classToComplete.substring(0, classToComplete.indexOf("/"));
+											String moduleRemoved = classToComplete.substring(classToComplete.indexOf("/") + 1);
+											packageName = moduleRemoved.lastIndexOf('.') < 0 ? null : moduleRemoved.substring(0, moduleRemoved.lastIndexOf('.'));
+										} else {
+											packageName = classToComplete.lastIndexOf('.') < 0 ? null : classToComplete.substring(0, classToComplete.lastIndexOf('.'));
+										}
 										if (packageName != null) {
 											classToComplete = classToComplete.substring(classToComplete.lastIndexOf('.') + 1);
 										} else {
@@ -1702,9 +1717,14 @@ public class DOMCompletionEngine implements ICompletionEngine {
 												packageName = ""; //$NON-NLS-1$
 											}
 										}
-										List<IType> potentialTypes = findTypes(classToComplete, packageName).map(TypeNameMatch::getType).toList();
+										String finalizedModuleName = moduleName;
+										List<IType> potentialTypes = findTypes(classToComplete, packageName) //
+												.filter(a -> finalizedModuleName == null || a.getPackageFragmentRoot().getModuleDescription().getElementName().equals(finalizedModuleName)) //
+												.map(TypeNameMatch::getType).toList();
 										List<IType> sourceTypes = potentialTypes.stream().filter(type -> type instanceof SourceType).toList();
-										if (!potentialTypes.isEmpty()) {
+										String compliance = this.javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+										if (!potentialTypes.isEmpty() //
+												&& (moduleName == null || (!(compliance.contains(".")) && Integer.parseInt(compliance) > 14))) {
 											IType typeToComplete;
 											if (potentialTypes.size() > 1 && !sourceTypes.isEmpty()) {
 												typeToComplete = sourceTypes.get(0);
@@ -1733,7 +1753,27 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 									String paramPrefix = this.textContent.substring(startPos, endPos);
 									if (paramPrefix.indexOf('/') >= 0) {
-										// TODO: only complete types that are in the specified module
+										String compliance = this.javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+										if (!compliance.contains(".") && Integer.parseInt(compliance) > 14) {
+											String[] portions = paramPrefix.split("/");
+											String moduleName = portions[0];
+											String packagePrefix = portions.length > 1 ? portions[1] : "";
+											IModuleDescription modDesc = this.javaProject.findModule(moduleName, workingCopyOwner);
+											boolean oldIgnorePackages = this.requestor.isIgnored(CompletionProposal.PACKAGE_REF);
+											try {
+												this.requestor.setIgnored(CompletionProposal.PACKAGE_REF, false);
+												suggestPackagesInModule((IPackageFragmentRoot)modDesc.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT), packagePrefix, startPos, endPos);
+											} finally {
+												this.requestor.setIgnored(CompletionProposal.PACKAGE_REF, oldIgnorePackages);
+											}
+											if (packagePrefix.contains(".")) {
+												String typeName = packagePrefix.substring(packagePrefix.lastIndexOf('.') + 1);
+												String packageName = packagePrefix.substring(0, packagePrefix.lastIndexOf('.'));
+												findTypes(typeName, packageName)
+													.filter(typeMatch -> this.pattern.matchesName(this.prefix.toCharArray(), typeMatch.getType().getElementName().toCharArray()))
+													.map(this::toProposal).forEach(this.requestor::accept);
+											}
+										}
 										suggestDefaultCompletions = false;
 									} else {
 										// local types are suggested first
@@ -1758,6 +1798,12 @@ public class DOMCompletionEngine implements ICompletionEngine {
 											.filter(typeMatch -> this.pattern.matchesName(this.prefix.toCharArray(), typeMatch.getType().getElementName().toCharArray()))
 											.map(this::toProposal).forEach(this.requestor::accept);
 
+										// suggest modules if modules are supported
+										String compliance = this.javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+										if (!compliance.contains(".") && Integer.parseInt(compliance) > 14) {
+											findModules(paramPrefix.toCharArray(), javaProject, assistOptions, Collections.emptySet(), startPos, endPos);
+										}
+
 										suggestDefaultCompletions = false;
 									}
 								}
@@ -1774,7 +1820,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				if (context.getAST().apiLevel() >= AST.JLS23
 						&& this.javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true).equals(JavaCore.ENABLED)
 						&& Modifier.isModule(importDeclaration.getModifiers())) {
-					findModules(this.qualifiedPrefix.toCharArray(), this.javaProject, this.assistOptions, Collections.emptySet());
+					int startPos = importDeclaration.getName().getStartPosition();
+					int endPos = importDeclaration.getName().getStartPosition() + importDeclaration.getName().getLength();
+					findModules(this.qualifiedPrefix.toCharArray(), this.javaProject, this.assistOptions, Collections.emptySet(), startPos, endPos);
 					suggestDefaultCompletions = false;
 				}
 			}
@@ -3320,6 +3368,57 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				}
 			}
 		}
+	}
+
+	private void suggestPackagesInModule(IPackageFragmentRoot moduleContext, String packagePrefix, int startPos, int endPos) {
+		if (moduleContext == null) {
+			return;
+		}
+		if (!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
+			IModuleDescription moduleDescription = moduleContext.getModuleDescription();
+			String moduleName = moduleDescription.getElementName();
+			try {
+				// use the IJavaElement model to collect the available packages
+				Set<String> allowedPackages = Set.of(moduleDescription.getExportedPackageNames(this.javaProject.getModuleDescription()));
+				for (String packageName : allowedPackages) {
+					if (packageName.isEmpty())
+						continue;
+					if (!this.pattern.matchesName(packagePrefix.toCharArray(), packageName.toCharArray())) {
+						continue;
+					}
+					this.requestor.accept(toJavadocModulePackageProposal(packageName, moduleName, startPos, endPos, packagePrefix));
+				}
+			} catch (JavaModelException e) {
+				// we could fall back to the name environment, but in practice I don't think this is needed?
+			}
+		}
+	}
+
+	private DOMInternalCompletionProposal toJavadocModulePackageProposal(String packageName, String moduleName, int startPos, int endPos, String packagePrefix) {
+		int relevance = RelevanceConstants.R_DEFAULT;
+		relevance += RelevanceConstants.R_RESOLVED;
+		relevance += RelevanceConstants.R_INTERESTING;
+		relevance += RelevanceUtils.computeRelevanceForCaseMatching(packagePrefix.toCharArray(), packageName.toCharArray(), this.assistOptions);
+		relevance += RelevanceUtils.computeRelevanceForQualification(true, packagePrefix, packagePrefix);
+		relevance += RelevanceConstants.R_NON_RESTRICTED;
+
+		DOMInternalCompletionProposal proposal = createProposal(CompletionProposal.PACKAGE_REF);
+		StringBuilder signature = new StringBuilder();
+		signature.append(packageName);
+		signature.append(" - ");
+		signature.append(moduleName);
+		signature.append("/");
+		proposal.setDeclarationSignature(signature.toString().toCharArray());
+		StringBuilder completion = new StringBuilder();
+		completion.append(moduleName);
+		completion.append("/");
+		completion.append(packageName);
+		proposal.setCompletion(completion.toString().toCharArray());
+		proposal.setPackageName(packageName.toCharArray());
+		proposal.setReplaceRange(startPos, endPos);
+		proposal.setTokenRange(startPos, endPos);
+		proposal.setRelevance(relevance);
+		return proposal;
 	}
 
 	private boolean filterBasedOnExtendsOrImplementsInfo(IType toFilter, ExtendsOrImplementsInfo info) {
@@ -5365,7 +5464,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		return modules;
 	}
 
-	private void findModules(char[] prefix, IJavaProject project, AssistOptions options, Set<String> skip) {
+	private void findModules(char[] prefix, IJavaProject project, AssistOptions options, Set<String> skip, int startPos, int endPos) {
 		if(this.requestor.isIgnored(CompletionProposal.MODULE_REF)) {
 			return;
 		}
@@ -5401,7 +5500,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		for (String key : skip) {
 			probableModules.remove(key);
 		}
-		probableModules.entrySet().forEach(m -> this.requestor.accept(toModuleCompletion(m.getKey(), prefix, requiredModules)));
+		probableModules.entrySet().forEach(m -> this.requestor.accept(toModuleCompletion(m.getKey(), prefix, requiredModules, startPos, endPos)));
 	}
 
 	/**
@@ -5444,25 +5543,28 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		return requiredModules;
 	}
 
-	private CompletionProposal toModuleCompletion(String moduleName, char[] prefix, Set<String> requiredModules) {
+	private CompletionProposal toModuleCompletion(String moduleName, char[] prefix, Set<String> requiredModules, int startPos, int endPos) {
 
-		char[] completion = moduleName.toCharArray();
+		StringBuilder completion = new StringBuilder(moduleName);
+		if (DOMCompletionUtil.findParent(this.toComplete, new int[] {ASTNode.JAVADOC}) != null) {
+			completion.append("/");
+		}
+		char[] completionChar = completion.toString().toCharArray();
+		char[] moduleNameChar = moduleName.toCharArray();
 		int relevance = RelevanceConstants.R_DEFAULT;
 		relevance += RelevanceConstants.R_RESOLVED;
 		relevance += RelevanceConstants.R_INTERESTING;
-		relevance += RelevanceUtils.computeRelevanceForCaseMatching(prefix, completion, this.assistOptions);
+		relevance += RelevanceUtils.computeRelevanceForCaseMatching(prefix, moduleNameChar, this.assistOptions);
 		relevance += RelevanceUtils.computeRelevanceForQualification(true, this.prefix, this.qualifiedPrefix);
 		if (requiredModules.contains(moduleName)) {
 			relevance += RelevanceConstants.R_NON_RESTRICTED;
 		}
 		DOMInternalCompletionProposal proposal = createProposal(CompletionProposal.MODULE_REF);
-		proposal.setModuleName(completion);
-		proposal.setDeclarationSignature(completion);
-		proposal.setCompletion(completion);
+		proposal.setModuleName(moduleNameChar);
+		proposal.setDeclarationSignature(moduleNameChar);
+		proposal.setCompletion(completionChar);
 
-		// replacement range using import decl range:
-		ImportDeclaration importDecl = (ImportDeclaration) DOMCompletionUtil.findParent(this.toComplete, new int[] {ASTNode.IMPORT_DECLARATION});
-		proposal.setReplaceRange(importDecl.getName().getStartPosition(), importDecl.getName().getStartPosition() + importDecl.getName().getLength());
+		proposal.setReplaceRange(startPos, endPos);
 
 		proposal.setRelevance(relevance);
 
