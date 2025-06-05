@@ -44,7 +44,7 @@ public class AnnotationInfo extends ClassFileStruct implements IBinaryAnnotation
 	 */
 	private volatile ElementValuePairInfo[] pairs;
 
-	long standardAnnotationTagBits = 0;
+	public long standardAnnotationTagBits = 0;
 	int readOffset = 0;
 
 	static Object[] EmptyValueArray = new Object[0];
@@ -373,6 +373,12 @@ private int scanAnnotation(int offset, boolean expectRuntimeVisibleAnno, boolean
 			case 33:
 				if (CharOperation.equals(typeName, ConstantPool.JAVA_LANG_ANNOTATION_DOCUMENTED)) {
 					this.standardAnnotationTagBits |= TagBits.AnnotationDocumented;
+					return currentOffset;
+				}
+				break;
+			case 48:
+				if (CharOperation.equals(typeName, ConstantPool.ORG_JUNIT_PLATFORM_COMMONGS_ANNOTATIONS_TESTABLE)) {
+					this.standardAnnotationTagBits |= TagBits.AnnotationTestable;
 					return currentOffset;
 				}
 				break;

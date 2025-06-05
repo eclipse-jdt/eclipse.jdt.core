@@ -107,7 +107,7 @@ public interface TagBits {
 	long EndAnnotationCheck = ASTNode.Bit33L;
 
 	// currently unused: ASTNode.Bit35L
-
+	long AnnotationTestable = ASTNode.Bit34L; // @Testable annotation from JUnit 5
 	// standard annotations
 	// 9-bits for targets
 	long AnnotationTarget = ASTNode.Bit36L; // @Target({}) only sets this bit
