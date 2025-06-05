@@ -4406,10 +4406,13 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 		Javadoc javadoc = (Javadoc) DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.JAVADOC });
 		if (parentTypeDeclaration != null || javadoc != null) {
+			String fullTypeName = type.getFullyQualifiedName();
+			CompilationUnit cu = (CompilationUnit)DOMCompletionUtil.findParent(this.toComplete, new int [] { ASTNode.COMPILATION_UNIT });
+			boolean inImports = ((List<ImportDeclaration>)cu.imports()).stream().anyMatch(improt -> fullTypeName.equals(improt.getName().toString()));
 			IPackageBinding currentPackageBinding = parentTypeDeclaration == null ? null : parentTypeDeclaration.resolveBinding().getPackage();
 			if (packageFrag != null && (currentPackageBinding == null
 					|| (!packageFrag.getElementName().equals(currentPackageBinding.getName())
-							&& !packageFrag.getElementName().equals("java.lang")))) { //$NON-NLS-1$
+							&& !packageFrag.getElementName().equals("java.lang"))) && !inImports) { //$NON-NLS-1$
 				completion.insert(0, '.');
 				completion.insert(0, packageFrag.getElementName());
 			}
