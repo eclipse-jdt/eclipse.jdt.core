@@ -144,55 +144,6 @@ public class ClassScope extends Scope {
 		anonymousType.verifyMethods(environment().methodVerifier());
 	}
 
-	void buildComponents() {
-		SourceTypeBinding sourceType = this.referenceContext.binding;
-		if (!sourceType.isRecord()) return;
-		if (sourceType.areComponentsInitialized()) return;
-		if (this.referenceContext.recordComponents.length == 0) {
-			sourceType.setComponents(Binding.NO_COMPONENTS);
-			return;
-		}
-		RecordComponent[] components = this.referenceContext.recordComponents;
-		int size = components.length;
-		int count = size;
-
-		// iterate the field declarations to create the bindings, lose all duplicates
-		RecordComponentBinding[] componentBindings = new RecordComponentBinding[count];
-		HashtableOfObject knownComponentNames = new HashtableOfObject(count);
-		count = 0;
-		for (int i = 0; i < size; i++) {
-			RecordComponent component = components[i];
-			RecordComponentBinding componentBinding = new RecordComponentBinding(sourceType, component, null, component.modifiers | ExtraCompilerModifiers.AccUnresolved);
-			componentBinding.id = count;
-			if ((componentBinding.modifiers & ExtraCompilerModifiers.AccJustFlag) != 0){
-				problemReporter().recordComponentsCannotHaveModifiers(component);
-			}
-
-			if (knownComponentNames.containsKey(component.name)) {
-				RecordComponentBinding previousBinding = (RecordComponentBinding) knownComponentNames.get(component.name);
-				if (previousBinding != null) {
-					for (int f = 0; f < i; f++) {
-						RecordComponent previousComponent = components[f];
-						if (previousComponent.binding == previousBinding) {
-							problemReporter().recordDuplicateComponent(previousComponent);
-							break;
-						}
-					}
-				}
-				knownComponentNames.put(component.name, null); // ensure that the duplicate field is found & removed
-				problemReporter().recordDuplicateComponent(component);
-				component.binding = null;
-			} else {
-				knownComponentNames.put(component.name, componentBinding);
-				// remember that we have seen a component with this name
-				componentBindings[count++] = componentBinding;
-			}
-		}
-		// remove duplicate components
-		if (count != componentBindings.length)
-			System.arraycopy(componentBindings, 0, componentBindings = new RecordComponentBinding[count], 0, count);
-		sourceType.setComponents(componentBindings);
-	}
 	void buildFields() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		if (sourceType.areFieldsInitialized()) return;
@@ -236,8 +187,8 @@ public class ClassScope extends Scope {
 				fieldBinding = new FieldBinding(field, null, field.modifiers | ExtraCompilerModifiers.AccUnresolved, sourceType);
 				checkAndSetModifiersForField(fieldBinding, field);
 			} else {
-				fieldBinding = new SyntheticFieldBinding(variableDeclaration.name, null,
-						ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal | ExtraCompilerModifiers.AccBlankFinal | ExtraCompilerModifiers.AccUnresolved,
+				fieldBinding = new SyntheticFieldBinding(variableDeclaration.name, variableDeclaration.type.resolvedType,
+						ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal | ExtraCompilerModifiers.AccBlankFinal,
 						sourceType, Constant.NotAConstant);
 			}
 			fieldBinding.id = count;
@@ -272,7 +223,6 @@ public class ClassScope extends Scope {
 	}
 
 	void buildFieldsAndMethods() {
-		buildComponents();
 		buildFields();
 		buildMethods();
 
@@ -352,6 +302,7 @@ public class ClassScope extends Scope {
 		checkParameterizedTypeBounds();
 		checkParameterizedSuperTypeCollisions();
 		this.referenceContext.updateSupertypesWithAnnotations(Collections.emptyMap());
+		collateRecordComponents();
 		buildFieldsAndMethods();
 		localType.faultInTypesForFieldsAndMethods();
 
@@ -1447,6 +1398,42 @@ public class ClassScope extends Scope {
 			}
 		}
 		return noProblems;
+	}
+
+	void collateRecordComponents() {
+		SourceTypeBinding sourceType = this.referenceContext.binding;
+		if (sourceType.components() == null) {
+			RecordComponent[] components = this.referenceContext.recordComponents;
+			int length = components.length;
+			RecordComponentBinding[] rcbs = length == 0 ? Binding.NO_COMPONENTS : new RecordComponentBinding[length];
+			HashMap<String, RecordComponentBinding> knownComponents = new HashMap<>(length);
+			int count = 0;
+			for (RecordComponent component : components) {
+				RecordComponentBinding rcb = new RecordComponentBinding(sourceType, component, null, component.modifiers | ExtraCompilerModifiers.AccUnresolved);
+				rcb.id = count;
+				String name = new String(component.name);
+				if (knownComponents.containsKey(name)) {
+					RecordComponentBinding clash =  knownComponents.get(name);
+					if (clash != null)
+						problemReporter().recordDuplicateComponent(clash.sourceRecordComponent());
+					knownComponents.put(name, null); // ensure that the duplicate field is found & removed
+					problemReporter().recordDuplicateComponent(component);
+					component.binding = null;
+				} else {
+					knownComponents.put(name, rcb);
+					if (sourceType.resolveTypeFor(rcb) != null)
+						rcbs[count++] = rcb;
+				}
+			}
+			if (count != rcbs.length) // remove duplicate or broken components
+				System.arraycopy(rcbs, 0, rcbs = count == 0 ? Binding.NO_COMPONENTS : new RecordComponentBinding[count], 0, count);
+			sourceType.setComponents(rcbs);
+		}
+		ReferenceBinding[] memberTypes = sourceType.memberTypes;
+		if (memberTypes != null) {
+			for (ReferenceBinding memberType : memberTypes)
+				((SourceTypeBinding) memberType).scope.collateRecordComponents();
+		}
 	}
 
 	void connectTypeHierarchy() {

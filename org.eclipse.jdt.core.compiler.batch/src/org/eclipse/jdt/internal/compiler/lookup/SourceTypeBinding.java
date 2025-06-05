@@ -126,7 +126,6 @@ public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassSc
 	this.environment = scope.environment();
 
 	// expect the fields & methods to be initialized correctly later
-	this.components = Binding.UNINITIALIZED_COMPONENTS;
 	this.fields = Binding.UNINITIALIZED_FIELDS;
 	this.methods = Binding.UNINITIALIZED_METHODS;
 	this.prototype = this;
@@ -268,6 +267,12 @@ public void addSyntheticRecordState(RecordComponent component, FieldBinding synt
 		this.synthetics = new LinkedHashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
 		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new LinkedHashMap(5);
+
+	if (component.binding != null)
+		synthField.modifiers |= component.binding.modifiers & ExtraCompilerModifiers.AccGenericSignature;
+
+	if (component.annotations != null)
+		ASTNode.copyRecordComponentAnnotations(this.scope, synthField, component.annotations);
 
 	this.synthetics[SourceTypeBinding.FIELD_EMUL].put(component, synthField);
 }
@@ -757,12 +762,6 @@ public SyntheticMethodBinding addSyntheticRecordOverrideMethod(char[] selector) 
 	}
 	return accessMethod;
 }
-boolean areComponentsInitialized() {
-	if (!isPrototype())
-		return this.prototype.areComponentsInitialized();
-	return this.components != Binding.UNINITIALIZED_COMPONENTS;
-}
-
 boolean areFieldsInitialized() {
 	if (!isPrototype())
 		return this.prototype.areFieldsInitialized();
@@ -893,48 +892,9 @@ public RecordComponentBinding[] components() {
 	if (!this.isRecord())
 		return NO_COMPONENTS;
 
-	if ((this.extendedTagBits & ExtendedTagBits.AreRecordComponentsComplete) != 0)
-		return this.components;
-
 	if (!isPrototype()) {
-		this.extendedTagBits |= ExtendedTagBits.AreRecordComponentsComplete;
 		return this.components = this.prototype.components();
 	}
-
-	if (!areComponentsInitialized()) {
-		this.scope.buildComponents();
-	}
-
-	int failed = 0;
-	RecordComponentBinding[] resolvedComponents = this.components;
-	try {
-		// Note: do not sort the components
-		RecordComponentBinding[] componentsSnapshot = this.components;
-		for (int i = 0, length = componentsSnapshot.length; i < length; i++) {
-			if (resolveTypeFor(componentsSnapshot[i]) == null) {
-				// do not alter original component array until resolution is over, due to reentrance (143259)
-				if (resolvedComponents == componentsSnapshot) {
-					System.arraycopy(componentsSnapshot, 0, resolvedComponents = new RecordComponentBinding[length], 0, length);
-				}
-				resolvedComponents[i] = null;
-				failed++;
-			}
-		}
-	} finally {
-		if (failed > 0) {
-			int newSize = resolvedComponents.length - failed;
-			if (newSize == 0)
-				return setComponents(Binding.NO_COMPONENTS);
-
-			RecordComponentBinding[] newComponents = new RecordComponentBinding[newSize];
-			for (int i = 0, j = 0, length = resolvedComponents.length; i < length; i++) {
-				if (resolvedComponents[i] != null)
-					newComponents[j++] = resolvedComponents[i];
-			}
-			setComponents(newComponents);
-		}
-	}
-	this.extendedTagBits |= ExtendedTagBits.AreRecordComponentsComplete;
 	return this.components;
 }
 
@@ -961,6 +921,9 @@ public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
 	TypeBinding componentType = componentDeclaration.type.resolveType(initializationScope, true /* check bounds*/);
 	component.type = componentType;
 	component.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
+	if ((component.modifiers & ExtraCompilerModifiers.AccJustFlag) != 0)
+		this.scope.problemReporter().recordComponentsCannotHaveModifiers(componentDeclaration);
+
 	if (componentType == null) {
 		componentDeclaration.binding = null;
 		return null;
@@ -1012,17 +975,6 @@ public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
 	if (this.externalAnnotationProvider != null) {
 		ExternalAnnotationSuperimposer.annotateComponentBinding(component, this.externalAnnotationProvider, this.environment);
 	}
-	// As we resolve types for the component, patch up the corresponding instance variable
-	for (FieldBinding field : this.fields) {
-		if (CharOperation.equals(field.name, component.name)) {
-			field.type = component.type;
-			field.modifiers |= component.modifiers & ExtraCompilerModifiers.AccGenericSignature;
-			field.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
-			ASTNode.copyRecordComponentAnnotations(initializationScope, field, annotations);
-			// what else ?
-			break;
-		}
-	}
 	return component;
 }
 
@@ -1037,7 +989,6 @@ private void internalFaultInTypeForFieldsAndMethods() {
 @Override
 public FieldBinding[] fields() {
 
-	components(); // In a record declaration, the components should be complete prior to fields and probably for methods
 	if (!isPrototype()) {
 		if ((this.tagBits & TagBits.AreFieldsComplete) != 0)
 			return this.fields;
@@ -1565,7 +1516,7 @@ void initializeForStaticImports() {
 
 	if (this.superInterfaces == null)
 		this.scope.connectTypeHierarchy();
-	this.scope.buildComponents();
+	this.scope.collateRecordComponents();
 	this.scope.buildFields();
 	this.scope.buildMethods();
 }
@@ -1708,8 +1659,6 @@ public boolean hasMemberTypes() {
 // NOTE: the return type, arg & exception types of each method of a source type are resolved when needed
 @Override
 public MethodBinding[] methods() {
-
-	components(); // In a record declaration, the components should be complete prior to fields and probably for methods
 
 	if (!isPrototype()) {
 		if ((this.tagBits & TagBits.AreMethodsComplete) != 0)
