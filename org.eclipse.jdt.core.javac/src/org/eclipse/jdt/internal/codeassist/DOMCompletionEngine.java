@@ -110,6 +110,7 @@ import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
+import org.eclipse.jdt.core.dom.MethodRefParameter;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
@@ -1986,6 +1987,21 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					}
 					suggestDefaultCompletions = false;
 				} else if (state == JavadocMethodReferenceParseState.AFTER_IDENTIFIER) {
+					suggestDefaultCompletions = false;
+				} else if (state == JavadocMethodReferenceParseState.IN_IDENTIFIER) {
+
+					if (completeAfter.isEmpty()) {
+						defaultCompletionBindings.all()
+							.filter(ITypeBinding.class::isInstance)
+							.map(this::toProposal)
+							.forEach(this.requestor::accept);
+					} else {
+						findTypes(completeAfter, null)
+							.filter(typeMatch -> this.pattern.matchesName(this.prefix.toCharArray(), typeMatch.getType().getElementName().toCharArray()))
+							.map(this::toProposal)
+							.forEach(this.requestor::accept);
+					}
+					suggestTypeKeywords(false);
 					suggestDefaultCompletions = false;
 				}
 			}
@@ -4319,7 +4335,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			&& !inJavadoc) {
 			res.setReplaceRange(this.toComplete.getStartPosition(), endOffset);
 			res.setTokenRange(this.toComplete.getStartPosition(), endOffset);
-		} else if (this.toComplete instanceof MethodInvocation methodInvocation) {
+		} else if (this.toComplete instanceof MethodInvocation) {
 			res.setReplaceRange(this.offset, this.offset);
 			res.setTokenRange(this.offset, this.offset);
 		} else {
@@ -4457,6 +4473,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		} else if (this.toComplete instanceof ThisExpression thisExpression
 				&& thisExpression.getQualifier() != null
 				&& this.offset > (thisExpression.getQualifier().getStartPosition() + thisExpression.getQualifier().getLength())) {
+			setRange(res);
+		} else if (this.toComplete instanceof MethodRefParameter || this.toComplete instanceof MethodRef){
 			setRange(res);
 		} else {
 			res.setReplaceRange(this.toComplete.getStartPosition(), this.offset);
