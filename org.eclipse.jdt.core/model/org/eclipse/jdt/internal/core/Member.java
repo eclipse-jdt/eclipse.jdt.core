@@ -430,7 +430,7 @@ protected boolean isMainMethod(IMethod method) throws JavaModelException {
 
 protected boolean isMainMethodCandidate(IMethod method) throws JavaModelException {
 	Map<String, String> options = method.getJavaProject().getOptions(true);
-	if (JavaFeature.IMPLICIT_CLASSES_AND_INSTANCE_MAIN_METHODS.isSupported(
+	if (JavaFeature.COMPACT_SOURCE_AND_INSTANCE_MAIN_METHODS.isSupported(
 				options.get(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM),
 				JavaCore.ENABLED.equals(options.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)))) {
 		if ("main".equals(method.getElementName()) && Signature.SIG_VOID.equals(method.getReturnType())) { //$NON-NLS-1$

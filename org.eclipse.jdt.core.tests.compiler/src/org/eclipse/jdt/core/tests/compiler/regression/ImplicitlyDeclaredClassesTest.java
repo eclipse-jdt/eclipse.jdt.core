@@ -361,8 +361,20 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 				"Zork cannot be resolved to a type\n" +
 				"----------\n");
 	}
-	public void testGH3137a() {
+	public void testGH3137a1() {
 		runConformTest(new String[] {
+				"X.java",
+				"""
+				public static void main(String[] args) {
+					IO.println("Hello1");
+					IO.println("Hello2");
+				}"""
+		},
+		"Hello1\n" +
+		"Hello2");
+	}
+	public void testGH3137a2() {
+		runNegativeTest(new String[] {
 				"X.java",
 				"""
 				public static void main(String[] args) {
@@ -370,16 +382,25 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 					println("Hello2");
 				}"""
 		},
-		"Hello1\n" +
-		"Hello2");
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	println(\"Hello1\");\n" +
+		"	^^^^^^^\n" +
+		"The method println(String) is undefined for the type X\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 3)\n" +
+		"	println(\"Hello2\");\n" +
+		"	^^^^^^^\n" +
+		"The method println(String) is undefined for the type X\n" +
+		"----------\n");
 	}
-	public void testGH3137b() {
+	public void testGH3137b1() {
 		runConformTest(new String[] {
 				"X.java",
 				"""
 				public static void main(String[] args) {
-					String str = readln("Enter:");
-					println(str);
+					String str = IO.readln("Enter:");
+					IO.println(str);
 				}
 				"""
 		},
@@ -388,11 +409,28 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 		VMARGS,
 		JavacTestOptions.SKIP);
 	}
+	public void testGH3137b2() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public static void main(String[] args) {
+					String str = readln("Enter:");
+					IO.println(str);
+				}
+				"""
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	String str = readln(\"Enter:\");\n" +
+		"	             ^^^^^^\n" +
+		"The method readln(String) is undefined for the type X\n" +
+		"----------\n");
+	}
 	public void testGH3714() {
 		runConformTest(new String[] {
 				"Main.java",
 				"""
-				import static java.io.IO.*;
+				import static java.lang.IO.*;
 				public class Main {
 					public static void main(String[] args) {
 						println("Hello");

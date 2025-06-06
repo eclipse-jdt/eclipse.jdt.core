@@ -174,60 +174,6 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 			true,
 			options);
 	}
-	public void testIssue3614_003() throws Exception {
-		Runner runner = new Runner();
-		runner.customOptions = getCompilerOptions(false);
-		runner.javacTestOptions = JavacTestOptions.DEFAULT; // don't enable preview
-		runner.testFiles = new String[] {
-				"X.java",
-				"""
-				import com.sun.source.tree.ImportTree;
-				public class X {
-					boolean foo(ImportTree tree) {
-						return tree.isModule();
-					}
-					public static void main(String... args) {}
-				}
-				"""
-			};
-		runner.expectedCompilerLog =
-				"----------\n" +
-				"1. WARNING in X.java (at line 4)\n" +
-				"	return tree.isModule();\n" +
-				"	       ^^^^^^^^^^^^^^^\n" +
-				"This API is part of the preview feature 'Module Import Declarations' which is disabled by default. Use --enable-preview to enable\n" +
-				"----------\n";
-		runner.runConformTest();
-	}
-	public void testIssue3614_003_enabled() throws Exception {
-		Runner runner = new Runner();
-		runner.customOptions = getCompilerOptions(true);
-		runner.vmArguments = VMARGS;
-		runner.javacTestOptions = JAVAC_OPTIONS;
-		runner.testFiles = new String[] {
-				"X.java",
-				"""
-				import com.sun.source.tree.ImportTree;
-				public class X {
-					boolean foo(ImportTree tree) {
-						return tree.isModule();
-					}
-					public void main(String... args) {
-						System.out.print(42);
-					}
-				}
-				"""
-			};
-		runner.expectedCompilerLog =
-			"----------\n" +
-			"1. WARNING in X.java (at line 4)\n" +
-			"	return tree.isModule();\n" +
-			"	       ^^^^^^^^^^^^^^^\n" +
-			"You are using an API that is part of the preview feature \'Module Import Declarations\' and may be removed in future\n" +
-			"----------\n";
-		runner.expectedOutputString = "42";
-		runner.runConformTest();
-	}
 	public void testIssue3943_001() throws IOException, ClassFormatException {
 		Map<String, String> options = getCompilerOptions();
 		String str = options.get(CompilerOptions.OPTION_Compliance);

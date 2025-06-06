@@ -2408,7 +2408,7 @@ public void testBug558718_001() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	record R() {}\n" +
 		"	^\n" +
-		"The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 25 and above\n" +
+		"The preview feature Compact Source Files and Instance Main Methods is only available with source level 25 and above\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 1)\n" +
 		"	record R() {}\n" +
@@ -7926,7 +7926,7 @@ public void testBug566846_1() {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	public record X;\n" +
 			"	^\n" +
-			"Implicitly Declared Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+			"Compact Source Files and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 1)\n" +
 			"	public record X;\n" +
@@ -7955,7 +7955,7 @@ public void testBug566846_2() {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	public class X {\n" +
 			"	^\n" +
-			"Implicitly Declared Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+			"Compact Source Files and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 1)\n" +
 			"	public class X {\n" +
@@ -8462,7 +8462,7 @@ public void _testBug571765_001() {
 			"1. ERROR in module-info.java (at line 1)\n" +
 			"	public record R() {}\n" +
 			"	^\n" +
-			"Implicitly Declared Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+			"Compact Source Files and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable\n" +
 			"----------\n" +
 			"2. ERROR in module-info.java (at line 1)\n" +
 			"	public record R() {}\n" +
