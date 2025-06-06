@@ -271,20 +271,20 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		RecordComponent recordComponent = getRecordComponent();
 		if (recordComponent != null) {
 			if (this.returnType != null && TypeBinding.notEquals(this.returnType.resolvedType, recordComponent.type.resolvedType))
-				this.scope.problemReporter().recordIllegalAccessorReturnType(this.returnType, recordComponent.type.resolvedType);
+				this.scope.problemReporter().componentAccessorReturnTypeMismatch(this.returnType, recordComponent.type.resolvedType);
 			if (this.typeParameters != null)
-				this.scope.problemReporter().recordAccessorMethodShouldNotBeGeneric(this);
+				this.scope.problemReporter().componentAccessorMethodShouldNotBeGeneric(this);
 			if (this.binding != null) {
 				if (!this.binding.isPublic())
-					this.scope.problemReporter().recordAccessorMethodShouldBePublic(this);
+					this.scope.problemReporter().componentAccessorMethodShouldBePublic(this);
 				if (this.binding.isStatic())
-					this.scope.problemReporter().recordAccessorMethodShouldNotBeStatic(this);
+					this.scope.problemReporter().componentAccessorMethodShouldNotBeStatic(this);
 				if ((this.binding.modifiers & ExtraCompilerModifiers.AccOverriding) == 0) {
-					this.scope.problemReporter().recordAccessorMissingOverrideAnnotation(this);
+					this.scope.problemReporter().componentAccessorMissingOverrideAnnotation(this);
 				}
 			}
 			if (this.thrownExceptions != null)
-				this.scope.problemReporter().recordAccessorMethodHasThrowsClause(this);
+				this.scope.problemReporter().componentAccessorMethodHasThrowsClause(this);
 		}
 		// check if method with constructor name
 		if (CharOperation.equals(this.scope.enclosingSourceType().sourceName, this.selector)) {

@@ -4228,7 +4228,7 @@ protected void consumeSingleVariableDeclarator(boolean isVarArgs) {
 		}
 	} else if (this.parsingRecordComponents) {
 		if (!this.statementRecoveryActivated && extendedDimensions > 0)
-			problemReporter().recordIllegalExtendedDimensionsForRecordComponent(singleVariable);
+			problemReporter().illegalExtendedDimensionsForRecordComponent(singleVariable);
 	}
 }
 protected Annotation[][] getAnnotationsOnDimensions(int dimensionsCount) {

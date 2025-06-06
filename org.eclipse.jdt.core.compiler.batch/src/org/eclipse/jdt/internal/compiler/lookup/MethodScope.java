@@ -259,7 +259,7 @@ private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
 			}
 		}
 	} else if (declaringClass.isRecord() && methodBinding.isNative()) {
-		problemReporter().recordIllegalNativeModifierInRecord((AbstractMethodDeclaration) this.referenceContext);
+		problemReporter().nativeMethodIllegalInRecord((AbstractMethodDeclaration) this.referenceContext);
 	}
 
 	// check for abnormal modifiers
