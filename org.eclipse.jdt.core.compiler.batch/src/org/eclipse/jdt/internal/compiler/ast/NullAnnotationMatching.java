@@ -222,7 +222,7 @@ public class NullAnnotationMatching {
 			boolean problemAtDetail = false;
 			if (areSameTypes(requiredType, providedType, providedSubstitute)) {
 				if ((requiredType.tagBits & TagBits.AnnotationNonNull) != 0)
-					return okNonNullStatus(providedExpression);
+					return okNonNullStatus(providedExpression, true);
 				return okStatus;
 			}
 			if (requiredType instanceof TypeVariableBinding && substitution != null && (mode == CheckMode.EXACT || mode == CheckMode.COMPATIBLE || mode == CheckMode.BOUND_SUPER_CHECK)) {
@@ -232,7 +232,7 @@ public class NullAnnotationMatching {
 					return NullAnnotationMatching.NULL_ANNOTATIONS_OK;
 				if (areSameTypes(requiredType, providedType, providedSubstitute)) {
 					if ((requiredType.tagBits & TagBits.AnnotationNonNull) != 0)
-						return okNonNullStatus(providedExpression);
+						return okNonNullStatus(providedExpression, true);
 					return okStatus;
 				}
 			}
@@ -329,7 +329,7 @@ public class NullAnnotationMatching {
 					}
 					severity = severity.max(s);
 					if (!severity.isAnyMismatch() && (providedBits & TagBits.AnnotationNullMASK) == TagBits.AnnotationNonNull)
-						okStatus = okNonNullStatus(providedExpression);
+						okStatus = okNonNullStatus(providedExpression, requiredBits == TagBits.AnnotationNonNull);
 				}
 				if (severity != Severity.MISMATCH && nullStatus != FlowInfo.NULL) {  // null value has no details
 					TypeBinding providedSuper = providedType.findSuperTypeOriginatingFrom(requiredType);
@@ -389,13 +389,14 @@ public class NullAnnotationMatching {
 		}
 	}
 
-	public static NullAnnotationMatching okNonNullStatus(final Expression providedExpression) {
+	public static NullAnnotationMatching okNonNullStatus(final Expression providedExpression, boolean isNonNullRequired) {
 		if (providedExpression instanceof MessageSend) {
 			final MethodBinding method = ((MessageSend) providedExpression).binding;
 			if (method != null && method.isValidBinding()) {
 				MethodBinding originalMethod = method.original();
 				TypeBinding originalDeclaringClass = originalMethod.declaringClass;
-				if (originalDeclaringClass instanceof BinaryTypeBinding
+				if (isNonNullRequired
+						&& originalDeclaringClass instanceof BinaryTypeBinding
 						&& ((BinaryTypeBinding) originalDeclaringClass).externalAnnotationStatus.isPotentiallyUnannotatedLib()
 						&& originalMethod.returnType.isTypeVariable()
 						&& (originalMethod.returnType.tagBits & TagBits.AnnotationNullMASK) == 0)

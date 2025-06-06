@@ -19521,4 +19521,33 @@ public void testGH3461() {
 	runner.classLibraries = this.LIBS;
 	runner.runConformTest();
 }
+public void testGH4011() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportNonNullTypeVariableFromLegacyInvocation, CompilerOptions.ERROR);
+	runner.testFiles = new String[] {
+			"X.java",
+			"""
+			import java.util.List;
+			import org.eclipse.jdt.annotation.NonNull;
+			public class X {
+				void m(List<@NonNull String> list) {
+					@NonNull String s1 = list.get(0);
+					String s2 = list.get(1); // don't expect error here
+				}
+			}
+			"""
+	};
+	runner.classLibraries = this.LIBS;
+	runner.expectedCompilerLog =
+			"""
+			----------
+			1. ERROR in X.java (at line 5)
+				@NonNull String s1 = list.get(0);
+				                     ^^^^^^^^^^^
+			Unsafe interpretation of method return type as '@NonNull' based on the receiver type 'List<@NonNull String>'. Type 'List<E>' doesn't seem to be designed with null type annotations in mind
+			----------
+			""";
+	runner.runNegativeTest();
+}
 }
