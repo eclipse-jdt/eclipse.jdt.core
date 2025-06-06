@@ -3001,7 +3001,10 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	}
 
 	private void suggestAccessibleConstructorsForType(ITypeBinding typeBinding) {
-		ITypeBinding parentTypeBinding = DOMCompletionUtil.findParentTypeDeclaration(this.toComplete).resolveBinding();
+		CompilationUnit cu = (CompilationUnit)DOMCompletionUtil.findParent(toComplete, new int[] { ASTNode.COMPILATION_UNIT });
+		String currentPackageName = cu.getPackage() == null ? "" : cu.getPackage().getName().toString();
+		AbstractTypeDeclaration parentTypeDeclaration = DOMCompletionUtil.findParentTypeDeclaration(toComplete);
+		ITypeBinding parentTypeBinding = parentTypeDeclaration == null ? null : parentTypeDeclaration.resolveBinding();
 		Stream.of(typeBinding.getDeclaredMethods()) //
 			.filter(IMethodBinding::isConstructor) //
 			.filter(method -> {
@@ -3013,7 +3016,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						|| (this.assistOptions.camelCaseMatch && CharOperation.camelCaseMatch(this.prefix.toCharArray(), method.getName().toCharArray()));
 			}) //
 			.filter(method -> {
-				boolean includeProtected = DOMCompletionUtil.findInSupers(parentTypeBinding, typeBinding);
+				boolean includeProtected = parentTypeBinding == null ? false : DOMCompletionUtil.findInSupers(parentTypeBinding, typeBinding);
 				if ((method.getModifiers() & Flags.AccPrivate) != 0
 						&& (parentTypeBinding == null || !method.getDeclaringClass().getKey().equals(parentTypeBinding.getKey()))) {
 					return false;
@@ -3022,7 +3025,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					if (parentTypeBinding == null) {
 						return false;
 					}
-					return method.getDeclaringClass().getPackage().getName().equals(parentTypeBinding.getPackage().getName());
+					return method.getDeclaringClass().getPackage().getName().equals(currentPackageName);
 				}
 				if ((method.getModifiers() & Flags.AccProtected) != 0) {
 					return includeProtected;
@@ -3872,31 +3875,32 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		if (typeBinding == null) {
 			return;
 		}
+		CompilationUnit cu = ((CompilationUnit)DOMCompletionUtil.findParent(referencedFrom, new int[] {ASTNode.COMPILATION_UNIT}));
+		String packageKey = cu.getPackage() != null ? cu.getPackage().resolveBinding().getKey() : "";
 		ASTNode parentType = DOMCompletionUtil.findParent(referencedFrom, new int[] {ASTNode.ANNOTATION_TYPE_DECLARATION, ASTNode.TYPE_DECLARATION, ASTNode.ENUM_DECLARATION, ASTNode.RECORD_DECLARATION, ASTNode.ANONYMOUS_CLASS_DECLARATION});
-		if (parentType == null) {
-			return;
-		}
 		ITypeBinding referencedFromBinding = null;
 		if (parentType instanceof AbstractTypeDeclaration abstractTypeDeclaration) {
 			referencedFromBinding = abstractTypeDeclaration.resolveBinding();
 		} else if (parentType instanceof AnonymousClassDeclaration anonymousClassDeclaration) {
 			referencedFromBinding = anonymousClassDeclaration.resolveBinding();
 		}
-		boolean includePrivate = referencedFromBinding.getKey().equals(typeBinding.getKey());
+		boolean includePrivate = parentType == null ? false : referencedFromBinding.getKey().equals(typeBinding.getKey());
 		MethodDeclaration methodDeclaration = (MethodDeclaration)DOMCompletionUtil.findParent(referencedFrom, new int[] {ASTNode.METHOD_DECLARATION});
 		// you can reference protected fields/methods from a static method,
 		// as long as those protected fields/methods are declared in the current class.
 		// otherwise, the (inherited) fields/methods can only be accessed in non-static methods.
 		boolean includeProtected;
-		if (referencedFromBinding.getKey().equals(typeBinding.getKey())) {
+		if (referencedFromBinding != null && referencedFromBinding.getKey().equals(typeBinding.getKey())) {
 			includeProtected = true;
 		} else if (methodDeclaration != null
 				&& (methodDeclaration.getModifiers() & Flags.AccStatic) != 0) {
 			includeProtected = false;
-		} else {
+		} else if (referencedFromBinding != null) {
 			includeProtected = DOMCompletionUtil.findInSupers(referencedFromBinding, typeBinding);
+		} else {
+			includeProtected = false;
 		}
-		processMembers(typeBinding, scope, includePrivate, includeProtected, referencedFromBinding.getPackage().getKey(), isStaticContext, typeBinding.isInterface(),
+		processMembers(typeBinding, scope, includePrivate, includeProtected, packageKey, isStaticContext, typeBinding.isInterface(),
 				new HashSet<>(), new HashSet<>(), new HashSet<>());
 	}
 
