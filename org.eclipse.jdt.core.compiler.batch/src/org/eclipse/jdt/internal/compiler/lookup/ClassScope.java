@@ -119,7 +119,7 @@ public class ClassScope extends Scope {
 					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
 					anonymousType.setSuperClass(getJavaLangObject());
 				} else if (supertype.erasure().id == TypeIds.T_JavaLangRecord) {
-					problemReporter().recordCannotExtendRecord(anonymousType, typeReference, supertype);
+					problemReporter().cannotExtendRecord(anonymousType, typeReference, supertype);
 					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
 					anonymousType.setSuperClass(getJavaLangObject());
 				} else if (supertype.isFinal()) {
@@ -1133,7 +1133,7 @@ public class ClassScope extends Scope {
 			} else if (superclass.erasure().id == TypeIds.T_JavaLangEnum) {
 				problemReporter().cannotExtendEnum(sourceType, superclassRef, superclass);
 			} else if (superclass.erasure().id == TypeIds.T_JavaLangRecord) {
-				problemReporter().recordCannotExtendRecord(sourceType, superclassRef, superclass);
+				problemReporter().cannotExtendRecord(sourceType, superclassRef, superclass);
 			} else if (superclass.isSealed() && sourceType.isLocalType()) {
 				sourceType.setSuperClass(superclass);
 				problemReporter().localTypeMayNotBePermittedType(sourceType, superclassRef, superclass);
@@ -1415,9 +1415,9 @@ public class ClassScope extends Scope {
 				if (knownComponents.containsKey(name)) {
 					RecordComponentBinding clash =  knownComponents.get(name);
 					if (clash != null)
-						problemReporter().recordDuplicateComponent(clash.sourceRecordComponent());
+						problemReporter().duplicateRecordComponent(clash.sourceRecordComponent());
 					knownComponents.put(name, null); // ensure that the duplicate field is found & removed
-					problemReporter().recordDuplicateComponent(component);
+					problemReporter().duplicateRecordComponent(component);
 					component.binding = null;
 				} else {
 					knownComponents.put(name, rcb);

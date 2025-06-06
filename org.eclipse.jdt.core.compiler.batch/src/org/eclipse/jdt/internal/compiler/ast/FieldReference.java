@@ -107,7 +107,7 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			flowInfo.markAsDefinitelyAssigned(this.binding);
 		} else {
 			if (currentScope.methodScope().referenceContext instanceof ConstructorDeclaration cd && cd.isCompactConstructor())
-				currentScope.problemReporter().recordIllegalExplicitFinalFieldAssignInCompactConstructor(this.binding, this);
+				currentScope.problemReporter().illegalExplicitAssignmentInCompactConstructor(this.binding, this);
 			else
 			// assigning a final field outside an initializer or constructor or wrong reference
 				currentScope.problemReporter().cannotAssignToFinalField(this.binding, this);

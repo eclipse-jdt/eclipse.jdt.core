@@ -929,7 +929,7 @@ public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
 		return null;
 	}
 	if (TypeDeclaration.disallowedComponentNames.contains(new String(componentDeclaration.name))) {
-		this.scope.problemReporter().recordIllegalComponentNameInRecord(componentDeclaration, this.scope.referenceContext);
+		this.scope.problemReporter().illegalComponentNameInRecord(componentDeclaration, this.scope.referenceContext);
 		componentDeclaration.binding = null;
 		return null;
 	}
@@ -945,7 +945,7 @@ public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
 	}
 	RecordComponent[] recordComponents = this.scope.referenceContext.recordComponents;
 	if (componentDeclaration.isVarArgs() && recordComponents[recordComponents.length - 1] != componentDeclaration)
-		this.scope.problemReporter().recordIllegalVararg(componentDeclaration, this.scope.referenceContext);
+		this.scope.problemReporter().onlyLastRecordComponentMaybeVararg(componentDeclaration, this.scope.referenceContext);
 
 	if (componentType.isArrayType() && ((ArrayBinding) componentType).leafComponentType == TypeBinding.VOID) {
 		this.scope.problemReporter().variableTypeCannotBeVoidArray(componentDeclaration);

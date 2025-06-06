@@ -710,24 +710,24 @@ public void resolve(ClassScope upperScope) {
 		RecordComponentBinding[] rcbs = upperScope.referenceContext.binding.components();
 		boolean lastComponentVarargs = rcbs.length > 0 && rcbs[rcbs.length - 1].sourceRecordComponent().isVarArgs();
 		if (this.binding.isVarargs() != lastComponentVarargs)
-			upperScope.problemReporter().recordErasureIncompatibilityInCanonicalConstructor(this.arguments[this.arguments.length - 1].type);
+			upperScope.problemReporter().erasureIncompatibilityInCanonicalConstructor(this.arguments[this.arguments.length - 1].type);
 		for (int i = 0; i < rcbs.length; ++i) {
 			TypeBinding mpt = this.binding.parameters[i];
 			TypeBinding rct = rcbs[i].type;
 			if (TypeBinding.notEquals(mpt, rct))
-				upperScope.problemReporter().recordErasureIncompatibilityInCanonicalConstructor(this.arguments[i].type);
+				upperScope.problemReporter().erasureIncompatibilityInCanonicalConstructor(this.arguments[i].type);
 		}
 
 		if (!this.binding.isAsVisible(this.binding.declaringClass))
-			this.scope.problemReporter().recordCanonicalConstructorVisibilityReduced(this);
+			this.scope.problemReporter().canonicalConstructorVisibilityReduced(this);
 		if (this.typeParameters != null && this.typeParameters.length > 0)
-			this.scope.problemReporter().recordCanonicalConstructorShouldNotBeGeneric(this);
+			this.scope.problemReporter().canonicalConstructorShouldNotBeGeneric(this);
 		if (this.binding.thrownExceptions != null && this.binding.thrownExceptions.length > 0)
-			this.scope.problemReporter().recordCanonicalConstructorHasThrowsClause(this);
+			this.scope.problemReporter().canonicalConstructorHasThrowsClause(this);
 		if (!this.isCompactConstructor()) {
 			for (int i = 0; i < rcbs.length; i++)
 				if (!CharOperation.equals(this.arguments[i].name, rcbs[i].name))
-					this.scope.problemReporter().recordIllegalParameterNameInCanonicalConstructor(rcbs[i], this.arguments[i]);
+					this.scope.problemReporter().mismatchedParameterNameInCanonicalConstructor(rcbs[i], this.arguments[i]);
 		}
 	}
 	super.resolve(upperScope);
@@ -759,7 +759,7 @@ public void resolveStatements() {
 				!this.isCompactConstructor() && // compact constr should be marked as canonical?
 				(this.binding != null && !this.binding.isCanonicalConstructor()) &&
 				this.constructorCall.accessMode != ExplicitConstructorCall.This) {
-			this.scope.problemReporter().recordMissingExplicitConstructorCallInNonCanonicalConstructor(this);
+			this.scope.problemReporter().missingExplicitConstructorCallInNonCanonicalConstructor(this);
 			this.constructorCall = null;
 		} else {
 			ExplicitConstructorCall lateConstructorCall = null;

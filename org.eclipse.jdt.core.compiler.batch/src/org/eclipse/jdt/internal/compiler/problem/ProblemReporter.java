@@ -1614,7 +1614,7 @@ public void classExtendFinalRecord(SourceTypeBinding type, TypeReference supercl
 		superclass.sourceStart,
 		superclass.sourceEnd);
 }
-public void recordErasureIncompatibilityInCanonicalConstructor(TypeReference type) {
+public void erasureIncompatibilityInCanonicalConstructor(TypeReference type) {
 	String[] arguments = new String[] { new String(type.resolvedType.readableName()) };
 	this.handle(
 		IProblem.RecordErasureIncompatibilityInCanonicalConstructor,
@@ -6671,7 +6671,7 @@ public void missingOverrideAnnotation(AbstractMethodDeclaration method) {
 		method.sourceStart,
 		method.sourceEnd);
 }
-public void recordAccessorMissingOverrideAnnotation(AbstractMethodDeclaration method) {
+public void componentAccessorMissingOverrideAnnotation(AbstractMethodDeclaration method) {
 	int severity = computeSeverity(IProblem.MissingOverrideAnnotation);
 	if (severity == ProblemSeverities.Ignore) return;
 	MethodBinding binding = method.binding;
@@ -11716,7 +11716,7 @@ public void illegalModifierForRecord(SourceTypeBinding type) {
 		type.sourceStart(),
 		type.sourceEnd());
 }
-public void recordNonStaticFieldDeclarationInRecord(FieldDeclaration field) {
+public void nonStaticFieldDeclarationInRecord(FieldDeclaration field) {
 	this.handle(
 		IProblem.RecordNonStaticFieldDeclarationInRecord,
 		new String[] { new String(field.name) },
@@ -11724,7 +11724,7 @@ public void recordNonStaticFieldDeclarationInRecord(FieldDeclaration field) {
 		field.sourceStart,
 		field.sourceEnd);
 }
-public void recordAccessorMethodHasThrowsClause(ASTNode methodDeclaration) {
+public void componentAccessorMethodHasThrowsClause(ASTNode methodDeclaration) {
 	this.handle(
 		IProblem.RecordAccessorMethodHasThrowsClause,
 		NoArgument,
@@ -11732,7 +11732,7 @@ public void recordAccessorMethodHasThrowsClause(ASTNode methodDeclaration) {
 		methodDeclaration.sourceStart,
 		methodDeclaration.sourceEnd);
 }
-public void recordCanonicalConstructorVisibilityReduced(AbstractMethodDeclaration methodDecl) {
+public void canonicalConstructorVisibilityReduced(AbstractMethodDeclaration methodDecl) {
 	this.handle(
 		IProblem.RecordCanonicalConstructorVisibilityReduced,
 		new String[] {
@@ -11744,7 +11744,7 @@ public void recordCanonicalConstructorVisibilityReduced(AbstractMethodDeclaratio
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
-public void recordCompactConstructorHasReturnStatement(ReturnStatement stmt) {
+public void compactConstructorHasReturnStatement(ReturnStatement stmt) {
 	this.handle(
 		IProblem.RecordCompactConstructorHasReturnStatement,
 		NoArgument,
@@ -11760,7 +11760,7 @@ public void compactConstructorsOnlyInRecords(AbstractMethodDeclaration ccd) {
 			ccd.sourceStart,
 			ccd.sourceEnd);
 }
-public void recordIllegalComponentNameInRecord(RecordComponent recComp, TypeDeclaration typeDecl) {
+public void illegalComponentNameInRecord(RecordComponent recComp, TypeDeclaration typeDecl) {
 	this.handle(
 		IProblem.RecordIllegalComponentNameInRecord,
 		new String[] {
@@ -11772,7 +11772,7 @@ public void recordIllegalComponentNameInRecord(RecordComponent recComp, TypeDecl
 		recComp.sourceStart,
 		recComp.sourceEnd);
 }
-public void recordDuplicateComponent(RecordComponent recordComponent) {
+public void duplicateRecordComponent(RecordComponent recordComponent) {
 	this.handle(
 		IProblem.RecordDuplicateComponent,
 		new String[] { new String(recordComponent.name)},
@@ -11780,7 +11780,7 @@ public void recordDuplicateComponent(RecordComponent recordComponent) {
 		recordComponent.sourceStart,
 		recordComponent.sourceEnd);
 }
-public void recordIllegalNativeModifierInRecord(AbstractMethodDeclaration method) {
+public void nativeMethodIllegalInRecord(AbstractMethodDeclaration method) {
 	this.handle(
 		IProblem.RecordIllegalNativeModifierInRecord,
 		new String[] { new String(method.selector)},
@@ -11788,7 +11788,7 @@ public void recordIllegalNativeModifierInRecord(AbstractMethodDeclaration method
 		method.sourceStart,
 		method.sourceEnd);
 }
-public void recordInstanceInitializerBlockInRecord(Initializer initializer) {
+public void instanceInitializerBlockIllegalInRecord(Initializer initializer) {
 	this.handle(
 		IProblem.RecordInstanceInitializerBlockInRecord,
 		NoArgument,
@@ -11805,7 +11805,7 @@ public void restrictedTypeName(char[] name, String compliance, int start, int en
 		start,
 		end);
 }
-public void recordIllegalAccessorReturnType(ASTNode returnType, TypeBinding type) {
+public void componentAccessorReturnTypeMismatch(ASTNode returnType, TypeBinding type) {
 	this.handle(
 		IProblem.RecordIllegalAccessorReturnType,
 		new String[] {new String(type.readableName())},
@@ -11813,7 +11813,7 @@ public void recordIllegalAccessorReturnType(ASTNode returnType, TypeBinding type
 		returnType.sourceStart,
 		returnType.sourceEnd);
 }
-public void recordAccessorMethodShouldNotBeGeneric(ASTNode methodDecl) {
+public void componentAccessorMethodShouldNotBeGeneric(ASTNode methodDecl) {
 	this.handle(
 		IProblem.RecordAccessorMethodShouldNotBeGeneric,
 		NoArgument,
@@ -11821,7 +11821,7 @@ public void recordAccessorMethodShouldNotBeGeneric(ASTNode methodDecl) {
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
-public void recordAccessorMethodShouldBePublic(ASTNode methodDecl) {
+public void componentAccessorMethodShouldBePublic(ASTNode methodDecl) {
 	this.handle(
 		IProblem.RecordAccessorMethodShouldBePublic,
 		NoArgument,
@@ -11829,7 +11829,7 @@ public void recordAccessorMethodShouldBePublic(ASTNode methodDecl) {
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
-public void recordCanonicalConstructorShouldNotBeGeneric(AbstractMethodDeclaration methodDecl) {
+public void canonicalConstructorShouldNotBeGeneric(AbstractMethodDeclaration methodDecl) {
 	this.handle(
 		IProblem.RecordCanonicalConstructorShouldNotBeGeneric,
 		new String[] { new String(methodDecl.selector)},
@@ -11837,7 +11837,7 @@ public void recordCanonicalConstructorShouldNotBeGeneric(AbstractMethodDeclarati
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
-public void recordCanonicalConstructorHasThrowsClause(AbstractMethodDeclaration methodDecl) {
+public void canonicalConstructorHasThrowsClause(AbstractMethodDeclaration methodDecl) {
 	this.handle(
 		IProblem.RecordCanonicalConstructorHasThrowsClause,
 		new String[] { new String(methodDecl.selector)},
@@ -11845,15 +11845,7 @@ public void recordCanonicalConstructorHasThrowsClause(AbstractMethodDeclaration 
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
-public void recordCanonicalConstructorHasReturnStatement(ASTNode methodDecl) {
-	this.handle(
-		IProblem.RecordCanonicalConstructorHasReturnStatement,
-		NoArgument,
-		NoArgument,
-		methodDecl.sourceStart,
-		methodDecl.sourceEnd);
-}
-public void recordCanonicalConstructorHasExplicitConstructorCall(ASTNode methodDecl) {
+public void canonicalConstructorHasExplicitConstructorCall(ASTNode methodDecl) {
 	this.handle(
 		IProblem.RecordCanonicalConstructorHasExplicitConstructorCall,
 		NoArgument,
@@ -11861,7 +11853,7 @@ public void recordCanonicalConstructorHasExplicitConstructorCall(ASTNode methodD
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
-public void recordCompactConstructorHasExplicitConstructorCall(ASTNode methodDecl) {
+public void compactConstructorHasExplicitConstructorCall(ASTNode methodDecl) {
 	this.handle(
 		IProblem.RecordCompactConstructorHasExplicitConstructorCall,
 		NoArgument,
@@ -11869,15 +11861,7 @@ public void recordCompactConstructorHasExplicitConstructorCall(ASTNode methodDec
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
-public void recordNestedRecordInherentlyStatic(SourceTypeBinding type) {
-	this.handle(
-		IProblem.RecordNestedRecordInherentlyStatic,
-		NoArgument,
-		NoArgument,
-		type.sourceStart(),
-		type.sourceEnd());
-}
-public void recordAccessorMethodShouldNotBeStatic(ASTNode methodDecl) {
+public void componentAccessorMethodShouldNotBeStatic(ASTNode methodDecl) {
 	this.handle(
 		IProblem.RecordAccessorMethodShouldNotBeStatic,
 		NoArgument,
@@ -11885,7 +11869,7 @@ public void recordAccessorMethodShouldNotBeStatic(ASTNode methodDecl) {
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
-public void recordCannotExtendRecord(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
+public void cannotExtendRecord(SourceTypeBinding type, TypeReference superclass, TypeBinding superTypeBinding) {
 	String name = new String(type.sourceName());
 	String superTypeFullName = new String(superTypeBinding.readableName());
 	String superTypeShortName = new String(superTypeBinding.shortReadableName());
@@ -11906,7 +11890,7 @@ public void recordComponentCannotBeVoid(RecordComponent arg) {
 		arg.sourceStart,
 		arg.sourceEnd);
 }
-public void recordIllegalVararg(RecordComponent argType, TypeDeclaration typeDecl) {
+public void onlyLastRecordComponentMaybeVararg(RecordComponent argType, TypeDeclaration typeDecl) {
 	String[] arguments = new String[] {CharOperation.toString(argType.type.getTypeName()), new String(typeDecl.name)};
 	this.handle(
 		IProblem.RecordIllegalVararg,
@@ -11933,7 +11917,7 @@ public void recordComponentsCannotHaveModifiers(RecordComponent comp) {
 		comp.sourceStart,
 		comp.sourceEnd);
 }
-public void recordIllegalParameterNameInCanonicalConstructor(RecordComponentBinding comp, Argument arg) {
+public void mismatchedParameterNameInCanonicalConstructor(RecordComponentBinding comp, Argument arg) {
 	this.handle(
 		IProblem.RecordIllegalParameterNameInCanonicalConstructor,
 		new String[] {new String(arg.name), new String(comp.name)},
@@ -11941,7 +11925,7 @@ public void recordIllegalParameterNameInCanonicalConstructor(RecordComponentBind
 		arg.sourceStart,
 		arg.sourceEnd);
 }
-public void recordIllegalExplicitFinalFieldAssignInCompactConstructor(FieldBinding field, FieldReference fieldRef) {
+public void illegalExplicitAssignmentInCompactConstructor(FieldBinding field, FieldReference fieldRef) {
 	String[] arguments = new String[] { new String(field.name) };
 	this.handle(
 		IProblem.RecordIllegalExplicitFinalFieldAssignInCompactConstructor,
@@ -11950,7 +11934,7 @@ public void recordIllegalExplicitFinalFieldAssignInCompactConstructor(FieldBindi
 		fieldRef.sourceStart,
 		fieldRef.sourceEnd);
 }
-public void recordMissingExplicitConstructorCallInNonCanonicalConstructor(ASTNode location) {
+public void missingExplicitConstructorCallInNonCanonicalConstructor(ASTNode location) {
 	this.handle(
 		IProblem.RecordMissingExplicitConstructorCallInNonCanonicalConstructor,
 		NoArgument,
@@ -11967,7 +11951,7 @@ public void recordIllegalStaticModifierForLocalClassOrInterface(SourceTypeBindin
 		type.sourceStart(),
 		type.sourceEnd());
 }
-public void recordIllegalExtendedDimensionsForRecordComponent(AbstractVariableDeclaration aVarDecl) {
+public void illegalExtendedDimensionsForRecordComponent(AbstractVariableDeclaration aVarDecl) {
 	this.handle(
 		IProblem.RecordIllegalExtendedDimensionsForRecordComponent,
 		NoArgument,
