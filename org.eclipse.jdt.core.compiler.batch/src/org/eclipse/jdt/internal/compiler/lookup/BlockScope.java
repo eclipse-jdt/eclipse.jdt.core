@@ -99,11 +99,14 @@ protected BlockScope(int kind, Scope parent) {
 /* Create the class scope & binding for the anonymous type.
  */
 public final void addAnonymousType(TypeDeclaration anonymousType, ReferenceBinding superBinding) {
-	ClassScope anonymousClassScope = new ClassScope(this, anonymousType);
-	anonymousClassScope.buildAnonymousTypeBinding(
-		enclosingSourceType(),
-		superBinding);
-
+	// This may have been called from an annotation processor through Elements#getEnumConstantBody()
+	// and binding may have been set. If binding is already set, skip this
+	if (anonymousType.binding == null) {
+		ClassScope anonymousClassScope = new ClassScope(this, anonymousType);
+		anonymousClassScope.buildAnonymousTypeBinding(
+				enclosingSourceType(),
+				superBinding);
+	}
 	/* Tag any enclosing lambdas as instance capturing. Strictly speaking they need not be, unless the local/anonymous type references enclosing instance state.
 	   but the types themselves track enclosing types regardless of whether the state is accessed or not. This creates a mismatch in expectations in code generation
 	   time, if we choose to make the lambda method static. To keep things simple and avoid a messy rollback, we force the lambda to be an instance method under

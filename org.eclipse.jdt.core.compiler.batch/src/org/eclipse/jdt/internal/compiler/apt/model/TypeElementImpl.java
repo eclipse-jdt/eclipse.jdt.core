@@ -28,15 +28,7 @@ import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class TypeElementImpl extends ElementImpl implements TypeElement {
 
@@ -195,6 +187,14 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 	@Override
 	public Element getEnclosingElement() {
 		ReferenceBinding binding = (ReferenceBinding)this._binding;
+		if (binding instanceof LocalTypeBinding local && this.getKind() == ElementKind.ENUM) {
+			TypeDeclaration typeDecl = local.scope.referenceContext;
+			if (typeDecl.allocation != null && typeDecl.allocation.enumConstant != null) {
+				FieldBinding fBinding = typeDecl.allocation.enumConstant.binding;
+				if (fBinding != null)
+					return this._env.getFactory().newElement(fBinding);
+			}
+		}
 		ReferenceBinding enclosingType = binding.enclosingType();
 		if (null == enclosingType) {
 			// this is a top level type; get its package
