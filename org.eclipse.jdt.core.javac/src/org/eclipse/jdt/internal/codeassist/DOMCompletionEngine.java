@@ -1636,8 +1636,11 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				}
 
 				if (isTagName || (tagElement.getTagName() != null && tagElement.getTagName().length() == 1) || (tagElement.getTagName() != null && this.offset == (tagElement.getStartPosition() + tagElement.getTagName().length()))) {
-					completeJavadocBlockTags(tagElement);
-					completeJavadocInlineTags(tagElement);
+					if ("package-info.java".equals(this.modelUnit.getElementName())
+							|| DOMCompletionUtil.findParent(toComplete, new int[] { ASTNode.PACKAGE_DECLARATION }) == null) {
+						completeJavadocBlockTags(tagElement);
+						completeJavadocInlineTags(tagElement);
+					}
 					suggestDefaultCompletions = false;
 				} else {
 					if (tagElement.getTagName() != null) {

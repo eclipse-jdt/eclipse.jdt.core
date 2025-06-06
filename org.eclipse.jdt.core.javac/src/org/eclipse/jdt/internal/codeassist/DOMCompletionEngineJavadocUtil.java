@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
 
@@ -184,6 +185,14 @@ class DOMCompletionEngineJavadocUtil {
 		if (isPackage) {
 			return tagsForVersion.stream() //
 					.filter(tag -> PACKAGE_TAGS_SET.contains(tag)) //
+					.toList();
+		}
+
+		boolean isUnparented = DOMCompletionUtil.findParent(tagNode, new int[] {ASTNode.JAVADOC}) instanceof Javadoc javadoc && javadoc.getParent() == null;
+		if (isUnparented) {
+			// cu with nothing in it but a comment; assume it's supposed to be a comment on a top level type
+			return tagsForVersion.stream() //
+					.filter(tag -> CLASS_TAGS_SET.contains(tag)) //
 					.toList();
 		}
 
