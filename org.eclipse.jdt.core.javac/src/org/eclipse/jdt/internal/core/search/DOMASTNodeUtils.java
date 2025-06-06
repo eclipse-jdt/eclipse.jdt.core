@@ -12,8 +12,8 @@ package org.eclipse.jdt.internal.core.search;
 
 import java.util.List;
 
+import org.eclipse.jdt.core.IInitializer;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.ISourceReference;
@@ -61,6 +61,7 @@ public class DOMASTNodeUtils {
 			|| node instanceof PackageDeclaration
 			|| node instanceof CompilationUnit
 			|| node instanceof AnnotationTypeMemberDeclaration
+			|| node instanceof Initializer
 			|| node.getLocationInParent() == FieldDeclaration.FRAGMENTS_PROPERTY) {
 			return getDeclaringJavaElement(node);
 		}
@@ -94,22 +95,20 @@ public class DOMASTNodeUtils {
 			ASTNode parentNode = i.getParent();
 			int domOccurance = -1;
 			if( parentNode instanceof AbstractTypeDeclaration typeDecl) {
-				List<?> parentBody = typeDecl.bodyDeclarations();
-				for( int z = 0; z < parentBody.size() && domOccurance == -1; z++ ) {
-					if( parentBody.get(z) == key) {
-						domOccurance = z + 1;
-					}
-				}
+				domOccurance = typeDecl.bodyDeclarations()
+						.stream()
+						.filter(Initializer.class::isInstance)
+						.toList()
+						.indexOf(key) + 1;
 			}
 			IJavaElement parentEl = findElementForNodeViaDirectBinding(parentNode);
 			if( parentEl instanceof IParent parentElement) {
 				try {
-					IJavaElement[] kiddos = parentElement.getChildren();
-					for( int q = 0; q < kiddos.length; q++ ) {
-						if( kiddos[q] instanceof IMember kiddoMember) {
-							int count = kiddoMember.getOccurrenceCount();
+					for (IJavaElement child : parentElement.getChildren()) {
+						if (child instanceof IInitializer init) {
+							int count = init.getOccurrenceCount();
 							if( count == domOccurance ) {
-								return kiddos[q];
+								return init;
 							}
 						}
 					}
