@@ -305,9 +305,9 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 	}
 
 
-	private static final int TYPE_PARAMS_MATCH = 1;
-	private static final int TYPE_PARAMS_COUNT_MATCH = 2;
-	private static final int TYPE_PARAMS_NO_MATCH = 3;
+	public static final int TYPE_PARAMS_MATCH = 1;
+	public static final int TYPE_PARAMS_COUNT_MATCH = 2;
+	public static final int TYPE_PARAMS_NO_MATCH = 3;
 
 	private int validateTypeParameters(Type node) {
 		// SimpleType with typeName=QualifiedName

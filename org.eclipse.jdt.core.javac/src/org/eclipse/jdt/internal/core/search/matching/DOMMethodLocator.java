@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.dom.ExpressionMethodReference;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JdtCoreDomPackagePrivateUtility;
 import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -223,7 +224,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 	protected int matchMethod(ASTNode node, IMethodBinding method, boolean skipImpossibleArg, boolean bindingIsDeclaration) {
 		if (!this.locator.matchesName(this.locator.pattern.selector, method.getName().toCharArray())) return IMPOSSIBLE_MATCH;
 
-		int level = matchMethodBindingName(method);
+		int level = matchMethodBindingReturn(method);
 		if (level == IMPOSSIBLE_MATCH)
 			return level;
 
@@ -232,12 +233,110 @@ public class DOMMethodLocator extends DOMPatternLocator {
 			return level;
 
 
-		level = matchMethodBindingParameters(node, method, skipImpossibleArg, level);
+		level = matchMethodParametersTypes(node, method, skipImpossibleArg, level);
 		if (level == IMPOSSIBLE_MATCH)
 			return level;
 
-		level = matchMethodBindingTypeArguments(node, method, skipImpossibleArg, level, bindingIsDeclaration);
+		level = matchMethodTypeArguments(node, method, skipImpossibleArg, level, bindingIsDeclaration);
+		if (level == IMPOSSIBLE_MATCH)
+			return level;
+
+		int typeParamMatches = validateReceiverTypeArguments(node, method, level, bindingIsDeclaration);
+		if( typeParamMatches == DOMTypeReferenceLocator.TYPE_PARAMS_NO_MATCH) level = IMPOSSIBLE_MATCH;
+		if( typeParamMatches == DOMTypeReferenceLocator.TYPE_PARAMS_COUNT_MATCH) level = ERASURE_MATCH;
+		if( isPatternExactMatch()) {
+			if( typeParamMatches == DOMTypeReferenceLocator.TYPE_PARAMS_NO_MATCH) {
+				return IMPOSSIBLE_MATCH;
+			}
+		}
+		boolean isErasurePattern = isPatternErasureMatch();
+		boolean isEquivPattern = isPatternEquivalentMatch();
+		if( level == ERASURE_MATCH && !isErasurePattern && !isEquivPattern)
+			level = IMPOSSIBLE_MATCH;
+
 		return level;
+	}
+
+	private int validateReceiverTypeArguments(ASTNode node, IMethodBinding method, int level,
+			boolean bindingIsDeclaration) {
+		// This method is substantially copied from DOMTypeReferenceLocator
+		boolean erasureMatch = isPatternErasureMatch();
+		boolean equivMatch = isPatternEquivalentMatch();
+		boolean exactMatch = isPatternExactMatch();
+		boolean patternHasTypeArgs = this.locator.pattern.hasTypeArguments();
+
+		if( patternHasTypeArgs && !(erasureMatch || equivMatch || exactMatch )) {
+			return DOMTypeReferenceLocator.TYPE_PARAMS_NO_MATCH;
+		}
+		if( patternHasTypeArgs && !(erasureMatch || equivMatch || exactMatch )) {
+			return DOMTypeReferenceLocator.TYPE_PARAMS_NO_MATCH;
+		}
+
+		char[][][] fromPattern = this.locator.pattern.getTypeArguments();
+		if( fromPattern == null ) {
+			return DOMTypeReferenceLocator.TYPE_PARAMS_MATCH;
+		}
+		if( node instanceof MethodInvocation mi && mi.getExpression() != null ) {
+			ASTNode expr = mi.getExpression();
+			IBinding b = DOMASTNodeUtils.getBinding(expr);
+			if( b instanceof IVariableBinding vb) {
+				b = vb.getType();
+			}
+			if( b instanceof ITypeBinding tb ) {
+				boolean bindingIsRaw = tb.isRawType();
+				ITypeBinding[] typeArgs = tb.getTypeArguments();
+				if( fromPattern.length == 0 ) {
+					if( typeArgs == null || typeArgs.length == 0 ) {
+						return DOMTypeReferenceLocator.TYPE_PARAMS_MATCH;
+					}
+					return DOMTypeReferenceLocator.TYPE_PARAMS_NO_MATCH;
+				}
+				char[][] thisLevelTypeParams = fromPattern[0];
+				boolean emptyPatternParams = thisLevelTypeParams == null || thisLevelTypeParams.length == 0;
+				if( emptyPatternParams) {
+					if( exactMatch && emptyPatternParams && (typeArgs != null && typeArgs.length > 0) ) {
+						return DOMTypeReferenceLocator.TYPE_PARAMS_NO_MATCH;
+					}
+				} else {
+					if( typeArgs == null || typeArgs.length != thisLevelTypeParams.length) {
+						if( thisLevelTypeParams.length == 0 ) {
+							return DOMTypeReferenceLocator.TYPE_PARAMS_COUNT_MATCH;
+						}
+						if (typeArgs.length==0) {
+							if( equivMatch && bindingIsRaw) {
+								return DOMTypeReferenceLocator.TYPE_PARAMS_MATCH;
+							}
+							if( !bindingIsRaw && !(equivMatch || erasureMatch)) {
+								return DOMTypeReferenceLocator.TYPE_PARAMS_NO_MATCH;
+							}
+							if( !equivMatch || bindingIsRaw)
+								return DOMTypeReferenceLocator.TYPE_PARAMS_MATCH;
+						}
+						return DOMTypeReferenceLocator.TYPE_PARAMS_NO_MATCH;
+					}
+					for( int j = 0; j < thisLevelTypeParams.length; j++ ) {
+						ITypeBinding domBinding = typeArgs[j];
+						String patternSig = new String(thisLevelTypeParams[j]);
+						IBinding patternBinding = JdtCoreDomPackagePrivateUtility.findBindingForType(node, patternSig);
+						if( patternBinding == null ) {
+							boolean plusOrMinus = patternSig.startsWith("+") || patternSig.startsWith("-");
+							String safePatternString = plusOrMinus ? patternSig.substring(1) : patternSig;
+							if( safePatternString.startsWith("Q")) {
+								patternBinding = JdtCoreDomPackagePrivateUtility.findUnresolvedBindingForType(node, patternSig);
+							} else {
+								patternBinding = JdtCoreDomPackagePrivateUtility.findBindingForType(node, safePatternString);
+							}
+						}
+						boolean singleTypeArgMatches = TypeArgumentMatchingUtility.validateSingleTypeArgMatches(exactMatch, patternSig, patternBinding, domBinding, this.locator);
+						if( !singleTypeArgMatches ) {
+							return DOMTypeReferenceLocator.TYPE_PARAMS_COUNT_MATCH;
+						}
+
+					}
+				}
+			}
+		}
+		return DOMTypeReferenceLocator.TYPE_PARAMS_MATCH;
 	}
 
 	private IBinding findPossiblyUnresolvedBindingForType(ASTNode node, String patternSig) {
@@ -265,7 +364,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		return (r & SearchPattern.R_FULL_MATCH) == SearchPattern.R_FULL_MATCH;
 	}
 
-	private int matchMethodBindingTypeArguments(ASTNode node, IMethodBinding method,
+	private int matchMethodTypeArguments(ASTNode node, IMethodBinding method,
 			boolean skipImpossibleArg, int level, boolean bindingIsDeclaration) {
 		boolean potentialMatchOnly = false;
 		if (this.locator.pattern.hasMethodArguments()) {
@@ -342,7 +441,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		return level;
 	}
 
-	protected int matchMethodBindingName(IMethodBinding binding) {
+	protected int matchMethodBindingReturn(IMethodBinding binding) {
 		int level = ACCURATE_MATCH;
 		// look at return type only if declaring type is not specified
 		if (this.locator.pattern.declaringSimpleName == null) {
@@ -359,7 +458,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		return level;
 	}
 
-	private int matchMethodBindingParameters(ASTNode node, IMethodBinding method, boolean skipImpossibleArg, int level) {
+	private int matchMethodParametersTypes(ASTNode node, IMethodBinding method, boolean skipImpossibleArg, int level) {
 		// parameter types
 		boolean isExactPattern = isPatternExactMatch();
 		int parameterCount = this.locator.pattern.parameterSimpleNames == null ? -1 : this.locator.pattern.parameterSimpleNames.length;
