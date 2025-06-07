@@ -10517,17 +10517,17 @@ public void testBug376590b() {
 			JAVAX_INJECT_CONTENT,
 			"Example.java",
 			"class Example {\n" +
-			"  private @jakarta.inject.Inject Object o;\n" +
+			"  private @javax.inject.Inject Object o;\n" +
 			"  private Example() {} // also warn here: no @Inject\n" +
 			"  public Example(Object o) { this.o = o; }\n" +
-			"  private @jakarta.inject.Inject void setO(Object o) { this.o = o;}\n" +
+			"  private @javax.inject.Inject void setO(Object o) { this.o = o;}\n" +
 			"}\n"
 		},
 		null, customOptions,
 		"----------\n" +
 		"1. ERROR in Example.java (at line 2)\n" +
-		"	private @jakarta.inject.Inject Object o;\n" +
-		"	                                      ^\n" +
+		"	private @javax.inject.Inject Object o;\n" +
+		"	                                    ^\n" +
 		"The value of the field Example.o is not used\n" +
 		"----------\n" +
 		"2. ERROR in Example.java (at line 3)\n" +
@@ -10551,7 +10551,7 @@ public void testBug376590c() {
 			JAVAX_INJECT_NAME,
 			JAVAX_INJECT_CONTENT,
 			"Example.java",
-			"import jakarta.inject.Inject;\n" +
+			"import javax.inject.Inject;\n" +
 			"class Example {\n" +
 			"  private @Inject @p.NonNull Object o; // do warn, annotations don't signal a read\n" +
 			"  private @Deprecated @Inject String old; // do warn, annotations don't signal a read\n" +
