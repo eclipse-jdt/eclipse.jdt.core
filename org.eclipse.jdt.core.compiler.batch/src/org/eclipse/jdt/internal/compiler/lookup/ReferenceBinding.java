@@ -518,7 +518,7 @@ public void computeId() {
 					switch (packageName[1]) {
 						case 'a':
 							if (CharOperation.equals(TypeConstants.JAKARTA_ANNOTATION_INJECT_INJECT, this.compoundName))
-								this.id = TypeIds.T_JavaxInjectInject;
+								this.id = TypeIds.T_JakartaInjectInject;
 							return;
 					}
 					return;
