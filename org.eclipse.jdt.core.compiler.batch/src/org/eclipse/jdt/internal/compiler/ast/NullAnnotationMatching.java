@@ -237,8 +237,7 @@ public class NullAnnotationMatching {
 			NullAnnotationMatching okStatus = NullAnnotationMatching.NULL_ANNOTATIONS_OK;
 			boolean problemAtDetail = false;
 			if (areSameTypes(requiredType, providedType, providedSubstitute)) {
-				if ((requiredType.tagBits & TagBits.AnnotationNonNull) != 0 // possibly unsafe interpretation of type variable inferred as nonnull, ...
-						&& !requiredType.isTypeVariable())					// but don't warn when both types are the same *type variable*
+				if ((requiredType.tagBits & TagBits.AnnotationNonNull) != 0)
 					return okNonNullStatus(providedExpression, true);
 				return okStatus;
 			}

@@ -4078,10 +4078,16 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	getAdd(lx);\n" +
 			"	       ^^\n" +
 			"Null type safety (type annotations): The expression of type \'List<capture#of ? extends X>\' needs unchecked conversion to conform to \'List<@NonNull capture#of ? extends X>\'\n" +
+			"----------\n" +
+			"2. INFO in X.java (at line 19)\n" +
+			"	lt.add(lt.get(0));\n" +
+			"	       ^^^^^^^^^\n" +
+			"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'List<@NonNull P>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" +
 			"----------\n");
 	}
 	public void testWildcardCapture2() {
-		runConformTestWithLibs(
+		runWarningTestWithLibs(
+			true, // flush
 			new String[] {
 				"X.java",
 				"import java.lang.annotation.ElementType;\n" +
@@ -4107,7 +4113,12 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"}\n"
 			},
 			getCompilerOptions(),
-			"");
+			"----------\n" +
+			"1. INFO in X.java (at line 19)\n" +
+			"	lt.add(lt.get(0));\n" +
+			"	       ^^^^^^^^^\n" +
+			"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'List<@NonNull P>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" +
+			"----------\n");
 	}
 	public void testWildcardCapture3() {
 		runNegativeTestWithLibs(
@@ -4142,6 +4153,11 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	getAdd(lx);\n" +
 			"	       ^^\n" +
 			"Null type mismatch (type annotations): required \'List<@NonNull capture#of ? extends X>\' but this expression has type \'List<@Nullable capture#of ? extends X>\'\n" +
+			"----------\n" +
+			"2. INFO in X.java (at line 20)\n" +
+			"	lt.add(lt.get(0));\n" +
+			"	       ^^^^^^^^^\n" +
+			"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'List<@NonNull P>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" +
 			"----------\n");
 	}
 	public void testLocalArrays() {
