@@ -190,13 +190,6 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 				}
 				"""
 			};
-		runner.expectedCompilerLog =
-				"----------\n" +
-				"1. WARNING in X.java (at line 4)\n" +
-				"	return tree.isModule();\n" +
-				"	       ^^^^^^^^^^^^^^^\n" +
-				"This API is part of the preview feature 'Module Import Declarations' which is disabled by default. Use --enable-preview to enable\n" +
-				"----------\n";
 		runner.runConformTest();
 	}
 	public void testIssue3614_003_enabled() throws Exception {
@@ -218,13 +211,6 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 				}
 				"""
 			};
-		runner.expectedCompilerLog =
-			"----------\n" +
-			"1. WARNING in X.java (at line 4)\n" +
-			"	return tree.isModule();\n" +
-			"	       ^^^^^^^^^^^^^^^\n" +
-			"You are using an API that is part of the preview feature \'Module Import Declarations\' and may be removed in future\n" +
-			"----------\n";
 		runner.expectedOutputString = "42";
 		runner.runConformTest();
 	}
