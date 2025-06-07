@@ -2661,6 +2661,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				}
 				"""
 			};
+		runner.javacTestOptions = JAVAC_OPTIONS;
 		runner.vmArguments = VMARGS;
 		runner.expectedOutputString = "1";
 		runner.runConformTest();
