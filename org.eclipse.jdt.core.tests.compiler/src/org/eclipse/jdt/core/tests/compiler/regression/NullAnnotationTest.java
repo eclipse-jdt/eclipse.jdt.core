@@ -4571,7 +4571,7 @@ public void test_nonnull_field_16() {
 		"----------\n");
 }
 
-// Using jakarta.inject.Inject, slight variations
+// Using javax.inject.Inject, slight variations
 // [compiler] Null analysis for fields does not take @com.google.inject.Inject into account
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400421
 public void test_nonnull_field_17() {
@@ -8772,12 +8772,12 @@ public void testBug418236() {
 }
 public void testBug461878() {
 	Map compilerOptions = getCompilerOptions();
-	compilerOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "jakarta.annotation.Nonnull");
+	compilerOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "javax.annotation.Nonnull");
 	runNegativeTest(
 		true, /*flush*/
 		new String[] {
-			"jakarta/annotation/Nonnull.java",
-			"package jakarta.annotation;\n" +
+			"javax/annotation/Nonnull.java",
+			"package javax.annotation;\n" +
 			"import java.lang.annotation.Retention;\n" +
 			"import java.lang.annotation.RetentionPolicy;\n" +
 			"@Retention(RetentionPolicy.RUNTIME)\n" +
@@ -8785,7 +8785,7 @@ public void testBug461878() {
 			"}\n",
 			"edu/umd/cs/findbugs/annotations/PossiblyNull.java",
 			"package edu.umd.cs.findbugs.annotations;\n" +
-			"@jakarta.annotation.Nonnull // <-- error!!!\n" +
+			"@javax.annotation.Nonnull // <-- error!!!\n" +
 			"public @interface PossiblyNull {\n" +
 			"}\n"
 		},
@@ -8793,8 +8793,8 @@ public void testBug461878() {
 		compilerOptions,
 		"----------\n" +
 		"1. WARNING in edu\\umd\\cs\\findbugs\\annotations\\PossiblyNull.java (at line 2)\n" +
-		"	@jakarta.annotation.Nonnull // <-- error!!!\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"	@javax.annotation.Nonnull // <-- error!!!\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"The nullness annotation \'Nonnull\' is not applicable at this location\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
