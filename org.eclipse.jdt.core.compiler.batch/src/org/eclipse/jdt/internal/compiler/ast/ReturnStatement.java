@@ -103,7 +103,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		if (flowInfo.reachMode() == FlowInfo.REACHABLE) {
 			CompilerOptions compilerOptions = currentScope.compilerOptions();
 			if (compilerOptions.isAnnotationBasedNullAnalysisEnabled)
-				checkAgainstNullAnnotation(currentScope, flowContext, flowInfo, this.expression);
+				checkAgainstNullAnnotation(currentScope, flowContext, flowInfo, this.expression, false);
 			if (compilerOptions.analyseResourceLeaks) {
 				long owningTagBits = methodScope.referenceMethodBinding().tagBits & TagBits.AnnotationOwningMASK;
 				flowInfo = anylizeCloseableReturnExpression(this.expression, currentScope, owningTagBits, flowContext, flowInfo);
