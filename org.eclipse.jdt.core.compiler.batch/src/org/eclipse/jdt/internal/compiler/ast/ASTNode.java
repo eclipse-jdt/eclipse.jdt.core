@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Matt McCutchen - partial fix for https://bugs.eclipse.org/bugs/show_bug.cgi?id=122995
@@ -206,7 +210,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int IgnoreNoEffectAssignCheck = Bit30;
 
 	// for references on lhs of assignment
-	public static final int IsStrictlyAssigned = Bit14; // set only for true assignments, as opposed to compound ones. Used also for JEP 482 to allow assignment, but not read
+	public static final int IsStrictlyAssigned = Bit14; // set only for true assignments, as opposed to compound ones. Used also for JEP 513 to allow assignment, but not read
 	public static final int IsCompoundAssigned = Bit17; // set only for compound assignments, as opposed to other ones
 
 	// for explicit constructor call

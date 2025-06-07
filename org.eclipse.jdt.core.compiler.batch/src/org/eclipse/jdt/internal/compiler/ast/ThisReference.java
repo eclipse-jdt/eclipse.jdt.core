@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -60,7 +64,7 @@ public class ThisReference extends Reference {
 			if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())) {
 				if (!this.inFieldReference  // this.f is also covered in Reference.checkFieldAccessInEarlyConstructionContext()
 						&& scope.isInsideEarlyConstructionContext(this.resolvedType, false)) {
-					// JEP 482 message
+					// JEP 513 message
 					scope.problemReporter().errorExpressionInEarlyConstructionContext(this);
 					return false;
 				}

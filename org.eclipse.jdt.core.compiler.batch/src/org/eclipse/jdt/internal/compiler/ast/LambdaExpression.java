@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
@@ -1259,7 +1263,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		}
 		codeStream.pushPatternAccessTrapScope(this.scope);
 		if (this.scopesInEarlyConstruction != null) {
-			// JEP 482: restore early construction context info into scopes:
+			// JEP 513: restore early construction context info into scopes:
 			for (ClassScope classScope : this.scopesInEarlyConstruction)
 				classScope.insideEarlyConstructionContext = true;
 		}

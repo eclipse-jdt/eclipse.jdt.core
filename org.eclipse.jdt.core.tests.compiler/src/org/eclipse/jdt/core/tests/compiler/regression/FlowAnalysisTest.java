@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -1058,15 +1062,14 @@ public void test032() {
 			"	}\n" +
 			"}\n", // =================
 		},
+		JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false) ?
+		""
+		:
 		"----------\n" +
 		"1. ERROR in X.java (at line 14)\n" +
 		"	super(blank = 0);\n" +
 		"	      ^^^^^\n" +
-		(this.complianceLevel == JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.getCompliance() ?
-		"Flexible Constructor Bodies is a preview feature and disabled by default. Use --enable-preview to enable\n"
-		:
-		"Cannot refer to an instance field blank while explicitly invoking a constructor\n"
-		) +
+		"Cannot refer to an instance field blank while explicitly invoking a constructor\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423 - variation
