@@ -366,8 +366,8 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 				"X.java",
 				"""
 				public static void main(String[] args) {
-					println("Hello1");
-					println("Hello2");
+					IO.println("Hello1");
+					IO.println("Hello2");
 				}"""
 		},
 		"Hello1\n" +
@@ -378,8 +378,8 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 				"X.java",
 				"""
 				public static void main(String[] args) {
-					String str = readln("Enter:");
-					println(str);
+					String str = IO.readln("Enter:");
+					IO.println(str);
 				}
 				"""
 		},
@@ -392,7 +392,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 		runConformTest(new String[] {
 				"Main.java",
 				"""
-				import static java.io.IO.*;
+				import static java.lang.IO.*;
 				public class Main {
 					public static void main(String[] args) {
 						println("Hello");
