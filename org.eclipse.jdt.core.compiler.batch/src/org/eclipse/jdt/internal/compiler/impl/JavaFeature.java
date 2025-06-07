@@ -113,7 +113,7 @@ public enum JavaFeature {
 	MODULE_IMPORTS(ClassFileConstants.JDK25,
 			Messages.bind(Messages.module_imports),
 			CharOperation.NO_CHAR_CHAR,
-			true),
+			false),
 	MARKDOWN_COMMENTS(ClassFileConstants.JDK23,
 			Messages.bind(Messages.markdown_comments),
 			CharOperation.NO_CHAR_CHAR,

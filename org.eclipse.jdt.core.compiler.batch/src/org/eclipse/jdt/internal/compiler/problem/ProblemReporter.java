@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
@@ -11474,16 +11478,9 @@ public void invalidServiceRef(int problem, TypeReference type) {
 		type.sourceStart, type.sourceEnd);
 }
 public void modifierRequiresJavaBase(RequiresStatement stat, JavaFeature moduleImports) {
-	if (moduleImports != null) {
-		// don't use validateJavaFeatureSupport() as we want to give a more specific message if not enabled
-		if (moduleImports.isSupported(this.options)) {
-			previewFeatureUsed(stat.sourceStart, stat.sourceEnd);
-			return;
-		}
-		if (moduleImports.matchesCompliance(this.options)) {
-			this.handle(IProblem.ModifierOnRequiresJavaBasePreview, NoArgument, NoArgument, stat.modifiersSourceStart, stat.sourceEnd);
-			return;
-		}
+	// don't use validateJavaFeatureSupport() as we want to give a more specific message if not enabled
+	if (moduleImports != null && moduleImports.isSupported(this.options)) {
+		return;
 	}
 	this.handle(IProblem.ModifierOnRequiresJavaBase, NoArgument, NoArgument, stat.modifiersSourceStart, stat.sourceEnd);
 }
