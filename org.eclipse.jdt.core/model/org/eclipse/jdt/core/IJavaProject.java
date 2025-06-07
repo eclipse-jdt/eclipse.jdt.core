@@ -485,6 +485,16 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	String getOption(String optionName, boolean inheritJavaCoreOptions);
 
 	/**
+	 * Returns the --release equivalent to be used for compilation within this project.
+	 * The returned value is null if {@link JavaCore#COMPILER_RELEASE} is set to <code>disabled</code>.
+	 * Otherwise, the {@link JavaCore#COMPILER_COMPLIANCE} is returned in a converted format. For e.g.,
+	 * if the compliance is <code>1.8</code>, then <code>8</code> is returned.
+	 *
+	 * @return the --release option to be used by compiler in a format specified
+	 * @since 3.41
+	 */
+	String getReleaseOption();
+	/**
 	 * Returns the table of the current custom options for this project. Projects remember their custom options,
 	 * in other words, only the options different from the the JavaCore global options for the workspace.
 	 * A boolean argument allows to directly merge the project options with global ones from <code>JavaCore</code>.
