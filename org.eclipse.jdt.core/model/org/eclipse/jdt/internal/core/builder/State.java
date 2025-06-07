@@ -61,8 +61,8 @@ public ClasspathLocation[] binaryLocations;
 public ClasspathLocation[] testBinaryLocations;
 // keyed by the project relative path of the type (i.e. "src1/p1/p2/A.java"), value is a ReferenceCollection or an AdditionalTypeCollection
 Map<String, ReferenceCollection> references;
-// keyed by qualified type name "p1/p2/A", value is the project relative path which defines this type "src1/p1/p2/A.java"
-public Map<String, String> typeLocators;
+// keyed by qualified type name "p1/p2/A", value is a map that maps a release to the project relative path which defines this type "src1/p1/p2/A.java"
+public Map<String, Map<Integer,String>> typeLocators;
 
 int buildNumber;
 long lastStructuralBuildTime;
@@ -74,7 +74,7 @@ private long previousStructuralBuildTime;
 private StringSet structurallyChangedTypes;
 public static int MaxStructurallyChangedTypes = 100; // keep track of ? structurally changed types, otherwise consider all to be changed
 
-public static final byte VERSION = 0x0026;
+public static final byte VERSION = 0x0027;
 
 static final byte SOURCE_FOLDER = 1;
 static final byte BINARY_FOLDER = 2;
@@ -180,17 +180,20 @@ StringSet getStructurallyChangedTypes(State prereqState) {
 	return null;
 }
 
-public boolean isDuplicateLocator(String qualifiedTypeName, String typeLocator) {
-	String existing = this.typeLocators.get(qualifiedTypeName);
-	return existing != null && !existing.equals(typeLocator);
+public boolean isDuplicateLocator(String qualifiedTypeName, String typeLocator, int release) {
+	Map<Integer, String> existing = this.typeLocators.get(qualifiedTypeName);
+	if (existing == null) {
+		return false;
+	}
+	String string = existing.get(release);
+	return string!=null &&!string.equals(typeLocator);
 }
 
 public boolean isKnownPackage(String qualifiedPackageName) {
 	if (this.knownPackageNames == null) {
 		LinkedHashSet<String> names = new LinkedHashSet<>(this.typeLocators.size());
-		Set<Entry<String, String>> keyTable = this.typeLocators.entrySet();
-		for (Entry<String, String> entry : keyTable) {
-			String packageName = entry.getKey(); // is a type name of the form p1/p2/A
+		Set<String> keyTable = this.typeLocators.keySet();
+		for (String packageName : keyTable) {
 			int last = packageName.lastIndexOf('/');
 			packageName = last == -1 ? null : packageName.substring(0, last);
 			while (packageName != null && !names.contains(packageName)) {
@@ -213,9 +216,11 @@ public boolean isKnownType(String qualifiedTypeName) {
 
 boolean isSourceFolderEmpty(IContainer sourceFolder) {
 	String sourceFolderName = sourceFolder.getProjectRelativePath().addTrailingSeparator().toString();
-	for (String value : this.typeLocators.values()) {
-		if (value.startsWith(sourceFolderName)) {
-			return false;
+	for (Map<Integer, String> map : this.typeLocators.values()) {
+		for (String value : map.values()) {
+			if (value.startsWith(sourceFolderName)) {
+				return false;
+			}
 		}
 	}
 	return true;
@@ -231,13 +236,13 @@ void record(String typeLocator, char[][][] qualifiedRefs, char[][] simpleRefs, c
 	}
 }
 
-void recordLocatorForType(String qualifiedTypeName, String typeLocator) {
+void recordLocatorForType(String qualifiedTypeName, String typeLocator, int release) {
 	this.knownPackageNames = null;
 	// in the common case, the qualifiedTypeName is a substring of the typeLocator so share the char[] by using String.substring()
 	int start = typeLocator.indexOf(qualifiedTypeName, 0);
 	if (start > 0)
 		qualifiedTypeName = typeLocator.substring(start, start + qualifiedTypeName.length());
-	this.typeLocators.put(qualifiedTypeName, typeLocator);
+	this.typeLocators.computeIfAbsent(qualifiedTypeName, nil->new TreeMap<>()).put(release, typeLocator);
 }
 
 void recordStructuralDependency(IProject prereqProject, State prereqState) {
@@ -246,24 +251,31 @@ void recordStructuralDependency(IProject prereqProject, State prereqState) {
 			this.structuralBuildTimes.put(prereqProject.getName(), Long.valueOf(prereqState.lastStructuralBuildTime));
 }
 
-void removeLocator(String typeLocatorToRemove) {
+void removeLocator(String typeLocatorToRemove, int release) {
 	this.knownPackageNames = null;
 	this.references.remove(typeLocatorToRemove);
-	this.typeLocators.values().removeIf(v -> typeLocatorToRemove.equals(v));
+	for (Iterator<Entry<String, Map<Integer, String>>> iterator = this.typeLocators.entrySet().iterator(); iterator.hasNext();) {
+		Entry<String, Map<Integer, String>> entry = iterator.next();
+		Map<Integer, String> map = entry.getValue();
+		map.values().removeIf(v -> typeLocatorToRemove.equals(v));
+		if (map.isEmpty()) {
+			iterator.remove();
+		}
+	}
 }
 
-void removePackage(IResourceDelta sourceDelta) {
+void removePackage(IResourceDelta sourceDelta, int release) {
 	IResource resource = sourceDelta.getResource();
 	switch(resource.getType()) {
 		case IResource.FOLDER :
 			IResourceDelta[] children = sourceDelta.getAffectedChildren();
 			for (IResourceDelta child : children)
-				removePackage(child);
+				removePackage(child, release);
 			return;
 		case IResource.FILE :
 			IPath typeLocatorPath = resource.getProjectRelativePath();
 			if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(typeLocatorPath.lastSegment()))
-				removeLocator(typeLocatorPath.toString());
+				removeLocator(typeLocatorPath.toString(), release);
 	}
 }
 
@@ -317,8 +329,15 @@ static State read(IProject project, DataInputStream input) throws IOException, C
 
 	length = in.readInt();
 	newState.typeLocators = new LinkedHashMap<>((int) (length / 0.75 + 1));
-	for (int i = 0; i < length; i++)
-		newState.recordLocatorForType(in.readStringUsingLast(), internedTypeLocators[in.readIntInRange(internedTypeLocators.length)]);
+	for (int i = 0; i < length; i++) {
+		String key = in.readStringUsingLast();
+		int mapSize = in.readInt();
+		for (int j = 0; j < mapSize; j++) {
+			int release = in.readInt();
+			String locator = internedTypeLocators[in.readIntInRange(internedTypeLocators.length)];
+			newState.recordLocatorForType(key, locator, release);
+		}
+	}
 
 	/*
 	 * Here we read global arrays of names for the entire project - do not mess up the ordering while interning
@@ -382,9 +401,15 @@ private static ClasspathMultiDirectory[] readSourceLocations(IProject project, C
 		String folderName;
 		if ((folderName = in.readStringUsingDictionary()).length() > 0) sourceFolder = project.getFolder(folderName);
 		if ((folderName = in.readStringUsingDictionary()).length() > 0) outputFolder = project.getFolder(folderName);
+		char[][] inclusionPatterns = readNames(in);
+		char[][] exclusionPatterns = readNames(in);
+		boolean ignoreOptionalProblems = in.readBoolean();
+		IPath path = readNullablePath(in);
+		boolean hasIndependentOutputFolder = in.readBoolean();
+		int release = in.readInt();
 		ClasspathMultiDirectory md =
-			(ClasspathMultiDirectory) ClasspathLocation.forSourceFolder(sourceFolder, outputFolder, readNames(in), readNames(in), in.readBoolean(), readNullablePath(in));
-		if (in.readBoolean())
+			(ClasspathMultiDirectory) ClasspathLocation.forSourceFolder(sourceFolder, outputFolder, inclusionPatterns, exclusionPatterns, ignoreOptionalProblems, path, release);
+		if (hasIndependentOutputFolder)
 			md.hasIndependentOutputFolder = true;
 		sourceLocations[i] = md;
 		if (allLocationsForEEA != null) {
@@ -585,12 +610,16 @@ void write(DataOutputStream output) throws IOException {
  * int			interned locator id
  */
 	out.writeInt(this.typeLocators.size());
-	for (Entry<String, String> entry : this.typeLocators.entrySet()) {
+	for (var entry : this.typeLocators.entrySet()) {
 		String key = entry.getKey();
-		String value = entry.getValue();
 		out.writeStringUsingLast(key);
-		Integer index = internedTypeLocators.get(value);
-		out.writeIntInRange(index.intValue(), internedTypeLocators.size());
+		Map<Integer, String> map = entry.getValue();
+		out.writeInt(map.size());
+		for (var releaseEntry : map.entrySet()) {
+			out.writeInt(releaseEntry.getKey());
+			Integer index = internedTypeLocators.get(releaseEntry.getValue());
+			out.writeIntInRange(index.intValue(), internedTypeLocators.size());
+		}
 	}
 
 /*
@@ -701,6 +730,7 @@ private void writeSourceLocations(CompressedWriter out, ClasspathMultiDirectory[
 		out.writeBoolean(md.ignoreOptionalProblems);
 		writeNullablePath(md.externalAnnotationPath, out);
 		out.writeBoolean(md.hasIndependentOutputFolder);
+		out.writeInt(md.release);
 	}
 }
 

@@ -279,7 +279,7 @@ public class StateTest extends BuilderTests {
 		assertEquals(readState, savedState);
 	}
 
-	private void assertEqualTypeLocators(Map<String, String> tl1, Map<String, String> tl2) {
+	private void assertEqualTypeLocators(Map<String, Map<Integer, String>> tl1, Map<String, Map<Integer, String>> tl2) {
 		assertEquals(tl1.size(), tl2.size());
 		assertEquals(tl1.toString(), tl2.toString());
 
