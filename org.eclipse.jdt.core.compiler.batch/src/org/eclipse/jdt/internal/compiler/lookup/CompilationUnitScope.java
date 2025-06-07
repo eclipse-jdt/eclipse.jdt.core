@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Erling Ellingsen -  patch for bug 125570
@@ -484,7 +488,7 @@ void faultInImports() {
 		}
 		if ((importReference.modifiers & ClassFileConstants.AccModule) != 0) {
 			problemReporter().validateJavaFeatureSupport(JavaFeature.MODULE_IMPORTS, importReference.sourceStart, importReference.sourceEnd);
-			if (!(JavaFeature.MODULE_IMPORTS.isSupported(compilerOptions().sourceLevel, compilerOptions().enablePreviewFeatures))) {
+			if (!(JavaFeature.MODULE_IMPORTS.isSupported(compilerOptions))) {
 				continue nextImport;
 			}
 			ModuleBinding importedModule = this.environment.getModule(CharOperation.concatWith(compoundName, '.'));

@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import junit.framework.Test;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
@@ -60,22 +59,36 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 		return ModuleImportTests.class;
 	}
 
-	@Override
-	protected StringBuilder trimJavacLog(StringBuilder log) {
-		// suppress preview warnings from javac:
-		if (log.length() > 6 && log.substring(0, 6).equals("Note: ")) {
-			StringBuilder filtered = new StringBuilder();
-			filtered.append(
-				log.toString().lines()
-					.filter(line -> !line.equals("Note: Recompile with -Xlint:preview for details."))
-					.filter(line -> !(line.startsWith("Note: ") && line.endsWith(" preview features of Java SE 25.")))
-					.collect(Collectors.joining("\n")));
-			return filtered;
-		}
-		return log;
+	public void test001_simpleOK() throws IOException, ClassFormatException {
+		runConformModuleTest(
+			new String[] {
+				"p/X.java",
+				"""
+					package p;
+					import /*ignoreme*/ module java.sql;
+					public class X {
+						public static void main(String[] args) {
+							@SuppressWarnings("unused")
+							Connection con = null;
+						}
+					}
+					""",
+				"module-info.java",
+				"""
+					module mod.one {
+						requires java.sql;
+					}
+					"""
+	        },
+			" -25 \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
+	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
+	        "",
+	        "",
+	        true);
+		verifyClassFile("version 25 : 69.0", "p/X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 
-	public void test000_previewDisabled() {
+	public void test002_moduleNotRead() {
 		runNegativeModuleTest(
 			new String[] {
 				"p/X.java",
@@ -103,7 +116,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 2)
 					import module java.sql;
 					              ^^^^^^^^
-				Module Import Declarations is a preview feature and disabled by default. Use --enable-preview to enable
+				Module mod.one does not read module java.sql
 				----------
 				2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 6)
 					Connection con = null;
@@ -111,112 +124,6 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				Connection cannot be resolved to a type
 				----------
 				2 problems (2 errors)
-				""",
-	        true,
-	        "disabled");
-	}
-
-	public void test000_previewWrongVersion() {
-		runNegativeModuleTest(
-			new String[] {
-				"p/X.java",
-				"""
-					package p;
-					import module java.sql;
-					public class X {
-						public static void main(String[] args) {
-							@SuppressWarnings("unused")
-							Connection con = null;
-						}
-					}
-					""",
-				"module-info.java",
-				"""
-					module mod.one {
-					}
-					"""
-	        },
-			" -22 --enable-preview \"" + getSourceDir() +  File.separator + "module-info.java\" "
-	        + "\"" + getSourceDir() +  File.separator + "p/X.java\"",
-	        "",
-	        """
-				Preview of features is supported only at the latest source level
-				""",
-	        true,
-	        "only supported for release 25");
-	}
-
-	public void test001_simpleOK() throws IOException, ClassFormatException {
-		runConformModuleTest(
-			new String[] {
-				"p/X.java",
-				"""
-					package p;
-					import /*ignoreme*/ module java.sql;
-					@SuppressWarnings("preview")
-					public class X {
-						public static void main(String[] args) {
-							@SuppressWarnings("unused")
-							Connection con = null;
-						}
-					}
-					""",
-				"module-info.java",
-				"""
-					module mod.one {
-						requires java.sql;
-					}
-					"""
-	        },
-			" -25 --enable-preview \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
-	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
-	        "",
-	        "",
-	        true);
-		verifyClassFile("version 25 : 69.65535", "p/X.class", ClassFileBytesDisassembler.SYSTEM);
-	}
-
-	public void test002_moduleNotRead() {
-		runNegativeModuleTest(
-			new String[] {
-				"p/X.java",
-				"""
-					package p;
-					import module java.sql;
-					public class X {
-						public static void main(String[] args) {
-							@SuppressWarnings("unused")
-							Connection con = null;
-						}
-					}
-					""",
-				"module-info.java",
-				"""
-					module mod.one {
-					}
-					"""
-	        },
-			" -25 --enable-preview \"" + getSourceDir() +  File.separator + "module-info.java\" "
-	        + "\"" + getSourceDir() +  File.separator + "p/X.java\"",
-	        "",
-	        """
-				----------
-				1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 2)
-					import module java.sql;
-					              ^^^^^^^^
-				You are using a preview language feature that may or may not be supported in a future release
-				----------
-				2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 2)
-					import module java.sql;
-					              ^^^^^^^^
-				Module mod.one does not read module java.sql
-				----------
-				3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 6)
-					Connection con = null;
-					^^^^^^^^^^
-				Connection cannot be resolved to a type
-				----------
-				3 problems (2 errors, 1 warning)
 				""",
 	        true,
 	        "read");
@@ -282,7 +189,6 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"""
 					package p;
 					import module mod.one;
-					@SuppressWarnings("preview")
 					public class X {
 						X1 x1;
 						X2 x2;
@@ -296,14 +202,14 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -25 --enable-preview ");
+		commandLine.append(" -25 ");
 		runConformModuleTest(
 				files,
 				commandLine,
 				"",
 				"");
 		String classFile = String.join(File.separator, "p", "X.class");
-		verifyClassFile("version 25 : 69.65535", classFile, ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile("version 25 : 69.0", classFile, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test005_selfImport_NOK() {
@@ -369,7 +275,6 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 		writeFileCollecting(files, modOneDir, "module-info.java",
 				"""
 					import module mod.one;
-					@SuppressWarnings("preview")
 					module mod.one {
 						exports api;
 						exports impl to mod.one;
@@ -377,13 +282,13 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -25 --enable-preview ");
+		commandLine.append(" -25 ");
 		runConformModuleTest(
 				files,
 				commandLine,
 				"",
 				"");
-		verifyClassFile("version 25 : 69.65535", "module-info.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile("version 25 : 69.0", "module-info.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test007_shadowing() throws IOException, ClassFormatException {
@@ -407,7 +312,6 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					package p2;
 					import module java.sql;
 					import p1.Connection;
-					@SuppressWarnings("preview")
 					class Client {
 						void m(Connection c, ConnectionBuilder builder) { // ConnectionBuiler is from java.sql
 							c.foo(); // ensure we select p1.Connection
@@ -415,7 +319,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -25 --enable-preview ");
+		commandLine.append(" -25 ");
 
 		runConformModuleTest(
 				files,
@@ -423,7 +327,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"",
 				"");
 		String classFile = String.join(File.separator, "p2", "Client.class");
-		verifyClassFile("version 25 : 69.65535", classFile, ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile("version 25 : 69.0", classFile, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test008_shadowing() throws IOException, ClassFormatException {
@@ -447,7 +351,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					package p2;
 					import module java.sql;
 					import p1.*;
-					@SuppressWarnings({ "preview", "unused" }) // module import is not actually used
+					@SuppressWarnings("unused") // module import is not actually used
 					class Client {
 						void m(Connection c) {
 							c.foo(); // ensure we select p1.Connection
@@ -455,7 +359,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -25 --enable-preview ");
+		commandLine.append(" -25 ");
 
 		runConformModuleTest(
 				files,
@@ -463,7 +367,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"",
 				"");
 		String classFile = String.join(File.separator, "p2", "Client.class");
-		verifyClassFile("version 25 : 69.65535", classFile, ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile("version 25 : 69.0", classFile, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test008_shadowing_static_nested() throws IOException, ClassFormatException {
@@ -489,7 +393,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					package p2;
 					import module java.sql;
 					import p1.Outer.*;
-					@SuppressWarnings({ "preview", "unused" }) // module import is not actually used
+					@SuppressWarnings( "unused" ) // module import is not actually used
 					class Client {
 						void m(Connection c) {
 							c.foo(); // ensure we select p1.Outer.Connection
@@ -497,11 +401,11 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -25 --enable-preview ");
+		commandLine.append(" -25 ");
 
 		runConformModuleTest(files, commandLine, "", "");
 		String classFile = String.join(File.separator, "p2", "Client.class");
-		verifyClassFile("version 25 : 69.65535", classFile, ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile("version 25 : 69.0", classFile, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test009_ambiguous_modules() {
@@ -546,14 +450,13 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"""
 					package p3;
 					import module mod.one;
-					@SuppressWarnings("preview")
 					class Client {
 						Connection conn; // module conflict mod.one java.sql (via requires transitive)
 						Other other; // package conflict mod.one/p1 mod.one/p2
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -25 --enable-preview ");
+		commandLine.append(" -25 ");
 		commandLine.append(" --module-source-path \"").append(srcDir).append("\"");
 		commandLine.append(" -d \"").append(OUTPUT_DIR).append(File.separatorChar).append("bin").append("\"");
 
@@ -563,12 +466,12 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"",
 				"""
 					----------
-					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/p3/Client.java (at line 5)
+					1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/p3/Client.java (at line 4)
 						Connection conn; // module conflict mod.one java.sql (via requires transitive)
 						^^^^^^^^^^
 					The type Connection is ambiguous
 					----------
-					2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/p3/Client.java (at line 6)
+					2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/p3/Client.java (at line 5)
 						Other other; // package conflict mod.one/p1 mod.one/p2
 						^^^^^
 					The type Other is ambiguous
@@ -729,7 +632,6 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"""
 					package p2;
 					import module mod.two;
-					@SuppressWarnings("preview")
 					class Client {
 						Access good;
 					}
@@ -744,7 +646,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"",
 				"");
 		String classFile = String.join(File.separator, "mod.three", "p2", "Client.class");
-		verifyClassFile("version 25 : 69.65535", classFile, ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile("version 25 : 69.0", classFile, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test012_redundant() {
@@ -754,7 +656,6 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					package p;
 					import module java.sql;
 					import module java.sql; // redundant
-					@SuppressWarnings("preview")
 					public class X {
 						public static void main(String[] args) {
 							@SuppressWarnings("unused")
@@ -771,7 +672,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					""");
 
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -25 --enable-preview");
+		commandLine.append(" -25");
 
 		runNegativeModuleTest(
 				files,
@@ -784,7 +685,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 						              ^^^^^^^^
 					The import java.sql is never used
 					----------
-					2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 9)
+					2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 8)
 						Zork zork;
 						^^^^
 					Zork cannot be resolved to a type
@@ -801,18 +702,17 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"""
 					package p;
 					import module java.sql;
-					@SuppressWarnings("preview")
 					public class X {
 						Connection con = null;
 					}
 					"""
 	        },
-			" -25 --enable-preview "
+			" -25 "
 	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
 	        "",
 	        "",
 	        true);
-		verifyClassFile("version 25 : 69.65535", "p/X.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile("version 25 : 69.0", "p/X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test014_moduleAsPackageName_regular() {
@@ -851,29 +751,6 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 		runConformModuleTest(files, commandLine, "", "");
 	}
 
-	public void testIllegalModifierRequiresJavaBase_1() {
-		List<String> files = new ArrayList<>();
-		writeFileCollecting(files, OUTPUT_DIR, "module-info.java",
-				"""
-					module one {
-						requires transitive java.base;
-					}
-					""");
-		runNegativeModuleTest(files,
-				new StringBuilder(" --release 25"),
-				"",
-				"""
-				----------
-				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 2)
-					requires transitive java.base;
-					         ^^^^^^^^^^^^^^^^^^^^
-				Modifier 'transitive' is allowed for dependence on module 'java.base' only when preview is enabled
-				----------
-				1 problem (1 error)
-				""",
-				"transitive modifier for java.base are a preview feature");
-	}
-
 	public void testIllegalModifierRequiresJavaBase_2() {
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, OUTPUT_DIR, "module-info.java",
@@ -906,19 +783,11 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		runConformModuleTest(files,
-				new StringBuilder(" --release 25 --enable-preview"),
+				new StringBuilder(" --release 25"),
 				"",
-				"""
-				----------
-				1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 2)
-					requires transitive java.base;
-					^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-				You are using a preview language feature that may or may not be supported in a future release
-				----------
-				1 problem (1 warning)
-				""");
-		verifyClassFile("version 25 : 69.65535", "module-info.class", ClassFileBytesDisassembler.SYSTEM,
-				this.complianceLevel <= ClassFileConstants.JDK25); // Skipped for javac 25 due to https://bugs.openjdk.org/browse/JDK-8347646 - fixed in 25
+				"");
+		verifyClassFile("version 25 : 69.0", "module-info.class", ClassFileBytesDisassembler.SYSTEM,
+				this.complianceLevel < ClassFileConstants.JDK25); // Skipped for javac < 25 due to https://bugs.openjdk.org/browse/JDK-8347646 - fixed in 25
 	}
 
 	public void testIllegalModifierRequiresJavaBase_4() {
@@ -957,25 +826,16 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				"""
 				package p1;
 				import module one;
-				@SuppressWarnings("preview")
 				public class Client {
 					BigDecimal num;
 				}
 				""");
 		runConformModuleTest(files,
-				new StringBuilder(" --release 25 --enable-preview"),
+				new StringBuilder(" --release 25"),
 				"",
-				"""
-				----------
-				1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 2)
-					requires transitive java.base;
-					^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-				You are using a preview language feature that may or may not be supported in a future release
-				----------
-				1 problem (1 warning)
-				""");
-		verifyClassFile("version 25 : 69.65535", "module-info.class", ClassFileBytesDisassembler.SYSTEM, true); // FIXME skip due to https://bugs.openjdk.org/browse/JDK-8347646
-		verifyClassFile("version 25 : 69.65535", "p1/Client.class", ClassFileBytesDisassembler.SYSTEM);
+				"");
+		verifyClassFile("version 25 : 69.0", "module-info.class", ClassFileBytesDisassembler.SYSTEM, true); // FIXME skip due to https://bugs.openjdk.org/browse/JDK-8347646
+		verifyClassFile("version 25 : 69.0", "p1/Client.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 
 }

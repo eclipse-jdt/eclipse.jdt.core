@@ -153,15 +153,13 @@ public void test004_previewUsed() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"X.java",
-					"import module java.base;\n" +
-					"\n" +
 					"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" +
 					")\n" +
 					"public class X {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		if (false) {\n" +
-					"			;\n" +
-					"		} else {\n" +
+					"	public static void main(Object o) {\n" +
+					"		switch (o) {\n" +
+					"			case int i -> System.out.print(i);\n" +
+					"			default -> System.out.print(0);\n" +
 					"		}\n" +
 					"	}\n" +
 					"}"
