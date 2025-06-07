@@ -9476,6 +9476,7 @@ private boolean excludeDueToAnnotation(Annotation[] annotations, int problemId) 
 				case TypeIds.T_JavaLangSafeVarargs:
 					break;
 				case TypeIds.T_JavaxInjectInject:
+				case TypeIds.T_JakartaInjectInject:
 				case TypeIds.T_ComGoogleInjectInject:
 				case TypeIds.T_OrgSpringframeworkBeansFactoryAnnotationAutowired:
 					if (problemId != IProblem.UnusedPrivateField)

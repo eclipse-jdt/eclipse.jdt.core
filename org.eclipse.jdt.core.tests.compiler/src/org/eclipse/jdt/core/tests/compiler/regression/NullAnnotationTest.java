@@ -4571,7 +4571,7 @@ public void test_nonnull_field_16() {
 		"----------\n");
 }
 
-// Using jakarta.inject.Inject, slight variations
+// Using javax.inject.Inject, slight variations
 // [compiler] Null analysis for fields does not take @com.google.inject.Inject into account
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400421
 public void test_nonnull_field_17() {
@@ -4581,7 +4581,7 @@ public void test_nonnull_field_17() {
 			JAVAX_INJECT_CONTENT,
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
-			"import jakarta.inject.Inject;\n" +
+			"import javax.inject.Inject;\n" +
 			"public class X {\n" +
 			"    @NonNull @Inject static String s; // warn since injection of static field is less reliable\n" + // variation: static field
 			"    @NonNull @Inject @Deprecated Object o;\n" +
@@ -4641,6 +4641,32 @@ public void test_nonnull_field_19() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	@NonNull @Inject static String s; // warn since injection of static field is less reliable\n" +
 		"	                               ^\n" +
+		"The @NonNull field s may not have been initialized\n" +
+		"----------\n");
+}
+
+//Using jakarta.inject.Inject and javax.inject.Inject
+public void test_nonnull_field_20() {
+	runNegativeTestWithLibs(
+		new String[] {
+			JAVAX_INJECT_NAME,
+			JAVAX_INJECT_CONTENT,
+			JAKARTA_INJECT_NAME,
+			JAKARTA_INJECT_CONTENT,
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"import jakarta.inject.Inject;\n" +
+			"public class X {\n" +
+			"    @NonNull @Inject @javax.inject.Inject static String s; // warn since injection of static field is less reliable\n" + // variation: static field
+			"    @NonNull @Inject @javax.inject.Inject @Deprecated Object o;\n" +
+			"    public X() {}\n" + // variation: with explicit constructor
+			"}\n",
+		},
+		null /*customOptions*/,
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	@NonNull @Inject @javax.inject.Inject static String s; // warn since injection of static field is less reliable\n" +
+		"	                                                    ^\n" +
 		"The @NonNull field s may not have been initialized\n" +
 		"----------\n");
 }
@@ -8746,12 +8772,12 @@ public void testBug418236() {
 }
 public void testBug461878() {
 	Map compilerOptions = getCompilerOptions();
-	compilerOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "jakarta.annotation.Nonnull");
+	compilerOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "javax.annotation.Nonnull");
 	runNegativeTest(
 		true, /*flush*/
 		new String[] {
-			"jakarta/annotation/Nonnull.java",
-			"package jakarta.annotation;\n" +
+			"javax/annotation/Nonnull.java",
+			"package javax.annotation;\n" +
 			"import java.lang.annotation.Retention;\n" +
 			"import java.lang.annotation.RetentionPolicy;\n" +
 			"@Retention(RetentionPolicy.RUNTIME)\n" +
@@ -8759,7 +8785,7 @@ public void testBug461878() {
 			"}\n",
 			"edu/umd/cs/findbugs/annotations/PossiblyNull.java",
 			"package edu.umd.cs.findbugs.annotations;\n" +
-			"@jakarta.annotation.Nonnull // <-- error!!!\n" +
+			"@javax.annotation.Nonnull // <-- error!!!\n" +
 			"public @interface PossiblyNull {\n" +
 			"}\n"
 		},
@@ -8767,8 +8793,8 @@ public void testBug461878() {
 		compilerOptions,
 		"----------\n" +
 		"1. WARNING in edu\\umd\\cs\\findbugs\\annotations\\PossiblyNull.java (at line 2)\n" +
-		"	@jakarta.annotation.Nonnull // <-- error!!!\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"	@javax.annotation.Nonnull // <-- error!!!\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"The nullness annotation \'Nonnull\' is not applicable at this location\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);

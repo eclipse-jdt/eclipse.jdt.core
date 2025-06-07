@@ -326,9 +326,10 @@ boolean isValueProvidedUsingAnnotation(FieldDeclaration fieldDecl) {
 		int length = fieldDecl.annotations.length;
 		for (int i = 0; i < length; i++) {
 			Annotation annotation = fieldDecl.annotations[i];
-			if (annotation.resolvedType.id == TypeIds.T_JavaxInjectInject) {
+			int annotId = annotation.resolvedType.id;
+			if (annotId == TypeIds.T_JavaxInjectInject || annotId == TypeIds.T_JakartaInjectInject) {
 				return true; // no concept of "optional"
-			} else if (annotation.resolvedType.id == TypeIds.T_ComGoogleInjectInject) {
+			} else if (annotId == TypeIds.T_ComGoogleInjectInject) {
 				MemberValuePair[] memberValuePairs = annotation.memberValuePairs();
 				if (memberValuePairs == Annotation.NoValuePairs)
 					return true;
@@ -337,7 +338,7 @@ boolean isValueProvidedUsingAnnotation(FieldDeclaration fieldDecl) {
 					if (CharOperation.equals(memberValuePair.name, TypeConstants.OPTIONAL))
 						return memberValuePair.value instanceof FalseLiteral;
 				}
-			} else if (annotation.resolvedType.id == TypeIds.T_OrgSpringframeworkBeansFactoryAnnotationAutowired) {
+			} else if (annotId == TypeIds.T_OrgSpringframeworkBeansFactoryAnnotationAutowired) {
 				MemberValuePair[] memberValuePairs = annotation.memberValuePairs();
 				if (memberValuePairs == Annotation.NoValuePairs)
 					return true;
