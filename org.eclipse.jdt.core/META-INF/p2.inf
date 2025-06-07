@@ -1,5 +1,7 @@
 instructions.install = \
-	addJvmArg(jvmArg:-XX:CompileCommand=exclude org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteAnalyzer::getExtendedRange);
+	addJvmArg(jvmArg:-XX:CompileCommand=exclude org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteAnalyzer::getExtendedRange); \
+	addJvmArg(jvmArg:-XX:CompileCommand=quiet);
 instructions.uninstall = \
-	removeJvmArg(jvmArg:-XX:CompileCommand=exclude org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteAnalyzer::getExtendedRange);
+	removeJvmArg(jvmArg:-XX:CompileCommand=exclude org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteAnalyzer::getExtendedRange); \
+	removeJvmArg(jvmArg:-XX:CompileCommand=quiet);
 
