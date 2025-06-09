@@ -2557,7 +2557,7 @@ public void test079() {
 			1. ERROR in X.java (at line 1)
 				void ___eval() {
 				^
-			Implicitly Declared Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable
+			Compact Source Files and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable
 			----------
 			2. ERROR in X.java (at line 1)
 				void ___eval() {
@@ -2575,7 +2575,7 @@ public void test079() {
 			1. ERROR in X.java (at line 1)
 				void ___eval() {
 				^
-			The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 25 and above
+			The preview feature Compact Source Files and Instance Main Methods is only available with source level 25 and above
 			----------
 			2. ERROR in X.java (at line 1)
 				void ___eval() {
