@@ -527,10 +527,6 @@ public abstract class AbstractMethodDeclaration
 		return (this.modifiers & ClassFileConstants.AccNative) != 0;
 	}
 
-	public RecordComponent getRecordComponent() {
-		return null;
-	}
-
 	public boolean isStatic() {
 
 		if (this.binding != null)

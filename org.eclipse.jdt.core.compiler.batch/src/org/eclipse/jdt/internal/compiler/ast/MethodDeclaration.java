@@ -234,21 +234,6 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 	}
 
 	@Override
-	public RecordComponent getRecordComponent() {
-		if (this.arguments != null && this.arguments.length != 0)
-			return null;
-		TypeDeclaration typeDecl = this.scope.referenceType();
-		if (typeDecl.isRecord()) {
-			for (RecordComponent component : typeDecl.recordComponents) {
-				if (CharOperation.equals(this.selector, component.name)) {
-					return component;
-				}
-			}
-		}
-		return null;
-	}
-
-	@Override
 	public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 		//fill up the method body with statement
 		parser.parse(this, unit);
@@ -268,8 +253,11 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			this.returnType.resolvedType = this.binding.returnType;
 			// record the return type binding
 		}
-		RecordComponent recordComponent = getRecordComponent();
-		if (recordComponent != null) {
+
+		final ReferenceBinding declaringClass = this.binding != null ? this.binding.declaringClass : null;
+		RecordComponent recordComponent = declaringClass != null && declaringClass.isRecord() && (this.arguments == null || this.arguments.length == 0) ?
+													declaringClass.getRecordComponent(this.selector) : null;
+		if (recordComponent != null) { // this is an accessor - does it pass muster ?
 			if (this.returnType != null && TypeBinding.notEquals(this.returnType.resolvedType, recordComponent.type.resolvedType))
 				this.scope.problemReporter().componentAccessorReturnTypeMismatch(this.returnType, recordComponent.type.resolvedType);
 			if (this.typeParameters != null)
@@ -327,7 +315,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			} else {
 				//In case of  a concrete class method, we have to check if it overrides(in 1.5 and above) OR implements a method(1.6 and above).
 				//Also check if the method has a signature that is override-equivalent to that of any public method declared in Object.
-				if (!this.binding.declaringClass.isInterface()){
+				if (!declaringClass.isInterface()){
 						if((bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding) {
 							this.scope.problemReporter().missingOverrideAnnotation(this);
 						} else {
@@ -368,7 +356,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 					// the method HAS a body --> abstract native modifiers are forbidden
 					if (((this.modifiers & ClassFileConstants.AccNative) != 0) || ((this.modifiers & ClassFileConstants.AccAbstract) != 0))
 						this.scope.problemReporter().methodNeedingNoBody(this);
-					else if (this.binding == null || this.binding.isStatic() || (this.binding.declaringClass instanceof LocalTypeBinding) || returnsUndeclTypeVar) {
+					else if (this.binding == null || this.binding.isStatic() || (declaringClass instanceof LocalTypeBinding) || returnsUndeclTypeVar) {
 						// Cannot be static for one of the reasons stated above
 						this.bits &= ~ASTNode.CanBeStatic;
 					}

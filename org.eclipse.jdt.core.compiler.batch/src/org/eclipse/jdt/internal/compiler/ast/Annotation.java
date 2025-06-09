@@ -1208,8 +1208,7 @@ public abstract class Annotation extends Expression {
 				}
 				break;
 			case Binding.RECORD_COMPONENT :
-				/* JLS 14 9.7.4 Record Preview
-				 * It is a compile-time error if an annotation of type T is syntactically a modifier for:
+				/* It is a compile-time error if an annotation of type T is syntactically a modifier for:
 				 * ...
 				 * a record component but T is not applicable to record component declarations, field declarations,
 				 * method declarations, or type contexts.
@@ -1217,7 +1216,7 @@ public abstract class Annotation extends Expression {
 				long recordComponentMask = TagBits.AnnotationForRecordComponent |
 				TagBits.AnnotationForField |
 				TagBits.AnnotationForMethod |
-				TagBits.AnnotationForParameter | // See JLS 14 8.10.4 Records Preview - TODO revisit in J15
+				TagBits.AnnotationForParameter |
 				TagBits.AnnotationForTypeUse;
 				return (metaTagBits & recordComponentMask) != 0 ? AnnotationTargetAllowed.YES :
 					AnnotationTargetAllowed.NO;
