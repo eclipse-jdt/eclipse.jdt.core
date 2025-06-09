@@ -8897,12 +8897,12 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				0);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
-		String expectedErrors = "Constructor call must be the first statement in a constructor\n" +
+		String expectedErrors = "The Java feature 'Flexible Constructor Bodies' is only available with source level 25 and above\n" +
 		"zork cannot be resolved to a variable\n" +
-		"Constructor call must be the first statement in a constructor\n" +
+		"The Java feature 'Flexible Constructor Bodies' is only available with source level 25 and above\n" +
 		"Zork cannot be resolved to a type\n" +
 		"Zork cannot be resolved to a type\n" +
-		"Constructor call must be the first statement in a constructor";
+		"The Java feature 'Flexible Constructor Bodies' is only available with source level 25 and above";
 		assertProblemsSize(unit, 6, expectedErrors);
 		node = getASTNode(unit, 0, 1, 4);
 		assertEquals("Not a constructor invocation", ASTNode.CONSTRUCTOR_INVOCATION, node.getNodeType());

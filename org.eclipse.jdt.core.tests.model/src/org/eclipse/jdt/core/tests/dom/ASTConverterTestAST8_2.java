@@ -9144,7 +9144,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 			ASTNode node = runConversion(workingCopy, true, true, true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
-			String expectedError = "Constructor call must be the first statement in a constructor";
+			String expectedError = "The Java feature 'Flexible Constructor Bodies' is only available with source level 25 and above";
 			assertProblemsSize(unit, 1, expectedError);
 			node = getASTNode(unit, 0, 1, 2);
 			assertEquals("Not a constructor invocation", ASTNode.CONSTRUCTOR_INVOCATION, node.getNodeType());
