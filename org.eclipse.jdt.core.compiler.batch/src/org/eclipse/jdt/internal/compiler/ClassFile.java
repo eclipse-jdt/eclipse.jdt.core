@@ -508,7 +508,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 		AbstractVariableDeclaration fieldDeclaration = fieldBinding.sourceField();
 		if (fieldDeclaration == null && fieldBinding instanceof SyntheticFieldBinding)
-			fieldDeclaration = getRecordComponent(fieldBinding.declaringClass, fieldBinding.name);
+			fieldDeclaration = fieldBinding.declaringClass.getRecordComponent(fieldBinding.name);
 		if (fieldDeclaration != null) {
 			Annotation[] annotations = fieldDeclaration.annotations;
 			if (annotations != null) {
@@ -537,20 +537,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		return attributesNumber;
 	}
-	private RecordComponent getRecordComponent(ReferenceBinding declaringClass, char[] name) {
-		for (RecordComponent component : getRecordComponents(declaringClass)) {
-			if (CharOperation.equals(name, component.name))
-				return component;
-		}
-		return null;
-	}
-	private RecordComponent[] getRecordComponents(ReferenceBinding declaringClass) {
-		RecordComponentBinding [] rcbs = declaringClass.components();
-		RecordComponent [] recordComponents = new RecordComponent[rcbs.length];
-		for (int i = 0, length = rcbs.length; i < length; i++)
-			recordComponents[i] = rcbs[i].sourceRecordComponent();
-		return recordComponents;
-	}
+
 	private int addComponentAttributes(RecordComponentBinding recordComponentBinding, int componetAttributeOffset) {
 		int attributesNumber = 0;
 		// add signature attribute
@@ -2306,7 +2293,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					}
 				}
 			} else if (binding instanceof SyntheticMethodBinding syntheticMethod && syntheticMethod.isCanonicalConstructor()) {
-				AbstractVariableDeclaration[] parameters = getRecordComponents(syntheticMethod.declaringClass);
+				AbstractVariableDeclaration[] parameters = syntheticMethod.declaringClass.getRecordComponents();
 				completeArgumentAnnotationInfo(parameters, allTypeAnnotationContexts);
 			} else if (binding.sourceLambda() != null) { // SyntheticMethodBinding, purpose : LambdaMethod.
 				LambdaExpression lambda = binding.sourceLambda();
@@ -4294,7 +4281,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					}
 				}
 			} else if (syntheticMethod.isCanonicalConstructor()) {
-				AbstractVariableDeclaration[] parameters = getRecordComponents(syntheticMethod.declaringClass);
+				AbstractVariableDeclaration[] parameters = syntheticMethod.declaringClass.getRecordComponents();
 				attributesNumber += generateRuntimeAnnotationsForParameters(parameters);
 			}
 		}

@@ -61,9 +61,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
+import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
@@ -1084,6 +1086,31 @@ public AnnotationBinding[] getAnnotations() {
 @Override
 public long getAnnotationTagBits() {
 	return this.tagBits;
+}
+
+public RecordComponent getRecordComponent(char[] name) {
+	if (this.isRecord()) {
+		RecordComponentBinding [] rcbs = components();
+		int length = rcbs == null ? 0 : rcbs.length;
+		for (int i = 0; i < length; i++)
+			if (CharOperation.equals(name, rcbs[i].name))
+				return rcbs[i].sourceRecordComponent();
+	}
+	return null;
+}
+
+public RecordComponent[] getRecordComponents() {
+	RecordComponent[] recordComponents = ASTNode.NO_RECORD_COMPONENTS;
+	if (this.isRecord()) {
+		RecordComponentBinding[] rcbs = components();
+		int length = rcbs == null ? 0 : rcbs.length;
+		if (length > 0) {
+			recordComponents = new RecordComponent[length];
+			for (int i = 0; i < length; i++)
+				recordComponents[i] = rcbs[i].sourceRecordComponent();
+		}
+	}
+	return recordComponents;
 }
 
 /**

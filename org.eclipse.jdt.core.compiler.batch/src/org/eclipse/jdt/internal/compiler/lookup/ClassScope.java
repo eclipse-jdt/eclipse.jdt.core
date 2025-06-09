@@ -516,7 +516,7 @@ public class ClassScope extends Scope {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		int modifiers = sourceType.modifiers;
 		CompilerOptions options = compilerOptions();
-		boolean is16Plus = compilerOptions().sourceLevel >= ClassFileConstants.JDK16;
+		boolean is16Plus = options.sourceLevel >= ClassFileConstants.JDK16;
 		boolean isSealedSupported = JavaFeature.SEALED_CLASSES.isSupported(options);
 		boolean hierarchySealed = (modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed)) != 0;
 
@@ -527,8 +527,7 @@ public class ClassScope extends Scope {
 				break;
 		}
 		if (sourceType.isRecord()) {
-			/* JLS 14 Records Sec 8.10 - A record declaration is implicitly final. */
-			modifiers |= ClassFileConstants.AccFinal;
+			modifiers |= ClassFileConstants.AccFinal; // A record declaration is implicitly final.
 		}
 		if ((modifiers & ExtraCompilerModifiers.AccAlternateModifierProblem) != 0)
 			problemReporter().duplicateModifierForType(sourceType);
@@ -549,8 +548,7 @@ public class ClassScope extends Scope {
 			} else if (sourceType.isInterface()) {
 				modifiers |= ClassFileConstants.AccStatic; // 8.5.1
 			} else if (sourceType.isRecord()) {
-				/* JLS 14 Records Sec 8.10 A nested record type is implicitly static */
-				modifiers |= ClassFileConstants.AccStatic;
+				modifiers |= ClassFileConstants.AccStatic; // A nested record type is implicitly static
 			}
 		} else if (sourceType.isLocalType()) {
 			if (sourceType.isEnum()) {
@@ -567,10 +565,6 @@ public class ClassScope extends Scope {
 				}
 				modifiers |= ClassFileConstants.AccStatic;
 			} else if (sourceType.isRecord()) {
-//				if (enclosingType != null && enclosingType.isLocalType()) {
-//					problemReporter().illegalLocalTypeDeclaration(this.referenceContext);
-//					return;
-//				}
 				if ((modifiers & ClassFileConstants.AccStatic) != 0) {
 					if (!(this.parent instanceof ClassScope))
 						problemReporter().recordIllegalStaticModifierForLocalClassOrInterface(sourceType);
@@ -773,7 +767,7 @@ public class ClassScope extends Scope {
 				if (isSealedSupported && (modifiers & ClassFileConstants.AccFinal) == 0)
 					modifiers |= ExtraCompilerModifiers.AccSealed;
 			}
-		} else if (sourceType.isRecord()) {
+		} else if (sourceType.isRecord()) { // JLS 16 8.10
 			int UNEXPECTED_MODIFIERS = ExtraCompilerModifiers.AccNonSealed | ExtraCompilerModifiers.AccSealed;
 			if (isMemberType) {
 				final int EXPECTED_MODIFIERS = (ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStatic | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
@@ -788,23 +782,6 @@ public class ClassScope extends Scope {
 				if ((realModifiers & ~EXPECTED_MODIFIERS) != 0 || (modifiers & UNEXPECTED_MODIFIERS) != 0)
 					problemReporter().illegalModifierForRecord(sourceType);
 			}
-			// JLS 14 8.10 : It is a compile-time error if a record declaration has the modifier abstract.
-
-			/* Section 8.10 http://cr.openjdk.java.net/~gbierman/8222777/8222777-20190823/specs/records-jls.html#jls-8.10
-			 * It is a compile-time error if a record declaration has the modifier abstract.
-			 *
-			 * A record declaration is implicitly final. It is permitted for the declaration of a record type
-			 * to redundantly specify the final modifier.
-			 *
-			 * A nested record type is implicitly static. It is permitted for the declaration of a nested record
-			 * type to redundantly specify the static modifier.
-			 *
-			 * This implies that it is impossible to declare a record type in the body of an inner class (8.1.3),
-			 * because an inner class cannot have static members except for constant variables.
-			 *
-			 * It is a compile-time error if the same keyword appears more than once as a modifier for a record declaration,
-			 * or if a record declaration has more than one of the access modifiers public, protected, and private (6.6).
-			 */
 		} else {
 			// detect abnormal cases for classes
 			if (isMemberType) { // includes member types defined inside local types
