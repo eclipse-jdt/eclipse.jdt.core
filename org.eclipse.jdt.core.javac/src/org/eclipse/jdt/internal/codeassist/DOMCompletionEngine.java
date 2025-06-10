@@ -1624,7 +1624,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				suggestDefaultCompletions = false;
 			}
 			if (context instanceof TagElement tagElement) {
-				boolean isTagName = true;
+				boolean isTagName = tagElement.getTagName() == null || tagElement.getTagName().isEmpty() || !this.prefix.isEmpty();
 				ASTNode cursor = this.toComplete;
 				while (cursor != null && cursor != tagElement) {
 					int index = tagElement.fragments().indexOf(cursor);
@@ -1634,6 +1634,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					}
 					cursor = cursor.getParent();
 				}
+
 
 				if (isTagName || (tagElement.getTagName() != null && tagElement.getTagName().length() == 1) || (tagElement.getTagName() != null && this.offset == (tagElement.getStartPosition() + tagElement.getTagName().length()))) {
 					if ("package-info.java".equals(this.modelUnit.getElementName())
@@ -1795,12 +1796,14 @@ public class DOMCompletionEngine implements ICompletionEngine {
 											.filter(type -> (this.qualifiedPrefix.equals(this.prefix) || this.qualifiedPrefix.equals(finalizedCurrentPackage)) && this.pattern.matchesName(this.prefix.toCharArray(), type.getName().toCharArray()))
 											.map(this::toProposal).forEach(this.requestor::accept);
 
-										findTypes(completeAfter, completeAfter.equals(this.qualifiedPrefix) ? null : this.qualifiedPrefix)
-											.filter(typeMatch -> {
-												return localTypeBindings.all().map(typeBinding -> typeBinding.getJavaElement()).noneMatch(elt -> typeMatch.getType().equals(elt));
-											})
-											.filter(typeMatch -> this.pattern.matchesName(this.prefix.toCharArray(), typeMatch.getType().getElementName().toCharArray()))
-											.map(this::toProposal).forEach(this.requestor::accept);
+										if (!this.prefix.isEmpty()) {
+											findTypes(completeAfter, completeAfter.equals(this.qualifiedPrefix) ? null : this.qualifiedPrefix)
+												.filter(typeMatch -> {
+													return localTypeBindings.all().map(typeBinding -> typeBinding.getJavaElement()).noneMatch(elt -> typeMatch.getType().equals(elt));
+												})
+												.filter(typeMatch -> this.pattern.matchesName(this.prefix.toCharArray(), typeMatch.getType().getElementName().toCharArray()))
+												.map(this::toProposal).forEach(this.requestor::accept);
+										}
 
 										// suggest modules if modules are supported
 										String compliance = this.javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
