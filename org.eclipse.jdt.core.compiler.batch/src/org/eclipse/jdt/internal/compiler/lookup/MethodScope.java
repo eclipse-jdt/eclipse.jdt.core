@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
  *								bug 349326 - [1.7] new warning for missing try-with-resources
@@ -500,13 +504,12 @@ public FieldBinding findField(TypeBinding receiverType, char[] fieldName, Invoca
 		return field; // static fields are always accessible
 
 	if (this.isConstructorCall) {
-		// JEP 482 exception to old rules.
+		// JEP 513 exception to old rules.
 		// 'this.field' is already detected when FieldReference triggers ThisReference.resolveType() -> checkAccess()
 		// hence here we only handle single name references:
 		if (invocationSite instanceof SingleNameReference nameRef
 				&& (nameRef.bits & ASTNode.IsStrictlyAssigned) != 0
-				&& FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(compilerOptions())) {
-			problemReporter().validateJavaFeatureSupport(FLEXIBLE_CONSTRUCTOR_BODIES, invocationSite.sourceStart(), invocationSite.sourceEnd());
+				&& FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(compilerOptions())) {
 			return field;
 		}
 	} else {

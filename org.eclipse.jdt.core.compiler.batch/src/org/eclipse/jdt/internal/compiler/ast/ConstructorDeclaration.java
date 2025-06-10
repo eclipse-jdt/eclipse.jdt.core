@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -199,7 +203,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			// nullity, owning and mark as assigned
 			analyseArguments(classScope.environment(), flowInfo, initializerFlowContext, this.arguments(true), this.binding, this.scope);
 
-			if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions())) {
+			if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.scope.compilerOptions())) {
 				this.scope.enterEarlyConstructionContext();
 			}
 
@@ -219,10 +223,9 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 					}
 				}
 			}
-
-			// reuse the reachMode from non static field info
-			flowInfo.setReachMode(nonStaticFieldInfoReachMode);
 		}
+		// reuse the reachMode from non static field info
+		flowInfo.setReachMode(nonStaticFieldInfoReachMode);
 
 		// propagate to statements
 		if (this.statements != null) {
@@ -507,7 +510,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 			codeStream.recordPositionsFrom(0, this.bodyStart > 0 ? this.bodyStart : this.sourceStart);
 		}
 
-		if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions())) {
+		if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.scope.compilerOptions())) {
 			this.scope.enterEarlyConstructionContext();
 		}
 
@@ -762,16 +765,9 @@ public void resolveStatements() {
 			this.scope.problemReporter().recordMissingExplicitConstructorCallInNonCanonicalConstructor(this);
 			this.constructorCall = null;
 		} else {
-			ExplicitConstructorCall lateConstructorCall = null;
-			if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions())) {
-				this.scope.enterEarlyConstructionContext(); // even if no late ctor call to also capture arguments of ctor call as 1st stmt
-				lateConstructorCall = getLateConstructorCall();
-			}
-			if (lateConstructorCall != null) {
-				this.constructorCall = null; // not used with JEP 482, conversely, constructorCall!=null signals no JEP 482 context
-				this.scope.problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES,
-						lateConstructorCall.sourceStart,
-						lateConstructorCall.sourceEnd);
+			this.scope.enterEarlyConstructionContext(); // even if no late ctor call to also capture arguments of ctor call as 1st stmt
+			if (getLateConstructorCall() != null) {
+				this.constructorCall = null; // not used with JEP 513, conversely, constructorCall!=null signals no JEP 513 context
 			} else {
 				this.constructorCall.resolve(this.scope);
 			}
@@ -784,7 +780,7 @@ public void resolveStatements() {
 }
 
 ExplicitConstructorCall getLateConstructorCall() {
-	if (!JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions()))
+	if (!JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.scope.compilerOptions()))
 		return null;
 	if (this.constructorCall != null && !this.constructorCall.isImplicitSuper()) {
 		return null;

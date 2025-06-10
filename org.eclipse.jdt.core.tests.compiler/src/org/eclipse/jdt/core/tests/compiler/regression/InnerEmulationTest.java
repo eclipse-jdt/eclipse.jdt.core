@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -26,6 +30,7 @@ import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class InnerEmulationTest extends AbstractRegressionTest {
@@ -133,7 +138,9 @@ public void test002() {
 		"1. ERROR in A.java (at line 10)\n" +
 		"	this(new C()); \n" +
 		"	     ^^^^^^^\n" +
-		"No enclosing instance of type A is available due to some intermediate constructor invocation\n" +
+		(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)
+		? "Cannot instantiate class A.C in an early construction context of class A\n"
+		: "No enclosing instance of type A is available due to some intermediate constructor invocation\n" )+
 		"----------\n"
 
 	);
@@ -147,7 +154,9 @@ public void test003() {
 			"1. ERROR in A.java (at line 8)\n" +
 			"	super(getRunnable(), new B().toString()); \n" +
 			"	                     ^^^^^^^\n" +
-			"No enclosing instance of type A is available due to some intermediate constructor invocation\n" +
+			(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)
+			? "Cannot instantiate class A.B in an early construction context of class A\n"
+			: "No enclosing instance of type A is available due to some intermediate constructor invocation\n") +
 			"----------\n"
 			:
 			"----------\n" +
@@ -3578,7 +3587,9 @@ public void test099() {
 		"	               ^^^^^^^^\n" +
 		"The nested type Y$1Local cannot be referenced using its binary name\n" +
 		"----------\n",
-		JavacTestOptions.JavacHasABug.JavacBug4094180);
+		JavacTestOptions.SKIP);
+		// before 24 this was JavacHasABug.JavacBug4094180
+		// at 24+ javac is raising a wrong error: "an enclosing instance that contains Local is required"
 }
 
 /*
@@ -3709,7 +3720,9 @@ public void test107() {
 		"1. ERROR in X.java (at line 11)\n" +
 		"	super(B.this); \n" +
 		"	      ^^^^^^\n" +
-		"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" +
+		(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)
+		? "Cannot use 'B.this' in an early construction context\n"
+		: "Cannot refer to 'this' nor 'super' while explicitly invoking a constructor\n" )+
 		"----------\n");
 }
 
@@ -3876,7 +3889,9 @@ public void test114() {
 		"1. ERROR in X.java (at line 9)\n" +
 		"	super(s);\n" +
 		"	      ^\n" +
-		"Cannot refer to an instance field s while explicitly invoking a constructor\n" +
+		(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)
+		? "Cannot read field s in an early construction context\n"
+		: "Cannot refer to an instance field s while explicitly invoking a constructor\n") +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=58606
@@ -4061,7 +4076,8 @@ public void test119() {
 		"<foo:0><foo:3><bar:3>");
 }
 public void test120() {
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -4098,13 +4114,19 @@ public void test120() {
 			"		}\n" +
 			"	}\n" +
 			"}\n",
-		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	foo(); //1\n" +
-		"	^^^^^\n" +
-		"No enclosing instance of the type X is accessible in scope\n" +
-		"----------\n");
+		};
+	if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)) {
+		runner.runConformTest();
+	} else {
+		runner.expectedCompilerLog =
+	 		"----------\n" +
+			"1. ERROR in X.java (at line 10)\n" +
+			"	foo(); //1\n" +
+			"	^^^^^\n" +
+			"No enclosing instance of the type X is accessible in scope\n" +
+			"----------\n";
+		runner.runNegativeTest();
+	}
 }
 public void test121() {
 	this.runConformTest(

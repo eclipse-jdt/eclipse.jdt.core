@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -2119,11 +2123,8 @@ public abstract class Scope {
 									if (fieldBinding.isValidBinding()) {
 										if (!fieldBinding.isStatic()) {
 											if (insideConstructorCall) {
-												if (invocationSite instanceof ASTNode node
-														&& (node.bits & ASTNode.IsStrictlyAssigned) != 0
-														&& JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(compilerOptions())) {
-													// enablement check for assignment deferred to Reference.checkFieldAccessInEarlyConstructionContext()
-												} else if (!JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(compilerOptions())) {
+												// in 25+ check for assignment legality is deferred to Reference.checkFieldAccessInEarlyConstructionContext()
+												if (!JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(compilerOptions())) {
 													insideProblem =
 														new ProblemFieldBinding(
 															fieldBinding, // closest match

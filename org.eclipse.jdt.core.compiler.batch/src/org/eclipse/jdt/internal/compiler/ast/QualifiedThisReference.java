@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -126,7 +130,7 @@ public class QualifiedThisReference extends ThisReference {
 		// Ensure one cannot write code like: B() { super(B.this); }
 		if (depth == 0 || JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())) {
 			checkAccess(scope, null);
-		} // if depth>0, prior to JEP 482: path emulation will diagnose bad scenarii
+		} // if depth>0, prior to JEP 513: path emulation will diagnose bad scenarii
 		else if (scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK16) {
 			MethodScope ms = scope.methodScope();
 			if (ms.isStatic)

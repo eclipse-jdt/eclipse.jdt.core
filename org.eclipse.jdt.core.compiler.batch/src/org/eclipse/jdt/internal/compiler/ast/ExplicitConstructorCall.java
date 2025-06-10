@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -321,7 +325,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 				ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) methodDeclaration;
 				ExplicitConstructorCall constructorCall = constructorDeclaration.constructorCall;
 				if (constructorCall == null) {
-					constructorCall = constructorDeclaration.getLateConstructorCall(); // JEP 482
+					constructorCall = constructorDeclaration.getLateConstructorCall(); // JEP 513
 				}
 				if (constructorCall != null && constructorCall != this) {
 					hasError = true;
@@ -331,14 +335,12 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 				if (methodDeclaration == null) {
 					scope.problemReporter().invalidExplicitConstructorCall(this);
 				} else if (!methodDeclaration.isCompactConstructor()) {// already flagged for CCD
-					if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())) {
+					if (!scope.problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES, this.sourceStart, this.sourceEnd)) {
 						boolean isTopLevel = Arrays.stream(methodDeclaration.statements).anyMatch(this::equals);
 						if (isTopLevel)
 							scope.problemReporter().duplicateExplicitConstructorCall(this);
 						else // otherwise it's illegally nested in some control structure:
 							scope.problemReporter().misplacedConstructorCall(this);
-					} else {
-						scope.problemReporter().invalidExplicitConstructorCall(this);
 					}
 				}
 				// fault-tolerance
@@ -505,6 +507,13 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 				}
 				if (rcvHasError)
 					return;
+				if (this.accessMode == ExplicitConstructorCall.ImplicitSuper && methodDeclaration.statements != null) {
+					for (Statement statement : methodDeclaration.statements) {
+						if (statement instanceof ExplicitConstructorCall
+								&& !JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions()))
+							return; // don't blame the implicit call, we have an explicit call that is illegal
+					}
+				}
 				scope.problemReporter().invalidConstructor(this, this.binding);
 			}
 		} finally {

@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -2509,7 +2513,7 @@ public ModuleBinding module() {
 }
 
 public boolean hasEnclosingInstanceContext() {
-	// This method intentionally disregards early construction contexts (JEP 482).
+	// This method intentionally disregards early construction contexts (JEP 513).
 	// Details of how each outer level is handled are coordinated in
 	// TypeDeclaration.manageEnclosingInstanceAccessIfNecessary().
 	if (isStatic())

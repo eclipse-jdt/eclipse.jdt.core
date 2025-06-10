@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
@@ -32,6 +36,7 @@ import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.Jav
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class NegativeLambdaExpressionsTest extends AbstractRegressionTest {
@@ -6574,42 +6579,74 @@ public void test406614() {
 				"	}\n" +
 				"}\n"
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 9)\n" +
-			"	this(() -> this.f);\n" +
-			"	^^^^^^^^^^^^^^^^^^^\n" +
-			"The constructor X(() -> {}) is undefined\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 9)\n" +
-			"	this(() -> this.f);\n" +
-			"	           ^^^^\n" +
-			"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 12)\n" +
-			"	this(() -> this.g());\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The constructor X(() -> {}) is undefined\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 12)\n" +
-			"	this(() -> this.g());\n" +
-			"	           ^^^^\n" +
-			"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 15)\n" +
-			"	this(() -> f);\n" +
-			"	^^^^^^^^^^^^^^\n" +
-			"The constructor X(() -> {}) is undefined\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 15)\n" +
-			"	this(() -> f);\n" +
-			"	           ^\n" +
-			"Cannot refer to an instance field f while explicitly invoking a constructor\n" +
-			"----------\n" +
-			"7. ERROR in X.java (at line 18)\n" +
-			"	this(() -> g());\n" +
-			"	           ^\n" +
-			"Cannot refer to an instance method while explicitly invoking a constructor\n" +
-			"----------\n");
+			(!JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)
+			?
+				"----------\n" +
+				"1. ERROR in X.java (at line 9)\n" +
+				"	this(() -> this.f);\n" +
+				"	^^^^^^^^^^^^^^^^^^^\n" +
+				"The constructor X(() -> {}) is undefined\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 9)\n" +
+				"	this(() -> this.f);\n" +
+				"	           ^^^^\n" +
+				"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 12)\n" +
+				"	this(() -> this.g());\n" +
+				"	^^^^^^^^^^^^^^^^^^^^^\n" +
+				"The constructor X(() -> {}) is undefined\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 12)\n" +
+				"	this(() -> this.g());\n" +
+				"	           ^^^^\n" +
+				"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 15)\n" +
+				"	this(() -> f);\n" +
+				"	^^^^^^^^^^^^^^\n" +
+				"The constructor X(() -> {}) is undefined\n" +
+				"----------\n" +
+				"6. ERROR in X.java (at line 15)\n" +
+				"	this(() -> f);\n" +
+				"	           ^\n" +
+				"Cannot refer to an instance field f while explicitly invoking a constructor\n" +
+				"----------\n" +
+				"7. ERROR in X.java (at line 18)\n" +
+				"	this(() -> g());\n" +
+				"	           ^\n" +
+				"Cannot refer to an instance method while explicitly invoking a constructor\n" +
+				"----------\n"
+			:
+				"""
+				----------
+				1. ERROR in X.java (at line 9)
+					this(() -> this.f);
+					           ^^^^^^
+				Cannot read field f in an early construction context
+				----------
+				2. ERROR in X.java (at line 12)
+					this(() -> this.g());
+					^^^^^^^^^^^^^^^^^^^^^
+				The constructor X(() -> {}) is undefined
+				----------
+				3. ERROR in X.java (at line 12)
+					this(() -> this.g());
+					           ^^^^
+				Cannot use 'this' in an early construction context
+				----------
+				4. ERROR in X.java (at line 15)
+					this(() -> f);
+					           ^
+				Cannot read field f in an early construction context
+				----------
+				5. ERROR in X.java (at line 18)
+					this(() -> g());
+					           ^
+				Cannot refer to an instance method while explicitly invoking a constructor
+				----------
+				"""
+			));
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial
 public void test406588() {
@@ -9717,7 +9754,8 @@ public void test433588a() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=433735, [1.8] Discrepancy with javac when dealing with local classes in lambda expressions
 public void test433735() {
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			"X.java",
 			"import java.util.function.Supplier;\n" +
@@ -9744,17 +9782,24 @@ public void test433735() {
 			"		new X();\n" +
 			"	}\n" +
 			"}\n"
-		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	super( () -> {\n" +
-		"	       ^^^^^\n" +
-		"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" +
-		"----------\n");
+			};
+	if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)) {
+		runner.runConformTest();
+	} else {
+		runner.expectedCompilerLog =
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	super( () -> {\n" +
+			"	       ^^^^^\n" +
+			"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" +
+			"----------\n";
+		runner.runNegativeTest();
+	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432531 [1.8] VerifyError with anonymous subclass inside of lambda expression in the superclass constructor call
 public void test432531a() {
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			"Y.java",
 			"import java.util.function.Supplier;\n" +
@@ -9776,13 +9821,19 @@ public void test432531a() {
 			"		new Y();\n" +
 			"	}\n" +
 			"}"
-	},
-	"----------\n" +
-	"1. ERROR in Y.java (at line 7)\n" +
-	"	super( () -> {\n" +
-	"	       ^^^^^\n" +
-	"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" +
-	"----------\n");
+		};
+	if (!JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)) {
+		runner.expectedCompilerLog =
+			"----------\n" +
+			"1. ERROR in Y.java (at line 7)\n" +
+			"	super( () -> {\n" +
+			"	       ^^^^^\n" +
+			"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" +
+			"----------\n";
+		runner.runNegativeTest();
+	} else {
+		runner.runConformTest();
+	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432605, [1.8] Incorrect error "The type ArrayList<T> does not define add(ArrayList<T>, Object) that is applicable here"
 public void _test432605() {
