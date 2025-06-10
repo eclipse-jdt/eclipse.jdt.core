@@ -466,6 +466,8 @@ public class SyntheticMethodBinding extends MethodBinding {
 		AnnotationBinding[][] paramAnnotations = null;
 		for (int i = 0, length = rcb.length; i < length; i++) {
 			this.parameters[i] = rcb[i].type;
+			if (this.parameters[i] != null && (this.parameters[i].tagBits & TagBits.HasMissingType) != 0)
+				this.tagBits |=  TagBits.HasMissingType;
 			this.parameterNames[i] = rcb[i].name;
 			TypeBinding leafType = rcb[i].type == null ? null : rcb[i].type.leafComponentType();
 			if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
@@ -516,6 +518,8 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 		this.parameters = Binding.NO_PARAMETERS;
 		this.returnType = rcb.type;
+		if (this.returnType != null && (this.returnType.tagBits & TagBits.HasMissingType) != 0)
+			this.tagBits |=  TagBits.HasMissingType;
 		this.selector = rcb.name;
 		this.recordComponentBinding = rcb;
 		this.targetReadField = rcb;

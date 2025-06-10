@@ -268,9 +268,11 @@ public void addSyntheticRecordState(RecordComponent component, FieldBinding synt
 	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
 		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new LinkedHashMap(5);
 
-	if (component.binding != null)
+	if (component.binding != null) {
 		synthField.modifiers |= component.binding.modifiers & ExtraCompilerModifiers.AccGenericSignature;
-
+		if ((component.binding.tagBits & TagBits.HasMissingType) != 0)
+			synthField.tagBits |= TagBits.HasMissingType;
+	}
 	if (component.annotations != null)
 		ASTNode.copyRecordComponentAnnotations(this.scope, synthField, component.annotations);
 
