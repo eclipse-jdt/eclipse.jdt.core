@@ -4130,7 +4130,7 @@ public class JavadocTestForMethod extends JavadocTest {
 				+ "1. ERROR in test\\X.java (at line 6)\n"
 				+ "	* @see Visibility#avm_private(int) Invalid ref: non-applicable inherited method\n"
 				+ "	                  ^^^^^^^^^^^\n"
-				+ "Javadoc: The method avm_private() in the type AbstractVisibility is not applicable for the arguments (int)\n"
+				+ "Javadoc: The method avm_private() from the type AbstractVisibility is not visible\n"
 				+ "----------\n"
 				+ "2. ERROR in test\\X.java (at line 7)\n"
 				+ "	* @see Visibility#avm_public(String) Invalid ref: non-applicable inherited method\n"

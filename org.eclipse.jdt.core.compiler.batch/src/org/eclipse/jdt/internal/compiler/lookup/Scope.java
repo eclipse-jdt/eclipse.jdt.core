@@ -1684,6 +1684,9 @@ public abstract class Scope {
 		// superclass lookup
 		ReferenceBinding classHierarchyStart = currentType;
 		MethodVerifier verifier = environment().methodVerifier();
+		boolean currentIsSuper = false;
+		MethodBinding singlePrivateMethod = null;
+		boolean multiplePrivateMethods = false;
 		while (currentType != null) {
 			unitScope.recordTypeReference(currentType);
 			currentType = (ReferenceBinding) currentType.capture(this, invocationSite == null ? 0 : invocationSite.sourceStart(), invocationSite == null ? 0 : invocationSite.sourceEnd());
@@ -1718,6 +1721,20 @@ public abstract class Scope {
 							}
 						}
 					}
+				} else if (currentIsSuper) {
+					for (int i = 0, l = currentLength; i < l; i++) { // currentLength can be modified inside the loop
+						MethodBinding currentMethod = currentMethods[i];
+						if (currentMethod.isPrivate()) {
+							if (singlePrivateMethod == null && !multiplePrivateMethods) {
+								singlePrivateMethod = currentMethod;
+							} else {
+								singlePrivateMethod = null;
+								multiplePrivateMethods = true;
+							}
+							currentLength--;
+							currentMethods[i] = null;
+						}
+					}
 				}
 
 				if (currentLength > 0) {
@@ -1733,6 +1750,7 @@ public abstract class Scope {
 				}
 			}
 			currentType = currentType.superclass();
+			currentIsSuper = true;
 		}
 
 		// if found several candidates, then eliminate those not matching argument types
@@ -1772,6 +1790,9 @@ public abstract class Scope {
 					case ProblemReasons.TypeParameterArityMismatch :
 						return problemMethod;
 				}
+			} else if (foundSize == 0 && singlePrivateMethod != null) {
+				// if there is only one private method, we want to report that it is not visible.
+				return new ProblemMethodBinding(singlePrivateMethod, selector, singlePrivateMethod.parameters, ProblemReasons.NotVisible);
 			}
 			// abstract classes may get a match in interfaces; for non abstract
 			// classes, reduces secondary errors since missing interface method

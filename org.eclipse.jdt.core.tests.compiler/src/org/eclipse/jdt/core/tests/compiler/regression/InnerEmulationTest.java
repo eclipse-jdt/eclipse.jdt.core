@@ -5994,29 +5994,30 @@ public void test172() throws Exception {
 		this.runNegativeTest(
 				files,
 				"----------\n" +
-				"1. WARNING in X.java (at line 8)\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	a(null);\n" +
+				"	^\n" +
+				"The method a() in the type X is not applicable for the arguments (null)\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 14)\n" +
 				"	a(null);\n" +
 				"	^^^^^^^\n" +
 				"Access to enclosing method a(String) from the type X is emulated by a synthetic accessor method\n" +
 				"----------\n" +
-				"2. WARNING in X.java (at line 9)\n" +
-				"	c(null);\n" +
-				"	^^^^^^^\n" +
-				"Access to enclosing method c(String) from the type X is emulated by a synthetic accessor method\n" +
-				"----------\n" +
-				"3. WARNING in X.java (at line 14)\n" +
-				"	a(null);\n" +
-				"	^^^^^^^\n" +
-				"Access to enclosing method a(String) from the type X is emulated by a synthetic accessor method\n" +
-				"----------\n" +
-				"4. WARNING in X.java (at line 15)\n" +
+				"3. WARNING in X.java (at line 15)\n" +
 				"	c(null);\n" +
 				"	^^^^^^^\n" +
 				"Access to enclosing method c(String) from the type X is emulated by a synthetic accessor method\n" +
 				"----------\n"
 				);
 	} else {
-		this.runConformTest(files, "");
+		this.runNegativeTest(files,
+				"----------\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	a(null);\n" +
+				"	^\n" +
+				"The method a() in the type X is not applicable for the arguments (null)\n" +
+				"----------\n");
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=308245
