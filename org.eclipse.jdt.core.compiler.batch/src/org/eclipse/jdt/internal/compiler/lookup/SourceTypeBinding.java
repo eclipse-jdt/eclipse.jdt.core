@@ -898,84 +898,116 @@ public RecordComponentBinding[] components() {
 	return this.components;
 }
 
-public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
+private VariableBinding resolveTypeFor(VariableBinding variable) {
+
 	if (!isPrototype())
-		return this.prototype.resolveTypeFor(component);
+		return this.prototype.resolveTypeFor(variable);
 
-	if ((component.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0)
-		return component;
+	if ((variable.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0)
+		return variable;
 
-	component.getAnnotationTagBits();
-	if ((component.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
-		component.modifiers |= ClassFileConstants.AccDeprecated;
-
-	if (isViewedAsDeprecated() && !component.isDeprecated()) {
-		component.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
-		component.tagBits |= this.tagBits & TagBits.AnnotationTerminallyDeprecated;
+	if ((variable.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
+		variable.modifiers |= ClassFileConstants.AccDeprecated;
+	if (isViewedAsDeprecated() && !variable.isDeprecated()) {
+		variable.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
+		variable.tagBits |= this.tagBits & TagBits.AnnotationTerminallyDeprecated;
 	}
 	if (hasRestrictedAccess())
-		component.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
+		variable.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 
-	MethodScope initializationScope = this.scope.referenceContext.initializerScope; 	// component cannot be static, hence no static initializer scope
-	RecordComponent componentDeclaration = component.sourceRecordComponent();
-	TypeBinding componentType = componentDeclaration.type.resolveType(initializationScope, true /* check bounds*/);
-	component.type = componentType;
-	component.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
-	if ((component.modifiers & ExtraCompilerModifiers.AccJustFlag) != 0)
-		this.scope.problemReporter().recordComponentsCannotHaveModifiers(componentDeclaration);
+	MethodScope initializationScope = variable.isStatic()
+		? this.scope.referenceContext.staticInitializerScope
+		: this.scope.referenceContext.initializerScope;
+	FieldBinding previousField = initializationScope.initializedField;
+	try {
+		if (variable instanceof FieldBinding field)
+			initializationScope.initializedField = field;
+		AbstractVariableDeclaration variableDeclaration = variable instanceof FieldBinding field ? field.sourceField() : ((RecordComponentBinding) variable).sourceRecordComponent();
+		TypeBinding variableType =
+			variableDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT
+				? initializationScope.environment().convertToRawType(this, false /*do not force conversion of enclosing types*/) // enum constant is implicitly of declaring enum type
+				: variableDeclaration.type.resolveType(initializationScope, true /* check bounds*/);
+		variable.type = variableType;
+		variable.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
+		if (variableType == null) {
+			variableDeclaration.setBinding(null);
+			return null;
+		}
+		if (variableType == TypeBinding.VOID) {
+			this.scope.problemReporter().variableTypeCannotBeVoid(variableDeclaration);
+			variableDeclaration.setBinding(null);
+			return null;
+		}
+		if (variableType.isArrayType() && ((ArrayBinding) variableType).leafComponentType == TypeBinding.VOID) {
+			this.scope.problemReporter().variableTypeCannotBeVoidArray(variableDeclaration);
+			variableDeclaration.setBinding(null);
+			return null;
+		}
+		if ((variableType.tagBits & TagBits.HasMissingType) != 0) {
+			variable.tagBits |= TagBits.HasMissingType;
+		}
+		TypeBinding leafType = variableType.leafComponentType();
+		if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0) {
+			variable.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
+		}
 
-	if (componentType == null) {
-		componentDeclaration.binding = null;
-		return null;
-	}
-	if (TypeDeclaration.disallowedComponentNames.contains(new String(componentDeclaration.name))) {
-		this.scope.problemReporter().illegalComponentNameInRecord(componentDeclaration, this.scope.referenceContext);
-		componentDeclaration.binding = null;
-		return null;
-	}
-	if (componentDeclaration.isUnnamed(this.scope)) {
-		this.scope.problemReporter().illegalUseOfUnderscoreAsAnIdentifier(componentDeclaration.sourceStart, componentDeclaration.sourceEnd, this.scope.compilerOptions().sourceLevel > ClassFileConstants.JDK1_8, true);
-		componentDeclaration.binding = null;
-		return null;
-	}
-	if (componentType == TypeBinding.VOID) {
-		this.scope.problemReporter().recordComponentCannotBeVoid(componentDeclaration);
-		componentDeclaration.binding = null;
-		return null;
-	}
-	RecordComponent[] recordComponents = this.scope.referenceContext.recordComponents;
-	if (componentDeclaration.isVarArgs() && recordComponents[recordComponents.length - 1] != componentDeclaration)
-		this.scope.problemReporter().onlyLastRecordComponentMaybeVararg(componentDeclaration, this.scope.referenceContext);
+		Annotation [] annotations = variableDeclaration.annotations;
 
-	if (componentType.isArrayType() && ((ArrayBinding) componentType).leafComponentType == TypeBinding.VOID) {
-		this.scope.problemReporter().variableTypeCannotBeVoidArray(componentDeclaration);
-		componentDeclaration.binding = null;
-		return null;
-	}
-	if ((componentType.tagBits & TagBits.HasMissingType) != 0) {
-		component.tagBits |= TagBits.HasMissingType;
-	}
-	TypeBinding leafType = componentType.leafComponentType();
-	if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0) {
-		component.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
-	}
-	Annotation [] annotations = componentDeclaration.annotations;
-	ASTNode.copyRecordComponentAnnotations(initializationScope, component, annotations);
+		if (variableDeclaration instanceof RecordComponent componentDeclaration) {
+			if ((variable.modifiers & ExtraCompilerModifiers.AccJustFlag) != 0)
+				this.scope.problemReporter().recordComponentsCannotHaveModifiers(componentDeclaration);
+			if (TypeDeclaration.disallowedComponentNames.contains(new String(componentDeclaration.name))) {
+				this.scope.problemReporter().illegalComponentNameInRecord(componentDeclaration, this.scope.referenceContext);
+				componentDeclaration.setBinding(null);
+				return null;
+			}
+			if (componentDeclaration.isUnnamed(this.scope)) {
+				this.scope.problemReporter().illegalUseOfUnderscoreAsAnIdentifier(componentDeclaration.sourceStart, componentDeclaration.sourceEnd, this.scope.compilerOptions().sourceLevel > ClassFileConstants.JDK1_8, true);
+				componentDeclaration.setBinding(null);
+				return null;
+			}
+			RecordComponent[] recordComponents = this.scope.referenceContext.recordComponents;
+			if (componentDeclaration.isVarArgs() && recordComponents[recordComponents.length - 1] != componentDeclaration)
+				this.scope.problemReporter().onlyLastRecordComponentMaybeVararg(componentDeclaration, this.scope.referenceContext);
+			ASTNode.copyRecordComponentAnnotations(initializationScope, variable, annotations);
+		}
+		if (annotations != null && annotations.length != 0) {
+			ASTNode.copySE8AnnotationsToType(initializationScope, variable, annotations,
+					variableDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT); // type annotation is illegal on enum constant
+		}
 
-	if (annotations != null && annotations.length != 0) {
-		ASTNode.copySE8AnnotationsToType(initializationScope, component, annotations, false);
+		Annotation.isTypeUseCompatible(variableDeclaration.type, this.scope, annotations);
+		// apply null default:
+		if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
+			// TODO(SH): different strategy for 1.8, or is "repair" below enough?
+			if (variableDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
+				// enum constants neither have a type declaration nor can they be null
+				variable.tagBits |= TagBits.AnnotationNonNull;
+			} else if (variable instanceof FieldBinding field) {
+				if (hasNonNullDefaultForType(variableType, DefaultLocationField, variableDeclaration.sourceStart)) {
+					field.fillInDefaultNonNullness((FieldDeclaration) variableDeclaration, initializationScope);
+				}
+				// validate null annotation:
+				if (!this.scope.validateNullAnnotation(variable.tagBits, variableDeclaration.type, variableDeclaration.annotations))
+					variable.tagBits &= ~TagBits.AnnotationNullMASK;
+			}
+		}
+		if (initializationScope.shouldCheckAPILeaks(this, variable.isPublic()) && variableDeclaration.type != null) // variableDeclaration.type is null for enum constants
+			initializationScope.detectAPILeaks(variableDeclaration.type, variableType);
+	} finally {
+	    initializationScope.initializedField = previousField;
 	}
-	Annotation.isTypeUseCompatible(componentDeclaration.type, this.scope, annotations);
-	// TODO Bug 562478: apply null default: - to check anything to be done? - SH
-//		if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {}
-
-	if (initializationScope.shouldCheckAPILeaks(this, component.isPublic()) && componentDeclaration.type != null) // fieldDecl.type is null for enum constants
-		initializationScope.detectAPILeaks(componentDeclaration.type, componentType);
-
 	if (this.externalAnnotationProvider != null) {
-		ExternalAnnotationSuperimposer.annotateComponentBinding(component, this.externalAnnotationProvider, this.environment);
+		if (variable instanceof FieldBinding field)
+			ExternalAnnotationSuperimposer.annotateFieldBinding(field, this.externalAnnotationProvider, this.environment);
+		else if (variable instanceof RecordComponentBinding component)
+			ExternalAnnotationSuperimposer.annotateComponentBinding(component, this.externalAnnotationProvider, this.environment);
 	}
-	return component;
+	return variable;
+}
+
+public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
+	return (RecordComponentBinding) resolveTypeFor((VariableBinding) component);
 }
 
 private void internalFaultInTypeForFieldsAndMethods() {
@@ -1915,95 +1947,7 @@ public ReferenceBinding containerAnnotationType() {
 }
 
 public FieldBinding resolveTypeFor(FieldBinding field) {
-
-	if (!isPrototype())
-		return this.prototype.resolveTypeFor(field);
-
-	if ((field.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0)
-		return field;
-
-	if ((field.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
-		field.modifiers |= ClassFileConstants.AccDeprecated;
-	if (isViewedAsDeprecated() && !field.isDeprecated()) {
-		field.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
-		field.tagBits |= this.tagBits & TagBits.AnnotationTerminallyDeprecated;
-	}
-	if (hasRestrictedAccess())
-		field.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
-	FieldDeclaration[] fieldDecls = this.scope.referenceContext.fields;
-	int length = fieldDecls == null ? 0 : fieldDecls.length;
-	for (int f = 0; f < length; f++) {
-		if (fieldDecls[f].binding != field)
-			continue;
-
-		MethodScope initializationScope = field.isStatic()
-			? this.scope.referenceContext.staticInitializerScope
-			: this.scope.referenceContext.initializerScope;
-		FieldBinding previousField = initializationScope.initializedField;
-		try {
-			initializationScope.initializedField = field;
-			FieldDeclaration fieldDecl = fieldDecls[f];
-			TypeBinding fieldType =
-				fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT
-					? initializationScope.environment().convertToRawType(this, false /*do not force conversion of enclosing types*/) // enum constant is implicitly of declaring enum type
-					: fieldDecl.type.resolveType(initializationScope, true /* check bounds*/);
-			field.type = fieldType;
-			field.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
-			if (fieldType == null) {
-				fieldDecl.binding = null;
-				return null;
-			}
-			if (fieldType == TypeBinding.VOID) {
-				this.scope.problemReporter().variableTypeCannotBeVoid(fieldDecl);
-				fieldDecl.binding = null;
-				return null;
-			}
-			if (fieldType.isArrayType() && ((ArrayBinding) fieldType).leafComponentType == TypeBinding.VOID) {
-				this.scope.problemReporter().variableTypeCannotBeVoidArray(fieldDecl);
-				fieldDecl.binding = null;
-				return null;
-			}
-			if ((fieldType.tagBits & TagBits.HasMissingType) != 0) {
-				field.tagBits |= TagBits.HasMissingType;
-			}
-			TypeBinding leafType = fieldType.leafComponentType();
-			if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0) {
-				field.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
-			}
-
-			Annotation [] annotations = fieldDecl.annotations;
-			if (annotations != null && annotations.length != 0) {
-				ASTNode.copySE8AnnotationsToType(initializationScope, field, annotations,
-						fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT); // type annotation is illegal on enum constant
-			}
-
-			Annotation.isTypeUseCompatible(fieldDecl.type, this.scope, annotations);
-			// apply null default:
-			if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
-				// TODO(SH): different strategy for 1.8, or is "repair" below enough?
-				if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
-					// enum constants neither have a type declaration nor can they be null
-					field.tagBits |= TagBits.AnnotationNonNull;
-				} else {
-					if (hasNonNullDefaultForType(fieldType, DefaultLocationField, fieldDecl.sourceStart)) {
-						field.fillInDefaultNonNullness(fieldDecl, initializationScope);
-					}
-					// validate null annotation:
-					if (!this.scope.validateNullAnnotation(field.tagBits, fieldDecl.type, fieldDecl.annotations))
-						field.tagBits &= ~TagBits.AnnotationNullMASK;
-				}
-			}
-			if (initializationScope.shouldCheckAPILeaks(this, field.isPublic()) && fieldDecl.type != null) // fieldDecl.type is null for enum constants
-				initializationScope.detectAPILeaks(fieldDecl.type, fieldType);
-		} finally {
-		    initializationScope.initializedField = previousField;
-		}
-		if (this.externalAnnotationProvider != null) {
-			ExternalAnnotationSuperimposer.annotateFieldBinding(field, this.externalAnnotationProvider, this.environment);
-		}
-		return field;
-	}
-	return null; // should never reach this point
+	return (FieldBinding) resolveTypeFor((VariableBinding) field);
 }
 
 public MethodBinding resolveTypesFor(MethodBinding method) {

@@ -11882,15 +11882,6 @@ public void cannotExtendRecord(SourceTypeBinding type, TypeReference superclass,
 		superclass.sourceStart,
 		superclass.sourceEnd);
 }
-public void recordComponentCannotBeVoid(RecordComponent arg) {
-	String[] arguments = new String[] { new String(arg.name) };
-	this.handle(
-		IProblem.RecordComponentCannotBeVoid,
-		arguments,
-		arguments,
-		arg.sourceStart,
-		arg.sourceEnd);
-}
 public void onlyLastRecordComponentMaybeVararg(RecordComponent argType, TypeDeclaration typeDecl) {
 	String[] arguments = new String[] {CharOperation.toString(argType.type.getTypeName()), new String(typeDecl.name)};
 	this.handle(

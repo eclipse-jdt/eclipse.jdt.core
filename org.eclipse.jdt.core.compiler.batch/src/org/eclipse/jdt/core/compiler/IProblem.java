@@ -2561,6 +2561,7 @@ void setSourceStart(int sourceStart);
 	 */
 	int RecordCannotExtendRecord= TypeRelated + 1752;
 	/** @since 3.26
+	 *  @deprecated problem no longer generated
 	 */
 	int RecordComponentCannotBeVoid= TypeRelated + 1753;
 	/** @since 3.26

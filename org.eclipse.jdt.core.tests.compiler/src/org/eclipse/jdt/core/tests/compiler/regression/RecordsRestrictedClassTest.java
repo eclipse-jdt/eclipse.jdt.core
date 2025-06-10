@@ -1797,7 +1797,7 @@ public void testBug559281_001() {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	record X(void k) {}\n" +
 			"	              ^\n" +
-			"void is an invalid type for the component k of a record\n" +
+			"void is an invalid type for the variable k\n" +
 			"----------\n");
 }
 public void testBug559281_002() {

@@ -343,11 +343,6 @@ public final boolean isDefault() {
 	return !isPublic() && !isProtected() && !isPrivate();
 }
 
-/* Answer true if the receiver is a deprecated field
-*/
-public final boolean isDeprecated() {
-	return (this.modifiers & ClassFileConstants.AccDeprecated) != 0;
-}
 /* Answer true if the receiver has private visibility
 */
 
@@ -367,12 +362,6 @@ public final boolean isOrEnclosedByPrivateType() {
 
 public final boolean isProtected() {
 	return (this.modifiers & ClassFileConstants.AccProtected) != 0;
-}
-/* Answer true if the receiver has public visibility
-*/
-
-public final boolean isPublic() {
-	return (this.modifiers & ClassFileConstants.AccPublic) != 0;
 }
 
 /* Answer true if the receiver is not defined in the source of the declaringClass
