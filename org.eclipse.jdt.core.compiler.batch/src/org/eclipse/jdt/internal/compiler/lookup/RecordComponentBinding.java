@@ -17,7 +17,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class RecordComponentBinding extends VariableBinding {
 
@@ -102,14 +101,6 @@ public class RecordComponentBinding extends VariableBinding {
 		return this.declaringRecord;
 	}
 
-	public final boolean isDeprecated() {
-		return (this.modifiers & ClassFileConstants.AccDeprecated) != 0;
-	}
-
-	// TODO: check
-	public final boolean isPublic() {
-		return (this.modifiers & ClassFileConstants.AccPublic) != 0;
-	}
 	/**
 	 * Returns the original RecordComponent (as opposed to parameterized instances)
 	 */

@@ -118,4 +118,16 @@ public abstract class VariableBinding extends Binding {
 	public void clearEffectiveFinality(Scope scope, Expression node, boolean complain) {
 		return;
 	}
+
+	/* Answer true if the receiver has public visibility
+	*/
+	public final boolean isPublic() {
+		return (this.modifiers & ClassFileConstants.AccPublic) != 0;
+	}
+
+	/* Answer true if the receiver is deprecated
+	*/
+	public final boolean isDeprecated() {
+		return (this.modifiers & ClassFileConstants.AccDeprecated) != 0;
+	}
 }
