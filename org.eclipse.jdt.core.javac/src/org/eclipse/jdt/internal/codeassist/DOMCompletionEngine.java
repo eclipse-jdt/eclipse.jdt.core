@@ -750,7 +750,6 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			String completeAfter = token == null ? new String() : new String(token);
 			ASTNode context = completionContext.node;
 			this.toComplete = completionContext.node;
-			completionContext.setInJavadoc(DOMCompletionUtil.findParent(this.toComplete, new int[] {ASTNode.JAVADOC}) != null);
 			ASTNode potentialTagElement = DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.TAG_ELEMENT, ASTNode.MEMBER_REF, ASTNode.METHOD_REF });
 			if (potentialTagElement != null) {
 				context = potentialTagElement;
@@ -3328,8 +3327,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		if (this.requestor.isIgnored(CompletionProposal.JAVADOC_BLOCK_TAG)) {
 			return;
 		}
+		char[] atlessPrefix = this.prefix.startsWith("@") ? this.prefix.substring(1).toCharArray() : this.prefix.toCharArray();
 		for (char[] blockTag : DOMCompletionEngineJavadocUtil.getJavadocBlockTags(this.javaProject, tagNode)) {
-			if (!isFailedMatch(this.prefix.toCharArray(), blockTag)) {
+			if (!isFailedMatch(atlessPrefix, blockTag)) {
 				this.requestor.accept(toJavadocBlockTagProposal(blockTag));
 			}
 		}
@@ -3339,8 +3339,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		if (this.requestor.isIgnored(CompletionProposal.JAVADOC_INLINE_TAG)) {
 			return;
 		}
+		char[] atlessPrefix = this.prefix.startsWith("@") ? this.prefix.substring(1).toCharArray() : this.prefix.toCharArray();
 		for (char[] blockTag : DOMCompletionEngineJavadocUtil.getJavadocInlineTags(this.javaProject, tagNode)) {
-			if (!isFailedMatch(this.prefix.toCharArray(), blockTag)) {
+			if (!isFailedMatch(atlessPrefix, blockTag)) {
 				this.requestor.accept(toJavadocInlineTagProposal(blockTag));
 			}
 		}

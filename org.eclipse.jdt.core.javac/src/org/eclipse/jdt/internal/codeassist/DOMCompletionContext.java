@@ -140,6 +140,7 @@ class DOMCompletionContext extends CompletionContext {
 			this.node = NodeFinder.perform(domUnit, adjustedOffset, length);
 		}
 		this.expectedTypes = new ExpectedTypes(assistOptions, this.node, offset);
+		this.inJavadoc = DOMCompletionUtil.findParent(this.node, new int[] { ASTNode.JAVADOC }) != null;
 		this.token = tokenBefore(this.textContent).toCharArray();
 		this.bindingsAcquirer = bindings::all;
 		this.isJustAfterStringLiteral = this.node instanceof StringLiteral && this.node.getLength() > 1 && this.offset >= this.node.getStartPosition() + this.node.getLength() && textContent.charAt(this.offset - 1) == '"';
@@ -148,7 +149,7 @@ class DOMCompletionContext extends CompletionContext {
 	private String tokenBefore(String str) {
 		int position = Math.min(this.offset, str.length()) - 1;
 		StringBuilder builder = new StringBuilder();
-		while (position >= 0 && Character.isJavaIdentifierPart(str.charAt(position))) {
+		while (position >= 0 && (Character.isJavaIdentifierPart(str.charAt(position)) || (this.inJavadoc && str.charAt(position) == '@'))) {
 			builder.append(str.charAt(position));
 			position--;
 		}
@@ -222,10 +223,6 @@ class DOMCompletionContext extends CompletionContext {
 	@Override
 	public boolean isInJavadoc() {
 		return this.inJavadoc;
-	}
-
-	public void setInJavadoc(boolean inJavadoc) {
-		this.inJavadoc = inJavadoc;
 	}
 
 	@Override
