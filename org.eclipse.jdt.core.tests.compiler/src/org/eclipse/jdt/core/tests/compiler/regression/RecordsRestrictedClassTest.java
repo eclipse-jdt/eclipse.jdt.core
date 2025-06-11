@@ -8448,7 +8448,9 @@ public void testBugLazyCanon_006() throws IOException, ClassFormatException {
 	"100");
 }
 // Disabled waiting for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3347
-public void _testBug571765_001() {
+public void testBug571765_001() {
+	if (this.complianceLevel < ClassFileConstants.JDK24)
+		return;
 	this.runNegativeTest(
 			new String[] {
 					"module-info.java",
