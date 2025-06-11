@@ -10021,7 +10021,6 @@ protected void consumeRecordPattern() {
 	if (modifier != 0) {
 		problemReporter().illegalModifiers(modifierStart, type.sourceStart - 2);
 	}
-	checkForDiamond(recPattern.type);
 	problemReporter().validateJavaFeatureSupport(JavaFeature.RECORD_PATTERNS, type.sourceStart, sourceEnd);
 	pushOnAstStack(recPattern);
 }
