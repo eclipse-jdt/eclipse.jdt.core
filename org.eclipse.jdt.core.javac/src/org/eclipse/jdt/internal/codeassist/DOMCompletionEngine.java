@@ -751,7 +751,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			ASTNode context = completionContext.node;
 			this.toComplete = completionContext.node;
 			ASTNode potentialTagElement = DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.TAG_ELEMENT, ASTNode.MEMBER_REF, ASTNode.METHOD_REF });
-			if (potentialTagElement != null) {
+			if (potentialTagElement != null
+					// if it's a text element that nested under a tag element with no tag, treat it as a text element and (later) perform type completion on the text content
+					&& (!(potentialTagElement instanceof TagElement tagElement) || tagElement.getTagName() != null)) {
 				context = potentialTagElement;
 			} else if (completionContext.node instanceof SimpleName simpleName) {
 				if (simpleName.getParent() instanceof FieldAccess || simpleName.getParent() instanceof MethodInvocation
@@ -1623,6 +1625,52 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				}
 				suggestDefaultCompletions = false;
 			}
+			if (context instanceof TextElement) {
+				int cursor = this.offset - 1;
+				boolean containsInvalidChars = false;
+				while (cursor >= 0 && !Character.isWhitespace(this.textContent.charAt(cursor))) {
+					if (!Character.isJavaIdentifierPart(this.textContent.charAt(cursor))
+							&& !Character.isJavaIdentifierStart(this.textContent.charAt(cursor))) {
+						containsInvalidChars = true;
+						break;
+					}
+					cursor--;
+				}
+				if (!containsInvalidChars) {
+					// this is a copy of the "suggest types" logic from the `@see` TagElement completion,
+					// except we need to suggest the types and their "@link" forms
+					String currentPackage = ""; //$NON-NLS-1$
+					CompilationUnit cuNode = (CompilationUnit) DOMCompletionUtil.findParent(context, new int[] { ASTNode.COMPILATION_UNIT });
+					if (cuNode.getPackage() != null) {
+						currentPackage = cuNode.getPackage().getName().toString();
+					}
+					final String finalizedCurrentPackage = currentPackage;
+					Bindings localTypeBindings = new Bindings();
+					localTypeBindings.scrapeAccessibleBindings();
+					localTypeBindings.all() //
+						.filter(binding -> binding instanceof ITypeBinding) //
+						.filter(type -> (this.qualifiedPrefix.equals(this.prefix) || this.qualifiedPrefix.equals(finalizedCurrentPackage)) && this.pattern.matchesName(this.prefix.toCharArray(), type.getName().toCharArray()))
+						.forEach(type -> {
+							DOMInternalCompletionProposal typeProposal = (DOMInternalCompletionProposal)this.toProposal(type);
+							this.requestor.accept(typeProposal);
+							this.requestor.accept(this.toLinkProposal(typeProposal));
+						});
+
+					if (!this.prefix.isEmpty()) {
+						findTypes(completeAfter, completeAfter.equals(this.qualifiedPrefix) ? null : this.qualifiedPrefix)
+							.filter(typeMatch -> {
+								return localTypeBindings.all().map(typeBinding -> typeBinding.getJavaElement()).noneMatch(elt -> typeMatch.getType().equals(elt));
+							})
+							.filter(typeMatch -> this.pattern.matchesName(this.prefix.toCharArray(), typeMatch.getType().getElementName().toCharArray()))
+							.forEach(type -> {
+								DOMInternalCompletionProposal typeProposal = (DOMInternalCompletionProposal)this.toProposal(type);
+								this.requestor.accept(typeProposal);
+								this.requestor.accept(this.toLinkProposal(typeProposal));
+							});
+					}
+				}
+				suggestDefaultCompletions = false;
+			}
 			if (context instanceof TagElement tagElement) {
 				boolean isTagName = tagElement.getTagName() == null || tagElement.getTagName().isEmpty() || !this.prefix.isEmpty();
 				ASTNode cursor = this.toComplete;
@@ -2378,6 +2426,26 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				this.monitor.done();
 			}
 		}
+	}
+
+	private CompletionProposal toLinkProposal(DOMInternalCompletionProposal typeProposal) {
+		DOMInternalCompletionProposal linkProposal = createProposal(CompletionProposal.JAVADOC_TYPE_REF);
+
+		StringBuilder completion = new StringBuilder();
+		completion.append("{@link ");
+		completion.append(typeProposal.getCompletion());
+		completion.append("}");
+
+		linkProposal.setCompletion(completion.toString().toCharArray());
+		linkProposal.setSignature(typeProposal.getSignature());
+		linkProposal.setRelevance(typeProposal.getRelevance() + RelevanceConstants.R_INLINE_TAG);
+		linkProposal.setName(typeProposal.getName());
+		linkProposal.setPackageName(typeProposal.getPackageName());
+		linkProposal.setDeclarationSignature(typeProposal.getDeclarationSignature());
+		linkProposal.setTokenRange(typeProposal.getTokenStart(), typeProposal.getTokenEnd());
+		linkProposal.setReplaceRange(typeProposal.getReplaceStart(), typeProposal.getReplaceEnd());
+
+		return linkProposal;
 	}
 
 	private void suggestClassDeclarationLikeKeywords() {
@@ -4482,7 +4550,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				&& thisExpression.getQualifier() != null
 				&& this.offset > (thisExpression.getQualifier().getStartPosition() + thisExpression.getQualifier().getLength())) {
 			setRange(res);
-		} else if (this.toComplete instanceof MethodRefParameter || this.toComplete instanceof MethodRef){
+		} else if (this.toComplete instanceof MethodRefParameter || this.toComplete instanceof MethodRef || this.toComplete instanceof TextElement){
 			setRange(res);
 		} else {
 			res.setReplaceRange(this.toComplete.getStartPosition(), this.offset);
