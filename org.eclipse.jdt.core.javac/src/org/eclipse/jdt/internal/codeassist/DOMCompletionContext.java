@@ -104,27 +104,23 @@ class DOMCompletionContext extends CompletionContext {
 				adjustedOffset++;
 			}
 			ASTNode nextNodeAfterWhitespaces = NodeFinder.perform(domUnit, adjustedOffset, 0);
-			if (previousNodeBeforeWhitespaces == nextNodeAfterWhitespaces && nextNodeAfterWhitespaces instanceof CompilationUnit cu
-					&& cu.types().isEmpty() && cu.imports().isEmpty() && cu.getPackage() == null
-					&& cu.getCommentList() != null) {
-				// there may be unparented comments that we need to search separately
-				setNode: {
-					for (Comment comment : (List<Comment>)cu.getCommentList()) {
-						ASTNode candidateNode = NodeFinder.perform(comment, this.offset, 0);
-						if (candidateNode != null) {
-							this.node = candidateNode;
-							break setNode;
-						}
+			ASTNode commentNode = null;
+			// there may be unparented comments that we need to search separately
+			for (Comment comment : (List<Comment>)domUnit.getCommentList()) {
+				// if it's parented, don't bother; if the cursor's on a boundary, don't pick the comment
+				if (comment.getParent() == null && comment.getStartPosition() < this.offset && this.offset < comment.getStartPosition() + comment.getLength()) {
+					ASTNode candidateNode = NodeFinder.perform(comment, this.offset, 0);
+					if (candidateNode != null) {
+						commentNode = candidateNode;
+						break;
 					}
-					this.node = nextNodeAfterWhitespaces;
 				}
-			} else {
-				this.node = (nextNodeAfterWhitespaces.getLength() == 0 && nextNodeAfterWhitespaces.getParent() == currentNode)
-						? nextNodeAfterWhitespaces
-								: (previousNodeBeforeWhitespaces instanceof SimpleName || previousNodeBeforeWhitespaces instanceof StringLiteral || previousNodeBeforeWhitespaces instanceof CharacterLiteral || previousNodeBeforeWhitespaces instanceof NumberLiteral)
-								? currentNode
-										: previousNodeBeforeWhitespaces;
 			}
+			this.node = commentNode != null ? commentNode : (nextNodeAfterWhitespaces.getLength() == 0 && nextNodeAfterWhitespaces.getParent() == currentNode)
+					? nextNodeAfterWhitespaces
+							: (previousNodeBeforeWhitespaces instanceof SimpleName || previousNodeBeforeWhitespaces instanceof StringLiteral || previousNodeBeforeWhitespaces instanceof CharacterLiteral || previousNodeBeforeWhitespaces instanceof NumberLiteral)
+							? currentNode
+									: previousNodeBeforeWhitespaces;
 		} else {
 			if (adjustedOffset + 1 <= textContent.length()
 					|| !Character.isJavaIdentifierStart(textContent.charAt(adjustedOffset))) {
