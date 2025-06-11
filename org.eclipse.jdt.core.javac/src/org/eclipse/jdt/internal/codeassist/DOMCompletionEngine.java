@@ -1628,15 +1628,25 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			if (context instanceof TextElement) {
 				int cursor = this.offset - 1;
 				boolean containsInvalidChars = false;
+				boolean startsWithAtSymbol = false;
 				while (cursor >= 0 && !Character.isWhitespace(this.textContent.charAt(cursor))) {
 					if (!Character.isJavaIdentifierPart(this.textContent.charAt(cursor))
 							&& !Character.isJavaIdentifierStart(this.textContent.charAt(cursor))) {
-						containsInvalidChars = true;
+						if (this.textContent.charAt(cursor) == '@'
+								&& (Character.isWhitespace(this.textContent.charAt(cursor - 1))
+										|| this.textContent.charAt(cursor - 1) == '{')) {
+							startsWithAtSymbol = true;
+						} else {
+							containsInvalidChars = true;
+						}
 						break;
 					}
 					cursor--;
 				}
-				if (!containsInvalidChars) {
+				if (startsWithAtSymbol) {
+					TagElement tagElement = (TagElement)context.getParent();
+					completeJavadocInlineTags(tagElement);
+				} else if (!containsInvalidChars) {
 					// this is a copy of the "suggest types" logic from the `@see` TagElement completion,
 					// except we need to suggest the types and their "@link" forms
 					String currentPackage = ""; //$NON-NLS-1$
@@ -3399,7 +3409,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			return;
 		}
 		char[] atlessPrefix = this.prefix.startsWith("@") ? this.prefix.substring(1).toCharArray() : this.prefix.toCharArray();
-		for (char[] blockTag : DOMCompletionEngineJavadocUtil.getJavadocBlockTags(this.javaProject, tagNode)) {
+		ASTNode nodeSearchNode = NodeFinder.perform(this.unit, this.offset, 0);
+		for (char[] blockTag : DOMCompletionEngineJavadocUtil.getJavadocBlockTags(this.javaProject, tagNode, nodeSearchNode)) {
 			if (!isFailedMatch(atlessPrefix, blockTag)) {
 				this.requestor.accept(toJavadocBlockTagProposal(blockTag));
 			}
@@ -3410,8 +3421,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		if (this.requestor.isIgnored(CompletionProposal.JAVADOC_INLINE_TAG)) {
 			return;
 		}
+		ASTNode nodeSearchNode = NodeFinder.perform(this.unit, this.offset, 0);
 		char[] atlessPrefix = this.prefix.startsWith("@") ? this.prefix.substring(1).toCharArray() : this.prefix.toCharArray();
-		for (char[] blockTag : DOMCompletionEngineJavadocUtil.getJavadocInlineTags(this.javaProject, tagNode)) {
+		for (char[] blockTag : DOMCompletionEngineJavadocUtil.getJavadocInlineTags(this.javaProject, tagNode, nodeSearchNode)) {
 			if (!isFailedMatch(atlessPrefix, blockTag)) {
 				this.requestor.accept(toJavadocInlineTagProposal(blockTag));
 			}

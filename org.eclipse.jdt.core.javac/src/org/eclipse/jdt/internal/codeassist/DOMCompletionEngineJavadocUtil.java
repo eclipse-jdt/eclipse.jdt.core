@@ -108,7 +108,14 @@ class DOMCompletionEngineJavadocUtil {
 	private static final Set<char[]> METHOD_TAGS_SET = Stream.of(JavadocTagConstants.METHOD_TAGS).collect(Collectors.toSet());
 	private static final Set<char[]> PACKAGE_TAGS_SET = Stream.of(JavadocTagConstants.PACKAGE_TAGS).collect(Collectors.toSet());
 
-	public static List<char[]> getJavadocBlockTags(IJavaProject project, TagElement tagNode) {
+	/**
+	 *
+	 * @param project
+	 * @param tagNode
+	 * @param nodeSearchNode if this comment is unparented, this node is used to determine whether tags applicable to methods and fields should be suggested
+	 * @return
+	 */
+	public static List<char[]> getJavadocBlockTags(IJavaProject project, TagElement tagNode, ASTNode nodeSearchNode) {
 		List<char[]> tagsForVersion;
 		String projectVersion = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 		if (projectVersion.contains(".") || Integer.parseInt(projectVersion) < 9) { //$NON-NLS-1$
@@ -117,10 +124,17 @@ class DOMCompletionEngineJavadocUtil {
 			tagsForVersion = JAVA_9_BLOCK_TAGS;
 		}
 
-		return tagsForNode(tagsForVersion, tagNode);
+		return tagsForNode(tagsForVersion, tagNode, nodeSearchNode);
 	}
 
-	public static List<char[]> getJavadocInlineTags(IJavaProject project, TagElement tagNode) {
+	/**
+	 *
+	 * @param project
+	 * @param tagNode
+	 * @param nodeSearchNode if this comment is unparented, this node is used to determine whether tags applicable to methods and fields should be suggested
+	 * @return
+	 */
+	public static List<char[]> getJavadocInlineTags(IJavaProject project, TagElement tagNode, ASTNode nodeSearchNode) {
 		List<char[]> tagsForVersion;
 		String projectVersion = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 		if (projectVersion.contains(".")) { //$NON-NLS-1$
@@ -141,10 +155,10 @@ class DOMCompletionEngineJavadocUtil {
 				tagsForVersion = JAVA_18_INLINE_TAGS;
 			}
 		}
-		return tagsForNode(tagsForVersion, tagNode);
+		return tagsForNode(tagsForVersion, tagNode, nodeSearchNode);
 	}
 
-	private static List<char[]> tagsForNode(List<char[]> tagsForVersion, TagElement tagNode) {
+	private static List<char[]> tagsForNode(List<char[]> tagsForVersion, TagElement tagNode, ASTNode nodeSearchNode) {
 		boolean isField = DOMCompletionUtil.findParent(tagNode, new int[]{ ASTNode.FIELD_DECLARATION }) != null;
 		if (isField) {
 			return tagsForVersion.stream() //
@@ -169,7 +183,6 @@ class DOMCompletionEngineJavadocUtil {
 
 		boolean isType = astNode != null;
 		if (isType) {
-
 			return tagsForVersion.stream() //
 					.filter(tag -> CLASS_TAGS_SET.contains(tag)) //
 					.filter(tag -> {
@@ -190,9 +203,9 @@ class DOMCompletionEngineJavadocUtil {
 
 		boolean isUnparented = DOMCompletionUtil.findParent(tagNode, new int[] {ASTNode.JAVADOC}) instanceof Javadoc javadoc && javadoc.getParent() == null;
 		if (isUnparented) {
-			// cu with nothing in it but a comment; assume it's supposed to be a comment on a top level type
+			boolean onlyClassTags = DOMCompletionUtil.findParentTypeDeclaration(nodeSearchNode) == null;
 			return tagsForVersion.stream() //
-					.filter(tag -> CLASS_TAGS_SET.contains(tag)) //
+					.filter(tag -> !onlyClassTags || CLASS_TAGS_SET.contains(tag)) //
 					.toList();
 		}
 
