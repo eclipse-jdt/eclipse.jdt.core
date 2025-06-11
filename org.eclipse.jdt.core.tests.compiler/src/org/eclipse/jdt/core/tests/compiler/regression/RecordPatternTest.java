@@ -2013,8 +2013,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n" +
 				"1. ERROR in X.java (at line 10)\n" +
 				"	if (p instanceof R<>(String a)) {\n" +
-				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Incompatible conditional operand types R<capture#1-of ? extends I> and R\n" +
+				"	                 ^\n" +
+				"Incorrect number of arguments for type R<T>; it cannot be parameterized with arguments <>\n" +
 				"----------\n");
 	}
 	public void testIssue900_1() {
