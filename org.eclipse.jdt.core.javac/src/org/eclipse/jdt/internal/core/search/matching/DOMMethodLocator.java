@@ -649,12 +649,73 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		return INACCURATE_MATCH;
 	}
 
+	protected int resolveLevel(MethodInvocation messageSend) {
+		IMethodBinding method = messageSend.resolveMethodBinding();
+		if (method == null) {
+			return INACCURATE_MATCH;
+		}
+//		if (messageSend.resolvedType == null) {
+//			// Closest match may have different argument numbers when ProblemReason is NotFound
+//			// see MessageSend#resolveType(BlockScope)
+//			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=97322
+//			if (this.pattern.parameterSimpleNames == null || messageSend.arguments().size() == this.pattern.parameterSimpleNames.length) {
+//				return INACCURATE_MATCH;
+//			}
+//			return IMPOSSIBLE_MATCH;
+//		}
+
+		int methodLevel = matchMethod(messageSend, method, false, false);
+		if (methodLevel == IMPOSSIBLE_MATCH) {
+			if (method != method.getMethodDeclaration()) methodLevel = matchMethod(messageSend, method.getMethodDeclaration(), false, false);
+			if (methodLevel == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
+			method = method.getMethodDeclaration();
+		}
+
+		// receiver type
+		if (this.pattern.declaringSimpleName == null && this.pattern.declaringQualification == null) return methodLevel; // since any declaring class will do
+
+		int declaringLevel;
+		ITypeBinding receiverType = messageSend.getExpression() != null ? messageSend.getExpression().resolveTypeBinding() : method.getDeclaringClass();
+		if (receiverType.isArray()) {
+			receiverType = messageSend.getAST().resolveWellKnownType(Object.class.getName());
+		}
+		if (isVirtualInvoke(method, messageSend) && receiverType != null && !receiverType.isArray() && !receiverType.isIntersectionType()) {
+			var packageBinding = receiverType.getPackage();
+			declaringLevel = resolveLevelAsSubtype(this.pattern.declaringSimpleName, this.pattern.declaringQualification, receiverType, method.getName(), method.getParameterTypes(), packageBinding != null ? packageBinding.getName() : null, Modifier.isDefault(method.getModifiers()));
+			if (declaringLevel == IMPOSSIBLE_MATCH) {
+				if (method.getDeclaringClass() == null || this.allSuperDeclaringTypeNames == null) {
+					declaringLevel = INACCURATE_MATCH;
+				} else {
+					char[][][] superTypeNames = (Modifier.isDefault(method.getModifiers()) && this.pattern.focus == null) ? this.samePkgSuperDeclaringTypeNames: this.allSuperDeclaringTypeNames;
+					if (superTypeNames != null && resolveLevelAsSuperInvocation(receiverType, method.getParameterTypes(), superTypeNames, true)) {
+							declaringLevel = methodLevel // since this is an ACCURATE_MATCH so return the possibly weaker match
+								| SUPER_INVOCATION_FLAVOR; // this is an overridden method => add flavor to returned level
+					}
+				}
+			}
+			if ((declaringLevel & FLAVORS_MASK) != 0) {
+				// level got some flavors => return it
+				return declaringLevel;
+			}
+		} else {
+			declaringLevel = resolveLevelForType(this.pattern.declaringSimpleName, this.pattern.declaringQualification, method.getDeclaringClass());
+		}
+		return (methodLevel & MATCH_LEVEL_MASK) > (declaringLevel & MATCH_LEVEL_MASK) ? declaringLevel : methodLevel; // return the weaker match
+	}
+	protected boolean isVirtualInvoke(IMethodBinding method, MethodInvocation messageSend) {
+		return !Modifier.isStatic(method.getModifiers()) && !Modifier.isPrivate(method.getModifiers())
+			&& !(Modifier.isDefault(method.getModifiers()) && this.pattern.focus != null
+			&& !CharOperation.equals(this.pattern.declaringPackageName, method.getDeclaringClass().getPackage().getName().toCharArray()));
+}
+
 	@Override
 	public LocatorResponse resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
+		if (node instanceof MethodInvocation invocation) {
+			return toResponse(resolveLevel(invocation));
+		}
 		int level = computeResolveLevel(node, binding, locator);
-		if (node instanceof MethodDeclaration method && level > IMPOSSIBLE_MATCH) {
-			// extra mandatory check for cases method declarations with type parameters
-			return toResponse(matchesDeclaration(node, binding.getJavaElement(), method.resolveBinding(), locator) ? level : IMPOSSIBLE_MATCH);
+		if (node instanceof MethodDeclaration declaration) {
+			return toResponse(level > IMPOSSIBLE_MATCH && matchesDeclaration(node, binding.getJavaElement(), declaration.resolveBinding(), locator) ? level : IMPOSSIBLE_MATCH);
 		}
 		return toResponse(level);
 	}
