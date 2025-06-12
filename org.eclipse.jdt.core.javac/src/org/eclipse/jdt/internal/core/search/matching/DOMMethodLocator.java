@@ -12,13 +12,18 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.AST;
@@ -55,6 +60,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 	private MethodPattern pattern;
 	private char[][][] allSuperDeclaringTypeNames;
 	private char[][][] samePkgSuperDeclaringTypeNames;
+	private Map<ASTNode, Boolean> methodDeclarationsWithInvalidParam = new HashMap<>();
 	public DOMMethodLocator(MethodLocator locator) {
 		super(locator.pattern);
 		this.locator = locator;
@@ -105,18 +111,13 @@ public class DOMMethodLocator extends DOMPatternLocator {
 			for (int i = 0; i < argsLength; i++) {
 				var arg = args.get(i);
 				if (!this.matchesTypeReference(this.locator.pattern.parameterSimpleNames[i], arg.getType(), arg.isVarargs())) {
-					// Do not return as impossible when source level is at least 1.5
-					if (this.locator.mayBeGeneric) {
-						if (!this.locator.pattern.mustResolve) {
-							// Set resolution flag on node set in case of types was inferred in parameterized types from generic ones...
-						 	// (see  bugs https://bugs.eclipse.org/bugs/show_bug.cgi?id=79990, 96761, 96763)
-							nodeSet.setMustResolve(true);
-							resolve = true;
-						}
-				//		this.methodDeclarationsWithInvalidParam.put(node, null);
-					} else {
-						return toResponse(IMPOSSIBLE_MATCH);
+					if (!this.locator.pattern.mustResolve) {
+						// Set resolution flag on node set in case of types was inferred in parameterized types from generic ones...
+					 	// (see  bugs https://bugs.eclipse.org/bugs/show_bug.cgi?id=79990, 96761, 96763)
+						nodeSet.setMustResolve(true);
+						resolve = true;
 					}
+					this.methodDeclarationsWithInvalidParam.put(node, null);
 				}
 			}
 		}
@@ -576,8 +577,8 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		}
 		return null;
 	}
-	@Override
-	public LocatorResponse resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
+
+	private int computeResolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
 		boolean isExactPattern = isPatternExactMatch();
 		boolean isErasurePattern = isPatternErasureMatch();
 		boolean isEquivPattern = isPatternEquivalentMatch();
@@ -590,7 +591,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 			}
 		}
 		if (binding instanceof IMethodBinding method) {
-			boolean skipVerif = this.locator.pattern.findDeclarations && this.locator.mayBeGeneric;
+			boolean skipVerif = this.locator.pattern.findDeclarations /*&& this.locator.mayBeGeneric*/;
 			int methodLevel = matchMethod(node, method, skipVerif, false);
 			if (methodLevel == IMPOSSIBLE_MATCH) {
 				IMethodBinding decl = method.getMethodDeclaration();
@@ -598,7 +599,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 					methodLevel = matchMethod(node, decl, skipVerif, true);
 				}
 				if (methodLevel == IMPOSSIBLE_MATCH) {
-					return toResponse(IMPOSSIBLE_MATCH);
+					return IMPOSSIBLE_MATCH;
 				} else {
 					method = decl;
 				}
@@ -609,13 +610,13 @@ public class DOMMethodLocator extends DOMPatternLocator {
 				boolean patternHasTypeArgs = this.locator.pattern.parameterSimpleNames != null && this.locator.pattern.parameterSimpleNames.length > 0
 						&& this.locator.pattern.parameterSimpleNames[0] != null;
 				if(patternHasTypeArgs) {
-					return toResponse(IMPOSSIBLE_MATCH);
+					return IMPOSSIBLE_MATCH;
 				}
 			}
 
 			// declaring type
 			if (this.locator.pattern.declaringSimpleName == null && this.locator.pattern.declaringQualification == null)
-				return toResponse(methodLevel); // since any declaring class will do
+				return methodLevel; // since any declaring class will do
 
 			boolean subType = ((method.getModifiers() & Modifier.STATIC) == 0) && ((method.getModifiers() & Modifier.PRIVATE) == 0);
 			if (subType && this.locator.pattern.declaringQualification != null && method.getDeclaringClass() != null && method.getDeclaringClass().getPackage() != null) {
@@ -635,18 +636,27 @@ public class DOMMethodLocator extends DOMPatternLocator {
 				}
 				if ((declaringLevel & FLAVORS_MASK) != 0) {
 					// level got some flavors => return it
-					return toResponse(declaringLevel);
+					return declaringLevel;
 				}
 				if( isExactPattern || (!isErasurePattern && !isEquivPattern)) {
-					return toResponse(IMPOSSIBLE_MATCH);
+					return IMPOSSIBLE_MATCH;
 				} else if( isEquivPattern && matchLevel == ERASURE_MATCH) {
-					return toResponse(IMPOSSIBLE_MATCH);
+					return IMPOSSIBLE_MATCH;
 				}
 			}
-
-			return toResponse(weakerLevel);
+			return weakerLevel;
 		}
-		 return toResponse(INACCURATE_MATCH);
+		return INACCURATE_MATCH;
+	}
+
+	@Override
+	public LocatorResponse resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
+		int level = computeResolveLevel(node, binding, locator);
+		if (node instanceof MethodDeclaration method && level > IMPOSSIBLE_MATCH) {
+			// extra mandatory check for cases method declarations with type parameters
+			return toResponse(matchesDeclaration(node, binding.getJavaElement(), method.resolveBinding(), locator) ? level : IMPOSSIBLE_MATCH);
+		}
+		return toResponse(level);
 	}
 	private int findWeakerLevel(int i, int j) {
 		int[] ints = {DOMPatternLocator.IMPOSSIBLE_MATCH,
@@ -768,5 +778,127 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		if (BasicSearchEngine.VERBOSE) {
 			trace("Time to initialize polymorphic search: "+(System.currentTimeMillis()-start)); //$NON-NLS-1$
 		}
+	}
+
+	public boolean matchesDeclaration(ASTNode reference, IJavaElement element, IMethodBinding methodBinding, MatchLocator locator) {
+		// If method parameters verification was not valid, then try to see if method arguments can match a method in hierarchy
+		if (this.methodDeclarationsWithInvalidParam.containsKey(reference)) {
+			// First see if this reference has already been resolved => report match if validated
+			Boolean report = this.methodDeclarationsWithInvalidParam.get(reference);
+			if (report != null) {
+				return report.booleanValue();
+			}
+			if (matchOverriddenMethod(methodBinding.getDeclaringClass(), methodBinding, null)) {
+				this.methodDeclarationsWithInvalidParam.put(reference, Boolean.TRUE);
+				return true;
+			}
+			if (isTypeInSuperDeclaringTypeNames(methodBinding.getDeclaringClass().getQualifiedName())) {
+				IMethodBinding patternBinding = getMethodBindingFromPattern(reference.getAST());
+				if (patternBinding != null) {
+					if (!matchOverriddenMethod(patternBinding.getDeclaringClass(), patternBinding, methodBinding)) {
+						this.methodDeclarationsWithInvalidParam.put(reference, Boolean.FALSE);
+						return false;
+					}
+				}
+				this.methodDeclarationsWithInvalidParam.put(reference, Boolean.TRUE);
+				return true;
+			}
+			this.methodDeclarationsWithInvalidParam.put(reference, Boolean.FALSE);
+			return false;
+		}
+		return true;
+	}
+
+	private boolean isTypeInSuperDeclaringTypeNames(String qualifiedName) {
+		if (this.allSuperDeclaringTypeNames == null) {
+			return false;
+		}
+		char[][] compound = Arrays.stream(qualifiedName.split("\\.")).map(String::toCharArray).toArray(char[][]::new);
+		return Arrays.stream(this.allSuperDeclaringTypeNames).anyMatch(name -> CharOperation.equals(name, compound));
+	}
+
+	// This works for only methods of parameterized types.
+	private boolean matchOverriddenMethod(ITypeBinding type, IMethodBinding method, IMethodBinding matchMethod) {
+		if (type == null || this.pattern.selector == null) return false;
+
+		List<ITypeBinding> parents = new ArrayList<>();
+		if (!type.isInterface() && !Objects.equals(type.getQualifiedName(), Object.class.getName())) {
+			parents.add(type.getSuperclass());
+		}
+		parents.addAll(Arrays.asList(type.getInterfaces()));
+		// matches superclass
+		for (ITypeBinding superType : parents) {
+			if (superType.isParameterizedType()) {
+				for (IMethodBinding candidate : superType.getDeclaredMethods()) {
+					if (Arrays.equals(candidate.getName().toCharArray(), this.pattern.selector) && areParametersEqual(candidate, method)) {
+						if (matchMethod == null) {
+							if (methodParametersEqualsPattern(candidate.getMethodDeclaration() /* .original() with ECJ */)) return true;
+						} else {
+							if (areParametersEqual(candidate.getMethodDeclaration() /* .original() with ECJ */, matchMethod)) return true;
+						}
+					}
+				}
+			}
+			if (matchOverriddenMethod(superType, method, matchMethod)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean areParametersEqual(IMethodBinding one, IMethodBinding another) {
+		var first = one.getParameterTypes();
+		var second = another.getParameterTypes();
+		if (Objects.equals(first, second)) {
+			return true;
+		}
+		if (first == null || second == null) {
+			return false;
+		}
+		if (first.length != second.length) {
+			return false;
+		}
+		for (int i = 0; i < first.length; i++) {
+			if (!first[i].isEqualTo(second[i])) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/*
+	 * Return whether method parameters are equals to pattern ones.
+	 */
+	private boolean methodParametersEqualsPattern(IMethodBinding method) {
+		ITypeBinding[] methodParameters = method.getParameterTypes();
+
+		int length = methodParameters.length;
+		if (length != this.pattern.parameterSimpleNames.length) return false;
+
+		for (int i = 0; i < length; i++) {
+			char[] paramQualifiedName = qualifiedPattern(this.pattern.parameterSimpleNames[i], this.pattern.parameterQualifications[i]);
+			if (!CharOperation.match(paramQualifiedName, methodParameters[i].getName() /* readableName() with ECJ*/.toCharArray(), this.isCaseSensitive)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private IMethodBinding getMethodBindingFromPattern(AST context) {
+		if (this.pattern.focus instanceof IMethod method) {
+			var type = method.getDeclaringType().getFullyQualifiedName('$');
+			var typeBinding = context.resolveWellKnownType(type);
+			if (typeBinding != null) {
+				var res = Arrays.stream(typeBinding.getDeclaredMethods())
+					.filter(child -> Objects.equals(method.getElementName(), child.getName()))
+					.filter(child -> method.getParameterTypes().length == child.getParameterTypes().length)
+					.filter(child -> Objects.equals(method, child.getJavaElement()))
+					.findFirst();
+				if (res.isPresent()) {
+					return res.get();
+				}
+			}
+		}
+		return null;
 	}
 }
