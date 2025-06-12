@@ -23,7 +23,7 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.Type;
-import org.eclipse.jdt.internal.codeassist.DOMCompletionUtil;
+import org.eclipse.jdt.internal.codeassist.DOMCompletionUtils;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.core.search.DOMASTNodeUtils;
@@ -80,7 +80,7 @@ public class DOMConstructorLocator extends DOMPatternLocator {
 				return toResponse(IMPOSSIBLE_MATCH);
 			}
 			if (this.locator.pattern.declaringSimpleName != null) {
-				if (!this.matchesName(this.locator.pattern.declaringSimpleName, DOMCompletionUtil.findParentTypeDeclaration(node).getName().getIdentifier().toCharArray())) {
+				if (!this.matchesName(this.locator.pattern.declaringSimpleName, DOMCompletionUtils.findParentTypeDeclaration(node).getName().getIdentifier().toCharArray())) {
 					return toResponse(IMPOSSIBLE_MATCH);
 				}
 			}

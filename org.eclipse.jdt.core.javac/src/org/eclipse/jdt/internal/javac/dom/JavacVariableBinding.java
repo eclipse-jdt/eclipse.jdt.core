@@ -39,7 +39,7 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
-import org.eclipse.jdt.internal.codeassist.DOMCompletionUtil;
+import org.eclipse.jdt.internal.codeassist.DOMCompletionUtils;
 import org.eclipse.jdt.internal.core.BinaryMember;
 import org.eclipse.jdt.internal.core.DOMToModelPopulator;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -237,7 +237,7 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 
 	private boolean isUnique() {
 		ASTNode variable = this.resolver.findDeclaringNode(this);
-		MethodDeclaration parentMethod = (MethodDeclaration)DOMCompletionUtil.findParent(variable, new int[] { ASTNode.METHOD_DECLARATION });
+		MethodDeclaration parentMethod = (MethodDeclaration)DOMCompletionUtils.findParent(variable, new int[] { ASTNode.METHOD_DECLARATION });
 		if (parentMethod == null) {
 			return true;
 		}

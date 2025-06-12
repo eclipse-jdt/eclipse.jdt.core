@@ -154,7 +154,7 @@ class RelevanceUtils {
 			}
 			for (ITypeBinding expectedType : expectedTypes.getExpectedTypes()) {
 				if(expectedTypes.allowsSubtypes()
-						&& DOMCompletionUtil.findInSupers(proposalType, expectedType.getKey(), workingCopyOwner, typeHierarchyCache)) {
+						&& DOMCompletionUtils.findInSupers(proposalType, expectedType.getKey(), workingCopyOwner, typeHierarchyCache)) {
 					if (expectedType.getKey().equals(proposalType.getKey())) {
 						return RelevanceConstants.R_EXACT_EXPECTED_TYPE;
 						// ??? I'm just guessing on the default packages name here, it might be the empty string
@@ -164,7 +164,7 @@ class RelevanceUtils {
 					relevance = RelevanceConstants.R_EXPECTED_TYPE;
 
 				}
-				if(expectedTypes.allowsSupertypes() && DOMCompletionUtil.findInSupers(expectedType, proposalType.getKey())) {
+				if(expectedTypes.allowsSupertypes() && DOMCompletionUtils.findInSupers(expectedType, proposalType.getKey())) {
 					if (expectedType.getKey().equals(proposalType.getKey())) {
 						return RelevanceConstants.R_EXACT_EXPECTED_TYPE;
 					}

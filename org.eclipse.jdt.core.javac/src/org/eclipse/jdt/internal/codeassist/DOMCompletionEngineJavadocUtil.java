@@ -159,14 +159,14 @@ class DOMCompletionEngineJavadocUtil {
 	}
 
 	private static List<char[]> tagsForNode(List<char[]> tagsForVersion, TagElement tagNode, ASTNode nodeSearchNode) {
-		boolean isField = DOMCompletionUtil.findParent(tagNode, new int[]{ ASTNode.FIELD_DECLARATION }) != null;
+		boolean isField = DOMCompletionUtils.findParent(tagNode, new int[]{ ASTNode.FIELD_DECLARATION }) != null;
 		if (isField) {
 			return tagsForVersion.stream() //
 					.filter(tag -> FIELD_TAGS_SET.contains(tag)) //
 					.toList();
 		}
 
-		ASTNode astNode = DOMCompletionUtil.findParent(tagNode, new int[] {
+		ASTNode astNode = DOMCompletionUtils.findParent(tagNode, new int[] {
 				ASTNode.METHOD_DECLARATION,
 				ASTNode.TYPE_DECLARATION,
 				ASTNode.ENUM_DECLARATION,
@@ -194,16 +194,16 @@ class DOMCompletionEngineJavadocUtil {
 					.toList();
 		}
 
-		boolean isPackage = DOMCompletionUtil.findParent(tagNode, new int[] {ASTNode.PACKAGE_DECLARATION}) != null;
+		boolean isPackage = DOMCompletionUtils.findParent(tagNode, new int[] {ASTNode.PACKAGE_DECLARATION}) != null;
 		if (isPackage) {
 			return tagsForVersion.stream() //
 					.filter(tag -> PACKAGE_TAGS_SET.contains(tag)) //
 					.toList();
 		}
 
-		boolean isUnparented = DOMCompletionUtil.findParent(tagNode, new int[] {ASTNode.JAVADOC}) instanceof Javadoc javadoc && javadoc.getParent() == null;
+		boolean isUnparented = DOMCompletionUtils.findParent(tagNode, new int[] {ASTNode.JAVADOC}) instanceof Javadoc javadoc && javadoc.getParent() == null;
 		if (isUnparented) {
-			boolean onlyClassTags = DOMCompletionUtil.findParentTypeDeclaration(nodeSearchNode) == null;
+			boolean onlyClassTags = DOMCompletionUtils.findParentTypeDeclaration(nodeSearchNode) == null;
 			return tagsForVersion.stream() //
 					.filter(tag -> !onlyClassTags || CLASS_TAGS_SET.contains(tag)) //
 					.toList();

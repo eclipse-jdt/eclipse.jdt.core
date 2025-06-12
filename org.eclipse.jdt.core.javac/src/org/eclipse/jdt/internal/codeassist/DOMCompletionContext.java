@@ -137,7 +137,7 @@ class DOMCompletionContext extends CompletionContext {
 			this.node = NodeFinder.perform(domUnit, adjustedOffset, length);
 		}
 		this.expectedTypes = new ExpectedTypes(assistOptions, this.node, offset);
-		this.inJavadoc = DOMCompletionUtil.findParent(this.node, new int[] { ASTNode.JAVADOC }) != null;
+		this.inJavadoc = DOMCompletionUtils.findParent(this.node, new int[] { ASTNode.JAVADOC }) != null;
 		this.token = tokenBefore(this.textContent).toCharArray();
 		this.bindingsAcquirer = bindings::all;
 		this.isJustAfterStringLiteral = this.node instanceof StringLiteral && this.node.getLength() > 1 && this.offset >= this.node.getStartPosition() + this.node.getLength() && textContent.charAt(this.offset - 1) == '"';
@@ -458,7 +458,7 @@ class DOMCompletionContext extends CompletionContext {
 	 */
 	public ITypeBinding getCurrentTypeBinding() {
 		if (currentTypeBinding == null) {
-			ASTNode parentType = DOMCompletionUtil.findParent(node, new int[] {
+			ASTNode parentType = DOMCompletionUtils.findParent(node, new int[] {
 					ASTNode.TYPE_DECLARATION, ASTNode.ENUM_DECLARATION, ASTNode.RECORD_DECLARATION,
 					ASTNode.ANNOTATION_TYPE_DECLARATION, ASTNode.ANONYMOUS_CLASS_DECLARATION
 			});

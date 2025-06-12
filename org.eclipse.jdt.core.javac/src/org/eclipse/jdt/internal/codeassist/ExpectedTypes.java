@@ -237,7 +237,7 @@ public class ExpectedTypes {
 			}
 			if (parent2 instanceof TagElement te) {
 				if (TagElement.TAG_THROWS.equals(te.getTagName())) {
-					Javadoc javadoc = (Javadoc)DOMCompletionUtil.findParent(te, new int[] { ASTNode.JAVADOC });
+					Javadoc javadoc = (Javadoc)DOMCompletionUtils.findParent(te, new int[] { ASTNode.JAVADOC });
 					if (javadoc.getParent() instanceof MethodDeclaration methodDecl) {
 						this.expectedTypes.addAll(((List<Type>)methodDecl.thrownExceptionTypes()).stream().map(Type::resolveBinding).toList());
 					}

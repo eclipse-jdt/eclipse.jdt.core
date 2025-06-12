@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,16 +29,23 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionMethodReference;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
+import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SuperMethodReference;
 import org.eclipse.jdt.core.dom.TypeMethodReference;
+import org.eclipse.jdt.core.dom.TypePattern;
 import org.eclipse.jdt.internal.SignatureUtils;
 
-public class DOMCompletionUtil {
+public class DOMCompletionUtils {
 
 	/**
 	 * Returns the first parent node that is one of the given types, or null if there is no matching parent node.
@@ -77,7 +86,7 @@ public class DOMCompletionUtil {
 	 * @return the first parent type declaration (class, enum, record, annotation, etc), or null if there is no parent type declaration
 	 */
 	public static AbstractTypeDeclaration findParentTypeDeclaration(ASTNode nodeToSearch) {
-		return (AbstractTypeDeclaration) DOMCompletionUtil.findParent(nodeToSearch, new int[] { ASTNode.TYPE_DECLARATION, ASTNode.ENUM_DECLARATION, ASTNode.RECORD_DECLARATION, ASTNode.ANNOTATION_TYPE_DECLARATION });
+		return (AbstractTypeDeclaration) DOMCompletionUtils.findParent(nodeToSearch, new int[] { ASTNode.TYPE_DECLARATION, ASTNode.ENUM_DECLARATION, ASTNode.RECORD_DECLARATION, ASTNode.ANNOTATION_TYPE_DECLARATION });
 	}
 
 	private static final List<String> JAVA_MODIFIERS = List.of(
@@ -211,6 +220,98 @@ public class DOMCompletionUtil {
 				|| node instanceof QualifiedName
 				|| node instanceof SuperMethodReference
 				|| node instanceof TypeMethodReference;
+	}
+
+	/**
+	 * Represents collections of bindings that might be accessible depending on whether a boolean expression is true or false.
+	 *
+	 * @param trueBindings the bindings that are accessible when the expression is true
+	 * @param falseBindings the bindings that are accessible when the expression is false
+	 */
+	public record TrueFalseBindings(List<IVariableBinding> trueBindings, List<IVariableBinding> falseBindings) {}
+
+	/**
+	 * Represents collections of type casts that might be safe depending on whether a boolean expression is true or false.
+	 *
+	 * @param trueBindings the bindings that are accessible when the expression is true
+	 * @param falseBindings the bindings that are accessible when the expression is false
+	 */
+	public record TrueFalseCasts(List<ITypeBinding> trueCasts, List<ITypeBinding> falseCasts) {}
+
+	/**
+	 * Returns a list of variable bindings defined by type patterns in the given boolean expression.
+	 *
+	 * The list is separated into variables declared when the expression is true and variables declared when the expression is false.
+	 *
+	 * @param e the expression to collect the bindings for
+	 * @return a list of variable bindings defined by type patterns in the given boolean expression
+	 */
+	public static TrueFalseBindings collectTrueFalseBindings(Expression e) {
+		if (e instanceof PrefixExpression prefixExpression && prefixExpression.getOperator() == PrefixExpression.Operator.NOT) {
+			TrueFalseBindings notBindings = collectTrueFalseBindings(prefixExpression.getOperand());
+			return new TrueFalseBindings(notBindings.falseBindings(), notBindings.trueBindings());
+		} else if (e instanceof InfixExpression infixExpression && (infixExpression.getOperator() == InfixExpression.Operator.CONDITIONAL_AND || infixExpression.getOperator() == InfixExpression.Operator.AND )) {
+			TrueFalseBindings left = collectTrueFalseBindings(infixExpression.getLeftOperand());
+			TrueFalseBindings right = collectTrueFalseBindings(infixExpression.getRightOperand());
+			List<IVariableBinding> combined = new ArrayList<>();
+			combined.addAll(left.trueBindings());
+			combined.addAll(right.trueBindings());
+			return new TrueFalseBindings(combined, Collections.emptyList());
+		} else if (e instanceof InfixExpression infixExpression && (infixExpression.getOperator() == InfixExpression.Operator.CONDITIONAL_OR || infixExpression.getOperator() == InfixExpression.Operator.OR)) {
+			TrueFalseBindings left = collectTrueFalseBindings(infixExpression.getLeftOperand());
+			TrueFalseBindings right = collectTrueFalseBindings(infixExpression.getRightOperand());
+			List<IVariableBinding> combined = new ArrayList<>();
+			combined.addAll(left.falseBindings());
+			combined.addAll(right.falseBindings());
+			return new TrueFalseBindings(Collections.emptyList(), combined);
+		} else {
+			List<IVariableBinding> typePatternBindings = new ArrayList<>();
+			DOMCompletionUtils.visitChildren(e, ASTNode.TYPE_PATTERN, (TypePattern patt) -> {
+				typePatternBindings.add(patt.getPatternVariable().resolveBinding());
+			});
+			return new TrueFalseBindings(typePatternBindings, Collections.emptyList());
+		}
+	}
+
+	/**
+	 * Returns a list of safe casts to the given variable based on the type checks in the given boolean expression.
+	 *
+	 * The list is separated into the casts that are safe when the expression is true and the casts that are safe when the expression is false.
+	 *
+	 * @param e the expression to check for type checks in
+	 * @param castedBinding the binding that will be casted
+	 * @return a list of safe casts to the given variable based on the type checks in the given boolean expression
+	 */
+	public static TrueFalseCasts collectTrueFalseCasts(Expression e, IVariableBinding castedBinding) {
+		if (e instanceof PrefixExpression prefixExpression && prefixExpression.getOperator() == PrefixExpression.Operator.NOT) {
+			TrueFalseCasts notBindings = collectTrueFalseCasts(prefixExpression.getOperand(), castedBinding);
+			return new TrueFalseCasts(notBindings.falseCasts(), notBindings.trueCasts());
+		} else if (e instanceof InfixExpression infixExpression && (infixExpression.getOperator() == InfixExpression.Operator.CONDITIONAL_AND || infixExpression.getOperator() == InfixExpression.Operator.AND )) {
+			TrueFalseCasts left = collectTrueFalseCasts(infixExpression.getLeftOperand(), castedBinding);
+			TrueFalseCasts right = collectTrueFalseCasts(infixExpression.getRightOperand(), castedBinding);
+			List<ITypeBinding> combined = new ArrayList<>();
+			combined.addAll(left.trueCasts());
+			combined.addAll(right.trueCasts());
+			return new TrueFalseCasts(combined, Collections.emptyList());
+		} else if (e instanceof InfixExpression infixExpression && (infixExpression.getOperator() == InfixExpression.Operator.CONDITIONAL_OR || infixExpression.getOperator() == InfixExpression.Operator.OR)) {
+			TrueFalseCasts left = collectTrueFalseCasts(infixExpression.getLeftOperand(), castedBinding);
+			TrueFalseCasts right = collectTrueFalseCasts(infixExpression.getRightOperand(), castedBinding);
+			List<ITypeBinding> combined = new ArrayList<>();
+			combined.addAll(left.falseCasts());
+			combined.addAll(right.falseCasts());
+			return new TrueFalseCasts(Collections.emptyList(), combined);
+		} else {
+			List<ITypeBinding> castedTypes = new ArrayList<>();
+			DOMCompletionUtils.visitChildren(e, ASTNode.INSTANCEOF_EXPRESSION, (InstanceofExpression expr) -> {
+				Expression leftOperand= expr.getLeftOperand();
+				if (leftOperand instanceof Name name && name.resolveBinding() != null && name.resolveBinding().getKey().equals(castedBinding.getKey())) {
+					castedTypes.add(expr.getRightOperand().resolveBinding());
+				} else if (leftOperand instanceof FieldAccess fieldAccess && fieldAccess.resolveFieldBinding() != null && fieldAccess.resolveFieldBinding().getKey().equals(castedBinding.getKey())) {
+					castedTypes.add(expr.getRightOperand().resolveBinding());
+				}
+			});
+			return new TrueFalseCasts(castedTypes, Collections.emptyList());
+		}
 	}
 
 }
