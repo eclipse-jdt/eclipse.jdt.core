@@ -215,6 +215,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	private ASTNode toComplete;
 	private String textContent;
 	private ExtendsOrImplementsInfo extendsOrImplementsInfo;
+	private DOMCompletionContext completionContext;
 
 	private Map<String, ITypeHierarchy> typeHierarchyCache = new HashMap<>();
 
@@ -741,7 +742,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			Bindings specificCompletionBindings = new Bindings();
 //			var completionContext = new DOMCompletionContext(this.offset, completeAfter.toCharArray(),
 //					computeEnclosingElement(), defaultCompletionBindings::stream, expectedTypes, this.toComplete);
-			var completionContext = new DOMCompletionContext(this.unit, this.modelUnit, this.textContent, this.offset, this.assistOptions, defaultCompletionBindings);
+			this.completionContext = new DOMCompletionContext(this.unit, this.modelUnit, this.textContent, this.offset, this.assistOptions, defaultCompletionBindings);
 			this.nestedEngine.completionToken = completionContext.getToken();
 			this.requestor.acceptContext(completionContext);
 
@@ -888,7 +889,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				if ((this.offset >= invocation.getName().getStartPosition() && this.offset <= invocation.getName().getStartPosition() + invocation.getName().getLength()) // on method name
 					|| (this.toComplete == invocation && expression != null && this.offset > expression.getStartPosition() + expression.getLength()) /* after dot */) {
 					ITypeBinding type = expression == null
-							? DOMCompletionUtil.findParentTypeDeclaration(context).resolveBinding()
+							? completionContext.getCurrentTypeBinding()
 							: expression.resolveTypeBinding();
 					processMembers(invocation, type, specificCompletionBindings, false);
 					specificCompletionBindings.all()
@@ -1312,8 +1313,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 							AbstractTypeDeclaration parentTypeDeclaration = DOMCompletionUtil.findParentTypeDeclaration(context);
 							MethodDeclaration methodDecl = (MethodDeclaration)DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.METHOD_DECLARATION });
 							if (parentTypeDeclaration != null && methodDecl != null && (methodDecl.getModifiers() & Flags.AccStatic) == 0) {
-								ITypeBinding currentTypeBinding = parentTypeDeclaration.resolveBinding();
-								if (currentTypeBinding.isSubTypeCompatible(qualifierTypeBinding)) {
+								if (completionContext.getCurrentTypeBinding().isSubTypeCompatible(qualifierTypeBinding)) {
 									if (!isFailedMatch(this.prefix.toCharArray(), Keywords.THIS)) {
 										CompletionProposal res = createKeywordProposal(Keywords.THIS, startPos, endPos);
 										res.setRelevance(res.getRelevance() + RelevanceConstants.R_NON_INHERITED);
@@ -1615,7 +1615,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				suggestDefaultCompletions = false;
 			}
 			if (context instanceof SuperMethodReference emr) {
-				ITypeBinding typeBinding = DOMCompletionUtil.findParentTypeDeclaration(emr).resolveBinding().getSuperclass();
+				ITypeBinding typeBinding = completionContext.getCurrentTypeBinding() == null ? null : completionContext.getCurrentTypeBinding().getSuperclass();
 				if (typeBinding != null && !this.requestor.isIgnored(CompletionProposal.METHOD_NAME_REFERENCE)) {
 					processMembers(emr, typeBinding, specificCompletionBindings, false);
 					specificCompletionBindings.methods() //
@@ -1755,11 +1755,10 @@ public class DOMCompletionEngine implements ICompletionEngine {
 									String classToComplete = this.qualifiedPrefix.substring(0, this.qualifiedPrefix.indexOf('#'));
 									if (classToComplete.isEmpty()) {
 										// use parent type
-										ITypeBinding typeBinding = DOMCompletionUtil.findParentTypeDeclaration(this.toComplete).resolveBinding();
 										Bindings javadocScope = new Bindings();
-										processMembers(this.toComplete, typeBinding, javadocScope, false);
+										processMembers(this.toComplete, completionContext.getCurrentTypeBinding(), javadocScope, false);
 										publishFromScope(javadocScope);
-										suggestAccessibleConstructorsForType(typeBinding);
+										suggestAccessibleConstructorsForType(completionContext.getCurrentTypeBinding());
 									} else {
 										String packageName;
 										String moduleName = null;
@@ -1976,8 +1975,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					if (potentialMethodCompletions == null) {
 						Name qualifier = methodRef.getQualifier();
 						if (qualifier == null) {
-							ITypeBinding parentTypeBinding = DOMCompletionUtil.findParentTypeDeclaration(this.toComplete).resolveBinding();
-							potentialMethodCompletions = Stream.of(parentTypeBinding.getDeclaredMethods()) //
+							potentialMethodCompletions = Stream.of(completionContext.getCurrentTypeBinding().getDeclaredMethods()) //
 									.filter(methodCandidate -> {
 										if (!expectedMethodName.equals(methodCandidate.getName())) {
 											return false;
@@ -2001,9 +1999,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 							if (packageName != null) {
 								classToComplete = classToComplete.substring(classToComplete.lastIndexOf('.') + 1);
 							} else {
-								CompilationUnit cu = (CompilationUnit)DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.COMPILATION_UNIT });
-								if (cu.getPackage() != null) {
-									packageName = cu.getPackage().getName().toString();
+								if (this.unit.getPackage() != null) {
+									packageName = this.unit.getPackage().getName().toString();
 								} else {
 									packageName = ""; //$NON-NLS-1$
 								}
@@ -2070,7 +2067,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				if (memberRef.getQualifier() != null) {
 					bindingToComplete = memberRef.getQualifier().resolveBinding();
 				} else {
-					bindingToComplete = DOMCompletionUtil.findParentTypeDeclaration(this.toComplete).resolveBinding();
+					bindingToComplete = completionContext.getCurrentTypeBinding();
 				}
 				if (bindingToComplete instanceof ITypeBinding typeBinding) {
 					Bindings javadocScope = new Bindings();
@@ -2173,9 +2170,6 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					publishFromScope(catchExceptionBindings);
 					if (!completeAfter.isBlank()) {
 						Set<String> alreadySuggestedFqn = ConcurrentHashMap.newKeySet();
-						String currentPackage = this.unit.getPackage() == null ? "" : this.unit.getPackage().getName().toString();
-						AbstractTypeDeclaration typeDecl = DOMCompletionUtil.findParentTypeDeclaration(context);
-						ITypeBinding currentTypeBinding = typeDecl == null ? null : typeDecl.resolveBinding();
 						findTypes(completeAfter, null)
 							.filter(typeMatch -> this.pattern.matchesName(this.prefix.toCharArray(),
 									typeMatch.getType().getElementName().toCharArray()))
@@ -2376,7 +2370,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 			if (suggestDefaultCompletions) {
 				statementLikeKeywords();
-				if (this.expectedTypes.getExpectedTypes().size() == 1 && toComplete instanceof SimpleName simple) {
+				if (this.expectedTypes.getExpectedTypes().size() == 1 && toComplete instanceof SimpleName) {
 					ITypeBinding expected = this.expectedTypes.getExpectedTypes().getFirst();
 					if (expected.isEnum()) {
 						Arrays.stream(expected.getDeclaredFields())
@@ -2391,9 +2385,6 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				publishFromScope(defaultCompletionBindings);
 				suggestSuperConstructors();
 				if (!completeAfter.isBlank()) {
-					String currentPackage = this.unit.getPackage() == null ? "" : this.unit.getPackage().getName().toString();
-					AbstractTypeDeclaration typeDecl = DOMCompletionUtil.findParentTypeDeclaration(context);
-					ITypeBinding currentTypeBinding = typeDecl == null ? null : typeDecl.resolveBinding();
 					final int typeMatchRule = this.toComplete.getParent() instanceof Annotation
 							? IJavaSearchConstants.ANNOTATION_TYPE
 							: IJavaSearchConstants.TYPE;
@@ -3049,8 +3040,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				new int[] { ASTNode.METHOD_DECLARATION, ASTNode.TYPE_DECLARATION, ASTNode.ANNOTATION_TYPE_DECLARATION, ASTNode.ENUM_DECLARATION, ASTNode.RECORD_DECLARATION });
 		if (this.pattern.matchesName(this.prefix.toCharArray(),
 				Keywords.SUPER) && methodOrTypeDeclaration instanceof MethodDeclaration methodDecl && methodDecl.isConstructor()) {
-			AbstractTypeDeclaration parentType = DOMCompletionUtil.findParentTypeDeclaration(toComplete);
-			ITypeBinding parentTypeBinding = parentType.resolveBinding();
+			ITypeBinding parentTypeBinding = completionContext.getCurrentTypeBinding();
 			ITypeBinding superclassBinding = parentTypeBinding.getSuperclass();
 			if (superclassBinding != null) {
 				for (IMethodBinding superclassMethod : superclassBinding.getDeclaredMethods()) {
@@ -3083,8 +3073,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	private void suggestAccessibleConstructorsForType(ITypeBinding typeBinding) {
 		CompilationUnit cu = (CompilationUnit)DOMCompletionUtil.findParent(toComplete, new int[] { ASTNode.COMPILATION_UNIT });
 		String currentPackageName = cu.getPackage() == null ? "" : cu.getPackage().getName().toString();
-		AbstractTypeDeclaration parentTypeDeclaration = DOMCompletionUtil.findParentTypeDeclaration(toComplete);
-		ITypeBinding parentTypeBinding = parentTypeDeclaration == null ? null : parentTypeDeclaration.resolveBinding();
+		ITypeBinding parentTypeBinding = completionContext.getCurrentTypeBinding();
 		Stream.of(typeBinding.getDeclaredMethods()) //
 			.filter(IMethodBinding::isConstructor) //
 			.filter(method -> {
@@ -3483,7 +3472,6 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	private void suggestTypesInPackage(String packageName) {
 		if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 			List<TypeNameMatch> foundTypes = findTypes(this.prefix, packageName).toList();
-			AbstractTypeDeclaration typeDecl = DOMCompletionUtil.findParentTypeDeclaration(this.toComplete);
 			for (TypeNameMatch foundType : foundTypes) {
 				if (this.pattern.matchesName(this.prefix.toCharArray(), foundType.getType().getElementName().toCharArray())) {
 					if (filterBasedOnExtendsOrImplementsInfo(foundType.getType(), this.extendsOrImplementsInfo)) {
@@ -3921,7 +3909,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						&& match.getAccessibility() == IAccessRule.K_DISCOURAGED) {
 					return false;
 				}
-				if (match.getPackageName().isEmpty() && !currentTypeBinding().getPackage().getName().isEmpty()) {
+				if (match.getPackageName().isEmpty() && !completionContext.getCurrentTypeBinding().getPackage().getName().isEmpty()) {
 					// can only access classes in the default package from the default package
 					return false;
 				}
@@ -3933,7 +3921,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				}
 				if (Flags.isProtected(match.getModifiers())) {
 					IType nestingType = match.getType().getDeclaringType();
-					return nestingType != null && DOMCompletionUtil.findInSupers(currentTypeBinding(), nestingType.getKey());
+					return nestingType != null && DOMCompletionUtil.findInSupers(completionContext.getCurrentTypeBinding(), nestingType.getKey());
 				}
 				return match.getPackageName().equals(modelUnit.getAncestor(IJavaElement.PACKAGE_FRAGMENT).getElementName());
 			}
@@ -4269,9 +4257,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				}
 				final ITypeBinding finalizedTopLevelClass = topLevelClass;
 				ITypeBinding methodTypeBinding = methodBinding.getDeclaringClass();
-				AbstractTypeDeclaration parentTypeDecl = DOMCompletionUtil.findParentTypeDeclaration(this.toComplete);
-				if (parentTypeDecl != null) {
-					ITypeBinding completionContextTypeBinding = parentTypeDecl.resolveBinding();
+				if (completionContext.getCurrentTypeBinding() != null) {
+					ITypeBinding completionContextTypeBinding = completionContext.getCurrentTypeBinding();
 					while (completionContextTypeBinding != null) {
 						if (completionContextTypeBinding.getErasure().getKey().equals(methodTypeBinding.getErasure().getKey())) {
 							inheritedValue = true;
@@ -4333,9 +4320,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				}
 				final ITypeBinding finalizedTopLevelClass = topLevelClass;
 				ITypeBinding variableTypeBinding = variableBinding.getDeclaringClass();
-				AbstractTypeDeclaration parentTypeDecl = DOMCompletionUtil.findParentTypeDeclaration(this.toComplete);
-				if (parentTypeDecl != null) {
-					ITypeBinding completionContextTypeBinding = parentTypeDecl.resolveBinding();
+				if (completionContext.getCurrentTypeBinding() != null) {
+					ITypeBinding completionContextTypeBinding = completionContext.getCurrentTypeBinding();
 					while (completionContextTypeBinding != null) {
 						if (completionContextTypeBinding.getErasure().getKey().equals(variableTypeBinding.getErasure().getKey())) {
 							inheritedValue = true;
@@ -4507,11 +4493,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		// set completion, considering nested types
 		cursor = type;
 		StringBuilder completion = new StringBuilder();
-		AbstractTypeDeclaration parentTypeDeclaration = DOMCompletionUtil.findParentTypeDeclaration(this.toComplete);
-		if (parentTypeDeclaration != null
-				&& parentTypeDeclaration.resolveBinding() != null
-				&& parentTypeDeclaration.resolveBinding().getJavaElement() != null
-				&& type.getFullyQualifiedName().equals(((IType)parentTypeDeclaration.resolveBinding().getJavaElement()).getFullyQualifiedName())) {
+		if (completionContext.getCurrentTypeBinding() != null
+				&& completionContext.getCurrentTypeBinding().getJavaElement() != null
+				&& type.getFullyQualifiedName().equals(((IType)completionContext.getCurrentTypeBinding().getJavaElement()).getFullyQualifiedName())) {
 			completion.insert(0, cursor.getElementName());
 		} else {
 			ASTNode currentName = this.toComplete instanceof QualifiedName qn && FAKE_IDENTIFIER.equals(qn.getName().toString()) ? qn.getName() : this.toComplete instanceof Name ? this.toComplete : null;
@@ -4530,11 +4514,12 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		}
 
 		Javadoc javadoc = (Javadoc) DOMCompletionUtil.findParent(this.toComplete, new int[] { ASTNode.JAVADOC });
+		AbstractTypeDeclaration parentTypeDeclaration = DOMCompletionUtil.findParentTypeDeclaration(this.toComplete);
 		if (parentTypeDeclaration != null || javadoc != null) {
 			String fullTypeName = type.getFullyQualifiedName();
 			boolean inImports = ((List<ImportDeclaration>)this.unit.imports()).stream().anyMatch(improt -> fullTypeName.equals(improt.getName().toString()));
 			boolean isInJavaLang = type.getFullyQualifiedName().startsWith("java.lang.") && !type.getFullyQualifiedName().substring("java.lang.".length()).contains(".");
-			IPackageBinding currentPackageBinding = parentTypeDeclaration == null ? null : parentTypeDeclaration.resolveBinding().getPackage();
+			IPackageBinding currentPackageBinding = completionContext.getCurrentTypeBinding() == null ? null : completionContext.getCurrentTypeBinding().getPackage();
 			if (packageFrag != null && (currentPackageBinding == null
 					|| (!packageFrag.getElementName().equals(currentPackageBinding.getName())
 							&& !packageFrag.getElementName().equals("java.lang"))) && !inImports && !isInJavaLang) { //$NON-NLS-1$
@@ -5908,16 +5893,16 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			return true;
 		}
 		if (Modifier.isPrivate(binding.getModifiers())) {
-			return binding.isEqualTo(DOMCompletionUtil.findParentTypeDeclaration(this.toComplete).resolveBinding());
+			return binding.isEqualTo(completionContext.getCurrentTypeBinding());
 		}
 		ITypeBinding declaringClass = getDeclaringClass(binding);
 		if (declaringClass == null) {
 			return false;
 		}
 		if (Modifier.isProtected(binding.getModifiers())) {
-			return DOMCompletionUtil.findInSupers(DOMCompletionUtil.findParentTypeDeclaration(this.toComplete).resolveBinding(), declaringClass);
+			return DOMCompletionUtil.findInSupers(completionContext.getCurrentTypeBinding(), declaringClass);
 		}
-		return declaringClass.getPackage().isEqualTo(DOMCompletionUtil.findParentTypeDeclaration(this.toComplete).resolveBinding().getPackage());
+		return declaringClass.getPackage().isEqualTo(completionContext.getCurrentTypeBinding().getPackage());
 	}
 
 	private boolean isVisible(IJavaElement element) {
@@ -5942,7 +5927,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				return true;
 			}
 			if (Modifier.isPrivate(flags)) {
-				return type.equals(this.toComplete);
+				return completionContext.getCurrentTypeBinding() != null && type.getKey().equals(completionContext.getCurrentTypeBinding().getKey());
 			}
 			if (Modifier.isProtected(flags)) {
 				// TODO
@@ -5959,7 +5944,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				return true;
 			}
 			if (Modifier.isPrivate(flags)) {
-				return type.equals(this.toComplete);
+				return completionContext.getCurrentTypeBinding() != null && type.getKey().equals(completionContext.getCurrentTypeBinding().getKey());
 			}
 			if (Modifier.isProtected(flags)) {
 				// TODO
@@ -5973,14 +5958,6 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			binding instanceof IMethodBinding methodBinding ? methodBinding.getDeclaringClass() :
 			binding instanceof IVariableBinding variableBinding && variableBinding.isField() ? variableBinding.getDeclaringClass() :
 			null;
-	}
-
-	private ITypeBinding _currentTypeBinding;
-	private ITypeBinding currentTypeBinding() {
-		if (_currentTypeBinding == null) {
-			_currentTypeBinding = DOMCompletionUtil.findParentTypeDeclaration(this.toComplete).resolveBinding();
-		}
-		return _currentTypeBinding;
 	}
 
 }

@@ -69,6 +69,7 @@ class DOMCompletionContext extends CompletionContext {
 	final ASTNode node;
 	private String textContent;
 	private boolean isJustAfterStringLiteral;
+	private transient Optional<ITypeBinding> currentTypeBinding = null;
 
 	DOMCompletionContext(CompilationUnit domUnit, ITypeRoot modelUnit, String textContent, int offset, AssistOptions assistOptions, Bindings bindings) {
 		this.domUnit = domUnit;
@@ -446,6 +447,30 @@ class DOMCompletionContext extends CompletionContext {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Returns the binding of the current parent type, or null if there is no parent type
+	 *
+	 * Lazy loaded.
+	 *
+	 * @return the binding of the current parent type, or null if there is no parent type
+	 */
+	public ITypeBinding getCurrentTypeBinding() {
+		if (currentTypeBinding == null) {
+			ASTNode parentType = DOMCompletionUtil.findParent(node, new int[] {
+					ASTNode.TYPE_DECLARATION, ASTNode.ENUM_DECLARATION, ASTNode.RECORD_DECLARATION,
+					ASTNode.ANNOTATION_TYPE_DECLARATION, ASTNode.ANONYMOUS_CLASS_DECLARATION
+			});
+			if (parentType instanceof AbstractTypeDeclaration abstractTypeDecl) {
+				currentTypeBinding = Optional.of(abstractTypeDecl.resolveBinding());
+			} else if (parentType instanceof AnonymousClassDeclaration anonTypeDecl) {
+				currentTypeBinding = Optional.of(anonTypeDecl.resolveBinding());
+			} else {
+				currentTypeBinding = Optional.empty();
+			}
+		}
+		return currentTypeBinding.orElse(null);
 	}
 
 
