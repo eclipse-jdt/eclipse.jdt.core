@@ -80,12 +80,26 @@ public class SplitPackageBinding extends PackageBinding {
 							split.add(packageBinding);
 					}
 				}
-				if (split.incarnations.size() == 1) // we don't want singleton SplitPackageBinding
-					return split.incarnations.iterator().next(); // simply peel the only incarnation
-				return split;
+				return split.reduce();
 			}
 		}
 		return null;
+	}
+	private PackageBinding reduce() {
+		switch (this.incarnations.size()) {
+			case 1:  // we don't want singleton SplitPackageBinding
+				return this.incarnations.iterator().next(); // simply peel the only incarnation
+			case 2: // also a pair of packages from Source and Binary variants of the same module is not a split package
+				Iterator<PlainPackageBinding> iterator = this.incarnations.iterator();
+				PlainPackageBinding pack1 = iterator.next();
+				PlainPackageBinding pack2 = iterator.next();
+				ModuleBinding mod1 = pack1.enclosingModule;
+				ModuleBinding mod2 = pack2.enclosingModule;
+				if (mod1.getClass() != mod2.getClass() && CharOperation.equals(mod1.name(), mod2.name())) {
+					return pack1;
+				}
+		}
+		return this;
 	}
 	private static int RANK_VALID = 3;
 	private static int rank(PackageBinding candidate) {
