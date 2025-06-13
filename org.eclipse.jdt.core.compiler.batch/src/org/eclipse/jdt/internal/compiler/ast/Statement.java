@@ -325,6 +325,20 @@ public boolean breaksOut(final char[] label) {
 		public boolean visit(SwitchStatement switchStatement, BlockScope skope) { return label != null; }
 
 		@Override
+		public boolean visit(Block block, BlockScope scope) {
+			if ((block.bits & BlockShouldEndDead) != 0) { // switch rule blocks don't fall through and have an implicit break unless they dead-end already.
+				Statement ultimateStatement = block.statements == null ? null : block.statements[block.statements.length - 1];
+				if (ultimateStatement == null || // empty switch rule block - ought to end with an implicit break;
+					    ultimateStatement.breaksOut(label) || // ends with explicit break;
+							!ultimateStatement.doesNotCompleteNormally()) { // ought to end with an implicit break;
+					this.breaksOut = true;
+					return false;
+				}
+			}
+			return super.visit(block, scope);
+		}
+
+		@Override
 		public boolean visit(BreakStatement breakStatement, BlockScope skope) {
 			if (label == null || CharOperation.equals(label,  breakStatement.label))
 				this.breaksOut = true;
@@ -332,6 +346,8 @@ public boolean breaksOut(final char[] label) {
 	    }
 		@Override
 		public boolean visit(YieldStatement yieldStatement, BlockScope skope) {
+			if (yieldStatement.isImplicit && yieldStatement.switchExpression == null) // implicit yield in a switch rule with a statement expression implies an implicit break;
+				this.breaksOut = true;
 	    	return false;
 	    }
 		public boolean breaksOut() {

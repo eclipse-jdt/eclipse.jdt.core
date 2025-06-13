@@ -8663,6 +8663,246 @@ public void testIssue3798() {
          "A2\nB2");
 }
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
+// Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+public void testIssue3869() {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return;
+	this.runConformTest(
+      new String[] {
+            "X.java",
+            """
+			import java.util.concurrent.Callable;
+
+			public class X {
+
+				static void foo(Runnable r) {
+					System.out.println("Runnable");
+				}
+
+				static <T> void foo(Callable<T> task) {
+					System.out.println("Callable");
+				}
+
+				public static void main(String [] args) {
+					foo(() -> {
+						switch (args.length) {
+							case 10 ->
+							System.out.println("value1");
+						}
+					});
+				}
+			}
+            """
+            },
+      "Runnable");
+}
+
+//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
+//Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+public void testIssue3869_2() {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return;
+	this.runConformTest(
+		new String[] {
+		    "X.java",
+         	"""
+			import java.util.concurrent.Callable;
+
+			public class X {
+
+				static void foo(Runnable r) {
+					System.out.println("Runnable");
+				}
+
+				static <T> void foo(Callable<T> task) {
+					System.out.println("Callable");
+				}
+
+				public static void main(String [] args) {
+					foo(() ->
+						switch (args.length) {
+							case 10 -> 42;
+							default -> -1;
+						}
+					);
+				}
+			}
+		    """
+         },
+   "Callable");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
+// Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+public void testIssue3869_3() {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return;
+	this.runConformTest(
+   new String[] {
+         "X.java",
+         """
+			import java.util.concurrent.Callable;
+
+			public class X {
+
+				static void foo(Runnable r) {
+					System.out.println("Runnable");
+				}
+
+				static <T> void foo(Callable<T> task) {
+					System.out.println("Callable");
+				}
+
+				public static void main(String [] args) {
+					foo(() -> {
+						switch (args.length) {
+							case 10 -> { System.out.println("value1"); }
+						}
+					});
+				}
+			}
+         """
+         },
+   "Runnable");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
+// Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+public void testIssue3869_3_1() {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return;
+	this.runConformTest(
+		new String[] {
+		        "X.java",
+		        """
+				import java.util.concurrent.Callable;
+
+				public class X {
+
+					static void foo(Runnable r) {
+						System.out.println("Runnable");
+					}
+
+					static <T> void foo(Callable<T> task) {
+						System.out.println("Callable");
+					}
+
+					public static void main(String [] args) {
+						foo(() -> {
+							switch (args.length) {
+								case 10 -> { System.out.println("value1"); }
+								default -> throw new NullPointerException();
+							}
+						});
+					}
+				}
+		        """
+		      },
+		"Runnable");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
+// Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+public void testIssue3869_4() {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return;
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"""
+			import java.util.concurrent.Callable;
+
+			public class X {
+
+				static void foo(Runnable r) {
+					System.out.println("Runnable");
+				}
+
+				static <T> void foo(Callable<T> task) {
+					System.out.println("Callable");
+				}
+
+				public static void main(String [] args) {
+					foo(() -> {
+						if (args == null)
+							throw new NullPointerException();
+						else
+							throw new NullPointerException();
+					}
+					);
+				}
+			}
+		    """
+      },
+	  "Callable");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
+// Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+public void testIssue3869_5() {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return;
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"""
+			import java.util.concurrent.Callable;
+
+			public class X {
+
+				static void foo(Runnable r) {
+					System.out.println("Runnable");
+				}
+
+				static <T> void foo(Callable<T> task) {
+					System.out.println("Callable");
+				}
+
+				public static void main(String [] args) {
+					foo(() -> {
+						if (args == null)
+							throw new NullPointerException();					}
+					);
+				}
+			}
+		    """
+	  },
+	  "Runnable");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3869
+// Cannot compile in Eclipse but compiles in javac via Maven and Intellij
+public void testIssue3869_6() {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return;
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"""
+			import java.util.concurrent.Callable;
+
+			public class X {
+
+				static void foo(Runnable r) {
+					System.out.println("Runnable");
+				}
+
+				static <T> void foo(Callable<T> task) {
+					System.out.println("Callable");
+				}
+
+				public static void main(String [] args) {
+					foo(() -> {
+						switch(args.length) {
+							default -> throw new NullPointerException();
+						}
+					}
+					);
+				}
+			}
+		    """
+	  },
+	  "Callable");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
