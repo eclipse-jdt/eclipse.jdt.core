@@ -547,7 +547,10 @@ public class SourceMapper
 			try {
 				JrtPackageNamesAdderVisitor jrtPackageNamesAdderVisitor = new JrtPackageNamesAdderVisitor(firstLevelPackageNames,
 						sourceLevel, complianceLevel, containsADefaultPackage, containsJavaSource, root);
-				org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(root.getPath().toFile(), jrtPackageNamesAdderVisitor, JRTUtil.NOTIFY_FILES);
+				String release = ((JavaProject) root.getJavaProject()).getReleaseOption();
+				org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(root.getPath().toFile(),
+						release,
+						jrtPackageNamesAdderVisitor, JRTUtil.NOTIFY_FILES);
 				sourceLevel = jrtPackageNamesAdderVisitor.sourceLevel;
 				complianceLevel = jrtPackageNamesAdderVisitor.complianceLevel;
 				containsADefaultPackage = jrtPackageNamesAdderVisitor.containsADefaultPackage;
