@@ -76,12 +76,14 @@ import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
+import org.eclipse.jdt.core.dom.BreakStatement;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.ChildPropertyDescriptor;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ContinueStatement;
 import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
@@ -102,6 +104,7 @@ import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.Javadoc;
+import org.eclipse.jdt.core.dom.LabeledStatement;
 import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MemberRef;
@@ -691,7 +694,12 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						|| simpleName.getParent() instanceof SuperFieldAccess || simpleName.getParent() instanceof SingleMemberAnnotation
 						|| simpleName.getParent() instanceof ExpressionMethodReference || simpleName.getParent() instanceof TypeMethodReference
 						|| simpleName.getParent() instanceof SuperMethodReference
-						|| simpleName.getParent() instanceof TagElement) {
+						|| simpleName.getParent() instanceof TagElement
+						|| simpleName.getParent() instanceof BreakStatement
+						|| simpleName.getParent() instanceof ContinueStatement
+						|| simpleName.getParent() instanceof MarkerAnnotation
+						|| simpleName.getParent() instanceof AnnotationTypeMemberDeclaration
+						|| ((simpleName.getLocationInParent() == SwitchCase.EXPRESSIONS2_PROPERTY || simpleName.getLocationInParent() == SwitchCase.EXPRESSION_PROPERTY) && simpleName.getParent() instanceof SwitchCase)) {
 					if (!this.toComplete.getLocationInParent().getId().equals(QualifiedName.QUALIFIER_PROPERTY.getId())) {
 						context = this.toComplete.getParent();
 					}
@@ -770,7 +778,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			checkCancelled();
 
 			switch (context) {
-			case StringLiteral _, TextBlock _, Comment _, NumberLiteral _:
+			case StringLiteral _, TextBlock _, Comment _, NumberLiteral _, AnnotationTypeMemberDeclaration _:
 				return;
 			case FieldAccess fieldAccess:
 				completeFieldAccess(fieldAccess);
@@ -867,8 +875,17 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			case QualifiedType qualifiedType:
 				completeQualifiedType(qualifiedType);
 				break;
+			case BreakStatement breakStatement:
+				completeBreakStatement(breakStatement);
+				break;
+			case ContinueStatement continueStatement:
+				completeContinueStatement(continueStatement);
+				break;
+			case SwitchCase _:
+				completeSwitchCase();
+				break;
 			default:
-				// TODO:
+				// Fall back to default completion strategy (accessible bindings + type search)
 			}
 			if (context != null && context.getLocationInParent() == QualifiedType.NAME_PROPERTY && context.getParent() instanceof QualifiedType qType) {
 				Type qualifier = qType.getQualifier();
@@ -993,6 +1010,77 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				this.monitor.done();
 			}
 		}
+	}
+
+	private void completeSwitchCase() {
+		// find the enum if there is one
+		ITypeBinding firstEnumType = null;
+		for (ITypeBinding expectedType : completionContext.expectedTypes.getExpectedTypes()) {
+			if (expectedType.isEnum()) {
+				firstEnumType = expectedType;
+				break;
+			}
+		}
+		if (firstEnumType != null) {
+			Stream.of(firstEnumType.getDeclaredFields())
+				.filter(IVariableBinding::isEnumConstant)
+				.filter(constant -> this.pattern.matchesName(this.prefix.toCharArray(), constant.getName().toCharArray()))
+				.map(this::toProposal)
+				.forEach(this.requestor::accept);
+		} else {
+			// if there is no expected enum type, use the default completion.
+			// perhaps there is a suitable int or String constant
+			Bindings caseBindings = new Bindings();
+			caseBindings.scrapeAccessibleBindings();
+			caseBindings.all()
+				.filter(IVariableBinding.class::isInstance)
+				.map(IVariableBinding.class::cast)
+				.filter(varBinding -> {
+					return ((varBinding.getModifiers() & Flags.AccFinal) != 0);
+				})
+				.filter(varBinding -> this.pattern.matchesName(this.prefix.toCharArray(), varBinding.getName().toCharArray()))
+				.filter(varBinding -> {
+					for (ITypeBinding expectedType : completionContext.expectedTypes.getExpectedTypes()) {
+						if (varBinding.getType().getKey().equals(expectedType.getKey())) {
+							return true;
+						}
+					}
+					return false;
+				})
+				.map(this::toProposal)
+				.forEach(proposal -> {
+					// Seems like the `R_FINAL` constant is only added when completing switch statements:
+					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=195346
+					proposal.setRelevance(proposal.getRelevance() + RelevanceConstants.R_FINAL);
+					this.requestor.accept(proposal);
+				});
+		}
+		suggestDefaultCompletions = false;
+	}
+
+	private void completeContinueStatement(ContinueStatement continueStatement) {
+		completeLabelProposals(continueStatement);
+		suggestDefaultCompletions = false;
+	}
+
+	private void completeLabelProposals(ASTNode startNode) {
+		ASTNode cursor = startNode;
+		Set<String> labels = new HashSet<>();
+		while (cursor != null) {
+			if (cursor instanceof LabeledStatement labeledStatement) {
+				labels.add(labeledStatement.getLabel().toString());
+			}
+			cursor = cursor.getParent();
+		}
+		labels.stream() //
+			.filter(label -> !this.isFailedMatch(completionContext.getToken(), label.toCharArray())) //
+			.map(this::toLabelProposal) //
+			.forEach(this.requestor::accept);
+	}
+
+	private void completeBreakStatement(BreakStatement breakStatement) {
+		completeLabelProposals(breakStatement);
+		suggestDefaultCompletions = false;
 	}
 
 	private void completeQualifiedType(QualifiedType qualifiedType) {
@@ -2237,10 +2325,6 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				}
 			}
 		}
-		if (simpleName.getParent() instanceof MarkerAnnotation) {
-			completeMarkerAnnotation();
-			suggestDefaultCompletions = false;
-		}
 		if (simpleName.getLocationInParent() == MemberValuePair.NAME_PROPERTY && simpleName.getParent() instanceof MemberValuePair memberValuePair) {
 			Set<String> names = new HashSet<>();
 			if (memberValuePair.getParent() instanceof NormalAnnotation normalAnnotation) {
@@ -2262,51 +2346,6 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			// however if an enum is expected, we can build out the completion for that
 			suggestDefaultCompletions = false;
 		}
-		if ((simpleName.getLocationInParent() == SwitchCase.EXPRESSIONS2_PROPERTY || simpleName.getLocationInParent() == SwitchCase.EXPRESSION_PROPERTY) && simpleName.getParent() instanceof SwitchCase switchCase) {
-			// find the enum if there is one
-			ITypeBinding firstEnumType = null;
-			for (ITypeBinding expectedType : completionContext.expectedTypes.getExpectedTypes()) {
-				if (expectedType.isEnum()) {
-					firstEnumType = expectedType;
-					break;
-				}
-			}
-			if (firstEnumType != null) {
-				Stream.of(firstEnumType.getDeclaredFields())
-					.filter(IVariableBinding::isEnumConstant)
-					.filter(constant -> this.pattern.matchesName(this.prefix.toCharArray(), constant.getName().toCharArray()))
-					.map(this::toProposal)
-					.forEach(this.requestor::accept);
-			} else {
-				// if there is no expected enum type, use the default completion.
-				// perhaps there is a suitable int or String constant
-				Bindings caseBindings = new Bindings();
-				caseBindings.scrapeAccessibleBindings();
-				caseBindings.all()
-					.filter(IVariableBinding.class::isInstance)
-					.map(IVariableBinding.class::cast)
-					.filter(varBinding -> {
-						return ((varBinding.getModifiers() & Flags.AccFinal) != 0);
-					})
-					.filter(varBinding -> this.pattern.matchesName(this.prefix.toCharArray(), varBinding.getName().toCharArray()))
-					.filter(varBinding -> {
-						for (ITypeBinding expectedType : completionContext.expectedTypes.getExpectedTypes()) {
-							if (varBinding.getType().getKey().equals(expectedType.getKey())) {
-								return true;
-							}
-						}
-						return false;
-					})
-					.map(this::toProposal)
-					.forEach(proposal -> {
-						// Seems like the `R_FINAL` constant is only added when completing switch statements:
-						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=195346
-						proposal.setRelevance(proposal.getRelevance() + RelevanceConstants.R_FINAL);
-						this.requestor.accept(proposal);
-					});
-			}
-			suggestDefaultCompletions = false;
-		}
 		if (simpleName.getParent() instanceof MethodDeclaration) {
 			suggestDefaultCompletions = false;
 		}
@@ -2325,9 +2364,6 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						}
 					})
 					.map(this::toProposal).forEach(this.requestor::accept);
-			suggestDefaultCompletions = false;
-		}
-		if (simpleName.getParent() instanceof AnnotationTypeMemberDeclaration) {
 			suggestDefaultCompletions = false;
 		}
 		if (simpleName.getLocationInParent() == QualifiedName.QUALIFIER_PROPERTY && simpleName.getParent() instanceof QualifiedName) {
@@ -4414,6 +4450,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			}
 			if (variableBinding.isEnumConstant()
 					&& !DOMCompletionUtils.isInQualifiedName(toComplete)
+					&& !(toComplete instanceof SwitchCase)
 					&& toComplete.getLocationInParent() != SwitchCase.EXPRESSION_PROPERTY
 					&& toComplete.getLocationInParent() != SwitchCase.EXPRESSIONS2_PROPERTY) {
 				res.setCompletion((variableBinding.getDeclaringClass().getName() + '.' + variableBinding.getName()).toCharArray());
@@ -6014,6 +6051,20 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			binding instanceof IMethodBinding methodBinding ? methodBinding.getDeclaringClass() :
 			binding instanceof IVariableBinding variableBinding && variableBinding.isField() ? variableBinding.getDeclaringClass() :
 			null;
+	}
+
+	private CompletionProposal toLabelProposal(String label) {
+		DOMInternalCompletionProposal res = createProposal(CompletionProposal.LABEL_REF);
+		res.setCompletion(label.toCharArray());
+		res.setName(label.toCharArray());
+		setRange(res);
+		int relevance = RelevanceConstants.R_DEFAULT;
+		relevance += RelevanceConstants.R_RESOLVED;
+		relevance += RelevanceConstants.R_INTERESTING;
+		relevance += RelevanceConstants.R_NON_RESTRICTED;
+		relevance += RelevanceUtils.computeRelevanceForCaseMatching(completionContext.getToken(), label.toCharArray(), assistOptions);
+		res.setRelevance(relevance);
+		return res;
 	}
 
 }
