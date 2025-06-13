@@ -4306,7 +4306,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					if (info.jrtRoots != null)
 						info.jrtRoots.clear();
 					removeInfoAndChildren(javaProject);
-					project.clearCachedDynamicReferences();
 					resetJarTypeCache();
 				}
 			}
