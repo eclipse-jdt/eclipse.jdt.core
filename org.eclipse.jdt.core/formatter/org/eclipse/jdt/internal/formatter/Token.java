@@ -343,12 +343,12 @@ public class Token {
 	 * Uncomment this field, commented code in toString() below and in DefaultCodeFormatter.init(String source)
 	 * during debugging sessions to easily recognize tokens.
 	 */
-//	public static String source;
+	public static String source;
 
 	@Override
 	public String toString() {
-//		if (source != null)  // see comment above
-//			return toString(source);
+		if (source != null && originalEnd <= source.length())  // see comment above
+			return toString(source);
 		return "[" + this.originalStart + "-" + this.originalEnd + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 }
