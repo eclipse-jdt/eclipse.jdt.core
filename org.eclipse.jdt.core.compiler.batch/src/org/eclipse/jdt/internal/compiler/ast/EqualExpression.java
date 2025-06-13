@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.NullTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -80,6 +81,10 @@ public class EqualExpression extends BinaryExpression {
 				if (field != null && (field.type.tagBits & TagBits.IsBaseType) == 0) {
 					flowContext.recordNullCheckedFieldReference((Reference) this.left, 1);
 				}
+			} else if (this.left instanceof ConditionalExpression ce) {
+				if ((ce.resolvedType.tagBits & TagBits.IsBaseType) == 0 || ce.resolvedType instanceof NullTypeBinding) {
+					checkConditionalExpressionComparison(scope, flowContext, flowInfo, rightStatus, this.left);
+				}
 			}
 		}
 		if (!rightNonNullChecked) {
@@ -95,6 +100,10 @@ public class EqualExpression extends BinaryExpression {
 				FieldBinding field = reference.lastFieldBinding();
 				if (field != null && (field.type.tagBits & TagBits.IsBaseType) == 0) {
 					flowContext.recordNullCheckedFieldReference((Reference) this.right, 1);
+				}
+			} else if (this.right instanceof ConditionalExpression ce) {
+				if ((ce.resolvedType.tagBits & TagBits.IsBaseType) == 0 || ce.resolvedType instanceof NullTypeBinding) {
+					checkConditionalExpressionComparison(scope, flowContext, flowInfo, leftStatus, this.right);
 				}
 			}
 		}
@@ -174,6 +183,32 @@ public class EqualExpression extends BinaryExpression {
 		}
 		// we do not impact enclosing try context because this kind of protection
 		// does not preclude the variable from being null in an enclosing scope
+	}
+	private void checkConditionalExpressionComparison(BlockScope scope,
+			FlowContext flowContext, FlowInfo flowInfo,
+			int nullStatus, Expression reference) {
+
+
+		switch (nullStatus) {
+			case FlowInfo.NULL :
+				if (((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
+					flowContext.flagConditional(scope, reference,
+							FlowContext.CAN_ONLY_NULL | FlowContext.IN_COMPARISON_NULL, flowInfo);
+				} else {
+					flowContext.flagConditional(scope, reference,
+							FlowContext.CAN_ONLY_NULL | FlowContext.IN_COMPARISON_NON_NULL, flowInfo);
+				}
+				break;
+			case FlowInfo.NON_NULL :
+				if (((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
+					flowContext.flagConditional(scope, reference,
+							FlowContext.CAN_ONLY_NULL_NON_NULL | FlowContext.IN_COMPARISON_NON_NULL, flowInfo);
+				} else {
+					flowContext.flagConditional(scope, reference,
+							FlowContext.CAN_ONLY_NULL_NON_NULL | FlowContext.IN_COMPARISON_NULL, flowInfo);
+				}
+				break;
+		}
 	}
 	private void analyzeLocalVariable(Expression exp, FlowInfo flowInfo) {
 		if (exp instanceof SingleNameReference && (exp.bits & Binding.LOCAL) != 0 ) {

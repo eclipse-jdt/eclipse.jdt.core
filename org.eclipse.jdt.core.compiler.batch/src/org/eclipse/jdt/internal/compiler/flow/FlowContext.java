@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1020,6 +1020,41 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 	if (this.parent != null) {
 		this.parent.recordUsingNullReference(scope, local, location, checkType,
 				flowInfo);
+	}
+}
+
+public void flagConditional(Scope scope, Expression conditionalExpression,
+		 int checkType, FlowInfo flowInfo) {
+
+	// if inside an assert, we will not raise redundant null check warnings
+	checkType |= (this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING);
+	int checkTypeWithoutHideNullWarning = checkType & ~FlowContext.HIDE_NULL_COMPARISON_WARNING_MASK;
+	switch (checkTypeWithoutHideNullWarning) {
+		case FlowContext.CAN_ONLY_NULL_NON_NULL | FlowContext.IN_COMPARISON_NULL:
+			if ((checkType & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
+				scope.problemReporter().expressionRedundantNullComparison(conditionalExpression, /* isExpressionNull */false );
+			}
+			flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
+			break;
+		case FlowContext.CAN_ONLY_NULL_NON_NULL | FlowContext.IN_COMPARISON_NON_NULL:
+			if ((checkType & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
+				scope.problemReporter().expressionRedundantNullComparison(conditionalExpression, /* isExpressionNull */false);
+			}
+			flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
+			break;
+
+		case FlowContext.CAN_ONLY_NULL | FlowContext.IN_COMPARISON_NULL:
+			if ((checkType & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
+				scope.problemReporter().expressionRedundantNullComparison(conditionalExpression, /* isExpressionNull */true);
+			}
+			flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
+			break;
+		case FlowContext.CAN_ONLY_NULL | FlowContext.IN_COMPARISON_NON_NULL:
+			if ((checkType & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
+				scope.problemReporter().expressionRedundantNullComparison(conditionalExpression, /* isExpressionNull */true);
+			}
+			flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
+			break;
 	}
 }
 
