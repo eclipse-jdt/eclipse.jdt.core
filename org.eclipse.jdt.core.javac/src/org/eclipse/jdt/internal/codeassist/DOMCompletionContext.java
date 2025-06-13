@@ -60,6 +60,7 @@ class DOMCompletionContext extends CompletionContext {
 	private final ITypeRoot modelUnit;
 	private final int offset;
 	private final char[] token;
+	private final String tokenStr;
 
 	private IJavaElement enclosingElement;
 	private boolean enclosingElementComputed;
@@ -138,7 +139,8 @@ class DOMCompletionContext extends CompletionContext {
 		}
 		this.expectedTypes = new ExpectedTypes(assistOptions, this.node, offset);
 		this.inJavadoc = DOMCompletionUtils.findParent(this.node, new int[] { ASTNode.JAVADOC }) != null;
-		this.token = tokenBefore(this.textContent).toCharArray();
+		this.tokenStr = tokenBefore(this.textContent);
+		this.token = this.tokenStr.toCharArray();
 		this.bindingsAcquirer = bindings::all;
 		this.isJustAfterStringLiteral = this.node instanceof StringLiteral && this.node.getLength() > 1 && this.offset >= this.node.getStartPosition() + this.node.getLength() && textContent.charAt(this.offset - 1) == '"';
 	}
@@ -215,6 +217,10 @@ class DOMCompletionContext extends CompletionContext {
 	@Override
 	public char[] getToken() {
 		return this.isJustAfterStringLiteral ? null : this.token;
+	}
+
+	public String getTokenString() {
+		return this.isJustAfterStringLiteral ? null : this.tokenStr;
 	}
 
 	@Override
