@@ -10525,4 +10525,45 @@ public void testIssue4025() {
 
 		"Ok!");
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4094
+// Error on Eclipse 4.36 when compiling Record with field usage
+public void testIssue4094() {
+	this.runConformTest(
+		new String[] {
+					"X.java",
+					"""
+					public class X {
+					    public static void main(String [] args) {
+					        System.out.println(ClassB.B);
+					    }
+					}
+					""",
+					"ClassB.java",
+					"""
+					import java.util.List;
+					import java.util.function.Predicate;
+
+
+					public class ClassB {
+
+					  private final Predicate<RecordA> predicate;
+
+					  public static final ClassB B = new ClassB(recordA -> recordA.test.isEmpty());
+
+					  public ClassB(Predicate<RecordA> predicate) {
+					    this.predicate = predicate;
+					  }
+
+					  public String toString() {
+					  	  return "ClassB instance";
+					  }
+
+					  record RecordA(List<Object> test, Integer i) {
+					  }
+					}
+					"""
+	            },
+
+		"ClassB instance");
+}
 }
