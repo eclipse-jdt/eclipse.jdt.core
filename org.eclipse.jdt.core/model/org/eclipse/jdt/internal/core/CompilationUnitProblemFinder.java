@@ -38,6 +38,7 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.env.IReleaseAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
@@ -267,6 +268,11 @@ public class CompilationUnitProblemFinder extends Compiler {
 			CompilerOptions compilerOptions = getCompilerOptions(project.getOptions(true), creatingAST, ((reconcileFlags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0));
 			boolean ignoreMethodBodies = (reconcileFlags & ICompilationUnit.IGNORE_METHOD_BODIES) != 0;
 			compilerOptions.ignoreMethodBodies = ignoreMethodBodies;
+			NameLookup lookup = environment.nameLookup;
+			int release = lookup.getRelease(unitElement.getPackageFragmentRoot());
+			if (release >= IReleaseAwareNameEnvironment.FIRST_MULTI_RELEASE) {
+				compilerOptions.targetJDK = CompilerOptions.releaseToJDKLevel(release);
+			}
 			problemFinder = new CompilationUnitProblemFinder(
 				environment,
 				getHandlingPolicy(),
