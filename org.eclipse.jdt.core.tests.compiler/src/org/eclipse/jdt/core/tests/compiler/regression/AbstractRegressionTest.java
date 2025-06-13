@@ -575,6 +575,8 @@ static class JavacCompiler {
 			switch(rawVersion) {
 				case "24-ea", "24-beta", "24":
 					return 0000;
+				case "24.0.1":
+					return 0100;
 			}
 		}
 		throw new RuntimeException("unknown raw javac version: " + rawVersion);
