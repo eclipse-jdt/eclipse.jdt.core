@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
@@ -45,12 +46,22 @@ public class DOMConstructorLocator extends DOMPatternLocator {
 		}
 		if (this.locator.pattern.fineGrain != 0 && !this.locator.pattern.findDeclarations)
 			return toResponse(IMPOSSIBLE_MATCH);
-		int referencesLevel = /* this.locator.pattern.findReferences ? matchLevelForReferences(node) : */IMPOSSIBLE_MATCH;
+		int referencesLevel = this.locator.pattern.findReferences ? matchLevelForReference(node) : IMPOSSIBLE_MATCH;
 		int declarationsLevel = this.locator.pattern.findDeclarations ? this.matchLevelForDeclarations(node) : IMPOSSIBLE_MATCH;
 
 		// use the stronger match
 		int level = nodeSet.addMatch(node, referencesLevel >= declarationsLevel ? referencesLevel : declarationsLevel);
 		return toResponse(level, true);
+	}
+
+	protected int matchLevelForReference(MethodDeclaration constructor) {
+		if ((this.locator.pattern.parameterSimpleNames == null || this.locator.pattern.parameterSimpleNames.length == 0) &&
+			constructor.isConstructor() &&
+			constructor.getBody() != null &&
+			constructor.getBody().statements().stream().noneMatch(st -> st instanceof SuperConstructorInvocation || st instanceof ConstructorInvocation)) {
+			return this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+		}
+		return IMPOSSIBLE_MATCH;
 	}
 
 	@Override
@@ -123,6 +134,34 @@ public class DOMConstructorLocator extends DOMPatternLocator {
 
 	@Override
 	public LocatorResponse resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
+		if (node instanceof MethodDeclaration decl) {
+			if (this.locator.pattern.findReferences) {
+				if (matchLevelForReference(decl) > IMPOSSIBLE_MATCH) {
+					if (binding instanceof IMethodBinding currentConstructor) {
+						var superType = currentConstructor.getDeclaringClass().getSuperclass();
+						if (superType != null) {
+							int superConstructorLevel = Arrays.stream(superType.getDeclaredMethods())
+								.filter(IMethodBinding::isConstructor)
+								.filter(superConstructor -> superConstructor.getParameterTypes().length == 0)
+								.mapToInt(superConstructor -> {
+									int level = matchConstructor(superConstructor);
+									if (level == IMPOSSIBLE_MATCH && superConstructor != superConstructor.getMethodDeclaration()) {
+										level = matchConstructor(superConstructor.getMethodDeclaration());
+									}
+									return level;
+								}).findAny()
+								.orElse(IMPOSSIBLE_MATCH);
+							if (superConstructorLevel > IMPOSSIBLE_MATCH) {
+								return toResponse(superConstructorLevel);
+							}
+						}
+					}
+				}
+			}
+			if (!this.locator.pattern.findDeclarations) {
+				return toResponse(IMPOSSIBLE_MATCH);
+			}
+		}
 		if (binding instanceof IMethodBinding constructor) {
 			int level = matchConstructor(constructor);
 			if (level == IMPOSSIBLE_MATCH) {
