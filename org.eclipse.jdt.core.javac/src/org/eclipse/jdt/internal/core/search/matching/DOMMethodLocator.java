@@ -229,9 +229,12 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		if (level == IMPOSSIBLE_MATCH)
 			return level;
 
-		level = resolveLevelForType(this.locator.pattern.returnSimpleName, this.locator.pattern.returnQualification, method.getReturnType());
-		if (level == IMPOSSIBLE_MATCH)
-			return level;
+		if (this.pattern.declaringSimpleName == null) {
+			// look at return type only if declaring type is not specified
+			level = resolveLevelForType(this.locator.pattern.returnSimpleName, this.locator.pattern.returnQualification, method.getReturnType());
+			if (level == IMPOSSIBLE_MATCH)
+				return level;
+		}
 
 
 		level = matchMethodParametersTypes(node, method, skipImpossibleArg, level);
