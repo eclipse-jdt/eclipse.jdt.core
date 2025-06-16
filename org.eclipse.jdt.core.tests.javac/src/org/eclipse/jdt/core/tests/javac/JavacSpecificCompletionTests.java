@@ -552,5 +552,44 @@ public class JavacSpecificCompletionTests {
 		Assert.assertTrue(requestor.getResults().contains(expectedContent));
 	}
 
+	@Test
+	public void testCompleteYieldStatement() throws Exception {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("HelloWorld.java",
+			"""
+			public class HelloWorld  {
+				public static enum Color { RED, GREEN, BLUE; }
+				public static class NaturalGas {}
+				public static class NaturalHistory {}
+				void m() {
+					Color c = null;
+					int naturalize = 2;
+					String naturalist = "sandiwch";
+					int i = switch (c) {
+						case BLUE: {
+							if (1<2) {
+								yield ;
+							}
+						}
+						default -> 1;
+					};
+				}
+			}
+			""");
+
+		// add the replace range to the results
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false, false, true);
+
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "yield ";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		IProgressMonitor monitor = new NullProgressMonitor();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, WC_OWNER, monitor);
+		Assert.assertTrue(requestor.getReversedResults().startsWith("""
+				hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, [301, 301], 82}
+				naturalize[LOCAL_VARIABLE_REF]{naturalize, null, I, naturalize, [301, 301], 82}
+				"""));
+	}
+
 
 }

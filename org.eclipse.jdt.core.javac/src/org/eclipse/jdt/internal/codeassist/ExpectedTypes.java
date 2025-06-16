@@ -60,6 +60,7 @@ import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.WhileStatement;
+import org.eclipse.jdt.core.dom.YieldStatement;
 import org.eclipse.jdt.internal.codeassist.impl.AssistOptions;
 
 /**
@@ -131,6 +132,9 @@ public class ExpectedTypes {
 			}
 			if (parent2 instanceof ReturnStatement) {
 				break;
+			}
+			if (parent2 instanceof YieldStatement) {
+				parent2 = DOMCompletionUtils.findParent(parent2, new int[] {ASTNode.SWITCH_EXPRESSION});
 			}
 			if (parent2 instanceof Block) {
 				break;
