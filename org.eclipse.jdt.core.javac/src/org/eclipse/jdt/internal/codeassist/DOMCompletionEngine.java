@@ -281,14 +281,26 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				.filter(binding -> pattern.matchesName(prefix.toCharArray(), binding.getName().toCharArray())) //
 				.filter(binding -> {
 					if (binding instanceof IVariableBinding varBinding) {
+						if (DOMCompletionEngine.this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)
+								&& DOMCompletionEngine.this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
+							return false;
+						}
 						if (isShadowed(binding) && varBinding.isField() && varBinding.getDeclaringClass().isAnonymous()) {
 							return false;
 						}
 					}
 					return true;
-				}).filter(binding -> {
+				})
+				.filter(binding -> {
 					if (binding instanceof ITypeBinding typeBinding) {
+						if (DOMCompletionEngine.this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+							return false;
+						}
 						return filterBasedOnExtendsOrImplementsInfo((IType)typeBinding.getJavaElement(), extendsOrImplementsInfo);
+					} else if (binding instanceof IMethodBinding) {
+						if (DOMCompletionEngine.this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
+							return false;
+						}
 					}
 					return true;
 				})
