@@ -3514,9 +3514,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		}
 		ASTNode nodeSearchNode = NodeFinder.perform(this.unit, this.offset, 0);
 		char[] atlessPrefix = this.prefix.startsWith("@") ? this.prefix.substring(1).toCharArray() : this.prefix.toCharArray();
-		for (char[] blockTag : DOMCompletionEngineJavadocUtil.getJavadocInlineTags(this.javaProject, tagNode, nodeSearchNode)) {
-			if (!isFailedMatch(atlessPrefix, blockTag)) {
-				this.requestor.accept(toJavadocInlineTagProposal(blockTag));
+		for (char[] inlineTag : DOMCompletionEngineJavadocUtil.getJavadocInlineTags(this.javaProject, tagNode, nodeSearchNode)) {
+			if (!isFailedMatch(atlessPrefix, inlineTag)) {
+				this.requestor.accept(toJavadocInlineTagProposal(inlineTag));
 			}
 		}
 	}
@@ -5661,7 +5661,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		if (replaceNode instanceof TextElement) {
 			replaceNode = replaceNode.getParent();
 		}
-		res.setReplaceRange(replaceNode.getStartPosition(), replaceNode.getStartPosition() + replaceNode.getLength());
+		boolean isAlreadyInline = this.textContent.charAt(this.completionContext.getTokenStart() - 1) == '{';
+		res.setReplaceRange(this.completionContext.getTokenStart() - (isAlreadyInline ? 1 : 0), this.completionContext.getTokenEnd() + 1);
 		res.setRelevance(RelevanceConstants.R_DEFAULT + RelevanceConstants.R_INTERESTING + RelevanceConstants.R_NON_RESTRICTED);
 		return res;
 	}
