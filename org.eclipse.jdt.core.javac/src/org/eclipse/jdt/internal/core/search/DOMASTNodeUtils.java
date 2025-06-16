@@ -46,9 +46,14 @@ import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 public class DOMASTNodeUtils {
 
+	/**
+	 * @param node
+	 * @return an existing (in model) Java element enclosing the node
+	 */
 	public static IJavaElement getEnclosingJavaElement(ASTNode node) {
 		if (node == null) {
 			return null;
@@ -66,6 +71,38 @@ public class DOMASTNodeUtils {
 			return getDeclaringJavaElement(node);
 		}
 		return getEnclosingJavaElement(node.getParent());
+	}
+
+	/**
+	 * @param node
+	 * @return an existing (in model) Java element enclosing the node
+	 */
+	public static IJavaElement getLocalJavaElement(ASTNode node) {
+		if (node == null) {
+			return null;
+		}
+		if (node instanceof VariableDeclaration variable) {
+			return variable.resolveBinding().getJavaElement();
+		}
+		if (node instanceof VariableDeclarationStatement variable && !variable.fragments().isEmpty()) {
+			return ((List<VariableDeclarationFragment>)variable.fragments()).iterator().next().resolveBinding().getJavaElement();
+		}
+		if (node instanceof TypeParameter typeParam) {
+			return typeParam.resolveBinding().getJavaElement();
+		}
+		if (node instanceof AbstractTypeDeclaration
+			|| node instanceof MethodDeclaration
+			|| node instanceof FieldDeclaration
+			|| node instanceof Initializer
+			|| node instanceof ImportDeclaration
+			|| node instanceof PackageDeclaration
+			|| node instanceof CompilationUnit
+			|| node instanceof AnnotationTypeMemberDeclaration
+			|| node instanceof Initializer
+			|| node.getLocationInParent() == FieldDeclaration.FRAGMENTS_PROPERTY) {
+			return getEnclosingJavaElement(node);
+		}
+		return getLocalJavaElement(node.getParent());
 	}
 
 	public static IJavaElement getDeclaringJavaElement(ASTNode key) {
