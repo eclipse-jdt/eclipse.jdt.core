@@ -38,12 +38,6 @@ import org.eclipse.jdt.internal.core.search.LocatorResponse;
 import org.eclipse.jdt.internal.javac.dom.JavacTypeBinding;
 
 public class DOMPatternLocator extends PatternLocator {
-	public static final int IMPOSSIBLE_MATCH = PatternLocator.IMPOSSIBLE_MATCH;
-	public static final int INACCURATE_MATCH = PatternLocator.INACCURATE_MATCH;
-	public static final int POSSIBLE_MATCH = PatternLocator.POSSIBLE_MATCH;
-	public static final int ACCURATE_MATCH = PatternLocator.ACCURATE_MATCH;
-	public static final int ERASURE_MATCH = PatternLocator.ERASURE_MATCH;
-
 	public DOMPatternLocator(SearchPattern pattern) {
 		super(pattern);
 	}
@@ -185,12 +179,18 @@ public class DOMPatternLocator extends PatternLocator {
 		char[] sourceName = null;
 		if (type.isMember() || type.isLocal()) {
 			if (qualificationPattern != null) {
-				sourceName =  getQualifiedSourceName(binding).toCharArray();
+				sourceName = getQualifiedSourceName(binding).toCharArray();
 			} else {
-				sourceName =  binding.getQualifiedName().toCharArray();
+				sourceName = binding.getQualifiedName().toCharArray();
 			}
 		} else if (qualificationPattern == null) {
-			sourceName =  getQualifiedSourceName(binding).toCharArray();
+			sourceName = getQualifiedSourceName(binding).toCharArray();
+		}
+		if (type.isRecovered()) {
+			level = resolveLevelForTypeSourceName(simpleNamePattern, binding.getName().toCharArray(), type);
+			if (level > IMPOSSIBLE_MATCH) {
+				return INACCURATE_MATCH;
+			}
 		}
 		if (sourceName == null)
 			return IMPOSSIBLE_MATCH;

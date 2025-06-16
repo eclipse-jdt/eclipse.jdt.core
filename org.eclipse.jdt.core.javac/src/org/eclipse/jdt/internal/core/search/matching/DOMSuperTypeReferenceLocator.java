@@ -81,16 +81,15 @@ public class DOMSuperTypeReferenceLocator extends DOMPatternLocator {
 	public LocatorResponse resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
 		if (binding == null)
 			return toResponse(INACCURATE_MATCH);
-		if (!(binding instanceof ITypeBinding))
+		if (!(binding instanceof ITypeBinding type))
 			return toResponse(IMPOSSIBLE_MATCH);
 
-		var type = (ITypeBinding) binding;
 		int level = IMPOSSIBLE_MATCH;
 		if (this.locator.pattern.superRefKind != SuperTypeReferencePattern.ONLY_SUPER_INTERFACES || node.getLocationInParent() == TypeDeclaration.SUPER_INTERFACE_TYPES_PROPERTY) {
 			level = this.resolveLevelForType(this.locator.pattern.superSimpleName, this.locator.pattern.superQualification,
 					type);
-			if (level == ACCURATE_MATCH)
-				return toResponse(ACCURATE_MATCH);
+			if (level > IMPOSSIBLE_MATCH)
+				return toResponse(level);
 		}
 
 		if (this.locator.pattern.superRefKind != SuperTypeReferencePattern.ONLY_SUPER_CLASSES || node.getLocationInParent() == TypeDeclaration.SUPERCLASS_TYPE_PROPERTY) {
@@ -99,6 +98,6 @@ public class DOMSuperTypeReferenceLocator extends DOMPatternLocator {
 			if (level == ACCURATE_MATCH)
 				return toResponse(ACCURATE_MATCH);
 		}
-		return toResponse(level);
+		return toResponse(binding.isRecovered() ? POSSIBLE_MATCH : level);
 	}
 }
