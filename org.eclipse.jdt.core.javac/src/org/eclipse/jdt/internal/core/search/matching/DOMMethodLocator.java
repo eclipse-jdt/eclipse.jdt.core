@@ -39,6 +39,7 @@ import org.eclipse.jdt.core.dom.JdtCoreDomPackagePrivateUtility;
 import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.MethodReference;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.Name;
@@ -159,6 +160,13 @@ public class DOMMethodLocator extends DOMPatternLocator {
 	@Override
 	public LocatorResponse match(MethodInvocation node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		int level = this.matchReference(node.getName(), node.arguments());
+		if( level == IMPOSSIBLE_MATCH )
+			return toResponse(IMPOSSIBLE_MATCH);
+		return toResponse(nodeSet.addMatch(node, level), true);
+	}
+	@Override
+	public LocatorResponse match(MethodRef node, NodeSetWrapper nodeSet, MatchLocator locator) {
+		int level = this.matchReference(node.getName(), node.parameters());
 		if( level == IMPOSSIBLE_MATCH )
 			return toResponse(IMPOSSIBLE_MATCH);
 		return toResponse(nodeSet.addMatch(node, level), true);
@@ -605,15 +613,6 @@ public class DOMMethodLocator extends DOMPatternLocator {
 					return IMPOSSIBLE_MATCH;
 				} else {
 					method = decl;
-				}
-			}
-
-			if( node instanceof Name) {
-				// We are a simple name and can't match complex pattern with type args
-				boolean patternHasTypeArgs = this.locator.pattern.parameterSimpleNames != null && this.locator.pattern.parameterSimpleNames.length > 0
-						&& this.locator.pattern.parameterSimpleNames[0] != null;
-				if(patternHasTypeArgs) {
-					return IMPOSSIBLE_MATCH;
 				}
 			}
 

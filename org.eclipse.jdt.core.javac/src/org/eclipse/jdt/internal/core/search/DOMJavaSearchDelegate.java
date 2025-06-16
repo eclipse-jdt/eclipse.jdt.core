@@ -61,6 +61,7 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.QualifiedName;
@@ -319,6 +320,13 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 					newInstance.getStartPosition(), newInstance.getLength(), true,
 					newInstance.resolveConstructorBinding().isSynthetic(), (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node),
 					getParticipant(locator), resource);
+		}
+		if (node instanceof MethodRef method && method.resolveBinding() instanceof IMethodBinding mb) {
+			IJavaElement enclosing = DOMASTNodeUtils.getEnclosingJavaElement(node.getParent());
+			boolean isSynthetic = mb != null && mb.isSynthetic();
+			return new MethodReferenceMatch(enclosing, accuracy, method.getName().getStartPosition(),
+					method.getStartPosition() + method.getLength() - method.getName().getStartPosition(), false,
+					isSynthetic, (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node), getParticipant(locator), resource);
 		}
 		if (node instanceof SuperConstructorInvocation newInstance) {
 			return new MethodReferenceMatch(DOMASTNodeUtils.getEnclosingJavaElement(node), accuracy,
