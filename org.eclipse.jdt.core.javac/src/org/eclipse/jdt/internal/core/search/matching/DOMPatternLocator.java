@@ -187,9 +187,11 @@ public class DOMPatternLocator extends PatternLocator {
 			sourceName = getQualifiedSourceName(binding).toCharArray();
 		}
 		if (type.isRecovered()) {
-			level = resolveLevelForTypeSourceName(simpleNamePattern, binding.getName().toCharArray(), type);
-			if (level > IMPOSSIBLE_MATCH) {
-				return INACCURATE_MATCH;
+			if (qualificationPattern == null || !type.getQualifiedName().contains(".") ) {
+				level = resolveLevelForTypeSourceName(simpleNamePattern, binding.getName().toCharArray(), type);
+				if (level > IMPOSSIBLE_MATCH) {
+					return INACCURATE_MATCH;
+				}
 			}
 		}
 		if (sourceName == null)
