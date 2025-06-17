@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.Initializer;
 import org.eclipse.jdt.core.dom.MemberValuePair;
@@ -82,10 +83,14 @@ public class DOMASTNodeUtils {
 			return null;
 		}
 		if (node instanceof VariableDeclaration variable) {
-			return variable.resolveBinding().getJavaElement();
+			IVariableBinding vb = variable.resolveBinding();
+			if( vb != null )
+				return vb.getJavaElement();
 		}
 		if (node instanceof VariableDeclarationStatement variable && !variable.fragments().isEmpty()) {
-			return ((List<VariableDeclarationFragment>)variable.fragments()).iterator().next().resolveBinding().getJavaElement();
+			IVariableBinding vb =  ((List<VariableDeclarationFragment>)variable.fragments()).iterator().next().resolveBinding();
+			if( vb != null )
+				return vb.getJavaElement();
 		}
 		if (node instanceof TypeParameter typeParam) {
 			return typeParam.resolveBinding().getJavaElement();
