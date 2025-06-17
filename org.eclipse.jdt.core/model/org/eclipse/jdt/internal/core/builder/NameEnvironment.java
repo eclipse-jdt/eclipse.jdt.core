@@ -592,7 +592,9 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 	}
 	NameEnvironmentAnswer suggestedAnswer = null;
 	if (release >= IReleaseAwareNameEnvironment.FIRST_MULTI_RELEASE) {
-		//we must filter and sort any classpath directory here
+		//we must filter and sort any classpath directory here:
+		//release locations that do not match (e.g larger than current release) must be omitted)
+		//and we need to sort by highest to lowest to have the same order like on runtime.
 		relevantLocations = Arrays.stream(relevantLocations).filter(loc->{
 			if (loc instanceof ClasspathMultiDirectory md) {
 				//only those with release lower or equal are valid here!
