@@ -23,8 +23,16 @@ import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.eclipse.core.resources.IContainer;
@@ -62,13 +70,11 @@ public ClasspathLocation[] testBinaryLocations;
 // keyed by the project relative path of the type (i.e. "src1/p1/p2/A.java"), value is a ReferenceCollection or an AdditionalTypeCollection
 Map<String, ReferenceCollection> references;
 // keyed by qualified type name "p1/p2/A", value is a map that maps a release to the project relative path which defines this type "src1/p1/p2/A.java"
-public Map<String, Map<Integer,String>> typeLocators;
+public TypeLocator typeLocators;
 
 int buildNumber;
 long lastStructuralBuildTime;
 HashMap<String, Long> structuralBuildTimes;
-
-private String[] knownPackageNames; // of the form "p1/p2"
 
 private long previousStructuralBuildTime;
 private StringSet structurallyChangedTypes;
@@ -91,7 +97,6 @@ State() {
 }
 
 protected State(JavaBuilder javaBuilder) {
-	this.knownPackageNames = null;
 	this.previousStructuralBuildTime = -1;
 	this.structurallyChangedTypes = null;
 	this.javaProjectName = javaBuilder.currentProject.getName();
@@ -100,7 +105,7 @@ protected State(JavaBuilder javaBuilder) {
 	this.testSourceLocations = javaBuilder.testNameEnvironment.sourceLocations;
 	this.testBinaryLocations = javaBuilder.testNameEnvironment.binaryLocations;
 	this.references = new LinkedHashMap<>(7);
-	this.typeLocators = new LinkedHashMap<>(7);
+	this.typeLocators = new TypeLocator();
 
 	this.buildNumber = 0; // indicates a full build
 	this.lastStructuralBuildTime = computeStructuralBuildTime(javaBuilder.lastState == null ? 0 : javaBuilder.lastState.lastStructuralBuildTime);
@@ -115,7 +120,6 @@ long computeStructuralBuildTime(long previousTime) {
 }
 
 void copyFrom(State lastState) {
-	this.knownPackageNames = null;
 	this.previousStructuralBuildTime = lastState.previousStructuralBuildTime;
 	this.structurallyChangedTypes = lastState.structurallyChangedTypes;
 	this.buildNumber = lastState.buildNumber + 1;
@@ -123,7 +127,7 @@ void copyFrom(State lastState) {
 	this.structuralBuildTimes = lastState.structuralBuildTimes;
 
 	this.references = new LinkedHashMap<>(lastState.references);
-	this.typeLocators = new LinkedHashMap<>(lastState.typeLocators);
+	this.typeLocators = new TypeLocator(lastState.typeLocators);
 }
 
 /**
@@ -181,49 +185,19 @@ StringSet getStructurallyChangedTypes(State prereqState) {
 }
 
 public boolean isDuplicateLocator(String qualifiedTypeName, String typeLocator, int release) {
-	Map<Integer, String> existing = this.typeLocators.get(qualifiedTypeName);
-	if (existing == null) {
-		return false;
-	}
-	String string = existing.get(release);
-	return string!=null &&!string.equals(typeLocator);
+	return this.typeLocators.isDuplicateLocator(qualifiedTypeName, typeLocator, release);
 }
 
 public boolean isKnownPackage(String qualifiedPackageName) {
-	if (this.knownPackageNames == null) {
-		LinkedHashSet<String> names = new LinkedHashSet<>(this.typeLocators.size());
-		Set<String> keySet = this.typeLocators.keySet();
-		for (String packageName : keySet) {
-			int last = packageName.lastIndexOf('/');
-			packageName = last == -1 ? null : packageName.substring(0, last);
-			while (packageName != null && !names.contains(packageName)) {
-				names.add(packageName);
-				last = packageName.lastIndexOf('/');
-				packageName = last == -1 ? null : packageName.substring(0, last);
-			}
-		}
-		this.knownPackageNames = new String[names.size()];
-		names.toArray(this.knownPackageNames);
-		Arrays.sort(this.knownPackageNames);
-	}
-	int result = Arrays.binarySearch(this.knownPackageNames, qualifiedPackageName);
-	return result >= 0;
+	return this.typeLocators.isKnownPackage(qualifiedPackageName);
 }
 
 public boolean isKnownType(String qualifiedTypeName) {
-	return this.typeLocators.containsKey(qualifiedTypeName);
+	return this.typeLocators.isKnownType(qualifiedTypeName);
 }
 
 boolean isSourceFolderEmpty(IContainer sourceFolder) {
-	String sourceFolderName = sourceFolder.getProjectRelativePath().addTrailingSeparator().toString();
-	for (Map<Integer, String> map : this.typeLocators.values()) {
-		for (String value : map.values()) {
-			if (value.startsWith(sourceFolderName)) {
-				return false;
-			}
-		}
-	}
-	return true;
+	return this.typeLocators.isSourceFolderEmpty(sourceFolder);
 }
 
 void record(String typeLocator, char[][][] qualifiedRefs, char[][] simpleRefs, char[][] rootRefs, char[] mainTypeName, ArrayList typeNames) {
@@ -237,12 +211,7 @@ void record(String typeLocator, char[][][] qualifiedRefs, char[][] simpleRefs, c
 }
 
 void recordLocatorForType(String qualifiedTypeName, String typeLocator, int release) {
-	this.knownPackageNames = null;
-	// in the common case, the qualifiedTypeName is a substring of the typeLocator so share the char[] by using String.substring()
-	int start = typeLocator.indexOf(qualifiedTypeName, 0);
-	if (start > 0)
-		qualifiedTypeName = typeLocator.substring(start, start + qualifiedTypeName.length());
-	this.typeLocators.computeIfAbsent(qualifiedTypeName, nil->new TreeMap<>()).put(release, typeLocator);
+	this.typeLocators.recordLocatorForType(qualifiedTypeName, typeLocator, release);
 }
 
 void recordStructuralDependency(IProject prereqProject, State prereqState) {
@@ -252,16 +221,8 @@ void recordStructuralDependency(IProject prereqProject, State prereqState) {
 }
 
 void removeLocator(String typeLocatorToRemove, int release) {
-	this.knownPackageNames = null;
 	this.references.remove(typeLocatorToRemove);
-	for (Iterator<Entry<String, Map<Integer, String>>> iterator = this.typeLocators.entrySet().iterator(); iterator.hasNext();) {
-		Entry<String, Map<Integer, String>> entry = iterator.next();
-		Map<Integer, String> map = entry.getValue();
-		map.values().removeIf(v -> typeLocatorToRemove.equals(v));
-		if (map.isEmpty()) {
-			iterator.remove();
-		}
-	}
+	this.typeLocators.removeLocator(typeLocatorToRemove, release);
 }
 
 void removePackage(IResourceDelta sourceDelta, int release) {
@@ -280,8 +241,7 @@ void removePackage(IResourceDelta sourceDelta, int release) {
 }
 
 void removeQualifiedTypeName(String qualifiedTypeNameToRemove) {
-	this.knownPackageNames = null;
-	this.typeLocators.remove(qualifiedTypeNameToRemove);
+	this.typeLocators.removeLocator(qualifiedTypeNameToRemove);
 }
 
 static State read(IProject project, DataInputStream input) throws IOException, CoreException {
@@ -326,18 +286,7 @@ static State read(IProject project, DataInputStream input) throws IOException, C
 	String[] internedTypeLocators = new String[length = in.readInt()];
 	for (int i = 0; i < length; i++)
 		internedTypeLocators[i] = in.readStringUsingLast();
-
-	length = in.readInt();
-	newState.typeLocators = new LinkedHashMap<>((int) (length / 0.75 + 1));
-	for (int i = 0; i < length; i++) {
-		String key = in.readStringUsingLast();
-		int mapSize = in.readInt();
-		for (int j = 0; j < mapSize; j++) {
-			int release = in.readInt();
-			String locator = internedTypeLocators[in.readIntInRange(internedTypeLocators.length)];
-			newState.recordLocatorForType(key, locator, release);
-		}
-	}
+	newState.typeLocators.read(in, internedTypeLocators);
 
 	/*
 	 * Here we read global arrays of names for the entire project - do not mess up the ordering while interning
@@ -604,23 +553,7 @@ void write(DataOutputStream output) throws IOException {
 		internedTypeLocators.put(key, internedTypeLocators.size());
 	}
 
-/*
- * Type locators table
- * String		type name
- * int			interned locator id
- */
-	out.writeInt(this.typeLocators.size());
-	for (var entry : this.typeLocators.entrySet()) {
-		String key = entry.getKey();
-		out.writeStringUsingLast(key);
-		Map<Integer, String> map = entry.getValue();
-		out.writeInt(map.size());
-		for (var releaseEntry : map.entrySet()) {
-			out.writeInt(releaseEntry.getKey());
-			Integer index = internedTypeLocators.get(releaseEntry.getValue());
-			out.writeIntInRange(index.intValue(), internedTypeLocators.size());
-		}
-	}
+	this.typeLocators.write(out, internedTypeLocators);
 
 /*
  * char[][]	Interned root names
