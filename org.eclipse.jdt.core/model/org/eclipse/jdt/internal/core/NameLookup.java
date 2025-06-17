@@ -813,8 +813,12 @@ public class NameLookup implements SuffixConstants {
 			// we need to remove fragments that are not applicable for this release and sort by the release version from highest to lowest
 			packages = Arrays.stream(packages).map(f -> {
 				IJavaElement parent = f.getParent();
-				return new PackageFragmentWithRelease(f, getRelease((IPackageFragmentRoot) parent));
-			}).filter(pr -> pr.release() <= release)
+				int packageFragmentRelease = getRelease((IPackageFragmentRoot) parent);
+				if (packageFragmentRelease<= release) {
+					return null;
+				}
+				return new PackageFragmentWithRelease(f, packageFragmentRelease);
+			}).filter(Objects::nonNull)
 					.sorted(Comparator.comparingInt(PackageFragmentWithRelease::release).reversed())
 					.map(PackageFragmentWithRelease::fragment)
 					.toArray(IPackageFragment[]::new);
