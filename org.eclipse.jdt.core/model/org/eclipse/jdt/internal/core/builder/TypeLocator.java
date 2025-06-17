@@ -20,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
@@ -275,5 +276,30 @@ public class TypeLocator {
 			}
 			return map.values().stream();
 		}
+	}
+
+	/**
+	 * Only implemented for StateTest! one usually won't use {@link TypeLocator} in a way where equals/hashCode really matters
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof TypeLocator other) {
+			if(!Objects.requireNonNullElse(this.defaultMap, Map.of()).equals(Objects.requireNonNullElse(other.defaultMap, Map.of())))  {
+				return false;
+			}
+			if(!Objects.requireNonNullElse(this.releaseMap, Map.of()).equals(Objects.requireNonNullElse(other.releaseMap, Map.of())))  {
+				return false;
+			}
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Only implemented for StateTest! one usually won't use {@link TypeLocator} in a way where equals/hashCode really matters
+	 */
+	@Override
+	public int hashCode() {
+		return 0;
 	}
 }
