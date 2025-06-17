@@ -45,7 +45,6 @@ import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.SourceRange;
 import org.eclipse.jdt.core.WorkingCopyOwner;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTRequestor;
@@ -189,10 +188,11 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 				if (pm != null) {
 					for (int i = 0; i < possibleMatches.length; i++) {
 						if (possibleMatches[i] == pm) {
-							String s = CharOperation.toString(pm.compoundName);
-							if( "g3.t.ref.R4".equals(s)) {
-								int z = 5; z++; if( z == 3 ) {}
-							}
+//							String s = CharOperation.toString(pm.compoundName);
+//							if( "g1.t.s.ref.R1".equals(s)) {
+//							if( "g3.t.ref.R4".equals(s)) {
+//								int z = 5; z++; if( z == 3 ) {}
+//							}
 							domUnits[i] = ast;
 							nonNullDomIndexes.add(i);
 							locator.currentPossibleMatch = pm;

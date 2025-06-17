@@ -28,6 +28,10 @@ public class TypeArgumentMatchingUtility {
 	}
 
 	public static boolean validateSingleTypeArgMatches(boolean requiresExactMatch, String patternSig, IBinding patternBinding, IBinding domBinding, PatternLocator locator) {
+		if( patternBinding == domBinding ) {
+			return true;
+		}
+
 		ITypeBinding domTypeBinding = domBinding instanceof ITypeBinding ? (ITypeBinding)domBinding : null;
 		String domKey1 = domBinding == null ? null : domBinding.getKey();
 		String domSig = null;
@@ -76,6 +80,12 @@ public class TypeArgumentMatchingUtility {
 				}
 				if( patternSimpleName != null && patternSimpleName.startsWith(bindingSimpleName + "<")) {
 					return true;
+				}
+			}
+			if( domBinding instanceof ITypeBinding tb ) {
+				ITypeBinding bound = tb.getBound();
+				if( bound != null && bound != domBinding) {
+					return validateSingleTypeArgMatches(requiresExactMatch, patternSig, patternBinding, bound, locator);
 				}
 			}
 			return false;

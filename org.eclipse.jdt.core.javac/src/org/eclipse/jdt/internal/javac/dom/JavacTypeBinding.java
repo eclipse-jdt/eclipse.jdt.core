@@ -767,6 +767,16 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				return boundsArray[0];
 			}
 		}
+		if( this.type instanceof TypeVar tv ) {
+			Type t1 = tv.getLowerBound();
+			if( t1 != null && t1.getKind() != TypeKind.NULL) {
+				return this.resolver.bindings.getTypeBinding(t1);
+			}
+			Type t2 = tv.getUpperBound();
+			if( t2 != null && t2.getKind() != TypeKind.NULL) {
+				return this.resolver.bindings.getTypeBinding(t2);
+			}
+		}
 		return null;
 	}
 
