@@ -209,6 +209,15 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 					r1 = matchTypeNodeReturnComponent(node, qualifiedNameFromNode, fqqn, defaultLevel);
 					if( r1 != null ) return r1;
 				}
+				String[] nodeQualifiedStringSegments = qualifiedNameFromNode.split("\\.");
+				int patternLen = patternQualifiedStringSegments == null ? 0 : patternQualifiedStringSegments.length;
+				for( int i = 1; i <= patternLen; i++ ) {
+					String patternSegmentFromEnd = patternQualifiedStringSegments[patternLen - i];
+					String matchingNodeSegment = nodeQualifiedStringSegments[nodeQualifiedStringSegments.length - i];
+					if( !patternSegmentFromEnd.equals(matchingNodeSegment)) {
+						return toResponse(IMPOSSIBLE_MATCH);
+					}
+				}
 			} else if( patternQualifiedString.equals(qualifiedNameFromNode) || patternQualifiedString.endsWith("." + qualifiedNameFromNode)) {
 				String[] qualifiedNameFromNodeStringSegments = qualifiedNameFromNode.split("\\.");
 				String firstSegment = qualifiedNameFromNodeStringSegments == null || qualifiedNameFromNodeStringSegments.length == 0 ? null : qualifiedNameFromNodeStringSegments[0];
