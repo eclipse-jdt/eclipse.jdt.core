@@ -117,6 +117,12 @@ public class DOMFieldLocator extends DOMPatternLocator {
 				}
 			}
 
+			if (!this.fieldLocator.pattern.readAccess && DOMLocalVariableLocator.isRead(name)) {
+				return toResponse(IMPOSSIBLE_MATCH);
+			}
+			if (!this.fieldLocator.pattern.writeAccess && DOMLocalVariableLocator.isWrite(name)) {
+				return toResponse(IMPOSSIBLE_MATCH);
+			}
 			int level = nodeSet.addMatch(name, this.fieldLocator.pattern.mustResolve ? PatternLocator.POSSIBLE_MATCH
 					: PatternLocator.ACCURATE_MATCH);
 			return toResponse(level, true);

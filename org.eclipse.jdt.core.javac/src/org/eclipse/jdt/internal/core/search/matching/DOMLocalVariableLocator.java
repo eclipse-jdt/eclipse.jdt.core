@@ -13,18 +13,23 @@ package org.eclipse.jdt.internal.core.search.matching;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.ChildPropertyDescriptor;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.PostfixExpression;
+import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.eclipse.jdt.core.dom.Assignment.Operator;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.search.LocatorResponse;
@@ -55,6 +60,12 @@ public class DOMLocalVariableLocator extends DOMPatternLocator {
 				// local variables cannot be qualified
 				&& node instanceof SimpleName simple
 				&& Objects.equals(getLocalVariable() == null ? null : getLocalVariable().getElementName(), simple.getIdentifier())) {
+			if (!this.locator.pattern.readAccess && isRead(node)) {
+				return toResponse(IMPOSSIBLE_MATCH);
+			}
+			if (!this.locator.pattern.writeAccess && isWrite(node)) {
+				return toResponse(IMPOSSIBLE_MATCH);
+			}
 			return toResponse(POSSIBLE_MATCH);
 		}
 		return toResponse(IMPOSSIBLE_MATCH);
@@ -144,4 +155,22 @@ public class DOMLocalVariableLocator extends DOMPatternLocator {
 		return found;
 	}
 
+	public static boolean isRead(Name name) {
+		if (name.getLocationInParent() == QualifiedName.NAME_PROPERTY) {
+			name = (QualifiedName)name.getParent();
+		}
+		if (name.getLocationInParent() == Assignment.LEFT_HAND_SIDE_PROPERTY) {
+			Assignment assign = (Assignment)name.getParent();
+			return assign.getOperator() != Operator.ASSIGN;
+		}
+		return true;
+	}
+
+	public static boolean isWrite(Name name) {
+		if (name.getLocationInParent() == QualifiedName.NAME_PROPERTY) {
+			name = (QualifiedName)name.getParent();
+		}
+		return Set.of(Assignment.LEFT_HAND_SIDE_PROPERTY, PostfixExpression.OPERAND_PROPERTY, PrefixExpression.OPERAND_PROPERTY)
+			.contains(name.getLocationInParent());
+	}
 }

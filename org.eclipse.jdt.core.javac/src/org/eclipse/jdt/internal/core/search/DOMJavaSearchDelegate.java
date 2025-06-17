@@ -98,6 +98,7 @@ import org.eclipse.jdt.internal.core.NamedMember;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
 import org.eclipse.jdt.internal.core.search.matching.ClassFileMatchLocator;
+import org.eclipse.jdt.internal.core.search.matching.DOMLocalVariableLocator;
 import org.eclipse.jdt.internal.core.search.matching.DOMPatternLocator;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.jdt.internal.core.search.matching.MatchingNodeSet;
@@ -411,13 +412,15 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 			}
 			if (b instanceof IVariableBinding variable) {
 				if (variable.isField()) {
-					var res = new FieldReferenceMatch(enclosing, accuracy, node.getStartPosition(), node.getLength(), true,
-							true, insideDocComment(node), getParticipant(locator), resource);
+					var res = new FieldReferenceMatch(enclosing, accuracy, node.getStartPosition(), node.getLength(),
+							DOMLocalVariableLocator.isRead(name), DOMLocalVariableLocator.isWrite(name),
+							insideDocComment(node), getParticipant(locator), resource);
 					res.setLocalElement(DOMASTNodeUtils.getLocalJavaElement(node));
 					return res;
 				}
 				return new LocalVariableReferenceMatch(enclosing, accuracy, node.getStartPosition(), node.getLength(),
-						true, true, insideDocComment(node), getParticipant(locator), resource);
+						DOMLocalVariableLocator.isRead(name), DOMLocalVariableLocator.isWrite(name),
+						insideDocComment(node), getParticipant(locator), resource);
 			}
 			if (b instanceof IPackageBinding) {
 				var res = new PackageReferenceMatch(enclosing, accuracy, name.getStartPosition(), name.getLength(),
