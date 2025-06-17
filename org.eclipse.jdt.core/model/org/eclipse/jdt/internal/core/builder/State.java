@@ -192,8 +192,8 @@ public boolean isDuplicateLocator(String qualifiedTypeName, String typeLocator, 
 public boolean isKnownPackage(String qualifiedPackageName) {
 	if (this.knownPackageNames == null) {
 		LinkedHashSet<String> names = new LinkedHashSet<>(this.typeLocators.size());
-		Set<String> keyTable = this.typeLocators.keySet();
-		for (String packageName : keyTable) {
+		Set<String> keySet = this.typeLocators.keySet();
+		for (String packageName : keySet) {
 			int last = packageName.lastIndexOf('/');
 			packageName = last == -1 ? null : packageName.substring(0, last);
 			while (packageName != null && !names.contains(packageName)) {
