@@ -32,7 +32,6 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.NullTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -82,9 +81,7 @@ public class EqualExpression extends BinaryExpression {
 					flowContext.recordNullCheckedFieldReference((Reference) this.left, 1);
 				}
 			} else if (this.left instanceof ConditionalExpression ce) {
-				if ((ce.resolvedType.tagBits & TagBits.IsBaseType) == 0 || ce.resolvedType instanceof NullTypeBinding) {
-					checkConditionalExpressionComparison(scope, flowContext, flowInfo, rightStatus, this.left);
-				}
+				checkConditionalExpressionComparison(scope, flowContext, flowInfo, rightStatus, ce);
 			}
 		}
 		if (!rightNonNullChecked) {
@@ -102,9 +99,7 @@ public class EqualExpression extends BinaryExpression {
 					flowContext.recordNullCheckedFieldReference((Reference) this.right, 1);
 				}
 			} else if (this.right instanceof ConditionalExpression ce) {
-				if ((ce.resolvedType.tagBits & TagBits.IsBaseType) == 0 || ce.resolvedType instanceof NullTypeBinding) {
-					checkConditionalExpressionComparison(scope, flowContext, flowInfo, leftStatus, this.right);
-				}
+				checkConditionalExpressionComparison(scope, flowContext, flowInfo, leftStatus, ce);
 			}
 		}
 
@@ -186,25 +181,28 @@ public class EqualExpression extends BinaryExpression {
 	}
 	private void checkConditionalExpressionComparison(BlockScope scope,
 			FlowContext flowContext, FlowInfo flowInfo,
-			int nullStatus, Expression reference) {
+			int nullStatus, ConditionalExpression conditionalExpression) {
+
+//		if (conditionalExpression.nullStatus(flowInfo, flowContext) != FlowInfo.NULL)
+//			return;
 
 
 		switch (nullStatus) {
 			case FlowInfo.NULL :
 				if (((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
-					flowContext.flagConditional(scope, reference,
+					flowContext.recordNullConditional(scope, conditionalExpression,
 							FlowContext.CAN_ONLY_NULL | FlowContext.IN_COMPARISON_NULL, flowInfo);
 				} else {
-					flowContext.flagConditional(scope, reference,
+					flowContext.recordNullConditional(scope, conditionalExpression,
 							FlowContext.CAN_ONLY_NULL | FlowContext.IN_COMPARISON_NON_NULL, flowInfo);
 				}
 				break;
 			case FlowInfo.NON_NULL :
 				if (((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
-					flowContext.flagConditional(scope, reference,
+					flowContext.recordNullConditional(scope, conditionalExpression,
 							FlowContext.CAN_ONLY_NULL_NON_NULL | FlowContext.IN_COMPARISON_NON_NULL, flowInfo);
 				} else {
-					flowContext.flagConditional(scope, reference,
+					flowContext.recordNullConditional(scope, conditionalExpression,
 							FlowContext.CAN_ONLY_NULL_NON_NULL | FlowContext.IN_COMPARISON_NULL, flowInfo);
 				}
 				break;
