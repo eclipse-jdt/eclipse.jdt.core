@@ -422,7 +422,7 @@ public abstract class Scope {
 				if (isMalformedPair(iType, jType, scope)) {
 					return null;
 				}
-				if (iType.isCompatibleWith(jType, scope)) { // if Vi <: Vj, Vj is removed
+				if (iType.isSubtypeOf(jType, false)) { // if Vi <: Vj, Vj is removed
 					if (result == types) { // defensive copy
 						System.arraycopy(result, 0, result = new TypeBinding[length], 0, length);
 					}
