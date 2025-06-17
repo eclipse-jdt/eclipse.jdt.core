@@ -196,9 +196,9 @@ private void computeClasspathLocations(
 					}
 					bLocation.patchModuleName = patchedModuleName;
 				} else {
-					IClasspathAttribute[] extraAttributes = entry.getExtraAttributes();
-					Map<String, String> map = Arrays.stream(extraAttributes).collect(Collectors.toMap(IClasspathAttribute::getName, IClasspathAttribute::getValue));
-					String release = map.get(IClasspathAttribute.RELEASE);
+					String release = Arrays.stream(entry.getExtraAttributes())
+							.filter(a -> IClasspathAttribute.RELEASE.equals(a.getName()))
+							.map(IClasspathAttribute::getValue).findFirst().orElse(null);
 					IContainer finalOutputFolder;
 					if (release == null) {
 						finalOutputFolder = outputFolder;
