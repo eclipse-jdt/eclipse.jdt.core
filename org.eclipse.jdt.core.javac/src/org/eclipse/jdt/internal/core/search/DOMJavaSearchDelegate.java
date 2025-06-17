@@ -54,6 +54,7 @@ import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.CreationReference;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
@@ -71,6 +72,8 @@ import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.search.FieldDeclarationMatch;
 import org.eclipse.jdt.core.search.FieldReferenceMatch;
 import org.eclipse.jdt.core.search.IJavaSearchDelegate;
@@ -387,6 +390,22 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 			IJavaElement localJavaElement = DOMASTNodeUtils.getLocalJavaElement(node);
 			if (!Objects.equals(localJavaElement, element)) {
 				ret.setLocalElement(localJavaElement);
+			}
+			if (node.getLocationInParent() == VariableDeclarationStatement.TYPE_PROPERTY && node.getParent() instanceof VariableDeclarationStatement stmt && stmt.fragments().size() > 1) {
+				ret.setOtherElements(((List<VariableDeclarationFragment>)stmt.fragments())
+						.subList(1, stmt.fragments().size())
+						.stream()
+						.map(VariableDeclarationFragment::resolveBinding)
+						.map(IVariableBinding::getJavaElement)
+						.toArray(IJavaElement[]::new));
+			}
+			if (node.getLocationInParent() == FieldDeclaration.TYPE_PROPERTY && node.getParent() instanceof FieldDeclaration stmt && stmt.fragments().size() > 1) {
+				ret.setOtherElements(((List<VariableDeclarationFragment>)stmt.fragments())
+						.subList(1, stmt.fragments().size())
+						.stream()
+						.map(VariableDeclarationFragment::resolveBinding)
+						.map(IVariableBinding::getJavaElement)
+						.toArray(IJavaElement[]::new));
 			}
 			return ret;
 		}
