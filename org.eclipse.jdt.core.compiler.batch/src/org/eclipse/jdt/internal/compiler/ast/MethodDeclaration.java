@@ -267,9 +267,8 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 					this.scope.problemReporter().componentAccessorMethodShouldBePublic(this);
 				if (this.binding.isStatic())
 					this.scope.problemReporter().componentAccessorMethodShouldNotBeStatic(this);
-				if ((this.binding.modifiers & ExtraCompilerModifiers.AccOverriding) == 0) {
+				if ((this.binding.tagBits & TagBits.AnnotationOverride) == 0)
 					this.scope.problemReporter().componentAccessorMissingOverrideAnnotation(this);
-				}
 			}
 			if (this.thrownExceptions != null)
 				this.scope.problemReporter().componentAccessorMethodHasThrowsClause(this);
