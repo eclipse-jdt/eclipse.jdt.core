@@ -9798,4 +9798,44 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The final local variable i cannot be assigned, since it is defined in an enclosing type\n" +
 			"----------\n");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3465
+	// [Enhanced Switch] Bug 575652 - [17][codegen][switch pattern] Unnecessary casts in switch
+	public void testIssue3465() throws Exception {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import static java.util.stream.IntStream.rangeClosed;
+
+				public interface X {
+				  static String fizzbuzz(int i) {
+				    return switch((Integer) i) {
+				      case Integer v when v % 15 == 0 -> "FizzBuzz";
+				      case Integer v when v % 5 == 0 -> "Buzz";
+				      case Integer v when v % 3 == 0 -> "Fizz";
+				      case Integer v -> "" + v;
+				    };
+				  }
+
+				  static void main(String[] args) {
+				    rangeClosed(1, 100).mapToObj(i -> fizzbuzz(i)).forEach(System.out::println);
+				  }
+				}
+				"""
+			},
+			"1\n" + "2\n" + "Fizz\n" + "4\n" + "Buzz\n" + "Fizz\n" + "7\n" + "8\n" + "Fizz\n" + "Buzz\n" +
+			"11\n" + "Fizz\n" + "13\n" + "14\n" + "FizzBuzz\n" + "16\n" + "17\n" + "Fizz\n" + "19\n" + "Buzz\n" +
+			"Fizz\n" + "22\n" + "23\n" + "Fizz\n" + "Buzz\n" + "26\n" + "Fizz\n" + "28\n" + "29\n" + "FizzBuzz\n" +
+			"31\n" + "32\n" + "Fizz\n" + "34\n" + "Buzz\n" + "Fizz\n" + "37\n" + "38\n" + "Fizz\n" + "Buzz\n" +
+			"41\n" + "Fizz\n" + "43\n" + "44\n" + "FizzBuzz\n" + "46\n" + "47\n" + "Fizz\n" + "49\n" + "Buzz\n" +
+			"Fizz\n" + "52\n" + "53\n" + "Fizz\n" + "Buzz\n" + "56\n" + "Fizz\n" + "58\n" + "59\n" + "FizzBuzz\n" +
+			"61\n" + "62\n" + "Fizz\n" + "64\n" + "Buzz\n" + "Fizz\n" + "67\n" + "68\n" + "Fizz\n" + "Buzz\n" +
+			"71\n" + "Fizz\n" + "73\n" + "74\n" + "FizzBuzz\n" + "76\n" + "77\n" + "Fizz\n" + "79\n" + "Buzz\n" +
+			"Fizz\n" + "82\n" + "83\n" + "Fizz\n" + "Buzz\n" + "86\n" + "Fizz\n" + "88\n" + "89\n" + "FizzBuzz\n" +
+			"91\n" + "92\n" + "Fizz\n" + "94\n" + "Buzz\n" + "Fizz\n" + "97\n" + "98\n" + "Fizz\n" + "Buzz");
+		String expectedOutput = "public static java.lang.String fizzbuzz(int i);\n";
+		String unexpectedOutput = "checkcast";
+		verifyClassFile(expectedOutput, unexpectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	}
 }

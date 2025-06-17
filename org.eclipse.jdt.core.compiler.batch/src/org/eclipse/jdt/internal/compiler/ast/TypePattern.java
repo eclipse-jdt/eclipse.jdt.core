@@ -91,8 +91,8 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 		} else {
 
 			if (!this.isTotalTypeNode) {
-				boolean checkCast = JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(currentScope.compilerOptions()) ?
-								!this.local.binding.type.isBaseType() : true;
+				boolean checkCast = TypeBinding.notEquals(this.local.binding.type, this.outerExpressionType) &&
+											(JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(currentScope.compilerOptions()) ? !this.local.binding.type.isBaseType() : true);
 				if (checkCast)
 					codeStream.checkcast(this.local.binding.type);
 			}
