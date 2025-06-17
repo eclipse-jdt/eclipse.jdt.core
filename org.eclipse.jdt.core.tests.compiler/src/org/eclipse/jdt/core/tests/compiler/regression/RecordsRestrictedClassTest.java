@@ -10566,4 +10566,39 @@ public void testIssue4094() {
 
 		"ClassB instance");
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4106
+// @Override-annotation on records not correctly handled by Eclipse 4.36
+public void testIssue4106() {
+	Map<String, String> customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
+			CompilerOptions.ERROR);
+
+	this.runNegativeTest(
+			true,
+ 		new String[] {
+					"X.java",
+					"""
+					public record X(String withoutOverride, String withOverride) {
+
+					  public String withoutOverride() {
+					    return withoutOverride;
+					  }
+
+					  @Override
+					  public String withOverride() {
+					    return withOverride;
+					  }
+					}
+					""",
+	            },
+	null, customOptions,
+	"----------\n" +
+	"1. ERROR in X.java (at line 3)\n" +
+	"	public String withoutOverride() {\n" +
+	"	              ^^^^^^^^^^^^^^^^^\n" +
+	"The component accessor method withoutOverride() of record class X should be tagged with @Override\n" +
+	"----------\n",
+	JavacTestOptions.SKIP);
+}
 }

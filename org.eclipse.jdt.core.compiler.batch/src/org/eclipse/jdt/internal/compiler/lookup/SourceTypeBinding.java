@@ -1888,6 +1888,7 @@ nextMethod:
 			RecordComponentBinding rcb = rcbs[j];
 			if (CharOperation.equals(method.selector, rcb.name) && (method.parameterNames == null || method.parameterNames.length == 0)) {
 				missingAccessors.remove(rcb);
+				method.modifiers |= ExtraCompilerModifiers.AccOverriding;
 				continue nextMethod;
 			}
 		}
