@@ -212,7 +212,7 @@ private void computeClasspathLocations(
 								entry.fullExclusionPatternChars(),
 								entry.ignoreOptionalProblems(),
 								externalAnnotationPath,
-								release==null?-1:Integer.parseInt(release));
+								release==null?IReleaseAwareNameEnvironment.NO_RELEASE:Integer.parseInt(release));
 					if (patchedModule != null) {
 						ModuleEntryProcessor.combinePatchIntoModuleEntry(sourceLocation, patchedModule, moduleEntries);
 					}
