@@ -116,7 +116,7 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 			this.scope.problemReporter().annotationMembersCannotHaveTypeParameters(this);
 		}
 		if (this.extendedDimensions != 0) {
-			this.scope.problemReporter().illegalExtendedDimensions(this);
+			this.scope.problemReporter().discouragedExtendedDimensions(this);
 		}
 		if (this.binding == null) return;
 		TypeBinding returnTypeBinding = this.binding.returnType;
