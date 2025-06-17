@@ -159,7 +159,7 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 			if (sourceLocation.hasIndependentOutputFolder) {
 				IContainer outputFolder = sourceLocation.binaryFolder;
 				if (visited.add(outputFolder)) {
-					if (outputFolder.exists()) {
+					if (outputFolder.exists()) { //if folder exits delete it (otherwise we would get an exception)
 						IResource[] members = outputFolder.members();
 						for (IResource member : members) {
 							if (!member.isDerived()) {
