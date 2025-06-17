@@ -782,7 +782,7 @@ public class NameLookup implements SuffixConstants {
 				checkRestrictions,
 				monitor,
 				null,// no module
-				IReleaseAwareNameEnvironment.DEFAULT_RELEASE);
+				IReleaseAwareNameEnvironment.NO_RELEASE);
 	}
 	/**
 	 * Find type. Considering secondary types and waiting for indexes depends on given corresponding parameters.
@@ -910,7 +910,7 @@ public class NameLookup implements SuffixConstants {
 				}
 			}
 		}
-		return IReleaseAwareNameEnvironment.DEFAULT_RELEASE;
+		return IReleaseAwareNameEnvironment.NO_RELEASE;
 	}
 
 	public static IModule getModuleDescriptionInfo(IModuleDescription moduleDesc) {

@@ -17,7 +17,11 @@ import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 
 public interface IReleaseAwareNameEnvironment extends IModuleAwareNameEnvironment {
 
-	static final int DEFAULT_RELEASE = -1;
+	/**
+	 * Marker used to be specified in cases where a release is passed or used as an argument but nos specific release is
+	 * used. This usually means the default release is assumed to be used.
+	 */
+	static final int NO_RELEASE = -1;
 
 	/**
 	 * The first java release that supported multi release jars
@@ -38,16 +42,16 @@ public interface IReleaseAwareNameEnvironment extends IModuleAwareNameEnvironmen
 
 	@Override
 	default NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
-		return findType(typeName, packageName, DEFAULT_RELEASE);
+		return findType(typeName, packageName, NO_RELEASE);
 	}
 
 	@Override
 	default NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, char[] moduleName) {
-		return findType(typeName, packageName, moduleName, DEFAULT_RELEASE);
+		return findType(typeName, packageName, moduleName, NO_RELEASE);
 	}
 
 	@Override
 	default NameEnvironmentAnswer findType(char[][] compoundName, char[] moduleName) {
-		return findType(compoundName, moduleName, DEFAULT_RELEASE);
+		return findType(compoundName, moduleName, NO_RELEASE);
 	}
 }

@@ -43,7 +43,7 @@ ClasspathMultiDirectory(IContainer sourceFolder, IContainer binaryFolder, char[]
 	this.sourceFolder = sourceFolder;
 	this.inclusionPatterns = inclusionPatterns;
 	this.exclusionPatterns = exclusionPatterns;
-	this.release = release>=IReleaseAwareNameEnvironment.FIRST_MULTI_RELEASE?release:IReleaseAwareNameEnvironment.DEFAULT_RELEASE;
+	this.release = release>=IReleaseAwareNameEnvironment.FIRST_MULTI_RELEASE?release:IReleaseAwareNameEnvironment.NO_RELEASE;
 	this.hasIndependentOutputFolder = false;
 	this.ignoreOptionalProblems = ignoreOptionalProblems;
 

@@ -1202,7 +1202,7 @@ private int getRelease() {
 	if (release >= IReleaseAwareNameEnvironment.FIRST_MULTI_RELEASE) {
 		return release;
 	}
-	return IReleaseAwareNameEnvironment.DEFAULT_RELEASE;
+	return IReleaseAwareNameEnvironment.NO_RELEASE;
 }
 
 public ParameterizedGenericMethodBinding createParameterizedGenericMethod(MethodBinding genericMethod, RawTypeBinding rawType) {

@@ -603,7 +603,7 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 			if (loc instanceof ClasspathMultiDirectory md) {
 				return md.release;
 			}
-			return IReleaseAwareNameEnvironment.DEFAULT_RELEASE;
+			return IReleaseAwareNameEnvironment.NO_RELEASE;
 		}).reversed()).toArray(ClasspathLocation[]::new);
 	}
 	for (ClasspathLocation classpathLocation : relevantLocations) {
