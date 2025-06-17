@@ -2456,6 +2456,97 @@ public void testIssue3990_4() {
 		options);
 }
 
+public void testIssue3990_5() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+			public class X {
+				int foo0() {
+					int ret = 0;
+
+					for (int i = 0; i < 2; i++) {
+						if ((test() ? null : null) ==  null) // Error here
+							ret = 1;
+					}
+					return ret;
+				}
+				int foo1() {
+					int ret = 0;
+					String s = null;
+
+					for (int i = 0; i < 2; i++) {
+						if ((test() ? s : null) ==  null) // No Error here
+							ret = 1;
+						s = "hello";
+					}
+					return ret;
+				}
+
+				boolean test() {
+					return true;
+				}
+			}
+			""",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	if ((test() ? null : null) ==  null) // Error here\n" +
+		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Redundant null check: this expression can only be null\n" +
+		"----------\n",
+		null/*classLibs*/,
+		true/*shouldFlush*/,
+		options);
+}
+
+public void _testIssue3990_6() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+			public class X {
+				int foo3() {
+					int ret = 0;
+					String s = null;
+
+					for (int i = 0; i < 2; i++) {
+						if ((test() ? s : null) ==  null) // Flag null error
+							ret = 1;
+
+						if (s == null) // Flag null error
+							ret = 2;
+
+
+					}
+					return ret;
+				}
+
+				boolean test() {
+					return true;
+				}
+			}
+			""",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	if ((test() ? null : null) ==  null) // Flag null error\n" +
+		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Redundant null check: this expression can only be null\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 10)\n" +
+		"	if (s == null) // Flag null error\n" +
+		"	    ^\n" +
+		"Redundant null check: The variable s can only be null at this location\n" +
+		"----------\n",
+		null/*classLibs*/,
+		true/*shouldFlush*/,
+		options);
+}
 public static Class testClass() {
 	return AssignmentTest.class;
 }

@@ -1023,37 +1023,44 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 	}
 }
 
-public void flagConditional(Scope scope, Expression conditionalExpression,
+public void recordNullConditional(Scope scope, Expression conditionalExpression,
 		 int checkType, FlowInfo flowInfo) {
 
+	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) != 0 ||
+			conditionalExpression.nullStatus(flowInfo, this) == FlowInfo.UNKNOWN) {
+		return;
+	}
 	// if inside an assert, we will not raise redundant null check warnings
 	checkType |= (this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING);
 	int checkTypeWithoutHideNullWarning = checkType & ~FlowContext.HIDE_NULL_COMPARISON_WARNING_MASK;
 	switch (checkTypeWithoutHideNullWarning) {
 		case FlowContext.CAN_ONLY_NULL_NON_NULL | FlowContext.IN_COMPARISON_NULL:
-			if ((checkType & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
-				scope.problemReporter().expressionRedundantNullComparison(conditionalExpression, /* isExpressionNull */false );
-			}
-			flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
-			break;
 		case FlowContext.CAN_ONLY_NULL_NON_NULL | FlowContext.IN_COMPARISON_NON_NULL:
-			if ((checkType & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
-				scope.problemReporter().expressionRedundantNullComparison(conditionalExpression, /* isExpressionNull */false);
+			if (conditionalExpression.nullStatus(flowInfo, this) == FlowInfo.NON_NULL ) {
+				if (checkTypeWithoutHideNullWarning == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL)) {
+					if ((checkType & HIDE_NULL_COMPARISON_WARNING) == 0) {
+						scope.problemReporter().expressionRedundantNullComparison(conditionalExpression, /* isExpressionNull */false );
+					}
+					flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
+				} else {
+					scope.problemReporter().expressionRedundantNullComparison(conditionalExpression, /* isExpressionNull */false );
+					flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
+				}
 			}
-			flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
 			break;
-
 		case FlowContext.CAN_ONLY_NULL | FlowContext.IN_COMPARISON_NULL:
-			if ((checkType & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
-				scope.problemReporter().expressionRedundantNullComparison(conditionalExpression, /* isExpressionNull */true);
-			}
-			flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
-			break;
 		case FlowContext.CAN_ONLY_NULL | FlowContext.IN_COMPARISON_NON_NULL:
-			if ((checkType & FlowContext.HIDE_NULL_COMPARISON_WARNING) == 0) {
-				scope.problemReporter().expressionRedundantNullComparison(conditionalExpression, /* isExpressionNull */true);
+			if (conditionalExpression.nullStatus(flowInfo, this) == FlowInfo.NULL ) {
+				if (checkTypeWithoutHideNullWarning == (CAN_ONLY_NULL | IN_COMPARISON_NULL)) {
+					if ((checkType & HIDE_NULL_COMPARISON_WARNING) == 0) {
+						scope.problemReporter().expressionRedundantNullComparison(conditionalExpression, /* isExpressionNull */true );
+					}
+					flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
+				} else {
+					scope.problemReporter().expressionRedundantNullComparison(conditionalExpression, /* isExpressionNull */true );
+					flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
+				}
 			}
-			flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
 			break;
 	}
 }
