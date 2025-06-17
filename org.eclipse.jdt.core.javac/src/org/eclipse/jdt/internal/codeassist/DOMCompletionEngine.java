@@ -774,6 +774,19 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					}
 					this.qualifiedPrefix = packageName;
 				}
+			} else if (this.toComplete instanceof TextElement) {
+				int cursor = this.offset;
+				while (cursor > 0 && (Character.isJavaIdentifierPart(this.textContent.charAt(cursor - 1))
+						|| Character.isJavaIdentifierStart(this.textContent.charAt(cursor - 1))
+						|| this.textContent.charAt(cursor - 1) == '.')) {
+					cursor--;
+				}
+				this.qualifiedPrefix = this.textContent.substring(cursor, this.offset);
+				if (this.qualifiedPrefix.contains(".")) {
+					this.qualifiedPrefix = this.qualifiedPrefix.substring(0, this.qualifiedPrefix.lastIndexOf('.'));
+				} else {
+					this.qualifiedPrefix = this.prefix;
+				}
 			} else if (this.toComplete instanceof ThisExpression thisExpression) {
 				if (thisExpression.getQualifier() != null) {
 					this.qualifiedPrefix = thisExpression.getQualifier().toString();
@@ -1730,8 +1743,10 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		boolean containsInvalidChars = false;
 		boolean startsWithAtSymbol = false;
 		while (cursor >= 0 && !Character.isWhitespace(this.textContent.charAt(cursor))) {
-			if (!Character.isJavaIdentifierPart(this.textContent.charAt(cursor))
-					&& !Character.isJavaIdentifierStart(this.textContent.charAt(cursor))) {
+			char currentChar = this.textContent.charAt(cursor);
+			if (!Character.isJavaIdentifierPart(currentChar)
+					&& !Character.isJavaIdentifierStart(currentChar)
+					&& currentChar != '.') {
 				if (this.textContent.charAt(cursor) == '@'
 						&& (Character.isWhitespace(this.textContent.charAt(cursor - 1))
 								|| this.textContent.charAt(cursor - 1) == '{')) {
@@ -4625,6 +4640,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			boolean isInJavaLang = type.getFullyQualifiedName().startsWith("java.lang.") && !type.getFullyQualifiedName().substring("java.lang.".length()).contains(".");
 			IPackageBinding currentPackageBinding = completionContext.getCurrentTypeBinding() == null ? null : completionContext.getCurrentTypeBinding().getPackage();
 			if (packageFrag != null && (currentPackageBinding == null
+					|| (!this.qualifiedPrefix.equals(this.prefix) && javadoc != null)
 					|| (!packageFrag.getElementName().equals(currentPackageBinding.getName())
 							&& !packageFrag.getElementName().equals("java.lang"))) && !inImports && !isInJavaLang) { //$NON-NLS-1$
 				completion.insert(0, '.');
@@ -4641,6 +4657,12 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 		if (this.toComplete instanceof FieldAccess || this.prefix.isEmpty()) {
 			res.setReplaceRange(this.offset, this.offset);
+		} else if (this.completionContext.isInJavadoc()) {
+			if (this.qualifiedPrefix.equals(this.prefix)) {
+				setRange(res);
+			} else {
+				setQualifiedRange(res);
+			}
 		} else if (this.toComplete instanceof MarkerAnnotation) {
 			res.setReplaceRange(this.toComplete.getStartPosition() + 1, this.toComplete.getStartPosition() + this.toComplete.getLength());
 		} else if (this.toComplete instanceof SimpleName currentName && FAKE_IDENTIFIER.equals(currentName.toString())) {
@@ -4652,7 +4674,11 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				&& this.offset > (thisExpression.getQualifier().getStartPosition() + thisExpression.getQualifier().getLength())) {
 			setRange(res);
 		} else if (this.toComplete instanceof MethodRefParameter || this.toComplete instanceof MethodRef || this.toComplete instanceof TextElement){
-			setRange(res);
+			if (this.qualifiedPrefix.equals(this.prefix)) {
+				setRange(res);
+			} else {
+				setQualifiedRange(res);
+			}
 		} else {
 			res.setReplaceRange(this.toComplete.getStartPosition(), this.offset);
 		}
@@ -5945,6 +5971,25 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		int cursor = this.offset;
 		while (cursor < this.textContent.length()
 				&& Character.isJavaIdentifierPart(this.textContent.charAt(cursor))) {
+			cursor++;
+		}
+		completionProposal.setReplaceRange(startPos, cursor);
+		completionProposal.setTokenRange(startPos, cursor);
+	}
+
+	/**
+	 * Sets the replace and token ranges of a qualified completion based on the contents of the buffer.
+	 *
+	 * eg. the buffer content before the cursor is <code>java.util.Li</code>
+	 * and you are replacing all of it with <code>java.util.List</code>
+	 *
+	 * @param completionProposal the proposal whose range to set
+	 */
+	private void setQualifiedRange(CompletionProposal completionProposal) {
+		int startPos = this.offset - this.prefix.length() - 1 - this.qualifiedPrefix.length();
+		int cursor = this.offset;
+		while (cursor < this.textContent.length()
+				&& (Character.isJavaIdentifierPart(this.textContent.charAt(cursor)) || this.textContent.charAt(cursor) == '.')) {
 			cursor++;
 		}
 		completionProposal.setReplaceRange(startPos, cursor);
