@@ -104,8 +104,8 @@ class PatternLocatorVisitor extends ASTVisitor {
 			T node,
 			BiFunction<T, DOMPatternLocator, LocatorResponse> levelFunc,
 			Function<ASTNode, IBinding> bindingFunc) {
-		boolean mustResolve = (this.nodeSet.mustResolve() || this.locator.patternLocator.isMustResolve());
 		LocatorResponse resp = levelFunc.apply(node, this.domPatternLocator);
+		boolean mustResolve = (this.nodeSet.mustResolve() || this.locator.patternLocator.isMustResolve());
 		boolean nodeReplaced = resp.replacementNodeFound();
 		ASTNode n2 = nodeReplaced ? resp.replacement() : node;
 		n2 = n2 == null ? node : n2;

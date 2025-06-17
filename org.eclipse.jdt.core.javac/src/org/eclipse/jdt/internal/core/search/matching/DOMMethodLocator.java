@@ -237,7 +237,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		if (level == IMPOSSIBLE_MATCH)
 			return level;
 
-		if (this.pattern.declaringSimpleName == null) {
+		if (this.pattern.declaringSimpleName == null && this.locator.pattern.returnSimpleName != null) {
 			// look at return type only if declaring type is not specified
 			level = resolveLevelForType(this.locator.pattern.returnSimpleName, this.locator.pattern.returnQualification, method.getReturnType());
 			if (level == IMPOSSIBLE_MATCH)
@@ -454,20 +454,15 @@ public class DOMMethodLocator extends DOMPatternLocator {
 	}
 
 	protected int matchMethodBindingReturn(IMethodBinding binding) {
-		int level = ACCURATE_MATCH;
 		// look at return type only if declaring type is not specified
 		if (this.locator.pattern.declaringSimpleName == null) {
 			// TODO (frederic) use this call to refine accuracy on return type
 			// int newLevel = resolveLevelForType(this.locator.pattern.returnSimpleName, this.locator.pattern.returnQualification, this.locator.pattern.returnTypeArguments, 0, method.returnType);
-			int newLevel = resolveLevelForType(this.locator.pattern.returnSimpleName, this.locator.pattern.returnQualification,
-					binding.getReturnType());
-			if (level > newLevel) {
-				if (newLevel == IMPOSSIBLE_MATCH)
-					return IMPOSSIBLE_MATCH;
-				level = newLevel; // can only be downgraded
-			}
+			if (resolveLevelForType(this.locator.pattern.returnSimpleName, this.locator.pattern.returnQualification,
+					binding.getReturnType()) == IMPOSSIBLE_MATCH)
+				return IMPOSSIBLE_MATCH;
 		}
-		return level;
+		return ACCURATE_MATCH;
 	}
 
 	private int matchMethodParametersTypes(ASTNode node, IMethodBinding method, boolean skipImpossibleArg, int level) {
