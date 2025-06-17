@@ -247,6 +247,23 @@ public class CaptureBinding extends TypeVariableBinding {
 						// TODO: there are cases were we need to compute glb(capturedWildcardBound, substitutedVariableSuperclass)
 						//       but then when glb (perhaps triggered inside setFirstBound()) fails, how to report the error??
 					}
+					if (this.superclass.id != TypeIds.T_JavaLangObject) {
+						int length = substitutedVariableInterfaces.length;
+						ReferenceBinding[] superTypes = new ReferenceBinding[length + 1];
+						System.arraycopy(substitutedVariableInterfaces, 0, superTypes, 1, length);
+						superTypes[0] = this.superclass;
+						superTypes = Scope.greaterLowerBound(superTypes);
+						substitutedVariableInterfaces = new ReferenceBinding[superTypes.length - 1];
+						boolean foundSuper = false;
+						for (int i = 0; i < superTypes.length; i++) {
+							ReferenceBinding current = superTypes[i];
+							if (current.isInterface()) {
+								substitutedVariableInterfaces[i - (foundSuper ? 1 : 0)] = superTypes[i];
+							} else {
+								foundSuper = true;
+							}
+						}
+					}
 					this.setSuperInterfaces(substitutedVariableInterfaces);
 				}
 				this.setFirstBound(capturedWildcardBound);

@@ -6737,5 +6737,29 @@ public void testIssue3897() {
 			"----------\n"
 		);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2523
+// Compilation error on ecj but not javac due to usage of incorrect super interface
+public void testIssue2523() {
+        this.runConformTest(
+            new String[] {
+                "X.java",
+                """
+                public class X {
+                    public void test() {
+                        C<? extends D> c = null;
+                        optional(c, null);
+                    }
+
+                    private <I extends F, T extends E<I>> void optional(C<T> l, I i) {}
+
+                    public static interface C<T extends E<?>> {}
+                    public static class D implements E<F> {}
+                    public static interface E<I extends F> {}
+                    public static class F {}
+                }
+                """
+            }
+        );
+}
 }
 
