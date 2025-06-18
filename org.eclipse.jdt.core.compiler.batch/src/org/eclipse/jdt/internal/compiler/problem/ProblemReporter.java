@@ -1665,6 +1665,12 @@ public void comparingIdenticalExpressions(Expression comparison){
 public int computeSeverity(int problemID){
 
 	switch (problemID) {
+		// For compatibility with javac 8b111 for now.
+		case IProblem.RepeatableAnnotationWithRepeatingContainerAnnotation:
+		case IProblem.ToleratedMisplacedTypeAnnotations:
+		case IProblem.IllegalUseOfUnderscoreAsAnIdentifier:
+		case IProblem.DiscouragedValueBasedTypeSynchronization:
+		case IProblem.IllegalExtendedDimensions:
 		case IProblem.VarargsConflict :
  		case IProblem.StrictfpNotRequired:
  			return ProblemSeverities.Warning;
@@ -1750,15 +1756,6 @@ public int computeSeverity(int problemID){
 				return ProblemSeverities.Ignore;
 			}
 			break;
-		// For compatibility with javac 8b111 for now.
-		case IProblem.RepeatableAnnotationWithRepeatingContainerAnnotation:
-		case IProblem.ToleratedMisplacedTypeAnnotations:
-			return ProblemSeverities.Warning;
-		case IProblem.IllegalUseOfUnderscoreAsAnIdentifier:
-			return ProblemSeverities.Warning;
-		// for Java 16
-		case IProblem.DiscouragedValueBasedTypeSynchronization:
-			return ProblemSeverities.Warning;
 	}
 	int irritant = getIrritant(problemID);
 	if (irritant != 0) {
@@ -2824,7 +2821,7 @@ public void illegalClassLiteralForTypeVariable(TypeVariableBinding variable, AST
 		location.sourceStart,
 		location.sourceEnd);
 }
-public void illegalExtendedDimensions(AnnotationMethodDeclaration annotationTypeMemberDeclaration) {
+public void discouragedExtendedDimensions(AnnotationMethodDeclaration annotationTypeMemberDeclaration) {
 	this.handle(
 		IProblem.IllegalExtendedDimensions,
 		NoArgument,
