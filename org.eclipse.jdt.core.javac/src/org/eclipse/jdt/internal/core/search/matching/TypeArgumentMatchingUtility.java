@@ -28,10 +28,6 @@ public class TypeArgumentMatchingUtility {
 	}
 
 	public static boolean validateSingleTypeArgMatches(boolean requiresExactMatch, String patternSig, IBinding patternBinding, IBinding domBinding, PatternLocator locator) {
-		if( patternBinding == domBinding ) {
-			return true;
-		}
-
 		ITypeBinding domTypeBinding = domBinding instanceof ITypeBinding ? (ITypeBinding)domBinding : null;
 		String domKey1 = domBinding == null ? null : domBinding.getKey();
 		String domSig = null;

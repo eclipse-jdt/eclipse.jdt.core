@@ -430,6 +430,8 @@ public class DOMMethodLocator extends DOMPatternLocator {
 			if( argBindings.length != goal.length  )
 				return IMPOSSIBLE_MATCH;
 
+			boolean inaccurateFound = false;
+			boolean erasureFound = false;
 			for( int i = 0; i < argBindings.length; i++ ) {
 				// Compare each
 				String goaliString = new String(goal[i]);
@@ -443,13 +445,18 @@ public class DOMMethodLocator extends DOMPatternLocator {
 						return IMPOSSIBLE_MATCH;
 					}
 					if( potentialMatchOnly ) {
-						return INACCURATE_MATCH;
+						inaccurateFound = true;
+					} else {
+						erasureFound = true;
 					}
-					return ERASURE_MATCH;
 				}
 			}
+			if(inaccurateFound)
+				return INACCURATE_MATCH;
+			if( erasureFound ) {
+				return ERASURE_MATCH;
+			}
 		}
-
 		return level;
 	}
 
@@ -663,13 +670,16 @@ public class DOMMethodLocator extends DOMPatternLocator {
 
 		int methodLevel = matchMethod(messageSend, method, false, false);
 		if (methodLevel == IMPOSSIBLE_MATCH) {
-			if (method != method.getMethodDeclaration()) methodLevel = matchMethod(messageSend, method.getMethodDeclaration(), false, true);
-			if (methodLevel == IMPOSSIBLE_MATCH) return IMPOSSIBLE_MATCH;
+			if (method != method.getMethodDeclaration())
+				methodLevel = matchMethod(messageSend, method.getMethodDeclaration(), false, true);
+			if (methodLevel == IMPOSSIBLE_MATCH)
+				return IMPOSSIBLE_MATCH;
 			method = method.getMethodDeclaration();
 		}
 
 		// receiver type
-		if (this.pattern.declaringSimpleName == null && this.pattern.declaringQualification == null) return methodLevel; // since any declaring class will do
+		if (this.pattern.declaringSimpleName == null && this.pattern.declaringQualification == null)
+			return methodLevel; // since any declaring class will do
 
 		int declaringLevel;
 		ITypeBinding receiverType = messageSend.getExpression() != null ? messageSend.getExpression().resolveTypeBinding() : method.getDeclaringClass();
