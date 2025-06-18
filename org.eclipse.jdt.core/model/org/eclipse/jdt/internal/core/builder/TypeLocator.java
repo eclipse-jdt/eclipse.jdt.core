@@ -33,26 +33,24 @@ public class TypeLocator {
 	private String[] knownPackageNames; // of the form "p1/p2"
 
 	//holds data when no release is used
-	private Map<String, String> defaultMap;
+	private final Map<String, String> defaultMap;
 
 	//holds data when a release version is used
 	private Map<String, Map<Integer, String>> releaseMap;
 
 	TypeLocator() {
-		//
+		this.defaultMap = new LinkedHashMap<>(7);
 	}
 
 	TypeLocator(TypeLocator copy) {
-		if (copy.defaultMap != null) {
-			this.defaultMap = new LinkedHashMap<>(copy.defaultMap);
-		}
+		this.defaultMap = new LinkedHashMap<>(copy.defaultMap);
 		if (copy.releaseMap != null) {
 			this.releaseMap = new LinkedHashMap<>(copy.releaseMap);
 		}
 	}
 
 	void write(CompressedWriter out, Map<String, Integer> internedTypeLocators) throws IOException {
-		if (this.defaultMap == null || this.defaultMap.isEmpty()) {
+		if (this.defaultMap.isEmpty()) {
 			out.writeInt(0);
 		} else {
 			out.writeInt(this.defaultMap.size());
@@ -85,10 +83,8 @@ public class TypeLocator {
 
 	void read(CompressedReader in, String[] internedTypeLocators) throws IOException {
 		int length = in.readInt();
-		if (length  == 0) {
-			this.defaultMap = null;
-		} else {
-			this.defaultMap = new LinkedHashMap<>((int) (length / 0.75 + 1));
+		this.defaultMap.clear();
+		if (length  > 0) {
 			for (int i = 0; i < length; i++) {
 				recordLocatorForType(in.readStringUsingLast(), internedTypeLocators[in.readIntInRange(internedTypeLocators.length)], IReleaseAwareNameEnvironment.NO_RELEASE);
 			}
@@ -112,9 +108,7 @@ public class TypeLocator {
 
 	void removeLocator(String qualifiedTypeNameToRemove) {
 		this.knownPackageNames = null;
-		if (this.defaultMap != null) {
-			this.defaultMap.remove(qualifiedTypeNameToRemove);
-		}
+		this.defaultMap.remove(qualifiedTypeNameToRemove);
 		if (this.releaseMap != null) {
 			this.releaseMap.remove(qualifiedTypeNameToRemove);
 		}
@@ -134,7 +128,7 @@ public class TypeLocator {
 					}
 				}
 			}
-		} else if (this.defaultMap != null) {
+		} else {
 			this.defaultMap.values().removeIf(v -> typeLocatorToRemove.equals(v));
 		}
 	}
@@ -153,19 +147,13 @@ public class TypeLocator {
 			}
 			this.releaseMap.computeIfAbsent(qualifiedTypeName, nil -> new TreeMap<>()).put(release, typeLocator);
 		} else {
-			if (this.defaultMap == null) {
-				this.defaultMap = new LinkedHashMap<>(7);
-			}
 			this.defaultMap.put(qualifiedTypeName, typeLocator);
 		}
 	}
 
 	boolean isKnownPackage(String qualifiedPackageName) {
 		if (this.knownPackageNames == null) {
-			int total = 0;
-			if (this.defaultMap != null) {
-				total +=this.defaultMap.size();
-			}
+			int total = this.defaultMap.size();
 			if (this.releaseMap != null) {
 				total +=this.releaseMap.size();
 			}
@@ -174,9 +162,7 @@ public class TypeLocator {
 				return false;
 			}
 			LinkedHashSet<String> names = new LinkedHashSet<>(total);
-			if (this.defaultMap != null) {
-				addPackages(names, this.defaultMap.keySet());
-			}
+			addPackages(names, this.defaultMap.keySet());
 			if (this.releaseMap != null) {
 				addPackages(names, this.releaseMap.keySet());
 			}
@@ -200,7 +186,7 @@ public class TypeLocator {
 	}
 
 	boolean isKnownType(String qualifiedTypeName) {
-		if (this.defaultMap != null && this.defaultMap.containsKey(qualifiedTypeName)) {
+		if (this.defaultMap.containsKey(qualifiedTypeName)) {
 			return true;
 		}
 		if (this.releaseMap != null && this.releaseMap.containsKey(qualifiedTypeName)) {
@@ -211,11 +197,9 @@ public class TypeLocator {
 
 	boolean isSourceFolderEmpty(IContainer sourceFolder) {
 		String sourceFolderName = sourceFolder.getProjectRelativePath().addTrailingSeparator().toString();
-		if (this.defaultMap != null) {
-			for (String value : this.defaultMap.values()) {
-				if (value.startsWith(sourceFolderName)) {
-					return false;
-				}
+		for (String value : this.defaultMap.values()) {
+			if (value.startsWith(sourceFolderName)) {
+				return false;
 			}
 		}
 		if (this.releaseMap != null) {
@@ -242,9 +226,6 @@ public class TypeLocator {
 			}
 			string = existing.get(release);
 		} else {
-			if (this.defaultMap == null) {
-				return false;
-			}
 			string= this.defaultMap.get(qualifiedTypeName);
 		}
 		return string != null && !string.equals(typeLocator);
@@ -260,9 +241,6 @@ public class TypeLocator {
 	}
 
 	private Optional<String> getDefaultPathForName(String typeName) {
-		if (this.defaultMap == null) {
-			return Optional.empty();
-		}
 		return Optional.ofNullable(this.defaultMap.get(typeName));
 	}
 
@@ -284,7 +262,7 @@ public class TypeLocator {
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof TypeLocator other) {
-			if(!Objects.requireNonNullElse(this.defaultMap, Map.of()).equals(Objects.requireNonNullElse(other.defaultMap, Map.of())))  {
+			if(!this.defaultMap.equals(other.defaultMap))  {
 				return false;
 			}
 			if(!Objects.requireNonNullElse(this.releaseMap, Map.of()).equals(Objects.requireNonNullElse(other.releaseMap, Map.of())))  {
