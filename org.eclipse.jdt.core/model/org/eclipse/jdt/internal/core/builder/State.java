@@ -94,6 +94,7 @@ private static final int[] PROBLEM_IDS = new int[] { 0, IProblem.ForbiddenRefere
 
 State() {
 	// constructor with no argument
+	this.typeLocators = new TypeLocator();
 }
 
 protected State(JavaBuilder javaBuilder) {
