@@ -374,6 +374,11 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					processMembers(toComplete, typeDecl.resolveBinding(), this, false);
 				} else if (current instanceof AnonymousClassDeclaration anonymousClass) {
 					processMembers(toComplete, anonymousClass.resolveBinding(), this, false);
+				} else if (current instanceof CompilationUnit cu) {
+					for (AbstractTypeDeclaration typeDecl : (List<AbstractTypeDeclaration>)cu.types()) {
+						// STATIC members only
+						processMembers(toComplete, typeDecl.resolveBinding(), this, true);
+					}
 				}
 				current = current.getParent();
 			}
@@ -1774,7 +1779,25 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			localTypeBindings.scrapeAccessibleBindings();
 			localTypeBindings.all() //
 				.filter(binding -> binding instanceof ITypeBinding) //
-				.filter(type -> (this.qualifiedPrefix.equals(this.prefix) || this.qualifiedPrefix.equals(finalizedCurrentPackage)) && this.pattern.matchesName(this.prefix.toCharArray(), type.getName().toCharArray()))
+				.filter(type -> {
+					ITypeBinding typeBinding = (ITypeBinding)type;
+					if (((ITypeBinding)type).isMember()) {
+						StringBuilder classQualifiedName = new StringBuilder();
+						ITypeBinding parentTypeCursor = typeBinding;
+						do {
+							parentTypeCursor = parentTypeCursor.getDeclaringClass();
+							if (!classQualifiedName.isEmpty()) {
+								classQualifiedName.insert(0, ".");
+							}
+							classQualifiedName.insert(0, parentTypeCursor.getName());
+						} while (parentTypeCursor.isMember());
+						if (this.qualifiedPrefix.equals(classQualifiedName.toString())) {
+							return this.pattern.matchesName(this.prefix.toCharArray(), type.getName().toCharArray());
+						}
+					}
+					return this.pattern.matchesName((this.qualifiedPrefix + "." + this.prefix).toCharArray(), type.getName().toCharArray()) ||
+							(this.qualifiedPrefix.equals(this.prefix) || this.qualifiedPrefix.equals(finalizedCurrentPackage)) && this.pattern.matchesName(this.prefix.toCharArray(), type.getName().toCharArray());
+				})
 				.forEach(type -> {
 					DOMInternalCompletionProposal typeProposal = (DOMInternalCompletionProposal)this.toProposal(type);
 					this.requestor.accept(typeProposal);
@@ -4066,7 +4089,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			return;
 		}
 		CompilationUnit cu = ((CompilationUnit)DOMCompletionUtils.findParent(referencedFrom, new int[] {ASTNode.COMPILATION_UNIT}));
-		String packageKey = cu.getPackage() != null ? cu.getPackage().resolveBinding().getKey() : "";
+		String packageKey = cu.getPackage() != null ? cu.getPackage().resolveBinding() != null ? cu.getPackage().resolveBinding().getKey() : "" : "";
 		ASTNode parentType = DOMCompletionUtils.findParent(referencedFrom, new int[] {ASTNode.ANNOTATION_TYPE_DECLARATION, ASTNode.TYPE_DECLARATION, ASTNode.ENUM_DECLARATION, ASTNode.RECORD_DECLARATION, ASTNode.ANONYMOUS_CLASS_DECLARATION});
 		ITypeBinding referencedFromBinding = null;
 		if (parentType instanceof AbstractTypeDeclaration abstractTypeDeclaration) {
@@ -4639,8 +4662,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			boolean inImports = ((List<ImportDeclaration>)this.unit.imports()).stream().anyMatch(improt -> fullTypeName.equals(improt.getName().toString()));
 			boolean isInJavaLang = type.getFullyQualifiedName().startsWith("java.lang.") && !type.getFullyQualifiedName().substring("java.lang.".length()).contains(".");
 			IPackageBinding currentPackageBinding = completionContext.getCurrentTypeBinding() == null ? null : completionContext.getCurrentTypeBinding().getPackage();
+			// TODO: what about qualified references to inner classes?
 			if (packageFrag != null && (currentPackageBinding == null
-					|| (!this.qualifiedPrefix.equals(this.prefix) && javadoc != null)
+					|| (this.qualifiedPrefix.startsWith(packageFrag.getElementName()) && javadoc != null)
 					|| (!packageFrag.getElementName().equals(currentPackageBinding.getName())
 							&& !packageFrag.getElementName().equals("java.lang"))) && !inImports && !isInJavaLang) { //$NON-NLS-1$
 				completion.insert(0, '.');
