@@ -551,6 +551,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	}
 	if (valueRequired) {
 		codeStream.generateImplicitConversion(this.implicitConversion);
+		if (codeStream.operandStack.peek() == TypeBinding.NULL)
+			codeStream.operandStack.cast(this.resolvedType);
 	} else if (annotatedCast || needRuntimeCheckcast) {
 		switch (this.resolvedType.id) {
 			case T_long :
