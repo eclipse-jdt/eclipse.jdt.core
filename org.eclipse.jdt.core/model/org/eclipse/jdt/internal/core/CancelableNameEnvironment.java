@@ -60,7 +60,7 @@ public class CancelableNameEnvironment extends SearchableEnvironment implements 
 	}
 	@Override
 	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, boolean searchWithSecondaryTypes, char[] moduleName) {
-		return super.findType(typeName, packageName, moduleName);
+		return findType(typeName, packageName, moduleName, NO_RELEASE);
 	}
 	@Override
 	public void findTypes(char[] prefix, boolean findMembers, int matchRule, int searchFor, ISearchRequestor storage, IProgressMonitor progressMonitor) {
