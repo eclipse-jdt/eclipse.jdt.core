@@ -159,7 +159,9 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 			if (sourceLocation.hasIndependentOutputFolder) {
 				IContainer outputFolder = sourceLocation.binaryFolder;
 				if (visited.add(outputFolder)) {
-					if (outputFolder.exists()) { //if folder exits delete it (otherwise we would get an exception)
+					if (outputFolder.exists()) { //if folder does not exists we can't delete it
+							//(reasons include: deleted already by an overlapping output folder, or another process deleted it)
+							// without this check the Eclipse resource API would bail out...
 						IResource[] members = outputFolder.members();
 						for (IResource member : members) {
 							if (!member.isDerived()) {
