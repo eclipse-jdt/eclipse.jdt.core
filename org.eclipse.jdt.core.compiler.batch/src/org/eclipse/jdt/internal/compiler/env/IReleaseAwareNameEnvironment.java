@@ -18,8 +18,8 @@ import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 public interface IReleaseAwareNameEnvironment extends IModuleAwareNameEnvironment {
 
 	/**
-	 * Marker used to be specified in cases where a release is passed or used as an argument but nos specific release is
-	 * used. This usually means the default release is assumed to be used.
+	 * Marker used to be specified in cases where a release is passed or used as an argument but no specific release is
+	 * used..
 	 */
 	static final int NO_RELEASE = -1;
 
