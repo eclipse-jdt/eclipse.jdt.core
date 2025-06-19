@@ -591,5 +591,48 @@ public class JavacSpecificCompletionTests {
 				"""));
 	}
 
+	@Test
+	public void testCompleteVariableBeforeThis() throws Exception {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("HelloWorld.java",
+			"""
+			public class HelloWorld  {
+				private int value = 0;
+				private int number = 0;
+
+				static class Inner {
+					int getValue() {
+						return 3;
+					}
+				}
+
+				void m() {
+					Inner inner = new Inner();
+					this.value = inner.
+					this.number = 2;
+				}
+			}
+			""");
+
+		// add the replace range to the results
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false, false, true);
+
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "inner.";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		IProgressMonitor monitor = new NullProgressMonitor();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, WC_OWNER, monitor);
+		assertEquals("""
+				notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, [201, 201], 44}
+				notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, [201, 201], 44}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, [201, 201], 44}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, [201, 201], 44}
+				wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, [201, 201], 44}
+				equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, [201, 201], 49}
+				getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, [201, 201], 49}
+				toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, [201, 201], 49}
+				getValue[METHOD_REF]{getValue(), LHelloWorld.Inner;, ()I, getValue, [201, 201], 79}
+				hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, [201, 201], 79}""", requestor.getResults());
+	}
 
 }

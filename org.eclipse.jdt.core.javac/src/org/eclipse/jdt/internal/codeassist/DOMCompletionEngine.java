@@ -1295,18 +1295,37 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	private void completeThisExpression(ThisExpression thisExpression) {
 		if (thisExpression.getQualifier() != null) {
 			IBinding binding = thisExpression.getQualifier().resolveBinding();
-			if (binding instanceof ITypeBinding typeBinding) {
-				this.qualifyingType = typeBinding;
-				Bindings typesMembers = new Bindings();
-				processMembers(this.toComplete, typeBinding, typesMembers, true);
-				publishFromScope(typesMembers);
-				this.requestor.accept(createClassKeywordProposal(typeBinding, -1,-1));
-			}
-			for (char[] keyword : List.of(Keywords.SUPER, Keywords.THIS)) {
-				if (!isFailedMatch(this.prefix.toCharArray(), keyword)) {
-					CompletionProposal res = createKeywordProposal(keyword, -1, -1);
-					res.setRelevance(res.getRelevance() + RelevanceConstants.R_NON_INHERITED);
-					this.requestor.accept(res);
+			if (binding.isRecovered() && this.prefix.isEmpty()) {
+				// TODO: maybe we should port this over to the binding resolution logic somehow?
+				// eg.
+				// this.value = myValue.|
+				// this.font = "Times New Roman";
+				// we need to recover the binding ourselves
+				String nameToRecover = thisExpression.getQualifier().toString();
+				Optional<IVariableBinding> potentialBinding = defaultCompletionBindings.all()
+					.filter(IVariableBinding.class::isInstance)
+					.map(IVariableBinding.class::cast)
+					.filter(accessibleBinding -> accessibleBinding.getName().equals(nameToRecover))
+					.findFirst();
+				if (potentialBinding.isPresent()) {
+					Bindings namesMembers = new Bindings();
+					processMembers(this.toComplete, potentialBinding.get().getType(), namesMembers, false);
+					publishFromScope(namesMembers);
+				}
+			} else {
+				if (binding instanceof ITypeBinding typeBinding) {
+					this.qualifyingType = typeBinding;
+					Bindings typesMembers = new Bindings();
+					processMembers(this.toComplete, typeBinding, typesMembers, true);
+					publishFromScope(typesMembers);
+					this.requestor.accept(createClassKeywordProposal(typeBinding, -1,-1));
+				}
+				for (char[] keyword : List.of(Keywords.SUPER, Keywords.THIS)) {
+					if (!isFailedMatch(this.prefix.toCharArray(), keyword)) {
+						CompletionProposal res = createKeywordProposal(keyword, -1, -1);
+						res.setRelevance(res.getRelevance() + RelevanceConstants.R_NON_INHERITED);
+						this.requestor.accept(res);
+					}
 				}
 			}
 			suggestDefaultCompletions = false;
