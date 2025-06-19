@@ -1721,30 +1721,26 @@ public abstract class Scope {
 							}
 						}
 					}
-				} else if (currentIsSuper) {
-					for (int i = 0, l = currentLength; i < l; i++) { // currentLength can be modified inside the loop
-						MethodBinding currentMethod = currentMethods[i];
-						if (currentMethod.isPrivate()) {
-							if (singlePrivateMethod == null && !multiplePrivateMethods) {
-								singlePrivateMethod = currentMethod;
-							} else {
-								singlePrivateMethod = null;
-								multiplePrivateMethods = true;
-							}
-							currentLength--;
-							currentMethods[i] = null;
-						}
-					}
 				}
 
 				if (currentLength > 0) {
-					// append currentMethods, filtering out null entries
-					if (currentMethods.length == currentLength) {
+					// append currentMethods, filtering out null entries and private super methods
+					if (currentMethods.length == currentLength && !currentIsSuper) {
 						found.addAll(currentMethods);
 					} else {
 						for (MethodBinding currentMethod : currentMethods) {
-							if (currentMethod != null)
-								found.add(currentMethod);
+							if (currentMethod != null) {
+								if (currentIsSuper && currentMethod.isPrivate()) {
+									if (singlePrivateMethod == null && !multiplePrivateMethods) {
+										singlePrivateMethod = currentMethod;
+									} else {
+										singlePrivateMethod = null;
+										multiplePrivateMethods = true;
+									}
+								} else {
+									found.add(currentMethod);
+								}
+							}
 						}
 					}
 				}

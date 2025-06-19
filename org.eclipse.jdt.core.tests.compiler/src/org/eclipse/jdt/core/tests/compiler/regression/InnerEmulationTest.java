@@ -6020,6 +6020,51 @@ public void test172() throws Exception {
 				"----------\n");
 	}
 }
+public void test172b() throws Exception {
+	runNegativeTest(new String[] {
+			"X.java",
+			"""
+			class Y {
+				void a() { }
+				private static void a(String s) { }
+
+				public static class X extends Y {
+
+					void a(int x, int y) { }
+					private void c() { }
+					private static void c(String s) { }
+
+					static class M1 extends X {
+						public void x() {
+							a(null);
+							c(null);
+						}
+					}
+
+					static class M2 {
+						public void x() {
+							a(null);
+							c(null);
+						}
+					}
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 13)
+			a(null);
+			^
+		The method a(int, int) in the type Y.X is not applicable for the arguments (null)
+		----------
+		2. ERROR in X.java (at line 20)
+			a(null);
+			^
+		The method a(int, int) in the type Y.X is not applicable for the arguments (null)
+		----------
+		""");
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=308245
 public void test173() throws Exception {
 	this.runConformTest(
