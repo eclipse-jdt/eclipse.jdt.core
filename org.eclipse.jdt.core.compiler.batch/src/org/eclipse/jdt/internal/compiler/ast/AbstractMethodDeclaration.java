@@ -129,33 +129,40 @@ public abstract class AbstractMethodDeclaration
 	static void createArgumentBindings(Argument[] arguments, MethodBinding binding, MethodScope scope) {
 		boolean useTypeAnnotations = scope.environment().usesNullTypeAnnotations();
 		if (arguments != null && binding != null) {
-			for (int i = 0, length = arguments.length; i < length; i++) {
+			int argLen = arguments.length;
+			for (int i = 0, length = argLen; i < length; i++) {
 				Argument argument = arguments[i];
 				binding.parameters[i] = argument.createBinding(scope, binding.parameters[i]);
 				long argumentTagBits = argument.binding.tagBits;
-				if ((argumentTagBits & TagBits.AnnotationOwning) != 0) {
-					if (binding.parameterFlowBits == null) {
-						binding.parameterFlowBits = new byte[arguments.length];
-					}
-					binding.parameterFlowBits[i] |= PARAM_OWNING;
-				} else if ((argumentTagBits & TagBits.AnnotationNotOwning) != 0) {
-					if (binding.parameterFlowBits == null) {
-						binding.parameterFlowBits = new byte[arguments.length];
-					}
-					binding.parameterFlowBits[i] |= PARAM_NOTOWNING;
-				}
-				if (useTypeAnnotations)
-					continue; // no business with SE7 null annotations in the 1.8 case.
-				// createBinding() has resolved annotations, now transfer nullness info from the argument to the method:
-				long argTypeTagBits = (argumentTagBits & TagBits.AnnotationNullMASK);
-				if (argTypeTagBits != 0) {
-					if (binding.parameterFlowBits == null) {
-						binding.parameterFlowBits = new byte[arguments.length];
-						binding.tagBits |= TagBits.IsNullnessKnown;
-					}
-					binding.parameterFlowBits[i] = MethodBinding.flowBitFromAnnotationTagBit(argTypeTagBits);
-				}
+				computeParamFlowBits(binding, argLen, argumentTagBits, i, useTypeAnnotations);
 			}
+		}
+	}
+
+	public static void computeParamFlowBits(MethodBinding binding, int argLen, long paramTagBits, int paramRank,
+			boolean useTypeAnnotations)
+	{
+		if ((paramTagBits & TagBits.AnnotationOwning) != 0) {
+			if (binding.parameterFlowBits == null) {
+				binding.parameterFlowBits = new byte[argLen];
+			}
+			binding.parameterFlowBits[paramRank] |= PARAM_OWNING;
+		} else if ((paramTagBits & TagBits.AnnotationNotOwning) != 0) {
+			if (binding.parameterFlowBits == null) {
+				binding.parameterFlowBits = new byte[argLen];
+			}
+			binding.parameterFlowBits[paramRank] |= PARAM_NOTOWNING;
+		}
+		if (useTypeAnnotations)
+			return; // no business with SE7 null annotations in the 1.8 case.
+		// createBinding() has resolved annotations, now transfer nullness info from the argument to the method:
+		long argTypeTagBits = (paramTagBits & TagBits.AnnotationNullMASK);
+		if (argTypeTagBits != 0) {
+			if (binding.parameterFlowBits == null) {
+				binding.parameterFlowBits = new byte[argLen];
+				binding.tagBits |= TagBits.IsNullnessKnown;
+			}
+			binding.parameterFlowBits[paramRank] = MethodBinding.flowBitFromAnnotationTagBit(argTypeTagBits);
 		}
 	}
 
