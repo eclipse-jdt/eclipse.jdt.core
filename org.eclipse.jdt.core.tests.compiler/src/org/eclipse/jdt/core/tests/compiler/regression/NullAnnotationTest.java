@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2022 GK Software AG and others.
+ * Copyright (c) 2010, 2025 GK Software AG and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11521,7 +11521,7 @@ public void _testIssue3319() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
 // [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
-public void testIssue3971() {
+public void testIssue3971_1a() {
 	if (this.complianceLevel < ClassFileConstants.JDK16)
 		return;
 	runNegativeTest(
@@ -11530,9 +11530,9 @@ public void testIssue3971() {
 				"""
 				import org.eclipse.jdt.annotation.NonNullByDefault;
 
+				@NonNullByDefault
 				public record X(String component) {
 
-					@NonNullByDefault
 					public X {
 						component = null;
 					}
@@ -11549,6 +11549,28 @@ public void testIssue3971() {
 			this.LIBS,
 			false/*shouldFlush*/);
 }
+public void testIssue3971_1b() {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return;
+	runConformTestWithLibs(
+			new String[] {
+				"X.java",
+				"""
+				import org.eclipse.jdt.annotation.NonNullByDefault;
+
+				public record X(String component) {
+
+					@NonNullByDefault // not affecting the record component declared above
+					public X {
+						component = null;
+					}
+				}
+				"""
+			},
+			getCompilerOptions(),
+			"");
+}
+
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3971
 // [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
 public void testIssue3971_2() {
@@ -11565,7 +11587,7 @@ public void testIssue3971_2() {
 			"package annotation;\n" +
 			"\n" +
 			"public enum DefaultLocation {\n" +
-			"    PARAMETER, RETURN_TYPE, FIELD\n" +
+			"    PARAMETER, RETURN_TYPE, FIELD, RECORD_COMPONENT\n" +
 			"}\n" +
 			"",
 			"annotation/NonNull.java",
@@ -11599,11 +11621,17 @@ public void testIssue3971_2() {
 				"""
 				import annotation.*;
 
+				@NonNullByDefault(DefaultLocation.RECORD_COMPONENT)
 				public record X(String component) {
 
-					@NonNullByDefault
 					public X {
 						component = null;
+					}
+				}
+				@NonNullByDefault // not effective on record component
+				record Y(String comp) {
+					public Y {
+						comp = null;
 					}
 				}
 				"""

@@ -985,9 +985,10 @@ private VariableBinding resolveTypeFor(VariableBinding variable) {
 			if (variableDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
 				// enum constants neither have a type declaration nor can they be null
 				variable.tagBits |= TagBits.AnnotationNonNull;
-			} else if (variable instanceof FieldBinding field) {
-				if (hasNonNullDefaultForType(variableType, DefaultLocationField, variableDeclaration.sourceStart)) {
-					field.fillInDefaultNonNullness((FieldDeclaration) variableDeclaration, initializationScope);
+			} else {
+				int location = variable.kind() == Binding.RECORD_COMPONENT ? DefaultLocationRecordComponent : DefaultLocationField;
+				if (hasNonNullDefaultForType(variableType, location, variableDeclaration.sourceStart)) {
+					variable.fillInDefaultNonNullness(variableDeclaration, initializationScope);
 				}
 				// validate null annotation:
 				if (!this.scope.validateNullAnnotation(variable.tagBits, variableDeclaration.type, variableDeclaration.annotations))
@@ -2100,7 +2101,12 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 			if (rcbs[i].type.hasTypeAnnotations())
 				methodDecl.bits |= ASTNode.HasTypeAnnotations;
 			// bind the implicit argument already.
+<<<<<<< Upstream, based on branch 'master' of git@github.com:srikanth-sankaran/eclipse.jdt.core.git
 			final LocalVariableBinding implicitArgument = new SyntheticArgumentBinding(rcbs[i]);
+=======
+			final LocalVariableBinding implicitArgument = new LocalVariableBinding(rcbs[i].name, rcbs[i].type, rcbs[i].modifiers, true);
+			implicitArgument.tagBits |= rcbs[i].tagBits & (TagBits.AnnotationNullMASK | TagBits.AnnotationOwningMASK);
+>>>>>>> ba5ceca [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
 			methodDecl.scope.addLocalVariable(implicitArgument);
 			List<AnnotationBinding> propagatedAnnotations = new ArrayList<>();
 			ASTNode.getRelevantAnnotations(rcbs[i].sourceRecordComponent().annotations, TagBits.AnnotationForParameter, propagatedAnnotations);
