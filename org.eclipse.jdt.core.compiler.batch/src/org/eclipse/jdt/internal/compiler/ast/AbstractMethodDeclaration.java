@@ -131,19 +131,16 @@ public abstract class AbstractMethodDeclaration
 	 * we create the argument binding and resolve annotations in order to compute null annotation tagbits.
 	 */
 	public void createArgumentBindings() {
-		createArgumentBindings(this.arguments(true), this.binding, this.scope);
+		createArgumentBindings(this.arguments, this.binding, this.scope);
 	}
 	// version for invocation from LambdaExpression:
-	static void createArgumentBindings(AbstractVariableDeclaration[] arguments, MethodBinding binding, MethodScope scope) {
+	static void createArgumentBindings(Argument[] arguments, MethodBinding binding, MethodScope scope) {
 		boolean useTypeAnnotations = scope.environment().usesNullTypeAnnotations();
 		if (arguments != null && binding != null) {
-			LocalVariableBinding [] argumentBindings = binding.isCompactConstructor() ? scope.argumentBindings() : new LocalVariableBinding[arguments.length];
-			int length = Math.min(binding.parameters.length, arguments.length);
-			for (int i = 0; i < length; i++) {
-				if (arguments[i] instanceof Argument argument)
-					argumentBindings[i] = argument.createBinding(scope, binding.parameters[i]);
-				binding.parameters[i] = argumentBindings[i].type;
-				long argumentTagBits = argumentBindings[i].tagBits;
+			for (int i = 0, length = arguments.length; i < length; i++) {
+				Argument argument = arguments[i];
+				binding.parameters[i] = argument.createBinding(scope, binding.parameters[i]);
+				long argumentTagBits = argument.binding.tagBits;
 				if ((argumentTagBits & TagBits.AnnotationOwning) != 0) {
 					if (binding.parameterFlowBits == null) {
 						binding.parameterFlowBits = new byte[arguments.length];
@@ -256,16 +253,15 @@ public abstract class AbstractMethodDeclaration
 	 * <li>NotOwning - for resource leak analysis
 	 * </ul>
 	 */
-	static void analyseArguments(LookupEnvironment environment, FlowInfo flowInfo, FlowContext flowContext, AbstractVariableDeclaration[] methodArguments, MethodBinding methodBinding, MethodScope scope) {
+	static void analyseArguments(LookupEnvironment environment, FlowInfo flowInfo, FlowContext flowContext, Argument[] methodArguments, MethodBinding methodBinding) {
 		if (methodArguments != null) {
 			boolean usesNullTypeAnnotations = environment.usesNullTypeAnnotations();
 			boolean usesOwningAnnotations = environment.usesOwningAnnotations();
 
-			LocalVariableBinding [] methodArgumentBindings = scope.argumentBindings();
 			int length = Math.min(methodBinding.parameters.length, methodArguments.length);
 			for (int i = 0; i < length; i++) {
 				TypeBinding parameterBinding = methodBinding.parameters[i];
-				LocalVariableBinding local = methodArgumentBindings[i];
+				LocalVariableBinding local = methodArguments[i].binding;
 				if (usesNullTypeAnnotations) {
 					// leverage null type annotations:
 					long tagBits = parameterBinding.tagBits & TagBits.AnnotationNullMASK;
