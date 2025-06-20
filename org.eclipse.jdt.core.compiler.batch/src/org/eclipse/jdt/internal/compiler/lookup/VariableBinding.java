@@ -18,6 +18,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -129,5 +130,28 @@ public abstract class VariableBinding extends Binding {
 	*/
 	public final boolean isDeprecated() {
 		return (this.modifiers & ClassFileConstants.AccDeprecated) != 0;
+	}
+
+	/** Applicable only for {@link FieldBinding} and {@link RecordComponentBinding}. */
+	public void fillInDefaultNonNullness(AbstractVariableDeclaration sourceField, Scope scope) {
+		assert sourceField.getKind() != AbstractVariableDeclaration.LOCAL_VARIABLE;
+		if (this.type == null || this.type.isBaseType())
+			return;
+		LookupEnvironment environment = scope.environment();
+		if (environment.usesNullTypeAnnotations()) {
+			if (!this.type.acceptsNonNullDefault())
+				return;
+			if ( (this.type.tagBits & TagBits.AnnotationNullMASK) == 0) {
+				this.type = environment.createNonNullAnnotatedType(this.type);
+			} else if ((this.type.tagBits & TagBits.AnnotationNonNull) != 0) {
+				scope.problemReporter().nullAnnotationIsRedundant(sourceField);
+			}
+		} else {
+			if ( (this.tagBits & TagBits.AnnotationNullMASK) == 0 ) {
+				this.tagBits |= TagBits.AnnotationNonNull;
+			} else if ((this.tagBits & TagBits.AnnotationNonNull) != 0) {
+				scope.problemReporter().nullAnnotationIsRedundant(sourceField);
+			}
+		}
 	}
 }

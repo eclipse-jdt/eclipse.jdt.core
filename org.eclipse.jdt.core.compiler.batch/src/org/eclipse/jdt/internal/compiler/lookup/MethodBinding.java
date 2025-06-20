@@ -515,6 +515,9 @@ public final char[] constantPoolName() {
  * After method verifier has finished, fill in missing @NonNull specification from the applicable default.
  */
 protected void fillInDefaultNonNullness(AbstractMethodDeclaration sourceMethod, boolean needToApplyReturnNonNullDefault, ParameterNonNullDefaultProvider needToApplyParameterNonNullDefault) {
+	if (sourceMethod != null && sourceMethod.isCompactConstructor()) {
+		return; // parameters aka record components are declared elsewhere
+	}
 	if (this.parameterFlowBits == null)
 		this.parameterFlowBits = new byte[this.parameters.length];
 	boolean added = false;
@@ -555,6 +558,9 @@ protected void fillInDefaultNonNullness18(AbstractMethodDeclaration sourceMethod
 	MethodBinding original = original();
 	if(original == null) {
 		return;
+	}
+	if (sourceMethod != null && sourceMethod.isCompactConstructor()) {
+		return; // parameters aka record components are declared elsewhere
 	}
 	ParameterNonNullDefaultProvider hasNonNullDefaultForParameter = hasNonNullDefaultForParameter(sourceMethod);
 	if (hasNonNullDefaultForParameter.hasAnyNonNullDefault()) {
