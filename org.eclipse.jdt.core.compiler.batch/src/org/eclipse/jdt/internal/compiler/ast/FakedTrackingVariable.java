@@ -265,7 +265,13 @@ public class FakedTrackingVariable extends LocalDeclaration {
 					return null;
 				// tracking var doesn't yet exist. This happens in finally block
 				// which is analyzed before the corresponding try block
-				Statement location = local.declaration;
+				ASTNode location = local.declaration;
+				if (location == null && local.isParameter() && local.declaringScope != null) {
+					if (local.declaringScope.referenceContext() instanceof ConstructorDeclaration cd && cd.isCompactConstructor()) {
+						TypeDeclaration referenceType = local.declaringScope.referenceType();
+						location = referenceType.binding.getRecordComponent(local.name);
+					}
+				}
 				local.closeTracker = new FakedTrackingVariable(local, location, flowInfo, flowContext, FlowInfo.UNKNOWN, useAnnotations);
 				if (local.isParameter()) {
 					local.closeTracker.globalClosingState |= OWNED_BY_OUTSIDE;
