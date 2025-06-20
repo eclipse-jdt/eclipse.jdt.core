@@ -22,6 +22,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
@@ -52,6 +53,7 @@ import org.eclipse.jdt.core.dom.SuperMethodReference;
 import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.TypeMethodReference;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.BinaryMethod;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
@@ -72,11 +74,17 @@ public class DOMMethodLocator extends DOMPatternLocator {
 	}
 
 	private IMethodBinding getDOMASTMethodBinding(ITypeBinding type, String methodName, ITypeBinding[] argumentTypes) {
-		return Stream.of(type.getDeclaredMethods())
-			.filter(method -> Objects.equals(method.getName(), methodName))
-			.filter(method -> compatibleByErasure(method.getParameterTypes(), argumentTypes))
-			.findAny()
-			.orElse(null);
+		if( type == null )
+			return null;
+		Stream<IMethodBinding> smb = Stream.of(type.getDeclaredMethods())
+				.filter(method -> Objects.equals(method.getName(), methodName))
+				.filter(method -> compatibleByErasure(method.getParameterTypes(), argumentTypes));
+		List<IMethodBinding> all = smb.collect(Collectors.toList());
+		IMethodBinding m1 = all.size() > 0 ? all.get(0) : null;
+		if( all.size() > 1 ) {
+			System.out.println("BREAK");
+		}
+		return m1;
 	}
 	// can be replaced with `Arrays.equals(method.getParameterTypes(), argumentTypes, Comparator.comparing(ITypeBinding::getErasure))`
 	// but JDT bugs
@@ -649,8 +657,12 @@ public class DOMMethodLocator extends DOMPatternLocator {
 				subType = CharOperation.compareWith(this.locator.pattern.declaringQualification, method.getDeclaringClass().getPackage().getName().toCharArray()) == 0;
 			}
 			ITypeBinding declaring = method.getDeclaringClass();
+			boolean isDefault = (method.getModifiers() & Modifier.DEFAULT) != 0;
+			String declaringPackageName = declaring.getPackage().getName();
 			int declaringLevel = subType
-				? resolveLevelAsSubtype(this.locator.pattern.declaringSimpleName, this.locator.pattern.declaringQualification, declaring, method.getName(), null, declaring.getPackage().getName(), (method.getModifiers() & Modifier.DEFAULT) != 0)
+				? resolveLevelAsSubtype(this.locator.pattern.declaringSimpleName, this.locator.pattern.declaringQualification,
+						declaring, method.getName(),
+						null, declaringPackageName, isDefault, method)
 				: this.resolveLevelForType(this.locator.pattern.declaringSimpleName, this.locator.pattern.declaringQualification, declaring);
 			int weakerLevel = findWeakerLevel((methodLevel & PatternLocator.MATCH_LEVEL_MASK), (declaringLevel & PatternLocator.MATCH_LEVEL_MASK));
 			int matchLevel = (weakerLevel & PatternLocator.MATCH_LEVEL_MASK);
@@ -676,65 +688,114 @@ public class DOMMethodLocator extends DOMPatternLocator {
 	}
 
 	protected int resolveLevel(MethodInvocation messageSend) {
-		IMethodBinding method = messageSend.resolveMethodBinding();
-		if (method == null) {
+		IMethodBinding invocationBinding = messageSend.resolveMethodBinding();
+		IMethodBinding invocationOrDeclarationBinding = invocationBinding;
+		IMethodBinding declarationBinding = null;
+		if (invocationOrDeclarationBinding == null) {
 			return INACCURATE_MATCH;
 		}
-//		if (messageSend.resolvedType == null) {
-//			// Closest match may have different argument numbers when ProblemReason is NotFound
-//			// see MessageSend#resolveType(BlockScope)
-//			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=97322
-//			if (this.pattern.parameterSimpleNames == null || messageSend.arguments().size() == this.pattern.parameterSimpleNames.length) {
-//				return INACCURATE_MATCH;
-//			}
-//			return IMPOSSIBLE_MATCH;
-//		}
 
-		int methodLevel = matchMethod(messageSend, method, false, false);
-		if (methodLevel == IMPOSSIBLE_MATCH) {
-			if (method != method.getMethodDeclaration())
-				methodLevel = matchMethod(messageSend, method.getMethodDeclaration(), false, true);
-			if (methodLevel == IMPOSSIBLE_MATCH)
+		int invocationLevel = matchMethod(messageSend, invocationBinding, false, false);
+		int declarationLevel = IMPOSSIBLE_MATCH;
+		if (invocationLevel == IMPOSSIBLE_MATCH) {
+			declarationBinding = invocationBinding.getMethodDeclaration();
+			if (invocationBinding != declarationBinding)
+				declarationLevel = matchMethod(messageSend, declarationBinding, false, true);
+			if (declarationLevel == IMPOSSIBLE_MATCH)
 				return IMPOSSIBLE_MATCH;
-			method = method.getMethodDeclaration();
+			invocationOrDeclarationBinding = declarationBinding;
 		}
 
+		int invocOrDeclLevel = invocationLevel == IMPOSSIBLE_MATCH ? declarationLevel : invocationLevel;
 		// receiver type
-		if (this.pattern.declaringSimpleName == null && this.pattern.declaringQualification == null)
-			return methodLevel; // since any declaring class will do
+		if (this.pattern.declaringSimpleName == null && this.pattern.declaringQualification == null) {
+			// since any declaring class will do
+			return invocOrDeclLevel;
+		}
 
+		ITypeBinding invocationDeclClass = invocationBinding.getDeclaringClass();
+		ITypeBinding declBindingClass = declarationBinding == null ? null : declarationBinding.getDeclaringClass();
+		String k1 = invocationDeclClass == null ? null : invocationDeclClass.getKey();
+		String k2 = declBindingClass == null ? null : declBindingClass.getKey();
+		String q1 = invocationDeclClass == null ? null : invocationDeclClass.getQualifiedName();
+		String q2 = declBindingClass == null ? null : declBindingClass.getQualifiedName();
+		String b1 = invocationDeclClass == null ? null : invocationDeclClass.getBinaryName();
+		String b2 = declBindingClass == null ? null : declBindingClass.getBinaryName();
 		int declaringLevel;
-		ITypeBinding receiverType = messageSend.getExpression() != null ? messageSend.getExpression().resolveTypeBinding() : method.getDeclaringClass();
+		if (shouldResolveSubSuperLevel(messageSend, invocationOrDeclarationBinding, invocOrDeclLevel)) {
+			declaringLevel = resolveSubSuperLevel(messageSend, invocationOrDeclarationBinding, invocOrDeclLevel);
+		} else {
+			declaringLevel = resolveLevelForType(this.pattern.declaringSimpleName, this.pattern.declaringQualification, invocationOrDeclarationBinding.getDeclaringClass());
+		}
+
+		int declaringFlavors = declaringLevel & FLAVORS_MASK;
+
+		int noFlavorInvocOrDecl = invocOrDeclLevel & MATCH_LEVEL_MASK;
+		int noFlavorDeclaringLevel = declaringLevel & MATCH_LEVEL_MASK;
+		int weakerMethod = findWeakerLevel(noFlavorInvocOrDecl, noFlavorDeclaringLevel);
+		int weakerSimple = (invocOrDeclLevel & MATCH_LEVEL_MASK) > (declaringLevel & MATCH_LEVEL_MASK) ? declaringLevel : invocOrDeclLevel; // return the weaker match
+		if( weakerMethod != weakerSimple ) {
+			System.out.println("BREAK");
+		}
+		if (declaringFlavors != 0) {
+			// level got some flavors => return it
+			return declaringLevel;
+		}
+		return weakerMethod;
+	}
+
+	private boolean shouldResolveSubSuperLevel(MethodInvocation messageSend, IMethodBinding invocationOrDeclarationBinding, int invocOrDeclLevel) {
+		ITypeBinding receiverType = messageSend.getExpression() != null ? messageSend.getExpression().resolveTypeBinding() : invocationOrDeclarationBinding.getDeclaringClass();
 		if (receiverType.isArray()) {
 			receiverType = messageSend.getAST().resolveWellKnownType(Object.class.getName());
 		}
-		if (isVirtualInvoke(method, messageSend) && receiverType != null && !receiverType.isArray() && !receiverType.isIntersectionType()) {
-			var packageBinding = receiverType.getPackage();
-			declaringLevel = resolveLevelAsSubtype(this.pattern.declaringSimpleName, this.pattern.declaringQualification, receiverType, method.getName(), method.getParameterTypes(), packageBinding != null ? packageBinding.getName() : null, Modifier.isDefault(method.getModifiers()));
-			if (declaringLevel == IMPOSSIBLE_MATCH) {
-				if (method.getDeclaringClass() == null || this.allSuperDeclaringTypeNames == null) {
-					declaringLevel = INACCURATE_MATCH;
-				} else {
-					char[][][] superTypeNames = (Modifier.isDefault(method.getModifiers()) && this.pattern.focus == null) ? this.samePkgSuperDeclaringTypeNames: this.allSuperDeclaringTypeNames;
-					if (superTypeNames != null && resolveLevelAsSuperInvocation(receiverType, method.getParameterTypes(), superTypeNames, true)) {
-							declaringLevel = methodLevel // since this is an ACCURATE_MATCH so return the possibly weaker match
-								| SUPER_INVOCATION_FLAVOR; // this is an overridden method => add flavor to returned level
-					}
+		boolean isVirtuallyInvoked = isVirtualInvoke(invocationOrDeclarationBinding, messageSend);
+		boolean excluded = receiverType == null || receiverType.isArray() || receiverType.isIntersectionType();
+		if (isVirtuallyInvoked && !excluded) {
+			return true;
+		}
+		return false;
+	}
+
+	private int resolveSubSuperLevel(MethodInvocation messageSend, IMethodBinding invocationOrDeclarationBinding,
+			int invocOrDeclLevel) {
+		int retLevel;
+		ITypeBinding receiverType = messageSend.getExpression() != null ? messageSend.getExpression().resolveTypeBinding() : invocationOrDeclarationBinding.getDeclaringClass();
+		if (receiverType.isArray()) {
+			receiverType = messageSend.getAST().resolveWellKnownType(Object.class.getName());
+		}
+		var packageBinding = receiverType.getPackage();
+		boolean isDefault = Modifier.isDefault(invocationOrDeclarationBinding.getModifiers());
+		String packageBindingName = packageBinding != null ? packageBinding.getName() : null;
+		ITypeBinding[] parameterTypes = invocationOrDeclarationBinding.getParameterTypes();
+		String bindingName = invocationOrDeclarationBinding.getName();
+		retLevel = resolveLevelAsSubtype(this.pattern.declaringSimpleName, this.pattern.declaringQualification,
+				receiverType, bindingName, parameterTypes, packageBindingName, isDefault, invocationOrDeclarationBinding);
+		if (retLevel == IMPOSSIBLE_MATCH) {
+			if (invocationOrDeclarationBinding.getDeclaringClass() == null || this.allSuperDeclaringTypeNames == null) {
+				retLevel = INACCURATE_MATCH;
+			} else {
+				boolean nullFocusDefault = Modifier.isDefault(invocationOrDeclarationBinding.getModifiers()) && this.pattern.focus == null;
+				char[][][] superTypeNames = nullFocusDefault ? this.samePkgSuperDeclaringTypeNames: this.allSuperDeclaringTypeNames;
+				if (superTypeNames != null && resolveLevelAsSuperInvocation(receiverType, invocationOrDeclarationBinding.getParameterTypes(), superTypeNames, true)) {
+					retLevel = invocOrDeclLevel // since this is an ACCURATE_MATCH so return the possibly weaker match
+							| SUPER_INVOCATION_FLAVOR; // this is an overridden method => add flavor to returned level
 				}
 			}
-			if ((declaringLevel & FLAVORS_MASK) != 0) {
-				// level got some flavors => return it
-				return declaringLevel;
-			}
-		} else {
-			declaringLevel = resolveLevelForType(this.pattern.declaringSimpleName, this.pattern.declaringQualification, method.getDeclaringClass());
 		}
-		return (methodLevel & MATCH_LEVEL_MASK) > (declaringLevel & MATCH_LEVEL_MASK) ? declaringLevel : methodLevel; // return the weaker match
+		return retLevel;
 	}
+
 	protected boolean isVirtualInvoke(IMethodBinding method, MethodInvocation messageSend) {
-		return !Modifier.isStatic(method.getModifiers()) && !Modifier.isPrivate(method.getModifiers())
-			&& !(Modifier.isDefault(method.getModifiers()) && this.pattern.focus != null
-			&& !CharOperation.equals(this.pattern.declaringPackageName, method.getDeclaringClass().getPackage().getName().toCharArray()));
+		// This method makes absolutely zero sense to me.
+		String t = method.getDeclaringClass().getPackage().getName();
+		boolean notStatic = !Modifier.isStatic(method.getModifiers());
+		boolean notPrivate = !Modifier.isPrivate(method.getModifiers());
+		boolean isDefault = Modifier.isDefault(method.getModifiers());
+		boolean nonNullFocus = this.pattern.focus != null;
+		boolean packageMatch = CharOperation.equals(this.pattern.declaringPackageName, t.toCharArray());
+		boolean r = notStatic && notPrivate	&& !(isDefault && nonNullFocus && !packageMatch);
+		return r;
 }
 
 	@Override
@@ -760,7 +821,8 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		return iIndex > jIndex ? j : i;
 	}
 
-	protected int resolveLevelAsSubtype(char[] simplePattern, char[] qualifiedPattern, ITypeBinding type, String methodName, ITypeBinding[] argumentTypes, String packageName, boolean isDefault) {
+	protected int resolveLevelAsSubtype_basic(char[] simplePattern, char[] qualifiedPattern, ITypeBinding type,
+			IMethodBinding method, String packageName, boolean isDefault, boolean methodIdenticalToOriginal) {
 		if (type == null) return INACCURATE_MATCH;
 
 		int level = this.resolveLevelForType(simplePattern, qualifiedPattern, type);
@@ -768,47 +830,103 @@ public class DOMMethodLocator extends DOMPatternLocator {
 			if (isDefault && !Objects.equals(packageName, type.getPackage().getName())) {
 				return IMPOSSIBLE_MATCH;
 			}
-			IMethodBinding method = argumentTypes == null ? null : getDOMASTMethodBinding(type, methodName, argumentTypes);
-			if (((method != null && !Modifier.isAbstract(method.getModifiers()) || !Modifier.isAbstract(type.getModifiers()))) && !type.isInterface()) { // if concrete, then method is overridden
+
+			// if concrete, then method is overridden
+			if( !methodIdenticalToOriginal && isConcrete(method, type)) {
+				// TODO this needs to be uncommented and then fixed also... but for now...
 				level |= PatternLocator.OVERRIDDEN_METHOD_FLAVOR;
 			}
 			return level;
 		}
+		return -1;
+	}
 
+	private boolean isConcrete(IMethodBinding method, ITypeBinding type) {
+		boolean nullMethod = method == null;
+		boolean abstractMethod = method == null ? false : Modifier.isAbstract(method.getModifiers());
+		boolean abstractType = Modifier.isAbstract(type.getModifiers());
+		if ((!nullMethod && !abstractMethod || !abstractType) && !type.isInterface()) {
+			return true;
+		}
+		return false;
+	}
+
+	protected int resolveLevelAsSubtype_super(char[] simplePattern, char[] qualifiedPattern, ITypeBinding type,
+			String methodName, ITypeBinding[] argumentTypes, IMethodBinding method,
+			String packageName, boolean isDefault, IMethodBinding originalQuery) {
 		// matches superclass
 		if (!type.isInterface() && !type.getQualifiedName().equals(Object.class.getName())) {
-			level = resolveLevelAsSubtype(simplePattern, qualifiedPattern, type.getSuperclass(), methodName, argumentTypes, packageName, isDefault);
+			int level = resolveLevelAsSubtype(simplePattern, qualifiedPattern, type.getSuperclass(), methodName, argumentTypes, packageName, isDefault, originalQuery);
 			if (level != IMPOSSIBLE_MATCH) {
-				if (argumentTypes != null) {
-					// need to verify if method may be overridden
-					IMethodBinding method = getDOMASTMethodBinding(type, methodName, argumentTypes);
-					if (method != null) { // one method match in hierarchy
-						if ((level & PatternLocator.OVERRIDDEN_METHOD_FLAVOR) != 0) {
-							// this method is already overridden on a super class, current match is impossible
-							return IMPOSSIBLE_MATCH;
-						}
-						if (!Modifier.isAbstract(method.getModifiers()) && !type.isInterface()) {
-							// store the fact that the method is overridden
-							level |= PatternLocator.OVERRIDDEN_METHOD_FLAVOR;
-						}
+				// need to verify if method may be overridden
+				if (method != null) { // one method match in hierarchy
+					if ((level & PatternLocator.OVERRIDDEN_METHOD_FLAVOR) != 0) {
+						// this method is already overridden on a super class, current match is impossible
+						return IMPOSSIBLE_MATCH;
+					}
+					if (isConcrete(method, type)) {
+						// store the fact that the method is overridden
+						level |= PatternLocator.OVERRIDDEN_METHOD_FLAVOR;
 					}
 				}
 				return level | PatternLocator.SUB_INVOCATION_FLAVOR; // add flavor to returned level
 			}
 		}
+		return -1;
+	}
 
+	protected int resolveLevelAsSubtype_interfaces(char[] simplePattern, char[] qualifiedPattern, ITypeBinding type,
+			String methodName, ITypeBinding[] argumentTypes, IMethodBinding method,
+			String packageName, boolean isDefault, IMethodBinding originalQuery) {
 		// matches interfaces
+		boolean concrete = isConcrete(method, type);
 		ITypeBinding[] interfaces = type.getInterfaces();
 		if (interfaces == null) return INACCURATE_MATCH;
 		for (ITypeBinding ref : interfaces) {
-			level = resolveLevelAsSubtype(simplePattern, qualifiedPattern, ref, methodName, null, packageName, isDefault);
+			int level = resolveLevelAsSubtype(simplePattern, qualifiedPattern,
+					ref, methodName, null, packageName, isDefault, originalQuery);
 			if (level != IMPOSSIBLE_MATCH) {
-				if (!Modifier.isAbstract(type.getModifiers()) && !type.isInterface()) { // if concrete class, then method is overridden
+				// if concrete class, then method is overridden
+				if (concrete) {
 					level |= PatternLocator.OVERRIDDEN_METHOD_FLAVOR;
 				}
 				return level | PatternLocator.SUB_INVOCATION_FLAVOR; // add flavor to returned level
 			}
 		}
+		return -1;
+	}
+
+	private boolean compareDeclaringClass(IMethodBinding b1, IMethodBinding b2) {
+		if( b1 == null || b2 == null )
+			return b1 == b2;
+		String b1ClassFqqn = b1 == null || b1.getDeclaringClass() == null ? null : b1.getDeclaringClass().getQualifiedName();
+		String b2ClassFqqn = b2 == null || b2.getDeclaringClass() == null ? null : b2.getDeclaringClass().getQualifiedName();
+		String b1TrimTypeParms = b1ClassFqqn.contains("<") ? b1ClassFqqn.substring(0,b1ClassFqqn.indexOf("<")) : b1ClassFqqn;
+		String b2TrimTypeParms = b2ClassFqqn.contains("<") ? b2ClassFqqn.substring(0,b2ClassFqqn.indexOf("<")) : b2ClassFqqn;
+		return b1TrimTypeParms.equals(b2TrimTypeParms);
+	}
+
+	protected int resolveLevelAsSubtype(char[] simplePattern,
+			char[] qualifiedPattern, ITypeBinding type,
+			String methodName, ITypeBinding[] argumentTypes,
+			String packageName, boolean isDefault,
+			IMethodBinding originalQuery) {
+
+		IMethodBinding method = getDOMASTMethodBinding(type, methodName, argumentTypes);
+
+		boolean methodIdenticalToOriginal = compareDeclaringClass(originalQuery, method);
+		int r1 = resolveLevelAsSubtype_basic(simplePattern, qualifiedPattern, type, method, packageName, isDefault, methodIdenticalToOriginal);
+		if( r1 != -1 )
+			return r1;
+
+		r1 = resolveLevelAsSubtype_super(simplePattern, qualifiedPattern, type, methodName, argumentTypes, method, packageName, isDefault, originalQuery);
+		if( r1 != -1 )
+			return r1;
+
+		r1 = resolveLevelAsSubtype_interfaces(simplePattern, qualifiedPattern, type, methodName, argumentTypes, method, packageName, isDefault, originalQuery);
+		if( r1 != -1 )
+			return r1;
+
 		return IMPOSSIBLE_MATCH;
 	}
 	/*
@@ -990,5 +1108,49 @@ public class DOMMethodLocator extends DOMPatternLocator {
 			}
 		}
 		return null;
+	}
+
+	/*
+	 * Subclasses can override this if they want to make last minute changes to the match
+	 */
+	@Override
+	public void reportSearchMatch(MatchLocator locator, ASTNode node, SearchMatch match) throws CoreException {
+		if( preferParamaterizedNode() ) {
+			if( node instanceof MethodInvocation iv) {
+				List l = iv.typeArguments();
+				if( l != null && l.size() > 0 ) {
+					int start = ((ASTNode)l.get(0)).getStartPosition();
+					if( start > 0 ) {
+						int newStart = start - 1;
+						int currOffset = match.getOffset();
+						if( newStart < currOffset) {
+							int diff = currOffset - newStart;
+							match.setOffset(newStart);
+							match.setLength(match.getLength() + diff);
+						}
+					}
+				}
+			}
+		}
+		SearchMatchingUtility.reportSearchMatch(locator, match);
+	}
+
+
+	private boolean preferParamaterizedNode() {
+		int patternRule = this.locator.pattern.getMatchRule();
+		boolean patternIsErasureMatch = isPatternErasureMatch();
+		boolean patternIsEquivMatch = isPatternEquivalentMatch();
+		boolean patternIsExactMatch = isPatternExactMatch();
+
+		boolean hasMethodArgs = this.locator.pattern.hasMethodArguments();
+		boolean hasMethodParams = this.locator.pattern.hasMethodParameters();
+		boolean emptyTypeArgsPattern = this.locator.pattern.methodArguments == null ||
+				this.locator.pattern.methodArguments.length == 0;
+		if( patternIsEquivMatch || patternIsExactMatch)
+			return hasMethodArgs;
+		if( patternIsErasureMatch) {
+			return false;
+		}
+		return true;
 	}
 }
