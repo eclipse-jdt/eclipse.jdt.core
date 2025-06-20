@@ -10601,4 +10601,58 @@ public void testIssue4106() {
 	"----------\n",
 	JavacTestOptions.SKIP);
 }
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4118
+// Record with compact ctor - Internal compiler error: java.lang.RuntimeException: Internal Error compiling
+public void testIssue4118() {
+	this.runConformTest(
+		new String[] {
+					"RecordCompactWithReader.java",
+					"""
+					import java.io.Reader;
+					import java.time.Instant;
+					import java.util.Objects;
+
+					public record RecordCompactWithReader(Instant modified, Reader reader) {
+					    public RecordCompactWithReader {
+					        Objects.requireNonNull(modified);
+					        Objects.requireNonNull(reader);
+					    }
+					    public static void main(String [] args) {
+					    	System.out.println("OK!");
+					    }
+					}
+					""",
+	            },
+		"OK!"
+		);
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4070
+// Resource closure analysis triggers NPE with compact constructors
+public void testIssue4070() {
+	this.runConformTest(
+		new String[] {
+					"Config.java",
+					"""
+					import java.net.URI;
+					import java.net.http.HttpClient;
+					import java.util.Objects;
+
+					public record Config(HttpClient httpClient, URI base, String defaultContentType) {
+
+						  @SuppressWarnings("resource")
+						  public Config {
+						    Objects.requireNonNull(httpClient, "httpClient");
+						  }
+
+						  public static void main(String [] args) {
+					    	System.out.println("OK!");
+					    }
+					}
+					""",
+	            },
+		"OK!"
+		);
+}
 }
