@@ -28,21 +28,26 @@ import java.util.stream.Stream;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.jdt.internal.compiler.env.IReleaseAwareNameEnvironment;
 
-public class TypeLocator {
+/**
+ * The {@link TypeLocators} maintain mapping of type names (in the form <code>p1/p2/A</code> to code locations (in the
+ * form <code>src1/p1/p2/A.java</code>) to detect duplicate type definitions in different source folders. In the case of
+ * a multi-release type, this might allow for duplicate types if the are in distinct release folders.
+ */
+public class TypeLocators {
 
 	private String[] knownPackageNames; // of the form "p1/p2"
 
-	//holds data when no release is used
+	// holds data when no release is used
 	private final Map<String, String> defaultMap;
 
-	//holds data when a release version is used
+	// holds data when a release version is used
 	private Map<String, Map<Integer, String>> releaseMap;
 
-	TypeLocator() {
+	TypeLocators() {
 		this.defaultMap = new LinkedHashMap<>(7);
 	}
 
-	TypeLocator(TypeLocator copy) {
+	TypeLocators(TypeLocators copy) {
 		this.defaultMap = new LinkedHashMap<>(copy.defaultMap);
 		if (copy.releaseMap != null) {
 			this.releaseMap = new LinkedHashMap<>(copy.releaseMap);
@@ -84,13 +89,15 @@ public class TypeLocator {
 	void read(CompressedReader in, String[] internedTypeLocators) throws IOException {
 		int length = in.readInt();
 		this.defaultMap.clear();
-		if (length  > 0) {
+		if (length > 0) {
 			for (int i = 0; i < length; i++) {
-				recordLocatorForType(in.readStringUsingLast(), internedTypeLocators[in.readIntInRange(internedTypeLocators.length)], IReleaseAwareNameEnvironment.NO_RELEASE);
+				recordLocatorForType(in.readStringUsingLast(),
+						internedTypeLocators[in.readIntInRange(internedTypeLocators.length)],
+						IReleaseAwareNameEnvironment.NO_RELEASE);
 			}
 		}
 		length = in.readInt();
-		if (length  == 0) {
+		if (length == 0) {
 			this.releaseMap = null;
 		} else {
 			this.releaseMap = new LinkedHashMap<>((int) (length / 0.75 + 1));
@@ -155,9 +162,9 @@ public class TypeLocator {
 		if (this.knownPackageNames == null) {
 			int total = this.defaultMap.size();
 			if (this.releaseMap != null) {
-				total +=this.releaseMap.size();
+				total += this.releaseMap.size();
 			}
-			if (total == 0)  {
+			if (total == 0) {
 				this.knownPackageNames = new String[0];
 				return false;
 			}
@@ -226,14 +233,16 @@ public class TypeLocator {
 			}
 			string = existing.get(release);
 		} else {
-			string= this.defaultMap.get(qualifiedTypeName);
+			string = this.defaultMap.get(qualifiedTypeName);
 		}
 		return string != null && !string.equals(typeLocator);
 	}
 
 	/**
 	 * This method is used in PDE API tools only!
-	 * @param typeName the type to get all known path for
+	 *
+	 * @param typeName
+	 *                     the type to get all known path for
 	 * @return a stream of all known path for the given type name
 	 */
 	public Stream<String> getPathForName(String typeName) {
@@ -257,15 +266,17 @@ public class TypeLocator {
 	}
 
 	/**
-	 * Only implemented for StateTest! one usually won't use {@link TypeLocator} in a way where equals/hashCode really matters
+	 * Only implemented for StateTest! one usually won't use {@link TypeLocators} in a way where equals/hashCode really
+	 * matters
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof TypeLocator other) {
-			if(!this.defaultMap.equals(other.defaultMap))  {
+		if (obj instanceof TypeLocators other) {
+			if (!this.defaultMap.equals(other.defaultMap)) {
 				return false;
 			}
-			if(!Objects.requireNonNullElse(this.releaseMap, Map.of()).equals(Objects.requireNonNullElse(other.releaseMap, Map.of())))  {
+			if (!Objects.requireNonNullElse(this.releaseMap, Map.of())
+					.equals(Objects.requireNonNullElse(other.releaseMap, Map.of()))) {
 				return false;
 			}
 			return true;
@@ -274,7 +285,8 @@ public class TypeLocator {
 	}
 
 	/**
-	 * Only implemented for StateTest! one usually won't use {@link TypeLocator} in a way where equals/hashCode really matters
+	 * Only implemented for StateTest! one usually won't use {@link TypeLocators} in a way where equals/hashCode really
+	 * matters
 	 */
 	@Override
 	public int hashCode() {

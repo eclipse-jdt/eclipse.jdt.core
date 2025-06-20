@@ -69,8 +69,8 @@ public ClasspathLocation[] binaryLocations;
 public ClasspathLocation[] testBinaryLocations;
 // keyed by the project relative path of the type (i.e. "src1/p1/p2/A.java"), value is a ReferenceCollection or an AdditionalTypeCollection
 Map<String, ReferenceCollection> references;
-// keyed by qualified type name "p1/p2/A", value is a map that maps a release to the project relative path which defines this type "src1/p1/p2/A.java"
-public TypeLocator typeLocators;
+// Holds a mapping of types to a path to detect duplicate type definitions (possibly depending on the release for multi-release types)
+public TypeLocators typeLocators;
 
 int buildNumber;
 long lastStructuralBuildTime;
@@ -94,7 +94,7 @@ private static final int[] PROBLEM_IDS = new int[] { 0, IProblem.ForbiddenRefere
 
 State() {
 	// constructor with no argument
-	this.typeLocators = new TypeLocator();
+	this.typeLocators = new TypeLocators();
 }
 
 protected State(JavaBuilder javaBuilder) {
@@ -106,7 +106,7 @@ protected State(JavaBuilder javaBuilder) {
 	this.testSourceLocations = javaBuilder.testNameEnvironment.sourceLocations;
 	this.testBinaryLocations = javaBuilder.testNameEnvironment.binaryLocations;
 	this.references = new LinkedHashMap<>(7);
-	this.typeLocators = new TypeLocator();
+	this.typeLocators = new TypeLocators();
 
 	this.buildNumber = 0; // indicates a full build
 	this.lastStructuralBuildTime = computeStructuralBuildTime(javaBuilder.lastState == null ? 0 : javaBuilder.lastState.lastStructuralBuildTime);
@@ -128,7 +128,7 @@ void copyFrom(State lastState) {
 	this.structuralBuildTimes = lastState.structuralBuildTimes;
 
 	this.references = new LinkedHashMap<>(lastState.references);
-	this.typeLocators = new TypeLocator(lastState.typeLocators);
+	this.typeLocators = new TypeLocators(lastState.typeLocators);
 }
 
 /**
