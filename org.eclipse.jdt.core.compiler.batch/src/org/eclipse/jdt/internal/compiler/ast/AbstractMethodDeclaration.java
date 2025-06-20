@@ -118,14 +118,6 @@ public abstract class AbstractMethodDeclaration
 		return this.arguments; // overridden in compact constructor.
 	}
 
-	public LocalVariableBinding [] argumentBindings() {
-		int length = this.arguments == null ? 0 : this.arguments.length;
-		LocalVariableBinding [] argumentBindings = new LocalVariableBinding[length];
-		for(int i = 0; i < length; i++)
-			argumentBindings[i] = this.arguments[i].binding;
-		return argumentBindings;
-	}
-
 	/**
 	 * When a method is accessed via SourceTypeBinding.resolveTypesFor(MethodBinding)
 	 * we create the argument binding and resolve annotations in order to compute null annotation tagbits.

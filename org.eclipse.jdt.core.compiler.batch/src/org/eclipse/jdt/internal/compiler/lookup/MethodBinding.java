@@ -519,7 +519,6 @@ protected void fillInDefaultNonNullness(AbstractMethodDeclaration sourceMethod, 
 		this.parameterFlowBits = new byte[this.parameters.length];
 	boolean added = false;
 	int length = this.parameterFlowBits.length;
-	LocalVariableBinding [] argumentBindings = sourceMethod == null ? Binding.NO_ARGUMENT_BINDINGS : sourceMethod.argumentBindings();
 	for (int i = 0; i < length; i++) {
 		if(!needToApplyParameterNonNullDefault.hasNonNullDefaultForParam(i)) {
 			continue;
@@ -531,7 +530,7 @@ protected void fillInDefaultNonNullness(AbstractMethodDeclaration sourceMethod, 
 			added = true;
 			this.parameterFlowBits[i] |= PARAM_NONNULL;
 			if (sourceMethod != null) {
-				argumentBindings[i].tagBits |= TagBits.AnnotationNonNull;
+				sourceMethod.arguments[i].binding.tagBits |= TagBits.AnnotationNonNull;
 			}
 		} else if (sourceMethod != null && (this.parameterFlowBits[i] & PARAM_NONNULL) != 0) {
 			sourceMethod.scope.problemReporter().nullAnnotationIsRedundant(sourceMethod, i);
@@ -561,7 +560,6 @@ protected void fillInDefaultNonNullness18(AbstractMethodDeclaration sourceMethod
 	if (hasNonNullDefaultForParameter.hasAnyNonNullDefault()) {
 		boolean added = false;
 		int length = this.parameters.length;
-		LocalVariableBinding [] argumentBindings = sourceMethod == null ? Binding.NO_ARGUMENT_BINDINGS : sourceMethod.argumentBindings();
 		for (int i = 0; i < length; i++) {
 			if (!hasNonNullDefaultForParameter.hasNonNullDefaultForParam(i))
 				continue;
@@ -574,7 +572,7 @@ protected void fillInDefaultNonNullness18(AbstractMethodDeclaration sourceMethod
 				if (!parameter.isBaseType()) {
 					this.parameters[i] = env.createNonNullAnnotatedType(parameter);
 					if (sourceMethod != null)
-						argumentBindings[i].type = this.parameters[i];
+						sourceMethod.arguments[i].binding.type = this.parameters[i];
 				}
 			}
 		}
