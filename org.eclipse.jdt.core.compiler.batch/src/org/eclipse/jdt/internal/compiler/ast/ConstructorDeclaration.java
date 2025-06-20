@@ -301,11 +301,6 @@ public AbstractVariableDeclaration[] arguments(boolean includedElided) {
 	return includedElided && this.isCompactConstructor() ? this.protoArguments : super.arguments(includedElided);
 }
 
-@Override
-public LocalVariableBinding[] argumentBindings() {
-	return this.isCompactConstructor() ? this.scope == null ? Binding.NO_ARGUMENT_BINDINGS : this.scope.argumentBindings() : super.argumentBindings();
-}
-
 protected void doFieldReachAnalysis(FlowInfo flowInfo, FieldBinding[] fields) {
 	for (FieldBinding field : fields) {
 		if (!field.isStatic() && !flowInfo.isDefinitelyAssigned(field)) {
