@@ -6065,6 +6065,47 @@ public void test172b() throws Exception {
 		----------
 		""");
 }
+public void test172c() throws Exception {
+	runNegativeTest(new String[] {
+			"Test.java",
+			"""
+			class Super {
+			    void f2(String s)       {}
+			    void f3(String s)       {}
+			    void f3(int i1, int i2) {}
+			}
+
+			class Test {
+			    void f1(int i) {}
+			    void f2(int i) {}
+			    void f3(int i) {}
+
+			    void m() {
+			        new Super() {
+			            {
+			                f1(0);  // OK, resolves to Test.f1(int)
+			                f2(0);  // compile-time error
+			                f3(0);  // compile-time error
+			            }
+			        };
+			    }
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in Test.java (at line 16)
+			f2(0);  // compile-time error
+			^^
+		The method f2(String) in the type Super is not applicable for the arguments (int)
+		----------
+		2. ERROR in Test.java (at line 17)
+			f3(0);  // compile-time error
+			^^
+		The method f3(int, int) in the type Super is not applicable for the arguments (int)
+		----------
+		""");
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=308245
 public void test173() throws Exception {
 	this.runConformTest(
