@@ -11952,11 +11952,6 @@ public void testIssue3971_8() {
 			"	@NonNull Integer b = i();\n" +
 			"	                     ^^^\n" +
 			"Null type mismatch (type annotations): required '@NonNull Integer' but this expression has type '@Nullable Integer'\n" +
-			"----------\n" +
-			"5. WARNING in R.java (at line 11)\n" +
-			"	@NonNull Object o1 = obj;\n" +
-			"	                     ^^^\n" +
-			"Null type safety (type annotations): The expression of type 'Object' needs unchecked conversion to conform to '@NonNull Object'\n" +
 			"----------\n",
 			this.LIBS,
 			false/*shouldFlush*/);

@@ -1283,8 +1283,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			}
 			oldLeafType = oldLeafType.withoutToplevelNullAnnotation();
 		} else if (se8nullBits == TagBits.AnnotationNonNull
-					&& location != Binding.DefaultLocationReturnType // normal return type cases are handled in MethodBinding.fillInDefaultNonNullness18()
-					&& location != Binding.DefaultLocationField      // normal field type cases are handled in FieldBinding.fillInDefaultNonNullness()
+					&& location != Binding.DefaultLocationReturnType      // normal return type cases are handled in MethodBinding.fillInDefaultNonNullness18()
+					&& location != Binding.DefaultLocationField           // normal field type cases are handled in VariableBinding.fillInDefaultNonNullness()
+					&& location != Binding.DefaultLocationRecordComponent // record component type cases are handled in VariableBinding.fillInDefaultNonNullness()
 					&& scope.hasDefaultNullnessForType(typeRef.resolvedType, location, typeRef.sourceStart)) {
 			scope.problemReporter().nullAnnotationIsRedundant(typeRef, new Annotation[] { se8NullAnnotation });
 		}

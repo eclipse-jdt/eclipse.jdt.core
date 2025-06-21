@@ -119,7 +119,7 @@ public abstract class Binding {
 	 */
 	public static final int DefaultLocationRecordComponent = ASTNode.Bit11;
 
-	public static final int DefaultLocationsForTrueValue = DefaultLocationParameter | DefaultLocationReturnType | DefaultLocationField;
+	public static final int DefaultLocationsForTrueValue = DefaultLocationParameter | DefaultLocationReturnType | DefaultLocationField | DefaultLocationRecordComponent;
 
 	public static final int NullnessDefaultMASK =
 			NULL_UNSPECIFIED_BY_DEFAULT | // included to terminate search up the parent chain
