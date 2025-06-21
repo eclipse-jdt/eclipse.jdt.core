@@ -697,6 +697,7 @@ protected void attachOrphanCompletionNode(){
 				//  if (a instanceof List l) { l.is| Object // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2106
 				if (ifStatement.condition instanceof InstanceOfExpression iof && iof.pattern instanceof TypePattern pattern) {
 					this.currentElement.add(pattern.local, 0);
+					iof.pattern = null;
 				}
 				this.currentElement = this.currentElement.add(ifStatement, 0);
 			}
