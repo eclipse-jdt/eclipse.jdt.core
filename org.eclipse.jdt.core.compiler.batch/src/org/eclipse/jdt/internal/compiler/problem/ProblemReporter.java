@@ -10608,7 +10608,7 @@ public void nullAnnotationIsRedundant(AbstractMethodDeclaration sourceMethod, in
 	this.handle(IProblem.RedundantNullAnnotation, ProblemHandler.NoArgument, ProblemHandler.NoArgument, sourceStart, sourceEnd);
 }
 
-public void nullAnnotationIsRedundant(FieldDeclaration sourceField) {
+public void nullAnnotationIsRedundant(AbstractVariableDeclaration sourceField) {
 	Annotation annotation = findAnnotation(sourceField.annotations, TypeIds.BitNonNullAnnotation);
 	int sourceStart = annotation != null ? annotation.sourceStart : sourceField.type.sourceStart;
 	int sourceEnd = sourceField.type.sourceEnd;

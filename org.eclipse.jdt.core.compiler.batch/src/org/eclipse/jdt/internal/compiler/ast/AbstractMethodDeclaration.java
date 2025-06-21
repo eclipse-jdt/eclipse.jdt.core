@@ -118,55 +118,51 @@ public abstract class AbstractMethodDeclaration
 		return this.arguments; // overridden in compact constructor.
 	}
 
-	public LocalVariableBinding [] argumentBindings() {
-		int length = this.arguments == null ? 0 : this.arguments.length;
-		LocalVariableBinding [] argumentBindings = new LocalVariableBinding[length];
-		for(int i = 0; i < length; i++)
-			argumentBindings[i] = this.arguments[i].binding;
-		return argumentBindings;
-	}
-
 	/**
 	 * When a method is accessed via SourceTypeBinding.resolveTypesFor(MethodBinding)
 	 * we create the argument binding and resolve annotations in order to compute null annotation tagbits.
 	 */
 	public void createArgumentBindings() {
-		createArgumentBindings(this.arguments(true), this.binding, this.scope);
+		createArgumentBindings(this.arguments, this.binding, this.scope);
 	}
 	// version for invocation from LambdaExpression:
-	static void createArgumentBindings(AbstractVariableDeclaration[] arguments, MethodBinding binding, MethodScope scope) {
+	static void createArgumentBindings(Argument[] arguments, MethodBinding binding, MethodScope scope) {
 		boolean useTypeAnnotations = scope.environment().usesNullTypeAnnotations();
 		if (arguments != null && binding != null) {
-			LocalVariableBinding [] argumentBindings = binding.isCompactConstructor() ? scope.argumentBindings() : new LocalVariableBinding[arguments.length];
-			int length = Math.min(binding.parameters.length, arguments.length);
-			for (int i = 0; i < length; i++) {
-				if (arguments[i] instanceof Argument argument)
-					argumentBindings[i] = argument.createBinding(scope, binding.parameters[i]);
-				binding.parameters[i] = argumentBindings[i].type;
-				long argumentTagBits = argumentBindings[i].tagBits;
-				if ((argumentTagBits & TagBits.AnnotationOwning) != 0) {
-					if (binding.parameterFlowBits == null) {
-						binding.parameterFlowBits = new byte[arguments.length];
-					}
-					binding.parameterFlowBits[i] |= PARAM_OWNING;
-				} else if ((argumentTagBits & TagBits.AnnotationNotOwning) != 0) {
-					if (binding.parameterFlowBits == null) {
-						binding.parameterFlowBits = new byte[arguments.length];
-					}
-					binding.parameterFlowBits[i] |= PARAM_NOTOWNING;
-				}
-				if (useTypeAnnotations)
-					continue; // no business with SE7 null annotations in the 1.8 case.
-				// createBinding() has resolved annotations, now transfer nullness info from the argument to the method:
-				long argTypeTagBits = (argumentTagBits & TagBits.AnnotationNullMASK);
-				if (argTypeTagBits != 0) {
-					if (binding.parameterFlowBits == null) {
-						binding.parameterFlowBits = new byte[arguments.length];
-						binding.tagBits |= TagBits.IsNullnessKnown;
-					}
-					binding.parameterFlowBits[i] = MethodBinding.flowBitFromAnnotationTagBit(argTypeTagBits);
-				}
+			int argLen = arguments.length;
+			for (int i = 0, length = argLen; i < length; i++) {
+				Argument argument = arguments[i];
+				binding.parameters[i] = argument.createBinding(scope, binding.parameters[i]);
+				long argumentTagBits = argument.binding.tagBits;
+				computeParamFlowBits(binding, argLen, argumentTagBits, i, useTypeAnnotations);
 			}
+		}
+	}
+
+	public static void computeParamFlowBits(MethodBinding binding, int argLen, long paramTagBits, int paramRank,
+			boolean useTypeAnnotations)
+	{
+		if ((paramTagBits & TagBits.AnnotationOwning) != 0) {
+			if (binding.parameterFlowBits == null) {
+				binding.parameterFlowBits = new byte[argLen];
+			}
+			binding.parameterFlowBits[paramRank] |= PARAM_OWNING;
+		} else if ((paramTagBits & TagBits.AnnotationNotOwning) != 0) {
+			if (binding.parameterFlowBits == null) {
+				binding.parameterFlowBits = new byte[argLen];
+			}
+			binding.parameterFlowBits[paramRank] |= PARAM_NOTOWNING;
+		}
+		if (useTypeAnnotations)
+			return; // no business with SE7 null annotations in the 1.8 case.
+		// createBinding() has resolved annotations, now transfer nullness info from the argument to the method:
+		long argTypeTagBits = (paramTagBits & TagBits.AnnotationNullMASK);
+		if (argTypeTagBits != 0) {
+			if (binding.parameterFlowBits == null) {
+				binding.parameterFlowBits = new byte[argLen];
+				binding.tagBits |= TagBits.IsNullnessKnown;
+			}
+			binding.parameterFlowBits[paramRank] = MethodBinding.flowBitFromAnnotationTagBit(argTypeTagBits);
 		}
 	}
 
@@ -256,16 +252,15 @@ public abstract class AbstractMethodDeclaration
 	 * <li>NotOwning - for resource leak analysis
 	 * </ul>
 	 */
-	static void analyseArguments(LookupEnvironment environment, FlowInfo flowInfo, FlowContext flowContext, AbstractVariableDeclaration[] methodArguments, MethodBinding methodBinding, MethodScope scope) {
+	static void analyseArguments(LookupEnvironment environment, FlowInfo flowInfo, FlowContext flowContext, Argument[] methodArguments, MethodBinding methodBinding) {
 		if (methodArguments != null) {
 			boolean usesNullTypeAnnotations = environment.usesNullTypeAnnotations();
 			boolean usesOwningAnnotations = environment.usesOwningAnnotations();
 
-			LocalVariableBinding [] methodArgumentBindings = scope.argumentBindings();
 			int length = Math.min(methodBinding.parameters.length, methodArguments.length);
 			for (int i = 0; i < length; i++) {
 				TypeBinding parameterBinding = methodBinding.parameters[i];
-				LocalVariableBinding local = methodArgumentBindings[i];
+				LocalVariableBinding local = methodArguments[i].binding;
 				if (usesNullTypeAnnotations) {
 					// leverage null type annotations:
 					long tagBits = parameterBinding.tagBits & TagBits.AnnotationNullMASK;

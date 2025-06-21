@@ -24,7 +24,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import static org.eclipse.jdt.internal.compiler.impl.JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES;
 
-import java.util.Arrays;
 import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -90,15 +89,6 @@ public MethodScope(Scope parent, ReferenceContext context, boolean isStatic) {
 public MethodScope(Scope parent, ReferenceContext context, boolean isStatic, int lastVisibleFieldID) {
 	this(parent, context, isStatic);
 	this.lastVisibleFieldID = lastVisibleFieldID;
-}
-
-public LocalVariableBinding [] argumentBindings() {
-	int i = 0;
-	while (i < this.localIndex) {
-		LocalVariableBinding local = this.locals[i++];
-		if (local == null ||  !local.isParameter()) break; // done with arguments
-	}
-	return Arrays.copyOf(this.locals, i);
 }
 
 @Override
