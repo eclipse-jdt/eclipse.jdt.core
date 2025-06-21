@@ -138,7 +138,7 @@ public class AddJrtToIndex extends BinaryContainer {
 				try {
 					String fullPath = path.toString();
 					byte[] classFileBytes;
-					classFileBytes = JRTUtil.getClassfileContent(this.jrt, fullPath, mod.toString());
+					classFileBytes = JRTUtil.getClassfileContent(this.jrt, null, fullPath, mod.toString());
 					String docFullPath =  this.container.toString() + JAR_SEPARATOR + mod.toString() + JAR_SEPARATOR + fullPath;
 					JavaSearchDocument entryDocument = new JavaSearchDocument(docFullPath, classFileBytes, this.participant);
 					this.indexManager.indexDocument(entryDocument, this.participant, this.index, this.indexPath);
@@ -238,7 +238,7 @@ public class AddJrtToIndex extends BinaryContainer {
 					for (int i = 0; i < max; i++)
 						indexedFileNames.put(paths[i], FILE_INDEX_STATE.DELETED);
 
-					org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(new File(fileName),
+					org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(new File(fileName), null,
 							new JrtTraverser(indexedFileNames), JRTUtil.NOTIFY_FILES);
 
 					boolean needToReindex = indexedFileNames.elementSize != max; // a new file was added
@@ -270,7 +270,7 @@ public class AddJrtToIndex extends BinaryContainer {
 				}
 
 				File jrt = new File(fileName);
-				org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(jrt,
+				org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(jrt, null,
 						new JrtIndexer(jrt, SearchEngine.getDefaultSearchParticipant(), index, container, this.manager), JRTUtil.NOTIFY_FILES);
 
 				if(this.forceIndexUpdate) {
