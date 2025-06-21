@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.batch.BasicModule;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.IReleaseAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -33,14 +34,16 @@ char[][] inclusionPatterns; // used by builders when walking source folders
 char[][] exclusionPatterns; // used by builders when walking source folders
 boolean hasIndependentOutputFolder; // if output folder is not equal to any of the source folders
 public boolean ignoreOptionalProblems;
+int release; //if given this sets an explicit release level for this directory overriding project settings
 
 ClasspathMultiDirectory(IContainer sourceFolder, IContainer binaryFolder, char[][] inclusionPatterns, char[][] exclusionPatterns,
-		boolean ignoreOptionalProblems, IPath externalAnnotationPath) {
+		boolean ignoreOptionalProblems, IPath externalAnnotationPath, int release) {
 	super(binaryFolder, true, null, externalAnnotationPath, false /* source never an automatic module*/);
 
 	this.sourceFolder = sourceFolder;
 	this.inclusionPatterns = inclusionPatterns;
 	this.exclusionPatterns = exclusionPatterns;
+	this.release = release>=IReleaseAwareNameEnvironment.FIRST_MULTI_RELEASE?release:IReleaseAwareNameEnvironment.NO_RELEASE;
 	this.hasIndependentOutputFolder = false;
 	this.ignoreOptionalProblems = ignoreOptionalProblems;
 
