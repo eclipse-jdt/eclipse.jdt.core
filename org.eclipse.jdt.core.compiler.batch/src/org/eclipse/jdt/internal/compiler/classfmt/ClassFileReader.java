@@ -615,7 +615,8 @@ private void decodeAnnotations(int offset, boolean runtimeVisible) {
 			long standardTagBits = newInfo.standardAnnotationTagBits;
 			if (standardTagBits != 0) {
 				this.tagBits |= standardTagBits;
-				if ((this.version < ClassFileConstants.JDK9 || (standardTagBits & TagBits.AnnotationDeprecated) == 0)
+				if (((this.version < ClassFileConstants.JDK9 || (standardTagBits & TagBits.AnnotationDeprecated) == 0) &&
+						(standardTagBits & TagBits.AnnotationTestable) == 0)
 						&& (standardTagBits & TagBits.AnnotationTargetMASK) == 0)
 					continue;
 			}

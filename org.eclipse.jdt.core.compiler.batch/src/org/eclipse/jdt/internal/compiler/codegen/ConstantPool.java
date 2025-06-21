@@ -295,6 +295,8 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	// Java 8 repeatable annotation support
 	public static final char[] JAVA_LANG_ANNOTATION_REPEATABLE = "Ljava/lang/annotation/Repeatable;".toCharArray(); //$NON-NLS-1$
 
+	public static final char[] ORG_JUNIT_PLATFORM_COMMONGS_ANNOTATIONS_TESTABLE = "Lorg/junit/platform/commons/annotation/Testable;".toCharArray(); //$NON-NLS-1$
+
 	public static final char[] HashCode = "hashCode".toCharArray(); //$NON-NLS-1$
 	public static final char[] HashCodeSignature = "()I".toCharArray(); //$NON-NLS-1$;
 	public static final char[] Equals = "equals".toCharArray(); //$NON-NLS-1$

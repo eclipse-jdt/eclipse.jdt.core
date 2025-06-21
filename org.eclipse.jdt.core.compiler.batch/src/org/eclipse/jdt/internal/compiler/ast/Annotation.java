@@ -431,6 +431,9 @@ public abstract class Annotation extends Expression {
 				tagBits |= TagBits.AnnotationNotOwning;
 			}
 		}
+		if ((annotationType.tagBits & TagBits.AnnotationTestable) != 0) {
+			tagBits |= TagBits.AnnotationTestable;
+		}
 		return tagBits;
 	}
 
@@ -956,7 +959,7 @@ public abstract class Annotation extends Expression {
 		int defaultNullness = (int)(tagBits & Binding.NullnessDefaultMASK);
 		tagBits &= ~Binding.NullnessDefaultMASK;
 		CompilerOptions compilerOptions = scope.compilerOptions();
-		if ((tagBits & TagBits.AnnotationDeprecated) != 0 && compilerOptions.complianceLevel >= ClassFileConstants.JDK9 && !compilerOptions.storeAnnotations) {
+		if ((tagBits & (TagBits.AnnotationDeprecated | TagBits.AnnotationTestable)) != 0 && compilerOptions.complianceLevel >= ClassFileConstants.JDK9 && !compilerOptions.storeAnnotations) {
 			this.recipient.setAnnotations(new AnnotationBinding[] {this.compilerAnnotation}, true); // force storing enhanced deprecation
 		}
 

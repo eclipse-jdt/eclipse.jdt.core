@@ -587,6 +587,9 @@ private void cachePartsFrom2(IBinaryType binaryType, boolean needFieldsAndMethod
 		}
 
 		if (needFieldsAndMethods) {
+			if (this.isAnnotationType()) {
+				scanForTestableAnnotation(binaryType, missingTypeNames);
+			}
 			IRecordComponent[] iComponents = null;
 			if (binaryType.isRecord()) {
 				iComponents = binaryType.getRecordComponents();
@@ -1091,10 +1094,10 @@ private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType,
 		result.receiver = this.environment.createAnnotatedType(this, createAnnotations(receiverAnnotations, this.environment, missingTypeNames));
 	}
 
-	boolean forceStoreAnnotations = !this.environment.globalOptions.storeAnnotations
+	boolean forceStoreAnnotations = (!this.environment.globalOptions.storeAnnotations
 										&& (this.environment.globalOptions.sourceLevel >= ClassFileConstants.JDK9
 										&& method instanceof MethodInfoWithAnnotations
-										&& (method.getTagBits() & TagBits.AnnotationDeprecated) != 0);
+										&& (method.getTagBits() & TagBits.AnnotationDeprecated) != 0)) || isTestable(declAnnotations);
 	if (this.environment.globalOptions.storeAnnotations || forceStoreAnnotations) {
 		if (forceStoreAnnotations)
 			storedAnnotations(true, true); // for Java 9 @Deprecated we need to force storing annotations
@@ -2366,7 +2369,36 @@ static char[][] signature2qualifiedTypeName(char[] typeSignature) {
 int getNullDefault() {
 	return this.defaultNullness;
 }
+private void scanForTestableAnnotation(IBinaryType binaryType, char[][][] missingTypeNames) {
+	IBinaryAnnotation[] annotations = binaryType.getAnnotations();
+	isTestable(annotations);
+}
 
+private boolean isTestable(IBinaryAnnotation[] annotations) {
+	if (annotations != null) {
+		int length = annotations.length;
+		for (int i = 0; i < length; i++) {
+			AnnotationInfo annotInfo = (AnnotationInfo) annotations[i];
+			if ((annotInfo.standardAnnotationTagBits & TagBits.AnnotationTestable) != 0) {
+				this.tagBits |= TagBits.AnnotationTestable;
+				return true;
+			}
+
+			char[] annotationTypeName = annotInfo.getTypeName();
+			if (CharOperation.equals(annotationTypeName, ConstantPool.ORG_JUNIT_PLATFORM_COMMONGS_ANNOTATIONS_TESTABLE)) {
+				this.tagBits |= TagBits.AnnotationTestable;
+				return true;
+			}
+			char[][] qName = CharOperation.splitOn('/', annotationTypeName, 1, annotationTypeName.length - 1);
+			ReferenceBinding type2 = this.environment.getType(qName);
+			if (type2 != null && (type2.tagBits & TagBits.AnnotationTestable) != 0) {
+				this.tagBits |= TagBits.AnnotationTestable;
+				return true;
+			}
+		}
+	}
+	return false;
+}
 private void scanTypeForContainerAnnotation(IBinaryType binaryType, char[][][] missingTypeNames) {
 	if (!isPrototype()) throw new IllegalStateException();
 	IBinaryAnnotation[] annotations = binaryType.getAnnotations();
