@@ -814,7 +814,7 @@ public class NameLookup implements SuffixConstants {
 			packages = Arrays.stream(packages).map(f -> {
 				IJavaElement parent = f.getParent();
 				int packageFragmentRelease = getRelease((IPackageFragmentRoot) parent);
-				if (packageFragmentRelease<= release) {
+				if (packageFragmentRelease > release) {
 					return null;
 				}
 				return new PackageFragmentWithRelease(f, packageFragmentRelease);
