@@ -199,8 +199,8 @@ public class EqualExpression extends BinaryExpression {
 				break;
 			case FlowInfo.NON_NULL :
 				if (((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
-					flowContext.recordNullConditional(scope, conditionalExpression,
-							FlowContext.CAN_ONLY_NULL_NON_NULL | FlowContext.IN_COMPARISON_NON_NULL, flowInfo);
+//					flowContext.recordNullConditional(scope, conditionalExpression,
+//							FlowContext.CAN_ONLY_NULL_NON_NULL | FlowContext.IN_COMPARISON_NON_NULL, flowInfo);
 				} else {
 					flowContext.recordNullConditional(scope, conditionalExpression,
 							FlowContext.CAN_ONLY_NULL_NON_NULL | FlowContext.IN_COMPARISON_NULL, flowInfo);

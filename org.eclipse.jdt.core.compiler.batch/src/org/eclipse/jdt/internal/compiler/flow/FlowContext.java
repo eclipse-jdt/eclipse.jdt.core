@@ -1035,17 +1035,9 @@ public void recordNullConditional(Scope scope, Expression conditionalExpression,
 	int checkTypeWithoutHideNullWarning = checkType & ~FlowContext.HIDE_NULL_COMPARISON_WARNING_MASK;
 	switch (checkTypeWithoutHideNullWarning) {
 		case FlowContext.CAN_ONLY_NULL_NON_NULL | FlowContext.IN_COMPARISON_NULL:
-		case FlowContext.CAN_ONLY_NULL_NON_NULL | FlowContext.IN_COMPARISON_NON_NULL:
 			if (conditionalExpression.nullStatus(flowInfo, this) == FlowInfo.NON_NULL ) {
-				if (checkTypeWithoutHideNullWarning == (CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL)) {
-					if ((checkType & HIDE_NULL_COMPARISON_WARNING) == 0) {
-						scope.problemReporter().expressionRedundantNullComparison(conditionalExpression, /* isExpressionNull */false );
-					}
-					flowInfo.initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
-				} else {
-					scope.problemReporter().expressionRedundantNullComparison(conditionalExpression, /* isExpressionNull */false );
-					flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
-				}
+				scope.problemReporter().expressionRedundantNullComparison(conditionalExpression, /* isExpressionNull */false );
+				flowInfo.initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
 			}
 			break;
 		case FlowContext.CAN_ONLY_NULL | FlowContext.IN_COMPARISON_NULL:

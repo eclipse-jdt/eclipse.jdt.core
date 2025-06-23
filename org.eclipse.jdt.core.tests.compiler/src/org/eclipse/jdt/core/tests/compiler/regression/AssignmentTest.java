@@ -2485,6 +2485,11 @@ public void testIssue3990_5() {
 					return ret;
 				}
 
+				public int  foo4(boolean pred, Integer x)
+				{
+					boolean willFail = (x == (pred ? 0 : 1)); // wrong if non-null error flagged
+					return willFail ? 0 : 1;
+				}
 				boolean test() {
 					return true;
 				}

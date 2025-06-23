@@ -2089,7 +2089,7 @@ void setSourceStart(int sourceStart);
 	/** @since 3.41 */
 	int FieldWithUnresolvedOwningAnnotation = Internal + 989;
 
-	/** @since 3.42 */
+	/** @since 3.43 */
 	int RedundantNullCheckNullValueExpression = Internal + 990;
 
 	// Java 8 work
