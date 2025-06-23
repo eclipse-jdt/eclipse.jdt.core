@@ -3049,7 +3049,7 @@ protected void consumeExitVariableWithInitialization() {
 	if (this.cursorLocation + 1 < variable.initialization.sourceStart ||
 		this.cursorLocation > variable.initialization.sourceEnd) {
 		if (!variable.type.isTypeNameVar(null)) {
-			if (! (variable instanceof LocalDeclaration && ((LocalDeclaration)variable).isTypeNameVar(this.compilationUnit.scope))) {
+			if (! (variable instanceof LocalDeclaration && variable.isTypeNameVar(this.compilationUnit.scope))) {
 				variable.initialization = null;
 			}
 		}

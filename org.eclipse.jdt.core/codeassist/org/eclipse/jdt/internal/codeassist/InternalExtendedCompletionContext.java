@@ -234,7 +234,7 @@ public class InternalExtendedCompletionContext {
 	}
 
 	private JavaElement getJavaElement(LocalVariableBinding binding) {
-		LocalDeclaration local = binding.declaration;
+		AbstractVariableDeclaration local = binding.declaration;
 
 		JavaElement parent = null;
 		ReferenceContext referenceContext = binding.declaringScope.isLambdaSubscope() ? binding.declaringScope.namedMethodScope().referenceContext() : binding.declaringScope.referenceContext();

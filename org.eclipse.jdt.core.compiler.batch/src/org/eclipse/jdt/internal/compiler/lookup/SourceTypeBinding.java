@@ -2100,7 +2100,7 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 			if (rcbs[i].type.hasTypeAnnotations())
 				methodDecl.bits |= ASTNode.HasTypeAnnotations;
 			// bind the implicit argument already.
-			final LocalVariableBinding implicitArgument = new LocalVariableBinding(rcbs[i].name, rcbs[i].type, rcbs[i].modifiers, true);
+			final LocalVariableBinding implicitArgument = new SyntheticArgumentBinding(rcbs[i]);
 			implicitArgument.tagBits |= rcbs[i].tagBits & (TagBits.AnnotationNullMASK | TagBits.AnnotationOwningMASK);
 			methodDecl.scope.addLocalVariable(implicitArgument);
 			List<AnnotationBinding> propagatedAnnotations = new ArrayList<>();

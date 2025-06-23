@@ -1079,7 +1079,7 @@ public abstract class Annotation extends Expression {
 							variable.tagBits &= ~TagBits.AnnotationNullMASK; // avoid secondary problems
 						}
 						if ((tagBits & TagBits.AnnotationSuppressWarnings) != 0) {
-							LocalDeclaration localDeclaration = variable.declaration;
+							AbstractVariableDeclaration localDeclaration = variable.declaration;
 							recordSuppressWarnings(scope, localDeclaration.declarationSourceStart, localDeclaration.declarationSourceEnd, compilerOptions.suppressWarnings);
 						}
 						// note: defaultNullness for local declarations has been already been handled earlier by handleNonNullByDefault()
