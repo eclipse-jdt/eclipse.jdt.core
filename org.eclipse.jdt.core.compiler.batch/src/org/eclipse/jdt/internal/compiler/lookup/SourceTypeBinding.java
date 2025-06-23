@@ -2101,12 +2101,7 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 			if (rcbs[i].type.hasTypeAnnotations())
 				methodDecl.bits |= ASTNode.HasTypeAnnotations;
 			// bind the implicit argument already.
-<<<<<<< Upstream, based on branch 'master' of git@github.com:srikanth-sankaran/eclipse.jdt.core.git
 			final LocalVariableBinding implicitArgument = new SyntheticArgumentBinding(rcbs[i]);
-=======
-			final LocalVariableBinding implicitArgument = new LocalVariableBinding(rcbs[i].name, rcbs[i].type, rcbs[i].modifiers, true);
-			implicitArgument.tagBits |= rcbs[i].tagBits & (TagBits.AnnotationNullMASK | TagBits.AnnotationOwningMASK);
->>>>>>> ba5ceca [Records][Null analysis] Verify null analysis plays well with the recent design and implementation changes for Records 2.0
 			methodDecl.scope.addLocalVariable(implicitArgument);
 			List<AnnotationBinding> propagatedAnnotations = new ArrayList<>();
 			ASTNode.getRelevantAnnotations(rcbs[i].sourceRecordComponent().annotations, TagBits.AnnotationForParameter, propagatedAnnotations);
