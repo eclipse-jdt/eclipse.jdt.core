@@ -50,8 +50,9 @@ import com.sun.tools.javac.code.Type.PackageType;
 import com.sun.tools.javac.parser.ParserFactory;
 import com.sun.tools.javac.parser.Tokens.Comment;
 import com.sun.tools.javac.parser.Tokens.Comment.CommentStyle;
-import com.sun.tools.javac.tree.DCTree.DCDocComment;
 import com.sun.tools.javac.tree.JCTree;
+import com.sun.tools.javac.tree.TreeInfo;
+import com.sun.tools.javac.tree.DCTree.DCDocComment;
 import com.sun.tools.javac.tree.JCTree.JCAnnotatedType;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCAnyPattern;
@@ -126,7 +127,6 @@ import com.sun.tools.javac.tree.JCTree.JCWhileLoop;
 import com.sun.tools.javac.tree.JCTree.JCWildcard;
 import com.sun.tools.javac.tree.JCTree.JCYield;
 import com.sun.tools.javac.tree.JCTree.Tag;
-import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.JCDiagnostic;
 import com.sun.tools.javac.util.Log;
@@ -2325,32 +2325,45 @@ class JavacConverter {
 		}
 		if (javac instanceof JCVariableDecl jcVariableDecl) {
 			VariableDeclarationFragment fragment = createVariableDeclarationFragment(jcVariableDecl);
-			List<ASTNode> sameStartPosition = new ArrayList<>();
- 			if (parent instanceof Block decl && jcVariableDecl.vartype != null) {
-				decl.statements().stream().filter(x -> x instanceof VariableDeclarationStatement)
-				.filter(x -> ((VariableDeclarationStatement)x).getType().getStartPosition() == jcVariableDecl.vartype.getStartPosition())
-				.forEach(x -> sameStartPosition.add((ASTNode)x));
-			} else if( parent instanceof ForStatement decl && jcVariableDecl.vartype != null) {
-				// TODO somehow doubt this will work as expected
-				decl.initializers().stream().filter(x -> x instanceof VariableDeclarationExpression)
-				.filter(x -> ((VariableDeclarationExpression)x).getType().getStartPosition() == jcVariableDecl.vartype.getStartPosition())
-				.forEach(x -> sameStartPosition.add((ASTNode)x));
-			}
-			if( sameStartPosition.size() >= 1 ) {
-				Object obj0 = sameStartPosition.get(0);
-				if( obj0 instanceof VariableDeclarationStatement fd ) {
-					fd.fragments().add(fragment);
-					int newParentEnd = fragment.getStartPosition() + fragment.getLength();
-					fd.setSourceRange(fd.getStartPosition(), newParentEnd - fd.getStartPosition() + 1);
-					removeSurroundingWhitespaceFromRange(fd);
-				} else if( obj0 instanceof VariableDeclarationExpression fd ) {
-					fd.fragments().add(fragment);
-					int newParentEnd = fragment.getStartPosition() + fragment.getLength();
-					fd.setSourceRange(fd.getStartPosition(), newParentEnd - fd.getStartPosition() + 1);
-					removeTrailingSemicolonFromRange(fd);
-					removeSurroundingWhitespaceFromRange(fd);
+			if (jcVariableDecl.vartype != null) {
+				List<? extends ASTNode> sameStartPosition = List.of();
+				if (parent instanceof Block decl) {
+					sameStartPosition = ((List<?>)decl.statements()).stream()
+						.filter(VariableDeclarationStatement.class::isInstance)
+						.map(VariableDeclarationStatement.class::cast)
+						.filter(x -> x.getType().getStartPosition() == jcVariableDecl.vartype.getStartPosition())
+						.toList();
+				} else if( parent instanceof ForStatement decl) {
+					// TODO somehow doubt this will work as expected
+					sameStartPosition = ((List<?>)decl.initializers()).stream()
+						.filter(VariableDeclarationExpression.class::isInstance)
+						.map(VariableDeclarationExpression.class::cast)
+						.filter(x -> x.getType().getStartPosition() == jcVariableDecl.vartype.getStartPosition())
+						.toList();
+				} else if (parent instanceof SwitchStatement decl) {
+					sameStartPosition = ((List<?>)decl.statements()).stream()
+						.filter(VariableDeclarationStatement.class::isInstance)
+						.map(VariableDeclarationStatement.class::cast)
+						.filter(x -> x.getType().getStartPosition() == jcVariableDecl.vartype.getStartPosition())
+						.toList();
 				}
-				return null;
+				if( sameStartPosition.size() >= 1 ) {
+					// factorize
+					Object obj0 = sameStartPosition.get(0);
+					if( obj0 instanceof VariableDeclarationStatement fd ) {
+						fd.fragments().add(fragment);
+						int newParentEnd = fragment.getStartPosition() + fragment.getLength();
+						fd.setSourceRange(fd.getStartPosition(), newParentEnd - fd.getStartPosition() + 1);
+						removeSurroundingWhitespaceFromRange(fd);
+					} else if( obj0 instanceof VariableDeclarationExpression fd ) {
+						fd.fragments().add(fragment);
+						int newParentEnd = fragment.getStartPosition() + fragment.getLength();
+						fd.setSourceRange(fd.getStartPosition(), newParentEnd - fd.getStartPosition() + 1);
+						removeTrailingSemicolonFromRange(fd);
+						removeSurroundingWhitespaceFromRange(fd);
+					}
+					return null;
+				}
 			}
 			VariableDeclarationStatement res = this.ast.newVariableDeclarationStatement(fragment);
 			commonSettings(res, javac);
