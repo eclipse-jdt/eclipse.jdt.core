@@ -117,7 +117,7 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 
 	@Override
 	public boolean isRecovered() {
-		return this.variableSymbol.kind == Kinds.Kind.ERR || this.variableSymbol.type == null || this.variableSymbol.type instanceof Type.ErrorType;
+		return this.variableSymbol.kind == Kinds.Kind.ERR || this.variableSymbol.type == null;
 	}
 
 	@Override
@@ -359,9 +359,16 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 	@Override
 	public IMethodBinding getDeclaringMethod() {
 		Symbol parentSymbol = this.variableSymbol.owner;
+		if (parentSymbol instanceof ClassSymbol) {
+			// a field
+			return null;
+		}
 		do {
 			if (parentSymbol instanceof MethodSymbol method) {
 				if (method.type == null || method.type.asMethodType() == null) {
+					return null;
+				}
+				if (method.getSimpleName().isEmpty()) { // initializer
 					return null;
 				}
 				JavacMethodBinding res = this.resolver.bindings.getMethodBinding(method.type.asMethodType(), method, null, false);
