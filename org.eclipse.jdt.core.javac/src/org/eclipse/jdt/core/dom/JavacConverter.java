@@ -2190,6 +2190,7 @@ class JavacConverter {
 			CharacterLiteral res = this.ast.newCharacterLiteral();
 			commonSettings(res, literal);
 			res.setCharValue(v.charValue());
+			res.setEscapedValue(this.rawText.substring(res.getStartPosition(), res.getStartPosition() + res.getLength()));
 			return res;
 		}
 		throw new UnsupportedOperationException("Not supported yet " + literal + "\n of type" + literal.getClass().getName());
