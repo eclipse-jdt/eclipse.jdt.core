@@ -27,9 +27,14 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.BreakStatement;
+import org.eclipse.jdt.core.dom.CastExpression;
+import org.eclipse.jdt.core.dom.CatchClause;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -37,14 +42,24 @@ import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.JdtCoreDomPackagePrivateUtility;
 import org.eclipse.jdt.core.dom.LabeledStatement;
+import org.eclipse.jdt.core.dom.MarkerAnnotation;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.QualifiedType;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeParameter;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.WildcardType;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchPattern;
@@ -87,7 +102,7 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		if( name.getParent() instanceof BreakStatement bs && bs.getLabel() == name) {
 			return toResponse(IMPOSSIBLE_MATCH);
 		}
-		if (failsFineGrain(name, this.locator.fineGrain())) {
+		if (!matchFineGrain(name, this.locator.fineGrain())) {
 			return toResponse(IMPOSSIBLE_MATCH);
 		}
 		if (this.locator.pattern.simpleName == null) {
@@ -127,7 +142,7 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 	@Override
 	public LocatorResponse match(org.eclipse.jdt.core.dom.ASTNode node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		this.matchLocator = locator;
-		if (failsFineGrain(node, this.locator.fineGrain())) {
+		if (!matchFineGrain(node, this.locator.fineGrain())) {
 			return toResponse(IMPOSSIBLE_MATCH);
 		}
 		if (node instanceof EnumConstantDeclaration enumConstantDecl
@@ -180,7 +195,7 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 	@Override
 	public LocatorResponse match(Type node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		this.matchLocator = locator;
-		if (failsFineGrain(node, this.locator.fineGrain())) {
+		if (!matchFineGrain(node, this.locator.fineGrain())) {
 			return toResponse(IMPOSSIBLE_MATCH);
 		}
 		int defaultLevel = this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
@@ -584,18 +599,75 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 				this.locator.pattern.qualification, typeBinding, null);
 		return toResponse(newLevel);
 	}
-	private static boolean failsFineGrain(ASTNode node, int fineGrain) {
+	private static boolean matchFineGrain(ASTNode node, int fineGrain) {
 		if (fineGrain == 0) {
-			return false;
+			return true;
 		}
-		if ((fineGrain & IJavaSearchConstants.INSTANCEOF_TYPE_REFERENCE) != 0) {
-			ASTNode cursor = node;
-			while (cursor != null && !(cursor instanceof InstanceofExpression)) {
-				cursor = cursor.getParent();
-			}
-			if (cursor == null) {
-				return true;
-			}
+		if ((fineGrain & IJavaSearchConstants.INSTANCEOF_TYPE_REFERENCE) != 0
+			&& node.getLocationInParent() == InstanceofExpression.RIGHT_OPERAND_PROPERTY) {
+			return true;
+		}
+		if ((fineGrain & IJavaSearchConstants.CLASS_INSTANCE_CREATION_TYPE_REFERENCE) != 0
+			&& node.getLocationInParent() == ClassInstanceCreation.TYPE_PROPERTY) {
+			return true;
+		}
+		if ((fineGrain & IJavaSearchConstants.FIELD_DECLARATION_TYPE_REFERENCE) != 0
+			&& node.getLocationInParent() == FieldDeclaration.TYPE_PROPERTY) {
+			return true;
+		}
+		if ((fineGrain & IJavaSearchConstants.LOCAL_VARIABLE_DECLARATION_TYPE_REFERENCE) != 0
+			&& node.getLocationInParent() == VariableDeclarationStatement.TYPE_PROPERTY) {
+			return true;
+		}
+		if ((fineGrain & IJavaSearchConstants.PARAMETER_DECLARATION_TYPE_REFERENCE) != 0
+			&& node.getLocationInParent() == SingleVariableDeclaration.TYPE_PROPERTY
+			&& node.getParent().getLocationInParent() == MethodDeclaration.PARAMETERS_PROPERTY) {
+			return true;
+		}
+		if ((fineGrain & IJavaSearchConstants.SUPERTYPE_TYPE_REFERENCE) != 0
+			&& (node.getLocationInParent() == TypeDeclaration.SUPERCLASS_TYPE_PROPERTY
+			    || node.getLocationInParent() == TypeDeclaration.SUPER_INTERFACE_TYPES_PROPERTY)) {
+			return true;
+		}
+		if ((fineGrain & IJavaSearchConstants.THROWS_CLAUSE_TYPE_REFERENCE) != 0
+			&& node.getLocationInParent() == MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY) {
+			return true;
+		}
+		if ((fineGrain & IJavaSearchConstants.CAST_TYPE_REFERENCE) != 0
+			&& node.getLocationInParent() == CastExpression.TYPE_PROPERTY) {
+			return true;
+		}
+		if ((fineGrain & IJavaSearchConstants.CATCH_TYPE_REFERENCE) != 0
+			&& node.getLocationInParent() == SingleVariableDeclaration.TYPE_PROPERTY
+			&& node.getParent().getLocationInParent() == CatchClause.EXCEPTION_PROPERTY) {
+			return true;
+		}
+		if ((fineGrain & IJavaSearchConstants.RETURN_TYPE_REFERENCE) != 0
+			&& (node.getLocationInParent() == MethodDeclaration.RETURN_TYPE2_PROPERTY
+				|| node.getLocationInParent() == AnnotationTypeMemberDeclaration.TYPE_PROPERTY)) {
+			return true;
+		}
+		if ((fineGrain & IJavaSearchConstants.IMPORT_DECLARATION_TYPE_REFERENCE) != 0
+			&& node.getLocationInParent() == ImportDeclaration.NAME_PROPERTY) {
+			return true;
+		}
+		if ((fineGrain & IJavaSearchConstants.TYPE_ARGUMENT_TYPE_REFERENCE) != 0
+			&& (node.getLocationInParent() == ParameterizedType.TYPE_ARGUMENTS_PROPERTY
+			    || node.getLocationInParent() == MethodInvocation.TYPE_ARGUMENTS_PROPERTY)) {
+			return true;
+		}
+		if ((fineGrain & IJavaSearchConstants.TYPE_VARIABLE_BOUND_TYPE_REFERENCE) != 0
+			&& node.getLocationInParent() == TypeParameter.TYPE_BOUNDS_PROPERTY) {
+			return true;
+		}
+		if ((fineGrain & IJavaSearchConstants.WILDCARD_BOUND_TYPE_REFERENCE) != 0
+			&& (node.getLocationInParent() == WildcardType.BOUND_PROPERTY
+			   || node.getLocationInParent() == WildcardType.UPPER_BOUND_PROPERTY)) {
+			return true;
+		}
+		if ((fineGrain & IJavaSearchConstants.ANNOTATION_TYPE_REFERENCE) != 0
+			&& Set.of(NormalAnnotation.TYPE_NAME_PROPERTY, MarkerAnnotation.TYPE_NAME_PROPERTY, SingleMemberAnnotation.TYPE_NAME_PROPERTY).contains(node.getLocationInParent())) {
+			return true;
 		}
 		return false;
 	}
@@ -943,6 +1015,9 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			int newLength = matchEnd - newStart;
 			match.setOffset(newStart);
 			match.setLength(newLength);
+		}
+		if (this.locator.pattern.simpleName == null) {
+			return;
 		}
 
 		ASTNode working = (replacementNodeForStartPosition != null ? replacementNodeForStartPosition : node);
