@@ -572,7 +572,7 @@ public class JavacCompilationUnitResolver implements ICompilationUnitResolver {
 
 		//CompilationUnit res2  = CompilationUnitResolver.getInstance().toCompilationUnit(sourceUnit, resolveBindings, project, classpaths, focalPoint, apiLevel, compilerOptions, typeRootWorkingCopyOwner, typeRootWorkingCopyOwner, flags, monitor);
 		CompilationUnit res = parse(pathToUnit.values().toArray(org.eclipse.jdt.internal.compiler.env.ICompilationUnit[]::new),
-				apiLevel, compilerOptions, resolveBindings, flags, project, typeRootWorkingCopyOwner, focalPoint, monitor).get(sourceUnit);
+				apiLevel, compilerOptions, resolveBindings, flags | (resolveBindings ? AST.RESOLVED_BINDINGS : 0), project, typeRootWorkingCopyOwner, focalPoint, monitor).get(sourceUnit);
 		if (resolveBindings && focalPoint == -1) {
 			// force analysis and reports
 			resolveBindings(res, apiLevel);
