@@ -43,6 +43,7 @@ import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.ParameterizedType;
+import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.QualifiedType;
 import org.eclipse.jdt.core.dom.RecordDeclaration;
@@ -243,6 +244,10 @@ class PatternLocatorVisitor extends ASTVisitor {
 		}
 	}
 
+	@Override
+	public boolean visit(PrimitiveType node) {
+		return visitType(node);
+	}
 	@Override
 	public boolean visit(IntersectionType node) {
 		return visitType(node);
