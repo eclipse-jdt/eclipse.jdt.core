@@ -863,7 +863,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 							}
 						} else if (annotations != null) {
 							// One of the annotations at least is a SuppressWarnings annotation
-							LocalDeclaration localDeclaration = local.declaration;
+							AbstractVariableDeclaration localDeclaration = local.declaration;
 							int declarationSourceEnd = localDeclaration.declarationSourceEnd;
 							int declarationSourceStart = localDeclaration.declarationSourceStart;
 							for (int j = 0; j < length; j++) {

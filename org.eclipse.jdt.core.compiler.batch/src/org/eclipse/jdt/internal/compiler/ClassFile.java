@@ -1619,7 +1619,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		for (int i = 0, max = this.codeStream.allLocalsCounter; i < max; i++) {
 			LocalVariableBinding localVariable = this.codeStream.locals[i];
 			if (localVariable.isCatchParameter()) continue;
-			LocalDeclaration declaration = localVariable.declaration;
+			AbstractVariableDeclaration declaration = localVariable.declaration;
 			if (declaration == null
 					|| (declaration.isArgument() && ((declaration.bits & ASTNode.IsUnionType) == 0))
 					|| (localVariable.initializationCount == 0)

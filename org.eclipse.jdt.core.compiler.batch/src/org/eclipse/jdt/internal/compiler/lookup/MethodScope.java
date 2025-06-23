@@ -329,7 +329,7 @@ public void checkUnusedParameters(MethodBinding method) {
 		if (local.useFlag == LocalVariableBinding.UNUSED &&
 				// do not report fake used variable
 				((local.declaration.bits & ASTNode.IsLocalDeclarationReachable) != 0)) { // declaration is reachable
-			problemReporter().unusedArgument(local.declaration);
+			problemReporter().unusedArgument((LocalDeclaration) local.declaration);
 		}
 	}
 }
@@ -355,7 +355,7 @@ public void computeLocalVariablePositions(int initOffset, CodeStream codeStream)
 			long sourceLevel = compilerOptions.sourceLevel;
 			boolean enablePreviewFeatures = compilerOptions.enablePreviewFeatures;
 			if (JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(sourceLevel, enablePreviewFeatures)) {
-				problemReporter().unusedLambdaParameter(local.declaration);
+				problemReporter().unusedLambdaParameter((LocalDeclaration) local.declaration);
 			}
 		}
 
