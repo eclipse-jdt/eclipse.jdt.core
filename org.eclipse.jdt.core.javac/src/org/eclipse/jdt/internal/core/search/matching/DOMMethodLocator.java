@@ -721,7 +721,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 			return toResponse(resolveLevel(invocation));
 		}
 		int level = computeResolveLevel(node, binding, locator);
-		if (node instanceof MethodDeclaration declaration) {
+		if (node instanceof MethodDeclaration declaration && binding != null) {
 			return toResponse(level > IMPOSSIBLE_MATCH && matchesDeclaration(node, binding.getJavaElement(), declaration.resolveBinding(), locator) ? level : IMPOSSIBLE_MATCH);
 		}
 		return toResponse(level);
