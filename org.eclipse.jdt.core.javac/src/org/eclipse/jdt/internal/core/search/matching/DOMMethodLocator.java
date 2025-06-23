@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
+import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionMethodReference;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -48,7 +49,9 @@ import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodReference;
+import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.TypeMethodReference;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.BinaryMethod;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
@@ -162,6 +165,19 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		int level = this.matchReference(node.getName(), node.arguments());
 		if( level == IMPOSSIBLE_MATCH )
 			return toResponse(IMPOSSIBLE_MATCH);
+		int fineGrain = this.locator.pattern.fineGrain;
+		if (fineGrain != 0) {
+			Expression expr = node.getExpression();
+			if ((fineGrain & IJavaSearchConstants.IMPLICIT_THIS_REFERENCE) == 0 && expr == null) {
+				return toResponse(IMPOSSIBLE_MATCH);
+			}
+			if ((fineGrain & IJavaSearchConstants.QUALIFIED_REFERENCE) == 0 && expr != null && !(expr instanceof ThisExpression)) {
+				return toResponse(IMPOSSIBLE_MATCH);
+			}
+			if ((fineGrain & IJavaSearchConstants.THIS_REFERENCE) == 0 && expr instanceof ThisExpression) {
+				return toResponse(IMPOSSIBLE_MATCH);
+			}
+		}
 		return toResponse(nodeSet.addMatch(node, level), true);
 	}
 	@Override
@@ -173,6 +189,9 @@ public class DOMMethodLocator extends DOMPatternLocator {
 	}
 	@Override
 	public LocatorResponse match(MethodReference node, NodeSetWrapper nodeSet, MatchLocator locator) {
+		if ((this.locator.pattern.fineGrain & IJavaSearchConstants.METHOD_REFERENCE_EXPRESSION) == 0) {
+			return toResponse(IMPOSSIBLE_MATCH);
+		}
 		SimpleName name = node instanceof TypeMethodReference typeMethodRef ? typeMethodRef.getName() :
 			node instanceof SuperMethodReference superMethodRef ? superMethodRef.getName() :
 			node instanceof ExpressionMethodReference exprMethodRef ? exprMethodRef.getName() :
@@ -192,6 +211,9 @@ public class DOMMethodLocator extends DOMPatternLocator {
 	public LocatorResponse match(org.eclipse.jdt.core.dom.Expression expression, NodeSetWrapper nodeSet, MatchLocator locator) {
 		int level = IMPOSSIBLE_MATCH;
 		if (expression instanceof SuperMethodInvocation node) {
+			if (this.pattern.fineGrain != 0 && (this.pattern.fineGrain & IJavaSearchConstants.SUPER_REFERENCE) == 0) {
+				return toResponse(IMPOSSIBLE_MATCH);
+			}
 			level = this.matchReference(node.getName(), node.arguments());
 		}
 		if (expression.getLocationInParent() == SingleMemberAnnotation.VALUE_PROPERTY

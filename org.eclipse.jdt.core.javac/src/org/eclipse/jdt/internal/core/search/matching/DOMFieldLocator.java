@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import java.util.Set;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
@@ -19,16 +21,22 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.SuperFieldAccess;
+import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.search.FieldDeclarationMatch;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.core.search.DOMASTNodeUtils;
@@ -117,7 +125,11 @@ public class DOMFieldLocator extends DOMPatternLocator {
 				}
 			}
 
-			if (!this.fieldLocator.pattern.readAccess && DOMLocalVariableLocator.isRead(name)) {
+			if (!matchesFineGrain(name)) {
+				return toResponse(IMPOSSIBLE_MATCH);
+			}
+
+			if (!this.fieldLocator.pattern.readAccess && this.fieldLocator.pattern.fineGrain == 0 && DOMLocalVariableLocator.isRead(name)) {
 				return toResponse(IMPOSSIBLE_MATCH);
 			}
 			if (!this.fieldLocator.pattern.writeAccess && DOMLocalVariableLocator.isWrite(name)) {
@@ -128,6 +140,33 @@ public class DOMFieldLocator extends DOMPatternLocator {
 			return toResponse(level, true);
 		}
 		return toResponse(PatternLocator.IMPOSSIBLE_MATCH);
+	}
+
+	private boolean matchesFineGrain(Name name) {
+		int fineGrain = this.fieldLocator.pattern.fineGrain;
+		if (fineGrain == 0) {
+			return true;
+		}
+		if ((fineGrain & IJavaSearchConstants.SUPER_REFERENCE) != 0 && name.getLocationInParent() == SuperFieldAccess.NAME_PROPERTY) {
+			return true;
+		}
+		if ((fineGrain & IJavaSearchConstants.QUALIFIED_REFERENCE) != 0 && name.getLocationInParent() == QualifiedName.NAME_PROPERTY) {
+			return true;
+		}
+		if (name.getLocationInParent() == FieldAccess.NAME_PROPERTY) {
+			Expression expr = ((FieldAccess)name.getParent()).getExpression();
+			if ((fineGrain & IJavaSearchConstants.THIS_REFERENCE) != 0 && expr instanceof ThisExpression) {
+				return true;
+			}
+			if ((fineGrain & IJavaSearchConstants.QUALIFIED_REFERENCE) != 0 && expr != null && !(expr instanceof ThisExpression)) {
+				return true;
+			}
+		}
+		if ((fineGrain & IJavaSearchConstants.IMPLICIT_THIS_REFERENCE) != 0 &&
+			!Set.of(SuperFieldAccess.NAME_PROPERTY, FieldAccess.NAME_PROPERTY, QualifiedName.NAME_PROPERTY).contains(name.getLocationInParent())) {
+			return true;
+		}
+		return false;
 	}
 
 	@Override
