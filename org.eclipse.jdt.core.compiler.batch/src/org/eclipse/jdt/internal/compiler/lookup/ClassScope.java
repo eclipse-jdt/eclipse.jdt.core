@@ -171,10 +171,10 @@ public class ClassScope extends Scope {
 		HashtableOfObject knownFieldNames = new HashtableOfObject(count);
 		count = 0;
 
-		AbstractVariableDeclaration variableDeclarartions[] = this.referenceContext.protoFieldDeclarations();
+		AbstractVariableDeclaration variableDeclarations[] = this.referenceContext.protoFieldDeclarations();
 		int i = -1;
 		nextVariable:
-		for (AbstractVariableDeclaration variableDeclaration : variableDeclarartions) {
+		for (AbstractVariableDeclaration variableDeclaration : variableDeclarations) {
 			FieldBinding fieldBinding;
 			++i;
 			if (variableDeclaration.getKind() == AbstractVariableDeclaration.INITIALIZER) {
@@ -186,17 +186,23 @@ public class ClassScope extends Scope {
 			if (variableDeclaration instanceof FieldDeclaration field) {
 				fieldBinding = new FieldBinding(field, null, field.modifiers | ExtraCompilerModifiers.AccUnresolved, sourceType);
 				checkAndSetModifiersForField(fieldBinding, field);
-			} else {
-				fieldBinding = new SyntheticFieldBinding(variableDeclaration.name, variableDeclaration.type.resolvedType,
+			} else if (variableDeclaration instanceof RecordComponent componentDeclaration) {
+				// prefer type from the binding as it holds the null annotations if any:
+				TypeBinding type = componentDeclaration.binding != null ? componentDeclaration.binding.type : variableDeclaration.type.resolvedType;
+				fieldBinding = new SyntheticFieldBinding(variableDeclaration.name, type,
 						ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal | ExtraCompilerModifiers.AccBlankFinal,
 						sourceType, Constant.NotAConstant);
+				if (componentDeclaration.binding != null)
+					fieldBinding.tagBits |= componentDeclaration.binding.tagBits & (TagBits.AnnotationNullMASK | TagBits.AnnotationOwningMASK);
+			} else {
+				throw new IllegalStateException("Fields can only be field or record component"); //$NON-NLS-1$
 			}
 			fieldBinding.id = count;
 			if (knownFieldNames.containsKey(variableDeclaration.name)) {
 				FieldBinding previousBinding = (FieldBinding) knownFieldNames.get(variableDeclaration.name);
 				if (previousBinding != null) {
 					for (int f = 0; f < i; f++) {
-						AbstractVariableDeclaration previousField = variableDeclarartions[f];
+						AbstractVariableDeclaration previousField = variableDeclarations[f];
 						if (CharOperation.equals(previousField.name,variableDeclaration.name)) {
 							if (previousField.getKind() == AbstractVariableDeclaration.RECORD_COMPONENT && variableDeclaration.getKind() == AbstractVariableDeclaration.RECORD_COMPONENT)
 								continue nextVariable; // already complained about duplicate components, don't also complain about fields

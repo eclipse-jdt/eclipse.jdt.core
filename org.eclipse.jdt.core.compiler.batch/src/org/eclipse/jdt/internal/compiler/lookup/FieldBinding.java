@@ -256,27 +256,6 @@ public Constant constant(Scope scope) {
 	}
 }
 
-public void fillInDefaultNonNullness(FieldDeclaration sourceField, Scope scope) {
-	if (this.type == null || this.type.isBaseType())
-		return;
-	LookupEnvironment environment = scope.environment();
-	if (environment.usesNullTypeAnnotations()) {
-		if (!this.type.acceptsNonNullDefault())
-			return;
-		if ( (this.type.tagBits & TagBits.AnnotationNullMASK) == 0) {
-			this.type = environment.createNonNullAnnotatedType(this.type);
-		} else if ((this.type.tagBits & TagBits.AnnotationNonNull) != 0) {
-			scope.problemReporter().nullAnnotationIsRedundant(sourceField);
-		}
-	} else {
-		if ( (this.tagBits & TagBits.AnnotationNullMASK) == 0 ) {
-			this.tagBits |= TagBits.AnnotationNonNull;
-		} else if ((this.tagBits & TagBits.AnnotationNonNull) != 0) {
-			scope.problemReporter().nullAnnotationIsRedundant(sourceField);
-		}
-	}
-}
-
 /** <pre>{@code
  * X<T> t   -->  LX<TT;>;
  * }</pre>

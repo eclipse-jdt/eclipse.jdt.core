@@ -985,9 +985,10 @@ private VariableBinding resolveTypeFor(VariableBinding variable) {
 			if (variableDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
 				// enum constants neither have a type declaration nor can they be null
 				variable.tagBits |= TagBits.AnnotationNonNull;
-			} else if (variable instanceof FieldBinding field) {
-				if (hasNonNullDefaultForType(variableType, DefaultLocationField, variableDeclaration.sourceStart)) {
-					field.fillInDefaultNonNullness((FieldDeclaration) variableDeclaration, initializationScope);
+			} else {
+				int location = variable.kind() == Binding.RECORD_COMPONENT ? DefaultLocationRecordComponent : DefaultLocationField;
+				if (hasNonNullDefaultForType(variableType, location, variableDeclaration.sourceStart)) {
+					variable.fillInDefaultNonNullness(variableDeclaration, initializationScope);
 				}
 				// validate null annotation:
 				if (!this.scope.validateNullAnnotation(variable.tagBits, variableDeclaration.type, variableDeclaration.annotations))

@@ -386,4 +386,8 @@ public class LocalVariableBinding extends VariableBinding {
                   right.length);
 		return left;
 	}
+	@Override
+	public void fillInDefaultNonNullness(AbstractVariableDeclaration sourceField, Scope scope) {
+		assert false : "local variables don't accept null defaults"; //$NON-NLS-1$
+	}
 }
