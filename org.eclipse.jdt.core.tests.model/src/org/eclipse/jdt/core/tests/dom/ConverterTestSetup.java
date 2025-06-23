@@ -1019,6 +1019,16 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 				return original.equals(mapped);
 			}
 			return false;
+		case IProblem.UndefinedMethod:
+			String undefinedMethod_arg0 = arguments != null && arguments.length >= 1 ? (String)arguments[0] : null;
+			String undefinedMethod_arg3 = arguments != null && arguments.length >= 4 ? (String)arguments[3] : null;
+			if( expected.equals("The method " + undefinedMethod_arg0 + "() is undefined for the type " + undefinedMethod_arg3.replace("class ", ""))) {
+				String mapped = "cannot find symbol\n"
+						+ "  symbol:   method " + undefinedMethod_arg0 + "()\n"
+						+ "  location: " + undefinedMethod_arg3;
+				return original.equals(mapped);
+			}
+			return false;
 		default:
 			return false;
 		}
