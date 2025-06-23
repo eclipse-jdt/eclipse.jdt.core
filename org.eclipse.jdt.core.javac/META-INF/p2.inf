@@ -41,7 +41,7 @@ java.compiler/javax.tools=ALL-UNNAMED\n\
 -DICompletionEngineProvider=org.eclipse.jdt.core.dom.DOMCompletionEngineProvider\n\
 -DSourceIndexer.DOM_BASED_INDEXER=true\n\
 -DMatchLocator.DOM_BASED_MATCH=true\n\
--DIJavaSearchDelegate=org.eclipse.jdt.internal.core.search.DOMJavaSearchDelegate\
+-DIJavaSearchDelegate=org.eclipse.jdt.internal.core.search.DOMJavaSearchDelegate\n\
 -Xss16m\
 );
 
