@@ -26,15 +26,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.HashSet;
 import java.util.Set;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.Annotation;
-import org.eclipse.jdt.internal.compiler.ast.Expression;
-import org.eclipse.jdt.internal.compiler.ast.FakedTrackingVariable;
-import org.eclipse.jdt.internal.compiler.ast.Initializer;
-import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
-import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 
@@ -48,7 +40,7 @@ public class LocalVariableBinding extends VariableBinding {
 	public int useFlag; // for flow analysis (default is UNUSED), values < 0 indicate the number of compound uses (postIncrement or compoundAssignment)
 
 	public BlockScope declaringScope; // back-pointer to its declaring scope
-	public LocalDeclaration declaration; // for source-positions
+	public AbstractVariableDeclaration declaration; // for source-positions
 
 	public int[] initializationPCs;
 	public int initializationCount = 0;
@@ -393,5 +385,9 @@ public class LocalVariableBinding extends VariableBinding {
                      leftCount,
                   right.length);
 		return left;
+	}
+	@Override
+	public void fillInDefaultNonNullness(AbstractVariableDeclaration sourceField, Scope scope) {
+		assert false : "local variables don't accept null defaults"; //$NON-NLS-1$
 	}
 }

@@ -2541,6 +2541,7 @@ void setSourceStart(int sourceStart);
 	 */
 	int RecordCanonicalConstructorShouldNotBeGeneric = TypeRelated + 1746;
 	/** @since 3.26
+	 *  @deprecated problem no longer generated
 	 */
 	int RecordCanonicalConstructorHasReturnStatement = TypeRelated + 1747;
 	/** @since 3.26
@@ -2550,6 +2551,7 @@ void setSourceStart(int sourceStart);
 	 */
 	int RecordCompactConstructorHasExplicitConstructorCall = TypeRelated + 1749;
 	/** @since 3.26
+	 *  @deprecated problem no longer generated
 	 */
 	int RecordNestedRecordInherentlyStatic = TypeRelated + 1750;
 	/** @since 3.26
@@ -2559,6 +2561,7 @@ void setSourceStart(int sourceStart);
 	 */
 	int RecordCannotExtendRecord= TypeRelated + 1752;
 	/** @since 3.26
+	 *  @deprecated problem no longer generated
 	 */
 	int RecordComponentCannotBeVoid= TypeRelated + 1753;
 	/** @since 3.26

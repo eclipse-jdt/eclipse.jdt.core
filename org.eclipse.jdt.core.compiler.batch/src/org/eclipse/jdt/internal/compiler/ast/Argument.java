@@ -64,7 +64,7 @@ public class Argument extends LocalDeclaration {
 		return false;
 	}
 
-	public LocalVariableBinding createBinding(MethodScope scope, TypeBinding typeBinding) {
+	public TypeBinding createBinding(MethodScope scope, TypeBinding typeBinding) {
 		if (this.binding == null) {
 			// for default constructors and fake implementation of abstract methods
 			this.binding = new LocalVariableBinding(this, typeBinding, this.modifiers, scope);
@@ -85,7 +85,7 @@ public class Argument extends LocalDeclaration {
 			scope.validateNullAnnotation(this.binding.tagBits, this.type, annots);
 		}
 		this.binding.declaration = this;
-		return this.binding; // type might have been updated during resolveAnnotations (for typeAnnotations)
+		return this.binding.type; // might have been updated during resolveAnnotations (for typeAnnotations)
 	}
 
 	public TypeBinding bind(MethodScope scope, TypeBinding typeBinding, boolean used) {
@@ -93,7 +93,7 @@ public class Argument extends LocalDeclaration {
 			scope.problemReporter().illegalUseOfUnderscoreAsAnIdentifier(this.sourceStart, this.sourceEnd, scope.compilerOptions().sourceLevel > ClassFileConstants.JDK1_8, true);
 		}
 
-		TypeBinding newTypeBinding = createBinding(scope, typeBinding).type; // basically a no-op if createBinding() was called before
+		TypeBinding newTypeBinding = createBinding(scope, typeBinding); // basically a no-op if createBinding() was called before
 
 		// record the resolved type into the type reference
 		Binding existingVariable = scope.getBinding(this.name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);

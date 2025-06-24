@@ -1801,7 +1801,7 @@ public void testBug559281_001() {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	record X(void k) {}\n" +
 			"	              ^\n" +
-			"void is an invalid type for the component k of a record\n" +
+			"void is an invalid type for the variable k\n" +
 			"----------\n");
 }
 public void testBug559281_002() {
@@ -8452,7 +8452,9 @@ public void testBugLazyCanon_006() throws IOException, ClassFormatException {
 	"100");
 }
 // Disabled waiting for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3347
-public void _testBug571765_001() {
+public void testBug571765_001() {
+	if (this.complianceLevel < ClassFileConstants.JDK24)
+		return;
 	this.runNegativeTest(
 			new String[] {
 					"module-info.java",
@@ -8462,7 +8464,12 @@ public void _testBug571765_001() {
 			"1. ERROR in module-info.java (at line 1)\n" +
 			"	public record R() {}\n" +
 			"	^\n" +
-			"Compact Source Files and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+			(this.complianceLevel == ClassFileConstants.JDK24
+			?
+			"The preview feature Compact Source Files and Instance Main Methods is only available with source level 25 and above\n"
+			:
+			"Compact Source Files and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable\n"
+			) +
 			"----------\n" +
 			"2. ERROR in module-info.java (at line 1)\n" +
 			"	public record R() {}\n" +
@@ -10526,5 +10533,135 @@ public void testIssue4025() {
 	            },
 
 		"Ok!");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4094
+// Error on Eclipse 4.36 when compiling Record with field usage
+public void testIssue4094() {
+	this.runConformTest(
+		new String[] {
+					"X.java",
+					"""
+					public class X {
+					    public static void main(String [] args) {
+					        System.out.println(ClassB.B);
+					    }
+					}
+					""",
+					"ClassB.java",
+					"""
+					import java.util.List;
+					import java.util.function.Predicate;
+
+
+					public class ClassB {
+
+					  private final Predicate<RecordA> predicate;
+
+					  public static final ClassB B = new ClassB(recordA -> recordA.test.isEmpty());
+
+					  public ClassB(Predicate<RecordA> predicate) {
+					    this.predicate = predicate;
+					  }
+
+					  public String toString() {
+					  	  return "ClassB instance";
+					  }
+
+					  record RecordA(List<Object> test, Integer i) {
+					  }
+					}
+					"""
+	            },
+
+		"ClassB instance");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4106
+// @Override-annotation on records not correctly handled by Eclipse 4.36
+public void testIssue4106() {
+	Map<String, String> customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
+			CompilerOptions.ERROR);
+
+	this.runNegativeTest(
+			true,
+ 		new String[] {
+					"X.java",
+					"""
+					public record X(String withoutOverride, String withOverride) {
+
+					  public String withoutOverride() {
+					    return withoutOverride;
+					  }
+
+					  @Override
+					  public String withOverride() {
+					    return withOverride;
+					  }
+					}
+					""",
+	            },
+	null, customOptions,
+	"----------\n" +
+	"1. ERROR in X.java (at line 3)\n" +
+	"	public String withoutOverride() {\n" +
+	"	              ^^^^^^^^^^^^^^^^^\n" +
+	"The component accessor method withoutOverride() of record class X should be tagged with @Override\n" +
+	"----------\n",
+	JavacTestOptions.SKIP);
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4118
+// Record with compact ctor - Internal compiler error: java.lang.RuntimeException: Internal Error compiling
+public void testIssue4118() {
+	this.runConformTest(
+		new String[] {
+					"RecordCompactWithReader.java",
+					"""
+					import java.io.Reader;
+					import java.time.Instant;
+					import java.util.Objects;
+
+					public record RecordCompactWithReader(Instant modified, Reader reader) {
+					    public RecordCompactWithReader {
+					        Objects.requireNonNull(modified);
+					        Objects.requireNonNull(reader);
+					    }
+					    public static void main(String [] args) {
+					    	System.out.println("OK!");
+					    }
+					}
+					""",
+	            },
+		"OK!"
+		);
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4070
+// Resource closure analysis triggers NPE with compact constructors
+public void testIssue4070() {
+	this.runConformTest(
+		new String[] {
+					"Config.java",
+					"""
+					import java.net.URI;
+					import java.net.http.HttpClient;
+					import java.util.Objects;
+
+					public record Config(HttpClient httpClient, URI base, String defaultContentType) {
+
+						  @SuppressWarnings("resource")
+						  public Config {
+						    Objects.requireNonNull(httpClient, "httpClient");
+						  }
+
+						  public static void main(String [] args) {
+					    	System.out.println("OK!");
+					    }
+					}
+					""",
+	            },
+		"OK!"
+		);
 }
 }

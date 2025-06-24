@@ -177,7 +177,12 @@ public interface Elements {
     default boolean isAutomaticModule(ModuleElement module) {
         return false;
     }
-
+    default TypeElement getEnumConstantBody(VariableElement enumConstant) {
+        switch(enumConstant.getKind()) {
+        case ENUM_CONSTANT -> throw new UnsupportedOperationException();
+        default            -> throw new IllegalArgumentException("Argument not an enum constant");
+        }
+    }
     default RecordComponentElement recordComponentFor(ExecutableElement accessor) {
         if (accessor.getEnclosingElement().getKind() == ElementKind.RECORD) {
             for (RecordComponentElement rec : ElementFilter.recordComponentsIn(accessor.getEnclosingElement().getEnclosedElements())) {

@@ -656,7 +656,7 @@ TypeDeclaration ::= ';'
 -----------------------------------------------
 TypeDeclaration -> EnumDeclaration
 TypeDeclaration -> AnnotationTypeDeclaration
--- Java 14 feature
+-- Java 16 feature
 TypeDeclaration -> RecordDeclaration
 /:$readableName TypeDeclaration:/
 
@@ -774,7 +774,7 @@ ClassMemberDeclaration -> InterfaceDeclaration
 -- 1.5 feature
 ClassMemberDeclaration -> EnumDeclaration
 ClassMemberDeclaration -> AnnotationTypeDeclaration
--- Java 14 feature
+-- Java 16 feature
 ClassMemberDeclaration -> RecordDeclaration
 /:$readableName ClassMemberDeclaration:/
 

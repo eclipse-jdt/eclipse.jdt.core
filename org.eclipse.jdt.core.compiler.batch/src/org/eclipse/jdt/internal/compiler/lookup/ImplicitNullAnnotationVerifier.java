@@ -284,7 +284,7 @@ public class ImplicitNullAnnotationVerifier {
 								} else if (currentMethod instanceof SyntheticMethodBinding) {
 									SyntheticMethodBinding synth = (SyntheticMethodBinding) currentMethod;
 									switch (synth.purpose) {
-										case SyntheticMethodBinding.FieldReadAccess:
+										case SyntheticMethodBinding.RecordComponentReadAccess:
 											if (synth.recordComponentBinding != null) {
 												RecordComponent sourceRecordComponent = synth.sourceRecordComponent();
 												if (sourceRecordComponent != null)

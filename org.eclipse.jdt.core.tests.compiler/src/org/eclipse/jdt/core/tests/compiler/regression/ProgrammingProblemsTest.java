@@ -4040,7 +4040,7 @@ public void testGH3660() {
 	runner.expectedOutputString = "truetrue";
 	runner.runConformTest();
 }
-public void testGH3870() {
+public void testGH3870a() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
 	runner.customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_EQUALS_ARGUMENT_TYPE, JavaCore.WARNING);
@@ -4167,5 +4167,108 @@ public void testGH3870() {
 				o.equals(args)
 				s.equals(args)""";
 	runner.runConformTest();
+}
+public void testGH3870b() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"Dc.java",
+			"""
+			public class Dc {
+				public String state;
+			}
+			""",
+			"UPSDc.java",
+			"""
+			import java.util.Objects;
+
+			public class UPSDc {
+
+				boolean state;
+
+				@Override
+				public boolean equals(Object o) {
+					if (o == this)
+						return true;
+					if (!(o instanceof Dc)) {
+						return false;
+					}
+					Dc dc = (Dc) o;
+					return Objects.equals(state, dc.state);
+				}
+			}
+			"""
+		};
+	runner.expectedCompilerLog = """
+			----------
+			1. INFO in UPSDc.java (at line 15)
+				return Objects.equals(state, dc.state);
+				                             ^^^^^^^^
+			Unlikely argument type for equals(): String seems to be unrelated to boolean
+			----------
+			""";
+	runner.runConformTest();
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4065
+// [Null][Record] Invalid "dead code" warning for record pattern with null-guard on component
+public void testIssue4065() {
+	if (this.complianceLevel < ClassFileConstants.JDK21)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+				"InvalidDeadCodeWarning.java",
+				"""
+				public class InvalidDeadCodeWarning {
+
+				    public static void main(String[] args) {
+				        try {
+				            int xxx = 42;
+				            new InvalidDeadCodeWarning(new MyRecord(null));
+				        } catch (IllegalArgumentException e) {
+				            System.out.println(e);
+				        }
+
+				        try {
+				            new InvalidDeadCodeWarning(new MyRecord("  "));
+				        } catch (IllegalArgumentException e) {
+				            System.out.println(e);
+				        }
+
+				        try {
+				            new InvalidDeadCodeWarning(null);
+				        } catch (IllegalArgumentException e) {
+				            System.out.println(e);
+				        }
+				    }
+
+
+				    record MyRecord(String value) {
+				    }
+
+				    final MyRecord myRecord;
+
+				    InvalidDeadCodeWarning(MyRecord myRecord) {
+				        this.myRecord = switch (myRecord) {
+				            case MyRecord(var value) when value == null -> throw new IllegalArgumentException("myRecord contained null value"); // "Dead code" warning
+				            case MyRecord(var value) when value.isBlank() -> throw new IllegalArgumentException("myRecord contained blank value '" + value + "'");
+				            case null -> throw new IllegalArgumentException("myRecord was null");
+				            default -> myRecord;
+				        };
+				    }
+				}
+
+				"""
+			},
+			"----------\n" +
+			"1. WARNING in InvalidDeadCodeWarning.java (at line 5)\n" +
+			"	int xxx = 42;\n" +
+			"	    ^^^\n" +
+			"The value of the local variable xxx is not used\n" +
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
 }
 }

@@ -1084,6 +1084,8 @@ public class SwitchStatement extends Expression {
 	public boolean doesNotCompleteNormally() {
 		if (this.statements == null || this.statements.length == 0)
 			return false;
+		if (!isExhaustive() && this.defaultCase == null) // selector not covered by cases - will escape.
+			return false;
 		for (Statement statement : this.statements) {
 			if (statement.breaksOut(null))
 				return false;

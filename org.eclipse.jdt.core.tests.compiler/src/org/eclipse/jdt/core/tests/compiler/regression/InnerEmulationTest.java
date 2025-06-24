@@ -6016,30 +6016,117 @@ public void test172() throws Exception {
 		this.runNegativeTest(
 				files,
 				"----------\n" +
-				"1. WARNING in X.java (at line 8)\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	a(null);\n" +
+				"	^\n" +
+				"The method a() in the type X is not applicable for the arguments (null)\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 14)\n" +
 				"	a(null);\n" +
 				"	^^^^^^^\n" +
 				"Access to enclosing method a(String) from the type X is emulated by a synthetic accessor method\n" +
 				"----------\n" +
-				"2. WARNING in X.java (at line 9)\n" +
-				"	c(null);\n" +
-				"	^^^^^^^\n" +
-				"Access to enclosing method c(String) from the type X is emulated by a synthetic accessor method\n" +
-				"----------\n" +
-				"3. WARNING in X.java (at line 14)\n" +
-				"	a(null);\n" +
-				"	^^^^^^^\n" +
-				"Access to enclosing method a(String) from the type X is emulated by a synthetic accessor method\n" +
-				"----------\n" +
-				"4. WARNING in X.java (at line 15)\n" +
+				"3. WARNING in X.java (at line 15)\n" +
 				"	c(null);\n" +
 				"	^^^^^^^\n" +
 				"Access to enclosing method c(String) from the type X is emulated by a synthetic accessor method\n" +
 				"----------\n"
 				);
 	} else {
-		this.runConformTest(files, "");
+		this.runNegativeTest(files,
+				"----------\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	a(null);\n" +
+				"	^\n" +
+				"The method a() in the type X is not applicable for the arguments (null)\n" +
+				"----------\n");
 	}
+}
+public void test172b() throws Exception {
+	runNegativeTest(new String[] {
+			"X.java",
+			"""
+			class Y {
+				void a() { }
+				private static void a(String s) { }
+
+				public static class X extends Y {
+
+					void a(int x, int y) { }
+					private void c() { }
+					private static void c(String s) { }
+
+					static class M1 extends X {
+						public void x() {
+							a(null);
+							c(null);
+						}
+					}
+
+					static class M2 {
+						public void x() {
+							a(null);
+							c(null);
+						}
+					}
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 13)
+			a(null);
+			^
+		The method a(int, int) in the type Y.X is not applicable for the arguments (null)
+		----------
+		2. ERROR in X.java (at line 20)
+			a(null);
+			^
+		The method a(int, int) in the type Y.X is not applicable for the arguments (null)
+		----------
+		""");
+}
+public void test172c() throws Exception {
+	runNegativeTest(new String[] {
+			"Test.java",
+			"""
+			class Super {
+			    void f2(String s)       {}
+			    void f3(String s)       {}
+			    void f3(int i1, int i2) {}
+			}
+
+			class Test {
+			    void f1(int i) {}
+			    void f2(int i) {}
+			    void f3(int i) {}
+
+			    void m() {
+			        new Super() {
+			            {
+			                f1(0);  // OK, resolves to Test.f1(int)
+			                f2(0);  // compile-time error
+			                f3(0);  // compile-time error
+			            }
+			        };
+			    }
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in Test.java (at line 16)
+			f2(0);  // compile-time error
+			^^
+		The method f2(String) in the type Super is not applicable for the arguments (int)
+		----------
+		2. ERROR in Test.java (at line 17)
+			f3(0);  // compile-time error
+			^^
+		The method f3(int, int) in the type Super is not applicable for the arguments (int)
+		----------
+		""");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=308245
 public void test173() throws Exception {

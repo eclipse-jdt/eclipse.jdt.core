@@ -73,6 +73,7 @@ public class UnlikelyArgumentCheck {
 		if (potentiallyDangerous
 				&& this.dangerousMethod == DangerousMethod.Equals
 				&& this.expectedType.kind() != Binding.ARRAY_TYPE
+				&& !this.expectedType.isBaseType()
 				&& hasEqualsMethodInCommonSuperType(this.expectedType, this.typeToCheck, new HashSet<>())) {
 			return false;
 		}

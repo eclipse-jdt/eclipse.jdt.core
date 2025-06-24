@@ -1151,4 +1151,34 @@ public class CompletionTests16 extends AbstractJavaModelCompletionTests {
 		requestor.getContext(); // triggers the CCE
 		assertEquals("abcd[POTENTIAL_METHOD_DECLARATION]{abcd, LX;, ()V, null, null, abcd, null, [34, 38], 39}" , requestor.getResults());
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4131
+	// Completing record component in compact constructor throws NPE
+	public void testIssue4131() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Point.java",
+				"""
+				public record R(String name, int age) {
+
+					public R {
+						na
+					}
+				}
+				"""
+				);
+		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "na";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"name[FIELD_REF]{this.name, LR;, Ljava.lang.String;, name, null, 49}\n" +
+				"name[LOCAL_VARIABLE_REF]{name, null, Ljava.lang.String;, name, null, 52}\n" +
+				"name[METHOD_REF]{name(), LR;, ()Ljava.lang.String;, name, null, 52}",
+				requestor.getResults());
+
+	}
 }

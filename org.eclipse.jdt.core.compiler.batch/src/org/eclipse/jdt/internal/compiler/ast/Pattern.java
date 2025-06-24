@@ -30,7 +30,7 @@ public abstract class Pattern extends Expression {
 
 	boolean isTotalTypeNode = false;
 
-	private Pattern enclosingPattern;
+	private RecordPattern enclosingPattern;
 
 	protected MethodBinding accessorMethod;
 
@@ -58,7 +58,7 @@ public abstract class Pattern extends Expression {
 
 	record TestContextRecord(TypeBinding left, TypeBinding right, PrimitiveConversionRoute route) {}
 
-	public Pattern getEnclosingPattern() {
+	public RecordPattern getEnclosingPattern() {
 		return this.enclosingPattern;
 	}
 
@@ -107,11 +107,6 @@ public abstract class Pattern extends Expression {
 		}
 		if (type.isSubtypeOf(this.resolvedType, false))
 			return true;
-		return false;
-	}
-
-	// Given a non-null instance of same type, would the pattern always match ?
-	public boolean matchFailurePossible() {
 		return false;
 	}
 

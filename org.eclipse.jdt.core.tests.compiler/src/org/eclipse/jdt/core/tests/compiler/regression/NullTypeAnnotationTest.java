@@ -4078,10 +4078,16 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	getAdd(lx);\n" +
 			"	       ^^\n" +
 			"Null type safety (type annotations): The expression of type \'List<capture#of ? extends X>\' needs unchecked conversion to conform to \'List<@NonNull capture#of ? extends X>\'\n" +
+			"----------\n" +
+			"2. INFO in X.java (at line 19)\n" +
+			"	lt.add(lt.get(0));\n" +
+			"	       ^^^^^^^^^\n" +
+			"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'List<@NonNull P>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" +
 			"----------\n");
 	}
 	public void testWildcardCapture2() {
-		runConformTestWithLibs(
+		runWarningTestWithLibs(
+			true, // flush
 			new String[] {
 				"X.java",
 				"import java.lang.annotation.ElementType;\n" +
@@ -4107,7 +4113,12 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"}\n"
 			},
 			getCompilerOptions(),
-			"");
+			"----------\n" +
+			"1. INFO in X.java (at line 19)\n" +
+			"	lt.add(lt.get(0));\n" +
+			"	       ^^^^^^^^^\n" +
+			"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'List<@NonNull P>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" +
+			"----------\n");
 	}
 	public void testWildcardCapture3() {
 		runNegativeTestWithLibs(
@@ -4142,6 +4153,11 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	getAdd(lx);\n" +
 			"	       ^^\n" +
 			"Null type mismatch (type annotations): required \'List<@NonNull capture#of ? extends X>\' but this expression has type \'List<@Nullable capture#of ? extends X>\'\n" +
+			"----------\n" +
+			"2. INFO in X.java (at line 20)\n" +
+			"	lt.add(lt.get(0));\n" +
+			"	       ^^^^^^^^^\n" +
+			"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'List<@NonNull P>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" +
 			"----------\n");
 	}
 	public void testLocalArrays() {
@@ -9376,23 +9392,45 @@ public void testBug482247() {
 			"		s[0] = null;\n" +
 			"	}\n" +
 			"	@NonNull String test()  {\n" +
-			"		other(new String[0]);\n" + // unchanged semantics
-			"		return first(new String[0]);\n" + // unchanged semantics
+			"		other(new String[1]);\n" + // unchanged semantics
+			"		return first(new String[1]);\n" + // unchanged semantics
 			"	}\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
 		"----------\n" +
 		"1. WARNING in X.java (at line 12)\n" +
-		"	other(new String[0]);\n" +
+		"	other(new String[1]);\n" +
 		"	      ^^^^^^^^^^^^^\n" +
 		"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'@Nullable String []\'\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 13)\n" +
-		"	return first(new String[0]);\n" +
+		"	return first(new String[1]);\n" +
 		"	             ^^^^^^^^^^^^^\n" +
 		"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'@NonNull String @NonNull[]\'\n" +
 		"----------\n");
+}
+public void testBug482247_length0() {
+	runConformTestWithLibs(
+		true/*flush*/,
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"	<T> @NonNull T first(@NonNull T @NonNull[] arr) {\n" +
+			"		return arr[0];\n" +
+			"	}\n" +
+			"	void other(@Nullable String[] s) {\n" +
+			"		s[0] = null;\n" +
+			"	}\n" +
+			"	@NonNull String test()  {\n" +
+			"		other(new String[0]);\n" + // empty array satisfies any requirement on its (absent) elements
+			"		return first(new String[0]);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
 }
 public void testBug482247_comment5() {
 	runConformTestWithLibs(
@@ -18424,7 +18462,12 @@ public void testBug562347_561280c9() {
 		"	    ^^^^^^^^^^^^^^^^^\n" +
 		"Redundant null check: comparing \'@NonNull String\' against null\n" +
 		"----------\n" +
-		"2. WARNING in Example.java (at line 25)\n" +
+		"2. INFO in Example.java (at line 22)\n" +
+		"	if (f(entry.getKey()) != null) {\n" +
+		"	      ^^^^^^^^^^^^^^\n" +
+		"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'Map.Entry<@NonNull String,@NonNull String>\'. Type \'Map.Entry<K,V>\' doesn\'t seem to be designed with null type annotations in mind\n" +
+		"----------\n" +
+		"3. WARNING in Example.java (at line 25)\n" +
 		"	String x = \"asdf\";\n" +
 		"	^^^^^^^^^^^^^^^^^^\n" +
 		"Dead code\n" +
@@ -19520,5 +19563,70 @@ public void testGH3461() {
 	};
 	runner.classLibraries = this.LIBS;
 	runner.runConformTest();
+}
+public void testGH4011() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportNonNullTypeVariableFromLegacyInvocation, CompilerOptions.ERROR);
+	runner.testFiles = new String[] {
+			"X.java",
+			"""
+			import java.util.List;
+			import org.eclipse.jdt.annotation.NonNull;
+			public class X {
+				String f;
+				String m(List<@NonNull String> list) { // in this method don't warn for non-local flows
+					String s1 = list.get(0); // #1 warn on local flows
+					if (list.size() == 2)
+						return list.get(1);
+					f = list.get(2);
+					other(list.get(3));
+					return "";
+				}
+				void other(String s) {}
+				@NonNull String f2 = "";
+				@NonNull String m2(List<@NonNull String> list) {
+					@NonNull String s1 = list.get(0); // #2
+					if (list.size() == 2)
+						return list.get(1); // #3
+					f2 = list.get(2); // #4
+					other2(list.get(3)); // #5
+					return "";
+				}
+				void other2(@NonNull String s) {}
+			}
+			"""
+	};
+	runner.classLibraries = this.LIBS;
+	runner.expectedCompilerLog =
+			"""
+			----------
+			1. ERROR in X.java (at line 6)
+				String s1 = list.get(0); // #1 warn on local flows
+				            ^^^^^^^^^^^
+			Unsafe interpretation of method return type as '@NonNull' based on the receiver type 'List<@NonNull String>'. Type 'List<E>' doesn't seem to be designed with null type annotations in mind
+			----------
+			2. ERROR in X.java (at line 16)
+				@NonNull String s1 = list.get(0); // #2
+				                     ^^^^^^^^^^^
+			Unsafe interpretation of method return type as '@NonNull' based on the receiver type 'List<@NonNull String>'. Type 'List<E>' doesn't seem to be designed with null type annotations in mind
+			----------
+			3. ERROR in X.java (at line 18)
+				return list.get(1); // #3
+				       ^^^^^^^^^^^
+			Unsafe interpretation of method return type as '@NonNull' based on the receiver type 'List<@NonNull String>'. Type 'List<E>' doesn't seem to be designed with null type annotations in mind
+			----------
+			4. ERROR in X.java (at line 19)
+				f2 = list.get(2); // #4
+				     ^^^^^^^^^^^
+			Unsafe interpretation of method return type as '@NonNull' based on the receiver type 'List<@NonNull String>'. Type 'List<E>' doesn't seem to be designed with null type annotations in mind
+			----------
+			5. ERROR in X.java (at line 20)
+				other2(list.get(3)); // #5
+				       ^^^^^^^^^^^
+			Unsafe interpretation of method return type as '@NonNull' based on the receiver type 'List<@NonNull String>'. Type 'List<E>' doesn't seem to be designed with null type annotations in mind
+			----------
+			""";
+	runner.runNegativeTest();
 }
 }

@@ -144,7 +144,7 @@ public class Initializer extends FieldDeclaration {
 				}
 			} else {
 				if (scope.enclosingSourceType().isRecord())
-					scope.problemReporter().recordInstanceInitializerBlockInRecord(this);
+					scope.problemReporter().instanceInitializerBlockIllegalInRecord(this);
 			}
 			if (this.block != null) this.block.resolve(scope);
 		} finally {

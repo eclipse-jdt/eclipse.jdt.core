@@ -57,7 +57,6 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
@@ -140,7 +139,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			//AccAlternateModifierProblem -> duplicate modifier
 			//AccModifierProblem | AccAlternateModifierProblem -> visibility problem"
 
-			this.modifiers = (this.modifiers & ~ExtraCompilerModifiers.AccAlternateModifierProblem) | ExtraCompilerModifiers.AccModifierProblem;
+			this.modifiers &= ~ExtraCompilerModifiers.AccAlternateModifierProblem;
 	}
 
 	/**
@@ -198,7 +197,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		return LOCAL_VARIABLE;
 	}
 
-	// for local variables
+    @Override
 	public void getAllAnnotationContexts(int targetType, LocalVariableBinding localVariable, List<AnnotationContext> allAnnotationContexts) {
 		AnnotationCollector collector = new AnnotationCollector(this, targetType, localVariable, allAnnotationContexts);
 		this.traverseWithoutInitializer(collector, (BlockScope) null);
@@ -211,9 +210,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		this.traverse(collector, (BlockScope) null);
 	}
 
-	public boolean isArgument() {
-		return false;
-	}
 	public boolean isReceiver() {
 		return false;
 	}
@@ -515,10 +511,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	public boolean isRecoveredFromLoneIdentifier() { // recovered from lonely identifier or identifier cluster ?
 		return this.name == RecoveryScanner.FAKE_IDENTIFIER &&
 				(this.type instanceof SingleTypeReference || (this.type instanceof QualifiedTypeReference && !(this.type instanceof ArrayQualifiedTypeReference))) && this.initialization == null && !this.type.isBaseTypeReference();
-	}
-
-	public boolean isTypeNameVar(Scope scope) {
-		return this.type != null && this.type.isTypeNameVar(scope);
 	}
 
 	@Override

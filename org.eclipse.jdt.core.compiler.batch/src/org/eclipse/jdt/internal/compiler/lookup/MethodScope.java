@@ -28,7 +28,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import static org.eclipse.jdt.internal.compiler.impl.JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES;
 
-import java.util.Arrays;
 import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -94,15 +93,6 @@ public MethodScope(Scope parent, ReferenceContext context, boolean isStatic) {
 public MethodScope(Scope parent, ReferenceContext context, boolean isStatic, int lastVisibleFieldID) {
 	this(parent, context, isStatic);
 	this.lastVisibleFieldID = lastVisibleFieldID;
-}
-
-public LocalVariableBinding [] argumentBindings() {
-	int i = 0;
-	while (i < this.localIndex) {
-		LocalVariableBinding local = this.locals[i++];
-		if (local == null ||  !local.isParameter()) break; // done with arguments
-	}
-	return Arrays.copyOf(this.locals, i);
 }
 
 @Override
@@ -263,7 +253,7 @@ private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
 			}
 		}
 	} else if (declaringClass.isRecord() && methodBinding.isNative()) {
-		problemReporter().recordIllegalNativeModifierInRecord((AbstractMethodDeclaration) this.referenceContext);
+		problemReporter().nativeMethodIllegalInRecord((AbstractMethodDeclaration) this.referenceContext);
 	}
 
 	// check for abnormal modifiers
@@ -333,7 +323,7 @@ public void checkUnusedParameters(MethodBinding method) {
 		if (local.useFlag == LocalVariableBinding.UNUSED &&
 				// do not report fake used variable
 				((local.declaration.bits & ASTNode.IsLocalDeclarationReachable) != 0)) { // declaration is reachable
-			problemReporter().unusedArgument(local.declaration);
+			problemReporter().unusedArgument((LocalDeclaration) local.declaration);
 		}
 	}
 }
@@ -359,7 +349,7 @@ public void computeLocalVariablePositions(int initOffset, CodeStream codeStream)
 			long sourceLevel = compilerOptions.sourceLevel;
 			boolean enablePreviewFeatures = compilerOptions.enablePreviewFeatures;
 			if (JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(sourceLevel, enablePreviewFeatures)) {
-				problemReporter().unusedLambdaParameter(local.declaration);
+				problemReporter().unusedLambdaParameter((LocalDeclaration) local.declaration);
 			}
 		}
 

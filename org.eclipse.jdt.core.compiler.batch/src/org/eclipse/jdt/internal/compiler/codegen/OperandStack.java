@@ -114,6 +114,14 @@ public class OperandStack {
 		return t;
 	}
 
+	/** reference cast the TOS operand (presumed to be category one) to given type */
+	public void cast(TypeBinding castedType) {
+		if (!castedType.isBaseType()) {
+			pop();
+			push(castedType);
+		}
+	}
+
 	public TypeBinding pop(TypeBinding top) {
 		if (TypeBinding.equalsEquals(top, pop()))
 			return top;
@@ -366,6 +374,11 @@ public class OperandStack {
 		@Override
 		public boolean depthEquals(int expected) {
 			return true;
+		}
+
+		@Override
+		public void cast(TypeBinding castedType) {
+			return;
 		}
 
 		@Override

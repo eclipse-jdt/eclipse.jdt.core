@@ -17,7 +17,6 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 
 public interface ExtendedTagBits {
 
-	int AreRecordComponentsComplete = ASTNode.Bit1; // type
 	int HasUnresolvedPermittedSubtypes = ASTNode.Bit2;
 
 	/** From Java 16

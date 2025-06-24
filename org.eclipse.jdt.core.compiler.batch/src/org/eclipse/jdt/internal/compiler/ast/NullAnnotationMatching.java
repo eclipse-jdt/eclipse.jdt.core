@@ -167,7 +167,7 @@ public class NullAnnotationMatching {
 				return identicalStatus ? status0 : nullStatus; // if not all branches agree use the precomputed & merged nullStatus
 			}
 			lhsTagBits = var.type.tagBits & TagBits.AnnotationNullMASK;
-			NullAnnotationMatching annotationStatus = analyse(var.type, providedType, null, null, nullStatus, expression, CheckMode.COMPATIBLE);
+			NullAnnotationMatching annotationStatus = analyse(var.type, providedType, null, null, nullStatus, expression, CheckMode.COMPATIBLE, var.kind() == Binding.LOCAL);
 			if (annotationStatus.isAnyMismatch()) {
 				flowContext.recordNullityMismatch(currentScope, expression, providedType, var.type, flowInfo, nullStatus, annotationStatus);
 				hasReported = true;
@@ -212,6 +212,22 @@ public class NullAnnotationMatching {
 	public static NullAnnotationMatching analyse(TypeBinding requiredType, TypeBinding providedType, TypeBinding providedSubstitute, Substitution substitution,
 			int nullStatus, Expression providedExpression, CheckMode mode)
 	{
+		return analyse(requiredType, providedType, providedSubstitute, substitution, nullStatus, providedExpression, mode, true);
+	}
+	/**
+	 * Find any mismatches between the two given types, which are caused by null type annotations.
+	 * @param providedSubstitute in inheritance situations this maps the providedType into the realm of the subclass, needed for TVB identity checks.
+	 * 		Pass null if not interested in these added checks.
+	 * @param substitution TODO
+	 * @param nullStatus we are only interested in NULL or NON_NULL, -1 indicates that we are in a recursion, where flow info is ignored
+	 * @param providedExpression optionally holds the provided expression of type 'providedType'
+	 * @param mode controls the kind of check performed (see {@link CheckMode}).
+	 * @param localFlow true if the value flow stays within the current scope
+	 * @return a status object representing the severity of mismatching plus optionally a supertype hint
+	 */
+	public static NullAnnotationMatching analyse(TypeBinding requiredType, TypeBinding providedType, TypeBinding providedSubstitute, Substitution substitution,
+			int nullStatus, Expression providedExpression, CheckMode mode, boolean localFlow)
+	{
 		if (!requiredType.enterRecursiveFunction())
 			return NullAnnotationMatching.NULL_ANNOTATIONS_OK;
 		try {
@@ -222,7 +238,7 @@ public class NullAnnotationMatching {
 			boolean problemAtDetail = false;
 			if (areSameTypes(requiredType, providedType, providedSubstitute)) {
 				if ((requiredType.tagBits & TagBits.AnnotationNonNull) != 0)
-					return okNonNullStatus(providedExpression);
+					return okNonNullStatus(providedExpression, true);
 				return okStatus;
 			}
 			if (requiredType instanceof TypeVariableBinding && substitution != null && (mode == CheckMode.EXACT || mode == CheckMode.COMPATIBLE || mode == CheckMode.BOUND_SUPER_CHECK)) {
@@ -232,7 +248,7 @@ public class NullAnnotationMatching {
 					return NullAnnotationMatching.NULL_ANNOTATIONS_OK;
 				if (areSameTypes(requiredType, providedType, providedSubstitute)) {
 					if ((requiredType.tagBits & TagBits.AnnotationNonNull) != 0)
-						return okNonNullStatus(providedExpression);
+						return okNonNullStatus(providedExpression, true);
 					return okStatus;
 				}
 			}
@@ -329,7 +345,7 @@ public class NullAnnotationMatching {
 					}
 					severity = severity.max(s);
 					if (!severity.isAnyMismatch() && (providedBits & TagBits.AnnotationNullMASK) == TagBits.AnnotationNonNull)
-						okStatus = okNonNullStatus(providedExpression);
+						okStatus = okNonNullStatus(providedExpression, localFlow || requiredBits == TagBits.AnnotationNonNull);
 				}
 				if (severity != Severity.MISMATCH && nullStatus != FlowInfo.NULL) {  // null value has no details
 					TypeBinding providedSuper = providedType.findSuperTypeOriginatingFrom(requiredType);
@@ -389,13 +405,14 @@ public class NullAnnotationMatching {
 		}
 	}
 
-	public static NullAnnotationMatching okNonNullStatus(final Expression providedExpression) {
+	public static NullAnnotationMatching okNonNullStatus(final Expression providedExpression, boolean warnUnsafeInterpretation) {
 		if (providedExpression instanceof MessageSend) {
 			final MethodBinding method = ((MessageSend) providedExpression).binding;
 			if (method != null && method.isValidBinding()) {
 				MethodBinding originalMethod = method.original();
 				TypeBinding originalDeclaringClass = originalMethod.declaringClass;
-				if (originalDeclaringClass instanceof BinaryTypeBinding
+				if (warnUnsafeInterpretation
+						&& originalDeclaringClass instanceof BinaryTypeBinding
 						&& ((BinaryTypeBinding) originalDeclaringClass).externalAnnotationStatus.isPotentiallyUnannotatedLib()
 						&& originalMethod.returnType.isTypeVariable()
 						&& (originalMethod.returnType.tagBits & TagBits.AnnotationNullMASK) == 0)

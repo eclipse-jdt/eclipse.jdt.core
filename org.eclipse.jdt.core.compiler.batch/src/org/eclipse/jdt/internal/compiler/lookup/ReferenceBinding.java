@@ -65,9 +65,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
+import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
@@ -522,7 +524,7 @@ public void computeId() {
 					switch (packageName[1]) {
 						case 'a':
 							if (CharOperation.equals(TypeConstants.JAKARTA_ANNOTATION_INJECT_INJECT, this.compoundName))
-								this.id = TypeIds.T_JavaxInjectInject;
+								this.id = TypeIds.T_JakartaInjectInject;
 							return;
 					}
 					return;
@@ -1088,6 +1090,31 @@ public AnnotationBinding[] getAnnotations() {
 @Override
 public long getAnnotationTagBits() {
 	return this.tagBits;
+}
+
+public RecordComponent getRecordComponent(char[] name) {
+	if (this.isRecord()) {
+		RecordComponentBinding [] rcbs = components();
+		int length = rcbs == null ? 0 : rcbs.length;
+		for (int i = 0; i < length; i++)
+			if (CharOperation.equals(name, rcbs[i].name))
+				return rcbs[i].sourceRecordComponent();
+	}
+	return null;
+}
+
+public RecordComponent[] getRecordComponents() {
+	RecordComponent[] recordComponents = ASTNode.NO_RECORD_COMPONENTS;
+	if (this.isRecord()) {
+		RecordComponentBinding[] rcbs = components();
+		int length = rcbs == null ? 0 : rcbs.length;
+		if (length > 0) {
+			recordComponents = new RecordComponent[length];
+			for (int i = 0; i < length; i++)
+				recordComponents[i] = rcbs[i].sourceRecordComponent();
+		}
+	}
+	return recordComponents;
 }
 
 /**
@@ -1816,6 +1843,60 @@ public final ReferenceBinding outermostEnclosingType() {
 		if ((current = current.enclosingType()) == null)
 			return last;
 	}
+}
+
+/** return all type variables involved left to right */
+public TypeVariableBinding [] typeVariablesIncludingEnclosing() {
+
+	ReferenceBinding enclosingType = enclosingType();
+	TypeVariableBinding [] ownVariables = typeVariables();
+	TypeVariableBinding [] outerVariables = hasEnclosingInstanceContext() && enclosingType != null ? enclosingType.typeVariablesIncludingEnclosing() : Binding.NO_TYPE_VARIABLES;
+
+	if (outerVariables == null || outerVariables == Binding.NO_TYPE_VARIABLES)
+		return ownVariables == null ? Binding.NO_TYPE_VARIABLES : ownVariables;
+
+	if (ownVariables == null || ownVariables == Binding.NO_TYPE_VARIABLES)
+		return outerVariables;
+
+	int outerVariablesCount = outerVariables.length;
+	TypeVariableBinding [] allVariables;
+	System.arraycopy(outerVariables,
+			            0,
+			            allVariables = new TypeVariableBinding[outerVariablesCount + ownVariables.length],
+			            0,
+			         outerVariablesCount);
+	System.arraycopy(ownVariables,
+                         0,
+                         allVariables,
+                 outerVariablesCount,
+              ownVariables.length);
+	return allVariables;
+}
+
+public TypeBinding[] typeArgumentsIncludingEnclosing() {
+	ReferenceBinding enclosingType = enclosingType();
+	TypeBinding [] ownArguments = typeArguments();
+	TypeBinding [] outerArguments = hasEnclosingInstanceContext() && enclosingType != null ? enclosingType.typeArguments() : Binding.NO_TYPES;
+
+	if (outerArguments == null || outerArguments == Binding.NO_TYPES)
+		return ownArguments == null ? Binding.NO_TYPES : ownArguments;
+
+	if (ownArguments == null || ownArguments == Binding.NO_TYPES)
+		return outerArguments;
+
+	int outerArgumentsCount = outerArguments.length;
+	TypeBinding [] allArguments;
+	System.arraycopy(outerArguments,
+			            0,
+			            allArguments = new TypeBinding[outerArgumentsCount + ownArguments.length],
+			            0,
+			            outerArgumentsCount);
+	System.arraycopy(ownArguments,
+                         0,
+                         allArguments,
+                         outerArgumentsCount,
+              ownArguments.length);
+	return allArguments;
 }
 
 /**

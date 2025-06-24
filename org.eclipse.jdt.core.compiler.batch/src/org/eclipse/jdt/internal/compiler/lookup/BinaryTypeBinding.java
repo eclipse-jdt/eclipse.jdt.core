@@ -592,6 +592,7 @@ private void cachePartsFrom2(IBinaryType binaryType, boolean needFieldsAndMethod
 				iComponents = binaryType.getRecordComponents();
 				if (iComponents != null) {
 					createFields(iComponents, binaryType, sourceLevel, missingTypeNames, RECORD_INITIALIZATION);
+					this.tagBits |= TagBits.HasUnresolvedComponents;
 				}
 			}
 			IBinaryField[] iFields = binaryType.getFields();
@@ -1281,13 +1282,13 @@ public RecordComponentBinding[] components() {
 	if (!isPrototype()) {
 		return this.components = this.prototype.components();
 	}
-	if ((this.extendedTagBits & ExtendedTagBits.AreRecordComponentsComplete) != 0)
+	if ((this.tagBits & TagBits.HasUnresolvedComponents) == 0)
 		return this.components;
 
 	for (int i = this.components.length; --i >= 0;) {
 		resolveTypeFor(this.components[i]);
 	}
-	this.extendedTagBits |= ExtendedTagBits.AreRecordComponentsComplete;
+	this.tagBits &= ~TagBits.HasUnresolvedComponents;
 	return this.components;
 }
 // NOTE: the type of each field of a binary type is resolved when needed
@@ -1833,7 +1834,8 @@ public MethodBinding getRecordComponentAccessor(char[] name) {
 	if (isRecord()) {
 		for (MethodBinding m : this.getMethods(name)) {
 			if (CharOperation.equals(m.selector, name)) {
-				return m;
+				if (m.parameters == null || m.parameters.length == 0)
+					return m;
 			}
 		}
 	}

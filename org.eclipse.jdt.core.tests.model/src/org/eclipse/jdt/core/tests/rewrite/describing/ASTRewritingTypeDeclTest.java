@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2022,4 +2022,61 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 	}
 
+	public void testEnumRewriteProblem() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		String baseCode = """
+				package x;
+				public enum X {
+				    ENUM1 {
+				        @Override
+				        public String toString() {
+				            int num = 1;
+				            return "ENUM" + num;
+				        }
+				    }
+				}
+				""";
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", baseCode, false, null);
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast = AST.newAST(AST.getJLSLatest(), true);
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		EnumDeclaration type = findEnumDeclaration(astRoot, "X");
+		List<EnumConstantDeclaration> enumDecl = type.enumConstants();
+		{
+			rewrite.replace(enumDecl.get(0).getName(), ast.newSimpleName("ENUM1_NEW"), null);
+
+			AnonymousClassDeclaration acd = enumDecl.get(0).getAnonymousClassDeclaration();
+			List<MethodDeclaration> mds = acd.bodyDeclarations();
+			rewrite.replace(mds.get(0).getName(), ast.newSimpleName("toStringNew"), null);
+
+			List<Modifier> modifiers = mds.get(0).modifiers();
+			rewrite.remove(modifiers.get(0), null);
+
+			Block block = mds.get(0).getBody();
+			List<?> statements = block.statements();
+			VariableDeclarationStatement vds = (VariableDeclarationStatement) statements.get(0);
+			List<VariableDeclarationFragment> vdfs = vds.fragments();
+			rewrite.replace(vdfs.get(0).getName(), ast.newSimpleName("num_new"), null);
+
+			ReturnStatement rtrnStemnt = (ReturnStatement) statements.get(1);
+			InfixExpression ie = (InfixExpression) rtrnStemnt.getExpression();
+
+			rewrite.replace(ie.getRightOperand(), ast.newSimpleName("num_new"), null);
+		}
+		String ASTConvertedCode = """
+				package x;
+				public enum X {
+				    ENUM1_NEW {
+				        public String toStringNew() {
+				            int num_new = 1;
+				            return "ENUM" + num_new;
+				        }
+				    }
+				}
+				""";
+
+		String preview= evaluateRewrite(cu, rewrite);
+		assertEqualString(preview, ASTConvertedCode);
+	}
 }
