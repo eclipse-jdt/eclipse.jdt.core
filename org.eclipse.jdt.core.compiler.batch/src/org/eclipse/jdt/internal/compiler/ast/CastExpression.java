@@ -458,9 +458,37 @@ public static boolean checkUnsafeCast(Expression expression, Scope scope, TypeBi
 						expression.bits |= ASTNode.UnsafeCast; // upcast since castType is known to be bound paramType
 						return true;
 					default :
-						if (isNarrowing){
-							// match is not parameterized or raw, then any other subtype of match will erase  to |T|
-							expression.bits |= ASTNode.UnsafeCast;
+						if (isNarrowing) {
+							/* So we have a cast `(G<T1, ... Tn>) match` where at least one of the type arguments is NOT an unbounded wildcard
+							   as castType would have been reifiable otherwise and we won't be here. Since `match` is not parameterized or raw,
+							   should the runtime checkcast succeed, match will amount to G<?, ... ?> and so the question distills to whether
+							   the cast `(G<T1, ... Tn>) G<?,...?>` is unsafe
+
+							   JLS 5.1.6.2 states:
+									• A narrowing reference conversion from a type S to a parameterized class or
+									interface type T is unchecked, unless at least one of the following is true:
+									– All of the type arguments of T are unbounded wildcards.
+									– T <: S, and S has no subtype X other than T where the type arguments of X are
+									not contained in the type arguments of T.
+							*/
+
+							ParameterizedTypeBinding ParameterizedCastType = (ParameterizedTypeBinding) castType;
+							TypeBinding [] typeArguments = ParameterizedCastType.typeArgumentsIncludingEnclosing();
+							TypeVariableBinding [] typeVariables = ParameterizedCastType.genericType().typeVariablesIncludingEnclosing();
+
+							if (typeArguments.length != typeVariables.length) { // broken type.
+								expression.bits |= ASTNode.UnsafeCast;
+								return true;
+							}
+							for (int i = 0, length = typeArguments.length; i < length; i++) {
+								TypeVariableBinding tvb = typeVariables[i];
+								TypeBinding checkedTopOfStackTypeArgument =
+										scope.environment().createWildcard((ReferenceBinding) tvb.declaringElement, tvb.rank, null, null, Wildcard.UNBOUND);
+								if (checkedTopOfStackTypeArgument.isTypeArgumentContainedBy(typeArguments[i]))
+									continue;
+								expression.bits |= ASTNode.UnsafeCast;
+								break;
+							}
 							return true;
 						}
 						break;
@@ -523,6 +551,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	}
 	if (valueRequired) {
 		codeStream.generateImplicitConversion(this.implicitConversion);
+		if (codeStream.operandStack.peek() == TypeBinding.NULL)
+			codeStream.operandStack.cast(this.resolvedType);
 	} else if (annotatedCast || needRuntimeCheckcast) {
 		switch (this.resolvedType.id) {
 			case T_long :

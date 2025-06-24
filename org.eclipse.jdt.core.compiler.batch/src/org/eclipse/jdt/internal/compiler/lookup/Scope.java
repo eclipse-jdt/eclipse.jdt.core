@@ -1688,6 +1688,9 @@ public abstract class Scope {
 		// superclass lookup
 		ReferenceBinding classHierarchyStart = currentType;
 		MethodVerifier verifier = environment().methodVerifier();
+		boolean currentIsSuper = false;
+		MethodBinding singlePrivateMethod = null;
+		boolean multiplePrivateMethods = false;
 		while (currentType != null) {
 			unitScope.recordTypeReference(currentType);
 			currentType = (ReferenceBinding) currentType.capture(this, invocationSite == null ? 0 : invocationSite.sourceStart(), invocationSite == null ? 0 : invocationSite.sourceEnd());
@@ -1725,18 +1728,29 @@ public abstract class Scope {
 				}
 
 				if (currentLength > 0) {
-					// append currentMethods, filtering out null entries
-					if (currentMethods.length == currentLength) {
+					// append currentMethods, filtering out null entries and private super methods
+					if (currentMethods.length == currentLength && !currentIsSuper) {
 						found.addAll(currentMethods);
 					} else {
 						for (MethodBinding currentMethod : currentMethods) {
-							if (currentMethod != null)
-								found.add(currentMethod);
+							if (currentMethod != null) {
+								if (currentIsSuper && currentMethod.isPrivate()) {
+									if (singlePrivateMethod == null && !multiplePrivateMethods) {
+										singlePrivateMethod = currentMethod;
+									} else {
+										singlePrivateMethod = null;
+										multiplePrivateMethods = true;
+									}
+								} else {
+									found.add(currentMethod);
+								}
+							}
 						}
 					}
 				}
 			}
 			currentType = currentType.superclass();
+			currentIsSuper = true;
 		}
 
 		// if found several candidates, then eliminate those not matching argument types
@@ -1776,6 +1790,9 @@ public abstract class Scope {
 					case ProblemReasons.TypeParameterArityMismatch :
 						return problemMethod;
 				}
+			} else if (foundSize == 0 && singlePrivateMethod != null) {
+				// if there is only one private method, we want to report that it is not visible.
+				return new ProblemMethodBinding(singlePrivateMethod, selector, singlePrivateMethod.parameters, ProblemReasons.NotVisible);
 			}
 			// abstract classes may get a match in interfaces; for non abstract
 			// classes, reduces secondary errors since missing interface method

@@ -81,6 +81,7 @@ public class SyntheticMethodBinding extends MethodBinding {
     public static final int RecordOverrideHashCode = 20;
     public static final int RecordOverrideEquals = 21;
     public static final int RecordCanonicalConstructor = 22;
+    public final static int RecordComponentReadAccess = 23;
 
 	public int sourceStart = 0; // start position of the matching declaration
 	public int index; // used for sorting access methods in the class file
@@ -464,12 +465,20 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.parameters = rcb.length == 0 ? Binding.NO_PARAMETERS : new TypeBinding[rcb.length];
 		this.parameterNames = rcb.length == 0 ? Binding.NO_PARAMETER_NAMES : new char[rcb.length][];
 		AnnotationBinding[][] paramAnnotations = null;
+		LookupEnvironment env = declaringClass.environment;
+		boolean useFlowAnnotations = env.globalOptions.isAnnotationBasedNullAnalysisEnabled || env.globalOptions.isAnnotationBasedResourceAnalysisEnabled;
+		boolean usesNullTypeAnnotations = env.usesNullTypeAnnotations();
 		for (int i = 0, length = rcb.length; i < length; i++) {
 			this.parameters[i] = rcb[i].type;
+			if (this.parameters[i] != null && (this.parameters[i].tagBits & TagBits.HasMissingType) != 0)
+				this.tagBits |=  TagBits.HasMissingType;
 			this.parameterNames[i] = rcb[i].name;
 			TypeBinding leafType = rcb[i].type == null ? null : rcb[i].type.leafComponentType();
 			if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
 				this.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
+			if (useFlowAnnotations) {
+				AbstractMethodDeclaration.computeParamFlowBits(this, length, rcb[i].tagBits, i, usesNullTypeAnnotations);
+			}
 
 			List<AnnotationBinding> relevantAnnotationBindings = new ArrayList<>();
 			Annotation[] relevantAnnotations = ASTNode.getRelevantAnnotations(rcb[i].sourceRecordComponent().annotations, TagBits.AnnotationForParameter, relevantAnnotationBindings);
@@ -514,12 +523,15 @@ public class SyntheticMethodBinding extends MethodBinding {
 		if (this.declaringClass.isStrictfp())
 			this.modifiers |= ClassFileConstants.AccStrictfp;
 		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
+		this.tagBits |= rcb.tagBits & (TagBits.AnnotationNullMASK | TagBits.AnnotationOwningMASK);
 		this.parameters = Binding.NO_PARAMETERS;
 		this.returnType = rcb.type;
+		if (this.returnType != null && (this.returnType.tagBits & TagBits.HasMissingType) != 0)
+			this.tagBits |=  TagBits.HasMissingType;
 		this.selector = rcb.name;
 		this.recordComponentBinding = rcb;
 		this.targetReadField = rcb;
-		this.purpose = SyntheticMethodBinding.FieldReadAccess;
+		this.purpose = SyntheticMethodBinding.RecordComponentReadAccess;
 		this.thrownExceptions = Binding.NO_EXCEPTIONS;
 		this.index = nextSmbIndex();
 		this.sourceStart = rcb.sourceRecordComponent().sourceStart;

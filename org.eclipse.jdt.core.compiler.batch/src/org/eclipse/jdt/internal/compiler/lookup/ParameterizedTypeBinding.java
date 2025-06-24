@@ -120,24 +120,14 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 	@Override
 	public RecordComponentBinding[] components() {
-		if ((this.extendedTagBits & ExtendedTagBits.AreRecordComponentsComplete) != 0)
-			return this.components;
-
-		try {
-			RecordComponentBinding[] originalRecordComponents = this.type.components();
-			int length = originalRecordComponents.length;
-			RecordComponentBinding[] parameterizedRecordComponents = new RecordComponentBinding[length];
+		if (this.isRecord() && this.components == null) {
+			RecordComponentBinding[] originalComponents = this.type.components();
+			int length = originalComponents.length;
+			this.components = new RecordComponentBinding[length];
 			for (int i = 0; i < length; i++)
-				// substitute all record components, so as to get updated declaring class at least
-				parameterizedRecordComponents[i] = new ParameterizedRecordComponentBinding(this, originalRecordComponents[i]);
-			this.components = parameterizedRecordComponents;
-		} finally {
-			// if the original record components cannot be retrieved (ex. AbortCompilation), then assume we do not have any record components
-			if (this.components == null)
-				this.components = Binding.NO_COMPONENTS;
-			this.extendedTagBits |= ExtendedTagBits.AreRecordComponentsComplete;
+				this.components[i] = new ParameterizedRecordComponentBinding(this, originalComponents[i]);
 		}
-		return this.components;
+		return this.components != null ? this.components : (this.components = Binding.NO_COMPONENTS);
 	}
 	/**
 	 * Iterate type arguments, and validate them according to corresponding variable bounds.
@@ -1524,6 +1514,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	        ReferenceBinding genericSuperclass = this.type.superclass();
 	        if (genericSuperclass == null) return null; // e.g. interfaces
 		    this.superclass = (ReferenceBinding) Scope.substitute(this, genericSuperclass);
+		    this.superclass = (ReferenceBinding) InferenceContext18.maybeCapture(this.superclass);
 			this.typeBits |= (this.superclass.typeBits & TypeIds.InheritableBits);
 			if ((this.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0) // avoid the side-effects of hasTypeBit()!
 				this.typeBits |= applyCloseableWhitelists(this.environment.globalOptions);
@@ -1542,6 +1533,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
     		this.superInterfaces = Scope.substitute(this, this.type.superInterfaces());
     		if (this.superInterfaces != null) {
 	    		for (int i = this.superInterfaces.length; --i >= 0;) {
+	    			this.superInterfaces[i] = (ReferenceBinding) InferenceContext18.maybeCapture(this.superInterfaces[i]);
 	    			this.typeBits |= (this.superInterfaces[i].typeBits & TypeIds.InheritableBits);
 	    			if ((this.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0) // avoid the side-effects of hasTypeBit()!
 	    				this.typeBits |= applyCloseableWhitelists(this.environment.globalOptions);

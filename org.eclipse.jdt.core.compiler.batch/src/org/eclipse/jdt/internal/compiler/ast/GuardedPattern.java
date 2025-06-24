@@ -61,11 +61,6 @@ public class GuardedPattern extends Pattern {
 	}
 
 	@Override
-	public boolean matchFailurePossible() {
-		return !isUnguarded() || this.primaryPattern.matchFailurePossible();
-	}
-
-	@Override
 	public boolean isUnguarded() {
 		Constant cst = this.condition.optimizedBooleanConstant();
 		return cst != null && cst != Constant.NotAConstant && cst.booleanValue() == true;

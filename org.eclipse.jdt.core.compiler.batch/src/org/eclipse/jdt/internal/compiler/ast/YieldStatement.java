@@ -85,13 +85,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	return FlowInfo.DEAD_END;
 }
 
-private void adjustOperandStackTopIfNeeded(CodeStream codeStream) { // See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3135
-	if (this.expression.resolvedType == TypeBinding.NULL && !this.switchExpression.resolvedType.isBaseType()) {     // no opcode called for to align the types, but we need to adjust the notion of type of TOS.
-		codeStream.operandStack.pop(TypeBinding.NULL);
-		codeStream.operandStack.push(this.switchExpression.resolvedType);
-	}
-}
-
 @Override
 public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
@@ -103,12 +96,13 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
 	int pc = codeStream.position;
 	boolean expressionGenerationDeferred = true; // If possible defer generating the expression to until after inlining of enclosing try's finally {}
+	boolean valueRequired;
 	if (this.expression.hasSideEffects() || this.statementsWithFinallyBlock.length == 0) { // can't defer or no need to defer
 		expressionGenerationDeferred = false;
-		boolean valueRequired = this.switchExpression != null && (this.bits & ASTNode.IsAnyFinallyBlockEscaping) == 0; // no value needed if finally completes abruptly or for a statement switch
+		valueRequired = this.switchExpression != null && (this.bits & ASTNode.IsAnyFinallyBlockEscaping) == 0; // no value needed if finally completes abruptly or for a statement switch
 		this.expression.generateCode(currentScope, codeStream, valueRequired);
-		if (valueRequired)
-			adjustOperandStackTopIfNeeded(codeStream);
+		if (valueRequired && codeStream.operandStack.peek() == TypeBinding.NULL)
+			codeStream.operandStack.cast(this.switchExpression.resolvedType);
 	} else
 		codeStream.nop(); // prevent exception ranges from being empty on account of deferral : try { yield 42; } catch (Exception ex) {}  ...
 
@@ -128,8 +122,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	}
 
 	if (expressionGenerationDeferred) {
-		this.expression.generateCode(currentScope, codeStream, this.switchExpression != null);
-		adjustOperandStackTopIfNeeded(codeStream);
+		this.expression.generateCode(currentScope, codeStream, valueRequired = this.switchExpression != null);
+		if (valueRequired && codeStream.operandStack.peek() == TypeBinding.NULL)
+			codeStream.operandStack.cast(this.switchExpression.resolvedType);
 	}
 
 	codeStream.goto_(this.targetLabel);

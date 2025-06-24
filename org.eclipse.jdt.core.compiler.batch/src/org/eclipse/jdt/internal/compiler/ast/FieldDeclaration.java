@@ -229,7 +229,7 @@ public void resolve(MethodScope initializationScope) {
 	if (classScope != null) {
 		SourceTypeBinding declaringType = classScope.enclosingSourceType();
 		if (declaringType.isRecord() && !this.isStatic())
-			classScope.problemReporter().recordNonStaticFieldDeclarationInRecord(this);
+			classScope.problemReporter().nonStaticFieldDeclarationInRecord(this);
 		checkHiding: {
 			checkHidingSuperField: {
 				if (declaringType.superclass == null) break checkHidingSuperField;

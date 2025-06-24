@@ -35884,7 +35884,7 @@ public void test1078() {
 			"  }\n" +
 			"}", // =================,
 		},
-		// unchecked warnings on [4][5][8][9][10][11][12]
+		// unchecked warnings on [4][8][9][10][11][12]
 		"----------\n" +
 		"1. WARNING in X.java (at line 10)\n" +
 		"	List list = (List)object;//[1]\n" +
@@ -35906,42 +35906,32 @@ public void test1078() {
 		"	    ^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type safety: Unchecked cast from Object to List<Object>\n" +
 		"----------\n" +
-		"5. WARNING in X.java (at line 15)\n" +
-		"	foo((List<? extends Object>)object);//[5]\n" +
-		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: Unchecked cast from Object to List<? extends Object>\n" +
-		"----------\n" +
-		"6. WARNING in X.java (at line 17)\n" +
+		"5. WARNING in X.java (at line 17)\n" +
 		"	foo((Map)object);//[6]\n" +
 		"	     ^^^\n" +
 		"Map is a raw type. References to generic type Map<K,V> should be parameterized\n" +
 		"----------\n" +
-		"7. WARNING in X.java (at line 19)\n" +
+		"6. WARNING in X.java (at line 19)\n" +
 		"	foo((Map<Object, ?>)object);//[8]unchecked cast\n" +
 		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type safety: Unchecked cast from Object to Map<Object,?>\n" +
 		"----------\n" +
-		"8. WARNING in X.java (at line 20)\n" +
+		"7. WARNING in X.java (at line 20)\n" +
 		"	foo((Map<?, Object>)object);//[9]unchecked cast\n" +
 		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type safety: Unchecked cast from Object to Map<?,Object>\n" +
 		"----------\n" +
-		"9. WARNING in X.java (at line 21)\n" +
+		"8. WARNING in X.java (at line 21)\n" +
 		"	foo((Map<Object, Object>)object);//[10]unchecked cast\n" +
 		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type safety: Unchecked cast from Object to Map<Object,Object>\n" +
 		"----------\n" +
-		"10. WARNING in X.java (at line 22)\n" +
+		"9. WARNING in X.java (at line 22)\n" +
 		"	foo((Map<? extends Object, Object>)object);//[11]unchecked cast\n" +
 		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type safety: Unchecked cast from Object to Map<? extends Object,Object>\n" +
 		"----------\n" +
-		"11. WARNING in X.java (at line 23)\n" +
-		"	foo((Map<? extends Object, ? extends Object>)object);//[12]\n" +
-		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: Unchecked cast from Object to Map<? extends Object,? extends Object>\n" +
-		"----------\n" +
-		"12. ERROR in X.java (at line 24)\n" +
+		"10. ERROR in X.java (at line 24)\n" +
 		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +

@@ -530,9 +530,9 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 		boolean isInsideCCD = methodDecl.isCompactConstructor();
 		if (this.accessMode != ExplicitConstructorCall.ImplicitSuper) {
 			if (isInsideCCD)
-				scope.problemReporter().recordCompactConstructorHasExplicitConstructorCall(this);
+				scope.problemReporter().compactConstructorHasExplicitConstructorCall(this);
 			else
-				scope.problemReporter().recordCanonicalConstructorHasExplicitConstructorCall(this);
+				scope.problemReporter().canonicalConstructorHasExplicitConstructorCall(this);
 			return false;
 		}
 		return true;

@@ -24,7 +24,6 @@ import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
-import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CastExpression;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
@@ -407,56 +406,35 @@ public void acceptLocalVariable(LocalVariableBinding binding, org.eclipse.jdt.in
 		HashMap knownScopes = new HashMap();
 		parent = this.handleFactory.createElement(binding.declaringScope, local.sourceStart, (ICompilationUnit) unit, existingElements, knownScopes);
 	} else {
-		if (local == null && binding.isParameter() && binding.declaringScope.referenceContext() instanceof ConstructorDeclaration cd && cd.isCompactConstructor()) {
+		if (binding.isParameter() && binding.declaringScope.referenceContext() instanceof ConstructorDeclaration cd && cd.isCompactConstructor()) {
 			parent = findLocalElement(cd.sourceStart);
 		} else {
 			parent = findLocalElement(local.sourceStart, binding.declaringScope.methodScope()); // findLocalElement() cannot find local variable
 		}
 	}
 	LocalVariable localVar = null;
-	if (parent != null) {
+	if(parent != null) {
 		String typeSig = null;
-		boolean localIsParameter;
-		int localModifiers, localDeclarationSourceStart, localDeclarationSourceEnd, localSourceStart, localSourceEnd;
-		char [] localName;
-		org.eclipse.jdt.internal.compiler.ast.Annotation[] localAnnotations;
-		if (local != null) {
-			if (local.type == null || (local.type.isTypeNameVar(binding.declaringScope) && !binding.type.isAnonymousType())) {
-				if (local.initialization instanceof CastExpression) {
-					typeSig = Util.typeSignature(((CastExpression) local.initialization).type);
-				} else {
-					typeSig = Signature.createTypeSignature(binding.type.signableName(), true);
-				}
+		if (local.type == null || (local.type.isTypeNameVar(binding.declaringScope) && !binding.type.isAnonymousType())) {
+			if (local.initialization instanceof CastExpression) {
+				typeSig = Util.typeSignature(((CastExpression) local.initialization).type);
 			} else {
-				typeSig = Util.typeSignature(local.type);
+				typeSig = Signature.createTypeSignature(binding.type.signableName(), true);
 			}
-			localName = local.name;
-			localDeclarationSourceStart = local.declarationSourceStart;
-			localDeclarationSourceEnd = local.declarationSourceEnd;
-			localSourceStart = local.sourceStart;
-			localSourceEnd = local.sourceEnd;
-			localAnnotations = local.annotations;
-			localModifiers = local.modifiers;
-			localIsParameter = local.getKind() == AbstractVariableDeclaration.PARAMETER;
 		} else {
-			typeSig = Signature.createTypeSignature(binding.type.signableName(), true);
-			localName = binding.name;
-			localDeclarationSourceStart = localDeclarationSourceEnd = localSourceStart = localSourceEnd = 0;
-			localAnnotations = ASTNode.NO_ANNOTATIONS;
-			localModifiers = 0;
-			localIsParameter = true;
+			typeSig = Util.typeSignature(local.type);
 		}
 		localVar = new LocalVariable(
 				(JavaElement)parent,
-				DeduplicationUtil.toString(localName),
-				localDeclarationSourceStart,
-				localDeclarationSourceEnd,
-				localSourceStart,
-				localSourceEnd,
+				DeduplicationUtil.toString(local.name),
+				local.declarationSourceStart,
+				local.declarationSourceEnd,
+				local.sourceStart,
+				local.sourceEnd,
 				typeSig,
-				localAnnotations,
-				localModifiers,
-				localIsParameter);
+				local.annotations,
+				local.modifiers,
+				local.getKind() == AbstractVariableDeclaration.PARAMETER);
 	}
 	if (localVar != null) {
 		addElement(localVar);

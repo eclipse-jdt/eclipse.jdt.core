@@ -201,7 +201,14 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			}
 
 			// nullity, owning and mark as assigned
-			analyseArguments(classScope.environment(), flowInfo, initializerFlowContext, this.arguments(true), this.binding, this.scope);
+			analyseArguments(classScope.environment(), flowInfo, initializerFlowContext, this.arguments, this.binding);
+
+			if (this.isCompactConstructor()) {
+				for (LocalVariableBinding local : this.scope.locals) {
+					if (local != null && local.isParameter())
+						flowInfo.markAsDefinitelyAssigned(local);
+				}
+			}
 
 			if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.scope.compilerOptions())) {
 				this.scope.enterEarlyConstructionContext();
@@ -297,11 +304,6 @@ public AbstractVariableDeclaration[] arguments(boolean includedElided) {
 	return includedElided && this.isCompactConstructor() ? this.protoArguments : super.arguments(includedElided);
 }
 
-@Override
-public LocalVariableBinding[] argumentBindings() {
-	return this.isCompactConstructor() ? this.scope == null ? Binding.NO_ARGUMENT_BINDINGS : this.scope.argumentBindings() : super.argumentBindings();
-}
-
 protected void doFieldReachAnalysis(FlowInfo flowInfo, FieldBinding[] fields) {
 	for (FieldBinding field : fields) {
 		if (!field.isStatic() && !flowInfo.isDefinitelyAssigned(field)) {
@@ -329,9 +331,10 @@ boolean isValueProvidedUsingAnnotation(FieldDeclaration fieldDecl) {
 		int length = fieldDecl.annotations.length;
 		for (int i = 0; i < length; i++) {
 			Annotation annotation = fieldDecl.annotations[i];
-			if (annotation.resolvedType.id == TypeIds.T_JavaxInjectInject) {
+			int annotId = annotation.resolvedType.id;
+			if (annotId == TypeIds.T_JavaxInjectInject || annotId == TypeIds.T_JakartaInjectInject) {
 				return true; // no concept of "optional"
-			} else if (annotation.resolvedType.id == TypeIds.T_ComGoogleInjectInject) {
+			} else if (annotId == TypeIds.T_ComGoogleInjectInject) {
 				MemberValuePair[] memberValuePairs = annotation.memberValuePairs();
 				if (memberValuePairs == Annotation.NoValuePairs)
 					return true;
@@ -340,7 +343,7 @@ boolean isValueProvidedUsingAnnotation(FieldDeclaration fieldDecl) {
 					if (CharOperation.equals(memberValuePair.name, TypeConstants.OPTIONAL))
 						return memberValuePair.value instanceof FalseLiteral;
 				}
-			} else if (annotation.resolvedType.id == TypeIds.T_OrgSpringframeworkBeansFactoryAnnotationAutowired) {
+			} else if (annotId == TypeIds.T_OrgSpringframeworkBeansFactoryAnnotationAutowired) {
 				MemberValuePair[] memberValuePairs = annotation.memberValuePairs();
 				if (memberValuePairs == Annotation.NoValuePairs)
 					return true;
@@ -713,24 +716,24 @@ public void resolve(ClassScope upperScope) {
 		RecordComponentBinding[] rcbs = upperScope.referenceContext.binding.components();
 		boolean lastComponentVarargs = rcbs.length > 0 && rcbs[rcbs.length - 1].sourceRecordComponent().isVarArgs();
 		if (this.binding.isVarargs() != lastComponentVarargs)
-			upperScope.problemReporter().recordErasureIncompatibilityInCanonicalConstructor(this.arguments[this.arguments.length - 1].type);
+			upperScope.problemReporter().erasureIncompatibilityInCanonicalConstructor(this.arguments[this.arguments.length - 1].type);
 		for (int i = 0; i < rcbs.length; ++i) {
 			TypeBinding mpt = this.binding.parameters[i];
 			TypeBinding rct = rcbs[i].type;
 			if (TypeBinding.notEquals(mpt, rct))
-				upperScope.problemReporter().recordErasureIncompatibilityInCanonicalConstructor(this.arguments[i].type);
+				upperScope.problemReporter().erasureIncompatibilityInCanonicalConstructor(this.arguments[i].type);
 		}
 
 		if (!this.binding.isAsVisible(this.binding.declaringClass))
-			this.scope.problemReporter().recordCanonicalConstructorVisibilityReduced(this);
+			this.scope.problemReporter().canonicalConstructorVisibilityReduced(this);
 		if (this.typeParameters != null && this.typeParameters.length > 0)
-			this.scope.problemReporter().recordCanonicalConstructorShouldNotBeGeneric(this);
+			this.scope.problemReporter().canonicalConstructorShouldNotBeGeneric(this);
 		if (this.binding.thrownExceptions != null && this.binding.thrownExceptions.length > 0)
-			this.scope.problemReporter().recordCanonicalConstructorHasThrowsClause(this);
+			this.scope.problemReporter().canonicalConstructorHasThrowsClause(this);
 		if (!this.isCompactConstructor()) {
 			for (int i = 0; i < rcbs.length; i++)
 				if (!CharOperation.equals(this.arguments[i].name, rcbs[i].name))
-					this.scope.problemReporter().recordIllegalParameterNameInCanonicalConstructor(rcbs[i], this.arguments[i]);
+					this.scope.problemReporter().mismatchedParameterNameInCanonicalConstructor(rcbs[i], this.arguments[i]);
 		}
 	}
 	super.resolve(upperScope);
@@ -762,7 +765,7 @@ public void resolveStatements() {
 				!this.isCompactConstructor() && // compact constr should be marked as canonical?
 				(this.binding != null && !this.binding.isCanonicalConstructor()) &&
 				this.constructorCall.accessMode != ExplicitConstructorCall.This) {
-			this.scope.problemReporter().recordMissingExplicitConstructorCallInNonCanonicalConstructor(this);
+			this.scope.problemReporter().missingExplicitConstructorCallInNonCanonicalConstructor(this);
 			this.constructorCall = null;
 		} else {
 			this.scope.enterEarlyConstructionContext(); // even if no late ctor call to also capture arguments of ctor call as 1st stmt

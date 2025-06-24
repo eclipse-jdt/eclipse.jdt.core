@@ -38,6 +38,12 @@ public class StackMapFrame {
 	private int numberOfDifferentLocals = -1;
 	public int tagBits;
 
+	/* Should the `next` frame (i.e., frame starting at the next bci after the last instruction of `this` frame)
+	   start out congruent to `this` ? If `this` completes abruptly and there are no forward references to `next`
+	   it should not!
+	*/
+	public boolean adoptStackShape = true;
+
 	public StackMapFrame(int initialLocalSize) {
 		this.locals = new VerificationTypeInfo[initialLocalSize];
 		this.numberOfLocals = -1;
@@ -94,7 +100,9 @@ public class StackMapFrame {
 		result.numberOfLocals = -1;
 		result.numberOfDifferentLocals = -1;
 		result.pc = this.pc;
-		result.numberOfStackItems = this.numberOfStackItems;
+
+		// If control doesn't flow into the new frame from `this` do not inherit the stack shape from `this`
+		result.numberOfStackItems = this.adoptStackShape ? this.numberOfStackItems : 0;
 
 		if (length != 0) {
 			result.locals = new VerificationTypeInfo[length];
@@ -103,7 +111,7 @@ public class StackMapFrame {
 				result.locals[i] = getCachedValue(cache, verificationTypeInfo);
 			}
 		}
-		length = this.numberOfStackItems;
+		length = result.numberOfStackItems;
 		if (length != 0) {
 			result.stackItems = new VerificationTypeInfo[length];
 			for (int i = 0; i < length; i++) {

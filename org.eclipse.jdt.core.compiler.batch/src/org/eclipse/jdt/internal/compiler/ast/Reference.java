@@ -263,12 +263,12 @@ static void reportOnlyUselesslyReadLocal(BlockScope currentScope, LocalVariableB
 
 			if (shouldReport) {
 				// report the case of an argument that is unread except through a special operator
-				currentScope.problemReporter().unusedArgument(localBinding.declaration);
+				currentScope.problemReporter().unusedArgument((LocalDeclaration) localBinding.declaration);
 			}
 		}
 	} else {
 		// report the case of a local variable that is unread except for a special operator
-		currentScope.problemReporter().unusedLocalVariable(localBinding.declaration);
+		currentScope.problemReporter().unusedLocalVariable((LocalDeclaration) localBinding.declaration);
 	}
 }
 }

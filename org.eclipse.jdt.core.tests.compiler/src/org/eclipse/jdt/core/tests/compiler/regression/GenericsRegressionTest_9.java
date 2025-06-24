@@ -1096,6 +1096,30 @@ public void testGH3457b() {
 		"""
 	});
 }
+public void testGH3457c() {
+	runConformTest(new String[] {
+		"QueryUtil.java",
+		"""
+		import java.util.ArrayList;
+		import java.util.Collection;
+		import java.util.List;
+
+		interface IQuery<T> extends List<T> { }
+
+		public class QueryUtil {
+			public static <T> IQuery<T> createCompoundQuery(IQuery<? extends T> query1, IQuery<T> query2, boolean and) {
+				ArrayList<IQuery<? extends T>> queries = new ArrayList<>(2);
+				queries.add(query1);
+				queries.add(query2);
+				return createCompoundQuery(queries, and);
+			}
+			public static <T> IQuery<T> createCompoundQuery(Collection<? extends List<? extends T>> queries, boolean and) {
+				return null;
+			}
+		}
+		"""
+	});
+}
 public void testGH3948() {
 	runConformTest(new String[] {
 			"Foo.java",
@@ -1192,17 +1216,17 @@ public void testGH4033() {
 			"""
 			import java.util.Collection;
 			import java.util.Iterator;
-			
+
 			public class Snippet {
 				interface Apple {}
 				interface Banana<T1, T2> {}
 				interface Smoothie<T extends Apple, M extends Apple> extends Banana<T, String> {}
-			
+
 				public static void main(String[] args) {
 					Collection<Smoothie<? extends Apple, ? extends Apple>> c = null;
 					method(c);
 				}
-			
+
 				static final <S extends Banana<? extends T, ?>, T> Iterator<T> method(
 						Collection<S> c) {
 					return null;
@@ -1230,6 +1254,82 @@ public void testGH4039() {
 				List<Cranberry<?>> l = Collections.emptyList();
 			    Collections.sort(l);
 			}
+		}
+		"""
+	});
+}
+
+public void testGH4003() {
+	if (this.complianceLevel < ClassFileConstants.JDK10)
+		return; // uses 'var'
+	runConformTest(new String[] {
+		"EclipseCompilerBugReproducer.java",
+		"""
+		import java.util.List;
+		import java.util.concurrent.CompletableFuture;
+		import java.util.concurrent.CompletionStage;
+		import java.util.function.Function;
+		import java.util.function.Supplier;
+
+		public class EclipseCompilerBugReproducer {
+
+		    public static final class Mono<T> {
+
+		        public static <T> Mono<T> fromFuture(CompletionStage<? extends T> stage) {
+		            return new Mono<>();
+		        }
+
+		        public static <T> Mono<T> fromFuture(
+		                Supplier<? extends CompletionStage<? extends T>> stageSupplier) {
+		            return new Mono<>();
+		        }
+
+		        public <R> Mono<R> flatMap(Function<? super T, Mono<? extends R>> mapper) { return new Mono<>(); }
+		        public <R> Mono<R> map(Function<? super T, ? extends R> mapper)          { return new Mono<>(); }
+		        public List<T>      collectList()                                        { return List.of(); }
+		        public T            block()                                              { return null; }
+		    }
+
+		    static final class Bucket {
+		        CompletionStage<String> get(String id) {
+		            return CompletableFuture.completedFuture("value-for-" + id);
+		        }
+		    }
+
+		    /* ---------------------------------------------------------------------- */
+		    /*  Reproducer                                                            */
+		    /* ---------------------------------------------------------------------- */
+		    public static void main(String[] args) {
+
+		        var ids    = List.of("a", "b", "c");
+		        var bucket = new Bucket();
+
+		        ids.stream()
+		           .flatMap(id ->
+		               Mono.fromFuture(() -> bucket.get(id))   // <-- fails in Eclipse
+		                   .map(String::toUpperCase)
+		                   .collectList()
+		                   .stream())
+		           .forEach(System.out::println);
+		    }
+		}
+		"""
+	});
+}
+
+public void testGH4098() {
+	runConformTest(new String[] {
+		"ClassA.java",
+		"""
+		import java.util.Collections;
+		import java.util.HashSet;
+		import java.util.Set;
+
+		public class ClassA {
+		  public static void main(String[] args) {
+		    Set<? super Integer> set = new HashSet<>(Set.of(1, 5));
+		    System.out.println(Collections.unmodifiableSet(set));
+		  }
 		}
 		"""
 	});

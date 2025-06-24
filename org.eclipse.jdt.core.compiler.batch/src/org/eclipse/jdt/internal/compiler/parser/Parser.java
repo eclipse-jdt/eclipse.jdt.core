@@ -4228,7 +4228,7 @@ protected void consumeSingleVariableDeclarator(boolean isVarArgs) {
 		}
 	} else if (this.parsingRecordComponents) {
 		if (!this.statementRecoveryActivated && extendedDimensions > 0)
-			problemReporter().recordIllegalExtendedDimensionsForRecordComponent(singleVariable);
+			problemReporter().illegalExtendedDimensionsForRecordComponent(singleVariable);
 	}
 }
 protected Annotation[][] getAnnotationsOnDimensions(int dimensionsCount) {
@@ -10021,7 +10021,6 @@ protected void consumeRecordPattern() {
 	if (modifier != 0) {
 		problemReporter().illegalModifiers(modifierStart, type.sourceStart - 2);
 	}
-	checkForDiamond(recPattern.type);
 	problemReporter().validateJavaFeatureSupport(JavaFeature.RECORD_PATTERNS, type.sourceStart, sourceEnd);
 	pushOnAstStack(recPattern);
 }
