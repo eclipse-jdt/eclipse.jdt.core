@@ -38,7 +38,6 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IReleaseAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
@@ -782,7 +781,7 @@ public class NameLookup implements SuffixConstants {
 				checkRestrictions,
 				monitor,
 				null,// no module
-				IReleaseAwareNameEnvironment.NO_RELEASE);
+				JavaProject.NO_RELEASE);
 	}
 	/**
 	 * Find type. Considering secondary types and waiting for indexes depends on given corresponding parameters.
@@ -809,7 +808,7 @@ public class NameLookup implements SuffixConstants {
 		JavaElementRequestor elementRequestor = new JavaElementRequestor();
 		seekPackageFragments(packageName, false, elementRequestor, moduleContext);
 		IPackageFragment[] packages= elementRequestor.getPackageFragments();
-		if (release >= IReleaseAwareNameEnvironment.FIRST_MULTI_RELEASE) {
+		if (release >= JavaProject.FIRST_MULTI_RELEASE) {
 			// we need to remove fragments that are not applicable for this release and sort by the release version from highest to lowest
 			packages = Arrays.stream(packages).map(f -> {
 				IJavaElement parent = f.getParent();
@@ -901,7 +900,7 @@ public class NameLookup implements SuffixConstants {
 		return type == null ? null : new Answer(type, null, null);
 	}
 
-	public int getRelease(IPackageFragmentRoot root) {
+	private int getRelease(IPackageFragmentRoot root) {
 		IClasspathEntry entry = this.rootToResolvedEntries.get(root);
 		if (entry != null) {
 			String extraAttributes = ClasspathEntry.getExtraAttribute(entry, IClasspathAttribute.RELEASE);
@@ -914,7 +913,7 @@ public class NameLookup implements SuffixConstants {
 				}
 			}
 		}
-		return IReleaseAwareNameEnvironment.NO_RELEASE;
+		return JavaProject.NO_RELEASE;
 	}
 
 	public static IModule getModuleDescriptionInfo(IModuleDescription moduleDesc) {

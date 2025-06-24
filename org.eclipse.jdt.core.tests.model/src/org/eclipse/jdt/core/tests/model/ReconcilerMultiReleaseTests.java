@@ -109,7 +109,7 @@ public class ReconcilerMultiReleaseTests extends ModifyingResourceTests {
 						}
 					}
 				""");
-		mrproject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, "1.8");
+		mrproject.setOption("org.eclipse.jdt.core.compiler.release", "enabled");
 		mrproject.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
 		mrproject.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.WARNING);
 	}
@@ -130,7 +130,6 @@ public class ReconcilerMultiReleaseTests extends ModifyingResourceTests {
 	}
 
 	public void testNoErrorsAfterEdit() throws CoreException, InterruptedException {
-		// Introduce syntax error
 		String contents = """
 				package p;
 				public class D {

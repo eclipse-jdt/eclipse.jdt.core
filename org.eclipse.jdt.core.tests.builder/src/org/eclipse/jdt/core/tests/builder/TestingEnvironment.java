@@ -1238,6 +1238,12 @@ public void cleanBuild(String projectName) {
 		return outputPath;
 	}
 
+	public void setProjectOption(IPath projectPath, String key, String value) {
+		checkAssertion("a workspace must be open", this.isOpen); //$NON-NLS-1$
+		IJavaProject javaProject = JavaCore.create(getProject(projectPath));
+		javaProject.setOption(key, value);
+	}
+
 	private void setup() {
 		this.isOpen = true;
 	}

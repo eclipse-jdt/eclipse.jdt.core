@@ -164,6 +164,54 @@ public class MultiReleaseTests extends BuilderTests {
 		expectingNoProblems();
 	}
 
+	public void testMultiReleaseCompileWithDisabledTargetOption() throws JavaModelException, IOException {
+		IPath projectPath = whenSetupMRRpoject();
+		env.setProjectOption(projectPath, "org.eclipse.jdt.core.compiler.release", "disabled");
+		IPath src9 = env.getPackageFragmentRootPath(projectPath, JAVA9_SRC_FOLDER);
+		env.addClass(src9, "p", "NotInThisRelease",
+				"""
+				package p;
+
+				import java.net.MalformedURLException;
+				import java.net.URI;
+				import java.net.URISyntaxException;
+				import java.net.URL;
+
+				public class NotInThisRelease {
+					public URL create() throws MalformedURLException, URISyntaxException {
+						// Only Java 20+ --> must fail!
+						return URL.of(new URI("http://foo.org"), null);
+					}
+				}
+				"""
+		);
+		IClasspathAttribute[] extraAttributes = new IClasspathAttribute[] {
+				JavaCore.newClasspathAttribute(IClasspathAttribute.RELEASE, org.eclipse.jdt.core.JavaCore.VERSION_21) };
+		IPath src21 = env.addPackageFragmentRoot(projectPath, "src11", extraAttributes);
+		env.addClass(src21, "p", "ButInThisRelease",
+				"""
+				package p;
+
+				import java.net.MalformedURLException;
+				import java.net.URI;
+				import java.net.URISyntaxException;
+				import java.net.URL;
+
+				public class ButInThisRelease {
+					public URL create() throws MalformedURLException, URISyntaxException {
+						// For Java 21 it will work!
+						return URL.of(new URI("http://foo.org"), null);
+					}
+				}
+				"""
+		);
+		fullBuild();
+		Problem java9problem = new Problem("", "The method of(URI, null) is undefined for the type URL", src9.append("p/NotInThisRelease.java"), 281, 283, 50, IMarker.SEVERITY_ERROR, "JDT");
+		expectingOnlySpecificProblemFor(src9, java9problem);
+		expectingNoProblemsFor(src21);
+		expectingOnlySpecificProblemsFor(projectPath, new Problem[] {java9problem, new Problem("", "Multi-Release Compilation requires the target option enabled in the project settings", projectPath, 0, 1, -1, IMarker.SEVERITY_ERROR, "JDT")});
+	}
+
 	public void testMultiReleaseCompileWithConflict() throws JavaModelException, IOException {
 		IPath projectPath = whenSetupMRRpoject();
 		IClasspathAttribute[] extraAttributes = new IClasspathAttribute[] {
@@ -205,17 +253,56 @@ public class MultiReleaseTests extends BuilderTests {
 
 	}
 
+	public void testMultiReleaseWithModularProjectAndReleaseEnabled() throws JavaModelException, IOException {
+		IPath projectPath = createMRProject(CompilerOptions.VERSION_9);
+		IClasspathAttribute[] extraAttributes = new IClasspathAttribute[] {
+				JavaCore.newClasspathAttribute(IClasspathAttribute.RELEASE, org.eclipse.jdt.core.JavaCore.VERSION_11) };
+		IPath release11Src = env.addPackageFragmentRoot(projectPath, "src11", extraAttributes);
+		env.addClass(release11Src, "p", "MultiReleaseType",
+				"""
+				package p;
+
+				import java.net.http.HttpClient;
+
+				public class MultiReleaseType {
+					public String print() {
+						HttpClient.newBuilder().build();
+						return "Hello From Release 11";
+					}
+				}
+				"""
+		);
+		fullBuild();
+		expectingNoProblems();
+	}
+
 	private IPath whenSetupMRRpoject() throws JavaModelException {
 		return whenSetupMRRpoject(CompilerOptions.VERSION_1_8);
 	}
 
 	private IPath whenSetupMRRpoject(String compliance) throws JavaModelException {
-		IPath projectPath = env.addProject("P", compliance);
-		env.removePackageFragmentRoot(projectPath, "");
-		IPath defaultSrc = env.addPackageFragmentRoot(projectPath, DEFAULT_SRC_FOLDER);
+		IPath projectPath = createMRProject(compliance);
 		IClasspathAttribute[] extraAttributes = new IClasspathAttribute[] {
 				JavaCore.newClasspathAttribute(IClasspathAttribute.RELEASE, org.eclipse.jdt.core.JavaCore.VERSION_9) };
 		IPath release9Src = env.addPackageFragmentRoot(projectPath, JAVA9_SRC_FOLDER, extraAttributes);
+		env.addClass(release9Src, "p", "MultiReleaseType",
+				"""
+				package p;
+				public class MultiReleaseType {
+					public String print() {
+						return "Hello From Release 9";
+					}
+				}
+				"""
+		);
+		return projectPath;
+	}
+
+	protected IPath createMRProject(String compliance) throws JavaModelException {
+		IPath projectPath = env.addProject("P", compliance);
+		env.removePackageFragmentRoot(projectPath, "");
+		env.setProjectOption(projectPath, "org.eclipse.jdt.core.compiler.release", "enabled");
+		IPath defaultSrc = env.addPackageFragmentRoot(projectPath, DEFAULT_SRC_FOLDER);
 		env.setOutputFolder(projectPath, "bin");
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.addClass(defaultSrc, "p", "MultiReleaseType",
@@ -227,17 +314,7 @@ public class MultiReleaseTests extends BuilderTests {
 					}
 				}
 				"""
-		);
-		env.addClass(release9Src, "p", "MultiReleaseType",
-				"""
-				package p;
-				public class MultiReleaseType {
-					public String print() {
-						return "Hello From Release 9";
-					}
-				}
-				"""
-		);
+				);
 		return projectPath;
 	}
 

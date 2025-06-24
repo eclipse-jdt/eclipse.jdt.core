@@ -20,7 +20,17 @@
 package org.eclipse.jdt.internal.core.builder;
 
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.eclipse.core.resources.IContainer;
@@ -43,9 +53,9 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
 import org.eclipse.jdt.internal.compiler.env.IMultiModuleEntry;
-import org.eclipse.jdt.internal.compiler.env.IReleaseAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule.UpdateKind;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
@@ -61,7 +71,7 @@ import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.ModuleUpdater;
 
-public class NameEnvironment implements IReleaseAwareNameEnvironment, SuffixConstants {
+public class NameEnvironment implements IModuleAwareNameEnvironment, SuffixConstants {
 
 boolean isIncrementalBuild;
 ClasspathMultiDirectory[] sourceLocations;
@@ -75,11 +85,11 @@ private final CompilationGroup compilationGroup;
 /** Tasks resulting from add-reads or add-exports classpath attributes. */
 ModuleUpdater moduleUpdater;
 
-NameEnvironment(IWorkspaceRoot root, JavaProject javaProject, Map<IProject, ClasspathLocation[]> binaryLocationsPerProject, BuildNotifier notifier, CompilationGroup compilationGroup) throws CoreException {
+NameEnvironment(IWorkspaceRoot root, JavaProject javaProject, Map<IProject, ClasspathLocation[]> binaryLocationsPerProject, BuildNotifier notifier, CompilationGroup compilationGroup, int release) throws CoreException {
 	this.compilationGroup = compilationGroup;
 	this.isIncrementalBuild = false;
 	this.notifier = notifier;
-	computeClasspathLocations(root, javaProject, binaryLocationsPerProject);
+	computeClasspathLocations(root, javaProject, binaryLocationsPerProject, release);
 	setNames(null, null);
 }
 
@@ -87,7 +97,7 @@ public NameEnvironment(IJavaProject javaProject, CompilationGroup compilationGro
 	this.isIncrementalBuild = false;
 	this.compilationGroup = compilationGroup;
 	try {
-		computeClasspathLocations(javaProject.getProject().getWorkspace().getRoot(), (JavaProject) javaProject, null);
+		computeClasspathLocations(javaProject.getProject().getWorkspace().getRoot(), (JavaProject) javaProject, null, JavaProject.NO_RELEASE);
 	} catch(CoreException e) {
 		this.sourceLocations = new ClasspathMultiDirectory[0];
 		this.binaryLocations = new ClasspathLocation[0];
@@ -120,7 +130,7 @@ public NameEnvironment(IJavaProject javaProject, CompilationGroup compilationGro
 private void computeClasspathLocations(
 	IWorkspaceRoot root,
 	JavaProject javaProject,
-	Map<IProject, ClasspathLocation[]> binaryLocationsPerProject) throws CoreException {
+	Map<IProject, ClasspathLocation[]> binaryLocationsPerProject, int releaseTarget) throws CoreException {
 
 	/* Update cycle marker */
 	IMarker cycleMarker = javaProject.getCycleMarker();
@@ -137,7 +147,16 @@ private void computeClasspathLocations(
 	ArrayList<ClasspathLocation> bLocations = new ArrayList<>(classpathEntries.length);
 	ArrayList<ClasspathLocation> sLocationsForTest = new ArrayList<>(classpathEntries.length);
 	Map<String, IModulePathEntry> moduleEntries = null;
-	String compliance = javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+	String compliance;
+	boolean isReleaseEnabled;
+	if (releaseTarget > JavaProject.NO_RELEASE) {
+		//if specific release target is given this overrides the project compliance and implicitly requires release option
+		compliance = Integer.toString(releaseTarget);
+		isReleaseEnabled = true;
+	} else {
+		compliance = javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+		isReleaseEnabled = JavaCore.ENABLED.equals(javaProject.getOption(JavaCore.COMPILER_RELEASE, false));
+	}
 	if (CompilerOptions.versionToJdkLevel(compliance) >= ClassFileConstants.JDK9) {
 		moduleEntries = new LinkedHashMap<>(classpathEntries.length);
 		this.moduleUpdater = new ModuleUpdater(javaProject);
@@ -149,6 +168,7 @@ private void computeClasspathLocations(
 
 	String patchedModuleName = ModuleEntryProcessor.pushPatchToFront(classpathEntries, javaProject);
 	IModule patchedModule = null;
+	boolean mustSortOutput = false;
 
 	nextEntry : for (int i = 0, l = classpathEntries.length; i < l; i++) {
 		if (i == 1) {
@@ -203,8 +223,10 @@ private void computeClasspathLocations(
 					if (release == null) {
 						finalOutputFolder = outputFolder;
 					} else {
+						mustSortOutput = true;
 						finalOutputFolder = outputFolder.getFolder(new Path(String.format("META-INF/versions/%s", release))); //$NON-NLS-1$
 					}
+					int sourceTargetRelease = release==null?JavaProject.NO_RELEASE:Integer.parseInt(release);
 					ClasspathLocation sourceLocation = ClasspathLocation.forSourceFolder(
 								(IContainer) target,
 								finalOutputFolder,
@@ -212,7 +234,7 @@ private void computeClasspathLocations(
 								entry.fullExclusionPatternChars(),
 								entry.ignoreOptionalProblems(),
 								externalAnnotationPath,
-								release==null?IReleaseAwareNameEnvironment.NO_RELEASE:Integer.parseInt(release));
+								sourceTargetRelease);
 					if (patchedModule != null) {
 						ModuleEntryProcessor.combinePatchIntoModuleEntry(sourceLocation, patchedModule, moduleEntries);
 					}
@@ -355,7 +377,7 @@ private void computeClasspathLocations(
 							&& JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true)))
 								? null
 								: entry.getAccessRuleSet();
-					String release = JavaCore.ENABLED.equals(javaProject.getOption(JavaCore.COMPILER_RELEASE, false)) ? compliance : null;
+					String release = isReleaseEnabled ? compliance : null;
 					ClasspathLocation bLocation = null;
 					String libPath = path.toOSString();
 					if (Util.isJrt(libPath)) {
@@ -413,6 +435,10 @@ private void computeClasspathLocations(
 		// collect the output folders, skipping, or merging duplicates
 		next : for (int i = 0, l = this.sourceLocations.length; i < l; i++) {
 			ClasspathMultiDirectory md = this.sourceLocations[i];
+			if (md.release > releaseTarget) {
+				// do not include output folders that belong to a higher release!
+				continue;
+			}
 			IPath outputPath = md.binaryFolder.getFullPath();
 			String eeaPath = md.externalAnnotationPath;
 			for (int j = 0; j < i; j++) { // compare against previously walked source folders
@@ -444,7 +470,15 @@ private void computeClasspathLocations(
 			md.hasIndependentOutputFolder = true;
 		}
 	}
-
+	//sort according to release
+	if (mustSortOutput) {
+		outputFolders.sort(Comparator.comparingInt(loc -> {
+			if (loc instanceof ClasspathMultiDirectory md) {
+				return md.release;
+			}
+			return JavaProject.NO_RELEASE;
+		}).reversed());
+	}
 	// combine the output folders with the binary folders & jars... place the output folders before other .class file folders & jars
 	this.binaryLocations = new ClasspathLocation[outputFolders.size() + bLocations.size()];
 	int index = 0;
@@ -539,7 +573,7 @@ private void createParentFolder(IContainer parent) throws CoreException {
 	}
 }
 
-private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName, LookupStrategy strategy, String moduleName, int release) {
+private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName, LookupStrategy strategy, String moduleName) {
 	if (this.notifier != null)
 		this.notifier.checkCancelWithinCompiler();
 
@@ -591,23 +625,6 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 		relevantLocations = this.binaryLocations;
 	}
 	NameEnvironmentAnswer suggestedAnswer = null;
-	if (release >= IReleaseAwareNameEnvironment.FIRST_MULTI_RELEASE) {
-		//we must filter and sort any classpath directory here:
-		//release locations that do not match (e.g larger than current release) must be omitted)
-		//and we need to sort by highest to lowest to have the same order like on runtime.
-		relevantLocations = Arrays.stream(relevantLocations).filter(loc->{
-			if (loc instanceof ClasspathMultiDirectory md) {
-				//only those with release lower or equal are valid here!
-				return md.release <= release;
-			}
-			return true;
-		}).sorted(Comparator.comparingInt(loc->{
-			if (loc instanceof ClasspathMultiDirectory md) {
-				return md.release;
-			}
-			return IReleaseAwareNameEnvironment.NO_RELEASE;
-		}).reversed()).toArray(ClasspathLocation[]::new);
-	}
 	for (ClasspathLocation classpathLocation : relevantLocations) {
 		if (!strategy.matches(classpathLocation, ClasspathLocation::hasModule)) {
 			continue;
@@ -632,25 +649,23 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 }
 
 @Override
-public NameEnvironmentAnswer findType(char[][] compoundName, char[] moduleName, int release) {
+public NameEnvironmentAnswer findType(char[][] compoundName, char[] moduleName) {
 	if (compoundName != null)
 		return findClass(
 			String.valueOf(CharOperation.concatWith(compoundName, '/')),
 			compoundName[compoundName.length - 1],
 			LookupStrategy.get(moduleName),
-			LookupStrategy.getStringName(moduleName),
-			release);
+			LookupStrategy.getStringName(moduleName));
 	return null;
 }
 
 @Override
-public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, char[] moduleName, int release) {
+public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, char[] moduleName) {
 	return findClass(
 			String.valueOf(CharOperation.concatWith(packageName, typeName, '/')),
 			typeName,
 			LookupStrategy.get(moduleName),
-			LookupStrategy.getStringName(moduleName),
-			release);
+			LookupStrategy.getStringName(moduleName));
 }
 
 @Override

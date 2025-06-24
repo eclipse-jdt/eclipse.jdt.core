@@ -186,7 +186,7 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 				this.notifier.checkCancel();
 				if (copyBack)
 					copyExtraResourcesBack(sourceLocation, true);
-			} else {
+			} else if (sourceLocation.binaryFolder.exists()) { //if folder does not exists we can't delete it and we can't visit children
 				boolean isOutputFolder = sourceLocation.sourceFolder.equals(sourceLocation.binaryFolder);
 				final char[][] exclusionPatterns =
 					isOutputFolder

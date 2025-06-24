@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Stream;
 import org.eclipse.core.resources.IContainer;
-import org.eclipse.jdt.internal.compiler.env.IReleaseAwareNameEnvironment;
+import org.eclipse.jdt.internal.core.JavaProject;
 
 /**
  * The {@link TypeLocators} maintain mapping of type names (in the form <code>p1/p2/A</code> to code locations (in the
@@ -93,7 +93,7 @@ public class TypeLocators {
 			for (int i = 0; i < length; i++) {
 				recordLocatorForType(in.readStringUsingLast(),
 						internedTypeLocators[in.readIntInRange(internedTypeLocators.length)],
-						IReleaseAwareNameEnvironment.NO_RELEASE);
+						JavaProject.NO_RELEASE);
 			}
 		}
 		length = in.readInt();
@@ -123,7 +123,7 @@ public class TypeLocators {
 
 	void removeLocator(String typeLocatorToRemove, int release) {
 		this.knownPackageNames = null;
-		if (release > IReleaseAwareNameEnvironment.NO_RELEASE) {
+		if (release > JavaProject.NO_RELEASE) {
 			if (this.releaseMap != null) {
 				for (Iterator<Entry<String, Map<Integer, String>>> iterator = this.releaseMap.entrySet()
 						.iterator(); iterator.hasNext();) {
@@ -148,7 +148,7 @@ public class TypeLocators {
 			// String.substring()
 			qualifiedTypeName = typeLocator.substring(start, start + qualifiedTypeName.length());
 		}
-		if (release > IReleaseAwareNameEnvironment.NO_RELEASE) {
+		if (release > JavaProject.NO_RELEASE) {
 			if (this.releaseMap == null) {
 				this.releaseMap = new LinkedHashMap<>(7);
 			}
@@ -223,7 +223,7 @@ public class TypeLocators {
 
 	boolean isDuplicateLocator(String qualifiedTypeName, String typeLocator, int release) {
 		String string;
-		if (release > IReleaseAwareNameEnvironment.NO_RELEASE) {
+		if (release > JavaProject.NO_RELEASE) {
 			if (this.releaseMap == null) {
 				return false;
 			}

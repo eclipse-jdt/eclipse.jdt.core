@@ -23,8 +23,8 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.batch.BasicModule;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IReleaseAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
+import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class ClasspathMultiDirectory extends ClasspathDirectory {
@@ -43,7 +43,7 @@ ClasspathMultiDirectory(IContainer sourceFolder, IContainer binaryFolder, char[]
 	this.sourceFolder = sourceFolder;
 	this.inclusionPatterns = inclusionPatterns;
 	this.exclusionPatterns = exclusionPatterns;
-	this.release = release>=IReleaseAwareNameEnvironment.FIRST_MULTI_RELEASE?release:IReleaseAwareNameEnvironment.NO_RELEASE;
+	this.release = release>=JavaProject.FIRST_MULTI_RELEASE?release:JavaProject.NO_RELEASE;
 	this.hasIndependentOutputFolder = false;
 	this.ignoreOptionalProblems = ignoreOptionalProblems;
 

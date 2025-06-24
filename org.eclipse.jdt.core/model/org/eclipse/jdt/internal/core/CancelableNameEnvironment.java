@@ -26,10 +26,10 @@ public class CancelableNameEnvironment extends SearchableEnvironment implements 
 	private IProgressMonitor monitor;
 
 	public CancelableNameEnvironment(JavaProject project, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException {
-		this(project, owner, monitor, false);
+		this(project, owner, monitor, false, JavaProject.NO_RELEASE);
 	}
-	public CancelableNameEnvironment(JavaProject project, WorkingCopyOwner owner, IProgressMonitor monitor, boolean excludeTestCode) throws JavaModelException {
-		super(project, owner, excludeTestCode);
+	public CancelableNameEnvironment(JavaProject project, WorkingCopyOwner owner, IProgressMonitor monitor, boolean excludeTestCode, int release) throws JavaModelException {
+		super(project, owner, excludeTestCode, release);
 		setMonitor(monitor);
 	}
 
@@ -60,24 +60,12 @@ public class CancelableNameEnvironment extends SearchableEnvironment implements 
 	}
 	@Override
 	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, boolean searchWithSecondaryTypes, char[] moduleName) {
-		return findType(typeName, packageName, moduleName, NO_RELEASE);
+		return findType(typeName, packageName, moduleName);
 	}
 	@Override
 	public void findTypes(char[] prefix, boolean findMembers, int matchRule, int searchFor, ISearchRequestor storage, IProgressMonitor progressMonitor) {
 		checkCanceled();
 		super.findTypes(prefix, findMembers, matchRule, searchFor, storage, progressMonitor);
-	}
-
-	@Override
-	public NameEnvironmentAnswer findType(char[][] compoundName, char[] moduleName, int release) {
-		checkCanceled();
-		return super.findType(compoundName, moduleName, release);
-	}
-
-	@Override
-	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, char[] moduleName, int release) {
-		checkCanceled();
-		return super.findType(typeName, packageName, moduleName, release);
 	}
 
 	@Override

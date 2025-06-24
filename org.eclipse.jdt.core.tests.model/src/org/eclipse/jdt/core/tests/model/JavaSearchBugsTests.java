@@ -15311,7 +15311,7 @@ public void testClasspathFilterUnnamedModuleBugGh485() throws Exception {
 		ICompilationUnit[] cus = { type.getCompilationUnit() };
 
 		boolean excludeTests = false;
-		SearchableEnvironment search = new SearchableEnvironment(project1, cus, excludeTests);
+		SearchableEnvironment search = new SearchableEnvironment(project1, cus, excludeTests, JavaProject.NO_RELEASE);
 
 		char[][] packageName = { new char[] { 'c', 'o', 'm' } };
 		char[][] modules = search.getModulesDeclaringPackage(packageName, ModuleBinding.UNNAMED);
