@@ -579,6 +579,9 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		if( patternIsErasureMatch) {
 			return false;
 		}
+		if (this.locator.pattern.fineGrain != 0) {
+			return false;
+		}
 //		if( emptyTypeArgsPattern || patternIsErasureMatch || patternIsEquivMatch ) {
 //			return false;
 //		}
