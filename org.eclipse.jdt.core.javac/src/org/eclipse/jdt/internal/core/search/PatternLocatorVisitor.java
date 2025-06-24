@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
+import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
@@ -246,6 +247,10 @@ class PatternLocatorVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(PrimitiveType node) {
+		return visitType(node);
+	}
+	@Override
+	public boolean visit(ArrayType node) {
 		return visitType(node);
 	}
 	@Override
