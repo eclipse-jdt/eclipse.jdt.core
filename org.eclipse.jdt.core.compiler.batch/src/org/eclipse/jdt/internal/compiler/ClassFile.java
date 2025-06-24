@@ -983,6 +983,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				for (int i = emittedSyntheticsCount, max = currentSyntheticsCount; i < max; i++) {
 					SyntheticMethodBinding syntheticMethod = syntheticMethods[i];
 					switch (syntheticMethod.purpose) {
+						case SyntheticMethodBinding.RecordComponentReadAccess :
 						case SyntheticMethodBinding.FieldReadAccess :
 						case SyntheticMethodBinding.SuperFieldReadAccess :
 							// generate a method info to emulate an reading access to
