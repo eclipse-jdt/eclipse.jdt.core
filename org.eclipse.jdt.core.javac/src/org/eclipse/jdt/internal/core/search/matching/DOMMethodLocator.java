@@ -76,15 +76,10 @@ public class DOMMethodLocator extends DOMPatternLocator {
 	private IMethodBinding getDOMASTMethodBinding(ITypeBinding type, String methodName, ITypeBinding[] argumentTypes) {
 		if( type == null )
 			return null;
-		Stream<IMethodBinding> smb = Stream.of(type.getDeclaredMethods())
+		return Stream.of(type.getDeclaredMethods())
 				.filter(method -> Objects.equals(method.getName(), methodName))
-				.filter(method -> compatibleByErasure(method.getParameterTypes(), argumentTypes));
-		List<IMethodBinding> all = smb.collect(Collectors.toList());
-		IMethodBinding m1 = all.size() > 0 ? all.get(0) : null;
-		if( all.size() > 1 ) {
-			System.out.println("BREAK");
-		}
-		return m1;
+				.filter(method -> compatibleByErasure(method.getParameterTypes(), argumentTypes))
+				.findAny().orElse(null);
 	}
 	// can be replaced with `Arrays.equals(method.getParameterTypes(), argumentTypes, Comparator.comparing(ITypeBinding::getErasure))`
 	// but JDT bugs
@@ -734,13 +729,17 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		int noFlavorDeclaringLevel = declaringLevel & MATCH_LEVEL_MASK;
 		int weakerMethod = findWeakerLevel(noFlavorInvocOrDecl, noFlavorDeclaringLevel);
 		int weakerSimple = (invocOrDeclLevel & MATCH_LEVEL_MASK) > (declaringLevel & MATCH_LEVEL_MASK) ? declaringLevel : invocOrDeclLevel; // return the weaker match
-		if( weakerMethod != weakerSimple ) {
-			System.out.println("BREAK");
-		}
+//		if( weakerMethod != weakerSimple ) {
+//			System.out.println("BREAK");
+//		}
 		if (declaringFlavors != 0) {
 			// level got some flavors => return it
 			return declaringLevel;
 		}
+
+//		if( isPatternExactMatch() && invocationLevel == IMPOSSIBLE_MATCH && declarationLevel == ACCURATE_MATCH ) {
+//			return IMPOSSIBLE_MATCH;
+//		}
 		return weakerMethod;
 	}
 
