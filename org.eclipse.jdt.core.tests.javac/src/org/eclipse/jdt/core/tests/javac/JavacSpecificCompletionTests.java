@@ -635,4 +635,32 @@ public class JavacSpecificCompletionTests {
 				hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, [201, 201], 79}""", requestor.getResults());
 	}
 
+	@Test
+	public void testCompleteMethodWithWildcardReturnType() throws Exception {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("HelloWorld.java",
+			"""
+			import java.util.List;
+
+			public class HelloWorld  {
+				public List<? extends String> getMyList() {
+					return List.of();
+				}
+				void m() {
+					List myList = getMyLi
+				}
+			}
+			""");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false, false, true);
+
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "getMyLi";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		IProgressMonitor monitor = new NullProgressMonitor();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, WC_OWNER, monitor);
+		assertEquals("""
+				getMyList[METHOD_REF]{getMyList(), LHelloWorld;, ()Ljava.util.List<+Ljava.lang.String;>;, getMyList, [147, 154], 82}""", requestor.getResults());
+	}
+
 }

@@ -109,6 +109,8 @@ class RelevanceUtils {
 
 					if(Objects.equals(expectedType.getQualifiedName(), proposalType.getQualifiedName())) {
 						return RelevanceConstants.R_EXACT_EXPECTED_TYPE;
+					} else if (expectedType.isRawType() && Objects.equals(expectedType.getErasure().getQualifiedName(), proposalType.getErasure().getQualifiedName())) {
+						return RelevanceConstants.R_EXACT_EXPECTED_TYPE;
 					} else if (proposalType.getPackage() != null && proposalType.getPackage().isUnnamed()) {
 						return RelevanceConstants.R_PACKAGE_EXPECTED_TYPE;
 					}

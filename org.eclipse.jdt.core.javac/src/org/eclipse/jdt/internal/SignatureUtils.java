@@ -189,11 +189,14 @@ public class SignatureUtils {
 				.replace("<+Ljava.lang.Object;>", "<*>");
 		String removeName = fullKey.substring(fullKey.indexOf('('));
 		int firstException = removeName.indexOf('|');
+		String exceptionRemoved;
 		if (firstException > 0) {
-			return removeName.substring(0, firstException);
+			exceptionRemoved =  removeName.substring(0, firstException);
 		} else {
-			return removeName;
+			exceptionRemoved = removeName;
 		}
+		// strip out the weird information the keys need to differentiate themselves
+		return exceptionRemoved.replaceAll("!L[^;]+;\\{[0-9]+\\}(\\+L[^;]+;)[0-9]+;", "$1");
 	}
 
 	public static String stripTypeArgumentsFromKey(String key) {
