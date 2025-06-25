@@ -14,16 +14,11 @@
 package org.eclipse.jdt.internal.core.builder;
 import java.io.IOException;
 import java.nio.file.FileSystem;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 import org.eclipse.core.runtime.CoreException;
@@ -34,7 +29,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.CtSym;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
@@ -42,8 +36,6 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
-
-	private static final String MODULE_INFO = "module-info.sig"; //$NON-NLS-1$
 
 	final String release;
 	private final String releaseCode;
@@ -93,7 +85,7 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 			this.fs = null;  // Fallback to default version, all classes are on jrt fs, not here.
 		}
 
-		loadModules();
+		loadModules(this, this.ctSym, this.releaseCode);
 	}
 	/*
 	 * JDK 11 doesn't contain release 5. Hence
@@ -119,44 +111,6 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 	protected String getReleaseVersion() {
 		return this.release;
 	}
-
-	public void loadModules() {
-		if (this.fs == null || !this.ctSym.isJRE12Plus()) {
-			ClasspathJrt.loadModules(this);
-			return;
-		}
-		if (this.modPathString == null) {
-			return;
-		}
-		modulesCache.computeIfAbsent(this.modPathString, key -> {
-			List<Path> releaseRoots = this.ctSym.releaseRoots(this.releaseCode);
-			Map<String, IModule> newCache = new HashMap<>();
-			for (Path root : releaseRoots) {
-				try {
-					Files.walkFileTree(root, Collections.emptySet(), 2, new SimpleFileVisitor<Path>() {
-						@Override
-						public FileVisitResult visitFile(Path f, BasicFileAttributes attrs)	throws IOException {
-							if (attrs.isDirectory() || f.getNameCount() < 3) {
-								return FileVisitResult.CONTINUE;
-							}
-							if (f.getFileName().toString().equals(MODULE_INFO)) {
-								byte[] content = ClasspathJrtWithReleaseOption.this.ctSym.getFileBytes(f);
-								if (content == null) {
-									return FileVisitResult.CONTINUE;
-								}
-								ClasspathJrtWithReleaseOption.this.acceptModule(content, f.getParent().getFileName().toString(), newCache);
-							}
-							return FileVisitResult.SKIP_SIBLINGS;
-						}
-					});
-				} catch (IOException e) {
-					Util.log(e, "Failed to init modules cache for " + key); //$NON-NLS-1$
-				}
-			}
-			return newCache.isEmpty() ? null : Map.copyOf(newCache);
-		});
-	}
-
 
 	@Override
 	public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String moduleName,

@@ -16,7 +16,10 @@ package org.eclipse.jdt.internal.core.builder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModule.IModuleReference;
 import org.eclipse.jdt.internal.compiler.env.IMultiModuleEntry;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.util.CtSym;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil.JrtFileVisitor;
 import org.eclipse.jdt.internal.compiler.util.JrtFileSystem;
@@ -45,7 +49,7 @@ import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry {
-
+private static final String MODULE_INFO = "module-info.sig"; //$NON-NLS-1$
 protected final static Map<String, Map<String, IModule>> modulesCache = new ConcurrentHashMap<>();
 protected final String zipFilename; // keep for equals
 protected final JrtFileSystem jrtFileSystem;
@@ -95,7 +99,7 @@ public static void loadModules(final ClasspathJrt jrt) {
 			JRTUtil.walkModuleImage(jrt.jrtFileSystem, new JrtFileVisitor<Path>() {
 				@Override
 				public FileVisitResult visitModule(Path path, String name) throws IOException {
-					jrt.acceptModule(JRTUtil.getClassfileContent(jrt.jrtFileSystem, IModule.MODULE_INFO_CLASS, name), name,	newCache);
+					acceptModule(jrt.toString(), JRTUtil.getClassfileContent(jrt.jrtFileSystem, IModule.MODULE_INFO_CLASS, name), name,	newCache);
 					return FileVisitResult.SKIP_SUBTREE;
 				}
 			}, JRTUtil.NOTIFY_MODULES);
@@ -106,11 +110,50 @@ public static void loadModules(final ClasspathJrt jrt) {
 	});
 }
 
+public static void loadModules(final ClasspathJrt jrt, CtSym ctSym, String releaseCode) {
+	if (ctSym == null || !ctSym.isJRE12Plus() || Files.exists(ctSym.getFs().getPath(releaseCode, "system-modules"))) { //$NON-NLS-1$
+		ClasspathJrt.loadModules(jrt);
+		return;
+	}
+	Path modPath = ctSym.getFs().getPath(releaseCode + (ctSym.isJRE12Plus() ? "" : "-modules")); //$NON-NLS-1$ //$NON-NLS-2$
+	if (!Files.exists(modPath)) {
+		return;
+	}
+	String modPathString = jrt.zipFilename + "|"+ modPath.toString(); //$NON-NLS-1$
+	modulesCache.computeIfAbsent(modPathString, key -> {
+		List<Path> releaseRoots = ctSym.releaseRoots(releaseCode);
+		Map<String, IModule> newCache = new HashMap<>();
+		for (Path root : releaseRoots) {
+			try {
+				Files.walkFileTree(root, Collections.emptySet(), 2, new SimpleFileVisitor<Path>() {
+					@Override
+					public FileVisitResult visitFile(Path f, BasicFileAttributes attrs)	throws IOException {
+						if (attrs.isDirectory() || f.getNameCount() < 3) {
+							return FileVisitResult.CONTINUE;
+						}
+						if (f.getFileName().toString().equals(MODULE_INFO)) {
+							byte[] content = ctSym.getFileBytes(f);
+							if (content == null) {
+								return FileVisitResult.CONTINUE;
+							}
+							acceptModule(jrt.toString(), content, f.getParent().getFileName().toString(), newCache);
+						}
+						return FileVisitResult.SKIP_SIBLINGS;
+					}
+				});
+			} catch (IOException e) {
+				Util.log(e, "Failed to init modules cache for " + key); //$NON-NLS-1$
+			}
+		}
+		return newCache.isEmpty() ? null : Map.copyOf(newCache);
+	});
+}
+
 protected String getKey() {
 	return this.zipFilename;
 }
 
-void acceptModule(byte[] content, String name, Map<String, IModule> cache) {
+static void acceptModule(String path, byte[] content, String name, Map<String, IModule> cache) {
 	if (content == null) {
 		return;
 	}
@@ -121,7 +164,7 @@ void acceptModule(byte[] content, String name, Map<String, IModule> cache) {
 			cache.put(name, moduleDecl);
 		}
 	} catch (ClassFormatException e) {
-		Util.log(e, "Failed to read module-info.class for " + name + " in " + this.toString()); //$NON-NLS-1$ //$NON-NLS-2$
+		Util.log(e, "Failed to read module-info.class for " + name + " in " + path); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
 
