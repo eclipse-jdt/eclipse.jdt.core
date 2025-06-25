@@ -34,10 +34,12 @@ import com.sun.tools.javac.tree.DCTree.DCBlockTag;
 import com.sun.tools.javac.tree.DCTree.DCComment;
 import com.sun.tools.javac.tree.DCTree.DCDeprecated;
 import com.sun.tools.javac.tree.DCTree.DCDocComment;
+import com.sun.tools.javac.tree.DCTree.DCDocRoot;
 import com.sun.tools.javac.tree.DCTree.DCEndElement;
 import com.sun.tools.javac.tree.DCTree.DCEntity;
 import com.sun.tools.javac.tree.DCTree.DCErroneous;
 import com.sun.tools.javac.tree.DCTree.DCIdentifier;
+import com.sun.tools.javac.tree.DCTree.DCIndex;
 import com.sun.tools.javac.tree.DCTree.DCInheritDoc;
 import com.sun.tools.javac.tree.DCTree.DCLink;
 import com.sun.tools.javac.tree.DCTree.DCLiteral;
@@ -50,6 +52,7 @@ import com.sun.tools.javac.tree.DCTree.DCSerial;
 import com.sun.tools.javac.tree.DCTree.DCSince;
 import com.sun.tools.javac.tree.DCTree.DCSnippet;
 import com.sun.tools.javac.tree.DCTree.DCStartElement;
+import com.sun.tools.javac.tree.DCTree.DCSummary;
 import com.sun.tools.javac.tree.DCTree.DCText;
 import com.sun.tools.javac.tree.DCTree.DCThrows;
 import com.sun.tools.javac.tree.DCTree.DCUnknownBlockTag;
@@ -348,6 +351,14 @@ class JavadocConverter {
 			res.fragments().addAll(splitLines(snippet.body, true)
 					.map(this::toSnippetFragment)
 					.toList());
+		} else if (javac instanceof DCDocRoot) {
+			res.setTagName(TagElement.TAG_DOCROOT);
+		} else if (javac instanceof DCSummary summary) {
+			res.setTagName(TagElement.TAG_SUMMARY);
+			res.fragments().addAll(summary.summary.stream().flatMap(this::convertElement).toList());
+		} else if (javac instanceof DCIndex index) {
+			res.setTagName(TagElement.TAG_INDEX);
+			res.fragments().addAll(index.description.stream().flatMap(this::convertElement).toList());
 		} else if (javac instanceof DCUnknownInlineTag unknown) {
 			res.fragments().add(toDefaultTextElement(unknown));
 		} else {

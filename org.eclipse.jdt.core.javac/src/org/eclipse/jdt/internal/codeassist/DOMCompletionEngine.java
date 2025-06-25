@@ -5725,13 +5725,14 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		completion.append(inlineTag);
 		completion.append('}');
 		res.setCompletion(completion.toString().toCharArray());
-		setRange(res);
+		setTokenRange(res);
 		ASTNode replaceNode = this.toComplete;
 		if (replaceNode instanceof TextElement) {
 			replaceNode = replaceNode.getParent();
 		}
 		boolean isAlreadyInline = this.textContent.charAt(this.completionContext.getTokenStart() - 1) == '{';
-		res.setReplaceRange(this.completionContext.getTokenStart() - (isAlreadyInline ? 1 : 0), this.completionContext.getTokenEnd() + 1);
+		boolean isInlineWithClosing = isAlreadyInline && this.textContent.length() > this.completionContext.getTokenEnd() + 1 && this.textContent.charAt(this.completionContext.getTokenEnd() + 1) == '}';
+		res.setReplaceRange(this.completionContext.getTokenStart() - (isAlreadyInline ? 1 : 0), this.completionContext.getTokenEnd() + (isInlineWithClosing ? 2 : 1));
 		res.setRelevance(RelevanceConstants.R_DEFAULT + RelevanceConstants.R_INTERESTING + RelevanceConstants.R_NON_RESTRICTED);
 		return res;
 	}
