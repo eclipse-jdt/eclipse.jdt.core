@@ -9156,34 +9156,15 @@ protected void consumeStaticOnly() {
 }
 private void consumeTextBlock() {
 	problemReporter().validateJavaFeatureSupport(JavaFeature.TEXT_BLOCKS, this.scanner.startPosition, this.scanner.currentPosition - 1);
-	char[] allchars = this.scanner.getCurrentTextBlock();
-	TextBlock textBlock = createTextBlock(allchars, this.scanner.startPosition, this.scanner.currentPosition - 1);
-	pushOnExpressionStack(textBlock);
-}
-private TextBlock createTextBlock(char[] allchars, int start, int end) {
-	TextBlock textBlock;
-	if (this.recordStringLiterals &&
-			!this.reparsingFunctionalExpression &&
-			this.checkExternalizeStrings &&
-			this.lastPosistion < this.scanner.currentPosition &&
-			!this.statementRecoveryActivated) {
-		textBlock =
-				TextBlock.createTextBlock(
-						allchars,
-						start,
-						end,
-						Util.getLineNumber(this.scanner.startPosition, this.scanner.lineEnds, 0, this.scanner.linePtr),
-						Util.getLineNumber(this.scanner.currentPosition - 1, this.scanner.lineEnds, 0, this.scanner.linePtr));
+	boolean shouldRecordStringLiterals = this.recordStringLiterals && !this.reparsingFunctionalExpression && this.checkExternalizeStrings &&
+											this.lastPosistion < this.scanner.currentPosition && !this.statementRecoveryActivated;
+
+	TextBlock textBlock = new TextBlock(this.scanner.getCurrentTextBlock(), this.scanner.startPosition, this.scanner.currentPosition - 1,
+						                shouldRecordStringLiterals ? Util.getLineNumber(this.scanner.startPosition, this.scanner.lineEnds, 0, this.scanner.linePtr) : 0,
+						                shouldRecordStringLiterals ? Util.getLineNumber(this.scanner.currentPosition - 1, this.scanner.lineEnds, 0, this.scanner.linePtr) : 0);
+	if (shouldRecordStringLiterals)
 		this.compilationUnit.recordStringLiteral(textBlock, this.currentElement != null);
-	} else {
-		textBlock = TextBlock.createTextBlock(
-				allchars,
-			start,
-			end,
-			0,
-			0);
-	}
-	return textBlock;
+	pushOnExpressionStack(textBlock);
 }
 protected void consumeSwitchBlock(boolean hasContents) {
 	// SwitchBlock ::= '{' { SwitchBlockStatements SwitchLabels } '}'

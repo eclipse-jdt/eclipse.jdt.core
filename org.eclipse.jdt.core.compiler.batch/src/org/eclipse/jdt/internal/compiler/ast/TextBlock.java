@@ -18,17 +18,15 @@ public class TextBlock extends StringLiteral {
 
 	public int endLineNumber;
 
-	private TextBlock(char[] token, int start, int end, int lineNumber, int endLineNumber) {
+	public TextBlock(char[] token, int start, int end, int lineNumber, int endLineNumber) {
 		super(token, start,end, lineNumber);
-		this.endLineNumber= endLineNumber - 1; // line number is 1 based
+		this.endLineNumber = endLineNumber - 1; // line number is 1 based
 	}
-	public static TextBlock createTextBlock(char[] token, int start, int end, int lineNumber, int endLineNumber) {
-		return new TextBlock(token, start,end, lineNumber, endLineNumber);
-	}
+
 	@Override
 	public StringBuilder printExpression(int indent, StringBuilder output) {
 		output.append("\"\"\"\n"); //$NON-NLS-1$
-		for (char c:this.source()) {
+		for (char c: this.source()) {
 			Util.appendEscapedChar(output, c, true);
 		}
 		output.append("\"\"\""); //$NON-NLS-1$
