@@ -2430,6 +2430,9 @@ public RecordComponentBinding[] setComponents(RecordComponentBinding[] component
 				field.tagBits |= component.tagBits & (TagBits.AnnotationNullMASK | TagBits.AnnotationOwningMASK);
 				if ((component.tagBits & TagBits.HasMissingType) != 0)
 					field.tagBits |= TagBits.HasMissingType;
+				RecordComponent componentDecl = component.sourceRecordComponent();
+				if (componentDecl != null &&  componentDecl.annotations != null)
+					ASTNode.copyRecordComponentAnnotations(this.scope, field, componentDecl.annotations);
 			}
 		}
 	}

@@ -10749,4 +10749,170 @@ public void testIssue4146_2() {
 		"JsonInclude cannot be resolved to a variable\n" +
 		"----------\n");
 }
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4146
+// Unable to build Record
+public void testIssue4146_3() throws Exception {
+	this.runConformTest(
+		new String[] {
+					"Segment.java",
+					"""
+					import jackson.stuff.JacksonXmlProperty;
+					import jackson.stuff.JsonInclude;
+
+					public record Segment(@JacksonXmlProperty(isAttribute = true) String id,
+					                      String source,
+					                      @JsonInclude(JsonInclude.Include.NON_NULL) String target) {
+
+						public static void main(String [] args) {
+							System.out.println("OK!");
+						}
+					}
+					""",
+					"jackson/stuff/JacksonXmlProperty.java",
+					"""
+					package jackson.stuff;
+					import java.lang.annotation.ElementType;
+					import java.lang.annotation.Retention;
+					import java.lang.annotation.RetentionPolicy;
+					import java.lang.annotation.Target;
+
+					@Target({ElementType.ANNOTATION_TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
+					@Retention(RetentionPolicy.RUNTIME)
+					public @interface JacksonXmlProperty {
+					    boolean isAttribute() default false;
+					}
+					""",
+					"jackson/stuff/JsonInclude.java",
+					"""
+					package jackson.stuff;
+
+					import java.lang.annotation.ElementType;
+					import java.lang.annotation.Target;
+
+					@Target({ElementType.METHOD, ElementType.FIELD, ElementType.TYPE, ElementType.PARAMETER})
+					@JacksonAnnotation
+					public @interface JsonInclude {
+					    public enum Include {
+					    	ALWAYS,
+					        NON_NULL;
+					    }
+					    public Include value() default Include.ALWAYS;
+					}
+					""",
+					"jackson/stuff/JacksonAnnotation.java",
+					"""
+					package jackson.stuff;
+
+					import java.lang.annotation.ElementType;
+					import java.lang.annotation.Retention;
+					import java.lang.annotation.RetentionPolicy;
+					import java.lang.annotation.Target;
+
+					@Target({ElementType.ANNOTATION_TYPE})
+					@Retention(RetentionPolicy.RUNTIME)
+					public @interface JacksonAnnotation {
+
+					}
+					"""
+	            },
+				"OK!");
+
+	String expectedOutput =
+					"  // Field descriptor #6 Ljava/lang/String;\n" +
+					"  private final java.lang.String id;\n" +
+					"    RuntimeVisibleAnnotations: \n" +
+					"      #8 @jackson.stuff.JacksonXmlProperty(\n" +
+					"        #9 isAttribute=true (constant type)\n" +
+					"      )\n" +
+					"  \n" +
+					"  // Field descriptor #6 Ljava/lang/String;\n" +
+					"  private final java.lang.String source;\n" +
+					"  \n" +
+					"  // Field descriptor #6 Ljava/lang/String;\n" +
+					"  private final java.lang.String target;\n" +
+					"    RuntimeInvisibleAnnotations: \n" +
+					"      #14 @jackson.stuff.JsonInclude(\n" +
+					"        #15 value=jackson.stuff.JsonInclude.Include.NON_NULL(enum type #16.#17)\n" +
+					"      )\n";
+	verifyClassFile(expectedOutput, "Segment.class", ClassFileBytesDisassembler.SYSTEM);
+
+	expectedOutput =
+			"  // Method descriptor #39 ()Ljava/lang/String;\n" +
+			"  // Stack: 1, Locals: 1\n" +
+			"  public java.lang.String id();\n" +
+			"    0  aload_0 [this]\n" +
+			"    1  getfield Segment.id : java.lang.String [40]\n" +
+			"    4  areturn\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 4]\n" +
+			"    RuntimeVisibleAnnotations: \n" +
+			"      #8 @jackson.stuff.JacksonXmlProperty(\n" +
+			"        #9 isAttribute=true (constant type)\n" +
+			"      )\n" +
+			"  \n" +
+			"  // Method descriptor #39 ()Ljava/lang/String;\n" +
+			"  // Stack: 1, Locals: 1\n" +
+			"  public java.lang.String source();\n" +
+			"    0  aload_0 [this]\n" +
+			"    1  getfield Segment.source : java.lang.String [42]\n" +
+			"    4  areturn\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 5]\n" +
+			"  \n" +
+			"  // Method descriptor #39 ()Ljava/lang/String;\n" +
+			"  // Stack: 1, Locals: 1\n" +
+			"  public java.lang.String target();\n" +
+			"    0  aload_0 [this]\n" +
+			"    1  getfield Segment.target : java.lang.String [44]\n" +
+			"    4  areturn\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 6]\n" +
+			"    RuntimeInvisibleAnnotations: \n" +
+			"      #14 @jackson.stuff.JsonInclude(\n" +
+			"        #15 value=jackson.stuff.JsonInclude.Include.NON_NULL(enum type #16.#17)\n" +
+			"      )\n" +
+			"  \n";
+	verifyClassFile(expectedOutput, "Segment.class", ClassFileBytesDisassembler.SYSTEM);
+
+	expectedOutput =
+			"  // Method descriptor #61 (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V\n" +
+			"  // Stack: 2, Locals: 4\n" +
+			"  public Segment(java.lang.String id, java.lang.String source, java.lang.String target);\n" +
+			"     0  aload_0 [this]\n" +
+			"     1  invokespecial java.lang.Record() [64]\n" +
+			"     4  aload_0 [this]\n" +
+			"     5  aload_1 [id]\n" +
+			"     6  putfield Segment.id : java.lang.String [40]\n" +
+			"     9  aload_0 [this]\n" +
+			"    10  aload_2 [source]\n" +
+			"    11  putfield Segment.source : java.lang.String [42]\n" +
+			"    14  aload_0 [this]\n" +
+			"    15  aload_3 [target]\n" +
+			"    16  putfield Segment.target : java.lang.String [44]\n" +
+			"    19  return\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 1]\n" +
+			"      Method Parameters:\n" +
+			"        id\n" +
+			"        source\n" +
+			"        target\n" +
+			"    RuntimeVisibleParameterAnnotations: \n" +
+			"      Number of annotations for parameter 0: 1\n" +
+			"        #8 @jackson.stuff.JacksonXmlProperty(\n" +
+			"          #9 isAttribute=true (constant type)\n" +
+			"        )\n" +
+			"      Number of annotations for parameter 1: 0\n" +
+			"      Number of annotations for parameter 2: 0\n" +
+			"    RuntimeInvisibleParameterAnnotations: \n" +
+			"      Number of annotations for parameter 0: 0\n" +
+			"      Number of annotations for parameter 1: 0\n" +
+			"      Number of annotations for parameter 2: 1\n" +
+			"        #14 @jackson.stuff.JsonInclude(\n" +
+			"          #15 value=jackson.stuff.JsonInclude.Include.NON_NULL(enum type #16.#17)\n" +
+			"        )\n" +
+			"\n";
+	verifyClassFile(expectedOutput, "Segment.class", ClassFileBytesDisassembler.SYSTEM);
+
+}
 }
