@@ -806,6 +806,14 @@ public final void getNextUnicodeChar() throws InvalidInputException {
 	}
 }
 @Override
+protected final boolean atTextBlockDelimiter(boolean checkingEnd) {
+	int savedUnicodeCharSize = this.unicodeCharSize;
+	boolean atTextBlockDelimiter = super.atTextBlockDelimiter(checkingEnd);
+	if (!atTextBlockDelimiter)
+		this.unicodeCharSize = savedUnicodeCharSize;
+	return atTextBlockDelimiter;
+}
+@Override
 protected boolean isFirstTag() {
 	return
 		getNextChar('d') &&

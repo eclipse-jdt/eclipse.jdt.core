@@ -31,6 +31,10 @@ public class TextBlockTest extends AbstractRegressionTest {
 	protected Map<String, String> getCompilerOptions() {
 		return getCompilerOptions(true);
 	}
+
+	static {
+	//	TESTS_NAMES = new String [] { "testBug565639_2" };
+	}
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean previewFlag) {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
@@ -1785,5 +1789,45 @@ string.\""");
 				},
 				"true",
 				getCompilerOptions());
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4129
+	// Text block with unicode escape before multiple backslashes has wrong value
+	public void testIssue4129() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						    public static void main(String[] args)
+						    {
+						        System.out.println(\"\"\"
+						            A \\\\\\\"-\\\\\\\" B\"\"\");
+						        System.out.println(\"\"\"
+						            \\u0041 \\\\\\"-\\\\\\" B\"\"\");
+						    }
+						}
+						"""
+				},
+				"A \\\"-\\\" B\n" +
+				"A \\\"-\\\" B");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4153
+	// [Text blocks] Delimiters in unicode not handled properly
+	public void testIssue4153() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"    public static void main(String argv[]) {\n" +
+						"    	String text = \\u0022\"\\u0022\n" +
+						"        Hello\"\"\";\n" +
+						"       \n" +
+						"        System.out.println(text);\n" +
+						"    }\n" +
+						"}\n"
+				},
+				"Hello");
 	}
 }
