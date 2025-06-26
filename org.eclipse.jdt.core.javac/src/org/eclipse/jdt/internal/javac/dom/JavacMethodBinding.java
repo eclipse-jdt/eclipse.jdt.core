@@ -33,11 +33,11 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
+import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
-import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.internal.SignatureUtils;
 import org.eclipse.jdt.internal.core.BinaryMethod;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -50,11 +50,11 @@ import org.eclipse.jdt.internal.core.util.Util;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ForAll;
 import com.sun.tools.javac.code.Type.JCNoType;
 import com.sun.tools.javac.code.Type.MethodType;
@@ -76,6 +76,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	private final boolean isDeclaration;
 	private IMethod javaElement;
 	private String key;
+	private List<Type> resolvedTypeArgs;
 
 	/**
 	 *
@@ -85,10 +86,10 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 	 * @param resolver
 	 */
 	public JavacMethodBinding(MethodType methodType, MethodSymbol methodSymbol, Type parentType, JavacBindingResolver resolver) {
-		this(methodType, methodSymbol, parentType, resolver, false, false);
+		this(methodType, methodSymbol, parentType, resolver, false, false, null);
 	}
 
-	public JavacMethodBinding(MethodType methodType, MethodSymbol methodSymbol, Type parentType, JavacBindingResolver resolver, boolean explicitSynthetic, boolean isDeclaration) {
+	public JavacMethodBinding(MethodType methodType, MethodSymbol methodSymbol, Type parentType, JavacBindingResolver resolver, boolean explicitSynthetic, boolean isDeclaration, List<Type> resolvedTypeArgs) {
 		MethodSymbol sym = methodSymbol != null && methodSymbol.baseSymbol() instanceof MethodSymbol base && base.isVarArgs() ? base : methodSymbol;
 		this.methodType = sym != null && sym.isVarArgs() && sym.type instanceof MethodType mt ? mt : methodType;
 		this.methodSymbol = methodSymbol != null && methodSymbol.isVarArgs() ? (MethodSymbol)methodSymbol.baseSymbol() : methodSymbol;
@@ -97,6 +98,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		this.isDeclaration = isParameterized(methodSymbol) && isDeclaration;
 		this.explicitSynthetic = explicitSynthetic;
 		this.resolver = resolver;
+		this.resolvedTypeArgs = resolvedTypeArgs;
 	}
 
 	private static boolean isParameterized(Symbol symbol) {
@@ -396,6 +398,15 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		try {
 			StringBuilder builder = new StringBuilder();
 			getKey(builder, this.methodSymbol, this.methodType, this.parentType, this.resolver);
+			// TODO!!!!
+			// add %< typeParams >
+			if( this.resolvedTypeArgs != null ) {
+				builder.append("%<");
+				for (var typeParam : resolvedTypeArgs) {
+					JavacTypeBinding.getKey(builder, typeParam, false, true, true, resolver);
+				}
+				builder.append(">");
+			}
 			return builder.toString();
 		} catch(BindingKeyException bke) {
 			return null;
@@ -701,7 +712,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		// i.e. drops the type arguments
 		// i.e. <code>this.<String>getValue(12);</code> will be converted back to <code><T> T getValue(int i) {</code>
 		MethodType mt = (this.methodSymbol == null ? this.methodType : this.methodSymbol.type.asMethodType());
-		return this.resolver.bindings.getMethodBinding(mt, methodSymbol, null, true);
+		return this.resolver.bindings.getMethodBinding(mt, methodSymbol, null, true, null);
 	}
 
 	@Override

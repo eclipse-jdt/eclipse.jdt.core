@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
+import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
@@ -38,7 +39,6 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
-import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.internal.codeassist.DOMCompletionUtils;
 import org.eclipse.jdt.internal.core.BinaryMember;
 import org.eclipse.jdt.internal.core.DOMToModelPopulator;
@@ -53,11 +53,11 @@ import org.eclipse.jdt.internal.core.util.Util;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
 import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type;
 
 public abstract class JavacVariableBinding implements IVariableBinding {
 
@@ -371,7 +371,7 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 				if (method.getSimpleName().isEmpty()) { // initializer
 					return null;
 				}
-				JavacMethodBinding res = this.resolver.bindings.getMethodBinding(method.type.asMethodType(), method, null, false);
+				JavacMethodBinding res = this.resolver.bindings.getMethodBinding(method.type.asMethodType(), method, null, false, null);
 				ASTNode declaring = this.resolver.findDeclaringNode(this);
 				ASTNode parent = declaring == null ? null : declaring.getParent();
 				if (parent instanceof LambdaExpression lambda) {

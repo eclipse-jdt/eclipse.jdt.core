@@ -59,12 +59,12 @@ import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
+import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.core.dom.JavacCompilationUnitResolver;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchPattern;
@@ -82,13 +82,10 @@ import org.eclipse.jdt.internal.core.SourceType;
 import com.sun.tools.javac.code.Attribute;
 import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.code.Kinds;
-import com.sun.tools.javac.code.Symbol;
-import com.sun.tools.javac.code.Type;
-import com.sun.tools.javac.code.TypeTag;
-import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.code.Kinds.Kind;
 import com.sun.tools.javac.code.Kinds.KindSelector;
 import com.sun.tools.javac.code.Scope.LookupKind;
+import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 import com.sun.tools.javac.code.Symbol.CompletionFailure;
 import com.sun.tools.javac.code.Symbol.MethodSymbol;
@@ -97,6 +94,7 @@ import com.sun.tools.javac.code.Symbol.RootPackageSymbol;
 import com.sun.tools.javac.code.Symbol.TypeSymbol;
 import com.sun.tools.javac.code.Symbol.TypeVariableSymbol;
 import com.sun.tools.javac.code.Symbol.VarSymbol;
+import com.sun.tools.javac.code.Type;
 import com.sun.tools.javac.code.Type.ArrayType;
 import com.sun.tools.javac.code.Type.ClassType;
 import com.sun.tools.javac.code.Type.ErrorType;
@@ -106,6 +104,8 @@ import com.sun.tools.javac.code.Type.JCVoidType;
 import com.sun.tools.javac.code.Type.MethodType;
 import com.sun.tools.javac.code.Type.TypeVar;
 import com.sun.tools.javac.code.Type.WildcardType;
+import com.sun.tools.javac.code.TypeTag;
+import com.sun.tools.javac.code.Types;
 import com.sun.tools.javac.code.Types.FunctionDescriptorLookupError;
 import com.sun.tools.javac.util.Name;
 import com.sun.tools.javac.util.Names;
@@ -217,7 +217,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				}
 			} else if (this.typeSymbol.owner instanceof MethodSymbol ownerSymbol
 					&& ownerSymbol.type != null ) {
-				JavacMethodBinding mb = this.resolver.bindings.getMethodBinding(ownerSymbol.type.asMethodType(), ownerSymbol, null, isGeneric);
+				JavacMethodBinding mb = this.resolver.bindings.getMethodBinding(ownerSymbol.type.asMethodType(), ownerSymbol, null, isGeneric, null);
 				if( mb.getJavaElement() instanceof IMethod ownerMethod
 						&& ownerMethod.getTypeParameter(this.getName()) != null) {
 					return ownerMethod.getTypeParameter(this.getName());
@@ -844,7 +844,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				.map(MethodSymbol.class::cast)
 				.map(sym -> {
 					Type.MethodType methodType = this.types.memberType(this.type, sym).asMethodType();
-					return this.resolver.bindings.getMethodBinding(methodType, sym, this.type, isGeneric);
+					return this.resolver.bindings.getMethodBinding(methodType, sym, this.type, isGeneric, null);
 				}).filter(Objects::nonNull);
 		if (!isFromSource()) {
 			// JDT's class reader keeps the order for fields and methods
@@ -907,7 +907,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				String symName = sym.name.toString();
 				boolean isSynthetic = !explicitMethods.contains(symName);
 				Type.MethodType methodType = this.types.memberType(this.type, sym).asMethodType();
-				return this.resolver.bindings.getMethodBinding(methodType, sym, this.type, isSynthetic);
+				return this.resolver.bindings.getMethodBinding(methodType, sym, this.type, isSynthetic, null);
 			})
 			.filter(Objects::nonNull)
 			.toArray(IMethodBinding[]::new);
@@ -951,10 +951,10 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 		do {
 			if (parentSymbol instanceof final MethodSymbol method) {
 				if (method.type instanceof Type.MethodType methodType) {
-					return this.resolver.bindings.getMethodBinding(methodType, method, null, true);
+					return this.resolver.bindings.getMethodBinding(methodType, method, null, true, null);
 				}
 				if( method.type instanceof Type.ForAll faType && faType.qtype instanceof MethodType mtt) {
-					IMethodBinding found = this.resolver.bindings.getMethodBinding(mtt, method, null, true);
+					IMethodBinding found = this.resolver.bindings.getMethodBinding(mtt, method, null, true, null);
 					return found;
 				}
 				return null;
@@ -1018,7 +1018,7 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 				// is a functional interface
 				var res = this.types.memberType(this.type, methodSymbol).asMethodType();
 				if (res != null) {
-					return this.resolver.bindings.getMethodBinding(res, methodSymbol, this.type, false);
+					return this.resolver.bindings.getMethodBinding(res, methodSymbol, this.type, false, null);
 				}
 			}
 		} catch (FunctionDescriptorLookupError ignore) {

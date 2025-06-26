@@ -93,7 +93,7 @@ public abstract class JavacErrorMethodBinding extends JavacMethodBinding {
 
 	@Override
 	public IMethodBinding getMethodDeclaration() {
-		return this.resolver.bindings.getErrorMethodBinding(this.resolver.getTypes().erasure(methodType).asMethodType(), originatingSymbol.type.tsym);
+		return this.resolver.bindings.getErrorMethodBinding(this.resolver.getTypes().erasure(methodType).asMethodType(), originatingSymbol.type.tsym, null);
 	}
 
 	@Override
