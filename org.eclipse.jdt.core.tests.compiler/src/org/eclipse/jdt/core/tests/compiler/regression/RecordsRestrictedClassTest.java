@@ -10655,4 +10655,98 @@ public void testIssue4070() {
 		"OK!"
 		);
 }
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4146
+// Unable to build Record
+public void testIssue4146() {
+	this.runNegativeTest(
+		new String[] {
+					"Segment.java",
+					"""
+					package repro;
+
+					import com.fasterxml.jackson.annotation.JsonInclude;
+					import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+
+					public record Segment(@JacksonXmlProperty(isAttribute = true) String id,
+					                      String source,
+					                      @JsonInclude(JsonInclude.Include.NON_NULL) String target) {
+
+					}
+					""",
+	            },
+		"----------\n" +
+		"1. ERROR in Segment.java (at line 3)\r\n" +
+		"	import com.fasterxml.jackson.annotation.JsonInclude;\r\n" +
+		"	       ^^^^^^^^^^^^^\n" +
+		"The import com.fasterxml cannot be resolved\n" +
+		"----------\n" +
+		"2. ERROR in Segment.java (at line 4)\r\n" +
+		"	import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;\r\n" +
+		"	       ^^^^^^^^^^^^^\n" +
+		"The import com.fasterxml cannot be resolved\n" +
+		"----------\n" +
+		"3. ERROR in Segment.java (at line 6)\r\n" +
+		"	public record Segment(@JacksonXmlProperty(isAttribute = true) String id,\r\n" +
+		"	                       ^^^^^^^^^^^^^^^^^^\n" +
+		"JacksonXmlProperty cannot be resolved to a type\n" +
+		"----------\n" +
+		"4. ERROR in Segment.java (at line 8)\r\n" +
+		"	@JsonInclude(JsonInclude.Include.NON_NULL) String target) {\r\n" +
+		"	 ^^^^^^^^^^^\n" +
+		"JsonInclude cannot be resolved to a type\n" +
+		"----------\n" +
+		"5. ERROR in Segment.java (at line 8)\r\n" +
+		"	@JsonInclude(JsonInclude.Include.NON_NULL) String target) {\r\n" +
+		"	             ^^^^^^^^^^^\n" +
+		"JsonInclude cannot be resolved to a variable\n" +
+		"----------\n");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4146
+// Unable to build Record
+public void testIssue4146_2() {
+	this.runNegativeTest(
+		new String[] {
+					"Segment.java",
+					"""
+					package repro;
+
+					import com.fasterxml.jackson.annotation.JsonInclude;
+					import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+
+					public record Segment(@JacksonXmlProperty(isAttribute = true) String id,
+					                      @JsonInclude(JsonInclude.Include.NON_NULL) String target,
+					                      String source) {
+
+					}
+					""",
+	            },
+		"----------\n" +
+		"1. ERROR in Segment.java (at line 3)\n" +
+		"	import com.fasterxml.jackson.annotation.JsonInclude;\n" +
+		"	       ^^^^^^^^^^^^^\n" +
+		"The import com.fasterxml cannot be resolved\n" +
+		"----------\n" +
+		"2. ERROR in Segment.java (at line 4)\n" +
+		"	import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;\n" +
+		"	       ^^^^^^^^^^^^^\n" +
+		"The import com.fasterxml cannot be resolved\n" +
+		"----------\n" +
+		"3. ERROR in Segment.java (at line 6)\n" +
+		"	public record Segment(@JacksonXmlProperty(isAttribute = true) String id,\n" +
+		"	                       ^^^^^^^^^^^^^^^^^^\n" +
+		"JacksonXmlProperty cannot be resolved to a type\n" +
+		"----------\n" +
+		"4. ERROR in Segment.java (at line 7)\n" +
+		"	@JsonInclude(JsonInclude.Include.NON_NULL) String target,\n" +
+		"	 ^^^^^^^^^^^\n" +
+		"JsonInclude cannot be resolved to a type\n" +
+		"----------\n" +
+		"5. ERROR in Segment.java (at line 7)\n" +
+		"	@JsonInclude(JsonInclude.Include.NON_NULL) String target,\n" +
+		"	             ^^^^^^^^^^^\n" +
+		"JsonInclude cannot be resolved to a variable\n" +
+		"----------\n");
+}
 }
