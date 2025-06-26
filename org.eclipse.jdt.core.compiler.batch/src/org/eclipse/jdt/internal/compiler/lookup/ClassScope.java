@@ -1386,6 +1386,7 @@ public class ClassScope extends Scope {
 	void collateRecordComponents() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		if (sourceType.components() == null) {
+			sourceType.setComponents(Binding.NO_COMPONENTS);
 			RecordComponent[] components = this.referenceContext.recordComponents;
 			int length = components.length;
 			RecordComponentBinding[] rcbs = length == 0 ? Binding.NO_COMPONENTS : new RecordComponentBinding[length];

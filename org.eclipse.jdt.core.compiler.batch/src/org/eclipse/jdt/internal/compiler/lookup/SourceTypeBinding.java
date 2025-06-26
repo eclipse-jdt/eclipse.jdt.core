@@ -2421,6 +2421,21 @@ public RecordComponentBinding[] setComponents(RecordComponentBinding[] component
 			annotatedType.components = components;
 		}
 	}
+
+	for (RecordComponentBinding component : components) {
+		for (FieldBinding field : this.fields) {
+			if (CharOperation.equals(field.name, component.name) && field.type == null) { // field got built before record component resolution
+				field.type = component.type;
+				field.modifiers |= component.modifiers & ExtraCompilerModifiers.AccGenericSignature;
+				field.tagBits |= component.tagBits & (TagBits.AnnotationNullMASK | TagBits.AnnotationOwningMASK);
+				if ((component.tagBits & TagBits.HasMissingType) != 0)
+					field.tagBits |= TagBits.HasMissingType;
+				RecordComponent componentDecl = component.sourceRecordComponent();
+				if (componentDecl != null &&  componentDecl.annotations != null)
+					ASTNode.copyRecordComponentAnnotations(this.scope, field, componentDecl.annotations);
+			}
+		}
+	}
 	return this.components = components;
 }
 
