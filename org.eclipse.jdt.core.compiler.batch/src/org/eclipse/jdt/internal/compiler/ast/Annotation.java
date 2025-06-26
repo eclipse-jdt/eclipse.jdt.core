@@ -965,7 +965,19 @@ public abstract class Annotation extends Expression {
 		int defaultNullness = (int)(tagBits & Binding.NullnessDefaultMASK);
 		tagBits &= ~Binding.NullnessDefaultMASK;
 		CompilerOptions compilerOptions = scope.compilerOptions();
-		if ((tagBits & TagBits.AnnotationDeprecated) != 0 && compilerOptions.complianceLevel >= ClassFileConstants.JDK9 && !compilerOptions.storeAnnotations) {
+		/* In cases like this, the this.recipient is null
+		 * public @interface MyAnnot {
+		 *   Deprecated annot() default @Deprecated();
+		 * }
+		 * and difficult to distinguish between the above and
+		 * @Deprecated
+		 * Deprecated annot();
+		 *
+		 */
+		if (this.recipient != null
+				&& (tagBits & TagBits.AnnotationDeprecated) != 0
+				&& compilerOptions.complianceLevel >= ClassFileConstants.JDK9
+				&& !compilerOptions.storeAnnotations) {
 			this.recipient.setAnnotations(new AnnotationBinding[] {this.compilerAnnotation}, true); // force storing enhanced deprecation
 		}
 
