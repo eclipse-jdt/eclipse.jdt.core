@@ -3623,6 +3623,10 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					this.nestedEngine.startPosition = name.getStartPosition();
 					this.nestedEngine.endPosition = name.getStartPosition() + name.getLength();
 				}
+				if (prefix.contains(".")) {
+					this.nestedEngine.qualifiedCompletionToken = prefix.toCharArray();
+					this.nestedEngine.insideQualifiedReference = true;
+				}
 				this.nameEnvironment.findPackages(prefix.toCharArray(), this.nestedEngine);
 			}
 		}
