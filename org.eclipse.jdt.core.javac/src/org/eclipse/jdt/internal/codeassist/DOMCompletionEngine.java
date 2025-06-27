@@ -4601,8 +4601,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		relevance += (isInQualifiedName || res.getRequiredProposals() != null || inJavadoc ? 0 : RelevanceUtils.computeRelevanceForQualification(new String(res.getCompletion()).indexOf('.') >= 0, this.prefix, this.qualifiedPrefix));
 		relevance += RelevanceConstants.R_NON_RESTRICTED;
 		relevance += RelevanceUtils.computeRelevanceForInheritance(this.qualifyingType, binding);
-		relevance += ((isInQualifiedName && !staticOnly() && !Modifier.isStatic(binding.getModifiers())) || (inJavadoc && !res.isConstructor()) ? RelevanceConstants.R_NON_STATIC : 0) +
-				(binding instanceof IVariableBinding field && field.isEnumConstant() ? RelevanceConstants.R_ENUM + RelevanceConstants.R_ENUM_CONSTANT : 0);
+		relevance += !Modifier.isStatic(binding.getModifiers()) && ((isInQualifiedName && !staticOnly()) || (inJavadoc && !res.isConstructor())) ? RelevanceConstants.R_NON_STATIC : 0;
+		relevance += binding instanceof IVariableBinding field && field.isEnumConstant() ? RelevanceConstants.R_ENUM + RelevanceConstants.R_ENUM_CONSTANT : 0;
 		res.setRelevance(relevance);
 		if (res.getRequiredProposals() != null) {
 			for (CompletionProposal req : res.getRequiredProposals()) {
