@@ -1830,4 +1830,36 @@ string.\""");
 				},
 				"Hello");
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=561978
+	// Text block with the \<line-terminator> distorts line numbers for Unix-style line delimiters
+	public void testBug561978() {
+		runConformTest(true,
+				new String[] {
+						"X.java",
+						"""
+						/*  1 */ public class X {
+						/*  2 */
+						/*  3 */     public static void main(String[] args) {
+						/*  4 */
+						/*  5 */         String text = \"\"\"
+						                     Lorem ipsum dolor sit amet, consectetur adipiscing \\
+						                     elit, sed do eiusmod tempor incididunt ut labore \\
+						                     et dolore magna aliqua.\\
+						                     \"\"\";
+						/* 10 */
+						/* 11 */         	throw new RuntimeException(\"This is line 11.\");
+						/* 12 */    }
+						/* 13 */ }
+						"""
+				},
+				null,
+				getCompilerOptions(),
+				"",
+				"",
+				"Exception in thread \"main\" java.lang.RuntimeException: This is line 11.\n" +
+						"	at X.main(X.java:11)",
+						new String[] {"--enable-preview"},
+						new JavacTestOptions("-source 14 --enable-preview"));
+	}
 }
