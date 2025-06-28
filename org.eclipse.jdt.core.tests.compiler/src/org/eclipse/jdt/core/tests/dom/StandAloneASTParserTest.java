@@ -1978,6 +1978,52 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
         if (6 != lineOfCharAt156) {
             throw new AssertionError();
         }
-}
+	}
 
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2462
+	// Incorrect line numbers when parsing text blocks
+	public void testIssue2462() throws JavaModelException {
+        String contents = """
+				public class TestWrongLineNumber {
+				    public static void main(String[] args) {
+				        String path = System.getenv("Path");
+				        String text = \"\"\"
+				                 text0 \\
+				                 text1 \\
+				                 text2 \\
+				                \"\"\";
+				        System.out.println(path.concat(text));
+				    }
+				}
+        		""";
+
+        ASTParser parser = ASTParser.newParser(AST_JLS_LATEST);
+        parser.setResolveBindings(true);
+        parser.setStatementsRecovery(true);
+        parser.setBindingsRecovery(true);
+        parser.setKind(ASTParser.K_COMPILATION_UNIT);
+        parser.setEnvironment(new String[0], new String[0], null, false);
+        parser.setSource(contents.toCharArray());
+        parser.setUnitName("TestTextBlocks");
+
+        CompilationUnit result = (CompilationUnit) parser.createAST(null);
+        assertTrue("Should be a compilation unit", result != null);
+
+        List<TypeDeclaration> listOfTypes = result.types();
+        for (TypeDeclaration td : listOfTypes) {
+            MethodDeclaration[] methods = td.getMethods();
+            for (MethodDeclaration m : methods) {
+                Block body = m.getBody();
+                List statments = body.statements();
+                for (var currentStatement : statments) {
+                    if (currentStatement instanceof ExpressionStatement) {
+                        ExpressionStatement es = (ExpressionStatement) currentStatement;
+                        int lineNumber = result.getLineNumber(es.getStartPosition());
+                        if (9 != lineNumber)
+                        	 throw new AssertionError();
+                    }
+                }
+            }
+        }
+	}
 }
