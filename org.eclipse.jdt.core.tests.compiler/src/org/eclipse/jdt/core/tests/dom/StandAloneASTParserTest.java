@@ -38,6 +38,10 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		super(name);
 	}
 
+	static {
+		// TESTS_NAMES = new String [] { "testBug570472"};
+	}
+
 	private static final int AST_JLS_LATEST = AST.getJLSLatest();
 
 	public ASTNode runConversion(
@@ -1945,5 +1949,35 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
         assertNotNull(annotations);
 }
 
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=570472
+	// Incorrect line number in Text Block having '\"' before endline
+	public void testBug570472() throws JavaModelException {
+        String contents = """
+				public class TestTextBlocks {
+
+				  public void str() {
+				    String question2 = \"\"\"
+				              \\"What's the point, really\\"
+				                            ?\"\"\";
+				  }
+				}
+        		""";
+
+        ASTParser parser = ASTParser.newParser(AST_JLS_LATEST);
+        parser.setResolveBindings(true);
+        parser.setStatementsRecovery(true);
+        parser.setBindingsRecovery(true);
+        parser.setKind(ASTParser.K_COMPILATION_UNIT);
+        parser.setEnvironment(new String[0], new String[0], null, false);
+        parser.setSource(contents.toCharArray());
+        parser.setUnitName("TestTextBlocks");
+        ASTNode node = parser.createAST(null);
+        assertTrue("Should be a compilation unit", node instanceof CompilationUnit);
+        CompilationUnit cu = (CompilationUnit) node;
+        int lineOfCharAt156 = cu.getLineNumber(156);
+        if (6 != lineOfCharAt156) {
+            throw new AssertionError();
+        }
+}
 
 }
