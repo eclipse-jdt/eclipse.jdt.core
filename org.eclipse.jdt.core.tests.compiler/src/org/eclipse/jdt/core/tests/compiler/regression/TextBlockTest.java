@@ -1862,4 +1862,54 @@ string.\""");
 						new String[] {"--enable-preview"},
 						new JavacTestOptions("-source 14 --enable-preview"));
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=570719
+	// Text blocks: '\<line-terminator>' after '\s' compiled to "\\\n" instead of to ""
+	public void testBug570719() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							public static void main(String[] args) {
+
+								System.out.println(\"\"\"
+										text \\s\\
+										block
+										\"\"\");
+
+								System.out.println(\"\"\"
+										text \\s
+										block\\
+										!!!
+										\"\"\");
+
+								System.out.println(\"\"\"
+										text \\
+										block
+										\"\"\");
+
+								System.out.println(\"\"\"
+										text \\
+										block \\s
+										!!!
+										\"\"\");
+								System.out.println("Done");
+							}
+						}
+
+						"""
+				},
+				"text  block\n" +
+				"\n" +
+				"text  \n" +
+				"block!!!\n" +
+				"\n" +
+				"text block\n" +
+				"\n" +
+				"text block  \n" +
+				"!!!\n" +
+				"\n" +
+				"Done");
+	}
 }
