@@ -394,7 +394,8 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 		// add classfile info amongst children
 		PackageContent children = rawPackageInfo.get(pkgName);
 		if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(className)) {
-			String nameWithoutExtension = className.substring(lastSeparator + 1, className.length() - 6);
+			// It could be a .class or a .sig in case the binaries is from a particular release of a JRT system
+			String nameWithoutExtension = className.substring(lastSeparator + 1, className.lastIndexOf('.'));
 			children.javaClasses().add(nameWithoutExtension);
 		} else {
 			children.resources().add(className);
