@@ -9587,6 +9587,30 @@ public final class CompletionEngine
 				// Standard proposal
 				if(!this.isIgnored(CompletionProposal.METHOD_REF, missingElements != null) && (this.assistNodeInJavadoc & CompletionOnJavadoc.ONLY_INLINE_TAG) == 0) {
 					InternalCompletionProposal proposal =  createProposal(completionOnReferenceExpressionName ? CompletionProposal.METHOD_NAME_REFERENCE : CompletionProposal.METHOD_REF, this.actualCompletionPosition);
+
+					if (method.declaringClass.isRecord() && method instanceof SyntheticMethodBinding smb) {
+						MethodBinding[] overridden = null;
+						switch(smb.purpose) {
+							case SyntheticMethodBinding.RecordOverrideToString:
+								overridden = scope.getJavaLangObject().getMethods(TypeConstants.TOSTRING);
+								break;
+							case SyntheticMethodBinding.RecordOverrideHashCode:
+								overridden = scope.getJavaLangObject().getMethods(TypeConstants.HASHCODE);
+								break;
+							case SyntheticMethodBinding.RecordOverrideEquals:
+								overridden = scope.getJavaLangObject().getMethods(TypeConstants.EQUALS);
+								break;
+							case SyntheticMethodBinding.RecordComponentReadAccess:
+								proposal.flagRecordComponentAccessor();
+								break;
+							default:
+								break;
+						}
+						if (overridden != null && overridden.length > 0) {
+							method = overridden[0];
+						}
+					}
+
 					proposal.setBinding(method);
 					proposal.setDeclarationSignature(getSignature(method.declaringClass));
 					proposal.setSignature(getSignature(method));
