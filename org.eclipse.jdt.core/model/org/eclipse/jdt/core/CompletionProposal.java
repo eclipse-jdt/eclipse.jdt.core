@@ -1719,7 +1719,7 @@ public class CompletionProposal {
 	 * For other kinds of completion proposals, this method returns
 	 * <code>false</code>.
 	 *
-	 * @return <code>true</code> if the proposal is a constructor.
+	 * @return <code>true</code> if the proposal is a record component accessor.
 	 * @since 3.43
 	 */
 	public boolean isRecordComponentAccessor() {
