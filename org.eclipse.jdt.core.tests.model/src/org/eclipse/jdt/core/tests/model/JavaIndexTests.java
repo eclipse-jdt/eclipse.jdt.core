@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.ClasspathContainerInitializer;
@@ -181,7 +182,8 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 	public void testUseIndexInternalJarAfterRestart() throws IOException, CoreException {
 		String indexFilePath = getExternalResourcePath("Test.index");
 		String jarFilePath = "/P/Test.jar";
-		String fullJarPath = getWorkspacePath() + jarFilePath;
+		String workspacePath = getWorkspacePath();
+		String fullJarPath = Paths.get(workspacePath, jarFilePath).toString();
 		try {
 			IJavaProject p = createJavaProject("P");
 			createJar(new String[] {
@@ -779,7 +781,7 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 	}
 
 	// Test that it works if the index file is in the jar file
-	public void testIndexInJar() throws IOException, CoreException {
+	public void testIndexInJar() throws Exception {
 		String indexFilePath = getExternalResourcePath("Test.index");
 		String jarFilePath = getExternalResourcePath("Test.jar");
 		String indexZipPath =  getExternalResourcePath("TestIndex.zip");
@@ -804,7 +806,7 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 
 			IndexManager indexManager = JavaModelManager.getIndexManager();
 			Index index = indexManager.getIndex(libPath, false, false);
-			assertEquals(url, index.getIndexLocation().getUrl().toString());
+			assertEquals(URIUtil.fromString(url).toURL().toString(), index.getIndexLocation().getUrl().toString());
 
 			search("Test", TYPE, DECLARATIONS, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaElement[]{p}));
 			assertSearchResults(getExternalPath() + "Test.jar pkg.Test");
@@ -815,7 +817,7 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 
 			this.resultCollector = new JavaSearchResultCollector();
 			index = indexManager.getIndex(libPath, false, false);
-			assertEquals(url, index.getIndexLocation().getUrl().toString());
+			assertEquals(URIUtil.fromString(url).toURL().toString(), index.getIndexLocation().getUrl().toString());
 			search("Test", TYPE, DECLARATIONS, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaElement[]{p}));
 			assertSearchResults(getExternalPath() + "Test.jar pkg.Test");
 		} finally {
