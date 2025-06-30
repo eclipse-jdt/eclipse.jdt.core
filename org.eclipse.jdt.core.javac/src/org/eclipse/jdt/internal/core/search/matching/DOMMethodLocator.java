@@ -376,13 +376,15 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		return DOMTypeReferenceLocator.TYPE_PARAMS_MATCH;
 	}
 
-	private IBinding findPossiblyUnresolvedBindingForType(ASTNode node, String patternSig) {
-		IBinding patternBinding = JdtCoreDomPackagePrivateUtility.findBindingForType(node, patternSig);
+	private ITypeBinding findPossiblyUnresolvedBindingForType(ASTNode node, String patternSig) {
+		ITypeBinding patternBinding = JdtCoreDomPackagePrivateUtility.findBindingForType(node, patternSig) instanceof ITypeBinding ptb
+				? ptb : null;
 		if( patternBinding == null ) {
 			boolean plusOrMinus = patternSig.startsWith("+") || patternSig.startsWith("-");
 			String safePatternString = plusOrMinus ? patternSig.substring(1) : patternSig;
 			if( safePatternString.startsWith("Q")) {
-				patternBinding = JdtCoreDomPackagePrivateUtility.findUnresolvedBindingForType(node, safePatternString);
+				patternBinding = JdtCoreDomPackagePrivateUtility.findBindingForType(node, patternSig) instanceof ITypeBinding ptb
+					? ptb : null;
 			}
 		}
 		return patternBinding;
@@ -809,14 +811,16 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		return toResponse(level);
 	}
 	private int findWeakerLevel(int i, int j) {
+		int levelI = i & PatternLocator.MATCH_LEVEL_MASK;
+		int levelJ = j & PatternLocator.MATCH_LEVEL_MASK;
 		int[] ints = {DOMPatternLocator.IMPOSSIBLE_MATCH,
 				DOMPatternLocator.POSSIBLE_MATCH,
 				DOMPatternLocator.INACCURATE_MATCH,
 				DOMPatternLocator.ERASURE_MATCH,
 				DOMPatternLocator.ACCURATE_MATCH};
 		List<Integer> list = Arrays.stream(ints).boxed().collect(Collectors.toList());
-		int iIndex = list.indexOf(i);
-		int jIndex = list.indexOf(j);
+		int iIndex = list.indexOf(levelI);
+		int jIndex = list.indexOf(levelJ);
 		return iIndex > jIndex ? j : i;
 	}
 

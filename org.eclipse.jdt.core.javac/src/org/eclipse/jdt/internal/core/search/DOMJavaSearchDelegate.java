@@ -303,33 +303,40 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 			var res = new MethodReferenceMatch(enclosing, accuracy, method.getName().getStartPosition(),
 					method.getStartPosition() + method.getLength() - method.getName().getStartPosition(), false,
 					isSynthetic, (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node), getParticipant(locator), resource);
+			res.setRaw(mb != null && mb.isRawMethod());
 			res.setLocalElement(DOMASTNodeUtils.getLocalJavaElement(node));
 			return res;
 		}
 		if (node instanceof SuperMethodInvocation method) {
+			IMethodBinding mb = method.resolveMethodBinding();
 			var res = new MethodReferenceMatch(DOMASTNodeUtils.getEnclosingJavaElement(node.getParent()), accuracy,
 					method.getName().getStartPosition(),
 					method.getStartPosition() + method.getLength() - method.getName().getStartPosition(), false,
-					method.resolveMethodBinding().isSynthetic(), (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node), getParticipant(locator),
+					mb.isSynthetic(), (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node), getParticipant(locator),
 					resource);
+			res.setRaw(mb != null && mb.isRawMethod());
 			res.setLocalElement(DOMASTNodeUtils.getLocalJavaElement(node));
 			return res;
 		}
 		if (node instanceof ClassInstanceCreation newInstance) {
+			IMethodBinding mb = newInstance.resolveConstructorBinding();
 			var res = new MethodReferenceMatch(
 					DOMASTNodeUtils.getEnclosingJavaElement(
 							node.getParent().getParent()) /* we don't want the variable decl */,
 					accuracy, newInstance.getStartPosition(), newInstance.getLength(), true,
-					newInstance.resolveConstructorBinding().isSynthetic(), (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node),
+					mb.isSynthetic(), (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node),
 					getParticipant(locator), resource);
+			res.setRaw(mb != null && mb.isRawMethod());
 			res.setLocalElement(DOMASTNodeUtils.getLocalJavaElement(node));
 			return res;
 		}
 		if (node instanceof ConstructorInvocation newInstance) {
+			IMethodBinding mb = newInstance.resolveConstructorBinding();
 			var res = new MethodReferenceMatch(DOMASTNodeUtils.getEnclosingJavaElement(node), accuracy,
 					newInstance.getStartPosition(), newInstance.getLength(), true,
-					newInstance.resolveConstructorBinding().isSynthetic(), (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node),
+					mb.isSynthetic(), (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node),
 					getParticipant(locator), resource);
+			res.setRaw(mb != null && mb.isRawMethod());
 			res.setLocalElement(DOMASTNodeUtils.getLocalJavaElement(node));
 			return res;
 		}
@@ -339,22 +346,27 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 			var res = new MethodReferenceMatch(enclosing, accuracy, method.getName().getStartPosition(),
 					method.getStartPosition() + method.getLength() - method.getName().getStartPosition(), false,
 					isSynthetic, (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node), getParticipant(locator), resource);
+			res.setRaw(mb != null && mb.isRawMethod());
 			res.setLocalElement(DOMASTNodeUtils.getLocalJavaElement(node));
 			return res;
 		}
 		if (node instanceof SuperConstructorInvocation newInstance) {
+			IMethodBinding mb = newInstance.resolveConstructorBinding();
 			var res = new MethodReferenceMatch(DOMASTNodeUtils.getEnclosingJavaElement(node), accuracy,
 					newInstance.getStartPosition(), newInstance.getLength(), true,
-					newInstance.resolveConstructorBinding().isSynthetic(), (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node),
+					mb.isSynthetic(), (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node),
 					getParticipant(locator), resource);
+			res.setRaw(mb != null && mb.isRawMethod());
 			res.setLocalElement(DOMASTNodeUtils.getLocalJavaElement(node));
 			return res;
 		}
 		if (node instanceof CreationReference constructorRef) {
+			IMethodBinding mb = constructorRef.resolveMethodBinding();
 			var res = new MethodReferenceMatch(DOMASTNodeUtils.getEnclosingJavaElement(node), accuracy,
 					constructorRef.getStartPosition(), constructorRef.getLength(), true,
-					constructorRef.resolveMethodBinding().isSynthetic(), (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node), getParticipant(locator),
+					mb.isSynthetic(), (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node), getParticipant(locator),
 					resource);
+			res.setRaw(mb != null && mb.isRawMethod());
 			res.setLocalElement(DOMASTNodeUtils.getLocalJavaElement(node));
 			return res;
 		}
