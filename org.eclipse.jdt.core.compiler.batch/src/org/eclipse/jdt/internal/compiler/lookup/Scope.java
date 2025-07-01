@@ -1786,10 +1786,8 @@ public abstract class Scope {
 					case ProblemReasons.TypeParameterArityMismatch :
 						return problemMethod;
 				}
-			} else if (foundSize == 0 && singlePrivateMethod != null) {
-				// if there is only one private method, we want to report that it is not visible.
-				return new ProblemMethodBinding(singlePrivateMethod, selector, singlePrivateMethod.parameters, ProblemReasons.NotVisible);
 			}
+
 			// abstract classes may get a match in interfaces; for non abstract
 			// classes, reduces secondary errors since missing interface method
 			// error is already reported
@@ -1809,7 +1807,13 @@ public abstract class Scope {
 				}
 				return interfaceMethod;
 			}
-			if (found.size == 0) return null;
+			if (found.size == 0) {
+				if (singlePrivateMethod != null) {
+					// if there is only one private method, we want to report that it is not visible.
+					return new ProblemMethodBinding(singlePrivateMethod, selector, singlePrivateMethod.parameters, ProblemReasons.NotVisible);
+				}
+				return null;
+			}
 			if (problemMethod != null) return problemMethod;
 
 			// still no match; try to find a close match when the parameter
