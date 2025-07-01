@@ -6106,6 +6106,27 @@ public void test172c() throws Exception {
 		----------
 		""");
 }
+// regression from https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4081
+public void testGH4149() {
+	runConformTest(new String[] {
+			"ReproducerDiamondMethod.java",
+			"""
+			public class ReproducerDiamondMethod extends A implements B {
+				void callIt() {
+					init();
+				}
+			}
+
+			class A {
+				private void init() {};
+			}
+
+			interface B {
+				default void init() {};
+			}
+			"""
+	});
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=308245
 public void test173() throws Exception {
 	this.runConformTest(
