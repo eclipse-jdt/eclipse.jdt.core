@@ -799,6 +799,8 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 			IJavaProject p = createJavaProject("P");
 			Path libPath = new Path(jarFilePath);
 			String url = "jar:file:"+indexZipPath+"!/Test.index";
+			if (url.indexOf('\\') != -1)
+				url = url.replace('\\', '/');
 			IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.INDEX_LOCATION_ATTRIBUTE_NAME, url);
 			IClasspathEntry entry = JavaCore.newLibraryEntry(libPath, null, null, null, new IClasspathAttribute[]{attribute}, false);
 			setClasspath(p, new IClasspathEntry[] {entry});
@@ -806,7 +808,7 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 
 			IndexManager indexManager = JavaModelManager.getIndexManager();
 			Index index = indexManager.getIndex(libPath, false, false);
-			assertEquals(URIUtil.fromString(url).toURL().toString(), index.getIndexLocation().getUrl().toString());
+			assertEquals(URIUtil.fromString(url).toString(), index.getIndexLocation().getUrl().toString());
 
 			search("Test", TYPE, DECLARATIONS, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaElement[]{p}));
 			assertSearchResults(getExternalPath() + "Test.jar pkg.Test");

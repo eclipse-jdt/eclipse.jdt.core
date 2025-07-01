@@ -1783,6 +1783,10 @@ public class ClasspathEntry implements IClasspathEntry {
 			if (IClasspathAttribute.INDEX_LOCATION_ATTRIBUTE_NAME.equals(attrib.getName())) {
 				String value = attrib.getValue();
 				try {
+					if (value.indexOf('\\') != -1) {
+						// normalize the path with '/' as URI has a problem with the format file:///c:\\abc\\etc
+						value = value.replace('\\', '/');
+					}
 					URI uri = URIUtil.fromString(value);
 					return uri.toURL();
 				} catch (MalformedURLException | URISyntaxException e) {
