@@ -258,7 +258,7 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 		String completeBehind = "lr.toStrin";
 		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-		assertResults("toString[METHOD_REF]{toString(), LColoredPoint;, ()Ljava.lang.String;, toString, null, 60}",
+		assertResults("toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}",
 				requestor.getResults());
 
 	}
