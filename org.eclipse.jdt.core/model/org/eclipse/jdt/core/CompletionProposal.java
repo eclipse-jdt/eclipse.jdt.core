@@ -1713,8 +1713,6 @@ public class CompletionProposal {
 	 * <ul>
 	 * <li><code>METHOD_REF</code> - return <code>true</code>
 	 * if the referenced method is a record component accessor</li>
-	 * 	<li><code>METHOD_DECLARATION</code> - return <code>true</code>
-	 * if the declared method is a record component accessor</li>
 	 * </ul>
 	 * For other kinds of completion proposals, this method returns
 	 * <code>false</code>.
