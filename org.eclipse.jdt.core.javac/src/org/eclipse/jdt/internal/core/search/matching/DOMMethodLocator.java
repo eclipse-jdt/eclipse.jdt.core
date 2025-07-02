@@ -670,6 +670,9 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		}
 
 		int invocOrDeclLevel = invocationLevel == IMPOSSIBLE_MATCH ? declarationLevel : invocationLevel;
+		if (invocationBinding.isRawMethod() && (this.locator.pattern.hasTypeArguments() || this.locator.pattern.hasTypeParameters())) {
+			invocOrDeclLevel = findWeakerLevel(invocOrDeclLevel, ERASURE_MATCH);
+		}
 		// receiver type
 		if (this.pattern.declaringSimpleName == null && this.pattern.declaringQualification == null) {
 			// since any declaring class will do
@@ -1110,7 +1113,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 	public void reportSearchMatch(MatchLocator locator, ASTNode node, SearchMatch match) throws CoreException {
 		if( preferParamaterizedNode() ) {
 			if( node instanceof MethodInvocation iv) {
-				List l = iv.typeArguments();
+				List<?> l = iv.typeArguments();
 				if( l != null && l.size() > 0 ) {
 					int start = ((ASTNode)l.get(0)).getStartPosition();
 					if( start > 0 ) {
