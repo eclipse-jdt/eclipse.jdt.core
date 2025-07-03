@@ -409,7 +409,9 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 						.subList(1, stmt.fragments().size())
 						.stream()
 						.map(VariableDeclarationFragment::resolveBinding)
+						.filter(x -> x != null)
 						.map(IVariableBinding::getJavaElement)
+						.filter(x -> x != null)
 						.toArray(IJavaElement[]::new));
 			}
 			if (node.getLocationInParent() == FieldDeclaration.TYPE_PROPERTY && node.getParent() instanceof FieldDeclaration stmt && stmt.fragments().size() > 1) {
@@ -417,7 +419,9 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 						.subList(1, stmt.fragments().size())
 						.stream()
 						.map(VariableDeclarationFragment::resolveBinding)
+						.filter(x -> x != null)
 						.map(IVariableBinding::getJavaElement)
+						.filter(x -> x != null)
 						.toArray(IJavaElement[]::new));
 			}
 			return ret;
