@@ -1126,6 +1126,14 @@ public class DOMMethodLocator extends DOMPatternLocator {
 			rule |= SearchPattern.R_EQUIVALENT_MATCH | SearchPattern.R_ERASURE_MATCH;
 			match.setRule(rule);
 		}
+		if (DOMASTNodeUtils.getBinding(node) instanceof IMethodBinding methodBinding
+			&& (methodBinding.isRawMethod() || methodBinding.getDeclaringClass().isRawType())
+			&& (pattern.hasMethodArguments() || pattern.hasTypeArguments())) {
+			int rule = match.getRule();
+			rule &= ~SearchPattern.R_FULL_MATCH;
+			rule |= SearchPattern.R_EQUIVALENT_MATCH | SearchPattern.R_ERASURE_MATCH;
+			match.setRule(rule);
+		}
 		if( preferParamaterizedNode() ) {
 			if( node instanceof MethodInvocation iv) {
 				List<?> l = iv.typeArguments();
