@@ -23,11 +23,14 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceProxy;
 import org.eclipse.core.resources.IResourceProxyVisitor;
@@ -60,6 +63,7 @@ import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ICompilerFactory;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -68,9 +72,11 @@ import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.CompilationGroup;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.osgi.util.NLS;
 
 /**
  * The abstract superclass of Java builders.
@@ -155,7 +161,7 @@ public void acceptResult(CompilationResult result) {
 	// & additional types and report problems.
 
 	// In Incremental mode, when writing out a class file we need to compare it
-	// against the previous file, remembering if structural changes occured.
+	// against the previous file, remembering if structural changes occurred.
 	// Before reporting the new problems, we need to update the problem count &
 	// remove the old problems. Plus delete additional class files that no longer exist.
 
@@ -196,11 +202,11 @@ public void acceptResult(CompilationResult result) {
 			// Look for a possible collision, if one exists, report an error but do not write the class file
 			if (isNestedType) {
 				String qualifiedTypeName = new String(classFile.outerMostEnclosingClassFile().fileName());
-				if (this.newState.isDuplicateLocator(qualifiedTypeName, typeLocator))
+				if (this.newState.isDuplicateLocator(qualifiedTypeName, typeLocator,compilationUnit.sourceLocation.release))
 					continue;
 			} else {
 				String qualifiedTypeName = new String(classFile.fileName()); // the qualified type name "p1/p2/A"
-				if (this.newState.isDuplicateLocator(qualifiedTypeName, typeLocator)) {
+				if (this.newState.isDuplicateLocator(qualifiedTypeName, typeLocator,compilationUnit.sourceLocation.release)) {
 					if (duplicateTypeNames == null)
 						duplicateTypeNames = new ArrayList();
 					duplicateTypeNames.add(compoundName);
@@ -226,7 +232,7 @@ public void acceptResult(CompilationResult result) {
 					}
 					continue;
 				}
-				this.newState.recordLocatorForType(qualifiedTypeName, typeLocator);
+				this.newState.recordLocatorForType(qualifiedTypeName, typeLocator,compilationUnit.sourceLocation.release);
 				if (result.checkSecondaryTypes && !qualifiedTypeName.equals(compilationUnit.initialTypeName))
 					acceptSecondaryType(classFile);
 			}
@@ -427,18 +433,74 @@ protected void compile(SourceFile[] units, SourceFile[] additionalUnits, boolean
 		for (int i = 0; i < toAdd; i++)
 			additionalUnits[length + i] = iterator.next();
 	}
-	String[] initialTypeNames = new String[units.length];
-	for (int i = 0, l = units.length; i < l; i++) {
-		char[] moduleName = units[i].getModuleName();
-		initialTypeNames[i] = (moduleName == null)
-				? units[i].initialTypeName
-				: new StringBuilder(60).append(moduleName).append(':').append(units[i].initialTypeName).toString();
-	}
-	this.nameEnvironment.setNames(initialTypeNames, additionalUnits);
 	this.notifier.checkCancel();
+	boolean warnAboutMissingReleaseFlag = false;
 	try {
 		this.inCompiler = true;
-		this.compiler.compile(units);
+		Map<Integer, List<SourceFile>> collect = Arrays.stream(units)
+				.collect(Collectors.groupingBy(sf -> sf.sourceLocation.release, TreeMap::new, Collectors.toList()));
+		for (Entry<Integer, List<SourceFile>> entry : collect.entrySet()) {
+			long oldTarget = this.compiler.options.targetJDK;
+			long oldCompliance = this.compiler.options.complianceLevel;
+			long oldSource = this.compiler.options.sourceLevel;
+			boolean oldRelease = this.compiler.options.release;
+			INameEnvironment oldEnv = this.compiler.lookupEnvironment.nameEnvironment;
+			try {
+				int release = entry.getKey();
+				if (release >= JavaProject.FIRST_MULTI_RELEASE) {
+					long currentTarget = CompilerOptions.releaseToJDKLevel(release);
+					this.compiler.options.targetJDK = currentTarget;
+					this.compiler.options.complianceLevel = currentTarget;
+					this.compiler.options.sourceLevel = currentTarget;
+					this.compiler.options.release = true;
+					try {
+						this.compiler.lookupEnvironment.nameEnvironment = this.javaBuilder.getNameEnvironment(release);
+					} catch (CoreException e) {
+						List<IContainer> list = entry.getValue().stream().map(sf -> sf.sourceLocation.sourceFolder)
+								.distinct().toList();
+						for (IContainer container : list) {
+							createProblemFor(container, null,
+									NLS.bind(Messages.AbstractImageBuilder_env_failed,
+											new Object[] { release, e.getStatus()}),
+									JavaCore.ERROR);
+						}
+						continue;
+					}
+					if (oldTarget >= currentTarget) {
+						List<IContainer> list = entry.getValue().stream().map(sf -> sf.sourceLocation.sourceFolder)
+								.distinct().toList();
+						for (IContainer container : list) {
+							createProblemFor(container, null,
+									NLS.bind(Messages.AbstractImageBuilder_mr_missmatch_main,
+											new Object[] { container.getProjectRelativePath().toPortableString(),
+													release, CompilerOptions.versionFromJdkLevel(oldTarget) }),
+									JavaCore.ERROR);
+						}
+					}
+					if (!oldRelease && !warnAboutMissingReleaseFlag) {
+							for (SourceFile source : entry.getValue()) {
+								IProject project = source.sourceLocation.sourceFolder.getProject();
+								createProblemFor(project, null,
+										NLS.bind(Messages.AbstractImageBuilder_target_required,
+												new Object[] { project.getProjectRelativePath().toPortableString(),
+														release, CompilerOptions.versionFromJdkLevel(oldTarget) }),
+										JavaCore.ERROR);
+								warnAboutMissingReleaseFlag = true;
+								break;
+							}
+					}
+				}
+				SourceFile[] sourceFiles = entry.getValue().toArray(SourceFile[]::new);
+				this.nameEnvironment.setNames(getInitalTypeNames(sourceFiles),  additionalUnits);
+				this.compiler.compile(sourceFiles);
+			} finally {
+				this.compiler.options.targetJDK = oldTarget;
+				this.compiler.options.complianceLevel = oldCompliance;
+				this.compiler.options.sourceLevel = oldSource;
+				this.compiler.options.release = oldRelease;
+				this.compiler.lookupEnvironment.nameEnvironment = oldEnv;
+			}
+		}
 	} catch (AbortCompilation ignored) {
 		// ignore the AbortCompilcation coming from BuildNotifier.checkCancelWithinCompiler()
 		// the Compiler failed after the user has chose to cancel... likely due to an OutOfMemory error
@@ -448,6 +510,17 @@ protected void compile(SourceFile[] units, SourceFile[] additionalUnits, boolean
 	// Check for cancel immediately after a compile, because the compiler may
 	// have been cancelled but without propagating the correct exception
 	this.notifier.checkCancel();
+}
+
+protected String[] getInitalTypeNames(SourceFile[] units) {
+	String[] initialTypeNames = new String[units.length];
+	for (int i = 0, l = units.length; i < l; i++) {
+		char[] moduleName = units[i].getModuleName();
+		initialTypeNames[i] = (moduleName == null)
+				? units[i].initialTypeName
+				: new StringBuilder(60).append(moduleName).append(':').append(units[i].initialTypeName).toString();
+	}
+	return initialTypeNames;
 }
 
 protected void copyResource(IResource source, IResource destination) throws CoreException {
@@ -540,13 +613,26 @@ protected void finishedWith(String sourceLocator, CompilationResult result, char
 }
 
 protected IContainer createFolder(IPath packagePath, IContainer outputFolder) throws CoreException {
-	if (packagePath.isEmpty()) return outputFolder;
+	if (packagePath.isEmpty()) {
+		createFolder(outputFolder);
+		return outputFolder;
+	}
 	IFolder folder = outputFolder.getFolder(packagePath);
 	if (!folder.exists()) {
 		createFolder(packagePath.removeLastSegments(1), outputFolder);
 		folder.create(IResource.FORCE | IResource.DERIVED, true, null);
 	}
 	return folder;
+}
+
+private void createFolder(IContainer container) throws CoreException {
+	if (container.exists()) {
+		return;
+	}
+	if (container instanceof IFolder folder) {
+		createFolder(container.getParent());
+		folder.create(IResource.FORCE | IResource.DERIVED, true, null);
+	}
 }
 
 @Override
