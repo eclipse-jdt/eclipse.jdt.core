@@ -697,6 +697,7 @@ protected void attachOrphanCompletionNode(){
 				//  if (a instanceof List l) { l.is| Object // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2106
 				if (ifStatement.condition instanceof InstanceOfExpression iof && iof.pattern instanceof TypePattern pattern) {
 					this.currentElement.add(pattern.local, 0);
+					iof.pattern = null;
 				}
 				this.currentElement = this.currentElement.add(ifStatement, 0);
 			}
@@ -3048,7 +3049,7 @@ protected void consumeExitVariableWithInitialization() {
 	if (this.cursorLocation + 1 < variable.initialization.sourceStart ||
 		this.cursorLocation > variable.initialization.sourceEnd) {
 		if (!variable.type.isTypeNameVar(null)) {
-			if (! (variable instanceof LocalDeclaration && ((LocalDeclaration)variable).isTypeNameVar(this.compilationUnit.scope))) {
+			if (! (variable instanceof LocalDeclaration && variable.isTypeNameVar(this.compilationUnit.scope))) {
 				variable.initialization = null;
 			}
 		}

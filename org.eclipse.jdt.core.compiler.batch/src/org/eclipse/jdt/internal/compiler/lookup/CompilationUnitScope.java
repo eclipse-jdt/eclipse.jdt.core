@@ -411,6 +411,11 @@ void sealTypeHierarchy() {
 		sourceType.scope.connectPermittedTypes();
 	}
 }
+void collateRecordComponents() {
+	for (SourceTypeBinding sourceType : this.topLevelTypes) {
+		sourceType.scope.collateRecordComponents();
+	}
+}
 void integrateAnnotationsInHierarchy() {
 	// Only now that all hierarchy information is built we're ready for ...
 	// ... integrating annotations

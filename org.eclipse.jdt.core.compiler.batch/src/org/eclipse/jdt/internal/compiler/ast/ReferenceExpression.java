@@ -265,9 +265,30 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		return (this.binding.isVarargs() ||
 				(isConstructorReference() && (this.receiverType.syntheticOuterLocalVariables() != null || this.shouldCaptureInstance)) ||
 				this.requiresBridges() || // bridges.
+				descriptorEncodesIntersectionType() ||
 				!isDirectCodeGenPossible());
 		// To fix: We should opt for direct code generation wherever possible.
 	}
+
+	private boolean descriptorEncodesIntersectionType() {
+		if (this.descriptor == null || this.descriptor.parameters == null || this.descriptor.parameters.length == 0)
+			return false;
+		for (TypeBinding parameter : this.descriptor.parameters) {
+			if (isIntersectionType(parameter))
+				return true;
+		}
+		return false;
+	}
+
+	private boolean isIntersectionType(TypeBinding parameter) {
+		if (parameter.isIntersectionType() || parameter.isIntersectionType18())
+			return true;
+		if (parameter instanceof TypeVariableBinding tvb) {
+			return isIntersectionType(tvb.upperBound());
+		}
+		return false;
+	}
+
 	private boolean isDirectCodeGenPossible() {
 		if (this.binding != null) {
 			if (isMethodReference() && this.syntheticAccessor == null) {

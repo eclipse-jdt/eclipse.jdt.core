@@ -8458,4 +8458,25 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"Fixed!");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4113
+	// ECJ Internal Error when compiling
+	public void testIssue4113() {
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+				    public static void main(String[] args) {
+				        try {
+				            int length = ((Object[]) null).length;
+			            } catch (NullPointerException npe) {
+			                System.out.println("NPE!");
+			            }
+				    }
+				}
+				"""
+				},
+				"NPE!");
+	}
 }

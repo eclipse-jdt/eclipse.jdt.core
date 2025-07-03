@@ -29,12 +29,16 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.JavaFileObject.Kind;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
+import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
@@ -280,6 +284,38 @@ public class ElementsImpl9 extends ElementsImpl {
 			}
 		} else {
 			throw new UnsupportedOperationException();
+		}
+		return null;
+	}
+	@Override
+	public TypeElement getEnumConstantBody(VariableElement enumConstant) {
+		switch(enumConstant.getKind()) {
+			case ENUM_CONSTANT -> {
+				VariableElementImpl variableImpl = (VariableElementImpl) enumConstant;
+				if (variableImpl._binding instanceof FieldBinding field) {
+					FieldDeclaration sourceField = field.sourceField();
+					if (sourceField == null)
+						return null;
+					if (sourceField.initialization instanceof QualifiedAllocationExpression qualAlloc) {
+						TypeDeclaration decl = qualAlloc.anonymousType;
+						if (decl == null)
+							return null;
+						if (decl.binding == null) {
+							SourceTypeBinding declaringClass = (SourceTypeBinding) field.declaringClass;
+							TypeDeclaration enumTypeDecl = declaringClass.scope.referenceContext;
+							// The following code is copied from BlockScope#addAnonymousType() to force
+							// resolution of the local type binding ahead of a full CU#resolve()
+							BlockScope scope = field.isStatic() ? enumTypeDecl.staticInitializerScope : enumTypeDecl.initializerScope;
+							if (scope != null) {
+								ClassScope anonymousClassScope = new ClassScope(scope, decl);
+								anonymousClassScope.buildAnonymousTypeBinding(declaringClass, declaringClass);
+							}
+						}
+						return decl.binding == null ? null : (TypeElement) this._env.getFactory().newElement(decl.binding);
+					}
+				}
+			}
+			default -> throw new IllegalArgumentException("Argument is not an enum constant");  //$NON-NLS-1$
 		}
 		return null;
 	}

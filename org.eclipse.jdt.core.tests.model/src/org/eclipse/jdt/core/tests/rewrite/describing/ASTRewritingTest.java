@@ -365,6 +365,10 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		return (TypeDeclaration) findAbstractTypeDeclaration(astRoot, simpleTypeName);
 	}
 
+	public static EnumDeclaration findEnumDeclaration(CompilationUnit astRoot, String simpleTypeName) {
+		return (EnumDeclaration) findAbstractTypeDeclaration(astRoot, simpleTypeName);
+	}
+
 	public static AbstractTypeDeclaration findAbstractTypeDeclaration(CompilationUnit astRoot, String simpleTypeName) {
 		List types= astRoot.types();
 		for (int i= 0; i < types.size(); i++) {

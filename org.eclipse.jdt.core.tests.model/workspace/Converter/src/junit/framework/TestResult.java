@@ -126,7 +126,7 @@ public class TestResult extends Object {
 		catch (AssertionFailedError e) {
 			addFailure(test, e);
 		}
-		catch (ThreadDeath e) { // don't catch ThreadDeath by accident
+		catch (Error e) { // No more ThreadDeath - replace with Error
 			throw e;
 		}
 		catch (Throwable e) {

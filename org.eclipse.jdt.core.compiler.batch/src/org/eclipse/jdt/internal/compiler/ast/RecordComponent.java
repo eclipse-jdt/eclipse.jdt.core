@@ -21,8 +21,6 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class RecordComponent extends AbstractVariableDeclaration {
 
@@ -78,21 +76,6 @@ public class RecordComponent extends AbstractVariableDeclaration {
 	@Override
 	public boolean isVarArgs() {
 		return this.type != null &&  (this.type.bits & IsVarArgs) != 0;
-	}
-
-	@Override
-	public void resolve(BlockScope scope) {
-		resolveAnnotations(scope, this.annotations, this.binding);
-		// Check if this declaration should now have the type annotations bit set
-		if (this.annotations != null) {
-			for (Annotation annotation : this.annotations) {
-				TypeBinding resolvedAnnotationType = annotation.resolvedType;
-				if (resolvedAnnotationType != null && (resolvedAnnotationType.getAnnotationTagBits() & TagBits.AnnotationForTypeUse) != 0) {
-					this.bits |= ASTNode.HasTypeAnnotations;
-					break;
-				}
-			}
-		}
 	}
 
 	@Override

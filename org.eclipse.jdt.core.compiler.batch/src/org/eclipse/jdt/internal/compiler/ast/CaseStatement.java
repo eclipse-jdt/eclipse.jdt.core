@@ -333,20 +333,19 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		codeStream.load(this.swich.selector);
 		pattern.generateCode(currentScope, codeStream, patternMatchLabel, matchFailLabel);
 		codeStream.goto_(patternMatchLabel);
-		matchFailLabel.place();
-
-		if (pattern.matchFailurePossible()) {
+		if (matchFailLabel.forwardReferenceCount() > 0) { // bother with generation of restart trampoline IFF match fail is possible
+			matchFailLabel.place();
 			/* We are generating a "thunk"/"trampoline" of sorts now, that flow analysis has no clue about.
 			   We need to manage the live variables manually. Pattern bindings are not definitely
 			   assigned here as we are in the else region.
 		    */
 			final LocalVariableBinding[] bindingsWhenTrue = pattern.bindingsWhenTrue();
-			Stream.of(bindingsWhenTrue).forEach(v->v.recordInitializationEndPC(codeStream.position));
+			Stream.of(bindingsWhenTrue).forEach(v -> v.recordInitializationEndPC(codeStream.position));
 			codeStream.load(this.swich.selector);
 			int caseIndex = this.labelExpressionOrdinal + pattern.getAlternatives().length;
 			codeStream.loadInt(this.swich.nullProcessed ? caseIndex - 1 : caseIndex);
 			codeStream.goto_(this.swich.switchPatternRestartTarget);
-			Stream.of(bindingsWhenTrue).forEach(v->v.recordInitializationStartPC(codeStream.position));
+			Stream.of(bindingsWhenTrue).forEach(v -> v.recordInitializationStartPC(codeStream.position));
 		}
 		patternMatchLabel.place();
 	} else {

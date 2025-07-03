@@ -4638,20 +4638,18 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			pos= doVisit(node, EnumConstantDeclaration.ARGUMENTS_PROPERTY, pos);
 		}
 
-		if (isChanged(node, EnumConstantDeclaration.ANONYMOUS_CLASS_DECLARATION_PROPERTY)) {
-			int kind= getChangeKind(node, EnumConstantDeclaration.ANONYMOUS_CLASS_DECLARATION_PROPERTY);
-			if (kind == RewriteEvent.REMOVED) {
-				try {
-					// 'pos' can be before brace
-					pos= getScanner().getPreviousTokenEndOffset(TerminalToken.TokenNameLBRACE, pos);
-				} catch (CoreException e) {
-					handleException(e);
-				}
-			} else {
-				pos= node.getStartPosition() + node.getLength(); // insert pos
+		int kind= getChangeKind(node, EnumConstantDeclaration.ANONYMOUS_CLASS_DECLARATION_PROPERTY);
+		if (kind == RewriteEvent.REMOVED) {
+			try {
+				// 'pos' can be before brace
+				pos= getScanner().getPreviousTokenEndOffset(TerminalToken.TokenNameLBRACE, pos);
+			} catch (CoreException e) {
+				handleException(e);
 			}
-			rewriteNode(node, EnumConstantDeclaration.ANONYMOUS_CLASS_DECLARATION_PROPERTY, pos, ASTRewriteFormatter.SPACE);
+		} else {
+			pos= node.getStartPosition() + node.getLength(); // insert pos
 		}
+		rewriteNode(node, EnumConstantDeclaration.ANONYMOUS_CLASS_DECLARATION_PROPERTY, pos, ASTRewriteFormatter.SPACE);
 		return false;
 	}
 

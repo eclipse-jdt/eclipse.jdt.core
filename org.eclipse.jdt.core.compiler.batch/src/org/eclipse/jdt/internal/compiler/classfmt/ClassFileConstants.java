@@ -229,7 +229,6 @@ public interface ClassFileConstants {
 	int ATTR_LINES = 0x2; // LineNumberAttribute
 	int ATTR_VARS = 0x4; // LocalVariableTableAttribute
 	int ATTR_STACK_MAP_TABLE = 0x8; // Stack map table attribute
-	int ATTR_STACK_MAP = 0x10; // Stack map attribute: cldc
 	int ATTR_TYPE_ANNOTATION = 0x20; // type annotation attribute (jsr 308)
 	int ATTR_METHOD_PARAMETERS = 0x40; // method parameters attribute (jep 118)
 

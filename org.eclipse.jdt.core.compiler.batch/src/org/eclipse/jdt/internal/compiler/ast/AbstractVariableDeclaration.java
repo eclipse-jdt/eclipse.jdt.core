@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -78,6 +79,10 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 	@Override
 	public InferenceContext18 freshInferenceContext(Scope scope) {
 		return null;
+	}
+
+	public boolean isArgument() {
+		return false;
 	}
 
 	@Override
@@ -162,11 +167,19 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 		return this.name.length == 1 && this.name[0] == '_' && JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(scope.compilerOptions().sourceLevel, scope.compilerOptions().enablePreviewFeatures);
 	}
 
+	public boolean isTypeNameVar(Scope scope) {
+		return this.type != null && this.type.isTypeNameVar(scope);
+	}
+
 	public void getAllAnnotationContexts(int targetType, List<AnnotationContext> allAnnotationContexts) {
 		// do nothing
 	}
 
 	public void getAllAnnotationContexts(int targetType, int parameterIndex, List<AnnotationContext> allAnnotationContexts) {
+		// do nothing
+	}
+
+	public void getAllAnnotationContexts(int targetType, LocalVariableBinding localVariable, List<AnnotationContext> allTypeAnnotationContexts) {
 		// do nothing
 	}
 
