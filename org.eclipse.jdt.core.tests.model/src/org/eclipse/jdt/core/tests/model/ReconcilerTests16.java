@@ -73,6 +73,7 @@ public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
 	// Create project with 16 compliance
+	// This test is only effective with a JDK higher than 16
 	IJavaProject project16 = createJava9Project("Reconciler16");
 	project16.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_16);
 	project16.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
