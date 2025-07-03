@@ -37,7 +37,12 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.Initializer;
+import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
@@ -4995,6 +5000,44 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		rewrite.setUseContextToFilterImplicitImports(true);
 		Type actualType = rewrite.addImport(typeBinding, astRoot2.getAST());
 		assertEquals("pack1.X", actualType.toString());
+	}
+
+	public void testGH814() throws JavaModelException {
+        IPackageFragment pack1 = this.sourceFolder.createPackageFragment("staticprotected", false, null);
+		pack1.createCompilationUnit("ThisIsProtected.java",
+				"""
+				package staticprotected;
+				class ThisIsProtected {
+					public static void thisIsPublic() {}
+				}
+				""" , false, null);
+		pack1.createCompilationUnit("ThisIsPublic.java",
+				"""
+				package staticprotected;
+				public class ThisIsPublic extends ThisIsProtected {
+				}
+				""" , false, null);
+
+		IPackageFragment another = this.sourceFolder.createPackageFragment("another", false, null);
+		ICompilationUnit clientCU = another.createCompilationUnit("Client.java",
+				"""
+				public class Client{
+					static { staticprotected.ThisIsPublic.thisIsPublic(); }
+				}
+				""", false, null);
+		ASTParser parser = ASTParser.newParser(AST_INTERNAL_LATEST);
+		parser.setSource(clientCU);
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(true);
+		// drill in to find the simple name "thisIsPublic":
+		CompilationUnit astRoot2 = (CompilationUnit) parser.createAST(null);
+		Initializer initializer = (Initializer) ((TypeDeclaration) astRoot2.types().get(0)).bodyDeclarations().get(0);
+		Expression expression = ((ExpressionStatement) initializer.getBody().statements().get(0)).getExpression();
+		SimpleName name = ((MethodInvocation) expression).getName();
+		ImportRewrite rewrite = ImportRewrite.create(astRoot2, true);
+		String simpleName = rewrite.addStaticImport(name.resolveBinding());
+		assertEquals("thisIsPublic", simpleName);
+		assertEquals("staticprotected.ThisIsPublic.thisIsPublic", rewrite.getAddedStaticImports()[0]);
 	}
 
 	private ICompilationUnit createCompilationUnit(String packageName, String className) throws JavaModelException {
