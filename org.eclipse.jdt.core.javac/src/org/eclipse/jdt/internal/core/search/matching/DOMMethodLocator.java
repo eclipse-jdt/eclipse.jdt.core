@@ -410,7 +410,9 @@ public class DOMMethodLocator extends DOMPatternLocator {
 			boolean isErasurePattern = isPatternErasureMatch();
 			boolean isEquivPattern = isPatternEquivalentMatch();
 			boolean methodIsRaw = method.isRawMethod();
-			ITypeBinding[] argBindings = method.getTypeArguments();
+			ITypeBinding[] argBindings = node instanceof MethodDeclaration ?
+					method.getTypeParameters() :
+					method.getTypeArguments();
 			char[][] goal = this.locator.pattern.methodArguments;
 
 			if( goal.length > 0 && methodIsRaw && isExactPattern) {
@@ -467,11 +469,14 @@ public class DOMMethodLocator extends DOMPatternLocator {
 			for( int i = 0; i < argBindings.length; i++ ) {
 				// Compare each
 				String goaliString = new String(goal[i]);
-				IBinding patternBinding = findPossiblyUnresolvedBindingForType(node, goaliString);
-				if( argBindings[i].isTypeVariable() && patternBinding == null ) {
+				ITypeBinding patternBinding = findPossiblyUnresolvedBindingForType(node, goaliString);
+				ITypeBinding argBinding = argBindings[i];
+				if(argBinding.isTypeVariable() && patternBinding == null ) {
 					continue;
 				}
-				boolean match = TypeArgumentMatchingUtility.validateSingleTypeArgMatches(isExactPattern, goaliString, patternBinding, argBindings[i]);
+				boolean match =
+					TypeArgumentMatchingUtility.validateSingleTypeArgMatches(isExactPattern, goaliString, patternBinding, argBindings[i])
+					| (bindingIsDeclaration && patternBinding != null && patternBinding.isCastCompatible(argBinding));
 				if( !match ) {
 					if( isExactPattern || (!isErasurePattern && !isEquivPattern)) {
 						return IMPOSSIBLE_MATCH;
@@ -662,8 +667,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		int declarationLevel = IMPOSSIBLE_MATCH;
 		if (invocationLevel == IMPOSSIBLE_MATCH) {
 			declarationBinding = invocationBinding.getMethodDeclaration();
-			if (invocationBinding != declarationBinding)
-				declarationLevel = matchMethod(messageSend, declarationBinding, skipVerif, true);
+			declarationLevel = matchMethod(messageSend, declarationBinding, skipVerif, true);
 			if (declarationLevel == IMPOSSIBLE_MATCH)
 				return IMPOSSIBLE_MATCH;
 			invocationOrDeclarationBinding = declarationBinding;
@@ -1111,6 +1115,17 @@ public class DOMMethodLocator extends DOMPatternLocator {
 	 */
 	@Override
 	public void reportSearchMatch(MatchLocator locator, ASTNode node, SearchMatch match) throws CoreException {
+		if (!(node instanceof MethodDeclaration)
+			&& !(node instanceof AnnotationTypeMemberDeclaration)
+			&& DOMASTNodeUtils.getBinding(node) instanceof IMethodBinding methodBinding
+			&& (methodBinding.isGenericMethod() || methodBinding.isParameterizedMethod())
+			&& pattern.focus instanceof IMethod method
+			&& !pattern.hasMethodArguments()) {
+			int rule = match.getRule();
+			rule &= ~SearchPattern.R_FULL_MATCH;
+			rule |= SearchPattern.R_EQUIVALENT_MATCH | SearchPattern.R_ERASURE_MATCH;
+			match.setRule(rule);
+		}
 		if( preferParamaterizedNode() ) {
 			if( node instanceof MethodInvocation iv) {
 				List<?> l = iv.typeArguments();

@@ -18,6 +18,8 @@ import org.eclipse.jdt.core.search.SearchMatch;
  */
 public class SearchMatchingUtility {
 	public static void reportSearchMatch(MatchLocator locator, SearchMatch match) throws CoreException {
-		locator.report(match);
+		if ((match.getRule() & locator.pattern.getMatchRule()) != 0) {
+			locator.report(match);
+		}
 	}
 }
