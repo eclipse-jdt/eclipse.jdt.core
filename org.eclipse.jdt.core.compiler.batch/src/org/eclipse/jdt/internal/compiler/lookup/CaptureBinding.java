@@ -204,6 +204,12 @@ public class CaptureBinding extends TypeVariableBinding {
 			}
 			return;
 		}
+		// JLS 5.1.10
+		//   Let G name a generic type declaration (§8.1.2, §9.1.2) with n type parameters A1,...,An with corresponding bounds U1,...,Un.
+		// our equivalents:
+		//   G = capturedParameterizedType.type
+		//   Ai = wildcardVariable
+		//   Ui = wildcardVariable.superclass & wildcardVariable.superInterfaces()
 		ReferenceBinding originalVariableSuperclass = wildcardVariable.superclass;
 		ReferenceBinding substitutedVariableSuperclass = (ReferenceBinding) Scope.substitute(capturedParameterizedType, originalVariableSuperclass);
 		// prevent cyclic capture: given X<T>, capture(X<? extends T> could yield a circular type
@@ -222,42 +228,55 @@ public class CaptureBinding extends TypeVariableBinding {
 
 		switch (this.wildcard.boundKind) {
 			case Wildcard.EXTENDS :
-				// still need to capture bound supertype as well so as not to expose wildcards to the outside (111208)
-				if (wildcardBound.isInterface()) {
-					this.setSuperClass(substitutedVariableSuperclass);
-					// merge wildcard bound into variable superinterfaces using glb
-					if (substitutedVariableInterfaces == Binding.NO_SUPERINTERFACES) {
-						this.setSuperInterfaces(new ReferenceBinding[] { (ReferenceBinding) wildcardBound });
-					} else {
-						int length = substitutedVariableInterfaces.length;
-						System.arraycopy(substitutedVariableInterfaces, 0, substitutedVariableInterfaces = new ReferenceBinding[length+1], 1, length);
-						substitutedVariableInterfaces[0] =  (ReferenceBinding) wildcardBound;
-						this.setSuperInterfaces(Scope.greaterLowerBound(substitutedVariableInterfaces));
-					}
-				} else {
-					TypeBinding[] allBounds = getAllAllUpperBounds(capturedParameterizedType, wildcardVariable, wildcardBound);
-					TypeBinding[] fullGlb = Scope.greaterLowerBound(allBounds, scope, scope.environment());
-					if (fullGlb != null) {
-						// optimistically split the fullGlb into one superClass plus n interfaces
-						ReferenceBinding superClass = scope.getJavaLangObject();
-						ReferenceBinding[] interfaces = new ReferenceBinding[fullGlb.length];
-						int j=0;
-						for (int i=0; i < fullGlb.length; i++) {
-							if (fullGlb[i] instanceof ReferenceBinding ref) {
-								if (ref.isInterface())
-									interfaces[j++] = ref;
-								else
-									superClass = ref;
-							}
+				// JLS:
+				//   If Ti is a wildcard type argument of the form ? extends Bi, then
+				//     Si is a fresh type variable
+				//     - whose upper bound is glb(Bi, Ui[A1:=S1,...,An:=Sn])
+				//     - and whose lower bound is the null type.
+				// our equivalents:
+				//   Ti = this.wildcard
+				//   Si = this
+				//   Bi = wildcardBound
+				//   substitution [A1:=S1,...,An:=Sn] = substitute(capturedParameterizedType, X)
+				//   upper bound = Bi & subst(wildcardVariable.superclass) & subst(wildcardVariable.superInterfaces)
+				//               = wildcardBound & substitutedVariableSuperclass & substitutedVariableInteraces
+				// minimize this intersection using glb and distribute it into this.superclass & this.superInterfaces:
+				TypeBinding[] allBounds;
+				int ifcLen = substitutedVariableInterfaces.length;
+				if (wildcardBound instanceof ReferenceBinding) {
+					allBounds = Arrays.copyOf(substitutedVariableInterfaces, ifcLen + 2);
+					allBounds[ifcLen+1] = wildcardBound;
+				} else { // ignoring non-ReferenceBinding wildcardBound (ArrayBinding?), will be set as firstBound only
+					allBounds = Arrays.copyOf(substitutedVariableInterfaces, ifcLen + 1);
+				}
+				allBounds[ifcLen] = substitutedVariableSuperclass;
+				TypeBinding[] fullGlb = Scope.greaterLowerBound(allBounds, scope, scope.environment());
+				if (fullGlb != null) {
+					// optimistically split the fullGlb into one superClass plus n interfaces
+					ReferenceBinding superClass = scope.getJavaLangObject();
+					ReferenceBinding[] interfaces = new ReferenceBinding[fullGlb.length];
+					int j=0;
+					for (int i=0; i < fullGlb.length; i++) {
+						if (fullGlb[i] instanceof ReferenceBinding ref) {
+							if (ref.isInterface())
+								interfaces[j++] = ref;
+							else
+								superClass = ref;
 						}
-						setSuperClass(superClass);
-						if (j != fullGlb.length)
-							interfaces = Arrays.copyOf(interfaces, j);
-						setSuperInterfaces(interfaces);
-					} else {
-						setSuperClass((ReferenceBinding) wildcardBound);
-						setSuperInterfaces(substitutedVariableInterfaces);
 					}
+					setSuperClass(superClass);
+					if (j != fullGlb.length)
+						interfaces = Arrays.copyOf(interfaces, j);
+					setSuperInterfaces(interfaces);
+				} else {
+					// if glb is null, this capture type is uninhabitable.
+					// opportunistically use weaker check to determine the stronger bound,
+					// just so we give more interesting follow-up errors, if any.
+					if (wildcardBound.original().isCompatibleWith(substitutedVariableSuperclass.original()))
+						setSuperClass((ReferenceBinding) wildcardBound);
+					else
+						setSuperClass(substitutedVariableSuperclass);
+					setSuperInterfaces(substitutedVariableInterfaces);
 				}
 				this.setFirstBound(wildcardBound);
 				if ((wildcardBound.tagBits & TagBits.HasTypeVariable) == 0)
@@ -288,18 +307,6 @@ public class CaptureBinding extends TypeVariableBinding {
 		if(scope.environment().usesNullTypeAnnotations()) {
 			evaluateNullAnnotations(scope, null);
 		}
-	}
-
-	private TypeBinding[] getAllAllUpperBounds(ParameterizedTypeBinding sustitution,
-			TypeVariableBinding wildcardVariable, TypeBinding wildcardBound)
-	{
-		TypeBinding[] substitutedBounds = Scope.substitute(sustitution, wildcardVariable.allUpperBounds());
-		if (wildcardBound.isArrayType() || TypeBinding.equalsEquals(wildcardBound, this))
-			return substitutedBounds;
-		int length = substitutedBounds.length;
-		TypeBinding[] allBounds = Arrays.copyOf(substitutedBounds, length+1);
-		allBounds[length] = wildcardBound;
-		return allBounds;
 	}
 
 	@Override

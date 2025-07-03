@@ -5393,6 +5393,11 @@ public void testBug456459a() {
 		"	EnumSet<? extends T> set = EnumSet.allOf(enumType);\n" +
 		"	                                         ^^^^^^^^\n" +
 		"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Enum<Enum<E>>>\n" +
+		"----------\n" +
+		"6. ERROR in EnumTest.java (at line 10)\n" +
+		"	return set.iterator().next();\n" +
+		"	       ^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Type mismatch: cannot convert from capture#1-of ? extends T to T\n" +
 		"----------\n");
 }
 // simple conflict introduced by additional wildcard bound
