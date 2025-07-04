@@ -3456,6 +3456,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				(this.toComplete.getParent() instanceof Assignment)
 				||
 				(this.toComplete instanceof Assignment)
+				||
+				(this.toComplete.getParent() instanceof FieldDeclaration)
 				;
 		if (!isExpressionExpected) {
 			keywords.add(Keywords.ASSERT);
@@ -3471,7 +3473,12 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			keywords.add(Keywords.FINAL);
 			keywords.add(Keywords.CLASS);
 		}
-		keywords.add(Keywords.SUPER);
+		if (DOMCompletionUtils.findParent(this.toComplete, new int[] { ASTNode.METHOD_DECLARATION }) instanceof MethodDeclaration md
+				&& (md.resolveBinding() == null || !Flags.isStatic(md.resolveBinding().getModifiers()))
+				||
+			DOMCompletionUtils.findParent(this.toComplete, new int[] { ASTNode.INITIALIZER }) != null){
+			keywords.add(Keywords.SUPER);
+		}
 		keywords.add(Keywords.NEW);
 
 		{
@@ -3488,8 +3495,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				keywords.add(Keywords.INSTANCEOF);
 			}
 		}
-
-		if (!this.expectedTypes.getExpectedTypes().isEmpty()) {
+		if (isExpressionExpected) {
 			keywords.add(Keywords.NULL);
 		}
 		if (DOMCompletionUtils.findParent(this.toComplete,
