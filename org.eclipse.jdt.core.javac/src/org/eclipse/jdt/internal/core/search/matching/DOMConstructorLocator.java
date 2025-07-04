@@ -270,7 +270,7 @@ public class DOMConstructorLocator extends DOMPatternLocator {
 				return;
 			}
 			match.setRaw(constructorBinding.isRawMethod() || constructorBinding.getDeclaringClass().isRawType());
-			if (constructorBinding.isParameterizedMethod() || constructorBinding.isRawMethod()) { // parameterized generic method
+			if (constructorBinding.getTypeArguments().length > 0 || constructorBinding.isRawMethod()) { // parameterized generic method
 				updateMatch(constructorBinding.getTypeArguments(), this.locator.pattern.constructorArguments, this.locator.pattern.hasConstructorParameters());
 
 				// Update match regarding declaring class type arguments

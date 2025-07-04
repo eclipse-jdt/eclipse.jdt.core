@@ -15,6 +15,7 @@ import java.util.Arrays;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.ArrayType;
@@ -40,6 +41,8 @@ import org.eclipse.jdt.internal.core.search.LocatorResponse;
 import org.eclipse.jdt.internal.javac.dom.JavacTypeBinding;
 
 public class DOMPatternLocator extends PatternLocator {
+	protected AST currentAST;
+
 	public DOMPatternLocator(SearchPattern pattern) {
 		super(pattern);
 	}
@@ -443,7 +446,7 @@ public class DOMPatternLocator extends PatternLocator {
 						break;
 				}
 				patternTypeName = Signature.toCharArray(patternTypeName);
-				ITypeBinding patternBinding = null;//locator.getType(patternTypeArgument, patternTypeName);
+				ITypeBinding patternBinding = currentAST != null ? currentAST.resolveWellKnownType(new String(patternTypeName)) : null;//locator.getType(patternTypeArgument, patternTypeName);
 
 				// If have no binding for pattern arg, then we won't be able to refine accuracy
 				if (patternBinding == null) {
@@ -606,5 +609,9 @@ public class DOMPatternLocator extends PatternLocator {
 
 	public final void setCurrentMatch(SearchMatch match) {
 		this.match = match;
+	}
+
+	public void setCurrentNode(ASTNode node) {
+		this.currentAST = node.getAST();
 	}
 }
