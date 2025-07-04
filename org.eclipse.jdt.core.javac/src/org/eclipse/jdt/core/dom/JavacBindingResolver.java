@@ -1526,7 +1526,7 @@ public class JavacBindingResolver extends BindingResolver {
 			if (jcExpr.constructor != null && !jcExpr.constructor.type.isErroneous()) {
 				List<com.sun.tools.javac.code.Type> javacTypeArgs =
 						jcExpr.getTypeArguments().stream().map(jc -> jc.type).toList();
-				return this.bindings.getMethodBinding(jcExpr.constructor.type.asMethodType(), (MethodSymbol)jcExpr.constructor, jcExpr.type, false, javacTypeArgs);
+				return this.bindings.getMethodBinding(jcExpr.constructorType.asMethodType(), (MethodSymbol)jcExpr.constructor, jcExpr.type, false, javacTypeArgs);
 			}
 		}
 		ITypeBinding type = resolveType(expression.getType());

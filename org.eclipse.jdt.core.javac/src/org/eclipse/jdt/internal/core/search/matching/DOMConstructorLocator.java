@@ -261,6 +261,11 @@ public class DOMConstructorLocator extends DOMPatternLocator {
 		return this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
 	}
 
+	private boolean isParameterizedWithOwnVariables(ITypeBinding type) {
+		// substiture for org.eclipse.jdt.compiler.lookup.TypeBindingisParameterizedWithOwnVariables
+		return false;
+	}
+
 	@Override
 	public void reportSearchMatch(MatchLocator locator, ASTNode node, SearchMatch match) throws CoreException {
 		if (! (node instanceof MethodDeclaration)) {
@@ -276,7 +281,7 @@ public class DOMConstructorLocator extends DOMPatternLocator {
 				// Update match regarding declaring class type arguments
 				if (constructorBinding.getDeclaringClass().isParameterizedType() || constructorBinding.getDeclaringClass().isRawType()) {
 					ITypeBinding parameterizedBinding = constructorBinding.getDeclaringClass();
-					if (!this.locator.pattern.hasTypeArguments() && this.locator.pattern.hasConstructorArguments() || parameterizedBinding.isParameterizedType()) {
+					if (!this.locator.pattern.hasTypeArguments() && this.locator.pattern.hasConstructorArguments() || isParameterizedWithOwnVariables(parameterizedBinding)) {
 						// special case for constructor pattern which defines arguments but no type
 						// in this case, we only use refined accuracy for constructor
 					} else if (this.locator.pattern.hasTypeArguments() && !this.locator.pattern.hasConstructorArguments()) {
