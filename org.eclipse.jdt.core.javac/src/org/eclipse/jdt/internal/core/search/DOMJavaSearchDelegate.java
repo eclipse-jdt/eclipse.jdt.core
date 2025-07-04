@@ -216,6 +216,7 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 				SearchMatch match = toMatch(locator, node, level, possibleMatch);
 				if (match != null && match.getElement() != null) {
 					DOMPatternLocator locator2 = DOMPatternLocatorFactory.createWrapper(locator.patternLocator, locator.pattern);
+					locator2.setCurrentMatch(match);
 					locator2.reportSearchMatch(locator, node, match);
 				}
 			}

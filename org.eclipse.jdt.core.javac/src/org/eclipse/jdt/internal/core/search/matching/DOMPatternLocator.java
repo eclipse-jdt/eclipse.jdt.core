@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.search.matching;
 import java.util.Arrays;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
@@ -32,6 +33,7 @@ import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.lookup.IntersectionTypeBinding18;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.core.search.LocatorResponse;
@@ -352,10 +354,257 @@ public class DOMPatternLocator extends PatternLocator {
 		return IMPOSSIBLE_MATCH;
 	}
 
+	private int boundKind(ITypeBinding type) {
+		if (type.isUpperbound()) {
+			return Wildcard.EXTENDS;
+		}
+		if (type.getBound() == null ) {
+			return Wildcard.UNBOUND;
+		}
+		return Wildcard.SUPER;
+	}
+
+	/*
+	 * Update pattern locator match comparing type arguments with pattern ones.
+	 * Try to resolve pattern and look for compatibility with type arguments
+	 * to set match rule.
+	 */
+	protected void updateMatch(ITypeBinding[] argumentsBinding, char[][] patternArguments, boolean hasTypeParameters) {
+		// First compare lengthes
+		int patternTypeArgsLength = patternArguments==null ? 0 : patternArguments.length;
+		int typeArgumentsLength = argumentsBinding == null ? 0 : argumentsBinding.length;
+
+		// Initialize match rule
+		int matchRule = this.match.getRule();
+		if (this.match.isRaw()) {
+			if (patternTypeArgsLength != 0) {
+				matchRule &= ~SearchPattern.R_FULL_MATCH;
+			}
+		}
+		if (hasTypeParameters) {
+			matchRule = SearchPattern.R_ERASURE_MATCH;
+		}
+
+		// Compare arguments lengthes
+		if (patternTypeArgsLength == typeArgumentsLength) {
+			if (!this.match.isRaw() && hasTypeParameters) {
+				// generic patterns are always not compatible match
+				this.match.setRule(SearchPattern.R_ERASURE_MATCH);
+				return;
+			}
+		} else {
+			if (patternTypeArgsLength==0) {
+				if (!this.match.isRaw() || hasTypeParameters) {
+					this.match.setRule(matchRule & ~SearchPattern.R_FULL_MATCH);
+				}
+			} else  if (typeArgumentsLength==0) {
+				// raw binding is always compatible
+				this.match.setRule(matchRule & ~SearchPattern.R_FULL_MATCH);
+			} else {
+				this.match.setRule(0); // impossible match
+			}
+			return;
+		}
+		if (argumentsBinding == null || patternArguments == null) {
+			this.match.setRule(matchRule);
+			return;
+		}
+
+		// Compare binding for each type argument only if pattern is not erasure only and at first level
+		if (!hasTypeParameters && !this.match.isRaw() && (this.match.isEquivalent() || this.match.isExact())) {
+			for (int i=0; i<typeArgumentsLength; i++) {
+				// Get parameterized type argument binding
+				ITypeBinding argumentBinding = argumentsBinding[i];
+				if (argumentBinding.isCapture()) {
+					ITypeBinding capturedWildcard = argumentBinding.getWildcard();
+					if (capturedWildcard != null) argumentBinding = capturedWildcard;
+				}
+				// Get binding for pattern argument
+				char[] patternTypeArgument = patternArguments[i];
+				char patternWildcard = patternTypeArgument[0];
+				char[] patternTypeName = patternTypeArgument;
+				int patternWildcardKind = -1;
+				switch (patternWildcard) {
+					case Signature.C_STAR:
+						if (argumentBinding.isWildcardType()) {
+							if (boundKind(argumentBinding) == Wildcard.UNBOUND) continue;
+						}
+						matchRule &= ~SearchPattern.R_FULL_MATCH;
+						continue; // unbound parameter always match
+					case Signature.C_EXTENDS :
+						patternWildcardKind = Wildcard.EXTENDS;
+						patternTypeName = CharOperation.subarray(patternTypeArgument, 1, patternTypeArgument.length);
+						break;
+					case Signature.C_SUPER :
+						patternWildcardKind = Wildcard.SUPER;
+						patternTypeName = CharOperation.subarray(patternTypeArgument, 1, patternTypeArgument.length);
+						break;
+					default :
+						break;
+				}
+				patternTypeName = Signature.toCharArray(patternTypeName);
+				ITypeBinding patternBinding = null;//locator.getType(patternTypeArgument, patternTypeName);
+
+				// If have no binding for pattern arg, then we won't be able to refine accuracy
+				if (patternBinding == null) {
+					if (argumentBinding.isWildcardType()) {
+						if (boundKind(argumentBinding) == Wildcard.UNBOUND) {
+							matchRule &= ~SearchPattern.R_FULL_MATCH;
+						} else {
+							this.match.setRule(SearchPattern.R_ERASURE_MATCH);
+							return;
+						}
+					}
+					continue;
+				}
+
+				// Verify the pattern binding is compatible with match type argument binding
+				switch (patternWildcard) {
+					case Signature.C_STAR : // UNBOUND pattern
+						// unbound always match => skip to next argument
+						matchRule &= ~SearchPattern.R_FULL_MATCH;
+						continue;
+					case Signature.C_EXTENDS : // EXTENDS pattern
+						if (argumentBinding.isWildcardType()) { // argument is a wildcard
+							// It's ok if wildcards are identical
+							if (boundKind(argumentBinding) == patternWildcardKind && argumentBinding.getBound().isEqualTo(patternBinding)) {
+								continue;
+							}
+							// Look for wildcard compatibility
+							switch (boundKind(argumentBinding)) {
+								case Wildcard.EXTENDS:
+									if (argumentBinding.getBound() == null || argumentBinding.getBound().isAssignmentCompatible(patternBinding)) {
+										// valid when arg extends a subclass of pattern
+										matchRule &= ~SearchPattern.R_FULL_MATCH;
+										continue;
+									}
+									break;
+								case Wildcard.SUPER:
+									break;
+								case Wildcard.UNBOUND:
+									matchRule &= ~SearchPattern.R_FULL_MATCH;
+									continue;
+							}
+						} else if (argumentBinding.isAssignmentCompatible(patternBinding)) {
+							// valid when arg is a subclass of pattern
+							matchRule &= ~SearchPattern.R_FULL_MATCH;
+							continue;
+						}
+						break;
+					case Signature.C_SUPER : // SUPER pattern
+						if (argumentBinding.isWildcardType()) { // argument is a wildcard
+							// It's ok if wildcards are identical
+							if (boundKind(argumentBinding) == patternWildcardKind && argumentBinding.getBound().isEqualTo(patternBinding)) {
+								continue;
+							}
+							// Look for wildcard compatibility
+							switch (boundKind(argumentBinding)) {
+								case Wildcard.EXTENDS:
+									break;
+								case Wildcard.SUPER:
+									if (argumentBinding.getBound() == null || patternBinding.isAssignmentCompatible(argumentBinding.getBound())) {
+										// valid only when arg super a superclass of pattern
+										matchRule &= ~SearchPattern.R_FULL_MATCH;
+										continue;
+									}
+									break;
+								case Wildcard.UNBOUND:
+									matchRule &= ~SearchPattern.R_FULL_MATCH;
+									continue;
+							}
+						} else if (patternBinding.isAssignmentCompatible(argumentBinding)) {
+							// valid only when arg is a superclass of pattern
+							matchRule &= ~SearchPattern.R_FULL_MATCH;
+							continue;
+						}
+						break;
+					default:
+						if (argumentBinding.isWildcardType()) {
+							switch (boundKind(argumentBinding)) {
+								case Wildcard.EXTENDS:
+									if (argumentBinding.getBound() == null || patternBinding.isAssignmentCompatible(argumentBinding.getBound())) {
+										// valid only when arg extends a superclass of pattern
+										matchRule &= ~SearchPattern.R_FULL_MATCH;
+										continue;
+									}
+									break;
+								case Wildcard.SUPER:
+									if (argumentBinding.getBound() == null || argumentBinding.getBound().isAssignmentCompatible(patternBinding)) {
+										// valid only when arg super a subclass of pattern
+										matchRule &= ~SearchPattern.R_FULL_MATCH;
+										continue;
+									}
+									break;
+								case Wildcard.UNBOUND:
+									matchRule &= ~SearchPattern.R_FULL_MATCH;
+									continue;
+							}
+						} else if (argumentBinding.isEqualTo(patternBinding))
+							// valid only when arg is equals to pattern
+							continue;
+						break;
+				}
+
+				// Argument does not match => erasure match will be the only possible one
+				this.match.setRule(SearchPattern.R_ERASURE_MATCH);
+				return;
+			}
+		}
+
+		// Set match rule
+		this.match.setRule(matchRule);
+	}
+
+	protected void updateMatch(ITypeBinding parameterizedBinding, char[][][] patternTypeArguments, boolean patternHasTypeParameters, int depth) {
+		// Set match raw flag
+		boolean endPattern = patternTypeArguments==null  ? true  : depth>=patternTypeArguments.length;
+		ITypeBinding[] argumentsBindings = parameterizedBinding.getTypeArguments();
+		boolean isRaw = parameterizedBinding.isRawType()|| (argumentsBindings==null && parameterizedBinding.getTypeDeclaration().isGenericType());
+		if (isRaw && !this.match.isRaw()) {
+			this.match.setRaw(isRaw);
+		}
+
+		// Update match
+		if (!endPattern && patternTypeArguments != null) {
+			// verify if this is a reference to the generic type itself
+			if (!isRaw && patternHasTypeParameters && argumentsBindings != null) {
+				boolean needUpdate = false;
+				ITypeBinding[] typeVariables = parameterizedBinding.getTypeDeclaration().getTypeParameters();
+				int length = argumentsBindings.length;
+				if (length == typeVariables.length) {
+					for (int i=0; i<length; i++) {
+						if (!argumentsBindings[i].isEqualTo(typeVariables[i])) {
+							needUpdate = true;
+							break;
+						}
+					}
+				}
+				if (needUpdate) {
+					char[][] patternArguments =  patternTypeArguments[depth];
+					updateMatch(argumentsBindings, patternArguments, patternHasTypeParameters);
+				}
+			} else {
+				char[][] patternArguments =  patternTypeArguments[depth];
+				updateMatch(argumentsBindings, patternArguments, patternHasTypeParameters);
+			}
+		}
+
+		// Recurse
+		ITypeBinding enclosingType = parameterizedBinding.getDeclaringClass();
+		if (enclosingType != null && (enclosingType.isParameterizedType() || enclosingType.isRawType())) {
+			updateMatch(enclosingType, patternTypeArguments, patternHasTypeParameters, depth+1);
+		}
+	}
+
 	/*
 	 * Subclasses can override this if they want to make last minute changes to the match
 	 */
 	public void reportSearchMatch(MatchLocator locator, ASTNode node, SearchMatch match) throws CoreException {
+		this.match = match;
 		SearchMatchingUtility.reportSearchMatch(locator, match);
+	}
+
+	public final void setCurrentMatch(SearchMatch match) {
+		this.match = match;
 	}
 }

@@ -13,6 +13,8 @@ package org.eclipse.jdt.internal.core.search.matching;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
@@ -21,9 +23,12 @@ import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.search.SearchMatch;
+import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.codeassist.DOMCompletionUtils;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
@@ -254,5 +259,69 @@ public class DOMConstructorLocator extends DOMPatternLocator {
 		}
 
 		return this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH;
+	}
+
+	@Override
+	public void reportSearchMatch(MatchLocator locator, ASTNode node, SearchMatch match) throws CoreException {
+		if (! (node instanceof MethodDeclaration)) {
+			IMethodBinding constructorBinding = DOMASTNodeUtils.getBinding(node) instanceof IMethodBinding binding
+				&& binding.isConstructor() ? binding : null;
+			if (constructorBinding == null) {
+				return;
+			}
+			match.setRaw(constructorBinding.isRawMethod() || constructorBinding.getDeclaringClass().isRawType());
+			if (constructorBinding.isParameterizedMethod() || constructorBinding.isRawMethod()) { // parameterized generic method
+				updateMatch(constructorBinding.getTypeArguments(), this.locator.pattern.constructorArguments, this.locator.pattern.hasConstructorParameters());
+
+				// Update match regarding declaring class type arguments
+				if (constructorBinding.getDeclaringClass().isParameterizedType() || constructorBinding.getDeclaringClass().isRawType()) {
+					ITypeBinding parameterizedBinding = constructorBinding.getDeclaringClass();
+					if (!this.locator.pattern.hasTypeArguments() && this.locator.pattern.hasConstructorArguments() || parameterizedBinding.isParameterizedType()) {
+						// special case for constructor pattern which defines arguments but no type
+						// in this case, we only use refined accuracy for constructor
+					} else if (this.locator.pattern.hasTypeArguments() && !this.locator.pattern.hasConstructorArguments()) {
+						// special case for constructor pattern which defines no constructor arguments but has type ones
+						// in this case, we do not use refined accuracy
+						updateMatch(parameterizedBinding, this.locator.pattern.getTypeArguments(), this.locator.pattern.hasTypeParameters(), 0);
+					} else {
+						updateMatch(parameterizedBinding, this.locator.pattern.getTypeArguments(), this.locator.pattern.hasTypeParameters(), 0);
+					}
+				} else if (this.locator.pattern.hasTypeArguments()) {
+					this.match.setRule(SearchPattern.R_ERASURE_MATCH);
+				}
+
+				// Update match regarding constructor parameters
+				// TODO ? (frederic)
+			} else if (constructorBinding.getDeclaringClass().isParameterizedType() || constructorBinding.getDeclaringClass().isRawType()) {
+				ITypeBinding parameterizedBinding = constructorBinding.getDeclaringClass();
+				if (!this.locator.pattern.hasTypeArguments() && this.locator.pattern.hasConstructorArguments()) {
+					// special case for constructor pattern which defines arguments but no type
+					updateMatch(parameterizedBinding, new char[][][] {this.locator.pattern.constructorArguments}, this.locator.pattern.hasTypeParameters(), 0);
+				} else {
+					updateMatch(parameterizedBinding, this.locator.pattern.getTypeArguments(), this.locator.pattern.hasTypeParameters(), 0);
+				}
+			} else if (this.locator.pattern.hasTypeArguments() || this.locator.pattern.hasConstructorArguments()) { // binding has no type params, compatible erasure if pattern does
+				this.match.setRule(SearchPattern.R_ERASURE_MATCH);
+			}
+
+			// See whether it is necessary to report or not
+			if (this.match.getRule() == 0) return; // impossible match
+			boolean report = (this.isErasureMatch && this.match.isErasure()) || (this.isEquivalentMatch && this.match.isEquivalent()) || this.match.isExact();
+			if (!report) return;
+
+			// Report match
+	//		int offset = reference.sourceStart;
+	//		this.match.setOffset(offset);
+	//		this.match.setLength(reference.sourceEnd - offset + 1);
+	//		if (reference instanceof FieldDeclaration) { // enum declaration
+	//			FieldDeclaration enumConstant  = reference;
+	//			if (enumConstant.initialization instanceof QualifiedAllocationExpression) {
+	//				locator.reportAccurateEnumConstructorReference(this.match, enumConstant, (QualifiedAllocationExpression) enumConstant.initialization);
+	//				return;
+	//			}
+	//		}
+		}
+
+		super.reportSearchMatch(locator, node, match);
 	}
 }
