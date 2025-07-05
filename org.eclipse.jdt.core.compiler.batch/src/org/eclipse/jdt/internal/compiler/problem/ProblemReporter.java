@@ -9821,13 +9821,13 @@ public void varLocalCannotBeArray(AbstractVariableDeclaration varDecl) {
 		varDecl.sourceStart,
 		varDecl.sourceEnd);
 }
-public void varLocalReferencesItself(AbstractVariableDeclaration varDecl) {
+public void varLocalReferencesItself(SingleNameReference reference) {
 	this.handle(
 		IProblem.VarLocalReferencesItself,
 		NoArgument,
 		NoArgument,
-		varDecl.sourceStart,
-		varDecl.sourceEnd);
+		reference.sourceStart,
+		reference.sourceEnd);
 }
 public void varLocalWithoutInitizalier(AbstractVariableDeclaration varDecl) {
 	this.handle(

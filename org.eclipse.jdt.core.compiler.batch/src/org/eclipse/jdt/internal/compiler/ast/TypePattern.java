@@ -225,7 +225,7 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 				}
 			}
 		}
-		this.local.resolve(scope, true);
+		this.local.resolve(scope);
 		if (this.local.binding != null) {
 			this.local.binding.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope; // start out this way, will be BlockScope.include'd when definitely assigned
 			CompilerOptions compilerOptions = scope.compilerOptions();

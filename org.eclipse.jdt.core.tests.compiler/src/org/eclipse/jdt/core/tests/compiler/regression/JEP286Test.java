@@ -379,12 +379,12 @@ public void test0012_self_reference() throws IOException {
 			"----------\n" +
 			"1. ERROR in X.java (at line 3)\n" +
 			"	var a = 42 + a;\n" +
-			"	    ^\n" +
+			"	             ^\n" +
 			"Declaration using 'var' may not contain references to itself\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 4)\n" +
 			"	var b = ((java.util.concurrent.Callable<Integer>)(() -> true ? 1 : b)).call();\n" +
-			"	    ^\n" +
+			"	                                                                   ^\n" +
 			"Declaration using 'var' may not contain references to itself\n" +
 			"----------\n" +
 			"3. WARNING in X.java (at line 7)\n" +
@@ -392,7 +392,7 @@ public void test0012_self_reference() throws IOException {
 			"	    ^\n" +
 		    "The local variable c is hiding another local variable defined in an enclosing scope\n" +
 		    	"----------\n"+
-			"3. WARNING in X.java (at line 10)\n" +
+			"4. WARNING in X.java (at line 10)\n" +
 			"	int d = 42;\n" +
 			"	    ^\n" +
 		    "The field new Callable<Integer>(){}.d is hiding another local variable defined in an enclosing scope\n" +
