@@ -37,6 +37,7 @@ public class LocalVariableBinding extends VariableBinding {
 	public static final int UNUSED = 0;
 	public static final int USED = 1;
 	public static final int FAKE_USED = 2;
+	public static final int ILLEGAL_SELF_REFERENCE_IF_USED = 3;
 	public int useFlag; // for flow analysis (default is UNUSED), values < 0 indicate the number of compound uses (postIncrement or compoundAssignment)
 
 	public BlockScope declaringScope; // back-pointer to its declaring scope
@@ -325,13 +326,6 @@ public class LocalVariableBinding extends VariableBinding {
 			}
 		}
 		return null;
-	}
-
-	public void markInitialized() {
-		// Signals that the type is correctly set now - This is for extension in subclasses
-	}
-	public void markReferenced() {
-		// Signal that the name is used - This is for extension in subclasses
 	}
 
 	public void checkEffectiveFinality(Scope scope, Expression node) {
