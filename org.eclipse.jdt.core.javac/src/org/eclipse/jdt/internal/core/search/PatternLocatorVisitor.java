@@ -18,6 +18,7 @@ import java.util.function.Function;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
@@ -202,6 +203,9 @@ class PatternLocatorVisitor extends ASTVisitor {
 			} else if( qualifier instanceof QualifiedName qn1) {
 				qn1.accept(this);
 			}
+		}
+		for (var ann : (List<Annotation>)type.annotations() ) {
+			ann.accept(this);
 		}
 		return false; // No need to visit single name child
 	}
