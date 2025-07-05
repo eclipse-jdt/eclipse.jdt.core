@@ -59,6 +59,7 @@ import org.eclipse.jdt.core.dom.SuperMethodReference;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeLiteral;
+import org.eclipse.jdt.core.dom.TypeMethodReference;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.UnionType;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -150,6 +151,10 @@ class PatternLocatorVisitor extends ASTVisitor {
 	}
 	@Override
 	public boolean visit(ExpressionMethodReference node) {
+		return defaultVisitImplementation(node, (x,y) -> y.match(node, this.nodeSet, this.locator));
+	}
+	@Override
+	public boolean visit(TypeMethodReference node) {
 		return defaultVisitImplementation(node, (x,y) -> y.match(node, this.nodeSet, this.locator));
 	}
 	@Override
