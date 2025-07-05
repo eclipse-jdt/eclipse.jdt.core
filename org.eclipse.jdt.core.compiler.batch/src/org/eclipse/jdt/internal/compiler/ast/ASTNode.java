@@ -159,6 +159,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int IsForeachElementVariable = Bit5;
 	public static final int ShadowsOuterLocal = Bit22;
 	public static final int IsAdditionalDeclarator = Bit23;
+	public static final int IsPatternVariable = Bit24;
 
 	// for name refs or local decls
 	public static final int FirstAssignmentToLocal = Bit4;

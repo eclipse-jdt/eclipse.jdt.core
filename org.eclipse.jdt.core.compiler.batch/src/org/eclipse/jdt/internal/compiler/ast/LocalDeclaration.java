@@ -249,33 +249,25 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 
 	@Override
-	public void resolve(BlockScope scope) {
-		resolve(scope, false);
-	}
-	public void resolve(BlockScope scope, boolean isPatternVariable) {		// prescan NNBD
+	public void resolve(BlockScope scope) {	// prescan NNBD
 		handleNonNullByDefault(scope, this.annotations, this);
 
-		if (!isPatternVariable && (this.bits & ASTNode.IsForeachElementVariable) == 0 && this.initialization == null && this.isUnnamed(scope)) {
-			scope.problemReporter().unnamedVariableMustHaveInitializer(this);
-		}
+		boolean isPatternVariable = (this.bits & ASTNode.IsPatternVariable) != 0;
+		boolean isForeachElementVariable = (this.bits & ASTNode.IsForeachElementVariable) != 0;
+		boolean varTypedLocal = isTypeNameVar(scope);
 
 		TypeBinding variableType = null;
 		boolean variableTypeInferenceError = false;
-		boolean isTypeNameVar = isTypeNameVar(scope);
-		if (isTypeNameVar && !isPatternVariable) {
+
+		if (varTypedLocal && !isPatternVariable) {
 			if (this.type.isParameterizedTypeReference()) {
 				scope.problemReporter().varCannotBeUsedWithTypeArguments(this.type);
 			}
-			if ((this.bits & ASTNode.IsForeachElementVariable) == 0) {
+			if (!isForeachElementVariable) {
 				// infer a type from the initializer
 				if (this.initialization != null) {
 					variableType = checkInferredLocalVariableInitializer(scope);
 					variableTypeInferenceError = variableType != null;
-				} else {
-					// That's always an error
-					scope.problemReporter().varLocalWithoutInitizalier(this);
-					variableType = scope.getJavaLangObject();
-					variableTypeInferenceError = true;
 				}
 			}
 		} else {
@@ -296,7 +288,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				}
 			}
 
-		Binding existingVariable = scope.getBinding(this.name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
+			Binding existingVariable = scope.getBinding(this.name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
 			if (existingVariable != null && existingVariable.isValidBinding() && !this.isUnnamed(scope)) {
 				boolean localExists = existingVariable instanceof LocalVariableBinding;
 			if (localExists && (this.bits & ASTNode.ShadowsOuterLocal) != 0 && scope.isLambdaSubscope() && this.hiddenVariableDepth == 0) {
@@ -317,7 +309,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 		// Create a binding from the specified type; In order to diagnose self-referential initializers,
 		// we must create the binding with jlO as a placeholder type and patch it later
-		this.binding = new LocalVariableBinding(this, isTypeNameVar && variableType == null ? scope.getJavaLangObject() : variableType, this.modifiers, false /*isArgument*/);
+		this.binding = new LocalVariableBinding(this, varTypedLocal && variableType == null ? scope.getJavaLangObject() : variableType, this.modifiers, false /*isArgument*/);
 		if (isPatternVariable)
 			this.binding.tagBits |= TagBits.IsPatternBinding;
 		scope.addLocalVariable(this.binding);
@@ -330,12 +322,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				if (this.initialization instanceof CastExpression) {
 					((CastExpression)this.initialization).setVarTypeDeclaration(true);
 				}
-				if (isTypeNameVar)
+				if (varTypedLocal)
 					this.binding.useFlag = LocalVariableBinding.ILLEGAL_SELF_REFERENCE_IF_USED;
 				this.initialization.resolveType(scope); // want to report all possible errors
-				if (isTypeNameVar)
+				if (varTypedLocal)
 					this.binding.useFlag = LocalVariableBinding.UNUSED; // hand-over hijacked flag; let flow analysis do its thing.
-				if (isTypeNameVar && this.initialization.resolvedType != null) {
+				if (varTypedLocal && this.initialization.resolvedType != null) {
 					if (TypeBinding.equalsEquals(TypeBinding.NULL, this.initialization.resolvedType)) {
 						scope.problemReporter().varLocalInitializedToNull(this);
 						variableTypeInferenceError = true;
@@ -354,7 +346,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 		boolean resolveAnnotationsEarly = false;
 		if (scope.environment().usesNullTypeAnnotations()
-				&& !isTypeNameVar // 'var' does not provide a target type
+				&& !varTypedLocal // 'var' does not provide a target type
 				&& variableType != null && variableType.isValidBinding()) {
 			resolveAnnotationsEarly = this.initialization instanceof Invocation
 					|| this.initialization instanceof ConditionalExpression
@@ -375,7 +367,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 					this.initialization.computeConversion(scope, variableType, initializationType);
 				}
 			} else {
-				this.initialization.setExpressionContext(isTypeNameVar ? VANILLA_CONTEXT : ASSIGNMENT_CONTEXT);
+				this.initialization.setExpressionContext(varTypedLocal ? VANILLA_CONTEXT : ASSIGNMENT_CONTEXT);
 				this.initialization.setExpectedType(variableType);
 				TypeBinding initializationType = this.initialization.resolvedType != null ? this.initialization.resolvedType : this.initialization.resolveType(scope);
 				if (initializationType != null) {
@@ -416,6 +408,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				this.binding.isFinal()
 					? this.initialization.constant.castTo((variableType.id << 4) + this.initialization.constant.typeID())
 					: Constant.NotAConstant);
+		} else if (!isPatternVariable && !isForeachElementVariable) {
+			if (varTypedLocal)
+				scope.problemReporter().varLocalWithoutInitizalier(this);
+			else if (this.isUnnamed(scope))
+				scope.problemReporter().unnamedVariableMustHaveInitializer(this);
 		}
 		// if init could be a constant only resolve annotation at the end, for constant to be positioned before (96991)
 		if (!resolveAnnotationsEarly)

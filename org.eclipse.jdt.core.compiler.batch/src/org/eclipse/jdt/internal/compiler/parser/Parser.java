@@ -9901,6 +9901,7 @@ protected void consumeTypePattern() {
 
 	LocalDeclaration local = createLocalDeclaration(identifierName, (int) (namePosition >>> 32), (int) namePosition);
 	local.declarationSourceEnd = local.declarationEnd;
+	local.bits |= ASTNode.IsPatternVariable;
 	this.identifierPtr--;
 	this.identifierLengthPtr--;
 
@@ -9932,6 +9933,7 @@ protected void consumeUnnamedPattern() {
 
 	LocalDeclaration local = createLocalDeclaration(identifierName, (int) (namePosition >>> 32), (int) namePosition);
 	local.declarationSourceEnd = local.declarationEnd;
+	local.bits |= ASTNode.IsPatternVariable;
 	local.declarationSourceStart = (int) (namePosition >>> 32);
 	this.identifierPtr--;
 	this.identifierLengthPtr--;
