@@ -11,17 +11,21 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.function.Predicate;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.ArrayType;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.ParameterizedType;
@@ -41,7 +45,7 @@ import org.eclipse.jdt.internal.core.search.LocatorResponse;
 import org.eclipse.jdt.internal.javac.dom.JavacTypeBinding;
 
 public class DOMPatternLocator extends PatternLocator {
-	protected AST currentAST;
+	protected ASTNode currentNode;
 
 	public DOMPatternLocator(SearchPattern pattern) {
 		super(pattern);
@@ -446,7 +450,7 @@ public class DOMPatternLocator extends PatternLocator {
 						break;
 				}
 				patternTypeName = Signature.toCharArray(patternTypeName);
-				ITypeBinding patternBinding = currentAST != null ? currentAST.resolveWellKnownType(new String(patternTypeName)) : null;//locator.getType(patternTypeArgument, patternTypeName);
+				ITypeBinding patternBinding = findType(new String(patternTypeName));//locator.getType(patternTypeArgument, patternTypeName);
 
 				// If have no binding for pattern arg, then we won't be able to refine accuracy
 				if (patternBinding == null) {
@@ -612,6 +616,49 @@ public class DOMPatternLocator extends PatternLocator {
 	}
 
 	public void setCurrentNode(ASTNode node) {
-		this.currentAST = node.getAST();
+		this.currentNode = node;
+	}
+
+	private ITypeBinding findType(String name) {
+		if (this.currentNode == null) {
+			return null;
+		}
+		ITypeBinding res = this.currentNode.getAST().resolveWellKnownType(name);
+		if (res != null) {
+			return res;
+		}
+		ASTNode cursor = this.currentNode;
+		while (cursor != null) {
+			if (cursor instanceof CompilationUnit unit) {
+				var explicitlyImported = ((List<ImportDeclaration>)unit.imports())
+					.stream()
+					.filter(Predicate.not(ImportDeclaration::isStatic))
+					.filter(Predicate.not(ImportDeclaration::isOnDemand))
+					.filter(decl -> decl.getName().toString().endsWith('.' + name))
+					.map(ImportDeclaration::getName)
+					.map(Name::toString)
+					.map(this.currentNode.getAST()::resolveWellKnownType)
+					.filter(Objects::nonNull)
+					.findFirst()
+					.orElse(null);
+				if (explicitlyImported != null) {
+					return explicitlyImported;
+				}
+				var importedOnDemand = ((List<ImportDeclaration>)unit.imports())
+					.stream()
+					.filter(Predicate.not(ImportDeclaration::isStatic))
+					.filter(ImportDeclaration::isOnDemand)
+					.map(decl -> decl.getName().toString() + '.' + name)
+					.map(this.currentNode.getAST()::resolveWellKnownType)
+					.filter(Objects::nonNull)
+					.findFirst()
+					.orElse(null);
+				if (importedOnDemand != null) {
+					return importedOnDemand;
+				}
+			}
+			cursor = cursor.getParent();
+		}
+		return this.currentNode.getAST().resolveWellKnownType("java.lang." + name);
 	}
 }
