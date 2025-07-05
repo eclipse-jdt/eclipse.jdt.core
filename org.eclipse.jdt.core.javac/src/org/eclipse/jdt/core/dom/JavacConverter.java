@@ -50,9 +50,8 @@ import com.sun.tools.javac.code.Type.PackageType;
 import com.sun.tools.javac.parser.ParserFactory;
 import com.sun.tools.javac.parser.Tokens.Comment;
 import com.sun.tools.javac.parser.Tokens.Comment.CommentStyle;
-import com.sun.tools.javac.tree.JCTree;
-import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.tree.DCTree.DCDocComment;
+import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.tree.JCTree.JCAnnotatedType;
 import com.sun.tools.javac.tree.JCTree.JCAnnotation;
 import com.sun.tools.javac.tree.JCTree.JCAnyPattern;
@@ -127,6 +126,7 @@ import com.sun.tools.javac.tree.JCTree.JCWhileLoop;
 import com.sun.tools.javac.tree.JCTree.JCWildcard;
 import com.sun.tools.javac.tree.JCTree.JCYield;
 import com.sun.tools.javac.tree.JCTree.Tag;
+import com.sun.tools.javac.tree.TreeInfo;
 import com.sun.tools.javac.util.Context;
 import com.sun.tools.javac.util.JCDiagnostic;
 import com.sun.tools.javac.util.Log;
@@ -1546,7 +1546,7 @@ class JavacConverter {
 						.forEach(res.typeArguments()::add);
 				}
 				return res;
-			} else if (qualifierExpression.getKind() == Kind.PARAMETERIZED_TYPE || qualifierExpression.getKind() == Kind.ARRAY_TYPE) {
+			} else if (qualifierExpression.getKind() == Kind.PARAMETERIZED_TYPE || qualifierExpression.getKind() == Kind.ARRAY_TYPE || qualifierExpression.getKind() == Kind.ANNOTATED_TYPE) {
 				TypeMethodReference res = this.ast.newTypeMethodReference();
 				commonSettings(res, javac);
 				res.setType(convertToType(qualifierExpression));
