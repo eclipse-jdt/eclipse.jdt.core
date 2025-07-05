@@ -263,13 +263,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			if (this.type.isParameterizedTypeReference()) {
 				scope.problemReporter().varCannotBeUsedWithTypeArguments(this.type);
 			}
-			if (!isForeachElementVariable) {
-				// infer a type from the initializer
-				if (this.initialization != null) {
-					variableType = checkInferredLocalVariableInitializer(scope);
-					variableTypeInferenceError = variableType != null;
-				}
+			// infer a type from the initializer
+			if (this.initialization != null) {
+				variableType = checkInferredLocalVariableInitializer(scope);
+				variableTypeInferenceError = variableType != null;
 			}
+
 		} else {
 			variableType = this.type == null ? null : this.type.resolveType(scope, true /* check bounds*/);
 		}
@@ -317,31 +316,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// allow to recursively target the binding....
 		// the correct constant is harmed if correctly computed at the end of this method
 
-		if (variableType == null) {
-			if (this.initialization != null) {
-				if (this.initialization instanceof CastExpression) {
-					((CastExpression)this.initialization).setVarTypeDeclaration(true);
-				}
-				if (varTypedLocal)
-					this.binding.useFlag = LocalVariableBinding.ILLEGAL_SELF_REFERENCE_IF_USED;
-				this.initialization.resolveType(scope); // want to report all possible errors
-				if (varTypedLocal)
-					this.binding.useFlag = LocalVariableBinding.UNUSED; // hand-over hijacked flag; let flow analysis do its thing.
-				if (varTypedLocal && this.initialization.resolvedType != null) {
-					if (TypeBinding.equalsEquals(TypeBinding.NULL, this.initialization.resolvedType)) {
-						scope.problemReporter().varLocalInitializedToNull(this);
-						variableTypeInferenceError = true;
-					} else if (TypeBinding.equalsEquals(TypeBinding.VOID, this.initialization.resolvedType)) {
-						scope.problemReporter().varLocalInitializedToVoid(this);
-						variableTypeInferenceError = true;
-					}
-					variableType = patchType(this.initialization.resolvedType);
-				} else {
-					variableTypeInferenceError = true;
-				}
-			}
-		}
-		if (variableTypeInferenceError) {
+		if (variableTypeInferenceError || (variableType == null && !varTypedLocal)) {
 			return;
 		}
 		boolean resolveAnnotationsEarly = false;
@@ -367,10 +342,27 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 					this.initialization.computeConversion(scope, variableType, initializationType);
 				}
 			} else {
+				if (varTypedLocal) {
+					this.binding.useFlag = LocalVariableBinding.ILLEGAL_SELF_REFERENCE_IF_USED; // hijack analysis phase flag
+					if (this.initialization instanceof CastExpression castExpression)
+						castExpression.setVarTypeDeclaration(true);
+				}
 				this.initialization.setExpressionContext(varTypedLocal ? VANILLA_CONTEXT : ASSIGNMENT_CONTEXT);
 				this.initialization.setExpectedType(variableType);
-				TypeBinding initializationType = this.initialization.resolvedType != null ? this.initialization.resolvedType : this.initialization.resolveType(scope);
+				TypeBinding initializationType = this.initialization.resolveType(scope);
+				if (varTypedLocal)
+					this.binding.useFlag = LocalVariableBinding.UNUSED; // hand-over hijacked flag; let flow analysis do its thing.
 				if (initializationType != null) {
+					if (varTypedLocal) {
+						if (TypeBinding.equalsEquals(TypeBinding.NULL, this.initialization.resolvedType)) {
+							scope.problemReporter().varLocalInitializedToNull(this);
+							variableTypeInferenceError = true;
+						} else if (TypeBinding.equalsEquals(TypeBinding.VOID, this.initialization.resolvedType)) {
+							scope.problemReporter().varLocalInitializedToVoid(this);
+							variableTypeInferenceError = true;
+						}
+						variableType = patchType(this.initialization.resolvedType);
+					}
 					if (TypeBinding.notEquals(variableType, initializationType)) // must call before computeConversion() and typeMismatchError()
 						scope.compilationUnitScope().recordTypeConversion(variableType, initializationType);
 					if (this.initialization.isConstantValueOfTypeAssignableToType(initializationType, variableType)
@@ -395,6 +387,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 							scope.problemReporter().typeMismatchError(initializationType, variableType, this.initialization, null);
 						}
 					}
+				} else {
+					return;
 				}
 			}
 			// check for assignment with no effect
