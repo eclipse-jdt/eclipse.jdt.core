@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2024 IBM Corporation and others.
+ * Copyright (c) 2006, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -42,6 +42,21 @@ static {
 public InnerEmulationTest(String name) {
 	super(name);
 }
+
+// ========= OPT-IN to run.javac mode: ===========
+@Override
+protected void setUp() throws Exception {
+	if (this.complianceLevel >= ClassFileConstants.JDK25)
+		this.runJavacOptIn = true;
+	super.setUp();
+}
+@Override
+protected void tearDown() throws Exception {
+	super.tearDown();
+	this.runJavacOptIn = false; // do it last, so super can still clean up
+}
+// =================================================
+
 @Override
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
