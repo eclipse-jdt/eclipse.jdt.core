@@ -16,7 +16,9 @@ import java.util.Objects;
 
 import javax.lang.model.element.ModuleElement.DirectiveKind;
 
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IModuleBinding;
@@ -97,8 +99,12 @@ public abstract class JavacModuleBinding implements IModuleBinding {
 
 	@Override
 	public IJavaElement getJavaElement() {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			return this.resolver.javaProject.findModule(getName(), this.resolver.getWorkingCopyOwner());
+		} catch (JavaModelException e) {
+			ILog.get().error(e.getMessage(), e);
+			return null;
+		}
 	}
 
 	@Override

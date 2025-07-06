@@ -37,6 +37,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.MethodReference;
+import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
@@ -66,6 +67,7 @@ public class DOMASTNodeUtils {
 			|| node instanceof ImportDeclaration
 			|| node instanceof PackageDeclaration
 			|| node instanceof CompilationUnit
+			|| node instanceof ModuleDeclaration
 			|| node instanceof AnnotationTypeMemberDeclaration
 			|| node instanceof Initializer
 			|| node.getLocationInParent() == FieldDeclaration.FRAGMENTS_PROPERTY) {
@@ -241,6 +243,9 @@ public class DOMASTNodeUtils {
 		}
 		if (astNode instanceof MemberValuePair ref) {
 			return ref.resolveMemberValuePairBinding();
+		}
+		if (astNode instanceof ModuleDeclaration ref) {
+			return ref.resolveBinding();
 		}
 		// TODO more...
 		return null;
