@@ -1523,7 +1523,7 @@ public class JavacBindingResolver extends BindingResolver {
 	private IMethodBinding resolveConstructorImpl(ClassInstanceCreation expression) {
 		resolve();
 		if (this.converter.domToJavac.get(expression) instanceof JCNewClass jcExpr) {
-			if (jcExpr.constructor != null && !jcExpr.constructor.type.isErroneous()) {
+			if (jcExpr.constructor != null && !jcExpr.constructorType.isErroneous()) {
 				List<com.sun.tools.javac.code.Type> javacTypeArgs =
 						jcExpr.getTypeArguments().stream().map(jc -> jc.type).toList();
 				return this.bindings.getMethodBinding(jcExpr.constructorType.asMethodType(), (MethodSymbol)jcExpr.constructor, jcExpr.type, false, javacTypeArgs);
