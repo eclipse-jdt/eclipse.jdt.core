@@ -19,6 +19,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Assignment;
+import org.eclipse.jdt.core.dom.Assignment.Operator;
+import org.eclipse.jdt.core.dom.ChildListPropertyDescriptor;
 import org.eclipse.jdt.core.dom.ChildPropertyDescriptor;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -29,7 +31,6 @@ import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
-import org.eclipse.jdt.core.dom.Assignment.Operator;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.search.LocatorResponse;
@@ -52,14 +53,17 @@ public class DOMLocalVariableLocator extends DOMPatternLocator {
 
 	@Override
 	public LocatorResponse match(Name node, NodeSetWrapper nodeSet, MatchLocator locator) {
-		if (node.getLocationInParent() instanceof ChildPropertyDescriptor descriptor
-				// local variable refs are either expressions as children
-				&& (descriptor.getChildType() == Expression.class
-						// or dereferenced names
-						|| descriptor == QualifiedName.QUALIFIER_PROPERTY)
-				// local variables cannot be qualified
-				&& node instanceof SimpleName simple
-				&& Objects.equals(getLocalVariable() == null ? null : getLocalVariable().getElementName(), simple.getIdentifier())) {
+		var descriptor = node.getLocationInParent();
+		var childType = descriptor instanceof ChildPropertyDescriptor single ? single.getChildType() :
+			descriptor instanceof ChildListPropertyDescriptor list ? list.getElementType() :
+			null;
+		if (// local variable refs are either expressions as children
+			(childType == Expression.class
+				// or dereferenced names
+				|| descriptor == QualifiedName.QUALIFIER_PROPERTY)
+			// local variables cannot be qualified
+			&& node instanceof SimpleName simple
+			&& Objects.equals(getLocalVariable() == null ? null : getLocalVariable().getElementName(), simple.getIdentifier())) {
 			if (!this.locator.pattern.readAccess && isRead(node)) {
 				return toResponse(IMPOSSIBLE_MATCH);
 			}
