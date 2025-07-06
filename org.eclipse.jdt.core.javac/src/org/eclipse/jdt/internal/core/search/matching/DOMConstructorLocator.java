@@ -268,7 +268,7 @@ public class DOMConstructorLocator extends DOMPatternLocator {
 
 	@Override
 	public void reportSearchMatch(MatchLocator locator, ASTNode node, SearchMatch match) throws CoreException {
-		if (! (node instanceof MethodDeclaration)) {
+		if (! (node instanceof MethodDeclaration || node instanceof EnumConstantDeclaration)) {
 			IMethodBinding constructorBinding = DOMASTNodeUtils.getBinding(node) instanceof IMethodBinding binding
 				&& binding.isConstructor() ? binding : null;
 			if (constructorBinding == null) {
