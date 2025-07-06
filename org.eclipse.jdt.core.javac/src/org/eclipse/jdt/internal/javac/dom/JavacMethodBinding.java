@@ -98,7 +98,7 @@ public abstract class JavacMethodBinding implements IMethodBinding {
 		this.isDeclaration = isParameterized(methodSymbol) && isDeclaration;
 		this.explicitSynthetic = explicitSynthetic;
 		this.resolver = resolver;
-		this.resolvedTypeArgs = resolvedTypeArgs;
+		this.resolvedTypeArgs = resolvedTypeArgs != null && !resolvedTypeArgs.isEmpty() ? resolvedTypeArgs : null;
 	}
 
 	private static boolean isParameterized(Symbol symbol) {
