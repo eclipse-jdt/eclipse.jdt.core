@@ -19,11 +19,11 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.internal.SignatureUtils;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.LambdaFactory;
 
@@ -74,7 +74,7 @@ public class JavacLambdaBinding extends JavacMethodBinding {
 			int arrowIndex = ((List<ASTNode>)this.declaration.parameters()).stream().mapToInt(param -> param.getStartPosition() + param.getLength()).max().orElse(this.declaration.getStartPosition());
 			org.eclipse.jdt.internal.core.LambdaExpression expr = LambdaFactory.createLambdaExpression(parent, Signature.createTypeSignature(getMethodDeclaration().getDeclaringClass().getQualifiedName(), true), this.declaration.getStartPosition(), this.declaration.getStartPosition() + this.declaration.getLength() - 1, arrowIndex);
 			String returnTypeName = getReturnType().getName();
-			return LambdaFactory.createLambdaMethod(expr, this.methodSymbol.name.toString(), getKey(), this.declaration.getStartPosition(), this.declaration.getStartPosition() + this.declaration.getLength() - 1, arrowIndex, Arrays.stream(getParameterTypes()).map(ITypeBinding::getName).toArray(String[]::new), getParameterNames(), Signature.createTypeSignature(returnTypeName.isEmpty() ? Object.class.getName() : returnTypeName, true));
+			return LambdaFactory.createLambdaMethod(expr, this.methodSymbol.name.toString(), getKey(), this.declaration.getStartPosition(), this.declaration.getStartPosition() + this.declaration.getLength() - 1, arrowIndex, Arrays.stream(getParameterTypes()).map(SignatureUtils::getSignature).toArray(String[]::new), getParameterNames(), Signature.createTypeSignature(returnTypeName.isEmpty() ? Object.class.getName() : returnTypeName, true));
 		}
 		return super.getJavaElement();
 	}
