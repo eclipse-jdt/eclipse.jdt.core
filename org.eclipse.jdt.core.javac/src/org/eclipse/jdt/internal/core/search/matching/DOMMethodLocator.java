@@ -192,7 +192,7 @@ public class DOMMethodLocator extends DOMPatternLocator {
 	}
 	@Override
 	public LocatorResponse match(MethodReference node, NodeSetWrapper nodeSet, MatchLocator locator) {
-		if ((this.locator.pattern.fineGrain & IJavaSearchConstants.METHOD_REFERENCE_EXPRESSION) == 0) {
+		if (this.locator.pattern.fineGrain != 0 && (this.locator.pattern.fineGrain & IJavaSearchConstants.METHOD_REFERENCE_EXPRESSION) == 0) {
 			return toResponse(IMPOSSIBLE_MATCH);
 		}
 		SimpleName name = node instanceof TypeMethodReference typeMethodRef ? typeMethodRef.getName() :
