@@ -192,7 +192,9 @@ public class DOMMethodLocator extends DOMPatternLocator {
 	}
 	@Override
 	public LocatorResponse match(MethodReference node, NodeSetWrapper nodeSet, MatchLocator locator) {
-		if (this.locator.pattern.fineGrain != 0 && (this.locator.pattern.fineGrain & IJavaSearchConstants.METHOD_REFERENCE_EXPRESSION) == 0) {
+		if (this.locator.pattern.fineGrain != 0 &&
+			(this.locator.pattern.fineGrain & IJavaSearchConstants.METHOD_REFERENCE_EXPRESSION) == 0 &&
+			(!(node instanceof SuperMethodReference) || (this.locator.pattern.fineGrain & IJavaSearchConstants.SUPER_REFERENCE) == 0)) {
 			return toResponse(IMPOSSIBLE_MATCH);
 		}
 		SimpleName name = node instanceof TypeMethodReference typeMethodRef ? typeMethodRef.getName() :
@@ -232,10 +234,12 @@ public class DOMMethodLocator extends DOMPatternLocator {
 
 	@Override
 	public LocatorResponse match(Name node, NodeSetWrapper nodeSet, MatchLocator locator) {
-		if( node.getParent() instanceof MethodInvocation mi && mi.getName() == node) {
-//			if( nodeSet.getTrustedMatch(mi) > IMPOSSIBLE_MATCH ) {
-				return toResponse(IMPOSSIBLE_MATCH);
-//			}
+		if (// already matched
+			MethodInvocation.NAME_PROPERTY == node.getLocationInParent() ||
+			TypeMethodReference.NAME_PROPERTY == node.getLocationInParent() ||
+			ExpressionMethodReference.NAME_PROPERTY == node.getLocationInParent() ||
+			SuperMethodReference.NAME_PROPERTY == node.getLocationInParent()) {
+			return toResponse(IMPOSSIBLE_MATCH);
 		}
 
 		if (node.getLocationInParent() == MemberValuePair.NAME_PROPERTY
@@ -691,12 +695,12 @@ public class DOMMethodLocator extends DOMPatternLocator {
 //		String q2 = declBindingClass == null ? null : declBindingClass.getQualifiedName();
 //		String b1 = invocationDeclClass == null ? null : invocationDeclClass.getBinaryName();
 //		String b2 = declBindingClass == null ? null : declBindingClass.getBinaryName();
-		int declaringLevel;
-		ITypeBinding receiverType = initialReceiverType != null ? initialReceiverType : invocationOrDeclarationBinding.getDeclaringClass();
-		if (shouldResolveSubSuperLevel(messageSend, receiverType, invocationOrDeclarationBinding, invocOrDeclLevel)) {
-			declaringLevel = resolveSubSuperLevel(messageSend, receiverType, invocationOrDeclarationBinding, invocOrDeclLevel, nullParamsForSubTypeCheck);
-		} else {
-			declaringLevel = resolveLevelForType(this.pattern.declaringSimpleName, this.pattern.declaringQualification, invocationOrDeclarationBinding.getDeclaringClass());
+		int declaringLevel = resolveLevelForType(this.pattern.declaringSimpleName, this.pattern.declaringQualification, invocationOrDeclarationBinding.getDeclaringClass());
+		if (declaringLevel == IMPOSSIBLE_MATCH) {
+			ITypeBinding receiverType = initialReceiverType != null ? initialReceiverType : invocationOrDeclarationBinding.getDeclaringClass();
+			if (shouldResolveSubSuperLevel(messageSend, receiverType, invocationOrDeclarationBinding, invocOrDeclLevel)) {
+				declaringLevel = resolveSubSuperLevel(messageSend, receiverType, invocationOrDeclarationBinding, invocOrDeclLevel, nullParamsForSubTypeCheck);
+			}
 		}
 
 		int declaringFlavors = declaringLevel & FLAVORS_MASK;

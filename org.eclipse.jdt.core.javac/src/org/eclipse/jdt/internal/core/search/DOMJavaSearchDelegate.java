@@ -54,6 +54,7 @@ import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.CreationReference;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
+import org.eclipse.jdt.core.dom.ExpressionMethodReference;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -70,7 +71,9 @@ import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
+import org.eclipse.jdt.core.dom.SuperMethodReference;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeMethodReference;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -368,6 +371,39 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 					constructorRef.getStartPosition(), constructorRef.getLength(), true,
 					mb.isSynthetic(), (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node), getParticipant(locator),
 					resource);
+			res.setRaw(mb != null && mb.isRawMethod());
+			res.setLocalElement(DOMASTNodeUtils.getLocalJavaElement(node));
+			return res;
+		}
+		if (node instanceof ExpressionMethodReference method) {
+			IJavaElement enclosing = DOMASTNodeUtils.getEnclosingJavaElement(node.getParent());
+			IMethodBinding mb = method.resolveMethodBinding();
+			boolean isSynthetic = mb != null && mb.isSynthetic();
+			var res = new MethodReferenceMatch(enclosing, accuracy, method.getName().getStartPosition(),
+					method.getStartPosition() + method.getLength() - method.getName().getStartPosition(), false,
+					isSynthetic, (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node), getParticipant(locator), resource);
+			res.setRaw(mb != null && mb.isRawMethod());
+			res.setLocalElement(DOMASTNodeUtils.getLocalJavaElement(node));
+			return res;
+		}
+		if (node instanceof TypeMethodReference method) {
+			IJavaElement enclosing = DOMASTNodeUtils.getEnclosingJavaElement(node.getParent());
+			IMethodBinding mb = method.resolveMethodBinding();
+			boolean isSynthetic = mb != null && mb.isSynthetic();
+			var res = new MethodReferenceMatch(enclosing, accuracy, method.getName().getStartPosition(),
+					method.getStartPosition() + method.getLength() - method.getName().getStartPosition(), false,
+					isSynthetic, (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node), getParticipant(locator), resource);
+			res.setRaw(mb != null && mb.isRawMethod());
+			res.setLocalElement(DOMASTNodeUtils.getLocalJavaElement(node));
+			return res;
+		}
+		if (node instanceof SuperMethodReference method) {
+			IJavaElement enclosing = DOMASTNodeUtils.getEnclosingJavaElement(node.getParent());
+			IMethodBinding mb = method.resolveMethodBinding();
+			boolean isSynthetic = mb != null && mb.isSynthetic();
+			var res = new MethodReferenceMatch(enclosing, accuracy, method.getName().getStartPosition(),
+					method.getStartPosition() + method.getLength() - method.getName().getStartPosition(), false,
+					isSynthetic, (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node), getParticipant(locator), resource);
 			res.setRaw(mb != null && mb.isRawMethod());
 			res.setLocalElement(DOMASTNodeUtils.getLocalJavaElement(node));
 			return res;
