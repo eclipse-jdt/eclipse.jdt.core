@@ -38,6 +38,7 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JdtCoreDomPackagePrivateUtility;
+import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
@@ -1158,7 +1159,6 @@ public class DOMMethodLocator extends DOMPatternLocator {
 		SearchMatchingUtility.reportSearchMatch(locator, match);
 	}
 
-
 	private boolean preferParamaterizedNode() {
 		int patternRule = this.locator.pattern.getMatchRule();
 		boolean patternIsErasureMatch = isPatternErasureMatch();
@@ -1175,5 +1175,10 @@ public class DOMMethodLocator extends DOMPatternLocator {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public LocatorResponse match(LambdaExpression node, NodeSetWrapper nodeSet, MatchLocator locator) {
+		return toResponse(this.locator.pattern.parameterCount == node.parameters().size() ? POSSIBLE_MATCH : IMPOSSIBLE_MATCH);
 	}
 }

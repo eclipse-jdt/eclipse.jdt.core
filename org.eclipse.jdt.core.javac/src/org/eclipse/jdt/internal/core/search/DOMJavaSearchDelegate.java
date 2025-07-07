@@ -34,7 +34,9 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IJavaProject;
@@ -61,6 +63,7 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
@@ -468,6 +471,29 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 			IJavaElement element = DOMASTNodeUtils.getEnclosingJavaElement(node);
 			return new TypeParameterReferenceMatch(element, accuracy, nodeTP.getName().getStartPosition(),
 					nodeTP.getName().getLength(), DOMASTNodeUtils.insideDocComment(node), getParticipant(locator), resource);
+		}
+		if (node instanceof LambdaExpression lambda) {
+			IJavaElement enclosing = DOMASTNodeUtils.getLocalJavaElement(node);
+			IMethodBinding mb = lambda.resolveMethodBinding();
+			boolean isSynthetic = mb != null && mb.isSynthetic();
+			int arrowEnd = lambda.getBody().getStartPosition() - 1;
+			try {
+				if (enclosing != null && enclosing.getAncestor(IJavaElement.COMPILATION_UNIT) instanceof ICompilationUnit unit) {
+					IBuffer buffer = unit.getBuffer();
+					while (arrowEnd > 0 && buffer.getChar(arrowEnd) != '>') {
+						arrowEnd--;
+					}
+					arrowEnd++;
+				}
+			} catch (JavaModelException ex) {
+				ILog.get().error(ex.getMessage(), ex);
+			}
+			var res = new MethodReferenceMatch(enclosing, accuracy, lambda.getStartPosition(),
+					arrowEnd - lambda.getStartPosition(), false,
+					isSynthetic, (accuracy & PatternLocator.SUPER_INVOCATION_FLAVOR) != 0, insideDocComment(node), getParticipant(locator), resource);
+			res.setRaw(mb != null && mb.isRawMethod());
+			res.setLocalElement(DOMASTNodeUtils.getLocalJavaElement(node));
+			return res;
 		}
 		if (node instanceof Name name) {
 			IBinding b = name.resolveBinding();

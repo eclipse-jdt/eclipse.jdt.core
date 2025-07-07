@@ -108,6 +108,7 @@ public class DOMASTNodeUtils {
 			|| node instanceof CompilationUnit
 			|| node instanceof AnnotationTypeMemberDeclaration
 			|| node instanceof Initializer
+			|| node instanceof LambdaExpression
 			|| node.getLocationInParent() == FieldDeclaration.FRAGMENTS_PROPERTY) {
 			return getEnclosingJavaElement(node);
 		}
