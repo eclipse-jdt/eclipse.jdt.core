@@ -1642,14 +1642,7 @@ class JavacConverter {
 					arrayType = childArrayType;
 					var extraDimensions = jcNewArray.getDimAnnotations().stream()
 						.map(annotations -> annotations.stream().map(this::convert).toList())
-						.map(annotations -> {
-							Dimension dim = this.ast.newDimension();
-							dim.annotations().addAll(annotations);
-							int startOffset = annotations.stream().mapToInt(Annotation::getStartPosition).min().orElse(-1);
-							int endOffset = annotations.stream().mapToInt(ann -> ann.getStartPosition() + ann.getLength()).max().orElse(-1);
-							dim.setSourceRange(startOffset, endOffset - startOffset);
-							return dim;
-						})
+						.map(this::wrapAsDimension)
 						.toList();
 					if (arrayType.dimensions().isEmpty()) {
 						arrayType.dimensions().addAll(extraDimensions);
@@ -1686,17 +1679,21 @@ class JavacConverter {
 							}
 						}
 					}
-				} else if(jcNewArray.dims != null && jcNewArray.dims.size() > 0 ){
-					// Child is not array type
-					arrayType = this.ast.newArrayType(type);
-					int dims = jcNewArray.dims.size();
-					for( int i = 0; i < dims - 1; i++ ) {
-						// TODO, this dimension needs source range
-						arrayType.dimensions().addFirst(this.ast.newDimension());
-					}
 				} else {
-					// Child is not array type, and 0 dims for underlying
 					arrayType = this.ast.newArrayType(type);
+					arrayType.dimensions().clear();
+					if (!jcNewArray.getAnnotations().isEmpty()) {
+						arrayType.dimensions().add(wrapAsDimension(jcNewArray.getAnnotations().stream()
+							.map(this::convert)
+							.toList()));
+					} else if (!jcNewArray.getDimAnnotations().isEmpty()) {
+						jcNewArray.getDimAnnotations().stream()
+							.map(dimAnnotations -> dimAnnotations.stream().map(this::convert).toList())
+							.map(this::wrapAsDimension)
+							.forEach(arrayType.dimensions()::add);
+					} else {
+						arrayType.dimensions().add(this.ast.newDimension());
+					}
 				}
 				commonSettings(arrayType, jcNewArray.getType());
 				res.setType(arrayType);
@@ -1786,6 +1783,15 @@ class JavacConverter {
 			return vdd;
 		}
 		return null;
+	}
+
+	private Dimension wrapAsDimension(List<Annotation> annotations) {
+		Dimension dim = this.ast.newDimension();
+		dim.annotations().addAll(annotations);
+		int startOffset = annotations.stream().mapToInt(Annotation::getStartPosition).min().orElse(-1);
+		int endOffset = annotations.stream().mapToInt(ann -> ann.getStartPosition() + ann.getLength()).max().orElse(-1);
+		dim.setSourceRange(startOffset, endOffset - startOffset);
+		return dim;
 	}
 
 	private List<JCExpression> consecutiveInfixExpressionsWithEqualOps(JCBinary binary, Tag opcode) {
