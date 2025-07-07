@@ -4995,7 +4995,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 8)\n" +
 			"	if (o instanceof R(var [][][] s)) {  // you can use any number of [] pairs actually!\n" +
-			"	                              ^\n" +
+			"	                   ^^^^^^^^^^\n" +
 			"'var' is not allowed as an element type of an array\n" +
 			"----------\n");
 	}
