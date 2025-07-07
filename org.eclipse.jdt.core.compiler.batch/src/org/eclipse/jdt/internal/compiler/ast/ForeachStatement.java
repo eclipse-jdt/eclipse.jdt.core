@@ -475,21 +475,11 @@ public class ForeachStatement extends Statement {
 
 		// Patch the resolved type
 		if (this.elementVariable.isTypeNameVar(upperScope)) {
-			if (this.elementVariable.type.dimensions() > 0 || this.elementVariable.type.extraDimensions() > 0) {
-				upperScope.problemReporter().varLocalCannotBeArray(this.elementVariable);
-			}
-			if (TypeBinding.equalsEquals(TypeBinding.NULL, collectionType)) {
-				upperScope.problemReporter().varLocalInitializedToNull(this.elementVariable);
-				elementType = collectionType;
-			} else if (TypeBinding.equalsEquals(TypeBinding.VOID, collectionType)) {
-				upperScope.problemReporter().varLocalInitializedToVoid(this.elementVariable);
-				elementType = collectionType;
-			}
-			if ((elementType = getCollectionElementType(this.scope, collectionType)) == null) {
-				elementType = collectionType;
-			} else {
-				elementType = this.elementVariable.patchType(elementType);
-			}
+			if ((elementType = getCollectionElementType(this.scope, collectionType)) == null)
+				elementType = this.scope.getJavaLangObject(); // error reported below.
+			else
+				elementType = this.elementVariable.patchType(this.scope, elementType);
+
 			if (elementType instanceof ReferenceBinding) {
 				ReferenceBinding refBinding = (ReferenceBinding) elementType;
 				if (!elementType.canBeSeenBy(upperScope)) {

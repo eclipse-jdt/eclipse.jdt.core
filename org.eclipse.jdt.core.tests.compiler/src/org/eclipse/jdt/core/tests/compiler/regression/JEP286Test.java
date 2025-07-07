@@ -696,11 +696,6 @@ public void testBug530879() throws IOException {
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
 			"	for (var v : foo()) { }\n" +
-			"	         ^\n" +
-			"Variable initializer is 'void' -- cannot infer variable type\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	for (var v : foo()) { }\n" +
 			"	             ^^^^^\n" +
 			"Can only iterate over an array or an instance of java.lang.Iterable\n" +
 			"----------\n");
@@ -717,11 +712,6 @@ public void testBug530879a() throws IOException {
 			},
 			"----------\n" +
 			"1. ERROR in X.java (at line 3)\n" +
-			"	for (var v : null) { }\n" +
-			"	         ^\n" +
-			"Cannot infer type for local variable initialized to 'null'\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
 			"	for (var v : null) { }\n" +
 			"	             ^^^^\n" +
 			"Can only iterate over an array or an instance of java.lang.Iterable\n" +

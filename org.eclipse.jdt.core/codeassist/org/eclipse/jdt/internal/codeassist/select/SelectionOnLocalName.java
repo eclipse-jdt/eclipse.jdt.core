@@ -38,13 +38,9 @@ public class SelectionOnLocalName extends LocalDeclaration{
 				TypeBinding collectionType = stat.collection == null ? null : stat.collection.resolveType((BlockScope) scope.parent);
 
 				// Patch the resolved type
-				if (!TypeBinding.equalsEquals(TypeBinding.NULL, collectionType)
-						&& !TypeBinding.equalsEquals(TypeBinding.VOID, collectionType)) {
-					TypeBinding elementType = ForeachStatement.getCollectionElementType(scope, collectionType);
-					if (elementType != null) {
-						this.patchType(elementType);
-					}
-				}
+				TypeBinding elementType = ForeachStatement.getCollectionElementType(scope, collectionType);
+				if (elementType != null)
+					this.patchType(scope, elementType);
 			}
 		}
 		throw new SelectionNodeFound(this.binding);

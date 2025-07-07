@@ -213,7 +213,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	public boolean isReceiver() {
 		return false;
 	}
-	public TypeBinding patchType(TypeBinding newType) {
+	public TypeBinding patchType(BlockScope scope, TypeBinding newType) {
+		if (TypeBinding.equalsEquals(TypeBinding.NULL, newType))
+			scope.problemReporter().varLocalInitializedToNull(this);
+		else if (TypeBinding.equalsEquals(TypeBinding.VOID, newType))
+			scope.problemReporter().varLocalInitializedToVoid(this);
 		// Perform upwards projection on type wrt mentioned type variables
 		TypeBinding[] mentionedTypeVariables= newType != null ? newType.syntheticTypeVariablesMentioned() : null;
 		if (mentionedTypeVariables != null && mentionedTypeVariables.length > 0) {
@@ -338,11 +342,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 				if (initializationType != null) {
 					if (varTypedLocal) {
-						if (TypeBinding.equalsEquals(TypeBinding.NULL, this.initialization.resolvedType))
-							scope.problemReporter().varLocalInitializedToNull(this);
-						else if (TypeBinding.equalsEquals(TypeBinding.VOID, this.initialization.resolvedType))
-							scope.problemReporter().varLocalInitializedToVoid(this);
-						variableType = patchType(this.initialization.resolvedType);
+						variableType = patchType(scope, this.initialization.resolvedType);
 					}
 					if (TypeBinding.notEquals(variableType, initializationType)) // must call before computeConversion() and typeMismatchError()
 						scope.compilationUnitScope().recordTypeConversion(variableType, initializationType);
