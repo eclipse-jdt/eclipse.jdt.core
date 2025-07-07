@@ -32,6 +32,7 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.Initializer;
+import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
@@ -70,6 +71,7 @@ public class DOMASTNodeUtils {
 			|| node instanceof ModuleDeclaration
 			|| node instanceof AnnotationTypeMemberDeclaration
 			|| node instanceof Initializer
+			|| node instanceof LambdaExpression
 			|| node.getLocationInParent() == FieldDeclaration.FRAGMENTS_PROPERTY) {
 			return getDeclaringJavaElement(node);
 		}
@@ -246,6 +248,9 @@ public class DOMASTNodeUtils {
 		}
 		if (astNode instanceof ModuleDeclaration ref) {
 			return ref.resolveBinding();
+		}
+		if (astNode instanceof LambdaExpression lambda) {
+			return lambda.resolveMethodBinding();
 		}
 		// TODO more...
 		return null;
