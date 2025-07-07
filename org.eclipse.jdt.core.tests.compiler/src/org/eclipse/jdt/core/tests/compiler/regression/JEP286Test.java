@@ -341,12 +341,12 @@ public void test0011_array_type() throws IOException {
 			"----------\n" +
 			"1. ERROR in X.java (at line 3)\n" +
 			"	var myArray[] = new int[42];\n" +
-			"	    ^^^^^^^\n" +
+			"	^^^\n" +
 			"'var' is not allowed as an element type of an array\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 4)\n" +
 			"	var[] moreArray = new int[1337];\n" +
-			"	      ^^^^^^^^^\n" +
+			"	^^^^^\n" +
 			"'var' is not allowed as an element type of an array\n" +
 			"----------\n");
 }
@@ -678,7 +678,7 @@ public void testBug531832() throws IOException {
 			"----------\n" +
 			"1. ERROR in X.java (at line 3)\n" +
 			"	for (var[] v : args) { }\n" +
-			"	           ^\n" +
+			"	     ^^^^^\n" +
 			"'var' is not allowed as an element type of an array\n" +
 			"----------\n");
 }

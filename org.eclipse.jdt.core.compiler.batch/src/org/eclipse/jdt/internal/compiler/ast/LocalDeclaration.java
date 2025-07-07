@@ -243,10 +243,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		TypeBinding variableType = null;
 
 		if (varTypedLocal) {
-			if (this.type.isParameterizedTypeReference())
-				scope.problemReporter().varCannotBeUsedWithTypeArguments(this.type);
-			if (this.type.dimensions() > 0 || this.type.extraDimensions() > 0)
-				scope.problemReporter().varLocalCannotBeArray(this);
 			if ((this.bits & ASTNode.IsAdditionalDeclarator) != 0)
 				scope.problemReporter().varLocalMultipleDeclarators(this);
 			if (isPatternVariable)

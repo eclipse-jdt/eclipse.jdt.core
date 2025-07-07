@@ -9813,7 +9813,7 @@ public void varLocalMultipleDeclarators(AbstractVariableDeclaration varDecl) {
 		varDecl.sourceStart,
 		varDecl.sourceEnd);
 }
-public void varLocalCannotBeArray(AbstractVariableDeclaration varDecl) {
+public void varLocalCannotBeArray(ASTNode varDecl) {
 	this.handle(
 		IProblem.VarLocalCannotBeArray,
 		NoArgument,

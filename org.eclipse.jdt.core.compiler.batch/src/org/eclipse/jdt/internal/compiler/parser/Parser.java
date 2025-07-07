@@ -919,6 +919,7 @@ protected int valueLambdaNestDepth = -1;
 private int stateStackLengthStack[] = new int[0];
 final protected boolean parsingJava8Plus = true;
 protected boolean parsingJava9Plus;
+protected boolean parsingJava10Plus;
 protected boolean parsingJava14Plus;
 protected boolean parsingJava15Plus;
 protected boolean parsingJava17Plus;
@@ -946,6 +947,7 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.optimizeStringLiterals = optimizeStringLiterals;
 	initializeScanner();
 	this.parsingJava9Plus = this.options.sourceLevel >= ClassFileConstants.JDK9;
+	this.parsingJava10Plus = this.options.sourceLevel >= ClassFileConstants.JDK10;
 	this.parsingJava11Plus = this.options.sourceLevel >= ClassFileConstants.JDK11;
 	this.parsingJava14Plus = this.options.sourceLevel >= ClassFileConstants.JDK14;
 	this.parsingJava15Plus = this.options.sourceLevel >= ClassFileConstants.JDK15;
@@ -8297,9 +8299,6 @@ private void setArgumentsTypeVar(LambdaExpression lexp) {
 			this.problemReporter().varCannotBeMixedWithNonVarParams(isVar ? arg : args[i - 1]);
 			mixReported = true;
 		}
-		if (isVar && (type.dimensions() > 0 || type.extraDimensions() > 0)) {
-			this.problemReporter().varLocalCannotBeArray(arg);
-		}
 	}
 }
 protected void consumeLambdaExpression() {
@@ -10319,6 +10318,10 @@ public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, Co
 }
 
 protected TypeReference augmentTypeWithAdditionalDimensions(TypeReference typeReference, int additionalDimensions, Annotation[][] additionalAnnotations, boolean isVarargs) {
+	if (this.parsingJava10Plus && typeReference instanceof SingleTypeReference singletypeRef && CharOperation.equals(singletypeRef.token, TypeConstants.VAR)) {
+		problemReporter().varLocalCannotBeArray(singletypeRef);
+		return typeReference; // having complained, let clients just see original type reference
+	}
 	return typeReference.augmentTypeWithAdditionalDimensions(additionalDimensions, additionalAnnotations, isVarargs);
 }
 
@@ -10824,10 +10827,25 @@ protected void annotateTypeReference(Wildcard ref) {
 		ref.bits |= (ref.bound.bits & ASTNode.HasTypeAnnotations);
 	}
 }
-protected TypeReference getTypeReference(int dim) {
-	/* build a Reference on a variable that may be qualified or not
-	 This variable is a type reference and dim will be its dimensions*/
-
+protected final TypeReference getTypeReference(int dim) {
+	TypeReference typeRef = constructTypeReference(dim);
+	if (this.parsingJava10Plus && typeRef instanceof SingleTypeReference singletypeRef && CharOperation.equals(singletypeRef.token, TypeConstants.VAR)) {
+		boolean rectify = false;
+		if (singletypeRef.isParameterizedTypeReference()) {
+			problemReporter().varCannotBeUsedWithTypeArguments(singletypeRef);
+			rectify = true;
+		}
+		if (singletypeRef.dimensions() > 0) {
+			problemReporter().varLocalCannotBeArray(singletypeRef);
+			rectify = true;
+		}
+		if (rectify)
+			typeRef = new SingleTypeReference(TypeConstants.VAR, typeRef.sourceStart, typeRef.sourceEnd);
+	}
+	return typeRef;
+}
+/* Construct a TypeReference that may be qualified or not with dim as its dimensions*/
+protected TypeReference constructTypeReference(int dim) {
 	TypeReference ref;
 	Annotation [][] annotationsOnDimensions = null;
 	int length = this.identifierLengthStack[this.identifierLengthPtr--];
