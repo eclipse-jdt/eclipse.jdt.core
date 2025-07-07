@@ -2364,8 +2364,8 @@ protected MethodBinding [] getInterfaceAbstractContracts(Scope scope, boolean re
 				continue;
 			if (!method.isValidBinding())
 				throw new InvalidBindingException("Not a functional interface"); //$NON-NLS-1$
-			List<MethodBinding> superInterfaceContractsOfSelector = contractsBySelector.computeIfAbsent(String.valueOf(method.selector), key -> new ArrayList<>());
-			Iterator<MethodBinding> iterator = superInterfaceContractsOfSelector.iterator();
+			List<MethodBinding> contractsOfSelector = contractsBySelector.computeIfAbsent(String.valueOf(method.selector), key -> new ArrayList<>());
+			Iterator<MethodBinding> iterator = contractsOfSelector.iterator();
 
 			// Does 'method' override any super interface method?
 			while (iterator.hasNext()) {
@@ -2380,7 +2380,7 @@ protected MethodBinding [] getInterfaceAbstractContracts(Scope scope, boolean re
 			if(environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
 				ImplicitNullAnnotationVerifier.ensureNullnessIsKnown(method, scope);
 			}
-			superInterfaceContractsOfSelector.add(method);
+			contractsOfSelector.add(method);
 		}
 	}
 
