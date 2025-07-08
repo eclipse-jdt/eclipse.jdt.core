@@ -145,7 +145,7 @@ public abstract class JavacVariableBinding implements IVariableBinding {
 		IMethodBinding methodBinding = getDeclaringMethod();
 		if (methodBinding != null && methodBinding.getJavaElement() instanceof IMethod method) {
 			if (isParameter()) {
-				if (method instanceof LambdaMethod parentLambda && this.resolver.findDeclaringNode(this) instanceof VariableDeclarationFragment decl) {
+				if (method instanceof LambdaMethod parentLambda && this.resolver.findDeclaringNode(this) instanceof VariableDeclaration decl) {
 					return new LocalVariable(parentLambda, getName(),
 							decl.getStartPosition(), decl.getStartPosition() + decl.getLength() - 1,
 							decl.getName().getStartPosition(), decl.getName().getStartPosition() + decl.getName().getLength() - 1,
