@@ -561,7 +561,7 @@ public class Javadoc extends ASTNode {
 							if (arg instanceof RecordComponent) {
 								return typeDecl.binding.getField(arg.name, false);
 							}
-							return (VariableBinding) arg.getBinding();
+							return arg.getBinding();
 						};
 		resolveParamTags(typeDecl.initializerScope,
 				reportMissing,
