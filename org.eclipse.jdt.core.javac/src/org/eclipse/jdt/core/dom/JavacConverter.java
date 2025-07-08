@@ -1177,26 +1177,7 @@ class JavacConverter {
 			commonSettings(res, javac);
 			res.modifiers().addAll(convert(javac.getModifiers(), res));
 
-			Type resType = null;
-			int count = fragment.getExtraDimensions();
-			if( count > 0 ) {
-				// must do simple type here
-				JCTree t = javac.getType();
-				if( t instanceof JCArrayTypeTree jcatt) {
-					// unwrap the jcatt count times?
-					JCTree working = jcatt;
-					for( int i = 0; i < count; i++ ) {
-						if( working instanceof JCArrayTypeTree work2) {
-							working = work2.getType();
-						}
-					}
-					resType = convertToType(working);
-				} else {
-					resType = convertToType(javac.getType());
-				}
-			} else {
-				resType = convertToType(javac.getType());
-			}
+			Type resType = convertToType(unwrapDimensions(javac.getType(), fragment.getExtraDimensions()));
 			if (resType != null) {
 				res.setType(resType);
 			}
@@ -2376,15 +2357,8 @@ class JavacConverter {
 			commonSettings(res, javac);
 
 			if (jcVariableDecl.vartype != null) {
-				if( jcVariableDecl.vartype instanceof JCArrayTypeTree jcatt) {
-					int extraDims = 0;
-					if(fragment.extraDimensions() != null && fragment.extraDimensions().size() > 0 ) {
-						extraDims = fragment.extraDimensions().size();
-					}
-					res.setType(convertToType(unwrapDimensions(jcatt, extraDims)));
-				} else {
-					res.setType(convertToType(findBaseType(jcVariableDecl.vartype)));
-				}
+				int fragmentDimensions = fragment.getExtraDimensions();
+				res.setType(convertToType(unwrapDimensions(jcVariableDecl.vartype, fragmentDimensions)));
 			} else if( jcVariableDecl.declaredUsingVar() ) {
 				SimpleType st = this.ast.newSimpleType(this.ast.newSimpleName("var"));
 				st.setSourceRange(javac.getStartPosition(), 3);
