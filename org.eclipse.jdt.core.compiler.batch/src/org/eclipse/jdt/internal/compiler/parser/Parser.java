@@ -8279,28 +8279,6 @@ protected void consumeLambdaHeader() {
 		this.currentElement.lambdaNestLevel++;
 	}
 }
-private void setArgumentsTypeVar(LambdaExpression lexp) {
-	Argument[] args =  lexp.arguments;
-	if (!this.parsingJava11Plus || args == null || args.length == 0) {
-		lexp.argumentsTypeVar = false;
-		return;
-	}
-
-	boolean isVar = false, mixReported = false;
-	for (int i = 0, l = args.length; i < l; ++i) {
-		Argument arg = args[i];
-		TypeReference type = arg.type;
-		char[][] typeName = type != null ? type.getTypeName() : null;
-		boolean prev = isVar;
-		isVar = typeName != null && typeName.length == 1 &&
-				CharOperation.equals(typeName[0], TypeConstants.VAR);
-		lexp.argumentsTypeVar |= isVar;
-		if (i > 0 && prev != isVar && !mixReported) { // report only once per list
-			this.problemReporter().varCannotBeMixedWithNonVarParams(isVar ? arg : args[i - 1]);
-			mixReported = true;
-		}
-	}
-}
 protected void consumeLambdaExpression() {
 
 	// LambdaExpression ::= LambdaHeader LambdaBody
@@ -8326,7 +8304,6 @@ protected void consumeLambdaExpression() {
 	if (body instanceof Expression expression && expression.isTrulyExpression()) {
 		expression.statementEnd = body.sourceEnd;
 	}
-	setArgumentsTypeVar(lexp);
 	pushOnExpressionStack(lexp);
 	if (this.currentElement != null) {
 		this.lastCheckPoint = body.sourceEnd + 1;
@@ -10318,10 +10295,8 @@ public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, Co
 }
 
 protected TypeReference augmentTypeWithAdditionalDimensions(TypeReference typeReference, int additionalDimensions, Annotation[][] additionalAnnotations, boolean isVarargs) {
-	if (this.parsingJava10Plus && typeReference instanceof SingleTypeReference singletypeRef && CharOperation.equals(singletypeRef.token, TypeConstants.VAR)) {
-		problemReporter().varLocalCannotBeArray(singletypeRef);
-		return typeReference; // having complained, let clients just see original type reference
-	}
+	if (this.parsingJava10Plus && typeReference instanceof SingleTypeReference singleTypeRef && CharOperation.equals(singleTypeRef.token, TypeConstants.VAR))
+		problemReporter().varLocalCannotBeArray(singleTypeRef);
 	return typeReference.augmentTypeWithAdditionalDimensions(additionalDimensions, additionalAnnotations, isVarargs);
 }
 
@@ -10829,18 +10804,11 @@ protected void annotateTypeReference(Wildcard ref) {
 }
 protected final TypeReference getTypeReference(int dim) {
 	TypeReference typeRef = constructTypeReference(dim);
-	if (this.parsingJava10Plus && typeRef instanceof SingleTypeReference singletypeRef && CharOperation.equals(singletypeRef.token, TypeConstants.VAR)) {
-		boolean rectify = false;
-		if (singletypeRef.isParameterizedTypeReference()) {
-			problemReporter().varCannotBeUsedWithTypeArguments(singletypeRef);
-			rectify = true;
-		}
-		if (singletypeRef.dimensions() > 0) {
-			problemReporter().varLocalCannotBeArray(singletypeRef);
-			rectify = true;
-		}
-		if (rectify)
-			typeRef = new SingleTypeReference(TypeConstants.VAR, typeRef.sourceStart, typeRef.sourceEnd);
+	if (this.parsingJava10Plus && typeRef instanceof ArrayTypeReference singleTypeRef && CharOperation.equals(singleTypeRef.token, TypeConstants.VAR)) {
+		if (singleTypeRef.isParameterizedTypeReference())
+			problemReporter().varCannotBeUsedWithTypeArguments(singleTypeRef);
+		if (singleTypeRef.dimensions() > 0)
+			problemReporter().varLocalCannotBeArray(singleTypeRef);
 	}
 	return typeRef;
 }

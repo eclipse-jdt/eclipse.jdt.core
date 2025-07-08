@@ -201,6 +201,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int HasLocalType = Bit2; // cannot conflict with AddAssertionMASK
 	public static final int HasBeenResolved = Bit5; // field decl only (to handle forward references)
 
+	// for lambda expressions
+	public static final int ArgumentsTypeElided = Bit2; // A lambda with var typed arguments is considered to be type elided, but the Arguments themselves are considered var typed.
+
 	// for expression
 	public static final int ParenthesizedSHIFT = 21; // Bit22 -> Bit29
 	public static final int ParenthesizedMASK = Bit22|Bit23|Bit24|Bit25|Bit26|Bit27|Bit28|Bit29; // 8 bits for parenthesis count value (max. 255)
