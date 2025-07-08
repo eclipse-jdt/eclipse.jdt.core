@@ -1179,6 +1179,11 @@ public class DOMMethodLocator extends DOMPatternLocator {
 
 	@Override
 	public LocatorResponse match(LambdaExpression node, NodeSetWrapper nodeSet, MatchLocator locator) {
-		return toResponse(this.locator.pattern.parameterCount == node.parameters().size() ? POSSIBLE_MATCH : IMPOSSIBLE_MATCH);
+		if (this.locator.pattern.parameterCount == -1
+			|| this.locator.pattern.parameterCount == node.parameters().size()) {
+			nodeSet.setMustResolve(true);
+			return toResponse(POSSIBLE_MATCH);
+		}
+		return toResponse(IMPOSSIBLE_MATCH);
 	}
 }

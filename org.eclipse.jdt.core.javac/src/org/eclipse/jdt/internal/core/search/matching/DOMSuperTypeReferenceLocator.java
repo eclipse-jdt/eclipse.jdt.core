@@ -15,7 +15,9 @@ import java.util.Set;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.QualifiedType;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -81,6 +83,9 @@ public class DOMSuperTypeReferenceLocator extends DOMPatternLocator {
 	public LocatorResponse resolveLevel(org.eclipse.jdt.core.dom.ASTNode node, IBinding binding, MatchLocator locator) {
 		if (binding == null)
 			return toResponse(INACCURATE_MATCH);
+		if (node instanceof LambdaExpression && binding instanceof IMethodBinding method) {
+			binding = method.getDeclaringClass();
+		}
 		if (!(binding instanceof ITypeBinding type))
 			return toResponse(IMPOSSIBLE_MATCH);
 

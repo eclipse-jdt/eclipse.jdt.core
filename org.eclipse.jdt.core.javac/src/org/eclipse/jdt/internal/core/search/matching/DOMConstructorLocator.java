@@ -134,6 +134,11 @@ public class DOMConstructorLocator extends DOMPatternLocator {
 			int level = nodeSet.addMatch(node, this.locator.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 			return toResponse(level, true);
 		}
+		if (!this.locator.pattern.hasConstructorParameters()
+			&& node instanceof CreationReference ref
+			&& matchesTypeReference(this.locator.pattern.declaringSimpleName, ref.getType())) {
+			return toResponse(POSSIBLE_MATCH);
+		}
 		return toResponse(IMPOSSIBLE_MATCH);
 	}
 
