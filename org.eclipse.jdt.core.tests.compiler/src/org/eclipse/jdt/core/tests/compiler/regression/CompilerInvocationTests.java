@@ -849,7 +849,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("MissingTypeInConstructor", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("MissingTypeInLambda", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("ModifierOnRequiresJavaBase", new ProblemAttributes(CategorizedProblem.CAT_MODULE));
-		expectedProblemAttributes.put("ModifierOnRequiresJavaBasePreview", new ProblemAttributes(CategorizedProblem.CAT_MODULE));
+		expectedProblemAttributes.put("ModifierTransitiveOnRequiresJavaBaseBelow25", new ProblemAttributes(CategorizedProblem.CAT_MODULE));
 		expectedProblemAttributes.put("MissingTypeForInference", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("UnterminatedTextBlock", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 		expectedProblemAttributes.put("MissingTypeInMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -1998,7 +1998,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("MissingTypeInConstructor", SKIP);
 		expectedProblemAttributes.put("MissingTypeInLambda", SKIP);
 		expectedProblemAttributes.put("ModifierOnRequiresJavaBase", SKIP);
-		expectedProblemAttributes.put("ModifierOnRequiresJavaBasePreview", SKIP);
+		expectedProblemAttributes.put("ModifierTransitiveOnRequiresJavaBaseBelow25", SKIP);
 		expectedProblemAttributes.put("UnterminatedTextBlock", SKIP);
 		expectedProblemAttributes.put("MissingTypeInMethod", SKIP);
 		expectedProblemAttributes.put("MissingTypeForInference", SKIP);

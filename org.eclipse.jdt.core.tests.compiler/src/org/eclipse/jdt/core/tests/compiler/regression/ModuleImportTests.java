@@ -88,6 +88,48 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 		verifyClassFile("version 25 : 69.0", "p/X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 
+	public void test001_simple_24() throws IOException, ClassFormatException {
+		runNegativeModuleTest(
+			new String[] {
+				"p/X.java",
+				"""
+					package p;
+					import module java.sql;
+					public class X {
+						public static void main(String[] args) {
+							@SuppressWarnings("unused")
+							Connection con = null;
+						}
+					}
+					""",
+				"module-info.java",
+				"""
+					module mod.one {
+						requires java.sql;
+					}
+					"""
+			},
+			" -24 \"" + getSourceDir() +  File.separator + "module-info.java\" "
+			+ "\"" + getSourceDir() +  File.separator + "p/X.java\"",
+			"",
+			"""
+			----------
+			1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 2)
+				import module java.sql;
+				              ^^^^^^^^
+			The Java feature 'Module Import Declarations' is only available with source level 25 and above
+			----------
+			2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 6)
+				Connection con = null;
+				^^^^^^^^^^
+			Connection cannot be resolved to a type
+			----------
+			2 problems (2 errors)
+			""",
+			true,
+			"not supported");
+	}
+
 	public void test002_moduleNotRead() {
 		runNegativeModuleTest(
 			new String[] {
@@ -790,6 +832,29 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				this.complianceLevel < ClassFileConstants.JDK25); // Skipped for javac < 25 due to https://bugs.openjdk.org/browse/JDK-8347646 - fixed in 25
 	}
 
+	public void testIllegalModifierRequiresJavaBase_3_24() throws IOException, ClassFormatException {
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, OUTPUT_DIR, "module-info.java",
+				"""
+					module one {
+						requires transitive java.base;
+					}
+					""");
+		runNegativeModuleTest(files,
+				new StringBuilder(" --release 24"),
+				"",
+				"""
+				----------
+				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 2)
+					requires transitive java.base;
+					         ^^^^^^^^^^^^^^^^^^^^
+				Modifiers are not allowed for dependence on module 'java.base' for source level below 25
+				----------
+				1 problem (1 error)
+				""",
+				"not supported");
+	}
+
 	public void testIllegalModifierRequiresJavaBase_4() {
 		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, OUTPUT_DIR, "module-info.java",
@@ -799,7 +864,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		runNegativeModuleTest(files,
-				new StringBuilder(" --release 25 --enable-preview"),
+				new StringBuilder(" --release 25"),
 				"",
 				"""
 				----------

@@ -11475,9 +11475,11 @@ public void invalidServiceRef(int problem, TypeReference type) {
 		NoArgument, new String[] { CharOperation.charToString(type.resolvedType.readableName()) },
 		type.sourceStart, type.sourceEnd);
 }
-public void modifierRequiresJavaBase(RequiresStatement stat, JavaFeature moduleImports) {
+public void modifierRequiresJavaBase(RequiresStatement stat, JavaFeature moduleImportsFeature) {
 	// don't use validateJavaFeatureSupport() as we want to give a more specific message if not enabled
-	if (moduleImports != null && moduleImports.isSupported(this.options)) {
+	if (moduleImportsFeature != null) {
+		if (!moduleImportsFeature.isSupported(this.options))
+			this.handle(IProblem.ModifierTransitiveOnRequiresJavaBaseBelow25, NoArgument, NoArgument, stat.modifiersSourceStart, stat.sourceEnd);
 		return;
 	}
 	this.handle(IProblem.ModifierOnRequiresJavaBase, NoArgument, NoArgument, stat.modifiersSourceStart, stat.sourceEnd);
