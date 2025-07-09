@@ -213,13 +213,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	public boolean isReceiver() {
 		return false;
 	}
+
 	public TypeBinding patchType(BlockScope scope, TypeBinding newType) {
 		if (TypeBinding.equalsEquals(TypeBinding.NULL, newType))
 			scope.problemReporter().varLocalInitializedToNull(this);
 		else if (TypeBinding.equalsEquals(TypeBinding.VOID, newType))
 			scope.problemReporter().varLocalInitializedToVoid(this);
 		// Perform upwards projection on type wrt mentioned type variables
-		TypeBinding[] mentionedTypeVariables= newType != null ? newType.syntheticTypeVariablesMentioned() : null;
+		TypeBinding[] mentionedTypeVariables = newType != null ? newType.syntheticTypeVariablesMentioned() : null;
 		if (mentionedTypeVariables != null && mentionedTypeVariables.length > 0) {
 			newType = newType.upwardsProjection(this.binding.declaringScope, mentionedTypeVariables);
 		}
@@ -237,7 +238,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 		final boolean isPatternVariable = (this.bits & ASTNode.IsPatternVariable) != 0;
 		final boolean isForeachElementVariable = (this.bits & ASTNode.IsForeachElementVariable) != 0;
-		final boolean varTypedLocal = isTypeNameVar(scope);
+		final boolean varTypedLocal = isVarTyped(scope);
 		final boolean unnamedLocal = isUnnamed(scope);
 
 		TypeBinding variableType = null;
@@ -246,7 +247,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			if ((this.bits & ASTNode.IsAdditionalDeclarator) != 0)
 				scope.problemReporter().varLocalMultipleDeclarators(this);
 			if (isPatternVariable)
-				variableType = this.type.resolvedType; // set already if this is a component pattern or is problem binding as it should be.
+				variableType = this.type.resolvedType; // set already if this is a component pattern or is problem binding otherwise as it should be.
 		} else {
 			variableType = this.type == null ? null : this.type.resolveType(scope, true /* check bounds*/);
 		}
