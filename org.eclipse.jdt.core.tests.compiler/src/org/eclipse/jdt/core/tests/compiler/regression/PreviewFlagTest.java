@@ -140,7 +140,7 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 			},
 			"world");
 		String expectedOutput =
-				"version 25 : 69.65535"
+				"version 25 : 69.0"
 				;
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
@@ -160,12 +160,7 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 					"""
 			},
 				"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
-				"	ScopedValue<Integer> si = ScopedValue.newInstance();\n" +
-				"	                          ^^^^^^^^^^^\n" +
-				"This API is part of the preview feature 'Scoped Values' which is disabled by default. Use --enable-preview to enable\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 6)\n" +
+				"1. ERROR in X.java (at line 6)\n" +
 				"	public int foo() {}\n" +
 				"	           ^^^^^\n" +
 				"This method must return a result of type int\n" +
@@ -233,12 +228,7 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 				}
 				"""},
 				"----------\n" +
-				"1. WARNING in X.java (at line 3)\n" +
-				"	ScopedValue<Integer> si = ScopedValue.newInstance();\n" +
-				"	                          ^^^^^^^^^^^\n" +
-				"You are using an API that is part of the preview feature \'Scoped Values\' and may be removed in future\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 6)\n" +
+				"1. ERROR in X.java (at line 6)\n" +
 				"	public int foo() {}\n" +
 				"	           ^^^^^\n" +
 				"This method must return a result of type int\n" +
