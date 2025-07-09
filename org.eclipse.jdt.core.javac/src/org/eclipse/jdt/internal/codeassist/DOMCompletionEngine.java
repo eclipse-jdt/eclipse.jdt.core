@@ -277,6 +277,23 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			return this.shadowed.contains(binding);
 		}
 		public Stream<CompletionProposal> toProposals() {
+			return toProposals(false);
+		}
+		public Stream<CompletionProposal> toProposals(boolean expectedOnly) {
+
+			// Needed to tell if `this` should be used
+			List<ITypeBinding> parentTypeBinding = new ArrayList<>();
+			ASTNode cursor = DOMCompletionEngine.this.toComplete;
+			while (DOMCompletionUtils.findParentTypeDeclaration(cursor) != null) {
+				ASTNode parentTypeDeclaration = DOMCompletionUtils.findParentTypeDeclaration(cursor);
+				if (parentTypeDeclaration instanceof AbstractTypeDeclaration typeDecl) {
+					parentTypeBinding.add(typeDecl.resolveBinding());
+				} else {
+					parentTypeBinding.add(((AnonymousClassDeclaration)parentTypeDeclaration).resolveBinding());
+				}
+				cursor = parentTypeDeclaration.getParent();
+			}
+
 			return all() //
 				.filter(binding -> pattern.matchesName(prefix.toCharArray(), binding.getName().toCharArray())) //
 				.filter(binding -> {
@@ -304,26 +321,10 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					}
 					return true;
 				})
-				.filter(binding -> !assistOptions.checkDeprecation || !isDeprecated(binding.getJavaElement()))
-				.map(binding ->  {
-					if (binding instanceof IVariableBinding varBinding && isShadowed(binding) && varBinding.isField() && (varBinding.getModifiers() & Flags.AccStatic) == 0) {
-						StringBuilder completion = new StringBuilder();
-						completion.append(varBinding.getDeclaringClass().getName());
-						completion.append(".this.");
-						completion.append(varBinding.getName());
-						return toProposal(binding, completion.toString());
-					}
-					return toProposal(binding);
-				});
-		}
-
-		/**
-		 * Like <code>toProposals()</code> except it only generates proposals for bindings that match the expected type(s).
-		 */
-		public Stream<CompletionProposal> toExpectedProposals() {
-			return all() //
-				.filter(binding -> pattern.matchesName(prefix.toCharArray(), binding.getName().toCharArray())) //
 				.filter(binding -> {
+					if (!expectedOnly) {
+						return true;
+					}
 					ITypeBinding valueBinding = null;
 					if (binding instanceof IMethodBinding methodBinding) {
 						valueBinding = methodBinding.getReturnType();
@@ -335,29 +336,40 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					}
 					return RelevanceUtils.computeRelevanceForExpectingType(valueBinding, DOMCompletionEngine.this.expectedTypes) > 0;
 				}) //
-				.filter(binding -> {
-					if (binding instanceof IVariableBinding varBinding) {
-						if (isShadowed(binding) && varBinding.isField() && varBinding.getDeclaringClass().isAnonymous()) {
-							return false;
-						}
-					}
-					return true;
-				}).filter(binding -> {
-					if (binding instanceof ITypeBinding typeBinding) {
-						return filterBasedOnExtendsOrImplementsInfo((IType)typeBinding.getJavaElement(), extendsOrImplementsInfo);
-					}
-					return true;
-				})
 				.filter(binding -> !assistOptions.checkDeprecation || !isDeprecated(binding.getJavaElement()))
-				.map(binding ->  {
-					if (binding instanceof IVariableBinding varBinding && isShadowed(binding) && varBinding.isField() && (varBinding.getModifiers() & Flags.AccStatic) == 0) {
+				.flatMap(binding -> {
+					if (binding instanceof IMethodBinding methodBinding
+							&& !(DOMCompletionEngine.this.toComplete.getParent() instanceof QualifiedName)
+							&& !(DOMCompletionEngine.this.toComplete.getParent() instanceof MethodInvocation)
+							&& !(DOMCompletionEngine.this.toComplete.getParent() instanceof FieldAccess)) {
+						// Handle referencing methods from parent classes using ClassName.this.methodName()
+						// Note that the completion text is correct,
+						// but due to bugs in jdt.ui this completion doesn't work in practice
+						List<CompletionProposal> proposals = new ArrayList<>();
+						for (ITypeBinding parentType : parentTypeBinding) {
+							if (DOMCompletionUtils.findInSupers(parentType, methodBinding.getDeclaringClass())) {
+								if (proposals.isEmpty()) {
+									proposals.add(toProposal(methodBinding));
+								} else if (!Flags.isPrivate(methodBinding.getModifiers())) {
+									StringBuilder completion = new StringBuilder();
+									completion.append(parentType.getName());
+									completion.append(".this.");
+									completion.append(methodBinding.getName());
+									proposals.add(toProposal(binding, completion.toString()));
+								}
+							}
+						}
+						if (!proposals.isEmpty()) {
+							return proposals.stream();
+						}
+					} else if (binding instanceof IVariableBinding varBinding && isShadowed(binding) && varBinding.isField() && (varBinding.getModifiers() & Flags.AccStatic) == 0) {
 						StringBuilder completion = new StringBuilder();
 						completion.append(varBinding.getDeclaringClass().getName());
 						completion.append(".this.");
 						completion.append(varBinding.getName());
-						return toProposal(binding, completion.toString());
+						return Stream.of(toProposal(binding, completion.toString()));
 					}
-					return toProposal(binding);
+					return Stream.of(toProposal(binding));
 				});
 		}
 
@@ -1896,7 +1908,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		if (expectedConstructorTypeBinding != null) {
 			completeConstructor(expectedConstructorTypeBinding, classInstanceCreation, this.javaProject, exactType);
 			if (classInstanceCreation.getType().getStartPosition() + classInstanceCreation.getType().getLength() < this.offset) {
-				List<CompletionProposal> expectedProposals = defaultCompletionBindings.toExpectedProposals().toList();
+				List<CompletionProposal> expectedProposals = defaultCompletionBindings.toProposals(true).toList();
 				expectedProposals.forEach(this.requestor::accept);
 			}
 		} else if (this.toComplete == classInstanceCreation) {
@@ -2084,7 +2096,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					endPos = startPos + qualifiedName.getName().getLength();
 				}
 				if (!(this.toComplete instanceof Type)) {
-					AbstractTypeDeclaration parentTypeDeclaration = DOMCompletionUtils.findParentTypeDeclaration(qualifiedName);
+					ASTNode parentTypeDeclaration = DOMCompletionUtils.findParentTypeDeclaration(qualifiedName);
 					MethodDeclaration methodDecl = (MethodDeclaration)DOMCompletionUtils.findParent(this.toComplete, new int[] { ASTNode.METHOD_DECLARATION });
 					if (parentTypeDeclaration != null && methodDecl != null && (methodDecl.getModifiers() & Flags.AccStatic) == 0) {
 						if (completionContext.getCurrentTypeBinding().isSubTypeCompatible(qualifierTypeBinding)) {
@@ -4685,7 +4697,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		}
 
 		Javadoc javadoc = (Javadoc) DOMCompletionUtils.findParent(this.toComplete, new int[] { ASTNode.JAVADOC });
-		AbstractTypeDeclaration parentTypeDeclaration = DOMCompletionUtils.findParentTypeDeclaration(this.toComplete);
+		ASTNode parentTypeDeclaration = DOMCompletionUtils.findParentTypeDeclaration(this.toComplete);
 		if (parentTypeDeclaration != null || javadoc != null) {
 			String fullTypeName = type.getFullyQualifiedName();
 			boolean inImports = ((List<ImportDeclaration>)this.unit.imports()).stream().anyMatch(improt -> fullTypeName.equals(improt.getName().toString()));

@@ -97,7 +97,7 @@ public class DOMConstructorLocator extends DOMPatternLocator {
 				return toResponse(IMPOSSIBLE_MATCH);
 			}
 			if (this.locator.pattern.declaringSimpleName != null) {
-				if (!this.matchesName(this.locator.pattern.declaringSimpleName, DOMCompletionUtils.findParentTypeDeclaration(node).getName().getIdentifier().toCharArray())) {
+				if (!this.matchesName(this.locator.pattern.declaringSimpleName, DOMCompletionUtils.findParentTypeDeclaration(node) instanceof AbstractTypeDeclaration typeDecl ? typeDecl.getName().getIdentifier().toCharArray() : new char[0])) {
 					return toResponse(IMPOSSIBLE_MATCH);
 				}
 			}

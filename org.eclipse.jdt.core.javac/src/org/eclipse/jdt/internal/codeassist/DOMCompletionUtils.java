@@ -28,7 +28,6 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionMethodReference;
 import org.eclipse.jdt.core.dom.FieldAccess;
@@ -80,13 +79,13 @@ public class DOMCompletionUtils {
 	}
 
 	/**
-	 * Returns the first parent type declaration (class, enum, record, annotation, etc), or null if there is no parent type declaration.
+	 * Returns the first parent type declaration (class, enum, record, annotation, anonymous), or null if there is no parent type declaration.
 	 *
 	 * @param nodeToSearch the node whose parents should be searched
-	 * @return the first parent type declaration (class, enum, record, annotation, etc), or null if there is no parent type declaration
+	 * @return the first parent type declaration (class, enum, record, annotation, anonymous), or null if there is no parent type declaration
 	 */
-	public static AbstractTypeDeclaration findParentTypeDeclaration(ASTNode nodeToSearch) {
-		return (AbstractTypeDeclaration) DOMCompletionUtils.findParent(nodeToSearch, new int[] { ASTNode.TYPE_DECLARATION, ASTNode.ENUM_DECLARATION, ASTNode.RECORD_DECLARATION, ASTNode.ANNOTATION_TYPE_DECLARATION });
+	public static ASTNode findParentTypeDeclaration(ASTNode nodeToSearch) {
+		return DOMCompletionUtils.findParent(nodeToSearch, new int[] { ASTNode.TYPE_DECLARATION, ASTNode.ENUM_DECLARATION, ASTNode.RECORD_DECLARATION, ASTNode.ANNOTATION_TYPE_DECLARATION, ASTNode.ANONYMOUS_CLASS_DECLARATION });
 	}
 
 	private static final List<String> JAVA_MODIFIERS = List.of(
