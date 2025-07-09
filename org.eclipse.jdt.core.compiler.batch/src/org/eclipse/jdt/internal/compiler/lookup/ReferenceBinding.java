@@ -2105,30 +2105,6 @@ public char[] sourceName() {
 	return this.sourceName;
 }
 
-/**
- * Perform an upwards type projection as per JLS 4.10.5
- * @param scope Relevant scope for evaluating type projection
- * @param mentionedTypeVariables Filter for mentioned type variabled
- * @return Upwards type projection of 'this', or null if downwards projection is undefined
-*/
-@Override
-public TypeBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
-	// Note: return type remains as TypeBinding, because subclass CaptureBinding may return an ArrayBinding :(
-	return this;
-}
-
-/**
- * Perform a downwards type projection as per JLS 4.10.5
- * @param scope Relevant scope for evaluating type projection
- * @param mentionedTypeVariables Filter for mentioned type variabled
- * @return Downwards type projection of 'this', or null if downwards projection is undefined
-*/
-@Override
-public TypeBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
-	// Note: return type remains as TypeBinding, because subclass CaptureBinding may return an ArrayBinding :(
-	return this;
-}
-
 void storeAnnotationHolder(Binding binding, AnnotationHolder holder) {
 	if (holder == null) {
 		Map<Binding, AnnotationHolder> store = storedAnnotations(false, false);

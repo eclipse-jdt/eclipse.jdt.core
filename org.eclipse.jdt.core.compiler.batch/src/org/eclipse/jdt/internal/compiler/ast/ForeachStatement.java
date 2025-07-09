@@ -474,7 +474,7 @@ public class ForeachStatement extends Statement {
 		TypeBinding collectionType = this.collection == null ? null : this.collection.resolveType(upperScope);
 
 		// Patch the resolved type
-		if (this.elementVariable.isTypeNameVar(upperScope)) {
+		if (this.elementVariable.isVarTyped(upperScope)) {
 			if ((elementType = getCollectionElementType(this.scope, collectionType)) == null)
 				elementType = this.scope.getJavaLangObject(); // error reported below.
 			else
