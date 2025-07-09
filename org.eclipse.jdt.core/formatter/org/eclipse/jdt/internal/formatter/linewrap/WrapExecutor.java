@@ -144,6 +144,7 @@ public class WrapExecutor {
 
 		@Override
 		protected boolean token(Token token, int index) {
+			System.out.println("WE-1: " + token + " => lineIndent: " + lineIndent);
 			setIndent(token, this.lineIndent);
 
 			if (token.hasNLSTag())
@@ -250,6 +251,7 @@ public class WrapExecutor {
 				newLine(token, index);
 			} else {
 				checkOnColumnAlign(token, index);
+				System.out.println("WE-2: " + token + " => currentIndent: " + currentIndent);
 				setIndent(token, this.currentIndent);
 			}
 			return true;
@@ -295,7 +297,9 @@ public class WrapExecutor {
 			while (!this.stack.isEmpty() && index > this.stack.peek().getWrapPolicy().groupEndIndex)
 				this.stack.pop();
 			if (token.getWrapPolicy() != null) {
-				setIndent(token, getWrapIndent(token));
+				int wrapIndent = getWrapIndent(token);
+				System.out.println("WE-3: " + token + " => wrapIndent: " + wrapIndent);
+				setIndent(token, wrapIndent);
 				this.stack.push(token);
 			} else if (this.stack.isEmpty()) {
 				if (isFixedLineStart(token, index)) {
@@ -309,6 +313,7 @@ public class WrapExecutor {
 			}
 
 			this.currentIndent = this.stack.isEmpty() ? this.initialIndent : this.stack.peek().getIndent();
+			System.out.println("WE-4: " + token + " => currentIndent: " + currentIndent);
 			setIndent(token, this.currentIndent);
 			this.nextWrap = findWrapsCached(index, this.currentIndent).nextWrap;
 		}
@@ -742,6 +747,7 @@ public class WrapExecutor {
 
 		Token wrapParent = this.tm.get(policy.wrapParentIndex);
 		int wrapIndent = wrapParent.getIndent();
+		System.out.println("WE: " + token + " => parent " + wrapParent + " = " + wrapIndent + " + " + policy.extraIndent);
 		if (policy.indentOnColumn) {
 			wrapIndent = this.tm.getPositionInLine(policy.wrapParentIndex);
 			wrapIndent += this.tm.getLength(wrapParent, wrapIndent);
