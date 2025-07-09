@@ -37,8 +37,8 @@ import org.junit.Test;
 
 public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	public static boolean optimizeStringLiterals = false;
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 25");
-	private static final String[] VMARGS = new String[] {"--enable-preview"};
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("-source 25");
+	private static final String[] VMARGS = new String[] {};
 
 	static {
 //		TESTS_NAMES = new String[] {"testImplicitType001"};
@@ -69,7 +69,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	}
 	@Override
 	protected Map<String, String> getCompilerOptions() {
-		return getCompilerOptions(true);
+		return getCompilerOptions(false);
 	}
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean previewFlag) {
@@ -85,7 +85,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	protected void runConformTest(String[] testFiles, String expectedOutput) {
 		if(!isJRE23Plus)
 			return;
-		runConformTest(testFiles, expectedOutput, null, VMARGS, new JavacTestOptions("-source 25 --enable-preview"));
+		runConformTest(testFiles, expectedOutput, null, VMARGS, new JavacTestOptions("-source 25"));
 	}
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
@@ -95,7 +95,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	}
 	@Override
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
-		Map<String, String> customOptions = getCompilerOptions(true);
+		Map<String, String> customOptions = getCompilerOptions(false);
 		Runner runner = new Runner();
 		runner.testFiles = testFiles;
 		runner.expectedCompilerLog = expectedCompilerLog;
@@ -275,7 +275,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 							System.out.println("Hello");
 						}"""},
 					"Hello");
-			verifyClassFile("version 25 : 69.65535", "X.class", ClassFileBytesDisassembler.SYSTEM);
+			verifyClassFile("version 25 : 69.", "X.class", ClassFileBytesDisassembler.SYSTEM);
 		} finally {
 		}
 	}
