@@ -16,6 +16,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.stream.Stream;
 import junit.framework.Test;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 
 public class CompletionTests10 extends AbstractJavaModelCompletionTests {
@@ -335,6 +336,44 @@ public void testBug532476e() throws JavaModelException {
 		assertResults(
 			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, " + (R_DEFAULT + 30) + "}",
 			result.proposals);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/228
+// 'var' typed locals are not suggested as auto-completion method arguments
+public void testIssue228() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/X.java",
+		"public class X {\n" +
+		"	\n" +
+		"	void foo(int x) {\n" +
+		"		\n" +
+		"	}\n" +
+		"	void d() {\n" +
+		"		int i2 = 3;\n" +
+		"		var i3 = 3;\n" +
+		"		foo(i\n" +
+		"	}\n" +
+		"}\n");
+
+
+	// do completion
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false, false, false, false);
+	requestor.setRequireExtendedContext(true);
+	requestor.setComputeEnclosingElement(false);
+	requestor.setComputeVisibleElements(true);
+	requestor.setAssignableType("I");
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "i";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	try {
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"int i2[pos: unused][id:0]\n" +
+				"int i3[pos: unused][id:1]\n",
+				requestor.getVisibleLocalVariables());
+	} catch (IllegalArgumentException iae) {
+		fail("Invalid completion context");
+	}
 }
 private void assertProposalCount(String proposal, int expectedCount, int expectedOtherCount, CompletionResult result) {
 	String[] proposals = result.proposals.split("\n");
