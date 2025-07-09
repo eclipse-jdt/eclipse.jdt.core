@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2024 Mateusz Matela and others.
+ * Copyright (c) 2014, 2025 Mateusz Matela and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -330,9 +330,6 @@ public class WrapPreparator extends ASTVisitor {
 		}
 
 		if (!node.isConstructor()) {
-			this.wrapParentIndex = this.tm.findFirstTokenInLine(this.tm.firstIndexIn(node.getName(), TokenNameInvalid));
-			while (this.tm.get(this.wrapParentIndex).isComment())
-				this.wrapParentIndex++;
 			List<TypeParameter> typeParameters = node.typeParameters();
 			if (!typeParameters.isEmpty())
 				this.wrapIndexes.add(this.tm.firstIndexIn(typeParameters.get(0), TokenNameInvalid));
@@ -343,6 +340,11 @@ public class WrapPreparator extends ASTVisitor {
 			}
 			this.wrapIndexes.add(this.tm.firstIndexIn(node.getName(), TokenNameInvalid));
 			this.wrapGroupEnd = this.tm.lastIndexIn(node.getName(), TokenNameInvalid);
+			this.wrapParentIndex = this.tm.findFirstTokenInLine(this.wrapIndexes.get(0));
+			while (this.tm.get(this.wrapParentIndex).isComment())
+				this.wrapParentIndex++;
+			if (this.wrapParentIndex == this.wrapIndexes.get(0))
+				this.wrapIndexes.remove(0);
 			handleWrap(this.options.alignment_for_method_declaration);
 		}
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13391,5 +13391,21 @@ public void testIssue1624() {
 			}
 		}
 		""");
+}
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4122
+ * Formatting a java class causes a infinite loop
+ */
+public void testIssue4122() {
+	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_COMPACT_SPLIT;
+	String source =
+		"""
+		class A {
+			private void //
+					method() {
+			}
+		}
+		""";
+	formatSource(source);
 }
 }
