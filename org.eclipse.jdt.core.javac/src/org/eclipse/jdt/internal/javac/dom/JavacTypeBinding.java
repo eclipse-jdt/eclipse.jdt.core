@@ -51,6 +51,7 @@ import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -61,6 +62,7 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.JavacBindingResolver;
 import org.eclipse.jdt.core.dom.JavacBindingResolver.BindingKeyException;
 import org.eclipse.jdt.core.dom.JavacCompilationUnitResolver;
+import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.RecordDeclaration;
@@ -947,6 +949,18 @@ public abstract class JavacTypeBinding implements ITypeBinding {
 
 	@Override
 	public IMethodBinding getDeclaringMethod() {
+		ASTNode node = this.resolver.findDeclaringNode(this);
+		while (node != null) {
+			node = node.getParent();
+			if (node instanceof AbstractTypeDeclaration
+				|| node instanceof MethodDeclaration
+				|| node instanceof FieldDeclaration) {
+				node = null;
+			} else if (node instanceof LambdaExpression lambda) {
+				return lambda.resolveMethodBinding();
+			}
+		}
+
 		Symbol parentSymbol = this.typeSymbol.owner;
 		do {
 			if (parentSymbol instanceof final MethodSymbol method) {

@@ -214,6 +214,9 @@ public class DOMASTNodeUtils {
 		if (astNode instanceof MethodDeclaration method) {
 			return method.resolveBinding();
 		}
+		if (astNode instanceof FieldDeclaration field && !field.fragments().isEmpty()) {
+			return ((List<VariableDeclarationFragment>)field.fragments()).get(0).resolveBinding();
+		}
 		if (astNode instanceof SuperFieldAccess superField) {
 			return superField.resolveFieldBinding();
 		}
