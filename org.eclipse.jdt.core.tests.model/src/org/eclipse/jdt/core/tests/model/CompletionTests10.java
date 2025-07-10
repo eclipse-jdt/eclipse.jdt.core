@@ -375,6 +375,36 @@ public void testIssue228() throws JavaModelException {
 		fail("Invalid completion context");
 	}
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4172
+// NPE in code completion
+public void testIssue4172() throws JavaModelException {
+
+	CompletionResult result = complete(
+	        "/Completion/src/X.java",
+	        "interface Consumer<T> {\n" +
+    		"    void accept(T t);\n" +
+    		"}\n" +
+    		"\n" +
+    		"interface List<T> {\n" +
+    		"	 default void forEach(Consumer<? super T> action) {\n" +
+    		"		 \n" +
+    		"	 }\n" +
+    		"}\n" +
+    		"public class X {\n" +
+    		"  void m() {\n" +
+    		"    List<Object> y = null;\n" +
+    		"    \n" +
+    		"   y.forEach(o -> {\n" +
+    		"      for(var n=\"Hello\";n.;) {\n" +
+    		"        \n" +
+    		"      }\n" +
+    		"    });\n" +
+    		"  }\n" +
+    		"}\n",
+	    	"n.");
+
+	assertTrue(result.proposals.contains("length[METHOD_REF]{length(), Ljava.lang.String;, ()I, length, null, 60}"));
+}
 private void assertProposalCount(String proposal, int expectedCount, int expectedOtherCount, CompletionResult result) {
 	String[] proposals = result.proposals.split("\n");
 	long proposalsCount = Stream.of(proposals).filter(s -> s.startsWith(proposal)).count();
