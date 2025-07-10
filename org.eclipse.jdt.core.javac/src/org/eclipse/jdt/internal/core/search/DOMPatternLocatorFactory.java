@@ -13,7 +13,10 @@ package org.eclipse.jdt.internal.core.search;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.internal.core.search.matching.AndLocator;
+import org.eclipse.jdt.internal.core.search.matching.AndPattern;
 import org.eclipse.jdt.internal.core.search.matching.ConstructorLocator;
+import org.eclipse.jdt.internal.core.search.matching.DOMAndLocator;
 import org.eclipse.jdt.internal.core.search.matching.DOMConstructorLocator;
 import org.eclipse.jdt.internal.core.search.matching.DOMFieldLocator;
 import org.eclipse.jdt.internal.core.search.matching.DOMLocalVariableLocator;
@@ -71,6 +74,9 @@ public class DOMPatternLocatorFactory {
 		}
 		if (locator instanceof OrLocator orLocator && pattern instanceof OrPattern orPattern) {
 			return new DOMOrLocator(orLocator, orPattern);
+		}
+		if (locator instanceof AndLocator andLocator && pattern instanceof AndPattern andPattern) {
+			return new DOMAndLocator(andLocator, andPattern);
 		}
 		ILog.get().warn("Cannot map pattern locator/pattern to DOMPatternLocator");
 		return new DOMPatternLocator(null); // stub
