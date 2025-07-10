@@ -3543,7 +3543,7 @@ public void testBug429836() throws CoreException {
 public void test429934() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400905/X.java",
-			"pacakge b400905;\n" +
+			"package b400905;\n" +
 			"interface Function<T, R> {\n" +
 			"    R apply(T t);\n" +
 			"}\n" +
@@ -3573,7 +3573,7 @@ public void test429934() throws CoreException {
 public void test430159a() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b429498/X.java",
-			"pacakge b429498;\n" +
+			"package b429498;\n" +
 			"interface I {\n" +
 			"    public void doit(int xyz);\n" +
 			"}\n" +
