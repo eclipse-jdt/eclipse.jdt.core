@@ -2408,7 +2408,7 @@ public void testBug558718_001() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	record R() {}\n" +
 		"	^\n" +
-		"The preview feature Compact Source Files and Instance Main Methods is only available with source level 25 and above\n" +
+		"The Java feature 'Compact Source Files and Instance Main Methods' is only available with source level 25 and above\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 1)\n" +
 		"	record R() {}\n" +
@@ -8466,7 +8466,7 @@ public void testBug571765_001() {
 			"	^\n" +
 			(this.complianceLevel == ClassFileConstants.JDK24
 			?
-			"The preview feature Compact Source Files and Instance Main Methods is only available with source level 25 and above\n"
+			"The Java feature 'Compact Source Files and Instance Main Methods' is only available with source level 25 and above\n"
 			:
 			"Compact Source Files and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable\n"
 			) +

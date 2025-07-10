@@ -2335,6 +2335,18 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_23);
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_23);
 					javaProject.setOptions(options);
+				} else if ("24".equals(compliance)) {
+					Map options = new HashMap();
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_24);
+					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_24);
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_24);
+					javaProject.setOptions(options);
+				} else if ("25".equals(compliance)) {
+					Map options = new HashMap();
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_25);
+					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_25);
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_25);
+					javaProject.setOptions(options);
 				} else {
 					// Do NOT set default project options if compliance is not given,
 					// we may test workspace (JavaCore) default options here

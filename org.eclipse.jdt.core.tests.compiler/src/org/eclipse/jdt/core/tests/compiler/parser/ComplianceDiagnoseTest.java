@@ -2226,7 +2226,7 @@ public void test0042() {
 			1. ERROR in X.java (at line 1)
 				void ___eval() {
 				^
-			The preview feature Compact Source Files and Instance Main Methods is only available with source level 25 and above
+			The Java feature 'Compact Source Files and Instance Main Methods' is only available with source level 25 and above
 			----------
 			2. ERROR in X.java (at line 1)
 				void ___eval() {
