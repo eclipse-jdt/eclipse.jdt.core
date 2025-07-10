@@ -62,6 +62,9 @@ public class JavacLambdaBinding extends JavacMethodBinding {
 			if (parent instanceof MethodDeclaration method) {
 				return method.resolveBinding();
 			}
+			if (parent instanceof LambdaExpression lambda) {
+				return lambda.resolveMethodBinding();
+			}
 			parent = parent.getParent();
 		};
 		return null;
