@@ -39,8 +39,6 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
-import org.eclipse.jdt.internal.compiler.lookup.IntersectionTypeBinding18;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.core.search.LocatorResponse;
 import org.eclipse.jdt.internal.javac.dom.JavacTypeBinding;
 
@@ -314,11 +312,10 @@ public class DOMPatternLocator extends PatternLocator {
 		// Type variable cannot be specified through pattern => this kind of binding cannot match it (see bug 79803)
 		if (type.isTypeVariable()) return IMPOSSIBLE_MATCH;
 
-		if (type instanceof IntersectionTypeBinding18) {
+		if (type.isIntersectionType()) {
 			int result = IMPOSSIBLE_MATCH, prev = IMPOSSIBLE_MATCH;
-			IntersectionTypeBinding18 i18 = (IntersectionTypeBinding18) type;
-			for (ReferenceBinding ref : i18.intersectingTypes) {
-				result = resolveLevelForType(qualifiedPattern, ref);
+			for (ITypeBinding ref : type.getTypeBounds()) {
+				result = resolveLevelForTypeFQN(qualifiedPattern, ref);
 				if (result == ACCURATE_MATCH) return result;
 				if (result == IMPOSSIBLE_MATCH) continue;
 				if (prev == IMPOSSIBLE_MATCH) prev = result;

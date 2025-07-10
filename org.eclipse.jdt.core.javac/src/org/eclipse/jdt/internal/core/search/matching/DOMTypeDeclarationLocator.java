@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IModuleBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.internal.core.search.LocatorResponse;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
@@ -43,6 +44,10 @@ public class DOMTypeDeclarationLocator extends DOMPatternLocator {
 		}
 
 		return toResponse(IMPOSSIBLE_MATCH);
+	}
+	@Override
+	public LocatorResponse match(LambdaExpression node, NodeSetWrapper nodeSet, MatchLocator locator) {
+		return toResponse(POSSIBLE_MATCH);
 	}
 
 	static boolean matchSearchForTypeSuffix(AbstractTypeDeclaration type, char typeSuffix) {
