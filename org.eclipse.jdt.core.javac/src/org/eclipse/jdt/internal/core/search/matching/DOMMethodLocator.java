@@ -621,14 +621,20 @@ public class DOMMethodLocator extends DOMPatternLocator {
 	}
 
 	public IMethodBinding getDOMASTMethodBinding(MethodPattern methodPattern, AST ast) {
-		char[] typeName = PatternLocator.qualifiedPattern(methodPattern.declaringSimpleName, methodPattern.declaringQualification);
-		if( typeName != null ) {
-			var type = ast.resolveWellKnownType(new String(typeName));
-			if (type != null) {
-				for (IMethodBinding method : type.getDeclaredMethods()) {
-					if (Objects.equals(method.getJavaElement(), methodPattern.focus)) {
-						return method;
-					}
+		String declaringPackage = methodPattern.declaringPackageName != null ? new String(methodPattern.declaringPackageName) : "";
+		String declaringQualification = methodPattern.declaringQualification != null ? new String(methodPattern.declaringQualification) : "";
+		String simpleName = methodPattern.declaringSimpleName != null ? new String(methodPattern.declaringSimpleName) : "";
+		String typeName = declaringQualification.length() > declaringPackage.length() && declaringQualification.startsWith(declaringPackage)
+				? declaringPackage + '.' + declaringQualification.substring(declaringPackage.length() + 1).replace('.', '$') + '$' + simpleName
+				: declaringQualification +  '.' + simpleName;
+		if (typeName.startsWith(".")) {
+			typeName = typeName.substring(1);
+		}
+		var type = ast.resolveWellKnownType(typeName);
+		if (type != null) {
+			for (IMethodBinding method : type.getDeclaredMethods()) {
+				if (Objects.equals(method.getJavaElement(), methodPattern.focus)) {
+					return method;
 				}
 			}
 		}
