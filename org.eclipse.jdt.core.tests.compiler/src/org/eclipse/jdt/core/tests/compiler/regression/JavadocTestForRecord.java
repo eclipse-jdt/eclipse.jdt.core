@@ -138,7 +138,7 @@ public class JavadocTestForRecord extends JavadocTest {
 	}
 
 	public void test001() {
-		if(this.complianceLevel < ClassFileConstants.JDK14) {
+		if (this.complianceLevel < ClassFileConstants.JDK14) {
 			return;
 		}
 		this.runNegativeTest(new String[] { "X.java", "public record X() {\n" + "}\n" },
@@ -148,7 +148,7 @@ public class JavadocTestForRecord extends JavadocTest {
 	}
 
 	public void test002() {
-		if(this.complianceLevel < ClassFileConstants.JDK14) {
+		if (this.complianceLevel < ClassFileConstants.JDK14) {
 			return;
 		}
 		this.runNegativeTest(
@@ -161,7 +161,7 @@ public class JavadocTestForRecord extends JavadocTest {
 	}
 
 	public void test003() {
-		if(this.complianceLevel < ClassFileConstants.JDK14) {
+		if (this.complianceLevel < ClassFileConstants.JDK14) {
 			return;
 		}
 		runConformTest(new String[] { "X.java",
@@ -172,7 +172,7 @@ public class JavadocTestForRecord extends JavadocTest {
 	}
 
 	public void test004() {
-		if(this.complianceLevel < ClassFileConstants.JDK14) {
+		if (this.complianceLevel < ClassFileConstants.JDK14) {
 			return;
 		}
 		runConformTest(new String[] { "X.java",
@@ -190,7 +190,7 @@ public class JavadocTestForRecord extends JavadocTest {
 	}
 
 	public void test005() {
-		if(this.complianceLevel < ClassFileConstants.JDK14) {
+		if (this.complianceLevel < ClassFileConstants.JDK14) {
 			return;
 		}
 		runNegativeTest(new String[] { "X.java",
@@ -214,7 +214,7 @@ public class JavadocTestForRecord extends JavadocTest {
 	}
 
 	public void test006() {
-		if(this.complianceLevel < ClassFileConstants.JDK14) {
+		if (this.complianceLevel < ClassFileConstants.JDK14) {
 			return;
 		}
 		runNegativeTest(new String[] { "X.java",
@@ -240,7 +240,7 @@ public class JavadocTestForRecord extends JavadocTest {
 	}
 
 	public void test007() {
-		if(this.complianceLevel < ClassFileConstants.JDK14) {
+		if (this.complianceLevel < ClassFileConstants.JDK14) {
 			return;
 		}
 		runNegativeTest(new String[] { "X.java",
@@ -265,7 +265,7 @@ public class JavadocTestForRecord extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 	public void test_bug572367() {
-		if(this.complianceLevel < ClassFileConstants.JDK14) {
+		if (this.complianceLevel < ClassFileConstants.JDK14) {
 			return;
 		}
 
@@ -284,7 +284,7 @@ public class JavadocTestForRecord extends JavadocTest {
 				"0");
 	}
 	public void testGHIssue4158_1() {
-		if(this.complianceLevel < ClassFileConstants.JDK14) {
+		if (this.complianceLevel < ClassFileConstants.JDK16) {
 			return;
 		}
 		runNegativeTest(new String[] { "X.java",
@@ -322,7 +322,7 @@ public class JavadocTestForRecord extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 	public void testGHIssue4158_2() {
-		if(this.complianceLevel < ClassFileConstants.JDK14) {
+		if (this.complianceLevel < ClassFileConstants.JDK16) {
 			return;
 		}
 		runNegativeTest(new String[] { "X.java",
