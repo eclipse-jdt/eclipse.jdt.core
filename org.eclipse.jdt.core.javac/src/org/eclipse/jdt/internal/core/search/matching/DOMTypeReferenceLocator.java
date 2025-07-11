@@ -40,6 +40,7 @@ import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
+import org.eclipse.jdt.core.dom.IntersectionType;
 import org.eclipse.jdt.core.dom.JdtCoreDomPackagePrivateUtility;
 import org.eclipse.jdt.core.dom.LabeledStatement;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
@@ -58,6 +59,7 @@ import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
+import org.eclipse.jdt.core.dom.UnionType;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WildcardType;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
@@ -636,14 +638,18 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			&& node.getLocationInParent() == MethodDeclaration.THROWN_EXCEPTION_TYPES_PROPERTY) {
 			return true;
 		}
-		if ((fineGrain & IJavaSearchConstants.CAST_TYPE_REFERENCE) != 0
-			&& node.getLocationInParent() == CastExpression.TYPE_PROPERTY) {
-			return true;
+		if ((fineGrain & IJavaSearchConstants.CAST_TYPE_REFERENCE) != 0) {
+			ASTNode focusType = node.getLocationInParent() == IntersectionType.TYPES_PROPERTY ? node.getParent() : node;
+			if (focusType.getLocationInParent() == CastExpression.TYPE_PROPERTY) {
+				return true;
+			}
 		}
-		if ((fineGrain & IJavaSearchConstants.CATCH_TYPE_REFERENCE) != 0
-			&& node.getLocationInParent() == SingleVariableDeclaration.TYPE_PROPERTY
-			&& node.getParent().getLocationInParent() == CatchClause.EXCEPTION_PROPERTY) {
-			return true;
+		if ((fineGrain & IJavaSearchConstants.CATCH_TYPE_REFERENCE) != 0) {
+			ASTNode focusType = node.getLocationInParent() == UnionType.TYPES_PROPERTY ? node.getParent() : node;
+			if (focusType.getLocationInParent() == SingleVariableDeclaration.TYPE_PROPERTY
+				&& focusType.getParent().getLocationInParent() == CatchClause.EXCEPTION_PROPERTY) {
+				return true;
+			}
 		}
 		if ((fineGrain & IJavaSearchConstants.RETURN_TYPE_REFERENCE) != 0
 			&& (node.getLocationInParent() == MethodDeclaration.RETURN_TYPE2_PROPERTY
