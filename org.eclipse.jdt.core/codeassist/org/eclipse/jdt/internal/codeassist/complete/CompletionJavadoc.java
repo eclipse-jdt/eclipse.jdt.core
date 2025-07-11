@@ -68,7 +68,12 @@ public class CompletionJavadoc extends Javadoc {
 				if (resolve) {
 					switch (scope.kind) {
 						case Scope.CLASS_SCOPE:
-							this.completionNode.resolveType((ClassScope)scope);
+							if (scope.referenceContext() instanceof TypeDeclaration type && type.isRecord()) {
+								this.completionNode.resolveType(type.initializerScope);
+							}
+							else {
+								this.completionNode.resolveType((ClassScope)scope);
+							}
 							break;
 						case Scope.METHOD_SCOPE:
 							this.completionNode.resolveType((MethodScope) scope);
