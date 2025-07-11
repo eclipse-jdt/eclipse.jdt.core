@@ -77,7 +77,7 @@ public enum JavaFeature {
 	COMPACT_SOURCE_AND_INSTANCE_MAIN_METHODS(ClassFileConstants.JDK25,
 			Messages.bind(Messages.compact_source_and_instance_main_methods),
 			new char[][] {},
-			true),
+			false),
 	/**
 	 * JEP 513.
 	 * As this feature graduated to a standard feature, we optimistically perform analysis using the
