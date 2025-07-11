@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -1947,7 +1949,72 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
         assertNotNull(ctorBinding);
         IAnnotationBinding[] annotations = ctorBinding.getAnnotations();
         assertNotNull(annotations);
-}
+	}
+
+	public void testBindingKey() throws IOException {
+		Path rootDir = null;
+		Path packageDir = null;
+		Path file = null;
+		try {
+			rootDir = Files.createTempDirectory("jdt-test-binding-key");
+			ASTParser parser = ASTParser.newParser(AST_JLS_LATEST);
+			parser.setEnvironment(null, null, null, true);
+			parser.setResolveBindings(true);
+			parser.setStatementsRecovery(true);
+			parser.setBindingsRecovery(true);
+			parser.setCompilerOptions(getCompilerOptions());
+
+			final IBinding[] bindings = new IBinding[1];
+
+			String contents =
+				"package p;\n" +
+				"public class X {\n" +
+				"}";
+
+			packageDir = rootDir.resolve("p");
+			Files.createDirectory(packageDir);
+			file = packageDir.resolve("X.java");
+			Files.writeString(file, contents);
+
+			final String absPath = file.toFile().getAbsolutePath();
+
+			FileASTRequestor requestor = new FileASTRequestor() {
+				public void acceptAST(String sourceFilePath, CompilationUnit ast) {
+					if (absPath.equals(sourceFilePath)) {
+						ast.accept(new ASTVisitor() {
+
+							@Override
+							public boolean visit(TypeDeclaration node) {
+								bindings[0] = node.resolveBinding();
+								return false;
+							}
+
+						});
+					}
+				}
+			};
+
+			parser.setEnvironment(null, new String[] { rootDir.toFile().getAbsolutePath() }, null, true);
+
+			parser.createASTs(new String[] {absPath}, null, new String[0], requestor, null);
+
+			assertNotNull("No binding", bindings[0]);
+			assertEquals("Wrong type of binding", IBinding.TYPE, bindings[0].getKind());
+			ITypeBinding typeBinding = (ITypeBinding) bindings[0];
+			assertEquals("Wrong binding", "p.X", typeBinding.getQualifiedName());
+			assertEquals("Wrong binding key", "Lp/X;", typeBinding.getKey());
+		} finally {
+			if (file != null) {
+				Files.delete(file);
+			}
+			if (packageDir != null) {
+				Files.delete(packageDir);
+			}
+			if (rootDir != null) {
+				Files.delete(rootDir);
+			}
+		}
+	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=570472
 	// Incorrect line number in Text Block having '\"' before endline
