@@ -33,7 +33,31 @@
               <args>${project.build.sourceEncoding}</args>
             </compilerArgs>
 		  </configuration>
-		</plugin>
+    </plugin>
+    <plugin>
+      <groupId>org.moditect</groupId>
+      <artifactId>moditect-maven-plugin</artifactId>
+      <version>1.0.0.Final</version>
+      <executions>
+        <execution>
+            <id>add-module-infos</id>
+            <phase>package</phase>
+            <goals>
+                <goal>add-module-info</goal>
+            </goals>
+            <configuration>
+                <jvmVersion>11</jvmVersion>
+                <module>
+                  <moduleInfoSource>
+                    module org.eclipse.jdt.annotation {
+                      exports org.eclipse.jdt.annotation;
+                    }
+                  </moduleInfoSource>
+                </module>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
   	</plugins>
   </build>
 </project>
