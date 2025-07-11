@@ -6377,6 +6377,9 @@ public final class CompletionEngine
 					TypeDeclaration typeDeclaration = refBinding.scope.referenceContext;
 					AbstractMethodDeclaration[] methods = typeDeclaration.methods;
 
+					if (methods == null)
+						return null;
+
 					next : for (AbstractMethodDeclaration method : methods) {
 						if (!method.isConstructor()) continue next;
 
