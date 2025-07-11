@@ -652,7 +652,7 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 				 * A foo bar.
 				 * @param foo The foo.
 				 * @param bar the bar 1
-				 * @param ba
+				 * @param bar
 				 */
 				public record FooBar(String foo, String bar, String bar2, String bar3) {}
 			""");
@@ -660,7 +660,7 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 		requestor.allowAllRequiredProposals();
 		NullProgressMonitor monitor = new NullProgressMonitor();
 		String str = this.workingCopies[0].getSource();
-		String completeBehind = "@param b";
+		String completeBehind = "@param bar";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 
