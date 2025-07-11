@@ -46,6 +46,8 @@ import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.MethodReference;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.QualifiedType;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -193,25 +195,25 @@ public class DOMMethodLocator extends DOMPatternLocator {
 	}
 	@Override
 	public LocatorResponse match(MethodReference node, NodeSetWrapper nodeSet, MatchLocator locator) {
-		if (this.locator.pattern.fineGrain != 0 &&
-			(this.locator.pattern.fineGrain & IJavaSearchConstants.METHOD_REFERENCE_EXPRESSION) == 0 &&
-			(!(node instanceof SuperMethodReference) || (this.locator.pattern.fineGrain & IJavaSearchConstants.SUPER_REFERENCE) == 0)) {
-			return toResponse(IMPOSSIBLE_MATCH);
+		if (this.locator.pattern.fineGrain == 0
+			|| (this.locator.pattern.fineGrain & IJavaSearchConstants.METHOD_REFERENCE_EXPRESSION) != 0
+			|| (node instanceof SuperMethodReference && (this.locator.pattern.fineGrain & IJavaSearchConstants.SUPER_REFERENCE) != 0)
+			|| (node instanceof ExpressionMethodReference expr && expr.getExpression() instanceof ThisExpression && (this.locator.pattern.fineGrain & IJavaSearchConstants.THIS_REFERENCE) != 0)
+			|| (node instanceof ExpressionMethodReference expr && expr.getExpression() instanceof QualifiedName && (this.locator.pattern.fineGrain & IJavaSearchConstants.QUALIFIED_REFERENCE) != 0)
+			|| (node instanceof TypeMethodReference expr && expr.getType() instanceof QualifiedType && (this.locator.pattern.fineGrain & IJavaSearchConstants.QUALIFIED_REFERENCE) != 0)) {
+			SimpleName name = node instanceof TypeMethodReference typeMethodRef ? typeMethodRef.getName() :
+				node instanceof SuperMethodReference superMethodRef ? superMethodRef.getName() :
+				node instanceof ExpressionMethodReference exprMethodRef ? exprMethodRef.getName() :
+				null;
+			if (name == null) {
+				return toResponse(IMPOSSIBLE_MATCH);
+			}
+			if (this.locator.matchesName(this.locator.pattern.selector, name.getIdentifier().toCharArray())) {
+				nodeSet.setMustResolve(true);
+				return toResponse(nodeSet.addMatch(node, POSSIBLE_MATCH), true);
+			}
 		}
-		SimpleName name = node instanceof TypeMethodReference typeMethodRef ? typeMethodRef.getName() :
-			node instanceof SuperMethodReference superMethodRef ? superMethodRef.getName() :
-			node instanceof ExpressionMethodReference exprMethodRef ? exprMethodRef.getName() :
-			null;
-		if (name == null) {
-			return toResponse(IMPOSSIBLE_MATCH);
-		}
-		if (this.locator.matchesName(this.locator.pattern.selector, name.getIdentifier().toCharArray())) {
-			nodeSet.setMustResolve(true);
-			return toResponse(nodeSet.addMatch(node, POSSIBLE_MATCH), true);
-		} else {
-			return toResponse(IMPOSSIBLE_MATCH);
-		}
-
+		return toResponse(IMPOSSIBLE_MATCH);
 	}
 	@Override
 	public LocatorResponse match(org.eclipse.jdt.core.dom.Expression expression, NodeSetWrapper nodeSet, MatchLocator locator) {
