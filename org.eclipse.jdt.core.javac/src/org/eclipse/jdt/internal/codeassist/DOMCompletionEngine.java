@@ -705,6 +705,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			defaultCompletionBindings.requestAccessibleBindings(); // will be used by DOMCompletionContext.getVisibleElements(), necessary for method parameter value suggestion
 			this.completionContext = new DOMCompletionContext(this.unit, this.modelUnit, this.textContent, this.offset, this.assistOptions, defaultCompletionBindings);
 			this.nestedEngine.completionToken = completionContext.getToken();
+			this.nestedEngine.options = this.assistOptions;
 			this.requestor.acceptContext(completionContext);
 
 			this.expectedTypes = completionContext.expectedTypes;
@@ -718,7 +719,14 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					&& (!(potentialTagElement instanceof TagElement tagElement) || tagElement.getTagName() != null)) {
 				context = potentialTagElement;
 			} else if (completionContext.node instanceof SimpleName simpleName) {
-				if (simpleName.getParent() instanceof FieldAccess || simpleName.getParent() instanceof MethodInvocation
+				if (FAKE_IDENTIFIER.equals(simpleName.toString())
+						&& this.toComplete.getParent() instanceof QualifiedName qualifiedName
+						&& qualifiedName.getParent() instanceof ImportDeclaration) {
+					String nameTextContent = this.textContent.substring(qualifiedName.getStartPosition(), qualifiedName.getStartPosition() + qualifiedName.getLength());
+					if (!nameTextContent.contains(".")) {
+						context = qualifiedName.getQualifier();
+					}
+				} else if (simpleName.getParent() instanceof FieldAccess || simpleName.getParent() instanceof MethodInvocation
 						|| simpleName.getParent() instanceof VariableDeclaration || simpleName.getParent() instanceof QualifiedName
 						|| simpleName.getParent() instanceof SuperFieldAccess || simpleName.getParent() instanceof SingleMemberAnnotation
 						|| simpleName.getParent() instanceof ExpressionMethodReference || simpleName.getParent() instanceof TypeMethodReference
@@ -974,7 +982,7 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			}
 
 			if (shouldSuggestPackages(toComplete)) {
-				suggestPackages(toComplete);
+				suggestPackages(context);
 			}
 			if ((context instanceof SimpleName simple || context instanceof MethodInvocation) && !(context.getParent() instanceof Name)) {
 				for (ImportDeclaration importDecl : (List<ImportDeclaration>)this.unit.imports()) {
@@ -3626,9 +3634,12 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		}
 	}
 
-	private void suggestPackages(ASTNode context) {
+	private void suggestPackages(ASTNode context) throws JavaModelException {
 		checkCancelled();
-		while (context != null && context.getParent() instanceof Name) {
+		if (context instanceof TagElement elt && (TagElement.TAG_SEE.equals(elt.getTagName()) || TagElement.TAG_LINK.equals(elt.getTagName()))) {
+			context = this.toComplete;
+		}
+		while (context != null && context.getParent() instanceof Name && !(context.getParent() instanceof QualifiedName qName && qName.getQualifier() == context)) {
 			context = context.getParent();
 		}
 		String prefix = context instanceof Name name ? name.toString() : this.prefix;
@@ -3637,6 +3648,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			if (!prefix.isBlank()) {
 				// IMO we should provide our own ISearchRequestor so that we don't have to mess with CompletionEngine internal state
 				// but this hack should hopefully fix the range
+				ImportDeclaration importDecl = (ImportDeclaration)DOMCompletionUtils.findParent(this.toComplete, new int[] { ASTNode.IMPORT_DECLARATION });
+				this.nestedEngine.resolvingImports = importDecl != null;
+				this.nestedEngine.resolvingStaticImports = importDecl != null && importDecl.isStatic();
 				if (context instanceof Name name) {
 					this.nestedEngine.startPosition = name.getStartPosition();
 					this.nestedEngine.endPosition = name.getStartPosition() + name.getLength();
@@ -3652,7 +3666,16 @@ public class DOMCompletionEngine implements ICompletionEngine {
 
 	private void suggestTypesInPackage(String packageName) {
 		if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-			List<TypeNameMatch> foundTypes = findTypes(this.prefix, packageName).toList();
+			Set<String> typeNames = new HashSet<>();
+			List<TypeNameMatch> foundTypes = findTypes(this.prefix, packageName)
+					.filter(typeNameMatch -> {
+						if (typeNames.contains(typeNameMatch.getFullyQualifiedName())) {
+							return false;
+						}
+						typeNames.add(typeNameMatch.getFullyQualifiedName());
+						return true;
+					})
+					.toList();
 			for (TypeNameMatch foundType : foundTypes) {
 				if (this.pattern.matchesName(this.prefix.toCharArray(), foundType.getType().getElementName().toCharArray())) {
 					if (filterBasedOnExtendsOrImplementsInfo(foundType.getType(), this.extendsOrImplementsInfo)) {
