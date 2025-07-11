@@ -178,6 +178,7 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 		ASTParser astParser = ASTParser.newParser(AST.getJLSLatest());
 		astParser.setCompilerOptions(javaProject.getOptions(true));
 		astParser.setProject(javaProject);
+		astParser.setStatementsRecovery(true);
 		astParser.setResolveBindings(true);
 		astParser.setBindingsRecovery(true);
 		if (owner != null)
