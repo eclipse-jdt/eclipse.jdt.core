@@ -2202,23 +2202,43 @@ public void test0042() {
 		"}\n"
 	};
 
-	String problemLog = (this.complianceLevel >= AbstractRegressionTest.PREVIEW_FEATURE_CLASS_FILE_CONST) ?
+	String problemLog = this.complianceLevel >= ClassFileConstants.JDK25 ?
 			"""
 			----------
 			1. ERROR in X.java (at line 1)
 				void ___eval() {
 				^
-			Compact Source Files and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable
-			----------
-			2. ERROR in X.java (at line 1)
-				void ___eval() {
-				^
 			Implicitly declared class must have a candidate main method
 			----------
-			3. ERROR in X.java (at line 4)
+			2. ERROR in X.java (at line 2)
+				new Runnable() {
+				    ^^^^^^^^
+			Runnable cannot be resolved to a type
+			----------
+			3. ERROR in X.java (at line 3)
+				int ___run() throws Throwable {
+				                    ^^^^^^^^^
+			Throwable cannot be resolved to a type
+			----------
+			4. ERROR in X.java (at line 4)
 				return blah;
 				       ^^^^
 			blah cannot be resolved to a variable
+			----------
+			5. ERROR in X.java (at line 6)
+				private String blarg;
+				        ^^^^^^
+			String cannot be resolved to a type
+			----------
+			6. ERROR in X.java (at line 13)
+				private String blah;
+				        ^^^^^^
+			String cannot be resolved to a type
+			----------
+			7. ERROR in X.java (at line 14)
+				public static void main(String[] args) {
+				                        ^^^^^^
+			String cannot be resolved to a type
 			----------
 			""" :
 			"""
@@ -2238,17 +2258,15 @@ public void test0042() {
 				       ^^^^
 			blah cannot be resolved to a variable
 			----------
-			""";
-
-	if (this.complianceLevel < ClassFileConstants.JDK16) {
-		problemLog += """
+			""" +
+			(this.complianceLevel < ClassFileConstants.JDK16 ?
+			"""
 			4. ERROR in X.java (at line 14)
 				public static void main(String[] args) {
 				                   ^^^^^^^^^^^^^^^^^^^
 			The method main cannot be declared static; static methods can only be declared in a static or top level type
 			----------
-			""";
-	}
+					""" : "");
 	runNegativeTest(testFiles, problemLog);
 }
 /*

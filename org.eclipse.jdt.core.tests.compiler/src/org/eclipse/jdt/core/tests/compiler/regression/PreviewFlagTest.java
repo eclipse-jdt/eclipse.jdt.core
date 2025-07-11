@@ -140,11 +140,12 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 			},
 			"world");
 		String expectedOutput =
-				"version 25 : 69.0"
+				"version 25 : 69."
 				;
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
-	public void testIssue3614_002() throws IOException, ClassFormatException {
+	// No publicly visible preview API in JDK. Disabling
+	public void _testIssue3614_002() throws IOException, ClassFormatException {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		runNegativeTest(new String[] {
@@ -209,7 +210,8 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 		runner.expectedOutputString = "42";
 		runner.runConformTest();
 	}
-	public void testIssue3943_001() throws IOException, ClassFormatException {
+	// No publicly visible preview API in JDK. Disabling
+	public void _testIssue3943_001() throws IOException, ClassFormatException {
 		Map<String, String> options = getCompilerOptions();
 		String str = options.get(CompilerOptions.OPTION_Compliance);
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_23);
