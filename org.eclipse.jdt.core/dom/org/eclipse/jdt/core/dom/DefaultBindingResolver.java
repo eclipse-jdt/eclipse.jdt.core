@@ -804,12 +804,12 @@ class DefaultBindingResolver extends BindingResolver {
 								}
 								return packageBinding;
 							} else {
-								// if it is not a package, it has to be a type
-								ITypeBinding typeBinding = this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
-								if (typeBinding == null) {
-									return null;
+								if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.ModuleBinding) {
+								    return getModuleBinding((org.eclipse.jdt.internal.compiler.lookup.ModuleBinding) binding);
+								} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
+								    return getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
 								}
-								return typeBinding;
+								return null;
 							}
 						}
 					}
