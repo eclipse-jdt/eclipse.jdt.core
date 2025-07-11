@@ -30,7 +30,6 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceProxy;
 import org.eclipse.core.resources.IResourceProxyVisitor;
@@ -434,19 +433,19 @@ protected void compile(SourceFile[] units, SourceFile[] additionalUnits, boolean
 			additionalUnits[length + i] = iterator.next();
 	}
 	this.notifier.checkCancel();
-	boolean warnAboutMissingReleaseFlag = false;
+	boolean hasWarnedAboutMissingReleaseFlag = false;
 	try {
 		this.inCompiler = true;
-		Map<Integer, List<SourceFile>> collect = Arrays.stream(units)
+		Map<Integer, List<SourceFile>> releaseToSourceFolderMap = Arrays.stream(units)
 				.collect(Collectors.groupingBy(sf -> sf.sourceLocation.release, TreeMap::new, Collectors.toList()));
-		for (Entry<Integer, List<SourceFile>> entry : collect.entrySet()) {
+		for (Entry<Integer, List<SourceFile>> sourceFolderReleaseMapping : releaseToSourceFolderMap.entrySet()) {
 			long oldTarget = this.compiler.options.targetJDK;
 			long oldCompliance = this.compiler.options.complianceLevel;
 			long oldSource = this.compiler.options.sourceLevel;
 			boolean oldRelease = this.compiler.options.release;
 			INameEnvironment oldEnv = this.compiler.lookupEnvironment.nameEnvironment;
 			try {
-				int release = entry.getKey();
+				int release = sourceFolderReleaseMapping.getKey();
 				if (release >= JavaProject.FIRST_MULTI_RELEASE) {
 					long currentTarget = CompilerOptions.releaseToJDKLevel(release);
 					this.compiler.options.targetJDK = currentTarget;
@@ -456,7 +455,7 @@ protected void compile(SourceFile[] units, SourceFile[] additionalUnits, boolean
 					try {
 						this.compiler.lookupEnvironment.nameEnvironment = this.javaBuilder.getNameEnvironment(release);
 					} catch (CoreException e) {
-						List<IContainer> list = entry.getValue().stream().map(sf -> sf.sourceLocation.sourceFolder)
+						List<IContainer> list = sourceFolderReleaseMapping.getValue().stream().map(sf -> sf.sourceLocation.sourceFolder)
 								.distinct().toList();
 						for (IContainer container : list) {
 							createProblemFor(container, null,
@@ -467,7 +466,7 @@ protected void compile(SourceFile[] units, SourceFile[] additionalUnits, boolean
 						continue;
 					}
 					if (oldTarget >= currentTarget) {
-						List<IContainer> list = entry.getValue().stream().map(sf -> sf.sourceLocation.sourceFolder)
+						List<IContainer> list = sourceFolderReleaseMapping.getValue().stream().map(sf -> sf.sourceLocation.sourceFolder)
 								.distinct().toList();
 						for (IContainer container : list) {
 							createProblemFor(container, null,
@@ -477,20 +476,13 @@ protected void compile(SourceFile[] units, SourceFile[] additionalUnits, boolean
 									JavaCore.ERROR);
 						}
 					}
-					if (!oldRelease && !warnAboutMissingReleaseFlag) {
-							for (SourceFile source : entry.getValue()) {
-								IProject project = source.sourceLocation.sourceFolder.getProject();
-								createProblemFor(project, null,
-										NLS.bind(Messages.AbstractImageBuilder_target_required,
-												new Object[] { project.getProjectRelativePath().toPortableString(),
-														release, CompilerOptions.versionFromJdkLevel(oldTarget) }),
-										JavaCore.ERROR);
-								warnAboutMissingReleaseFlag = true;
-								break;
-							}
+					if (!oldRelease && !hasWarnedAboutMissingReleaseFlag) {
+						createProblemFor(this.javaBuilder.currentProject, null,
+								Messages.AbstractImageBuilder_release_required, JavaCore.ERROR);
+						hasWarnedAboutMissingReleaseFlag = true;
 					}
 				}
-				SourceFile[] sourceFiles = entry.getValue().toArray(SourceFile[]::new);
+				SourceFile[] sourceFiles = sourceFolderReleaseMapping.getValue().toArray(SourceFile[]::new);
 				this.nameEnvironment.setNames(getInitalTypeNames(sourceFiles),  additionalUnits);
 				this.compiler.compile(sourceFiles);
 			} finally {

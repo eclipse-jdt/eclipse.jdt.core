@@ -109,7 +109,7 @@ public class ReconcilerMultiReleaseTests extends ModifyingResourceTests {
 						}
 					}
 				""");
-		mrproject.setOption("org.eclipse.jdt.core.compiler.release", "enabled");
+		mrproject.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 		mrproject.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
 		mrproject.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.WARNING);
 	}

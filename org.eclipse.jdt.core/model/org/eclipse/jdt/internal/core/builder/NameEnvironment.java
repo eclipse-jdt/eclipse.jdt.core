@@ -226,7 +226,7 @@ private void computeClasspathLocations(
 						mustSortOutput = true;
 						finalOutputFolder = outputFolder.getFolder(new Path(String.format("META-INF/versions/%s", release))); //$NON-NLS-1$
 					}
-					int sourceTargetRelease = release==null?JavaProject.NO_RELEASE:Integer.parseInt(release);
+					int sourceFolderRelease = release==null?JavaProject.NO_RELEASE:Integer.parseInt(release);
 					ClasspathLocation sourceLocation = ClasspathLocation.forSourceFolder(
 								(IContainer) target,
 								finalOutputFolder,
@@ -234,7 +234,7 @@ private void computeClasspathLocations(
 								entry.fullExclusionPatternChars(),
 								entry.ignoreOptionalProblems(),
 								externalAnnotationPath,
-								sourceTargetRelease);
+								sourceFolderRelease);
 					if (patchedModule != null) {
 						ModuleEntryProcessor.combinePatchIntoModuleEntry(sourceLocation, patchedModule, moduleEntries);
 					}

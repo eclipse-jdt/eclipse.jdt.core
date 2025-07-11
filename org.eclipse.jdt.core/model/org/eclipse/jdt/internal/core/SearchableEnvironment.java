@@ -91,6 +91,11 @@ public class SearchableEnvironment
 	private long timeSpentInFindTypes;
 
 	private List<IPackageFragmentRoot> unnamedModulePackageFragmentRoots;
+	/**
+	 * When this value is larger than {@link JavaProject#NO_RELEASE} the {@link SearchableEnvironment} is configured to
+	 * use a specific target release, that is it will answer only types that are smaller or equal to this release,
+	 * starting with the highest to the lowest.
+	 */
 	private int release;
 
 	@Deprecated
