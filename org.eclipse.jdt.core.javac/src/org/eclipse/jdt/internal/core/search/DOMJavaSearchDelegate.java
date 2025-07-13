@@ -67,6 +67,7 @@ import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.MethodRef;
+import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.QualifiedName;
@@ -85,6 +86,7 @@ import org.eclipse.jdt.core.search.FieldReferenceMatch;
 import org.eclipse.jdt.core.search.IJavaSearchDelegate;
 import org.eclipse.jdt.core.search.LocalVariableReferenceMatch;
 import org.eclipse.jdt.core.search.MethodReferenceMatch;
+import org.eclipse.jdt.core.search.ModuleDeclarationMatch;
 import org.eclipse.jdt.core.search.PackageReferenceMatch;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchParticipant;
@@ -536,6 +538,9 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 				return res;
 			}
 			// more...?
+		}
+		if (node instanceof ModuleDeclaration mod) {
+			return new ModuleDeclarationMatch(DOMASTNodeUtils.getDeclaringJavaElement(mod), accuracy, mod.getName().getStartPosition(), mod.getName().getLength(), null, resource);
 		}
 		if (node.getLocationInParent() == SimpleType.NAME_PROPERTY
 			|| node.getLocationInParent() == QualifiedName.NAME_PROPERTY) {

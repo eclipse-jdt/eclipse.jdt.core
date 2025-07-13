@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.core.search.matching.DOMConstructorLocator;
 import org.eclipse.jdt.internal.core.search.matching.DOMFieldLocator;
 import org.eclipse.jdt.internal.core.search.matching.DOMLocalVariableLocator;
 import org.eclipse.jdt.internal.core.search.matching.DOMMethodLocator;
+import org.eclipse.jdt.internal.core.search.matching.DOMModuleLocator;
 import org.eclipse.jdt.internal.core.search.matching.DOMOrLocator;
 import org.eclipse.jdt.internal.core.search.matching.DOMPackageReferenceLocator;
 import org.eclipse.jdt.internal.core.search.matching.DOMPatternLocator;
@@ -31,6 +32,8 @@ import org.eclipse.jdt.internal.core.search.matching.DOMTypeReferenceLocator;
 import org.eclipse.jdt.internal.core.search.matching.FieldLocator;
 import org.eclipse.jdt.internal.core.search.matching.LocalVariableLocator;
 import org.eclipse.jdt.internal.core.search.matching.MethodLocator;
+import org.eclipse.jdt.internal.core.search.matching.ModuleLocator;
+import org.eclipse.jdt.internal.core.search.matching.ModulePattern;
 import org.eclipse.jdt.internal.core.search.matching.OrLocator;
 import org.eclipse.jdt.internal.core.search.matching.OrPattern;
 import org.eclipse.jdt.internal.core.search.matching.PackageReferenceLocator;
@@ -71,6 +74,9 @@ public class DOMPatternLocatorFactory {
 		}
 		if( locator instanceof TypeReferenceLocator trl) {
 			return new DOMTypeReferenceLocator(trl);
+		}
+		if( locator instanceof ModuleLocator moduleLocator && pattern instanceof ModulePattern modulePattern) {
+			return new DOMModuleLocator(moduleLocator, modulePattern);
 		}
 		if (locator instanceof OrLocator orLocator && pattern instanceof OrPattern orPattern) {
 			return new DOMOrLocator(orLocator, orPattern);

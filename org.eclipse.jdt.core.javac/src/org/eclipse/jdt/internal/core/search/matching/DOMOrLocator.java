@@ -73,7 +73,7 @@ public class DOMOrLocator extends DOMPatternLocator {
 	public LocatorResponse match(MethodInvocation node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		return or(child -> child.match(node, nodeSet, locator));
 	}
-	protected LocatorResponse match(org.eclipse.jdt.core.dom.ModuleDeclaration node, NodeSetWrapper nodeSet, MatchLocator locator) {
+	public LocatorResponse match(org.eclipse.jdt.core.dom.ModuleDeclaration node, NodeSetWrapper nodeSet, MatchLocator locator) {
 		return or(child -> child.match(node, nodeSet, locator));
 	}
 	public LocatorResponse match(Name node, NodeSetWrapper nodeSet, MatchLocator locator) {

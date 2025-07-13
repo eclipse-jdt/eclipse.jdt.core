@@ -111,7 +111,8 @@ public class DOMPatternLocator extends PatternLocator {
 		// each subtype should override if needed
 		return toResponse(PatternLocator.IMPOSSIBLE_MATCH);
 	}
-	protected LocatorResponse match(org.eclipse.jdt.core.dom.ModuleDeclaration node, NodeSetWrapper nodeSet, MatchLocator locator) {
+	public LocatorResponse match(org.eclipse.jdt.core.dom.ModuleDeclaration node, NodeSetWrapper nodeSet, MatchLocator locator) {
+		// each subtype should override if needed
 		return toResponse(PatternLocator.IMPOSSIBLE_MATCH);
 	}
 	public LocatorResponse match(Name node, NodeSetWrapper nodeSet, MatchLocator locator) {
