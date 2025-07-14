@@ -1141,15 +1141,6 @@ public abstract class Scope {
 		}
 	}
 
-	public final ClassScope enclosingTopMostClassScope() {
-		Scope scope = this;
-		while (scope != null) {
-			Scope t = scope.parent;
-			if (t instanceof CompilationUnitScope) break;
-			scope = t;
-		}
-		return scope instanceof ClassScope ? ((ClassScope) scope) : null;
-	}
 	public final MethodScope enclosingMethodScope() {
 		Scope scope = this;
 		while ((scope = scope.parent) != null) {
@@ -4908,14 +4899,14 @@ public abstract class Scope {
 	}
 
 	public final ClassScope outerMostClassScope() {
-		ClassScope lastClassScope = null;
+		ClassScope outerMostClassScope = null;
 		Scope scope = this;
 		do {
-			if (scope instanceof ClassScope)
-				lastClassScope = (ClassScope) scope;
+			if (scope instanceof ClassScope classScope)
+				outerMostClassScope = classScope;
 			scope = scope.parent;
 		} while (scope != null);
-		return lastClassScope; // may answer null if no class around
+		return outerMostClassScope; // may answer null if no class around
 	}
 
 	public final MethodScope outerMostMethodScope() {
