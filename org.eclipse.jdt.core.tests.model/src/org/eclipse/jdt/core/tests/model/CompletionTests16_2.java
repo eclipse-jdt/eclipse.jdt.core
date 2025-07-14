@@ -674,11 +674,38 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/FooBar.java",
 			"""
+				package test;
+				/**
+				 * A foo bar.
+				 * @param foo The foo.
+				 * @param bar
+				 */
+				public record FooBar(String foo, String bar, String bar2, String bar3) {}
+			""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "@param bar";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+
+		assertResults(
+				"bar3[JAVADOC_PARAM_REF]{bar3, null, null, bar3, null, 43}\n"
+				+ "bar2[JAVADOC_PARAM_REF]{bar2, null, null, bar2, null, 44}\n"
+				+ "bar[JAVADOC_PARAM_REF]{bar, null, null, bar, null, 45}",
+				requestor.getResults());
+	}
+	public void testGHIssue4158_3() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/FooBar.java",
+			"""
 				/**
 				 *
 				 * @param <X
 				 */
-				public record X<XYZ>(int abc, int XYZ) {
+				public record X<XTZ>(int abc, int XPZ) {
 				}
 			""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -690,10 +717,10 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 
 		assertResults(
-				"XYZ[JAVADOC_PARAM_REF]{<XYZ>, null, null, XYZ, null, 38}",
+				"XTZ[JAVADOC_PARAM_REF]{<XTZ>, null, null, XTZ, null, 38}",
 				requestor.getResults());
 	}
-	public void testGHIssue4158_3() throws JavaModelException {
+	public void testGHIssue4158_4() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/FooBar.java",
@@ -702,7 +729,7 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 				 *
 				 * @param X
 				 */
-				public record X<XYZ>(int abc, int XYZ) {
+				public record X<XTZ>(int abc, int XPZ) {
 				}
 			""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
@@ -714,7 +741,7 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 
 		assertResults(
-				"XYZ[JAVADOC_PARAM_REF]{XYZ, null, null, XYZ, null, 44}",
+				"XPZ[JAVADOC_PARAM_REF]{XPZ, null, null, XPZ, null, 44}",
 				requestor.getResults());
 	}
 }

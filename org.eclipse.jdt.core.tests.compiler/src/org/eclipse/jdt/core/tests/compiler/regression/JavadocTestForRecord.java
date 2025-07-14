@@ -14,7 +14,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 import junit.framework.Test;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class JavadocTestForRecord extends JavadocTest {
@@ -118,7 +117,6 @@ public class JavadocTestForRecord extends JavadocTest {
 		Runner runner = new Runner();
 		runner.testFiles = testFiles;
 		runner.expectedOutputString = expectedOutput;
-		runner.vmArguments = new String[] { "--enable-preview" };
 		runner.customOptions = customOptions;
 		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("16");
 		runner.runConformTest();
@@ -138,9 +136,6 @@ public class JavadocTestForRecord extends JavadocTest {
 	}
 
 	public void test001() {
-		if (this.complianceLevel < ClassFileConstants.JDK14) {
-			return;
-		}
 		this.runNegativeTest(new String[] { "X.java", "public record X() {\n" + "}\n" },
 				"----------\n" + "1. ERROR in X.java (at line 1)\n" + "	public record X() {\n" + "	              ^\n"
 						+ "Javadoc: Missing comment for public declaration\n" + "----------\n",
@@ -148,9 +143,6 @@ public class JavadocTestForRecord extends JavadocTest {
 	}
 
 	public void test002() {
-		if (this.complianceLevel < ClassFileConstants.JDK14) {
-			return;
-		}
 		this.runNegativeTest(
 				new String[] { "X.java",
 						"	/**\n" + "	 * @param radius radius of X\n" + "	 */\n" + "public record X(int radius) {\n"
@@ -161,9 +153,6 @@ public class JavadocTestForRecord extends JavadocTest {
 	}
 
 	public void test003() {
-		if (this.complianceLevel < ClassFileConstants.JDK14) {
-			return;
-		}
 		runConformTest(new String[] { "X.java",
 				"		/**  \n" + "		 *   \n" + "		 */  \n" + "public record X() {\n" + "		/**  \n"
 						+ "		 *   @param args \n" + "		 */  \n" + "  public static void main(String[] args){\n"
@@ -172,9 +161,6 @@ public class JavadocTestForRecord extends JavadocTest {
 	}
 
 	public void test004() {
-		if (this.complianceLevel < ClassFileConstants.JDK14) {
-			return;
-		}
 		runConformTest(new String[] { "X.java",
 				"		/**  \n" +
 				"		 * @param a\n" +
@@ -190,9 +176,6 @@ public class JavadocTestForRecord extends JavadocTest {
 	}
 
 	public void test005() {
-		if (this.complianceLevel < ClassFileConstants.JDK14) {
-			return;
-		}
 		runNegativeTest(new String[] { "X.java",
 				"		/**  \n" +
 				"		 */  \n" +
@@ -214,9 +197,6 @@ public class JavadocTestForRecord extends JavadocTest {
 	}
 
 	public void test006() {
-		if (this.complianceLevel < ClassFileConstants.JDK14) {
-			return;
-		}
 		runNegativeTest(new String[] { "X.java",
 				"		/**  \n" +
 				"		 * @param a\n" +
@@ -240,9 +220,6 @@ public class JavadocTestForRecord extends JavadocTest {
 	}
 
 	public void test007() {
-		if (this.complianceLevel < ClassFileConstants.JDK14) {
-			return;
-		}
 		runNegativeTest(new String[] { "X.java",
 				"		/**  \n" +
 				"		 * @param a\n" +
@@ -265,10 +242,6 @@ public class JavadocTestForRecord extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 	public void test_bug572367() {
-		if (this.complianceLevel < ClassFileConstants.JDK14) {
-			return;
-		}
-
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.PRIVATE;
 		runConformTest(new String[] { "X.java",
 				"		/**  \n" +
@@ -284,9 +257,6 @@ public class JavadocTestForRecord extends JavadocTest {
 				"0");
 	}
 	public void testGHIssue4158_1() {
-		if (this.complianceLevel < ClassFileConstants.JDK16) {
-			return;
-		}
 		runNegativeTest(new String[] { "X.java",
 				"""
 					/**
@@ -322,9 +292,6 @@ public class JavadocTestForRecord extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 	public void testGHIssue4158_2() {
-		if (this.complianceLevel < ClassFileConstants.JDK16) {
-			return;
-		}
 		runNegativeTest(new String[] { "X.java",
 					"""
 					/**

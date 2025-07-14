@@ -558,10 +558,7 @@ public class Javadoc extends ASTNode {
 						};
 		Function<AbstractVariableDeclaration, Binding>  resolveArgumentOrComponent =
 						(arg) -> {
-							if (arg instanceof RecordComponent) {
-								return typeDecl.binding.getField(arg.name, false);
-							}
-							return arg.getBinding();
+							return typeDecl.binding.getField(arg.name, false);
 						};
 		resolveParamTags(typeDecl.initializerScope,
 				reportMissing,
