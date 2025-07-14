@@ -60,6 +60,7 @@ import org.eclipse.jdt.core.dom.ExpressionMethodReference;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.IModuleBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
@@ -87,6 +88,7 @@ import org.eclipse.jdt.core.search.IJavaSearchDelegate;
 import org.eclipse.jdt.core.search.LocalVariableReferenceMatch;
 import org.eclipse.jdt.core.search.MethodReferenceMatch;
 import org.eclipse.jdt.core.search.ModuleDeclarationMatch;
+import org.eclipse.jdt.core.search.ModuleReferenceMatch;
 import org.eclipse.jdt.core.search.PackageReferenceMatch;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchParticipant;
@@ -533,6 +535,12 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 			}
 			if (b instanceof IMethodBinding) {
 				var res = new MethodReferenceMatch(enclosing, accuracy, node.getStartPosition(), node.getLength(),
+						insideDocComment(node), getParticipant(locator), resource);
+				res.setLocalElement(DOMASTNodeUtils.getLocalJavaElement(node));
+				return res;
+			}
+			if (b instanceof IModuleBinding) {
+				var res = new ModuleReferenceMatch(enclosing, accuracy, node.getStartPosition(), node.getLength(),
 						insideDocComment(node), getParticipant(locator), resource);
 				res.setLocalElement(DOMASTNodeUtils.getLocalJavaElement(node));
 				return res;
