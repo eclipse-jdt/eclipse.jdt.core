@@ -1421,14 +1421,13 @@ public boolean isRecord() {
 }
 
 private static SourceTypeBinding getSourceTypeBinding(ReferenceBinding ref) {
-	if (ref instanceof SourceTypeBinding)
-		return (SourceTypeBinding) ref;
-	if (ref instanceof ParameterizedTypeBinding) {
-		ParameterizedTypeBinding ptb = (ParameterizedTypeBinding) ref;
-		return ptb.type instanceof SourceTypeBinding ? (SourceTypeBinding) ptb.type : null;
-	}
+	if (ref instanceof SourceTypeBinding stb)
+		return stb;
+	if (ref instanceof ParameterizedTypeBinding ptb)
+		return ptb.type instanceof SourceTypeBinding stb ? stb : null;
 	return null;
 }
+
 public  boolean isNestmateOf(ReferenceBinding other) {
 	SourceTypeBinding s1 = getSourceTypeBinding(this);
 	SourceTypeBinding s2 = getSourceTypeBinding(other);
