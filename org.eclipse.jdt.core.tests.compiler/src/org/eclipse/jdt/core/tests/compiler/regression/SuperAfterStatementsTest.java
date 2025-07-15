@@ -3240,4 +3240,99 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			----------
 			""");
 	}
+
+	public void testGH4193() {
+		runConformTest(new String[] {
+				"C.java",
+				"""
+				import java.util.Arrays;
+				import java.util.List;
+				import java.util.Objects;
+				import java.util.function.Consumer;
+				import java.util.function.Supplier;
+
+				public final class C {
+				  private C() { }
+
+				  public static record CN<T>(List<Class<?>> types,
+				    Supplier<List<Object>> values, Consumer<T> consumer) {
+				    public CN {
+				      Objects.requireNonNull(types, "types == null");
+				      Objects.requireNonNull(values, "values == null");
+				    }
+				    public CN(final List<Class<?>> types, final Supplier<List<Object>> values) {
+				      System.out.println("before this");
+				      this(types, values, null);
+				    }
+				    public CN(final List<Class<?>> xtypes, final Object... xvalues) {
+				      this(xtypes, () -> Arrays.asList(xvalues), null);
+				    }
+				    public CN(final Consumer<T> c) {
+				      this(List.of(), () -> List.of(), c);
+				    }
+				    public CN() {
+				      this(List.of(), () -> List.of(), null);
+				    }
+				  }
+				}
+				"""
+		});
+	}
+	public void testGH4193_neg() {
+		runNegativeTest(new String[] {
+				"C.java",
+				"""
+				import java.util.Arrays;
+				import java.util.List;
+				import java.util.Objects;
+				import java.util.function.Consumer;
+				import java.util.function.Supplier;
+
+				public final class C {
+				  private C() { }
+
+				  public static record CN<T>(List<Class<?>> types,
+				    Supplier<List<Object>> values, Consumer<T> consumer) {
+				    public CN {
+				      Objects.requireNonNull(types, "types == null");
+				      Objects.requireNonNull(values, "values == null");
+				      super();
+				    }
+				    public CN(final List<Class<?>> types, final Supplier<List<Object>> values) {
+				      System.out.println("before this");
+				      super();
+				    }
+				    public CN(final List<Class<?>> xtypes, final Object... xvalues) {
+				      super();
+				    }
+				    public CN(final List<Class<?>> xtypes) {
+				    }
+				  }
+				}
+				"""
+		},
+		"""
+		----------
+		1. ERROR in C.java (at line 15)
+			super();
+			^^^^^^^^
+		The body of a compact constructor must not contain an explicit constructor call
+		----------
+		2. ERROR in C.java (at line 19)
+			super();
+			^^^^^^^^
+		A non-canonical constructor must invoke another constructor of the same class
+		----------
+		3. ERROR in C.java (at line 22)
+			super();
+			^^^^^^^^
+		A non-canonical constructor must invoke another constructor of the same class
+		----------
+		4. ERROR in C.java (at line 24)
+			public CN(final List<Class<?>> xtypes) {
+			       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+		A non-canonical constructor must invoke another constructor of the same class
+		----------
+		""");
+	}
 }
