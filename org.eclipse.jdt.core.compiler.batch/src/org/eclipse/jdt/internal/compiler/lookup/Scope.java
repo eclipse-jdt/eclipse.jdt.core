@@ -1145,15 +1145,6 @@ public abstract class Scope {
 		}
 	}
 
-	public final ClassScope enclosingTopMostClassScope() {
-		Scope scope = this;
-		while (scope != null) {
-			Scope t = scope.parent;
-			if (t instanceof CompilationUnitScope) break;
-			scope = t;
-		}
-		return scope instanceof ClassScope ? ((ClassScope) scope) : null;
-	}
 	public final MethodScope enclosingMethodScope() {
 		Scope scope = this;
 		while ((scope = scope.parent) != null) {
@@ -1790,10 +1781,8 @@ public abstract class Scope {
 					case ProblemReasons.TypeParameterArityMismatch :
 						return problemMethod;
 				}
-			} else if (foundSize == 0 && singlePrivateMethod != null) {
-				// if there is only one private method, we want to report that it is not visible.
-				return new ProblemMethodBinding(singlePrivateMethod, selector, singlePrivateMethod.parameters, ProblemReasons.NotVisible);
 			}
+
 			// abstract classes may get a match in interfaces; for non abstract
 			// classes, reduces secondary errors since missing interface method
 			// error is already reported
@@ -1813,7 +1802,13 @@ public abstract class Scope {
 				}
 				return interfaceMethod;
 			}
-			if (found.size == 0) return null;
+			if (found.size == 0) {
+				if (singlePrivateMethod != null) {
+					// if there is only one private method, we want to report that it is not visible.
+					return new ProblemMethodBinding(singlePrivateMethod, selector, singlePrivateMethod.parameters, ProblemReasons.NotVisible);
+				}
+				return null;
+			}
 			if (problemMethod != null) return problemMethod;
 
 			// still no match; try to find a close match when the parameter
@@ -4905,14 +4900,14 @@ public abstract class Scope {
 	}
 
 	public final ClassScope outerMostClassScope() {
-		ClassScope lastClassScope = null;
+		ClassScope outerMostClassScope = null;
 		Scope scope = this;
 		do {
-			if (scope instanceof ClassScope)
-				lastClassScope = (ClassScope) scope;
+			if (scope instanceof ClassScope classScope)
+				outerMostClassScope = classScope;
 			scope = scope.parent;
 		} while (scope != null);
-		return lastClassScope; // may answer null if no class around
+		return outerMostClassScope; // may answer null if no class around
 	}
 
 	public final MethodScope outerMostMethodScope() {

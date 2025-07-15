@@ -146,4 +146,16 @@ public class AnnotationTest_9 extends AbstractComparableTest {
 			}
 			);
 	}
+	public void testGH4059() {
+		runConformTest(
+			new String[] {
+					"p1/MyAnnot.java",
+					"""
+					package p1;
+					@interface MyAnnot {
+						Deprecated annot() default @Deprecated();
+					}
+					"""
+				});
+	}
 }

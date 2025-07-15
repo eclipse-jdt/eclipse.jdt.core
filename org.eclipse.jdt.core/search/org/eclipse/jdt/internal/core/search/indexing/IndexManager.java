@@ -40,6 +40,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -1311,9 +1312,12 @@ private void readIndexMap() {
 			if (savedSignature.equals(new String(names[0]))) {
 				for (int i = 1, l = names.length-1 ; i < l ; i+=2) {
 					IndexLocation indexPath = null;
+					String name = new String(names[i]);
 					try {
-						indexPath = IndexLocation.createIndexLocation((new URI(new String(names[i])).toURL()));
+						URI uri = URIUtil.fromString(name);
+						indexPath = IndexLocation.createIndexLocation(uri.toURL());
 					} catch (URISyntaxException e) {
+						Util.log(e, "Failed to create index name '" + name + "' for " + this.indexNamesMapFile); //$NON-NLS-1$ //$NON-NLS-2$
 						// Ignore the null path and continue
 					}
 					if (indexPath == null) continue;

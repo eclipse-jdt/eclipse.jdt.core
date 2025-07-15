@@ -1695,7 +1695,7 @@ public class CompletionProposal {
 	 * 	<li><code>METHOD_DECLARATION</code> - return <code>true</code>
 	 * if the declared method is a constructor</li>
 	 * </ul>
-	 * For kinds of completion proposals, this method returns
+	 * For other kinds of completion proposals, this method returns
 	 * <code>false</code>.
 	 *
 	 * @return <code>true</code> if the proposal is a constructor.
@@ -1705,6 +1705,24 @@ public class CompletionProposal {
 		return false; // default overridden by concrete implementation
 	}
 
+	/**
+	 * Returns whether this proposal is a record component accessor.
+	 * <p>
+	 * This field is available for the following kinds of
+	 * completion proposals:
+	 * <ul>
+	 * <li><code>METHOD_REF</code> - return <code>true</code>
+	 * if the referenced method is a record component accessor</li>
+	 * </ul>
+	 * For other kinds of completion proposals, this method returns
+	 * <code>false</code>.
+	 *
+	 * @return <code>true</code> if the proposal is a record component accessor.
+	 * @since 3.43
+	 */
+	public boolean isRecordComponentAccessor() {
+		return false;
+	}
 	/**
 	 * Returns the type signature or package name of the relevant
 	 * receiver in the context, or <code>null</code> if none.

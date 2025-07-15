@@ -2053,8 +2053,8 @@ class ASTConverter {
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.ExtendedStringLiteral) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.ExtendedStringLiteral) expression);
 		}
-		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.TextBlock) {
-			return convert((org.eclipse.jdt.internal.compiler.ast.TextBlock) expression);
+		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.TextBlock textBlock) {
+			return convert(textBlock);
 		}
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.StringLiteral) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.StringLiteral) expression);

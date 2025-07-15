@@ -31,6 +31,10 @@ public class TextBlockTest extends AbstractRegressionTest {
 	protected Map<String, String> getCompilerOptions() {
 		return getCompilerOptions(true);
 	}
+
+	static {
+	//	TESTS_NAMES = new String [] { "testBug565639_2" };
+	}
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean previewFlag) {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
@@ -1785,5 +1789,127 @@ string.\""");
 				},
 				"true",
 				getCompilerOptions());
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4129
+	// Text block with unicode escape before multiple backslashes has wrong value
+	public void testIssue4129() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						    public static void main(String[] args)
+						    {
+						        System.out.println(\"\"\"
+						            A \\\\\\\"-\\\\\\\" B\"\"\");
+						        System.out.println(\"\"\"
+						            \\u0041 \\\\\\"-\\\\\\" B\"\"\");
+						    }
+						}
+						"""
+				},
+				"A \\\"-\\\" B\n" +
+				"A \\\"-\\\" B");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4153
+	// [Text blocks] Delimiters in unicode not handled properly
+	public void testIssue4153() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"    public static void main(String argv[]) {\n" +
+						"    	String text = \\u0022\"\\u0022\n" +
+						"        Hello\"\"\";\n" +
+						"       \n" +
+						"        System.out.println(text);\n" +
+						"    }\n" +
+						"}\n"
+				},
+				"Hello");
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=561978
+	// Text block with the \<line-terminator> distorts line numbers for Unix-style line delimiters
+	public void testBug561978() {
+		runConformTest(true,
+				new String[] {
+						"X.java",
+						"""
+						/*  1 */ public class X {
+						/*  2 */
+						/*  3 */     public static void main(String[] args) {
+						/*  4 */
+						/*  5 */         String text = \"\"\"
+						                     Lorem ipsum dolor sit amet, consectetur adipiscing \\
+						                     elit, sed do eiusmod tempor incididunt ut labore \\
+						                     et dolore magna aliqua.\\
+						                     \"\"\";
+						/* 10 */
+						/* 11 */         	throw new RuntimeException(\"This is line 11.\");
+						/* 12 */    }
+						/* 13 */ }
+						"""
+				},
+				null,
+				getCompilerOptions(),
+				"",
+				"",
+				"Exception in thread \"main\" java.lang.RuntimeException: This is line 11.\n" +
+						"	at X.main(X.java:11)",
+						new String[] {"--enable-preview"},
+						new JavacTestOptions("-source 14 --enable-preview"));
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=570719
+	// Text blocks: '\<line-terminator>' after '\s' compiled to "\\\n" instead of to ""
+	public void testBug570719() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							public static void main(String[] args) {
+
+								System.out.println(\"\"\"
+										text \\s\\
+										block
+										\"\"\");
+
+								System.out.println(\"\"\"
+										text \\s
+										block\\
+										!!!
+										\"\"\");
+
+								System.out.println(\"\"\"
+										text \\
+										block
+										\"\"\");
+
+								System.out.println(\"\"\"
+										text \\
+										block \\s
+										!!!
+										\"\"\");
+								System.out.println("Done");
+							}
+						}
+
+						"""
+				},
+				"text  block\n" +
+				"\n" +
+				"text  \n" +
+				"block!!!\n" +
+				"\n" +
+				"text block\n" +
+				"\n" +
+				"text block  \n" +
+				"!!!\n" +
+				"\n" +
+				"Done");
 	}
 }

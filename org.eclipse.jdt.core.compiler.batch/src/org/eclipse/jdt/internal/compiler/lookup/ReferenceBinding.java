@@ -1425,14 +1425,13 @@ public boolean isRecord() {
 }
 
 private static SourceTypeBinding getSourceTypeBinding(ReferenceBinding ref) {
-	if (ref instanceof SourceTypeBinding)
-		return (SourceTypeBinding) ref;
-	if (ref instanceof ParameterizedTypeBinding) {
-		ParameterizedTypeBinding ptb = (ParameterizedTypeBinding) ref;
-		return ptb.type instanceof SourceTypeBinding ? (SourceTypeBinding) ptb.type : null;
-	}
+	if (ref instanceof SourceTypeBinding stb)
+		return stb;
+	if (ref instanceof ParameterizedTypeBinding ptb)
+		return ptb.type instanceof SourceTypeBinding stb ? stb : null;
 	return null;
 }
+
 public  boolean isNestmateOf(ReferenceBinding other) {
 	SourceTypeBinding s1 = getSourceTypeBinding(this);
 	SourceTypeBinding s2 = getSourceTypeBinding(other);
@@ -2107,30 +2106,6 @@ public char[] signature() /* Ljava/lang/Object; */ {
 @Override
 public char[] sourceName() {
 	return this.sourceName;
-}
-
-/**
- * Perform an upwards type projection as per JLS 4.10.5
- * @param scope Relevant scope for evaluating type projection
- * @param mentionedTypeVariables Filter for mentioned type variabled
- * @return Upwards type projection of 'this', or null if downwards projection is undefined
-*/
-@Override
-public TypeBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
-	// Note: return type remains as TypeBinding, because subclass CaptureBinding may return an ArrayBinding :(
-	return this;
-}
-
-/**
- * Perform a downwards type projection as per JLS 4.10.5
- * @param scope Relevant scope for evaluating type projection
- * @param mentionedTypeVariables Filter for mentioned type variabled
- * @return Downwards type projection of 'this', or null if downwards projection is undefined
-*/
-@Override
-public TypeBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
-	// Note: return type remains as TypeBinding, because subclass CaptureBinding may return an ArrayBinding :(
-	return this;
 }
 
 void storeAnnotationHolder(Binding binding, AnnotationHolder holder) {

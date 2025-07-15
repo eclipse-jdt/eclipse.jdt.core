@@ -55,15 +55,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -112,6 +104,7 @@ public class SourceTypeBinding extends ReferenceBinding {
 	public ExternalAnnotationProvider externalAnnotationProvider;
 
 	private SourceTypeBinding nestHost;
+	private Set<SourceTypeBinding> nestMembers;
 
 	public boolean isImplicit = false;
 	public boolean supertypeAnnotationsUpdated = false; // have any supertype annotations been updated during CompleteTypeBindingsSteps.INTEGRATE_ANNOTATIONS_IN_HIERARCHY?
@@ -2421,6 +2414,21 @@ public RecordComponentBinding[] setComponents(RecordComponentBinding[] component
 			annotatedType.components = components;
 		}
 	}
+
+	for (RecordComponentBinding component : components) {
+		for (FieldBinding field : this.fields) {
+			if (CharOperation.equals(field.name, component.name) && field.type == null) { // field got built before record component resolution
+				field.type = component.type;
+				field.modifiers |= component.modifiers & ExtraCompilerModifiers.AccGenericSignature;
+				field.tagBits |= component.tagBits & (TagBits.AnnotationNullMASK | TagBits.AnnotationOwningMASK);
+				if ((component.tagBits & TagBits.HasMissingType) != 0)
+					field.tagBits |= TagBits.HasMissingType;
+				RecordComponent componentDecl = component.sourceRecordComponent();
+				if (componentDecl != null &&  componentDecl.annotations != null)
+					ASTNode.copyRecordComponentAnnotations(this.scope, field, componentDecl.annotations);
+			}
+		}
+	}
 	return this.components = components;
 }
 
@@ -2833,6 +2841,18 @@ public ModuleBinding module() {
 
 public SourceTypeBinding getNestHost() {
 	return this.nestHost;
+}
+
+public Set<SourceTypeBinding> getNestMembers() {
+	return this.nestMembers;
+}
+
+public void addNestMember(SourceTypeBinding member) {
+	if (!member.equals(this)) {
+		if (this.nestMembers == null)
+			this.nestMembers = new HashSet<>(6);
+		this.nestMembers.add(member);
+	}
 }
 
 public void setNestHost(SourceTypeBinding nestHost) {
