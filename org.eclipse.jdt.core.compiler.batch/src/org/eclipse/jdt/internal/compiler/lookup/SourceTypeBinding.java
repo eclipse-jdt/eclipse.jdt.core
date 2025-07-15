@@ -55,6 +55,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -798,7 +799,7 @@ public char[] computeUniqueKey(boolean isLeaf) {
 	// insert compilation unit name if the type name is not the main type name
 	int end = CharOperation.lastIndexOf('.', this.fileName);
 	if (end != -1) {
-		int start = CharOperation.lastIndexOf('/', this.fileName) + 1;
+		int start = CharOperation.lastIndexOf(File.separatorChar, this.fileName) + 1;
 		char[] mainTypeName = CharOperation.subarray(this.fileName, start, end);
 		start = CharOperation.lastIndexOf('/', uniqueKey) + 1;
 		if (start == 0)
