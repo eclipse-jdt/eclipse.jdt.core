@@ -53,6 +53,8 @@ public interface TypeOrLambda {
 						ensureSyntheticOuterAccess(cs.referenceContext.binding);
 					}
 					earlySeen = cs.insideEarlyConstructionContext;
+					if (cs.referenceContext.binding != null && cs.referenceContext.binding.isStatic())
+						break;
 				}
 				outerScope = outerScope.parent;
 				if (outerScope instanceof MethodScope ms && ms.isStatic)

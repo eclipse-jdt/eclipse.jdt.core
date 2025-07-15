@@ -1312,7 +1312,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"2. ERROR in X.java (at line 12)\n" +
 			"	public Point(Integer myInt) {}\n" +
 			"	       ^^^^^^^^^^^^^^^^^^^^\n" +
-			"A non-canonical constructor must start with an explicit invocation to a constructor\n" +
+			"A non-canonical constructor must invoke another constructor of the same class\n" +
 			"----------\n");
 	}
 	public void testBug553152_016() {
@@ -4566,7 +4566,7 @@ public void testBug562637_001() {
 			"1. ERROR in X.java (at line 2)\n" +
 			"	public X() {\n" +
 			"	       ^^^\n" +
-			"A non-canonical constructor must start with an explicit invocation to a constructor\n" +
+			"A non-canonical constructor must invoke another constructor of the same class\n" +
 			"----------\n");
 	}
 	public void testBug564146_002() {
@@ -4581,10 +4581,10 @@ public void testBug562637_001() {
 				"}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	public X() {\n" +
-			"	       ^^^\n" +
-			"A non-canonical constructor must start with an explicit invocation to a constructor\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	super();\n" +
+			"	^^^^^^^^\n" +
+			"A non-canonical constructor must invoke another constructor of the same class\n" +
 			"----------\n");
 	}
 	public void testBug564146_003() {
@@ -8146,7 +8146,7 @@ public void testBug571015_002() {
 			"1. ERROR in X.java (at line 2)\n" +
 			"	R(I<X> ... t) {}\n" +
 			"	^^^^^^^^^^^^^\n" +
-			"A non-canonical constructor must start with an explicit invocation to a constructor\n" +
+			"A non-canonical constructor must invoke another constructor of the same class\n" +
 			"----------\n" +
 			"2. WARNING in X.java (at line 2)\n" +
 			"	R(I<X> ... t) {}\n" +

@@ -307,15 +307,20 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 		// the return type should be void for a constructor.
 		// the test is made into getConstructor
 
-		// mark the fact that we are in a constructor call.....
-		// unmark at all returns
 		MethodScope methodScope = scope.methodScope();
 		try {
 			AbstractMethodDeclaration methodDeclaration = methodScope.referenceMethod();
-			if (methodDeclaration != null && methodDeclaration.binding != null
-					&& methodDeclaration.binding.isCanonicalConstructor()) {
-				if (!checkAndFlagExplicitConstructorCallInCanonicalConstructor(methodDeclaration, scope))
+			if ((scope.enclosingSourceType().isRecord()
+					&& methodDeclaration != null && methodDeclaration.binding != null)) {
+				if (methodDeclaration.binding.isCanonicalConstructor()) {
+					if (!checkAndFlagExplicitConstructorCallInCanonicalConstructor(methodDeclaration, scope))
+						return;
+				} else if (this.accessMode != This) {
+					// trying to invoke super() in a non-canonical record constructor
+					ASTNode location = isImplicitSuper() ? methodScope.referenceMethod() : this;
+					scope.problemReporter().missingThisCallInNonCanonicalConstructor(location);
 					return;
+				}
 			}
 			boolean hasError = false;
 			if (methodDeclaration == null || !methodDeclaration.isConstructor()) {
@@ -359,6 +364,8 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 				}
 				return;
 			}
+			// mark the fact that we are in a constructor call.....
+			// unmark at all returns
 			methodScope.isConstructorCall = true;
 			ReferenceBinding receiverType = scope.enclosingReceiverType();
 			boolean rcvHasError = false;

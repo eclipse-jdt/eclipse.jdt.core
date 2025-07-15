@@ -11922,7 +11922,7 @@ public void illegalExplicitAssignmentInCompactConstructor(FieldBinding field, Fi
 		fieldRef.sourceStart,
 		fieldRef.sourceEnd);
 }
-public void missingExplicitConstructorCallInNonCanonicalConstructor(ASTNode location) {
+public void missingThisCallInNonCanonicalConstructor(ASTNode location) {
 	this.handle(
 		IProblem.RecordMissingExplicitConstructorCallInNonCanonicalConstructor,
 		NoArgument,

@@ -761,12 +761,6 @@ public void resolveStatements() {
 				this.scope.problemReporter().cannotUseSuperInJavaLangObject(this.constructorCall);
 			}
 			this.constructorCall = null;
-		} else if (sourceType.isRecord() &&
-				!this.isCompactConstructor() && // compact constr should be marked as canonical?
-				(this.binding != null && !this.binding.isCanonicalConstructor()) &&
-				this.constructorCall.accessMode != ExplicitConstructorCall.This) {
-			this.scope.problemReporter().missingExplicitConstructorCallInNonCanonicalConstructor(this);
-			this.constructorCall = null;
 		} else {
 			this.scope.enterEarlyConstructionContext(); // even if no late ctor call to also capture arguments of ctor call as 1st stmt
 			if (getLateConstructorCall() != null) {
