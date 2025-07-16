@@ -54,9 +54,12 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -2307,91 +2310,88 @@ public void detectWrapperResource() {
 }
 
 protected MethodBinding [] getInterfaceAbstractContracts(Scope scope, boolean replaceWildcards, boolean filterDefaultMethods) throws InvalidBindingException {
-
 	if (!isInterface() || !isValidBinding()) {
 		throw new InvalidBindingException("Not a functional interface"); //$NON-NLS-1$
 	}
 
-	MethodBinding [] methods = methods();
-	MethodBinding [] contracts = new MethodBinding[0];
-	int contractsCount = 0;
-	int contractsLength = 0;
+	MethodBinding [] methods = methods(); // All methods defined by THIS interface
+	Map<String, List<MethodBinding>> contractsBySelector = new LinkedHashMap<>();
 
+	// Fill List of contracts by name with all methods of super interfaces
 	ReferenceBinding [] superInterfaces = superInterfaces();
 	for (ReferenceBinding superInterface : superInterfaces) {
 		// filterDefaultMethods=false => keep default methods needed to filter out any abstract methods they may override:
 		MethodBinding [] superInterfaceContracts = superInterface.getInterfaceAbstractContracts(scope, replaceWildcards, false);
 		final int superInterfaceContractsLength = superInterfaceContracts == null  ? 0 : superInterfaceContracts.length;
 		if (superInterfaceContractsLength == 0) continue;
-		if (contractsLength < contractsCount + superInterfaceContractsLength) {
-			System.arraycopy(contracts, 0, contracts = new MethodBinding[contractsLength = contractsCount + superInterfaceContractsLength], 0, contractsCount);
+		for (MethodBinding superInterfaceContract : superInterfaceContracts) {
+			if (superInterfaceContract == null) {
+				continue;
+			}
+			contractsBySelector.computeIfAbsent(String.valueOf(superInterfaceContract.selector), key -> new ArrayList<>()).add(superInterfaceContract);
 		}
-		System.arraycopy(superInterfaceContracts, 0, contracts, contractsCount,	superInterfaceContractsLength);
-		contractsCount += superInterfaceContractsLength;
 	}
 
 	LookupEnvironment environment = scope.environment();
-	for (int i = 0, length = methods == null ? 0 : methods.length; i < length; i++) {
-		final MethodBinding method = methods[i];
-		if (method == null || method.isStatic() || method.redeclaresPublicObjectMethod(scope) || method.isPrivate())
-			continue;
-		if (!method.isValidBinding())
-			throw new InvalidBindingException("Not a functional interface"); //$NON-NLS-1$
-		for (int j = 0; j < contractsCount;) {
-			if ( contracts[j] != null && MethodVerifier.doesMethodOverride(method, contracts[j], environment)) {
-				contractsCount--;
-				// abstract method from super type overridden by present interface ==> contracts[j] = null;
-				if (j < contractsCount) {
-					System.arraycopy(contracts, j+1, contracts, j, contractsCount - j);
+	if (methods != null) {
+		for (final MethodBinding method : methods) {
+			if (method == null || method.isStatic() || method.redeclaresPublicObjectMethod(scope) || method.isPrivate())
+				continue;
+			if (!method.isValidBinding())
+				throw new InvalidBindingException("Not a functional interface"); //$NON-NLS-1$
+			List<MethodBinding> contractsOfSelector = contractsBySelector.computeIfAbsent(String.valueOf(method.selector), key -> new ArrayList<>());
+			Iterator<MethodBinding> iterator = contractsOfSelector.iterator();
+
+			// Does 'method' override any super interface method?
+			while (iterator.hasNext()) {
+				MethodBinding superInterfaceContract = iterator.next();
+
+				if (MethodVerifier.doesMethodOverride(method, superInterfaceContract, environment)) {
+					iterator.remove();
+				}
+			}
+			if (filterDefaultMethods && method.isDefaultMethod())
+				continue; // skip default method itself
+			if(environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
+				ImplicitNullAnnotationVerifier.ensureNullnessIsKnown(method, scope);
+			}
+			contractsOfSelector.add(method);
+		}
+	}
+
+	// check mutual overriding of inherited methods (i.e., not from current type):
+	for (List<MethodBinding> contractList : contractsBySelector.values()) {
+		for (int i = 0; i < contractList.size(); ++i) {
+			MethodBinding contractI = contractList.get(i);
+
+			if (TypeBinding.equalsEquals(contractI.declaringClass, this)) {
+				continue;
+			}
+
+			for (int j = 0; j < contractList.size(); ++j) {
+				MethodBinding contractJ = contractList.get(j);
+
+				if (i == j || TypeBinding.equalsEquals(contractJ.declaringClass, this)) {
 					continue;
 				}
-			}
-			j++;
-		}
-		if (filterDefaultMethods && method.isDefaultMethod())
-			continue; // skip default method itself
-		if (contractsCount == contractsLength) {
-			System.arraycopy(contracts, 0, contracts = new MethodBinding[contractsLength += 16], 0, contractsCount);
-		}
-		if(environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
-			ImplicitNullAnnotationVerifier.ensureNullnessIsKnown(method, scope);
-		}
-		contracts[contractsCount++] = method;
-	}
-	// check mutual overriding of inherited methods (i.e., not from current type):
-	for (int i = 0; i < contractsCount; i++) {
-		MethodBinding contractI = contracts[i];
-		if (TypeBinding.equalsEquals(contractI.declaringClass, this))
-			continue;
-		for (int j = 0; j < contractsCount; j++) {
-			MethodBinding contractJ = contracts[j];
-			if (i == j || TypeBinding.equalsEquals(contractJ.declaringClass, this))
-				continue;
-			if (contractI == contractJ || MethodVerifier.doesMethodOverride(contractI, contractJ, environment)) {
-				contractsCount--;
-				// abstract method from one super type overridden by other super interface ==> contracts[j] = null;
-				if (j < contractsCount) {
-					System.arraycopy(contracts, j+1, contracts, j, contractsCount - j);
+
+				if (contractI == contractJ || MethodVerifier.doesMethodOverride(contractI, contractJ, environment)) {
+					contractList.remove(j);
+
+					--j;
+					if (j < i) {
+						--i;
+					}
 				}
-				j--;
-				if (j < i)
-					i--;
-				continue;
+			}
+
+			if (filterDefaultMethods && contractI.isDefaultMethod()) {
+				contractList.remove(i);
+				--i;
 			}
 		}
-		if (filterDefaultMethods && contractI.isDefaultMethod()) {
-			contractsCount--;
-			// remove default method after it has eliminated any matching abstract methods from contracts
-			if (i < contractsCount) {
-				System.arraycopy(contracts, i+1, contracts, i, contractsCount - i);
-			}
-			i--;
-		}
 	}
-	if (contractsCount < contractsLength) {
-		System.arraycopy(contracts, 0, contracts = new MethodBinding[contractsCount], 0, contractsCount);
-	}
-	return contracts;
+	return contractsBySelector.values().stream().flatMap(Collection::stream).toArray(MethodBinding[]::new);
 }
 @Override
 public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcards) {
