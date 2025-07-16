@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
@@ -36,40 +35,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
-import org.eclipse.jdt.core.dom.AnnotatableType;
-import org.eclipse.jdt.core.dom.Annotation;
-import org.eclipse.jdt.core.dom.ArrayInitializer;
-import org.eclipse.jdt.core.dom.ArrayType;
-import org.eclipse.jdt.core.dom.CharacterLiteral;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.Dimension;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.FieldAccess;
-import org.eclipse.jdt.core.dom.IAnnotationBinding;
-import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.IMemberValuePairBinding;
-import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.IPackageBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.ImportDeclaration;
-import org.eclipse.jdt.core.dom.MarkerAnnotation;
-import org.eclipse.jdt.core.dom.MemberValuePair;
-import org.eclipse.jdt.core.dom.Modifier;
-import org.eclipse.jdt.core.dom.Name;
-import org.eclipse.jdt.core.dom.NormalAnnotation;
-import org.eclipse.jdt.core.dom.ParameterizedType;
-import org.eclipse.jdt.core.dom.PrimitiveType;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SimpleType;
-import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
-import org.eclipse.jdt.core.dom.StringLiteral;
-import org.eclipse.jdt.core.dom.Type;
-import org.eclipse.jdt.core.dom.TypeLiteral;
-import org.eclipse.jdt.core.dom.WildcardType;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.internal.core.dom.rewrite.imports.ImportRewriteAnalyzer;
 import org.eclipse.jdt.internal.core.dom.rewrite.imports.ImportRewriteConfiguration;
 import org.eclipse.jdt.internal.core.dom.rewrite.imports.ImportRewriteConfiguration.ImplicitImportIdentification;
@@ -374,8 +340,7 @@ public final class ImportRewrite {
 		if (restoreExistingImports) {
 			existingImport= new ArrayList();
 			IImportDeclaration[] imports= cu.getImports();
-			for (int i= 0; i < imports.length; i++) {
-				IImportDeclaration curr= imports[i];
+			for (IImportDeclaration curr : imports) {
 				char prefix= Flags.isStatic(curr.getFlags()) ? STATIC_PREFIX : NORMAL_PREFIX;
 				existingImport.add(prefix + curr.getElementName());
 			}
@@ -702,8 +667,7 @@ public final class ImportRewrite {
 		} else {
 			NormalAnnotation result = ast.newNormalAnnotation();
 			result.setTypeName(name);
-			for (int i= 0; i < mvps.length; i++) {
-				IMemberValuePairBinding mvp = mvps[i];
+			for (IMemberValuePairBinding mvp : mvps) {
 				MemberValuePair mvpNode = ast.newMemberValuePair();
 				mvpNode.setName(ast.newSimpleName(mvp.getName()));
 				Object value = mvp.getValue();
@@ -780,8 +744,7 @@ public final class ImportRewrite {
 				if (typeArguments.length > 0) {
 					ParameterizedType type= ast.newParameterizedType(baseType);
 					List argNodes= type.typeArguments();
-					for (int i= 0; i < typeArguments.length; i++) {
-						String curr= typeArguments[i];
+					for (String curr : typeArguments) {
 						if (containsNestedCapture(curr)) { // see bug 103044
 							argNodes.add(ast.newWildcardType());
 						} else {
@@ -925,8 +888,8 @@ public final class ImportRewrite {
 			return containsNestedCapture(binding.getElementType(), true);
 		}
 		ITypeBinding[] typeArguments= binding.getTypeArguments();
-		for (int i= 0; i < typeArguments.length; i++) {
-			if (containsNestedCapture(typeArguments[i], true)) {
+		for (ITypeBinding typeArgument : typeArguments) {
+			if (containsNestedCapture(typeArgument, true)) {
 				return true;
 			}
 		}
@@ -1471,8 +1434,8 @@ public final class ImportRewrite {
 		if (context == null)
 			context= this.defaultContext;
 		annotationBindings = context.removeRedundantTypeAnnotations(annotationBindings, location, type);
-		for (int i = 0; i< annotationBindings.length; i++) {
-			Annotation annotation = addAnnotation(annotationBindings[i], ast, context);
+		for (IAnnotationBinding annotationBinding : annotationBindings) {
+			Annotation annotation = addAnnotation(annotationBinding, ast, context);
 			if (annotation != null) annotations.add(annotation);
 		}
 	}
@@ -1598,8 +1561,7 @@ public final class ImportRewrite {
 		if (typeArguments.length > 0) {
 			ParameterizedType paramType = ast.newParameterizedType(type);
 			List arguments = paramType.typeArguments();
-			for (int i = 0; i < typeArguments.length; i++) {
-				ITypeBinding curr = typeArguments[i];
+			for (ITypeBinding curr : typeArguments) {
 				if (containsNestedCapture(curr, false)) { // see bug 103044
 					arguments.add(ast.newWildcardType());
 				} else {

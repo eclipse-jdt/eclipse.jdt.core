@@ -14,13 +14,15 @@
 package org.eclipse.jdt.internal.core.jdom;
 
 import java.util.Enumeration;
-
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.jdom.*;
-import org.eclipse.jdt.internal.core.util.Messages;
+import org.eclipse.jdt.core.jdom.DOMException;
+import org.eclipse.jdt.core.jdom.IDOMField;
+import org.eclipse.jdt.core.jdom.IDOMMember;
+import org.eclipse.jdt.core.jdom.IDOMNode;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 /**
  * DOMField provides an implementation of IDOMField.
@@ -250,8 +252,8 @@ protected void becomeDetailed() throws DOMException {
 				throw new DOMException(Messages.dom_cannotDetail);
 			} else {
 				node= this;
-				for (int i= 0; i < details.length; i++) {
-					node.shareContents((DOMNode)details[i]);
+				for (IDOMField detail : details) {
+					node.shareContents((DOMNode)detail);
 					node= node.fNextNode;
 				}
 			}

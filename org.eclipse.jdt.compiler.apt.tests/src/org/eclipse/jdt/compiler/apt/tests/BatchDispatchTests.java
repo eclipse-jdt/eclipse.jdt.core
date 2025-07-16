@@ -19,16 +19,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import javax.tools.Diagnostic;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
-
-import org.eclipse.jdt.compiler.apt.tests.BatchTestUtils.DiagnosticReport;
-
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.eclipse.jdt.compiler.apt.tests.BatchTestUtils.DiagnosticReport;
 
 /**
  * Test the ability to execute annotation processors in batch mode, including

@@ -26,7 +26,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -44,21 +43,20 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 public class ClasspathJep247 extends ClasspathJrt {
 
 	protected java.nio.file.FileSystem fs;
-	protected String compliance = null;
-	protected long jdklevel;
-	protected String releaseInHex = null;
-	protected String[] subReleases = null;
-	protected Path releasePath = null;
+	protected final String compliance;
+	protected final long jdklevel;
+	protected String releaseInHex;
+	protected String[] subReleases;
+	protected Path releasePath;
 	protected Set<String> packageCache;
-	protected File jdkHome;
-	protected String modulePath = null;
+	protected final File jdkHome;
+	protected String modulePath;
 
 	public ClasspathJep247(File jdkHome, String release, AccessRuleSet accessRuleSet) {
-		super(jdkHome, false, accessRuleSet, null);
+		super(new File(new File(jdkHome, "lib"), JRTUtil.JRT_FS_JAR), false, accessRuleSet, null); //$NON-NLS-1$
 		this.compliance = release;
 		this.jdklevel = CompilerOptions.releaseToJDKLevel(this.compliance);
 		this.jdkHome = jdkHome;
-		this.file = new File(new File(jdkHome, "lib"), "jrt-fs.jar"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	@Override
 	public List<Classpath> fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemReporter) {
@@ -262,7 +260,7 @@ public class ClasspathJep247 extends ClasspathJrt {
 		}
 		if (moduleName == null) {
 			// Delegate to the boss, even if it means inaccurate error reporting at times
-			List<String> mods = JRTUtil.getModulesDeclaringPackage(this.file, qualifiedPackageName, moduleName);
+			List<String> mods = JRTUtil.getModulesDeclaringPackage(this.jrtFileSystem, qualifiedPackageName, moduleName);
 			return CharOperation.toCharArrays(mods);
 		}
 		return singletonModuleNameIf(this.packageCache.contains(qualifiedPackageName));

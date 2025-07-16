@@ -23,6 +23,7 @@
   <property name="plugin-name" value="org.eclipse.jdt.core.tests.model"/>
   <property name="library-file"
             value="${eclipse-home}/plugins/org.eclipse.test/library.xml"/>
+  <property name="jitExclusion" value="-XX:CompileCommand=exclude,org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteAnalyzer::getExtendedRange"/>
 
   <!-- This target holds all initialization code that needs to be done for -->
   <!-- all tests that are to be run. Initialization for individual tests -->
@@ -43,7 +44,7 @@
     <ant target="core-test" antfile="${library-file}" dir="${eclipse-home}">
       <!-- Use a subdir 'data' so that the JCL jars are put in jdt-model-folder and are deleted at the end of the tests. -->
       <property name="data-dir" value="${jdt-model-folder}/data"/>
-      <property name="vmargs" value="-Xmx800M -XX:+HeapDumpOnOutOfMemoryError -DDetectVMInstallationsJob.disabled=true -DstoreMemory=jdtcoremodel_mem_trace,dir=${basedir}/../.. -Djdt.default.test.compliance=1.8"/>
+      <property name="vmargs" value="${jitExclusion} -Xmx800M -XX:+HeapDumpOnOutOfMemoryError -DDetectVMInstallationsJob.disabled=true -DstoreMemory=jdtcoremodel_mem_trace,dir=${basedir}/../.. -Djdt.default.test.compliance=1.8"/>
       <property name="plugin-name" value="${plugin-name}"/>
       <property name="classname" 
                 value="org.eclipse.jdt.core.tests.model.AllJavaModelTests"/>

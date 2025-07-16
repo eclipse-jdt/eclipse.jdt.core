@@ -16,7 +16,9 @@ package org.eclipse.jdt.internal.core.search.matching;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
@@ -128,32 +130,31 @@ public void checkComment() {
 		// Search for pattern locator matches in javadoc comment parameters @param tags
 		JavadocSingleNameReference[] paramReferences = this.javadoc.paramReferences;
 		if (paramReferences != null) {
-			for (int i=0, length=paramReferences.length; i < length; i++) {
-				this.patternLocator.match(paramReferences[i], this.nodeSet);
+			for (JavadocSingleNameReference paramReference : paramReferences) {
+				this.patternLocator.match(paramReference, this.nodeSet);
 			}
 		}
 
 		// Search for pattern locator matches in javadoc comment type parameters @param tags
 		JavadocSingleTypeReference[] paramTypeParameters = this.javadoc.paramTypeParameters;
 		if (paramTypeParameters != null) {
-			for (int i=0, length=paramTypeParameters.length; i < length; i++) {
-				this.patternLocator.match(paramTypeParameters[i], this.nodeSet);
+			for (JavadocSingleTypeReference paramTypeParameter : paramTypeParameters) {
+				this.patternLocator.match(paramTypeParameter, this.nodeSet);
 			}
 		}
 
 		// Search for pattern locator matches in javadoc comment @throws/@exception tags
 		TypeReference[] thrownExceptions = this.javadoc.exceptionReferences;
 		if (thrownExceptions != null) {
-			for (int i=0, length=thrownExceptions.length; i < length; i++) {
-				this.patternLocator.match(thrownExceptions[i], this.nodeSet);
+			for (TypeReference thrownException : thrownExceptions) {
+				this.patternLocator.match(thrownException, this.nodeSet);
 			}
 		}
 
 		// Search for pattern locator matches in javadoc comment @see tags
 		Expression[] references = this.javadoc.seeReferences;
 		if (references != null) {
-			for (int i=0, length=references.length; i < length; i++) {
-				Expression reference = references[i];
+			for (Expression reference : references) {
 				if (reference instanceof JavadocModuleReference) {
 					JavadocModuleReference modRef = (JavadocModuleReference)reference;
 					if (modRef.typeReference != null) {
@@ -184,8 +185,8 @@ public void checkComment() {
 						this.patternLocator.match(typeRef, this.nodeSet);
 					}
 					if (messageSend.arguments != null) {
-						for (int a=0,al=messageSend.arguments.length; a<al; a++) {
-							JavadocArgumentExpression argument = (JavadocArgumentExpression) messageSend.arguments[a];
+						for (Expression arg : messageSend.arguments) {
+							JavadocArgumentExpression argument = (JavadocArgumentExpression) arg;
 							if (argument.argument != null && argument.argument.type != null) {
 								this.patternLocator.match(argument.argument.type, this.nodeSet);
 							}
@@ -198,9 +199,9 @@ public void checkComment() {
 						this.patternLocator.match(constructor.type, this.nodeSet);
 					}
 					if (constructor.arguments != null) {
-						for (int a=0,al=constructor.arguments.length; a<al; a++) {
-							this.patternLocator.match(constructor.arguments[a], this.nodeSet);
-							JavadocArgumentExpression argument = (JavadocArgumentExpression) constructor.arguments[a];
+						for (Expression arg : constructor.arguments) {
+							this.patternLocator.match(arg, this.nodeSet);
+							JavadocArgumentExpression argument = (JavadocArgumentExpression) arg;
 							if (argument.argument != null && argument.argument.type != null) {
 								this.patternLocator.match(argument.argument.type, this.nodeSet);
 							}
@@ -254,8 +255,8 @@ protected void consumeCastExpressionLL1WithBounds() {
 	if ((this.patternFineGrain & IJavaSearchConstants.CAST_TYPE_REFERENCE) != 0) {
 		CastExpression castExpression = (CastExpression) this.expressionStack[this.expressionPtr];
 		TypeReference[] typeReferences = ((IntersectionCastTypeReference) castExpression.type).typeReferences;
-		for (int i = 0, length = typeReferences.length; i < length; i++)
-			this.patternLocator.match(typeReferences[i], this.nodeSet);
+		for (TypeReference typeReference : typeReferences)
+			this.patternLocator.match(typeReference, this.nodeSet);
 	}
 }
 @Override
@@ -410,12 +411,12 @@ private void matchPatternVariable() {
 		LocalDeclaration elementVariable = null;
 		if (expr instanceof InstanceOfExpression) {
 			InstanceOfExpression expression = (InstanceOfExpression) this.expressionStack[this.expressionPtr];
-			elementVariable = expression.elementVariable;
+			elementVariable = expression.pattern instanceof TypePattern tp ? tp.local : null;
 		} else if (expr instanceof AND_AND_Expression) {
 			// Refer to Parser#consumeInstanceOfExpression() to understand how
 			// we can ever expect AND_AND_Expression in place of InstanceOfExpression
 			InstanceOfExpression expression = (InstanceOfExpression) ((AND_AND_Expression) expr).left;
-			elementVariable = expression.elementVariable;
+			elementVariable = expression.pattern instanceof TypePattern tp ? tp.local : null;
 		}
 		if (elementVariable != null) {
 			// if pattern variable present, match that
@@ -699,8 +700,8 @@ protected void consumeStatementCatch() {
 		LocalDeclaration localDeclaration = (LocalDeclaration) this.astStack[this.astPtr-1];
 		if (localDeclaration.type instanceof UnionTypeReference) {
 			TypeReference[] refs = ((UnionTypeReference)localDeclaration.type).typeReferences;
-			for (int i = 0, len  = refs.length; i < len; i++) {
-				this.patternLocator.match(refs[i], this.nodeSet);
+			for (TypeReference ref : refs) {
+				this.patternLocator.match(ref, this.nodeSet);
 			}
 		} else {
 			this.patternLocator.match(localDeclaration.type, this.nodeSet);
@@ -762,9 +763,9 @@ protected void consumeTypeArgumentReferenceType1() {
 	            typeArguments = allTypeArguments[allTypeArguments.length-1];
             }
 			if (typeArguments != null) {
-	            for (int i=0, ln=typeArguments.length; i<ln; i++) {
-	            	if (!(typeArguments[i] instanceof Wildcard)) {
-						this.patternLocator.match(typeArguments[i], this.nodeSet);
+	            for (TypeReference typeArgument : typeArguments) {
+	            	if (!(typeArgument instanceof Wildcard)) {
+						this.patternLocator.match(typeArgument, this.nodeSet);
 	            	}
 	            }
 			}
@@ -787,9 +788,9 @@ protected void consumeTypeArgumentReferenceType2() {
 	            typeArguments = allTypeArguments[allTypeArguments.length-1];
             }
 			if (typeArguments != null) {
-	            for (int i=0, ln=typeArguments.length; i<ln; i++) {
-	            	if (!(typeArguments[i] instanceof Wildcard)) {
-						this.patternLocator.match(typeArguments[i], this.nodeSet);
+	            for (TypeReference typeArgument : typeArguments) {
+	            	if (!(typeArgument instanceof Wildcard)) {
+						this.patternLocator.match(typeArgument, this.nodeSet);
 	            	}
 	            }
 			}
@@ -949,24 +950,14 @@ protected void consumeWildcardBoundsSuper() {
 }
 
 @Override
-protected  void consumeInterfaceHeaderPermittedSubClassesAndSubInterfaces(){
-	super.consumeInterfaceHeaderPermittedSubClassesAndSubInterfaces();
-	updatePatternLocaterMatch();
-}
-private void updatePatternLocaterMatch() {
+protected void consumePermittedTypes() {
+	super.consumePermittedTypes();
 	if ((this.patternFineGrain & IJavaSearchConstants.PERMITTYPE_TYPE_REFERENCE) != 0) {
 		TypeDeclaration td = (TypeDeclaration) this.astStack[this.astPtr];
-		TypeReference[] permittedTypes = td.permittedTypes;
-		for (TypeReference pt : permittedTypes) {
+		for (TypeReference pt : td.permittedTypes) {
 			this.patternLocator.match(pt, this.nodeSet);
 		}
 	}
-}
-
-@Override
-protected void consumeClassHeaderPermittedSubclasses() {
-	super.consumeClassHeaderPermittedSubclasses();
-	updatePatternLocaterMatch();
 }
 
 @Override
@@ -1032,8 +1023,7 @@ public void parseBodies(CompilationUnitDeclaration unit) {
 	TypeDeclaration[] types = unit.types;
 	if (types == null) return;
 
-	for (int i = 0; i < types.length; i++) {
-		TypeDeclaration type = types[i];
+	for (TypeDeclaration type : types) {
 		this.patternLocator.match(type, this.nodeSet);
 		this.parseBodies(type, unit);
 	}
@@ -1046,8 +1036,7 @@ public void parseBodies(CompilationUnitDeclaration unit) {
 protected void parseBodies(TypeDeclaration type, CompilationUnitDeclaration unit) {
 	FieldDeclaration[] fields = type.fields;
 	if (fields != null) {
-		for (int i = 0; i < fields.length; i++) {
-			FieldDeclaration field = fields[i];
+		for (FieldDeclaration field : fields) {
 			if (field instanceof Initializer)
 				this.parse((Initializer) field, type, unit);
 			field.traverse(this.localDeclarationVisitor, null);
@@ -1056,8 +1045,7 @@ protected void parseBodies(TypeDeclaration type, CompilationUnitDeclaration unit
 
 	AbstractMethodDeclaration[] methods = type.methods;
 	if (methods != null) {
-		for (int i = 0; i < methods.length; i++) {
-			AbstractMethodDeclaration method = methods[i];
+		for (AbstractMethodDeclaration method : methods) {
 			if (method.sourceStart >= type.bodyStart) { // if not synthetic
 				if (method instanceof MethodDeclaration) {
 					MethodDeclaration methodDeclaration = (MethodDeclaration) method;
@@ -1076,8 +1064,7 @@ protected void parseBodies(TypeDeclaration type, CompilationUnitDeclaration unit
 
 	TypeDeclaration[] memberTypes = type.memberTypes;
 	if (memberTypes != null) {
-		for (int i = 0; i < memberTypes.length; i++) {
-			TypeDeclaration memberType = memberTypes[i];
+		for (TypeDeclaration memberType : memberTypes) {
 			this.parseBodies(memberType, unit);
 			memberType.traverse(this.localDeclarationVisitor, (ClassScope) null);
 		}

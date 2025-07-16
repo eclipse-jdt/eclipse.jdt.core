@@ -14,10 +14,9 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
-
+import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.Util;
-import junit.framework.Test;
 
 public class BatchCompilerTest_21 extends AbstractBatchCompilerTest {
 
@@ -180,6 +179,145 @@ public class BatchCompilerTest_21 extends AbstractBatchCompilerTest {
 			JavaCore.VERSION_20);
 		this.verifier.execute("p.X", new String[] {OUTPUT_DIR + File.separator + "bin", libPath}, new String[0], new String[0]);
 		assertEquals("Incorrect output", "OK!END", this.verifier.getExecutionOutput());
+	}
+
+	public void testIssue558_1() throws Exception {
+		String path = LIB_DIR;
+		String libPath = null;
+		if (path.endsWith(File.separator)) {
+			libPath = path + "lib.jar";
+		} else {
+			libPath = path + File.separator + "lib.jar";
+		}
+		Util.createJar(new String[] {
+			"p/Color.java",
+			"package p;\n" +
+			"public enum Color {\n" +
+			"	R, Y;\n" +
+			"	public static Color getColor() {\n" +
+			"		return R;\n" +
+			"	}\n" +
+			"}",
+		},
+		libPath,
+		JavaCore.VERSION_21);
+		this.runConformTest(
+			new String[] {
+				"src/p/X.java",
+				"package p;\n"
+				+ "import p.Color;\n"
+				+ "public class X {\n"
+				+ "	public static void main(String argv[]) {\n"
+				+ "		Color c = Color.getColor();\n"
+				+ "		try {\n"
+				+ "			int a = switch (c) {\n"
+				+ "				case R -> 1;\n"
+				+ "				case Y -> 2;\n"
+				+ "			};\n"
+				+ "		} catch (MatchException e) {\n"
+				+ "			System.out.print(\"OK\");\n"
+				+ "		} catch (Exception e) {\n"
+				+ "			System.out.print(\"NOT OK: \" + e);\n"
+				+ "		}\n"
+				+ "			System.out.print(\"END\");\n"
+				+ "	}\n"
+				+ "}",
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+			+ " -cp \"" + LIB_DIR + File.separator + "lib.jar\""
+			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+			+ " -source 21 -warn:none"
+			+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+			"",
+			"",
+			true);
+		this.verifier.execute("p.X", new String[] {OUTPUT_DIR + File.separator + "bin", libPath}, new String[0], null);
+		assertEquals("Incorrect output", "END", this.verifier.getExecutionOutput());
+		Util.createJar(new String[] {
+				"p/Color.java",
+				"package p;\n" +
+				"public enum Color {\n" +
+				"	R, Y, B;\n" +
+				"	public static Color getColor() {\n" +
+				"		return B;\n" +
+				"	}\n" +
+				"}",
+			},
+			libPath,
+			JavaCore.VERSION_21);
+		this.verifier.execute("p.X", new String[] {OUTPUT_DIR + File.separator + "bin", libPath}, new String[0], null);
+		assertEquals("Incorrect output", "OKEND", this.verifier.getExecutionOutput());
+	}
+
+	public void testIssue558_2() throws Exception {
+		String path = LIB_DIR;
+		String libPath = null;
+		if (path.endsWith(File.separator)) {
+			libPath = path + "lib.jar";
+		} else {
+			libPath = path + File.separator + "lib.jar";
+		}
+		Util.createJar(new String[] {
+			"p/I.java",
+			"package p;\n" +
+			"public sealed interface I {\n" +
+			"	public static I getImpl() {\n" +
+			"		return new A();\n" +
+			"	}\n" +
+			"}\n" +
+			"final class A implements I {}\n" +
+			"final class B implements I {}",
+		},
+		libPath,
+		JavaCore.VERSION_21);
+		this.runConformTest(
+			new String[] {
+				"src/p/X.java",
+				"package p;\n"
+				+ "import p.I;\n"
+				+ "public class X {\n"
+				+ "	public static void main(String argv[]) {\n"
+				+ "		I i = I.getImpl();\n"
+				+ "		try {\n"
+				+ "			int r = switch (i) {\n"
+				+ "				case A a -> 1;\n"
+				+ "				case B b -> 2;\n"
+				+ "			};\n"
+				+ "		} catch (MatchException e) {\n"
+				+ "			System.out.print(\"OK\");\n"
+				+ "		} catch (Exception e) {\n"
+				+ "			System.out.print(\"NOT OK: \" + e);\n"
+				+ "		}\n"
+				+ "			System.out.print(\"END\");\n"
+				+ "	}\n"
+				+ "}",
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+			+ " -cp \"" + LIB_DIR + File.separator + "lib.jar\""
+			+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+			+ " -source 21 -warn:none"
+			+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+			"",
+			"",
+			true);
+		this.verifier.execute("p.X", new String[] {OUTPUT_DIR + File.separator + "bin", libPath}, new String[0], null);
+		assertEquals("Incorrect output", "END", this.verifier.getExecutionOutput());
+		Util.createJar(new String[] {
+				"p/I.java",
+				"package p;\n" +
+				"public sealed interface I {\n" +
+				"	public static I getImpl() {\n" +
+				"		return new C();\n" +
+				"	}\n" +
+				"}\n" +
+				"final class A implements I {}\n" +
+				"final class B implements I {}\n" +
+				"final class C implements I {}",
+			},
+			libPath,
+			JavaCore.VERSION_21);
+		this.verifier.execute("p.X", new String[] {OUTPUT_DIR + File.separator + "bin", libPath}, new String[0], null);
+		assertEquals("Incorrect output", "OKEND", this.verifier.getExecutionOutput());
 	}
 
 }

@@ -14,10 +14,9 @@
 
 package org.eclipse.jdt.apt.pluggable.tests;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.InputStream;
-
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
@@ -29,9 +28,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.builder.Problem;
 import org.eclipse.jdt.internal.compiler.ClassFile;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * Basic tests for the Filer interface in the IDE.
@@ -230,8 +226,7 @@ public class FilerTests extends TestBase
 		IFolder textFileFolder = proj.getFolder("src/t");
 		textFileFolder.create(false, true, null);
 		IFile textFile = proj.getFile(textFileFolder.getProjectRelativePath().append("Test.txt"));
-		InputStream textSource = new ByteArrayInputStream(FilerTesterProc.resource02FileContents.getBytes());
-		textFile.create(textSource, false, null);
+		textFile.create(FilerTesterProc.resource02FileContents.getBytes(), false, false, null);
 
 		fullBuild();
 		expectingNoProblems();
@@ -319,8 +314,7 @@ public class FilerTests extends TestBase
 		IFolder textFileFolder = proj.getFolder("src/t");
 		textFileFolder.create(false, true, null);
 		IFile textFile = proj.getFile(textFileFolder.getProjectRelativePath().append("Test.txt"));
-		InputStream textSource = new ByteArrayInputStream(FilerTesterProc.helloStr.getBytes());
-		textFile.create(textSource, false, null);
+		textFile.create(FilerTesterProc.helloStr.getBytes(), false, false, null);
 
 		AptConfig.setEnabled(jproj, true);
 

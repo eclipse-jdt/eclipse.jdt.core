@@ -16,7 +16,6 @@ package org.eclipse.jdt.core.tests.rewrite.describing;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.internal.core.dom.rewrite.SourceModifier;
 import org.eclipse.jface.text.Document;

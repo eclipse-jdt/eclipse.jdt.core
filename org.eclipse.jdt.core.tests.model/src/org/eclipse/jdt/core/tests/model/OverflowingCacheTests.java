@@ -16,23 +16,14 @@ package org.eclipse.jdt.core.tests.model;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IBuffer;
-import org.eclipse.jdt.core.IBufferChangedListener;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IOpenable;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.core.BufferCache;
 import org.eclipse.jdt.internal.core.BufferManager;
@@ -44,8 +35,6 @@ import org.eclipse.jdt.internal.core.OpenableElementInfo;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
 import org.eclipse.jdt.internal.core.util.LRUCache.LRUCacheEntry;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
-
-import junit.framework.Test;
 
 /**
  * Tests internal Java element cache and buffer cache.
@@ -326,7 +315,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 				else
 					classpath[i] = JavaCore.newSourceEntry(new Path("/P/src" + i));
 			}
-			classpath[rootSize] = JavaCore.newVariableEntry(new Path("JCL_LIB"), null, null);
+			classpath[rootSize] = JavaCore.newVariableEntry(new Path("JCL18_LIB"), null, null);
 			project.setRawClasspath(classpath, new Path("/P/bin"), null);
 
 			// Open all roots

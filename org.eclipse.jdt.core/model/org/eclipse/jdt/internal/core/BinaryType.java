@@ -17,7 +17,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -27,14 +26,16 @@ import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -52,7 +53,7 @@ public class BinaryType extends BinaryMember implements IType, SuffixConstants {
 	private static final IMethod[] NO_METHODS = new IMethod[0];
 	private static final IType[] NO_TYPES = new IType[0];
 	private static final IInitializer[] NO_INITIALIZERS = new IInitializer[0];
-	public static final JavadocContents EMPTY_JAVADOC = new JavadocContents(null, org.eclipse.jdt.internal.compiler.util.Util.EMPTY_STRING);
+	public static final IJavadocContents EMPTY_JAVADOC = ExternalJavadocSupport.forHtml(null, org.eclipse.jdt.internal.compiler.util.Util.EMPTY_STRING);
 
 protected BinaryType(JavaElement parent, String name) {
 	super(parent, name);
@@ -69,21 +70,15 @@ protected void closing(Object info) throws JavaModelException {
 	cfi.removeBinaryChildren();
 }
 
-/**
- * @see IType#codeComplete(char[], int, int, char[][], char[][], int[], boolean, ICompletionRequestor)
- * @deprecated
- */
 @Override
-public void codeComplete(char[] snippet,int insertion,int position,char[][] localVariableTypeNames,char[][] localVariableNames,int[] localVariableModifiers,boolean isStatic,ICompletionRequestor requestor) throws JavaModelException {
+@Deprecated
+public void codeComplete(char[] snippet,int insertion,int position,char[][] localVariableTypeNames,char[][] localVariableNames,int[] localVariableModifiers,boolean isStatic,org.eclipse.jdt.core.ICompletionRequestor requestor) throws JavaModelException {
 	codeComplete(snippet, insertion, position, localVariableTypeNames, localVariableNames, localVariableModifiers, isStatic, requestor, DefaultWorkingCopyOwner.PRIMARY);
 }
 
-/**
- * @see IType#codeComplete(char[], int, int, char[][], char[][], int[], boolean, ICompletionRequestor, WorkingCopyOwner)
- * @deprecated
- */
 @Override
-public void codeComplete(char[] snippet,int insertion,int position,char[][] localVariableTypeNames,char[][] localVariableNames,int[] localVariableModifiers,boolean isStatic,ICompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
+@Deprecated
+public void codeComplete(char[] snippet,int insertion,int position,char[][] localVariableTypeNames,char[][] localVariableNames,int[] localVariableModifiers,boolean isStatic,org.eclipse.jdt.core.ICompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
 	if (requestor == null) {
 		throw new IllegalArgumentException("Completion requestor cannot be null"); //$NON-NLS-1$
 	}
@@ -218,8 +213,8 @@ public IJavaElement[] getChildrenForCategory(String category) throws JavaModelEx
 				IJavaElement child = children[i];
 				String[] cats = (String[]) categories.get(child);
 				if (cats != null) {
-					for (int j = 0, length2 = cats.length; j < length2; j++) {
-						if (cats[j].equals(category)) {
+					for (String cat : cats) {
+						if (cat.equals(category)) {
 							result[index++] = child;
 							break;
 						}
@@ -285,7 +280,7 @@ public IType getDeclaringType() {
 			return
 				new BinaryType(
 					(JavaElement)getPackageFragment().getClassFile(enclosingClassFileName),
-					Util.localTypeName(enclosingName, enclosingName.lastIndexOf('$'), enclosingName.length()));
+					DeduplicationUtil.intern(Util.localTypeName(enclosingName, enclosingName.lastIndexOf('$'), enclosingName.length())));
 		}
 	}
 }
@@ -607,7 +602,7 @@ public String[] getSuperInterfaceNames() throws JavaModelException {
 @Override
 public String[] getPermittedSubtypeNames() throws JavaModelException {
 	IBinaryType info = getElementInfo();
-	char[][] names= info.getPermittedSubtypeNames();
+	char[][] names= info.getPermittedSubtypesNames();
 	int length;
 	if (names == null || (length = names.length) == 0) {
 		return CharOperation.NO_STRINGS;
@@ -775,12 +770,11 @@ public boolean isRecord() throws JavaModelException {
 }
 /**
  * @see IType#isSealed()
- * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
  */
 @Override
 public boolean isSealed() throws JavaModelException {
 	IBinaryType info = getElementInfo();
-	char[][] names = info.getPermittedSubtypeNames();
+	char[][] names = info.getPermittedSubtypesNames();
 	return (names != null && names.length > 0);
 }
 
@@ -849,19 +843,10 @@ public ITypeHierarchy newSupertypeHierarchy(
 	op.runOperation(monitor);
 	return op.getResult();
 }
-/**
- * @param workingCopies the working copies that take precedence over their original compilation units
- * @param monitor the given progress monitor
- * @return a type hierarchy for this type containing this type and all of its supertypes
- * @exception JavaModelException if this element does not exist or if an
- *		exception occurs while accessing its corresponding resource.
- *
- * @see IType#newSupertypeHierarchy(IWorkingCopy[], IProgressMonitor)
- * @deprecated
- */
+
+@Deprecated
 @Override
-public ITypeHierarchy newSupertypeHierarchy(
-	IWorkingCopy[] workingCopies,
+public ITypeHierarchy newSupertypeHierarchy(org.eclipse.jdt.core.IWorkingCopy[] workingCopies,
 	IProgressMonitor monitor)
 	throws JavaModelException {
 
@@ -947,13 +932,10 @@ public ITypeHierarchy newTypeHierarchy(
 	op.runOperation(monitor);
 	return op.getResult();
 }
-/**
- * @see IType#newTypeHierarchy(IWorkingCopy[], IProgressMonitor)
- * @deprecated
- */
+
+@Deprecated
 @Override
-public ITypeHierarchy newTypeHierarchy(
-	IWorkingCopy[] workingCopies,
+public ITypeHierarchy newTypeHierarchy(org.eclipse.jdt.core.IWorkingCopy[] workingCopies,
 	IProgressMonitor monitor)
 	throws JavaModelException {
 
@@ -980,7 +962,7 @@ public ITypeHierarchy newTypeHierarchy(
 }
 @Override
 public ResolvedBinaryType resolved(Binding binding) {
-	return new ResolvedBinaryType(this.getParent(), this.name, new String(binding.computeUniqueKey()), this.getOccurrenceCount());
+	return new ResolvedBinaryType(this.getParent(), this.name, DeduplicationUtil.toString(binding.computeUniqueKey()), this.getOccurrenceCount());
 }
 /*
  * Returns the source file name as defined in the given info.
@@ -1018,7 +1000,7 @@ public String sourceFileName(IBinaryType info) {
 	}
 }
 /*
- * @private Debugging purposes
+ * for debugging only
  */
 @Override
 protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean showResolvedInfo) {
@@ -1056,15 +1038,15 @@ protected void toStringName(StringBuilder buffer) {
 }
 @Override
 public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelException {
-	JavadocContents javadocContents = getJavadocContents(monitor);
+	IJavadocContents javadocContents = getJavadocContents(monitor);
 	if (javadocContents == null) return null;
 	return javadocContents.getTypeDoc();
 }
-public JavadocContents getJavadocContents(IProgressMonitor monitor) throws JavaModelException {
+public IJavadocContents getJavadocContents(IProgressMonitor monitor) throws JavaModelException {
 	PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(getJavaProject().getProject());
-	JavadocContents cachedJavadoc = null;
+	IJavadocContents cachedJavadoc = null;
 	synchronized (projectInfo.javadocCache) {
-		cachedJavadoc = (JavadocContents) projectInfo.javadocCache.get(this);
+		cachedJavadoc = (IJavadocContents) projectInfo.javadocCache.get(this);
 	}
 
 	if (cachedJavadoc != null && cachedJavadoc != EMPTY_JAVADOC) {
@@ -1097,10 +1079,10 @@ public JavadocContents getJavadocContents(IProgressMonitor monitor) throws JavaM
 	}
 
 	appendModulePath(pack, pathBuffer);
-	pathBuffer.append(pack.getElementName().replace('.', '/')).append('/').append(typeQualifiedName).append(JavadocConstants.HTML_EXTENSION);
+	pathBuffer.append(pack.getElementName().replace('.', '/')).append('/').append(typeQualifiedName).append(ExternalJavadocSupport.HTML_EXTENSION);
 	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	final String contents = getURLContents(baseLocation, String.valueOf(pathBuffer));
-	JavadocContents javadocContents = new JavadocContents(this, contents);
+	IJavadocContents javadocContents = ExternalJavadocSupport.forHtml(this, contents);
 	synchronized (projectInfo.javadocCache) {
 		projectInfo.javadocCache.put(this, javadocContents);
 	}
@@ -1158,5 +1140,9 @@ private static boolean isComplianceJava11OrHigher(IJavaProject javaProject) {
 @Override
 public IBinaryType getElementInfo() throws JavaModelException {
 	return (IBinaryType) super.getElementInfo();
+}
+@Override
+public boolean isImplicitlyDeclared() throws JavaModelException {
+	return (this.getFlags() & ExtraCompilerModifiers.AccImplicitlyDeclared) != 0;
 }
 }

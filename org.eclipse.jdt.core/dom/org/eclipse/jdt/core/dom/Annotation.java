@@ -58,7 +58,7 @@ public abstract class Annotation extends Expression implements IExtendedModifier
 	 * The annotation type name; lazily initialized; defaults to an unspecified,
 	 * legal Java identifier.
 	 */
-	Name typeName = null;
+	volatile Name typeName;
 
 	/**
 	 * Creates a new AST node for an annotation node owned by the
@@ -100,8 +100,7 @@ public abstract class Annotation extends Expression implements IExtendedModifier
 			synchronized (this) {
 				if (this.typeName == null) {
 					preLazyInit();
-					this.typeName = new SimpleName(this.ast);
-					postLazyInit(this.typeName, internalTypeNameProperty());
+					this.typeName = postLazyInit(new SimpleName(this.ast), internalTypeNameProperty());
 				}
 			}
 		}

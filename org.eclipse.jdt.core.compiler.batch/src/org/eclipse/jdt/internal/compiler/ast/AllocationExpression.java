@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -54,17 +54,21 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.*;
+import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.ASSIGNMENT_CONTEXT;
+import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.INVOCATION_CONTEXT;
+import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.VANILLA_CONTEXT;
 
 import java.util.HashMap;
-
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
@@ -107,7 +111,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		boolean analyseResources = currentScope.compilerOptions().analyseResourceLeaks;
 		boolean hasResourceWrapperType = analyseResources
 				&& this.resolvedType instanceof ReferenceBinding
-				&& ((ReferenceBinding)this.resolvedType).hasTypeBit(TypeIds.BitWrapperCloseable);
+				&& this.resolvedType.hasTypeBit(TypeIds.BitWrapperCloseable);
 		for (int i = 0, count = this.arguments.length; i < count; i++) {
 			Expression argument = this.arguments[i];
 			flowInfo =
@@ -167,8 +171,7 @@ public void checkCapturedLocalInitializationIfNecessary(ReferenceBinding checked
 		NestedTypeBinding nestedType = (NestedTypeBinding) checkedType;
 		SyntheticArgumentBinding[] syntheticArguments = nestedType.syntheticOuterLocalVariables();
 		if (syntheticArguments != null)
-			for (int i = 0, count = syntheticArguments.length; i < count; i++){
-				SyntheticArgumentBinding syntheticArgument = syntheticArguments[i];
+			for (SyntheticArgumentBinding syntheticArgument : syntheticArguments) {
 				LocalVariableBinding targetLocal;
 				if ((targetLocal = syntheticArgument.actualOuterLocalVariable) == null) continue;
 				if (targetLocal.declaration != null && !flowInfo.isDefinitelyAssigned(targetLocal)){
@@ -207,7 +210,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	}
 
 	// handling innerclass instance allocation - enclosing instance arguments
-	if (allocatedType.isNestedType()) {
+	if (allocatedType.hasEnclosingInstanceContext()) {
 		codeStream.generateSyntheticEnclosingInstanceValues(
 			currentScope,
 			allocatedType,
@@ -217,7 +220,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	// generate the arguments for constructor
 	generateArguments(this.binding, this.arguments, currentScope, codeStream);
 	// handling innerclass instance allocation - outer local arguments
-	if (allocatedType.isNestedType()) {
+	if (allocatedType.hasEnclosingInstanceContext()) {
 		codeStream.generateSyntheticOuterArgumentValues(
 			currentScope,
 			allocatedType,
@@ -403,8 +406,8 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 			if (this.argumentsHaveErrors) {
 				if (this.arguments != null) { // still attempt to resolve arguments
-					for (int i = 0, max = this.arguments.length; i < max; i++) {
-						this.arguments[i].resolveType(scope);
+					for (Expression argument : this.arguments) {
+						argument.resolveType(scope);
 					}
 				}
 				return null;
@@ -506,7 +509,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().invalidConstructor(this, this.binding);
 		return this.resolvedType;
 	}
-	if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
+	if ((this.binding.tagBits & TagBits.HasMissingType) != 0 && isMissingTypeRelevant()) {
 		scope.problemReporter().missingTypeInConstructor(this, this.binding);
 	}
 	if (isMethodUseDeprecated(this.binding, scope, true, this)) {
@@ -536,7 +539,38 @@ public TypeBinding resolveType(BlockScope scope) {
 			this.binding.getTypeAnnotations() != Binding.NO_ANNOTATIONS) {
 		this.resolvedType = scope.environment().createAnnotatedType(this.resolvedType, this.binding.getTypeAnnotations());
 	}
+	checkEarlyConstructionContext(scope);
 	return this.resolvedType;
+}
+
+protected void checkEarlyConstructionContext(BlockScope scope) {
+	if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())
+			&& this.type != null && this.type.resolvedType instanceof ReferenceBinding currentType) {
+		// only enclosing types of non-static member types are relevant
+		if (currentType.isStatic() || currentType.isLocalType())
+			return;
+		currentType = currentType.enclosingType();
+		if (currentType == null)
+			return;
+		TypeBinding uninitialized = scope.getMatchingUninitializedType(currentType, true);
+		if (uninitialized != null)
+			scope.problemReporter().allocationInEarlyConstructionContext(this, this.resolvedType, uninitialized);
+	}
+	// if JEP 482 is not enabled, problems will be detected when looking for enclosing instance(s)
+}
+protected boolean isMissingTypeRelevant() {
+	if (this.binding != null && this.binding.isVarargs()) {
+		int argLen = this.arguments != null ? this.arguments.length : 0;
+		if (argLen < this.binding.parameters.length) {
+			// are all but the irrelevant varargs type present?
+			for (int i = 0; i < argLen; i++) {
+				if ((this.binding.parameters[i].tagBits & TagBits.HasMissingType) != 0)
+					return true; // this one *is* relevant - actually this case is already detected during findConstructorBinding()
+			}
+			return false;
+		}
+	}
+	return true;
 }
 
 /**
@@ -733,16 +767,16 @@ public void setFieldIndex(int i) {
 public void traverse(ASTVisitor visitor, BlockScope scope) {
 	if (visitor.visit(this, scope)) {
 		if (this.typeArguments != null) {
-			for (int i = 0, typeArgumentsLength = this.typeArguments.length; i < typeArgumentsLength; i++) {
-				this.typeArguments[i].traverse(visitor, scope);
+			for (TypeReference typeArgument : this.typeArguments) {
+				typeArgument.traverse(visitor, scope);
 			}
 		}
 		if (this.type != null) { // enum constant scenario
 			this.type.traverse(visitor, scope);
 		}
 		if (this.arguments != null) {
-			for (int i = 0, argumentsLength = this.arguments.length; i < argumentsLength; i++)
-				this.arguments[i].traverse(visitor, scope);
+			for (Expression argument : this.arguments)
+				argument.traverse(visitor, scope);
 		}
 	}
 	visitor.endVisit(this, scope);

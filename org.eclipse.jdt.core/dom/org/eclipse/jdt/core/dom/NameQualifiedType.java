@@ -94,13 +94,13 @@ public class NameQualifiedType extends AnnotatableType {
 	 * The qualifier node; lazily initialized; defaults to
 	 * an unspecified, but legal, simple name.
 	 */
-	private Name qualifier = null;
+	private volatile Name qualifier;
 
 	/**
 	 * The name being qualified; lazily initialized; defaults to a unspecified,
 	 * legal Java identifier.
 	 */
-	private SimpleName name = null;
+	private volatile SimpleName name;
 
 	/**
 	 * Creates a new unparented node for a name-qualified type owned by the
@@ -172,9 +172,9 @@ public class NameQualifiedType extends AnnotatableType {
 	ASTNode clone0(AST target) {
 		NameQualifiedType result = new NameQualifiedType(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setQualifier((Name) ((ASTNode) getQualifier()).clone(target));
+		result.setQualifier((Name) getQualifier().clone(target));
 		result.annotations().addAll(ASTNode.copySubtrees(target, annotations()));
-		result.setName((SimpleName) ((ASTNode) getName()).clone(target));
+		result.setName((SimpleName) getName().clone(target));
 		return result;
 	}
 
@@ -201,8 +201,7 @@ public class NameQualifiedType extends AnnotatableType {
 			synchronized (this) {
 				if (this.qualifier == null) {
 					preLazyInit();
-					this.qualifier = new SimpleName(this.ast);
-					postLazyInit(this.qualifier, QUALIFIER_PROPERTY);
+					this.qualifier = postLazyInit(new SimpleName(this.ast), QUALIFIER_PROPERTY);
 				}
 			}
 		}
@@ -240,8 +239,7 @@ public class NameQualifiedType extends AnnotatableType {
 			synchronized (this) {
 				if (this.name == null) {
 					preLazyInit();
-					this.name = new SimpleName(this.ast);
-					postLazyInit(this.name, NAME_PROPERTY);
+					this.name = postLazyInit(new SimpleName(this.ast), NAME_PROPERTY);
 				}
 			}
 		}

@@ -15,13 +15,11 @@ package org.eclipse.jdt.core.tests.performance;
 
 import java.io.PrintStream;
 import java.text.NumberFormat;
-
+import junit.framework.Test;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.CompletionRequestor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
-
-import junit.framework.Test;
 
 @SuppressWarnings("rawtypes")
 public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests {

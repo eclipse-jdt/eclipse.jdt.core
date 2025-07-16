@@ -13,11 +13,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.index;
 
-import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.core.util.*;
+import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
+import org.eclipse.jdt.internal.core.util.SimpleWordSet;
 
 public class MemoryIndex {
 
@@ -74,8 +74,8 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 		nextPath : for (int i = 0, l = referenceTables.length; i < l; i++) {
 			HashtableOfObject categoryToWords = (HashtableOfObject) referenceTables[i];
 			if (categoryToWords != null) {
-				for (int j = 0, m = categories.length; j < m; j++) {
-					SimpleWordSet wordSet = (SimpleWordSet) categoryToWords.get(categories[j]);
+				for (char[] category : categories) {
+					SimpleWordSet wordSet = (SimpleWordSet) categoryToWords.get(category);
 					if (wordSet != null && wordSet.includes(key)) {
 						if (results == null)
 							results = new HashtableOfObject(13);
@@ -92,12 +92,11 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 		for (int i = 0, l = referenceTables.length; i < l; i++) {
 			HashtableOfObject categoryToWords = (HashtableOfObject) referenceTables[i];
 			if (categoryToWords != null) {
-				for (int j = 0, m = categories.length; j < m; j++) {
-					SimpleWordSet wordSet = (SimpleWordSet) categoryToWords.get(categories[j]);
+				for (char[] category : categories) {
+					SimpleWordSet wordSet = (SimpleWordSet) categoryToWords.get(category);
 					if (wordSet != null) {
 						char[][] words = wordSet.words;
-						for (int k = 0, n = words.length; k < n; k++) {
-							char[] word = words[k];
+						for (char[] word : words) {
 							if (word != null && Index.isMatch(key, word, matchRule)) {
 								if (results == null)
 									results = new HashtableOfObject(13);

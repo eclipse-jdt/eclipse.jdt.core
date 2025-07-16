@@ -29,7 +29,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.List;
 import java.util.Set;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
@@ -136,8 +135,7 @@ public class WildcardBinding extends ReferenceBinding {
 		long nullTagBits = 0L;
 		AnnotationBinding [] annotations = this.typeAnnotations;
 		if (annotations != null) {
-			for (int i = 0, length = annotations.length; i < length; i++) {
-				AnnotationBinding annotation = annotations[i];
+			for (AnnotationBinding annotation : annotations) {
 				if (annotation != null) {
 					if (annotation.type.hasNullBit(TypeIds.BitNullableAnnotation)) {
 						if ((nullTagBits & TagBits.AnnotationNonNull) == 0) {
@@ -198,8 +196,8 @@ public class WildcardBinding extends ReferenceBinding {
 						}
 					}
 					if (nullTagBits == 0L && this.otherBounds != null) {
-						for (int i = 0, length = this.otherBounds.length; i < length; i++) {
-							if ((this.otherBounds[i].tagBits & TagBits.AnnotationNonNull) != 0) { // can this happen?
+						for (TypeBinding otherBound : this.otherBounds) {
+							if ((otherBound.tagBits & TagBits.AnnotationNonNull) != 0) { // can this happen?
 								nullTagBits = TagBits.AnnotationNonNull;
 								break;
 							}
@@ -327,8 +325,8 @@ public class WildcardBinding extends ReferenceBinding {
 							case Binding.INTERSECTION_TYPE : // A={? extends V1&...&Vn} << F={? extends U} ---> V1 << U, ..., Vn << U
 								WildcardBinding actualIntersection = (WildcardBinding) actualType;
 								this.bound.collectSubstitutes(scope, actualIntersection.bound, inferenceContext, TypeConstants.CONSTRAINT_EXTENDS);
-					        	for (int i = 0, length = actualIntersection.otherBounds.length; i < length; i++) {
-									this.bound.collectSubstitutes(scope, actualIntersection.otherBounds[i], inferenceContext, TypeConstants.CONSTRAINT_EXTENDS);
+					        	for (TypeBinding otherBound : actualIntersection.otherBounds) {
+									this.bound.collectSubstitutes(scope, otherBound, inferenceContext, TypeConstants.CONSTRAINT_EXTENDS);
 					        	}
 								break;
 							default : // A=V << F={? extends U} ---> V << U
@@ -567,8 +565,8 @@ public class WildcardBinding extends ReferenceBinding {
             	if (this.otherBounds == null)
                 	return buffer.append(CharOperation.concat(TypeConstants.WILDCARD_NAME, TypeConstants.WILDCARD_EXTENDS, this.bound.annotatedDebugName().toCharArray())).toString();
             	buffer.append(this.bound.annotatedDebugName());
-            	for (int i = 0, length = this.otherBounds.length; i < length; i++) {
-            		buffer.append(" & ").append(this.otherBounds[i].annotatedDebugName()); //$NON-NLS-1$
+            	for (TypeBinding otherBound : this.otherBounds) {
+            		buffer.append(" & ").append(otherBound.annotatedDebugName()); //$NON-NLS-1$
             	}
             	return buffer.toString();
 			default: // SUPER
@@ -629,9 +627,9 @@ public class WildcardBinding extends ReferenceBinding {
 			if (this.superclass != null && this.superclass.hasTypeBit(~TypeIds.BitUninitialized))
 				this.typeBits |= (this.superclass.typeBits & TypeIds.InheritableBits);
 			if (this.superInterfaces != null)
-				for (int i = 0, l = this.superInterfaces.length; i < l; i++)
-					if (this.superInterfaces[i].hasTypeBit(~TypeIds.BitUninitialized))
-						this.typeBits |= (this.superInterfaces[i].typeBits & TypeIds.InheritableBits);
+				for (ReferenceBinding superInterface : this.superInterfaces)
+					if (superInterface.hasTypeBit(~TypeIds.BitUninitialized))
+						this.typeBits |= (superInterface.typeBits & TypeIds.InheritableBits);
 		}
 		return (this.typeBits & bit) != 0;
 	}
@@ -648,8 +646,7 @@ public class WildcardBinding extends ReferenceBinding {
 					TagBits.HasNullTypeAnnotation | TagBits.HasCapturedWildcard);
 		}
 		if (someOtherBounds != null) {
-			for (int i = 0, max = someOtherBounds.length; i < max; i++) {
-				TypeBinding someOtherBound = someOtherBounds[i];
+			for (TypeBinding someOtherBound : someOtherBounds) {
 				this.tagBits |= someOtherBound.tagBits & (TagBits.ContainsNestedTypeReferences | TagBits.HasNullTypeAnnotation | TagBits.HasCapturedWildcard);
 			}
 		}
@@ -721,8 +718,8 @@ public class WildcardBinding extends ReferenceBinding {
 			if (this.superclass != null && !this.superclass.isProperType(admitCapture18))
 				return false;
 			if (this.superInterfaces != null)
-				for (int i = 0, l = this.superInterfaces.length; i < l; i++)
-					if (!this.superInterfaces[i].isProperType(admitCapture18))
+				for (ReferenceBinding superInterface : this.superInterfaces)
+					if (!superInterface.isProperType(admitCapture18))
 						return false;
 			return true;
 		} finally {
@@ -788,8 +785,8 @@ public class WildcardBinding extends ReferenceBinding {
 	                return CharOperation.concat(TypeConstants.WILDCARD_NAME, TypeConstants.WILDCARD_EXTENDS, this.bound.readableName());
             	StringBuilder buffer = new StringBuilder(10);
             	buffer.append(this.bound.readableName());
-            	for (int i = 0, length = this.otherBounds.length; i < length; i++) {
-            		buffer.append('&').append(this.otherBounds[i].readableName());
+            	for (TypeBinding otherBound : this.otherBounds) {
+            		buffer.append('&').append(otherBound.readableName());
             	}
             	int length;
 				char[] result = new char[length = buffer.length()];
@@ -814,8 +811,8 @@ public class WildcardBinding extends ReferenceBinding {
             		buffer.append(this.bound.nullAnnotatedReadableName(options, shortNames));
             	} else {
 	            	buffer.append(this.bound.nullAnnotatedReadableName(options, shortNames));
-	            	for (int i = 0, length = this.otherBounds.length; i < length; i++) {
-	            		buffer.append('&').append(this.otherBounds[i].nullAnnotatedReadableName(options, shortNames));
+	            	for (TypeBinding otherBound : this.otherBounds) {
+	            		buffer.append('&').append(otherBound.nullAnnotatedReadableName(options, shortNames));
 	            	}
             	}
             	break;
@@ -869,8 +866,8 @@ public class WildcardBinding extends ReferenceBinding {
 	                return CharOperation.concat(TypeConstants.WILDCARD_NAME, TypeConstants.WILDCARD_EXTENDS, this.bound.shortReadableName());
             	StringBuilder buffer = new StringBuilder(10);
             	buffer.append(this.bound.shortReadableName());
-            	for (int i = 0, length = this.otherBounds.length; i < length; i++) {
-            		buffer.append('&').append(this.otherBounds[i].shortReadableName());
+            	for (TypeBinding otherBound : this.otherBounds) {
+            		buffer.append('&').append(otherBound.shortReadableName());
             	}
             	int length;
 				char[] result = new char[length = buffer.length()];
@@ -995,8 +992,8 @@ public class WildcardBinding extends ReferenceBinding {
             	if (this.otherBounds == null)
                 	return new String(CharOperation.concat(TypeConstants.WILDCARD_NAME, TypeConstants.WILDCARD_EXTENDS, this.bound.debugName().toCharArray()));
             	StringBuilder buffer = new StringBuilder(this.bound.debugName());
-            	for (int i = 0, length = this.otherBounds.length; i < length; i++) {
-            		buffer.append('&').append(this.otherBounds[i].debugName());
+            	for (TypeBinding otherBound : this.otherBounds) {
+            		buffer.append('&').append(otherBound.debugName());
             	}
             	return buffer.toString();
 			default: // SUPER
@@ -1044,8 +1041,8 @@ public class WildcardBinding extends ReferenceBinding {
 		if (this.bound != null)
 			this.bound.collectInferenceVariables(variables);
 		if (this.otherBounds != null)
-			for (int i = 0, length = this.otherBounds.length; i < length; i++)
-				this.otherBounds[i].collectInferenceVariables(variables);
+			for (TypeBinding otherBound : this.otherBounds)
+				otherBound.collectInferenceVariables(variables);
 	}
 	@Override
 	public boolean mentionsAny(TypeBinding[] parameters, int idx) {
@@ -1058,8 +1055,8 @@ public class WildcardBinding extends ReferenceBinding {
 			if (this.bound != null && 	this.bound.mentionsAny(parameters, -1))
 				return true;
 			if (this.otherBounds != null) {
-				for (int i = 0, length = this.otherBounds.length; i < length; i++)
-					if (this.otherBounds[i].mentionsAny(parameters, -1))
+				for (TypeBinding otherBound : this.otherBounds)
+					if (otherBound.mentionsAny(parameters, -1))
 						return true;
 			}
 		} finally {
@@ -1081,8 +1078,8 @@ public class WildcardBinding extends ReferenceBinding {
 				if (this.bound != null)
 					this.tagBits |= this.bound.updateTagBits();
 				if (this.otherBounds != null) {
-					for (int i = 0, length = this.otherBounds.length; i < length; i++)
-						this.tagBits |= this.otherBounds[i].updateTagBits();
+					for (TypeBinding otherBound : this.otherBounds)
+						this.tagBits |= otherBound.updateTagBits();
 				}
 			} finally {
 				this.inRecursiveFunction = false;

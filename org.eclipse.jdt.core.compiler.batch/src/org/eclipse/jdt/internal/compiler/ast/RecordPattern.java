@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.codegen.ExceptionLabel;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -30,34 +31,31 @@ import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
-public class RecordPattern extends TypePattern {
+public class RecordPattern extends Pattern {
 
 	public Pattern[] patterns;
 	public TypeReference type;
-	int thenInitStateIndex1 = -1;
-	int thenInitStateIndex2 = -1;
-
-	/* package */ BranchLabel guardedElseTarget;
-
-	private TypeBinding expectedType; // for record pattern type inference
 
 	public RecordPattern(TypeReference type, int sourceStart, int sourceEnd) {
 		this.type = type;
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
 	}
+
 	@Override
 	public TypeReference getType() {
 		return this.type;
 	}
+
 	@Override
-	public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
-		if (!castType.isReifiable())
-			return CastExpression.checkUnsafeCast(this, scope, castType, expressionType, match, isNarrowing);
-		else
-			return super.checkUnsafeCast(scope, castType, expressionType, match, isNarrowing);
+	public void setIsEitherOrPattern() {
+		for (Pattern p : this.patterns) {
+			p.setIsEitherOrPattern();
+		}
 	}
+
 	@Override
 	public LocalVariableBinding[] bindingsWhenTrue() {
 		LocalVariableBinding [] variables = NO_VARIABLES;
@@ -66,20 +64,22 @@ public class RecordPattern extends TypePattern {
 		}
 		return variables;
 	}
+
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-		this.thenInitStateIndex1 = currentScope.methodScope().recordInitializationStates(flowInfo);
 		for (Pattern p : this.patterns) {
 			 flowInfo = p.analyseCode(currentScope, flowContext, flowInfo);
 		}
-		flowInfo = flowInfo.safeInitsWhenTrue(); // TODO: is this really needed?
-		this.thenInitStateIndex2 = currentScope.methodScope().recordInitializationStates(flowInfo);
 		return flowInfo;
 	}
+
 	@Override
-	public boolean coversType(TypeBinding t) {
+	public boolean coversType(TypeBinding t, Scope scope) {
+
+		if (!isUnguarded())
+			return false;
+
 		if (TypeBinding.equalsEquals(t, this.resolvedType)) {
-			// return the already computed value
 			return this.isTotalTypeNode;
 		}
 		if (!t.isRecord())
@@ -91,7 +91,7 @@ public class RecordPattern extends TypePattern {
 		for (int i = 0; i < components.length; i++) {
 			Pattern p = this.patterns[i];
 			RecordComponentBinding componentBinding = components[i];
-			if (!p.coversType(componentBinding.type)) {
+			if (!p.coversType(componentBinding.type, scope)) {
 				return false;
 			}
 		}
@@ -99,26 +99,17 @@ public class RecordPattern extends TypePattern {
 	}
 
 	@Override
-	public void setExpectedType(TypeBinding expectedType) {
-		this.expectedType = expectedType;
-	}
-
-	@Override
-	public TypeBinding expectedType() {
-		return this.expectedType;
-	}
-
-	@Override
 	public TypeBinding resolveType(BlockScope scope) {
 
+		this.constant = Constant.NotAConstant;
 		if (this.resolvedType != null)
 			return this.resolvedType;
 
 		this.type.bits |= ASTNode.IgnoreRawTypeCheck;
 		this.resolvedType = this.type.resolveType(scope);
 
-		if (!this.resolvedType.isRecord()) {
-			scope.problemReporter().unexpectedTypeinRecordPattern(this.resolvedType, this.type);
+		if (this.resolvedType == null || !this.resolvedType.isRecord()) {
+			scope.problemReporter().unexpectedTypeinRecordPattern(this.type);
 			return this.resolvedType;
 		}
 		if (this.resolvedType.components().length != this.patterns.length) {
@@ -126,54 +117,54 @@ public class RecordPattern extends TypePattern {
 			return this.resolvedType = null;
 		}
 
-		LocalVariableBinding [] bindings = NO_VARIABLES;
-		for (Pattern p : this.patterns) {
-			p.resolveTypeWithBindings(bindings, scope);
-			bindings = LocalVariableBinding.merge(bindings, p.bindingsWhenTrue());
-		}
-		for (LocalVariableBinding binding : bindings)
-			binding.useFlag = LocalVariableBinding.USED; // syntactically required even if untouched
-
 		if (this.resolvedType.isRawType()) {
-			TypeBinding expressionType = expectedType();
-			if (expressionType instanceof ReferenceBinding) {
-				ReferenceBinding binding = inferRecordParameterization(scope, (ReferenceBinding) expressionType);
+			if (this.outerExpressionType instanceof ReferenceBinding) {
+				ReferenceBinding binding = inferRecordParameterization(scope, (ReferenceBinding) this.outerExpressionType);
 				if (binding == null || !binding.isValidBinding()) {
 					scope.problemReporter().cannotInferRecordPatternTypes(this);
 				    return this.resolvedType = null;
 				}
-				this.resolvedType = binding;
+				this.resolvedType = binding.capture(scope, this.sourceStart, this.sourceEnd);
 			}
+		}
+
+		LocalVariableBinding [] bindings = NO_VARIABLES;
+		for (int i = 0, l = this.patterns.length; i < l; ++i) {
+			Pattern p = this.patterns[i];
+			p.resolveTypeWithBindings(bindings, scope);
+			bindings = LocalVariableBinding.merge(bindings, p.bindingsWhenTrue());
+			p.setOuterExpressionType(this.resolvedType.components()[i].type);
 		}
 
 		if (this.resolvedType == null || !this.resolvedType.isValidBinding()) {
 			return this.resolvedType;
 		}
 
-		this.isTotalTypeNode = super.coversType(this.resolvedType);
+		this.isTotalTypeNode = super.coversType(this.resolvedType, scope);
 		RecordComponentBinding[] components = this.resolvedType.capture(scope, this.sourceStart, this.sourceEnd).components();
 		for (int i = 0; i < components.length; i++) {
 			Pattern p1 = this.patterns[i];
-			if (p1 instanceof TypePattern) {
-                final TypePattern tp = (TypePattern) p1;
-				RecordComponentBinding componentBinding = components[i];
-				if (p1.getType() == null || p1.getType().isTypeNameVar(scope)) {
+			RecordComponentBinding componentBinding = components[i];
+			if (p1 instanceof TypePattern tp) {
+				if (tp.getType() == null || tp.getType().isTypeNameVar(scope)) {
 					if (tp.local.binding != null) // rewrite with the inferred type
 						tp.local.binding.type = componentBinding.type;
 				}
-				TypeBinding expressionType = componentBinding.type;
-				if (p1.isPatternTypeCompatible(expressionType, scope)) {
-					p1.isTotalTypeNode = p1.coversType(componentBinding.type);
-					MethodBinding[] methods = this.resolvedType.getMethods(componentBinding.name);
-					if (methods != null && methods.length > 0) {
-						p1.accessorMethod = methods[0];
-					}
-				}
-				this.isTotalTypeNode &= p1.isTotalTypeNode;
 			}
+			TypeBinding componentType = componentBinding.type;
+			if (p1.isApplicable(componentType, scope, p1)) {
+				p1.isTotalTypeNode = p1.coversType(componentType, scope);
+				MethodBinding[] methods = this.resolvedType.getMethods(componentBinding.name);
+				if (methods != null && methods.length > 0) {
+					p1.accessorMethod = methods[0];
+				}
+			}
+			this.isTotalTypeNode &= p1.isTotalTypeNode;
 		}
 		return this.resolvedType;
 	}
+
+
 	private ReferenceBinding inferRecordParameterization(BlockScope scope, ReferenceBinding proposedMatchingType) {
 		InferenceContext18 freshInferenceContext = new InferenceContext18(scope);
 		try {
@@ -182,40 +173,60 @@ public class RecordPattern extends TypePattern {
 			freshInferenceContext.cleanUp();
 		}
 	}
+
 	@Override
-	public boolean isAlwaysTrue() {
-		return false;
+	public boolean matchFailurePossible() {
+		return this.patterns.length != 0; // if no deconstruction is involved, no failure is possible.
 	}
+
 	@Override
 	public boolean dominates(Pattern p) {
-		if (!this.resolvedType.isValidBinding())
+		/* 14.30.3: A record pattern with type R and pattern list L dominates another record pattern
+		   with type S and pattern list M if (i) R and S name the same record class, and (ii)
+		   every component pattern, if any, in L dominates the corresponding component
+		   pattern in M.
+		*/
+		if (!isUnguarded())
 			return false;
-		if (!super.coversType(p.resolvedType)) {
+
+		if (this.resolvedType == null || !this.resolvedType.isValidBinding() || p.resolvedType == null || !p.resolvedType.isValidBinding())
 			return false;
-		}
+
+		if (TypeBinding.notEquals(this.resolvedType.erasure(), p.resolvedType.erasure()))
+			return false;
+
+		if (!this.resolvedType.erasure().isRecord())
+			return false;
+
 		if (p instanceof RecordPattern) {
 			RecordPattern rp = (RecordPattern) p;
 			if (this.patterns.length != rp.patterns.length)
 				return false;
-			for(int i = 0; i < this.patterns.length; i++) {
+			for (int i = 0, length = this.patterns.length; i < length; i++) {
 				if (!this.patterns[i].dominates(rp.patterns[i])) {
 					return false;
 				}
 			}
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	@Override
-	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
+	public void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel patternMatchLabel, BranchLabel matchFailLabel) {
 
+		int length = this.patterns.length;
 		/* JVM Stack on entry - [expression] // && expression instanceof this.resolvedType
 		   JVM stack on exit with successful pattern match or failed match -> []
 		   Notation: 'R' : record pattern, 'C': component
 		 */
+		if (length == 0) {
+			codeStream.pop();
+			return;
+		}
 		codeStream.checkcast(this.resolvedType); // [R]
 		List<ExceptionLabel> labels = new ArrayList<>();
-		for (int i = 0, length = this.patterns.length; i < length; i++) {
+		for (int i = 0; i < length; i++) {
 			Pattern p = this.patterns[i];
 			/* For all but the last component, dup the record instance to use
 			   as receiver for accessor invocation. The last component uses the
@@ -232,23 +243,28 @@ public class RecordPattern extends TypePattern {
 			exceptionLabel.placeEnd();
 			labels.add(exceptionLabel);
 
+			TypeBinding componentType = p.accessorMethod.returnType;
 			if (TypeBinding.notEquals(p.accessorMethod.original().returnType.erasure(),
-					p.accessorMethod.returnType.erasure()))
-				codeStream.checkcast(p.accessorMethod.returnType); // lastComponent ? [C] : [R, C]
+					componentType.erasure()))
+				codeStream.checkcast(componentType); // lastComponent ? [C] : [R, C]
 			if (p instanceof RecordPattern || !p.isTotalTypeNode) {
-				codeStream.dup(); // lastComponent ? [C, C] : [R, C, C]
-				codeStream.instance_of(p.resolvedType); // lastComponent ? [C, boolean] : [R, C, boolean]
-				BranchLabel target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
+				if (!p.isUnnamed())
+					codeStream.dup(componentType); // lastComponent ? named ? ([C, C] : [R, C, C]) : ([C] : [R, C])
+				if (p instanceof TypePattern) {
+					((TypePattern) p).generateTypeCheck(currentScope, codeStream, matchFailLabel);
+				} else {
+					codeStream.instance_of(p.resolvedType); // lastComponent ? named ? ([C, boolean] : [R, C, boolean]) : ([boolean] : [R, boolean])
+				}
 				BranchLabel innerTruthLabel = new BranchLabel(codeStream);
-				codeStream.ifne(innerTruthLabel); // lastComponent ? [C] : [R, C]
-				int pops = 1; // Not going to store into the component pattern binding, so need to pop, the duped value.
+				codeStream.ifne(innerTruthLabel); // lastComponent ? named ? ([C] : [R, C]) : ([] : [R])
+				int pops = p.isUnnamed() ? 0 : TypeIds.getCategory(componentType.id); // Not going to store into the component pattern binding, so need to pop, the duped value.
 				Pattern current = p;
 				RecordPattern outer = this;
 				while (outer != null) {
 					if (current.index != outer.patterns.length - 1)
 						pops++;
 					current = outer;
-					outer = outer.getEnclosingPattern() instanceof RecordPattern ? (RecordPattern) outer.getEnclosingPattern() : null;
+					outer = outer.getEnclosingPattern() instanceof RecordPattern rp ? rp : null;
 				}
 				while (pops > 1) {
 					codeStream.pop2();
@@ -257,10 +273,10 @@ public class RecordPattern extends TypePattern {
 				if (pops > 0)
 					codeStream.pop();
 
-				codeStream.goto_(target);
+				codeStream.goto_(matchFailLabel);
 				innerTruthLabel.place();
 			}
-			p.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel);
+			p.generateCode(currentScope, codeStream, patternMatchLabel, matchFailLabel);
 		}
 
 		if (labels.size() > 0) {
@@ -273,26 +289,12 @@ public class RecordPattern extends TypePattern {
 			}
 			codeStream.patternAccessorMap.put(trapScope, eLabels);
 		}
-		if (this.thenInitStateIndex2 != -1) {
-			codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.thenInitStateIndex2);
-			codeStream.addDefinitelyAssignedVariables(currentScope, this.thenInitStateIndex2);
-		}
 	}
 
 	@Override
-	public void suspendVariables(CodeStream codeStream, BlockScope scope) {
-		codeStream.removeNotDefinitelyAssignedVariables(scope, this.thenInitStateIndex1);
-	}
-	@Override
-	public void resumeVariables(CodeStream codeStream, BlockScope scope) {
-		codeStream.addDefinitelyAssignedVariables(scope, this.thenInitStateIndex2);
-	}
-	@Override
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
-			if (this.type != null) {
-				this.type.traverse(visitor, scope);
-			}
+			this.type.traverse(visitor, scope);
 			for (Pattern p : this.patterns) {
 				p.traverse(visitor, scope);
 			}
@@ -303,11 +305,9 @@ public class RecordPattern extends TypePattern {
 	@Override
 	public StringBuilder printExpression(int indent, StringBuilder output) {
 		output.append(this.type).append('(');
-		if (this.patterns != null) {
-			for (int i = 0; i < this.patterns.length; i++) {
-				if (i > 0) output.append(", "); //$NON-NLS-1$
-				this.patterns[i].print(0, output);
-			}
+		for (int i = 0; i < this.patterns.length; i++) {
+			if (i > 0) output.append(", "); //$NON-NLS-1$
+			this.patterns[i].print(0, output);
 		}
 		output.append(')');
 		return output;

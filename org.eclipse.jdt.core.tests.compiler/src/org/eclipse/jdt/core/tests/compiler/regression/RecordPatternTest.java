@@ -15,14 +15,12 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 public class RecordPatternTest extends AbstractRegressionTest9 {
 
@@ -301,12 +299,12 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 3)\n" +
 				"	if (r instanceof Rectangle(ColoredPoint(Point(String o1, String o2), Color c),\n" +
 				"	                                              ^^^^^^^^^\n" +
-				"Record component with type int is not compatible with type java.lang.String\n" +
+				"Record component with type int is not compatible with type String\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 3)\n" +
 				"	if (r instanceof Rectangle(ColoredPoint(Point(String o1, String o2), Color c),\n" +
 				"	                                                         ^^^^^^^^^\n" +
-				"Record component with type int is not compatible with type java.lang.String\n" +
+				"Record component with type int is not compatible with type String\n" +
 				"----------\n");
 	}
 	// Test that pattern types that don't match record component's types are reported
@@ -364,12 +362,6 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				},
 				"----------\n" +
 				"1. ERROR in X.java (at line 7)\n" +
-				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n" +
-				"				ColoredPoint(Point(int x1, int y1), Color c1)) -> {\n" +
-				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"The switch statement cannot have more than one unconditional pattern\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 7)\n" +
 				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n" +
 				"				ColoredPoint(Point(int x1, int y1), Color c1)) -> {\n" +
 				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
@@ -1566,7 +1558,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "public class X {\n"
 				+ "  static void printGenericBoxString1(Box<Object> objectBox) {\n"
 				+ "    if (objectBox instanceof Box<String>(String s)) {\n"
-				+ "      System.out.println(s); // this one should report an unsafe cast error\n"
+				+ "      System.out.println(s);\n"
 				+ "    }\n"
 				+ "  }\n"
 				+ "  public static void main(String[] args) {}\n"
@@ -1576,8 +1568,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n" +
 				"1. ERROR in X.java (at line 4)\n" +
 				"	if (objectBox instanceof Box<String>(String s)) {\n" +
-				"	    ^^^^^^^^^\n" +
-				"Type Box<Object> cannot be safely cast to Box<String>\n" +
+				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Incompatible conditional operand types Box<Object> and Box<String>\n" +
 				"----------\n");
 	}
 	public void test48() {
@@ -1715,8 +1707,13 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n" +
 				"1. ERROR in X.java (at line 4)\n" +
 				"	case Rectangle(int x, int y) r -> 1;\n" +
-				"	                             ^\n" +
-				"Syntax error on token \"r\", delete this token\n" +
+				"	                           ^\n" +
+				"Syntax error, insert \":\" to complete SwitchLabel\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	case Rectangle(int x, int y) r -> 1;\n" +
+				"	                                  ^\n" +
+				"Syntax error, insert \"AssignmentOperator Expression\" to complete Expression\n" +
 				"----------\n");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2004
@@ -1943,8 +1940,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"true");
 	}
-	// TODO: failing
-	public void _testRecordPatternTypeInference_009() {
+	public void testRecordPatternTypeInference_009() {
 		runNegativeTest(new String[] {
 				"X.java",
 				"interface I {\n" +
@@ -1964,15 +1960,10 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"}"
 				},
 				"----------\n" +
-				"1. WARNING in X.java (at line 10)\n" +
-				"	if (p instanceof R(String a)) {\n" +
-				"	                 ^^^^^^^^^^^\n" +
-				"You are using a preview language feature that may or may not be supported in a future release\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 10)\n" +
+				"1. ERROR in X.java (at line 7)\n" +
 				"	if (p instanceof R(String a)) {\n" +
 				"	                   ^^^^^^^^\n" +
-				"Pattern of type ? extends I is not compatible with type java.lang.String\n" +
+				"Record component with type capture#2-of ? extends I is not compatible with type String\n" +
 				"----------\n");
 	}
 	public void testRecordPatternTypeInference_010() {
@@ -2519,7 +2510,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"2. ERROR in X.java (at line 6)\n" +
 			"	case Record<String>(Object o, StringBuilder s) -> {break;}\n" +
 			"	                              ^^^^^^^^^^^^^^^\n" +
-			"Record component with type String is not compatible with type java.lang.StringBuilder\n" +
+			"Record component with type String is not compatible with type StringBuilder\n" +
 			"----------\n");
 	}
 	public void testIssue1224_5() {
@@ -2544,7 +2535,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"PASS");
 	}
 	public void testIssue1224_6() {
-		runNegativeTest(new String[] {
+		runConformTest(new String[] {
 			"X.java",
 			"record Record(String s){}\n"
 			+ "public class X {\n"
@@ -2563,12 +2554,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			+ "	}\n"
 			+ "}"
 			},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	default -> {}        }\n" +
-				"	^^^^^^^\n" +
-				"Switch case cannot have both unconditional pattern and default label\n" +
-				"----------\n");
+				"PASS");
 	}
 	public void testIssue1224_7() {
 		runConformTest(new String[] {
@@ -2688,7 +2674,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 12)\n" +
 			"	return switch (box) {     // Not Exhaustive!\n" +
 			"	               ^^^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
 	public void testRecPatExhaust003() {
@@ -2772,7 +2758,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 16)\n" +
 			"	return switch (box) {     // Not Exhaustive!\n" +
 			"	               ^^^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
 	public void testRecPatExhaust005() {
@@ -2835,7 +2821,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 11)\n" +
 			"	return switch (box) {     // Not Exhaustive!\n" +
 			"	               ^^^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
 	public void testRecPatExhaust007() {
@@ -2868,7 +2854,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 12)\n" +
 			"	return switch (p) {     // Not Exhaustive!\n" +
 			"	               ^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
 	public void testRecPatExhaust008() {
@@ -2902,7 +2888,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 12)\n" +
 			"	return switch (p) {     // Not Exhaustive!\n" +
 			"	               ^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
 	public void testRecPatExhaust009() {
@@ -2980,7 +2966,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 12)\n" +
 			"	return switch (r) {\n" +
 			"	               ^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
 	// implicit permitted - class
@@ -3013,7 +2999,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 12)\n" +
 			"	return switch (r) {\n" +
 			"	               ^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
 	// implicit permitted - class - the class C missing
@@ -3047,7 +3033,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 12)\n" +
 			"	return switch (r) {\n" +
 			"	               ^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
 	public void testRecPatExhaust014() {
@@ -3080,7 +3066,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 11)\n" +
 			"	return switch (r) {\n" +
 			"	               ^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
 	public void testRecPatExhaust015() {
@@ -3196,7 +3182,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 12)\n" +
 			"	return switch (r) {\n" +
 			"	               ^\n" +
-			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
 	public void testRecordPatternTypeInference_012() {
@@ -3932,8 +3918,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1977
 	// [Patterns][records] ECJ generated code fails to raise MatchException properly
-	// Fails due to https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1985
-	public void _testGH1977_instance_field() {
+	// javac reports ArithmeticException but that looks wrong
+	public void testGH1977_instance_field() {
 		runConformTest(
 				new String[] {
 				"X.java",
@@ -4030,8 +4016,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1977
 	// [Patterns][records] ECJ generated code fails to raise MatchException properly
-	// Fails due to https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1985
-	public void _testGH1977_static_field() {
+	// javac reports ExceptionInInitializerError caused by java.lang.ArithmeticException but that looks wrong
+	public void testGH1977_static_field() {
 		runConformTest(
 				new String[] {
 				"X.java",
@@ -4386,5 +4372,420 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				}
 				""" },
 				"java.lang.MatchException");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2001
+	// [Patterns][records] ECJ fails to reject incompatible pattern types.
+	public void testIssue2001() {
+		runNegativeTest(new String[] { "X.java",
+				"""
+				public class X {
+					record R1(Long color) {}
+					record R2(short color) {}
+
+					public static void main(String[] args) {
+						Object o = new R1(10L);
+						if (o instanceof R1(long d)) {
+							System.out.println(d);
+						}
+						if (o instanceof R2(Short d)) {
+							System.out.println(d);
+						}
+						if (o instanceof R2(int d)) {
+							System.out.println(d);
+						}
+					}
+				}
+				"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	if (o instanceof R1(long d)) {\n" +
+				"	                    ^^^^^^\n" +
+				"Record component with type Long is not compatible with type long\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 10)\n" +
+				"	if (o instanceof R2(Short d)) {\n" +
+				"	                    ^^^^^^^\n" +
+				"Record component with type short is not compatible with type Short\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 13)\n" +
+				"	if (o instanceof R2(int d)) {\n" +
+				"	                    ^^^^^\n" +
+				"Record component with type short is not compatible with type int\n" +
+				"----------\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1999
+	// [Patterns][records] Instanceof with record deconstruction patterns should never be flagged as unnecessary
+	public void testIssue1999() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+		runNegativeTest(
+				true,
+				new String[] {
+				"X.java",
+				"""
+				interface I {
+				}
+
+				final class A implements I {
+				}
+
+				final class B implements I {
+				}
+
+				record R(I x, I y) {
+				}
+
+				public class X {
+					public static boolean foo(R r) {
+						if (r instanceof R(A a1, A a2))  // don't warn here.
+							return true;
+						A a = null;
+						if (a instanceof A) {} // warn here
+						if (a instanceof A a1) {} // don't warn here
+						return false;
+					}
+
+					public static void main(String argv[]) {
+						System.out.println(X.foo(new R(new A(), new A())));
+						System.out.println(X.foo(new R(new A(), new B())));
+					}
+				}
+				"""
+				},
+				null,
+				options,
+				"----------\n" +
+				"1. ERROR in X.java (at line 18)\n" +
+				"	if (a instanceof A) {} // warn here\n" +
+				"	    ^^^^^^^^^^^^^^\n" +
+				"The expression of type A is already an instance of type A\n" +
+				"----------\n",
+				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2007
+	public void testIssue2007() {
+		runConformTest(new String[] { "X.java", """
+				record R<T>(T t) {}
+				public class X<T> {
+				    public boolean foo(R<T> r) {
+				        return (r instanceof R<?>(X x));
+				    }
+				    public static void main(String argv[]) {
+				    	System.out.println(new X<>().foo(new R<>(new X())));
+				    }
+				}
+				""" },
+				"true");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2007
+	public void testIssue2007_2() {
+		runConformTest(new String[] { "X.java", """
+				record R<T>(T t) {}
+				public class X<T> {
+				    public boolean foo(R<T> r) {
+				         return (r instanceof R<? extends T>(X x));
+				    }
+				    public static void main(String argv[]) {
+				    	System.out.println(new X<>().foo(new R<>(new X())));
+				    }
+				}
+				""" },
+				"true");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2007
+	public void testIssue2007_3() {
+		runConformTest(new String[] { "X.java", """
+				record R<T>(T t) {}
+				public class X<T> {
+				    public boolean foo(R<T> r) {
+				    	return switch (r) {
+				    		case R<?>(X x) -> true;
+				    		default -> false;
+				    	};
+				    }
+				    public static void main(String argv[]) {
+				    	System.out.println(new X<>().foo(new R<>(new X())));
+				    }
+				}
+				""" },
+				"true");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2007
+	public void testIssue2007_4() {
+		runConformTest(new String[] { "X.java", """
+				record R<T>(T t) {}
+				public class X<T> {
+				    public boolean foo(R<T> r) {
+				    	return switch (r) {
+				    		case R<? extends T>(X x) -> true;
+				    		default -> false;
+				    	};
+				    }
+				    public static void main(String argv[]) {
+				    	System.out.println(new X<>().foo(new R<>(new X())));
+				    }
+				}
+				""" },
+				"true");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2007
+	public void testIssue2007_5() {
+		runConformTest(new String[] { "X.java", """
+				record R<T>(T t) {}
+				public class X<T> {
+				    public boolean foo(R<T> r) {
+				    	return switch (r) {
+				    		case R<? extends T>(Integer i) -> true;
+				    		default -> false;
+				    	};
+				    }
+				    public static void main(String argv[]) {
+				    	System.out.println(new X<>().foo(new R<>(new X())));
+				    }
+				}
+				""" },
+				"false");
+	}
+
+	public void testIllegalFallThrough() {
+		runNegativeTest(new String[] { "X.java", """
+				public class X {
+					record Point (int x, int y) {}
+
+				  static void foo(Object o) {
+				    switch (o) {
+				      case Integer i_1: System.out.println("Integer");
+				      case Point(int a, int b) : System.out.println("String");
+				      default: System.out.println("Object");
+				    }
+				  }
+				}
+				""" },
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	case Point(int a, int b) : System.out.println(\"String\");\n" +
+				"	^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Illegal fall-through to a pattern\n" +
+				"----------\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2118
+	// [Patterns] ECJ allows illegal modifiers with RecordPattern
+	public void testIllegalModifiers() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					record Point (int x, int y) {}
+
+					static void foo(Object o) {
+					    if (o instanceof public String) {}   // javac error, ecj error
+					    if (o instanceof public String s) {} // javac error, ecj error
+					    if (o instanceof public Point(int a, final int b)) {} // javac error, ECJ - NO ERROR!
+					    if (o instanceof Point(public int a, final int b)) {} // javac error, ecj error
+
+					    if (o instanceof final String) {}  // javac error, ecj error
+					    if (o instanceof final String s) {} // javac NO error, ecj NO error
+					    if (o instanceof final Point(int a, int b)) {} // javac NO error, ecj NO error
+
+					    switch (o) {
+					      case public Point(int a, int b) : System.out.println("String"); // javac error, ECJ: NO ERROR!
+					      case public Object o1: System.out.println("Default"); // both compilers error
+					    }
+					    switch (o) {
+					      case final Point(int a, int b) : System.out.println("String"); // NO ERROR in either
+					      case final Object o2: System.out.println("Default");
+					    }
+					}
+				}
+				"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	if (o instanceof public String) {}   // javac error, ecj error\n" +
+				"	                 ^^^^^^^^^^^^^\n" +
+				"Syntax error, modifiers are not allowed here\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 6)\n" +
+				"	if (o instanceof public String s) {} // javac error, ecj error\n" +
+				"	                               ^\n" +
+				"Illegal modifier for the pattern variable s; only final is permitted\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 7)\n" +
+				"	if (o instanceof public Point(int a, final int b)) {} // javac error, ECJ - NO ERROR!\n" +
+				"	                 ^^^^^^\n" +
+				"Syntax error, modifiers are not allowed here\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 8)\n" +
+				"	if (o instanceof Point(public int a, final int b)) {} // javac error, ecj error\n" +
+				"	                                  ^\n" +
+				"Illegal modifier for the pattern variable a; only final is permitted\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 10)\n" +
+				"	if (o instanceof final String) {}  // javac error, ecj error\n" +
+				"	                 ^^^^^^^^^^^^\n" +
+				"Syntax error, modifiers are not allowed here\n" +
+				"----------\n" +
+				"6. ERROR in X.java (at line 12)\n" +
+				"	if (o instanceof final Point(int a, int b)) {} // javac NO error, ecj NO error\n" +
+				"	                 ^^^^^\n" +
+				"Syntax error, modifiers are not allowed here\n" +
+				"----------\n" +
+				"7. ERROR in X.java (at line 15)\n" +
+				"	case public Point(int a, int b) : System.out.println(\"String\"); // javac error, ECJ: NO ERROR!\n" +
+				"	     ^^^^^^\n" +
+				"Syntax error, modifiers are not allowed here\n" +
+				"----------\n" +
+				"8. ERROR in X.java (at line 16)\n" +
+				"	case public Object o1: System.out.println(\"Default\"); // both compilers error\n" +
+				"	                   ^^\n" +
+				"Illegal modifier for the pattern variable o1; only final is permitted\n" +
+				"----------\n" +
+				"9. ERROR in X.java (at line 19)\n" +
+				"	case final Point(int a, int b) : System.out.println(\"String\"); // NO ERROR in either\n" +
+				"	     ^^^^^\n" +
+				"Syntax error, modifiers are not allowed here\n" +
+				"----------\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2119
+	// [Patterns] ECJ allows record pattern to have dimensions
+	public void testIssue2119() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					record Point (int x, int y) {}
+
+					static void foo(Object o) {
+						if (o instanceof Point [](int x, int y)) {}
+					}
+				}
+				"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	if (o instanceof Point [](int x, int y)) {}\n" +
+				"	                 ^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"A record pattern may not specify dimensions\n" +
+				"----------\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2119
+	// [Patterns] ECJ allows record pattern to have dimensions
+	public void testIssue2119_2() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					record Point (int x, int y) {}
+
+					static void foo(Object o) {
+						if (o instanceof Point (int x, int y) []) {}
+					}
+				}
+				"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	if (o instanceof Point (int x, int y) []) {}\n" +
+				"	                                      ^^\n" +
+				"Syntax error on tokens, delete these tokens\n" +
+				"----------\n");
+	}
+
+	public void testIssue3066() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public record X<T>(int x) {
+					public static void main(String[] args) {
+						Object o = new Object();
+						switch (o) {
+						case X<String>(int x):
+						default:
+						}
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 5)
+				case X<String>(int x):
+				     ^^^^^^^^^^^^^^^^
+			Type Object cannot be safely cast to X<String>
+			----------
+			""");
+	}
+
+	public void testIssue3066_notApplicable() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public record X(int x) {
+					public static void main(String[] args) {
+						java.io.Serializable o = "";
+						switch (o) {
+						case X(int x):
+						default:
+						}
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 5)
+				case X(int x):
+				     ^^^^^^^^
+			Type mismatch: cannot convert from Serializable to X
+			----------
+			""");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3173
+	// [21][Enhanced Switch] False error about allegedly non-exhaustive switch
+	public void testIssue3173() {
+		runConformTest(new String[] {
+				"RecordPatternDemo.java",
+				"""
+				public class RecordPatternDemo {
+				    public static void main(String[] args) {
+				        record Box<T>(T contents) { }
+
+				        Box<Box<String>> doubleBoxed = new Box<>(new Box<>("Contents"));
+				        String unboxed = switch (doubleBoxed) {
+				            case Box(Box(String s)) -> s;
+				        };
+
+				        System.out.println(unboxed);
+				    }
+				}
+				"""
+				},
+				"Contents");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3173
+	// [21][Enhanced Switch] False error about allegedly non-exhaustive switch
+	public void testIssue3173_2() {
+		runConformTest(new String[] {
+				"RecordPatternDemo.java",
+				"""
+				public class RecordPatternDemo {
+				    public static void main(String[] args) {
+				        record Box<T>(T contents) { }
+
+				        Box<Box<String>> doubleBoxed = new Box<>(new Box<>("Contents"));
+				        String unboxed = switch (doubleBoxed) {
+				            case Box(Box(String s)) -> s;
+				            default -> "default";
+				        };
+
+				        System.out.println(unboxed);
+				    }
+				}
+				"""
+				},
+				"Contents");
 	}
 }

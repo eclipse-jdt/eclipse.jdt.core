@@ -20,15 +20,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.lang.model.SourceVersion;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
-
+import junit.framework.TestCase;
 import org.eclipse.jdt.compiler.apt.tests.NegativeTests.TestDiagnosticListener;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
-
-import junit.framework.TestCase;
 
 public class Java9ElementsTests extends TestCase {
 	private static final String MODULE_PROC = "org.eclipse.jdt.compiler.apt.tests.processors.elements.Java9ElementProcessor";

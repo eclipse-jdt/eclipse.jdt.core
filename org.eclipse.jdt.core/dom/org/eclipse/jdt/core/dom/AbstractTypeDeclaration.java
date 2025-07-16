@@ -35,7 +35,7 @@ public abstract class AbstractTypeDeclaration extends BodyDeclaration {
 	 * legal Java class identifier.
 	 * @since 2.0 (originally declared on {@link TypeDeclaration})
 	 */
-	SimpleName typeName = null;
+	volatile SimpleName typeName;
 
 	/**
 	 * The body declarations (element type: {@link BodyDeclaration}).
@@ -130,8 +130,7 @@ public abstract class AbstractTypeDeclaration extends BodyDeclaration {
 			synchronized (this) {
 				if (this.typeName == null) {
 					preLazyInit();
-					this.typeName = new SimpleName(this.ast);
-					postLazyInit(this.typeName, internalNameProperty());
+					this.typeName = postLazyInit(new SimpleName(this.ast), internalNameProperty());
 				}
 			}
 		}

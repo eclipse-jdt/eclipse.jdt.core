@@ -15,11 +15,9 @@ package org.eclipse.jdt.core.tests;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
 import org.eclipse.jdt.core.tests.compiler.parser.ComplianceDiagnoseTest;
 import org.eclipse.jdt.core.tests.compiler.regression.SwitchExpressionsYieldTest;
 import org.eclipse.jdt.core.tests.dom.ASTConverter14Test;
@@ -39,7 +37,7 @@ public class RunAllJava13Tests extends TestCase {
 			JavaSearchBugs13Tests.class,
 			ComplianceDiagnoseTest.class,
 			SwitchExpressionsYieldTest.class,
-			org.eclipse.jdt.compiler.apt.tests.AllTests.class,
+			org.eclipse.jdt.compiler.apt.tests.AllAptTests.class,
 		};
 	}
 

@@ -21,7 +21,7 @@ public class ImportBinding extends Binding {
 	public boolean onDemand;
 	public ImportReference reference;
 
-	public Binding resolvedImport; // must ensure the import is resolved
+	private Binding resolvedImport;
 
 public ImportBinding(char[][] compoundName, boolean isOnDemand, Binding binding, ImportReference reference) {
 	this.compoundName = compoundName;
@@ -49,11 +49,27 @@ public char[] getSimpleName() {
 }
 @Override
 public char[] readableName() {
-	if (this.onDemand)
+	if (this.resolvedImport instanceof ModuleBinding)
+		return CharOperation.concat("module ".toCharArray(), CharOperation.concatWith(this.compoundName, '.')); //$NON-NLS-1$
+	else if (this.onDemand)
 		return CharOperation.concat(CharOperation.concatWith(this.compoundName, '.'), ".*".toCharArray()); //$NON-NLS-1$
 	else
 		return CharOperation.concatWith(this.compoundName, '.');
 }
+public int getResolvedBindingKind() {
+	if (this.resolvedImport == null)
+		return 0;
+	return this.resolvedImport.kind() & (Binding.TYPE | Binding.FIELD | Binding.METHOD);
+}
+public Binding getResolvedImport() {
+	return this.resolvedImport;
+}
+
+public Binding setResolvedImport(Binding resolvedImport) {
+	this.resolvedImport = resolvedImport;
+	return resolvedImport;
+}
+
 @Override
 public String toString() {
 	return "import : " + new String(readableName()); //$NON-NLS-1$

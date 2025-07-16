@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2021 IBM Corporation and others.
+ * Copyright (c) 2016, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,7 +26,6 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
@@ -71,6 +71,10 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		@Override
 		public ModuleBinding[] getAllRequiredModules() {
 			return Binding.NO_MODULES;
+		}
+		@Override
+		public boolean reads(ModuleBinding otherModule) {
+			return true;
 		}
 		@Override
 		public boolean canAccess(PackageBinding pkg) {
@@ -387,8 +391,8 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 				targetModuleSet = new SimpleSetOfCharArray(targetModules.length);
 				this.exportRestrictions.put(exportedPackage, targetModuleSet);
 			}
-			for (int i = 0; i < targetModules.length; i++) {
-				targetModuleSet.add(targetModules[i]);
+			for (char[] targetModule : targetModules) {
+				targetModuleSet.add(targetModule);
 			}
 		}
 	}
@@ -405,8 +409,8 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 				targetModuleSet = new SimpleSetOfCharArray(targetModules.length);
 				this.openRestrictions.put(openedPackage, targetModuleSet);
 			}
-			for (int i = 0; i < targetModules.length; i++) {
-				targetModuleSet.add(targetModules[i]);
+			for (char[] targetModule : targetModules) {
+				targetModuleSet.add(targetModule);
 			}
 		}
 	}
@@ -469,7 +473,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		}
 		ModuleBinding javaBase = this.environment.javaBaseModule();
 																			// add java.base?
-		if (!CharOperation.equals(this.moduleName, TypeConstants.JAVA_BASE)	// ... not if this *is* java.base
+		if (!CharOperation.equals(this.moduleName, TypeConstants.JAVA_DOT_BASE)	// ... not if this *is* java.base
 				&& javaBase != null 										// ... nor when java.base is absent
 				&& javaBase != this.environment.UnNamedModule)				// ..... or faked by the unnamed module
 		{
@@ -516,8 +520,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 				return pkg.enclosingModule == this; // no transitive export
 			}
 			PackageBinding[] initializedExports = getExports();
-			for (int i = 0; i < initializedExports.length; i++) {
-				PackageBinding export = initializedExports[i];
+			for (PackageBinding export : initializedExports) {
 				if (export.subsumes(resolved)) {
 					if (this.exportRestrictions != null) {
 						SimpleSetOfCharArray restrictions = this.exportRestrictions.get(export);
@@ -596,13 +599,17 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 						}
 					} else {
 						// visible but foreign (when current is unnamed or auto):
+						List<PackageBinding> bindings = new ArrayList<>();
 						for (char[] declaringModuleName : declaringModuleNames) {
 							ModuleBinding declaringModule = this.environment.root.getModule(declaringModuleName);
 							if (declaringModule != null) {
 								PlainPackageBinding declaredPackage = declaringModule.getDeclaredPackage(fullFlatName);
-								binding = SplitPackageBinding.combine(declaredPackage, binding, this);
+								if (declaredPackage != null)
+									bindings.add(declaredPackage);
 							}
 						}
+						if (!bindings.isEmpty())
+							binding = SplitPackageBinding.combineAll(bindings, this);
 					}
 				}
 			}
@@ -665,15 +672,18 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	}
 
 	PackageBinding combineWithPackagesFromOtherRelevantModules(PackageBinding currentBinding, char[][] compoundName, char[][] declaringModuleNames) {
-		for (ModuleBinding moduleBinding : otherRelevantModules(declaringModuleNames)) {
-			PlainPackageBinding nextBinding = moduleBinding.getDeclaredPackage(CharOperation.concatWith(compoundName, '.'));
-			currentBinding = SplitPackageBinding.combine(nextBinding, currentBinding, this);
-		}
-		return currentBinding;
+		char[] packageName = CharOperation.concatWith(compoundName, '.');
+		List<PackageBinding> bindings = otherRelevantModules(declaringModuleNames).stream()
+				.map(m -> m.getDeclaredPackage(packageName))
+				.collect(Collectors.toList());
+		if (bindings.isEmpty())
+			return currentBinding;
+		bindings.add(currentBinding);
+		return SplitPackageBinding.combineAll(bindings, this);
 	}
 
 	List<ModuleBinding> otherRelevantModules(char[][] declaringModuleNames) {
-		if (isUnnamed() && declaringModuleNames != null) {
+		if ((isUnnamed() || isAutomatic()) && declaringModuleNames != null) {
 			// unnamed module reads all named modules,
 			// so all modules declaring the given package are relevant:
 			return Arrays.stream(declaringModuleNames)
@@ -732,25 +742,24 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		buffer.append("module " + new String(readableName())); //$NON-NLS-1$
 		if (this.requires.length > 0) {
 			buffer.append("\n/*    requires    */\n"); //$NON-NLS-1$
-			for (int i = 0; i < this.requires.length; i++) {
+			for (ModuleBinding require : this.requires) {
 				buffer.append("\n\t"); //$NON-NLS-1$
 				if (this.requiresTransitive != null) {
 					for (ModuleBinding reqTrans : this.requiresTransitive) {
-						if (reqTrans == this.requires[i]) {
+						if (reqTrans == require) {
 							buffer.append("transitive "); //$NON-NLS-1$
 							break;
 						}
 					}
 				}
-				buffer.append(this.requires[i].moduleName);
+				buffer.append(require.moduleName);
 			}
 		} else {
 			buffer.append("\nNo Requires"); //$NON-NLS-1$
 		}
 		if (this.exportedPackages != null && this.exportedPackages.length > 0) {
 			buffer.append("\n/*    exports    */\n"); //$NON-NLS-1$
-			for (int i = 0; i < this.exportedPackages.length; i++) {
-				PackageBinding export = this.exportedPackages[i];
+			for (PlainPackageBinding export : this.exportedPackages) {
 				buffer.append("\n\t"); //$NON-NLS-1$
 				if (export == null) {
 					buffer.append("<unresolved>"); //$NON-NLS-1$
@@ -775,8 +784,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		}
 		if (this.openedPackages != null && this.openedPackages.length > 0) {
 			buffer.append("\n/*    exports    */\n"); //$NON-NLS-1$
-			for (int i = 0; i < this.openedPackages.length; i++) {
-				PackageBinding opens = this.openedPackages[i];
+			for (PlainPackageBinding opens : this.openedPackages) {
 				buffer.append("\n\t"); //$NON-NLS-1$
 				if (opens == null) {
 					buffer.append("<unresolved>"); //$NON-NLS-1$
@@ -801,23 +809,23 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		}
 		if (this.uses != null && this.uses.length > 0) {
 			buffer.append("\n/*    uses    /*\n"); //$NON-NLS-1$
-			for (int i = 0; i < this.uses.length; i++) {
+			for (TypeBinding binding : this.uses) {
 				buffer.append("\n\t"); //$NON-NLS-1$
-				buffer.append(this.uses[i].debugName());
+				buffer.append(binding.debugName());
 			}
 		} else {
 			buffer.append("\nNo Uses"); //$NON-NLS-1$
 		}
 		if (this.services != null && this.services.length > 0) {
 			buffer.append("\n/*    Services    */\n"); //$NON-NLS-1$
-			for (int i = 0; i < this.services.length; i++) {
+			for (TypeBinding binding : this.services) {
 				buffer.append("\n\t"); //$NON-NLS-1$
 				buffer.append("provides "); //$NON-NLS-1$
-				buffer.append(this.services[i].debugName());
+				buffer.append(binding.debugName());
 				buffer.append(" with "); //$NON-NLS-1$
-				if (this.implementations != null && this.implementations.containsKey(this.services[i])) {
+				if (this.implementations != null && this.implementations.containsKey(binding)) {
 					String sep = ""; //$NON-NLS-1$
-					for (TypeBinding impl : this.implementations.get(this.services[i])) {
+					for (TypeBinding impl : this.implementations.get(binding)) {
 						buffer.append(sep).append(impl.debugName());
 						sep = ", "; //$NON-NLS-1$
 					}
@@ -908,5 +916,14 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 				holder = new AnnotationHolder();
 		}
 		storeAnnotationHolder(binding, holder.setAnnotations(annotations));
+	}
+	public boolean reads(ModuleBinding otherModule) {
+		if (otherModule == this)
+			return true;
+		for (ModuleBinding required : getAllRequiredModules()) {
+			if (required == otherModule)
+				return true;
+		}
+		return false;
 	}
 }

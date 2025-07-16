@@ -15,7 +15,6 @@
 package org.eclipse.jdt.internal.compiler.classfmt;
 
 import java.util.Arrays;
-
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
@@ -180,8 +179,8 @@ public int hashCode() {
 	result = prime * result + this.info;
 	result = prime * result + this.info2;
 	if (this.typePath != null) {
-		for (int i = 0, max = this.typePath.length; i < max; i++) {
-			result = prime * result + this.typePath[i];
+		for (int p : this.typePath) {
+			result = prime * result + p;
 		}
 	}
 	return result;

@@ -16,19 +16,9 @@ package org.eclipse.jdt.core.search;
 
 import java.io.IOException;
 import java.util.regex.Pattern;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IImportDeclaration;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IMember;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IModularClassFile;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeParameter;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -46,21 +36,7 @@ import org.eclipse.jdt.internal.core.search.StringOperation;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.indexing.QualifierQuery;
 import org.eclipse.jdt.internal.core.search.indexing.QualifierQuery.QueryCategory;
-import org.eclipse.jdt.internal.core.search.matching.AndPattern;
-import org.eclipse.jdt.internal.core.search.matching.ConstructorPattern;
-import org.eclipse.jdt.internal.core.search.matching.FieldPattern;
-import org.eclipse.jdt.internal.core.search.matching.LocalVariablePattern;
-import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
-import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
-import org.eclipse.jdt.internal.core.search.matching.ModulePattern;
-import org.eclipse.jdt.internal.core.search.matching.OrPattern;
-import org.eclipse.jdt.internal.core.search.matching.PackageDeclarationPattern;
-import org.eclipse.jdt.internal.core.search.matching.PackageReferencePattern;
-import org.eclipse.jdt.internal.core.search.matching.QualifiedTypeDeclarationPattern;
-import org.eclipse.jdt.internal.core.search.matching.SuperTypeReferencePattern;
-import org.eclipse.jdt.internal.core.search.matching.TypeDeclarationPattern;
-import org.eclipse.jdt.internal.core.search.matching.TypeParameterPattern;
-import org.eclipse.jdt.internal.core.search.matching.TypeReferencePattern;
+import org.eclipse.jdt.internal.core.search.matching.*;
 
 
 /**
@@ -285,7 +261,7 @@ public abstract class SearchPattern {
 		| R_SUBSTRING_MATCH
 		| R_SUBWORD_MATCH;
 
-	private int matchRule;
+	private final int matchRule;
 
 	/**
 	 * The focus element (used for reference patterns)
@@ -352,18 +328,19 @@ public abstract class SearchPattern {
  * 	Note also that default behavior for generic types/methods search is to find exact matches.
  */
 public SearchPattern(int matchRule) {
-	this.matchRule = matchRule;
+	int rule = matchRule;
 	// Set full match implicit mode
 	if ((matchRule & (R_EQUIVALENT_MATCH | R_ERASURE_MATCH )) == 0) {
-		this.matchRule |= R_FULL_MATCH;
+		rule |= R_FULL_MATCH;
 	}
 	// reset other incompatible flags
 	if ((matchRule & R_CAMELCASE_MATCH) != 0) {
-		this.matchRule &= ~R_CAMELCASE_SAME_PART_COUNT_MATCH;
-		this.matchRule &= ~R_PREFIX_MATCH;
+		rule &= ~R_CAMELCASE_SAME_PART_COUNT_MATCH;
+		rule &= ~R_PREFIX_MATCH;
 	} else if ((matchRule & R_CAMELCASE_SAME_PART_COUNT_MATCH) != 0) {
-		this.matchRule &= ~R_PREFIX_MATCH;
+		rule &= ~R_PREFIX_MATCH;
 	}
+	this.matchRule = rule;
 }
 
 /**
@@ -1977,7 +1954,7 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
  *         		<td>Return only method reference expressions (e.g. <code>A :: foo</code>).
  *         		<tr>
  *         		<td>{@link IJavaSearchConstants#PERMITTYPE_TYPE_REFERENCE PERMITTYPE_TYPE_REFERENCE}
- *         		<td>Return only type references used as a permit type.
+ *         		<td>Return only type references used as a permitted type.
  * 			</table>
  * 	</li>
  *	</ul>
@@ -2453,10 +2430,19 @@ private static char[][] enclosingTypeNames(IType type) {
 		case IJavaElement.FIELD:
 		case IJavaElement.INITIALIZER:
 		case IJavaElement.METHOD:
+			char[] typeName = IIndexConstants.ONE_STAR;
+			try {
+				String superclassName = type.getSuperclassName();
+				if (superclassName != null) {
+					typeName = (type.getOccurrenceCount() + ".new " + superclassName + "(){}").toCharArray(); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+			} catch (JavaModelException e) {
+				// fall back to using '*'
+			}
 			IType declaringClass = ((IMember) parent).getDeclaringType();
 			return CharOperation.arrayConcat(
 				enclosingTypeNames(declaringClass),
-				new char[][] {declaringClass.getElementName().toCharArray(), IIndexConstants.ONE_STAR});
+				new char[][] {declaringClass.getElementName().toCharArray(), typeName});
 		case IJavaElement.TYPE:
 			return CharOperation.arrayConcat(
 				enclosingTypeNames((IType)parent),
@@ -2519,10 +2505,9 @@ public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchP
 
 		String containerPath = index.containerPath;
 		char separator = index.separator;
-		for (int i = 0, l = entries.length; i < l; i++) {
+		for (EntryResult entry : entries) {
 			if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 
-			EntryResult entry = entries[i];
 			SearchPattern decodedResult = pattern.getBlankPattern();
 			decodedResult.decodeIndexKey(entry.getWord());
 			if (pattern.matchesDecodedKey(decodedResult)) {
@@ -2530,8 +2515,8 @@ public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchP
 				// to decide whether to do so.
 				if (resolveDocumentName) {
 					String[] names = entry.getDocumentNames(index);
-					for (int j = 0, n = names.length; j < n; j++)
-						acceptMatch(names[j], containerPath, separator, decodedResult, requestor, participant, scope, monitor);
+					for (String name : names)
+						acceptMatch(name, containerPath, separator, decodedResult, requestor, participant, scope, monitor);
 				} else {
 					acceptMatch("", containerPath, separator, decodedResult, requestor, participant, scope, monitor); //$NON-NLS-1$
 				}

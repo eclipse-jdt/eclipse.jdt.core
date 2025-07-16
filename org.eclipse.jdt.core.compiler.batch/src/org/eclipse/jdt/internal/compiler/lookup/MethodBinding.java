@@ -36,7 +36,6 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.List;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -413,21 +412,22 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 	return false;
 }
 
-public List<TypeBinding> collectMissingTypes(List<TypeBinding> missingTypes) {
+public List<TypeBinding> collectMissingTypes(List<TypeBinding> missingTypes, boolean considerReturnType) {
 	if ((this.tagBits & TagBits.HasMissingType) != 0) {
-		missingTypes = this.returnType.collectMissingTypes(missingTypes);
-		for (int i = 0, max = this.parameters.length; i < max; i++) {
-			missingTypes = this.parameters[i].collectMissingTypes(missingTypes);
+		if (considerReturnType) {
+			missingTypes = this.returnType.collectMissingTypes(missingTypes);
 		}
-		for (int i = 0, max = this.thrownExceptions.length; i < max; i++) {
-			missingTypes = this.thrownExceptions[i].collectMissingTypes(missingTypes);
+		for (TypeBinding parameter : this.parameters) {
+			missingTypes = parameter.collectMissingTypes(missingTypes);
 		}
-		for (int i = 0, max = this.typeVariables.length; i < max; i++) {
-			TypeVariableBinding variable = this.typeVariables[i];
+		for (ReferenceBinding thrownException : this.thrownExceptions) {
+			missingTypes = thrownException.collectMissingTypes(missingTypes);
+		}
+		for (TypeVariableBinding variable : this.typeVariables) {
 			missingTypes = variable.superclass().collectMissingTypes(missingTypes);
 			ReferenceBinding[] interfaces = variable.superInterfaces();
-			for (int j = 0, length = interfaces.length; j < length; j++) {
-				missingTypes = interfaces[j].collectMissingTypes(missingTypes);
+			for (ReferenceBinding binding : interfaces) {
+				missingTypes = binding.collectMissingTypes(missingTypes);
 			}
 		}
 	}
@@ -604,9 +604,9 @@ public MethodBinding findOriginalInheritedMethod(MethodBinding inheritedMethod) 
 	if (TypeBinding.notEquals(inheritedOriginal.declaringClass, superType)) {
 		// must find inherited method with the same substituted variables
 		MethodBinding[] superMethods = ((ReferenceBinding) superType).getMethods(inheritedOriginal.selector, inheritedOriginal.parameters.length);
-		for (int m = 0, l = superMethods.length; m < l; m++)
-			if (superMethods[m].original() == inheritedOriginal)
-				return superMethods[m];
+		for (MethodBinding superMethod : superMethods)
+			if (superMethod.original() == inheritedOriginal)
+				return superMethod;
 	}
 	return inheritedOriginal;
 }
@@ -624,14 +624,14 @@ public char[] genericSignature() {
 	StringBuilder sig = new StringBuilder(10);
 	if (this.typeVariables != Binding.NO_TYPE_VARIABLES) {
 		sig.append('<');
-		for (int i = 0, length = this.typeVariables.length; i < length; i++) {
-			sig.append(this.typeVariables[i].genericSignature());
+		for (TypeVariableBinding typeVariable : this.typeVariables) {
+			sig.append(typeVariable.genericSignature());
 		}
 		sig.append('>');
 	}
 	sig.append('(');
-	for (int i = 0, length = this.parameters.length; i < length; i++) {
-		sig.append(this.parameters[i].genericTypeSignature());
+	for (TypeBinding parameter : this.parameters) {
+		sig.append(parameter.genericTypeSignature());
 	}
 	sig.append(')');
 	if (this.returnType != null)
@@ -891,6 +891,25 @@ public final boolean isMain() {
 	}
 	return false;
 }
+public final boolean isCandindateMain() {
+	if (this.parameters.length > 1) {
+		return false;
+	}
+	if (this.selector.length == 4 && CharOperation.equals(this.selector, TypeConstants.MAIN)
+			&& ((this.modifiers & ClassFileConstants.AccPrivate) == 0)
+			&& TypeBinding.VOID == this.returnType) {
+		if (this.parameters.length == 0) {
+			return true;
+		}
+		if (this.parameters.length == 1) {
+			TypeBinding paramType = this.parameters[0];
+			if (paramType.dimensions() == 1 && paramType.leafComponentType().id == TypeIds.T_JavaLangString) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
 
 /* Answer true if the receiver is a native method
 */
@@ -1111,8 +1130,8 @@ public final char[] computeSignature(ClassFile classFile) {
 		// take into account the synthetic argument type signatures as well
 		ReferenceBinding[] syntheticArgumentTypes = this.declaringClass.syntheticEnclosingInstanceTypes();
 		if (syntheticArgumentTypes != null) {
-			for (int i = 0, count = syntheticArgumentTypes.length; i < count; i++) {
-				ReferenceBinding syntheticArgumentType = syntheticArgumentTypes[i];
+			for (ReferenceBinding syntheticArgumentType : syntheticArgumentTypes) {
+
 				if ((syntheticArgumentType.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
 					this.tagBits |= TagBits.ContainsNestedTypeReferences;
 					if (classFile != null)
@@ -1128,8 +1147,7 @@ public final char[] computeSignature(ClassFile classFile) {
 	}
 
 	if (targetParameters != Binding.NO_PARAMETERS) {
-		for (int i = 0, max = targetParameters.length; i < max; i++) {
-			TypeBinding targetParameter = targetParameters[i];
+		for (TypeBinding targetParameter : targetParameters) {
 			TypeBinding leafTargetParameterType = targetParameter.leafComponentType();
 			if ((leafTargetParameterType.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
 				this.tagBits |= TagBits.ContainsNestedTypeReferences;
@@ -1193,8 +1211,7 @@ public char[] signature(ClassFile classFile) {
 				// take into account the synthetic argument type signatures as well
 				ReferenceBinding[] syntheticArgumentTypes = this.declaringClass.syntheticEnclosingInstanceTypes();
 				if (syntheticArgumentTypes != null) {
-					for (int i = 0, count = syntheticArgumentTypes.length; i < count; i++) {
-						ReferenceBinding syntheticArgumentType = syntheticArgumentTypes[i];
+					for (ReferenceBinding syntheticArgumentType : syntheticArgumentTypes) {
 						if ((syntheticArgumentType.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
 							Util.recordNestedType(classFile, syntheticArgumentType);
 						}
@@ -1206,8 +1223,7 @@ public char[] signature(ClassFile classFile) {
 			}
 
 			if (targetParameters != Binding.NO_PARAMETERS) {
-				for (int i = 0, max = targetParameters.length; i < max; i++) {
-					TypeBinding targetParameter = targetParameters[i];
+				for (TypeBinding targetParameter : targetParameters) {
 					TypeBinding leafTargetParameterType = targetParameter.leafComponentType();
 					if ((leafTargetParameterType.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
 						Util.recordNestedType(classFile, leafTargetParameterType);
@@ -1249,10 +1265,7 @@ public AbstractMethodDeclaration sourceMethod() {
 	if (isSynthetic()) {
 		return null;
 	}
-	SourceTypeBinding sourceType;
-	try {
-		sourceType = (SourceTypeBinding) this.declaringClass;
-	} catch (ClassCastException e) {
+	if (!(this.declaringClass instanceof SourceTypeBinding sourceType)) {
 		return null;
 	}
 
@@ -1348,8 +1361,8 @@ static int getNonNullByDefaultValue(AnnotationBinding annotation) {
 	} else if (elementValuePairs.length > 0) {
 		// evaluate the contained EnumConstantSignatures:
 		int nullness = 0;
-		for (int i = 0; i < elementValuePairs.length; i++)
-			nullness |= Annotation.nullLocationBitsFromAnnotationValue(elementValuePairs[i].getValue());
+		for (ElementValuePair elementValuePair : elementValuePairs)
+			nullness |= Annotation.nullLocationBitsFromAnnotationValue(elementValuePair.getValue());
 		return nullness;
 	} else {
 		// empty argument: cancel all defaults from enclosing scopes

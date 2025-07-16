@@ -81,8 +81,7 @@ public class AnnotatableTypeSystem extends TypeSystem {
 		}
 		ArrayBinding nakedType = null;
 		TypeBinding[] derivedTypes = getDerivedTypes(leafType);
-		for (int i = 0, length = derivedTypes.length; i < length; i++) {
-			TypeBinding derivedType = derivedTypes[i];
+		for (TypeBinding derivedType : derivedTypes) {
 			if (derivedType == null) break;
 			if (!derivedType.isArrayType() || derivedType.dimensions() != dimensions || derivedType.leafComponentType() != leafType) //$IDENTITY-COMPARISON$
 				continue;
@@ -152,8 +151,7 @@ public class AnnotatableTypeSystem extends TypeSystem {
 
 		RawTypeBinding nakedType = null;
 		TypeBinding[] derivedTypes = getDerivedTypes(genericType);
-		for (int i = 0, length = derivedTypes.length; i < length; i++) {
-			TypeBinding derivedType = derivedTypes[i];
+		for (TypeBinding derivedType : derivedTypes) {
 			if (derivedType == null)
 				break;
 			if (!derivedType.isRawType() || derivedType.actualType() != genericType || derivedType.enclosingType() != enclosingType) //$IDENTITY-COMPARISON$
@@ -192,8 +190,7 @@ public class AnnotatableTypeSystem extends TypeSystem {
 		WildcardBinding nakedType = null;
 		boolean useDerivedTypesOfBound = bound instanceof TypeVariableBinding || (bound instanceof ParameterizedTypeBinding && !(bound instanceof RawTypeBinding)) ;
 		TypeBinding[] derivedTypes = getDerivedTypes(useDerivedTypesOfBound ? bound : genericType);
-		for (int i = 0, length = derivedTypes.length; i < length; i++) {
-			TypeBinding derivedType = derivedTypes[i];
+		for (TypeBinding derivedType : derivedTypes) {
 			if (derivedType == null)
 				break;
 			if (!derivedType.isWildcard() || derivedType.actualType() != genericType || derivedType.rank() != rank) //$IDENTITY-COMPARISON$
@@ -292,7 +289,7 @@ public class AnnotatableTypeSystem extends TypeSystem {
 		return annotatedType;
 	}
 
-	/* Private subroutine for public APIs. Create an annotated version of the type. To materialize the annotated version, we can't use new since
+	/* Private method for public APIs. Create an annotated version of the type. To materialize the annotated version, we can't use new since
 	   this is a general purpose method designed to deal type bindings of all types. "Clone" the incoming type, specializing for any enclosing type
 	   that may itself be possibly be annotated. This is so the binding for @Outer Outer.Inner != Outer.@Inner Inner != @Outer Outer.@Inner Inner.
 	   Likewise so the bindings for @Readonly List<@NonNull String> != @Readonly List<@Nullable String> != @Readonly List<@Interned String>
@@ -303,8 +300,7 @@ public class AnnotatableTypeSystem extends TypeSystem {
 		}
 		TypeBinding nakedType = null;
 		TypeBinding[] derivedTypes = getDerivedTypes(type);
-		for (int i = 0, length = derivedTypes.length; i < length; i++) {
-			TypeBinding derivedType = derivedTypes[i];
+		for (TypeBinding derivedType : derivedTypes) {
 			if (derivedType == null) break;
 
 			if (derivedType.enclosingType() != enclosingType || !Util.effectivelyEqual(derivedType.typeArguments(), type.typeArguments())) //$IDENTITY-COMPARISON$

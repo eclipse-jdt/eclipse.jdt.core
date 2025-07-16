@@ -16,14 +16,12 @@ package org.eclipse.jdt.core.tests.model;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Set;
-
-import org.eclipse.test.internal.performance.PerformanceMeterFactory;
-
 import junit.extensions.TestSetup;
 import junit.framework.Protectable;
 import junit.framework.Test;
 import junit.framework.TestResult;
 import junit.framework.TestSuite;
+import org.eclipse.test.internal.performance.PerformanceMeterFactory;
 
 /**
  * A test case class that can be set up (using the setUpSuite() method) and torn down (using the tearDownSuite() method)
@@ -72,7 +70,8 @@ public class SuiteOfTestCases extends org.eclipse.jdt.core.tests.junit.extension
 						Object value = field.get(this.currentTestCase);
 						field.set(test, value);
 					} catch (IllegalAccessException e) {
-						e.printStackTrace();
+						e.printStackTrace(System.out);
+						throw new IllegalStateException(e);
 					}
 				}
 				currentClass = currentClass.getSuperclass();
@@ -104,7 +103,8 @@ public class SuiteOfTestCases extends org.eclipse.jdt.core.tests.junit.extension
 				try {
 					current.setUpSuite();
 				} catch (Exception e) {
-					e.printStackTrace();
+					e.printStackTrace(System.out);
+					throw new IllegalStateException(e);
 				}
 			} else {
 				// copy the values of the previous current test case's fields into the current one

@@ -21,9 +21,7 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Hashtable;
-
 import junit.framework.Test;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -423,21 +421,10 @@ public void test0107() throws JavaModelException {
 
 	assertEquals("Wrong type", IResource.FILE, resources[0].getType());
 	IFile classFile = (IFile) resources[0];
-	InputStream stream = null;
 	try {
-		stream = classFile.getContents();
-		ClassFileReader.read(stream, "C.java");
+		ClassFileReader.read(classFile.readAllBytes(), "C.java");
 	} catch (Exception e) {
-		e.printStackTrace();
-		assertTrue("Should not happen", false);
-	} finally {
-		if (stream != null) {
-			try {
-				stream.close();
-			} catch(IOException e) {
-				// ignore
-			}
-		}
+		throw new AssertionError(e);
 	}
 }
 private String getResourceOuput(IResource[] resources) {

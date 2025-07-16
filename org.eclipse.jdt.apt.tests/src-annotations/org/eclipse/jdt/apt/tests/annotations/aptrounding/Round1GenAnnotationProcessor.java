@@ -12,15 +12,14 @@
  *    tyeung@bea.com - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.apt.tests.annotations.aptrounding;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Collection;
-
 import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.Filer;
 import com.sun.mirror.apt.Messager;
 import com.sun.mirror.declaration.TypeDeclaration;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Collection;
 
 public class Round1GenAnnotationProcessor implements AnnotationProcessor{
 

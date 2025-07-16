@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2023 IBM Corporation and others.
+ * Copyright (c) 2019, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -24,7 +24,7 @@ public class DOMASTUtil {
 
 	/**
 	 * Validates if the given <code>AST</code> supports the provided <code>nodeType</code>. This API checks for node
-	 * types supported from JLS 14 onwards and will return <code>true></code> for nodes added before JLS14.
+	 * types supported from JLS 14 onwards and will return <code>true</code> for nodes added before JLS14.
 	 *
 	 * @param ast
 	 *            the AST to be evaluated
@@ -42,7 +42,7 @@ public class DOMASTUtil {
 	/**
 	 * Validates if the given <code>apiLevel</code> and <code>previewEnabled</code> supports the provided
 	 * <code>nodeType</code>. This API checks for node types supported from JLS 14 onwards and will return
-	 * <code>true></code> for nodes added before JLS14.
+	 * <code>true</code> for nodes added before JLS14.
 	 *
 	 * @param apiLevel
 	 *            the level to be checked
@@ -71,10 +71,8 @@ public class DOMASTUtil {
 				return apiLevel >= AST.JLS18;
 			case ASTNode.RECORD_PATTERN:
 				return apiLevel >= AST.JLS21;
-			case ASTNode.STRING_FRAGMENT:
-			case ASTNode.STRING_TEMPLATE_COMPONENT:
-			case ASTNode.STRING_TEMPLATE_EXPRESSION:
-				return apiLevel >= AST.JLS21 && previewEnabled;
+			case ASTNode.EitherOr_MultiPattern:
+				return apiLevel >= AST.JLS22;
 		}
 		return false;
 	}
@@ -82,7 +80,7 @@ public class DOMASTUtil {
 	/**
 	 * Validates if the given <code>apiLevel</code> and <code>previewEnabled</code> supports the provided
 	 * <code>nodeType</code>. This API checks for node types supported from JLS 14 onwards and will return
-	 * <code>true></code> for nodes added before JLS14.
+	 * <code>true</code> for nodes added before JLS14.
 	 *
 	 * @param ast
 	 *            the AST to be evaluated
@@ -106,7 +104,7 @@ public class DOMASTUtil {
 	/**
 	 * Validates if the given <code>apiLevel</code> and <code>previewEnabled</code> supports the provided
 	 * <code>nodeType</code>. This API checks for node types supported from JLS 14 onwards and will return
-	 * <code>true></code> for nodes added before JLS14.
+	 * <code>true</code> for nodes added before JLS14.
 	 *
 	 * @param apiLevel
 	 *            the level to be checked
@@ -132,7 +130,7 @@ public class DOMASTUtil {
 	/**
 	 * Validates if the given <code>apiLevel</code> and <code>previewEnabled</code> supports the provided
 	 * <code>nodeType</code>. This API checks for node types supported from JLS 14 onwards and will return
-	 * <code>true></code> for nodes added before JLS14.
+	 * <code>true</code> for nodes added before JLS14.
 	 *
 	 * @param apiLevel
 	 *            the level to be checked
@@ -185,13 +183,16 @@ public class DOMASTUtil {
 		return isNodeTypeSupportedinAST(ast, ASTNode.TYPE_PATTERN);
 	}
 
+	public static boolean isEitherOrMultiPatternSupported(AST ast) {
+		return isNodeTypeSupportedinAST(ast, ASTNode.EitherOr_MultiPattern);
+	}
+
 	public static boolean isPatternSupported(int apiLevel, boolean previewEnabled) {
 		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.TYPE_PATTERN);
 	}
-	public static boolean isStringTemplateSupported(int apiLevel, boolean previewEnabled) {
-		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.STRING_TEMPLATE_EXPRESSION);
+	public static boolean isEitherOrMultiPatternSupported(int apiLevel, boolean previewEnabled) {
+		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.EitherOr_MultiPattern);
 	}
-
 	public static boolean isJavaDocCodeSnippetSupported(int apiLevel) {
 		return isNodeTypeSupportedinAST(apiLevel, true, ASTNode.TAG_PROPERTY);
 	}
@@ -213,7 +214,7 @@ public class DOMASTUtil {
 	private static final String[] AST_COMPLIANCE_MAP = {"-1","-1",JavaCore.VERSION_1_2, JavaCore.VERSION_1_3, JavaCore.VERSION_1_7, //$NON-NLS-1$ //$NON-NLS-2$
 			JavaCore.VERSION_1_7, JavaCore.VERSION_1_7, JavaCore.VERSION_1_7, JavaCore.VERSION_1_8, JavaCore.VERSION_9, JavaCore.VERSION_10,
 			JavaCore.VERSION_11, JavaCore.VERSION_12, JavaCore.VERSION_13, JavaCore.VERSION_14, JavaCore.VERSION_15, JavaCore.VERSION_16, JavaCore.VERSION_17, JavaCore.VERSION_18,
-			JavaCore.VERSION_19, JavaCore.VERSION_20, JavaCore.VERSION_21};
+			JavaCore.VERSION_19, JavaCore.VERSION_20, JavaCore.VERSION_21, JavaCore.VERSION_22, JavaCore.VERSION_23};
 
 	/**
 	 * Calculates the JavaCore Option value string corresponding to the input ast level.

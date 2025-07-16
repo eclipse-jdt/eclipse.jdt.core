@@ -17,9 +17,9 @@ package org.eclipse.jdt.internal.formatter;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_BLOCK;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_JAVADOC;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_LINE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_MARKDOWN;
 
 import java.util.List;
-
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
@@ -142,7 +142,7 @@ public class Token {
 	public static Token fromCurrent(Scanner scanner, int currentToken) {
 		int start = scanner.getCurrentTokenStartPosition();
 		int end = scanner.getCurrentTokenEndPosition();
-		if (currentToken == TokenNameCOMMENT_LINE) {
+		if (currentToken == TokenNameCOMMENT_LINE || currentToken == TokenNameCOMMENT_MARKDOWN) {
 			// don't include line separator, but set break-after
 			while (end > start) {
 				char c = scanner.source[end];

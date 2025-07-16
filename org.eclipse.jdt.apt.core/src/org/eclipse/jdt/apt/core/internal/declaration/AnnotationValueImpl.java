@@ -15,14 +15,12 @@
 
 package org.eclipse.jdt.apt.core.internal.declaration;
 
-import java.util.Collection;
-import java.util.List;
-
 import com.sun.mirror.declaration.AnnotationValue;
 import com.sun.mirror.declaration.EnumConstantDeclaration;
 import com.sun.mirror.type.TypeMirror;
 import com.sun.mirror.util.SourcePosition;
-
+import java.util.Collection;
+import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;

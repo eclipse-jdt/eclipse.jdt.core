@@ -15,7 +15,6 @@ package org.eclipse.jdt.apt.core.internal.env;
 
 import java.util.Arrays;
 import java.util.List;
-
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;

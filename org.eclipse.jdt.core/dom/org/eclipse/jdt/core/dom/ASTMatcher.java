@@ -15,7 +15,6 @@ package org.eclipse.jdt.core.dom;
 
 import java.util.Iterator;
 import java.util.List;
-
 import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
 
 /**
@@ -854,33 +853,6 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.33
-	 * @noreference This method is not intended to be referenced by clients.
-	 */
-	public boolean match(EnhancedForWithRecordPattern node, Object other) {
-		if (!(other instanceof EnhancedForWithRecordPattern)) {
-			return false;
-		}
-		EnhancedForWithRecordPattern o = (EnhancedForWithRecordPattern) other;
-		return (
-			safeSubtreeMatch(node.getPattern(), o.getPattern())
-				&& safeSubtreeMatch(node.getExpression(), o.getExpression())
-				&& safeSubtreeMatch(node.getBody(), o.getBody()));
-	}
-
-	/**
-	 * Returns whether the given node and the other object match.
-	 * <p>
-	 * The default implementation provided by this class tests whether the
-	 * other object is a node of the same type with structurally isomorphic
-	 * child subtrees. Subclasses may override this method as needed.
-	 * </p>
-	 *
-	 * @param node the node
-	 * @param other the other object, or <code>null</code>
-	 * @return <code>true</code> if the subtree matches, or
-	 *   <code>false</code> if they do not match or the other object has a
-	 *   different node type or is <code>null</code>
 	 * @since 3.1
 	 */
 	public boolean match(EnumConstantDeclaration node, Object other) {
@@ -1156,7 +1128,11 @@ public class ASTMatcher {
 			return false;
 		}
 		ImportDeclaration o = (ImportDeclaration) other;
-		if (node.getAST().apiLevel >= AST.JLS3_INTERNAL) {
+		if (node.getAST().apiLevel >= AST.JLS23_INTERNAL) {
+			if (!safeSubtreeListMatch(node.modifiers(), o.modifiers())) {
+				return false;
+			}
+		} else if (node.getAST().apiLevel >= AST.JLS3_INTERNAL) {
 			if (node.isStatic() != o.isStatic()) {
 				return false;
 			}
@@ -2188,9 +2164,9 @@ public class ASTMatcher {
 				&& safeSubtreeListMatch(node.modifiers(), o.modifiers())
 				&& safeSubtreeMatch(node.getName(), o.getName())
 				&& safeSubtreeListMatch(node.superInterfaceTypes(), o.superInterfaceTypes())
-				&& safeSubtreeMatch(node.typeParameters(), o.typeParameters())
+				&& safeSubtreeListMatch(node.typeParameters(), o.typeParameters())
 				&& safeSubtreeListMatch(node.bodyDeclarations(), o.bodyDeclarations())
-				&& safeSubtreeMatch(node.recordComponents(), o.recordComponents()));
+				&& safeSubtreeListMatch(node.recordComponents(), o.recordComponents()));
 	}
 
 	/**
@@ -2215,6 +2191,29 @@ public class ASTMatcher {
 		RecordPattern o = (RecordPattern) other;
 		return safeSubtreeMatch(node.getPatternType(), o.getPatternType())
 				&& safeSubtreeListMatch(node.patterns(), o.patterns());
+	}
+
+	/**
+	 * Returns whether the given node and the other object match.
+	 * <p>
+	 * The default implementation provided by this class tests whether the
+	 * other object is a node of the same type with structurally isomorphic
+	 * child subtrees. Subclasses may override this method as needed.
+	 * </p>
+	 *
+	 * @param node the node
+	 * @param other the other object, or <code>null</code>
+	 * @return <code>true</code> if the subtree matches, or
+	 *   <code>false</code> if they do not match or the other object has a
+	 *   different node type or is <code>null</code>
+	 * @since 3.38
+	 */
+	public boolean match(EitherOrMultiPattern node, Object other) {
+		if (!(other instanceof EitherOrMultiPattern)) {
+			return false;
+		}
+		EitherOrMultiPattern o = (EitherOrMultiPattern) other;
+		return safeSubtreeListMatch(node.patterns(), o.patterns());
 	}
 
 	/**
@@ -3180,75 +3179,17 @@ public class ASTMatcher {
 
 	/**
 	 * Returns whether the given node and the other object match.
-	 * <p>
-	 * The default implementation provided by this class tests whether the
-	 * other object is a node of the same type with structurally isomorphic
-	 * child subtrees. Subclasses may override this method as needed.
-	 * </p>
-	 *
-	 * @since 3.37
-	 *
-	 * @param node the node
-	 * @param other the other object, or <code>null</code>
-	 * @return <code>true</code> if the subtree matches, or
-	 *   <code>false</code> if they do not match or the other object has a
-	 *   different node type or is <code>null</code>
-	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+	 * @param node the node to check
+	 * @param other the other object
+	 * @since 3.38
 	 */
-	public boolean match(StringTemplateExpression node, Object other) {
-		if ((other instanceof StringTemplateExpression)) {
-            final StringTemplateExpression exp = (StringTemplateExpression) other;
-			return	node.isMultiline() == exp.isMultiline() &&
-					safeSubtreeMatch(node.getProcessor(), exp.getProcessor()) &&
-					safeSubtreeMatch(node.getFirstFragment(), exp.getFirstFragment()) &&
-					safeSubtreeListMatch(node.components(), exp.components());
-		}
-		return false;
-	}
-
-	/**
-	 * Returns whether the given node and the other object match.
-	 * <p>
-	 * The default implementation provided by this class tests whether the
-	 * other object is a node of the same type with structurally isomorphic
-	 * child subtrees. Subclasses may override this method as needed.
-	 * </p>
-	 *
-	 * @param node the node
-	 * @param other the other object, or <code>null</code>
-	 * @return <code>true</code> if the subtree matches, or
-	 *   <code>false</code> if they do not match or the other object has a
-	 *   different node type or is <code>null</code>
-	 * @since 3.37
-	 */
-	public boolean match(StringFragment node, Object other) {
-		if (!(other instanceof StringFragment)) {
+	public boolean match(ImplicitTypeDeclaration node, Object other) {
+		if (!(other instanceof ImplicitTypeDeclaration)) {
 			return false;
 		}
-		StringFragment o = (StringFragment) other;
-		return safeEquals(node.getEscapedValue(), o.getEscapedValue());
+		ImplicitTypeDeclaration o = (ImplicitTypeDeclaration) other;
+		return (safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())
+				&& safeSubtreeListMatch(node.bodyDeclarations(), o.bodyDeclarations()));
 	}
-	/**
-	 * Returns whether the given node and the other object match.
-	 * <p>
-	 * The default implementation provided by this class tests whether the
-	 * other object is a node of the same type with structurally isomorphic
-	 * child subtrees. Subclasses may override this method as needed.
-	 * </p>
-	 *
-	 * @param node the node
-	 * @param other the other object, or <code>null</code>
-	 * @return <code>true</code> if the subtree matches, or
-	 *   <code>false</code> if they do not match or the other object has a
-	 *   different node type or is <code>null</code>
-	 * @since 3.37
-	 */
-	public boolean match(StringTemplateComponent node, Object other) {
-		if (other instanceof StringTemplateComponent) {
-            final StringTemplateComponent exp = (StringTemplateComponent) other;
-			return safeSubtreeMatch(node.getStringFragment(), exp.getStringFragment()) &&
-					safeSubtreeMatch(node.getEmbeddedExpression(), exp.getEmbeddedExpression());
-		}
-		return false;
-	}
+
 }

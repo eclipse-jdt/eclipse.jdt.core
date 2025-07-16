@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -37,28 +36,10 @@ import javax.lang.model.type.NoType;
 import javax.lang.model.type.NullType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
-import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
-import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
-import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
-import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
-import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 
 /**
  * Creates javax.lang.model wrappers around JDT internal compiler bindings.
@@ -162,60 +143,60 @@ public class Factory {
 
 	private static void decodeModifiers(Set<Modifier> result, int modifiers, int[] checkBits) {
 		if (checkBits == null) return;
-		for (int i = 0, max = checkBits.length; i < max; i++) {
-			switch(checkBits[i]) {
+		for (int checkBit : checkBits) {
+			switch(checkBit) {
 				case ClassFileConstants.AccPublic :
-					appendModifier(result, modifiers, checkBits[i], Modifier.PUBLIC);
+					appendModifier(result, modifiers, checkBit, Modifier.PUBLIC);
 					break;
 				case ClassFileConstants.AccProtected:
-					appendModifier(result, modifiers, checkBits[i], Modifier.PROTECTED);
+					appendModifier(result, modifiers, checkBit, Modifier.PROTECTED);
 					break;
 				case ClassFileConstants.AccPrivate :
-					appendModifier(result, modifiers, checkBits[i], Modifier.PRIVATE);
+					appendModifier(result, modifiers, checkBit, Modifier.PRIVATE);
 					break;
 				case ClassFileConstants.AccAbstract :
-					appendModifier(result, modifiers, checkBits[i], Modifier.ABSTRACT);
+					appendModifier(result, modifiers, checkBit, Modifier.ABSTRACT);
 					break;
 				case ExtraCompilerModifiers.AccDefaultMethod :
 					try {
-						appendModifier(result, modifiers, checkBits[i], Modifier.valueOf("DEFAULT")); //$NON-NLS-1$
+						appendModifier(result, modifiers, checkBit, Modifier.valueOf("DEFAULT")); //$NON-NLS-1$
 					} catch(IllegalArgumentException iae) {
 						// Don't have JDK 1.8, just ignore and proceed.
 					}
 					break;
 				case ClassFileConstants.AccStatic :
-					appendModifier(result, modifiers, checkBits[i], Modifier.STATIC);
+					appendModifier(result, modifiers, checkBit, Modifier.STATIC);
 					break;
 				case ClassFileConstants.AccFinal :
-					appendModifier(result, modifiers, checkBits[i], Modifier.FINAL);
+					appendModifier(result, modifiers, checkBit, Modifier.FINAL);
 					break;
 				case ClassFileConstants.AccSynchronized :
-					appendModifier(result, modifiers, checkBits[i], Modifier.SYNCHRONIZED);
+					appendModifier(result, modifiers, checkBit, Modifier.SYNCHRONIZED);
 					break;
 				case ClassFileConstants.AccNative :
-					appendModifier(result, modifiers, checkBits[i], Modifier.NATIVE);
+					appendModifier(result, modifiers, checkBit, Modifier.NATIVE);
 					break;
 				case ClassFileConstants.AccStrictfp :
-					appendModifier(result, modifiers, checkBits[i], Modifier.STRICTFP);
+					appendModifier(result, modifiers, checkBit, Modifier.STRICTFP);
 					break;
 				case ClassFileConstants.AccTransient :
-					appendModifier(result, modifiers, checkBits[i], Modifier.TRANSIENT);
+					appendModifier(result, modifiers, checkBit, Modifier.TRANSIENT);
 					break;
 				case ClassFileConstants.AccVolatile :
-					appendModifier(result, modifiers, checkBits[i], Modifier.VOLATILE);
+					appendModifier(result, modifiers, checkBit, Modifier.VOLATILE);
 					break;
 				case ExtraCompilerModifiers.AccNonSealed :
 					try {
-						appendModifier(result, modifiers, checkBits[i], Modifier.valueOf("NON_SEALED")); //$NON-NLS-1$
+						appendModifier(result, modifiers, checkBit, Modifier.valueOf("NON_SEALED")); //$NON-NLS-1$
 					} catch(IllegalArgumentException iae) {
-						// Don't have JDK 15, just ignore and proceed.
+						// Don't have JDK 17, just ignore and proceed.
 					}
 					break;
 				case ExtraCompilerModifiers.AccSealed :
 					try {
-						appendModifier(result, modifiers, checkBits[i], Modifier.valueOf("SEALED")); //$NON-NLS-1$
+						appendModifier(result, modifiers, checkBit, Modifier.valueOf("SEALED")); //$NON-NLS-1$
 					} catch(IllegalArgumentException iae) {
-						// Don't have JDK 15, just ignore and proceed.
+						// Don't have JDK 17, just ignore and proceed.
 					}
 					break;
 			}

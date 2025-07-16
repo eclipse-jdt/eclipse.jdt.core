@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -21,8 +22,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
-
-import junit.framework.Test;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class CompatibilityRulesTests extends AbstractASTTests {
 
@@ -46,7 +46,7 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 	}
 
 	@Override
@@ -258,25 +258,6 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 				"J"
 			});
 		assertTrue("int should be assignment compatible with long", bindings[0].isAssignmentCompatible(bindings[1]));
-	}
-
-	/*
-	 * Ensures that the int base type is not assignment compatible with the java.lang.Object type in 1.4 mode.
-	 */
-	public void test012() throws CoreException {
-		try {
-			IJavaProject project = createJavaProject("P14", new String[] {""}, new String[] {"JCL_LIB"}, "", "1.4");
-			ITypeBinding[] bindings = createTypeBindings(
-				new String[] {},
-				new String[] {
-					"I",
-					"Ljava/lang/Object;"
-				},
-				project);
-			assertTrue("int should not be assignment compatible with Object", !bindings[0].isAssignmentCompatible(bindings[1]));
-		} finally {
-			deleteProject("P14");
-		}
 	}
 
 	/*
@@ -708,7 +689,7 @@ public class CompatibilityRulesTests extends AbstractASTTests {
 	 */
 	public void test032() throws CoreException {
 		try {
-			IJavaProject project = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, "", "1.4");
+			IJavaProject project = createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			IMethodBinding[] bindings = createMethodBindings(
 				new String[] {
 					"/P2/p1/X.java",

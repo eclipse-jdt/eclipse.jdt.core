@@ -18,7 +18,6 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
-
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.eclipse.jdt.core.util.IClassFileReader;
@@ -81,8 +80,8 @@ public final class CheckDebugAttributes extends Task {
 
 	private boolean checkClassFile(IClassFileReader classFileReader) {
 		IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-		for (int i = 0, max = methodInfos.length; i < max; i++) {
-			ICodeAttribute codeAttribute = methodInfos[i].getCodeAttribute();
+		for (IMethodInfo methodInfo : methodInfos) {
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			if (codeAttribute != null && codeAttribute.getLineNumberAttribute() != null) {
 				return true;
 			}

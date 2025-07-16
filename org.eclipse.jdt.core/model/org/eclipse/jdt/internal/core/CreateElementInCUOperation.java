@@ -140,8 +140,8 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 				if (!isWorkingCopy // if unit is working copy, then save will have already fired the delta
 						&& !Util.isExcluded(unit)
 						&& unit.getParent().exists()) {
-					for (int i = 0; i < this.resultElements.length; i++) {
-						delta.added(this.resultElements[i]);
+					for (IJavaElement resultElement : this.resultElements) {
+						delta.added(resultElement);
 					}
 					addDelta(delta);
 				} // else unit is created outside classpath

@@ -32,7 +32,6 @@
 package com.sun.mirror.util;
 
 import com.sun.mirror.declaration.*;
-
 import java.util.SortedSet;
 import java.util.TreeSet;
 

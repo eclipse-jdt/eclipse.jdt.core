@@ -18,15 +18,17 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -41,8 +43,9 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.core.JarPackageFragmentRootInfo.PackageContent;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
-import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -55,10 +58,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * @see org.eclipse.jdt.core.IPackageFragmentRoot
  * @see org.eclipse.jdt.internal.core.JarPackageFragmentRootInfo
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class JarPackageFragmentRoot extends PackageFragmentRoot {
-
-	protected final static ArrayList EMPTY_LIST = new ArrayList();
 
 	/**
 	 * The path to the jar file
@@ -67,16 +67,16 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	 */
 	protected final IPath jarPath;
 
-	boolean knownToBeModuleLess;
+	private volatile boolean knownToBeModuleLess;
 
-	private boolean multiVersion;
+	private volatile boolean multiVersion;
 
 	/**
 	 * Reflects the extra attributes of the classpath entry declaring this root.
-	 * Caution, this field is used in hashCode() & equals() to avoid overzealous sharing.
+	 * Caution, this field is used in {@link #hashCode()} and {@link #equals(Object)} to avoid overzealous sharing.
 	 * Can be null, if lookup via the corresponding classpath entry failed.
 	 */
-	final protected IClasspathAttribute[] extraAttributes;
+	protected final IClasspathAttribute[] extraAttributes;
 
 	/**
 	 * Constructs a package fragment root which is the root of the Java package directory hierarchy
@@ -113,12 +113,12 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	 */
 	@Override
 	protected boolean computeChildren(OpenableElementInfo info, IResource underlyingResource) throws JavaModelException {
-		final HashtableOfArrayToObject rawPackageInfo = new HashtableOfArrayToObject();
-		final Map<String, String> overridden = new HashMap<>();
+		Map<List<String>, PackageContent> rawPackageInfo= new HashMap<>();
+		Map<String, String> overridden = new HashMap<>();
 		IJavaElement[] children = NO_ELEMENTS;
 		try {
 			// always create the default package
-			rawPackageInfo.put(CharOperation.NO_STRINGS, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
+			rawPackageInfo.put(new ArrayList<>(), new PackageContent());
 
 			Object file = JavaModel.getTarget(this, true);
 			long classLevel = Util.getJdkLevel(file);
@@ -150,9 +150,9 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 				int length = version.length();
 				for (Enumeration<? extends ZipEntry> e= jar.entries(); e.hasMoreElements();) {
 					ZipEntry member= e.nextElement();
-					String name = member.getName();
-					if (name.contains("..")) { //$NON-NLS-1$
-						throw new IllegalArgumentException("Bad zip entry: "+name+" in "+jar.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+					String name = Util.getEntryName(jar.getName(), member);
+					if (name == null)  {
+						continue;
 					}
 					if (this.multiVersion && name.length() > (length + 2) && name.startsWith(version)) {
 						int end = name.indexOf('/', length);
@@ -164,26 +164,27 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 							overridden.put(name, versionPath);
 						}
 					}
-					initRawPackageInfo(rawPackageInfo, name, member.isDirectory(), CompilerOptions.versionFromJdkLevel(classLevel));
+					initRawPackageInfo(rawPackageInfo, getClassNameSubFolder(), name, member.isDirectory(), CompilerOptions.versionFromJdkLevel(classLevel));
 				}
 			}  finally {
 				JavaModelManager.getJavaModelManager().closeZipFile(jar);
 			}
-			// loop through all of referenced packages, creating package fragments if necessary
-			// and cache the entry names in the rawPackageInfo table
-			children = new IJavaElement[rawPackageInfo.size()];
-			int index = 0;
-			for (int i = 0, length = rawPackageInfo.keyTable.length; i < length; i++) {
-				String[] pkgName = (String[]) rawPackageInfo.keyTable[i];
-				if (pkgName == null) continue;
-				children[index++] = getPackageFragment(pkgName);
-			}
+			rawPackageInfo = unmodifiableCopy(rawPackageInfo);
+			children = createChildren(rawPackageInfo.keySet());
+		} catch (ZipException zipex) {
+			// malcious ZIP archive, leave the children empty
+			Util.log(zipex, "Invalid ZIP archive: " + toStringWithAncestors()); //$NON-NLS-1$
+			children = NO_ELEMENTS;
+			rawPackageInfo= Map.of();
+			overridden = Map.of();
 		} catch (CoreException e) {
 			if (e.getCause() instanceof ZipException) {
                 final ZipException zipex = (ZipException) e.getCause();
 				// not a ZIP archive, leave the children empty
 				Util.log(zipex, "Invalid ZIP archive: " + toStringWithAncestors()); //$NON-NLS-1$
 				children = NO_ELEMENTS;
+				rawPackageInfo= Map.of();
+				overridden = Map.of();
 			} else if (e instanceof JavaModelException) {
 				throw (JavaModelException)e;
 			} else {
@@ -195,15 +196,17 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 		((JarPackageFragmentRootInfo) info).overriddenClasses = overridden;
 		return true;
 	}
-	protected IJavaElement[] createChildren(final HashtableOfArrayToObject rawPackageInfo) {
-		IJavaElement[] children;
+
+	protected IJavaElement[] createChildren(Collection<List<String>> packagenames) {
+		// XXX sorting the children is unnecessary by contract - see org.eclipse.jdt.core.IParent#getChildren()
+		// but some tests like JavaProjectTests rely on a fixed child order
+		ArrayList<String[]> keys = new ArrayList<>(packagenames.stream().map(s->s.toArray(String[]::new)).toList() );
+		Collections.sort(keys, Arrays::compare);
+
+		IJavaElement[] children = new IJavaElement[packagenames.size()];
 		// loop through all of referenced packages, creating package fragments if necessary
-		// and cache the entry names in the rawPackageInfo table
-		children = new IJavaElement[rawPackageInfo.size()];
 		int index = 0;
-		for (int i = 0, length = rawPackageInfo.keyTable.length; i < length; i++) {
-			String[] pkgName = (String[]) rawPackageInfo.keyTable[i];
-			if (pkgName == null) continue;
+		for (String[] pkgName : keys) {
 			children[index++] = getPackageFragment(pkgName);
 		}
 		return children;
@@ -348,57 +351,56 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 			return super.getUnderlyingResource();
 		}
 	}
-	protected void initRawPackageInfo(HashtableOfArrayToObject rawPackageInfo, String entryName, boolean isDirectory, String compliance) {
+
+	/** make sure all parent packages exit in rawPackageInfo and adds the given file to the given package
+	 * static implementation to make sure the result can be shared across instances */
+	static void initRawPackageInfo(Map<List<String>, PackageContent> rawPackageInfo, String classNameSubFolder,
+			String entryName, boolean isDirectory, String compliance) {
+		String className = entryToClassName(classNameSubFolder, entryName);
 		int lastSeparator;
 		if (isDirectory) {
-			if (entryName.charAt(entryName.length() - 1) == '/') {
-				lastSeparator = entryName.length() - 1;
+			if (className.charAt(className.length() - 1) == '/') {
+				lastSeparator = className.length() - 1;
 			} else {
-				lastSeparator = entryName.length();
+				lastSeparator = className.length();
 			}
 		} else {
-			lastSeparator = entryName.lastIndexOf('/');
+			lastSeparator = className.lastIndexOf('/');
 		}
-		String[] pkgName = Util.splitOn('/', entryName, 0, lastSeparator);
-		String[] existing = null;
-		int length = pkgName.length;
-		int existingLength = length;
-		while (existingLength >= 0) {
-			existing = (String[]) rawPackageInfo.getKey(pkgName, existingLength);
-			if (existing != null) break;
-			existingLength--;
+		ArrayList<String> pkgName = new ArrayList<>(Arrays.asList(Util.splitOn('/', className, 0, lastSeparator)));
+		PackageContent existing = null;
+		int length = pkgName.size();
+		int existingLength;
+		for (existingLength = length; existing == null; existingLength--) {
+			existing = rawPackageInfo.get(pkgName.subList(0, existingLength));
 		}
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		existingLength++;
 		for (int i = existingLength; i < length; i++) {
 			// sourceLevel must be null because we know nothing about it based on a jar file
-			if (Util.isValidFolderNameForPackage(pkgName[i], null, compliance)) {
-				System.arraycopy(existing, 0, existing = new String[i+1], 0, i);
-				existing[i] = manager.intern(pkgName[i]);
-				rawPackageInfo.put(existing, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
+			if (Util.isValidFolderNameForPackage(pkgName.get(i), null, compliance)) {
+				List<String> path = pkgName.subList(0, i + 1);
+				existing = new PackageContent();
+				rawPackageInfo.put(path, existing);
 			} else {
 				// non-Java resource folder
 				if (!isDirectory) {
-					ArrayList[] children = (ArrayList[]) rawPackageInfo.get(existing);
-					if (children[1/*NON_JAVA*/] == EMPTY_LIST) children[1/*NON_JAVA*/] = new ArrayList();
-					children[1/*NON_JAVA*/].add(entryName);
+					existing.resources().add(className);
 				}
 				return;
 			}
 		}
-		if (isDirectory)
+		if (isDirectory) {
 			return;
-
-		// add classfile info amongst children
-		ArrayList[] children = (ArrayList[]) rawPackageInfo.get(pkgName);
-		if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(entryName)) {
-			if (children[0/*JAVA*/] == EMPTY_LIST) children[0/*JAVA*/] = new ArrayList();
-			String nameWithoutExtension = entryName.substring(lastSeparator + 1, entryName.length() - 6);
-			children[0/*JAVA*/].add(nameWithoutExtension);
-		} else {
-			if (children[1/*NON_JAVA*/] == EMPTY_LIST) children[1/*NON_JAVA*/] = new ArrayList();
-			children[1/*NON_JAVA*/].add(entryName);
 		}
 
+		// add classfile info amongst children
+		PackageContent children = rawPackageInfo.get(pkgName);
+		if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(className)) {
+			String nameWithoutExtension = className.substring(lastSeparator + 1, className.length() - 6);
+			children.javaClasses().add(nameWithoutExtension);
+		} else {
+			children.resources().add(className);
+		}
 	}
 	/**
 	 * @see IPackageFragmentRoot
@@ -472,6 +474,32 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 			JavaModelManager.getJavaModelManager().closeZipFile(jar);
 		}
 		return null;
+	}
+
+	/** overridden by JModPackageFragmentRoot */
+	protected String getClassNameSubFolder() {
+		return null;
+	}
+
+	static String entryToClassName(String classNameSubFolder, String entryName) {
+		if (classNameSubFolder != null && entryName.startsWith(classNameSubFolder)) {
+			return entryName.substring(classNameSubFolder.length());
+		} else {
+			return entryName;
+		}
+	}
+
+	/** creates a unmodifiable copy that is thread-safe and has it's Strings deduplicated **/
+	static Map<List<String>, PackageContent> unmodifiableCopy(Map<List<String>, PackageContent> rawPackageInfo) {
+		Map<List<String>, PackageContent> deduplicatedPackageInfo = new HashMap<>();
+
+		for (Entry<List<String>, PackageContent> e : rawPackageInfo.entrySet()) {
+			List<String> key = e.getKey();
+			PackageContent p = e.getValue();
+			PackageContent packageContent = new PackageContent(DeduplicationUtil.intern(p.javaClasses()), DeduplicationUtil.intern(p.resources()));
+			deduplicatedPackageInfo.put(DeduplicationUtil.intern(key), packageContent);
+		}
+		return Map.copyOf(deduplicatedPackageInfo);
 	}
 
 //	@Override

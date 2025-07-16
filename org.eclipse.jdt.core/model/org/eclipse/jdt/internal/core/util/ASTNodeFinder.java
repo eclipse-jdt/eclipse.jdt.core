@@ -13,15 +13,21 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IInitializer;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Initializer;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.core.SourceRefElement;
@@ -47,8 +53,7 @@ public class ASTNodeFinder {
 		FieldDeclaration[] fields = typeDecl.fields;
 		if (fields != null) {
 			char[] fieldName = fieldHandle.getElementName().toCharArray();
-			for (int i = 0, length = fields.length; i < length; i++) {
-				FieldDeclaration field = fields[i];
+			for (FieldDeclaration field : fields) {
 				if (CharOperation.equals(fieldName, field.name)) {
 					return field;
 				}
@@ -67,8 +72,7 @@ public class ASTNodeFinder {
 		FieldDeclaration[] fields = typeDecl.fields;
 		if (fields != null) {
 			int occurenceCount = ((SourceRefElement)initializerHandle).getOccurrenceCount();
-			for (int i = 0, length = fields.length; i < length; i++) {
-				FieldDeclaration field = fields[i];
+			for (FieldDeclaration field : fields) {
 				if (field instanceof Initializer && --occurenceCount == 0) {
 					return (Initializer)field;
 				}
@@ -89,8 +93,7 @@ public class ASTNodeFinder {
 			char[] selector = methodHandle.getElementName().toCharArray();
 			String[] parameterTypeSignatures = methodHandle.getParameterTypes();
 			int parameterCount = parameterTypeSignatures.length;
-			nextMethod: for (int i = 0, length = methods.length; i < length; i++) {
-				AbstractMethodDeclaration method = methods[i];
+			nextMethod: for (AbstractMethodDeclaration method : methods) {
 				if (CharOperation.equals(selector, method.selector)) {
 					Argument[] args = method.arguments;
 					int argsLength = args == null ? 0 : args.length;
@@ -141,8 +144,7 @@ public class ASTNodeFinder {
 			case IJavaElement.COMPILATION_UNIT:
 				TypeDeclaration[] types = this.unit.types;
 				if (types != null) {
-					for (int i = 0, length = types.length; i < length; i++) {
-						TypeDeclaration type = types[i];
+					for (TypeDeclaration type : types) {
 						if (CharOperation.equals(typeName, type.name)) {
 							return type;
 						}
@@ -154,8 +156,7 @@ public class ASTNodeFinder {
 				if (parentDecl == null) return null;
 				types = parentDecl.memberTypes;
 				if (types != null) {
-					for (int i = 0, length = types.length; i < length; i++) {
-						TypeDeclaration type = types[i];
+					for (TypeDeclaration type : types) {
 						if (CharOperation.equals(typeName, type.name)) {
 							return type;
 						}

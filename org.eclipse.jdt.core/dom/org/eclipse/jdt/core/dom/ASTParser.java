@@ -17,28 +17,24 @@ package org.eclipse.jdt.core.dom;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.ITypeRoot;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.batch.Main;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScannerData;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
@@ -49,6 +45,7 @@ import org.eclipse.jdt.internal.core.ClassFileWorkingCopy;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.PackageFragment;
+import org.eclipse.jdt.internal.core.dom.ICompilationUnitResolver;
 import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
 import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
 import org.eclipse.jdt.internal.core.util.RecordedParsingInformation;
@@ -221,6 +218,8 @@ public class ASTParser {
 	 */
 	private int bits;
 
+	private final ICompilationUnitResolver unitResolver;
+
 	/**
 	 * Creates a new AST parser for the given API level.
 	 * <p>
@@ -233,6 +232,7 @@ public class ASTParser {
 	ASTParser(int level) {
 		DOMASTUtil.checkASTLevel(level);
 		this.apiLevel = level;
+		this.unitResolver = CompilationUnitResolverDiscovery.getInstance();
 		initializeDefaults();
 	}
 
@@ -245,17 +245,20 @@ public class ASTParser {
 			}
 			if (this.sourcepaths != null) {
 				for (int i = 0, max = this.sourcepaths.length; i < max; i++) {
-					String encoding = this.sourcepathsEncodings == null ? null : this.sourcepathsEncodings[i];
-					main.processPathEntries(
-							Main.DEFAULT_SIZE_CLASSPATH,
-							allClasspaths, this.sourcepaths[i], encoding, true, false);
+					String sourcePath = this.sourcepaths[i];
+					if (sourcePath != null) {
+						String encoding = this.sourcepathsEncodings == null ? null : this.sourcepathsEncodings[i];
+						main.processPathEntries(
+								Main.DEFAULT_SIZE_CLASSPATH,
+								allClasspaths, sourcePath, encoding, true, false);
+					}
 				}
 			}
 			if (this.classpaths != null) {
-				for (int i = 0, max = this.classpaths.length; i < max; i++) {
+				for (String classpath : this.classpaths) {
 					main.processPathEntries(
 							Main.DEFAULT_SIZE_CLASSPATH,
-							allClasspaths, this.classpaths[i], null, false, false);
+							allClasspaths, classpath, null, false, false);
 				}
 			}
 			ArrayList pendingErrors = main.pendingErrors;
@@ -265,7 +268,48 @@ public class ASTParser {
 		} catch (IllegalArgumentException e) {
 			throw new IllegalStateException("invalid environment settings", e); //$NON-NLS-1$
 		}
+		if ((this.bits & CompilationUnitResolver.RESOLVE_BINDING) != 0) {
+			checkForSystemLibrary(allClasspaths);
+		}
 		return allClasspaths;
+	}
+
+	private void checkForSystemLibrary(List<Classpath> allClasspaths) {
+		boolean hasSystemLibrary = true; // default for 1.8 setting without a valid project
+		boolean hasModule = false;
+		Throwable exception = null;
+		String compliance = this.compilerOptions.get(JavaCore.COMPILER_COMPLIANCE);
+		if (CompilerOptions.versionToJdkLevel(compliance) >= ClassFileConstants.JDK9) {
+			hasSystemLibrary = allClasspaths.stream().anyMatch(cp -> cp.getModule(TypeConstants.JAVA_DOT_BASE) != null);
+			if (!hasSystemLibrary && this.project != null) {
+				// not found in allClasspaths, try this.project instead:
+				try {
+					// try module java.base:
+					for (IPackageFragmentRoot root : this.project.getAllPackageFragmentRoots()) {
+						IModuleDescription moduleDescription = root.getModuleDescription();
+						if (moduleDescription != null) {
+							hasModule = true;
+							if (moduleDescription.getElementName().equals(String.valueOf(TypeConstants.JAVA_DOT_BASE))) {
+								hasSystemLibrary = true;
+								break;
+							}
+						}
+					}
+				} catch (JavaModelException e) {
+					exception = e;
+				}
+				if (!hasModule) {
+					try {
+						// if no modules try class java.lang.Object:
+						hasSystemLibrary = this.project.findType(String.valueOf(TypeConstants.CharArray_JAVA_LANG_OBJECT)) != null;
+					} catch (JavaModelException e) {
+						exception = e;
+					}
+				}
+			}
+			if (!hasSystemLibrary)
+				throw new IllegalStateException("Missing system library", exception); //$NON-NLS-1$
+		}
 	}
 	/**
 	 * Sets all the setting to their default values.
@@ -378,7 +422,8 @@ public class ASTParser {
 			// copy client's options so as to not do any side effect on them
 			options = new HashMap<>(options);
 		}
-		options.remove(JavaCore.COMPILER_TASK_TAGS); // no need to parse task tags
+		// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2179
+		// options.remove(JavaCore.COMPILER_TASK_TAGS); // no need to parse task tags
 		this.compilerOptions = options;
 	}
 
@@ -601,7 +646,9 @@ public class ASTParser {
 	 *
 	 * <p>This method automatically sets the project (and compiler
 	 * options) based on the given compilation unit, in a manner
-	 * equivalent to {@link #setProject(IJavaProject) setProject(source.getJavaProject())}.</p>
+	 * equivalent to {@link #setProject(IJavaProject) setProject(source.getJavaProject())}
+	 * and the custom compiler options supported by the compilation unit through
+	 * {@link ICompilationUnit#getCustomOptions() getCustomOptions()}.</p>
 	 *
 	 * <p>This source is not used when the AST is built using
 	 * {@link #createASTs(ICompilationUnit[], String[], ASTRequestor, IProgressMonitor)}.</p>
@@ -611,6 +658,9 @@ public class ASTParser {
 	 */
 	public void setSource(ICompilationUnit source) {
 		setSource((ITypeRoot)source);
+		if (source != null) {
+			setCompilerOptions(source.getOptions(true));
+		}
 	}
 
 	/**
@@ -951,14 +1001,22 @@ public class ASTParser {
 				if ((this.bits & CompilationUnitResolver.BINDING_RECOVERY) != 0) {
 					flags |= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
 				}
-				CompilationUnitResolver.resolve(compilationUnits, bindingKeys, requestor, this.apiLevel, this.compilerOptions, this.project, this.workingCopyOwner, flags, monitor);
+				this.unitResolver.resolve(safeCopyOf(compilationUnits), safeCopyOf(bindingKeys), requestor, this.apiLevel, safeUnmodifiableMap(this.compilerOptions), this.project, this.workingCopyOwner, flags, monitor);
 			} else {
-				CompilationUnitResolver.parse(compilationUnits, requestor, this.apiLevel, this.compilerOptions, flags, monitor);
+				this.unitResolver.parse(safeCopyOf(compilationUnits), requestor, this.apiLevel, safeUnmodifiableMap(this.compilerOptions), flags, monitor);
 			}
 		} finally {
 			// reset to defaults to allow reuse (and avoid leaking)
 			initializeDefaults();
 		}
+	}
+
+	private static <T> T[] safeCopyOf(T[] original) {
+		return original == null ? null : Arrays.copyOf(original, original.length);
+	}
+
+	private static <K,V> Map<K,V> safeUnmodifiableMap(Map<? extends K, ? extends V> m) {
+		return m == null ? null : Collections.unmodifiableMap(m);
 	}
 
 	/**
@@ -1046,9 +1104,9 @@ public class ASTParser {
 				if ((this.bits & CompilationUnitResolver.BINDING_RECOVERY) != 0) {
 					flags |= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
 				}
-				CompilationUnitResolver.resolve(sourceFilePaths, encodings, bindingKeys, requestor, this.apiLevel, this.compilerOptions, getClasspath(), flags, monitor);
+				this.unitResolver.resolve(safeCopyOf(sourceFilePaths), safeCopyOf(encodings), safeCopyOf(bindingKeys), requestor, this.apiLevel, safeUnmodifiableMap(this.compilerOptions), getClasspath(), flags, monitor);
 			} else {
-				CompilationUnitResolver.parse(sourceFilePaths, encodings, requestor, this.apiLevel, this.compilerOptions, flags, monitor);
+				this.unitResolver.parse(safeCopyOf(sourceFilePaths), safeCopyOf(encodings), requestor, this.apiLevel, safeUnmodifiableMap(this.compilerOptions), flags, monitor);
 			}
 		} finally {
 			// reset to defaults to allow reuse (and avoid leaking)
@@ -1153,9 +1211,8 @@ public class ASTParser {
 				}
 				break;
 			case K_COMPILATION_UNIT :
-				CompilationUnitDeclaration compilationUnitDeclaration = null;
 				try {
-					NodeSearcher searcher = null;
+					boolean useSearcher = false;
 					org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = null;
 					WorkingCopyOwner wcOwner = this.workingCopyOwner;
 					if (this.typeRoot instanceof ClassFileWorkingCopy) {
@@ -1223,68 +1280,28 @@ public class ASTParser {
 						throw new IllegalStateException();
 					}
 					if ((this.bits & CompilationUnitResolver.PARTIAL) != 0) {
-						searcher = new NodeSearcher(this.focalPointPosition);
+						useSearcher = true;
 					}
 					int flags = 0;
 					if ((this.bits & CompilationUnitResolver.STATEMENT_RECOVERY) != 0) {
 						flags |= ICompilationUnit.ENABLE_STATEMENTS_RECOVERY;
 					}
-					if (searcher == null && ((this.bits & CompilationUnitResolver.IGNORE_METHOD_BODIES) != 0)) {
+					if (!useSearcher && ((this.bits & CompilationUnitResolver.IGNORE_METHOD_BODIES) != 0)) {
 						flags |= ICompilationUnit.IGNORE_METHOD_BODIES;
 					}
+
 					if (needToResolveBindings) {
 						if ((this.bits & CompilationUnitResolver.BINDING_RECOVERY) != 0) {
 							flags |= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
 						}
-						try {
-							// parse and resolve
-							compilationUnitDeclaration =
-								CompilationUnitResolver.resolve(
-									sourceUnit,
-									this.project,
-									getClasspath(),
-									searcher,
-									this.compilerOptions,
-									this.workingCopyOwner,
-									flags,
-									monitor);
-						} catch (JavaModelException e) {
-							flags &= ~ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
-							compilationUnitDeclaration = CompilationUnitResolver.parse(
-									sourceUnit,
-									searcher,
-									this.compilerOptions,
-									flags);
-							needToResolveBindings = false;
-						}
-					} else {
-						compilationUnitDeclaration = CompilationUnitResolver.parse(
-								sourceUnit,
-								searcher,
-								this.compilerOptions,
-								flags,
-								this.project);
-						needToResolveBindings = false;
 					}
-					CompilationUnit result = CompilationUnitResolver.convert(
-						compilationUnitDeclaration,
-						sourceUnit.getContents(),
-						this.apiLevel,
-						this.compilerOptions,
-						needToResolveBindings,
-						wcOwner,
-						needToResolveBindings ? new DefaultBindingResolver.BindingTables() : null,
-						flags,
-						monitor,
-						this.project != null,
-						this.project);
+
+					CompilationUnit result = this.unitResolver.toCompilationUnit(sourceUnit, needToResolveBindings, this.project, getClasspath(), useSearcher ? this.focalPointPosition : -1, this.apiLevel, safeUnmodifiableMap(this.compilerOptions), this.workingCopyOwner, wcOwner, flags, monitor);
 					result.setTypeRoot(this.typeRoot);
 					return result;
 				} finally {
-					if (compilationUnitDeclaration != null
-							&& ((this.bits & CompilationUnitResolver.RESOLVE_BINDING) != 0)) {
-						compilationUnitDeclaration.cleanUp();
-					}
+					// unitResolver should already handle this.
+					// Leaving this finally in place to avoid changing indentation
 				}
 		}
 		throw new IllegalStateException();

@@ -14,10 +14,11 @@
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
-
-import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
 
 /**
  * Test for generic constructor search using R_ERASURE_MATCH rule.

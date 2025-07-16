@@ -13,10 +13,22 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.core.resources.*;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceProxy;
+import org.eclipse.core.resources.IResourceProxyVisitor;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaModelStatus;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.util.Messages;
 
 public class CopyPackageFragmentRootOperation extends JavaModelOperation {
@@ -238,8 +250,7 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 					IClasspathEntry[] destClasspath = destProject.getRawClasspath();
 					boolean foundSibling = false;
 					boolean foundExistingEntry = false;
-					for (int i = 0, length = destClasspath.length; i < length; i++) {
-						IClasspathEntry entry = destClasspath[i];
+					for (IClasspathEntry entry : destClasspath) {
 						if (entry.equals(this.sibling)) {
 							foundSibling = true;
 							break;

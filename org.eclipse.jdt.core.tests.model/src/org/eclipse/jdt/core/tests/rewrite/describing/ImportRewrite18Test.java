@@ -14,31 +14,13 @@
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
 import java.io.IOException;
-
 import junit.framework.Test;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.Annotation;
-import org.eclipse.jdt.core.dom.Assignment;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.ExpressionStatement;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.MarkerAnnotation;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.NormalAnnotation;
-import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.Type;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite.TypeLocation;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
@@ -75,7 +57,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		IJavaProject proj= createJavaProject(PROJECT, new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.8");
+		IJavaProject proj= createJavaProject(PROJECT, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
 		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "4");
 		proj.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
@@ -794,6 +776,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		parser.setSource(cu);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(true);
+		parser.setBindingsRecovery(true);
 		CompilationUnit astRoot = (CompilationUnit) parser.createAST(null);
 		TypeDeclaration type= (TypeDeclaration) astRoot.types().get(1);
 		MethodDeclaration [] methods =  type.getMethods();

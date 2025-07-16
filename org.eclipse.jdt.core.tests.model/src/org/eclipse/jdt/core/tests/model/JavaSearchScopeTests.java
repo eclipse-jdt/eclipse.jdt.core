@@ -16,11 +16,10 @@ package org.eclipse.jdt.core.tests.model;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
@@ -44,11 +43,10 @@ import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.JavaSearchResultCollector;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.TypeNameMatchCollector;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.index.IndexLocation;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
-
-import junit.framework.Test;
 
 /**
  * Tests the Java search engine accross multiple projects.
@@ -70,11 +68,7 @@ static {
 
 @Override
 protected void tearDown() throws Exception {
-	// Cleanup caches
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	manager.containers = new HashMap<>(5);
-	manager.variables = new HashMap<>(5);
-
+	Util.cleanupClassPathVariablesAndContainers();
 	super.tearDown();
 }
 /*
@@ -919,7 +913,7 @@ public void testBug101022() throws CoreException {
  */
 public void testBug101426() throws CoreException {
 	try {
-		IJavaProject project = createJavaProject("P1", new String[] {"src/", "test/", "test2/"}, new String[] {"JCL_LIB"}, "bin");
+		IJavaProject project = createJavaProject("P1", new String[] {"src/", "test/", "test2/"}, new String[] {"JCL18_LIB"}, "bin");
 		createFile(
 			"/P1/src/Test.java",
 			"public interface ITest {\n" +
@@ -989,10 +983,11 @@ public void testBug101777() throws CoreException {
 
 /**
  * Bug 119203: Search doesn't work with imported plugin
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=119203"
- * WARNING: Fix for this bug has been disabled due to bad regression
  *
  * Bug 127048: [search] References to Java element 'CorrectionEngine' not found
+
+ * WARNING: Fix for this bug has been disabled due to bad regression
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=119203"
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=127048"
  */
 public void testBug119203() throws CoreException {
@@ -1022,8 +1017,8 @@ public void testBug119203() throws CoreException {
 	}
 }
 /**
- * @bug 179199: [search] Open type throws NPE during Items filtering
- * @test Ensure that NPE does no longer happen when output location is also set as class folder in a project build path
+ * bug 179199: [search] Open type throws NPE during Items filtering
+ * test Ensure that NPE does no longer happen when output location is also set as class folder in a project build path
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=179199"
  */
 public void testBug179199() throws CoreException {
@@ -1080,8 +1075,8 @@ public void testBug179199() throws CoreException {
 	}
 }
 /**
- * @bug 250211: [search] Organize Imports Hangs
- * @test Ensure that JavaSearchScope creation does not take too much time.<br>
+ * bug 250211: [search] Organize Imports Hangs
+ * test Ensure that JavaSearchScope creation does not take too much time.<br>
  * Note that this test does not make any assertion, it just creates several projects
  * with a huge dependency tree and create a scope on all of them.<br>
  * If the bug was back again, then this test would never finish!
@@ -1109,7 +1104,7 @@ public void testBug250211() throws CoreException {
 							exportedProjects[idx] = true; // export all projects
 						}
 					}
-					projects[i] = createJavaProject(projectName, new String[]{"src"}, new String[]{"JCL_LIB"}, dependents, exportedProjects, "bin");
+					projects[i] = createJavaProject(projectName, new String[]{"src"}, new String[]{"JCL18_LIB"}, dependents, exportedProjects, "bin");
 				}
 			}
 		},

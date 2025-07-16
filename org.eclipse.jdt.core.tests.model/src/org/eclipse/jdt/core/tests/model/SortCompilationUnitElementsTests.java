@@ -15,7 +15,6 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-
 import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -50,7 +49,7 @@ public SortCompilationUnitElementsTests(String name) {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
-	final String compliance = "1.5"; //$NON-NLS-1$
+	final String compliance = CompilerOptions.getFirstSupportedJavaVersion(); //$NON-NLS-1$
 	this.createJavaProject("P", new String[] {"src"}, new String[] {getExternalJCLPathString(compliance)}, "bin", compliance); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	this.createFolder("/P/src/p"); //$NON-NLS-1$
 }

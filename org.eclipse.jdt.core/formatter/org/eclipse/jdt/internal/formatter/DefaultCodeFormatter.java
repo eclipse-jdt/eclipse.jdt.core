@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -32,7 +32,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.JavaCore;
@@ -233,10 +232,11 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private void findHeader() {
-		if (this.astRoot instanceof CompilationUnit) {
-			CompilationUnit unit = (CompilationUnit) this.astRoot;
+		if (this.astRoot instanceof CompilationUnit unit) {
 			List<TypeDeclaration> types = unit.types();
-			ASTNode firstElement = types.isEmpty() ? unit.getPackage() : types.get(0);
+			ASTNode firstElement = !types.isEmpty() ? types.get(0)
+					: unit.getModule() != null ? unit.getModule()
+					: unit.getPackage();
 			if (firstElement != null) {
 				int headerEndIndex = this.tokenManager.firstIndexIn(firstElement, -1);
 				this.tokenManager.setHeaderEndIndex(headerEndIndex);
@@ -332,7 +332,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private ASTParser createParser(int kind) {
-		ASTParser parser = ASTParser.newParser(AST.JLS21);
+		ASTParser parser = ASTParser.newParser(AST.JLS23);
 
 		if (kind == K_MODULE_INFO) {
 			parser.setSource(createDummyModuleInfoCompilationUnit());

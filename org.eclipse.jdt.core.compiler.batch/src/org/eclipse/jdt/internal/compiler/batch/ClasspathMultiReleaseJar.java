@@ -11,7 +11,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.zip.ZipEntry;
-
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
@@ -44,7 +43,7 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 			}
 		}
 	}
-	@SuppressWarnings("rawtypes")
+
 	@Override
 	public synchronized char[][] getModulesDeclaringPackage(String qualifiedPackageName, String moduleName) {
 		if (this.releasePath == null) {
@@ -56,8 +55,8 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 		this.packageCache = new HashSet<>(41);
 		this.packageCache.add(Util.EMPTY_STRING);
 
-		for (Enumeration e = this.zipFile.entries(); e.hasMoreElements(); ) {
-			String fileName = ((ZipEntry) e.nextElement()).getName();
+		for (Enumeration<? extends ZipEntry> e = this.zipFile.entries(); e.hasMoreElements(); ) {
+			String fileName = e.nextElement().getName();
 			addToPackageCache(fileName, false);
 		}
 		try {

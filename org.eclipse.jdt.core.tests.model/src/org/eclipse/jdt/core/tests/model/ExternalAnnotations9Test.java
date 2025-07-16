@@ -14,7 +14,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.Hashtable;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -35,8 +35,6 @@ import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.util.ExternalAnnotationUtil;
 import org.eclipse.jdt.core.util.ExternalAnnotationUtil.MergeStrategy;
-
-import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ExternalAnnotations9Test extends ExternalAnnotations18Test {

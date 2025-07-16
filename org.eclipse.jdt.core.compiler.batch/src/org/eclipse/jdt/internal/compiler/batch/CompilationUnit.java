@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.compiler.batch;
 import java.io.File;
 import java.io.IOException;
 import java.util.function.Function;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
@@ -133,10 +132,7 @@ public char[] getModuleName() {
 public ModuleBinding module(LookupEnvironment rootEnvironment) {
 	if (this.moduleBinding != null)
 		return this.moduleBinding;
-	this.moduleBinding = rootEnvironment.getModule(this.module);
-	if (this.moduleBinding == null)
-		throw new IllegalStateException("Module should be known"); //$NON-NLS-1$
-	return this.moduleBinding;
+	return this.moduleBinding = rootEnvironment.getModule(this.module);
 }
 @Override
 public String getDestinationPath() {

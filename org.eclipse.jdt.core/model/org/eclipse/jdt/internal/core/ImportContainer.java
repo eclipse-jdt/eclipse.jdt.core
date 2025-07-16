@@ -13,7 +13,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IImportContainer;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.ISourceRange;
+import org.eclipse.jdt.core.ISourceReference;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.SourceRange;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 
 /**
@@ -98,7 +104,7 @@ public String readableName() {
 	return null;
 }
 /**
- * @private Debugging purposes
+ * for debugging only
  */
 @Override
 protected void toString(int tab, StringBuilder buffer) {
@@ -111,7 +117,7 @@ protected void toString(int tab, StringBuilder buffer) {
 	}
 }
 /**
- *  Debugging purposes
+ * for debugging only
  */
 @Override
 protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean showResolvedInfo) {

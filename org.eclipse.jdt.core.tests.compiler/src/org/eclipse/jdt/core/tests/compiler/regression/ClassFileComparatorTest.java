@@ -13,9 +13,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import junit.framework.Test;
-import java.io.*;
-
 import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
@@ -366,27 +370,6 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			assertTrue(!areStructurallyDifferent("A011", "A011_2", false, true));
 		} finally {
 			removeTempClass("A011");
-		}
-	}
-	public void test012() {
-		try {
-			String sourceA012 =
-				"public class A012 {\n" +
-				"public Class foo() {\n" +
-				"\treturn null;\n" +
-				"}\n" +
-				"}";
-			compileAndDeploy(sourceA012, "A012");
-			String sourceA012_2 =
-				"public class A012_2 {\n" +
-				"public Class foo() {\n" +
-				"\treturn A012_2.class;\n" +
-				"}\n" +
-				"}";
-			compileAndDeploy(sourceA012_2, "A012_2");
-			assertTrue(areStructurallyDifferent("A012", "A012_2", false, false));
-		} finally {
-			removeTempClass("A012");
 		}
 	}
 	public void test013() {

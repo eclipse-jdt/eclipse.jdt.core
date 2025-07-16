@@ -15,11 +15,11 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
+import com.sun.mirror.apt.AnnotationProcessorFactory;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
@@ -29,8 +29,6 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
-
-import com.sun.mirror.apt.AnnotationProcessorFactory;
 
 /**
  * Manages caches of plugins which provide annotation processors.

@@ -13,16 +13,25 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 
 /**
  * The element info for <code>JarPackageFragmentRoot</code>s.
  */
 class JarPackageFragmentRootInfo extends PackageFragmentRootInfo {
-	// a map from package name (String[]) to a size-2 array of Array<String>, the first element being the .class file names, and the second element being the non-Java resource names
-	HashtableOfArrayToObject rawPackageInfo;
-	Map<String, String> overriddenClasses;
+	/** contains .class file names, and non-Java resource names of a package */
+	static record PackageContent(List<String> javaClasses, List<String> resources) {
+		PackageContent() {
+			this(new ArrayList<>(), new ArrayList<>());
+		}
+	}
 
+	/**
+	 * Cache for the the jar's entries names. A unmodifiable map from package name to PackageContent
+	 */
+	Map<List<String>, PackageContent> rawPackageInfo;
+	Map<String, String> overriddenClasses;
 }

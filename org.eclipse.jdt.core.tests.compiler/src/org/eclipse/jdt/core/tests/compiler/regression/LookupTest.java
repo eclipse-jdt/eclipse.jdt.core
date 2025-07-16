@@ -19,7 +19,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.util.Hashtable;
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -27,8 +27,6 @@ import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
-
-import junit.framework.Test;
 /**
  * Name Lookup within Inner Classes
  * Creation date: (8/2/00 12:04:53 PM)
@@ -988,7 +986,7 @@ public void test029() {
 public void test030() {
 
 	Hashtable target1_2 = new Hashtable();
-	target1_2.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
+	target1_2.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 
 	this.runConformTest(
 		new String[] {
@@ -1907,7 +1905,7 @@ public void test059() {
     			"	Zork bb() {\n" +
     			"	}\n" +
     			"	void cc() {\n" +
-    			"		this.bb();\n" +
+    			"		Object o = this.bb();\n" +
     			"	}\n" +
     			"	public static void main(String[] args) {\n" +
     			"		System.out.println(\"SUCCESS\");\n" +
@@ -1921,8 +1919,8 @@ public void test059() {
 		"Zork cannot be resolved to a type\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 10)\n" +
-		"	this.bb();\n" +
-		"	     ^^\n" +
+		"	Object o = this.bb();\n" +
+		"	                ^^\n" +
 		"The method bb() from the type X refers to the missing type Zork\n" +
 		"----------\n");
 }
@@ -1940,7 +1938,7 @@ public void test060() {
     			"	Zork bb() {\n" +
     			"	}\n" +
     			"	void cc() {\n" +
-    			"		this.bb();\n" +
+    			"		Object o = this.bb();\n" +
     			"	}\n" +
     			"	public static void main(String[] args) {\n" +
     			"		System.out.println(\"SUCCESS\");\n" +
@@ -1959,18 +1957,14 @@ public void test060() {
 		"Zork cannot be resolved to a type\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 10)\n" +
-		"	this.bb();\n" +
-		"	     ^^\n" +
+		"	Object o = this.bb();\n" +
+		"	                ^^\n" +
 		"The method bb() from the type X refers to the missing type Zork\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=134839
 public void test061() {
 	Map options = getCompilerOptions();
-	if (CompilerOptions.VERSION_1_3.equals(options.get(CompilerOptions.OPTION_Compliance))) {
-		// ensure target is 1.1 for having default abstract methods involved
-		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
-	}
     this.runConformTest(
         new String[] {
         		"X.java", // =================
@@ -1999,10 +1993,6 @@ public void test061() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=134839
 public void test062() {
 	Map options = getCompilerOptions();
-	if (CompilerOptions.VERSION_1_3.equals(options.get(CompilerOptions.OPTION_Compliance))) {
-		// ensure target is 1.1 for having default abstract methods involved
-		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
-	}
     this.runConformTest(
         new String[] {
         		"X.java", // =================
@@ -2082,10 +2072,6 @@ public void test063() {
 //	https://bugs.eclipse.org/bugs/show_bug.cgi?id=137744
 public void test064() {
 	Map options = getCompilerOptions();
-	if (CompilerOptions.VERSION_1_3.equals(options.get(CompilerOptions.OPTION_Compliance))) {
-		// ensure target is 1.1 for having default abstract methods involved
-		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
-	}
 	this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2211,48 +2197,6 @@ public void test066() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=135323 - variation
 public void test067() {
-	Map options = getCompilerOptions();
-	if (CompilerOptions.VERSION_1_3.equals(options.get(CompilerOptions.OPTION_Compliance))) {
-		this.runNegativeTest(
-				new String[] {
-					"com/internap/other/ScopeExample.java",//===================
-					"package com.internap.other;\n" +
-					"import com.internap.*;\n" +
-					"public class ScopeExample {\n" +
-					"	private static final String LOGGER = \"FAILED\";\n" +
-					"	public static void main(String[] args) {\n" +
-					"		PublicAccessSubclass sub = new PublicAccessSubclass() {\n" +
-					"			public void implementMe() {\n" +
-					"				System.out.println(LOGGER);\n" +
-					"			}\n" +
-					"		};\n" +
-					"		sub.implementMe();\n" +
-					"	}\n" +
-					"}",
-					"com/internap/PublicAccessSubclass.java",//===================
-					"package com.internap;\n" +
-					"public abstract class PublicAccessSubclass extends DefaultAccessSuperclass {\n" +
-					"	public abstract void implementMe();				\n" +
-					"}",
-					"com/internap/DefaultAccessSuperclass.java",//===================
-					"package com.internap;\n" +
-					"class DefaultAccessSuperclass {\n" +
-					"	public static final String LOGGER = \"SUCCESS\";\n" +
-					"}",
-				},
-				"----------\n" +
-				"1. WARNING in com\\internap\\other\\ScopeExample.java (at line 4)\r\n" +
-				"	private static final String LOGGER = \"FAILED\";\r\n" +
-				"	                            ^^^^^^\n" +
-				"The value of the field ScopeExample.LOGGER is not used\n" +
-				"----------\n" +
-				"2. ERROR in com\\internap\\other\\ScopeExample.java (at line 8)\r\n" +
-				"	System.out.println(LOGGER);\r\n" +
-				"	                   ^^^^^^\n" +
-				"The field LOGGER is defined in an inherited type and an enclosing scope \n" +
-				"----------\n");
-		return;
-	}
 	this.runConformTest(
 			new String[] {
 				"com/internap/other/ScopeExample.java",//===================
@@ -2285,9 +2229,7 @@ public void test067() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=139099
 public void test068() {
 	Map options = getCompilerOptions();
-	CompilerOptions compOptions = new CompilerOptions(options);
-	if (compOptions.complianceLevel < ClassFileConstants.JDK1_5) return;
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 	this.runConformTest(
 			new String[] {
 				"X.java",//===================
@@ -2311,9 +2253,6 @@ public void test068() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=139099
 public void test068a() {
 	Map options = getCompilerOptions();
-	CompilerOptions compOptions = new CompilerOptions(options);
-	if (compOptions.complianceLevel < ClassFileConstants.JDK1_5) return;
-
 	this.runConformTest(
 		new String[] {
 			"X1.java",
@@ -2341,7 +2280,7 @@ public void test068a() {
 		false,
 		null);
 
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 	this.runConformTest(
 		new String[] {
 			"Test14.java",//===================

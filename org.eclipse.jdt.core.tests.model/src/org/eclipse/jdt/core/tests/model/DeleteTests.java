@@ -14,17 +14,20 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
-
-import org.eclipse.core.resources.*;
+import junit.framework.Test;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.IClassFileReader;
-
-import junit.framework.Test;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /*
  * Tests for ISourceManipulation.delete(...)
@@ -495,7 +498,7 @@ public void testDeleteField4() throws CoreException {
  */
 public void testDeleteField5() throws CoreException {
 	try {
-		this.createJavaProject("P1", new String[] {""}, new String[] {"JCL15_LIB"}, null, "", "1.5");
+		this.createJavaProject("P1", new String[] {""}, new String[] {"JCL18_LIB"}, null, "", CompilerOptions.getFirstSupportedJavaVersion());
 		createFile(
 			"P1/X.java",
 			"public enum X {\n" +
@@ -840,7 +843,7 @@ public void testDeleteProjectAfterUsingJar() throws CoreException, IOException {
 				"public class X {\n" +
 				"}",
 			},
-			JavaCore.VERSION_1_4
+			CompilerOptions.getFirstSupportedJavaVersion()
 		);
 		IOrdinaryClassFile classFile = getClassFile("P78128", "lib.jar", "p", "X.class");
 		ToolFactory.createDefaultClassFileReader(classFile, IClassFileReader.ALL);

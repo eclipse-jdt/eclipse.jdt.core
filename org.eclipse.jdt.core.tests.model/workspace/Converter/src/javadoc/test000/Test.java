@@ -16,7 +16,6 @@ class X {
  * @param array fourth param with several embedded tags on several lines:
  * 1) {@link String} tag description not empty
  * 2) {@link CharOperation Unknown class} tag description not empty
- * @throws IllegalAccessException Unknown class
  * @throws NullPointerException
  * @return an integer
  * @see String

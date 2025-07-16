@@ -20,9 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
-
 import junit.framework.Test;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Path;
@@ -37,6 +35,7 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
@@ -216,7 +215,7 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 				null);
 		}
 
-		IJavaProject javaProject = setUpJavaProject("Compiler", "1.4"); //$NON-NLS-1$ //$NON-NLS-2$
+		IJavaProject javaProject = setUpJavaProject("Compiler", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 		assertNotNull("No java project", javaProject);
 		IPackageFragment[] packageFragments = javaProject.getPackageFragments();
 		assertNotNull("No package fragments", packageFragments);

@@ -34,28 +34,17 @@ import java.util.Locale;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.lang.model.SourceVersion;
-import javax.tools.Diagnostic;
-import javax.tools.DiagnosticListener;
-import javax.tools.FileObject;
-import javax.tools.ForwardingJavaFileManager;
-import javax.tools.JavaCompiler;
+import javax.tools.*;
 import javax.tools.JavaCompiler.CompilationTask;
-import javax.tools.JavaFileManager;
-import javax.tools.JavaFileObject;
 import javax.tools.JavaFileObject.Kind;
-import javax.tools.StandardJavaFileManager;
-import javax.tools.StandardLocation;
-import javax.tools.ToolProvider;
-
+import junit.framework.TestCase;
 import org.eclipse.jdt.compiler.tool.tests.AbstractCompilerToolTest.CompilerInvocationDiagnosticListener;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
-
-import junit.framework.TestCase;
 
 public class CompilerToolTests extends TestCase {
 	private static final boolean DEBUG = false;
@@ -85,20 +74,9 @@ public class CompilerToolTests extends TestCase {
 		"-classNames"
 	};
 	static final String[] ZERO_ARG_OPTIONS = {
-		"-1.3",
-		"-1.4",
-		"-1.5",
-		"-1.6",
-		"-1.7",
 		"-1.8",
 		"-8",
 		"-8.0",
-		"-7",
-		"-7.0",
-		"-6",
-		"-6.0",
-		"-5",
-		"-5.0",
 		"-deprecation",
 		"-nowarn",
 		"-warn:none",
@@ -528,7 +506,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		List<String> options = new ArrayList<>();
 		options.add("-d");
 		options.add(tmpFolder);
-		options.add("-1.5");
+		options.add("-" + CompilerOptions.getFirstSupportedJavaVersion());
  		CompilationTask task = compiler.getTask(printWriter, forwardingJavaFileManager, null, options, null, units);
  		// check the classpath location
  		assertTrue("Has no location CLASS_OUPUT", forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT));
@@ -550,7 +528,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 			assertTrue("Should not happen", false);
 		}
 		assertNotNull("No reader", reader);
-		assertEquals("Not a 1.5 .class file", ClassFileConstants.JDK1_5, reader.getVersion());
+		assertEquals("Not a 1.8 .class file", ClassFileConstants.JDK1_8, reader.getVersion());
 
 		stringWriter = new StringWriter();
 		printWriter = new PrintWriter(stringWriter);

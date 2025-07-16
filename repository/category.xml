@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+	<category-def name="org.eclipse.jdt.core.bundles" label="JDT Core bundles"/>
+	<category-def name="org.eclipse.jdt.core.bundles.source" label="JDT Core source bundles"/>
+	<bundle id="org.eclipse.jdt.annotation" version="0.0.0">
+		<category name="org.eclipse.jdt.core.bundles"/>
+	</bundle>
+	<bundle id="org.eclipse.jdt.annotation.source" version="0.0.0">
+		<category name="org.eclipse.jdt.core.bundles.source"/>
+	</bundle>
+	<bundle id="org.eclipse.jdt.apt.core" version="0.0.0">
+		<category name="org.eclipse.jdt.core.bundles"/>
+	</bundle>
+	<bundle id="org.eclipse.jdt.apt.core.source" version="0.0.0">
+		<category name="org.eclipse.jdt.core.bundles.source"/>
+	</bundle>
+	<bundle id="org.eclipse.jdt.apt.pluggable.core" version="0.0.0">
+		<category name="org.eclipse.jdt.core.bundles"/>
+	</bundle>
+	<bundle id="org.eclipse.jdt.apt.pluggable.core.source" version="0.0.0">
+		<category name="org.eclipse.jdt.core.bundles.source"/>
+	</bundle>
+	<bundle id="org.eclipse.jdt.apt.ui" version="0.0.0">
+		<category name="org.eclipse.jdt.core.bundles"/>
+	</bundle>
+	<bundle id="org.eclipse.jdt.apt.ui.source" version="0.0.0">
+		<category name="org.eclipse.jdt.core.bundles.source"/>
+	</bundle>
+	<bundle id="org.eclipse.jdt.core" version="0.0.0">
+		<category name="org.eclipse.jdt.core.bundles"/>
+	</bundle>
+	<bundle id="org.eclipse.jdt.core.source" version="0.0.0">
+		<category name="org.eclipse.jdt.core.bundles.source"/>
+	</bundle>
+	<bundle id="org.eclipse.jdt.core.compiler.batch" version="0.0.0">
+		<category name="org.eclipse.jdt.core.bundles"/>
+	</bundle>
+	<bundle id="org.eclipse.jdt.core.compiler.batch.source" version="0.0.0">
+		<category name="org.eclipse.jdt.core.bundles.source"/>
+	</bundle>
+
+	<bundle id="org.eclipse.jdt.core.formatterapp" version="0.0.0">
+		<category name="org.eclipse.jdt.core.bundles"/>
+	</bundle>
+	<bundle id="org.eclipse.jdt.core.formatterapp.source" version="0.0.0">
+		<category name="org.eclipse.jdt.core.bundles.source"/>
+	</bundle>
+</site>

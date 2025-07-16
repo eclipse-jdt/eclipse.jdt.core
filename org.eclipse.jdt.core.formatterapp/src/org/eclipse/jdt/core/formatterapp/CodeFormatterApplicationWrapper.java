@@ -16,7 +16,6 @@ package org.eclipse.jdt.core.formatterapp;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
-
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -27,7 +26,6 @@ import org.osgi.framework.BundleException;
 /**
  * Wraps original {@code CodeFormatterApplication} for better error diagnostic message if user does not specify workspace location.
  *
- * @author Jonah Graham <jonah@kichwacoders.com>
  * @since 1.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @noextend This class is not intended to be subclassed by clients.

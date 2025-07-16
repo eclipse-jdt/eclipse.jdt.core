@@ -14,19 +14,8 @@
 package org.eclipse.jdt.internal.core;
 
 import java.util.Iterator;
-
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jdt.core.Flags;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IImportDeclaration;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaModelStatus;
-import org.eclipse.jdt.core.IJavaModelStatusConstants;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaConventions;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -134,6 +123,7 @@ public String getMainTaskName(){
  * <li> if no imports, before the first type
  * <li> if no type, after the package statement
  * <li> and if no package statement - first thing in the CU
+ * </ul>
  */
 @Override
 protected void initializeDefaultPosition() {
@@ -151,9 +141,9 @@ protected void initializeDefaultPosition() {
 		}
 		IJavaElement[] children = cu.getChildren();
 		//look for the package declaration
-		for (int i = 0; i < children.length; i++) {
-			if (children[i].getElementType() == IJavaElement.PACKAGE_DECLARATION) {
-				createAfter(children[i]);
+		for (IJavaElement child : children) {
+			if (child.getElementType() == IJavaElement.PACKAGE_DECLARATION) {
+				createAfter(child);
 				return;
 			}
 		}

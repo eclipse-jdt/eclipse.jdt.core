@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Set;
-
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -35,7 +34,6 @@ import javax.tools.Diagnostic;
 import javax.tools.Diagnostic.Kind;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
-
 import org.eclipse.jdt.compiler.apt.tests.annotations.GenResource;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 

@@ -15,24 +15,22 @@ package org.eclipse.jdt.core.tests.rewrite.modifying;
 
 import java.util.Hashtable;
 import java.util.Map;
-
 import junit.framework.ComparisonFailure;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
-
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
-
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.core.tests.rewrite.describing.StringAsserts;
-
-
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
@@ -77,7 +75,7 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 
-		this.javaProject = createJavaProject("P", new String[] {"src"}, null, "bin", "1.5");
+		this.javaProject = createJavaProject("P", new String[] {"src"}, null, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.sourceFolder = getPackageFragmentRoot("P", "src");
 
 		Hashtable<String, String> options = JavaCore.getOptions();

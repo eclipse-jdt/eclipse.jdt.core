@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2016 IBM Corporation and others.
+ * Copyright (c) 2011, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,16 +15,13 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.io.IOException;
 import java.util.List;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFlattener;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
 
@@ -56,7 +53,7 @@ public static Test suite() {
 }
 
 /**
- * @bug 130778: Invalid annotation elements cause no annotation to be in the AST
+ * bug 130778: Invalid annotation elements cause no annotation to be in the AST
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778"
  */
 public void testBug130778a() throws JavaModelException {
@@ -1109,6 +1106,95 @@ public void testGH1376() throws CoreException, IOException {
 		ICompilationUnit cuB = getCompilationUnit("P/p/B.java"); // during checkParameterizedTypes() we re-enter LE.completeTypeBinding(..)
 		// just ensure that bound check during completion doesn't trigger NPE:
 		resolveASTs(new ICompilationUnit[] {cuA, cuB}, new String[0], new BindingRequestor(), project, this.wcOwner);
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testGH2275() throws CoreException {
+	try {
+		createJavaProject("P", new String[] { "" }, new String[] { "CONVERTER_JCL_LIB" }, "", "1.8", true);
+		createFolder("P/p");
+		createFile("P/p/A.java",
+			"""
+				package p;
+				import java.util.Collections;
+				import java.util.Map;
+
+				class A {
+					public A(Map<String, Integer> map) {
+						Map<String, Integer> emptyMap= Collections.emptyMap();	// return type inferred from the target type
+						Map<String, Integer> emptyMap2= foo(A.class);			// inference used, but not influencing the return type
+					}
+					<T> Map<String, Integer> foo(Class<T> clazz) {
+						return Collections.emptyMap();
+					}
+				}
+				"""
+		);
+		ICompilationUnit cuA = getCompilationUnit("P/p/A.java");
+		ASTParser parser = createASTParser();
+		parser.setResolveBindings(true);
+		parser.setSource(cuA);
+		CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+
+		TypeDeclaration classA = (TypeDeclaration) cu.types().get(0);
+		MethodDeclaration constructor = classA.getMethods()[0];
+		assertTrue(constructor.isConstructor());
+		List statements = constructor.getBody().statements();
+
+		VariableDeclarationStatement local = (VariableDeclarationStatement) statements.get(0);
+		MethodInvocation invocation = (MethodInvocation) ((VariableDeclarationFragment) local.fragments().get(0)).getInitializer();
+		assertEquals("emptyMap", invocation.getName().getIdentifier());
+		assertTrue(invocation.isResolvedTypeInferredFromExpectedType());
+
+		VariableDeclarationStatement local2 = (VariableDeclarationStatement) statements.get(1);
+		MethodInvocation invocation2 = (MethodInvocation) ((VariableDeclarationFragment) local2.fragments().get(0)).getInitializer();
+		assertEquals("foo", invocation2.getName().getIdentifier());
+		assertFalse(invocation2.isResolvedTypeInferredFromExpectedType());
+	} finally {
+		deleteProject("P");
+	}
+}
+
+public void testGH3064() throws CoreException {
+	try {
+		createJavaProject("P", new String[] { "" }, new String[] { "CONVERTER_JCL_LIB" }, "", "1.8", true);
+		createFolder("P/src/test");
+		createFile("/P/src/test/Action.java", """
+				package test;
+				public class Action<Request extends BroadcastRequest<Request>, ShardRequest> {
+				    private final Request request;
+
+				    protected ShardRequest newShardRequest(Request request) {return null;} // can also be omitted
+
+				    protected void performOperation(final int shardIndex) {
+				        ShardRequest shardRequest = newShardRequest(request);
+				        shardRequest.setParentTask(foobar);
+				    }
+				}
+				""");
+		ICompilationUnit cuAction = getCompilationUnit("P/src/test/Action.java");
+		ASTParser parser = createASTParser();
+		parser.setResolveBindings(true);
+		parser.setBindingsRecovery(true);
+		parser.setSource(cuAction);
+		CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+		TypeDeclaration type = (TypeDeclaration) cu.types().get(0);
+		Object decl2 = type.bodyDeclarations().get(2);
+		assertEquals(MethodDeclaration.class, decl2.getClass());
+		Object stat0 = ((MethodDeclaration) decl2).getBody().statements().get(0);
+		Object stat1 = ((MethodDeclaration) decl2).getBody().statements().get(1);
+		assertEquals(ExpressionStatement.class, stat1.getClass());
+		Expression expr = ((ExpressionStatement) stat1).getExpression();
+		assertEquals(MethodInvocation.class, expr.getClass());
+		Expression receiver = ((MethodInvocation) expr).getExpression();
+		IBinding binding1 = ((SimpleName) receiver).resolveBinding();
+		assertNotNull(binding1);
+		assertEquals(VariableDeclarationStatement.class, stat0.getClass());
+		VariableDeclarationFragment frag = (VariableDeclarationFragment) ((VariableDeclarationStatement) stat0)
+				.fragments().get(0);
+		IBinding binding0 = frag.getName().resolveBinding();
+		assertEquals(binding0, binding1);
 	} finally {
 		deleteProject("P");
 	}

@@ -14,16 +14,14 @@
 
 package org.eclipse.jdt.apt.tests.annotations.messager;
 
-import java.util.Collection;
-import java.util.Set;
-
-import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
-
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.Messager;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 import com.sun.mirror.declaration.Declaration;
 import com.sun.mirror.util.SourcePosition;
+import java.util.Collection;
+import java.util.Set;
+import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
 
 /**
  * Used to test the Messager interface.  Processing @MessagerAnnotation

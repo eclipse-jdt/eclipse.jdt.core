@@ -19,19 +19,17 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.internal.VarJarFactoryContainer;
 import org.eclipse.jdt.apt.core.internal.WkspJarFactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
-import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath.Attributes;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 
 public class FactoryPathTests extends TestCase {
 	private FactoryPath path;

@@ -32,7 +32,8 @@
 package com.sun.mirror.util;
 
 
-import com.sun.mirror.declaration.*;
+import com.sun.mirror.declaration.MemberDeclaration;
+import com.sun.mirror.declaration.MethodDeclaration;
 
 
 /**

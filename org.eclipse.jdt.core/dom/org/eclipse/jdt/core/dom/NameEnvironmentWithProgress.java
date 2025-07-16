@@ -59,9 +59,9 @@ class NameEnvironmentWithProgress extends FileSystem implements INameEnvironment
 			String qualifiedPackageName = new String(CharOperation.concatWith(packageName, '/'));
 			String qualifiedTypeName = new String(CharOperation.concatWith(packageName, typeName, '/'));
 			String qualifiedBinaryFileName = qualifiedTypeName + SUFFIX_STRING_class;
-			for (int i = 0, length = this.classpaths.length; i < length; i++) {
-				if (!(this.classpaths[i] instanceof ClasspathDirectory)) continue;
-				ClasspathDirectory classpathDirectory = (ClasspathDirectory) this.classpaths[i];
+			for (Classpath classpath : this.classpaths) {
+				if (!(classpath instanceof ClasspathDirectory)) continue;
+				ClasspathDirectory classpathDirectory = (ClasspathDirectory) classpath;
 				LookupStrategy strategy = LookupStrategy.get(moduleName);
 				if (!strategy.matchesWithName(classpathDirectory,
 						loc -> loc.getModule() != null,

@@ -24,7 +24,8 @@ import org.eclipse.jdt.core.util.IConstantPoolEntry;
  */
 public class ClassFileAttribute extends ClassFileStruct implements IClassFileAttribute {
 	public static final IClassFileAttribute[] NO_ATTRIBUTES = new IClassFileAttribute[0];
-	private final long attributeLength;
+	/** unsigned integer **/
+	private final int attributeLength;
 	private final int attributeNameIndex;
 	private final char[] attributeName;
 
@@ -56,7 +57,7 @@ public class ClassFileAttribute extends ClassFileStruct implements IClassFileAtt
 	 */
 	@Override
 	public long getAttributeLength() {
-		return this.attributeLength;
+		return Integer.toUnsignedLong(this.attributeLength);
 	}
 
 }

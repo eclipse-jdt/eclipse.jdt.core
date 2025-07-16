@@ -14,9 +14,9 @@
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class CompletionContextTests_1_5 extends AbstractJavaModelCompletionTests {
 
@@ -26,9 +26,9 @@ public CompletionContextTests_1_5(String name) {
 @Override
 public void setUpSuite() throws Exception {
 	if (COMPLETION_PROJECT == null)  {
-		COMPLETION_PROJECT = setUpJavaProject("Completion", "1.5");
+		COMPLETION_PROJECT = setUpJavaProject("Completion", CompilerOptions.getFirstSupportedJavaVersion());
 	} else {
-		setUpProjectCompliance(COMPLETION_PROJECT, "1.5");
+		setUpProjectCompliance(COMPLETION_PROJECT, CompilerOptions.getFirstSupportedJavaVersion());
 	}
 	super.setUpSuite();
 }
@@ -809,7 +809,7 @@ public void test0028() throws JavaModelException {
 
 	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, false, true);
 
-	String jclPath = getExternalJCLPathString("1.5");
+	String jclPath = getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion());
 	assertResults(
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
@@ -1395,7 +1395,7 @@ public void testBug311022a() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf("foo") + "foo".length();
 
 	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, true, true, "Ljava.lang.Object;");
-	String jclPath = getExternalJCLPathString("1.5");
+	String jclPath = getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion());
 	assertResults(
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
@@ -1433,7 +1433,7 @@ public void testBug311022b() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf("foo") + "foo".length();
 
 	CompletionResult result = contextComplete(this.workingCopies[0], cursorLocation, true, true, "Ljava.lang.Object;");
-	String jclPath = getExternalJCLPathString("1.5");
+	String jclPath = getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion());
 	assertResults(
 			"completion offset="+(cursorLocation)+"\n" +
 			"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +

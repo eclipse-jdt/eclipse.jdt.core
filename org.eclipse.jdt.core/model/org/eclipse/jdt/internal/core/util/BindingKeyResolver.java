@@ -17,45 +17,12 @@
 package org.eclipse.jdt.internal.core.util;
 
 import java.util.ArrayList;
-
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.Compiler;
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ArrayReference;
-import org.eclipse.jdt.internal.compiler.ast.Assignment;
-import org.eclipse.jdt.internal.compiler.ast.CastExpression;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
-import org.eclipse.jdt.internal.compiler.ast.FieldReference;
-import org.eclipse.jdt.internal.compiler.ast.MessageSend;
-import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
-import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.Wildcard;
-import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding;
-import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding18;
-import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.PlainPackageBinding;
-import org.eclipse.jdt.internal.compiler.lookup.PolymorphicMethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
+import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -179,8 +146,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 		} else {
 			return;
 		}
-		for (int i = 0, length = annotationBindings.length; i < length; i++) {
-			AnnotationBinding binding = annotationBindings[i];
+		for (AnnotationBinding binding : annotationBindings) {
 			if (binding.getAnnotationType() == annotationType) {
 				this.annotationBinding = binding;
 				break;
@@ -225,8 +191,8 @@ public class BindingKeyResolver extends BindingKeyParser {
 					case Binding.PARAMETERIZED_TYPE:
 						TypeBinding[] arguments = ((ParameterizedTypeBinding) binding).arguments;
 						if (arguments == null) return false;
-						for (int i = 0, length = arguments.length; i < length; i++) {
-							if (checkType(arguments[i]))
+						for (TypeBinding argument : arguments) {
+							if (checkType(argument))
 								return true;
 						}
 						break;
@@ -237,8 +203,8 @@ public class BindingKeyResolver extends BindingKeyParser {
 							return true;
 						TypeBinding[] otherBounds = ((WildcardBinding) binding).otherBounds;
 						// per construction, otherBounds is never null
-						for (int i = 0, length = otherBounds.length; i < length; i++) {
-							if (checkType(otherBounds[i]))
+						for (TypeBinding otherBound : otherBounds) {
+							if (checkType(otherBound))
 								return true;
 						}
 						break;
@@ -324,8 +290,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 		if (this.typeBinding == null)
 			return;
 		FieldBinding[] fields = ((ReferenceBinding) this.typeBinding).availableFields(); // resilience
-	 	for (int i = 0, length = fields.length; i < length; i++) {
-			FieldBinding field = fields[i];
+	 	for (FieldBinding field : fields) {
 			if (CharOperation.equals(fieldName, field.name)) {
 				this.typeBinding = null;
 				this.compilerBinding = field;
@@ -412,8 +377,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 		if (this.typeBinding == null)
 			return;
 		MethodBinding[] methods = ((ReferenceBinding) this.typeBinding).availableMethods(); // resilience
-	 	for (int i = 0, methodLength = methods.length; i < methodLength; i++) {
-			MethodBinding method = methods[i];
+	 	for (MethodBinding method : methods) {
 			if (CharOperation.equals(selector, method.selector) || (selector.length == 0 && method.isConstructor())) {
 				char[] methodSignature = method.genericSignature();
 				if (methodSignature == null)
@@ -613,8 +577,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	 	} else {
 	 		return;
 	 	}
-	 	for (int i = 0, length = typeVariableBindings.length; i < length; i++) {
-			TypeVariableBinding typeVariableBinding = typeVariableBindings[i];
+	 	for (TypeVariableBinding typeVariableBinding : typeVariableBindings) {
 			if (CharOperation.equals(typeVariableName, typeVariableBinding.sourceName())) {
 				this.typeBinding = typeVariableBinding;
 				return;
@@ -762,8 +725,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 				(this.parsedUnit == null ? null : this.parsedUnit.types) :
 				this.typeDeclaration.memberTypes;
 		if (typeDeclarations == null) return null;
-		for (int i = 0, length = typeDeclarations.length; i < length; i++) {
-			TypeDeclaration declaration = typeDeclarations[i];
+		for (TypeDeclaration declaration : typeDeclarations) {
 			if (CharOperation.equals(simpleTypeName, declaration.name)) {
 				this.typeDeclaration = declaration;
 				return declaration.binding;

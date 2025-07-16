@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -47,14 +46,14 @@ public class ProvidesStatement extends ModuleStatement {
 		}
 		ReferenceBinding intf = (ReferenceBinding) this.serviceInterface.resolvedType;
 		Set<TypeBinding> impls = new HashSet<>();
-		for (int i = 0; i < this.implementations.length; i++) {
-			ReferenceBinding impl = (ReferenceBinding) this.implementations[i].resolveType(scope);
+		for (TypeReference implementation : this.implementations) {
+			ReferenceBinding impl = (ReferenceBinding) implementation.resolveType(scope);
 			if (impl == null || !impl.isValidBinding() || !impl.canBeSeenBy(scope)) {
 				hasErrors = true;
 				continue;
 			}
 			if (!impls.add(impl)) {
-				scope.problemReporter().duplicateTypeReference(IProblem.DuplicateServices, this.implementations[i]);
+				scope.problemReporter().duplicateTypeReference(IProblem.DuplicateServices, implementation);
 				continue;
 			}
 			int problemId = ProblemReasons.NoError;
@@ -76,7 +75,7 @@ public class ProvidesStatement extends ModuleStatement {
 					implType = provider.returnType;
 					if (implType instanceof ReferenceBinding && !implType.canBeSeenBy(scope)) {
 						ReferenceBinding referenceBinding = (ReferenceBinding) implType;
-						scope.problemReporter().invalidType(this.implementations[i], new ProblemReferenceBinding(
+						scope.problemReporter().invalidType(implementation, new ProblemReferenceBinding(
 								referenceBinding.compoundName, referenceBinding, ProblemReasons.NotVisible));
 						hasErrors = true;
 					}
@@ -93,12 +92,12 @@ public class ProvidesStatement extends ModuleStatement {
 					}
 				}
 				if (implType.findSuperTypeOriginatingFrom(intf) == null) {
-					scope.problemReporter().typeMismatchError(implType, intf, this.implementations[i], null);
+					scope.problemReporter().typeMismatchError(implType, intf, implementation, null);
 					hasErrors = true;
 				}
 			}
 			if (problemId != ProblemReasons.NoError) {
-				scope.problemReporter().invalidServiceRef(problemId, this.implementations[i]);
+				scope.problemReporter().invalidServiceRef(problemId, implementation);
 				hasErrors = true;
 			}
 		}

@@ -13,21 +13,18 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.tests.annotations.readannotation;
 
-import java.util.Collection;
-import java.util.HashSet;
-
-import junit.framework.ComparisonFailure;
-
-import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
-import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
-import org.eclipse.jdt.apt.tests.annotations.ProcessorUtil;
-
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.declaration.AnnotationMirror;
 import com.sun.mirror.declaration.FieldDeclaration;
 import com.sun.mirror.declaration.MethodDeclaration;
 import com.sun.mirror.declaration.ParameterDeclaration;
 import com.sun.mirror.declaration.TypeDeclaration;
+import java.util.Collection;
+import java.util.HashSet;
+import junit.framework.ComparisonFailure;
+import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
+import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
+import org.eclipse.jdt.apt.tests.annotations.ProcessorUtil;
 
 public class ReadAnnotationProcessor extends BaseProcessor
 {

@@ -16,9 +16,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.internal.compiler.util.FloatUtil;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -45,7 +43,7 @@ public class InternalHexFloatTest extends AbstractRegressionTest {
 		super(name);
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_5);
+		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
 	}
 
 	public static Class testClass() {

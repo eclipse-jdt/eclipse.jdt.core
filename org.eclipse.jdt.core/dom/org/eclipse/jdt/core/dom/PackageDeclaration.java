@@ -123,7 +123,7 @@ public class PackageDeclaration extends ASTNode {
 	 * The package name; lazily initialized; defaults to a unspecified,
 	 * legal Java package identifier.
 	 */
-	private Name packageName = null;
+	private volatile Name packageName;
 
 	/**
 	 * Creates a new AST node for a package declaration owned by the
@@ -281,8 +281,7 @@ public class PackageDeclaration extends ASTNode {
 			synchronized (this) {
 				if (this.packageName == null) {
 					preLazyInit();
-					this.packageName = new SimpleName(this.ast);
-					postLazyInit(this.packageName, NAME_PROPERTY);
+					this.packageName = postLazyInit(new SimpleName(this.ast), NAME_PROPERTY);
 				}
 			}
 		}

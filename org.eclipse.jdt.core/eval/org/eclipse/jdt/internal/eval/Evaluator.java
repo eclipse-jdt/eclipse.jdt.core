@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.Compiler;
@@ -67,8 +67,8 @@ protected EvaluationResult[] evaluationResultsForCompilationProblems(Compilation
 	// Break down the problems and group them by ids in evaluation results
 	CategorizedProblem[] problems = result.getAllProblems();
 	HashMap<char[], EvaluationResult> resultsByIDs = new HashMap<>(5);
-	for (int i = 0; i < problems.length; i++) {
-		addEvaluationResultForCompilationProblem(resultsByIDs, problems[i], cuSource);
+	for (CategorizedProblem problem : problems) {
+		addEvaluationResultForCompilationProblem(resultsByIDs, problem, cuSource);
 	}
 
 	// Copy results
@@ -96,11 +96,10 @@ ClassFile[] getClasses() {
 		public void acceptResult(CompilationResult result) {
 			if (result.hasProblems()) {
 				EvaluationResult[] evalResults = evaluationResultsForCompilationProblems(result, source);
-				for (int i = 0; i < evalResults.length; i++) {
-					EvaluationResult evalResult = evalResults[i];
+				for (EvaluationResult evalResult : evalResults) {
 					CategorizedProblem[] problems = evalResult.getProblems();
-					for (int j = 0; j < problems.length; j++) {
-						Evaluator.this.requestor.acceptProblem(problems[j], evalResult.getEvaluationID(), evalResult.getEvaluationType());
+					for (CategorizedProblem problem : problems) {
+						Evaluator.this.requestor.acceptProblem(problem, evalResult.getEvaluationID(), evalResult.getEvaluationType());
 					}
 				}
 			}
@@ -108,9 +107,8 @@ ClassFile[] getClasses() {
 				this.hasErrors = true;
 			} else {
 				ClassFile[] classFiles = result.getClassFiles();
-				for (int i = 0; i < classFiles.length; i++) {
-					ClassFile classFile = classFiles[i];
-/*
+				for (ClassFile classFile : classFiles) {
+					/*
 
 					char[] filename = classFile.fileName();
 					int length = filename.length;

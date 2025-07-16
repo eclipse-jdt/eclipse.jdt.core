@@ -14,18 +14,21 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
-
 import junit.framework.Test;
-
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.JavaSearchResultCollector;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.TypeNameMatchCollector;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.search.matching.PatternLocator;
 
 /**
@@ -73,7 +76,7 @@ public void testFieldOccurencesInWorkingCopies() throws CoreException {
 		);
 
 		// setup project P2
-		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P1"}, "");
 		createFolder("/P2/p2");
 		createFile(
 			"/P2/p2/Y.java",
@@ -150,7 +153,7 @@ public void testHierarchyScope1() throws CoreException {
 			"	}\n" +
 			"}"
 		);
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P1"}, "");
 		createFile(
 			"/P2/Y.java",
 			"import p.X;\n" +
@@ -197,7 +200,7 @@ public void testHierarchyScope2() throws CoreException {
 			"	}\n" +
 			"}"
 		);
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P1"}, "");
 		createFile(
 			"/P2/Y.java",
 			"import p.X;\n" +
@@ -249,7 +252,7 @@ public void testHierarchyScope3() throws CoreException {
 			"	}\n" +
 			"}"
 		);
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P1"}, "");
 		createFolder("/P2/q");
 		createFile(
 			"/P2/q/Y.java",
@@ -298,7 +301,7 @@ public void testHierarchyScope4() throws CoreException {
 			"	}\n" +
 			"}"
 		);
-		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P0"}, "");
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P0"}, "");
 		createFolder("/P1/p1");
 		createFile(
 			"/P1/p1/T.java",
@@ -310,7 +313,7 @@ public void testHierarchyScope4() throws CoreException {
 			"	}\n" +
 			"}"
 		);
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P0", "/P1"}, "");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P0", "/P1"}, "");
 		createFolder("/P2/p2");
 		createFile(
 			"/P2/p2/Y.java",
@@ -323,7 +326,7 @@ public void testHierarchyScope4() throws CoreException {
 			"	}\n" +
 			"}"
 		);
-		createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P0", "/P2"}, "");
+		createJavaProject("P3", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P0", "/P2"}, "");
 		createFolder("/P3/p3");
 		createFile(
 			"/P3/p3/Z.java",
@@ -464,7 +467,7 @@ public void testPackageReference1() throws CoreException {
 		IJavaProject p2 = createJavaProject(
 			"P2",
 			new String[] {""},
-			new String[] {"JCL_LIB"},
+			new String[] {"JCL18_LIB"},
 			new String[] {"/P1"},
 			"");
 		createFolder("/P2/p");
@@ -572,7 +575,7 @@ public void testReferenceInWorkingCopies() throws CoreException {
 		IJavaProject p2 = createJavaProject(
 			"P2",
 			new String[] {""},
-			new String[] {"JCL_LIB"},
+			new String[] {"JCL18_LIB"},
 			new String[] {"/P1"},
 			"");
 		createFolder("/P2/p2");
@@ -644,8 +647,8 @@ public void testReferenceInWorkingCopies() throws CoreException {
  */
 public void testTypeDeclarationInJar() throws CoreException {
 	try {
-		IJavaProject p1 = createJavaProject("P1", new String[] {}, new String[] {"JCL_LIB"}, "");
-		IJavaProject p2 = createJavaProject("P2", new String[] {}, new String[] {"JCL_LIB"}, "");
+		IJavaProject p1 = createJavaProject("P1", new String[] {}, new String[] {"JCL18_LIB"}, "");
+		IJavaProject p2 = createJavaProject("P2", new String[] {}, new String[] {"JCL18_LIB"}, "");
 
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {p1});
 		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
@@ -705,7 +708,7 @@ public void testBug151189_Workspace() throws CoreException {
 		);
 
 		// setup project P2
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] { "/P1" }, "");
 		createFolder("/P2/test");
 		createFile(
 			"/P2/test/Declaration_bis.java",
@@ -773,7 +776,7 @@ public void testBug151189_Project() throws CoreException {
 		);
 
 		// setup project P2
-		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "");
+		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] { "/P1" }, "");
 		createFolder("/P2/test");
 		createFile(
 			"/P2/test/Declaration_bis.java",
@@ -809,8 +812,8 @@ public void testBug151189_Project() throws CoreException {
 }
 
 /**
- * @bug 163072: [search] method reference reports wrong potential matches
- * @test Ensure that there's no potential match while searching in two projects having 1.4 and 1.5 compliances
+ * bug 163072: [search] method reference reports wrong potential matches
+ * test Ensure that there's no potential match while searching in two projects having 1.4 and 1.5 compliances
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=163072"
  */
 public void testBug163072() throws CoreException {
@@ -834,7 +837,7 @@ public void testBug163072() throws CoreException {
 		);
 
 		// setup project P2
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL15_LIB"}, new String[] { "/P1" }, "", "1.5");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] { "/P1" }, "", CompilerOptions.getLatestVersion());
 		createFolder("/P2/pack");
 		createFile(
 			"/P2/pack/FactoryContainer.java",
@@ -881,8 +884,8 @@ public void testBug163072() throws CoreException {
 }
 
 /**
- * @bug 167743: [search] Open Type Dialog cannot find types from projects migrated from 3.2.1 workspace
- * @test Ensure that types are found even in default package fragment root
+ * bug 167743: [search] Open Type Dialog cannot find types from projects migrated from 3.2.1 workspace
+ * test Ensure that types are found even in default package fragment root
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=167743"
  */
 public void testBug167743() throws CoreException {
@@ -935,8 +938,8 @@ public void testBug167743() throws CoreException {
 }
 
 /**
- * @bug 176831: [search] No search results due to malformed search scope
- * @test Verify that type are found in rt.jar even if it's added as a library on the classpath
+ * bug 176831: [search] No search results due to malformed search scope
+ * test Verify that type are found in rt.jar even if it's added as a library on the classpath
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=176831"
  */
 public void testBug176831() throws CoreException {
@@ -997,8 +1000,8 @@ public void testBug176831b() throws CoreException {
 }
 
 /**
- * @bug 195228: [search] Invalid path in open type dialog
- * @test Verify that correct types are found even with project and source folders in the classpath
+ * bug 195228: [search] Invalid path in open type dialog
+ * test Verify that correct types are found even with project and source folders in the classpath
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=195228"
  */
 public void testBug195228() throws CoreException {
@@ -1071,8 +1074,8 @@ public void testBug195228() throws CoreException {
 }
 
 /**
- * @bug 199392: [search] Type Dialog Error 'Items filtering ... Reason: Class file name must end with .class'
- * @test Ensure that types are found even in project which name ends either with ".jar" or ".zip"
+ * bug 199392: [search] Type Dialog Error 'Items filtering ... Reason: Class file name must end with .class'
+ * test Ensure that types are found even in project which name ends either with ".jar" or ".zip"
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=199392"
  */
 public void testBug199392_Jar() throws CoreException {
@@ -1225,8 +1228,8 @@ public void testBug199392_Zip_SamePartCount() throws CoreException {
 }
 
 /**
- * @bug 210689: [search] Import references not found on working copies not written on disk
- * @test Ensure that import references are found when searching on working copies not written on disk
+ * bug 210689: [search] Import references not found on working copies not written on disk
+ * test Ensure that import references are found when searching on working copies not written on disk
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=210689"
  */
 public void testBug210689() throws CoreException {
@@ -1250,7 +1253,7 @@ public void testBug210689() throws CoreException {
 		);
 
 		// setup project P2
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] { "/P1" }, "");
 		createFolder("/P2/p");
 		createFile(
 			"/P2/p/B.java",
@@ -1294,15 +1297,15 @@ public void testBug210689() throws CoreException {
 }
 
 /**
- * @bug 229128: JDT Search finding matches in working copies that are not part of scope
- * @test Ensure that an annotation reference is not found in a working copy if outside the scope
+ * bug 229128: JDT Search finding matches in working copies that are not part of scope
+ * test Ensure that an annotation reference is not found in a working copy if outside the scope
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=229128"
  */
 public void testBug229128() throws CoreException {
 	ICompilationUnit[] copies = new ICompilationUnit[2];
 	try {
 		// setup project P1
-		createJavaProject("P1", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 		createFolder("/P1/p");
 		createFile(
 			"/P1/p/MyAnnot.java",
@@ -1320,7 +1323,7 @@ public void testBug229128() throws CoreException {
 		);
 
 		// setup project P2
-		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL15_LIB"}, new String[] { "/P1" }, "", "1.5");
+		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] { "/P1" }, "", CompilerOptions.getFirstSupportedJavaVersion());
 		createFolder("/P2/q");
 		copies[1] = getWorkingCopy(
 			"/P2/q/Y.java",
@@ -1352,8 +1355,8 @@ public void testBug229128() throws CoreException {
 }
 
 /**
- * @bug 229951: StackOverflowError during JavaSearchScope.add for large workspace
- * @test Ensure that no StackOverFlowError occurs when searching in a project referencing a cycle
+ * bug 229951: StackOverflowError during JavaSearchScope.add for large workspace
+ * test Ensure that no StackOverFlowError occurs when searching in a project referencing a cycle
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=229951"
  */
 public void testBug229951a() throws Exception {
@@ -1380,7 +1383,7 @@ public void testBug229951a() throws Exception {
 			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
 			"</classpath>"
 		);
-		createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P2"}, "");
+		createJavaProject("P3", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P2"}, "");
 		createFile(
 			"/P3/X229951.java",
 			"public class X229951 {\n" +
@@ -1399,8 +1402,8 @@ public void testBug229951a() throws Exception {
 }
 
 /**
- * @bug 229951: StackOverflowError during JavaSearchScope.add for large workspace
- * @test Ensure that no StackOverFlowError occurs when creating a search scope on a project referencing a cycle
+ * bug 229951: StackOverflowError during JavaSearchScope.add for large workspace
+ * test Ensure that no StackOverFlowError occurs when creating a search scope on a project referencing a cycle
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=229951"
  */
 public void testBug229951b() throws Exception {
@@ -1427,7 +1430,7 @@ public void testBug229951b() throws Exception {
 			"	<classpathentry kind=\"output\" path=\"bin\"/>\n" +
 			"</classpath>"
 		);
-		IJavaProject p3 = createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P2"}, "");
+		IJavaProject p3 = createJavaProject("P3", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P2"}, "");
 		createFile(
 			"/P3/X229951.java",
 			"public class X229951 {\n" +
@@ -1446,8 +1449,8 @@ public void testBug229951b() throws Exception {
 }
 
 /**
- * @bug 250454: [search] Cannot find method references between projects
- * @test Ensure that search does not find illegal references with given projects setup
+ * bug 250454: [search] Cannot find method references between projects
+ * test Ensure that search does not find illegal references with given projects setup
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=250454"
  */
 public void testBug250454() throws CoreException {
@@ -1464,7 +1467,7 @@ public void testBug250454() throws CoreException {
 		);
 
 		// setup project P1
-		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P0" }, "");
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] { "/P0" }, "");
 		createFolder("/P1/p");
 		createFile(
 			"/P1/p/Square.java",
@@ -1475,7 +1478,7 @@ public void testBug250454() throws CoreException {
 		);
 
 		// setup project P2
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P0" }, "");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] { "/P0" }, "");
 		createFolder("/P2/p");
 		createFile(
 			"/P2/p/ShapeUser.java",
@@ -1525,7 +1528,7 @@ public void testBug250454_jars() throws CoreException, IOException {
 		createJar(pathsAndContents, jarPath);
 
 		// setup project P1
-		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB", jarPath}, "");
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL18_LIB", jarPath}, "");
 		createFolder("/P1/p");
 		createFile(
 			"/P1/p/Square.java",
@@ -1536,7 +1539,7 @@ public void testBug250454_jars() throws CoreException, IOException {
 		);
 
 		// setup project P2
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB", jarPath}, "");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB", jarPath}, "");
 		createFolder("/P2/p");
 		createFile(
 			"/P2/p/ShapeUser.java",

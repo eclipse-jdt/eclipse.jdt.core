@@ -20,26 +20,12 @@ import static org.eclipse.jdt.core.search.IJavaSearchScope.SYSTEM_LIBRARIES;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-
+import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IClasspathAttribute;
-import org.eclipse.jdt.core.IClasspathContainer;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.ILocalVariable;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IModuleDescription;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.ReferenceMatch;
@@ -56,8 +42,6 @@ import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.TypeParameter;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
-
-import junit.framework.Test;
 
 /**
  * Non-regression tests for bugs fixed in Java Search engine.

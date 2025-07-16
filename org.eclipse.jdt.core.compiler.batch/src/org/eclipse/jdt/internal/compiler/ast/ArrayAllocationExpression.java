@@ -23,13 +23,17 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.List;
-
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationCollector;
-import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.flow.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.codegen.AnnotationContext;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class ArrayAllocationExpression extends Expression {
 
@@ -43,9 +47,9 @@ public class ArrayAllocationExpression extends Expression {
 
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-		for (int i = 0, max = this.dimensions.length; i < max; i++) {
+		for (Expression dimension : this.dimensions) {
 			Expression dim;
-			if ((dim = this.dimensions[i]) != null) {
+			if ((dim = dimension) != null) {
 				flowInfo = dim.analyseCode(currentScope, flowContext, flowInfo);
 				dim.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 			}
@@ -72,9 +76,9 @@ public class ArrayAllocationExpression extends Expression {
 		}
 
 		int explicitDimCount = 0;
-		for (int i = 0, max = this.dimensions.length; i < max; i++) {
+		for (Expression dimension : this.dimensions) {
 			Expression dimExpression;
-			if ((dimExpression = this.dimensions[i]) == null) break; // implicit dim, no further explict after this point
+			if ((dimExpression = dimension) == null) break; // implicit dim, no further explict after this point
 			dimExpression.generateCode(currentScope, codeStream, true);
 			explicitDimCount++;
 		}

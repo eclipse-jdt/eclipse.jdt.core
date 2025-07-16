@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJarEntryResource;
@@ -53,8 +52,8 @@ public class JarEntryFile  extends JarEntryResource {
 		if (Util.isJrt(root.getPath().toOSString())) {
 			try {
 				Object target = JavaModel.getTarget(root, false);
-				if (target != null && target instanceof File) {
-					return JRTUtil.getContentFromJrt((File) target, getEntryName(), root.getElementName());
+				if (target instanceof File file) {
+					return JRTUtil.getContentFromJrt(file, getEntryName(), root.getElementName());
 				}
 			} catch (IOException e) {
 				throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);

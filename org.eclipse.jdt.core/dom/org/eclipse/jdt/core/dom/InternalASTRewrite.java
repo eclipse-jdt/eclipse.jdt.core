@@ -15,13 +15,6 @@ package org.eclipse.jdt.core.dom;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-
-import org.eclipse.text.edits.MultiTextEdit;
-import org.eclipse.text.edits.TextEdit;
-
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.TextUtilities;
-
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.rewrite.TargetSourceRangeComputer;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScannerData;
@@ -33,6 +26,10 @@ import org.eclipse.jdt.internal.core.dom.rewrite.NodeRewriteEvent;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInfo;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.PropertyLocation;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.TextUtilities;
+import org.eclipse.text.edits.MultiTextEdit;
+import org.eclipse.text.edits.TextEdit;
 
 /**
  * Internal class: not intended to be used by client.
@@ -118,15 +115,15 @@ class InternalASTRewrite extends NodeEventHandler {
 				ASTNode orig = (ASTNode) this.clonedNodes.remove(node);
 				if (orig != null) {
 					List properties = node.structuralPropertiesForType();
-					for (int i= 0; i < properties.size(); i++) {
-						StructuralPropertyDescriptor property = (StructuralPropertyDescriptor) properties.get(i);
+					for (Object p : properties) {
+						StructuralPropertyDescriptor property = (StructuralPropertyDescriptor) p;
 						Object child = node.getStructuralProperty(property);
 						if (child instanceof ASTNode) {
 							markAsMoveOrCopyTarget(node, (ASTNode) child);
 						} else if (child instanceof List) {
 							List children = (List) child;
-							for (int j= 0; j < children.size(); j++) {
-								ASTNode clonedChild = (ASTNode) children.get(j);
+							for (Object c : children) {
+								ASTNode clonedChild = (ASTNode) c;
 								markAsMoveOrCopyTarget(node, clonedChild);
 							}
 						}

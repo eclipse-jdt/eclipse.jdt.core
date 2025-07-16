@@ -16,25 +16,22 @@ package org.eclipse.jdt.core.tests;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import org.eclipse.jdt.core.tests.compiler.parser.ComplianceDiagnoseTest;
 import org.eclipse.jdt.core.tests.compiler.parser.PatternMatchingSelectionTest;
-import org.eclipse.jdt.core.tests.compiler.regression.InstanceofPrimaryPatternTest;
-import org.eclipse.jdt.core.tests.compiler.regression.PatternMatching16Test;
-import org.eclipse.jdt.core.tests.compiler.regression.RecordPatternTest;
-import org.eclipse.jdt.core.tests.compiler.regression.SwitchExpressionsYieldTest;
-import org.eclipse.jdt.core.tests.compiler.regression.SwitchPatternTest;
-import org.eclipse.jdt.core.tests.compiler.regression.UnnamedPatternsAndVariablesTest;
+import org.eclipse.jdt.core.tests.compiler.regression.*;
 import org.eclipse.jdt.core.tests.dom.ASTConverter_GuardedPattern_Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverter_RecordPattern_Test;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
+import org.eclipse.jdt.core.tests.model.CompletionTestsForRecordPattern;
+import org.eclipse.jdt.core.tests.model.JavaSearchBugs19Tests;
+import org.eclipse.jdt.core.tests.model.ResolveTests12To15;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingInstanceOfPatternExpressionTest;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingRecordPatternTest;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingSwitchPatternTest;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class RunVariousPatternsTests extends TestCase {
@@ -45,6 +42,7 @@ public class RunVariousPatternsTests extends TestCase {
 	public static Class[] getAllTestClasses() {
 		return new Class[] {
 				RecordPatternTest.class,
+				RecordPatternProjectTest.class,
 				SwitchPatternTest.class,
 				InstanceofPrimaryPatternTest.class,
 				PatternMatching16Test.class,
@@ -56,6 +54,16 @@ public class RunVariousPatternsTests extends TestCase {
 				ASTRewritingRecordPatternTest.class,
 				ASTRewritingInstanceOfPatternExpressionTest.class,
 				ASTRewritingSwitchPatternTest.class,
+				ResolveTests12To15.class,
+				SwitchPatternTest22.class,
+				JavaSearchBugs19Tests.class,
+				CompletionTestsForRecordPattern.class,
+				NullAnnotationTests21.class,
+				ComplianceDiagnoseTest.class,
+				InstanceofExpressionTest.class,
+				PrimitiveInPatternsTest.class,
+				PrimitiveInPatternsTestSH.class,
+				JEP441SnippetsTest.class,
 		};
 	}
 

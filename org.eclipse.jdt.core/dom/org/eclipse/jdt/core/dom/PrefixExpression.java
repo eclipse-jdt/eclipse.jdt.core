@@ -103,8 +103,8 @@ public class PrefixExpression extends Expression {
 					COMPLEMENT,
 					NOT,
 				};
-			for (int i = 0; i < ops.length; i++) {
-				CODES.put(ops[i].toString(), ops[i]);
+			for (Operator op : ops) {
+				CODES.put(op.toString(), op);
 			}
 		}
 
@@ -179,7 +179,7 @@ public class PrefixExpression extends Expression {
 	 * The operand; lazily initialized; defaults to an unspecified,
 	 * but legal, simple name.
 	 */
-	private Expression operand = null;
+	private volatile Expression operand;
 
 	/**
 	 * Creates a new AST node for an prefix expression owned by the given
@@ -290,8 +290,7 @@ public class PrefixExpression extends Expression {
 			synchronized (this) {
 				if (this.operand == null) {
 					preLazyInit();
-					this.operand= new SimpleName(this.ast);
-					postLazyInit(this.operand, OPERAND_PROPERTY);
+					this.operand = postLazyInit(new SimpleName(this.ast), OPERAND_PROPERTY);
 				}
 			}
 		}

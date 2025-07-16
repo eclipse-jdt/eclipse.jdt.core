@@ -79,12 +79,12 @@ public class SynchronizedStatement extends Statement {
 	 * The expression; lazily initialized; defaults to an unspecified, but
 	 * legal, expression.
 	 */
-	private Expression expression = null;
+	private volatile Expression expression;
 
 	/**
 	 * The body; lazily initialized; defaults to an empty block.
 	 */
-	private Block body = null;
+	private volatile Block body;
 
 	/**
 	 * Creates a new unparented synchronized statement node owned by the given
@@ -170,8 +170,7 @@ public class SynchronizedStatement extends Statement {
 			synchronized (this) {
 				if (this.expression == null) {
 					preLazyInit();
-					this.expression = new SimpleName(this.ast);
-					postLazyInit(this.expression, EXPRESSION_PROPERTY);
+					this.expression = postLazyInit(new SimpleName(this.ast), EXPRESSION_PROPERTY);
 				}
 			}
 		}
@@ -210,8 +209,7 @@ public class SynchronizedStatement extends Statement {
 			synchronized (this) {
 				if (this.body == null) {
 					preLazyInit();
-					this.body = new Block(this.ast);
-					postLazyInit(this.body, BODY_PROPERTY);
+					this.body = postLazyInit(new Block(this.ast), BODY_PROPERTY);
 				}
 			}
 		}

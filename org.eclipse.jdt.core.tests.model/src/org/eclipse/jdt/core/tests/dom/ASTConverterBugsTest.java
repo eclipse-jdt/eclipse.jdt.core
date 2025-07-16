@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,11 +14,13 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Set;
 import junit.framework.Test;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -26,8 +28,10 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
 
 @SuppressWarnings("rawtypes")
@@ -125,8 +129,8 @@ protected void resolveASTs(ICompilationUnit[] cus, String[] bindingKeys, ASTRequ
 }
 
 /**
- * @bug 186410: [dom] StackOverflowError due to endless superclass bindings hierarchy
- * @test Ensures that the superclass of "java.lang.Object" class is null even when it's a recovered binding
+ * bug 186410: [dom] StackOverflowError due to endless superclass bindings hierarchy
+ * test Ensures that the superclass of "java.lang.Object" class is null even when it's a recovered binding
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=186410"
  */
 public void testBug186410() throws CoreException, IOException {
@@ -173,8 +177,8 @@ public void testBug186410b() throws CoreException, IOException {
 }
 
 /**
- * @bug 209150: [dom] Recovered type binding for "java.lang.Object" information are not complete
- * @test Ensures that getPackage() and getQualifiedName() works properly for the "java.lang.Object" recovered binding
+ * bug 209150: [dom] Recovered type binding for "java.lang.Object" information are not complete
+ * test Ensures that getPackage() and getQualifiedName() works properly for the "java.lang.Object" recovered binding
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=209150"
  */
 public void testBug209150a() throws CoreException, IOException {
@@ -249,8 +253,8 @@ public void testBug209150c() throws CoreException, IOException {
 }
 
 /**
- * @bug 212100: [dom] Can't create binding to inner class
- * @test Verify that the binding is well created for an inner class
+ * bug 212100: [dom] Can't create binding to inner class
+ * test Verify that the binding is well created for an inner class
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=212100"
  */
 public void testBug212100a() throws JavaModelException {
@@ -333,8 +337,8 @@ public void testBug212100b() throws JavaModelException {
 }
 
 /**
- * @bug 212834: [dom] IMethodBinding.getParameterAnnotations does not return annotations
- * @test Ensures that the method binding get the parameter annotations even on method invocation
+ * bug 212834: [dom] IMethodBinding.getParameterAnnotations does not return annotations
+ * test Ensures that the method binding get the parameter annotations even on method invocation
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=212834"
  */
 public void testBug212834() throws CoreException, IOException {
@@ -373,8 +377,8 @@ public void testBug212834() throws CoreException, IOException {
 }
 
 /**
- * @bug 212857: [dom] AST has wrong source range after parameter with array-valued annotation
- * @test Ensures that the method body has the right source range even when there's braces in its header
+ * bug 212857: [dom] AST has wrong source range after parameter with array-valued annotation
+ * test Ensures that the method body has the right source range even when there's braces in its header
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=212857"
  */
 public void testBug212857() throws CoreException, IOException {
@@ -484,8 +488,8 @@ public void testBug212857e() throws CoreException, IOException {
 }
 
 /**
- * @bug 213509: [dom] IMethodBinding.getParameterAnnotations returns annotations for wrong parameter
- * @test Ensures that all parameter annotations of a the method binding are correctly  returned
+ * bug 213509: [dom] IMethodBinding.getParameterAnnotations returns annotations for wrong parameter
+ * test Ensures that all parameter annotations of a the method binding are correctly  returned
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=213509"
  */
 public void testBug213509() throws CoreException, IOException {
@@ -550,8 +554,8 @@ public void testBug213509_invocation() throws CoreException, IOException {
 }
 
 /**
- * @bug 214002: [dom] NPE in MethodBinding.getParameterAnnotations()
- * @test Ensures that no NPE occurs when not all method parameters have annotations
+ * bug 214002: [dom] NPE in MethodBinding.getParameterAnnotations()
+ * test Ensures that no NPE occurs when not all method parameters have annotations
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=214002"
  */
 public void testBug214002() throws CoreException, IOException {
@@ -601,7 +605,7 @@ public void testBug214002b() throws CoreException, IOException {
 	);
 }
 	/**
-	 * @bug 212434: [dom] IllegalArgumentException during AST Creation
+	 * bug212434: [dom] IllegalArgumentException during AST Creation
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=212434"
 	 */
 	public void testBug212434a() throws CoreException, IOException {
@@ -641,8 +645,8 @@ public void testBug214002b() throws CoreException, IOException {
 		}
 	}
 /**
- * @bug 214647: [dom] NPE in MethodBinding.getParameterAnnotations(..)
- * @test Ensures that no NPE occurs when parameters have no annotation
+ * bug 214647: [dom] NPE in MethodBinding.getParameterAnnotations(..)
+ * test Ensures that no NPE occurs when parameters have no annotation
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=214647"
  */
 public void testBug214647() throws CoreException, IOException {
@@ -679,8 +683,8 @@ public void testBug214647b() throws CoreException, IOException {
 }
 
 /**
- * @bug 215759: DOM AST regression tests should be improved
- * @test these tests test the new DOM AST test framework
+ * bug 215759: DOM AST regression tests should be improved
+ * test these tests test the new DOM AST test framework
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=215759"
  */
 public void testBug215759a() throws CoreException {
@@ -794,7 +798,7 @@ public void testBug215759b() throws CoreException {
 			result);
 }
 /**
- * @bug 218824: [DOM/AST] incorrect code leads to IllegalArgumentException during AST creation
+ * bug 218824: [DOM/AST] incorrect code leads to IllegalArgumentException during AST creation
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=218824"
  */
 public void testBug218824a() throws JavaModelException {
@@ -883,7 +887,7 @@ public void testBug218824a() throws JavaModelException {
 			result);
 }
 /**
- * @bug 215137: [AST]Some malformed MethodDeclaration, their Block is null, but they actually have Block
+ * bug 215137: [AST]Some malformed MethodDeclaration, their Block is null, but they actually have Block
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=215137"
  */
 public void testBug215137a() throws JavaModelException {
@@ -995,8 +999,8 @@ public void testBug215137d() throws JavaModelException {
 			result);
 }
 /**
- * @bug 223838: [dom] AnnotationBinding.isRecovered() always return false
- * @test That the annotation binding is well flagged as recovered when the annotation is an unknown type
+ * bug 223838: [dom] AnnotationBinding.isRecovered() always return false
+ * test That the annotation binding is well flagged as recovered when the annotation is an unknown type
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=223838"
  */
 public void testBug223838() throws JavaModelException {
@@ -1020,8 +1024,8 @@ public void testBug223838() throws JavaModelException {
 	assertTrue("Expected recovered annotation binding!", annotations[1].isRecovered());
 }
 /**
- * @bug 223838: [dom] AnnotationBinding.isRecovered() always return false
- * @test That the annotation binding is not reported when the recovery is off
+ * bug 223838: [dom] AnnotationBinding.isRecovered() always return false
+ * test That the annotation binding is not reported when the recovery is off
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=223838"
  */
 public void testBug223838a() throws JavaModelException {
@@ -1046,8 +1050,8 @@ public void testBug223838a() throws JavaModelException {
 }
 
 /**
- * @bug 226357: NPE in MethodBinding.getParameterAnnotations() if some, but not all parameters are annotated
- * @test Verify that NPE does no longer occur on the given test case
+ * bug 226357: NPE in MethodBinding.getParameterAnnotations() if some, but not all parameters are annotated
+ * test Verify that NPE does no longer occur on the given test case
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=226357"
  */
 public void testBug226357() throws CoreException, IOException {
@@ -1325,5 +1329,120 @@ public void testBug381503() throws CoreException, IOException {
 	} finally {
 		deleteProject("P");
 	}
+}
+public void testGH3047() throws Exception {
+	Hashtable<String, String> options = JavaCore.getDefaultOptions();
+	options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_9);
+	options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_9);
+	options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_9);
+
+	createJava9Project("P");
+	createFolder("P/src");
+
+	String srcFolderInWS = "/P/src";
+	createFolder(srcFolderInWS + "/resources/examples/mockito");
+	String srcFilePathInWS = srcFolderInWS + "/resources/examples/mockito/MockingFromFinder.java";
+	createFile(srcFilePathInWS,
+						"""
+						package examples.mockito;
+						public class MockingFromFinder{}"""
+			);
+	srcFilePathInWS = srcFolderInWS + "/resources/examples/mockito/MockingWhileAdding.java";
+	createFile(srcFilePathInWS,
+						"""
+						package examples.mockito;
+						public class MockingWhileAdding {
+							public static void calculateWithAdder(int x, int y) {
+								IOperation adder = new Adder()::execute;
+							}
+							public interface IOperation {
+								int execute(int x, int y);
+							}
+							public static class Adder implements IOperation {
+								public int execute(int x, int y) {
+									return x+y;
+								}
+							}
+						}"""
+			);
+	String[] paths = new String[2];
+	paths[0] = getWorkspacePath() + "P/src/resources/examples/mockito/MockingFromFinder.java";
+	paths[1] = getWorkspacePath() + "P/src/resources/examples/mockito/MockingWhileAdding.java";
+	@SuppressWarnings("deprecation")
+	ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS9);
+	parser.setCompilerOptions(options);
+	parser.setResolveBindings(true);
+	parser.setStatementsRecovery(true);
+	parser.setBindingsRecovery(true);
+	parser.setEnvironment(null, new String[] {getWorkspacePath() + "P/src/resources"}, null, false);
+	parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	try {
+		parser.createASTs(paths, null, new String[] {}, null, null);
+		fail("Expected exception was not thrown");
+	} catch (IllegalStateException ise) {
+		assertEquals("Missing system library", ise.getMessage());
+	}
+}
+public void testGH3047_2() throws Exception {
+	Hashtable<String, String> options = JavaCore.getDefaultOptions();
+	options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_9);
+	options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_9);
+	options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_9);
+
+	IJavaProject javaProject = createJavaProject("P", new String[] {""}, new String[] {"CONVERTER_JCL18_LIB"}, "1.8");
+	createFolder("P/src");
+
+	String srcFolderInWS = "/P/src";
+	createFolder(srcFolderInWS + "/resources/examples/mockito");
+	String srcFilePathInWS = srcFolderInWS + "/resources/examples/mockito/MockingFromFinder.java";
+	createFile(srcFilePathInWS,
+						"""
+						package examples.mockito;
+						public class MockingFromFinder{}"""
+			);
+	srcFilePathInWS = srcFolderInWS + "/resources/examples/mockito/MockingWhileAdding.java";
+	createFile(srcFilePathInWS,
+						"""
+						package examples.mockito;
+						public class MockingWhileAdding {
+							public static void calculateWithAdder(int x, int y) {
+								IOperation adder = new Adder()::execute;
+							}
+							public interface IOperation {
+								int execute(int x, int y);
+							}
+							public static class Adder implements IOperation {
+								public int execute(int x, int y) {
+									return x+y;
+								}
+							}
+						}"""
+			);
+	String[] paths = new String[2];
+	paths[0] = getWorkspacePath() + "P/src/resources/examples/mockito/MockingFromFinder.java";
+	paths[1] = getWorkspacePath() + "P/src/resources/examples/mockito/MockingWhileAdding.java";
+	@SuppressWarnings("deprecation")
+	ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS9);
+	parser.setProject(javaProject);
+	parser.setCompilerOptions(options);
+	parser.setResolveBindings(true);
+	parser.setStatementsRecovery(true);
+	parser.setBindingsRecovery(true);
+	parser.setEnvironment(null, new String[] {getWorkspacePath() + "P/src/resources"}, null, false);
+	parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	Set<String> expectedProblems = new HashSet<>(Arrays.asList(
+			"Pb(324) The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files",
+			"Pb(140) Implicit super constructor Object() is undefined for default constructor. Must define an explicit constructor"
+			));
+	Set<String> actualProblems = new HashSet<>();
+	class MyFileASTRequestor extends FileASTRequestor {
+		@Override
+		public void acceptAST(String sourceFilePath, CompilationUnit cu) {
+			for (IProblem prob :  cu.getProblems())
+				actualProblems.add(prob.toString());
+		}
+	}
+	parser.createASTs(paths, null, new String[] {}, new MyFileASTRequestor() {}, null);
+	assertEquals(expectedProblems, actualProblems);
 }
 }

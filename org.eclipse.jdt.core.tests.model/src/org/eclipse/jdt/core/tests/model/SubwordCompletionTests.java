@@ -15,13 +15,11 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.Hashtable;
 import java.util.function.Predicate;
-
+import junit.framework.Test;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-
-import junit.framework.Test;
 
 public class SubwordCompletionTests extends AbstractJavaModelCompletionTests {
 
@@ -44,21 +42,6 @@ public void setUpSuite() throws Exception {
 	options.put(JavaCore.CODEASSIST_SUBWORD_MATCH, JavaCore.ENABLED);
 	this.defaultOptions = options;
 	JavaCore.setOptions(options);
-}
-public void tearDownSuite() throws Exception {
-	if (COMPLETION_SUITES == null) {
-		deleteProject("Completion");
-	} else {
-		COMPLETION_SUITES.remove(getClass());
-		if (COMPLETION_SUITES.size() == 0) {
-			deleteProject("Completion");
-			COMPLETION_SUITES = null;
-		}
-	}
-	if (COMPLETION_SUITES == null) {
-		COMPLETION_PROJECT = null;
-	}
-	super.tearDownSuite();
 }
 
 @Override

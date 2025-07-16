@@ -44,8 +44,8 @@ public TypeBinding[] getSubstitutes(TypeVariableBinding typeVariable, int constr
  * Returns true if any unresolved variable is detected, i.e. any variable is substituted with itself
  */
 public boolean hasUnresolvedTypeArgument() {
-	for (int i = 0, varLength = this.substitutes.length; i <varLength; i++) {
-		if (this.substitutes[i] == null) {
+	for (TypeBinding substitute : this.substitutes) {
+		if (substitute == null) {
 			return true;
 		}
 	}
@@ -81,8 +81,8 @@ public void recordSubstitute(TypeVariableBinding typeVariable, TypeBinding actua
 public String toString() {
 	StringBuilder buffer = new StringBuilder(20);
 	buffer.append("InferenceContex for ");//$NON-NLS-1$
-	for (int i = 0, length = this.genericMethod.typeVariables.length; i < length; i++) {
-		buffer.append(this.genericMethod.typeVariables[i]);
+	for (TypeVariableBinding typeVariable : this.genericMethod.typeVariables) {
+		buffer.append(typeVariable);
 	}
 	buffer.append(this.genericMethod);
 	buffer.append("\n\t[status=");//$NON-NLS-1$
@@ -106,7 +106,7 @@ public String toString() {
 		for (int j = TypeConstants.CONSTRAINT_EQUAL; j <= TypeConstants.CONSTRAINT_SUPER; j++) {
 			TypeBinding[] constraintCollected = collected[j];
 			if (constraintCollected != null) {
-				for (int k = 0, clength = constraintCollected.length; k < clength; k++) {
+				for (TypeBinding binding : constraintCollected) {
 					buffer.append("\n\t\t").append(this.genericMethod.typeVariables[i].sourceName); //$NON-NLS-1$
 					switch (j) {
 						case TypeConstants.CONSTRAINT_EQUAL :
@@ -119,8 +119,8 @@ public String toString() {
 							buffer.append(">:"); //$NON-NLS-1$
 							break;
 					}
-					if (constraintCollected[k] != null) {
-						buffer.append(constraintCollected[k].shortReadableName());
+					if (binding != null) {
+						buffer.append(binding.shortReadableName());
 					}
 				}
 			}

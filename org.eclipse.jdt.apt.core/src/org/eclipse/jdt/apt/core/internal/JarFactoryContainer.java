@@ -19,11 +19,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 
 /**
@@ -105,7 +105,7 @@ public abstract class JarFactoryContainer extends FactoryContainer
     protected static void readServiceProvider(InputStream is, String serviceName, Map<String, String> classNames) throws IOException {
     	BufferedReader rd = null;
     	try {
-	        rd = new BufferedReader(new InputStreamReader(is, "UTF-8")); //$NON-NLS-1$
+	        rd = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
 	        for (String line = rd.readLine(); line != null; line = rd.readLine()) {
 	            // hack off any comments
 	            int iComment = line.indexOf('#');

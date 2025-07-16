@@ -17,7 +17,6 @@ import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 
 import java.util.HashMap;
 import java.util.Iterator;
-
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -96,14 +95,15 @@ public class SetVariablesOperation extends ChangeClasspathOperation {
 				return;
 
 			IJavaProject[] projects = model.getJavaProjects();
-			nextProject : for (int i = 0, projectLength = projects.length; i < projectLength; i++){
-				JavaProject project = (JavaProject) projects[i];
+
+			nextProject:
+			for (IJavaProject p : projects) {
+				JavaProject project = (JavaProject) p;
 
 				// check to see if any of the modified variables is present on the classpath
 				IClasspathEntry[] classpath = project.getRawClasspath();
-				for (int j = 0, cpLength = classpath.length; j < cpLength; j++){
+				for (IClasspathEntry entry : classpath) {
 
-					IClasspathEntry entry = classpath[j];
 					for (int k = 0; k < varLength; k++){
 
 						String variableName = this.variableNames[k];

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2020, 2022 GK Software SE and others.
+    Copyright (c) 2020, 2024 GK Software SE and others.
 
     This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
@@ -13,10 +13,10 @@
         IBM Corporation - initial API and implementation
  -->
 
-<project name="export-JCLmins" default="allConverterJcls" basedir=".">
+<project name="export-JCLmins" default="build" basedir=".">
 	<property name="jclbase" value="${basedir}/../../JCL"/>
 	
-	<target name="build" depends="converterJclMin"/>
+	<target name="build" depends="allConverterJcls,allJclMins"/>
 	
 	<target name="allConverterJcls">
 		<!--antcall target="converterJclMin">
@@ -79,6 +79,14 @@
 			<param name="compliance" value="21"/>
 			<param name="suffix" value="21"/>
 		</antcall>
+		<antcall target="converterJclMin">
+			<param name="compliance" value="22"/>
+			<param name="suffix" value="22"/>
+		</antcall>
+		<antcall target="converterJclMin">
+			<param name="compliance" value="23"/>
+			<param name="suffix" value="23"/>
+		</antcall>
 	</target>
 	<target name="converterJclMin">
 		<mkdir dir="${jclbase}/converterJclMin${suffix}/bin" />
@@ -92,5 +100,92 @@
 		<zip destfile="${basedir}/converterJclMin${suffix}src.zip">
 			<fileset dir="${jclbase}/converterJclMin${suffix}/src" />
 		</zip>
+	</target>
+	
+	<target name="allJclMins">
+		<antcall target="jclMin_notModular">
+			<param name="compliance" value="1.8"/>
+			<param name="suffix" value="1.8"/>
+		</antcall>
+		<antcall target="jclMin_modular">
+			<param name="compliance" value="9"/>
+			<param name="suffix" value="9"/>
+		</antcall>
+		<antcall target="jclMin_modular">
+			<param name="compliance" value="10"/>
+			<param name="suffix" value="10"/>
+		</antcall>
+		<antcall target="jclMin_modular">
+			<param name="compliance" value="11"/>
+			<param name="suffix" value="11"/>
+		</antcall>
+		<antcall target="jclMin_modular">
+			<param name="compliance" value="12"/>
+			<param name="suffix" value="12"/>
+		</antcall>
+		<antcall target="jclMin_modular">
+			<param name="compliance" value="13"/>
+			<param name="suffix" value="13"/>
+		</antcall>
+		<antcall target="jclMin_modular">
+			<param name="compliance" value="14"/>
+			<param name="suffix" value="14"/>
+		</antcall>
+		<!--	no jclMin15 exists -->
+		<antcall target="jclMin_modular">
+			<param name="compliance" value="17"/>
+			<param name="suffix" value="17"/>
+		</antcall>
+		<!--	no jclMin18 exists -->
+		<!--	no jclMin19 exists -->
+		<!--	no jclMin20 exists -->
+		<antcall target="jclMin_modular">
+			<param name="compliance" value="21"/>
+			<param name="suffix" value="21"/>
+		</antcall>
+		<antcall target="jclMin_modular">
+			<param name="compliance" value="22"/>
+			<param name="suffix" value="22"/>
+		</antcall>
+		<antcall target="jclMin_modular">
+			<param name="compliance" value="23"/>
+			<param name="suffix" value="23"/>
+		</antcall>
+	</target>
+	<target name="jclMin_notModular">
+		<mkdir dir="${jclbase}/jclMin${suffix}/bin" />
+		<javac srcdir="${jclbase}/jclMin${suffix}/src" destdir="${jclbase}/jclMin${suffix}/bin"
+					debuglevel="lines,vars,source"
+					source="${compliance}"
+					target="${compliance}">
+			<compilerarg line="-Xlint:none"/>
+		</javac>
+		<jar destfile="${basedir}/jclMin${suffix}.jar" basedir="${jclbase}/jclMin${suffix}/bin"/>
+		<zip destfile="${basedir}/jclMin${suffix}src.zip">
+			<fileset dir="${jclbase}/jclMin${suffix}/src" />
+		</zip>
+	</target>
+	<target name="jclMin_modular">
+		<mkdir dir="${jclbase}/jclMin${suffix}/bin" />
+		<javac srcdir="${jclbase}/jclMin${suffix}/src" destdir="${jclbase}/jclMin${suffix}/bin"
+					debuglevel="lines,vars,source"
+					source="${compliance}"
+					target="${compliance}">
+			<compilerarg line="-Xlint:none --patch-module java.base=${jclbase}/jclMin${suffix}/src"/>
+		</javac>
+		<jar destfile="${basedir}/jclMin${suffix}.jar" basedir="${jclbase}/jclMin${suffix}/bin"/>
+		<zip destfile="${basedir}/jclMin${suffix}src.zip">
+			<fileset dir="${jclbase}/jclMin${suffix}/src" />
+		</zip>
+	</target>
+	<target name="javax23api">
+		<mkdir dir="${jclbase}/javax23api/bin" />
+		<javac srcdir="${jclbase}/javax23api/src" destdir="${jclbase}/javax23api/bin"
+					debuglevel="lines,source"
+					source="17"
+					target="17">
+			<compilerarg line="-Xlint:none"/>
+		</javac>
+		<jar destfile="${basedir}/javax23api.jar" basedir="${jclbase}/javax23api/bin"/>
 	</target>
 </project>

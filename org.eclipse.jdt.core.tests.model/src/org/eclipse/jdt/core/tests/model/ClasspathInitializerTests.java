@@ -18,21 +18,35 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
+import junit.framework.Test;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.ILogListener;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.model.Semaphore.TimeOutException;
+import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.UserLibrary;
 import org.eclipse.jdt.internal.core.UserLibraryClasspathContainer;
-
-import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ClasspathInitializerTests extends ModifyingResourceTests {
@@ -97,11 +111,7 @@ static {
 }
 @Override
 protected void tearDown() throws Exception {
-	// Cleanup caches
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	manager.containers = new HashMap(5);
-	manager.variables = new HashMap(5);
-
+	Util.cleanupClassPathVariablesAndContainers();
 	super.tearDown();
 }
 
@@ -1376,7 +1386,7 @@ public void testVariableInitializer11() throws CoreException {
 }
 
 /**
- * @bug 138599: [model][classpath] Need a way to mark a classpath variable as deprecated
+ * bug 138599: [model][classpath] Need a way to mark a classpath variable as deprecated
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=138599"
  */
 public void testVariableInitializerDeprecated() throws CoreException, IOException {
@@ -1395,7 +1405,7 @@ public void testVariableInitializerDeprecated() throws CoreException, IOExceptio
 		addLibrary(project, "lib.jar", null, new String[0],
 				new String[]{"META-INF/MANIFEST.MF",
 					"Manifest-Version: 1.0\n"} ,
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_DEPRECATED"), null, null);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(project, variable, false);
 		assertStatus("Classpath variable 'TEST_DEPRECATED' in project 'P1' is deprecated: Test deprecated flag", status);
@@ -1433,7 +1443,7 @@ public void testVariableInitializerUnboundAndDeprecated() throws CoreException {
 }
 
 /**
- * @bug 156226: [model][classpath] Allow classpath variable to be marked as non modifiable
+ * bug 156226: [model][classpath] Allow classpath variable to be marked as non modifiable
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=156226"
  */
 public void testVariableInitializerReadOnly() throws CoreException, IOException {
@@ -1452,7 +1462,7 @@ public void testVariableInitializerReadOnly() throws CoreException, IOException 
 		addLibrary(project, "lib.jar", null, new String[0],
 				new String[]{"META-INF/MANIFEST.MF",
 					"Manifest-Version: 1.0\n"} ,
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_READ_ONLY"), null, null);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(project, variable, false);
 		assertStatus("OK", status);
@@ -1480,7 +1490,7 @@ public void testVariableInitializerDeprecatedAndReadOnly() throws CoreException,
 		addLibrary(project, "lib.jar", null, new String[0],
 				new String[]{"META-INF/MANIFEST.MF",
 					"Manifest-Version: 1.0\n"} ,
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_DEPRECATED_READ_ONLY"), null, null);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(project, variable, false);
 		assertStatus("Classpath variable 'TEST_DEPRECATED_READ_ONLY' in project 'P1' is deprecated: A deprecated and read-only initializer", status);
@@ -1494,7 +1504,7 @@ public void testVariableInitializerDeprecatedAndReadOnly() throws CoreException,
 }
 
 /**
- * @bug 172207: [model] Marker for deprecated classpath variable should always have WARNING severity
+ * bug 172207: [model] Marker for deprecated classpath variable should always have WARNING severity
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=172207"
  */
 public void testVariableInitializerBug172207() throws CoreException, IOException {
@@ -1514,7 +1524,7 @@ public void testVariableInitializerBug172207() throws CoreException, IOException
 		addLibrary(project, "lib.jar", null, new String[0],
 				new String[]{"META-INF/MANIFEST.MF",
 					"Manifest-Version: 1.0\n"} ,
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("TEST_DEPRECATED_READ_ONLY"), null, null);
 		IClasspathEntry[] entries = project.getRawClasspath();
 		int length = entries.length;
@@ -1537,8 +1547,8 @@ public void testVariableInitializerBug172207() throws CoreException, IOException
 }
 
 /**
- * @bug 186113: [model] classpath variable deprecation messages not initialized when called
- * @test	a) Verify that deprecation message can be get through {@link JavaCore#getClasspathVariableDeprecationMessage(String)}
+ * bug 186113: [model] classpath variable deprecation messages not initialized when called
+ * test	a) Verify that deprecation message can be get through {@link JavaCore#getClasspathVariableDeprecationMessage(String)}
  * 	even if the variable initializer was not called before
  * 			b) Verify that message is not stored in cache when variable is not initialized (othwerise we could not free it up...)
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=186113"
@@ -1555,8 +1565,8 @@ public void testVariableInitializerBug186113b() throws CoreException {
 }
 
 /**
- * @bug 200449: [model] classpath variable deprecation messages not initialized when called
- * @test	a) Verify that deprecation message is well stored in cache when variable is iniatialized
+ * bug 200449: [model] classpath variable deprecation messages not initialized when called
+ * test	a) Verify that deprecation message is well stored in cache when variable is iniatialized
  * 			b) Verify that deprecation message is well removed in cache when variable is removed
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=200449"
  */

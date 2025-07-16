@@ -13,6 +13,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.env;
 
+import com.sun.mirror.apt.AnnotationProcessorFactory;
+import com.sun.mirror.apt.AnnotationProcessorListener;
+import com.sun.mirror.apt.Filer;
+import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -47,11 +50,6 @@ import org.eclipse.jdt.core.dom.Annotation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
-
-import com.sun.mirror.apt.AnnotationProcessorFactory;
-import com.sun.mirror.apt.AnnotationProcessorListener;
-import com.sun.mirror.apt.Filer;
-import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 
 /** Base environment to be used during reconcile or build */
 public abstract class AbstractCompilationEnv

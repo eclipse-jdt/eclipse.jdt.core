@@ -13,13 +13,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.Arrays;
-
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
@@ -28,12 +31,11 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
-import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
+import org.eclipse.jdt.internal.core.JarPackageFragmentRootInfo.PackageContent;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -48,6 +50,14 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 
 	public static final ThreadLocal<Boolean> workingOnOldClasspath = new ThreadLocal<>();
 
+	record JrtModuleKey(File image, String moduleName, String classNameSubFolder) {/** nothing */}
+	/**
+	 * static cache for org.eclipse.jdt.internal.core.JarPackageFragmentRootInfo.rawPackageInfo across JarPackageFragmentRoot instances per java project
+	 *
+	 * @see org.eclipse.jdt.internal.core.JarPackageFragmentRootInfo#rawPackageInfo
+	 **/
+	private static final Map<JrtModuleKey, Map<List<String>, PackageContent>> childrenCache = new ConcurrentHashMap<>();
+
 	/**
 	 * Constructs a package fragment root which represents a module
 	 * contained in a JRT.
@@ -59,42 +69,52 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 
 	@Override
 	protected boolean computeChildren(OpenableElementInfo info, IResource underlyingResource) throws JavaModelException {
-		final HashtableOfArrayToObject rawPackageInfo = new HashtableOfArrayToObject();
-		final String compliance = CompilerOptions.VERSION_1_8; // TODO: Java 9 Revisit
-
-		// always create the default package
-		rawPackageInfo.put(CharOperation.NO_STRINGS, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
-
-		try {
-			org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(this.jarPath.toFile(),
-					new org.eclipse.jdt.internal.compiler.util.JRTUtil.JrtFileVisitor<Path>() {
-				@Override
-				public FileVisitResult visitPackage(Path dir, Path mod, BasicFileAttributes attrs) throws IOException {
-					initRawPackageInfo(rawPackageInfo, dir.toString(), true, compliance);
-					return FileVisitResult.CONTINUE;
-				}
-
-				@Override
-				public FileVisitResult visitFile(Path path, Path mod, BasicFileAttributes attrs) throws IOException {
-					initRawPackageInfo(rawPackageInfo, path.toString(), false, compliance);
-					return FileVisitResult.CONTINUE;
-				}
-
-				@Override
-				public FileVisitResult visitModule(Path path, String name) throws IOException {
-					if (!JrtPackageFragmentRoot.this.moduleName.equals(name)) {
-						return FileVisitResult.SKIP_SUBTREE;
-					}
-					return FileVisitResult.CONTINUE;
-				}
-			}, JRTUtil.NOTIFY_ALL);
-		} catch (IOException e) {
-			Util.log(e, "Error reading modules" + toStringWithAncestors()); //$NON-NLS-1$
-		}
-
-		info.setChildren(createChildren(rawPackageInfo));
+		JrtModuleKey key = new JrtModuleKey(this.jarPath.toFile(), this.moduleName, getClassNameSubFolder());
+		Map<List<String>, PackageContent> rawPackageInfo;
+		rawPackageInfo = childrenCache.computeIfAbsent(key, JrtPackageFragmentRoot::computeChildren);
+		info.setChildren(createChildren(rawPackageInfo.keySet()));
 		((JarPackageFragmentRootInfo) info).rawPackageInfo = rawPackageInfo;
 		return true;
+	}
+
+	/** static implementation to make sure the result can be shared across instances*/
+	private static Map<List<String>, PackageContent> computeChildren(JrtModuleKey key) {
+		Map<List<String>, PackageContent> rawPackageInfo= new HashMap<>();
+		File image= key.image();
+		String moduleName= key.moduleName();
+		String classNameSubFolder= key.classNameSubFolder();
+		String compliance = CompilerOptions.VERSION_1_8; // TODO: Java 9 Revisit
+		// always create the default package
+		rawPackageInfo.put(List.of(), new PackageContent());
+		try {
+			org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(image,
+					new org.eclipse.jdt.internal.compiler.util.JRTUtil.JrtFileVisitor<Path>() {
+						@Override
+						public FileVisitResult visitPackage(Path dir, Path mod, BasicFileAttributes attrs)
+								throws IOException {
+							initRawPackageInfo(rawPackageInfo, classNameSubFolder, dir.toString(), true, compliance);
+							return FileVisitResult.CONTINUE;
+						}
+
+						@Override
+						public FileVisitResult visitFile(Path path, Path mod, BasicFileAttributes attrs)
+								throws IOException {
+							initRawPackageInfo(rawPackageInfo, classNameSubFolder, path.toString(), false, compliance);
+							return FileVisitResult.CONTINUE;
+						}
+
+						@Override
+						public FileVisitResult visitModule(Path path, String name) throws IOException {
+							if (!moduleName.equals(name)) {
+								return FileVisitResult.SKIP_SUBTREE;
+							}
+							return FileVisitResult.CONTINUE;
+						}
+					}, JRTUtil.NOTIFY_ALL);
+		} catch (IOException e) {
+			Util.log(e, "Error reading modules" + image); //$NON-NLS-1$
+		}
+		return unmodifiableCopy(rawPackageInfo);
 	}
 	@Override
 	SourceMapper createSourceMapper(IPath sourcePath, IPath rootPath) throws JavaModelException {

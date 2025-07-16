@@ -22,7 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
@@ -38,7 +37,6 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
-
 import org.eclipse.jdt.apt.pluggable.tests.ModelTests;
 import org.eclipse.jdt.apt.pluggable.tests.ProcessorTestStatus;
 import org.eclipse.jdt.apt.pluggable.tests.annotations.LookAt;

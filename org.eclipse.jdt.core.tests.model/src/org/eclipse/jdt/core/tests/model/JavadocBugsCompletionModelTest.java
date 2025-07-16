@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,7 +14,6 @@
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -43,7 +42,7 @@ public static Test suite() {
 @Override
 protected void setUp() throws Exception {
 	super.setUp();
-	setUpProjectOptions(CompilerOptions.VERSION_1_4);
+	setUpProjectOptions(CompilerOptions.getFirstSupportedJavaVersion());
 }
 
 /**
@@ -66,7 +65,7 @@ public void testBug3270() throws JavaModelException {
 		);
 	} else {
 		assertSortedResults(
-			"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DRICUNREETE+"}\n" +
+			"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DRICUNREETEJ+"}\n" +
 			"BasicTestBugs[TYPE_REF]{BasicTestBugs, javadoc.bugs, Ljavadoc.bugs.BasicTestBugs;, null, null, "+this.positions+R_DRICUNR+"}"
 		);
 	}
@@ -82,8 +81,10 @@ public void testBug3270a() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "I");
 	assertSortedResults(
-		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DRICUNREEET+"}\n" +
-		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DRICUNRE+"}"
+		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DRICUNREEETJ+"}\n" +
+		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DRICUNREJ+"}\n"+
+		"Inherited[TYPE_REF]{java.lang.annotation.Inherited, java.lang.annotation, Ljava.lang.annotation.Inherited;, null, null, "+this.positions+R_DRICNRJ+"}\n" +
+		"Iterator[TYPE_REF]{java.util.Iterator, java.util, Ljava.util.Iterator;, null, null, "+this.positions+R_DRICNRJ+"}"
 	);
 }
 public void testBug3270b() throws JavaModelException {
@@ -97,8 +98,8 @@ public void testBug3270b() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "Cl");
 	assertSortedResults(
-		"CloneNotSupportedException[TYPE_REF]{CloneNotSupportedException, java.lang, Ljava.lang.CloneNotSupportedException;, null, null, "+this.positions+R_DRICUNRE+"}\n" +
-		"Class[TYPE_REF]{Class, java.lang, Ljava.lang.Class;, null, null, "+this.positions+R_DRICUNR+"}"
+		"CloneNotSupportedException[TYPE_REF]{CloneNotSupportedException, java.lang, Ljava.lang.CloneNotSupportedException;, null, null, "+this.positions+R_DRICUNREJ+"}\n" +
+		"Class[TYPE_REF]{Class, java.lang, Ljava.lang.Class;, null, null, "+this.positions+R_DRICUNRJ+"}"
 	);
 }
 
@@ -118,8 +119,8 @@ public void testBug22043() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/bugs/BasicTestBugs.java", source, true, "S", 2); // 2nd occurence
 	assertSortedResults(
-		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DRICUNR+"}\n" +
-		"Serializable[TYPE_REF]{java.io.Serializable, java.io, Ljava.io.Serializable;, null, null, "+this.positions+R_DRICNR+"}\n" +
+		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DRICUNRJ+"}\n" +
+		"Serializable[TYPE_REF]{java.io.Serializable, java.io, Ljava.io.Serializable;, null, null, "+this.positions+R_DRICNRJ+"}\n" +
 		"short[KEYWORD]{short, null, null, short, null, "+this.positions+R_DRINR+"}"
 	);
 }
@@ -261,8 +262,8 @@ public void testBug68757b() throws JavaModelException {
 
 /**
  * Bug 75551: [javadoc][assist] javadoc completion for links to method with inner classes as argument is not correct
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=75551"
  * TODO (frederic) fix while fixing bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=96237
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=75551"
  */
 public void _testBug75551() throws JavaModelException {
 	String[] sources = {
@@ -316,7 +317,7 @@ public void testBug86112() throws JavaModelException {
 		"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DRICNRNS+"}\n" +
 		"equals[METHOD_REF]{equals(Object), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+this.positions+R_DRICNRNS+"}\n" +
 		"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, "+this.positions+R_DRICNRNS+"}\n" +
-		"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, "+this.positions+R_DRICNRNS+"}\n" +
 		"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+this.positions+R_DRICNRNS+"}\n" +
 		"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, "+this.positions+R_DRICNRNS+"}\n" +
 		"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, "+this.positions+R_DRICNRNS+"}\n" +
@@ -333,7 +334,7 @@ public void testBug86112() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=87868"
  */
 public void testBug87868() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
+	setUpProjectOptions(CompilerOptions.getFirstSupportedJavaVersion());
 	String source =
 		"package javadoc.bugs;\n" +
 		"public class BasicTestBugs<S> {\n" +
@@ -353,7 +354,7 @@ public void testBug87868() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=113374"
  */
 public void testBug113374a() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
+	setUpProjectOptions(CompilerOptions.getFirstSupportedJavaVersion());
 	String source =
 		"package javadoc.bugs;\n" +
 		"/** \n" +
@@ -365,7 +366,7 @@ public void testBug113374a() throws JavaModelException {
 	assertSortedResults("");
 }
 public void testBug113374b() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
+	setUpProjectOptions(CompilerOptions.getFirstSupportedJavaVersion());
 	String source =
 		"package javadoc.bugs;\n" +
 		"/** \n" +
@@ -382,7 +383,7 @@ public void testBug113374b() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=113376"
  */
 public void testBug113376a() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
+	setUpProjectOptions(CompilerOptions.getFirstSupportedJavaVersion());
 	String[] sources = {
 		"/Completion/src/javadoc/bugs/BasicTestFields.java",
 			"package javadoc.bugs;\n" +
@@ -404,7 +405,7 @@ public void testBug113376a() throws JavaModelException {
 	);
 }
 public void testBug113376b() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
+	setUpProjectOptions(CompilerOptions.getFirstSupportedJavaVersion());
 	String[] sources = {
 		"/Completion/src/javadoc/bugs/BasicTestFields.java",
 			"package javadoc.bugs;\n" +
@@ -650,8 +651,8 @@ public void testBug117183c() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "Obj");
 	assertSortedResults(
-		"Object[JAVADOC_TYPE_REF]{{@link Object}, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNRIT+"}\n" +
-		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNR+"}"
+		"Object[JAVADOC_TYPE_REF]{{@link Object}, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNRITJ+"}\n" +
+		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNRJ+"}"
 	);
 }
 public void testBug117183d() throws JavaModelException {
@@ -666,8 +667,8 @@ public void testBug117183d() throws JavaModelException {
 	};
 	completeInJavadoc(sources, true, "Str");
 	assertSortedResults(
-		"String[JAVADOC_TYPE_REF]{{@link String}, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DRICUNRIT+"}\n" +
-		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DRICUNR+"}"
+		"String[JAVADOC_TYPE_REF]{{@link String}, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DRICUNRITJ+"}\n" +
+		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DRICUNRJ+"}"
 	);
 }
 
@@ -685,12 +686,12 @@ public void testBug118105() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/bugs/b118105/BasicTestBugs.java", source, true, "Str");
 	assertSortedResults(
-		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DRICUNR+"}"
+		"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+this.positions+R_DRICUNRJ+"}"
 	);
 }
 
 /**
- * Bug 118092: [javadoc][assist] Eclipse hangs on code assist when writing \u00B8<c
+ * Bug 118092: [javadoc][assist] Eclipse hangs on code assist when writing {@code \u00B8<c}
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=118092"
  */
 public void testBug118092() throws JavaModelException {
@@ -722,9 +723,11 @@ public void testBug118311() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/bugs/b118311/BasicTestBugs.java", source, true, "@");
 	assertSortedResults(
+		"code[JAVADOC_INLINE_TAG]{{@code}, null, null, code, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"literal[JAVADOC_INLINE_TAG]{{@literal}, null, null, literal, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
@@ -802,8 +805,8 @@ public void testBug118397d() throws JavaModelException {
 }
 
 /**
- * @bug 139621: [javadoc][assist] No Javadoc completions if there's no member below
- * @test Ensure that completion happens in an orphan javadoc (ie. a javadoc comment not attached to a declaration
+ * bug 139621: [javadoc][assist] No Javadoc completions if there's no member below
+ * test Ensure that completion happens in an orphan javadoc (ie. a javadoc comment not attached to a declaration
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=139621"
  */
 public void testBug139621a() throws JavaModelException {
@@ -817,7 +820,7 @@ public void testBug139621a() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "Obj");
 	assertSortedResults(
-		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNR+"}"
+		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNRJ+"}"
 	);
 }
 public void testBug139621b() throws JavaModelException {
@@ -835,7 +838,7 @@ public void testBug139621b() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "Obj");
 	assertSortedResults(
-		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNR+"}"
+		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNRJ+"}"
 	);
 }
 public void testBug139621c() throws JavaModelException {
@@ -850,14 +853,19 @@ public void testBug139621c() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "@");
 	assertSortedResults(
+		"apiNote[JAVADOC_BLOCK_TAG]{@apiNote, null, null, apiNote, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"author[JAVADOC_BLOCK_TAG]{@author, null, null, author, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"category[JAVADOC_BLOCK_TAG]{@category, null, null, category, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"code[JAVADOC_INLINE_TAG]{{@code}, null, null, code, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"deprecated[JAVADOC_BLOCK_TAG]{@deprecated, null, null, deprecated, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"exception[JAVADOC_BLOCK_TAG]{@exception, null, null, exception, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"implNote[JAVADOC_BLOCK_TAG]{@implNote, null, null, implNote, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"implSpec[JAVADOC_BLOCK_TAG]{@implSpec, null, null, implSpec, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"inheritDoc[JAVADOC_INLINE_TAG]{{@inheritDoc}, null, null, inheritDoc, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"literal[JAVADOC_INLINE_TAG]{{@literal}, null, null, literal, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"param[JAVADOC_BLOCK_TAG]{@param, null, null, param, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"return[JAVADOC_BLOCK_TAG]{@return, null, null, return, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"see[JAVADOC_BLOCK_TAG]{@see, null, null, see, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
@@ -883,10 +891,12 @@ public void testBug139621d() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "@", 2);
 	assertSortedResults(
+		"code[JAVADOC_INLINE_TAG]{{@code}, null, null, code, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"inheritDoc[JAVADOC_INLINE_TAG]{{@inheritDoc}, null, null, inheritDoc, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"literal[JAVADOC_INLINE_TAG]{{@literal}, null, null, literal, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
@@ -906,7 +916,7 @@ public void testBug139621e() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "Obj");
 	assertSortedResults(
-		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNR+"}"
+		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNRJ+"}"
 	);
 }
 public void testBug139621f() throws JavaModelException {
@@ -925,7 +935,7 @@ public void testBug139621f() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "Obj");
 	assertSortedResults(
-		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNR+"}"
+		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNRJ+"}"
 	);
 }
 public void testBug139621g() throws JavaModelException {
@@ -937,7 +947,7 @@ public void testBug139621g() throws JavaModelException {
 		" */\n";
 	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "Obj");
 	assertSortedResults(
-		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNR+"}"
+		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNRJ+"}"
 	);
 }
 public void testBug139621h() throws JavaModelException {
@@ -950,12 +960,18 @@ public void testBug139621h() throws JavaModelException {
 		" */\n";
 	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "@");
 	assertSortedResults(
+		"apiNote[JAVADOC_BLOCK_TAG]{@apiNote, null, null, apiNote, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"author[JAVADOC_BLOCK_TAG]{@author, null, null, author, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"category[JAVADOC_BLOCK_TAG]{@category, null, null, category, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"code[JAVADOC_INLINE_TAG]{{@code}, null, null, code, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"deprecated[JAVADOC_BLOCK_TAG]{@deprecated, null, null, deprecated, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"implNote[JAVADOC_BLOCK_TAG]{@implNote, null, null, implNote, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"implSpec[JAVADOC_BLOCK_TAG]{@implSpec, null, null, implSpec, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"literal[JAVADOC_INLINE_TAG]{{@literal}, null, null, literal, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"param[JAVADOC_BLOCK_TAG]{@param, null, null, param, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"see[JAVADOC_BLOCK_TAG]{@see, null, null, see, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"since[JAVADOC_BLOCK_TAG]{@since, null, null, since, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
@@ -974,9 +990,11 @@ public void testBug139621i() throws JavaModelException {
 		" */\n";
 	completeInJavadoc("/Completion/src/bugs/b139621/BasicTestBugs.java", source, true, "@", 2);
 	assertSortedResults(
+		"code[JAVADOC_INLINE_TAG]{{@code}, null, null, code, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"literal[JAVADOC_INLINE_TAG]{{@literal}, null, null, literal, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
@@ -1005,8 +1023,8 @@ public void testBug144866() throws JavaModelException {
 }
 
 /**
- * @bug 171016: [javadoc][assist] No completion for tag when uppercase is used
- * @test Ensure that tag is proposed when prefix match a tag case insensitive
+ * bug 171016: [javadoc][assist] No completion for tag when uppercase is used
+ * test Ensure that tag is proposed when prefix match a tag case insensitive
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=171016"
  */
 public void testBug171016() throws JavaModelException {
@@ -1045,8 +1063,8 @@ public void testBug171016b() throws JavaModelException {
 }
 
 /**
- * @bug 171031: [javadoc][assist] 'inheritDoc' tag is proposed while completing even if the method does not override any
- * @test Ensure that no 'inheritDoc' tag is proposed when method does not override any
+ * bug 171031: [javadoc][assist] 'inheritDoc' tag is proposed while completing even if the method does not override any
+ * test Ensure that no 'inheritDoc' tag is proposed when method does not override any
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=171031"
  */
 // TODO (eric) enable when bug will be fixed
@@ -1064,12 +1082,12 @@ public void _testBug171031() throws JavaModelException {
 }
 
 /**
- * @bug 185576: [javadoc][assist] Type parameters should not be proposed while completing in @link or @see reference
- * @test Do not include type params in Javadoc content assist proposals
+ * bug 185576: [javadoc][assist] Type parameters should not be proposed while completing in @link or @see reference
+ * test Do not include type params in Javadoc content assist proposals
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=185576"
  */
 public void testBug185576a() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
+	setUpProjectOptions(CompilerOptions.getFirstSupportedJavaVersion());
 	String source =
 		"package bugs.b185576;\n" +
 		"public class BasicTestBugs {\n" +
@@ -1091,7 +1109,7 @@ public void testBug185576a() throws JavaModelException {
 	);
 }
 public void testBug185576b() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
+	setUpProjectOptions(CompilerOptions.getFirstSupportedJavaVersion());
 	String source =
 		"package bugs.b185576;\n" +
 		"public class BasicTestBugs {\n" +
@@ -1134,8 +1152,8 @@ public void testBug249785a() throws JavaModelException {
 	);
 }
 /**
- * @bug 255752 [javadoc][assist] Inappropriate completion proposals for javadoc at compilation unit level
- * @test that there are no tag completions offered at the compilation unit level for a non package-info.java
+ * bug 255752 [javadoc][assist] Inappropriate completion proposals for javadoc at compilation unit level
+ * test that there are no tag completions offered at the compilation unit level for a non package-info.java
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=255752"
  */
 public void testBug255752() throws JavaModelException {
@@ -1151,7 +1169,7 @@ public void testBug255752() throws JavaModelException {
 }
 /**
  * Additional tests for bug 255752
- * @test whether an orphan Javadoc comment gets all the possible tags applicable to the class level.
+ * test whether an orphan Javadoc comment gets all the possible tags applicable to the class level.
  */
 public void testBug255752a() throws JavaModelException {
 	String source =
@@ -1164,15 +1182,21 @@ public void testBug255752a() throws JavaModelException {
 	assertResults(
 			"author[JAVADOC_BLOCK_TAG]{@author, null, null, author, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 			"deprecated[JAVADOC_BLOCK_TAG]{@deprecated, null, null, deprecated, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+			"param[JAVADOC_BLOCK_TAG]{@param, null, null, param, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 			"see[JAVADOC_BLOCK_TAG]{@see, null, null, see, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 			"version[JAVADOC_BLOCK_TAG]{@version, null, null, version, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 			"category[JAVADOC_BLOCK_TAG]{@category, null, null, category, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 			"since[JAVADOC_BLOCK_TAG]{@since, null, null, since, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 			"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+			"apiNote[JAVADOC_BLOCK_TAG]{@apiNote, null, null, apiNote, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+			"implSpec[JAVADOC_BLOCK_TAG]{@implSpec, null, null, implSpec, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+			"implNote[JAVADOC_BLOCK_TAG]{@implNote, null, null, implNote, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 			"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 			"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 			"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
-			"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+			"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+			"code[JAVADOC_INLINE_TAG]{{@code}, null, null, code, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+			"literal[JAVADOC_INLINE_TAG]{{@literal}, null, null, literal, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 		);
 }
 }

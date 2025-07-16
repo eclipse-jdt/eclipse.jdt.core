@@ -15,16 +15,16 @@
   <parent>
     <artifactId>tests-pom</artifactId>
     <groupId>org.eclipse.jdt</groupId>
-    <version>4.32.0-SNAPSHOT</version>
+    <version>4.35.0-SNAPSHOT</version>
     <relativePath>../tests-pom/</relativePath>
   </parent>
   <artifactId>org.eclipse.jdt.compiler.apt.tests</artifactId>
-  <version>1.3.300-SNAPSHOT</version>
+  <version>1.3.600-SNAPSHOT</version>
   <packaging>eclipse-test-plugin</packaging>
 
   <properties>
   	<testSuite>${project.artifactId}</testSuite>
-  	<testClass>org.eclipse.jdt.compiler.apt.tests.AllTests</testClass>
+  	<testClass>org.eclipse.jdt.compiler.apt.tests.AllAptTests</testClass>
   	<defaultSigning-excludeInnerJars>true</defaultSigning-excludeInnerJars>
   </properties>
 

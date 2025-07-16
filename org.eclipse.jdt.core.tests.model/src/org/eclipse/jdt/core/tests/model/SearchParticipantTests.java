@@ -14,14 +14,22 @@
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
-
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchDocument;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.core.search.SearchRequestor;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.JavaSearchResultCollector;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.search.indexing.SourceIndexer;
@@ -185,7 +193,8 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 	}
 
 	IPath getIndexLocation() {
-		return new Path(getExternalPath() + "test.index");
+		// use a non-canonical path to show that path does not need to be canonical
+		return new Path(getExternalPath() + "/dummy/../test.index");
 	}
 
 	/*

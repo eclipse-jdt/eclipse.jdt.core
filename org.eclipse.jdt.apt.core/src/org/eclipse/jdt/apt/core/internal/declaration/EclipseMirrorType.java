@@ -13,9 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.declaration;
 
-import org.eclipse.jdt.core.dom.ITypeBinding;
-
 import com.sun.mirror.type.TypeMirror;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 
 /**
  * The base type for all Mirror type objects

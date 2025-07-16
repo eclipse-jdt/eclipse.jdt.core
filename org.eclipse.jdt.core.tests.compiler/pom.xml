@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (c) 2012, 2023 Eclipse Foundation and others.
+  Copyright (c) 2012, 2024 Eclipse Foundation and others.
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Distribution License v1.0
   which accompanies this distribution, and is available at
@@ -15,11 +15,11 @@
   <parent>
     <artifactId>tests-pom</artifactId>
     <groupId>org.eclipse.jdt</groupId>
-    <version>4.32.0-SNAPSHOT</version>
+    <version>4.35.0-SNAPSHOT</version>
     <relativePath>../tests-pom/</relativePath>
   </parent>
   <artifactId>org.eclipse.jdt.core.tests.compiler</artifactId>
-  <version>3.13.300-SNAPSHOT</version>
+  <version>3.13.600-SNAPSHOT</version>
   <packaging>eclipse-test-plugin</packaging>
 
   <properties>
@@ -62,7 +62,7 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.7,1.8,14,17</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,14,17</tycho.surefire.argLine>
 		</properties>
 	</profile>
 	<profile>
@@ -83,7 +83,7 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.7,1.8,15,18</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,15,18</tycho.surefire.argLine>
 		</properties>
 	</profile>
 	<profile>
@@ -104,7 +104,7 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.7,1.8,17,19</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,17,19</tycho.surefire.argLine>
 		</properties>
 	</profile>
 	<profile>
@@ -125,7 +125,7 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.7,1.8,17,20</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,17,20</tycho.surefire.argLine>
 		</properties>
 	</profile>
 	<profile>
@@ -146,7 +146,28 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.8,17,19,21</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,17,19,21</tycho.surefire.argLine>
+		</properties>
+	</profile>
+	<profile>
+		<id>test-on-javase-23</id>
+		<build>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-toolchains-plugin</artifactId>
+					<configuration>
+						<toolchains>
+							<jdk>
+								<id>JavaSE-23</id>
+							</jdk>
+						</toolchains>
+					</configuration>
+				</plugin>
+			</plugins>
+		</build>
+		<properties>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.8,17,21,23</tycho.surefire.argLine>
 		</properties>
 	</profile>
 	</profiles>

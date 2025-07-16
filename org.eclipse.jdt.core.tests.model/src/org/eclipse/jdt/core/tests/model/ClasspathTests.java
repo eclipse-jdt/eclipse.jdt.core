@@ -19,7 +19,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -28,23 +27,9 @@ import java.nio.file.InvalidPathException;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Map;
-
 import junit.framework.Test;
-
 import org.eclipse.core.filesystem.URIUtil;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.IResourceChangeListener;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceDescription;
-import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.resources.IncrementalProjectBuilder;
-import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ILogListener;
 import org.eclipse.core.runtime.IPath;
@@ -56,24 +41,10 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jdt.core.ClasspathContainerInitializer;
-import org.eclipse.jdt.core.IAccessRule;
-import org.eclipse.jdt.core.IClasspathAttribute;
-import org.eclipse.jdt.core.IClasspathContainer;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaElementDelta;
-import org.eclipse.jdt.core.IJavaModelMarker;
-import org.eclipse.jdt.core.IJavaModelStatus;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaConventions;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.model.ClasspathInitializerTests.DefaultVariableInitializer;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
@@ -118,7 +89,8 @@ public static Test suite() {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	setupExternalJCL("jclMin");
-	setupExternalJCL("jclMin1.5");
+	setupExternalJCL("jclMin1.8");
+	setupExternalJCL("jclMin23");
 }
 
 void restoreAutobuild(IWorkspaceDescription preferences, boolean autoBuild) throws CoreException {
@@ -285,7 +257,7 @@ public void test232816a() throws Exception {
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib2.jar\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		refreshExternalArchives(p);
 
 		JavaCore.setClasspathContainer(
@@ -441,8 +413,8 @@ public void test232816f() throws Exception {
 	IJavaProject p = null;
 	try {
 		p = createJavaProject("P");
-
-		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+		setUpProjectCompliance(p, CompilerOptions.getFirstSupportedJavaVersion(), true);
+		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
 		p.setOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, JavaCore.WARNING);
 
 		JavaCore.setClasspathContainer(
@@ -451,7 +423,7 @@ public void test232816f() throws Exception {
 			new IClasspathContainer[] {
 				new TestContainer(new Path("container/default"),
 					new IClasspathEntry[]{
-						JavaCore.newLibraryEntry(getExternalJCLPath("1.5"), new Path("/P0/SBlah"), new Path("/P0"))})
+						JavaCore.newLibraryEntry(getExternalJCLPath(CompilerOptions.getLatestVersion()), new Path("/P0/SBlah"), new Path("/P0"))})
 			},
 			null);
 
@@ -460,7 +432,8 @@ public void test232816f() throws Exception {
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(p, newClasspath, true);
 		assertStatus(
 			"should have complained about jdk level mismatch",
-			"Incompatible .class files version in required binaries. Project 'P' is targeting a 1.4 runtime, but is compiled against \'" + getExternalJCLPath("1.5").makeRelative() + "' (from the container 'container/default') which requires a 1.5 runtime",
+			"Incompatible .class files version in required binaries. Project 'P' is targeting a " + CompilerOptions.getFirstSupportedJavaVersion()
+					+ " runtime, but is compiled against \'" + getExternalJCLPath("23").makeRelative() + "' (from the container 'container/default') which requires a 23 runtime",
 			status);
 	} finally {
 		deleteProject("P");
@@ -592,7 +565,7 @@ public void testAddZIPArchive1() throws CoreException, IOException {
 		IJavaProject p = createJavaProject("P");
 		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
 				getExternalResourcePath("externalLib.abc"),
-				JavaCore.VERSION_1_4);
+				CompilerOptions.getFirstSupportedJavaVersion());
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalResourcePath("externalLib.abc")), null, null)});
 		assertBuildPathMarkers("Unexpected markers", "", p);
 	} finally {
@@ -608,7 +581,7 @@ public void testAddZIPArchive2() throws CoreException, IOException {
 	try {
 		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
 				getExternalResourcePath("externalLib.abc"),
-				JavaCore.VERSION_1_4);
+				CompilerOptions.getFirstSupportedJavaVersion());
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		assertBuildPathMarkers("Unexpected markers", "", p);
 	} finally {
@@ -663,7 +636,7 @@ public void testAddZIPArchive5() throws CoreException, IOException {
 		waitForAutoBuild();
 		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
 				getExternalResourcePath("externalLib.abc"),
-				JavaCore.VERSION_1_4);
+				CompilerOptions.getFirstSupportedJavaVersion());
 		refreshExternalArchives(p);
 		assertBuildPathMarkers("Unexpected markers", "", p);
 	} finally {
@@ -683,7 +656,7 @@ public void testAddZIPArchive6() throws CoreException, IOException {
 		refreshExternalArchives(p);
 		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
 				getExternalResourcePath("externalLib.abc"),
-				JavaCore.VERSION_1_4);
+				CompilerOptions.getFirstSupportedJavaVersion());
 		refreshExternalArchives(p);
 		assertBuildPathMarkers("Unexpected markers", "", p);
 	} finally {
@@ -703,7 +676,7 @@ public void testAddZIPArchive7() throws CoreException, IOException {
 		addLibrary(p, "internalLib.abc", null, new String[0],
 				new String[]{"META-INF/MANIFEST.MF",
 					"Manifest-Version: 1.0\n"} ,
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("/P/internalLib.abc"), null, null)});
 		assertBuildPathMarkers("Unexpected markers", "", p);
 	} finally {
@@ -880,7 +853,7 @@ public void testClasspathCorruption() throws CoreException {
 			+"</classpath>	\n";
 
 		IFile fileRsc = p1.getProject().getFile(JavaProject.CLASSPATH_FILENAME);
-		fileRsc.setContents(new ByteArrayInputStream(newCPContent.getBytes()), true, false, null);
+		fileRsc.setContents(newCPContent.getBytes(), true, false, null);
 /*
 		File file = p1.getProject().getFile(JavaProject.CLASSPATH_FILENAME).getLocation().toFile();
 		if (file.exists()){
@@ -959,7 +932,7 @@ public void testClasspathForceReload() throws CoreException {
 						+"</classpath>	\n";
 
 					IFile fileRsc = p1.getProject().getFile(JavaProject.CLASSPATH_FILENAME);
-					fileRsc.setContents(new ByteArrayInputStream(newCPContent.getBytes()), true, false, null);
+					fileRsc.setContents(newCPContent.getBytes(), true, false, null);
 
 					p1.close();
 					assertEquals("output location should not have been refreshed", "/P1", p1.getOutputLocation().toString());
@@ -1940,7 +1913,7 @@ public void testClasspathValidation26() throws CoreException {
 public void testClasspathValidation27() throws CoreException {
 	try {
 		IJavaProject proj1 =  this.createJavaProject("P1", new String[] {}, "");
-		proj1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+		proj1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
 
 		IJavaProject proj2 =  this.createJavaProject("P2", new String[] {}, "");
 		proj2.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_1);
@@ -1948,15 +1921,15 @@ public void testClasspathValidation27() throws CoreException {
 
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(proj2, JavaCore.newProjectEntry(new Path("/P1")), false);
 		assertStatus(
-			"Incompatible .class files version in required binaries. Project \'P2\' is targeting a 1.1 runtime, but is compiled against \'P1\' which requires a 1.4 runtime",
+			"Incompatible .class files version in required binaries. Project \'P2\' is targeting a 1.1 runtime, but is compiled against \'P1\' which requires a " + CompilerOptions.getFirstSupportedJavaVersion() + " runtime",
 			status);
 	} finally {
 		deleteProjects(new String[]{"P1", "P2"});
 	}
 }
 /**
- * @bug 159325: Any idea why ClasspathEntry checks for string object reference instead of equals
- * @test Ensure that validation is correctly done even for other strings than JavaCore constants...
+ * bug 159325: Any idea why ClasspathEntry checks for string object reference instead of equals
+ * test Ensure that validation is correctly done even for other strings than JavaCore constants...
  * 	Note that it's needed to change JavaCore options as "ignore" is the default value and set option
  * 	to this value on java project will just remove it instead of putting another string object...
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=159325"
@@ -1965,7 +1938,7 @@ public void testClasspathValidation27_Bug159325_project() throws CoreException {
 	Hashtable javaCoreOptions = JavaCore.getOptions();
 	try {
 		IJavaProject proj1 =  this.createJavaProject("P1", new String[] {}, "");
-		proj1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+		proj1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
 
 		Hashtable options = JavaCore.getOptions();
 		options.put(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, JavaCore.WARNING);
@@ -1992,7 +1965,7 @@ public void testClasspathValidation27_Bug159325_lib() throws CoreException {
 		JavaCore.setOptions(options);
 		proj.setOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, new String("ignore".toCharArray()));
 
-		IClasspathEntry library = JavaCore.newLibraryEntry(new Path(getExternalJCLPathString(JavaCore.VERSION_1_5)), null, null, ClasspathEntry.NO_ACCESS_RULES, ClasspathEntry.NO_EXTRA_ATTRIBUTES, false);
+		IClasspathEntry library = JavaCore.newLibraryEntry(new Path(getExternalJCLPathString(JavaCore.VERSION_1_8)), null, null, ClasspathEntry.NO_ACCESS_RULES, ClasspathEntry.NO_EXTRA_ATTRIBUTES, false);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(proj, library, false);
 		assertStatus("OK", status);
 	} finally {
@@ -2467,7 +2440,7 @@ public void testClasspathDuplicateExtraAttribute5() throws CoreException {
 		extraAttributes[1] = JavaCore.newClasspathAttribute("javadoc_location", "d:/tmp");
 
 		// Verify variable entry validation
-		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("JCL_LIB"), new Path("JCL_SRC"), null, ClasspathEntry.NO_ACCESS_RULES, extraAttributes, false);
+		IClasspathEntry variable = JavaCore.newVariableEntry(new Path("JCL18_LIB"), new Path("JCL18_SRC"), null, ClasspathEntry.NO_ACCESS_RULES, extraAttributes, false);
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(proj, variable, false);
 		assertStatus(
 			"Duplicate extra attribute: \'javadoc_location\' in classpath entry \'"+getExternalJCLPath()+"\' for project 'P1'",
@@ -2654,7 +2627,7 @@ public void testDotDotContainerEntry1() throws Exception {
 		IJavaProject p = createJavaProject("P");
 		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
 				externalJarPath,
-				JavaCore.VERSION_1_4);
+				CompilerOptions.getFirstSupportedJavaVersion());
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P", "../../external.jar"}));
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newContainerEntry(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"))});
 		assertElementDescendants(
@@ -2698,7 +2671,7 @@ public void testDotDotLibraryEntry1() throws Exception {
 		IJavaProject p = createJavaProject("P");
 		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
 				externalJarPath,
-				JavaCore.VERSION_1_4);
+				CompilerOptions.getFirstSupportedJavaVersion());
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("../external.jar"), null, null)});
 		assertElementDescendants(
 			"Unexpected project content",
@@ -2722,7 +2695,7 @@ public void testDotDotLibraryEntry2() throws Exception {
 		IJavaProject p = createJavaProject("P");
 		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
 				externalJarPath,
-				JavaCore.VERSION_1_4);
+				CompilerOptions.getFirstSupportedJavaVersion());
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("../../external.jar"), null, null)});
 		assertElementDescendants(
 			"Unexpected project content",
@@ -2746,7 +2719,7 @@ public void testDotDotLibraryEntry3() throws Exception {
 		IJavaProject p = createJavaProject("P");
 		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
 				externalJarPath,
-				JavaCore.VERSION_1_4);
+				CompilerOptions.getFirstSupportedJavaVersion());
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("src/../../../external.jar"), null, null)});
 		assertElementDescendants(
 			"Unexpected project content",
@@ -2772,7 +2745,7 @@ public void testDotDotLibraryEntry4() throws Exception {
 		addLibrary(p1, "internal.jar", null, new String[0],
 				new String[]{"META-INF/MANIFEST.MF",
 					"Manifest-Version: 1.0\n"} ,
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 		setClasspath(p2, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("../P1/internal.jar"), null, null)});
 		assertElementDescendants(
 			"Unexpected project content",
@@ -2796,7 +2769,7 @@ public void testDotDotLibraryEntry5() throws Exception {
 		IJavaProject p = createJavaProject("P");
 		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
 				externalJarPath,
-				JavaCore.VERSION_1_4);
+				CompilerOptions.getFirstSupportedJavaVersion());
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("../external.jar"), null, null)});
 		assertBuildPathMarkers(
 			"Unexpected markers",
@@ -2833,7 +2806,7 @@ public void testDotDotLibraryEntry7() throws Exception {
 		IJavaProject p = createJavaProject("P");
 		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
 				externalJarPath,
-				JavaCore.VERSION_1_4);
+				CompilerOptions.getFirstSupportedJavaVersion());
 		editFile(
 			"/P/.classpath",
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -2891,7 +2864,7 @@ public void testDotDotVariableEntry1() throws Exception {
 		IJavaProject p = createJavaProject("P");
 		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
 				externalJarPath,
-				JavaCore.VERSION_1_4);
+				CompilerOptions.getFirstSupportedJavaVersion());
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newVariableEntry(new Path("TWO_UP/external.jar"), null, null)});
 		assertElementDescendants(
 			"Unexpected project content",
@@ -3198,7 +3171,7 @@ public void testExternalJarAdd() throws CoreException, IOException {
 		// at this point, a marker indicates that test185733.jar has been created: "Project 'P' is missing required library: '[...]\test185733.jar'"
 		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
 				getExternalResourcePath("test185733.jar"),
-				JavaCore.VERSION_1_4);
+				CompilerOptions.getFirstSupportedJavaVersion());
 		refreshExternalArchives(p);
 		assertBuildPathMarkers(
 			"Unexpected markers",
@@ -3346,7 +3319,7 @@ public void testExtraLibraries01() throws Exception {
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib2.jar\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		createFile("/P/lib2.jar", "");
 		assertClasspathEquals(
 			p.getResolvedClasspath(true),
@@ -3371,7 +3344,7 @@ public void testExtraLibraries02() throws Exception {
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib2.jar lib3.jar\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		createFile("/P/lib2.jar", "");
 		createFile("/P/lib3.jar", "");
 		assertClasspathEquals(
@@ -3399,14 +3372,14 @@ public void testExtraLibraries03() throws Exception {
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib3.jar\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		addLibrary(p, "lib1.jar", null, new String[0],
 			new String[] {
 				"META-INF/MANIFEST.MF",
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib2.jar\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		assertClasspathEquals(
 			p.getResolvedClasspath(true),
 			"/P[CPE_SOURCE][K_SOURCE][isExported:false]\n" +
@@ -3431,14 +3404,14 @@ public void testExtraLibraries04() throws Exception {
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib2.jar\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		createLibrary(p, "lib2.jar", null, new String[0],
 			new String[] {
 				"META-INF/MANIFEST.MF",
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib3.jar\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		createFile("/P/lib3.jar", "");
 		assertClasspathEquals(
 			p.getResolvedClasspath(true),
@@ -3464,7 +3437,7 @@ public void testExtraLibraries05() throws Exception {
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib2.jar\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		createFile("/P/lib2.jar", "");
 		assertBuildPathMarkers(
 			"Unexpected markers",
@@ -3487,7 +3460,7 @@ public void testExtraLibraries06() throws Exception {
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib2.jar\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		assertBuildPathMarkers(
 			"Unexpected markers",
 			"",
@@ -3502,14 +3475,14 @@ public void testExtraLibraries06() throws Exception {
 public void testExtraLibraries07() throws Exception {
 	try {
 		IJavaProject p = createJavaProject("P");
+		createExternalFile("lib2.jar", "");
 		addExternalLibrary(p, getExternalResourcePath("lib1.jar"), new String[0],
 			new String[] {
 				"META-INF/MANIFEST.MF",
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib2.jar\n",
 			},
-			JavaCore.VERSION_1_4);
-		createExternalFile("lib2.jar", "");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		assertClasspathEquals(
 			p.getResolvedClasspath(true),
 			"/P[CPE_SOURCE][K_SOURCE][isExported:false]\n" +
@@ -3535,7 +3508,7 @@ public void testExtraLibraries08() throws Exception {
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib2.jar\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		createExternalFile("lib2.jar", "");
 		refreshExternalArchives(p);
 		assertBuildPathMarkers(
@@ -3561,7 +3534,7 @@ public void testExtraLibraries09() throws Exception {
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib2.jar\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		assertBuildPathMarkers(
 			"Unexpected markers",
 			"",
@@ -3585,7 +3558,7 @@ public void testExtraLibraries10() throws Exception {
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib2.jar\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		createExternalFile("lib2.jar", "");
 		refreshExternalArchives(p);
 		waitForAutoBuild(); // wait until classpath is validated -> no markers
@@ -3614,7 +3587,7 @@ public void testExtraLibraries11() throws Exception {
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib2.jar\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		createFile("/P/lib2.jar", "");
 		startDeltas();
 		if (Util.isMacOS()) {
@@ -3628,7 +3601,7 @@ public void testExtraLibraries11() throws Exception {
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib3.jar\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		assertDeltas(
 			"Unexpected delta",
 			"P[*]: {CHILDREN | RESOLVED CLASSPATH CHANGED}\n" +
@@ -3652,7 +3625,7 @@ public void testExtraLibraries12() throws Exception {
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib2.jar\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		createExternalFile("lib2.jar", "");
 		refreshExternalArchives(p);
 
@@ -3664,7 +3637,7 @@ public void testExtraLibraries12() throws Exception {
 				"Class-Path: lib3.jar\n",
 			},
 			getExternalResourcePath("lib1.jar"),
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		refreshExternalArchives(p);
 		assertDeltas(
 			"Unexpected delta",
@@ -3691,7 +3664,7 @@ public void testExtraLibraries13() throws Exception {
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib2.jar\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		createExternalFile("lib2.jar", "");
 		refreshExternalArchives(p);
 
@@ -3725,7 +3698,7 @@ public void testExtraLibraries14() throws Exception {
 				"Class-Path: nonExisting.jar\n",
 			},
 			getExternalResourcePath("lib1.jar"),
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P", getExternalResourcePath("lib1.jar")}));
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "");
 		assertBuildPathMarkers(
@@ -3752,7 +3725,7 @@ public void testExtraLibraries15() throws Exception {
 				"\r\n",
 			},
 			getExternalResourcePath("lib1.jar"),
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P", getExternalResourcePath("lib1.jar")}));
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "");
 		assertClasspathEquals(
@@ -3779,7 +3752,7 @@ public void testExtraLibraries16() throws Exception {
 				"Class-Path: \n",
 			},
 			getExternalResourcePath("lib1.jar"),
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("lib1.jar")}, "");
 		p.getResolvedClasspath(true);
 		assertLogEquals("");
@@ -3802,7 +3775,7 @@ public void testExtraLibraries17() throws Exception {
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib/ \n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		waitForAutoBuild();
 
 		org.eclipse.jdt.core.tests.util.Util.createJar(
@@ -3814,7 +3787,7 @@ public void testExtraLibraries17() throws Exception {
 			},
 			getExternalResourcePath("lib.jar"),
 			null/*no classpath*/,
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		refreshExternalArchives(p);
 		assertBuildPathMarkers(
 			"Unexpected markers",
@@ -3837,7 +3810,7 @@ public void testFixClasspath1() throws CoreException, IOException {
 		addLibrary(project, "lib.jar", null, new String[0],
 				new String[]{"META-INF/MANIFEST.MF",
 					"Manifest-Version: 1.0\n"} ,
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 
 		assertBuildPathMarkers(
 			"Unexpected markers",
@@ -3858,7 +3831,7 @@ public void testFixClasspath2() throws CoreException, IOException {
 		waitForAutoBuild(); // 1 marker
 		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(
 				getExternalResourcePath("externalLib.abc"),
-				JavaCore.VERSION_1_4);
+				CompilerOptions.getFirstSupportedJavaVersion());
 
 		simulateExitRestart();
 		refreshExternalArchives(p);
@@ -4033,7 +4006,7 @@ public void testTransitionFromInvalidToValidJar() throws CoreException, IOExcept
 				"Manifest-Version: 1.0\n"
 			},
 			transitioningJar,
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		status1 = ClasspathEntry.validateClasspathEntry(proj, transitioningEntry, false, false);
 		status2 = ClasspathEntry.validateClasspathEntry(proj, nonExistingEntry, false, false);
 		assertTrue("Existing jar should be valid", status1.isOK());
@@ -4069,7 +4042,7 @@ public void testInvalidInternalJar2() throws CoreException, IOException {
 		addLibrary(proj, "existing.txt", null, new String[0],
 				new String[]{"META-INF/MANIFEST.MF",
 					"Manifest-Version: 1.0\n"} ,
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 		proj =  createJavaProject("P2", new String[] {}, new String[] {"/P1/existing.txt"}, "bin");
 		assertBuildPathMarkers(
 			"Unexpected markers",
@@ -5079,7 +5052,7 @@ public void testDuplicateEntries2() throws CoreException, IOException {
 		addLibrary(project, "lib.jar", null, new String[0],
 				new String[]{"META-INF/MANIFEST.MF",
 					"Manifest-Version: 1.0\n"} ,
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 		editFile(
 			"/P/.classpath",
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -5642,7 +5615,7 @@ public void testRemoveZIPArchive6() throws CoreException, IOException {
 		addLibrary(p, "internalLib.abc", null, new String[0],
 				new String[]{"META-INF/MANIFEST.MF",
 					"Manifest-Version: 1.0\n"} ,
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 		waitForAutoBuild();
 
 		deleteFile("/P/internalLib.abc");
@@ -5668,7 +5641,7 @@ public void testRenameJar() throws CoreException, IOException {
 		addLibrary(p, "lib/test1.jar", null, new String[0],
 				new String[]{"META-INF/MANIFEST.MF",
 					"Manifest-Version: 1.0\n"} ,
-					JavaCore.VERSION_1_4);
+					CompilerOptions.getFirstSupportedJavaVersion());
 		// at this point no markers exist
 
 		// register a listener that updates the classpath in a PRE_BUILD event
@@ -5780,6 +5753,13 @@ public void testUnknownElements1() throws CoreException {
 		classpath[0] = classpath[1];
 		classpath[1] = src1;
 		project.setRawClasspath(classpath, null);
+
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		waitForManualRefresh();
 
 		// check that .classpath has correct content
 		String contents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(getFile("/P/.classpath")));
@@ -5956,8 +5936,8 @@ public void testRemoveDuplicates() throws CoreException {
 	}
 }
 /**
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
  * Make sure null references don't make their way into ClasspathEntry's state
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
  */
 public void testForceNullArgumentsToEmptySet() throws CoreException {
 	IClasspathEntry e =	JavaCore.newContainerEntry(new Path("JRE_CONTAINER"), null, null, false);
@@ -5968,8 +5948,8 @@ public void testForceNullArgumentsToEmptySet() throws CoreException {
 }
 
 /**
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
  * Make sure null references don't make their way into ClasspathEntry's state
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
  */
 public void testForceNullArgumentsToEmptySet2() throws CoreException {
 	IClasspathEntry e = JavaCore.newLibraryEntry(new Path("/P0/JUNK"), new Path("/P0/SBlah"), new Path("/P0"), null, null, false);
@@ -5980,8 +5960,8 @@ public void testForceNullArgumentsToEmptySet2() throws CoreException {
 }
 
 /**
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
  * Make sure null references don't make their way into ClasspathEntry's state
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
  */
 public void testForceNullArgumentsToEmptySet3() throws CoreException {
 	IClasspathEntry e = JavaCore.newProjectEntry(new Path("/P2"), null, false, null, false);
@@ -5992,8 +5972,8 @@ public void testForceNullArgumentsToEmptySet3() throws CoreException {
 }
 
 /**
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
  * Make sure null references don't make their way into ClasspathEntry's state
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
  */
 public void testForceNullArgumentsToEmptySet4() throws CoreException {
 	IClasspathEntry e = JavaCore.newSourceEntry(new Path("/P"), null, null, null, null);
@@ -6004,11 +5984,11 @@ public void testForceNullArgumentsToEmptySet4() throws CoreException {
 }
 
 /**
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
  * Make sure null references don't make their way into ClasspathEntry's state
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
  */
 public void testForceNullArgumentsToEmptySet5() throws CoreException {
-	IClasspathEntry e = JavaCore.newVariableEntry(new Path("JCL_LIB"), new Path("JCL_SRC"), null, null, null, false);
+	IClasspathEntry e = JavaCore.newVariableEntry(new Path("JCL18_LIB"), new Path("JCL18_SRC"), null, null, null, false);
 	assertTrue("Access rule was null", e.getAccessRules() != null);
 	assertTrue("Extra attributes was null", e.getExtraAttributes() != null);
 	assertTrue("Inclusion pattern was null", e.getInclusionPatterns() != null);
@@ -6088,8 +6068,8 @@ public void testBug276373() throws Exception {
 	}
 }
 /**
- * @bug 248661:Axis2: Missing required libraries in Axis 2 WS Client Projects
- * @test that a variable classpath entry that is mappped to a folder/jar with external path (but still
+ * bug 248661:Axis2: Missing required libraries in Axis 2 WS Client Projects
+ * test that a variable classpath entry that is mappped to a folder/jar with external path (but still
  * inside the project folder) can be validated using both system absolute path and relative path.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=248661"
@@ -6121,7 +6101,7 @@ public void testBug248661() throws Exception {
 	}
 }
 /**
- * @bug 300136:classpathentry OPTIONAL attribute not honored for var entries
+ * bug 300136:classpathentry OPTIONAL attribute not honored for var entries
  *
  * Test that classpath entries (CPE_LIB, CPE_CONTAINER and CPE_VARIABLE) that are marked as optional
  * in the .classpath file are not reported for errors.
@@ -6225,7 +6205,7 @@ public void testBug300136a() throws Exception {
 	}
 }
 /**
- * @bug 294360:Duplicate entries in Classpath Resolution when importing dependencies from parent project
+ * bug 294360:Duplicate entries in Classpath Resolution when importing dependencies from parent project
  * Test that duplicate entries are not added to the resolved classpath
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=294360"
@@ -6238,7 +6218,7 @@ public void testBug294360a() throws Exception {
 					"META-INF/MANIFEST.MF",
 					"Manifest-Version: 1.0\n",
 				},
-				JavaCore.VERSION_1_4);
+				CompilerOptions.getFirstSupportedJavaVersion());
 		IClasspathEntry[] classpath = new IClasspathEntry[2];
 		classpath[0] = JavaCore.newLibraryEntry(new Path(getExternalResourcePath("lib.jar")), null, null);
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P", getExternalResourcePath("lib.jar")}));
@@ -6271,7 +6251,7 @@ public void testBug294360a() throws Exception {
 	}
 }
 /**
- * @bug 252431:New API is needed to better identify referenced jars in the Class-Path: entry
+ * bug 252431:New API is needed to better identify referenced jars in the Class-Path: entry
  * Test that 1) referenced libraries are added to the resolved classpath in the right order
  * 			 2) referenced libraries are added to the appropriate referencing library in the correct order
  * 			 3) referenced libraries and top-level libraries retain the source attachment and source attachment root path
@@ -6289,7 +6269,7 @@ public void testBug252341a() throws Exception {
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib2.jar lib3.jar\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		createFile("/P/lib2.jar", "");
 		createFile("/P/lib3.jar", "");
 
@@ -6305,7 +6285,7 @@ public void testBug252341a() throws Exception {
 		IClasspathEntry[] rawClasspath = p.getRawClasspath();
 		assertClasspathEquals(rawClasspath,
 				"/P[CPE_SOURCE][K_SOURCE][isExported:false]\n" +
-				"JCL_LIB[CPE_VARIABLE][K_SOURCE][isExported:false]\n" +
+				"JCL18_LIB[CPE_VARIABLE][K_SOURCE][isExported:false]\n" +
 				"/P/lib1.jar[CPE_LIBRARY][K_BINARY][sourcePath:/P/abc.zip][isExported:true]");
 
 		// Test referenced entries for a particular entry appear in the right order and the referencingEntry
@@ -6352,7 +6332,7 @@ public void testBug252341a() throws Exception {
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
 			"<classpath>\n" +
 			"	<classpathentry kind=\"src\" path=\"\"/>\n" +
-			"	<classpathentry kind=\"var\" path=\"JCL_LIB\"/>\n" +
+			"	<classpathentry kind=\"var\" path=\"JCL18_LIB\"/>\n" +
 			"	<classpathentry exported=\"true\" kind=\"lib\" path=\"lib1.jar\" sourcepath=\"abc.zip\"/>\n" +
 			"	<classpathentry kind=\"output\" path=\"\"/>\n" +
 			"	<referencedentry exported=\"true\" kind=\"lib\" path=\"lib2.jar\" rootpath=\"/src2\" sourcepath=\"efg.zip\">\n" +
@@ -6371,7 +6351,7 @@ public void testBug252341a() throws Exception {
 
 		assertClasspathEquals(rawClasspath,
 				"/P[CPE_SOURCE][K_SOURCE][isExported:false]\n" +
-				"JCL_LIB[CPE_VARIABLE][K_SOURCE][isExported:false]\n" +
+				"JCL18_LIB[CPE_VARIABLE][K_SOURCE][isExported:false]\n" +
 				"/P/lib1.jar[CPE_LIBRARY][K_BINARY][sourcePath:/P/abc.zip][isExported:true]");
 
 		assertClasspathEquals(resolvedClasspath,
@@ -6406,7 +6386,7 @@ public void testBug252341b() throws Exception {
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib3.jar lib4.jar\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 
 		addLibrary(p, "lib2.jar", null, new String[0],
 				new String[] {
@@ -6414,7 +6394,7 @@ public void testBug252341b() throws Exception {
 					"Manifest-Version: 1.0\n" +
 					"Class-Path: lib3.jar lib5.jar\n",
 				},
-				JavaCore.VERSION_1_4);
+				CompilerOptions.getFirstSupportedJavaVersion());
 		createFile("/P/lib3.jar", "");
 		createFile("/P/lib4.jar", "");
 		createFile("/P/lib5.jar", "");
@@ -6424,7 +6404,7 @@ public void testBug252341b() throws Exception {
 		assertClasspathEquals(
 				rawClasspath,
 				"/P[CPE_SOURCE][K_SOURCE][isExported:false]\n" +
-				"JCL_LIB[CPE_VARIABLE][K_SOURCE][isExported:false]\n" +
+				"JCL18_LIB[CPE_VARIABLE][K_SOURCE][isExported:false]\n" +
 				"/P/lib1.jar[CPE_LIBRARY][K_BINARY][isExported:true]\n" +
 				"/P/lib2.jar[CPE_LIBRARY][K_BINARY][isExported:true]");
 
@@ -6536,7 +6516,7 @@ public void testBug252341c() throws Exception {
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib3.jar lib4.jar\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 
 		addLibrary(p, "lib2.jar", null, new String[0],
 				new String[] {
@@ -6544,7 +6524,7 @@ public void testBug252341c() throws Exception {
 					"Manifest-Version: 1.0\n" +
 					"Class-Path: lib3.jar lib5.jar\n",
 				},
-				JavaCore.VERSION_1_4);
+				CompilerOptions.getFirstSupportedJavaVersion());
 		createFile("/P/lib3.jar", "");
 		createFile("/P/lib4.jar", "");
 		createFile("/P/lib5.jar", "");
@@ -6584,7 +6564,7 @@ public void testBug252341c() throws Exception {
 	}
 }
 /**
- * @bug 304081:IJavaProject#isOnClasspath(IJavaElement) returns false for type from referenced JAR
+ * bug 304081:IJavaProject#isOnClasspath(IJavaElement) returns false for type from referenced JAR
  * When the JAR, which a variable classpath entry resolves to, references other JAR via
  * MANIFEST, test that {@link IJavaProject#isOnClasspath(IJavaElement)} returns true
  * for the referenced classpath entries.
@@ -6609,7 +6589,7 @@ public void testBug304081() throws Exception {
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib1.jar\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 
 		createFile("/P/lib1.jar", "");
 
@@ -6653,7 +6633,7 @@ public void testBug304081a() throws Exception {
 					"Manifest-Version: 1.0\n" +
 					"Class-Path: lib1.jar\n",
 				},
-				JavaCore.VERSION_1_4);
+				CompilerOptions.getFirstSupportedJavaVersion());
 		createFile("/P/lib1.jar", "");
 		classpath[0] = JavaCore.newLibraryEntry(new Path("/P/library.jar"), null, null);
 
@@ -6674,7 +6654,7 @@ public void testBug304081a() throws Exception {
 	}
 }
 /**
- * @bug 302949: FUP of 302949
+ * bug 302949: FUP of 302949
  * Test that
  * 1) non-chaining jars are cached during classpath resolution and can be retrieved later on
  * 2) A full save (after resetting the non chaining jars cache) caches the non-chaining jars information
@@ -6693,14 +6673,14 @@ public void testBug305122() throws Exception {
 					"META-INF/MANIFEST.MF",
 					"Manifest-Version: 1.0\n",
 				},
-				JavaCore.VERSION_1_4);
+				CompilerOptions.getFirstSupportedJavaVersion());
 		addLibrary(proj, "chaining.jar", null, new String[0],
 				new String[] {
 					"META-INF/MANIFEST.MF",
 					"Manifest-Version: 1.0\n" +
 					"Class-Path: chained.jar\n",
 				},
-				JavaCore.VERSION_1_4);
+				CompilerOptions.getFirstSupportedJavaVersion());
 
 		classpath[0] = JavaCore.newLibraryEntry(new Path("/P/nonchaining.jar"), null, null);
 		classpath[1] = JavaCore.newLibraryEntry(new Path("/P/chaining.jar"), null, null);
@@ -6735,7 +6715,7 @@ public void testBug305122() throws Exception {
 	}
 }
 /**
- * @bug 308150: JAR with invalid Class-Path entry in MANIFEST.MF crashes the project
+ * bug 308150: JAR with invalid Class-Path entry in MANIFEST.MF crashes the project
  * Test that an invalid referenced library entry in the Class-Path of the MANIFEST doesn't
  * create any exceptions and is NOT added to the resolved classpath.
  *
@@ -6754,7 +6734,7 @@ public void testBug308150() throws Exception {
 					"Manifest-Version: 1.0\n" +
 					"Class-Path: ../..\n",
 				},
-				JavaCore.VERSION_1_4);
+				CompilerOptions.getFirstSupportedJavaVersion());
 
 		classpath[0] = JavaCore.newLibraryEntry(new Path("/P/invalid.jar"), null, null);
 		proj.setRawClasspath(classpath, null);
@@ -6768,7 +6748,7 @@ public void testBug308150() throws Exception {
 	}
 }
 /**
- * @bug 305037: missing story for attributes of referenced JARs in classpath containers
+ * bug 305037: missing story for attributes of referenced JARs in classpath containers
  * Test that attributes set on referenced libraries of variable entries via MANIFEST are persisted
  * and can be retrieved
  *
@@ -6792,7 +6772,7 @@ public void testBug305037() throws Exception {
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib1.jar\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 
 		createFile("/P/lib1.jar", "");
 
@@ -6820,7 +6800,7 @@ public void testBug305037() throws Exception {
 	}
 }
 /**
- * @bug 313965: Breaking change in classpath container API
+ * bug 313965: Breaking change in classpath container API
  * Test that when the resolveReferencedLibrariesForContainers system property is set to true, the referenced libraries
  * for JARs from containers are resolved.
  *
@@ -6842,7 +6822,7 @@ public void testBug313965() throws Exception {
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib1.jar\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		IClasspathEntry[] classpath = new IClasspathEntry[1];
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P", "/P/lib.jar"}));
 		classpath[0] = JavaCore.newContainerEntry(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"));
@@ -6862,7 +6842,7 @@ public void testBug313965() throws Exception {
 	}
 }
 /**
- * @bug 313965: Breaking change in classpath container API
+ * bug 313965: Breaking change in classpath container API
  * Test that when the resolveReferencedLibrariesForContainers system property is set to false (or default),
  * the referenced libraries for JARs from containers are NOT resolved or added to the project's classpath.
  *
@@ -6878,7 +6858,7 @@ public void testBug313965a() throws Exception {
 				"Manifest-Version: 1.0\n" +
 				"Class-Path: lib1.jar\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		IClasspathEntry[] classpath = new IClasspathEntry[1];
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P", "/P/lib.jar"}));
 		classpath[0] = JavaCore.newContainerEntry(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"));
@@ -6915,7 +6895,7 @@ public void testBug321170() throws Exception {
 	}
 }
 /**
- * @bug 229042: [buildpath] could create build path error in case of invalid external JAR format
+ * bug 229042: [buildpath] could create build path error in case of invalid external JAR format
  *
  * Test that an invalid archive (JAR) creates a buildpath error
  *
@@ -6937,7 +6917,7 @@ public void testBug229042() throws Exception {
 				"META-INF/MANIFEST.MF",
 				"Manifest-Version: 1.0\n",
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		IFile file = p.getProject().getFile("library.jar");
 		assertNotNull(file);
 		file.touch(null);
@@ -6950,7 +6930,7 @@ public void testBug229042() throws Exception {
 	}
 }
 /**
- * @bug 274737: Relative Classpath entries should not be resolved relative to the workspace
+ * bug 274737: Relative Classpath entries should not be resolved relative to the workspace
  *
  * Test that for an external project, relative paths are resolve relative to the project location.
  *
@@ -6979,7 +6959,7 @@ public void testBug274737() throws Exception {
 					"Class-Path: \n",
 				},
 				getExternalResourcePath("development/third_party/lib.jar"),
-				JavaCore.VERSION_1_4);
+				CompilerOptions.getFirstSupportedJavaVersion());
 		createExternalFolder("development/ExternalProject/src");
 		createExternalFolder("development/ExternalProject/bin");
 		classpath[0] = JavaCore.newSourceEntry(new Path("/ExternalProject/src"), null, null);
@@ -6998,7 +6978,7 @@ public void testBug274737() throws Exception {
 }
 
 /**
- * @bug 338006: IJavaProject#getPackageFragmentRoots() should return roots in order
+ * bug 338006: IJavaProject#getPackageFragmentRoots() should return roots in order
  *
  * Test whether the {@link IJavaProject#getPackageFragmentRoots()} returns the package fragment
  * roots in the same order as defined by the .classpath even when the elements are added in a
@@ -7050,7 +7030,7 @@ public void testBug357425() throws Exception {
 				"META-INF/MANIFEST.MF",
 				"Manifest-Version: 1.0\n"
 			},
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		refreshExternalArchives(p);
 
 		startDeltas();
@@ -7061,7 +7041,7 @@ public void testBug357425() throws Exception {
 				"Class-Path: lib357425_b.jar\n",
 			},
 			getExternalResourcePath("lib357425_a.jar"),
-			JavaCore.VERSION_1_4);
+			CompilerOptions.getFirstSupportedJavaVersion());
 		createExternalFile("lib357425_b.jar", "");
 
 		refreshExternalArchives(p);
@@ -7079,7 +7059,7 @@ public void testBug357425() throws Exception {
 	}
 }
 /**
- * @bug287164: Report build path error if source folder has other source folder as output folder
+ * bug287164: Report build path error if source folder has other source folder as output folder
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=287164"
  */
@@ -7146,7 +7126,7 @@ public void testBug287164() throws CoreException {
 }
 
 /**
- * @bug220928: [buildpath] Should be able to ignore warnings from certain source folders
+ * bug220928: [buildpath] Should be able to ignore warnings from certain source folders
  *
  * Verify that adding the {@link IClasspathAttribute#IGNORE_OPTIONAL_PROBLEMS} attribute is
  * correctly reflected by the {@link ClasspathEntry#ignoreOptionalProblems()} method.
@@ -7169,7 +7149,7 @@ public void testBug220928a() throws CoreException {
 }
 
 /**
- * @bug220928: [buildpath] Should be able to ignore warnings from certain source folders
+ * bug220928: [buildpath] Should be able to ignore warnings from certain source folders
  *
  * Verify that value of the {@link IClasspathAttribute#IGNORE_OPTIONAL_PROBLEMS} attribute is
  * correctly saved on workspace save.
@@ -7234,8 +7214,8 @@ public void testBug396299() throws Exception {
 				"p/X.java",
 				"package p;\n" +
 				"public class X {}\n"},
-				JavaCore.VERSION_1_4);
-		proj1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+				CompilerOptions.getLatestVersion());
+		proj1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getLatestVersion());
 
 		Map map = proj1.getOptions(false);
 		map.put(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, JavaCore.WARNING);
@@ -7247,11 +7227,12 @@ public void testBug396299() throws Exception {
 		waitForAutoBuild();
 		assertBuildPathMarkers("Unexpected markers", "", proj1);
 		map = proj1.getOptions(false);
-		map.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_1);
+		map.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
 		proj1.setOptions(map);
 		waitForManualRefresh();
 		assertBuildPathMarkers("Unexpected markers",
-				"Incompatible .class files version in required binaries. Project \'P1\' is targeting a 1.1 runtime, but is compiled against \'P1/abc.jar\' which requires a 1.4 runtime", proj1);
+				"Incompatible .class files version in required binaries. Project \'P1\' is targeting a " + CompilerOptions.getFirstSupportedJavaVersion()
+						+ " runtime, but is compiled against \'P1/abc.jar\' which requires a " + CompilerOptions.getLatestVersion() + " runtime", proj1);
 		 eclipsePreferences.removePreferenceChangeListener(prefListener);
 	} finally {
 		try {
@@ -7262,7 +7243,7 @@ public void testBug396299() throws Exception {
 	}
 }
 /**
- * @bug 411423: JavaProject.resolveClasspath is spending more than 90% time on ExternalFoldersManager.isExternalFolderPath
+ * bug 411423: JavaProject.resolveClasspath is spending more than 90% time on ExternalFoldersManager.isExternalFolderPath
  * Tests that
  * 1) External file paths are cached during classpath resolution and can be retrieved later on
  * 2) A full save (after resetting the external files cache) caches the external files information
@@ -7474,7 +7455,7 @@ public void testBug576735a() throws Exception {
 				projectLocation + File.separator + "libMissing.jar");
 
 		// create another jar depending on libMissing.jar:
-		String[] classpath = getJCL15PlusLibraryIfNeeded("1.8");
+		String[] classpath = getJCLLibrary("1.8");
 		classpath = Arrays.copyOf(classpath, classpath.length+1);
 		classpath[classpath.length-1] = projectLocation + File.separator + "libMissing.jar";
 		Util.createJar(

@@ -18,7 +18,6 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.tools.Diagnostic.Kind;
-
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.apt.model.AnnotationMemberValue;
 import org.eclipse.jdt.internal.compiler.apt.model.AnnotationMirrorImpl;
@@ -225,8 +224,8 @@ public class BaseMessagerImpl {
 	}
 
 	private static Annotation findAnnotation(Annotation[] elementAnnotations, AnnotationBinding annotationBinding) {
-		for (int i = 0; i < elementAnnotations.length; i++) {
-			Annotation annotation = findAnnotation(elementAnnotations[i], annotationBinding);
+		for (Annotation elementAnnotation : elementAnnotations) {
+			Annotation annotation = findAnnotation(elementAnnotation, annotationBinding);
 			if (annotation != null) {
 				return annotation;
 			}

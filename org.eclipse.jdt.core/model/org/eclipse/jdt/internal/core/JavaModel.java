@@ -17,8 +17,6 @@ package org.eclipse.jdt.internal.core;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
-
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -29,7 +27,14 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaModel;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IOpenable;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -95,8 +100,8 @@ public boolean contains(IResource resource) {
 	} catch (JavaModelException e) {
 		return false;
 	}
-	for (int i = 0, length = projects.length; i < length; i++) {
-		JavaProject project = (JavaProject)projects[i];
+	for (IJavaProject p : projects) {
+		JavaProject project = (JavaProject)p;
 		if (!project.contains(resource)) {
 			return false;
 		}
@@ -201,9 +206,8 @@ public JavaModel getJavaModel() {
 public IJavaProject getJavaProject(IResource resource) {
 	switch(resource.getType()){
 		case IResource.FOLDER:
-			return new JavaProject(((IFolder)resource).getProject(), this);
 		case IResource.FILE:
-			return new JavaProject(((IFile)resource).getProject(), this);
+			return new JavaProject(resource.getProject(), this);
 		case IResource.PROJECT:
 			return new JavaProject((IProject)resource, this);
 		default:
@@ -308,7 +312,7 @@ protected void runOperation(MultiOperation op, IJavaElement[] elements, IJavaEle
 	op.runOperation(monitor);
 }
 /**
- * @private Debugging purposes
+ * for debugging only
  */
 @Override
 protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean showResolvedInfo) {
@@ -394,12 +398,9 @@ public static Object getExternalTarget(IPath path, boolean checkResourceExistenc
  * Helper method - returns whether an object is a file (i.e., it returns <code>true</code>
  * to {@link File#isFile()}.
  */
-public static boolean isFile(Object target) {
-	if (target instanceof File) {
-		IPath path = Path.fromOSString(((File) target).getPath());
-		return isExternalFile(path);
-	}
-	return false;
+public static boolean isFile(File target) {
+	IPath path = Path.fromOSString(target.getPath());
+	return isExternalFile(path);
 }
 
 public static boolean isJimage(File file) {
@@ -433,8 +434,8 @@ static private boolean isExternalFile(IPath path) {
  * Helper method - returns the {@link File} item if <code>target</code> is a file (i.e., the target
  * returns <code>true</code> to {@link File#isFile()}. Otherwise returns <code>null</code>.
  */
-public static File getFile(Object target) {
-	return isFile(target) ? (File) target : null;
+public static File getFile(File target) {
+	return isFile(target) ? target : null;
 }
 
 @Override

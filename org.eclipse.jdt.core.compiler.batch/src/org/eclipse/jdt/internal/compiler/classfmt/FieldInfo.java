@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.util.CharDeduplication;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 @SuppressWarnings("rawtypes")
@@ -191,7 +192,7 @@ public char[] getGenericSignature() {
 	if (this.signatureUtf8Offset != -1) {
 		if (this.signature == null) {
 			// decode the signature
-			this.signature = utf8At(this.signatureUtf8Offset + 3, u2At(this.signatureUtf8Offset + 1));
+			this.signature = CharDeduplication.intern(utf8At(this.signatureUtf8Offset + 3, u2At(this.signatureUtf8Offset + 1)));
 		}
 		return this.signature;
 	}
@@ -221,7 +222,7 @@ public char[] getName() {
 	if (this.name == null) {
 		// read the name
 		int utf8Offset = this.constantPoolOffsets[u2At(2)] - this.structOffset;
-		this.name = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+		this.name = CharDeduplication.intern(utf8At(utf8Offset + 3, u2At(utf8Offset + 1)));
 	}
 	return this.name;
 }
@@ -245,7 +246,7 @@ public char[] getTypeName() {
 	if (this.descriptor == null) {
 		// read the signature
 		int utf8Offset = this.constantPoolOffsets[u2At(4)] - this.structOffset;
-		this.descriptor = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+		this.descriptor = CharDeduplication.intern(utf8At(utf8Offset + 3, u2At(utf8Offset + 1)));
 	}
 	return this.descriptor;
 }

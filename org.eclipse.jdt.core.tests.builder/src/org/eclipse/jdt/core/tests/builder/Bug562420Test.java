@@ -14,14 +14,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
+import junit.framework.Test;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 public class Bug562420Test extends BuilderTests {
 	public Bug562420Test(String name) {
@@ -63,8 +62,10 @@ public class Bug562420Test extends BuilderTests {
 		env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, "1.8");
 		fullBuild();
 		expectingProblemsFor(projectPath,
-				"Problem : Syntax error on token \".\", , expected [ resource : </Bug562420Test/src/module-info.java> range : <28,29> category : <20> severity : <2>]\n" +
-				"Problem : Syntax error on token \".\", = expected [ resource : </Bug562420Test/src/module-info.java> range : <47,48> category : <20> severity : <2>]\n" +
-				"Problem : Syntax error on token \"module\", interface expected [ resource : </Bug562420Test/src/module-info.java> range : <0,6> category : <20> severity : <2>]");
+		"""
+		Problem : Syntax error on token ".", = expected [ resource : </Bug562420Test/src/module-info.java> range : <47,48> category : <20> severity : <2>]
+		Problem : Syntax error on token "{", ( expected [ resource : </Bug562420Test/src/module-info.java> range : <12,13> category : <20> severity : <2>]
+		Problem : Syntax error on token "}", delete this token [ resource : </Bug562420Test/src/module-info.java> range : <63,64> category : <20> severity : <2>]
+		Problem : Syntax error on token(s), misplaced construct(s) [ resource : </Bug562420Test/src/module-info.java> range : <0,33> category : <20> severity : <2>]""");
 	}
 }

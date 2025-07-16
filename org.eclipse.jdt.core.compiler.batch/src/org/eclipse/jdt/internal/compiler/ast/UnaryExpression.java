@@ -17,16 +17,22 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.flow.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class UnaryExpression extends OperatorExpression {
 
 	public Expression expression;
 	public Constant optimizedBooleanConstant;
+	private int trueInitStateIndex = -1;
 
 	public UnaryExpression(Expression expression, int operator) {
 		this.expression = expression;
@@ -44,6 +50,7 @@ public class UnaryExpression extends OperatorExpression {
 				analyseCode(currentScope, flowContext, flowInfo).
 				asNegatedCondition();
 			flowContext.tagBits ^= FlowContext.INSIDE_NEGATION;
+			this.trueInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo.initsWhenTrue());
 		} else {
 			flowInfo = this.expression.
 				analyseCode(currentScope, flowContext, flowInfo);
@@ -102,10 +109,12 @@ public class UnaryExpression extends OperatorExpression {
 							(falseLabel = new BranchLabel(codeStream)),
 							valueRequired);
 						if (valueRequired) {
+							if (this.trueInitStateIndex != -1) {
+								codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.trueInitStateIndex);
+							}
 							codeStream.iconst_0();
 							if (falseLabel.forwardReferenceCount() > 0) {
 								codeStream.goto_(endifLabel = new BranchLabel(codeStream));
-								codeStream.decrStackSize(1);
 								falseLabel.place();
 								codeStream.iconst_1();
 								endifLabel.place();
@@ -314,14 +323,6 @@ public class UnaryExpression extends OperatorExpression {
 			CastExpression.checkNeedForArgumentCast(scope, tableId, operatorSignature, this.expression, expressionTypeID);
 		}
 		return this.resolvedType;
-	}
-	@Override
-	public boolean containsPatternVariable() {
-		return this.expression.containsPatternVariable();
-	}
-	@Override
-	public LocalDeclaration getPatternVariable() {
-		return this.expression.getPatternVariable();
 	}
 
 	@Override

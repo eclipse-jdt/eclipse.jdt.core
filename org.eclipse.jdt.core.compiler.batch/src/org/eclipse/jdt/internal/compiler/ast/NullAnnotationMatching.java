@@ -19,30 +19,8 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
-import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding;
-import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
-import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
-import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.compiler.lookup.Substitution;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBindingVisitor;
-import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
-import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 /**
@@ -175,10 +153,9 @@ public class NullAnnotationMatching {
 				if (status1 == status2)
 					return status1;
 				return nullStatus; // if both branches disagree use the precomputed & merged nullStatus
-			} else if (expression instanceof SwitchExpression && expression.isPolyExpression()) {
+			} else if (expression instanceof SwitchExpression se && se.isPolyExpression()) {
 				// drill into all the branches:
-				SwitchExpression se = ((SwitchExpression) expression);
-				Expression[] resExprs = se.resultExpressions.toArray(new Expression[0]);
+				Expression[] resExprs = se.resultExpressions().toArray(new Expression[0]);
 				Expression re = resExprs[0];
 				int status0 = NullAnnotationMatching.checkAssignment(currentScope, flowContext, var, flowInfo, re.nullStatus(flowInfo, flowContext), re, re.resolvedType);
 				boolean identicalStatus = true;
@@ -274,9 +251,9 @@ public class NullAnnotationMatching {
 					}
 					TypeBinding[] superInterfaces = requiredType.superInterfaces();
 					if (superInterfaces != null) {
-						for (int i = 0; i < superInterfaces.length; i++) {
-							if (superInterfaces[i].hasNullTypeAnnotations() || substitution != null) { // annotations may enter when substituting a nested type variable
-								NullAnnotationMatching status = analyse(superInterfaces[i], providedType, null, substitution, nullStatus, providedExpression, CheckMode.BOUND_SUPER_CHECK);
+						for (TypeBinding superInterface : superInterfaces) {
+							if (superInterface.hasNullTypeAnnotations() || substitution != null) { // annotations may enter when substituting a nested type variable
+								NullAnnotationMatching status = analyse(superInterface, providedType, null, substitution, nullStatus, providedExpression, CheckMode.BOUND_SUPER_CHECK);
 								severity = severity.max(status.severity);
 								if (severity == Severity.MISMATCH)
 									return new NullAnnotationMatching(true, severity, nullStatus, superTypeHint);
@@ -814,6 +791,26 @@ public class NullAnnotationMatching {
 			return environment.createParameterizedType(ptb.genericType(), newTypeArguments, ptb.enclosingType());
 		}
 		return mainType;
+	}
+
+	/**
+	 * Help Scope.mostSpecificMethodBinding(MethodBinding[], int, TypeBinding[], InvocationSite, ReferenceBinding):
+	 * If choice between equivalent methods would otherwise be arbitrary, determine if m1 should be preferred due
+	 * to a more specific null contract.
+	 */
+	public static boolean hasMoreSpecificNullness(MethodBinding m1, MethodBinding m2) {
+		long nullness1 = m1.returnType.tagBits & TagBits.AnnotationNullMASK;
+		long nullness2 = m2.returnType.tagBits & TagBits.AnnotationNullMASK;
+		if (nullness1 == TagBits.AnnotationNonNull && nullness2 != TagBits.AnnotationNonNull)
+			return true;
+		int len = Math.max(m1.parameters.length, m2.parameters.length);
+		for (int i=0; i<len; i++) {
+			nullness1 = m1.parameters[i].tagBits & TagBits.AnnotationNullMASK;
+			nullness2 = m2.parameters[i].tagBits & TagBits.AnnotationNullMASK;
+			if (nullness1 == TagBits.AnnotationNullable && nullness2 != TagBits.AnnotationNullable)
+				return true;
+		}
+		return false;
 	}
 
 	@Override

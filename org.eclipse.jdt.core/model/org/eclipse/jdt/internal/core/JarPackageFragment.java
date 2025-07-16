@@ -14,10 +14,11 @@
 package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-
+import java.util.Map.Entry;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -29,6 +30,8 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.core.JarPackageFragmentRootInfo.PackageContent;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -36,7 +39,6 @@ import org.eclipse.jdt.internal.core.util.Util;
  *
  * @see org.eclipse.jdt.core.IPackageFragment
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 class JarPackageFragment extends PackageFragment {
 /**
  * Constructs a package fragment that is contained within a jar or a zip.
@@ -51,16 +53,16 @@ protected JarPackageFragment(PackageFragmentRoot root, String[] names) {
 protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
 	JarPackageFragmentRoot root = (JarPackageFragmentRoot) getParent();
 	JarPackageFragmentRootInfo parentInfo = (JarPackageFragmentRootInfo) root.getElementInfo();
-	ArrayList[] entries = (ArrayList[]) parentInfo.rawPackageInfo.get(this.names);
+	PackageContent entries = parentInfo.rawPackageInfo.get(Arrays.asList(this.names));
 	if (entries == null)
 		throw newNotPresentException();
 	JarPackageFragmentInfo fragInfo = (JarPackageFragmentInfo) info;
 
 	// compute children
-	fragInfo.setChildren(computeChildren(entries[0/*class files*/]));
+	fragInfo.setChildren(computeChildren(entries.javaClasses()));
 
 	// compute non-Java resources
-	fragInfo.setNonJavaResources(computeNonJavaResources(entries[1/*non Java resources*/]));
+	fragInfo.setNonJavaResources(computeNonJavaResources(entries.resources()));
 
 	newElements.put(this, fragInfo);
 	return true;
@@ -69,32 +71,31 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
  * Compute the children of this package fragment. Children of jar package fragments
  * can only be IClassFile (representing .class files).
  */
-private IJavaElement[] computeChildren(ArrayList namesWithoutExtension) {
+private IJavaElement[] computeChildren(List<String> namesWithoutExtension) {
 	int size = namesWithoutExtension.size();
 	if (size == 0)
 		return NO_ELEMENTS;
 	IJavaElement[] children = new IJavaElement[size];
 	for (int i = 0; i < size; i++) {
-		String nameWithoutExtension = (String) namesWithoutExtension.get(i);
+		String nameWithoutExtension = namesWithoutExtension.get(i);
 		if (TypeConstants.MODULE_INFO_NAME_STRING.equals(nameWithoutExtension))
 			children[i] = new ModularClassFile(this);
 		else
-			children[i] = new ClassFile(this, nameWithoutExtension);
+			children[i] = new ClassFile(this, DeduplicationUtil.intern(nameWithoutExtension));
 	}
 	return children;
 }
 /**
  * Compute all the non-java resources according to the given entry names.
  */
-private Object[] computeNonJavaResources(ArrayList entryNames) {
-	int length = entryNames.size();
-	if (length == 0)
+private Object[] computeNonJavaResources(List<String> entryNames) {
+	if (entryNames.isEmpty()) {
 		return JavaElementInfo.NO_NON_JAVA_RESOURCES;
-	HashMap jarEntries = new HashMap(); // map from IPath to IJarEntryResource
-	HashMap childrenMap = new HashMap(); // map from IPath to ArrayList<IJarEntryResource>
-	ArrayList topJarEntries = new ArrayList();
-	for (int i = 0; i < length; i++) {
-		String resName = (String) entryNames.get(i);
+	}
+	HashMap<IPath, IJarEntryResource> jarEntries = new HashMap<>();
+	HashMap<IPath, ArrayList<IPath>> childrenMap = new HashMap<>();
+	ArrayList<IJarEntryResource> topJarEntries = new ArrayList<>();
+	for (String resName: entryNames) {
 		// consider that a .java file is not a non-java resource (see bug 12246 Packages view shows .class and .java files when JAR has source)
 		if (!Util.isJavaLikeFileName(resName)) {
 			IPath filePath = new Path(resName);
@@ -111,11 +112,11 @@ private Object[] computeNonJavaResources(ArrayList entryNames) {
 			} else {
 				IPath parentPath = childPath.removeLastSegments(1);
 				while (parentPath.segmentCount() > 0) {
-					ArrayList parentChildren = (ArrayList) childrenMap.get(parentPath);
+					ArrayList<IPath> parentChildren = childrenMap.get(parentPath);
 					if (parentChildren == null) {
-						Object dir = new JarEntryDirectory(parentPath.lastSegment());
+						JarEntryDirectory dir = new JarEntryDirectory(parentPath.lastSegment());
 						jarEntries.put(parentPath, dir);
-						childrenMap.put(parentPath, parentChildren = new ArrayList());
+						childrenMap.put(parentPath, parentChildren = new ArrayList<>());
 						parentChildren.add(childPath);
 						if (parentPath.segmentCount() == 1) {
 							topJarEntries.add(dir);
@@ -131,11 +132,9 @@ private Object[] computeNonJavaResources(ArrayList entryNames) {
 			}
 		}
 	}
-	Iterator entries = childrenMap.entrySet().iterator();
-	while (entries.hasNext()) {
-		Map.Entry entry = (Map.Entry) entries.next();
-		IPath entryPath = (IPath) entry.getKey();
-		ArrayList entryValue =  (ArrayList) entry.getValue();
+	for (Entry<IPath, ArrayList<IPath>> entry: childrenMap.entrySet()) {
+		IPath entryPath = entry.getKey();
+		ArrayList<IPath> entryValue =  entry.getValue();
 		JarEntryDirectory jarEntryDirectory = (JarEntryDirectory) jarEntries.get(entryPath);
 		int size = entryValue.size();
 		IJarEntryResource[] children = new IJarEntryResource[size];
@@ -149,7 +148,7 @@ private Object[] computeNonJavaResources(ArrayList entryNames) {
 			jarEntryDirectory.setParent(this);
 		}
 	}
-	return topJarEntries.toArray(new Object[topJarEntries.size()]);
+	return topJarEntries.toArray(Object[]::new);
 }
 /**
  * Returns true if this fragment contains at least one java resource.
@@ -178,10 +177,8 @@ protected JarPackageFragmentInfo createElementInfo() {
  */
 @Override
 public IClassFile[] getAllClassFiles() throws JavaModelException {
-	ArrayList list = getChildrenOfType(CLASS_FILE);
-	IClassFile[] array= new IClassFile[list.size()];
-	list.toArray(array);
-	return array;
+	ArrayList<?> list = getChildrenOfType(CLASS_FILE);
+	return list.toArray(IClassFile[]::new);
 }
 /**
  * A jar package fragment never contains compilation units.

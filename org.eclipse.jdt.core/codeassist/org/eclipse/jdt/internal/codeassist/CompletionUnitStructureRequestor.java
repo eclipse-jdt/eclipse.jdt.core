@@ -14,7 +14,6 @@
 package org.eclipse.jdt.internal.codeassist;
 
 import java.util.Map;
-
 import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -46,21 +45,8 @@ import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
-import org.eclipse.jdt.internal.core.AnnotatableInfo;
-import org.eclipse.jdt.internal.core.Annotation;
-import org.eclipse.jdt.internal.core.CompilationUnit;
-import org.eclipse.jdt.internal.core.CompilationUnitElementInfo;
-import org.eclipse.jdt.internal.core.CompilationUnitStructureRequestor;
-import org.eclipse.jdt.internal.core.ImportContainer;
-import org.eclipse.jdt.internal.core.ImportDeclaration;
-import org.eclipse.jdt.internal.core.Initializer;
-import org.eclipse.jdt.internal.core.JavaElement;
-import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.PackageDeclaration;
-import org.eclipse.jdt.internal.core.SourceField;
-import org.eclipse.jdt.internal.core.SourceMethod;
-import org.eclipse.jdt.internal.core.SourceType;
-import org.eclipse.jdt.internal.core.TypeParameter;
+import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 
 public class CompletionUnitStructureRequestor extends CompilationUnitStructureRequestor {
 	private final ASTNode assistNode;
@@ -93,7 +79,7 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 
 	@Override
 	protected SourceField createField(JavaElement parent, FieldInfo fieldInfo) {
-		String fieldName = JavaModelManager.getJavaModelManager().intern(new String(fieldInfo.name));
+		String fieldName = DeduplicationUtil.toString(fieldInfo.name);
 		AssistSourceField field = new AssistSourceField(parent, fieldName, this.bindingCache, this.newElements);
 		FieldDeclaration decl = (FieldDeclaration) (fieldInfo.node);
 		if (decl.binding != null) {
@@ -106,7 +92,7 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 	}
 	@Override
 	protected SourceField createRecordComponent(JavaElement parent, FieldInfo compInfo) {
-		String compName = JavaModelManager.getJavaModelManager().intern(new String(compInfo.name));
+		String compName = DeduplicationUtil.toString(compInfo.name);
 		SourceField comp = new AssistSourceField(parent, compName, this.bindingCache, this.newElements) {
 			@Override
 			public boolean isRecordComponent() throws JavaModelException {
@@ -140,7 +126,7 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 
 	@Override
 	protected SourceMethod createMethodHandle(JavaElement parent, MethodInfo methodInfo) {
-		String selector = JavaModelManager.getJavaModelManager().intern(new String(methodInfo.name));
+		String selector = DeduplicationUtil.toString(methodInfo.name);
 		String[] parameterTypeSigs = convertTypeNamesToSigs(methodInfo.parameterTypes);
 		AssistSourceMethod method = new AssistSourceMethod(parent, selector, parameterTypeSigs, this.bindingCache, this.newElements);
 		if (methodInfo.node.binding != null) {
@@ -236,18 +222,18 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 			ParameterizedSingleTypeReference parameterizedReference = (ParameterizedSingleTypeReference) reference;
 			TypeReference[] typeArguments = parameterizedReference.typeArguments;
 			if (typeArguments != null) {
-				for (int i = 0; i < typeArguments.length; i++) {
-					if (hasEmptyName(typeArguments[i], assistNode)) return true;
+				for (TypeReference typeArgument : typeArguments) {
+					if (hasEmptyName(typeArgument, assistNode)) return true;
 				}
 			}
 		} else if (reference instanceof ParameterizedQualifiedTypeReference) {
 			ParameterizedQualifiedTypeReference parameterizedReference = (ParameterizedQualifiedTypeReference) reference;
 			TypeReference[][] typeArguments = parameterizedReference.typeArguments;
 			if (typeArguments != null) {
-				for (int i = 0; i < typeArguments.length; i++) {
-					if (typeArguments[i] != null) {
-						for (int j = 0; j < typeArguments[i].length; j++) {
-							if (hasEmptyName(typeArguments[i][j], assistNode)) return true;
+				for (TypeReference[] typeArgument : typeArguments) {
+					if (typeArgument != null) {
+						for (int j = 0; j < typeArgument.length; j++) {
+							if (hasEmptyName(typeArgument[j], assistNode)) return true;
 						}
 					}
 				}

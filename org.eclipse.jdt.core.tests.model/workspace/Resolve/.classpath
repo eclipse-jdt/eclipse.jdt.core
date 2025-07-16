@@ -2,7 +2,7 @@
 <classpath>
     <classpathentry kind="src" path="src"/>
     <classpathentry kind="src" path="src2"/>
-    <classpathentry kind="var" path="JCL_LIB" sourcepath="JCL_SRC" rootpath="JCL_SRCROOT"/>
+    <classpathentry kind="var" path="JCL18_LIB" sourcepath="JCL18_SRC" rootpath="JCL_SRCROOT"/>
     <classpathentry kind="lib" path="zzz.jar" sourcepath="/Resolve/zzzsrc.zip"/>
     <classpathentry kind="lib" path="p3.jar" sourcepath="/Resolve/p3src.zip"/>
     <classpathentry kind="lib" path="jj.jar" sourcepath="/Resolve/jjsrc.zip"/>

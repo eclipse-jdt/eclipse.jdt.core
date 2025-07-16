@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,9 +14,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.Hashtable;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -45,7 +43,7 @@ public static Test suite() {
 @Override
 protected void setUp() throws Exception {
 	super.setUp();
-	setUpProjectOptions(CompilerOptions.VERSION_1_4); // default compliance
+	setUpProjectOptions(CompilerOptions.getFirstSupportedJavaVersion()); // default compliance
 }
 
 /**
@@ -69,10 +67,15 @@ public void test001() throws JavaModelException {
 		"since[JAVADOC_BLOCK_TAG]{@since, null, null, since, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"serialField[JAVADOC_BLOCK_TAG]{@serialField, null, null, serialField, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"apiNote[JAVADOC_BLOCK_TAG]{@apiNote, null, null, apiNote, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"implSpec[JAVADOC_BLOCK_TAG]{@implSpec, null, null, implSpec, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"implNote[JAVADOC_BLOCK_TAG]{@implNote, null, null, implNote, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
-		"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+		"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"code[JAVADOC_INLINE_TAG]{{@code}, null, null, code, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"literal[JAVADOC_INLINE_TAG]{{@literal}, null, null, literal, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
 
@@ -140,7 +143,7 @@ public void test005() throws JavaModelException {
 }
 
 public void test006() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_3);
+	setUpProjectOptions(CompilerOptions.getFirstSupportedJavaVersion());
 	String source =
 		"package javadoc.fields;\n" +
 		"public class Test {\n" +
@@ -158,13 +161,20 @@ public void test006() throws JavaModelException {
 		"since[JAVADOC_BLOCK_TAG]{@since, null, null, since, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"serialField[JAVADOC_BLOCK_TAG]{@serialField, null, null, serialField, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"apiNote[JAVADOC_BLOCK_TAG]{@apiNote, null, null, apiNote, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"implSpec[JAVADOC_BLOCK_TAG]{@implSpec, null, null, implSpec, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"implNote[JAVADOC_BLOCK_TAG]{@implNote, null, null, implNote, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
-		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}"
+		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"value[JAVADOC_INLINE_TAG]{{@value}, null, null, value, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"code[JAVADOC_INLINE_TAG]{{@code}, null, null, code, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"literal[JAVADOC_INLINE_TAG]{{@literal}, null, null, literal, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
 
 public void test007() throws JavaModelException {
-	setUpProjectOptions(CompilerOptions.VERSION_1_5);
+	setUpProjectOptions(CompilerOptions.getFirstSupportedJavaVersion());
 	String source =
 		"package javadoc.fields;\n" +
 		"public class Test {\n" +
@@ -182,6 +192,9 @@ public void test007() throws JavaModelException {
 		"since[JAVADOC_BLOCK_TAG]{@since, null, null, since, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"serial[JAVADOC_BLOCK_TAG]{@serial, null, null, serial, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"serialField[JAVADOC_BLOCK_TAG]{@serialField, null, null, serialField, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"apiNote[JAVADOC_BLOCK_TAG]{@apiNote, null, null, apiNote, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"implSpec[JAVADOC_BLOCK_TAG]{@implSpec, null, null, implSpec, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
+		"implNote[JAVADOC_BLOCK_TAG]{@implNote, null, null, implNote, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"link[JAVADOC_INLINE_TAG]{{@link}, null, null, link, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"docRoot[JAVADOC_INLINE_TAG]{{@docRoot}, null, null, docRoot, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
 		"linkplain[JAVADOC_INLINE_TAG]{{@linkplain}, null, null, linkplain, null, "+this.positions+JAVADOC_RELEVANCE+"}\n" +
@@ -206,7 +219,7 @@ public void test010() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "Obj");
 	assertResults(
-		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNR+"}"
+		"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+this.positions+R_DRICUNRJ+"}"
 	);
 }
 
@@ -257,7 +270,9 @@ public void test013() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "java.la");
 	assertResults(
-		"java.lang[PACKAGE_REF]{java.lang, java.lang, null, null, null, "+this.positions+R_DRICQNR+"}"
+		"java.lang.annotation[PACKAGE_REF]{java.lang.annotation, java.lang.annotation, null, null, null, "+this.positions+R_DRICQNR+"}\n" +
+		"java.lang[PACKAGE_REF]{java.lang, java.lang, null, null, null, "+this.positions+R_DRICQNR+"}\n" +
+		"java.lang.invoke[PACKAGE_REF]{java.lang.invoke, java.lang.invoke, null, null, null, "+this.positions+R_DRICQNR+"}"
 	);
 }
 
@@ -294,8 +309,10 @@ public void test015() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "I");
 	assertSortedResults(
-		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DRICUNR+"}\n" +
-		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DRICUNR+"}"
+		"IllegalMonitorStateException[TYPE_REF]{IllegalMonitorStateException, java.lang, Ljava.lang.IllegalMonitorStateException;, null, null, "+this.positions+R_DRICUNRJ+"}\n" +
+		"InterruptedException[TYPE_REF]{InterruptedException, java.lang, Ljava.lang.InterruptedException;, null, null, "+this.positions+R_DRICUNRJ+"}\n" +
+		"Inherited[TYPE_REF]{java.lang.annotation.Inherited, java.lang.annotation, Ljava.lang.annotation.Inherited;, null, null, "+this.positions+R_DRICNRJ+"}\n" +
+		"Iterator[TYPE_REF]{java.util.Iterator, java.util, Ljava.util.Iterator;, null, null, "+this.positions+R_DRICNRJ+"}"
 	);
 }
 
@@ -395,7 +412,7 @@ public void test024() throws JavaModelException {
 		"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, "+this.positions+R_DRICNRNS+"}\n" +
 		"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, "+this.positions+R_DRICNRNS+"}\n" +
 		"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+this.positions+R_DRICNRNS+"}\n" +
-		"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, "+this.positions+R_DRICNRNS+"}\n" +
 		"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, "+this.positions+R_DRICNRNS+"}\n" +
 		"equals[METHOD_REF]{equals(Object), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+this.positions+R_DRICNRNS+"}\n" +
 		"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DRICNRNS+"}\n" +
@@ -425,7 +442,7 @@ public void test025() throws JavaModelException {
 		"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, "+this.positions+R_DRICNRNS+"}\n" +
 		"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, "+this.positions+R_DRICNRNS+"}\n" +
 		"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+this.positions+R_DRICNRNS+"}\n" +
-		"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, "+this.positions+R_DRICNRNS+"}\n" +
 		"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, "+this.positions+R_DRICNRNS+"}\n" +
 		"equals[METHOD_REF]{equals(Object), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+this.positions+R_DRICNRNS+"}\n" +
 		"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DRICNRNS+"}\n" +
@@ -455,7 +472,7 @@ public void test026() throws JavaModelException {
 		"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, "+this.positions+R_DRICNRNS+"}\n" +
 		"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, "+this.positions+R_DRICNRNS+"}\n" +
 		"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+this.positions+R_DRICNRNS+"}\n" +
-		"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, "+this.positions+R_DRICNRNS+"}\n" +
+		"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, "+this.positions+R_DRICNRNS+"}\n" +
 		"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, "+this.positions+R_DRICNRNS+"}\n" +
 		"equals[METHOD_REF]{equals(Object), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+this.positions+R_DRICNRNS+"}\n" +
 		"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+this.positions+R_DRICNRNS+"}\n" +
@@ -495,7 +512,7 @@ public void test028() throws JavaModelException {
 	);
 }
 /**
- * @tests Tests for camel case completion
+ * tests Tests for camel case completion
  */
 public void test030() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();

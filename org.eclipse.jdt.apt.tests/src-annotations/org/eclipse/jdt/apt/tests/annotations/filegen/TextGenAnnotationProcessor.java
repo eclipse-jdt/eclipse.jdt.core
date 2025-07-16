@@ -14,18 +14,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.tests.annotations.filegen;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Collection;
-
-import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
-import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
-
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.Filer;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 import com.sun.mirror.declaration.Declaration;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Collection;
+import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
+import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 
 public class TextGenAnnotationProcessor extends BaseProcessor {
 

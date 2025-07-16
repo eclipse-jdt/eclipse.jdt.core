@@ -14,10 +14,8 @@
 package org.eclipse.jdt.core.tests.eval;
 
 import java.util.ArrayList;
-
-import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
-
 import junit.framework.Test;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 /**
  * Run all tests defined in this package.
  */
@@ -35,6 +33,7 @@ public static Test suite() {
 	testClasses.add(NegativeCodeSnippetTest.class);
 	testClasses.add(NegativeVariableTest.class);
 	testClasses.add(DebugEvaluationTest.class);
+	testClasses.add(EvaluationContextWrapperTest.class);
 
 	return AbstractCompilerTest.buildAllCompliancesTestSuite(TestAll.class, DebugEvaluationSetup.class, testClasses);
 }

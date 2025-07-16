@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -18,7 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Hashtable;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
@@ -34,8 +34,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.tests.util.Util;
-
-import junit.framework.Test;
 
 public class ReconcilerTests9 extends ModifyingResourceTests {
 
@@ -400,6 +398,65 @@ public void testTerminalDeprecation2() throws CoreException, IOException {
 			"	          ^^^^^\n" +
 			deprecatedForRemoval("The field X2.field") +
 			"----------\n");
+	} finally {
+		deleteProject("P1");
+	}
+}
+public void testSinceDeprecation() throws CoreException, IOException {
+	try {
+		IJavaProject p1 = createJava9Project("P1");
+		String x1Source = "package p;\n" +
+				"public class X1 {\n" +
+				    "@Deprecated(since=\"10\")\n" +
+				    "public void foo() {}\n" +
+				"}";
+		String x2Source = "package p;\n" +
+			"public class X2 {\n" +
+			"	public Object field;\n" +
+			"   @Deprecated(since=\"9\")\n" +
+			"	public void m() {}\n" +
+			"}\n";
+		String[] allJarSources = (isJRE9)
+				? new String[] {
+					"p/X1.java",
+					x1Source,
+					"/P1/src/p/X2.java",
+					x2Source }
+				: new String[] {
+					"java/lang/Deprecated.java",
+					"package java.lang;\n" +
+					"public @interface Deprecated {\n" +
+					"   String since default \"\";" +
+					"	boolean forRemoval() default false;" +
+					"}\n",
+					"p/X1.java",
+					x1Source,
+					"/P1/src/p/X2.java",
+					x2Source };
+		createJar(
+				allJarSources,
+				p1.getProject().getLocation().append("lib.jar").toOSString(),
+				null,
+				"9");
+		p1.getProject().refreshLocal(2, null);
+		addLibraryEntry(p1, "/P1/lib.jar", false);
+
+		setUpWorkingCopy("/P1/src/Y.java",
+				"public class Y {\n" +
+						"	Object foo(p.X1 x1, p.X2 x2) {\n" +
+						"		x2.m();\n" +
+						"		x1.foo();\n" +
+						"		return x2.field;\n" +
+						"	}\n" +
+				"}\n");
+		assertProblems(
+				"Unexpected problems",
+				"----------\n" +
+				"1. WARNING in /P1/src/Y.java (at line 3)\n" +
+				"	x2.m();\n" +
+				"	   ^^^\n" +
+				"The method m() from the type X2 is deprecated since version 9\n" +
+				"----------\n");
 	} finally {
 		deleteProject("P1");
 	}

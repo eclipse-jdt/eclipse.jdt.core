@@ -19,10 +19,17 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.impl.*;
-import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.flow.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.flow.LoopingFlowContext;
+import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 public class DoStatement extends Statement {
 
@@ -226,8 +233,7 @@ public StringBuilder printStatement(int indent, StringBuilder output) {
 
 @Override
 public LocalVariableBinding[] bindingsWhenComplete() {
-	return this.condition.containsPatternVariable() && this.action != null && !this.action.breaksOut(null) ?
-			this.condition.bindingsWhenFalse() : NO_VARIABLES;
+	return this.action != null && !this.action.breaksOut(null) ? this.condition.bindingsWhenFalse() : NO_VARIABLES;
 }
 
 @Override
@@ -239,10 +245,6 @@ public void resolve(BlockScope scope) {
 	}
 }
 
-@Override
-public boolean containsPatternVariable() {
-	return this.condition.containsPatternVariable();
-}
 @Override
 public void traverse(ASTVisitor visitor, BlockScope scope) {
 	if (visitor.visit(this, scope)) {

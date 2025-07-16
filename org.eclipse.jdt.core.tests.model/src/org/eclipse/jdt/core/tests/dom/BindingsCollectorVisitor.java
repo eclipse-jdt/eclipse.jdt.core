@@ -15,7 +15,6 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.util.HashMap;
 import java.util.HashSet;
-
 import org.eclipse.jdt.core.dom.*;
 /**
  * @author oliviert

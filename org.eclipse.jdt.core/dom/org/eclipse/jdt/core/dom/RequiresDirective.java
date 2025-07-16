@@ -13,7 +13,6 @@
 package org.eclipse.jdt.core.dom;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -81,7 +80,7 @@ public class RequiresDirective extends ModuleDirective {
 	 * The referenced module name; lazily initialized; defaults to a unspecified,
 	 * legal Java identifier.
 	 */
-	private Name name = null;
+	private volatile Name name;
 
 	/**
 	 * Creates a new AST node for an requires directive owned by the
@@ -186,8 +185,7 @@ public class RequiresDirective extends ModuleDirective {
 		// do not cache - performance could be improved by caching computed flags
 		// but this would require tracking changes to this.modifiers
 		int computedModifierFlags = ModuleModifier.NONE;
-		for (Iterator it = modifiers().iterator(); it.hasNext(); ) {
-			Object x = it.next();
+		for (Object x : modifiers()) {
 			if (x instanceof ModuleModifier) {
 				computedModifierFlags |= ((ModuleModifier) x).getKeyword().toFlagValue();
 			}
@@ -206,9 +204,9 @@ public class RequiresDirective extends ModuleDirective {
 			synchronized (this) {
 				if (this.name == null) {
 					preLazyInit();
-					this.name =this.ast.newQualifiedName(
-							new SimpleName(this.ast), new SimpleName(this.ast));
-					postLazyInit(this.name, NAME_PROPERTY);
+					this.name = postLazyInit(
+							this.ast.newQualifiedName(new SimpleName(this.ast), new SimpleName(this.ast)),
+							NAME_PROPERTY);
 				}
 			}
 		}

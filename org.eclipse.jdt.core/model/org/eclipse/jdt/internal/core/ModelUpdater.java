@@ -16,8 +16,11 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.HashSet;
 import java.util.Iterator;
-
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaElementDelta;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaModelException;
 
 /**
  * This class is used by <code>JavaModelManager</code> to update the JavaModel
@@ -235,8 +238,7 @@ public class ModelUpdater {
 		}
 		if (processChildren) {
 			IJavaElementDelta[] children = delta.getAffectedChildren();
-			for (int i = 0; i < children.length; i++) {
-				IJavaElementDelta childDelta = children[i];
+			for (IJavaElementDelta childDelta : children) {
 				traverseDelta(childDelta, root, project);
 			}
 		}

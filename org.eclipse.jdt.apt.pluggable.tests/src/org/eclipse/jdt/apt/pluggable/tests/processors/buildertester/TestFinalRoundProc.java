@@ -17,7 +17,6 @@ package org.eclipse.jdt.apt.pluggable.tests.processors.buildertester;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Set;
-
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -27,7 +26,6 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic.Kind;
 import javax.tools.JavaFileObject;
-
 import org.eclipse.jdt.apt.pluggable.tests.annotations.FinalRoundTestTrigger;
 
 /**

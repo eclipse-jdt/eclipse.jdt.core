@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,16 +14,25 @@
 
 package org.eclipse.jdt.core.tests.dom;
 
-import java.util.*;
-
+import java.util.Enumeration;
+import java.util.List;
 import junit.framework.Test;
-
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.jdom.*;
+import org.eclipse.jdt.core.jdom.DOMFactory;
+import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
+import org.eclipse.jdt.core.jdom.IDOMMethod;
+import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.core.jdom.IDOMType;
 import org.eclipse.jdt.core.util.IModifierConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings("rawtypes")
 public class ASTConverterTest extends ConverterTestSetup {
@@ -499,7 +508,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * i &= 2 ==> ExpressionStatement(Assignment)
+	 * {@code i &= 2} ==> ExpressionStatement(Assignment)
 	 */
 	public void test0020() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0020", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -571,7 +580,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * i <<= 2; ==> ExpressionStatement(Assignment)
+	 * {@code i <<= 2;} ==> ExpressionStatement(Assignment)
 	 */
 	public void test0024() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0024", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1377,7 +1386,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * BinaryExpression (&) ==> InfixExpression
+	 * BinaryExpression {@code (&)} ==> InfixExpression
 	 * @deprecated using deprecated code
 	 */
 	public void test0063() throws JavaModelException {
@@ -1429,7 +1438,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * BinaryExpression (<) ==> InfixExpression
+	 * BinaryExpression {@code (<)} ==> InfixExpression
 	 * @deprecated using deprecated code
 	 */
 	public void test0065() throws JavaModelException {
@@ -1455,7 +1464,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * BinaryExpression (<=) ==> InfixExpression
+	 * BinaryExpression {@code (<=)} ==> InfixExpression
 	 * @deprecated using deprecated code
 	 */
 	public void test0066() throws JavaModelException {
@@ -6715,7 +6724,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertTrue("Not a type literal", expression instanceof TypeLiteral); //$NON-NLS-1$
 		ITypeBinding typeBinding = expression.resolveTypeBinding();
 		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
-		assertEquals("Wrong name", "Class", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong name", "Class<String>", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -6739,7 +6748,7 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertTrue("Not a type literal", expression instanceof TypeLiteral); //$NON-NLS-1$
 		ITypeBinding typeBinding = expression.resolveTypeBinding();
 		assertNotNull("No type binding", typeBinding); //$NON-NLS-1$
-		assertEquals("Wrong name", "Class", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		assertEquals("Wrong name", "Class<String>", typeBinding.getName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
@@ -7160,8 +7169,8 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("Wrong size", 2, compilationUnit.getMessages().length); //$NON-NLS-1$
-		assertEquals("Wrong size", 2, compilationUnit.getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong size", 1, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertEquals("Wrong size", 1, compilationUnit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
 		assertTrue("Not an ExpressionStatement", node instanceof ExpressionStatement); //$NON-NLS-1$
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
@@ -7698,8 +7707,8 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertNotNull("No result", result); //$NON-NLS-1$
 		assertTrue("Not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("Wrong size", 2, compilationUnit.getMessages().length); //$NON-NLS-1$
-		assertEquals("Wrong size", 2, compilationUnit.getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong size", 4, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertEquals("Wrong size", 4, compilationUnit.getProblems().length); //$NON-NLS-1$
 	}
 
 	/**
@@ -8595,8 +8604,8 @@ public class ASTConverterTest extends ConverterTestSetup {
 			compiler_compliance = preferences.get(JavaCore.COMPILER_COMPLIANCE, null);
 
 			preferences.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
-			preferences.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
-			preferences.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+			preferences.put(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+			preferences.put(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
 
 			ASTNode result = runConversion(sourceUnit, true);
 			assertNotNull("No compilation unit", result); //$NON-NLS-1$

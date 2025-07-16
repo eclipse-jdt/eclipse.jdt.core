@@ -47,15 +47,14 @@ public String[] getCommandLine() {
 
 	// debug mode
 	if (this.debugPort != -1) {
-		commandLine.add("-Xdebug");
-		commandLine.add("-Xnoagent");
+		addDebugOptions(commandLine);
 		// commandLine.add("-Djava.compiler=NONE");
 		commandLine.add(
 			"-Xrunjdwp:transport=dt_socket,address=" +
 			this.debugPort +
 			",server=y,suspend=n");
 	} else {
-		commandLine.add("-Xdebug");
+		addDebugOptions(commandLine);
 	}
 
 	// regular classpath

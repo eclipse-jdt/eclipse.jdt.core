@@ -29,8 +29,8 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IRecordComponent;
 import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
-import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 public class HierarchyBinaryType implements IBinaryType {
@@ -122,8 +122,8 @@ public char[] getGenericSignature() {
 	if (this.typeParameterSignatures != null && this.genericSignature == null) {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append('<');
-		for (int i = 0, length = this.typeParameterSignatures.length; i < length; i++) {
-			buffer.append(this.typeParameterSignatures[i]);
+		for (char[] typeParameterSignature : this.typeParameterSignatures) {
+			buffer.append(typeParameterSignature);
 		}
 		buffer.append('>');
 		if (this.superclass == null)
@@ -131,8 +131,8 @@ public char[] getGenericSignature() {
 		else
 			buffer.append(Signature.createTypeSignature(this.superclass, true/*resolved*/));
 		if (this.superInterfaces != null)
-			for (int i = 0, length = this.superInterfaces.length; i < length; i++)
-				buffer.append(Signature.createTypeSignature(this.superInterfaces[i], true/*resolved*/));
+			for (char[] superInterface : this.superInterfaces)
+				buffer.append(Signature.createTypeSignature(superInterface, true/*resolved*/));
 		this.genericSignature = buffer.toString().toCharArray();
 		CharOperation.replace(this.genericSignature, '.', '/');
 	}

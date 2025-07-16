@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2019 IBM Corporation and others.
+ * Copyright (c) 2017, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,11 +13,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.ICompilationUnit;
-
-import junit.framework.Test;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class CompletionTests3 extends AbstractJavaModelCompletionTests {
 
@@ -41,7 +41,7 @@ public static Test suite() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=338398
 public void testBug338398a() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/a/A.java",
@@ -76,7 +76,7 @@ public void testBug338398a() throws CoreException {
 }
 public void _testBug338398b() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/a/A_CLASS.java",
@@ -102,7 +102,7 @@ public void _testBug338398b() throws CoreException {
 }
 public void _testBug338398c() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/a/A_CLASS.java",
@@ -128,7 +128,7 @@ public void _testBug338398c() throws CoreException {
 }
 public void testBug504095() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/a/Bug504095.java",
@@ -157,7 +157,7 @@ public void testBug504095() throws CoreException {
 }
 public void testBug425035a() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -198,7 +198,7 @@ public void testBug425035a() throws CoreException {
 }
 public void testBug425035b() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -238,7 +238,7 @@ public void testBug425035b() throws CoreException {
 }
 public void testBug425035c() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -279,7 +279,7 @@ public void testBug425035c() throws CoreException {
 }
 public void testBug425035d() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -319,7 +319,7 @@ public void testBug425035d() throws CoreException {
 }
 public void testBug425035e() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -359,7 +359,7 @@ public void testBug425035e() throws CoreException {
 }
 public void testBug425035f() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -400,7 +400,7 @@ public void testBug425035f() throws CoreException {
 }
 public void testBug425035_method_a() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -444,7 +444,7 @@ public void testBug425035_method_a() throws CoreException {
 }
 public void testBug425035_method_b() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -487,7 +487,7 @@ public void testBug425035_method_b() throws CoreException {
 }
 public void testBug425035_method_c() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -531,7 +531,7 @@ public void testBug425035_method_c() throws CoreException {
 }
 public void testBug425035_method_c2() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/b/Test.java",
@@ -563,7 +563,7 @@ public void testBug425035_method_c2() throws CoreException {
 }
 public void testBug425035_method_d() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -606,7 +606,7 @@ public void testBug425035_method_d() throws CoreException {
 }
 public void testBug425035_method_e() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -649,7 +649,7 @@ public void testBug425035_method_e() throws CoreException {
 }
 public void testBug425035_method_f() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -693,7 +693,7 @@ public void testBug425035_method_f() throws CoreException {
 }
 public void testBug547256() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/jdt/Something.java",
@@ -726,7 +726,7 @@ public void testBug547256() throws CoreException {
 }
 public void testBug574215() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/jdt/Something.java",
@@ -773,7 +773,7 @@ public void testBug574215() throws CoreException {
 }
 public void testBug574215_field() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/jdt/Something.java",
@@ -821,7 +821,7 @@ public void testBug574215_field() throws CoreException {
 }
 public void testBug574215_type_not_field() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/jdt/Something.java",
@@ -847,7 +847,7 @@ public void testBug574215_type_not_field() throws CoreException {
 }
 public void testBug574215_withToken() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/jdt/Something.java",
@@ -884,7 +884,7 @@ public void testBug574215_withToken() throws CoreException {
 }
 public void testBug574338() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/Snippet.java",
@@ -934,7 +934,7 @@ public void testBug574338() throws CoreException {
 }
 public void testBug574338_from574215c14() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/a/Bug574338.java",
@@ -963,7 +963,7 @@ public void testBug574338_from574215c14() throws CoreException {
 }
 public void testBug574704() throws Exception {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/Cast.java",
@@ -1008,7 +1008,7 @@ public void testBug574704() throws Exception {
 }
 public void testBug574704_withPrefix() throws Exception {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/Cast.java",
@@ -1030,7 +1030,7 @@ public void testBug574704_withPrefix() throws Exception {
 		int cursorLocation = str.indexOf(completeBefore);
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
-		int relevanceNoCase = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_UNQUALIFIED + R_NON_RESTRICTED;
+		int relevanceNoCase = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_UNQUALIFIED + R_NON_RESTRICTED + R_JAVA_LIBRARY;
 		assertResults(
 				"Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+relevanceNoCase+"}\n" +
 				"oArg[LOCAL_VARIABLE_REF]{oArg, null, Ljava.lang.Object;, oArg, null, "+relevance+"}\n" +
@@ -1042,7 +1042,7 @@ public void testBug574704_withPrefix() throws Exception {
 }
 public void testBug574803() throws Exception {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/X.java",
@@ -1076,7 +1076,7 @@ public void testBug574803() throws Exception {
 }
 public void testBug575032() throws Exception {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/Overwrite.java",
@@ -1130,7 +1130,7 @@ public void testBug575032() throws Exception {
 }
 public void testBug575032b() throws Exception {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/Overwrite.java",
@@ -1173,7 +1173,7 @@ public void testBug575032b() throws Exception {
 }
 public void testBug574979() throws Exception {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/Bug.java",
@@ -1190,7 +1190,7 @@ public void testBug574979() throws Exception {
 		String completeAfter = "Str";
 		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-		int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
+		int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_JAVA_LIBRARY;
 		assertResults(
 			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+relevance+"}",
 			requestor.getResults());

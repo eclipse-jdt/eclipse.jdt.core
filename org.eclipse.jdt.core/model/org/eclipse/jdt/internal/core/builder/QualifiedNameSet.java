@@ -64,9 +64,8 @@ private void rehash() {
 @Override
 public String toString() {
 	String s = ""; //$NON-NLS-1$
-	char[][] qualifiedName;
-	for (int i = 0, l = this.qualifiedNames.length; i < l; i++)
-		if ((qualifiedName = this.qualifiedNames[i]) != null)
+	for (char[][] qualifiedName : this.qualifiedNames)
+		if (qualifiedName != null)
 			s += CharOperation.toString(qualifiedName) + "\n"; //$NON-NLS-1$
 	return s;
 }

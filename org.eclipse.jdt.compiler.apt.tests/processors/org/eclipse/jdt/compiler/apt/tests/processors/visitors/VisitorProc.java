@@ -19,7 +19,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -37,7 +36,6 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.AbstractAnnotationValueVisitor6;
 import javax.lang.model.util.ElementScanner6;
-
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
 /**

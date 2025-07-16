@@ -15,7 +15,6 @@
 package org.eclipse.jdt.apt.core.internal;
 
 import java.io.File;
-
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaCore;
 

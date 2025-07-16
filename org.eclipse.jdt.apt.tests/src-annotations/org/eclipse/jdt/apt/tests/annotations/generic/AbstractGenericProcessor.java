@@ -10,13 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.tests.annotations.generic;
 
-import java.util.Collection;
-
 import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 import com.sun.mirror.declaration.Declaration;
-
+import java.util.Collection;
 import junit.framework.AssertionFailedError;
 
 public abstract class AbstractGenericProcessor implements AnnotationProcessor {

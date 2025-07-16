@@ -15,9 +15,18 @@
 
 package org.eclipse.jdt.apt.tests;
 
+import com.sun.mirror.apt.AnnotationProcessorEnvironment;
+import com.sun.mirror.declaration.AnnotationMirror;
+import com.sun.mirror.declaration.AnnotationTypeDeclaration;
+import com.sun.mirror.declaration.AnnotationTypeElementDeclaration;
+import com.sun.mirror.declaration.AnnotationValue;
+import com.sun.mirror.declaration.Declaration;
+import com.sun.mirror.declaration.TypeDeclaration;
+import com.sun.mirror.util.SourcePosition;
 import java.util.Collection;
 import java.util.Map;
-
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.env.EnvironmentFactory;
@@ -30,18 +39,6 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-
-import com.sun.mirror.apt.AnnotationProcessorEnvironment;
-import com.sun.mirror.declaration.AnnotationMirror;
-import com.sun.mirror.declaration.AnnotationTypeDeclaration;
-import com.sun.mirror.declaration.AnnotationTypeElementDeclaration;
-import com.sun.mirror.declaration.AnnotationValue;
-import com.sun.mirror.declaration.Declaration;
-import com.sun.mirror.declaration.TypeDeclaration;
-import com.sun.mirror.util.SourcePosition;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 public class MirrorDeclarationTests extends APTTestBase {
 

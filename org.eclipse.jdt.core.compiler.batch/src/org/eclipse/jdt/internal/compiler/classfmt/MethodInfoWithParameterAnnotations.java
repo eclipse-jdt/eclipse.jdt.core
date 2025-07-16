@@ -26,25 +26,29 @@ MethodInfoWithParameterAnnotations(MethodInfo methodInfo, AnnotationInfo[] annot
 }
 @Override
 public IBinaryAnnotation[] getParameterAnnotations(int index, char[] classFileName) {
-	try {
-		return this.parameterAnnotations == null ? null : this.parameterAnnotations[index];
-	} catch (ArrayIndexOutOfBoundsException aioobe) {
-		// detailed reporting to track down https://bugs.eclipse.org/474081
-		StringBuilder message = new StringBuilder("Mismatching number of parameter annotations, "); //$NON-NLS-1$
-		message.append(index);
-		message.append('>');
-		message.append(this.parameterAnnotations.length-1);
-		message.append(" in "); //$NON-NLS-1$
-		message.append(getSelector());
-		char[] desc = getGenericSignature();
-		if (desc != null)
-			message.append(desc);
-		else
-			message.append(getMethodDescriptor());
-		if (classFileName != null)
-			message.append(" in ").append(classFileName); //$NON-NLS-1$
-		throw new IllegalStateException(message.toString(), aioobe);
+	if (this.parameterAnnotations != null) {
+		if (index < this.parameterAnnotations.length) {
+			return this.parameterAnnotations[index];
+		}
+		if (Boolean.getBoolean("jdt.reject.parameterAnnotations.countMismatch")) { //$NON-NLS-1$
+			// detailed reporting to track down https://bugs.eclipse.org/474081
+			StringBuilder message = new StringBuilder("Mismatching number of parameter annotations, "); //$NON-NLS-1$
+			message.append(index);
+			message.append('>');
+			message.append(this.parameterAnnotations.length-1);
+			message.append(" in "); //$NON-NLS-1$
+			message.append(getSelector());
+			char[] desc = getGenericSignature();
+			if (desc != null)
+				message.append(desc);
+			else
+				message.append(getMethodDescriptor());
+			if (classFileName != null)
+				message.append(" in ").append(classFileName); //$NON-NLS-1$
+			throw new IllegalStateException(message.toString());
+		}
 	}
+	return null;
 }
 @Override
 public int getAnnotatedParametersCount() {

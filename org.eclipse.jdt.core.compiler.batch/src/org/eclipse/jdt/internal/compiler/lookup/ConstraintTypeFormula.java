@@ -17,7 +17,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.eclipse.jdt.internal.compiler.ast.Invocation;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
@@ -63,6 +62,10 @@ class ConstraintTypeFormula extends ConstraintFormula {
 	// return: ReductionResult or ConstraintFormula[]
 	@Override
 	public Object reduce(InferenceContext18 inferenceContext) {
+		if ((this.left.tagBits & TagBits.HasMissingType) != 0 || (this.right.tagBits & TagBits.HasMissingType) != 0) {
+			inferenceContext.hasIgnoredMissingType = true;
+			return TRUE;
+		}
 		switch (this.relation) {
 		case COMPATIBLE:
 			// 18.2.2:
@@ -113,6 +116,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 					return ConstraintTypeFormula.create(this.left, this.right, SAME, this.isSoft);
 				} else {
 					// TODO: speculative addition:
+					//       see also note in BoundSet.combineSameSameWithProperType(..)
 					if (this.right instanceof InferenceVariable)
 						return new TypeBound((InferenceVariable) this.right, this.left, SAME, this.isSoft);
 					return FALSE;
@@ -316,8 +320,8 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				if (subCandidate.kind() == Binding.INTERSECTION_TYPE) {
 					ReferenceBinding[] intersectingTypes = subCandidate.getIntersectingTypes();
 					if (intersectingTypes != null)
-						for (int i = 0; i < intersectingTypes.length; i++)
-							if (TypeBinding.equalsEquals(intersectingTypes[i], superCandidate))
+						for (ReferenceBinding intersectingType : intersectingTypes)
+							if (TypeBinding.equalsEquals(intersectingType, superCandidate))
 								return true;
 				}
 				WildcardBinding variable = (WildcardBinding) superCandidate;
@@ -329,8 +333,8 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				if (subCandidate.kind() == Binding.INTERSECTION_TYPE) {
 					ReferenceBinding[] intersectingTypes = subCandidate.getIntersectingTypes();
 					if (intersectingTypes != null)
-						for (int i = 0; i < intersectingTypes.length; i++)
-							if (TypeBinding.equalsEquals(intersectingTypes[i], superCandidate))
+						for (ReferenceBinding intersectingType : intersectingTypes)
+							if (TypeBinding.equalsEquals(intersectingType, superCandidate))
 								return true;
 				}
 				if (superCandidate instanceof CaptureBinding) {
@@ -368,9 +372,9 @@ class ConstraintTypeFormula extends ConstraintFormula {
 			result = (ArrayBinding) firstBound;
 			numArrayBounds++;
 		}
-		for (int i = 0; i < otherUpperBounds.length; i++) {
-			if (otherUpperBounds[i].isArrayType()) {
-				result = (ArrayBinding) otherUpperBounds[i];
+		for (TypeBinding otherUpperBound : otherUpperBounds) {
+			if (otherUpperBound.isArrayType()) {
+				result = (ArrayBinding) otherUpperBound;
 				numArrayBounds++;
 			}
 		}
@@ -411,9 +415,8 @@ class ConstraintTypeFormula extends ConstraintFormula {
 	@Override
 	public boolean applySubstitution(BoundSet solutionSet, InferenceVariable[] variables) {
 		super.applySubstitution(solutionSet, variables);
-		for (int i=0; i<variables.length; i++) {
-			InferenceVariable variable = variables[i];
-			TypeBinding instantiation = solutionSet.getInstantiation(variables[i], null);
+		for (InferenceVariable variable : variables) {
+			TypeBinding instantiation = solutionSet.getInstantiation(variable, null);
 			if (instantiation == null)
 				return false;
 			this.left = this.left.substituteInferenceVariable(variable, instantiation);
@@ -424,8 +427,8 @@ class ConstraintTypeFormula extends ConstraintFormula {
 	// debugging
 	@Override
 	public String toString() {
-		StringBuilder buf = new StringBuilder("Type Constraint:\n"); //$NON-NLS-1$
-		buf.append('\t').append(LEFT_ANGLE_BRACKET);
+		StringBuilder buf = new StringBuilder();
+		buf.append(LEFT_ANGLE_BRACKET);
 		appendTypeName(buf, this.left);
 		buf.append(relationToString(this.relation));
 		appendTypeName(buf, this.right);

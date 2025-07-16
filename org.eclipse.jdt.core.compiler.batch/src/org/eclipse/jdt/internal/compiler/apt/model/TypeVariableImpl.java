@@ -19,7 +19,6 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVariable;
 import javax.lang.model.type.TypeVisitor;
-
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -66,6 +65,10 @@ public class TypeVariableImpl extends TypeMirrorImpl implements TypeVariable {
 			// only one bound that is an interface
 			return this._env.getFactory().newTypeMirror(typeVariableBinding.upperBound());
 		}
+        if (superInterfaces.length > 1) {
+            return new IntersectionTypeImpl(this._env, typeVariableBinding);
+        }
+
 		return this._env.getFactory().newTypeMirror(this._binding);
 	}
 

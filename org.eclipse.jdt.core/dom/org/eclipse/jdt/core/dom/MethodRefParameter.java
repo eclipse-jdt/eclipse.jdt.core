@@ -112,7 +112,7 @@ public class MethodRefParameter extends ASTNode {
 	 * The type; lazily initialized; defaults to a unspecified,
 	 * legal type.
 	 */
-	private Type type = null;
+	private volatile Type type;
 
 	/**
 	 * Indicates the last parameter of a variable arity method;
@@ -228,8 +228,7 @@ public class MethodRefParameter extends ASTNode {
 			synchronized (this) {
 				if (this.type == null) {
 					preLazyInit();
-					this.type = this.ast.newPrimitiveType(PrimitiveType.INT);
-					postLazyInit(this.type, TYPE_PROPERTY);
+					this.type = postLazyInit(this.ast.newPrimitiveType(PrimitiveType.INT), TYPE_PROPERTY);
 				}
 			}
 		}

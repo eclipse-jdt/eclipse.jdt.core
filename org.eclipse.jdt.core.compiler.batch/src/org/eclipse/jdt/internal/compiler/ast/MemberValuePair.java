@@ -144,11 +144,10 @@ public class MemberValuePair extends ASTNode {
 						ArrayInitializer initializer = (ArrayInitializer) this.value;
 						final Expression[] expressions = initializer.expressions;
 						if (expressions != null) {
-							for (int i =0, max = expressions.length; i < max; i++) {
-								Expression expression = expressions[i];
+							for (Expression expression : expressions) {
 								if (expression.resolvedType == null) continue; // fault-tolerance
 								if (expression.constant == Constant.NotAConstant) {
-									scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, expressions[i], false);
+									scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, expression, false);
 								}
 							}
 						}
@@ -165,8 +164,7 @@ public class MemberValuePair extends ASTNode {
 						ArrayInitializer initializer = (ArrayInitializer) this.value;
 						final Expression[] expressions = initializer.expressions;
 						if (expressions != null) {
-							for (int i =0, max = expressions.length; i < max; i++) {
-								Expression currentExpression = expressions[i];
+							for (Expression currentExpression : expressions) {
 								if (!(currentExpression instanceof ClassLiteralAccess)) {
 									scope.problemReporter().annotationValueMustBeClassLiteral(this.binding.declaringClass, this.name, currentExpression);
 								}
@@ -184,8 +182,7 @@ public class MemberValuePair extends ASTNode {
 					ArrayInitializer initializer = (ArrayInitializer) this.value;
 					final Expression[] expressions = initializer.expressions;
 					if (expressions != null) {
-						for (int i =0, max = expressions.length; i < max; i++) {
-							Expression currentExpression = expressions[i];
+						for (Expression currentExpression : expressions) {
 							if (currentExpression instanceof NullLiteral) {
 								scope.problemReporter().annotationValueMustBeConstant(this.binding.declaringClass, this.name, currentExpression, true);
 							} else if (currentExpression instanceof NameReference) {
@@ -225,8 +222,7 @@ public class MemberValuePair extends ASTNode {
 					ArrayInitializer initializer = (ArrayInitializer) this.value;
 					final Expression[] expressions = initializer.expressions;
 					if (expressions != null) {
-						for (int i =0, max = expressions.length; i < max; i++) {
-							Expression currentExpression = expressions[i];
+						for (Expression currentExpression : expressions) {
 							if (currentExpression instanceof NullLiteral || !(currentExpression instanceof Annotation)) {
 								scope.problemReporter().annotationValueMustBeAnnotation(this.binding.declaringClass, this.name, currentExpression, leafType);
 							}

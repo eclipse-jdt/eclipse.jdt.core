@@ -14,11 +14,9 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 public class GenericsRegressionTest_9 extends AbstractRegressionTest9 {
 
@@ -1006,6 +1004,26 @@ public void testGH1560_2() {
 		+ "Type X.ListDiffVisitor<capture#1-of ? extends X.MMenuElement> inferred for ListDiffVisitor<>, is not valid for an anonymous class with '<>'\n"
 		+ "----------\n",
 		null, true, options);
+}
+public void testGH2817() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"Test.java",
+			"""
+			class A<T> {}
+			class B<T> {}
+
+			public interface Test {
+			    <T> void use(T t, B<? super T> b);
+			    <T> B<A<? super T>> create();
+
+			    default void test() {
+			        use(new A<Object[]>(), create());
+			    }
+			}
+			"""
+		};
+	runner.runConformTest();
 }
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;

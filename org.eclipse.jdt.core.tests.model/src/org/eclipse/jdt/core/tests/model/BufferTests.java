@@ -14,15 +14,17 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.ArrayList;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-
-import org.eclipse.jdt.core.*;
-
-import junit.framework.Test;
+import org.eclipse.jdt.core.BufferChangedEvent;
+import org.eclipse.jdt.core.IBuffer;
+import org.eclipse.jdt.core.IBufferChangedListener;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class BufferTests extends ModifyingResourceTests implements IBufferChangedListener {
@@ -112,7 +114,7 @@ public void testAppend() throws CoreException {
 public void testAppendReadOnly() throws CoreException {
 	IBuffer buffer = null;
 	try {
-		createJavaProject("P1", new String[] {}, new String[] {"JCL_LIB,JCL_SRC,JCL_SRCROOT"}, "");
+		createJavaProject("P1", new String[] {}, new String[] {"JCL18_LIB,JCL18_SRC,JCL_SRCROOT"}, "");
 		IClassFile classFile = getClassFile("P1", getExternalJCLPathString(), "java.lang", "String.class");
 		buffer = classFile.getBuffer();
 		buffer.addBufferChangedListener(this);
@@ -123,7 +125,8 @@ public void testAppendReadOnly() throws CoreException {
 			"unexpected buffer contents",
 			"package java.lang;\n" +
 			"\n" +
-			"public class String {\n" +
+			"public class String implements Comparable<String>, CharSequence {\n" +
+			"	public int length() { return 0; }\n" +
 			"}\n",
 			buffer.getContents()
 		);

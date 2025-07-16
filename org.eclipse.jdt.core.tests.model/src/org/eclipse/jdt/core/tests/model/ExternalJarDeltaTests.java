@@ -15,9 +15,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
 import java.io.IOException;
-
 import junit.framework.Test;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;

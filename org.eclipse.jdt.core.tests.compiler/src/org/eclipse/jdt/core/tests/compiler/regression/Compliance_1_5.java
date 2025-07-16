@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,11 +15,8 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.ToolFactory;
-import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -2724,63 +2721,56 @@ public void test078() {
 // TODO: Enable after Bug 552769 is fixed
 public void test079() {
 
-	String expectedErrorLog = 		"----------\n" +
-			"1. ERROR in Hello.java (at line 1)\n" +
-			"	void ___eval() {\n" +
-			"	^^^^\n" +
-			"Syntax error on token \"void\", @ expected\n" +
-			"----------\n" +
-			"2. ERROR in Hello.java (at line 1)\n" +
-			"	void ___eval() {\n" +
-			"	             ^\n" +
-			"Syntax error on token \")\", delete this token\n" +
-			"----------\n" +
-			"3. ERROR in Hello.java (at line 9)\n" +
-			"	};\n" +
-			"}\n" +
-			"	^^^^\n" +
-			"Syntax error on tokens, delete these tokens\n" +
-			"----------\n" +
-			"4. ERROR in Hello.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \"}\" to complete ClassBody\n" +
-			"----------\n" +
-			"5. ERROR in Hello.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \"}\" to complete MemberValue\n" +
-			"----------\n" +
-			"6. ERROR in Hello.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \")\" to complete Modifiers\n" +
-			"----------\n" +
-			"7. ERROR in Hello.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \"enum Identifier\" to complete EnumHeader\n" +
-			"----------\n" +
-			"8. ERROR in Hello.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \"EnumBody\" to complete CompilationUnit\n" +
-			"----------\n";
-	String expectedErrorLog_J14 = "----------\n" +
-			"1. ERROR in Hello.java (at line 1)\n" +
-			"	void ___eval() {\n" +
-			"	^^^^\n" +
-			"Syntax error on token \"void\", record expected\n" +
-			"----------\n" +
-			"2. ERROR in Hello.java (at line 2)\n" +
-			"	new Runnable() {\n" +
-			"	^^^\n" +
-			"Syntax error on token \"new\", record expected\n" +
-			"----------\n";
+	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK23) ?
+			"""
+			----------
+			1. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			Implicitly Declared Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable
+			----------
+			2. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			Implicitly declared class must have a candidate main method
+			----------
+			3. ERROR in X.java (at line 4)
+				return blah;
+				       ^^^^
+			blah cannot be resolved to a variable
+			----------
+			""" :
+			"""
+			----------
+			1. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 23 and above
+			----------
+			2. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			Implicitly declared class must have a candidate main method
+			----------
+			3. ERROR in X.java (at line 4)
+				return blah;
+				       ^^^^
+			blah cannot be resolved to a variable
+			----------
+			""";
 
+	if (this.complianceLevel < ClassFileConstants.JDK16) {
+		problemLog += """
+			4. ERROR in X.java (at line 14)
+				public static void main(String[] args) {
+				                   ^^^^^^^^^^^^^^^^^^^
+			The method main cannot be declared static; static methods can only be declared in a static or top level type
+			----------
+			""";
+	}
 	this.runNegativeTest(
 		new String[] {
-			"Hello.java",
+			"X.java",
 			"void ___eval() {\n" +
 			"	new Runnable() {\n" +
 			"		int ___run() throws Throwable {\n" +
@@ -2805,8 +2795,7 @@ public void test079() {
 			"	}\n" +
 			"}\n"
 		},
-		this.complianceLevel < ClassFileConstants.JDK14 ?
-		expectedErrorLog :expectedErrorLog_J14
+		problemLog
 	);
 }
 /*
@@ -3012,28 +3001,7 @@ public void test087() {
 		);
 }
 public void test088() {
-	String errorMessage =
-		"----------\n" +
-		"1. WARNING in p\\X.java (at line 4)\n" +
-		"	public class X extends Date implements Runnable{\n" +
-		"	             ^\n" +
-		"The serializable class X does not declare a static final serialVersionUID field of type long\n" +
-		"----------\n" +
-		"2. ERROR in p\\X.java (at line 12)\n" +
-		"	this.super();\n" +
-		"	^^^^\n" +
-		"Illegal enclosing instance specification for type Object\n" +
-		"----------\n" +
-		"3. WARNING in p\\X.java (at line 39)\n" +
-		"	Method _getMethod = c.getMethod(\"d\",null);\n" +
-		"	                    ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type null of the last argument to method getMethod(String, Class...) doesn't exactly match the vararg parameter type. Cast to Class[] to confirm the non-varargs invocation, or pass individual arguments of type Class for a varargs invocation.\n" +
-		"----------\n";
-	String javaVersion = System.getProperty("java.version");
-	int allPossibleLevels = getPossibleComplianceLevels();
-	boolean isLevelGreaterThan5 = (allPossibleLevels & ~(F_1_3 | F_1_4 | F_1_5)) != 0;
-	if (isLevelGreaterThan5
-			|| (allPossibleLevels == AbstractCompilerTest.F_1_5 && javaVersion.indexOf("1.5") == -1)) {
+	String errorMessage;
 		errorMessage =
 			"----------\n" +
 			"1. WARNING in p\\X.java (at line 4)\n" +
@@ -3056,7 +3024,6 @@ public void test088() {
 			"	                    ^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Type safety: The method getMethod(String, Class...) belongs to the raw type Class. References to generic type Class<T> should be parameterized\n" +
 			"----------\n";
-	}
 	this.runNegativeTest(
 		new String[] {
 			"p/X.java",

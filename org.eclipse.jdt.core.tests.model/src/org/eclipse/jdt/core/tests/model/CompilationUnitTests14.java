@@ -13,11 +13,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import junit.framework.Test;
-
 import javax.lang.model.SourceVersion;
-
-import org.eclipse.jdt.core.*;
+import junit.framework.Test;
+import org.eclipse.jdt.core.Flags;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 
 public class CompilationUnitTests14 extends ModifyingResourceTests {
 	ICompilationUnit cu;

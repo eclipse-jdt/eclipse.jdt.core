@@ -15,20 +15,46 @@ package org.eclipse.jdt.core.tests.builder;
 
 import static org.junit.Assert.assertArrayEquals;
 
-import java.io.*;
-import java.util.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import junit.framework.*;
-
-import org.eclipse.core.runtime.*;
-import org.eclipse.core.resources.*;
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.core.dom.*;
+import junit.framework.Test;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.BuildContext;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.CompilationParticipant;
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
+import org.eclipse.jdt.core.dom.IMemberValuePairBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.tests.builder.participants.TestCompilationParticipant1;
 import org.eclipse.jdt.core.tests.builder.participants.TestCompilationParticipant2;
 import org.eclipse.jdt.core.tests.builder.participants.TestCompilationParticipant3;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ParticipantBuildTests extends BuilderTests {
@@ -119,7 +145,7 @@ public class ParticipantBuildTests extends BuilderTests {
 				IFile genedType = result.getFile().getParent().getFile(new Path("GeneratedType.java")); //$NON-NLS-1$
 				if (this.buildPass == 0 || this.buildPass == 3) {
 					try {
-						genedType.create(new ByteArrayInputStream("public class GeneratedType {}".getBytes()), true, null); //$NON-NLS-1$
+						genedType.create("public class GeneratedType {}".getBytes(), true, false, null); //$NON-NLS-1$
 					} catch (CoreException e) {
 						e.printStackTrace();
 					}
@@ -154,7 +180,7 @@ public class ParticipantBuildTests extends BuilderTests {
 	}
 
 	public void testDefaultValue() throws JavaModelException {
-		IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
+		IPath projectPath = env.addProject("Project", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
@@ -248,7 +274,7 @@ public class ParticipantBuildTests extends BuilderTests {
 	 * (regression test for bug 134345 Problems from CompilationParticipants do not get cleaned up unless there are Java errors)
 	 */
 	public void testParticipantProblems() throws JavaModelException {
-		IPath projectPath = env.addProject("Project", "1.5");
+		IPath projectPath = env.addProject("Project", CompilerOptions.getFirstSupportedJavaVersion());
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.removePackageFragmentRoot(projectPath, "");
 		IPath root = env.addPackageFragmentRoot(projectPath, "src");
@@ -283,7 +309,7 @@ public class ParticipantBuildTests extends BuilderTests {
 	}
 
 	public void testProcessAnnotationDeclarations() throws JavaModelException {
-		IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
+		IPath projectPath = env.addProject("Project", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
@@ -311,7 +337,7 @@ public class ParticipantBuildTests extends BuilderTests {
 					BuildContext result = files[0];
 					IFile genedType = result.getFile().getParent().getFile(new Path("MissingAnnotation.java")); //$NON-NLS-1$
 					try {
-						genedType.create(new ByteArrayInputStream("public @interface MissingAnnotation {}".getBytes()), true, null); //$NON-NLS-1$
+						genedType.create("public @interface MissingAnnotation {}".getBytes(), true, false, null); //$NON-NLS-1$
 					} catch (CoreException e) {
 						e.printStackTrace();
 					}
@@ -321,7 +347,7 @@ public class ParticipantBuildTests extends BuilderTests {
 					BuildContext result = files[0];
 					IFile genedType = result.getFile().getParent().getFile(new Path("GeneratedType.java")); //$NON-NLS-1$
 					try {
-						genedType.create(new ByteArrayInputStream("public class GeneratedType {}".getBytes()), true, null); //$NON-NLS-1$
+						genedType.create("public class GeneratedType {}".getBytes(), true, false, null); //$NON-NLS-1$
 					} catch (CoreException e) {
 						e.printStackTrace();
 					}
@@ -335,7 +361,7 @@ public class ParticipantBuildTests extends BuilderTests {
 	}
 
 	public void testProcessAnnotationQualifiedReferences() throws JavaModelException {
-		IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
+		IPath projectPath = env.addProject("Project", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
@@ -366,7 +392,7 @@ public class ParticipantBuildTests extends BuilderTests {
 					IFolder folder = (IFolder) genedType.getParent();
 					if(!folder.exists())
 						folder.create(true, true, null);
-					genedType.create(new ByteArrayInputStream("package p1.p2; public class GeneratedType { public static void method(){} }".getBytes()), true, null); //$NON-NLS-1$
+					genedType.create("package p1.p2; public class GeneratedType { public static void method(){} }".getBytes(), true, false, null); //$NON-NLS-1$
 				} catch (CoreException e) {
 					e.printStackTrace();
 				}
@@ -382,7 +408,7 @@ public class ParticipantBuildTests extends BuilderTests {
 	 * Test that a build participant can inspect the declared annotations by name
 	 */
 	public void testProcessAnnotationHasAnnotation() throws JavaModelException {
-		IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
+		IPath projectPath = env.addProject("Project", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
@@ -417,7 +443,7 @@ public class ParticipantBuildTests extends BuilderTests {
 	}
 
 	public void testProcessAnnotationReferences() throws JavaModelException {
-		IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
+		IPath projectPath = env.addProject("Project", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
@@ -439,7 +465,7 @@ public class ParticipantBuildTests extends BuilderTests {
 				IFile genedType = result.getFile().getParent().getFile(new Path("GeneratedAnnotation.java")); //$NON-NLS-1$
 				if (genedType.exists()) return;
 				try {
-					genedType.create(new ByteArrayInputStream("@interface GeneratedAnnotation {}".getBytes()), true, null); //$NON-NLS-1$
+					genedType.create("@interface GeneratedAnnotation {}".getBytes(), true, false, null); //$NON-NLS-1$
 				} catch (CoreException e) {
 					e.printStackTrace();
 				}
@@ -703,7 +729,7 @@ public class ParticipantBuildTests extends BuilderTests {
 	}
 
 	public void testResolvedMethod() throws JavaModelException {
-		IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
+		IPath projectPath = env.addProject("Project", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
@@ -766,7 +792,7 @@ public class ParticipantBuildTests extends BuilderTests {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=158611
 // Checking the GENERATED_BY attribute
 public void test1001() throws JavaModelException {
-	IPath projectPath = env.addProject("Project", "1.5");
+	IPath projectPath = env.addProject("Project", CompilerOptions.getFirstSupportedJavaVersion());
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
 	env.removePackageFragmentRoot(projectPath, "");
 	IPath root = env.addPackageFragmentRoot(projectPath, "src");
@@ -796,7 +822,7 @@ public void test1001() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=158611
 // Checking the GENERATED_BY attribute
 public void test1002() throws JavaModelException {
-	IPath projectPath = env.addProject("Project", "1.5");
+	IPath projectPath = env.addProject("Project", CompilerOptions.getFirstSupportedJavaVersion());
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
 	env.removePackageFragmentRoot(projectPath, "");
 	IPath root = env.addPackageFragmentRoot(projectPath, "src");

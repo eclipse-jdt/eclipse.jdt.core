@@ -15,11 +15,20 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import org.eclipse.core.resources.*;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceProxy;
+import org.eclipse.core.resources.IResourceProxyVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaModel;
+import org.eclipse.jdt.core.IJavaModelStatus;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaModelException;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class DeletePackageFragmentRootOperation extends JavaModelOperation {
@@ -111,8 +120,7 @@ public class DeletePackageFragmentRootOperation extends JavaModelOperation {
 	protected void updateReferringProjectClasspaths(IPath rootPath, IJavaProject projectOfRoot, Map oldRoots) throws JavaModelException {
 		IJavaModel model = getJavaModel();
 		IJavaProject[] projects = model.getJavaProjects();
-		for (int i = 0, length = projects.length; i < length; i++) {
-			IJavaProject project = projects[i];
+		for (IJavaProject project : projects) {
 			if (project.equals(projectOfRoot)) continue;
 			updateProjectClasspath(rootPath, project, oldRoots);
 		}

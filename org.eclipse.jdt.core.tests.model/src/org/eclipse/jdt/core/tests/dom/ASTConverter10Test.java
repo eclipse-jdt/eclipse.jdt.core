@@ -13,20 +13,19 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import java.io.IOException;
+import java.util.Hashtable;
 import junit.framework.Test;
-
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.ILocalVariable;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import java.io.IOException;
-import java.util.Hashtable;
-
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.compiler.IProblem;
 
 public class ASTConverter10Test extends ConverterTestSetup {
 
@@ -272,6 +271,28 @@ public class ASTConverter10Test extends ConverterTestSetup {
 		} finally {
 			if (jarPath != null)
 				deleteFile(jarPath);
+		}
+	}
+
+	public void testAnonymousTypeVarBindingToLocalVariable() throws Exception {
+		String filePath = "/Converter10/src/X.java";
+		try {
+			String contents = """
+				class X {
+					void m() {
+						var variable = new I() {};
+					}
+				}
+				interface I {}
+				""";
+			this.workingCopy = getCompilationUnit(filePath);
+			CompilationUnit dom = (CompilationUnit)buildAST(contents, this.workingCopy);
+			Name node = (Name)NodeFinder.perform(dom, contents.indexOf("variable"), "variable".length());
+			IVariableBinding binding = (IVariableBinding)node.resolveBinding();
+			ILocalVariable model = (ILocalVariable)binding.getJavaElement();
+			assertEquals("I", Signature.toString(model.getTypeSignature()));
+		} finally {
+			deleteFile(filePath);
 		}
 	}
 // Add new tests here

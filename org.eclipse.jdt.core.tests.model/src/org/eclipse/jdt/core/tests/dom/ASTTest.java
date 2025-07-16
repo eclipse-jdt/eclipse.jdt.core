@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -24,12 +24,11 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
 
 // testing
@@ -49,6 +48,13 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	 * @deprecated
 	 */
 	protected static final int AST_INTERNAL_JLS9 = AST.JLS9;
+
+	/**
+	 * Internal synonym for constant AST.JSL9
+	 * to alleviate deprecation warnings once AST.JLS9 is deprecated in future.
+	 * @deprecated
+	 */
+	protected static final int AST_INTERNAL_JLS23 = AST.JLS23;
 
 	class CheckPositionsMatcher extends ASTMatcher {
 
@@ -761,6 +767,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				suite.addTest(new ASTTest(methods[i].getName(), JLS3_INTERNAL));
 				suite.addTest(new ASTTest(methods[i].getName(), AST.JLS4));
 				suite.addTest(new ASTTest(methods[i].getName(), getJLS8()));
+				suite.addTest(new ASTTest(methods[i].getName(), AST_INTERNAL_JLS23));
 			}
 		}
 		return suite;
@@ -2633,7 +2640,19 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(this.ast.modificationCount() > previousCount);
 		assertTrue(x.isOnDemand() == true);
 
-		if (this.ast.apiLevel() >= JLS3_INTERNAL) {
+		if (this.ast.apiLevel() >= AST_INTERNAL_JLS23) {
+			Modifier mod = this.ast.newModifier(ModifierKeyword.STATIC_KEYWORD);
+			x.modifiers().add(mod);
+			assertTrue(this.ast.modificationCount() > previousCount);
+			assertTrue(x.isStatic() == true);
+			previousCount = this.ast.modificationCount();
+			x.modifiers().clear();
+			mod = this.ast.newModifier(ModifierKeyword.MODULE_KEYWORD);
+			x.modifiers().add(mod);
+			assertTrue(this.ast.modificationCount() > previousCount);
+			assertTrue(x.modifiers().size() == 1);
+			assertEquals(((Modifier) x.modifiers().get(0)).getKeyword(), ModifierKeyword.MODULE_KEYWORD);
+		} else if (this.ast.apiLevel() >= JLS3_INTERNAL) {
 			x.setStatic(true);
 			assertTrue(this.ast.modificationCount() > previousCount);
 			assertTrue(x.isStatic() == true);
@@ -6542,7 +6561,11 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getParent() == null);
 		assertTrue(x.getExpression().getParent() == x);
 		assertTrue(x.getLeadingComment() == null);
-		assertTrue(!x.isDefault());
+		if (this.ast.apiLevel() < AST_INTERNAL_JLS23) {
+			assertTrue(!x.isDefault());
+		} else {
+			assertEquals(0, x.expressions().size());
+		}
 		assertTrue(x.getNodeType() == ASTNode.SWITCH_CASE);
 		assertTrue(x.structuralPropertiesForType() ==
 			SwitchCase.propertyDescriptors(this.ast.apiLevel()));
@@ -9504,10 +9527,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			ASTNode.JAVADOC_REGION,
 			ASTNode.JAVADOC_TEXT_ELEMENT,
 			ASTNode.RECORD_PATTERN,
-			ASTNode.ENHANCED_FOR_WITH_RECORD_PATTERN,
-			ASTNode.STRING_TEMPLATE_EXPRESSION,
-			ASTNode.STRING_FRAGMENT,
-			ASTNode.STRING_TEMPLATE_COMPONENT
+			ASTNode.EitherOr_MultiPattern,
+			ASTNode.UNNAMED_CLASS
 		};
 
 		// assert that nodeType values are correct:
@@ -9560,7 +9581,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	@SuppressWarnings("deprecation")
 	public void testASTLevels() throws Exception {
 		int[] apilLevels = {AST.JLS2, AST.JLS3, AST.JLS4, AST.JLS8, AST.JLS9, AST.JLS10, AST.JLS11,
-				AST.JLS12, AST.JLS13, AST.JLS14, AST.JLS15, AST.JLS16, AST.JLS17,AST.JLS18, AST.JLS19, AST.JLS20};
+				AST.JLS12, AST.JLS13, AST.JLS14, AST.JLS15, AST.JLS16, AST.JLS17,AST.JLS18, AST.JLS19,
+				AST.JLS20, AST.JLS21, AST.JLS22, AST.JLS23};
 		for (int level : apilLevels) {
 			try {
 				DOMASTUtil.checkASTLevel(level);

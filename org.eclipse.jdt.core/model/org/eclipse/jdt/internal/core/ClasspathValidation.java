@@ -71,8 +71,8 @@ public class ClasspathValidation {
 		this.project.flushClasspathProblemMarkers(false/*cycle*/, false/*format*/, false/*overlapping*/);
 
 		if (rawClasspath != JavaProject.INVALID_CLASSPATH && outputLocation != null) {
-		 	for (int i = 0; i < rawClasspath.length; i++) {
-				status = ClasspathEntry.validateClasspathEntry(this.project, rawClasspath[i], false/*src attach*/, false /*not referred by a container*/);
+		 	for (IClasspathEntry cpe : rawClasspath) {
+				status = ClasspathEntry.validateClasspathEntry(this.project, cpe, false/*src attach*/, false /*not referred by a container*/);
 				if (!status.isOK()) {
 					this.project.createClasspathProblemMarker(status);
 				}

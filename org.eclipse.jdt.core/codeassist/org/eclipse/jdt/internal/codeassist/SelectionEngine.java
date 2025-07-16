@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,23 +16,11 @@
 package org.eclipse.jdt.internal.codeassist;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.jdt.core.IBuffer;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IMember;
-import org.eclipse.jdt.core.IOpenable;
-import org.eclipse.jdt.core.IOrdinaryClassFile;
-import org.eclipse.jdt.core.ISourceRange;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -44,36 +32,11 @@ import org.eclipse.jdt.core.search.TypeNameMatch;
 import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
 import org.eclipse.jdt.internal.codeassist.impl.AssistParser;
 import org.eclipse.jdt.internal.codeassist.impl.Engine;
-import org.eclipse.jdt.internal.codeassist.select.SelectionJavadocParser;
-import org.eclipse.jdt.internal.codeassist.select.SelectionNodeFound;
-import org.eclipse.jdt.internal.codeassist.select.SelectionOnPackageVisibilityReference;
-import org.eclipse.jdt.internal.codeassist.select.SelectionOnImportReference;
-import org.eclipse.jdt.internal.codeassist.select.SelectionOnLambdaExpression;
-import org.eclipse.jdt.internal.codeassist.select.SelectionOnLocalName;
-import org.eclipse.jdt.internal.codeassist.select.SelectionOnMessageSend;
-import org.eclipse.jdt.internal.codeassist.select.SelectionOnPackageReference;
-import org.eclipse.jdt.internal.codeassist.select.SelectionOnQualifiedTypeReference;
-import org.eclipse.jdt.internal.codeassist.select.SelectionOnSingleTypeReference;
-import org.eclipse.jdt.internal.codeassist.select.SelectionParser;
+import org.eclipse.jdt.internal.codeassist.select.*;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
-import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.Argument;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ImportReference;
-import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
-import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.MessageSend;
-import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.PackageVisibilityStatement;
-import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
@@ -81,33 +44,7 @@ import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
-import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
-import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
-import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
-import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.IntersectionTypeBinding18;
-import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
-import org.eclipse.jdt.internal.compiler.lookup.MemberTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
-import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemFieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.SyntheticMethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
-import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
@@ -1010,11 +947,14 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				}
 				ImportReference[] imports = parsedUnit.imports;
 				if (imports != null) {
-					for (int i = 0, length = imports.length; i < length; i++) {
-						ImportReference importReference = imports[i];
+					for (ImportReference importReference : imports) {
 						if (importReference instanceof SelectionOnImportReference) {
 							char[][] tokens = ((SelectionOnImportReference) importReference).tokens;
 							this.noProposal = false;
+							if ((importReference.modifiers & ClassFileConstants.AccModule) != 0 && this.compilerOptions.enablePreviewFeatures) {
+								this.nameEnvironment.findModules(CharOperation.concatWithAll(tokens, '.'), this, null);
+								return;
+							}
 							this.requestor.acceptPackage(CharOperation.concatWith(tokens, '.'));
 							this.nameEnvironment.findTypes(CharOperation.concatWith(tokens, '.'), false, false, IJavaSearchConstants.TYPE, this);
 
@@ -1148,9 +1088,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	private void selectMemberTypeFromImport(CompilationUnitDeclaration parsedUnit, char[] lastToken, ReferenceBinding ref, boolean staticOnly) {
 		int fieldLength = lastToken.length;
 		ReferenceBinding[] memberTypes = ref.memberTypes();
-		next : for (int j = 0; j < memberTypes.length; j++) {
-			ReferenceBinding memberType = memberTypes[j];
-
+		next : for (ReferenceBinding memberType : memberTypes) {
 			if (fieldLength > memberType.sourceName.length)
 				continue next;
 
@@ -1167,9 +1105,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	private void selectStaticFieldFromStaticImport(CompilationUnitDeclaration parsedUnit, char[] lastToken, ReferenceBinding ref) {
 		int fieldLength = lastToken.length;
 		FieldBinding[] fields = ref.availableFields();
-		next : for (int j = 0; j < fields.length; j++) {
-			FieldBinding field = fields[j];
-
+		next : for (FieldBinding field : fields) {
 			if (fieldLength > field.name.length)
 				continue next;
 
@@ -1189,9 +1125,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	private void selectStaticMethodFromStaticImport(CompilationUnitDeclaration parsedUnit, char[] lastToken, ReferenceBinding ref) {
 		int methodLength = lastToken.length;
 		MethodBinding[] methods = ref.availableMethods();
-		next : for (int j = 0; j < methods.length; j++) {
-			MethodBinding method = methods[j];
-
+		next : for (MethodBinding method : methods) {
 			if (method.isSynthetic()) continue next;
 
 			if (method.isDefaultAbstract())	continue next;
@@ -1903,9 +1837,9 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		MethodBinding[] overriddenMethods= overriddenType.availableMethods();
 		LookupEnvironment lookupEnv = this.lookupEnvironment;
 		if (lookupEnv != null && overriddenMethods != null) {
-			for (int i= 0; i < overriddenMethods.length; i++) {
-				if (lookupEnv.methodVerifier().isMethodSubsignature(overriding, overriddenMethods[i])) {
-					return overriddenMethods[i];
+			for (MethodBinding overriddenMethod : overriddenMethods) {
+				if (lookupEnv.methodVerifier().isMethodSubsignature(overriding, overriddenMethod)) {
+					return overriddenMethod;
 				}
 			}
 		}
@@ -2042,8 +1976,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		private Object visitInheritDocInterfaces(ArrayList visited, ReferenceBinding currentType) throws JavaModelException {
 			ArrayList toVisitChildren= new ArrayList();
 			ReferenceBinding[] superInterfaces= currentType.superInterfaces();
-			for (int i= 0; i < superInterfaces.length; i++) {
-				ReferenceBinding superInterface= superInterfaces[i];
+			for (ReferenceBinding superInterface : superInterfaces) {
 				if (visited.contains(superInterface))
 					continue;
 				visited.add(superInterface);
@@ -2056,8 +1989,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					return result;
 				}
 			}
-			for (Iterator iter= toVisitChildren.iterator(); iter.hasNext(); ) {
-				ReferenceBinding child= (ReferenceBinding) iter.next();
+			for (Object toVisitChild : toVisitChildren) {
+				ReferenceBinding child= (ReferenceBinding) toVisitChild;
 				Object result= visitInheritDocInterfaces(visited, child);
 				if (result != InheritDocVisitor.CONTINUE)
 					return result;
@@ -2068,7 +2001,6 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 	@Override
 	public void acceptModule(char[] moduleName) {
-		// TODO Auto-generated method stub
-
+		this.requestor.acceptModule(moduleName, moduleName, this.actualSelectionStart, this.actualSelectionEnd);
 	}
 }

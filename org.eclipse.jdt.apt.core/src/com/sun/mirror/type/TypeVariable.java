@@ -32,7 +32,7 @@
 package com.sun.mirror.type;
 
 
-import com.sun.mirror.declaration.*;
+import com.sun.mirror.declaration.TypeParameterDeclaration;
 
 
 /**

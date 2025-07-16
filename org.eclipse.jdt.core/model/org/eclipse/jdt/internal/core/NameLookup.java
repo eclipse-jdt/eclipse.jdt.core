@@ -17,26 +17,20 @@ package org.eclipse.jdt.internal.core;
 import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
-
-import org.eclipse.core.resources.*;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IInitializer;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IModuleDescription;
-import org.eclipse.jdt.core.IOrdinaryClassFile;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -48,6 +42,7 @@ import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.AbstractModule.AutoModule;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -270,8 +265,7 @@ public class NameLookup implements SuffixConstants {
 			for (int i = 0, length = packageFragmentRoots.length; i < length; i++) {
 				rootPositions.put(packageFragmentRoots[i], i);
 			}
-			for (int i = 0, length = workingCopies.length; i < length; i++) {
-				ICompilationUnit workingCopy = workingCopies[i];
+			for (ICompilationUnit workingCopy : workingCopies) {
 				PackageFragment pkg = (PackageFragment) workingCopy.getParent();
 				IPackageFragmentRoot root = (IPackageFragmentRoot) pkg.getParent();
 				int rootPosition = rootPositions.get(root);
@@ -422,10 +416,10 @@ public class NameLookup implements SuffixConstants {
 				continue; // the root is not present, continue;
 			}
 			if (packages != null) {
-				for (int j= 0, packageCount= packages.length; j < packageCount; j++) {
+				for (IJavaElement package1 : packages) {
 					if (requestor.isCanceled())
 						return;
-					seekTypes(prefix, (IPackageFragment) packages[j], partialMatch, acceptFlags, requestor);
+					seekTypes(prefix, (IPackageFragment) package1, partialMatch, acceptFlags, requestor);
 				}
 			}
 		}
@@ -462,8 +456,8 @@ public class NameLookup implements SuffixConstants {
 				return findCompilationUnit(pkgName, cuName, (PackageFragmentRoot) value);
 			} else {
 				IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) value;
-				for (int i= 0; i < roots.length; i++) {
-					PackageFragmentRoot root= (PackageFragmentRoot) roots[i];
+				for (IPackageFragmentRoot r : roots) {
+					PackageFragmentRoot root= (PackageFragmentRoot) r;
 					ICompilationUnit cu = findCompilationUnit(pkgName, cuName, root);
 					if (cu != null)
 						return cu;
@@ -478,8 +472,7 @@ public class NameLookup implements SuffixConstants {
 			IPackageFragment pkg = root.getPackageFragment(pkgName);
 			try {
 				ICompilationUnit[] cus = pkg.getCompilationUnits();
-				for (int j = 0, length = cus.length; j < length; j++) {
-					ICompilationUnit cu = cus[j];
+				for (ICompilationUnit cu : cus) {
 					if (Util.equalsIgnoreJavaLikeExtension(cu.getElementName(), cuName))
 						return cu;
 				}
@@ -511,8 +504,7 @@ public class NameLookup implements SuffixConstants {
 		IResource possibleFragment = ResourcesPlugin.getWorkspace().getRoot().findMember(path);
 		if (possibleFragment == null) {
 			//external jar
-			for (int i = 0; i < this.packageFragmentRoots.length; i++) {
-				IPackageFragmentRoot root = this.packageFragmentRoots[i];
+			for (IPackageFragmentRoot root : this.packageFragmentRoots) {
 				if (!root.isExternal()) {
 					continue;
 				}
@@ -561,8 +553,8 @@ public class NameLookup implements SuffixConstants {
 								return  ((PackageFragmentRoot) root).getPackageFragment(CharOperation.NO_STRINGS);
 							else {
 								IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) defaultPkgRoot;
-								for (int i = 0; i < roots.length; i++) {
-									if (roots[i].equals(root)) {
+								for (IPackageFragmentRoot r : roots) {
+									if (r.equals(root)) {
 										return  ((PackageFragmentRoot) root).getPackageFragment(CharOperation.NO_STRINGS);
 									}
 								}
@@ -639,8 +631,8 @@ public class NameLookup implements SuffixConstants {
 							}
 						} else {
 							IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) value;
-							for (int j = 0, length2 = roots.length; j < length2; j++) {
-								PackageFragmentRoot root = (PackageFragmentRoot) roots[j];
+							for (IPackageFragmentRoot r : roots) {
+								PackageFragmentRoot root = (PackageFragmentRoot) r;
 								IPackageFragment pkg = root.getPackageFragment(pkgName);
 								if (oneFragment == null) {
 									oneFragment = new IPackageFragment[] {pkg};
@@ -1096,7 +1088,7 @@ public class NameLookup implements SuffixConstants {
 		while (dot != -1) {
 			int start = dot+1;
 			dot = name.indexOf('.', start);
-			String typeName = name.substring(start, dot == -1 ? name.length() : dot);
+			String typeName = DeduplicationUtil.intern(name.substring(start, dot == -1 ? name.length() : dot));
 			type = type.getType(typeName);
 		}
 		return type;
@@ -1271,10 +1263,10 @@ public class NameLookup implements SuffixConstants {
 		} else {
 			IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) value;
 			if (roots != null) {
-				for (int i = 0, length = roots.length; i < length; i++) {
+				for (IPackageFragmentRoot r : roots) {
 					if (requestor.isCanceled())
 						return;
-					PackageFragmentRoot root = (PackageFragmentRoot) roots[i];
+					PackageFragmentRoot root = (PackageFragmentRoot) r;
 					if (moduleMatches(root, moduleContext))
 						requestor.acceptPackageFragment(root.getPackageFragment(pkgName));
 				}
@@ -1315,10 +1307,10 @@ public class NameLookup implements SuffixConstants {
 							requestor.acceptPackageFragment(root.getPackageFragment(pkgName));
 						} else {
 							IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) value;
-							for (int j = 0, length2 = roots.length; j < length2; j++) {
+							for (IPackageFragmentRoot r : roots) {
 								if (requestor.isCanceled())
 									return;
-								PackageFragmentRoot root = (PackageFragmentRoot) roots[j];
+								PackageFragmentRoot root = (PackageFragmentRoot) r;
 								requestor.acceptPackageFragment(root.getPackageFragment(pkgName));
 							}
 						}
@@ -1336,10 +1328,10 @@ public class NameLookup implements SuffixConstants {
 					} else {
 						IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) value;
 						if (roots != null) {
-							for (int i = 0, length = roots.length; i < length; i++) {
+							for (IPackageFragmentRoot r : roots) {
 								if (requestor.isCanceled())
 									return;
-								PackageFragmentRoot root = (PackageFragmentRoot) roots[i];
+								PackageFragmentRoot root = (PackageFragmentRoot) r;
 								requestor.acceptPackageFragment(root.getPackageFragment(pkgName));
 							}
 						}
@@ -1446,7 +1438,7 @@ public class NameLookup implements SuffixConstants {
 			// look in model
 			switch (packageFlavor) {
 				case IPackageFragmentRoot.K_BINARY :
-					matchName= matchName.replace('.', '$');
+					matchName= DeduplicationUtil.intern(matchName.replace('.', '$'));
 					seekTypesInBinaryPackage(matchName, pkg, partialMatch, acceptFlags, requestor);
 					break;
 				case IPackageFragmentRoot.K_SOURCE :
@@ -1471,6 +1463,7 @@ public class NameLookup implements SuffixConstants {
 	 * Performs type search in a binary package.
 	 */
 	protected void seekTypesInBinaryPackage(String name, IPackageFragment pkg, boolean partialMatch, int acceptFlags, IJavaElementRequestor requestor) {
+		name= DeduplicationUtil.intern(name);
 		long start = -1;
 		if (VERBOSE)
 			start = System.currentTimeMillis();
@@ -1537,7 +1530,8 @@ public class NameLookup implements SuffixConstants {
 			String topLevelTypeName,
 			int acceptFlags,
 			IJavaElementRequestor requestor) {
-
+		name= DeduplicationUtil.intern(name);
+		topLevelTypeName= DeduplicationUtil.intern(topLevelTypeName);
 		long start = -1;
 		if (VERBOSE)
 			start = System.currentTimeMillis();
@@ -1545,10 +1539,9 @@ public class NameLookup implements SuffixConstants {
 			if (!partialMatch) {
 				try {
 					IJavaElement[] compilationUnits = pkg.getChildren();
-					for (int i = 0, length = compilationUnits.length; i < length; i++) {
+					for (IJavaElement cu : compilationUnits) {
 						if (requestor.isCanceled())
 							return;
-						IJavaElement cu = compilationUnits[i];
 						String cuName = cu.getElementName();
 						int lastDot = cuName.lastIndexOf('.');
 						if (lastDot != topLevelTypeName.length() || !topLevelTypeName.regionMatches(0, cuName, 0, lastDot))
@@ -1572,16 +1565,15 @@ public class NameLookup implements SuffixConstants {
 				try {
 					String cuPrefix = firstDot == -1 ? name : name.substring(0, firstDot);
 					IJavaElement[] compilationUnits = pkg.getChildren();
-					for (int i = 0, length = compilationUnits.length; i < length; i++) {
+					for (IJavaElement cu : compilationUnits) {
 						if (requestor.isCanceled())
 							return;
-						IJavaElement cu = compilationUnits[i];
 						if (!cu.getElementName().toLowerCase().startsWith(cuPrefix))
 							continue;
 						try {
 							IType[] types = ((ICompilationUnit) cu).getTypes();
-							for (int j = 0, typeLength = types.length; j < typeLength; j++)
-								seekTypesInTopLevelType(name, firstDot, types[j], requestor, acceptFlags);
+							for (IType type : types)
+								seekTypesInTopLevelType(name, firstDot, type, requestor, acceptFlags);
 						} catch (JavaModelException e) {
 							// cu doesn't exist -> ignore
 						}
@@ -1717,10 +1709,10 @@ public class NameLookup implements SuffixConstants {
 						return true;
 					}
 					IType[] topLevelTypes = (IType[]) object;
-					for (int i = 0, length = topLevelTypes.length; i < length; i++) {
+					for (IType topLevelType : topLevelTypes) {
 						if (requestor.isCanceled())
 							return false;
-						IType type = getMemberType(topLevelTypes[i], name, firstDot);
+						IType type = getMemberType(topLevelType, name, firstDot);
 						if (acceptType(type, acceptFlags, true/*a source type*/)) {
 							requestor.acceptType(type);
 							return true; // return the first one
@@ -1742,8 +1734,8 @@ public class NameLookup implements SuffixConstants {
 						seekTypesInTopLevelType(name, firstDot, (IType) object, requestor, acceptFlags);
 					} else if (object instanceof IType[]) {
 						IType[] topLevelTypes = (IType[]) object;
-						for (int i = 0, length = topLevelTypes.length; i < length; i++)
-							seekTypesInTopLevelType(name, firstDot, topLevelTypes[i], requestor, acceptFlags);
+						for (IType topLevelType : topLevelTypes)
+							seekTypesInTopLevelType(name, firstDot, topLevelType, requestor, acceptFlags);
 					}
 				}
 			}

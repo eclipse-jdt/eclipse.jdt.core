@@ -18,8 +18,9 @@
 package org.eclipse.jdt.core.compiler;
 
 import java.io.ByteArrayInputStream;
+import java.net.URI;
 import java.util.Optional;
-
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.jdt.core.IJavaProject;
 
 /**
@@ -150,6 +151,35 @@ public boolean isAnnotationProcessor() {
   */
 public void processAnnotations(BuildContext[] files) {
 	// do nothing by default
+}
+
+/**
+ * Requests the participant to supply the locations where to find annotation
+ * processors. If this is not specified, then the class path is searched for
+ * processors.
+ *
+ * @param project the project to participate in
+ * @param isTest whether the annotation processor path is for test code
+ * @return the annotation processor paths
+ * @since 3.38
+ * @noreference Provisional API for experimental support for an alternative compiler. This method is not intended to be referenced by clients.
+ */
+public URI[] getAnnotationProcessorPaths(IJavaProject project, boolean isTest) {
+	return null;
+}
+
+/**
+ * Requests the participant to supply the locations to place the generated
+ * source files.
+ *
+ * @param project the project to participate in
+ * @param isTest whether the generated source paths are for test code
+ * @return the locations to place the generated source files
+ * @since 3.38
+ * @noreference Provisional API for experimental support for an alternative compiler. This method is not intended to be referenced by clients.
+ */
+public IContainer[] getGeneratedSourcePaths(IJavaProject project, boolean isTest) {
+	return null;
 }
 
 /**

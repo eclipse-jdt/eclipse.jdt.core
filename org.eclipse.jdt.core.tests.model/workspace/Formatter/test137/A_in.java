@@ -116,7 +116,7 @@ public abstract class Type extends ASTNode {
 //	public IBinding resolvedType();
 }
 
-//// JSR-014
+// JSR-014
 //public class ParameterizedType extends Type {
 //	public ParameterizedType(AST ast) {
 //		super(ast);

@@ -17,38 +17,14 @@ import static org.junit.Assert.assertNotEquals;
 
 import java.util.List;
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.IfStatement;
-import org.eclipse.jdt.core.dom.InstanceofExpression;
-import org.eclipse.jdt.core.dom.MarkerAnnotation;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.PatternInstanceofExpression;
-import org.eclipse.jdt.core.dom.RecordDeclaration;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-
-import junit.framework.Test;
+import org.eclipse.jdt.core.dom.*;
 
 public class ASTConverter_16Test extends ConverterTestSetup {
 
@@ -585,6 +561,8 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 		checkSourceRange(expression, "o instanceof String s", contents);
 		assertEquals("Not an instanceof expression", ASTNode.PATTERN_INSTANCEOF_EXPRESSION, expression.getNodeType());
 		PatternInstanceofExpression instanceofExpression = (PatternInstanceofExpression) expression;
+		ITypeBinding typeBinding = instanceofExpression.resolveTypeBinding();
+		assertEquals("boolean", typeBinding.toString());
 		SingleVariableDeclaration var = instanceofExpression.getRightOperand();
 		checkSourceRange(var, "String s", contents);
 	}
@@ -845,5 +823,69 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 		    checkSourceRange(initializer, "16", contents);
 
 
+	}
+
+	public void testRecord013() throws JavaModelException {
+		if (!isJRE16) {
+			System.err.println("Test " + getName() + " requires a JRE 16");
+			return;
+		}
+		String code = """
+					record Test(String name) {
+					    public static Builder builder() {return null;}
+					    public static final class Builder {}
+					}
+				""";
+		this.workingCopy = getWorkingCopy("/Converter_16/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(
+			code,
+			this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = ((AbstractTypeDeclaration)compilationUnit.types().get(0));
+		assertEquals("Not a Record Declaration", ASTNode.RECORD_DECLARATION, node.getNodeType());
+		RecordDeclaration record = (RecordDeclaration)node;
+
+		List<SingleVariableDeclaration> RecordComponents = record.recordComponents();
+		assertEquals("Not a Single Variable Declaration Declaration", ASTNode.SINGLE_VARIABLE_DECLARATION, RecordComponents.get(0).getNodeType());
+
+		List<ASTNode> bodyDeclaration = record.bodyDeclarations();
+		MethodDeclaration md = (MethodDeclaration) bodyDeclaration.get(0);
+		TypeDeclaration td = (TypeDeclaration) bodyDeclaration.get(1);
+		assertEquals("Not a MethodDeclaration", ASTNode.METHOD_DECLARATION, md.getNodeType());
+		assertEquals("Not a TypeDeclaration", ASTNode.TYPE_DECLARATION, td.getNodeType());
+	}
+
+	public void testClass002() throws CoreException {
+		if (!isJRE16) {
+			System.err.println("Test "+getName()+" requires a JRE 16");
+			return;
+		}
+		String code = """
+					class Test {
+					    public static Builder builder() {return null;}
+					    public static final class Builder {}
+					}
+				""";
+		this.workingCopy = getWorkingCopy("/Converter_16/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(
+				code,
+				this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		List<AbstractTypeDeclaration> types = compilationUnit.types();
+		assertEquals("No. of Types is not 1", types.size(), 1);
+		AbstractTypeDeclaration type = types.get(0);
+		assertTrue("type not a type", type instanceof TypeDeclaration);
+		TypeDeclaration typeDecl = (TypeDeclaration)type;
+		assertTrue("type not a class", !typeDecl.isInterface());
+
+		List<ASTNode> bodyDeclaration = typeDecl.bodyDeclarations();
+		MethodDeclaration md = (MethodDeclaration) bodyDeclaration.get(0);
+		TypeDeclaration td = (TypeDeclaration) bodyDeclaration.get(1);
+		assertEquals("Not a MethodDeclaration", ASTNode.METHOD_DECLARATION, md.getNodeType());
+		assertEquals("Not a TypeDeclaration", ASTNode.TYPE_DECLARATION, td.getNodeType());
 	}
 }

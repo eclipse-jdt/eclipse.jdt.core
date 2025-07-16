@@ -17,15 +17,22 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.jar.Manifest;
-
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AutomaticModuleNaming;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -251,7 +258,6 @@ protected void computeFolderChildren(IContainer folder, boolean isIncluded, Stri
 			String sourceLevel = otherJavaProject.getOption(JavaCore.COMPILER_SOURCE, true);
 			String complianceLevel = otherJavaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 			JavaProject javaProject = getJavaProject();
-			JavaModelManager manager = JavaModelManager.getJavaModelManager();
 			for (int i = 0; i < length; i++) {
 				IResource member = members[i];
 				String memberName = member.getName();
@@ -264,7 +270,7 @@ protected void computeFolderChildren(IContainer folder, boolean isIncluded, Stri
 			    		if (Util.isValidFolderNameForPackage(memberName, sourceLevel, complianceLevel)) {
 			    			// eliminate binary output only if nested inside direct subfolders
 			    			if (javaProject.contains(member)) {
-			    				String[] newNames = Util.arrayConcat(pkgName, manager.intern(memberName));
+			    				String[] newNames = Util.arrayConcat(pkgName, DeduplicationUtil.intern(memberName));
 			    				boolean isMemberIncluded = !Util.isExcluded(member, inclusionPatterns, exclusionPatterns);
 			    				computeFolderChildren((IFolder) member, isMemberIncluded, newNames, vChildren, inclusionPatterns, exclusionPatterns);
 			    			}
@@ -380,8 +386,8 @@ private IClasspathEntry findSourceAttachmentRecommendation() {
 		// iterate over all projects
 		IJavaModel model = getJavaModel();
 		IJavaProject[] jProjects = model.getJavaProjects();
-		for (int i = 0, max = jProjects.length; i < max; i++){
-			JavaProject jProject = (JavaProject) jProjects[i];
+		for (IJavaProject p : jProjects) {
+			JavaProject jProject = (JavaProject) p;
 			if (jProject == parentProject) continue; // already done
 			try {
 				entry = jProject.getClasspathEntryFor(rootPath);
@@ -439,7 +445,7 @@ public char[][] fullInclusionPatternChars() {
 public String getElementName() {
 	IResource res = resource();
 	if (res instanceof IFolder)
-		return ((IFolder) res).getName();
+		return res.getName();
 	return ""; //$NON-NLS-1$
 }
 /**
@@ -626,10 +632,8 @@ public IClasspathEntry getResolvedClasspathEntry() throws JavaModelException {
 	IClasspathEntry resolvedEntry = null;
 	JavaProject project = getJavaProject();
 	project.getResolvedClasspath(); // force the resolved entry cache to be populated
-	Map rootPathToResolvedEntries = project.getPerProjectInfo().rootPathToResolvedEntries;
-	if (rootPathToResolvedEntries != null) {
-		resolvedEntry = (IClasspathEntry) rootPathToResolvedEntries.get(getPath());
-	}
+	Map<IPath, IClasspathEntry> rootPathToResolvedEntries = project.getPerProjectInfo().getRootPathToResolvedEntries();
+	resolvedEntry = rootPathToResolvedEntries.get(getPath());
 	if (resolvedEntry == null) {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_NOT_ON_CLASSPATH, this));
 	}
@@ -834,7 +838,7 @@ public void move(
 }
 
 /**
- * @private Debugging purposes
+ * for debugging only
  */
 @Override
 protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean showResolvedInfo) {
@@ -907,12 +911,12 @@ public IModuleDescription getModuleDescription() {
 private IModuleDescription getSourceModuleDescription() {
 	try {
 		IJavaElement[] pkgs = getChildren();
-		for (int j = 0, length = pkgs.length; j < length; j++) {
+		for (IJavaElement pkg : pkgs) {
 			// only look in the default package
-			if (pkgs[j].getElementName().length() == 0) {
+			if (pkg.getElementName().length() == 0) {
 				OpenableElementInfo info = null;
 				if (getKind() == IPackageFragmentRoot.K_SOURCE) {
-					ICompilationUnit unit = ((PackageFragment) pkgs[j])
+					ICompilationUnit unit = ((PackageFragment) pkg)
 							.getCompilationUnit(TypeConstants.MODULE_INFO_FILE_NAME_STRING);
 					if (unit instanceof CompilationUnit && unit.exists()) {
 						info = (CompilationUnitElementInfo) ((CompilationUnit) unit)
@@ -921,7 +925,7 @@ private IModuleDescription getSourceModuleDescription() {
 							return info.getModule();
 					}
 				} else {
-					IModularClassFile classFile = ((IPackageFragment)pkgs[j]).getModularClassFile();
+					IModularClassFile classFile = ((IPackageFragment)pkg).getModularClassFile();
 					if (classFile.exists()) {
 						return classFile.getModule();
 					}

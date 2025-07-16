@@ -15,13 +15,24 @@ package org.eclipse.jdt.internal.core;
 
 import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceStatus;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.AST;
@@ -183,8 +194,8 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		JavaElementDelta previousDelta = (JavaElementDelta)reconcileDeltas.get(workingCopy);
 		if (previousDelta != null) {
 			IJavaElementDelta[] children = delta.getAffectedChildren();
-			for (int i = 0, length = children.length; i < length; i++) {
-				JavaElementDelta child = (JavaElementDelta)children[i];
+			for (IJavaElementDelta d : children) {
+				JavaElementDelta child = (JavaElementDelta)d;
 				previousDelta.insertDeltaTree(child.getElement(), child);
 			}
 			// note that the last delta's AST always takes precedence over the existing delta's AST
@@ -247,8 +258,8 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		if (this.elementsToProcess == null || this.elementsToProcess.length == 0) {
 			return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
 		}
-		for (int i = 0; i < this.elementsToProcess.length; i++) {
-			if (this.elementsToProcess[i] == null) {
+		for (IJavaElement element : this.elementsToProcess) {
+			if (element == null) {
 				return new JavaModelStatus(IJavaModelStatusConstants.NO_ELEMENTS_TO_PROCESS);
 			}
 		}
@@ -261,8 +272,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		IProgressMonitor subProgressMonitor = getSubProgressMonitor(resources.length);
 		IWorkspaceRoot root =  ResourcesPlugin.getWorkspace().getRoot();
 		try {
-			for (int i = 0, length = resources.length; i < length; i++) {
-				IResource resource = resources[i];
+			for (IResource resource : resources) {
 				IPath destination = container.append(resource.getName());
 				if (root.findMember(destination) == null) {
 					resource.copy(destination, false, subProgressMonitor);
@@ -276,7 +286,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	/**
 	 * Convenience method to create a file
 	 */
-	protected void createFile(IContainer folder, String name, InputStream contents, boolean forceFlag) throws JavaModelException {
+	protected void createFile(IContainer folder, String name, byte[] contents, boolean forceFlag) throws JavaModelException {
 		IFile file= folder.getFile(new Path(name));
 		try {
 			file.create(
@@ -379,8 +389,8 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * Returns whether the given path is equals to one of the given other paths.
 	 */
 	protected boolean equalsOneOf(IPath path, IPath[] otherPaths) {
-		for (int i = 0, length = otherPaths.length; i < length; i++) {
-			if (path.equals(otherPaths[i])) {
+		for (IPath otherPath : otherPaths) {
+			if (path.equals(otherPath)) {
 				return true;
 			}
 		}
@@ -592,8 +602,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		SubMonitor subProgressMonitor = this.progressMonitor.newChild(resources.length);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		try {
-			for (int i = 0, length = resources.length; i < length; i++) {
-				IResource resource = resources[i];
+			for (IResource resource : resources) {
 				IPath destination = container.append(resource.getName());
 				if (root.findMember(destination) == null) {
 					resource.move(destination, false, subProgressMonitor.split(1));
@@ -683,8 +692,8 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * Returns whether the given path is the prefix of one of the given other paths.
 	 */
 	protected boolean prefixesOneOf(IPath path, IPath[] otherPaths) {
-		for (int i = 0, length = otherPaths.length; i < length; i++) {
-			if (path.isPrefixOf(otherPaths[i])) {
+		for (IPath otherPath : otherPaths) {
+			if (path.isPrefixOf(otherPath)) {
 				return true;
 			}
 		}
@@ -758,8 +767,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 					// close the parents of the created elements and reset their project's cache (in case we are in an
 					// IWorkspaceRunnable and the clients wants to use the created element's parent)
 					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=83646
-					for (int i = 0, length = this.resultElements.length; i < length; i++) {
-						IJavaElement element = this.resultElements[i];
+					for (IJavaElement element : this.resultElements) {
 						Openable openable = (Openable) element.getOpenable();
 						if (!(openable instanceof CompilationUnit) || !((CompilationUnit) openable).isWorkingCopy()) { // a working copy must remain a child of its parent even after a move
 							openable.getParent().close();

@@ -14,7 +14,6 @@
 package org.eclipse.jdt.internal.core;
 
 import java.net.URL;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IAnnotation;
@@ -28,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryModule;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 
 public class BinaryModule extends BinaryMember implements AbstractModule {
 
@@ -39,7 +39,7 @@ public class BinaryModule extends BinaryMember implements AbstractModule {
 	}
 	/** For creating a populated handle from a class file. */
 	public BinaryModule(JavaElement parent, IBinaryModule info) {
-		super(parent, String.valueOf(info.name()));
+		super(parent, DeduplicationUtil.toString(info.name()));
 		this.info = info;
 	}
 	@Override
@@ -98,15 +98,15 @@ public class BinaryModule extends BinaryMember implements AbstractModule {
 	}
 	@Override
 	public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelException {
-		JavadocContents javadocContents = getJavadocContents(monitor);
+		IJavadocContents javadocContents = getJavadocContents(monitor);
 		if (javadocContents == null) return null;
 		return javadocContents.getModuleDoc();
 	}
-	public JavadocContents getJavadocContents(IProgressMonitor monitor) throws JavaModelException {
+	public IJavadocContents getJavadocContents(IProgressMonitor monitor) throws JavaModelException {
 		PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(getJavaProject().getProject());
-		JavadocContents cachedJavadoc = null;
+		IJavadocContents cachedJavadoc = null;
 		synchronized (projectInfo.javadocCache) {
-			cachedJavadoc = (JavadocContents) projectInfo.javadocCache.get(this);
+			cachedJavadoc = (IJavadocContents) projectInfo.javadocCache.get(this);
 		}
 
 		if (cachedJavadoc != null && cachedJavadoc != BinaryType.EMPTY_JAVADOC) {
@@ -121,10 +121,10 @@ public class BinaryModule extends BinaryMember implements AbstractModule {
 		if (!(pathBuffer.charAt(pathBuffer.length() - 1) == '/')) {
 			pathBuffer.append('/');
 		}
-		pathBuffer.append(getElementName()).append(JavadocConstants.MODULE_FILE_SUFFIX);
+		pathBuffer.append(getElementName()).append(ExternalJavadocSupport.MODULE_FILE_SUFFIX);
 		if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 		String contents = getURLContents(baseLocation, String.valueOf(pathBuffer));
-		JavadocContents javadocContents = new JavadocContents(contents);
+		IJavadocContents javadocContents = ExternalJavadocSupport.forHtml(null, contents);
 		synchronized (projectInfo.javadocCache) {
 			projectInfo.javadocCache.put(this, javadocContents);
 		}

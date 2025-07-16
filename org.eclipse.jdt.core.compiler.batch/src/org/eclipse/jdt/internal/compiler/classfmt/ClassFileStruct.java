@@ -54,9 +54,17 @@ public int u2At(int relativeOffset) {
 	int position = relativeOffset + this.structOffset;
 	return ((this.reference[position++] & 0xFF) << 8) | (this.reference[position] & 0xFF);
 }
-public long u4At(int relativeOffset) {
+
+/**
+ * Returns an 32 bit integer created of 4 bytes. The return value should be treated as an <strong>unsigned</strong> integer! i.e. if the caller does math with
+ * the result he should use the unsigned methods from Integer like {@link java.lang.Integer#toUnsignedLong(int)} or
+ * {@link java.lang.Integer#compareUnsigned(int, int)}. Note that addition with the + operator is safe to use.
+ * @param relativeOffset unsigned integer
+ * @return unsigned integer
+ */
+public int u4At(int relativeOffset) {
 	int position = relativeOffset + this.structOffset;
-	return (((this.reference[position++] & 0xFFL) << 24) | ((this.reference[position++] & 0xFF) << 16) | ((this.reference[position++] & 0xFF) << 8) | (this.reference[position] & 0xFF));
+	return (((this.reference[position++] & 0xFF) << 24) | ((this.reference[position++] & 0xFF) << 16) | ((this.reference[position++] & 0xFF) << 8) | (this.reference[position] & 0xFF));
 }
 public char[] utf8At(int relativeOffset, int bytesAvailable) {
 	int length = bytesAvailable;

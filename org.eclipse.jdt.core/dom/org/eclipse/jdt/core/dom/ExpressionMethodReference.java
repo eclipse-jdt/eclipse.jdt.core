@@ -81,13 +81,13 @@ public class ExpressionMethodReference extends MethodReference {
 	 * The expression; lazily initialized; defaults to an unspecified,
 	 * legal expression.
 	 */
-	private Expression expression = null;
+	private volatile Expression expression;
 
 	/**
 	 * The method name; lazily initialized; defaults to an unspecified,
 	 * legal Java method name.
 	 */
-	private SimpleName methodName = null;
+	private volatile SimpleName methodName;
 
 	/**
 	 * Creates a new AST node for an ExpressionMethodReference declaration owned
@@ -191,8 +191,7 @@ public class ExpressionMethodReference extends MethodReference {
 			synchronized (this) {
 				if (this.expression == null) {
 					preLazyInit();
-					this.expression = new SimpleName(this.ast);
-					postLazyInit(this.expression, EXPRESSION_PROPERTY);
+					this.expression = postLazyInit(new SimpleName(this.ast), EXPRESSION_PROPERTY);
 				}
 			}
 		}
@@ -242,8 +241,7 @@ public class ExpressionMethodReference extends MethodReference {
 			synchronized (this) {
 				if (this.methodName == null) {
 					preLazyInit();
-					this.methodName = new SimpleName(this.ast);
-					postLazyInit(this.methodName, NAME_PROPERTY);
+					this.methodName = postLazyInit(new SimpleName(this.ast), NAME_PROPERTY);
 				}
 			}
 		}

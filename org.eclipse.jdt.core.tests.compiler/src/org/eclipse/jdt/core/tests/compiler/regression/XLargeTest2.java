@@ -13,9 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-
 import junit.framework.Test;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class XLargeTest2 extends AbstractRegressionTest {
 	static {
@@ -27,7 +26,7 @@ public class XLargeTest2 extends AbstractRegressionTest {
 	}
 
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_5);
+		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
 	}
 
 	public static Class<?> testClass() {

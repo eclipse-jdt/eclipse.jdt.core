@@ -13,14 +13,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.index;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
@@ -35,7 +36,7 @@ import org.eclipse.jdt.internal.core.search.indexing.ReadWriteMonitor;
  */
 public class Index {
 
-public String containerPath;
+public final String containerPath;
 public volatile ReadWriteMonitor monitor;
 
 // Separator to use after the container path
@@ -176,8 +177,8 @@ public EntryResult[] query(char[][] categories, char[] key, int matchRule) throw
 	EntryResult[] entryResults = new EntryResult[results.elementSize];
 	int count = 0;
 	Object[] values = results.valueTable;
-	for (int i = 0, l = values.length; i < l; i++) {
-		EntryResult result = (EntryResult) values[i];
+	for (Object value : values) {
+		EntryResult result = (EntryResult) value;
 		if (result != null)
 			entryResults[count++] = result;
 	}
@@ -199,9 +200,9 @@ public String[] queryDocumentNames(String substring) throws IOException {
 	String[] documentNames = new String[results.elementSize];
 	int count = 0;
 	Object[] paths = results.values;
-	for (int i = 0, l = paths.length; i < l; i++)
-		if (paths[i] != null)
-			documentNames[count++] = (String) paths[i];
+	for (Object path : paths)
+		if (path != null)
+			documentNames[count++] = (String) path;
 	return documentNames;
 }
 public void remove(String containerRelativePath) {
@@ -258,8 +259,8 @@ public List<IndexQualifier> getMetaIndexQualifications() throws IOException {
 					SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
 			if(results != null) {
 				qualifiers.ensureCapacity(results.length); // minimize array resize
-				for (int i = 0; i < results.length; i++) {
-					qualifiers.add(IndexQualifier.qualifier(category, results[i].getWord()));
+				for (EntryResult result : results) {
+					qualifiers.add(IndexQualifier.qualifier(category, result.getWord()));
 				}
 			}
 		}

@@ -15,7 +15,6 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.CompletionRequestor;
 import org.eclipse.jdt.core.Flags;

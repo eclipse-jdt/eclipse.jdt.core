@@ -17,26 +17,51 @@ package org.eclipse.jdt.internal.core.search;
 
 import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 import java.util.regex.Pattern;
-
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
-
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
-import org.eclipse.jdt.internal.compiler.*;
-import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
+import org.eclipse.jdt.internal.compiler.ExtraFlags;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Argument;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
-import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.search.indexing.*;
+import org.eclipse.jdt.internal.core.CompilationUnit;
+import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
+import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
+import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.matching.*;
 import org.eclipse.jdt.internal.core.util.Messages;
 
@@ -154,16 +179,13 @@ public class BasicSearchEngine {
 	 */
 	public static IJavaSearchScope createJavaSearchScope(boolean excludeTestCode, IJavaElement[] elements, int includeMask) {
 		Set<JavaProject> projectsToBeAdded = new HashSet<>(2);
-		for (int i = 0, length = elements.length; i < length; i++) {
-			IJavaElement element = elements[i];
-			if (element instanceof JavaProject) {
-                final JavaProject p = (JavaProject) element;
+		for (IJavaElement element : elements) {
+			if (element instanceof JavaProject p) {
 				projectsToBeAdded.add(p);
 			}
 		}
 		JavaSearchScope scope = new JavaSearchScope(excludeTestCode);
-		for (int i = 0, length = elements.length; i < length; i++) {
-			IJavaElement element = elements[i];
+		for (IJavaElement element : elements) {
 			if (element != null) {
 				try {
 					if (projectsToBeAdded.contains(element)) {
@@ -375,12 +397,10 @@ public class BasicSearchEngine {
 					copies = this.workingCopies;
 				} else {
 					Map<IPath, ICompilationUnit> pathToCUs = new HashMap<>();
-					for (int i = 0, length = copies.length; i < length; i++) {
-						ICompilationUnit unit = copies[i];
+					for (ICompilationUnit unit : copies) {
 						pathToCUs.put(unit.getPath(), unit);
 					}
-					for (int i = 0, length = this.workingCopies.length; i < length; i++) {
-						ICompilationUnit unit = this.workingCopies[i];
+					for (ICompilationUnit unit : this.workingCopies) {
 						pathToCUs.put(unit.getPath(), unit);
 					}
 					int length = pathToCUs.size();
@@ -776,8 +796,7 @@ public class BasicSearchEngine {
 						IPackageDeclaration[] packageDeclarations = workingCopy.getPackageDeclarations();
 						char[] packageDeclaration = packageDeclarations.length == 0 ? CharOperation.NO_CHAR : packageDeclarations[0].getElementName().toCharArray();
 						IType[] allTypes = workingCopy.getAllTypes();
-						for (int j = 0, allTypesLength = allTypes.length; j < allTypesLength; j++) {
-							IType type = allTypes[j];
+						for (IType type : allTypes) {
 							char[] simpleName = type.getElementName().toCharArray();
 							if (match(NoSuffix, packageName, pkgMatchRule, typeName, validatedTypeMatchRule, 0/*no kind*/, packageDeclaration, simpleName) && !type.isMember()) {
 
@@ -786,8 +805,7 @@ public class BasicSearchEngine {
 								boolean hasConstructor = false;
 
 								IMethod[] methods = type.getMethods();
-								for (int k = 0; k < methods.length; k++) {
-									IMethod method = methods[k];
+								for (IMethod method : methods) {
 									if (method.isConstructor()) {
 										hasConstructor = true;
 
@@ -1125,8 +1143,7 @@ public class BasicSearchEngine {
 						char[] packageDeclaration = packageDeclarations.length == 0 ? CharOperation.NO_CHAR : packageDeclarations[0].getElementName().toCharArray();
 
 						IType[] allTypes = workingCopy.getAllTypes();
-						for (int j = 0, allTypesLength = allTypes.length; j < allTypesLength; j++) {
-							IType type = allTypes[j];
+						for (IType type : allTypes) {
 							IJavaElement parent = type.getParent();
 							char[] rDeclaringQualification = parent instanceof IType ? ((IType) parent).getTypeQualifiedName('.').toCharArray() : CharOperation.NO_CHAR;
 							char[] rSimpleName = type.getElementName().toCharArray();
@@ -1398,8 +1415,7 @@ public class BasicSearchEngine {
 							continue;
 
 						IType[] allTypes = workingCopy.getAllTypes();
-						for (int j = 0, allTypesLength = allTypes.length; j < allTypesLength; j++) {
-							IType type = allTypes[j];
+						for (IType type : allTypes) {
 							IJavaElement parent = type.getParent();
 							char[] rDeclaringQualification = parent instanceof IType ? ((IType) parent).getTypeQualifiedName('.').toCharArray() : CharOperation.NO_CHAR;
 							char[] rSimpleName = type.getElementName().toCharArray();
@@ -1944,8 +1960,7 @@ public class BasicSearchEngine {
 						IPackageDeclaration[] packageDeclarations = workingCopy.getPackageDeclarations();
 						char[] packageDeclaration = packageDeclarations.length == 0 ? CharOperation.NO_CHAR : packageDeclarations[0].getElementName().toCharArray();
 						IType[] allTypes = workingCopy.getAllTypes();
-						for (int j = 0, allTypesLength = allTypes.length; j < allTypesLength; j++) {
-							IType type = allTypes[j];
+						for (IType type : allTypes) {
 							IJavaElement parent = type.getParent();
 							char[][] enclosingTypeNames;
 							if (parent instanceof IType) {
@@ -2181,15 +2196,13 @@ public class BasicSearchEngine {
 
 			// add type names from working copies
 			if (copies != null) {
-				for (int i = 0, length = copies.length; i < length; i++) {
-					ICompilationUnit workingCopy = copies[i];
+				for (ICompilationUnit workingCopy : copies) {
 					final String path = workingCopy.getPath().toString();
 					if (workingCopy.isConsistent()) {
 						IPackageDeclaration[] packageDeclarations = workingCopy.getPackageDeclarations();
 						char[] packageDeclaration = packageDeclarations.length == 0 ? CharOperation.NO_CHAR : packageDeclarations[0].getElementName().toCharArray();
 						IType[] allTypes = workingCopy.getAllTypes();
-						for (int j = 0, allTypesLength = allTypes.length; j < allTypesLength; j++) {
-							IType type = allTypes[j];
+						for (IType type : allTypes) {
 							IJavaElement parent = type.getParent();
 							char[][] enclosingTypeNames;
 							char[] qualification = packageDeclaration;

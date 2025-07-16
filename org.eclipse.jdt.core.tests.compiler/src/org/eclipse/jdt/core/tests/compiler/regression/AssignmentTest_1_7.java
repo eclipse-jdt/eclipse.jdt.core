@@ -14,10 +14,8 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
 import junit.framework.Test;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class AssignmentTest_1_7 extends AbstractRegressionTest {
@@ -42,7 +40,7 @@ static {
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
 public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_1_7);
+	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
 }
 /*
  * no effect assignment bug

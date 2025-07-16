@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -23,8 +23,8 @@ package org.eclipse.jdt.internal.codeassist.complete;
  *	0  means completion behind the first character
  *  n  means completion behind the n-th character
  */
-import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
@@ -62,7 +62,7 @@ public CompletionScanner(long sourceLevel, boolean previewEnabled) {
 		previewEnabled);
 }
 @Override
-public boolean isAtAssistIdentifier() {
+protected boolean isAtAssistIdentifier() {
 	if (this.cursorLocation < this.startPosition && this.currentPosition == this.startPosition) { // fake empty identifier got issued
 		return true;
 	}
@@ -463,8 +463,8 @@ protected int getNextToken0() throws InvalidInputException {
 					}
 				case '/' :
 					{
-						int test;
-						if ((test = getNextChar('/', '*')) == 0) { //line comment
+						int test = findCommentType();
+						if (test == 0 || test == 2) { //line comment
 							this.lastCommentLinePosition = this.currentPosition;
 							try { //get the next char
 								if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
@@ -495,7 +495,7 @@ protected int getNextToken0() throws InvalidInputException {
 										this.currentPosition++;
 								} //jump over the \\
 								boolean isUnicode = false;
-								while (this.currentCharacter != '\r' && this.currentCharacter != '\n') {
+								while (true) {
 									this.lastCommentLinePosition = this.currentPosition;
 									//get the next char
 									isUnicode = false;
@@ -526,47 +526,54 @@ protected int getNextToken0() throws InvalidInputException {
 										if (this.source[this.currentPosition] == '\\')
 											this.currentPosition++;
 									} //jump over the \\
-								}
-								/*
-								 * We need to completely consume the line break
-								 */
-								if (this.currentCharacter == '\r'
-								   && this.eofPosition > this.currentPosition) {
-								   	if (this.source[this.currentPosition] == '\n') {
-										this.currentPosition++;
-										this.currentCharacter = '\n';
-								   	} else if ((this.source[this.currentPosition] == '\\')
-										&& (this.source[this.currentPosition + 1] == 'u')) {
-										isUnicode = true;
-										char unicodeChar;
-										int index = this.currentPosition + 1;
-										index++;
-										while (this.source[index] == 'u') {
-											index++;
-										}
-										//-------------unicode traitement ------------
-										int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
-										if ((c1 = ScannerHelper.getHexadecimalValue(this.source[index++])) > 15
-											|| c1 < 0
-											|| (c2 = ScannerHelper.getHexadecimalValue(this.source[index++])) > 15
-											|| c2 < 0
-											|| (c3 = ScannerHelper.getHexadecimalValue(this.source[index++])) > 15
-											|| c3 < 0
-											|| (c4 = ScannerHelper.getHexadecimalValue(this.source[index++])) > 15
-											|| c4 < 0) {
-											this.currentPosition = index;
-											throw invalidUnicodeEscape();
-										} else {
-											unicodeChar = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
-										}
-										if (unicodeChar == '\n') {
-											this.currentPosition = index;
+									/*
+									 * We need to completely consume the line break
+									 */
+									if (this.currentCharacter == '\r'
+									   && this.eofPosition > this.currentPosition) {
+									   	if (this.source[this.currentPosition] == '\n') {
+											this.currentPosition++;
 											this.currentCharacter = '\n';
+									   	} else if ((this.source[this.currentPosition] == '\\')
+											&& (this.source[this.currentPosition + 1] == 'u')) {
+											isUnicode = true;
+											char unicodeChar;
+											int index = this.currentPosition + 1;
+											index++;
+											while (this.source[index] == 'u') {
+												index++;
+											}
+											//-------------unicode treatment ------------
+											int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
+											if ((c1 = ScannerHelper.getHexadecimalValue(this.source[index++])) > 15
+												|| c1 < 0
+												|| (c2 = ScannerHelper.getHexadecimalValue(this.source[index++])) > 15
+												|| c2 < 0
+												|| (c3 = ScannerHelper.getHexadecimalValue(this.source[index++])) > 15
+												|| c3 < 0
+												|| (c4 = ScannerHelper.getHexadecimalValue(this.source[index++])) > 15
+												|| c4 < 0) {
+												this.currentPosition = index;
+												throw invalidUnicodeEscape();
+											} else {
+												unicodeChar = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+											}
+											if (unicodeChar == '\n') {
+												this.currentPosition = index;
+												this.currentCharacter = '\n';
+											}
+										}
+								   	}
+									if (this.currentCharacter == '\n') {
+										if (test == 0 || !lineBeginsWithMarkdown()) {
+											break;
 										}
 									}
-							   	}
-								recordComment(TerminalTokens.TokenNameCOMMENT_LINE);
-								if (this.startPosition <= this.cursorLocation && this.cursorLocation < this.currentPosition-1){
+								}
+
+								recordComment(test == 0 ? TokenNameCOMMENT_LINE : TokenNameCOMMENT_MARKDOWN);
+								if (test == 0 &&
+										this.startPosition <= this.cursorLocation && this.cursorLocation < this.currentPosition-1){
 									throw new InvalidCursorLocation(InvalidCursorLocation.NO_COMPLETION_INSIDE_COMMENT);
 								}
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
@@ -581,21 +588,21 @@ protected int getNextToken0() throws InvalidInputException {
 									}
 								}
 								if (this.tokenizeComments) {
-									return TerminalTokens.TokenNameCOMMENT_LINE;
+									return TokenNameCOMMENT_LINE;
 								}
 							} catch (IndexOutOfBoundsException e) {
 								this.currentPosition--;
-								recordComment(TerminalTokens.TokenNameCOMMENT_LINE);
+								recordComment(TokenNameCOMMENT_LINE);
 								if (this.taskTags != null) checkTaskTag(this.startPosition, this.currentPosition);
 								if (this.tokenizeComments) {
-									return TerminalTokens.TokenNameCOMMENT_LINE;
+									return TokenNameCOMMENT_LINE;
 								} else {
 									this.currentPosition++;
 								}
 							}
 							break;
 						}
-						if (test > 0) { //traditional and javadoc comment
+						if (test == 1) { //traditional and javadoc comment
 							try { //get the next char
 								boolean isJavadoc = false, star = false;
 								boolean isUnicode = false;
@@ -774,7 +781,7 @@ protected int getNextToken0() throws InvalidInputException {
 	return TokenNameEOF;
 }
 @Override
-public int getNextNotFakedToken() throws InvalidInputException {
+protected int getNextNotFakedToken() throws InvalidInputException {
 	int token;
 	boolean fromUnget = false;
 	if (this.nextToken != TokenNameNotAToken) {
@@ -803,7 +810,7 @@ public final void getNextUnicodeChar() throws InvalidInputException {
 	}
 }
 @Override
-public boolean isFirstTag() {
+protected boolean isFirstTag() {
 	return
 		getNextChar('d') &&
 		getNextChar('e') &&

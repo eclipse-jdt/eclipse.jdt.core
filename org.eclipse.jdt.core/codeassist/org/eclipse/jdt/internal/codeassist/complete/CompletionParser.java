@@ -34,7 +34,6 @@ import java.util.Arrays;
 
 import java.util.HashSet;
 import java.util.List;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -42,94 +41,12 @@ import org.eclipse.jdt.internal.codeassist.impl.AssistParser;
 import org.eclipse.jdt.internal.codeassist.impl.Keywords;
 import org.eclipse.jdt.internal.codeassist.impl.RestrictedIdentifiers;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
-import org.eclipse.jdt.internal.compiler.ast.AND_AND_Expression;
-import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
-import org.eclipse.jdt.internal.compiler.ast.Annotation;
-import org.eclipse.jdt.internal.compiler.ast.Argument;
-import org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression;
-import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
-import org.eclipse.jdt.internal.compiler.ast.ArrayReference;
-import org.eclipse.jdt.internal.compiler.ast.AssertStatement;
-import org.eclipse.jdt.internal.compiler.ast.Assignment;
-import org.eclipse.jdt.internal.compiler.ast.BinaryExpression;
-import org.eclipse.jdt.internal.compiler.ast.Block;
-import org.eclipse.jdt.internal.compiler.ast.CaseStatement;
-import org.eclipse.jdt.internal.compiler.ast.CastExpression;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.CompoundAssignment;
-import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
-import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.EmptyStatement;
-import org.eclipse.jdt.internal.compiler.ast.EqualExpression;
-import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
-import org.eclipse.jdt.internal.compiler.ast.Expression;
-import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ForStatement;
-import org.eclipse.jdt.internal.compiler.ast.IfStatement;
-import org.eclipse.jdt.internal.compiler.ast.ImportReference;
-import org.eclipse.jdt.internal.compiler.ast.Initializer;
-import org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression;
-import org.eclipse.jdt.internal.compiler.ast.IntLiteral;
-import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation;
-import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
-import org.eclipse.jdt.internal.compiler.ast.MessageSend;
-import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
-import org.eclipse.jdt.internal.compiler.ast.NameReference;
-import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
-import org.eclipse.jdt.internal.compiler.ast.OR_OR_Expression;
-import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.PrefixExpression;
-import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
-import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
-import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
-import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
-import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
-import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
-import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.Statement;
-import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
-import org.eclipse.jdt.internal.compiler.ast.SuperReference;
-import org.eclipse.jdt.internal.compiler.ast.SwitchExpression;
-import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
-import org.eclipse.jdt.internal.compiler.ast.SynchronizedStatement;
-import org.eclipse.jdt.internal.compiler.ast.ThisReference;
-import org.eclipse.jdt.internal.compiler.ast.ThrowStatement;
-import org.eclipse.jdt.internal.compiler.ast.TrueLiteral;
-import org.eclipse.jdt.internal.compiler.ast.TryStatement;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
-import org.eclipse.jdt.internal.compiler.ast.TypeReference;
-import org.eclipse.jdt.internal.compiler.ast.UnaryExpression;
-import org.eclipse.jdt.internal.compiler.ast.UnionTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.WhileStatement;
-import org.eclipse.jdt.internal.compiler.ast.Wildcard;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
-import org.eclipse.jdt.internal.compiler.parser.JavadocParser;
-import org.eclipse.jdt.internal.compiler.parser.Parser;
-import org.eclipse.jdt.internal.compiler.parser.RecoveredAnnotation;
-import org.eclipse.jdt.internal.compiler.parser.RecoveredBlock;
-import org.eclipse.jdt.internal.compiler.parser.RecoveredElement;
-import org.eclipse.jdt.internal.compiler.parser.RecoveredField;
-import org.eclipse.jdt.internal.compiler.parser.RecoveredInitializer;
-import org.eclipse.jdt.internal.compiler.parser.RecoveredLocalVariable;
-import org.eclipse.jdt.internal.compiler.parser.RecoveredMethod;
-import org.eclipse.jdt.internal.compiler.parser.RecoveredModule;
-import org.eclipse.jdt.internal.compiler.parser.RecoveredPackageVisibilityStatement;
-import org.eclipse.jdt.internal.compiler.parser.RecoveredProvidesStatement;
-import org.eclipse.jdt.internal.compiler.parser.RecoveredType;
-import org.eclipse.jdt.internal.compiler.parser.RecoveredUnit;
-import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
@@ -712,6 +629,8 @@ protected void attachOrphanCompletionNode(){
 	Expression expression;
 	if (this.expressionPtr > -1) {
 		expression = this.expressionStack[this.expressionPtr];
+		if (assembleSwitch(expression))
+			return;
 		CompletionNodeDetector detector = new CompletionNodeDetector(this.assistNode, expression);
 		if(detector.containsCompletionNode()) {
 			/* check for completion at the beginning of method body
@@ -1183,7 +1102,7 @@ private void buildMoreCompletionContext(Expression expression) {
 								length);
 						}
 					}
-					CaseStatement caseStatement = new CaseStatement(expression, expression.sourceStart, expression.sourceEnd);
+					CaseStatement caseStatement = new CaseStatement(new Expression[] { expression }, expression.sourceStart, expression.sourceEnd);
 					if(switchStatement.statements == null) {
 						switchStatement.statements = new Statement[]{caseStatement};
 					} else {
@@ -1191,6 +1110,11 @@ private void buildMoreCompletionContext(Expression expression) {
 					}
 					this.assistNodeParent = switchStatement;
 				}
+				break;
+			case K_SWITCH_EXPRESSION_DELIMITTER:				// at "case <something> -> {" ?
+			case K_BLOCK_DELIMITER:								// at "case <something> : {" ?
+				if (assembleSwitch(expression))
+					break nextElement;
 				break;
 			case K_BETWEEN_IF_AND_RIGHT_PAREN :
 				IfStatement ifStatement = new IfStatement(expression, new EmptyStatement(expression.sourceEnd, expression.sourceEnd), expression.sourceStart, expression.sourceEnd);
@@ -1254,6 +1178,92 @@ private void buildMoreCompletionContext(Expression expression) {
 			this.currentElement = this.currentElement.add(buildMoreCompletionEnclosingContext(expression), 0);
 		}
 	}
+}
+private boolean assembleSwitch(Expression innerStatement) {
+	if (lastIndexOfElement(K_SWITCH_LABEL) > -1
+			&& this.expressionPtr > -1
+			&& this.astPtr > -1
+			&& this.currentElement instanceof RecoveredBlock)
+	{
+		// init a temporary expression pointer:
+		int tmpExrPtr = this.expressionPtr;
+		if (this.expressionStack[tmpExrPtr] == innerStatement) {
+			tmpExrPtr--; // skip the assistNode
+			if (tmpExrPtr == -1)
+				return false;
+		}
+
+		// find the caseStatement on the stack:
+		CaseStatement caseStatement = null;
+		int casePos = -1;
+		for (int i=this.astPtr; i >= 0; i--) {
+			if (this.astStack[i] instanceof CaseStatement stmt) {
+				caseStatement = stmt;
+				casePos = i;
+				break;
+			}
+		}
+		if (caseStatement != null && popBlockContaining(caseStatement)) {
+			// established: the parts of the switch had been captured in recovered elements.
+			// now we replace those parts with a manually assembled switch statement:
+			SwitchStatement switchStatement = new SwitchStatement(); // TODO: possibly create a SwitchExpression?
+			switchStatement.expression = this.expressionStack[tmpExrPtr--];
+
+			int length = this.astPtr - casePos;
+			if(length != 0 && caseStatement.sourceStart > switchStatement.expression.sourceEnd) {
+				switchStatement.statements = new Statement[length + 2];
+				switchStatement.statements[0] = caseStatement;
+				// transfer existing statements:
+				System.arraycopy(
+					this.astStack,
+					casePos + 1,
+					switchStatement.statements,
+					1,
+					length);
+				switchStatement.statements[switchStatement.statements.length-1] = innerStatement;
+			} else {
+				switchStatement.statements = new Statement[] { caseStatement, innerStatement };
+			}
+			// commit new stack pointers:
+			this.astPtr = casePos-1;
+			this.astLengthPtr--; // TODO: this decrement is guess work
+			this.expressionPtr = tmpExrPtr;
+
+			// update elementStack:
+			popUntilElement(K_SWITCH_LABEL);
+			popElement(K_SWITCH_LABEL);
+
+			// now attach the orphan expression:
+			this.currentElement.add(switchStatement, 0);
+
+			// assemble also enclosing switch, if any:
+			assembleSwitch(switchStatement);
+			return true;
+		}
+	}
+	return false;
+}
+private boolean popBlockContaining(ASTNode soughtStatement) {
+	// check if soughtStatement was prematurely captured in a RecoveredStatement up the parent chain.
+	// if so, pop until the next parent.
+	RecoveredElement elem = this.currentElement;
+	while (elem instanceof RecoveredBlock block) {
+		for (int i=0; i<block.statementCount; i++) {
+			if (block.statements[i] instanceof RecoveredStatement stmt) {
+				if (stmt.statement == soughtStatement) {
+					this.currentElement = block.parent;
+					// also remove block from the new currentElement:
+					if (this.currentElement instanceof RecoveredBlock newBlock) {
+						if (newBlock.statements[newBlock.statementCount-1] == block)
+							newBlock.statementCount--;
+					}
+					return true;
+				}
+			}
+		}
+		elem = elem.parent;
+	}
+	return false;
 }
 private Statement buildMoreCompletionEnclosingContext(Statement statement) {
 	IfStatement ifStatement = null;
@@ -2258,7 +2268,7 @@ private boolean checkRecoveredType() {
 	}
 	return false;
 }
-private void classHeaderExtendsOrImplements(boolean isInterface, boolean isRecord) {
+private void classHeaderExtendsOrImplements(boolean isInterface, boolean isRecord, boolean isEnum) {
 	if (this.currentElement != null
 			&& this.currentToken == TokenNameIdentifier
 			&& this.cursorLocation+1 >= this.scanner.startPosition
@@ -2271,49 +2281,43 @@ private void classHeaderExtendsOrImplements(boolean isInterface, boolean isRecor
 			RecoveredType recoveredType = (RecoveredType)this.currentElement;
 			/* filter out cases where scanner is still inside type header */
 			if (!recoveredType.foundOpeningBrace) {
+				final boolean isClass = !isInterface && !isEnum && !isRecord;
 				TypeDeclaration type = recoveredType.typeDeclaration;
-				if(!isInterface) {
-					char[][] keywords = new char[Keywords.COUNT][];
-					int count = 0;
-
-
-					if(type.superInterfaces == null) {
-						if(!isRecord) {
-							if(type.superclass == null) {
+				char[][] keywords = new char[Keywords.COUNT][];
+				int count = 0;
+				if (!isInterface) {
+					if (type.superInterfaces == null) {
+						if (isClass) {
+							if (type.superclass == null) {
 								keywords[count++] = Keywords.EXTENDS;
 							}
 						}
 						keywords[count++] = Keywords.IMPLEMENTS;
 					}
-					if (JavaFeature.SEALED_CLASSES.isSupported(this.options)) {
-						boolean sealed = (type.modifiers & ExtraCompilerModifiers.AccSealed) != 0;
-						if (sealed)
-							keywords[count++] = RestrictedIdentifiers.PERMITS;
-					}
-
-					System.arraycopy(keywords, 0, keywords = new char[count][], 0, count);
-
-					if(count > 0) {
-						CompletionOnKeyword1 completionOnKeyword = new CompletionOnKeyword1(
-							this.identifierStack[ptr],
-							this.identifierPositionStack[ptr],
-							keywords);
-						type.superclass = completionOnKeyword;
-						type.superclass.bits |= ASTNode.IsSuperType;
-						this.assistNode = completionOnKeyword;
-						this.lastCheckPoint = completionOnKeyword.sourceEnd + 1;
-					}
 				} else {
-					if(type.superInterfaces == null) {
-						CompletionOnKeyword1 completionOnKeyword = new CompletionOnKeyword1(
-							this.identifierStack[ptr],
-							this.identifierPositionStack[ptr],
-							Keywords.EXTENDS);
-						type.superInterfaces = new TypeReference[]{completionOnKeyword};
-						type.superInterfaces[0].bits |= ASTNode.IsSuperType;
-						this.assistNode = completionOnKeyword;
-						this.lastCheckPoint = completionOnKeyword.sourceEnd + 1;
+					if (type.superInterfaces == null) {
+						keywords[count++] = Keywords.EXTENDS;
 					}
+				}
+
+				if (JavaFeature.SEALED_CLASSES.isSupported(this.options) && (isClass || isInterface)) {
+					boolean sealed = (type.modifiers & ExtraCompilerModifiers.AccSealed) != 0;
+					if (sealed)
+						keywords[count++] = RestrictedIdentifiers.PERMITS;
+				}
+
+				System.arraycopy(keywords, 0, keywords = new char[count][], 0, count);
+
+				if (count > 0) {
+					CompletionOnKeyword1 completionOnKeyword = new CompletionOnKeyword1(this.identifierStack[ptr],
+							this.identifierPositionStack[ptr], keywords);
+					if (isInterface) {
+						type.superInterfaces = new TypeReference[] { completionOnKeyword };
+					} else {
+						type.superclass = completionOnKeyword;
+					}
+					this.assistNode = completionOnKeyword;
+					this.lastCheckPoint = completionOnKeyword.sourceEnd + 1;
 				}
 			}
 		}
@@ -2433,8 +2437,8 @@ protected void consumeBinaryExpressionWithName(int op) {
 	}
 }
 @Override
-protected void consumeCaseLabel() {
-	super.consumeCaseLabel();
+protected void consumeSwitchLabels(boolean shouldConcat, boolean isSwitchRule) {
+	super.consumeSwitchLabels(shouldConcat, isSwitchRule);
 	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) != K_SWITCH_LABEL) {
 		pushOnElementStack(K_SWITCH_LABEL);
 	}
@@ -2581,7 +2585,7 @@ protected void consumeClassHeaderName1() {
 		this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 		this.pendingAnnotation = null;
 	}
-	classHeaderExtendsOrImplements(false,false);
+	classHeaderExtendsOrImplements(false,false, false);
 }
 
 @Override
@@ -2592,7 +2596,7 @@ protected void consumeRecordHeaderPart() {
 		this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 		this.pendingAnnotation = null;
 	}
-	classHeaderExtendsOrImplements(false,true);
+	classHeaderExtendsOrImplements(false,true, false);
 }
 
 @Override
@@ -2638,7 +2642,6 @@ protected void consumeClassHeaderExtends() {
 						this.identifierPositionStack[ptr],
 						keywords);
 					type.superclass = completionOnKeyword;
-					type.superclass.bits |= ASTNode.IsSuperType;
 					this.assistNode = completionOnKeyword;
 					this.lastCheckPoint = completionOnKeyword.sourceEnd + 1;
 				}
@@ -2691,14 +2694,6 @@ protected void consumeCompilationUnit() {
 		}
 	}
 	super.consumeCompilationUnit();
-}
-@Override
-protected void consumeSwitchExpression() {
-	super.consumeSwitchExpression();
-	if (this.assistNode != null) {
-		SwitchExpression expr = (SwitchExpression) this.expressionStack[this.expressionPtr];
-		expr.resolveAll = true;
-	}
 }
 @Override
 protected void consumeConditionalExpression(int op) {
@@ -2978,6 +2973,7 @@ protected void consumeEnumHeaderName() {
 		this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 		this.pendingAnnotation = null;
 	}
+	classHeaderExtendsOrImplements(false, false, true);
 }
 @Override
 protected void consumeEnumHeaderNameWithTypeParameters() {
@@ -2986,6 +2982,7 @@ protected void consumeEnumHeaderNameWithTypeParameters() {
 		this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 		this.pendingAnnotation = null;
 	}
+	classHeaderExtendsOrImplements(false, false, true);
 }
 @Override
 protected void consumeEqualityExpression(int op) {
@@ -3353,7 +3350,7 @@ protected void consumeInterfaceHeaderName1() {
 		this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 		this.pendingAnnotation = null;
 	}
-	classHeaderExtendsOrImplements(true, false);
+	classHeaderExtendsOrImplements(true, false, false);
 }
 @Override
 protected void consumeInterfaceHeaderExtends() {
@@ -3898,8 +3895,8 @@ protected void consumeSingleMemberAnnotation(boolean isTypeAnnotation) {
 	}
 }
 @Override
-protected void consumeSingleStaticImportDeclarationName() {
-	super.consumeSingleStaticImportDeclarationName();
+protected void consumeSingleModifierImportDeclarationName(int modifier) {
+	super.consumeSingleModifierImportDeclarationName(modifier);
 	this.pendingAnnotation = null; // the pending annotation cannot be attached to next nodes
 }
 @Override
@@ -3923,12 +3920,15 @@ protected void consumeStatementLabel() {
 	popElement(K_LABEL);
 	super.consumeStatementLabel();
 }
+
 @Override
-protected void consumeStatementSwitch() {
-	super.consumeStatementSwitch();
-	if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_SWITCH_LABEL) {
-		popElement(K_SWITCH_LABEL);
-		popElement(K_BLOCK_DELIMITER);
+protected void consumeSwitchStatementOrExpression(boolean isStmt) {
+	super.consumeSwitchStatementOrExpression(isStmt);
+	if (isStmt) {
+		if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_SWITCH_LABEL) {
+			popElement(K_SWITCH_LABEL);
+			popElement(K_BLOCK_DELIMITER);
+		}
 	}
 }
 @Override
@@ -4031,10 +4031,12 @@ protected void consumePushPosition() {
 	}
 }
 @Override
-protected void consumeSwitchLabeledBlock() {
-	popUntilElement(K_SWITCH_LABEL);
-	popElement(K_SWITCH_LABEL);
-	concatNodeLists();
+protected void consumeSwitchRule(SwitchRuleKind kind) {
+	super.consumeSwitchRule(kind);
+	if (kind == SwitchRuleKind.BLOCK) {
+		popUntilElement(K_SWITCH_LABEL);
+		popElement(K_SWITCH_LABEL);
+	}
 }
 @Override
 protected int fetchNextToken() throws InvalidInputException {
@@ -4140,6 +4142,11 @@ protected void consumeToken(int token) {
 				if(previous == TokenNameIdentifier &&
 						topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_PARAMETERIZED_METHOD_INVOCATION) {
 					popElement(K_PARAMETERIZED_METHOD_INVOCATION);
+				} else if (previous == TokenNameIdentifier
+						&& topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_CASE_AND_COLON) {
+					// replace, ID( is no longer a regular case constant, but starts a record pattern:
+					popElement(K_BETWEEN_CASE_AND_COLON);
+					pushOnElementStack(K_RECORD_PATTERN);
 				} else {
 					popElement(K_BETWEEN_NEW_AND_LEFT_BRACKET);
 				}
@@ -4176,6 +4183,11 @@ protected void consumeToken(int token) {
 			case TokenNameRBRACKET:
 				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_LEFT_AND_RIGHT_BRACKET) {
 					popElement(K_BETWEEN_LEFT_AND_RIGHT_BRACKET);
+				}
+				break;
+			case TokenNameARROW, TokenNameCOLON:
+				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_RECORD_PATTERN) {
+					popElement(K_RECORD_PATTERN);
 				}
 				break;
 
@@ -4836,7 +4848,7 @@ protected void consumeTypeHeaderNameWithTypeParameters() {
 	super.consumeTypeHeaderNameWithTypeParameters();
 
 	TypeDeclaration typeDecl = (TypeDeclaration)this.astStack[this.astPtr];
-	classHeaderExtendsOrImplements((typeDecl.modifiers & ClassFileConstants.AccInterface) != 0, false);
+	classHeaderExtendsOrImplements((typeDecl.modifiers & ClassFileConstants.AccInterface) != 0, false, false);
 }
 @Override
 protected void consumeTypeImportOnDemandDeclarationName() {
@@ -5150,8 +5162,8 @@ public TypeReference createQualifiedAssistTypeReference(char[][] previousIdentif
 @Override
 public TypeReference createParameterizedQualifiedAssistTypeReference(char[][] previousIdentifiers, TypeReference[][] typeArguments, char[] assistName, TypeReference[] assistTypeArguments, long[] positions) {
 	boolean isParameterized = false;
-	for (int i = 0; i < typeArguments.length; i++) {
-		if(typeArguments[i] != null) {
+	for (TypeReference[] typeArgument : typeArguments) {
+		if(typeArgument != null) {
 			isParameterized = true;
 			break;
 		}
@@ -5473,8 +5485,8 @@ protected TypeReference getTypeReferenceForGenericType(int dim,	int identifierLe
 		if (identifierLength == 1 && numberOfIdentifiers == 1) {
 			ParameterizedSingleTypeReference singleRef = (ParameterizedSingleTypeReference) ref;
 			TypeReference[] typeArguments = singleRef.typeArguments;
-			for (int i = 0; i < typeArguments.length; i++) {
-				if(typeArguments[i] == this.assistNode) {
+			for (TypeReference typeArgument : typeArguments) {
+				if(typeArgument == this.assistNode) {
 					this.assistNodeParent = ref;
 					return ref;
 				}
@@ -5482,10 +5494,10 @@ protected TypeReference getTypeReferenceForGenericType(int dim,	int identifierLe
 		} else {
 			ParameterizedQualifiedTypeReference qualifiedRef = (ParameterizedQualifiedTypeReference) ref;
 			TypeReference[][] typeArguments = qualifiedRef.typeArguments;
-			for (int i = 0; i < typeArguments.length; i++) {
-				if(typeArguments[i] != null) {
-					for (int j = 0; j < typeArguments[i].length; j++) {
-						if(typeArguments[i][j] == this.assistNode) {
+			for (TypeReference[] typeArgument : typeArguments) {
+				if(typeArgument != null) {
+					for (int j = 0; j < typeArgument.length; j++) {
+						if(typeArgument[j] == this.assistNode) {
 							this.assistNodeParent = ref;
 							return ref;
 						}
@@ -5903,26 +5915,6 @@ public MethodDeclaration parseSomeStatements(int start, int end, int fakeBlocksC
 		this.nestedMethod[this.nestedType]--;
 	}
 	return fakeMethod;
-}
-@Override
-protected Expression parseEmbeddedExpression(Parser parser, char[] source, int offset, int length,
-		CompilationUnitDeclaration unit, boolean recordLineSeparators) {
-	Expression e = super.parseEmbeddedExpression(parser, source, offset, length, unit, recordLineSeparators);
-	if (((AssistParser) parser).assistNode != null) {
-		this.assistNode = ((AssistParser) parser).assistNode;
-		((CompletionScanner) this.scanner).completionIdentifier = ((CompletionScanner)parser.scanner).completionIdentifier;
-		((CompletionScanner) this.scanner).completedIdentifierStart = ((CompletionScanner)parser.scanner).completedIdentifierStart;
-		((CompletionScanner) this.scanner).completedIdentifierEnd = ((CompletionScanner)parser.scanner).completedIdentifierEnd;
-	}
-	return e;
-}
-@Override
-protected CompletionParser getEmbeddedExpressionParser() {
-	CompletionParser cp = new CompletionParser(this.problemReporter, this.storeSourceEnds, this.monitor);
-	cp.cursorLocation = this.cursorLocation;
-	CompletionScanner cs = (CompletionScanner)cp.scanner;
-	cs.cursorLocation = this.cursorLocation;
-	return cp;
 }
 protected void popUntilCompletedAnnotationIfNecessary() {
 	if(this.elementPtr < 0) return;

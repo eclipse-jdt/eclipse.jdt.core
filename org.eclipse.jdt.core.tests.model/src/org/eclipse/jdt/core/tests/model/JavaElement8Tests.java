@@ -13,25 +13,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-
 import junit.framework.Test;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeHierarchy;
-import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -646,7 +635,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			buf.append("	}\n");
 			buf.append("}\n");
 			String content= buf.toString();
-			file.create(new ByteArrayInputStream(content.getBytes("UTF-8")), 0, null);
+			file.create(content.getBytes(StandardCharsets.UTF_8), 0, null);
 
 			// create a CU from that file:
 			ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);

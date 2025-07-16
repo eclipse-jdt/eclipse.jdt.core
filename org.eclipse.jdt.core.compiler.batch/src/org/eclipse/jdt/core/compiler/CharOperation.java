@@ -18,7 +18,6 @@ package org.eclipse.jdt.core.compiler;
 
 import java.util.Arrays;
 import java.util.List;
-
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
 /**
@@ -1984,8 +1983,8 @@ public static final boolean contains(char[] characters, char[] array) {
  * @since 3.14
  */
 public static boolean containsEqual(char[][] array, char[] sequence) {
-	for (int i = 0; i < array.length; i++) {
-		if (equals(array[i], sequence))
+	for (char[] c : array) {
+		if (equals(c, sequence))
 			return true;
 	}
 	return false;
@@ -3354,8 +3353,8 @@ public static final boolean pathMatch(
  */
 public static final int occurencesOf(char toBeFound, char[] array) {
 	int count = 0;
-	for (int i = 0; i < array.length; i++)
-		if (toBeFound == array[i])
+	for (char c : array)
+		if (toBeFound == c)
 			count++;
 	return count;
 }

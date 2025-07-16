@@ -15,6 +15,7 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
+import com.sun.mirror.apt.AnnotationProcessorFactory;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -32,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -52,8 +52,6 @@ import org.eclipse.jdt.apt.core.internal.util.FactoryPath.Attributes;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-
-import com.sun.mirror.apt.AnnotationProcessorFactory;
 
 /**
  * Stores annotation processor factories, and handles mapping from projects

@@ -112,7 +112,7 @@ public JavaElement resolved(Binding binding) {
 	return resolvedHandle;
 }
 /*
- * @private Debugging purposes
+ * for debugging only
  */
 @Override
 protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean showResolvedInfo) {
@@ -134,7 +134,7 @@ protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean 
 }
 @Override
 public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelException {
-	JavadocContents javadocContents = ((BinaryType) this.getDeclaringType()).getJavadocContents(monitor);
+	IJavadocContents javadocContents = ((BinaryType) this.getDeclaringType()).getJavadocContents(monitor);
 	if (javadocContents == null) return null;
 	return javadocContents.getFieldDoc(this);
 }

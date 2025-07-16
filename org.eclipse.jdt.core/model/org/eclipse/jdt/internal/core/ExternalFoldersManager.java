@@ -24,7 +24,6 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -32,7 +31,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -61,11 +59,11 @@ public class ExternalFoldersManager {
 	private static final boolean WINDOWS = System.getProperty("os.name").toLowerCase().contains("windows");  //$NON-NLS-1$//$NON-NLS-2$
 	private static final String EXTERNAL_PROJECT_NAME = ".org.eclipse.jdt.core.external.folders"; //$NON-NLS-1$
 	private static final String LINKED_FOLDER_NAME = ".link"; //$NON-NLS-1$
-	private Map<IPath, IFolder> folders;
+	private volatile Map<IPath, IFolder> folders;
 	private Set<IPath> pendingFolders; // subset of keys of 'folders', for which linked folders haven't been created yet.
 	private final AtomicInteger counter = new AtomicInteger(0);
 	/* Singleton instance */
-	private static ExternalFoldersManager MANAGER;
+	private static final ExternalFoldersManager INSTANCE= new ExternalFoldersManager();
 	private RefreshJob refreshJob;
 
 	private ExternalFoldersManager() {
@@ -102,11 +100,8 @@ public class ExternalFoldersManager {
 		}
 	}
 
-	public static synchronized ExternalFoldersManager getExternalFoldersManager() {
-		if (MANAGER == null) {
-			 MANAGER = new ExternalFoldersManager();
-		}
-		return MANAGER;
+	public static ExternalFoldersManager getExternalFoldersManager() {
+		return INSTANCE;
 	}
 
 	/**
@@ -117,8 +112,7 @@ public class ExternalFoldersManager {
 		if (classpath == null)
 			return null;
 		Set<IPath> folders = null;
-		for (int i = 0; i < classpath.length; i++) {
-			IClasspathEntry entry = classpath[i];
+		for (IClasspathEntry entry : classpath) {
 			if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 				IPath entryPath = entry.getPath();
 				if (isExternalFolderPath(entryPath)) {
@@ -306,11 +300,11 @@ public class ExternalFoldersManager {
 			this.pendingFolders.clear();
 		}
 
-		for (int i=0; i < arrayOfFolders.length; i++) {
+		for (Object arrayOfFolder : arrayOfFolders) {
 			try {
-				createLinkFolder((IPath) arrayOfFolders[i], false, externalFoldersProject, monitor);
+				createLinkFolder((IPath) arrayOfFolder, false, externalFoldersProject, monitor);
 			} catch (CoreException e) {
-				Util.log(e, "Error while creating a link for external folder :" + arrayOfFolders[i]); //$NON-NLS-1$
+				Util.log(e, "Error while creating a link for external folder :" + arrayOfFolder); //$NON-NLS-1$
 			}
 		}
 	}
@@ -339,9 +333,7 @@ public class ExternalFoldersManager {
 		Map<IPath, IFolder> knownFolders = getFolders();
 		List<Entry<IPath, IFolder>> result = null;
 		synchronized (knownFolders) {
-			Iterator<Entry<IPath, IFolder>> iterator = knownFolders.entrySet().iterator();
-			while (iterator.hasNext()) {
-				Entry<IPath, IFolder> entry = iterator.next();
+			for (Entry<IPath, IFolder> entry : knownFolders.entrySet()) {
 				IPath path = entry.getKey();
 				if ((roots != null && !roots.containsKey(path))
 						&& (sourceAttachments != null && !sourceAttachments.containsKey(path))) {
@@ -485,13 +477,13 @@ public class ExternalFoldersManager {
 		IProject externalProject = getExternalFoldersProject();
 		try {
 			Set<IPath> externalFolders = null;
-			for (int index = 0; index < sourceProjects.length; index++) {
-				if (sourceProjects[index].equals(externalProject))
+			for (IProject sourceProject : sourceProjects) {
+				if (sourceProject.equals(externalProject))
 					continue;
-				if (!JavaProject.hasJavaNature(sourceProjects[index]))
+				if (!JavaProject.hasJavaNature(sourceProject))
 					continue;
 
-				Set<IPath> foldersInProject = getExternalFolders(((JavaProject) JavaCore.create(sourceProjects[index])).getResolvedClasspath());
+				Set<IPath> foldersInProject = getExternalFolders(((JavaProject) JavaCore.create(sourceProject)).getResolvedClasspath());
 
 				if (foldersInProject == null || foldersInProject.size() == 0)
 					continue;

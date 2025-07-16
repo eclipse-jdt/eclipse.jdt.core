@@ -74,8 +74,7 @@ public class Clinit extends AbstractMethodDeclaration {
 			// check missing blank final field initializations
 			flowInfo = flowInfo.mergedWith(staticInitializerFlowContext.initsOnReturn);
 			FieldBinding[] fields = this.scope.enclosingSourceType().fields();
-			for (int i = 0, count = fields.length; i < count; i++) {
-				FieldBinding field = fields[i];
+			for (FieldBinding field : fields) {
 				if (field.isStatic()) {
 					if (!flowInfo.isDefinitelyAssigned(field)) {
 						if (field.isFinal()) {
@@ -210,7 +209,6 @@ public class Clinit extends AbstractMethodDeclaration {
 			codeStream.ifne(falseLabel);
 			codeStream.iconst_1();
 			BranchLabel jumpLabel = new BranchLabel(codeStream);
-			codeStream.decrStackSize(1);
 			codeStream.goto_(jumpLabel);
 			falseLabel.place();
 			codeStream.iconst_0();
@@ -256,8 +254,7 @@ public class Clinit extends AbstractMethodDeclaration {
 					}
 				}
 			} else if (fieldDeclarations != null) {
-				for (int i = 0, max = fieldDeclarations.length; i < max; i++) {
-					FieldDeclaration fieldDecl = fieldDeclarations[i];
+				for (FieldDeclaration fieldDecl : fieldDeclarations) {
 					if (fieldDecl.isStatic()) {
 						if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
 							fieldDecl.generateCode(staticInitializerScope, codeStream);
@@ -273,8 +270,7 @@ public class Clinit extends AbstractMethodDeclaration {
 			codeStream.anewarray(declaringType.binding);
 			if (enumCount > 0) {
 				if (fieldDeclarations != null) {
-					for (int i = 0, max = fieldDeclarations.length; i < max; i++) {
-						FieldDeclaration fieldDecl = fieldDeclarations[i];
+					for (FieldDeclaration fieldDecl : fieldDeclarations) {
 						// $VALUES[i] = <enum-constant-i>
 						if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
 							codeStream.dup();
@@ -314,8 +310,7 @@ public class Clinit extends AbstractMethodDeclaration {
 			}
 		} else {
 			if (fieldDeclarations != null) {
-				for (int i = 0, max = fieldDeclarations.length; i < max; i++) {
-					FieldDeclaration fieldDecl = fieldDeclarations[i];
+				for (FieldDeclaration fieldDecl : fieldDeclarations) {
 					switch (fieldDecl.getKind()) {
 						case AbstractVariableDeclaration.INITIALIZER :
 							if (!fieldDecl.isStatic())
@@ -359,6 +354,17 @@ public class Clinit extends AbstractMethodDeclaration {
 			// Record the end of the clinit: point to the declaration of the class
 			codeStream.recordPositionsFrom(0, declaringType.sourceStart);
 			classFile.completeCodeAttributeForClinit(codeAttributeOffset, classScope);
+		}
+		// the following block must happen after constantPool.resetForClinit()
+		if (TypeDeclaration.kind(declaringType.modifiers) != TypeDeclaration.ENUM_DECL
+				&& fieldDeclarations != null) {
+			int constantFlags = ClassFileConstants.AccStatic | ClassFileConstants.AccFinal;
+			for (FieldDeclaration fieldDecl : fieldDeclarations) {
+				if ((fieldDecl.modifiers & constantFlags) == constantFlags
+						&& fieldDecl.initialization != null) {
+					NameReference.emitDeclaringClassOfConstant(fieldDecl.initialization, codeStream);
+				}
+			}
 		}
 	}
 

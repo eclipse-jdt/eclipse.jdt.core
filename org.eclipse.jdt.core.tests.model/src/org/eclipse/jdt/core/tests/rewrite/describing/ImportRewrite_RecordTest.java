@@ -12,7 +12,7 @@ package org.eclipse.jdt.core.tests.rewrite.describing;
 
 import java.io.IOException;
 import java.util.List;
-
+import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -35,8 +35,6 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 import org.osgi.service.prefs.BackingStoreException;
-
-import junit.framework.Test;
 
 
 @SuppressWarnings("rawtypes")
@@ -65,7 +63,7 @@ public class ImportRewrite_RecordTest extends AbstractJavaModelTests {
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		IJavaProject proj= createJavaProject(PROJECT, new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "15");
+		IJavaProject proj= createJavaProject(PROJECT, new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "15");
 		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
 		proj.setOption(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "4");
 		proj.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_16);

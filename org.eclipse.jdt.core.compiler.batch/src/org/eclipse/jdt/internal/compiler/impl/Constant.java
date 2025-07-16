@@ -491,7 +491,7 @@ public abstract class Constant implements TypeIds, OperatorIds {
 				if (rightId == T_JavaLangString) {
 					//String are interned in th compiler==>thus if two string constant
 					//get to be compared, it is an equal on the vale which is done
-					return BooleanConstant.fromValue(((StringConstant)left).hasSameValue(right));
+					return BooleanConstant.fromValue(left.hasSameValue(right));
 				}
 				break;
 			case T_null :

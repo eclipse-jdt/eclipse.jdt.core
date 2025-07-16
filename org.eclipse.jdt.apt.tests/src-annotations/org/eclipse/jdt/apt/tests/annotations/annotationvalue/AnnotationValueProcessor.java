@@ -19,15 +19,12 @@ import com.sun.mirror.declaration.AnnotationTypeElementDeclaration;
 import com.sun.mirror.declaration.AnnotationValue;
 import com.sun.mirror.declaration.FieldDeclaration;
 import com.sun.mirror.declaration.TypeDeclaration;
-
-import junit.framework.ComparisonFailure;
-
-import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
-import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import junit.framework.ComparisonFailure;
+import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
+import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 
 public class AnnotationValueProcessor extends BaseProcessor {
 	public AnnotationValueProcessor(AnnotationProcessorEnvironment env) {

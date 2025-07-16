@@ -14,19 +14,9 @@
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
-
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.IAnnotation;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IImportDeclaration;
-import org.eclipse.jdt.core.ILocalVariable;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IPackageDeclaration;
-import org.eclipse.jdt.core.ISourceReference;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeParameter;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class GetSourceTests extends ModifyingResourceTests {
 
@@ -309,7 +299,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 	public void testLocalVariable1() throws JavaModelException {
 		ILocalVariable var = getLocalVariable("/P/p/X.java", "var1 = 2;", "var1");
 
-		String actualSource = ((ISourceReference)var).getSource();
+		String actualSource = var.getSource();
 		String expectedSource = "final int var1 = 2;";
 		assertSourceEquals("Unexpected source'", expectedSource, actualSource);
 	}
@@ -320,7 +310,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 	public void testLocalVariable2() throws JavaModelException {
 		ILocalVariable var = getLocalVariable("/P/p/X.java", "var2;", "var2");
 
-		String actualSource = ((ISourceReference)var).getSource();
+		String actualSource = var.getSource();
 		String expectedSource = "Object var2;";
 		assertSourceEquals("Unexpected source'", expectedSource, actualSource);
 	}
@@ -331,7 +321,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 	public void testLocalVariable3() throws JavaModelException {
 		ILocalVariable var = getLocalVariable("/P/p/X.java", "i = 0;", "i");
 
-		String actualSource = ((ISourceReference)var).getSource();
+		String actualSource = var.getSource();
 		String expectedSource = "int i = 0"; // semi-colon is not part of the local declaration in a for statement
 		assertSourceEquals("Unexpected source'", expectedSource, actualSource);
 	}
@@ -342,7 +332,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 	public void testLocalVariable4() throws JavaModelException {
 		ILocalVariable var = getLocalVariable("/P/p/X.java", "s) {", "s");
 
-		String actualSource = ((ISourceReference)var).getSource();
+		String actualSource = var.getSource();
 		String expectedSource = "String s";
 		assertSourceEquals("Unexpected source'", expectedSource, actualSource);
 	}
@@ -526,7 +516,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 	 */
 	public void testNameRange08() throws CoreException {
 		try {
-			createJavaProject("P15", new String[] {""}, new String[0], "", "1.5");
+			createJavaProject("P15", new String[] {""}, new String[0], "", CompilerOptions.getFirstSupportedJavaVersion());
 			String cuSource =
 				"public enum X {\n" +
 				"  GREEN() {\n" +
@@ -666,7 +656,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 	 */
 	public void testSourceRange03() throws CoreException {
 		try {
-			createJavaProject("P15", new String[] {""}, new String[0], "", "1.5");
+			createJavaProject("P15", new String[] {""}, new String[0], "", CompilerOptions.getFirstSupportedJavaVersion());
 			String cuSource =
 				"public enum X {\n" +
 				"  GREEN() {};\n" +

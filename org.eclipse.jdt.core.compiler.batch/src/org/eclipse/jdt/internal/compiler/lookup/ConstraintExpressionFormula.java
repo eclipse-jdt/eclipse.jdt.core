@@ -21,17 +21,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.eclipse.jdt.internal.compiler.ast.Argument;
-import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
-import org.eclipse.jdt.internal.compiler.ast.Expression;
-import org.eclipse.jdt.internal.compiler.ast.ExpressionContext;
-import org.eclipse.jdt.internal.compiler.ast.Invocation;
-import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
-import org.eclipse.jdt.internal.compiler.ast.MessageSend;
-import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
-import org.eclipse.jdt.internal.compiler.ast.SwitchExpression;
-import org.eclipse.jdt.internal.compiler.ast.Wildcard;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18.SuspendedInferenceRecord;
 
 /**
@@ -59,6 +49,10 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 
 	@Override
 	public Object reduce(InferenceContext18 inferenceContext) throws InferenceFailureException {
+		if ((this.right.tagBits & TagBits.HasMissingType) != 0) {
+			inferenceContext.hasIgnoredMissingType = true;
+			return TRUE;
+		}
 
 		if (this.relation == POTENTIALLY_COMPATIBLE) {
 			/* 15.12.2.1: ... The definition of potential applicability goes beyond a basic arity check to also take into account the presence and "shape" of functional interface
@@ -152,11 +146,10 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 					new ConstraintExpressionFormula(conditional.valueIfTrue, this.right, this.relation, this.isSoft),
 					new ConstraintExpressionFormula(conditional.valueIfFalse, this.right, this.relation, this.isSoft)
 				};
-			}  else if (this.left instanceof SwitchExpression) {
-				SwitchExpression se = (SwitchExpression) this.left;
-				ConstraintFormula[] cfs = new ConstraintFormula[se.resultExpressions.size()];
+			}  else if (this.left instanceof SwitchExpression se) {
+				ConstraintFormula[] cfs = new ConstraintFormula[se.resultExpressions().size()];
 				int i = 0;
-				for (Expression re : se.resultExpressions) {
+				for (Expression re : se.resultExpressions()) {
 					cfs[i++] = new ConstraintExpressionFormula(re, this.right, this.relation, this.isSoft);
 				}
 				return cfs;
@@ -182,8 +175,8 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				if (parameters.length != lambda.arguments().length)
 					return FALSE;
 				if (lambda.argumentsTypeElided())
-					for (int i = 0; i < parameters.length; i++)
-						if (!parameters[i].isProperType(true))
+					for (TypeBinding parameter : parameters)
+						if (!parameter.isProperType(true))
 							return FALSE;
 				lambda = lambda.resolveExpressionExpecting(t, inferenceContext.scope, inferenceContext);
 				if (lambda == null)
@@ -545,10 +538,9 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			variables.addAll(new ConstraintExpressionFormula(expr.valueIfTrue, this.right, COMPATIBLE).inputVariables(context));
 			variables.addAll(new ConstraintExpressionFormula(expr.valueIfFalse, this.right, COMPATIBLE).inputVariables(context));
 			return variables;
-		} else if (this.left instanceof SwitchExpression && this.left.isPolyExpression()) {
-			SwitchExpression expr = (SwitchExpression) this.left;
+		} else if (this.left instanceof SwitchExpression se && se.isPolyExpression()) {
 			Set<InferenceVariable> variables = new LinkedHashSet<>();
-			for (Expression re : expr.resultExpressions) {
+			for (Expression re : se.resultExpressions()) {
 				variables.addAll(new ConstraintExpressionFormula(re, this.right, COMPATIBLE).inputVariables(context));
 			}
 			return variables;

@@ -15,37 +15,23 @@
 
 package org.eclipse.jdt.apt.tests;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.apt.tests.annotations.generic.AbstractGenericProcessor;
-import org.eclipse.jdt.apt.tests.annotations.generic.GenericFactory;
-
 import com.sun.mirror.declaration.AnnotationMirror;
 import com.sun.mirror.declaration.ClassDeclaration;
 import com.sun.mirror.declaration.FieldDeclaration;
 import com.sun.mirror.declaration.MethodDeclaration;
 import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.declaration.TypeParameterDeclaration;
-import com.sun.mirror.type.AnnotationType;
-import com.sun.mirror.type.ArrayType;
-import com.sun.mirror.type.ClassType;
-import com.sun.mirror.type.DeclaredType;
-import com.sun.mirror.type.EnumType;
-import com.sun.mirror.type.InterfaceType;
-import com.sun.mirror.type.PrimitiveType;
-import com.sun.mirror.type.ReferenceType;
-import com.sun.mirror.type.TypeMirror;
-import com.sun.mirror.type.TypeVariable;
-import com.sun.mirror.type.VoidType;
-import com.sun.mirror.type.WildcardType;
+import com.sun.mirror.type.*;
 import com.sun.mirror.util.TypeVisitor;
 import com.sun.mirror.util.Types;
+import java.util.ArrayList;
+import java.util.Collection;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.apt.tests.annotations.generic.AbstractGenericProcessor;
+import org.eclipse.jdt.apt.tests.annotations.generic.GenericFactory;
 
 /**
  * Tests for the JDT-APT implementation of Type Visitors

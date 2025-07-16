@@ -13,13 +13,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import junit.framework.AssertionFailedError;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
-
-import junit.framework.AssertionFailedError;
 
 abstract public class CopyMoveTests extends ModifyingResourceTests {
 public CopyMoveTests(String name) {
@@ -58,7 +58,7 @@ public void copyNegative(IJavaElement[] elements, IJavaElement[] destinations, I
  * and forcing. The operation should succeed, so any exceptions
  * encountered are thrown.
  */
-public IJavaElement copyPositive(IJavaElement element, IJavaElement container, IJavaElement sibling, String rename, boolean force) throws JavaModelException {
+public IJavaElement copyPositive(IJavaElement element, IJavaElement container, IJavaElement sibling, String rename, boolean force) throws CoreException {
 	// if forcing, ensure that a name collision exists
 	if (force) {
 		IJavaElement collision = generateHandle(element, rename, container);
@@ -75,6 +75,7 @@ public IJavaElement copyPositive(IJavaElement element, IJavaElement container, I
 		// ensure the original element still exists
 		assertTrue("The original element must still exist", element.exists());
 
+		element.getJavaProject().getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 		waitForAutoBuild();
 
 		// generate the new element	handle

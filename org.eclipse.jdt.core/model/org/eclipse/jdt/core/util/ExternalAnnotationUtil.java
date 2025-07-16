@@ -14,11 +14,9 @@
 package org.eclipse.jdt.core.util;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-
+import java.nio.charset.StandardCharsets;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -716,18 +714,13 @@ public final class ExternalAnnotationUtil {
 		String line;
 		while ((line = tailReader.readLine()) != null)
 			head.append(line).append('\n');
-		ByteArrayInputStream newContent = new ByteArrayInputStream(head.toString().getBytes("UTF-8")); //$NON-NLS-1$
+		byte[] newContent = head.toString().getBytes(StandardCharsets.UTF_8);
 		annotationFile.setContents(newContent, IResource.KEEP_HISTORY, monitor);
 	}
 
 	private static void createNewFile(IFile file, String newContent, IProgressMonitor monitor) throws CoreException {
 		ensureExists(file.getParent(), monitor);
-
-		try {
-			file.create(new ByteArrayInputStream(newContent.getBytes("UTF-8")), false, monitor); //$NON-NLS-1$
-		} catch (UnsupportedEncodingException e) {
-			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, e.getMessage(), e));
-		}
+		file.create(newContent.getBytes(StandardCharsets.UTF_8), false, false, monitor);
 	}
 
 	private static void ensureExists(IContainer container, IProgressMonitor monitor) throws CoreException {

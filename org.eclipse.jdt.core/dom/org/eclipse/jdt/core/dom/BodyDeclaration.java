@@ -14,7 +14,6 @@
 
 package org.eclipse.jdt.core.dom;
 
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -206,8 +205,7 @@ public abstract class BodyDeclaration extends ASTNode {
 			// performance could be improved by caching computed flags
 			// but this would require tracking changes to this.modifiers
 			int computedmodifierFlags = Modifier.NONE;
-			for (Iterator it = modifiers().iterator(); it.hasNext(); ) {
-				Object x = it.next();
+			for (Object x : modifiers()) {
 				if (x instanceof Modifier) {
 					computedmodifierFlags |= ((Modifier) x).getKeyword().toFlagValue();
 				}

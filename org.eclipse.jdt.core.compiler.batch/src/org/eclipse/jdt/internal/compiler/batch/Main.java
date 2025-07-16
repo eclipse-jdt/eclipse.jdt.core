@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -27,26 +27,14 @@
  *								Bug 408815 - [batch][null] Add CLI option for COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS
  *     Jesper S Moller   - Contributions for
  *								bug 407297 - [1.8][compiler] Control generation of parameter names by option
- *    Mat Booth - Contribution for bug 405176
- *    Frits Jalvingh - fix for bug 533830.
+ *     Mat Booth - Contribution for bug 405176
+ *     Frits Jalvingh - fix for bug 533830.
+ *     Salesforce - Contribution for
+ *								https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2529
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -54,26 +42,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.MissingResourceException;
-import java.util.Properties;
-import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.function.Function;
 import java.util.stream.IntStream;
-
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.CompilationProgress;
@@ -199,8 +171,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			try {
 				Class<?> c = IProblem.class;
 				Field[] fields = c.getFields();
-				for (int i = 0, max = fields.length; i < max; i++) {
-					Field field = fields[i];
+				for (Field field : fields) {
 					if (field.getType().equals(Integer.TYPE)) {
 						Integer value = (Integer) field.get(null);
 						int key2 = value.intValue() & IProblem.IgnoreCategoriesMask;
@@ -758,10 +729,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					}
 				});
 				HashMap<String, Object> parameters = new HashMap<>();
-				for (int i = 0, max = entries.length; i < max; i++) {
-					Map.Entry<String, String> entry = entries[i];
-					String key = entry.getKey();
-					parameters.put(Logger.KEY, key);
+				for (Entry<String, String> entry : entries) {
+					parameters.put(Logger.KEY, entry.getKey());
 					parameters.put(Logger.VALUE, entry.getValue());
 					printTag(Logger.OPTION, parameters, true, true);
 				}
@@ -1073,18 +1042,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 		}
 
-		/**
-		 * Print the usage of wrong JDK
-		 */
-		public void logWrongJDK() {
-			if ((this.tagBits & Logger.XML) != 0) {
-				HashMap<String, Object> parameters = new HashMap<>();
-				parameters.put(Logger.MESSAGE, this.main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$
-				printTag(Logger.ERROR, parameters, true, true);
-			}
-			this.printlnErr(this.main.bind("configure.requiresJDK1.2orAbove")); //$NON-NLS-1$
-		}
-
 		private void logXmlExtraProblem(CategorizedProblem problem, int globalErrorCount, int localErrorCount) {
 			final int sourceStart = problem.getSourceStart();
 			final int sourceEnd = problem.getSourceEnd();
@@ -1372,6 +1329,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	private List<String> addonReads = Collections.EMPTY_LIST;
 	public Set<String> rootModules = Collections.EMPTY_SET;
 	public Set<String> limitedModules;
+	private Map<String,String> patchModules; // <module>=<file>(<pathsep><file>)*
 
 	public Locale compilerLocale;
 	public CompilerOptions compilerOptions; // read-only
@@ -1581,10 +1539,8 @@ protected void addNewEntry(ArrayList<FileSystem.Classpath> paths, String current
 	if (rulesSpecsSize != 0) {
 		AccessRule[] accessRules = new AccessRule[currentRuleSpecs.size()];
 		boolean rulesOK = true;
-		Iterator<String> i = currentRuleSpecs.iterator();
 		int j = 0;
-		while (i.hasNext()) {
-			String ruleSpec = i.next();
+		for (String ruleSpec : currentRuleSpecs) {
 			char key = ruleSpec.charAt(0);
 			String pattern = ruleSpec.substring(1);
 			if (pattern.length() > 0) {
@@ -1695,52 +1651,7 @@ public String bind(String id, String[] arguments) {
 	}
 	return MessageFormat.format(message, (Object[]) arguments);
 }
-/**
- * Return true if and only if the running VM supports the given minimal version.
- *
- * <p>This only checks the major version, since the minor version is always 0 (at least for the useful cases).</p>
- * <p>The given minimalSupportedVersion is one of the constants:</p>
- * <ul>
- * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_1</code></li>
- * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_2</code></li>
- * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_3</code></li>
- * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_4</code></li>
- * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_5</code></li>
- * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_6</code></li>
- * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_7</code></li>
- * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_8</code></li>
- * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK9</code></li>
- * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK10</code></li>
- * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK11</code></li>
- * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK12</code></li>
- * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK13</code></li>
- * <li><code>org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK14</code></li>
- *
- * </ul>
- * @param minimalSupportedVersion the given minimal version
- * @return true if and only if the running VM supports the given minimal version, false otherwise
- */
-private boolean checkVMVersion(long minimalSupportedVersion) {
-	// the format of this property is supposed to be xx.x where x are digits.
-	String classFileVersion = System.getProperty("java.class.version"); //$NON-NLS-1$
-	if (classFileVersion == null) {
-		// by default we don't support a class file version we cannot recognize
-		return false;
-	}
-	int index = classFileVersion.indexOf('.');
-	if (index == -1) {
-		// by default we don't support a class file version we cannot recognize
-		return false;
-	}
-	int majorVersion;
-	try {
-		majorVersion = Integer.parseInt(classFileVersion.substring(0, index));
-	} catch (NumberFormatException e) {
-		// by default we don't support a class file version we cannot recognize
-		return false;
-	}
-	return ClassFileConstants.getComplianceLevelForJavaVersion(majorVersion) >=minimalSupportedVersion;
-}
+
 /*
  *  Low-level API performing the actual compilation
  */
@@ -1846,6 +1757,7 @@ public void configure(String[] argv) {
 	final int INSIDE_RELEASE = 30;
 	final int INSIDE_LIMIT_MODULES = 31;
 	final int INSIDE_MODULE_VERSION = 32;
+	final int INSIDE_PATCH_MODULE = 33;
 
 	final int DEFAULT = 0;
 	ArrayList<String> bootclasspaths = new ArrayList<>(DEFAULT_SIZE_CLASSPATH);
@@ -2155,6 +2067,10 @@ public void configure(String[] argv) {
 					mode = INSIDE_LIMIT_MODULES;
 					continue;
 				}
+				if (currentArg.equals("--patch-module")) { //$NON-NLS-1$
+					mode = INSIDE_PATCH_MODULE;
+					continue;
+				}
 				if (currentArg.equals("--module-version")) { //$NON-NLS-1$
 					mode = INSIDE_MODULE_VERSION;
 					continue;
@@ -2284,10 +2200,8 @@ public void configure(String[] argv) {
 					continue;
 				}
 				if (currentArg.equals("-inlineJSR")) { //$NON-NLS-1$
+					// ignore, it is enabled by default from 1.5 on
 					mode = DEFAULT;
-					this.options.put(
-							CompilerOptions.OPTION_InlineJsr,
-							CompilerOptions.ENABLED);
 					continue;
 				}
 				if (currentArg.equals("-parameters")) { //$NON-NLS-1$
@@ -2620,22 +2534,11 @@ public void configure(String[] argv) {
 							this.bind("configure.unsupportedWithRelease", "-target"));//$NON-NLS-1$ //$NON-NLS-2$
 				}
 				this.didSpecifyTarget = true;
-				if (currentArg.equals("1.1")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
-				} else if (currentArg.equals("1.2")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
-				} else if (currentArg.equals("jsr14")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_JSR14);
-				} else if (currentArg.equals("cldc1.1")) { //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_CLDC1_1);
-					this.options.put(CompilerOptions.OPTION_InlineJsr, CompilerOptions.ENABLED);
+				String targetVersion = optionStringToVersion(currentArg);
+				if (targetVersion != null) {
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, targetVersion);
 				} else {
-					String version = optionStringToVersion(currentArg);
-					if (version != null) {
-						this.options.put(CompilerOptions.OPTION_TargetPlatform, version);
-					} else {
-						throw new IllegalArgumentException(this.bind("configure.targetJDK", currentArg)); //$NON-NLS-1$
-					}
+					throw new IllegalArgumentException(this.bind("configure.targetJDK", currentArg)); //$NON-NLS-1$
 				}
 				mode = DEFAULT;
 				continue;
@@ -2789,6 +2692,20 @@ public void configure(String[] argv) {
 						this.limitedModules = new HashSet<>();
 					}
 					this.limitedModules.add(tokenizer.nextToken().trim());
+				}
+				continue;
+			case INSIDE_PATCH_MODULE:
+				mode = DEFAULT;
+				String[] toks = currentArg.split("="); //$NON-NLS-1$
+				if (toks.length == 2) {
+					if (this.patchModules == null) {
+						this.patchModules = new HashMap<>();
+					}
+					if (this.patchModules.put(toks[0].trim(), toks[1].trim()) != null) {
+						throw new IllegalArgumentException(this.bind("configure.duplicatePatchModule", toks[0].trim())); //$NON-NLS-1$
+					}
+				} else {
+					throw new IllegalArgumentException(this.bind("configure.invalidSyntaxPatchModule", currentArg)); //$NON-NLS-1$
 				}
 				continue;
 			case INSIDE_MODULE_VERSION:
@@ -3080,30 +2997,16 @@ public void configure(String[] argv) {
 				getAllEncodings(specifiedEncodings)));
 	}
 	if (this.pendingErrors != null) {
-		for (Iterator<String> iterator = this.pendingErrors.iterator(); iterator.hasNext(); ) {
-			String message = iterator.next();
+		for (String message : this.pendingErrors) {
 			this.logger.logPendingError(message);
 		}
 		this.pendingErrors = null;
 	}
 }
-/** Translates any supported standard version starting at 1.3 up-to latest into the corresponding constant from CompilerOptions */
+/** Translates any supported standard version starting at {@link CompilerOptions#getFirstSupportedJavaVersion()}
+ * up-to latest into the corresponding constant from CompilerOptions */
 private String optionStringToVersion(String currentArg) {
 	switch (currentArg) {
-		case "1.3": return CompilerOptions.VERSION_1_3; //$NON-NLS-1$
-		case "1.4": return CompilerOptions.VERSION_1_4; //$NON-NLS-1$
-		case "1.5": //$NON-NLS-1$
-		case "5": //$NON-NLS-1$
-		case "5.0": //$NON-NLS-1$
-			return CompilerOptions.VERSION_1_5;
-		case "1.6": //$NON-NLS-1$
-		case "6": //$NON-NLS-1$
-		case "6.0": //$NON-NLS-1$
-			return CompilerOptions.VERSION_1_6;
-		case "1.7": //$NON-NLS-1$
-		case "7": //$NON-NLS-1$
-		case "7.0": //$NON-NLS-1$
-			return CompilerOptions.VERSION_1_7;
 		case "1.8": //$NON-NLS-1$
 		case "8": //$NON-NLS-1$
 		case "8.0": //$NON-NLS-1$
@@ -3148,6 +3051,12 @@ private String optionStringToVersion(String currentArg) {
 		case "21": //$NON-NLS-1$
 		case "21.0": //$NON-NLS-1$
 			return CompilerOptions.VERSION_21;
+		case "22": //$NON-NLS-1$
+		case "22.0": //$NON-NLS-1$
+			return CompilerOptions.VERSION_22;
+		case "23": //$NON-NLS-1$
+		case "23.0": //$NON-NLS-1$
+			return CompilerOptions.VERSION_23;
 		default:
 			return null;
 	}
@@ -3262,8 +3171,7 @@ private void initializeWarnings(String propertiesFile) {
 		e.printStackTrace();
 		throw new IllegalArgumentException(this.bind("configure.ioexceptionwarningspropertiesfile", propertiesFile)); //$NON-NLS-1$
 	}
-	for(Iterator iterator = properties.entrySet().iterator(); iterator.hasNext(); ) {
-		Map.Entry entry = (Map.Entry) iterator.next();
+	for (Map.Entry entry : properties.entrySet()) {
 		final String key = entry.getKey().toString();
 		if (key.startsWith("org.eclipse.jdt.core.compiler.")) { //$NON-NLS-1$
 			this.options.put(key, entry.getValue().toString());
@@ -3294,8 +3202,7 @@ protected void enableAll(int severity) {
 			break;
 	}
 	Map.Entry<String, String>[] entries = this.options.entrySet().toArray(new Map.Entry[this.options.size()]);
-	for (int i = 0, max = entries.length; i < max; i++) {
-		Map.Entry<String, String> entry = entries[i];
+	for (Entry<String, String> entry : entries) {
 		if (entry.getValue().equals(CompilerOptions.IGNORE)) {
 			this.options.put(entry.getKey(), newValue);
 		}
@@ -3542,6 +3449,33 @@ private void processAddonModuleOptions(FileSystem env) {
 		}
 	}
 }
+/** Associate patching source files to their modules. */
+protected void handlePatchModule() {
+	if (this.patchModules != null) {
+		Map<String, String> location2patchedModule = new HashMap<>();
+		for (Entry<String, String> entry : this.patchModules.entrySet()) {
+			StringTokenizer tokenizer = new StringTokenizer(entry.getValue(), File.pathSeparator);
+			while (tokenizer.hasMoreTokens()) {
+				String location = tokenizer.nextToken();
+				if (location2patchedModule.put(location, entry.getKey()) != null) {
+					throw new IllegalArgumentException(this.bind("configure.duplicateLocationPatchModule", location)); //$NON-NLS-1$
+				}
+			}
+		}
+		for(int i = 0; i < this.filenames.length; i++) {
+			if (this.modNames[i] == null) {
+				// does this source file patch an existing module?
+				for (Entry<String, String> entry : location2patchedModule.entrySet()) {
+					if (this.filenames[i].startsWith(entry.getKey()+File.separator)) {
+						this.modNames[i] = entry.getValue();
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
 protected ArrayList<FileSystem.Classpath> handleModulepath(String arg) {
 	ArrayList<String> modulePaths = processModulePathEntries(arg);
 	ArrayList<Classpath> result = new ArrayList<>();
@@ -3569,10 +3503,8 @@ protected ArrayList<FileSystem.Classpath> handleModuleSourcepath(String arg) {
 		if (this.destinationPath == null) {
 			addPendingErrors(this.bind("configure.missingDestinationPath"));//$NON-NLS-1$
 		}
-		String[] paths = new String[modulePaths.size()];
-		modulePaths.toArray(paths);
-		for (int i = 0; i < paths.length; i++) {
-			File dir = new File(paths[i]);
+		for (String path : modulePaths) {
+			File dir = new File(path);
 			if (dir.isDirectory()) {
 				// 1. Create FileSystem.Classpath for each module
 				// 2. Iterator each module in case of directory for source files and add to this.fileNames
@@ -3734,10 +3666,10 @@ protected ArrayList<FileSystem.Classpath> handleEndorseddirs(ArrayList<String> e
 			for (int i = 0, max = endorsedDirsJars.length; i < max; i++) {
 				File[] current = endorsedDirsJars[i];
 				if (current != null) {
-					for (int j = 0, max2 = current.length; j < max2; j++) {
+					for (File file : current) {
 						FileSystem.Classpath classpath =
 							FileSystem.getClasspath(
-									current[j].getAbsolutePath(),
+									file.getAbsolutePath(),
 									null, null, this.options, this.releaseVersion);
 						if (classpath != null) {
 							result.add(classpath);
@@ -3795,10 +3727,10 @@ protected ArrayList<FileSystem.Classpath> handleExtdirs(ArrayList<String> extdir
 			for (int i = 0, max = extdirsJars.length; i < max; i++) {
 				File[] current = extdirsJars[i];
 				if (current != null) {
-					for (int j = 0, max2 = current.length; j < max2; j++) {
+					for (File file : current) {
 						FileSystem.Classpath classpath =
 							FileSystem.getClasspath(
-									current[j].getAbsolutePath(),
+									file.getAbsolutePath(),
 									null, null, this.options, this.releaseVersion);
 						if (classpath != null) {
 							result.add(classpath);
@@ -3850,7 +3782,7 @@ protected void handleWarningToken(String token, boolean isEnabling) {
 protected void handleErrorToken(String token, boolean isEnabling) {
 	handleErrorOrWarningToken(token, isEnabling, ProblemSeverities.Error);
 }
-private void setSeverity(String compilerOptions, int severity, boolean isEnabling) {
+protected void setSeverity(String compilerOptions, int severity, boolean isEnabling) {
 	if (isEnabling) {
 		switch(severity) {
 			case ProblemSeverities.Error :
@@ -3911,7 +3843,7 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 				setSeverity(CompilerOptions.OPTION_ReportMissingJavadocComments, severity, isEnabling);
 				return;
 			} else if (token.equals("assertIdentifier")) { //$NON-NLS-1$
-				setSeverity(CompilerOptions.OPTION_ReportAssertIdentifier, severity, isEnabling);
+				// error by default, no other values accepted
 				return;
 			} else if (token.equals("allDeadCode")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportDeadCode, severity, isEnabling);
@@ -4008,7 +3940,7 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 				setSeverity(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, severity, isEnabling);
 				return;
 			} else if (token.equals("enumIdentifier")) { //$NON-NLS-1$
-				setSeverity(CompilerOptions.OPTION_ReportEnumIdentifier, severity, isEnabling);
+				// error by default, no other values accepted
 				return;
 			} else if (token.equals("exports")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportAPILeak, severity, isEnabling);
@@ -4601,8 +4533,7 @@ protected void initialize(PrintWriter outWriter, PrintWriter errWriter, boolean 
 	if (customDefaultOptions != null) {
 		this.didSpecifySource = customDefaultOptions.get(CompilerOptions.OPTION_Source) != null;
 		this.didSpecifyTarget = customDefaultOptions.get(CompilerOptions.OPTION_TargetPlatform) != null;
-		for (Iterator<Map.Entry<String, String>> iter = customDefaultOptions.entrySet().iterator(); iter.hasNext();) {
-			Map.Entry<String, String> entry = iter.next();
+		for (Entry<String, String> entry : customDefaultOptions.entrySet()) {
 			this.options.put(entry.getKey(), entry.getValue());
 		}
 	} else {
@@ -4654,7 +4585,17 @@ public void outputClassFiles(CompilationResult unitResult) {
 		boolean generateClasspathStructure = false;
 		CompilationUnit compilationUnit =
 			(CompilationUnit) unitResult.compilationUnit;
-		if (compilationUnit.destinationPath == null) {
+		findDestination: if (compilationUnit.destinationPath == null) {
+			if (compilationUnit.module != null) {
+				// correlate patch-module to the corresponding destination path
+				for (Classpath classpath : this.checkedClasspaths) {
+					if (classpath.servesModule(compilationUnit.module)) {
+						currentDestinationPath = classpath.getDestinationPath();
+						generateClasspathStructure = true;
+						break findDestination;
+					}
+				}
+			}
 			if (this.destinationPath == null) {
 				currentDestinationPath =
 					extractDestinationPathFromSourceFile(unitResult);
@@ -4667,9 +4608,7 @@ public void outputClassFiles(CompilationResult unitResult) {
 			generateClasspathStructure = true;
 		} // else leave currentDestinationPath null
 		if (currentDestinationPath != null) {
-			for (int i = 0, fileCount = classFiles.length; i < fileCount; i++) {
-				// retrieve the key and the corresponding classfile
-				ClassFile classFile = classFiles[i];
+			for (ClassFile classFile : classFiles) {
 				char[] filename = classFile.fileName();
 				int length = filename.length;
 				char[] relativeName = new char[length + 6];
@@ -4729,20 +4668,12 @@ public void performCompilation() {
 		String setting = System.getProperty("jdt.compiler.useSingleThread"); //$NON-NLS-1$
 		this.batchCompiler.useSingleThread = setting != null && setting.equals("true"); //$NON-NLS-1$
 
-		if (this.compilerOptions.complianceLevel >= ClassFileConstants.JDK1_6
-				&& this.compilerOptions.processAnnotations) {
-			if (checkVMVersion(ClassFileConstants.JDK1_6)) {
-				initializeAnnotationProcessorManager();
-				if (this.classNames != null) {
-					this.batchCompiler.setBinaryTypes(processClassNames(this.batchCompiler.lookupEnvironment));
-				}
-			} else {
-				// report a warning
-				this.logger.logIncorrectVMVersionForAnnotationProcessing();
+		if (this.compilerOptions.processAnnotations) {
+			initializeAnnotationProcessorManager();
+			if (this.classNames != null) {
+				this.batchCompiler.setBinaryTypes(processClassNames(this.batchCompiler.lookupEnvironment));
 			}
-			if (checkVMVersion(ClassFileConstants.JDK9)) {
-				initRootModules(this.batchCompiler.lookupEnvironment, environment);
-			}
+			initRootModules(this.batchCompiler.lookupEnvironment, environment);
 		}
 
 		// set the non-externally configurable options.
@@ -5242,6 +5173,8 @@ protected void setPaths(ArrayList<String> bootclasspaths,
 
 	List<FileSystem.Classpath> cp = handleClasspath(classpaths, customEncoding);
 
+	handlePatchModule();
+
 	List<FileSystem.Classpath> mp = handleModulepath(modulePath);
 
 	List<FileSystem.Classpath> msp = handleModuleSourcepath(moduleSourcepath);
@@ -5294,8 +5227,7 @@ public final static boolean shouldIgnoreOptionalProblems(char[][] folderNames, c
 	if (folderNames == null || fileName == null) {
 		return false;
 	}
-	for (int i = 0, max = folderNames.length; i < max; i++) {
-		char[] folderName = folderNames[i];
+	for (char[] folderName : folderNames) {
 		if (isParentOf(folderName, fileName)) {
 			return true;
 		}
@@ -5328,76 +5260,15 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 			throw new IllegalArgumentException(
 					this.bind("configure.unsupportedWithRelease", version));//$NON-NLS-1$
 		}
-		if (CompilerOptions.VERSION_1_3.equals(version)) {
-			if (!this.didSpecifySource) this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
-			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
-		} else if (CompilerOptions.VERSION_1_4.equals(version)) {
+		if(CompilerOptions.UNSUPPORTED_VERSIONS.contains(version)) {
+			throw new IllegalArgumentException(this.bind("configure.unsupportedComplianceVersion", //$NON-NLS-1$
+					this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.getFirstSupportedJavaVersion()));
+		}
+
+		if (CompilerOptions.VERSION_1_8.equals(version)) {
 			if (this.didSpecifySource) {
 				Object source = this.options.get(CompilerOptions.OPTION_Source);
-				if (CompilerOptions.VERSION_1_3.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
-				} else if (CompilerOptions.VERSION_1_4.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-				}
-			} else {
-				this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
-				if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
-			}
-		} else if (CompilerOptions.VERSION_1_5.equals(version)) {
-			if (this.didSpecifySource) {
-				Object source = this.options.get(CompilerOptions.OPTION_Source);
-				if (CompilerOptions.VERSION_1_3.equals(source)
-						|| CompilerOptions.VERSION_1_4.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-				} else if (CompilerOptions.VERSION_1_5.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-				}
-			} else {
-				this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-				if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			}
-		} else if (CompilerOptions.VERSION_1_6.equals(version)) {
-			if (this.didSpecifySource) {
-				Object source = this.options.get(CompilerOptions.OPTION_Source);
-				if (CompilerOptions.VERSION_1_3.equals(source)
-						|| CompilerOptions.VERSION_1_4.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-				} else if (CompilerOptions.VERSION_1_5.equals(source)
-						|| CompilerOptions.VERSION_1_6.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
-				}
-			} else {
-				this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
-				if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
-			}
-		} else if (CompilerOptions.VERSION_1_7.equals(version)) {
-			if (this.didSpecifySource) {
-				Object source = this.options.get(CompilerOptions.OPTION_Source);
-				if (CompilerOptions.VERSION_1_3.equals(source)
-						|| CompilerOptions.VERSION_1_4.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-				} else if (CompilerOptions.VERSION_1_5.equals(source)
-						|| CompilerOptions.VERSION_1_6.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
-				} else if (CompilerOptions.VERSION_1_7.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
-				}
-			} else {
-				this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
-				if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
-			}
-		} else if (CompilerOptions.VERSION_1_8.equals(version)) {
-			if (this.didSpecifySource) {
-				Object source = this.options.get(CompilerOptions.OPTION_Source);
-				if (CompilerOptions.VERSION_1_3.equals(source)
-						|| CompilerOptions.VERSION_1_4.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-				} else if (CompilerOptions.VERSION_1_5.equals(source)
-						|| CompilerOptions.VERSION_1_6.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
-				} else if (CompilerOptions.VERSION_1_7.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
-				} else if (CompilerOptions.VERSION_1_8.equals(source)) {
+				if (CompilerOptions.VERSION_1_8.equals(source)) {
 					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
 				}
 			} else {
@@ -5407,15 +5278,7 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 		} else if (CompilerOptions.VERSION_9.equals(version)) {
 			if (this.didSpecifySource) {
 				Object source = this.options.get(CompilerOptions.OPTION_Source);
-				if (CompilerOptions.VERSION_1_3.equals(source)
-						|| CompilerOptions.VERSION_1_4.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-				} else if (CompilerOptions.VERSION_1_5.equals(source)
-						|| CompilerOptions.VERSION_1_6.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
-				} else if (CompilerOptions.VERSION_1_7.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
-				} else if (CompilerOptions.VERSION_1_8.equals(source)) {
+				if (CompilerOptions.VERSION_1_8.equals(source)) {
 					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
 				} else if (CompilerOptions.VERSION_9.equals(source)) {
 					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_9);
@@ -5427,15 +5290,7 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 		} else if (CompilerOptions.VERSION_10.equals(version)) {
 			if (this.didSpecifySource) {
 				Object source = this.options.get(CompilerOptions.OPTION_Source);
-				if (CompilerOptions.VERSION_1_3.equals(source)
-						|| CompilerOptions.VERSION_1_4.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-				} else if (CompilerOptions.VERSION_1_5.equals(source)
-						|| CompilerOptions.VERSION_1_6.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
-				} else if (CompilerOptions.VERSION_1_7.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
-				} else if (CompilerOptions.VERSION_1_8.equals(source)) {
+				if (CompilerOptions.VERSION_1_8.equals(source)) {
 					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
 				} else if (CompilerOptions.VERSION_9.equals(source)) {
 					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_9);
@@ -5450,16 +5305,10 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 			if (!this.didSpecifyTarget) {
 				if (this.didSpecifySource) {
 					String source = this.options.get(CompilerOptions.OPTION_Source);
-					if (CompilerOptions.VERSION_1_3.equals(source)
-							|| CompilerOptions.VERSION_1_4.equals(source)) {
-						if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-					} else if (CompilerOptions.VERSION_1_5.equals(source)
-							|| CompilerOptions.VERSION_1_6.equals(source)) {
-						this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
-					} else {
-						// 1.3 is the lowest version that can be specified as -source
+					{
+						// 1.8 is the lowest version that can be specified as -source
 						// The following check will ensure '0' is ignored.
-						if (CompilerOptions.versionToJdkLevel(source) >= ClassFileConstants.JDK1_7)
+						if (CompilerOptions.versionToJdkLevel(source) >= ClassFileConstants.JDK1_8)
 							this.options.put(CompilerOptions.OPTION_TargetPlatform, source);
 					}
 				} else {
@@ -5473,20 +5322,12 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 
 	} else if (this.didSpecifySource) {
 		String version = this.options.get(CompilerOptions.OPTION_Source);
-		// default is source 1.3 target 1.2 and compliance 1.4
-		if (CompilerOptions.VERSION_1_4.equals(version)) {
-			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-		} else if (CompilerOptions.VERSION_1_5.equals(version)) {
-			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-		} else if (CompilerOptions.VERSION_1_6.equals(version)) {
-			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
-			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
-		} else if (CompilerOptions.VERSION_1_7.equals(version)) {
-			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
-			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
-		} else if (CompilerOptions.VERSION_1_8.equals(version)) {
+		if(CompilerOptions.UNSUPPORTED_VERSIONS.contains(version)) {
+			throw new IllegalArgumentException(this.bind("configure.unsupportedSourceVersion", //$NON-NLS-1$
+					this.options.get(CompilerOptions.OPTION_Source), CompilerOptions.getFirstSupportedJavaVersion()));
+		}
+		// default is source 1.8 target 1.8 and compliance 1.8
+		if (CompilerOptions.VERSION_1_8.equals(version)) {
 			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
 			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
 		} else if (CompilerOptions.VERSION_9.equals(version)) {
@@ -5520,22 +5361,6 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 			&& this.complianceLevel < ClassFileConstants.JDK1_8) {
 		// compliance must be 1.8 if source is 1.8
 		throw new IllegalArgumentException(this.bind("configure.incompatibleComplianceForSource", this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_8)); //$NON-NLS-1$
-	} else if (sourceVersion.equals(CompilerOptions.VERSION_1_7)
-			&& this.complianceLevel < ClassFileConstants.JDK1_7) {
-		// compliance must be 1.7 if source is 1.7
-		throw new IllegalArgumentException(this.bind("configure.incompatibleComplianceForSource", this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_7)); //$NON-NLS-1$
-	} else if (sourceVersion.equals(CompilerOptions.VERSION_1_6)
-			&& this.complianceLevel < ClassFileConstants.JDK1_6) {
-		// compliance must be 1.6 if source is 1.6
-		throw new IllegalArgumentException(this.bind("configure.incompatibleComplianceForSource", this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_6)); //$NON-NLS-1$
-	} else if (sourceVersion.equals(CompilerOptions.VERSION_1_5)
-			&& this.complianceLevel < ClassFileConstants.JDK1_5) {
-		// compliance must be 1.5 if source is 1.5
-		throw new IllegalArgumentException(this.bind("configure.incompatibleComplianceForSource", this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_5)); //$NON-NLS-1$
-	} else if (sourceVersion.equals(CompilerOptions.VERSION_1_4)
-			&& this.complianceLevel < ClassFileConstants.JDK1_4) {
-		// compliance must be 1.4 if source is 1.4
-		throw new IllegalArgumentException(this.bind("configure.incompatibleComplianceForSource", this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_4)); //$NON-NLS-1$
 	} else {
 		long ver = CompilerOptions.versionToJdkLevel(sourceVersion);
 		if(this.complianceLevel < ver)
@@ -5548,44 +5373,14 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 	// check and set compliance/source/target compatibilities
 	if (this.didSpecifyTarget) {
 		final String targetVersion = this.options.get(CompilerOptions.OPTION_TargetPlatform);
-		// tolerate jsr14 target
-		if (CompilerOptions.VERSION_JSR14.equals(targetVersion)) {
-			// expecting source >= 1.5
-			if (CompilerOptions.versionToJdkLevel(sourceVersion) < ClassFileConstants.JDK1_5) {
-				throw new IllegalArgumentException(this.bind("configure.incompatibleTargetForGenericSource", targetVersion, sourceVersion)); //$NON-NLS-1$
-			}
-		} else if (CompilerOptions.VERSION_CLDC1_1.equals(targetVersion)) {
-			if (this.didSpecifySource && CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_4) {
-				throw new IllegalArgumentException(this.bind("configure.incompatibleSourceForCldcTarget", targetVersion, sourceVersion)); //$NON-NLS-1$
-			}
-			if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-				throw new IllegalArgumentException(this.bind("configure.incompatibleComplianceForCldcTarget", targetVersion, sourceVersion)); //$NON-NLS-1$
-			}
+		if(CompilerOptions.UNSUPPORTED_VERSIONS.contains(targetVersion)) {
+			throw new IllegalArgumentException(this.bind("configure.unsupportedTargetVersion", //$NON-NLS-1$
+					this.options.get(CompilerOptions.OPTION_TargetPlatform), CompilerOptions.getFirstSupportedJavaVersion()));
 		} else {
 			// target must be 1.8 if source is 1.8
 			if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_8
 					&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_8){
 				throw new IllegalArgumentException(this.bind("configure.incompatibleTargetForSource", targetVersion, CompilerOptions.VERSION_1_8)); //$NON-NLS-1$
-			}
-			// target must be 1.7 if source is 1.7
-			if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_7
-					&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_7){
-				throw new IllegalArgumentException(this.bind("configure.incompatibleTargetForSource", targetVersion, CompilerOptions.VERSION_1_7)); //$NON-NLS-1$
-			}
-			// target must be 1.6 if source is 1.6
-			if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_6
-					&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_6){
-				throw new IllegalArgumentException(this.bind("configure.incompatibleTargetForSource", targetVersion, CompilerOptions.VERSION_1_6)); //$NON-NLS-1$
-			}
-			// target must be 1.5 if source is 1.5
-			if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_5
-					&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_5){
-				throw new IllegalArgumentException(this.bind("configure.incompatibleTargetForSource", targetVersion, CompilerOptions.VERSION_1_5)); //$NON-NLS-1$
-			}
-			// target must be 1.4 if source is 1.4
-			if (CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_4
-					&& CompilerOptions.versionToJdkLevel(targetVersion) < ClassFileConstants.JDK1_4){
-				throw new IllegalArgumentException(this.bind("configure.incompatibleTargetForSource", targetVersion, CompilerOptions.VERSION_1_4)); //$NON-NLS-1$
 			}
 			// target cannot be greater than compliance level
 			if (this.complianceLevel < CompilerOptions.versionToJdkLevel(targetVersion)){

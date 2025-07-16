@@ -83,7 +83,7 @@ public class ParameterizedType extends Type {
 	 * The type node; lazily initialized; defaults to an unspecified, but legal,
 	 * type.
 	 */
-	private Type type = null;
+	private volatile Type type;
 
 	/**
 	 * The type arguments (element type: {@link Type}).
@@ -144,7 +144,7 @@ public class ParameterizedType extends Type {
 	ASTNode clone0(AST target) {
 		ParameterizedType result = new ParameterizedType(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setType((Type) ((ASTNode) getType()).clone(target));
+		result.setType((Type) getType().clone(target));
 		result.typeArguments().addAll(
 			ASTNode.copySubtrees(target, typeArguments()));
 		return result;
@@ -178,8 +178,7 @@ public class ParameterizedType extends Type {
 			synchronized (this) {
 				if (this.type == null) {
 					preLazyInit();
-					this.type = new SimpleType(this.ast);
-					postLazyInit(this.type, TYPE_PROPERTY);
+					this.type = postLazyInit(new SimpleType(this.ast), TYPE_PROPERTY);
 				}
 			}
 		}

@@ -79,8 +79,7 @@ public class ContainerAnnotation extends SingleMemberAnnotation {
 		MethodBinding[] methods = containerAnnotationType.methods();
 		MemberValuePair pair = memberValuePairs()[0];
 
-		for (int i = 0, length = methods.length; i < length; i++) {
-			MethodBinding method = methods[i];
+		for (MethodBinding method : methods) {
 			if (CharOperation.equals(method.selector, TypeConstants.VALUE)) {
 				pair.binding = method;
 				pair.resolveTypeExpecting(scope, method.returnType);

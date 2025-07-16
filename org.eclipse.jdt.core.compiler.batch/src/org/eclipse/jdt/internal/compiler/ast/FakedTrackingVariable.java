@@ -19,12 +19,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -35,18 +33,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
-import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -243,6 +230,8 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	 * @return a new {@link FakedTrackingVariable} or null.
 	 */
 	public static FakedTrackingVariable getCloseTrackingVariable(Expression expression, FlowInfo flowInfo, FlowContext flowContext, boolean useAnnotations) {
+		if (flowInfo.reachMode() != FlowInfo.REACHABLE)
+			return null;
 		while (true) {
 			if (expression instanceof CastExpression)
 				expression = ((CastExpression) expression).expression;
@@ -251,8 +240,8 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			else if (expression instanceof ConditionalExpression) {
 				return getMoreUnsafeFromBranches((ConditionalExpression)expression, flowInfo,
 										branch -> getCloseTrackingVariable(branch, flowInfo, flowContext, useAnnotations));
-			} else if (expression instanceof SwitchExpression) {
-				for (Expression re : ((SwitchExpression) expression).resultExpressions) {
+			} else if (expression instanceof SwitchExpression se) {
+				for (Expression re : se.resultExpressions()) {
 					FakedTrackingVariable fakedTrackingVariable = getCloseTrackingVariable(re, flowInfo, flowContext, useAnnotations);
 					if (fakedTrackingVariable != null) {
 						return fakedTrackingVariable;
@@ -348,12 +337,14 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				if (messageSend.binding != null && ((messageSend.binding.tagBits & TagBits.AnnotationNotOwning) == 0))
 					closeTracker.owningState = OWNED;
 			}
+		} else if (rhs instanceof CastExpression cast) {
+			preConnectTrackerAcrossAssignment(location, local, cast.expression, flowInfo, useAnnotations);
 		}
 		return closeTracker;
 	}
 
 	private static boolean containsAllocation(SwitchExpression location) {
-		for (Expression re : location.resultExpressions) {
+		for (Expression re : location.resultExpressions()) {
 			if (containsAllocation(re))
 				return true;
 		}
@@ -400,7 +391,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 
 	private static void preConnectTrackerAcrossAssignment(ASTNode location, LocalVariableBinding local, FlowInfo flowInfo,
 			SwitchExpression se, FakedTrackingVariable closeTracker, boolean useAnnotations) {
-		for (Expression re : se.resultExpressions) {
+		for (Expression re : se.resultExpressions()) {
 			preConnectTrackerAcrossAssignment(location, local, flowInfo, closeTracker, re, useAnnotations);
 		}
 	}
@@ -424,14 +415,16 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	 * See  Bug 358903 - Filter practically unimportant resource leak warnings
 	 */
 	public static void analyseCloseableAllocation(BlockScope scope, FlowInfo flowInfo, FlowContext flowContext, AllocationExpression allocation) {
+		if (flowInfo.reachMode() != FlowInfo.REACHABLE)
+			return;
 		// client has checked that the resolvedType is an AutoCloseable, hence the following cast is safe:
-		if (((ReferenceBinding)allocation.resolvedType).hasTypeBit(TypeIds.BitResourceFreeCloseable)) {
+		if (allocation.resolvedType.hasTypeBit(TypeIds.BitResourceFreeCloseable)) {
 			// remove unnecessary attempts (closeable is not relevant)
 			if (allocation.closeTracker != null) {
 				allocation.closeTracker.withdraw();
 				allocation.closeTracker = null;
 			}
-		} else if (((ReferenceBinding)allocation.resolvedType).hasTypeBit(TypeIds.BitWrapperCloseable)) {
+		} else if (allocation.resolvedType.hasTypeBit(TypeIds.BitWrapperCloseable)) {
 			boolean isWrapper = true;
 			if (allocation.arguments != null &&  allocation.arguments.length > 0) {
 				// find the wrapped resource represented by its tracking var:
@@ -506,7 +499,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			return flowInfo;
 		}
 		// client has checked that the resolvedType is an AutoCloseable, hence the following cast is safe:
-		if (((ReferenceBinding)acquisition.resolvedType).hasTypeBit(TypeIds.BitResourceFreeCloseable)
+		if (acquisition.resolvedType.hasTypeBit(TypeIds.BitResourceFreeCloseable)
 				&& !isBlacklistedMethod(acquisition)) {
 			// remove unnecessary attempts (closeable is not relevant)
 			if (acquisition.closeTracker != null) {
@@ -547,15 +540,19 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		}
 	}
 
-	private static boolean isFluentMethod(MethodBinding binding) {
+	static boolean isFluentMethod(MethodBinding binding) {
 		if (binding.isStatic())
 			return false;
 		ReferenceBinding declaringClass = binding.declaringClass;
-		if (declaringClass.equals(binding.returnType)) {
-			for (char[][] compoundName : TypeConstants.FLUENT_RESOURCE_CLASSES) {
-				if (CharOperation.equals(compoundName, declaringClass.compoundName))
-					return true;
+		while (declaringClass != null) {
+			if (declaringClass.equals(binding.returnType)) {
+				for (char[][] compoundName : TypeConstants.FLUENT_RESOURCE_CLASSES) {
+					if (CharOperation.equals(compoundName, declaringClass.compoundName))
+						return true;
+				}
+				return false;
 			}
+			declaringClass = declaringClass.superclass();
 		}
 		return false;
 	}
@@ -841,8 +838,8 @@ public class FakedTrackingVariable extends LocalDeclaration {
 							if (fieldReference.receiver.isThis())
 								field = fieldReference.binding;
 						}
-						if (field != null) {
-							if (!field.isStatic() && (field.tagBits & TagBits.AnnotationOwning) != 0) {
+						if (field != null&& (field.tagBits & TagBits.AnnotationNotOwning) == 0) { // assignment to @NotOwned has no meaning
+							if ((field.tagBits & TagBits.AnnotationOwning) != 0) {
 								rhsTrackVar.markNullStatus(flowInfo, flowContext, FlowInfo.NON_NULL);
 							} else {
 								rhsTrackVar.markAsShared();
@@ -888,9 +885,9 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			return getMoreUnsafeFromBranches((ConditionalExpression) expression, flowInfo,
 						branch -> analyseCloseableExpression(scope, flowInfo, flowContext, useAnnotations,
 																local, location, branch, previousTracker));
-		} else if (expression instanceof SwitchExpression) {
+		} else if (expression instanceof SwitchExpression se) {
 			FakedTrackingVariable mostRisky = null;
-			for (Expression result : ((SwitchExpression) expression).resultExpressions) {
+			for (Expression result : se.resultExpressions()) {
 				FakedTrackingVariable current = analyseCloseableExpression(scope, flowInfo, flowContext, useAnnotations,
 						local, location, result, previousTracker);
 				if (mostRisky == null)
@@ -1007,6 +1004,11 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	public static void cleanUpAfterAssignment(BlockScope currentScope, int lhsBits, Expression expression) {
 		// remove all remaining track vars with no original binding
 
+		boolean useAnnotations = currentScope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled;
+		if (useAnnotations && (lhsBits & Binding.FIELD) != 0) {
+			return;
+		}
+
 		// unwrap uninteresting nodes:
 		while (true) {
 			if (expression instanceof Assignment)
@@ -1033,7 +1035,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			LocalVariableBinding local = expression.localVariableBinding();
 			if (local != null
 					&& ((lhsBits & Binding.FIELD) != 0)
-					&& !currentScope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled
+					&& !useAnnotations
 					&& local.closeTracker != null) {
 				local.closeTracker.withdraw(); // TODO: may want to use local.closeTracker.markPassedToOutside(..,true)
 			}
@@ -1083,7 +1085,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	/** Answer wither the given type binding is a subtype of java.lang.AutoCloseable. */
 	public static boolean isAnyCloseable(TypeBinding typeBinding) {
 		return typeBinding instanceof ReferenceBinding
-			&& ((ReferenceBinding)typeBinding).hasTypeBit(TypeIds.BitAutoCloseable|TypeIds.BitCloseable);
+			&& typeBinding.hasTypeBit(TypeIds.BitAutoCloseable|TypeIds.BitCloseable);
 	}
 
 	/** Answer wither the given type binding is a subtype of java.lang.AutoCloseable. */
@@ -1445,10 +1447,8 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		}
 		boolean hasReported = false;
 		if (this.recordedLocations != null) {
-			Iterator<Map.Entry<ASTNode,Integer>> locations = this.recordedLocations.entrySet().iterator();
 			int reportFlags = 0;
-			while (locations.hasNext()) {
-				Entry<ASTNode, Integer> entry = locations.next();
+			for (Entry<ASTNode, Integer> entry : this.recordedLocations.entrySet()) {
 				reportFlags |= reportError(scope.problemReporter(), entry.getKey(), entry.getValue().intValue());
 				hasReported = true;
 			}

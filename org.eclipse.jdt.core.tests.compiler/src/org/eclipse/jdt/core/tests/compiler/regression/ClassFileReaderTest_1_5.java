@@ -17,9 +17,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
@@ -35,7 +33,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	}
 
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_5);
+		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
 	}
 	public static Class testClass() {
 		return ClassFileReaderTest_1_5.class;

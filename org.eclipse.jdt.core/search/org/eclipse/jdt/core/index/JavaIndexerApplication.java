@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 import org.eclipse.osgi.util.NLS;
@@ -93,8 +92,8 @@ public class JavaIndexerApplication implements IApplication {
 
 	private boolean processCommandLine(String[] argsArray) {
 		List<String> args = new ArrayList<>();
-		for (int i = 0, max = argsArray.length; i < max; i++) {
-			args.add(argsArray[i]);
+		for (String arg : argsArray) {
+			args.add(arg);
 		}
 		int index = 0;
 		final int argCount = argsArray.length;

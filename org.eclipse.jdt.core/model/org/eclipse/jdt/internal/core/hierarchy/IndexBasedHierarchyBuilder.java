@@ -18,9 +18,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -454,8 +452,8 @@ private String[] determinePossibleSubTypes(final HashSet localTypes, IProgressMo
 	int length = paths.size();
 	String[] result = new String[length];
 	int count = 0;
-	for (Iterator iter = paths.iterator(); iter.hasNext();) {
-		result[count++] = (String) iter.next();
+	for (Object path : paths) {
+		result[count++] = (String) path;
 	}
 	return result;
 }

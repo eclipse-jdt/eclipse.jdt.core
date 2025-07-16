@@ -27,7 +27,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -112,11 +111,10 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 	    	if (this.resolvedType != null && !this.resolvedType.hasNullTypeAnnotations())
 	    		return false; // shortcut
 	    	if (this.typeArguments != null) {
-	    		for (int i = 0; i < this.typeArguments.length; i++) {
-	    			TypeReference[] arguments = this.typeArguments[i];
+	    		for (TypeReference[] arguments : this.typeArguments) {
 	    			if (arguments != null) {
-		    			for (int j = 0; j < arguments.length; j++) {
-		    				if (arguments[j].hasNullTypeAnnotation(position))
+		    			for (TypeReference argument : arguments) {
+		    				if (argument.hasNullTypeAnnotation(position))
 		    					return true;
 		    			}
 					}
@@ -318,14 +316,8 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 
 			    TypeVariableBinding[] typeVariables = currentOriginal.typeVariables();
 				if (typeVariables == Binding.NO_TYPE_VARIABLES) { // check generic
-					if (scope.compilerOptions().originalSourceLevel >= ClassFileConstants.JDK1_5) { // below 1.5, already reported as syntax error
-						scope.problemReporter().nonGenericTypeCannotBeParameterized(i, this, currentType, argTypes);
-						return null;
-					}
-					this.resolvedType =  (qualifyingType != null && qualifyingType.isParameterizedType())
-						? scope.environment().createParameterizedType(currentOriginal, null, qualifyingType)
-						: currentType;
-					return this.resolvedType;
+					scope.problemReporter().nonGenericTypeCannotBeParameterized(i, this, currentType, argTypes);
+					return null;
 				} else if (argLength != typeVariables.length) {
 					if (!isDiamond) { // check arity
 						scope.problemReporter().incorrectArityForParameterizedType(this, currentType, argTypes, i);
@@ -483,18 +475,17 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			}
 			Annotation [][] annotationsOnDimensions = getAnnotationsOnDimensions(true);
 			if (annotationsOnDimensions != null) {
-				for (int i = 0, max = annotationsOnDimensions.length; i < max; i++) {
-					Annotation[] annotations2 = annotationsOnDimensions[i];
-					for (int j = 0, max2 = annotations2 == null ? 0 : annotations2.length; j < max2; j++) {
-						Annotation annotation = annotations2[j];
+				for (Annotation[] annotationsOnDimension : annotationsOnDimensions) {
+					for (int j = 0, max2 = annotationsOnDimension == null ? 0 : annotationsOnDimension.length; j < max2; j++) {
+						Annotation annotation = annotationsOnDimension[j];
 						annotation.traverse(visitor, scope);
 					}
 				}
 			}
-			for (int i = 0, max = this.typeArguments.length; i < max; i++) {
-				if (this.typeArguments[i] != null) {
-					for (int j = 0, max2 = this.typeArguments[i].length; j < max2; j++) {
-						this.typeArguments[i][j].traverse(visitor, scope);
+			for (TypeReference[] typeArgument : this.typeArguments) {
+				if (typeArgument != null) {
+					for (TypeReference typeReference : typeArgument) {
+						typeReference.traverse(visitor, scope);
 					}
 				}
 			}
@@ -515,18 +506,17 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			}
 			Annotation [][] annotationsOnDimensions = getAnnotationsOnDimensions(true);
 			if (annotationsOnDimensions != null) {
-				for (int i = 0, max = annotationsOnDimensions.length; i < max; i++) {
-					Annotation[] annotations2 = annotationsOnDimensions[i];
-					for (int j = 0, max2 = annotations2 == null ? 0 : annotations2.length; j < max2; j++) {
-						Annotation annotation = annotations2[j];
+				for (Annotation[] annotationsOnDimension : annotationsOnDimensions) {
+					for (int j = 0, max2 = annotationsOnDimension == null ? 0 : annotationsOnDimension.length; j < max2; j++) {
+						Annotation annotation = annotationsOnDimension[j];
 						annotation.traverse(visitor, scope);
 					}
 				}
 			}
-			for (int i = 0, max = this.typeArguments.length; i < max; i++) {
-				if (this.typeArguments[i] != null) {
-					for (int j = 0, max2 = this.typeArguments[i].length; j < max2; j++) {
-						this.typeArguments[i][j].traverse(visitor, scope);
+			for (TypeReference[] typeArgument : this.typeArguments) {
+				if (typeArgument != null) {
+					for (TypeReference argument : typeArgument) {
+						argument.traverse(visitor, scope);
 					}
 				}
 			}
@@ -536,21 +526,23 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 
 	@Override
 	public void updateWithAnnotations(Scope scope, int location) {
-		int lastToken = this.tokens.length - 1;
-		TypeBinding updatedLeaf;
-		if (this.typesPerToken != null && this.typesPerToken[lastToken] != null) {
-			for (int i = 0; i <= lastToken; i++) {
-				this.typesPerToken[i] = (ReferenceBinding) updateParameterizedTypeWithAnnotations(scope, this.typesPerToken[i], this.typeArguments[i]);
-			}
-			updatedLeaf = this.typesPerToken[lastToken];
-		} else {
-			updatedLeaf = updateParameterizedTypeWithAnnotations(scope, this.resolvedType, this.typeArguments[lastToken]);
-		}
-		if (updatedLeaf != this.resolvedType.leafComponentType()) { //$IDENTITY-COMPARISON$
-			if (this.dimensions > 0 && this.dimensions <= 255) {
-				this.resolvedType = scope.createArrayType(updatedLeaf, this.dimensions);
+		if (this.resolvedType != null) {
+			int lastToken = this.tokens.length - 1;
+			TypeBinding updatedLeaf;
+			if (this.typesPerToken != null && this.typesPerToken[lastToken] != null) {
+				for (int i = 0; i <= lastToken; i++) {
+					this.typesPerToken[i] = (ReferenceBinding) updateParameterizedTypeWithAnnotations(scope, this.typesPerToken[i], this.typeArguments[i]);
+				}
+				updatedLeaf = this.typesPerToken[lastToken];
 			} else {
-				this.resolvedType = updatedLeaf;
+				updatedLeaf = updateParameterizedTypeWithAnnotations(scope, this.resolvedType, this.typeArguments[lastToken]);
+			}
+			if (updatedLeaf != this.resolvedType.leafComponentType()) { //$IDENTITY-COMPARISON$
+				if (this.dimensions > 0 && this.dimensions <= 255) {
+					this.resolvedType = scope.createArrayType(updatedLeaf, this.dimensions);
+				} else {
+					this.resolvedType = updatedLeaf;
+				}
 			}
 		}
 		resolveAnnotations(scope, location); // see comment in super TypeReference.updateWithAnnotations()

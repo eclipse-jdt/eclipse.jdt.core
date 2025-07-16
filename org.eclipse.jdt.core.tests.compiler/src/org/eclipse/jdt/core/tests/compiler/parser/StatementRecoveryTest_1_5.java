@@ -15,9 +15,7 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Locale;
 import java.util.Map;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -234,9 +232,9 @@ public void checkParse(
 @Override
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 	return options;
 }
 

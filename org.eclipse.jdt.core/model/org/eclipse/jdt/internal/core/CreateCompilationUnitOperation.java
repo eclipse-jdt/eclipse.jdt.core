@@ -13,27 +13,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-
-import org.eclipse.core.resources.*;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
-import org.eclipse.jdt.core.IBuffer;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaElementDelta;
-import org.eclipse.jdt.core.IJavaModelStatus;
-import org.eclipse.jdt.core.IJavaModelStatusConstants;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.JavaConventions;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -99,8 +89,8 @@ protected void executeOperation() throws JavaModelException {
 				this.resultElements = new IJavaElement[] {unit};
 				if (!Util.isExcluded(unit)
 						&& unit.getParent().exists()) {
-					for (int i = 0; i < this.resultElements.length; i++) {
-						delta.changed(this.resultElements[i], IJavaElementDelta.F_CONTENT);
+					for (IJavaElement resultElement : this.resultElements) {
+						delta.changed(resultElement, IJavaElementDelta.F_CONTENT);
 					}
 					addDelta(delta);
 				}
@@ -118,13 +108,13 @@ protected void executeOperation() throws JavaModelException {
 				catch (CoreException ce) {
 					// use no encoding
 				}
-				InputStream stream = new ByteArrayInputStream(encoding == null ? this.source.getBytes() : this.source.getBytes(encoding));
-				createFile(folder, unit.getElementName(), stream, this.force);
+				byte[] content = encoding == null ? this.source.getBytes() : this.source.getBytes(encoding);
+				createFile(folder, unit.getElementName(), content, this.force);
 				this.resultElements = new IJavaElement[] {unit};
 				if (!Util.isExcluded(unit)
 						&& unit.getParent().exists()) {
-					for (int i = 0; i < this.resultElements.length; i++) {
-						delta.added(this.resultElements[i]);
+					for (IJavaElement resultElement : this.resultElements) {
+						delta.added(resultElement);
 					}
 					addDelta(delta);
 				}

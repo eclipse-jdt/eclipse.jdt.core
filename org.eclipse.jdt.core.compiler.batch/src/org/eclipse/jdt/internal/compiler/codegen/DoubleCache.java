@@ -14,6 +14,8 @@
 package org.eclipse.jdt.internal.compiler.codegen;
 
 public class DoubleCache {
+	private static final double[] EMPTY_DOUBLES = new double[0];
+	private static final int[] EMPTY_INTS = new int[0];
 	private double keyTable[];
 	private int valueTable[];
 	private int elementSize;
@@ -23,28 +25,17 @@ public class DoubleCache {
  * grow when it gets full.
  */
 public DoubleCache() {
-	this(13);
-}
-/**
- * Constructs a new, empty hashtable with the specified initial
- * capacity.
- * @param initialCapacity int
- *  the initial number of buckets
- */
-public DoubleCache(int initialCapacity) {
 	this.elementSize = 0;
-	this.keyTable = new double[initialCapacity];
-	this.valueTable = new int[initialCapacity];
+	this.keyTable = EMPTY_DOUBLES;
+	this.valueTable = EMPTY_INTS;
 }
 /**
  * Clears the hash table so that it has no more elements in it.
  */
 public void clear() {
-	for (int i = this.keyTable.length; --i >= 0;) {
-		this.keyTable[i] = 0.0;
-		this.valueTable[i] = 0;
-	}
 	this.elementSize = 0;
+	this.keyTable = EMPTY_DOUBLES;
+	this.valueTable = EMPTY_INTS;
 }
 /** Returns true if the collection contains an element for the key.
  *
@@ -72,25 +63,7 @@ public boolean containsKey(double key) {
 	}
 	return false;
 }
-/**
- * Puts the specified element into the hashtable, using the specified
- * key.  The element may be retrieved by doing a get() with the same key.
- *
- * @param key <CODE>double</CODE> the specified key in the hashtable
- * @param value <CODE>int</CODE> the specified element
- * @return int value
- */
-public int put(double key, int value) {
-	if (this.elementSize == this.keyTable.length) {
-		// resize
-		System.arraycopy(this.keyTable, 0, (this.keyTable = new double[this.elementSize * 2]), 0, this.elementSize);
-		System.arraycopy(this.valueTable, 0, (this.valueTable = new int[this.elementSize * 2]), 0, this.elementSize);
-	}
-	this.keyTable[this.elementSize] = key;
-	this.valueTable[this.elementSize] = value;
-	this.elementSize++;
-	return value;
-}
+
 /**
  * Puts the specified element into the hashtable, using the specified
  * key.  The element may be retrieved by doing a get() with the same key.
@@ -101,14 +74,14 @@ public int put(double key, int value) {
  */
 public int putIfAbsent(double key, int value) {
 	if (key == 0.0) {
+		// see Double#equals() +0.0 vs -0.0
+		long value1 = Double.doubleToLongBits(key);
 		for (int i = 0, max = this.elementSize; i < max; i++) {
 			if (this.keyTable[i] == 0.0) {
-				long value1 = Double.doubleToLongBits(key);
 				long value2 = Double.doubleToLongBits(this.keyTable[i]);
-				if (value1 == -9223372036854775808L && value2 == -9223372036854775808L)
+				if (value1 == value2) {
 					return this.valueTable[i];
-				if (value1 == 0 && value2 == 0)
-					return this.valueTable[i];
+				}
 			}
 		}
 	} else {
@@ -120,8 +93,9 @@ public int putIfAbsent(double key, int value) {
 	}
 	if (this.elementSize == this.keyTable.length) {
 		// resize
-		System.arraycopy(this.keyTable, 0, (this.keyTable = new double[this.elementSize * 2]), 0, this.elementSize);
-		System.arraycopy(this.valueTable, 0, (this.valueTable = new int[this.elementSize * 2]), 0, this.elementSize);
+		int newSize = Math.max(13, this.elementSize * 2);
+		System.arraycopy(this.keyTable, 0, (this.keyTable = new double[newSize]), 0, this.elementSize);
+		System.arraycopy(this.valueTable, 0, (this.valueTable = new int[newSize]), 0, this.elementSize);
 	}
 	this.keyTable[this.elementSize] = key;
 	this.valueTable[this.elementSize] = value;

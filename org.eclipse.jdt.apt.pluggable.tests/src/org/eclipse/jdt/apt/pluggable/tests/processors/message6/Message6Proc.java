@@ -15,7 +15,6 @@
 package org.eclipse.jdt.apt.pluggable.tests.processors.message6;
 
 import java.util.Set;
-
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -27,7 +26,6 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
-
 import org.eclipse.jdt.apt.pluggable.tests.annotations.Message6;
 
 /**

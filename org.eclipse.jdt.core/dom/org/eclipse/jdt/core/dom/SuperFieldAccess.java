@@ -89,7 +89,7 @@ public class SuperFieldAccess extends Expression {
 	 * The field; lazily initialized; defaults to an unspecified,
 	 * but legal, simple field name.
 	 */
-	private SimpleName fieldName = null;
+	private volatile SimpleName fieldName;
 
 	/**
 	 * Creates a new unparented node for a super field access expression owned
@@ -203,8 +203,7 @@ public class SuperFieldAccess extends Expression {
 			synchronized (this) {
 				if (this.fieldName == null) {
 					preLazyInit();
-					this.fieldName = new SimpleName(this.ast);
-					postLazyInit(this.fieldName, NAME_PROPERTY);
+					this.fieldName = postLazyInit(new SimpleName(this.ast), NAME_PROPERTY);
 				}
 			}
 		}

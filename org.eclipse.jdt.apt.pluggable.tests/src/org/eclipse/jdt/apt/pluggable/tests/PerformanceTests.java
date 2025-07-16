@@ -15,10 +15,8 @@
 package org.eclipse.jdt.apt.pluggable.tests;
 
 import java.io.File;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
