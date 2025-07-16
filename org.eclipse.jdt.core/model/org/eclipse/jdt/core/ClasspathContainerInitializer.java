@@ -229,7 +229,7 @@ public abstract class ClasspathContainerInitializer {
 				}
 				@Override
 				public int getKind() {
-					return 0;
+					return K_UNINITIALIZED_CONTAINER;
 				}
 				@Override
 				public IPath getPath() {

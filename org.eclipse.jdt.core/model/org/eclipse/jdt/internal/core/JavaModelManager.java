@@ -282,7 +282,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		@Override
 		public String getDescription() { return "Container Initialization In Progress"; } //$NON-NLS-1$
 		@Override
-		public int getKind() { return 0; }
+		public int getKind() { return K_UNINITIALIZED_CONTAINER; }
 		@Override
 		public IPath getPath() { return null; }
 		@Override

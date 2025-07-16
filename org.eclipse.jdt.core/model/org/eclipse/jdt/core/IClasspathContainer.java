@@ -49,6 +49,11 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 public interface IClasspathContainer {
 
 	/**
+	 * Kind for containers which are not initialized (yet).
+	 */
+	int K_UNINITIALIZED_CONTAINER = 0;
+
+	/**
 	 * Kind for a container mapping to an application library
 	 */
 	int K_APPLICATION = 1;

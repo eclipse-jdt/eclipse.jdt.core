@@ -4803,6 +4803,19 @@ public final class JavaCore extends Plugin {
 							externalFoldersManager.addFolder(entryPath, true);
 						}
 					}
+
+					if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
+						IClasspathContainer container = getClasspathContainer(entry.getPath(), project);
+						if (container == null || container.getKind() == IClasspathContainer.K_UNINITIALIZED_CONTAINER) {
+							continue;
+						}
+						if (container instanceof IAsyncClasspathContainer aContainer) {
+							if (!aContainer.isInitialized()) {
+								// Trigger lazy getClasspathEntries() implementations
+								aContainer.initialize();
+							}
+						}
+					}
 				}
 			}
 		}
@@ -6655,5 +6668,40 @@ public final class JavaCore extends Plugin {
 		JavaModelManager.getJavaModelManager().startup();
 		// New index is disabled, see bug 544898
 		// Indexer.getInstance().rescanAll();
+	}
+
+	/**
+	 * This method is checking if all {@link IClasspathContainer}s of the given {@link IJavaProject} are resolved.
+	 * If the method returns false, caller could use {@link #initializeAfterLoad(IProgressMonitor)} to force classpath initialization.
+	 *
+	 * @param project which classpath containers need to be checked
+	 * @return false if there are some containers which are not resolved yet.
+	 * @see IAsyncClasspathContainer
+	 * @see IClasspathContainer#K_UNINITIALIZED_CONTAINER
+	 * @see #initializeAfterLoad(IProgressMonitor)
+	 * @since 3.43
+	 */
+	public static boolean hasResolvedAllClasspathContainers(IJavaProject project) {
+		try {
+			IClasspathEntry[] classpath = project.getRawClasspath();
+			for (IClasspathEntry entry : classpath) {
+				if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
+					IClasspathContainer container = JavaCore.getClasspathContainer(entry.getPath(), project);
+
+					if (container.getKind() == IClasspathContainer.K_UNINITIALIZED_CONTAINER) {
+						return false;
+					}
+
+					if (container instanceof IAsyncClasspathContainer aContainer) {
+						if (!aContainer.isInitialized()) {
+							return false;
+						}
+					}
+				}
+			}
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+		}
+		return true;
 	}
 }
