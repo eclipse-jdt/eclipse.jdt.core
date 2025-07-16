@@ -388,8 +388,17 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					processMembers(toComplete, anonymousClass.resolveBinding(), this, false);
 				} else if (current instanceof CompilationUnit cu) {
 					for (AbstractTypeDeclaration typeDecl : (List<AbstractTypeDeclaration>)cu.types()) {
+						this.add(typeDecl.resolveBinding());
 						// STATIC members only
 						processMembers(toComplete, typeDecl.resolveBinding(), this, true);
+					}
+					for (ImportDeclaration importDecl : (List<ImportDeclaration>)cu.imports()) {
+						if (!importDecl.isStatic() && !importDecl.isOnDemand()) {
+							IBinding importBinding = importDecl.resolveBinding();
+							if (importBinding != null && !importBinding.isRecovered()) {
+								this.add(importBinding);
+							}
+						}
 					}
 				}
 				current = current.getParent();
@@ -778,6 +787,21 @@ public class DOMCompletionEngine implements ICompletionEngine {
 				context = tagElement;
 			} else if (this.toComplete instanceof Modifier && this.toComplete.getParent() instanceof ImportDeclaration) {
 				context = this.toComplete.getParent();
+			} else if (this.toComplete instanceof MethodDeclaration md) {
+				SingleVariableDeclaration candidate = null;
+				for (int i = md.parameters().size() - 1; i >= 0; i--) {
+					SingleVariableDeclaration vd = (SingleVariableDeclaration)md.parameters().get(i);
+					if (vd.getStartPosition() <= this.offset && vd.getLength() == 0) {
+						candidate = vd;
+					}
+				}
+				if (candidate != null) {
+					context = candidate;
+				}
+			} else if (this.toComplete instanceof Modifier && this.toComplete.getParent() instanceof SingleVariableDeclaration svd) {
+				if (svd.getType().getLength() == 0 && svd.getName().getLength() == 0) {
+					context = svd;
+				}
 			}
 			this.prefix = token == null ? "" : new String(token);
 			if (this.toComplete instanceof MethodInvocation methodInvocation && this.offset == (methodInvocation.getName().getStartPosition() + methodInvocation.getName().getLength()) + 1) {
@@ -1277,20 +1301,61 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	}
 
 	private void completeSingleVariableDeclaration(SingleVariableDeclaration singleVariableDeclaration) {
-		ITypeBinding typeBinding = singleVariableDeclaration.getType().resolveBinding();
-		Block block = null;
-		if (singleVariableDeclaration.getParent() instanceof CatchClause catchClause) {
-			block = catchClause.getBody();
-		} else if (singleVariableDeclaration.getParent() instanceof MethodDeclaration methDecl) {
-			block = methDecl.getBody();
-		}
-		Set<String> alreadySuggestedNames = new HashSet<>();
-		if (block != null) {
-			suggestUndeclaredVariableNames(block, typeBinding, alreadySuggestedNames);
+		if (singleVariableDeclaration.getType().getLength() == 0
+				&& singleVariableDeclaration.getName().getLength() == 0) {
+
+			// do type name completion instead of variable name completion
+			if (singleVariableDeclaration.getParent() instanceof CatchClause catchClause) {
+				DOMThrownExceptionFinder exceptionFinder = new DOMThrownExceptionFinder();
+				exceptionFinder.processThrownExceptions((TryStatement)catchClause.getParent());
+				Set<ITypeBinding> allReferencedExceptionsAndParentTypes = new HashSet<>();
+				for (ITypeBinding existingBinding : exceptionFinder.getThrownUncaughtExceptions()) {
+					while (!"Ljava/lang/Throwable;".equals(existingBinding.getKey())) {
+						allReferencedExceptionsAndParentTypes.add(existingBinding);
+						existingBinding = existingBinding.getSuperclass();
+					}
+				}
+				Set<ITypeBinding> allApplicableExceptionTypes = new HashSet<>();
+				allApplicableExceptionTypes.addAll(allReferencedExceptionsAndParentTypes);
+				for (ITypeBinding alreadyCaught : exceptionFinder.getAlreadyCaughtExceptions()) {
+					for (ITypeBinding existingType : allReferencedExceptionsAndParentTypes) {
+						if (DOMCompletionUtils.findInSupers(existingType, alreadyCaught)) {
+							allApplicableExceptionTypes.remove(existingType);
+						}
+					}
+				}
+				allApplicableExceptionTypes.stream() //
+					.distinct()
+					.map(this::toProposal) //
+					.forEach(this.requestor::accept);
+			} else {
+				// method parameter declaration
+				suggestTypeKeywords(false);
+				if (singleVariableDeclaration.modifiers().stream().noneMatch(modifier -> ((Modifier)modifier).isFinal())) {
+					this.requestor.accept(createKeywordProposal(Keywords.FINAL, -1, -1));
+				}
+				defaultCompletionBindings.all() //
+					.filter(ITypeBinding.class::isInstance)
+					.map(this::toProposal) //
+					.forEach(this.requestor::accept);
+			}
 		} else {
-			suggestUndeclaredVariableNames(typeBinding, alreadySuggestedNames);
+			// do variable name completion
+			ITypeBinding typeBinding = singleVariableDeclaration.getType().resolveBinding();
+			Block block = null;
+			if (singleVariableDeclaration.getParent() instanceof CatchClause catchClause) {
+				block = catchClause.getBody();
+			} else if (singleVariableDeclaration.getParent() instanceof MethodDeclaration methDecl) {
+				block = methDecl.getBody();
+			}
+			Set<String> alreadySuggestedNames = new HashSet<>();
+			if (block != null) {
+				suggestUndeclaredVariableNames(block, typeBinding, alreadySuggestedNames);
+			} else {
+				suggestUndeclaredVariableNames(typeBinding, alreadySuggestedNames);
+			}
+			suggestVariableNamesForType(typeBinding, alreadySuggestedNames);
 		}
-		suggestVariableNamesForType(typeBinding, alreadySuggestedNames);
 		suggestDefaultCompletions = false;
 	}
 
@@ -4806,7 +4871,10 @@ public class DOMCompletionEngine implements ICompletionEngine {
 		relevance += (isExceptionExpected && DOMCompletionUtils.findInSupers(type, "Ljava/lang/Exception;", this.workingCopyOwner, this.typeHierarchyCache) ? RelevanceConstants.R_EXCEPTION : 0);
 		relevance += RelevanceUtils.computeRelevanceForInheritance(this.qualifyingType, type);
 		relevance += RelevanceUtils.computeRelevanceForQualification(!"java.lang".equals(type.getPackageFragment().getElementName()) && !nodeInImports && !fromCurrentCU && !inSamePackage && !typeIsImported, this.prefix, this.qualifiedPrefix);
-		relevance += (type.getFullyQualifiedName().startsWith("java.") ? RelevanceConstants.R_JAVA_LIBRARY : 0);
+		if (type.getFullyQualifiedName().startsWith("java.")
+				&& !(DOMCompletionUtils.findParent(this.toComplete, new int[] { ASTNode.CATCH_CLAUSE }) != null && this.prefix.isEmpty())) {
+			relevance += RelevanceConstants.R_JAVA_LIBRARY;
+		}
 		// sometimes subclasses and superclasses are considered, sometimes they aren't
 		relevance += (isExceptionExpected ? RelevanceUtils.computeRelevanceForExpectingType(type, expectedTypes, this.workingCopyOwner, this.typeHierarchyCache) : RelevanceUtils.simpleComputeRelevanceForExpectingType(type, expectedTypes));
 		relevance += RelevanceUtils.computeRelevanceForCaseMatching(this.prefix.toCharArray(), simpleName, this.assistOptions);

@@ -586,8 +586,8 @@ public class JavacSpecificCompletionTests {
 		IProgressMonitor monitor = new NullProgressMonitor();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, WC_OWNER, monitor);
 		Assert.assertTrue(requestor.getReversedResults().startsWith("""
-				hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, [301, 301], 82}
-				naturalize[LOCAL_VARIABLE_REF]{naturalize, null, I, naturalize, [301, 301], 82}
+				hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, [300, 300], 82}
+				naturalize[LOCAL_VARIABLE_REF]{naturalize, null, I, naturalize, [300, 300], 82}
 				"""));
 	}
 
@@ -661,6 +661,73 @@ public class JavacSpecificCompletionTests {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, WC_OWNER, monitor);
 		assertEquals("""
 				getMyList[METHOD_REF]{getMyList(), LHelloWorld;, ()Ljava.util.List<+Ljava.lang.String;>;, getMyList, [147, 154], 82}""", requestor.getResults());
+	}
+
+	@Test
+	public void testCompleteMethodParameterType() throws Exception {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("HelloWorld.java",
+			"""
+			import java.util.List;
+
+			public class HelloWorld  {
+				void m(int a, ) {
+				}
+			}
+			""");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false, false, true);
+
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "a,";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		IProgressMonitor monitor = new NullProgressMonitor();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, WC_OWNER, monitor);
+		assertEquals("""
+				boolean[KEYWORD]{boolean, null, null, boolean, [65, 65], 49}
+				byte[KEYWORD]{byte, null, null, byte, [65, 65], 49}
+				char[KEYWORD]{char, null, null, char, [65, 65], 49}
+				double[KEYWORD]{double, null, null, double, [65, 65], 49}
+				final[KEYWORD]{final, null, null, final, [65, 65], 49}
+				float[KEYWORD]{float, null, null, float, [65, 65], 49}
+				int[KEYWORD]{int, null, null, int, [65, 65], 49}
+				long[KEYWORD]{long, null, null, long, [65, 65], 49}
+				short[KEYWORD]{short, null, null, short, [65, 65], 49}
+				HelloWorld[TYPE_REF]{HelloWorld, , LHelloWorld;, null, [65, 65], 52}
+				List<E>[TYPE_REF]{List, java.util, Ljava.util.List<TE;>;, null, [65, 65], 54}""", requestor.getResults());
+	}
+
+	@Test
+	public void testCompleteMethodParameterTypeWithFinal() throws Exception {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("HelloWorld.java",
+			"""
+			import java.util.List;
+
+			public class HelloWorld  {
+				void m(int a, final ) {
+				}
+			}
+			""");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false, false, true);
+
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "final ";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		IProgressMonitor monitor = new NullProgressMonitor();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, WC_OWNER, monitor);
+		assertEquals("""
+				boolean[KEYWORD]{boolean, null, null, boolean, [72, 72], 49}
+				byte[KEYWORD]{byte, null, null, byte, [72, 72], 49}
+				char[KEYWORD]{char, null, null, char, [72, 72], 49}
+				double[KEYWORD]{double, null, null, double, [72, 72], 49}
+				float[KEYWORD]{float, null, null, float, [72, 72], 49}
+				int[KEYWORD]{int, null, null, int, [72, 72], 49}
+				long[KEYWORD]{long, null, null, long, [72, 72], 49}
+				short[KEYWORD]{short, null, null, short, [72, 72], 49}
+				HelloWorld[TYPE_REF]{HelloWorld, , LHelloWorld;, null, [72, 72], 52}
+				List<E>[TYPE_REF]{List, java.util, Ljava.util.List<TE;>;, null, [72, 72], 54}""", requestor.getResults());
 	}
 
 }

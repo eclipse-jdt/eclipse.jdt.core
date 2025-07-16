@@ -156,7 +156,8 @@ public class SignatureUtils {
 	 * @return the signature of the given type key
 	 */
 	public static String getSignatureForTypeKey(String key) {
-		return key.replace('/', '.').replaceFirst("(?<=\\.|L)[_$A-Za-z][_$A-Za-z0-9]*~", "");
+		String preTypeVarStrip = key.replace('/', '.').replaceFirst("(?<=\\.|L)[_$A-Za-z][_$A-Za-z0-9]*~", "");
+		return preTypeVarStrip.replaceAll("L[^;<]+;:(T[^;<]+;)", "$1");
 	}
 
 	public static String getSignature(IMethodBinding methodBinding) {
