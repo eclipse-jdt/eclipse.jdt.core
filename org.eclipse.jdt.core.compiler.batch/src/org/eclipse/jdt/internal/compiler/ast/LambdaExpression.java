@@ -109,7 +109,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	protected Expression [] resultExpressions = NO_EXPRESSIONS;
 	public InferenceContext18 inferenceContext; // when performing tentative resolve keep a back reference to the driving context
 	private Map<Integer/*sourceStart*/, LocalTypeBinding> localTypes; // support look-up of a local type from this lambda copy
-	public boolean argumentsTypeVar = false;
+	public boolean hasVarTypedArguments = false;
 	int firstLocalLocal; // analysis index of first local variable (if any) post parameter(s) in the lambda; ("local local" as opposed to "outer local")
 
 	private List<ClassScope> scopesInEarlyConstruction;
@@ -128,6 +128,14 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 
 	public void setArguments(Argument [] arguments) {
 		this.arguments = arguments != null ? arguments : ASTNode.NO_ARGUMENTS;
+		for (Argument argument : this.arguments) {
+			if (argument.hasElidedType())
+				this.bits |= ArgumentsTypeElided;
+			else if (argument.type instanceof SingleTypeReference str &&  CharOperation.equals(str.token, TypeConstants.VAR)) {
+				this.bits |= ArgumentsTypeElided;
+				this.hasVarTypedArguments = true;
+			}
+		}
 		this.argumentTypes = new TypeBinding[arguments != null ? arguments.length : 0];
 	}
 
@@ -252,9 +260,20 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			if (this.original == this)
 				this.ordinal = recordFunctionalType(blockScope);
 
-			if (!argumentsTypeElided) {
-				for (int i = 0; i < argumentsLength; i++)
-					this.argumentTypes[i] = this.arguments[i].type.resolveType(blockScope, true /* check bounds*/);
+			boolean lvtiAllowed = blockScope.compilerOptions().sourceLevel >= ClassFileConstants.JDK11;
+			boolean argumentIsVarTyped = false, priorArgumentIsVarTyped = false;
+			for (int i = 0; i < argumentsLength; i++, priorArgumentIsVarTyped = argumentIsVarTyped) {
+				final Argument argument = this.arguments[i];
+				if (argument.hasElidedType())
+					continue;
+				argumentIsVarTyped = argument.type instanceof SingleTypeReference singleTypeRef && CharOperation.equals(singleTypeRef.token, TypeConstants.VAR);
+				if (i > 0 && argumentIsVarTyped != priorArgumentIsVarTyped) {
+					blockScope.problemReporter().varCannotBeMixedWithNonVarParams(argumentIsVarTyped ? argument : this.arguments[i - 1]);
+					return this.resolvedType = null; // structurally FUBAR, bail out ...
+				}
+				if (lvtiAllowed && argumentIsVarTyped)
+					continue;
+				this.argumentTypes[i] = argument.type.resolveType(blockScope, true /* check bounds*/);
 			}
 			if (this.expectedType == null && this.expressionContext == INVOCATION_CONTEXT) {
 				return new PolyTypeBinding(this);
@@ -400,7 +419,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				}
 			}
 		}
-		if (this.argumentsTypeVar) {
+		if (this.hasVarTypedArguments) {
 			for (int i = 0; i < argumentsLength; ++i) {
 				this.arguments[i].type.resolvedType = expectedParameterTypes[i];
 			}
@@ -534,7 +553,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 
 	@Override
 	public boolean argumentsTypeElided() {
-		return (this.arguments.length > 0 && this.arguments[0].hasElidedType()) || this.argumentsTypeVar;
+		return (this.bits & ArgumentsTypeElided) != 0;
 	}
 
 	private void analyzeExceptions() {

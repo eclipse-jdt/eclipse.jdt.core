@@ -10613,6 +10613,37 @@ public void testIssue3956() {
 			"----------\n");
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=568332
+//  Internal compiler error: NPE in QualifiedNameReference.optimizedBooleanConstant(QualifiedNameReference.java:931) because "this.binding" is null
+public void testBug568332() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+				    int x;
+				    interface II {
+				        void f(int i);
+				    }
+
+				    void g(final II ii) {}
+
+				    void h(X c) {
+				         g(v -> {
+				               for(int u = 0; c.x; u++) {}
+				         });
+				    }
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 11)\n" +
+			"	for(int u = 0; c.x; u++) {}\n" +
+			"	               ^^^\n" +
+			"Type mismatch: cannot convert from int to boolean\n" +
+			"----------\n");
+}
+
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

@@ -491,7 +491,7 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 
 	   assertResults(
 			   "CompletionFindConstructor[METHOD_REF<CONSTRUCTOR>]{, LCompletionFindConstructor;, (I[I)V, CompletionFindConstructor, (i, ia), 39}\n" +
-					   "hashCode[METHOD_REF]{hashCode(), LCompletionFindConstructor;, ()I, hashCode, null, 52}\n" +
+					   "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 52}\n" +
 					   "i[FIELD_REF]{i, LCompletionFindConstructor;, I, i, null, 52}\n" +
 					   "i[METHOD_REF]{i(), LCompletionFindConstructor;, ()I, i, null, 52}\n" +
 					   "x[LOCAL_VARIABLE_REF]{x, null, I, x, null, 52}",
@@ -570,5 +570,178 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
 		assertResults("ExplicitCCtorContainingRecord[CONSTRUCTOR_INVOCATION]{(), LExplicitCCtorContainingRecord;, (IIDLjava.lang.Object;)V, ExplicitCCtorContainingRecord, (from, to, length, profile), 59}", requestor.getResults());
+	}
+	public void testRecordSyntheticMethods() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/FooBar.java",
+			"""
+				package test;
+				/**
+				 * A foo bar.
+				 * @param foo The foo.
+				 * @param bar The bar.
+				 */
+				public record FooBar(String foo, String bar) {}
+			""");
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/test/X1.java",
+			"""
+			package test;
+			public class X1 {
+				public static void main(String[] args) {
+					FooBar fooBar = new FooBar("some foo", "some bar");
+					fooBar.fo
+				}
+			}
+			""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+		String str = this.workingCopies[1].getSource();
+		String completeBehind = "fooBar.fo";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[1].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+
+		assertResults(
+				"foo[FIELD_REF]{foo, Ltest.FooBar;, Ljava.lang.String;, foo, null, 60}\n"
+				+ "foo[METHOD_REF]{foo(), Ltest.FooBar;, ()Ljava.lang.String;, foo, null, 60}",
+				requestor.getResults());
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/test/X1.java",
+				"""
+				package test;
+				public class X1 {
+					public static void main(String[] args) {
+						FooBar fooBar = new FooBar("some foo", "some bar");
+						fooBar.
+					}
+				}
+				""");
+		requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		str = this.workingCopies[1].getSource();
+		completeBehind = "fooBar.";
+		cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[1].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+
+		assertResults(
+				"bar[FIELD_REF]{bar, Ltest.FooBar;, Ljava.lang.String;, bar, null, 60}\n"
+				+ "bar[METHOD_REF]{bar(), Ltest.FooBar;, ()Ljava.lang.String;, bar, null, 60}\n"
+				+ "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n"
+				+ "equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n"
+				+ "finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n"
+				+ "foo[FIELD_REF]{foo, Ltest.FooBar;, Ljava.lang.String;, foo, null, 60}\n"
+				+ "foo[METHOD_REF]{foo(), Ltest.FooBar;, ()Ljava.lang.String;, foo, null, 60}\n"
+				+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n"
+				+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n"
+				+ "notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n"
+				+ "notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}\n"
+				+ "toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n"
+				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n"
+				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n"
+				+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+				requestor.getResults());
+	}
+	public void testGHIssue4158_1() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/FooBar.java",
+			"""
+				package test;
+				/**
+				 * A foo bar.
+				 * @param foo The foo.
+				 * @param bar the bar 1
+				 * @param bar
+				 */
+				public record FooBar(String foo, String bar, String bar2, String bar3) {}
+			""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "@param bar";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+
+		assertResults(
+				"bar3[JAVADOC_PARAM_REF]{bar3, null, null, bar3, null, 43}\n"
+				+ "bar2[JAVADOC_PARAM_REF]{bar2, null, null, bar2, null, 44}",
+				requestor.getResults());
+	}
+	public void testGHIssue4158_2() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/FooBar.java",
+			"""
+				package test;
+				/**
+				 * A foo bar.
+				 * @param foo The foo.
+				 * @param bar
+				 */
+				public record FooBar(String foo, String bar, String bar2, String bar3) {}
+			""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "@param bar";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+
+		assertResults(
+				"bar3[JAVADOC_PARAM_REF]{bar3, null, null, bar3, null, 43}\n"
+				+ "bar2[JAVADOC_PARAM_REF]{bar2, null, null, bar2, null, 44}\n"
+				+ "bar[JAVADOC_PARAM_REF]{bar, null, null, bar, null, 45}",
+				requestor.getResults());
+	}
+	public void testGHIssue4158_3() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/FooBar.java",
+			"""
+				/**
+				 *
+				 * @param <X
+				 */
+				public record X<XTZ>(int abc, int XPZ) {
+				}
+			""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "@param <X";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+
+		assertResults(
+				"XTZ[JAVADOC_PARAM_REF]{<XTZ>, null, null, XTZ, null, 38}",
+				requestor.getResults());
+	}
+	public void testGHIssue4158_4() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/FooBar.java",
+			"""
+				/**
+				 *
+				 * @param X
+				 */
+				public record X<XTZ>(int abc, int XPZ) {
+				}
+			""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		requestor.allowAllRequiredProposals();
+		NullProgressMonitor monitor = new NullProgressMonitor();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "@param X";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
+
+		assertResults(
+				"XPZ[JAVADOC_PARAM_REF]{XPZ, null, null, XPZ, null, 44}",
+				requestor.getResults());
 	}
 }

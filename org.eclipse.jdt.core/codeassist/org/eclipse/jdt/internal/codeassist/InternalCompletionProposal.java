@@ -55,6 +55,7 @@ public class InternalCompletionProposal extends CompletionProposal {
 	protected int accessibility = IAccessRule.K_ACCESSIBLE;
 
 	protected boolean isConstructor = false;
+	protected boolean isComponentAccessor = false;
 
 	/**
 	 * Kind of completion request.
@@ -463,6 +464,9 @@ public class InternalCompletionProposal extends CompletionProposal {
 
 	protected void setIsContructor(boolean isConstructor) {
 		this.isConstructor = isConstructor;
+	}
+	protected void flagRecordComponentAccessor() {
+		this.isComponentAccessor = true;
 	}
 	public void setOriginalSignature(char[] originalSignature) {
 		this.originalSignature = originalSignature;
@@ -1043,6 +1047,10 @@ public class InternalCompletionProposal extends CompletionProposal {
 	@Override
 	public boolean isConstructor() {
 		return this.isConstructor;
+	}
+	@Override
+	public boolean isRecordComponentAccessor() {
+		return this.isComponentAccessor;
 	}
 
 	private int receiverStart;

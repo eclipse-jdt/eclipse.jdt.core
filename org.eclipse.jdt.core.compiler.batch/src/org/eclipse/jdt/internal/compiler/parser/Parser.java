@@ -919,6 +919,7 @@ protected int valueLambdaNestDepth = -1;
 private int stateStackLengthStack[] = new int[0];
 final protected boolean parsingJava8Plus = true;
 protected boolean parsingJava9Plus;
+protected boolean parsingJava10Plus;
 protected boolean parsingJava14Plus;
 protected boolean parsingJava15Plus;
 protected boolean parsingJava17Plus;
@@ -946,6 +947,7 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.optimizeStringLiterals = optimizeStringLiterals;
 	initializeScanner();
 	this.parsingJava9Plus = this.options.sourceLevel >= ClassFileConstants.JDK9;
+	this.parsingJava10Plus = this.options.sourceLevel >= ClassFileConstants.JDK10;
 	this.parsingJava11Plus = this.options.sourceLevel >= ClassFileConstants.JDK11;
 	this.parsingJava14Plus = this.options.sourceLevel >= ClassFileConstants.JDK14;
 	this.parsingJava15Plus = this.options.sourceLevel >= ClassFileConstants.JDK15;
@@ -8277,31 +8279,6 @@ protected void consumeLambdaHeader() {
 		this.currentElement.lambdaNestLevel++;
 	}
 }
-private void setArgumentsTypeVar(LambdaExpression lexp) {
-	Argument[] args =  lexp.arguments;
-	if (!this.parsingJava11Plus || args == null || args.length == 0) {
-		lexp.argumentsTypeVar = false;
-		return;
-	}
-
-	boolean isVar = false, mixReported = false;
-	for (int i = 0, l = args.length; i < l; ++i) {
-		Argument arg = args[i];
-		TypeReference type = arg.type;
-		char[][] typeName = type != null ? type.getTypeName() : null;
-		boolean prev = isVar;
-		isVar = typeName != null && typeName.length == 1 &&
-				CharOperation.equals(typeName[0], TypeConstants.VAR);
-		lexp.argumentsTypeVar |= isVar;
-		if (i > 0 && prev != isVar && !mixReported) { // report only once per list
-			this.problemReporter().varCannotBeMixedWithNonVarParams(isVar ? arg : args[i - 1]);
-			mixReported = true;
-		}
-		if (isVar && (type.dimensions() > 0 || type.extraDimensions() > 0)) {
-			this.problemReporter().varLocalCannotBeArray(arg);
-		}
-	}
-}
 protected void consumeLambdaExpression() {
 
 	// LambdaExpression ::= LambdaHeader LambdaBody
@@ -8327,7 +8304,6 @@ protected void consumeLambdaExpression() {
 	if (body instanceof Expression expression && expression.isTrulyExpression()) {
 		expression.statementEnd = body.sourceEnd;
 	}
-	setArgumentsTypeVar(lexp);
 	pushOnExpressionStack(lexp);
 	if (this.currentElement != null) {
 		this.lastCheckPoint = body.sourceEnd + 1;
@@ -9156,34 +9132,15 @@ protected void consumeStaticOnly() {
 }
 private void consumeTextBlock() {
 	problemReporter().validateJavaFeatureSupport(JavaFeature.TEXT_BLOCKS, this.scanner.startPosition, this.scanner.currentPosition - 1);
-	char[] allchars = this.scanner.getCurrentTextBlock();
-	TextBlock textBlock = createTextBlock(allchars, this.scanner.startPosition, this.scanner.currentPosition - 1);
-	pushOnExpressionStack(textBlock);
-}
-private TextBlock createTextBlock(char[] allchars, int start, int end) {
-	TextBlock textBlock;
-	if (this.recordStringLiterals &&
-			!this.reparsingFunctionalExpression &&
-			this.checkExternalizeStrings &&
-			this.lastPosistion < this.scanner.currentPosition &&
-			!this.statementRecoveryActivated) {
-		textBlock =
-				TextBlock.createTextBlock(
-						allchars,
-						start,
-						end,
-						Util.getLineNumber(this.scanner.startPosition, this.scanner.lineEnds, 0, this.scanner.linePtr),
-						Util.getLineNumber(this.scanner.currentPosition - 1, this.scanner.lineEnds, 0, this.scanner.linePtr));
+	boolean shouldRecordStringLiterals = this.recordStringLiterals && !this.reparsingFunctionalExpression && this.checkExternalizeStrings &&
+											this.lastPosistion < this.scanner.currentPosition && !this.statementRecoveryActivated;
+
+	TextBlock textBlock = new TextBlock(this.scanner.getCurrentTextBlock(), this.scanner.startPosition, this.scanner.currentPosition - 1,
+						                shouldRecordStringLiterals ? Util.getLineNumber(this.scanner.startPosition, this.scanner.lineEnds, 0, this.scanner.linePtr) : 0,
+						                shouldRecordStringLiterals ? Util.getLineNumber(this.scanner.currentPosition - 1, this.scanner.lineEnds, 0, this.scanner.linePtr) : 0);
+	if (shouldRecordStringLiterals)
 		this.compilationUnit.recordStringLiteral(textBlock, this.currentElement != null);
-	} else {
-		textBlock = TextBlock.createTextBlock(
-				allchars,
-			start,
-			end,
-			0,
-			0);
-	}
-	return textBlock;
+	pushOnExpressionStack(textBlock);
 }
 protected void consumeSwitchBlock(boolean hasContents) {
 	// SwitchBlock ::= '{' { SwitchBlockStatements SwitchLabels } '}'
@@ -9920,6 +9877,7 @@ protected void consumeTypePattern() {
 
 	LocalDeclaration local = createLocalDeclaration(identifierName, (int) (namePosition >>> 32), (int) namePosition);
 	local.declarationSourceEnd = local.declarationEnd;
+	local.bits |= ASTNode.IsPatternVariable;
 	this.identifierPtr--;
 	this.identifierLengthPtr--;
 
@@ -9951,6 +9909,7 @@ protected void consumeUnnamedPattern() {
 
 	LocalDeclaration local = createLocalDeclaration(identifierName, (int) (namePosition >>> 32), (int) namePosition);
 	local.declarationSourceEnd = local.declarationEnd;
+	local.bits |= ASTNode.IsPatternVariable;
 	local.declarationSourceStart = (int) (namePosition >>> 32);
 	this.identifierPtr--;
 	this.identifierLengthPtr--;
@@ -10336,6 +10295,8 @@ public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, Co
 }
 
 protected TypeReference augmentTypeWithAdditionalDimensions(TypeReference typeReference, int additionalDimensions, Annotation[][] additionalAnnotations, boolean isVarargs) {
+	if (this.parsingJava10Plus && typeReference instanceof SingleTypeReference singleTypeRef && CharOperation.equals(singleTypeRef.token, TypeConstants.VAR))
+		problemReporter().varLocalCannotBeArray(singleTypeRef);
 	return typeReference.augmentTypeWithAdditionalDimensions(additionalDimensions, additionalAnnotations, isVarargs);
 }
 
@@ -10841,10 +10802,18 @@ protected void annotateTypeReference(Wildcard ref) {
 		ref.bits |= (ref.bound.bits & ASTNode.HasTypeAnnotations);
 	}
 }
-protected TypeReference getTypeReference(int dim) {
-	/* build a Reference on a variable that may be qualified or not
-	 This variable is a type reference and dim will be its dimensions*/
-
+protected final TypeReference getTypeReference(int dim) {
+	TypeReference typeRef = constructTypeReference(dim);
+	if (this.parsingJava10Plus && typeRef instanceof ArrayTypeReference singleTypeRef && CharOperation.equals(singleTypeRef.token, TypeConstants.VAR)) {
+		if (singleTypeRef.isParameterizedTypeReference())
+			problemReporter().varCannotBeUsedWithTypeArguments(singleTypeRef);
+		if (singleTypeRef.dimensions() > 0)
+			problemReporter().varLocalCannotBeArray(singleTypeRef);
+	}
+	return typeRef;
+}
+/* Construct a TypeReference that may be qualified or not with dim as its dimensions*/
+protected TypeReference constructTypeReference(int dim) {
 	TypeReference ref;
 	Annotation [][] annotationsOnDimensions = null;
 	int length = this.identifierLengthStack[this.identifierLengthPtr--];

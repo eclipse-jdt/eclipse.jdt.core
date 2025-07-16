@@ -500,7 +500,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
      */
     @Override
 	public ReferenceBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
-    		TypeBinding[] typeVariables = this.arguments;
+		TypeBinding[] typeVariables = this.arguments;
 		if (typeVariables == null) return this; // How would that be possible?
 
 		TypeBinding[] a_i_primes = new TypeBinding[typeVariables.length];
