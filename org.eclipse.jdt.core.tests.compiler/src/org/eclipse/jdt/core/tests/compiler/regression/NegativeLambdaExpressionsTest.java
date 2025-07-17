@@ -10593,6 +10593,92 @@ public void testBug568332() {
 			"----------\n");
 }
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4202
+// java.lang.NullPointerException: Cannot invoke "org.eclipse.jdt.internal.compiler.lookup.TypeBinding.isLocalType()" because "originalType" is null
+public void testIssue4202() {
+this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+			import java.util.function.Function;
+
+			public class X  {
+				void foo(Function<String, String> f) {}
+				private void doChooseImports() {
+					foo(() -> {
+
+						MultiElementListSelectionDialog dialog= new Object() {
+							@Override
+							protected void handleSelectionChanged() {
+								super.handleSelectionChanged();
+								// show choices in editor
+								doListSelectionChanged(getCurrentPage(), ranges, editor);
+							}
+						};
+						fIsQueryShowing= false;
+						return result;
+					});
+				}
+
+				private void doListSelectionChanged() {
+					// blah
+				}
+			}
+			"""
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	foo(() -> {\n" +
+		"	^^^\n" +
+		"The method foo(Function<String,String>) in the type X is not applicable for the arguments (() -> {})\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 6)\n" +
+		"	foo(() -> {\n" +
+		"	    ^^^^^\n" +
+		"Lambda expression's signature does not match the signature of the functional interface method apply(String)\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 8)\n" +
+		"	MultiElementListSelectionDialog dialog= new Object() {\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"MultiElementListSelectionDialog cannot be resolved to a type\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 10)\n" +
+		"	protected void handleSelectionChanged() {\n" +
+		"	               ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"The method handleSelectionChanged() of type new Object(){} must override or implement a supertype method\n" +
+		"----------\n" +
+		"5. ERROR in X.java (at line 11)\n" +
+		"	super.handleSelectionChanged();\n" +
+		"	      ^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"The method handleSelectionChanged() is undefined for the type Object\n" +
+		"----------\n" +
+		"6. ERROR in X.java (at line 13)\n" +
+		"	doListSelectionChanged(getCurrentPage(), ranges, editor);\n" +
+		"	                       ^^^^^^^^^^^^^^\n" +
+		"The method getCurrentPage() is undefined for the type new Object(){}\n" +
+		"----------\n" +
+		"7. ERROR in X.java (at line 13)\n" +
+		"	doListSelectionChanged(getCurrentPage(), ranges, editor);\n" +
+		"	                                         ^^^^^^\n" +
+		"ranges cannot be resolved to a variable\n" +
+		"----------\n" +
+		"8. ERROR in X.java (at line 13)\n" +
+		"	doListSelectionChanged(getCurrentPage(), ranges, editor);\n" +
+		"	                                                 ^^^^^^\n" +
+		"editor cannot be resolved to a variable\n" +
+		"----------\n" +
+		"9. ERROR in X.java (at line 16)\n" +
+		"	fIsQueryShowing= false;\n" +
+		"	^^^^^^^^^^^^^^^\n" +
+		"fIsQueryShowing cannot be resolved to a variable\n" +
+		"----------\n" +
+		"10. ERROR in X.java (at line 17)\n" +
+		"	return result;\n" +
+		"	       ^^^^^^\n" +
+		"result cannot be resolved to a variable\n" +
+		"----------\n");
+}
+
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
