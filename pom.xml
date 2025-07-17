@@ -24,6 +24,7 @@
   <packaging>pom</packaging>
 
   <properties>
+    <maven.compiler.release>21</maven.compiler.release>
     <tycho.scmUrl>scm:git:https://github.com/eclipse-jdt/eclipse.jdt.core.git</tycho.scmUrl>
   </properties>
 
@@ -79,6 +80,25 @@
   <build>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>dev.tr7zw.javadowngrader.maven</groupId>
+          <artifactId>javadowngrader-maven-plugin</artifactId>
+          <version>0.0.1-SNAPSHOT</version>
+          <executions>
+            <execution>
+              <id>downgrade-to-java11</id>
+              <phase>package</phase>
+              <goals>
+                <goal>javadowngrade</goal>
+              </goals>
+              <configuration>
+                <targetVersion>55</targetVersion>
+                <outputSuffix/>
+                <copyRuntimeClasses>true</copyRuntimeClasses>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-toolchains-plugin</artifactId>

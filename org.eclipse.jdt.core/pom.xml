@@ -22,7 +22,6 @@
 
   <properties>
     <defaultSigning-excludeInnerJars>true</defaultSigning-excludeInnerJars>
-      <maven.compiler.target>11</maven.compiler.target>
   </properties>
 
   <build>
