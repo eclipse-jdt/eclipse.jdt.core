@@ -1270,6 +1270,15 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					.filter(typeMatch -> this.pattern.matchesName(this.prefix.toCharArray(),
 							typeMatch.getType().getElementName().toCharArray()))
 					.filter(typeMatch -> {
+						try {
+							return !typeMatch.getType().isEnum()
+									&& !typeMatch.getType().isInterface()
+									&& !typeMatch.getType().isAnnotation();
+						} catch (JavaModelException e) {
+							return true;
+						}
+					})
+					.filter(typeMatch -> {
 						for (var scrapedBinding : catchExceptionBindings.all().toList()) {
 							if (scrapedBinding instanceof ITypeBinding scrapedTypeBinding) {
 								if (typeMatch.getType().equals(scrapedTypeBinding.getJavaElement()) || typeMatch.getType().getKey().equals(scrapedTypeBinding.getKey())) {
