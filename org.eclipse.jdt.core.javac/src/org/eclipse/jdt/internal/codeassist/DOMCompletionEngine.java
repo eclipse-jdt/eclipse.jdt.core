@@ -3730,6 +3730,20 @@ public class DOMCompletionEngine implements ICompletionEngine {
 	}
 
 	private void suggestTypesInPackage(String packageName) {
+		CatchClause catchClause = (CatchClause)DOMCompletionUtils.findParent(this.toComplete, new int[] { ASTNode.CATCH_CLAUSE });
+		Predicate<IType> filterBasedOnAlreadyCaughtExceptions = a -> true;
+		if (catchClause != null) {
+			DOMThrownExceptionFinder thrownExceptionFinder = new DOMThrownExceptionFinder();
+			thrownExceptionFinder.processThrownExceptions((TryStatement)catchClause.getParent());
+			filterBasedOnAlreadyCaughtExceptions = typeBinding -> {
+				for (ITypeBinding thrownException : thrownExceptionFinder.getAlreadyCaughtExceptions()) {
+					if (typeBinding.getKey().equals(thrownException.getKey())) {
+						return false;
+					}
+				}
+				return true;
+			};
+		}
 		if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 			Set<String> typeNames = new HashSet<>();
 			List<TypeNameMatch> foundTypes = findTypes(this.prefix, packageName)
@@ -3743,7 +3757,8 @@ public class DOMCompletionEngine implements ICompletionEngine {
 					.toList();
 			for (TypeNameMatch foundType : foundTypes) {
 				if (this.pattern.matchesName(this.prefix.toCharArray(), foundType.getType().getElementName().toCharArray())) {
-					if (filterBasedOnExtendsOrImplementsInfo(foundType.getType(), this.extendsOrImplementsInfo)) {
+					if (filterBasedOnExtendsOrImplementsInfo(foundType.getType(), this.extendsOrImplementsInfo)
+							&& filterBasedOnAlreadyCaughtExceptions.test(foundType.getType())) {
 						this.requestor.accept(this.toProposal(foundType));
 					}
 				}
