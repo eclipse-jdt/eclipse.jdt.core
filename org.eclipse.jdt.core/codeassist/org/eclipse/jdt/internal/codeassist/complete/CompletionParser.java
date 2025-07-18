@@ -4189,7 +4189,8 @@ protected void consumeToken(int token) {
 					popElement(K_BETWEEN_LEFT_AND_RIGHT_BRACKET);
 				}
 				break;
-			case TokenNameARROW, TokenNameCOLON:
+			case TokenNameARROW:
+			case TokenNameCOLON:
 				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_RECORD_PATTERN) {
 					popElement(K_RECORD_PATTERN);
 				}

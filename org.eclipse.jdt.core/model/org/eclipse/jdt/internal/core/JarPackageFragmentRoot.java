@@ -200,7 +200,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	protected IJavaElement[] createChildren(Collection<List<String>> packagenames) {
 		// XXX sorting the children is unnecessary by contract - see org.eclipse.jdt.core.IParent#getChildren()
 		// but some tests like JavaProjectTests rely on a fixed child order
-		ArrayList<String[]> keys = new ArrayList<>(packagenames.stream().map(s->s.toArray(String[]::new)).toList() );
+		ArrayList<String[]> keys = new ArrayList<>(packagenames.stream().map(s->s.toArray(String[]::new)).collect(java.util.stream.Collectors.toUnmodifiableList()) );
 		Collections.sort(keys, Arrays::compare);
 
 		IJavaElement[] children = new IJavaElement[packagenames.size()];

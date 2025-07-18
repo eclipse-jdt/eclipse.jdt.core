@@ -3662,11 +3662,17 @@ class ASTConverter {
 					importDeclaration.setFlags(importDeclaration.getFlags() | ASTNode.MALFORMED);
 				}
 			} else {
-				ModifierKeyword keyword = switch (modifiers) {
-					case ClassFileConstants.AccStatic -> ModifierKeyword.STATIC_KEYWORD;
-					case ClassFileConstants.AccModule -> ModifierKeyword.MODULE_KEYWORD;
-					default -> null;
-				};
+				ModifierKeyword keyword;
+				switch (modifiers) {
+					case ClassFileConstants.AccStatic:
+						keyword = ModifierKeyword.STATIC_KEYWORD;
+						break;
+					case ClassFileConstants.AccModule:
+						keyword = ModifierKeyword.MODULE_KEYWORD;
+						break;
+					default:
+						keyword = null;
+				}
 				if (keyword != null) {
 					Modifier newModifier = this.ast.newModifier(keyword);
 					newModifier.setSourceRange(importReference.modifiersSourceStart, keyword.toString().length());

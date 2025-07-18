@@ -439,7 +439,7 @@ public class DOMToModelPopulator extends ASTVisitor {
 		setSourceRange(newInfo, node);
 		char[][] categories = getCategories(node);
 		newInfo.addCategories(newElement, categories);
-		newInfo.setSuperclassName(Record.class.getName().toCharArray());
+		newInfo.setSuperclassName("java.lang.Record".toCharArray());
 		newInfo.setSuperInterfaceNames(((List<Type>)node.superInterfaceTypes()).stream().map(Type::toString).map(String::toCharArray).toArray(char[][]::new));
 		JavaElementInfo toPopulateCategories = this.infos.peek();
 		while (toPopulateCategories != null) {
@@ -834,8 +834,8 @@ public class DOMToModelPopulator extends ASTVisitor {
 		}
 		if (dom instanceof ArrayInitializer) {
             ArrayInitializer arrayInitializer = (ArrayInitializer) dom;
-            var values = ((List<Expression>)arrayInitializer.expressions()).stream().map(this::memberValue).toList();
-			var types = values.stream().map(Entry::getValue).distinct().toList();
+            var values = ((List<Expression>)arrayInitializer.expressions()).stream().map(this::memberValue).collect(java.util.stream.Collectors.toUnmodifiableList());
+			var types = values.stream().map(Entry::getValue).distinct().collect(java.util.stream.Collectors.toUnmodifiableList());
 			return new SimpleEntry<>(values.stream().map(Entry::getKey).toArray(), types.size() == 1 ? types.get(0) : IMemberValuePair.K_UNKNOWN);
 		}
 		if (dom instanceof NumberLiteral) {
@@ -888,21 +888,31 @@ public class DOMToModelPopulator extends ASTVisitor {
 		scanner.setSource(token.toCharArray());
 		try {
 			int tokenType = scanner.getNextToken();
-			return switch(tokenType) {
-				case TerminalTokens.TokenNameDoubleLiteral -> IMemberValuePair.K_DOUBLE;
-				case TerminalTokens.TokenNameIntegerLiteral -> IMemberValuePair.K_INT;
-				case TerminalTokens.TokenNameFloatingPointLiteral -> IMemberValuePair.K_FLOAT;
-				case TerminalTokens.TokenNameLongLiteral -> IMemberValuePair.K_LONG;
-				case TerminalTokens.TokenNameMINUS ->
+			switch (tokenType) {
+				case TerminalTokens.TokenNameDoubleLiteral:
+					return IMemberValuePair.K_DOUBLE;
+				case TerminalTokens.TokenNameIntegerLiteral:
+					return IMemberValuePair.K_INT;
+				case TerminalTokens.TokenNameFloatingPointLiteral:
+					return IMemberValuePair.K_FLOAT;
+				case TerminalTokens.TokenNameLongLiteral:
+					return IMemberValuePair.K_LONG;
+				case TerminalTokens.TokenNameMINUS:
 					switch (scanner.getNextToken()) {
-						case TerminalTokens.TokenNameDoubleLiteral -> IMemberValuePair.K_DOUBLE;
-						case TerminalTokens.TokenNameIntegerLiteral -> IMemberValuePair.K_INT;
-						case TerminalTokens.TokenNameFloatingPointLiteral -> IMemberValuePair.K_FLOAT;
-						case TerminalTokens.TokenNameLongLiteral -> IMemberValuePair.K_LONG;
-						default -> throw new IllegalArgumentException("Invalid number literal : >" + token + "<"); //$NON-NLS-1$//$NON-NLS-2$
-					};
-				default -> throw new IllegalArgumentException("Invalid number literal : >" + token + "<"); //$NON-NLS-1$//$NON-NLS-2$
-			};
+						case TerminalTokens.TokenNameDoubleLiteral:
+							return IMemberValuePair.K_DOUBLE;
+						case TerminalTokens.TokenNameIntegerLiteral:
+							return IMemberValuePair.K_INT;
+						case TerminalTokens.TokenNameFloatingPointLiteral:
+							return IMemberValuePair.K_FLOAT;
+						case TerminalTokens.TokenNameLongLiteral:
+							return IMemberValuePair.K_LONG;
+						default:
+							throw new IllegalArgumentException("Invalid number literal : >" + token + "<"); //$NON-NLS-1$//$NON-NLS-2$
+					}
+				default:
+					throw new IllegalArgumentException("Invalid number literal : >" + token + "<"); //$NON-NLS-1$//$NON-NLS-2$
+			}
 		} catch (InvalidInputException ex) {
 			ILog.get().error(ex.getMessage(), ex);
 			return IMemberValuePair.K_UNKNOWN;
@@ -1045,7 +1055,7 @@ public class DOMToModelPopulator extends ASTVisitor {
 			.filter(RequiresDirective.class::isInstance)
 			.map(RequiresDirective.class::cast)
 			.map(this::toModuleReferenceInfo)
-			.toList());
+			.collect(java.util.stream.Collectors.toUnmodifiableList()));
 		var javaBase = CharOperation.concatWith(TypeConstants.JAVA_BASE, '.');
 		if (!Arrays.equals(node.getName().toString().toCharArray(), javaBase)) {
 			ModuleReferenceInfo ref = new ModuleReferenceInfo();

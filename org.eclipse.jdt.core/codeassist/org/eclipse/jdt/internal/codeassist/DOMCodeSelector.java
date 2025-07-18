@@ -182,7 +182,7 @@ public class DOMCodeSelector {
 						}
 						while (!types.isEmpty()) {
 							ITypeBinding type = types.remove(0);
-							for (IMethodBinding m : Arrays.stream(type.getDeclaredMethods()).filter(methodBinding::overrides).toList()) {
+							for (IMethodBinding m : Arrays.stream(type.getDeclaredMethods()).filter(methodBinding::overrides).collect(java.util.stream.Collectors.toUnmodifiableList())) {
 								if (m.getJavaElement() instanceof IMethod && ((IMethod) m.getJavaElement()).getJavadocRange() != null) {
                                     IMethod methodElement = (IMethod) m.getJavaElement();
                                     return new IJavaElement[] { methodElement };
