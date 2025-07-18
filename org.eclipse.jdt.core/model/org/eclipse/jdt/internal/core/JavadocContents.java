@@ -66,11 +66,49 @@ public class JavadocContents implements IJavadocContents {
 	protected int tempAnchorIndexesCount;
 	protected int tempLastAnchorFoundIndex;
 
-	public static record Range(int start, int end) {
-		public int length() {
-			return end() - start();
-		}
-	}
+    public static final class Range {
+        private final int start;
+        private final int end;
+
+        public Range(int start, int end) {
+            this.start = start;
+            this.end = end;
+        }
+
+        public int length() {
+            return end() - start();
+        }
+
+        public int start() {
+            return start;
+        }
+
+        public int end() {
+            return end;
+        }
+
+        @java.lang.Override
+        public boolean equals(java.lang.Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            var that = (Range) obj;
+            return this.start == that.start &&
+                   this.end == that.end;
+        }
+
+        @java.lang.Override
+        public int hashCode() {
+            return java.util.Objects.hash(start, end);
+        }
+
+        @java.lang.Override
+        public String toString() {
+            return "Range[" +
+                   "start=" + start + ", " +
+                   "end=" + end + ']';
+        }
+
+    }
 
 	JavadocContents(BinaryType type, String content) {
 		this.content = content != null ? content.toCharArray() : null;

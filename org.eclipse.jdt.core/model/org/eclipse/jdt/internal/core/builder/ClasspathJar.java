@@ -58,12 +58,65 @@ import org.eclipse.jdt.internal.core.util.Util;
 public class ClasspathJar extends ClasspathLocation {
 final boolean isOnModulePath;
 
-private static record PackageCacheEntry(
-	WeakReference<ZipFile> zipFile,
-	long lastModified,
-	long fileSize,
-	Set<String> packageSet) {
-}
+    private static final class PackageCacheEntry {
+        private final WeakReference<ZipFile> zipFile;
+        private final long lastModified;
+        private final long fileSize;
+        private final Set<String> packageSet;
+
+        private PackageCacheEntry(
+                WeakReference<ZipFile> zipFile,
+                long lastModified,
+                long fileSize,
+                Set<String> packageSet) {
+            this.zipFile = zipFile;
+            this.lastModified = lastModified;
+            this.fileSize = fileSize;
+            this.packageSet = packageSet;
+        }
+
+        public WeakReference<ZipFile> zipFile() {
+            return zipFile;
+        }
+
+        public long lastModified() {
+            return lastModified;
+        }
+
+        public long fileSize() {
+            return fileSize;
+        }
+
+        public Set<String> packageSet() {
+            return packageSet;
+        }
+
+        @java.lang.Override
+        public boolean equals(java.lang.Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            var that = (PackageCacheEntry) obj;
+            return java.util.Objects.equals(this.zipFile, that.zipFile) &&
+                   this.lastModified == that.lastModified &&
+                   this.fileSize == that.fileSize &&
+                   java.util.Objects.equals(this.packageSet, that.packageSet);
+        }
+
+        @java.lang.Override
+        public int hashCode() {
+            return java.util.Objects.hash(zipFile, lastModified, fileSize, packageSet);
+        }
+
+        @java.lang.Override
+        public String toString() {
+            return "PackageCacheEntry[" +
+                   "zipFile=" + zipFile + ", " +
+                   "lastModified=" + lastModified + ", " +
+                   "fileSize=" + fileSize + ", " +
+                   "packageSet=" + packageSet + ']';
+        }
+
+    }
 
 protected static final Map<String, PackageCacheEntry> packageCache = new ConcurrentHashMap<>();
 

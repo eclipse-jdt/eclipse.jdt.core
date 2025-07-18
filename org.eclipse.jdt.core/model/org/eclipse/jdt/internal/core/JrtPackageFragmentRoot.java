@@ -50,7 +50,53 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 
 	public static final ThreadLocal<Boolean> workingOnOldClasspath = new ThreadLocal<>();
 
-	record JrtModuleKey(File image, String moduleName, String classNameSubFolder) {/** nothing */}
+    static final class JrtModuleKey {
+        private final File image;
+        private final String moduleName;
+        private final String classNameSubFolder;
+
+        JrtModuleKey(File image, String moduleName, String classNameSubFolder) {
+            this.image = image;
+            this.moduleName = moduleName;
+            this.classNameSubFolder = classNameSubFolder;
+        }
+
+        public File image() {
+            return image;
+        }
+
+        public String moduleName() {
+            return moduleName;
+        }
+
+        public String classNameSubFolder() {
+            return classNameSubFolder;
+        }
+
+        @java.lang.Override
+        public boolean equals(java.lang.Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            var that = (JrtModuleKey) obj;
+            return java.util.Objects.equals(this.image, that.image) &&
+                   java.util.Objects.equals(this.moduleName, that.moduleName) &&
+                   java.util.Objects.equals(this.classNameSubFolder, that.classNameSubFolder);
+        }
+
+        @java.lang.Override
+        public int hashCode() {
+            return java.util.Objects.hash(image, moduleName, classNameSubFolder);
+        }
+
+        @java.lang.Override
+        public String toString() {
+            return "JrtModuleKey[" +
+                   "image=" + image + ", " +
+                   "moduleName=" + moduleName + ", " +
+                   "classNameSubFolder=" + classNameSubFolder + ']';
+        }
+    /** nothing */
+    }
 	/**
 	 * static cache for org.eclipse.jdt.internal.core.JarPackageFragmentRootInfo.rawPackageInfo across JarPackageFragmentRoot instances per java project
 	 *
