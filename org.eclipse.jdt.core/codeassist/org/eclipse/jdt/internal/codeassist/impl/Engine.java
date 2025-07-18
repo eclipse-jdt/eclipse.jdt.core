@@ -280,8 +280,9 @@ public abstract class Engine implements ITypeRequestor {
 				for (int j = 0; j < this.onDemandImportCacheCount; j++) {
 					if(i != j) {
 						ImportBinding conflictingImportBinding = this.onDemandImportsCache[j];
-						if(conflictingImportBinding.getResolvedImport() instanceof ReferenceBinding refBinding) {
-							if (refBinding.getMemberType(typeName) != null) {
+						if(conflictingImportBinding.getResolvedImport() instanceof ReferenceBinding) {
+                            ReferenceBinding refBinding = (ReferenceBinding) conflictingImportBinding.getResolvedImport();
+                            if (refBinding.getMemberType(typeName) != null) {
 								return true;
 							}
 						} else {

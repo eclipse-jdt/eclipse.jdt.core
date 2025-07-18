@@ -52,8 +52,9 @@ public class JarEntryFile  extends JarEntryResource {
 		if (Util.isJrt(root.getPath().toOSString())) {
 			try {
 				Object target = JavaModel.getTarget(root, false);
-				if (target instanceof File file) {
-					return JRTUtil.getContentFromJrt(file, getEntryName(), root.getElementName());
+				if (target instanceof File) {
+                    File file = (File) target;
+                    return JRTUtil.getContentFromJrt(file, getEntryName(), root.getElementName());
 				}
 			} catch (IOException e) {
 				throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);

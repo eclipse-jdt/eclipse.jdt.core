@@ -411,12 +411,12 @@ private void matchPatternVariable() {
 		LocalDeclaration elementVariable = null;
 		if (expr instanceof InstanceOfExpression) {
 			InstanceOfExpression expression = (InstanceOfExpression) this.expressionStack[this.expressionPtr];
-			elementVariable = expression.pattern instanceof TypePattern tp ? tp.local : null;
+			elementVariable = expression.pattern instanceof TypePattern ? ((TypePattern) expression.pattern).local : null;
 		} else if (expr instanceof AND_AND_Expression) {
 			// Refer to Parser#consumeInstanceOfExpression() to understand how
 			// we can ever expect AND_AND_Expression in place of InstanceOfExpression
 			InstanceOfExpression expression = (InstanceOfExpression) ((AND_AND_Expression) expr).left;
-			elementVariable = expression.pattern instanceof TypePattern tp ? tp.local : null;
+			elementVariable = expression.pattern instanceof TypePattern ? ((TypePattern) expression.pattern).local : null;
 		}
 		if (elementVariable != null) {
 			// if pattern variable present, match that

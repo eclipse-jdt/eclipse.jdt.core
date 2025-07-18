@@ -241,10 +241,12 @@ class VariableBinding implements IVariableBinding {
 		int sourceStart = localVar.getStartPosition();
 		int sourceLength = localVar.getLength();
 		int modifiers = 0;
-		if (localVar instanceof SingleVariableDeclaration singleVariableDeclaration) {
-			modifiers = singleVariableDeclaration.getModifiers();
-		} else if (localVar instanceof VariableDeclarationFragment fragment) {
-			final ASTNode parent = fragment.getParent();
+		if (localVar instanceof SingleVariableDeclaration) {
+            SingleVariableDeclaration singleVariableDeclaration = (SingleVariableDeclaration) localVar;
+            modifiers = singleVariableDeclaration.getModifiers();
+		} else if (localVar instanceof VariableDeclarationFragment) {
+            VariableDeclarationFragment fragment = (VariableDeclarationFragment) localVar;
+            final ASTNode parent = fragment.getParent();
 			if (!(parent instanceof LambdaExpression)) {
 				sourceStart = parent.getStartPosition();
 				sourceLength = parent.getLength();

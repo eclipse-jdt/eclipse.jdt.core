@@ -54,7 +54,7 @@ class DOMToIndexVisitor extends ASTVisitor {
 		} else {
 			this.sourceIndexer.addClassDeclaration(type.getModifiers(), this.packageName, simpleName(type.getName()), enclosing, type.getSuperclassType() == null ? null : name(type.getSuperclassType()),
 				((List<Type>)type.superInterfaceTypes()).stream().map(this::name).toArray(char[][]::new), parameterTypeSignatures, isSecondary(type));
-			if (type.bodyDeclarations().stream().noneMatch(member -> member instanceof MethodDeclaration method && method.isConstructor())) {
+			if (type.bodyDeclarations().stream().noneMatch(member -> member instanceof MethodDeclaration && ((MethodDeclaration) member).isConstructor())) {
 				this.sourceIndexer.addDefaultConstructorDeclaration(type.getName().getIdentifier().toCharArray(),
 						this.packageName, type.getModifiers(), 0);
 			}
@@ -246,8 +246,9 @@ class DOMToIndexVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(SuperConstructorInvocation node) {
 		char[] superClassName = Object.class.getName().toCharArray();
-		if (currentType() instanceof TypeDeclaration decl && decl.getSuperclassType() != null) {
-			superClassName = name(decl.getSuperclassType());
+		if (currentType() instanceof TypeDeclaration && ((TypeDeclaration) currentType()).getSuperclassType() != null) {
+            TypeDeclaration decl = (TypeDeclaration) currentType();
+            superClassName = name(decl.getSuperclassType());
 		}
 		this.sourceIndexer.addConstructorReference(superClassName, node.arguments().size());
 		return true;
@@ -257,13 +258,16 @@ class DOMToIndexVisitor extends ASTVisitor {
 		if (type == null) {
 			return null;
 		}
-		if (type instanceof PrimitiveType primitive) {
-			return primitive.toString().toCharArray();
+		if (type instanceof PrimitiveType) {
+            PrimitiveType primitive = (PrimitiveType) type;
+            return primitive.toString().toCharArray();
 		}
-		if (type instanceof SimpleType simpleType) {
-			return simpleName(simpleType.getName());
+		if (type instanceof SimpleType) {
+            SimpleType simpleType = (SimpleType) type;
+            return simpleName(simpleType.getName());
 		}
-		if (type instanceof ParameterizedType parameterized) {
+		if (type instanceof ParameterizedType) {
+            ParameterizedType parameterized = (ParameterizedType) type;
 //			String res = new String(name(parameterized.getType()));
 //			res += '<';
 //			res += ((List<Type>)parameterized.typeArguments()).stream()
@@ -334,11 +338,13 @@ class DOMToIndexVisitor extends ASTVisitor {
 	}
 
 	private static char[] simpleName(Name name) {
-		if (name instanceof SimpleName simple) {
-			return simple.getIdentifier().toCharArray();
+		if (name instanceof SimpleName) {
+            SimpleName simple = (SimpleName) name;
+            return simple.getIdentifier().toCharArray();
 		}
-		if (name instanceof QualifiedName qualified) {
-			return simpleName(qualified.getName());
+		if (name instanceof QualifiedName) {
+            QualifiedName qualified = (QualifiedName) name;
+            return simpleName(qualified.getName());
 		}
 		return null;
 	}

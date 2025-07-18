@@ -38,8 +38,9 @@ class CompilationUnitResolverDiscovery {
 				// We do prefer creating a new instance on each call, as it can allow the extension
 				// to store some state more easily than by using a singleton.
 				Object executableExtension = configElement.createExecutableExtension("class"); //$NON-NLS-1$
-				if (executableExtension instanceof ICompilationUnitResolver icur) {
-					return icur;
+				if (executableExtension instanceof ICompilationUnitResolver) {
+                    ICompilationUnitResolver icur = (ICompilationUnitResolver) executableExtension;
+                    return icur;
 				}
 			} catch (CoreException e) {
 				if (!setErrorLogged()) {

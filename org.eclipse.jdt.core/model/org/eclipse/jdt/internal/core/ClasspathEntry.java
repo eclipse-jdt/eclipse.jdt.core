@@ -2478,8 +2478,9 @@ public class ClasspathEntry implements IClasspathEntry {
 							}
 						}
 				}
-			} else if (target instanceof File tf){
-				File file = JavaModel.getFile(tf);
+			} else if (target instanceof File){
+                File tf = (File) target;
+                File file = JavaModel.getFile(tf);
 				if (file == null) {
 					if (container != null) {
 						return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalExternalFolderInContainer, new String[] {path.toOSString(), container}));

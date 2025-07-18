@@ -3185,8 +3185,8 @@ public final class CompletionEngine
 			if ((arguments[index] instanceof CompletionNode)
 					// the following handles when the cursor is at the receiver in a completed expression like
 					// new PersonDetails(GH969.emptyList(), 0) here the cursor is after new PersonDetails(
-					|| (arguments[index] instanceof MessageSend ms && ms.receiver instanceof CompletionNode)
-					|| (arguments[index] instanceof FieldReference fr && fr.receiver instanceof CompletionNode)) {
+					|| (arguments[index] instanceof MessageSend && ((MessageSend) arguments[index]).receiver instanceof CompletionNode)
+					|| (arguments[index] instanceof FieldReference && ((FieldReference) arguments[index]).receiver instanceof CompletionNode)) {
 				return index;
 			}
 		}
@@ -3900,8 +3900,9 @@ public final class CompletionEngine
 	}
 
 	private void checkForVarargExpectedTypes(ASTNode astNodeParent, Scope scope) {
-		if (astNodeParent instanceof MessageSend m && this.expectedTypesPtr == -1) {
-			final ObjectVector methodsToSearchOn = new ObjectVector();
+		if (astNodeParent instanceof MessageSend && this.expectedTypesPtr == -1) {
+            MessageSend m = (MessageSend) astNodeParent;
+            final ObjectVector methodsToSearchOn = new ObjectVector();
 			final CompletionRequestor actual = this.requestor;
 			this.requestor = new CompletionRequestor(true) {
 
@@ -9719,23 +9720,27 @@ public final class CompletionEngine
 		char[] parameterName = new char[0];
 		MethodBinding[] candidates;
 		final Expression[] arguments;
-		if (this.parser.assistNodeParent instanceof MessageSend ms) {
-			arguments = ms.arguments;
+		if (this.parser.assistNodeParent instanceof MessageSend) {
+            MessageSend ms = (MessageSend) this.parser.assistNodeParent;
+            arguments = ms.arguments;
 			candidates = Optional.ofNullable(ms.actualReceiverType)
 					.or(() -> Optional.ofNullable(ms.receiver).map(r -> r.resolvedType))
 					.map(t -> t.getMethods(ms.selector)).orElse(new MethodBinding[0]);
-		} else if (this.parser.assistNode instanceof MessageSend ms) {
-			arguments = ms.arguments;
+		} else if (this.parser.assistNode instanceof MessageSend) {
+            MessageSend ms = (MessageSend) this.parser.assistNode;
+            arguments = ms.arguments;
 			candidates = StreamSupport.stream(methodsFound.spliterator(), false)
 					.filter(Objects::nonNull)
 					.filter(Object[].class::isInstance).map(o -> (Object[]) o)
 					.map(o -> o[0]).filter(MethodBinding.class::isInstance).map(b -> (MethodBinding) b)
 					.filter(b -> CharOperation.equals(ms.selector, b.selector)).findFirst()
 					.map(m -> new MethodBinding[] { m }).orElse(new MethodBinding[0]);
-		} else if (this.parser.assistNodeParent instanceof AllocationExpression ae) {
-			arguments = ae.arguments;
-			if (ae.type != null && ae.type.resolvedType instanceof ReferenceBinding rb) {
-				findConstructors(rb, computeTypes(arguments), scope, ae, false, null, null, null, false, methodsFound,
+		} else if (this.parser.assistNodeParent instanceof AllocationExpression) {
+            AllocationExpression ae = (AllocationExpression) this.parser.assistNodeParent;
+            arguments = ae.arguments;
+			if (ae.type != null && ae.type.resolvedType instanceof ReferenceBinding) {
+                ReferenceBinding rb = (ReferenceBinding) ae.type.resolvedType;
+                findConstructors(rb, computeTypes(arguments), scope, ae, false, null, null, null, false, methodsFound,
 						true);
 			}
 			candidates = StreamSupport.stream(methodsFound.spliterator(), false).filter(Objects::nonNull)
@@ -10804,8 +10809,9 @@ public final class CompletionEngine
 		MethodBinding[] receiverTypeMethods = receiverType.availableMethods();
 		if (receiverTypeMethods != null){
 			for (MethodBinding receiverTypeMethod : receiverTypeMethods) {
-				if (receiverType.isRecord() && receiverTypeMethod instanceof SyntheticMethodBinding smb) {
-					if (CharOperation.equals(smb.selector, TypeConstants.EQUALS) ||
+				if (receiverType.isRecord() && receiverTypeMethod instanceof SyntheticMethodBinding) {
+                    SyntheticMethodBinding smb = (SyntheticMethodBinding) receiverTypeMethod;
+                    if (CharOperation.equals(smb.selector, TypeConstants.EQUALS) ||
 							CharOperation.equals(smb.selector, TypeConstants.HASHCODE) ||
 							CharOperation.equals(smb.selector, TypeConstants.TOSTRING))
 					continue; // allow proposals to override compiler supplied implementations.

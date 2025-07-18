@@ -214,8 +214,9 @@ public class ImportDeclaration extends ASTNode {
 		// but this would require tracking changes to this.modifiers
 		int computedmodifierFlags = Modifier.NONE;
 		for (Object x : modifiers()) {
-			if (x instanceof Modifier modifier) {
-				computedmodifierFlags |= modifier.getKeyword().toFlagValue();
+			if (x instanceof Modifier) {
+                Modifier modifier = (Modifier) x;
+                computedmodifierFlags |= modifier.getKeyword().toFlagValue();
 			}
 		}
 		return computedmodifierFlags;
@@ -401,8 +402,9 @@ public class ImportDeclaration extends ASTNode {
 		if (this.modifiers != null) {
 			// JLS23 behavior: extract from the list of Modifier
 			for (Object x : modifiers()) {
-				if (x instanceof Modifier modifier && modifier.isStatic()) {
-					return true;
+				if (x instanceof Modifier && ((Modifier) x).isStatic()) {
+                    Modifier modifier = (Modifier) x;
+                    return true;
 				}
 			}
 			return false;

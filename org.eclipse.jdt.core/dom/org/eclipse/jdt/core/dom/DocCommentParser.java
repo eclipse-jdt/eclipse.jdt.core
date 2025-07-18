@@ -1386,11 +1386,13 @@ class DocCommentParser extends AbstractCommentParser {
 		int size= fragments.size();
 		if (size > 1) {
 			ASTNode lastNode= (ASTNode) fragments.get(size - 1);
-			if (lastNode instanceof TagElement lastTag) {
-				if (!lastTag.getTagName().equals(TagElement.TAG_RETURN)) {
+			if (lastNode instanceof TagElement) {
+                TagElement lastTag = (TagElement) lastNode;
+                if (!lastTag.getTagName().equals(TagElement.TAG_RETURN)) {
 					ASTNode secondLastNode= (ASTNode) fragments.get(size - 2);
-					if (secondLastNode instanceof TagElement prevTag && prevTag.getTagName().equals(TagElement.TAG_RETURN)) {
-						fragments.remove(size - 1);
+					if (secondLastNode instanceof TagElement && ((TagElement) secondLastNode).getTagName().equals(TagElement.TAG_RETURN)) {
+                        TagElement prevTag = (TagElement) secondLastNode;
+                        fragments.remove(size - 1);
 						prevTag.fragments().add(lastNode);
 						this.inlineTagStart= prevTag.getStartPosition();
 						this.inlineTagStarted= true;

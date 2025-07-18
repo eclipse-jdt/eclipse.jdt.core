@@ -295,8 +295,9 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 	 * @return whether the operation was successful
 	 */
 	boolean indexDocumentFromDOM() {
-		if (this.document instanceof JavaSearchDocument javaSearchDoc) {
-			IFile file = javaSearchDoc.getFile();
+		if (this.document instanceof JavaSearchDocument) {
+            JavaSearchDocument javaSearchDoc = (JavaSearchDocument) this.document;
+            IFile file = javaSearchDoc.getFile();
 			try {
 				if (JavaProject.hasJavaNature(file.getProject())) {
 					IJavaProject javaProject = JavaCore.create(file.getProject());
@@ -304,8 +305,9 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 					// when there are multiple package root/source folders, and then cause deadlock
 					// so we go finer grain by picking the right fragment first (so index call shouldn't happen)
 					IPackageFragment fragment = javaProject.findPackageFragment(file.getFullPath().removeLastSegments(1));
-					if (fragment.getCompilationUnit(file.getName()) instanceof org.eclipse.jdt.internal.core.CompilationUnit modelUnit) {
-						// TODO check element info: if has AST and flags are set sufficiently, just reuse instead of rebuilding
+					if (fragment.getCompilationUnit(file.getName()) instanceof org.eclipse.jdt.internal.core.CompilationUnit) {
+                        org.eclipse.jdt.internal.core.CompilationUnit modelUnit = (org.eclipse.jdt.internal.core.CompilationUnit) fragment.getCompilationUnit(file.getName());
+                        // TODO check element info: if has AST and flags are set sufficiently, just reuse instead of rebuilding
 						ASTParser astParser = ASTParser.newParser(AST.getJLSLatest()); // we don't seek exact compilation the more tolerant the better here
 						astParser.setSource(modelUnit);
 						astParser.setStatementsRecovery(true);

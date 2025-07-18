@@ -1215,13 +1215,15 @@ public class Util {
 	 * Returns the signature of the given type.
 	 */
 	public static String getSignature(Type type) {
-		if (type instanceof UnionType union) {
-			return Signature.createUnionTypeSignature(((List<Type>)union.types()).stream()
+		if (type instanceof UnionType) {
+            UnionType union = (UnionType) type;
+            return Signature.createUnionTypeSignature(((List<Type>)union.types()).stream()
 				.map(Util::getSignature)
 				.toArray(String[]::new));
 		}
-		if (type instanceof IntersectionType intersection) {
-			return Signature.createIntersectionTypeSignature(((List<Type>)intersection.types()).stream()
+		if (type instanceof IntersectionType) {
+            IntersectionType intersection = (IntersectionType) type;
+            return Signature.createIntersectionTypeSignature(((List<Type>)intersection.types()).stream()
 				.map(Util::getSignature)
 				.toArray(String[]::new));
 		}

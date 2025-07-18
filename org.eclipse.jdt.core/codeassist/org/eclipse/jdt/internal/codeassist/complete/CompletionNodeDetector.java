@@ -540,10 +540,11 @@ public class CompletionNodeDetector extends ASTVisitor {
 
 	private boolean isOnCompletingOnCaseLabel(SwitchStatement statement) {
 		for (Statement stmt : statement.statements) {
-			if (stmt instanceof CaseStatement cs) {
-				for (Expression expr : cs.constantExpressions) {
+			if (stmt instanceof CaseStatement) {
+                CaseStatement cs = (CaseStatement) stmt;
+                for (Expression expr : cs.constantExpressions) {
 					if (this.searchedNode == expr
-							|| (expr instanceof RecordPattern rp && rp.type == this.searchedNode)) {
+							|| (expr instanceof RecordPattern && ((RecordPattern) expr).type == this.searchedNode)) {
 						return true;
 					}
 				}

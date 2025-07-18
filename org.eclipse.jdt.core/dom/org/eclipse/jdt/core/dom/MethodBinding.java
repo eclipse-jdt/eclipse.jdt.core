@@ -623,13 +623,15 @@ class MethodBinding implements IMethodBinding {
 			// as it populates newAstToOldAst.
 			ASTNode current = domNode;
 			while (current != null) {
-				if (current instanceof org.eclipse.jdt.core.dom.LambdaExpression domLambda) {
-					defaultBindingResolver.resolveMethod(domLambda);
+				if (current instanceof org.eclipse.jdt.core.dom.LambdaExpression) {
+                    org.eclipse.jdt.core.dom.LambdaExpression domLambda = (org.eclipse.jdt.core.dom.LambdaExpression) current;
+                    defaultBindingResolver.resolveMethod(domLambda);
 				}
 				current = current.getParent();
 			}
-			if (defaultBindingResolver.newAstToOldAst.get(domNode) instanceof org.eclipse.jdt.internal.compiler.ast.LambdaExpression lambdaExpression) {
-				LambdaExpression expr = LambdaFactory.createLambdaExpression((JavaElement)getDeclaringMember().getJavaElement(), lambdaExpression);
+			if (defaultBindingResolver.newAstToOldAst.get(domNode) instanceof org.eclipse.jdt.internal.compiler.ast.LambdaExpression) {
+                org.eclipse.jdt.internal.compiler.ast.LambdaExpression lambdaExpression = (org.eclipse.jdt.internal.compiler.ast.LambdaExpression) defaultBindingResolver.newAstToOldAst.get(domNode);
+                LambdaExpression expr = LambdaFactory.createLambdaExpression((JavaElement)getDeclaringMember().getJavaElement(), lambdaExpression);
 				return LambdaFactory.createLambdaMethod(expr, lambdaExpression);
 			}
 			return super.getUnresolvedJavaElement();

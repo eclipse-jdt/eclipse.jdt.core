@@ -1197,8 +1197,9 @@ private boolean assembleSwitch(Expression innerStatement) {
 		CaseStatement caseStatement = null;
 		int casePos = -1;
 		for (int i=this.astPtr; i >= 0; i--) {
-			if (this.astStack[i] instanceof CaseStatement stmt) {
-				caseStatement = stmt;
+			if (this.astStack[i] instanceof CaseStatement) {
+                CaseStatement stmt = (CaseStatement) this.astStack[i];
+                caseStatement = stmt;
 				casePos = i;
 				break;
 			}
@@ -1247,14 +1248,17 @@ private boolean popBlockContaining(ASTNode soughtStatement) {
 	// check if soughtStatement was prematurely captured in a RecoveredStatement up the parent chain.
 	// if so, pop until the next parent.
 	RecoveredElement elem = this.currentElement;
-	while (elem instanceof RecoveredBlock block) {
-		for (int i=0; i<block.statementCount; i++) {
-			if (block.statements[i] instanceof RecoveredStatement stmt) {
-				if (stmt.statement == soughtStatement) {
+	while (elem instanceof RecoveredBlock) {
+        RecoveredBlock block = (RecoveredBlock) elem;
+        for (int i=0; i<block.statementCount; i++) {
+			if (block.statements[i] instanceof RecoveredStatement) {
+                RecoveredStatement stmt = (RecoveredStatement) block.statements[i];
+                if (stmt.statement == soughtStatement) {
 					this.currentElement = block.parent;
 					// also remove block from the new currentElement:
-					if (this.currentElement instanceof RecoveredBlock newBlock) {
-						if (newBlock.statements[newBlock.statementCount-1] == block)
+					if (this.currentElement instanceof RecoveredBlock) {
+                        RecoveredBlock newBlock = (RecoveredBlock) this.currentElement;
+                        if (newBlock.statements[newBlock.statementCount-1] == block)
 							newBlock.statementCount--;
 					}
 					return true;

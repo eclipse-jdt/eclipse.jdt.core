@@ -670,8 +670,9 @@ private CompilerConfiguration prepareCompilerConfiguration(CompilerOptions optio
 		Set<URI> classpaths = new LinkedHashSet<>();
 		Set<URI> modulepaths = new LinkedHashSet<>();
 		for (ClasspathLocation location : classpathLocations) {
-			if (location instanceof ClasspathDirectory cpDirectory) {
-				URI cpURI = cpDirectory.binaryFolder.getRawLocationURI();
+			if (location instanceof ClasspathDirectory) {
+                ClasspathDirectory cpDirectory = (ClasspathDirectory) location;
+                URI cpURI = cpDirectory.binaryFolder.getRawLocationURI();
 				if (cpURI == null) {
 					continue;
 				}
@@ -680,8 +681,9 @@ private CompilerConfiguration prepareCompilerConfiguration(CompilerOptions optio
 				} else {
 					classpaths.add(cpURI);
 				}
-			} else if (location instanceof ClasspathJar cpJar) {
-				URI cpURI = URIUtil.toURI(cpJar.zipFilename, true);
+			} else if (location instanceof ClasspathJar) {
+                ClasspathJar cpJar = (ClasspathJar) location;
+                URI cpURI = URIUtil.toURI(cpJar.zipFilename, true);
 				if (cpJar.isOnModulePath) {
 					modulepaths.add(cpURI);
 				} else {

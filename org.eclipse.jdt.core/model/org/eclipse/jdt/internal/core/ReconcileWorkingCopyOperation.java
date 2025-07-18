@@ -211,8 +211,9 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 						}
 						Map<String, List<CategorizedProblem>> groupedProblems = new HashMap<>();
 						for (IProblem problem : newAST.getProblems()) {
-							if (problem instanceof CategorizedProblem categorizedProblem) {
-								groupedProblems.computeIfAbsent(categorizedProblem.getMarkerType(), key -> new ArrayList<>()).add(categorizedProblem);
+							if (problem instanceof CategorizedProblem) {
+                                CategorizedProblem categorizedProblem = (CategorizedProblem) problem;
+                                groupedProblems.computeIfAbsent(categorizedProblem.getMarkerType(), key -> new ArrayList<>()).add(categorizedProblem);
 							}
 						}
 						for (Entry<String, List<CategorizedProblem>> entry : groupedProblems.entrySet()) {
@@ -223,8 +224,9 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 						}
 					} catch (AbortCompilationUnit ex) {
 						var problem = ex.problem;
-						if (problem == null && ex.exception instanceof IOException ioEx) {
-							String path = source.getPath().toString();
+						if (problem == null && ex.exception instanceof IOException) {
+                            IOException ioEx = (IOException) ex.exception;
+                            String path = source.getPath().toString();
 							String exceptionTrace = ioEx.getClass().getName() + ':' + ioEx.getMessage();
 							problem = new DefaultProblemFactory().createProblem(
 									path.toCharArray(),

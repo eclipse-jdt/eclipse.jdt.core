@@ -721,8 +721,9 @@ public class JavaProject
 				if (target instanceof IResource){
 					// internal target
 					root = getPackageFragmentRoot((IResource) target, entryPath, resolvedEntry.getExtraAttributes());
-				} else if (target instanceof File tf) {
-					// external target
+				} else if (target instanceof File) {
+                    File tf = (File) target;
+                    // external target
 					if (JavaModel.isFile(tf)) {
 						if (JavaModel.isJimage(tf)) {
 							PerProjectInfo info = getPerProjectInfo();
@@ -2248,8 +2249,9 @@ public class JavaProject
 			return this.new JImageModuleFragmentBridge(externalLibraryPath, extraAttributes);
 		}
 		Object target = JavaModel.getTarget(externalLibraryPath, true/*check existency*/);
-		if (target instanceof File tf && JavaModel.isFile(tf)) {
-			if (JavaModel.isJmod((File) target)) {
+		if (target instanceof File && JavaModel.isFile((File) target)) {
+            File tf = (File) target;
+            if (JavaModel.isJmod((File) target)) {
 				return new JModPackageFragmentRoot(externalLibraryPath, this, extraAttributes);
 			}
 		}

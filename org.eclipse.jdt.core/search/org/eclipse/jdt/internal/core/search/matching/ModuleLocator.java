@@ -54,8 +54,9 @@ public class ModuleLocator extends PatternLocator {
 	}
 	@Override
 	public int match(ASTNode node, MatchingNodeSet nodeSet) {
-		if (node instanceof ImportReference impt && (impt.modifiers & ClassFileConstants.AccModule) != 0) {
-			if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
+		if (node instanceof ImportReference && (((ImportReference) node).modifiers & ClassFileConstants.AccModule) != 0) {
+            ImportReference impt = (ImportReference) node;
+            if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
 			char[] moduleName = CharOperation.concatWith(impt.tokens, '.');
 			if (!matchesName(this.pattern.name, moduleName)) return IMPOSSIBLE_MATCH;
 			nodeSet.mustResolve = true;

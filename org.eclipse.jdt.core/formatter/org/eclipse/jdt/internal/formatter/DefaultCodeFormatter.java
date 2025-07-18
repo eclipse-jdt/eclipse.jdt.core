@@ -232,8 +232,9 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private void findHeader() {
-		if (this.astRoot instanceof CompilationUnit unit) {
-			List<TypeDeclaration> types = unit.types();
+		if (this.astRoot instanceof CompilationUnit) {
+            CompilationUnit unit = (CompilationUnit) this.astRoot;
+            List<TypeDeclaration> types = unit.types();
 			ASTNode firstElement = !types.isEmpty() ? types.get(0)
 					: unit.getModule() != null ? unit.getModule()
 					: unit.getPackage();

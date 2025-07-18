@@ -128,9 +128,9 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	// generate structure and compute syntax problems if needed
 	JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = getPerWorkingCopyInfo();
 	IJavaProject project = getJavaProject();
-	boolean createAST = info instanceof ASTHolderCUInfo astHolder ? astHolder.astLevel != NO_AST : false;
-	boolean resolveBindings = info instanceof ASTHolderCUInfo astHolder ? astHolder.resolveBindings : false;
-	int reconcileFlags = info instanceof ASTHolderCUInfo astHolder ? astHolder.reconcileFlags : 0;
+	boolean createAST = info instanceof ASTHolderCUInfo ? ((ASTHolderCUInfo) info).astLevel != NO_AST : false;
+	boolean resolveBindings = info instanceof ASTHolderCUInfo ? ((ASTHolderCUInfo) info).resolveBindings : false;
+	int reconcileFlags = info instanceof ASTHolderCUInfo ? ((ASTHolderCUInfo) info).reconcileFlags : 0;
 	boolean computeProblems = perWorkingCopyInfo != null && perWorkingCopyInfo.isActive() && project != null && JavaProject.hasJavaNature(project.getProject());
 	Map<String, String> options = this.getOptions(true);
 	if (!computeProblems) {
@@ -153,9 +153,9 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	}
 
 	CompilationUnit source = cloneCachingContents();
-	Map<String, CategorizedProblem[]> problems = info instanceof ASTHolderCUInfo astHolder ? astHolder.problems : null;
+	Map<String, CategorizedProblem[]> problems = info instanceof ASTHolderCUInfo ? ((ASTHolderCUInfo) info).problems : null;
 	if (DOM_BASED_OPERATIONS) {
-		ASTParser astParser = ASTParser.newParser(info instanceof ASTHolderCUInfo astHolder && astHolder.astLevel > 0 ? astHolder.astLevel : AST.getJLSLatest());
+		ASTParser astParser = ASTParser.newParser(info instanceof ASTHolderCUInfo && ((ASTHolderCUInfo) info).astLevel > 0 ? ((ASTHolderCUInfo) info).astLevel : AST.getJLSLatest());
 		astParser.setWorkingCopyOwner(getOwner());
 		astParser.setSource(this instanceof ClassFileWorkingCopy ? source : this);
 		astParser.setProject(getJavaProject());
@@ -174,8 +174,9 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 			dom = astParser.createAST(pm);
 		} catch (AbortCompilationUnit e) {
 			var problem = e.problem;
-			if (problem == null && e.exception instanceof IOException ioEx) {
-				String path = source.getPath().toString();
+			if (problem == null && e.exception instanceof IOException) {
+                IOException ioEx = (IOException) e.exception;
+                String path = source.getPath().toString();
 				String exceptionTrace = ioEx.getClass().getName() + ':' + ioEx.getMessage();
 				problem = new DefaultProblemFactory().createProblem(
 						path.toCharArray(),
@@ -194,13 +195,14 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 				perWorkingCopyInfo.endReporting();
 			}
 		}
-		if (dom instanceof org.eclipse.jdt.core.dom.CompilationUnit newAST) {
-			if (computeProblems) {
+		if (dom instanceof org.eclipse.jdt.core.dom.CompilationUnit) {
+            org.eclipse.jdt.core.dom.CompilationUnit newAST = (org.eclipse.jdt.core.dom.CompilationUnit) dom;
+            if (computeProblems) {
 				IProblem[] interestingProblems = Arrays.stream(newAST.getProblems())
 					.filter(problem ->
 						!ignoreOptionalProblems()
 						|| !(problem instanceof DefaultProblem)
-						|| (problem instanceof DefaultProblem defaultProblem && (defaultProblem.severity & ProblemSeverities.Optional) == 0)
+						|| (problem instanceof DefaultProblem && (((DefaultProblem) problem).severity & ProblemSeverities.Optional) == 0)
 					).toArray(IProblem[]::new);
 				if (perWorkingCopyInfo != null && problems == null) {
 					try {
@@ -218,8 +220,9 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 						.toArray(CategorizedProblem[]::new));
 				}
 			}
-			if (info instanceof ASTHolderCUInfo astHolder) {
-				astHolder.ast = newAST;
+			if (info instanceof ASTHolderCUInfo) {
+                ASTHolderCUInfo astHolder = (ASTHolderCUInfo) info;
+                astHolder.ast = newAST;
 			}
 			newAST.accept(new DOMToModelPopulator(newElements, this, unitInfo));
 			boolean structureKnown = true;
@@ -485,8 +488,9 @@ public org.eclipse.jdt.core.dom.CompilationUnit getOrBuildAST(WorkingCopyOwner w
 	parser.setStatementsRecovery(true);
 	parser.setBindingsRecovery(true);
 	parser.setCompilerOptions(options);
-	if (parser.createAST(null) instanceof org.eclipse.jdt.core.dom.CompilationUnit newAST) {
-		this.ast = newAST;
+	if (parser.createAST(null) instanceof org.eclipse.jdt.core.dom.CompilationUnit) {
+        org.eclipse.jdt.core.dom.CompilationUnit newAST = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
+        this.ast = newAST;
 	}
 	return this.ast;
 }

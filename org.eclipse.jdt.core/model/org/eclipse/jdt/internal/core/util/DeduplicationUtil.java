@@ -78,8 +78,9 @@ public final class DeduplicationUtil {
 		}
 		synchronized (objectCache) {
 			Object existing = objectCache.get(a);
-			if (existing instanceof List l) {
-				@SuppressWarnings("unchecked")
+			if (existing instanceof List) {
+                List l = (List) existing;
+                @SuppressWarnings("unchecked")
 				List<String> existingList = l;
 				return existingList;
 			}

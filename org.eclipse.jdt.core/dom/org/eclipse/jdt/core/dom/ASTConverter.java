@@ -2348,7 +2348,7 @@ class ASTConverter {
 		if (this.ast.apiLevel >= AST.JLS21) {
 			patternInstanceOfExpression.setPattern(convert(expression.pattern));
 		} else {
-			LocalDeclaration elementVariable = expression.pattern instanceof org.eclipse.jdt.internal.compiler.ast.TypePattern tp ? tp.local : null;
+			LocalDeclaration elementVariable = expression.pattern instanceof org.eclipse.jdt.internal.compiler.ast.TypePattern ? ((org.eclipse.jdt.internal.compiler.ast.TypePattern) expression.pattern).local : null;
 			if (elementVariable != null) {
 				patternInstanceOfExpression.setRightOperand(convertToSingleVariableDeclaration(elementVariable));
 			} else if (expression.pattern != null){
@@ -3410,8 +3410,9 @@ class ASTConverter {
 				return null;
 			}
 			return convertToRecordDeclaration(typeDeclaration);
-		} else if (typeDeclaration instanceof org.eclipse.jdt.internal.compiler.ast.ImplicitTypeDeclaration implicitTypeDeclaration) {
-			return convertToImplicitTypeDeclaration(implicitTypeDeclaration);
+		} else if (typeDeclaration instanceof org.eclipse.jdt.internal.compiler.ast.ImplicitTypeDeclaration) {
+            org.eclipse.jdt.internal.compiler.ast.ImplicitTypeDeclaration implicitTypeDeclaration = (org.eclipse.jdt.internal.compiler.ast.ImplicitTypeDeclaration) typeDeclaration;
+            return convertToImplicitTypeDeclaration(implicitTypeDeclaration);
 		}
 		checkCanceled();
 		TypeDeclaration typeDecl = new TypeDeclaration(this.ast);

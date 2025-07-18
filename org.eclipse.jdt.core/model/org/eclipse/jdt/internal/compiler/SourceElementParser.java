@@ -620,8 +620,9 @@ protected void consumeSingleStaticImportDeclarationName() {
 	// SingleTypeImportDeclarationName ::= 'import' 'static' Name
 	super.consumeSingleStaticImportDeclarationName();
 
-	if (this.reportReferenceInfo && this.astStack[this.astPtr] instanceof ImportReference impt) {
-		// Name for static import is TypeName '.' Identifier
+	if (this.reportReferenceInfo && this.astStack[this.astPtr] instanceof ImportReference) {
+        ImportReference impt = (ImportReference) this.astStack[this.astPtr];
+        // Name for static import is TypeName '.' Identifier
 		// => accept unknown ref on identifier
 		int tokensLength = impt.tokens.length-1;
 		int start = (int) (impt.sourcePositions[tokensLength] >>> 32);
@@ -683,8 +684,9 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 	stored in the identifier stack. */
 
 	super.consumeStaticImportOnDemandDeclarationName();
-	if (this.reportReferenceInfo && this.astStack[this.astPtr] instanceof ImportReference impt) {
-		this.requestor.acceptTypeReference(impt.tokens, impt.sourceStart, impt.sourceEnd);
+	if (this.reportReferenceInfo && this.astStack[this.astPtr] instanceof ImportReference) {
+        ImportReference impt = (ImportReference) this.astStack[this.astPtr];
+        this.requestor.acceptTypeReference(impt.tokens, impt.sourceStart, impt.sourceEnd);
 	}
 }
 @Override

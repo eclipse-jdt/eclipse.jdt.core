@@ -159,9 +159,10 @@ public class JavadocContents implements IJavadocContents {
 
 	@Override
 	public String getMethodDoc(IMethod child) throws JavaModelException {
-		if (this.content == null || !(child instanceof BinaryMethod binaryMethod)) return null;
+		if (this.content == null || !(child instanceof BinaryMethod)) return null;
+        BinaryMethod binaryMethod = (BinaryMethod) child;
 
-		Range range = null;
+        Range range = null;
 		synchronized (this) {
 			if (this.methodDocRanges == null) {
 				this.methodDocRanges = new HashMap<>();

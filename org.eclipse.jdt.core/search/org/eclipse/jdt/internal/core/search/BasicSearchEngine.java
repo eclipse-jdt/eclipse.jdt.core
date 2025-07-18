@@ -180,8 +180,9 @@ public class BasicSearchEngine {
 	public static IJavaSearchScope createJavaSearchScope(boolean excludeTestCode, IJavaElement[] elements, int includeMask) {
 		Set<JavaProject> projectsToBeAdded = new HashSet<>(2);
 		for (IJavaElement element : elements) {
-			if (element instanceof JavaProject p) {
-				projectsToBeAdded.add(p);
+			if (element instanceof JavaProject) {
+                JavaProject p = (JavaProject) element;
+                projectsToBeAdded.add(p);
 			}
 		}
 		JavaSearchScope scope = new JavaSearchScope(excludeTestCode);
