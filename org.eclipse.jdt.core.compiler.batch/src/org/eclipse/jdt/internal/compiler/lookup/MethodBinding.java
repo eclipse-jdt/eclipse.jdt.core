@@ -1417,6 +1417,29 @@ private boolean hasNonNullDefaultForType(TypeBinding type, int location, Abstrac
 	return this.declaringClass.hasNonNullDefaultForType(null /*type was already checked*/, location, start);
 }
 
+/** Warning! - This method is a pre-resolution `best guess' version that responds with a conservative guess as to whether or not
+ *  the receiver is simply a redeclaration of a public method from j.l.O. An answer of `false` is guaranteed to be correct,
+ *  while an answer of `true` may be incorrect and needs to be dealt with conservatively so as not to cause any correctness problems!
+ */
+public boolean redeclaresPublicObjectMethod() {
+	//  - client should ensure a wrong guess gets handled conservatively so as not to cause correctness problems!
+	char [] selektor = this.selector;
+	int parameterLength = this.declaringClass instanceof SourceTypeBinding ?
+									this.parameterNames == null ? 0 : this.parameterNames.length :
+										this.parameters == null ? 0 : this.parameters.length;
+	if (selektor[0] == 'h') {
+		if (selektor.length == 8 && parameterLength == 0 && CharOperation.equals(selektor, TypeConstants.HASHCODE))
+			return true;
+	} else if (selektor[0] == 't') {
+		if (selektor.length == 8 && parameterLength == 0 && CharOperation.equals(selektor, TypeConstants.TOSTRING))
+			return true;
+	} else if (selektor[0] == 'e') {
+		if (selektor.length != 6 || parameterLength != 1 || !CharOperation.equals(selektor, TypeConstants.EQUALS))
+			return false;
+		return true; // conservative, we can't inspect parameters yet.
+	}
+	return false;
+}
 public boolean redeclaresPublicObjectMethod(Scope scope) {
 	ReferenceBinding javaLangObject = scope.getJavaLangObject();
 	MethodBinding [] methods = javaLangObject.getMethods(this.selector);

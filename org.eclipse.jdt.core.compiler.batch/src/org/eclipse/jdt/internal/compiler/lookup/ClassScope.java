@@ -401,6 +401,8 @@ public class ClassScope extends Scope {
 		// create bindings for source methods
 		boolean hasNativeMethods = false;
 		if (sourceType.isAbstract()) {
+			boolean checkFunctional = sourceType.isInterface() && !sourceType.isAnnotationType();
+			MethodBinding samCandidate = null;
 			for (int i = 0; i < size; i++) {
 				if (i != clinitIndex) {
 					MethodScope scope = new MethodScope(this, methods[i], false);
@@ -408,6 +410,15 @@ public class ClassScope extends Scope {
 					if (methodBinding != null) { // is null if binding could not be created
 						methodBindings[count++] = methodBinding;
 						hasNativeMethods = hasNativeMethods || methodBinding.isNative();
+						if (checkFunctional && methodBinding.isAbstract() && !methodBinding.redeclaresPublicObjectMethod()) {
+							if (samCandidate == null) {
+								samCandidate = methodBinding;
+							} else if (!CharOperation.equals(samCandidate.selector, methodBinding.selector) ||
+										samCandidate.parameters.length != methodBinding.parameters.length) {
+								checkFunctional = false;
+								sourceType.tagBits |= TagBits.KnownDysfunctionalInterface;
+							}
+						}
 					}
 				}
 			}

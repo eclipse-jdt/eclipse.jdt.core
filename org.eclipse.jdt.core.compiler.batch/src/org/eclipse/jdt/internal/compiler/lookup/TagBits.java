@@ -106,7 +106,7 @@ public interface TagBits {
 	long BeginAnnotationCheck = ASTNode.Bit32L;
 	long EndAnnotationCheck = ASTNode.Bit33L;
 
-	// currently unused: ASTNode.Bit35L
+	long KnownDysfunctionalInterface = ASTNode.Bit35L;
 
 	// standard annotations
 	// 9-bits for targets
