@@ -116,6 +116,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.6.1</version>
         <executions>
           <execution>
             <id>no-tabs-in-compiler-messages</id>
