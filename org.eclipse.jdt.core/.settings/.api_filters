@@ -222,6 +222,14 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="model/org/eclipse/jdt/core/IClasspathContainer.java" type="org.eclipse.jdt.core.IClasspathContainer">
+        <filter id="403767336">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.IClasspathContainer"/>
+                <message_argument value="K_UNINITIALIZED_CONTAINER"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="model/org/eclipse/jdt/core/SourceRange.java" type="org.eclipse.jdt.core.SourceRange">
         <filter id="576725006">
             <message_arguments>
