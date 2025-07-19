@@ -6766,5 +6766,21 @@ public void testIssue2523() {
             }
         );
 }
+public void testGH4214() {
+	runConformTest(new String[] {
+		"C.java",
+		"""
+		class C {
+			class A<T> {}
+			public class B<T extends B<? extends A<?>>> extends A<T> {
+				void foo() {
+					bar((T)this);
+				}
+			}
+			<T extends B<?>> void bar(T t) {}
+		}
+		"""
+	});
+}
 }
 
