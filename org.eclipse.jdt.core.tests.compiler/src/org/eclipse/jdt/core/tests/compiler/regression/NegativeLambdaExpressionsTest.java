@@ -10679,6 +10679,26 @@ this.runNegativeTest(
 		"----------\n");
 }
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4227
+// ECJ fails to complain about misapplication of @FunctionalInterface annotation on annotation types
+public void testIssue4227() {
+this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+			@FunctionalInterface
+			@interface X {
+			}
+			"""
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	@interface X {\n" +
+		"	           ^\n" +
+		"Invalid '@FunctionalInterface' annotation; X is not a functional interface\n" +
+		"----------\n");
+}
+
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

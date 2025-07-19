@@ -1680,6 +1680,22 @@ public boolean isInterface() {
 	return (this.modifiers & ClassFileConstants.AccInterface) != 0;
 }
 
+private boolean isPatentlyDysfunctional(Scope scope) {
+	if (!isInterface() || isSealed() || isAnnotationType())
+		return true;
+	MethodBinding samCandidate = null;
+	for (MethodBinding method : methods()) {
+		if (method.isAbstract() && !method.redeclaresPublicObjectMethod(scope)) {
+			if (samCandidate == null) {
+				samCandidate = method;
+			} else if (!CharOperation.equals(samCandidate.selector, method.selector) ||
+						samCandidate.parameters.length != method.parameters.length) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
 @Override
 public boolean isFunctionalInterface(Scope scope) {
 	MethodBinding method;
@@ -2399,11 +2415,11 @@ public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcar
 	int index = replaceWildcards ? 0 : 1;
 	if (this.singleAbstractMethod != null) {
 		if (this.singleAbstractMethod[index] != null)
-		return this.singleAbstractMethod[index];
+			return this.singleAbstractMethod[index];
 	} else {
 		this.singleAbstractMethod = new MethodBinding[2];
-		if (this.isSealed())
-			return this.singleAbstractMethod[index] = samProblemBinding; // JLS 9.8
+		if (isPatentlyDysfunctional(scope))
+			return this.singleAbstractMethod[0] = this.singleAbstractMethod[1] = samProblemBinding;
 	}
 
 	if (this.compoundName != null)
