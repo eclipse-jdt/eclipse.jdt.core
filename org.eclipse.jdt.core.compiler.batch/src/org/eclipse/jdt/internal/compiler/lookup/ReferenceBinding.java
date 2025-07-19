@@ -1682,6 +1682,8 @@ public boolean isInterface() {
 
 @Override
 public boolean isFunctionalInterface(Scope scope) {
+	if ((this.tagBits & TagBits.KnownDysfunctionalInterface) != 0)
+		return false;
 	MethodBinding method;
 	return isInterface() && (method = getSingleAbstractMethod(scope, true)) != null && method.isValidBinding();
 }
@@ -2403,7 +2405,9 @@ public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcar
 	} else {
 		this.singleAbstractMethod = new MethodBinding[2];
 		if (this.isSealed())
-			return this.singleAbstractMethod[index] = samProblemBinding; // JLS 9.8
+			return this.singleAbstractMethod[0] = this.singleAbstractMethod[1] = samProblemBinding; // JLS 9.8
+		if ((this.tagBits & TagBits.KnownDysfunctionalInterface) != 0)
+			return this.singleAbstractMethod[0] = this.singleAbstractMethod[1] = samProblemBinding;
 	}
 
 	if (this.compoundName != null)

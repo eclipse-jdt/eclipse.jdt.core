@@ -1175,7 +1175,8 @@ private IBinaryMethod[] createMethods(IBinaryMethod[] iMethods, IBinaryType bina
 			this.methods = Binding.NO_METHODS;
 			return NO_BINARY_METHODS;
 		}
-
+		boolean checkFunctional = isInterface() && !isAnnotationType();
+		MethodBinding samCandidate = null;
 		boolean hasRestrictedAccess = hasRestrictedAccess();
 		MethodBinding[] methods1 = new MethodBinding[total];
 		if (total == initialTotal) {
@@ -1184,6 +1185,15 @@ private IBinaryMethod[] createMethods(IBinaryMethod[] iMethods, IBinaryType bina
 				if (hasRestrictedAccess)
 					method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 				methods1[i] = method;
+				if (checkFunctional && method.isAbstract() && !method.redeclaresPublicObjectMethod()) {
+					if (samCandidate == null) {
+						samCandidate = method;
+					} else if (!CharOperation.equals(samCandidate.selector, method.selector) ||
+								samCandidate.parameters.length != method.parameters.length) {
+						checkFunctional = false;
+						this.tagBits |= TagBits.KnownDysfunctionalInterface;
+					}
+				}
 			}
 			this.methods = methods1;
 			return iMethods;
@@ -1196,6 +1206,15 @@ private IBinaryMethod[] createMethods(IBinaryMethod[] iMethods, IBinaryType bina
 						method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 					mappedBinaryMethods[index] = iMethods[i];
 					methods1[index++] = method;
+					if (checkFunctional && method.isAbstract() && !method.redeclaresPublicObjectMethod()) {
+						if (samCandidate == null) {
+							samCandidate = method;
+						} else if (!CharOperation.equals(samCandidate.selector, method.selector) ||
+									samCandidate.parameters.length != method.parameters.length) {
+							checkFunctional = false;
+							this.tagBits |= TagBits.KnownDysfunctionalInterface;
+						}
+					}
 				}
 			}
 			this.methods = methods1;
