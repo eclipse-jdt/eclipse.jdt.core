@@ -1410,6 +1410,9 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			public boolean visit(
 		    		LocalDeclaration localDeclaration, BlockScope scope) {
 				if(localDeclaration instanceof SelectionOnLocalName) {
+					if (scope == null) {
+						return false;
+					}
 					localDeclaration.resolve(scope);
 				}
 				if (localDeclaration.type instanceof SingleTypeReference && ((SingleTypeReference)localDeclaration.type).token == assistIdentifier) {
