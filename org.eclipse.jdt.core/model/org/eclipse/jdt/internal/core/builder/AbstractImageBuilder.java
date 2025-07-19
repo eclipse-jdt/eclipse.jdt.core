@@ -455,15 +455,7 @@ protected void compile(SourceFile[] units, SourceFile[] additionalUnits, boolean
 					try {
 						this.compiler.lookupEnvironment.nameEnvironment = this.javaBuilder.getNameEnvironment(release);
 					} catch (CoreException e) {
-						List<IContainer> list = sourceFolderReleaseMapping.getValue().stream().map(sf -> sf.sourceLocation.sourceFolder)
-								.distinct().toList();
-						for (IContainer container : list) {
-							createProblemFor(container, null,
-									NLS.bind(Messages.AbstractImageBuilder_env_failed,
-											new Object[] { release, e.getStatus()}),
-									JavaCore.ERROR);
-						}
-						continue;
+						throw new ImageBuilderInternalException(e);
 					}
 					if (oldTarget >= currentTarget) {
 						List<IContainer> list = sourceFolderReleaseMapping.getValue().stream().map(sf -> sf.sourceLocation.sourceFolder)

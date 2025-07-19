@@ -91,11 +91,7 @@ public class SearchableEnvironment
 	private long timeSpentInFindTypes;
 
 	private List<IPackageFragmentRoot> unnamedModulePackageFragmentRoots;
-	/**
-	 * When this value is larger than {@link JavaProject#NO_RELEASE} the {@link SearchableEnvironment} is configured to
-	 * use a specific target release, that is it will answer only types that are smaller or equal to this release,
-	 * starting with the highest to the lowest.
-	 */
+
 	private int release;
 
 	@Deprecated
@@ -104,6 +100,7 @@ public class SearchableEnvironment
 	}
 	/**
 	 * Creates a SearchableEnvironment on the given project
+	 * @param release release to be passing to the {@link NameLookup} when searching for types
 	 */
 	public SearchableEnvironment(JavaProject project, org.eclipse.jdt.core.ICompilationUnit[] workingCopies, boolean excludeTestCode, int release) throws JavaModelException {
 		this.project = project;
