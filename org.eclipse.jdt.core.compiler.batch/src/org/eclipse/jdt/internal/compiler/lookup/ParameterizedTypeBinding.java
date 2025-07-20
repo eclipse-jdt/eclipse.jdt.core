@@ -53,6 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
@@ -1724,11 +1725,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 
 	@Override
-	protected MethodBinding[] getInterfaceAbstractContracts(Scope scope, boolean replaceWildcards, boolean filterDefaultMethods) throws InvalidBindingException {
+	protected Stream<MethodBinding> collateFunctionalInterfaceContracts(Scope scope, boolean replaceWildcards, Set<MethodBinding> contracts) throws DysfunctionalInterfaceException {
 		if (replaceWildcards) {
 			TypeBinding[] types = getNonWildcardParameters(scope);
 			if (types == null)
-				return new MethodBinding[] { new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.NotAWellFormedParameterizedType) };
+				throw DYSFUNCTIONAL_INTERFACE_EXCEPTION;
+
 			for (int i = 0; i < types.length; i++) {
 				if (TypeBinding.notEquals(types[i], this.arguments[i])) {
 					// non-wildcard parameterization differs from this, so use it:
@@ -1736,14 +1738,15 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 					TypeVariableBinding [] typeParameters = this.type.typeVariables();
 					for (int j = 0, length = typeParameters.length; j < length; j++) {
 						if (!typeParameters[j].boundCheck(declaringType, types[j], scope, null).isOKbyJLS())
-							return new MethodBinding[] { new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.NotAWellFormedParameterizedType) };
+							throw DYSFUNCTIONAL_INTERFACE_EXCEPTION;
 					}
-					return declaringType.getInterfaceAbstractContracts(scope, replaceWildcards, filterDefaultMethods);
+					return declaringType.collateFunctionalInterfaceContracts(scope, replaceWildcards, contracts);
 				}
 			}
 		}
-		return super.getInterfaceAbstractContracts(scope, replaceWildcards, filterDefaultMethods);
+		return super.collateFunctionalInterfaceContracts(scope, replaceWildcards, contracts);
 	}
+
 	@Override
 	public MethodBinding getSingleAbstractMethod(final Scope scope, boolean replaceWildcards) {
 		return getSingleAbstractMethod(scope, replaceWildcards, -1, -1 /* do not capture */);
