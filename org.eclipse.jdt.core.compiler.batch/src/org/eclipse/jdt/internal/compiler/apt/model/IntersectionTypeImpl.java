@@ -31,7 +31,7 @@ public class IntersectionTypeImpl extends TypeMirrorImpl implements Intersection
 
 	IntersectionTypeImpl(BaseProcessingEnvImpl env, TypeVariableBinding binding) {
 		super(env, binding);
-		this.bounds = Arrays.stream(binding.superInterfaces).map(referenceBinding -> this._env.getFactory().newTypeMirror(referenceBinding)).toList();
+		this.bounds = Arrays.stream(binding.superInterfaces).map(referenceBinding -> this._env.getFactory().newTypeMirror(referenceBinding)).collect(java.util.stream.Collectors.toUnmodifiableList());
 	}
 
 	/* (non-Javadoc)
