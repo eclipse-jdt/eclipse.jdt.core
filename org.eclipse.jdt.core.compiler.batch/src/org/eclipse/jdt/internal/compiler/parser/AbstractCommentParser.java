@@ -3270,7 +3270,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					return min;
 				char c = readChar();
 				switch (state) {
-					case START -> {
+					case START:
 						if (c != ' ') {
 							if (c == '\r' || c == '\n') {
 								// "blank" line, i.e., no text after "///"
@@ -3282,38 +3282,38 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								state = TEXT;
 							}
 						}
-					}
-					case TEXT -> {
+						break;
+					case TEXT:
 						if (c == '\r' || c == '\n') {
 							state = NEWLINE;
 							nlChar = c;
 							slashesSeen = 0;
 						}
-					}
-					case NEWLINE -> {
+						break;
+					case NEWLINE:
 						switch (c) {
-							case '\n' -> {
+							case '\n':
 								if (nlChar == '\r') {
 									// saw "\r\n" -> no change
 								} else {
 									return min; // blank line seen
 								}
-							}
-							case ' ', '\t' -> {
+								break;
+							case ' ':
+							case '\t':
 								nlChar = '\0';
-							}
-							case '/' -> {
+								break;
+							case '/':
 								if (++slashesSeen == 3) {
 									textLineStart = this.index;
 									state = START;
 									slashesSeen = 0;
 								}
-							}
-							default -> {
+								break;
+							default:
 								return min; // not a markdown line
-							}
 						}
-					}
+						break;
 				}
 			}
 		} finally {

@@ -9496,20 +9496,20 @@ protected void consumeSwitchRule(SwitchRuleKind kind) {
 protected void consumeCaseLabelElement(CaseLabelKind kind) {
 	Expression pattern = null;
 	switch (kind) {
-		case CASE_PATTERN -> {
-				this.astLengthPtr--;
-				pattern = (Pattern) this.astStack[this.astPtr--];
-				pushOnExpressionStack(pattern);
-		}
-		case CASE_EXPRESSION -> {
-				if (!((pattern = this.expressionStack[this.expressionPtr]) instanceof NullLiteral))
-					pattern = null;
-		}
-		case CASE_DEFAULT -> {
-				int end = this.intStack[this.intPtr--];
-				int start = this.intStack[this.intPtr--];
-				pushOnExpressionStack(pattern = new FakeDefaultLiteral(start, end));
-		}
+		case CASE_PATTERN:
+			this.astLengthPtr--;
+			pattern = (Pattern) this.astStack[this.astPtr--];
+			pushOnExpressionStack(pattern);
+			break;
+		case CASE_EXPRESSION:
+			if (!((pattern = this.expressionStack[this.expressionPtr]) instanceof NullLiteral))
+				pattern = null;
+			break;
+		case CASE_DEFAULT:
+			int end = this.intStack[this.intPtr--];
+			int start = this.intStack[this.intPtr--];
+			pushOnExpressionStack(pattern = new FakeDefaultLiteral(start, end));
+			break;
 	}
 	if (pattern != null)
 		problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_SWITCH, pattern.sourceStart, pattern.sourceEnd);

@@ -59,10 +59,19 @@ public class OperandStack {
 		   As noted in §2.3.4 and §2.11.1, the Java Virtual Machine internally converts values of
 		   types boolean, byte, short, and char to type int.)
 		*/
-		this.stack.push(switch(typeBinding.id) {
-			case TypeIds.T_boolean, TypeIds.T_byte, TypeIds.T_short, TypeIds.T_char -> TypeBinding.INT;
-			default -> typeBinding.erasure();
-		});
+		TypeBinding temp;
+		switch(typeBinding.id) {
+			case TypeIds.T_boolean:
+			case TypeIds.T_byte:
+			case TypeIds.T_short:
+			case TypeIds.T_char:
+				temp = TypeBinding.INT;
+				break;
+			default:
+				temp = typeBinding.erasure();
+				break;
+		}
+		this.stack.push(temp);
 	}
 
 	public void push(int localSlot) {
@@ -95,10 +104,19 @@ public class OperandStack {
 
 	public TypeBinding pop(OperandCategory category) {
 		TypeBinding t = pop();
-		if (TypeIds.getCategory(t.id) != switch (category) {
-						case ONE -> 1;
-						case TWO -> 2;
-					}) {
+		int expectedCategory;
+		switch (category) {
+			case ONE:
+				expectedCategory = 1;
+				break;
+			case TWO:
+				expectedCategory = 2;
+				break;
+			default:
+				throw new AssertionError("Unexpected category"); //$NON-NLS-1$
+		}
+
+		if (TypeIds.getCategory(t.id) != expectedCategory) {
 			throw new AssertionError("Unexpected operand at stack top"); //$NON-NLS-1$
 		}
 		return t;
@@ -159,10 +177,18 @@ public class OperandStack {
 		TypeBinding valueType = pop();
 		pop(TypeBinding.INT);
 		TypeBinding elementType = ((ArrayBinding) pop()).elementsType();
-		boolean wellFormed = switch (elementType.id) {
-			case TypeIds.T_boolean, TypeIds.T_byte, TypeIds.T_short, TypeIds.T_char -> TypeBinding.equalsEquals(valueType, TypeBinding.INT);
-			default -> valueType.isCompatibleWith(elementType);
-		};
+		boolean wellFormed;
+		switch (elementType.id) {
+			case TypeIds.T_boolean:
+			case TypeIds.T_byte:
+			case TypeIds.T_short:
+			case TypeIds.T_char:
+				wellFormed = TypeBinding.equalsEquals(valueType, TypeBinding.INT);
+				break;
+			default:
+				wellFormed = valueType.isCompatibleWith(elementType);
+				break;
+		}
 		if (!wellFormed)
 			throw new AssertionError("array store with invalid types"); //$NON-NLS-1$
 	}

@@ -3980,22 +3980,32 @@ public class ClassFile implements TypeConstants, TypeIds {
 				this.contents[localContentsOffset++] = (byte) intValIdx;
 			} else {
 				if (c.e instanceof NullLiteral) continue;
-				int valIdx = switch (c.t.id) {
-					case TypeIds.T_boolean -> // Dynamic for Boolean.getStaticFinal(TRUE|FALSE) :
-						this.constantPool.literalIndexForDynamic(c.primitivesBootstrapIdx,
+				int valIdx;
+				switch (c.t.id) {
+					case TypeIds.T_boolean:
+						// Dynamic for Boolean.getStaticFinal(TRUE|FALSE) :
+						valIdx = this.constantPool.literalIndexForDynamic(c.primitivesBootstrapIdx,
 								c.c.booleanValue() ? BooleanConstant.TRUE_STRING : BooleanConstant.FALSE_STRING,
 								ConstantPool.JavaLangBooleanSignature);
-					case TypeIds.T_byte, TypeIds.T_char, TypeIds.T_short, TypeIds.T_int ->
-						this.constantPool.literalIndex(c.intValue());
-					case TypeIds.T_long ->
-						this.constantPool.literalIndex(c.c.longValue());
-					case TypeIds.T_float ->
-						this.constantPool.literalIndex(c.c.floatValue());
-					case TypeIds.T_double ->
-						this.constantPool.literalIndex(c.c.doubleValue());
-					default ->
+						break;
+					case TypeIds.T_byte:
+					case TypeIds.T_char:
+					case TypeIds.T_short:
+					case TypeIds.T_int:
+						valIdx = this.constantPool.literalIndex(c.intValue());
+						break;
+					case TypeIds.T_long:
+						valIdx = this.constantPool.literalIndex(c.c.longValue());
+						break;
+					case TypeIds.T_float:
+						valIdx = this.constantPool.literalIndex(c.c.floatValue());
+						break;
+					case TypeIds.T_double:
+						valIdx = this.constantPool.literalIndex(c.c.doubleValue());
+						break;
+					default:
 						throw new IllegalArgumentException("Switch has unexpected type: "+switchStatement); //$NON-NLS-1$
-				};
+				}
 				this.contents[localContentsOffset++] = (byte) (valIdx >> 8);
 				this.contents[localContentsOffset++] = (byte) valIdx;
 			}

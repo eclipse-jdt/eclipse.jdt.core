@@ -3696,18 +3696,38 @@ protected int getPosition() {
 
 public void getClass(TypeBinding baseType) {
 	this.countLabels = 0;
-	char [] constantPoolName = switch (baseType.id) {
-					case TypeIds.T_byte -> ConstantPool.JavaLangByteConstantPoolName;
-					case TypeIds.T_short -> ConstantPool.JavaLangShortConstantPoolName;
-					case TypeIds.T_char -> ConstantPool.JavaLangCharacterConstantPoolName;
-					case TypeIds.T_int -> ConstantPool.JavaLangIntegerConstantPoolName;
-					case TypeIds.T_long -> ConstantPool.JavaLangLongConstantPoolName;
-					case TypeIds.T_float -> ConstantPool.JavaLangFloatConstantPoolName;
-					case TypeIds.T_double -> ConstantPool.JavaLangDoubleConstantPoolName;
-					case TypeIds.T_boolean -> ConstantPool.JavaLangBooleanConstantPoolName;
-					case TypeIds.T_void -> ConstantPool.JavaLangVoidConstantPoolName;
-					default-> throw new AssertionError("Unknown base type"); //$NON-NLS-1$
-				};
+	char[] constantPoolName;
+	switch (baseType.id) {
+		case TypeIds.T_byte:
+			constantPoolName = ConstantPool.JavaLangByteConstantPoolName;
+			break;
+		case TypeIds.T_short:
+			constantPoolName = ConstantPool.JavaLangShortConstantPoolName;
+			break;
+		case TypeIds.T_char:
+			constantPoolName = ConstantPool.JavaLangCharacterConstantPoolName;
+			break;
+		case TypeIds.T_int:
+			constantPoolName = ConstantPool.JavaLangIntegerConstantPoolName;
+			break;
+		case TypeIds.T_long:
+			constantPoolName = ConstantPool.JavaLangLongConstantPoolName;
+			break;
+		case TypeIds.T_float:
+			constantPoolName = ConstantPool.JavaLangFloatConstantPoolName;
+			break;
+		case TypeIds.T_double:
+			constantPoolName = ConstantPool.JavaLangDoubleConstantPoolName;
+			break;
+		case TypeIds.T_boolean:
+			constantPoolName = ConstantPool.JavaLangBooleanConstantPoolName;
+			break;
+		case TypeIds.T_void:
+			constantPoolName = ConstantPool.JavaLangVoidConstantPoolName;
+			break;
+		default:
+			throw new AssertionError("Unknown base type"); //$NON-NLS-1$
+	}
 	fieldAccess(
 			Opcodes.OPC_getstatic,
 			1, // return type size
@@ -6607,17 +6627,36 @@ public void newarray(int arrayTypeCode) {
 
 	ClassScope scope = this.classFile.referenceBinding.scope;
 	this.operandStack.pop(TypeBinding.INT);
-	this.operandStack.push(switch (arrayTypeCode) {
-				case ClassFileConstants.INT_ARRAY -> scope.createArrayType(TypeBinding.INT, 1);
-				case ClassFileConstants.BYTE_ARRAY -> scope.createArrayType(TypeBinding.BYTE, 1);
-				case ClassFileConstants.BOOLEAN_ARRAY -> scope.createArrayType(TypeBinding.BOOLEAN, 1);
-				case ClassFileConstants.SHORT_ARRAY -> scope.createArrayType(TypeBinding.SHORT, 1);
-				case ClassFileConstants.CHAR_ARRAY -> scope.createArrayType(TypeBinding.CHAR, 1);
-				case ClassFileConstants.LONG_ARRAY -> scope.createArrayType(TypeBinding.LONG, 1);
-				case ClassFileConstants.FLOAT_ARRAY -> scope.createArrayType(TypeBinding.FLOAT, 1);
-				case ClassFileConstants.DOUBLE_ARRAY -> scope.createArrayType(TypeBinding.DOUBLE, 1);
-				default -> throw new UnsupportedOperationException("Unknown base type");	//$NON-NLS-1$
-			});
+	TypeBinding arrayType;
+	switch (arrayTypeCode) {
+		case ClassFileConstants.INT_ARRAY:
+			arrayType = scope.createArrayType(TypeBinding.INT, 1);
+			break;
+		case ClassFileConstants.BYTE_ARRAY:
+			arrayType = scope.createArrayType(TypeBinding.BYTE, 1);
+			break;
+		case ClassFileConstants.BOOLEAN_ARRAY:
+			arrayType = scope.createArrayType(TypeBinding.BOOLEAN, 1);
+			break;
+		case ClassFileConstants.SHORT_ARRAY:
+			arrayType = scope.createArrayType(TypeBinding.SHORT, 1);
+			break;
+		case ClassFileConstants.CHAR_ARRAY:
+			arrayType = scope.createArrayType(TypeBinding.CHAR, 1);
+			break;
+		case ClassFileConstants.LONG_ARRAY:
+			arrayType = scope.createArrayType(TypeBinding.LONG, 1);
+			break;
+		case ClassFileConstants.FLOAT_ARRAY:
+			arrayType = scope.createArrayType(TypeBinding.FLOAT, 1);
+			break;
+		case ClassFileConstants.DOUBLE_ARRAY:
+			arrayType = scope.createArrayType(TypeBinding.DOUBLE, 1);
+			break;
+		default:
+			throw new UnsupportedOperationException("Unknown base type"); //$NON-NLS-1$
+	}
+	this.operandStack.push(arrayType);
 }
 
 public void newArray(ArrayBinding arrayBinding) {

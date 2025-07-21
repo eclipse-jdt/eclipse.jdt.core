@@ -574,9 +574,14 @@ public class ClassScope extends Scope {
 		boolean isSealedSupported = JavaFeature.SEALED_CLASSES.isSupported(options);
 		boolean hierarchySealed = (modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed)) != 0;
 
-		switch (modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed | ClassFileConstants.AccFinal)) {
-			case ExtraCompilerModifiers.AccSealed, ExtraCompilerModifiers.AccNonSealed, ClassFileConstants.AccFinal, ClassFileConstants.AccDefault : break;
-			default :
+		int combinedModifiers = modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed | ClassFileConstants.AccFinal);
+		switch (combinedModifiers) {
+			case ExtraCompilerModifiers.AccSealed:
+			case ExtraCompilerModifiers.AccNonSealed:
+			case ClassFileConstants.AccFinal:
+			case ClassFileConstants.AccDefault:
+				break;
+			default:
 				problemReporter().illegalModifierCombinationForType(sourceType);
 				break;
 		}

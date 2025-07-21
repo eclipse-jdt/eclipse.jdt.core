@@ -176,11 +176,14 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 		}
 
 		boolean isRequired(boolean buildFieldsAndMethods, boolean resolveAnnotations) {
-			return switch (this) {
-				case BUILD_FIELDS_AND_METHODS -> buildFieldsAndMethods;
-				case INTEGRATE_ANNOTATIONS_IN_HIERARCHY -> resolveAnnotations;
-				default -> true;
-			};
+			switch (this) {
+				case BUILD_FIELDS_AND_METHODS:
+					return buildFieldsAndMethods;
+				case INTEGRATE_ANNOTATIONS_IN_HIERARCHY:
+					return resolveAnnotations;
+				default:
+					return true;
+			}
 		}
 
 		/** values without NONE */
@@ -188,13 +191,26 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 
 		void perform(CompilationUnitScope scope) {
 			switch (this) {
-				case CHECK_AND_SET_IMPORTS -> scope.checkAndSetImports();
-				case CONNECT_TYPE_HIERARCHY -> scope.connectTypeHierarchy();
-				case SEAL_TYPE_HIERARCHY -> scope.sealTypeHierarchy();
-				case BUILD_FIELDS_AND_METHODS -> scope.buildFieldsAndMethods();
-				case INTEGRATE_ANNOTATIONS_IN_HIERARCHY -> scope.integrateAnnotationsInHierarchy();
-				case CHECK_PARAMETERIZED_TYPES -> scope.checkParameterizedTypes();
-				default -> throw new IllegalArgumentException("No implementation for: " + this); //$NON-NLS-1$
+				case CHECK_AND_SET_IMPORTS:
+					scope.checkAndSetImports();
+					break;
+				case CONNECT_TYPE_HIERARCHY:
+					scope.connectTypeHierarchy();
+					break;
+				case SEAL_TYPE_HIERARCHY:
+					scope.sealTypeHierarchy();
+					break;
+				case BUILD_FIELDS_AND_METHODS:
+					scope.buildFieldsAndMethods();
+					break;
+				case INTEGRATE_ANNOTATIONS_IN_HIERARCHY:
+					scope.integrateAnnotationsInHierarchy();
+					break;
+				case CHECK_PARAMETERIZED_TYPES:
+					scope.checkParameterizedTypes();
+					break;
+				default:
+					throw new IllegalArgumentException("No implementation for: " + this); //$NON-NLS-1$
 			}
 		}
 	}

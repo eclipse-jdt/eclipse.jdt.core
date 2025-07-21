@@ -180,21 +180,22 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 		if (TypeBinding.equalsEquals(t, this.resolvedType))
 			return true;
 		PrimitiveConversionRoute route = findPrimitiveConversionRoute(this.resolvedType, t, scope);
-		return switch(route) {
-			case IDENTITY_CONVERSION,
-				BOXING_CONVERSION,
-				BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION
-				-> true;
-			case WIDENING_PRIMITIVE_CONVERSION -> BaseTypeBinding.isExactWidening(this.resolvedType.id, t.id);
-			case NO_CONVERSION_ROUTE -> { // a widening reference conversion?
+		switch(route) {
+			case IDENTITY_CONVERSION:
+			case BOXING_CONVERSION:
+			case BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION:
+				return true;
+			case WIDENING_PRIMITIVE_CONVERSION:
+				return BaseTypeBinding.isExactWidening(this.resolvedType.id, t.id);
+			case NO_CONVERSION_ROUTE: // a widening reference conversion?
 				if (!this.resolvedType.isPrimitiveOrBoxedPrimitiveType() || !t.isPrimitiveOrBoxedPrimitiveType()) {
-					yield t.isCompatibleWith(this.resolvedType);
+					return t.isCompatibleWith(this.resolvedType);
 				} else {
-					yield false;
+					return false;
 				}
-			}
-			default -> false;
-		};
+			default:
+				return false;
+		}
 	}
 
 	@Override

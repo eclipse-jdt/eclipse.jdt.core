@@ -1041,21 +1041,30 @@ public class SwitchStatement extends Expression {
 				TypeBinding.INT);
 	}
 	char[] typeSwitchSignature(TypeBinding exprType) {
-		char[] arg1 = switch (exprType.id) {
-			case TypeIds.T_JavaLangLong, TypeIds.T_JavaLangFloat, TypeIds.T_JavaLangDouble, TypeIds.T_JavaLangBoolean,
-				TypeIds.T_JavaLangByte, TypeIds.T_JavaLangShort, TypeIds.T_JavaLangInteger, TypeIds.T_JavaLangCharacter->
-				this.isPrimitiveSwitch
-				? exprType.signature()
-				: "Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
-			default -> {
-				if (exprType.id > TypeIds.T_LastWellKnownTypeId && exprType.erasure().isBoxedPrimitiveType())
-					yield exprType.erasure().signature(); // <T extends Integer> / <? extends Short> ...
-				else
-					yield exprType.isPrimitiveType()
+		char[] arg1;
+		switch (exprType.id) {
+			case TypeIds.T_JavaLangLong:
+			case TypeIds.T_JavaLangFloat:
+			case TypeIds.T_JavaLangDouble:
+			case TypeIds.T_JavaLangBoolean:
+			case TypeIds.T_JavaLangByte:
+			case TypeIds.T_JavaLangShort:
+			case TypeIds.T_JavaLangInteger:
+			case TypeIds.T_JavaLangCharacter:
+				arg1 = this.isPrimitiveSwitch
 						? exprType.signature()
 						: "Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
-			}
-		};
+				break;
+			default:
+				if (exprType.id > TypeIds.T_LastWellKnownTypeId && exprType.erasure().isBoxedPrimitiveType()) {
+					arg1 = exprType.erasure().signature(); // <T extends Integer> / <? extends Short> ...
+				} else {
+					arg1 = exprType.isPrimitiveType()
+							? exprType.signature()
+							: "Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
+				}
+				break;
+		}
 		return CharOperation.concat("(".toCharArray(), arg1, "I)I".toCharArray()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	private void generateEnumSwitchPatternPrologue(CodeStream codeStream, int invokeDynamicNumber) {
@@ -1512,11 +1521,17 @@ public class SwitchStatement extends Expression {
 		if (eType == null)
 			return false;
 		switch (eType.id) {
-			case TypeIds.T_JavaLangLong, TypeIds.T_JavaLangFloat, TypeIds.T_JavaLangDouble:
+			case TypeIds.T_JavaLangLong:
+			case TypeIds.T_JavaLangFloat:
+			case TypeIds.T_JavaLangDouble:
 				return true;
-			case TypeIds.T_long, TypeIds.T_double, TypeIds.T_float :
-				if (this.isPrimitiveSwitch)
+			case TypeIds.T_long:
+			case TypeIds.T_double:
+			case TypeIds.T_float:
+				if (this.isPrimitiveSwitch) {
 					return true;
+				}
+				break;
 			// note: if no patterns are present we optimize Boolean to use unboxing rather than indy typeSwitch
 		}
 		return !(eType.isPrimitiveOrBoxedPrimitiveType() || eType.isEnum() || eType.id == TypeIds.T_JavaLangString); // classic selectors

@@ -256,13 +256,16 @@ public ResolvedCase[] resolveCase(BlockScope scope, TypeBinding switchExpression
 					expectedCaseType = scope.environment().computeBoxingType(switchExpressionType); // in this case it's actually 'computeUnboxingType()'
 				}
 				switch (expectedCaseType.id) {
-					case TypeIds.T_long, TypeIds.T_float, TypeIds.T_double, TypeIds.T_boolean -> {
+					case TypeIds.T_long:
+					case TypeIds.T_float:
+					case TypeIds.T_double:
+					case TypeIds.T_boolean:
 						if (caseType.id != expectedCaseType.id) {
 							scope.problemReporter().caseExpressionWrongType(e, switchExpressionType, expectedCaseType);
 							continue;
 						}
 						switchExpressionType = expectedCaseType;
-					}
+						break;
 				}
 				//
 				Constant con = resolveConstantExpression(scope, caseType, switchExpressionType, switchStatement, e, cases);

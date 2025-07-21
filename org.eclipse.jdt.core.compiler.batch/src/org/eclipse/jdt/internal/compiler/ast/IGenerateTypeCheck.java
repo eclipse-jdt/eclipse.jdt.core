@@ -27,46 +27,44 @@ interface IGenerateTypeCheck {
 
 	default void generateTypeCheck(TypeBinding providedType, TypeReference expectedTypeRef, BlockScope scope, CodeStream codeStream, BranchLabel falseLabel, PrimitiveConversionRoute route) {
 		switch (route) {
-			case IDENTITY_CONVERSION -> {
+			case IDENTITY_CONVERSION:
 				consumeProvidedValue(providedType, codeStream);
 				codeStream.iconst_1();
 				setPatternIsTotalType();
-			}
-			case WIDENING_PRIMITIVE_CONVERSION,
-			NARROWING_PRIMITVE_CONVERSION,
-			WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION -> {
+				break;
+			case WIDENING_PRIMITIVE_CONVERSION:
+			case NARROWING_PRIMITVE_CONVERSION:
+			case WIDENING_AND_NARROWING_PRIMITIVE_CONVERSION:
 				generateExactConversions(providedType, expectedTypeRef.resolvedType, scope, codeStream);
 				setPatternIsTotalType();
-			}
-			case BOXING_CONVERSION,
-			BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION -> {
+				break;
+			case BOXING_CONVERSION:
+			case BOXING_CONVERSION_AND_WIDENING_REFERENCE_CONVERSION:
 				consumeProvidedValue(providedType, codeStream);
 				codeStream.iconst_1();
 				setPatternIsTotalType();
-			}
-			case WIDENING_REFERENCE_AND_UNBOXING_COVERSION,
-			WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION -> {
+				break;
+			case WIDENING_REFERENCE_AND_UNBOXING_COVERSION:
+			case WIDENING_REFERENCE_AND_UNBOXING_COVERSION_AND_WIDENING_PRIMITIVE_CONVERSION:
 				codeStream.ifnull(falseLabel);
 				codeStream.iconst_1();
 				setPatternIsTotalType();
-			}
-			case NARROWING_AND_UNBOXING_CONVERSION -> {
+				break;
+			case NARROWING_AND_UNBOXING_CONVERSION:
 				TypeBinding boxType = scope.environment().computeBoxingType(expectedTypeRef.resolvedType);
 				codeStream.instance_of(expectedTypeRef, boxType);
-			}
-			case UNBOXING_CONVERSION,
-			UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION -> {
+				break;
+			case UNBOXING_CONVERSION:
+			case UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION:
 				codeStream.ifnull(falseLabel);
 				codeStream.iconst_1();
 				setPatternIsTotalType();
-			}
-			case NO_CONVERSION_ROUTE -> {
+				break;
+			case NO_CONVERSION_ROUTE:
 				codeStream.instance_of(expectedTypeRef, expectedTypeRef.resolvedType);
 				break;
-			}
-			default -> {
+			default:
 				throw new IllegalArgumentException("Unexpected conversion route "+route); //$NON-NLS-1$
-			}
 		}
 	}
 

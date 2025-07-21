@@ -246,17 +246,36 @@ public abstract class Pattern extends Expression {
 	public static boolean isBoxing(TypeBinding provided, TypeBinding expected) {
 
 		if (expected.isBaseType() && !provided.isBaseType()) {
-			int expectedId = switch(expected.id) {
-				case T_char     -> T_JavaLangCharacter;
-				case T_byte     -> T_JavaLangByte;
-				case T_short    -> T_JavaLangShort;
-				case T_boolean  -> T_JavaLangBoolean;
-				case T_long     -> T_JavaLangLong;
-				case T_double   -> T_JavaLangDouble;
-				case T_float    -> T_JavaLangFloat;
-				case T_int      -> T_JavaLangInteger;
-				default -> -1;
-			};
+			int expectedId;
+			switch(expected.id) {
+				case T_char:
+					expectedId = T_JavaLangCharacter;
+					break;
+				case T_byte:
+					expectedId = T_JavaLangByte;
+					break;
+				case T_short:
+					expectedId = T_JavaLangShort;
+					break;
+				case T_boolean:
+					expectedId = T_JavaLangBoolean;
+					break;
+				case T_long:
+					expectedId = T_JavaLangLong;
+					break;
+				case T_double:
+					expectedId = T_JavaLangDouble;
+					break;
+				case T_float:
+					expectedId = T_JavaLangFloat;
+					break;
+				case T_int:
+					expectedId = T_JavaLangInteger;
+					break;
+				default:
+					expectedId = -1;
+					break;
+			}
 			return provided.id == expectedId;
 		}
 		return false;

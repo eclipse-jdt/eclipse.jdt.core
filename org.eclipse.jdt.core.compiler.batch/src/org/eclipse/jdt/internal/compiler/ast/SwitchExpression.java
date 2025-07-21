@@ -81,22 +81,36 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 
 			if (this.allNumeric) {
 				for (TypeBinding type : TypeBinding.NUMERIC_TYPES) {
-					TypeBinding result = switch (type.id) {
-						case T_double, T_float, T_long, T_int -> this.rTypes.contains(type) ? type : null;
-						case T_short, T_byte, T_char -> {
+					TypeBinding result;
+					switch (type.id) {
+						case T_double:
+						case T_float:
+						case T_long:
+						case T_int:
+							result = this.rTypes.contains(type) ? type : null;
+							break;
+						case T_short:
+						case T_byte:
+						case T_char:
 							if (this.rTypes.contains(type)) {
-								if (type.id != T_char && this.rTypes.contains(TypeBinding.CHAR))
-									yield TypeBinding.INT;
-								for (Expression rExpression : this.rExpressions) {
-									if (rExpression.resolvedType.id == T_int && rExpression.constant != Constant.NotAConstant && !rExpression.isConstantValueOfTypeAssignableToType(rExpression.resolvedType, type))
-										yield TypeBinding.INT;
+								if (type.id != T_char && this.rTypes.contains(TypeBinding.CHAR)) {
+									result = TypeBinding.INT;
+								} else {
+									for (Expression rExpression : this.rExpressions) {
+										if (rExpression.resolvedType.id == T_int && rExpression.constant != Constant.NotAConstant && !rExpression.isConstantValueOfTypeAssignableToType(rExpression.resolvedType, type)) {
+											result = TypeBinding.INT;
+											break;
+										}
+									}
+									result = type;
 								}
-								yield type;
+							} else {
+								result = null;
 							}
-							yield null;
-						}
-						default -> throw new IllegalStateException("Unexpected control flow!"); //$NON-NLS-1$;
-					};
+							break;
+						default:
+							throw new IllegalStateException("Unexpected control flow!"); //$NON-NLS-1$;
+					}
 					if (result != null)
 						return resolveAsType(result);
 				}
@@ -270,10 +284,15 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		while (operandStackSize > 0) {
 			TypeBinding type = codeStream.operandStack.peek();
 			LocalVariableBinding lvb = createStackSpillSlot(codeStream, type, TypeIds.T_undefined, index++, nextResolvedPosition);
-			nextResolvedPosition += switch (lvb.type.id) {
-				case TypeIds.T_long, TypeIds.T_double -> 2;
-				default -> 1;
-			};
+			switch (lvb.type.id) {
+				case TypeIds.T_long:
+				case TypeIds.T_double:
+					nextResolvedPosition += 2;
+					break;
+				default:
+					nextResolvedPosition += 1;
+					break;
+			}
 			this.typesOnStack.add(lvb);
 			codeStream.store(lvb, false);
 			codeStream.addVariable(lvb);
@@ -318,9 +337,14 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		if (this.jvmStackVolatile)
 			releaseStackSpillSlots(codeStream);
 		if (!valueRequired) { // switch expression result discarded (saved to a variable that is not used.)
-			switch(postConversionType(currentScope).id) {
-				case TypeIds.T_long, TypeIds.T_double -> codeStream.pop2();
-				default -> codeStream.pop();
+			switch (postConversionType(currentScope).id) {
+				case TypeIds.T_long:
+				case TypeIds.T_double:
+					codeStream.pop2();
+					break;
+				default:
+					codeStream.pop();
+					break;
 			}
 		} else if (!this.isPolyExpression())
 			codeStream.generateImplicitConversion(this.implicitConversion);
