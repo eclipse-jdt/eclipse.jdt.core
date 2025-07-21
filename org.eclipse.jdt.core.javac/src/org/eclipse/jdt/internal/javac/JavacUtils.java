@@ -40,10 +40,10 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaProject;
 
 import com.sun.tools.javac.comp.CompileStates.CompileState;
@@ -302,7 +302,9 @@ public class JavacUtils {
 				classpathEnabled = true;
 			}
 			if (!classpathEnabled) {
-				Set<JavaProject> moduleProjects = Stream.of(javaProject.getExpandedClasspath())
+//				Set<JavaProject> moduleProjects = Set.of();
+				IClasspathEntry[] expandedClasspath = javaProject.getExpandedClasspath();
+				Set<JavaProject> moduleProjects = Stream.of(expandedClasspath)
 						.filter(classpath -> classpath.getEntryKind() == IClasspathEntry.CPE_PROJECT)
 						.map(classpath -> javaProject.getJavaModel().getJavaProject(classpath.getPath().lastSegment()))
 						.filter(Objects::nonNull)
@@ -315,10 +317,11 @@ public class JavacUtils {
 						})
 						.collect(Collectors.toSet());
 
-				Collection<File> classpathFiles = classpathEntriesToFiles(javaProject, false, entry -> isTest || !entry.isTest());
-				Collection<File> filteredFiles = classpathFiles.stream().filter(x -> x.length() != 0).toList();
-				fileManager.setLocation(StandardLocation.CLASS_PATH, filteredFiles);
+				Collection<File> modulePathFiles = classpathEntriesToFiles(javaProject, false, entry -> (isTest || !entry.isTest()) && ClasspathEntry.isModular(entry));
+				fileManager.setLocation(StandardLocation.MODULE_PATH, modulePathFiles);
+				Collection<File> classpathFiles = classpathEntriesToFiles(javaProject, false, entry -> (isTest || !entry.isTest()) && !ClasspathEntry.isModular(entry));
 				classpathFiles.addAll(outDirectories(javaProject, entry -> isTest || !entry.isTest()));
+				fileManager.setLocation(StandardLocation.CLASS_PATH, classpathFiles);
 
 				if (!moduleProjects.isEmpty()) {
 					fileManager.setLocation(StandardLocation.MODULE_PATH, moduleProjects.stream()
@@ -387,13 +390,13 @@ public class JavacUtils {
 					if (referencedResource instanceof IProject referencedProject) {
 						JavaProject referencedJavaProject = (JavaProject) JavaCore.create(referencedProject);
 						if (referencedJavaProject.exists()) {
-							IModuleDescription moduleDescription = null;
-							try {
-								moduleDescription = referencedJavaProject.getModuleDescription();
-							} catch (JavaModelException e) {
-								// do nothing
-							}
-							if (moduleDescription == null) {
+//							IModuleDescription moduleDescription = null;
+//							try {
+//								moduleDescription = referencedJavaProject.getModuleDescription();
+//							} catch (JavaModelException e) {
+//								// do nothing
+//							}
+//							if (moduleDescription == null) {
 								IPath path = referencedJavaProject.getOutputLocation();
 								if (!source) {
 									addPath(referencedJavaProject, path, res);
@@ -420,7 +423,7 @@ public class JavacUtils {
 										seen.add(transitiveEntry);
 									}
 								}
-							}
+//							}
 						}
 					}
 				} else if (select.test(current) &&
@@ -438,6 +441,9 @@ public class JavacUtils {
 	}
 
 	private static void addPath(JavaProject project, IPath path, LinkedHashSet<File> res) {
+		if (path.isEmpty()) {
+			return;
+		}
 		File asFile = path.toFile();
 		if (asFile.exists()) {
 			res.add(asFile);
