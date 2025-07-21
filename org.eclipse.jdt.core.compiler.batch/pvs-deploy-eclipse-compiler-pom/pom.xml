@@ -3,6 +3,6 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.eclipse.jdt</groupId>
-  <artifactId>org.eclipse.jdt.core.compiler.batch</artifactId>
+  <artifactId>ecj</artifactId>
   <version>3.37.0-PVS-STUDIO</version>
 </project>
