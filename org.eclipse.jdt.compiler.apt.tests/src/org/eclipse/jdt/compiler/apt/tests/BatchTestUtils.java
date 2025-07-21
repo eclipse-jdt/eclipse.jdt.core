@@ -38,7 +38,6 @@ import java.util.Locale;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;
@@ -46,7 +45,6 @@ import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
-
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 
@@ -330,7 +328,7 @@ public class BatchTestUtils {
 	 * @param compiler the system compiler or Eclipse compiler
 	 * @param options will be passed to the compiler
 	 * @param targetFolder the folder to compile
-	 * @param errors a StringWriter into which compiler output will be written
+	 * @param diagnosticListener a DiagnosticListener into which compiler output will be written
 	 * @return true if the compilation was successful
 	 */
 	public static boolean compileTreeWithErrors(
@@ -391,8 +389,8 @@ public class BatchTestUtils {
 	/**
 	 * Recursively collect all the files under some root.  Ignore directories named "CVS".
 	 * Used when compiling multiple source files.
-	 * @param files a List<File> to which all the files found will be added
-	 * @return the set of Files under a root folder.
+	 * @param rootFolder a {@code List<File>} to which all the files found will be added
+	 * @param files the set of Files under a root folder to return.
 	 */
 	public static void findFilesUnder(File rootFolder, List<File> files) {
 		for (File child : rootFolder.listFiles()) {
@@ -585,7 +583,7 @@ public class BatchTestUtils {
 	 *
 	 * @param src
 	 *            the full path to the resource location.
-	 * @param destFolder
+	 * @param dest
 	 *            the full path to the destination location.
 	 */
 	public static void copyResource(File src, File dest) throws IOException {
@@ -653,7 +651,7 @@ public class BatchTestUtils {
 	 * named "CVS" will be ignored.
 	 * @param resourceFolderName the name of the source folder, relative to
 	 * <code>[plugin-root]/resources</code>
-	 * @param the absolute path of the destination folder
+	 * @param destFolder the absolute path of the destination folder
 	 */
 	public static void copyResources(String resourceFolderName, File destFolder) throws IOException {
 		File resDir = new File(getPluginDirectoryPath(), RESOURCES_DIR);

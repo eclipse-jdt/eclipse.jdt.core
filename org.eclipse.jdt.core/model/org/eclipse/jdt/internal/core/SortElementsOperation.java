@@ -18,9 +18,7 @@ package org.eclipse.jdt.internal.core;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
-
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -28,16 +26,7 @@ import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
-import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
-import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
-import org.eclipse.jdt.core.dom.BodyDeclaration;
-import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
-import org.eclipse.jdt.core.dom.EnumDeclaration;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.util.CompilationUnitSorter;
@@ -192,8 +181,8 @@ public class SortElementsOperation extends JavaModelOperation {
 			public boolean visit(org.eclipse.jdt.core.dom.CompilationUnit compilationUnit) {
 				List types = compilationUnit.types();
 				boolean contains_malformed_nodes = false;
-				for (Iterator iter = types.iterator(); iter.hasNext();) {
-					AbstractTypeDeclaration typeDeclaration = (AbstractTypeDeclaration) iter.next();
+				for (Object type : types) {
+					AbstractTypeDeclaration typeDeclaration = (AbstractTypeDeclaration) type;
 					typeDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, Integer.valueOf(typeDeclaration.getStartPosition()));
 					contains_malformed_nodes |= isMalformed(typeDeclaration);
 				}
@@ -204,8 +193,8 @@ public class SortElementsOperation extends JavaModelOperation {
 			public boolean visit(AnnotationTypeDeclaration annotationTypeDeclaration) {
 				List bodyDeclarations = annotationTypeDeclaration.bodyDeclarations();
 				boolean contains_malformed_nodes = false;
-				for (Iterator iter = bodyDeclarations.iterator(); iter.hasNext();) {
-					BodyDeclaration bodyDeclaration = (BodyDeclaration) iter.next();
+				for (Object decl : bodyDeclarations) {
+					BodyDeclaration bodyDeclaration = (BodyDeclaration) decl;
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, Integer.valueOf(bodyDeclaration.getStartPosition()));
 					contains_malformed_nodes |= isMalformed(bodyDeclaration);
 				}
@@ -217,8 +206,8 @@ public class SortElementsOperation extends JavaModelOperation {
 			public boolean visit(AnonymousClassDeclaration anonymousClassDeclaration) {
 				List bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
 				boolean contains_malformed_nodes = false;
-				for (Iterator iter = bodyDeclarations.iterator(); iter.hasNext();) {
-					BodyDeclaration bodyDeclaration = (BodyDeclaration) iter.next();
+				for (Object decl : bodyDeclarations) {
+					BodyDeclaration bodyDeclaration = (BodyDeclaration) decl;
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, Integer.valueOf(bodyDeclaration.getStartPosition()));
 					contains_malformed_nodes |= isMalformed(bodyDeclaration);
 				}
@@ -230,8 +219,8 @@ public class SortElementsOperation extends JavaModelOperation {
 			public boolean visit(TypeDeclaration typeDeclaration) {
 				List bodyDeclarations = typeDeclaration.bodyDeclarations();
 				boolean contains_malformed_nodes = false;
-				for (Iterator iter = bodyDeclarations.iterator(); iter.hasNext();) {
-					BodyDeclaration bodyDeclaration = (BodyDeclaration) iter.next();
+				for (Object decl : bodyDeclarations) {
+					BodyDeclaration bodyDeclaration = (BodyDeclaration) decl;
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, Integer.valueOf(bodyDeclaration.getStartPosition()));
 					contains_malformed_nodes |= isMalformed(bodyDeclaration);
 				}
@@ -243,14 +232,14 @@ public class SortElementsOperation extends JavaModelOperation {
 			public boolean visit(EnumDeclaration enumDeclaration) {
 				List bodyDeclarations = enumDeclaration.bodyDeclarations();
 				boolean contains_malformed_nodes = false;
-				for (Iterator iter = bodyDeclarations.iterator(); iter.hasNext();) {
-					BodyDeclaration bodyDeclaration = (BodyDeclaration) iter.next();
+				for (Object decl : bodyDeclarations) {
+					BodyDeclaration bodyDeclaration = (BodyDeclaration) decl;
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, Integer.valueOf(bodyDeclaration.getStartPosition()));
 					contains_malformed_nodes |= isMalformed(bodyDeclaration);
 				}
 				List enumConstants = enumDeclaration.enumConstants();
-				for (Iterator iter = enumConstants.iterator(); iter.hasNext();) {
-					EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) iter.next();
+				for (Object enumConstant : enumConstants) {
+					EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) enumConstant;
 					enumConstantDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, Integer.valueOf(enumConstantDeclaration.getStartPosition()));
 					contains_malformed_nodes |= isMalformed(enumConstantDeclaration);
 				}
@@ -343,8 +332,8 @@ public class SortElementsOperation extends JavaModelOperation {
 	/**
 	 * Possible failures:
 	 * <ul>
-	 *  <li>NO_ELEMENTS_TO_PROCESS - the compilation unit supplied to the operation is <code>null</code></li>.
-	 *  <li>INVALID_ELEMENT_TYPES - the supplied elements are not an instance of IWorkingCopy</li>.
+	 *  <li>NO_ELEMENTS_TO_PROCESS - the compilation unit supplied to the operation is <code>null</code>.</li>
+	 *  <li>INVALID_ELEMENT_TYPES - the supplied elements are not an instance of IWorkingCopy.</li>
 	 * </ul>
 	 * @return IJavaModelStatus
 	 */
@@ -369,8 +358,7 @@ public class SortElementsOperation extends JavaModelOperation {
 		}
 		TextEdit[] children= parent.getChildren();
 		// First dive down to find the right parent.
-		for (int i= 0; i < children.length; i++) {
-			TextEdit child= children[i];
+		for (TextEdit child : children) {
 			if (covers(child, edit)) {
 				insert(child, edit);
 				return;

@@ -35,16 +35,7 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CodeSnippetAllocationExpression extends AllocationExpression implements ProblemReasons, EvaluationConstants {
 	EvaluationContext evaluationContext;
@@ -79,8 +70,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, 	boolea
 		}
 		// generate the arguments for constructor
 		if (this.arguments != null) {
-			for (int i = 0, count = this.arguments.length; i < count; i++) {
-				this.arguments[i].generateCode(currentScope, codeStream, true);
+			for (Expression argument : this.arguments) {
+				argument.generateCode(currentScope, codeStream, true);
 			}
 		}
 		// handling innerclass instance allocation - outer local arguments
@@ -181,8 +172,8 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 		if (this.argumentsHaveErrors) {
 			if (this.arguments != null) { // still attempt to resolve arguments
-				for (int i = 0, max = this.arguments.length; i < max; i++) {
-					this.arguments[i].resolveType(scope);
+				for (Expression argument : this.arguments) {
+					argument.resolveType(scope);
 				}
 			}
 			return null;

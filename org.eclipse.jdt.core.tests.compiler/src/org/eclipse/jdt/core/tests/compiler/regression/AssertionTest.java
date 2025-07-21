@@ -13,9 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-
 import junit.framework.Test;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 @SuppressWarnings({ "rawtypes" })
 public class AssertionTest extends AbstractRegressionTest {
@@ -31,7 +30,7 @@ public class AssertionTest extends AbstractRegressionTest {
 	}
 
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_4);
+		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
 	}
 
 	public static Class testClass() {

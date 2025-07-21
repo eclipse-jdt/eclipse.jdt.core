@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.eclipse.jdt.internal.compiler.ast.FunctionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
@@ -44,6 +43,10 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 
 	@Override
 	public Object reduce(InferenceContext18 inferenceContext) {
+		if ((this.right.tagBits & TagBits.HasMissingType) != 0) {
+			inferenceContext.hasIgnoredMissingType = true;
+			return TRUE;
+		}
 		// JLS 18.2.5
 		Scope scope = inferenceContext.scope;
 		if (!this.right.isFunctionalInterface(scope))
@@ -73,9 +76,9 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 		TypeBinding[] thrown = sam.thrownExceptions;
 		InferenceVariable[] e = new InferenceVariable[thrown.length];
 		int n = 0;
-		for (int i = 0; i < thrown.length; i++)
-			if (!thrown[i].isProperType(true))
-				e[n++] = (InferenceVariable) thrown[i]; // thrown[i] is not a proper type, since it's an exception it must be an inferenceVariable, right?
+		for (TypeBinding ex : thrown)
+			if (!ex.isProperType(true))
+				e[n++] = (InferenceVariable) ex; // thrown[i] is not a proper type, since it's an exception it must be an inferenceVariable, right?
 
 		/* If throw specification does not encode any type parameters, there are no constraints to be gleaned/gathered from the throw sites.
 		   See also that thrown exceptions are not allowed to influence compatibility and overload resolution.
@@ -103,8 +106,8 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 		actual: for (int i = 0; i < m; i++) {
 			if (ePrime[i].isUncheckedException(false))
 				continue;
-			for (int j = 0; j < thrown.length; j++)
-				if (thrown[j].isProperType(true) && ePrime[i].isCompatibleWith(thrown[j]))
+			for (TypeBinding ex : thrown)
+				if (ex.isProperType(true) && ePrime[i].isCompatibleWith(ex))
 					continue actual;
 			for (int j = 0; j < n; j++)
 				result.add(ConstraintTypeFormula.create(ePrime[i], e[j], SUBTYPE));

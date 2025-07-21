@@ -15,7 +15,7 @@
   <parent>
     <groupId>org.eclipse</groupId>
     <artifactId>eclipse-platform-parent</artifactId>
-    <version>4.32.0-SNAPSHOT</version>
+    <version>4.35.0-SNAPSHOT</version>
     <relativePath>../eclipse-platform-parent</relativePath>
   </parent>
 
@@ -48,15 +48,22 @@
         </repository>
       </repositories>
     </profile>
+    <profile>
+      <id>p2-repo</id>
+      <modules>
+        <module>repository</module>
+      </modules>
+    </profile>
   </profiles>
 
   <modules>
     <module>org.eclipse.jdt.annotation</module>
-    <module>org.eclipse.jdt.annotation_v1</module>
+    <!--module>org.eclipse.jdt.annotation_v1</module-->
     <module>org.eclipse.jdt.core.compiler.batch</module>
     <module>org.eclipse.jdt.core</module>
     <module>org.eclipse.jdt.core.formatterapp</module>
     <module>org.eclipse.jdt.compiler.tool.tests</module>
+    <module>org.eclipse.jdt.core.tests.builder.mockcompiler</module>
     <module>org.eclipse.jdt.core.tests.builder</module>
     <module>org.eclipse.jdt.core.tests.compiler</module>
     <module>org.eclipse.jdt.core.tests.model</module>

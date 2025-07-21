@@ -16,12 +16,10 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.HashMap;
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class GenericsRegressionTest_1_8 extends AbstractRegressionTest {
@@ -40,7 +38,12 @@ public static Class testClass() {
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), F_1_8);
 }
-
+@Override
+protected Map getCompilerOptions() {
+	Map defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_ReportUnusedLambdaParameter, CompilerOptions.IGNORE);
+	return defaultOptions;
+}
 public void testBug423070() {
 	this.runConformTest(
 		new String[] {
@@ -9173,45 +9176,40 @@ public void testBug508834_comment0() {
 			"----------\n" +
 			"2. ERROR in org\\a\\a\\g\\d.java (at line 6)\n" +
 			"	T t = (e) cls.newInstance();\n" +
-			"	      ^^^^^^^^^^^^^^^^^^^^^\n" +
-			"e cannot be resolved to a type\n" +
-			"----------\n" +
-			"3. ERROR in org\\a\\a\\g\\d.java (at line 6)\n" +
-			"	T t = (e) cls.newInstance();\n" +
 			"	       ^\n" +
 			"e cannot be resolved to a type\n" +
 			"----------\n" +
-			"4. ERROR in org\\a\\a\\g\\d.java (at line 7)\n" +
+			"3. ERROR in org\\a\\a\\g\\d.java (at line 7)\n" +
 			"	while (size >= 0) {\n" +
 			"	       ^^^^\n" +
 			"size cannot be resolved to a variable\n" +
 			"----------\n" +
-			"5. ERROR in org\\a\\a\\g\\d.java (at line 8)\n" +
-			"	T a = ((b) this.e.m.get(size)).a();\n" +
-			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type mismatch: cannot convert from e to T\n" +
-			"----------\n" +
-			"6. ERROR in org\\a\\a\\g\\d.java (at line 8)\n" +
+			"4. ERROR in org\\a\\a\\g\\d.java (at line 8)\n" +
 			"	T a = ((b) this.e.m.get(size)).a();\n" +
 			"	                ^\n" +
 			"e cannot be resolved or is not a field\n" +
 			"----------\n" +
-			"7. ERROR in org\\a\\a\\g\\d.java (at line 8)\n" +
+			"5. ERROR in org\\a\\a\\g\\d.java (at line 8)\n" +
 			"	T a = ((b) this.e.m.get(size)).a();\n" +
 			"	                        ^^^^\n" +
 			"size cannot be resolved to a variable\n" +
 			"----------\n" +
-			"8. ERROR in org\\a\\a\\g\\d.java (at line 15)\n" +
+			"6. ERROR in org\\a\\a\\g\\d.java (at line 8)\n" +
+			"	T a = ((b) this.e.m.get(size)).a();\n" +
+			"	                               ^\n" +
+			"The method a() from the type d.b refers to the missing type e\n" +
+			"----------\n" +
+			"7. ERROR in org\\a\\a\\g\\d.java (at line 15)\n" +
 			"	<T extends e> T a();\n" +
 			"	           ^\n" +
 			"e cannot be resolved to a type\n" +
 			"----------\n" +
-			"9. ERROR in org\\a\\a\\g\\d.java (at line 17)\n" +
+			"8. ERROR in org\\a\\a\\g\\d.java (at line 17)\n" +
 			"	<T extends j> T b();\n" +
 			"	           ^\n" +
 			"j cannot be resolved to a type\n" +
 			"----------\n" +
-			"10. WARNING in org\\a\\a\\g\\d.java (at line 17)\n" +
+			"9. WARNING in org\\a\\a\\g\\d.java (at line 17)\n" +
 			"	<T extends j> T b();\n" +
 			"	                ^^^\n" +
 			"This method has a constructor name\n" +
@@ -9292,8 +9290,8 @@ public void testBug508834_comment0() {
 				"----------\n" +
 				"3. ERROR in xxxxxx\\iiibii.java (at line 9)\n" +
 				"	return b041D041D041D041DН041DН(new xxxxxx.jjajaa(b, b2));\n" +
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Type mismatch: cannot convert from jajaja to jajaja\n" +
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"The method b041D041D041D041DН041DН(jjajaa) from the type iiibii refers to the missing type jajaja\n" +
 				"----------\n" +
 				"----------\n" +
 				"1. ERROR in xxxxxx\\jjajaa.java (at line 3)\n" +
@@ -10681,5 +10679,280 @@ public void testBug508834_comment0() {
 			"Redundant specification of type arguments <TypeArgBug.Descriptor>\n" +
 			"----------\n",
 			null, true, customOptions);
+	}
+	public void testGH1475() {
+		runConformTest(
+			new String[] {
+				"CannotInferTypeArguments.java",
+				"""
+				public class CannotInferTypeArguments<V extends java.util.concurrent.Semaphore> {
+					class Fish {
+						public V getFlavour() {
+							return null;
+						}
+					}
+
+					class Shark<E extends Fish> {
+					}
+
+					<E extends Fish> Shark<E> fish() {
+						// This compiles fine with javac, but will only work in Eclipse with new Shark<E>();
+						return new Shark<>();
+					}
+
+					<E extends Fish> Shark<E> fish2() {
+						Shark<E> s = new Shark<>();
+						return s;
+					}
+				}
+				"""
+			});
+	}
+
+	public void testBug569231() {
+		runConformTest(
+			new String[] {
+				"GenericsBug.java",
+				"""
+				import java.util.function.Function;
+				import java.util.function.Predicate;
+
+				public class GenericsBug<S> {
+					public static interface MyInterface<U> {}
+
+					public static class SubClass<U,V> implements MyInterface<V>{
+						public SubClass(Function<U,V> g, MyInterface<V>... i) { }
+					}
+
+					public static class OptSubClass<U> implements MyInterface<U> {
+						public OptSubClass(String s, Predicate<U> p, MyInterface<U>... i) { }
+
+					}
+
+					public static class ParamClass<T> {
+						public T    getU()    { return null;}
+					}
+
+					GenericsBug(MyInterface<S> in1, MyInterface<S> in2) { }
+
+
+					public static class MySubClass extends SubClass<ParamClass<Boolean>,Boolean> {
+						public MySubClass() {
+							super(ParamClass::getU);
+						}
+					}
+
+					public static void foo() {
+						SubClass<ParamClass<Boolean>,Boolean> sc = new SubClass<>(ParamClass::getU);
+						new GenericsBug<>(new MySubClass(),
+										  new OptSubClass<>("foo", t->t, sc));
+					}
+				};
+				"""
+			});
+	}
+
+	public void testBug566989() {
+		runConformTest(
+			new String[] {
+				"InferTypeTest.java",
+				"""
+				import java.util.*;
+				public class InferTypeTest<T> {
+
+					@FunctionalInterface
+					interface DataLoader<T> {
+						List<T> loadData(int offset, int limit);
+					}
+
+					class DataList<T> extends ArrayList<T>{
+						public DataList(DataLoader<T> dataLoader) {
+						}
+					}
+
+					void testDataList() {
+						List<String> list = new ArrayList<>(new DataList<>((offset, limit) -> Collections.emptyList()));
+					}
+
+				}
+				"""
+			});
+	}
+
+	public void testBug509848() {
+		runConformTest(
+			new String[] {
+				"Generics.java",
+				"""
+				public class Generics {
+
+					public MyGeneric<?> test() {
+						boolean maybe = false;
+
+						return lambda((String result) -> {
+							if (maybe) {
+								return new MyGeneric<>(MyGeneric.of(null));
+							}
+							else {
+								return new MyGeneric<>(MyGeneric.of(""));
+							}
+						});
+					}
+
+					static class MyGeneric <T> {
+						T t;
+						public MyGeneric(MyGeneric<T> t) {
+						}
+						public static <R> MyGeneric<R> of(R t) {
+							return null;
+						}
+					}
+
+					public <R> MyGeneric<R> lambda(java.util.function.Function<String, MyGeneric<R>> mapper) {
+						return null;
+					}
+				}
+				"""
+			});
+	}
+
+	public void testGH2386() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"TestClass.java",
+			"""
+			public class TestClass<E> {
+			    class Itr { }
+			    class C123172 extends TestClass.Itr<Missing<E>> { }
+			}
+			"""
+		};
+		runner.expectedCompilerLog = """
+			----------
+			1. ERROR in TestClass.java (at line 3)
+				class C123172 extends TestClass.Itr<Missing<E>> { }
+				                      ^^^^^^^^^^^^^
+			The type TestClass.Itr is not generic; it cannot be parameterized with arguments <Missing<E>>
+			----------
+			2. ERROR in TestClass.java (at line 3)
+				class C123172 extends TestClass.Itr<Missing<E>> { }
+				                                    ^^^^^^^
+			Missing cannot be resolved to a type
+			----------
+			""";
+		runner.runNegativeTest();
+	}
+
+	public void testGH2399() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"TestClass.java",
+			"""
+			public class TestClass implements TestClass.Missing1<TestClass.Missing2<TestClass.Missing3>> {
+			}
+			"""
+		};
+		runner.expectedCompilerLog = """
+			----------
+			1. ERROR in TestClass.java (at line 1)
+				public class TestClass implements TestClass.Missing1<TestClass.Missing2<TestClass.Missing3>> {
+				                                  ^^^^^^^^^^^^^^^^^^
+			Cycle detected: the type TestClass cannot extend/implement itself or one of its own member types
+			----------
+			""";
+		runner.runNegativeTest();
+	}
+	public void testGH2413() {
+		runConformTest(
+			new String[] {
+				"EjcBug2413.java",
+				"""
+				public class EjcBug2413 {
+
+					public interface EventSource<L> { }
+
+					public interface ObservableEventListener<V> { }
+
+					public interface WritableProperty<V> extends EventSource<ObservableEventListener<V>> {
+						static <P extends WritableProperty<?>> P getReadOnly(P property) {
+							return null;
+						}
+					}
+
+					public static class Property<V> implements EventSource<ObservableEventListener<V>>, WritableProperty<V> { }
+
+					public static abstract class Bug2413<V, P extends Property<V>> {
+						public void foo(P property) {
+							P readOnly = WritableProperty.getReadOnly(property);
+						}
+					}
+				}
+				"""});
+	}
+	public void testGH2413_mini() {
+		// minified from above and made type variable names unique
+		runConformTest(
+			new String[] {
+				"Bug.java",
+				"""
+				interface Inner<S> { }
+				interface Super<T> { }
+				interface One<U> extends Super<Inner<U>> { }
+				interface Two<V> extends Super<Inner<V>>, One<V> { }
+
+				public class Bug {
+					<W extends One<?>> W getOne(W w) {
+						return null;
+					}
+					<X, Y extends Two<X>> void foo(Y y) {
+						Y one = getOne(y);
+					}
+				}
+				"""
+			});
+	}
+	public void testGH2413_direct() {
+		// reduce depth of inheritance hierarchy.
+		// demonstrates:
+		// - attempt to "unify" One<Inner<?>> and One<Inner<X>> fails
+		// - but parameter One<?> accepts One<X>
+		runNegativeTest(
+			new String[] {
+				"Bug.java",
+				"""
+				interface Inner<S> { }
+				class One<U> { }
+
+				public class Bug {
+					<W extends One<Inner<?>>> W getOne(W w) {
+						return null;
+					}
+					void bar(One<Inner<?>> o) {
+					}
+					<X, Y extends One<Inner<X>>> void foo(Y y) {
+						Y y2 = getOne(y);
+						bar(new One<Inner<X>>()); // rejected without any inference involved
+					}
+					<W extends One<?>> W getOne2(W w) { // at first level of type argument '?' is fine
+						return null;
+					}
+					<X, Y extends One<X>> void foo2(Y y1) {
+						Y y2 = getOne2(y1);
+						getOne2(y1);
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in Bug.java (at line 11)\n" +
+			"	Y y2 = getOne(y);\n" +
+			"	       ^^^^^^\n" +
+			"The method getOne(W) in the type Bug is not applicable for the arguments (Y)\n" +
+			"----------\n" +
+			"2. ERROR in Bug.java (at line 12)\n" +
+			"	bar(new One<Inner<X>>()); // rejected without any inference involved\n" +
+			"	^^^\n" +
+			"The method bar(One<Inner<?>>) in the type Bug is not applicable for the arguments (One<Inner<X>>)\n" +
+			"----------\n");
 	}
 }

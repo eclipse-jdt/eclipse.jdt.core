@@ -30,25 +30,33 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import java.util.List;
-
 import static org.eclipse.jdt.internal.compiler.lookup.MethodBinding.PARAM_NONNULL;
+import static org.eclipse.jdt.internal.compiler.lookup.MethodBinding.PARAM_NOTOWNING;
 import static org.eclipse.jdt.internal.compiler.lookup.MethodBinding.PARAM_NULLABLE;
 import static org.eclipse.jdt.internal.compiler.lookup.MethodBinding.PARAM_NULLITY;
 import static org.eclipse.jdt.internal.compiler.lookup.MethodBinding.PARAM_OWNING;
-import static org.eclipse.jdt.internal.compiler.lookup.MethodBinding.PARAM_NOTOWNING;
 
-import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.internal.compiler.*;
+import java.util.List;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.ClassFile;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationPosition;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
-import org.eclipse.jdt.internal.compiler.impl.*;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.codegen.*;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.problem.*;
-import org.eclipse.jdt.internal.compiler.parser.*;
+import org.eclipse.jdt.internal.compiler.parser.Parser;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
+import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
+import org.eclipse.jdt.internal.compiler.problem.AbortType;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 @SuppressWarnings({"rawtypes"})
@@ -79,11 +87,9 @@ public abstract class AbstractMethodDeclaration
 	public int bodyStart;
 	public int bodyEnd = -1;
 	public CompilationResult compilationResult;
-	public boolean containsSwitchWithTry = false;
 
 	AbstractMethodDeclaration(CompilationResult compilationResult){
 		this.compilationResult = compilationResult;
-		this.containsSwitchWithTry = false;
 	}
 
 	/*
@@ -153,8 +159,8 @@ public abstract class AbstractMethodDeclaration
 		if (this.arguments != null) {
 			// by default arguments in abstract/native methods are considered to be used (no complaint is expected)
 			if (this.binding == null) {
-				for (int i = 0, length = this.arguments.length; i < length; i++) {
-					this.arguments[i].bind(this.scope, null, true);
+				for (Argument argument : this.arguments) {
+					argument.bind(this.scope, null, true);
 				}
 				return;
 			}
@@ -377,9 +383,9 @@ public abstract class AbstractMethodDeclaration
 
 			// arguments initialization for local variable debug attributes
 			if (this.arguments != null) {
-				for (int i = 0, max = this.arguments.length; i < max; i++) {
+				for (Argument argument : this.arguments) {
 					LocalVariableBinding argBinding;
-					codeStream.addVisibleLocalVariable(argBinding = this.arguments[i].binding);
+					codeStream.addVisibleLocalVariable(argBinding = argument.binding);
 					argBinding.recordInitializationStartPC(0);
 				}
 			}
@@ -387,6 +393,9 @@ public abstract class AbstractMethodDeclaration
 			if (this.statements != null) {
 				for (Statement stmt : this.statements) {
 					stmt.generateCode(this.scope, codeStream);
+					if (!this.compilationResult.hasErrors() && (codeStream.stackDepth != 0 || codeStream.operandStack.size() != 0)) {
+						this.scope.problemReporter().operandStackSizeInappropriate(this);
+					}
 				}
 			}
 			// if a problem got reported during code gen, then trigger problem method creation
@@ -513,6 +522,10 @@ public abstract class AbstractMethodDeclaration
 		return (this.modifiers & ClassFileConstants.AccStatic) != 0;
 	}
 
+	public boolean isCandidateMain() {
+		return false;
+	}
+
 	/**
 	 * Fill up the method body with statement
 	 */
@@ -572,9 +585,9 @@ public abstract class AbstractMethodDeclaration
 
 		output.append(" {"); //$NON-NLS-1$
 		if (this.statements != null) {
-			for (int i = 0; i < this.statements.length; i++) {
+			for (Statement statement : this.statements) {
 				output.append('\n');
-				this.statements[i].printStatement(indent, output);
+				statement.printStatement(indent, output);
 			}
 		}
 		output.append('\n');
@@ -716,11 +729,6 @@ public abstract class AbstractMethodDeclaration
 	@Override
 	public void tagAsHavingErrors() {
 		this.ignoreFurtherInvestigation = true;
-	}
-
-	@Override
-	public void tagAsHavingIgnoredMandatoryErrors(int problemId) {
-		// Nothing to do for this context;
 	}
 
 	public void traverse(

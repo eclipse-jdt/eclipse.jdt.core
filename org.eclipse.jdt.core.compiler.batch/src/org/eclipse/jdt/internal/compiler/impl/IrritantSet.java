@@ -140,7 +140,8 @@ public class IrritantSet {
 				|CompilerOptions.UnstableAutoModuleName
 				|CompilerOptions.PreviewFeatureUsed)
 			.set(CompilerOptions.InsufficientResourceManagement
-				|CompilerOptions.IncompatibleOwningContract);
+				|CompilerOptions.IncompatibleOwningContract
+				|CompilerOptions.UnusedLambdaParameter);
 		// default errors IF AnnotationBasedNullAnalysis is enabled:
 		COMPILER_DEFAULT_ERRORS.set(
 				CompilerOptions.NullSpecViolation
@@ -178,12 +179,15 @@ public class IrritantSet {
 			.set(CompilerOptions.DeadCode)
 			.set(CompilerOptions.UnusedObjectAllocation)
 			.set(CompilerOptions.UnusedTypeParameter)
-			.set(CompilerOptions.RedundantSpecificationOfTypeArguments);
+			.set(CompilerOptions.RedundantSpecificationOfTypeArguments)
+			.set(CompilerOptions.UnusedLambdaParameter);
 		STATIC_METHOD
 		    .set(CompilerOptions.MethodCanBePotentiallyStatic);
 		RESOURCE
-			.set(CompilerOptions.PotentiallyUnclosedCloseable)
-			.set(CompilerOptions.ExplicitlyClosedAutoCloseable);
+			.set(CompilerOptions.PotentiallyUnclosedCloseable
+				|CompilerOptions.ExplicitlyClosedAutoCloseable)
+			.set(CompilerOptions.InsufficientResourceManagement
+				|CompilerOptions.IncompatibleOwningContract);
 		INCOMPLETE_SWITCH.set(CompilerOptions.MissingDefaultCase);
 		String suppressRawWhenUnchecked = System.getProperty("suppressRawWhenUnchecked"); //$NON-NLS-1$
 		if (suppressRawWhenUnchecked != null && "true".equalsIgnoreCase(suppressRawWhenUnchecked)) { //$NON-NLS-1$

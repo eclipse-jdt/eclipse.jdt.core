@@ -18,11 +18,10 @@ package org.eclipse.jdt.internal.compiler.parser;
  */
 import java.util.HashSet;
 import java.util.Set;
-
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
@@ -65,8 +64,8 @@ public void attach(RecoveredAnnotation[] annots, int annotCount, int mods, int m
 			this.annotations = new RecoveredAnnotation[annotCount];
 			this.annotationCount = 0;
 			next : for (int i = 0; i < annotCount; i++) {
-				for (int j = 0; j < existingAnnotations.length; j++) {
-					if (annots[i].annotation == existingAnnotations[j]) continue next;
+				for (Annotation existingAnnotation : existingAnnotations) {
+					if (annots[i].annotation == existingAnnotation) continue next;
 				}
 				this.annotations[this.annotationCount++] = annots[i];
 			}

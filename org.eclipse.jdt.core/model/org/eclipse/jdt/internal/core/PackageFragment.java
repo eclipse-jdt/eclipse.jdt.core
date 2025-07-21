@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
@@ -29,22 +28,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IModularClassFile;
-import org.eclipse.jdt.core.IOrdinaryClassFile;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IParent;
-import org.eclipse.jdt.core.ISourceManipulation;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -97,7 +85,7 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 						&& !Util.isExcluded(child, inclusionPatterns, exclusionPatterns)) {
 					IJavaElement childElement;
 					if (kind == IPackageFragmentRoot.K_SOURCE && Util.isValidCompilationUnitName(child.getName(), sourceLevel, complianceLevel)) {
-						childElement = new CompilationUnit(this, child.getName(), DefaultWorkingCopyOwner.PRIMARY);
+						childElement = new CompilationUnit(this, DeduplicationUtil.intern(child.getName()), DefaultWorkingCopyOwner.PRIMARY);
 						vChildren.add(childElement);
 					} else if (kind == IPackageFragmentRoot.K_BINARY && Util.isValidClassFileName(child.getName(), sourceLevel, complianceLevel)) {
 						childElement = getClassFile(child.getName());
@@ -113,8 +101,7 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 	if (kind == IPackageFragmentRoot.K_SOURCE) {
 		// add primary compilation units
 		ICompilationUnit[] primaryCompilationUnits = getCompilationUnits(DefaultWorkingCopyOwner.PRIMARY);
-		for (int i = 0, length = primaryCompilationUnits.length; i < length; i++) {
-			ICompilationUnit primary = primaryCompilationUnits[i];
+		for (ICompilationUnit primary : primaryCompilationUnits) {
 			vChildren.add(primary);
 		}
 	}
@@ -219,7 +206,7 @@ public IOrdinaryClassFile getOrdinaryClassFile(String classFileName) {
 	int length = classFileName.length() - 6;
 	char[] nameWithoutExtension = new char[length];
 	classFileName.getChars(0, length, nameWithoutExtension, 0);
-	return new ClassFile(this, new String(nameWithoutExtension));
+	return new ClassFile(this, DeduplicationUtil.toString(nameWithoutExtension));
 }
 /**
  * @see IPackageFragment#getClassFile(String)
@@ -402,8 +389,7 @@ public IPath getPath() {
 		return root.getPath();
 	} else {
 		IPath path = root.getPath();
-		for (int i = 0, length = this.names.length; i < length; i++) {
-			String name = this.names[i];
+		for (String name : this.names) {
 			path = path.append(name);
 		}
 		return path;
@@ -439,8 +425,8 @@ public IResource getUnderlyingResource() throws JavaModelException {
 	if (rootResource.getType() == IResource.FOLDER || rootResource.getType() == IResource.PROJECT) {
 		IContainer folder = (IContainer) rootResource;
 		String[] segs = this.names;
-		for (int i = 0; i < segs.length; ++i) {
-			IResource child = folder.findMember(segs[i]);
+		for (String seg : segs) {
+			IResource child = folder.findMember(seg);
 			if (child == null || child.getType() != IResource.FOLDER) {
 				throw newNotPresentException();
 			}
@@ -465,8 +451,8 @@ public boolean hasChildren() throws JavaModelException {
 public boolean hasSubpackages() throws JavaModelException {
 	IJavaElement[] packages= ((IPackageFragmentRoot)getParent()).getChildren();
 	int namesLength = this.names.length;
-	nextPackage: for (int i= 0, length = packages.length; i < length; i++) {
-		String[] otherNames = ((PackageFragment) packages[i]).names;
+	nextPackage: for (IJavaElement package1 : packages) {
+		String[] otherNames = ((PackageFragment) package1).names;
 		if (otherNames.length <= namesLength) continue nextPackage;
 		for (int j = 0; j < namesLength; j++)
 			if (!this.names[j].equals(otherNames[j]))
@@ -482,8 +468,8 @@ protected boolean internalIsValidPackageName() {
 	IJavaProject javaProject = JavaCore.create(resource().getProject());
 	String sourceLevel = javaProject.getOption(JavaCore.COMPILER_SOURCE, true);
 	String complianceLevel = javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
-	for (int i = 0, length = this.names.length; i < length; i++) {
-		if (!Util.isValidFolderNameForPackage(this.names[i], sourceLevel, complianceLevel))
+	for (String name : this.names) {
+		if (!Util.isValidFolderNameForPackage(name, sourceLevel, complianceLevel))
 			return false;
 	}
 	return true;
@@ -580,14 +566,14 @@ public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelExcep
 		pathBuffer.append('/');
 	}
 	String packPath= getElementName().replace('.', '/');
-	pathBuffer.append(packPath).append('/').append(JavadocConstants.PACKAGE_FILE_NAME);
+	pathBuffer.append(packPath).append('/').append(ExternalJavadocSupport.PACKAGE_FILE_NAME);
 
 	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	String contents = getURLContents(baseLocation, String.valueOf(pathBuffer));
 	if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 	if (contents == null) return null;
 
-	contents = (new JavadocContents(contents)).getPackageDoc();
+	contents = ExternalJavadocSupport.forHtml(null, contents).getPackageDoc();
 	if (contents == null) contents = ""; //$NON-NLS-1$
 	synchronized (projectInfo.javadocCache) {
 		projectInfo.javadocCache.put(this, contents);

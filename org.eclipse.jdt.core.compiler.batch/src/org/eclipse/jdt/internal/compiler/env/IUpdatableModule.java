@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.util.SimpleSetOfCharArray;
 
@@ -73,8 +72,8 @@ public interface IUpdatableModule {
 		public int hashCode() {
 			int hash = CharOperation.hashCode(this.name);
 			if (this.targets != null) {
-				for (int i = 0; i < this.targets.length; i++) {
-					hash += 17 * CharOperation.hashCode(this.targets[i]);
+				for (char[] target : this.targets) {
+					hash += 17 * CharOperation.hashCode(target);
 				}
 			}
 			return hash;

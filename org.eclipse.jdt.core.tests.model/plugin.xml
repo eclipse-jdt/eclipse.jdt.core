@@ -92,5 +92,12 @@
         </run>
      </filesystem>
   </extension>
+  <extension
+        point="org.eclipse.jdt.core.compilationUnitResolver">
+     <resolver
+           class="org.eclipse.jdt.core.tests.dom.CompilationUnitResolverDiscoveryTest$TEST_RESOLVER"
+           id="org.eclipse.jdt.core.tests.model.resolver1">
+     </resolver>
+  </extension>
 	
 </plugin>

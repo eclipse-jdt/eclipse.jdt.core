@@ -32,11 +32,10 @@
 package com.sun.mirror.type;
 
 
+import com.sun.mirror.declaration.Declaration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-
-import com.sun.mirror.declaration.Declaration;
 
 
 /**

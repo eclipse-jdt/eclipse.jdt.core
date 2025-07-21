@@ -17,16 +17,7 @@ package org.eclipse.jdt.internal.compiler.parser;
 /**
  * Internal structure for parsing recovery
  */
-import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.Block;
-import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ImportReference;
-import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ModuleStatement;
-import org.eclipse.jdt.internal.compiler.ast.Statement;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class RecoveredElement {
@@ -162,8 +153,8 @@ protected void addBlockStatement(RecoveredBlock recoveredBlock) {
 	Block block = recoveredBlock.blockDeclaration;
 	if(block.statements != null) {
 		Statement[] statements = block.statements;
-		for (int i = 0; i < statements.length; i++) {
-			recoveredBlock.add(statements[i], 0);
+		for (Statement statement : statements) {
+			recoveredBlock.add(statement, 0);
 		}
 	}
 }

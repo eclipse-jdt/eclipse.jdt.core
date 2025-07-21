@@ -15,7 +15,6 @@
 package org.eclipse.jdt.apt.core.build;
 
 import java.io.File;
-
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.taskdefs.Java;
 import org.apache.tools.ant.types.Path;
@@ -37,7 +36,7 @@ import org.eclipse.jdt.apt.core.internal.build.Messages;
  */
 public class JdtApt extends Java {
 
-	private static final String APP_CLASSNAME = "org.eclipse.core.launcher.Main"; //$NON-NLS-1$
+	private static final String APP_CLASSNAME = "org.eclipse.equinox.launcher.Main"; //$NON-NLS-1$
     private static final String APP_PLUGIN = "org.eclipse.jdt.apt.core.aptBuild"; //$NON-NLS-1$
 
     private File workspace;

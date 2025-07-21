@@ -4,5 +4,5 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.eclipse.jdt</groupId>
   <artifactId>ecj</artifactId>
-  <version>3.37.0-PVS-STUDIO</version>
+  <version>3.41.0-PVS-STUDIO</version>
 </project>

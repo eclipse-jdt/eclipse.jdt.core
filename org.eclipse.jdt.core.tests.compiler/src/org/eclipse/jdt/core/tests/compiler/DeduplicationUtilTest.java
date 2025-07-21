@@ -13,14 +13,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
-
-import org.eclipse.jdt.core.tests.junit.extension.TestCase;
-import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 
 public class DeduplicationUtilTest extends TestCase {
 
@@ -38,6 +37,7 @@ public class DeduplicationUtilTest extends TestCase {
 		assertDeduplicationString("aNeverUsedBefore".toCharArray());
 		assertDeduplicationCharArray("aNeverUsedBefore");
 		assertDeduplicationObject(() -> List.of("aNeverUsedBefore"));
+		assertDeduplicationList(() ->  Arrays.asList("1","2","3"));
 
 		assertDeduplicationString("bNeverUsedBefore".toCharArray());
 		assertDeduplicationCharArray("bNeverUsedBefore");
@@ -127,6 +127,52 @@ public class DeduplicationUtilTest extends TestCase {
 			assertEquals(a, b);
 			Object actual = DeduplicationUtil.internObject(a);
 			Object expected = DeduplicationUtil.internObject(b);
+
+			// since "a" is still referenced, we should get it
+			assertSame(expected, actual);
+		}
+	}
+
+	private void assertDeduplicationList(Supplier<List<String>> supplier) {
+		{ // weak
+			List<String> a = supplier.get();
+			List<String> b = supplier.get();
+			assertNotSame(a, b);
+			assertEquals(a, b);
+			List<String> expected = DeduplicationUtil.intern(b);
+			for (int i = 0; i < a.size(); i++) {
+				assertSame(b.get(i), expected.get(i));
+			}
+			b = null;
+			expected = null;
+
+			forceGc();
+
+			// Now "b" is not referenced anymore, can be garbage collected
+			// and DeduplicationUtil is supposed to release weak reference to it
+			// so after trying to intern "a" we will get "a" and not previously set "b"
+			List<String> actual = DeduplicationUtil.intern(a);
+
+			// It is impossible to rely on GC to run immediately, so loop few times
+			for (int i = 0; i < 42; i++) {
+				if(actual != a) {
+					forceGc();
+					actual = DeduplicationUtil.intern(a);
+				} else {
+					break;
+				}
+			}
+			for (int i = 0; i < a.size(); i++) {
+				assertSame(a.get(i), actual.get(i));
+			}
+		}
+		{ // strong
+			List<String> a = supplier.get();
+			List<String> b = supplier.get();
+			assertNotSame(a, b);
+			assertEquals(a, b);
+			List<String> actual = DeduplicationUtil.intern(a);
+			List<String> expected = DeduplicationUtil.intern(b);
 
 			// since "a" is still referenced, we should get it
 			assertSame(expected, actual);

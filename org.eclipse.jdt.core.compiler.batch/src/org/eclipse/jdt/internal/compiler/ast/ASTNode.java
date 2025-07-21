@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -53,42 +53,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationPosition;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
-import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
-import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
-import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
-import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
-import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
-import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
-import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
-import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
-import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.StringConstant;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class ASTNode implements TypeConstants, TypeIds {
@@ -110,7 +82,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final static int Bit12 = 0x800;				// depth (name ref, msg) | operator (operator) | has abstract methods (type decl)
 	public final static int Bit13 = 0x1000;			// depth (name ref, msg) | operator (operator) | is secondary type (type decl)
 	public final static int Bit14 = 0x2000;			// strictly assigned (reference lhs) | discard enclosing instance (explicit constr call) | hasBeenGenerated (type decl)
-	public final static int Bit15 = 0x4000;			// is unnecessary cast (expression) | is varargs (type ref) | isSubRoutineEscaping (try statement) | superAccess (javadoc allocation expression/javadoc message send/javadoc return statement)
+	public final static int Bit15 = 0x4000;			// is unnecessary cast (expression) | is varargs (type ref) | IsFinallyBlockEscaping (try statement) | superAccess (javadoc allocation expression/javadoc message send/javadoc return statement)
 	public final static int Bit16 = 0x8000;			// in javadoc comment (name ref, type ref, msg)
 	public final static int Bit17 = 0x10000;			// compound assigned (reference lhs) | unchecked (msg, alloc, explicit constr call)
 	public final static int Bit18 = 0x20000;			// non null (expression) | onDemand (import reference)
@@ -125,7 +97,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final static int Bit27 = 0x4000000;		// parenthesis count (expression)
 	public final static int Bit28 = 0x8000000;		// parenthesis count (expression)
 	public final static int Bit29 = 0x10000000;		// parenthesis count (expression)
-	public final static int Bit30 = 0x20000000;		// elseif (if statement) | try block exit (try statement) | fall-through (case statement) | ignore no effect assign (expression ref) | needScope (for statement) | isAnySubRoutineEscaping (return statement) | blockExit (synchronized statement)
+	public final static int Bit30 = 0x20000000;		// elseif (if statement) | try block exit (try statement) | fall-through (case statement) | ignore no effect assign (expression ref) | needScope (for statement) | IsAnyFinallyBlockEscaping (return|yield statement) | blockExit (synchronized statement)
 	public final static int Bit31 = 0x40000000;		// local declaration reachable (local decl) | ignore raw type check (type ref) | discard entire assignment (assignment) | isSynchronized (return statement) | thenExit (if statement)
 	public final static int Bit32 = 0x80000000;		// reachable (statement)
 
@@ -214,7 +186,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 
 	// try statements
-	public static final int IsSubRoutineEscaping = Bit15;
+	public static final int IsFinallyBlockEscaping = Bit15;
 	public static final int IsTryBlockExiting = Bit30;
 
 	// for type declaration
@@ -236,7 +208,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int IgnoreNoEffectAssignCheck = Bit30;
 
 	// for references on lhs of assignment
-	public static final int IsStrictlyAssigned = Bit14; // set only for true assignments, as opposed to compound ones
+	public static final int IsStrictlyAssigned = Bit14; // set only for true assignments, as opposed to compound ones. Used also for JEP 482 to allow assignment, but not read
 	public static final int IsCompoundAssigned = Bit17; // set only for compound assignments, as opposed to other ones
 
 	// for explicit constructor call
@@ -287,7 +259,6 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int IsThenStatementUnreachable = Bit9; // as computed by control flow analysis or null analysis
 
 	// for type reference
-	public static final int IsSuperType = Bit5;
 	public static final int IsVarArgs = Bit15;
 	public static final int IgnoreRawTypeCheck = Bit31;
 
@@ -303,13 +274,13 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	// for import reference
 	public static final int OnDemand = Bit18;
 	public static final int Used = Bit2;
-	public static final int inModule = Bit19;
+	public static final int inModule = Bit19; // signals the package reference of an exports or opens declaration
 
 	// for parameterized qualified/single type ref
 	public static final int DidResolve = Bit19;
 
-	// for return statement
-	public static final int IsAnySubRoutineEscaping = Bit30;
+	// for return & yield statements
+	public static final int IsAnyFinallyBlockEscaping = Bit30;
 	public static final int IsSynchronized = Bit31;
 
 	// for synchronized statement
@@ -529,6 +500,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		// inside same unit - no report
 		if (scope.isDefinedInSameUnit(field.declaringClass)) return false;
 
+		if (sinceValueUnreached(field, scope)) return false;
+
 		// if context is deprecated, may avoid reporting
 		if (!scope.compilerOptions().reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
 		return true;
@@ -579,6 +552,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		// inside same unit - no report
 		if (scope.isDefinedInSameUnit(method.declaringClass)) return false;
 
+		if (sinceValueUnreached(method, scope)) return false;
+
 		// non explicit use and non explicitly deprecated - no report
 		if (!isExplicitUse &&
 				(method.modifiers & ClassFileConstants.AccDeprecated) == 0) {
@@ -588,6 +563,39 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		// if context is deprecated, may avoid reporting
 		if (!scope.compilerOptions().reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
 		return true;
+	}
+
+	private boolean sinceValueUnreached(Binding binding, Scope scope) {
+		if (binding instanceof TypeBinding) {
+            TypeBinding typeBinding = (TypeBinding) binding;
+            if (!typeBinding.isReadyForAnnotations()) {
+				return false;
+			}
+		}
+		AnnotationBinding[] annotations = binding.getAnnotations();
+		for (AnnotationBinding annotation : annotations) {
+			if (annotation != null &&  annotation.getAnnotationType().id == TypeIds.T_JavaLangDeprecated) {
+				ElementValuePair[] pairs = annotation.getElementValuePairs();
+				for (ElementValuePair pair : pairs) {
+					if (CharOperation.equals(pair.getName(), TypeConstants.SINCE)) {
+						if (pair.getValue() instanceof StringConstant) {
+                            StringConstant strConstant = (StringConstant) pair.getValue();
+                            try {
+								String value = strConstant.stringValue();
+								long sinceLevel = CompilerOptions.versionToJdkLevel(value);
+								long complianceLevel = scope.compilerOptions().complianceLevel;
+								if (complianceLevel < sinceLevel) {
+									return true;
+								}
+							} catch (NumberFormatException e) {
+								// do nothing and fall through
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
 	}
 
 	public boolean isSuper() {
@@ -649,6 +657,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 		// inside same unit - no report
 		if (scope.isDefinedInSameUnit(refType)) return false;
+
+		if (sinceValueUnreached(refType, scope)) return false;
 
 		// if context is deprecated, may avoid reporting
 		if (!scope.compilerOptions().reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
@@ -722,8 +732,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 	public static void resolveStatements(Statement[] statements, BlockScope scope) {
 		LocalVariableBinding [] livePatternVariables = NO_VARIABLES;
-		for (int i = 0, length = statements.length; i < length; i++) {
-			final Statement stmt = statements[i];
+		for (final Statement stmt : statements) {
 			stmt.resolveWithBindings(livePatternVariables, scope);
 			livePatternVariables = LocalVariableBinding.merge(livePatternVariables, stmt.bindingsWhenComplete());
 		}
@@ -1068,7 +1077,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		return annotations;
 	}
 
-	/**	Resolve JSR308 annotations on a type reference, array creation expression or a wildcard. Type parameters go directly to the subroutine,
+	/**	Resolve JSR308 annotations on a type reference, array creation expression or a wildcard. Type parameters go directly to the method/ctor,
 	    By construction the bindings associated with QTR, PQTR etc get resolved first and then annotations for different levels get resolved
 	    and applied at one go. Likewise for multidimensional arrays.
 

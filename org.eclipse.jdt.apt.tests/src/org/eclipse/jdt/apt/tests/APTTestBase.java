@@ -13,10 +13,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.tests;
 
+import com.sun.mirror.apt.AnnotationProcessor;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
@@ -33,8 +33,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.builder.BuilderTests;
 import org.eclipse.jdt.core.tests.builder.Problem;
 import org.eclipse.jdt.core.tests.util.Util;
-
-import com.sun.mirror.apt.AnnotationProcessor;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /**
  * Setup a project for common APT testing.
@@ -96,7 +95,7 @@ public abstract class APTTestBase extends BuilderTests{
 	protected IJavaProject createJavaProject(final String projectName )
 		throws Exception
 	{
-		IPath projectPath = env.addProject( projectName, "1.5" );
+		IPath projectPath = env.addProject( projectName, CompilerOptions.getFirstSupportedJavaVersion() );
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot( projectPath, "" ); //$NON-NLS-1$
@@ -301,9 +300,6 @@ public abstract class APTTestBase extends BuilderTests{
 	/**
 	 * Verifies that the given element has specifics problems and
 	 * only the given problems.
-	 * @see Tests#expectingOnlySpecificProblemsFor(IPath, Problem[]), and
-	 * @see Tests#expectingSpecificProblemsFor(IPath, Problem[], boolean).
-	 * Unfortunately this variant isn't implemented there.
 	 */
 	protected void expectingOnlySpecificProblemsFor(IPath root, ExpectedProblem[] expectedProblems) {
 		if (DEBUG)

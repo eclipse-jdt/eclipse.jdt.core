@@ -80,13 +80,13 @@ public class TypeMethodReference extends MethodReference {
 	/**
 	 * The type; lazily initialized; defaults to an unspecified type.
 	 */
-	private Type type = null;
+	private volatile Type type;
 
 	/**
 	 * The method name; lazily initialized; defaults to an unspecified,
 	 * legal Java method name.
 	 */
-	private SimpleName methodName = null;
+	private volatile SimpleName methodName;
 
 	/**
 	 * Creates a new AST node for an TypeMethodReference declaration owned
@@ -189,8 +189,7 @@ public class TypeMethodReference extends MethodReference {
 			synchronized (this) {
 				if (this.type == null) {
 					preLazyInit();
-					this.type = new SimpleType(this.ast);
-					postLazyInit(this.type, TYPE_PROPERTY);
+					this.type = postLazyInit(new SimpleType(this.ast), TYPE_PROPERTY);
 				}
 			}
 		}
@@ -239,8 +238,7 @@ public class TypeMethodReference extends MethodReference {
 			synchronized (this) {
 				if (this.methodName == null) {
 					preLazyInit();
-					this.methodName = new SimpleName(this.ast);
-					postLazyInit(this.methodName, NAME_PROPERTY);
+					this.methodName = postLazyInit(new SimpleName(this.ast), NAME_PROPERTY);
 				}
 			}
 		}

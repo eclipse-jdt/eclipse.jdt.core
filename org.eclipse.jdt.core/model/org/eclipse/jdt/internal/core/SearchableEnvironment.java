@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IStorage;
@@ -33,7 +32,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.codeassist.ISearchRequestor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
@@ -59,6 +60,7 @@ import org.eclipse.jdt.internal.core.search.IRestrictedAccessConstructorRequesto
 import org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -325,54 +327,58 @@ public class SearchableEnvironment
 			new String(prefix),
 			true,
 			new SearchableEnvironmentRequestor(requestor), moduleContext);
-	if (followRequires && this.knownModuleLocations != null) {
-		try {
-			boolean isMatchAllPrefix = CharOperation.equals(CharOperation.ALL_PREFIX, prefix);
-			Set<IModuleDescription> modDescs = new HashSet<>();
-			for (IPackageFragmentRoot root : moduleContext) {
-				IModuleDescription desc = root.getJavaProject().getModuleDescription();
-				if (desc instanceof AbstractModule)
-					modDescs.add(desc);
-			}
-			for (IModuleDescription md : modDescs) {
-				IModuleReference[] reqModules = ((AbstractModule) md).getRequiredModules();
-				char[] modName = md.getElementName().toCharArray();
-				for (IModuleReference moduleReference : reqModules) {
-					findPackagesFromRequires(prefix, isMatchAllPrefix, requestor, moduleReference, modName);
+		if (followRequires && this.knownModuleLocations != null) {
+			try {
+				boolean isMatchAllPrefix = CharOperation.equals(CharOperation.ALL_PREFIX, prefix);
+				Set<IModuleDescription> modDescs = new HashSet<>();
+				for (IPackageFragmentRoot root : moduleContext) {
+					IModuleDescription desc = root.getJavaProject().getModuleDescription();
+					if (desc instanceof AbstractModule)
+						modDescs.add(desc);
 				}
-			}
-		} catch (JavaModelException e) {
-			// silent
-		}
-	}
-}
-
-private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, ISearchRequestor requestor, IModuleReference moduleReference, char[] clientModuleName) {
-	IPackageFragmentRoot[] fragmentRoots = findModuleContext(moduleReference.name());
-	if (fragmentRoots == null) return;
-	for (IPackageFragmentRoot root : fragmentRoots) {
-		IJavaProject requiredProject = root.getJavaProject();
-		try {
-			IModuleDescription module = requiredProject.getModuleDescription();
-			if (module instanceof AbstractModule) {
-				AbstractModule requiredModule = (AbstractModule) module;
-				for (IPackageExport packageExport : requiredModule.getExportedPackages()) {
-					if (!packageExport.isQualified() || CharOperation.containsEqual(packageExport.targets(), clientModuleName)) {
-						char[] exportName = packageExport.name();
-						if (isMatchAllPrefix || CharOperation.prefixEquals(prefix, exportName))
-							requestor.acceptPackage(exportName);
+				for (IModuleDescription md : modDescs) {
+					IModuleReference[] reqModules = ((AbstractModule) md).getRequiredModules();
+					char[] modName = md.getElementName().toCharArray();
+					Set<IModuleReference> visited = new HashSet<>();
+					for (IModuleReference moduleReference : reqModules) {
+						findPackagesFromRequires(prefix, isMatchAllPrefix, requestor, moduleReference, modName, visited);
 					}
 				}
-				for (IModuleReference moduleRef2 : requiredModule.getRequiredModules()) {
-					if (moduleRef2.isTransitive())
-						findPackagesFromRequires(prefix, isMatchAllPrefix, requestor, moduleRef2, clientModuleName);
-				}
+			} catch (JavaModelException e) {
+				// silent
 			}
-		} catch (JavaModelException e) {
-			// silent
 		}
 	}
-}
+
+	private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, ISearchRequestor requestor, IModuleReference moduleReference, char[] clientModuleName, Set<IModuleReference> visited) {
+		if (!visited.add(moduleReference)) {
+			return;
+		}
+		IPackageFragmentRoot[] fragmentRoots = findModuleContext(moduleReference.name());
+		if (fragmentRoots == null) return;
+		for (IPackageFragmentRoot root : fragmentRoots) {
+			IJavaProject requiredProject = root.getJavaProject();
+			try {
+				IModuleDescription module = requiredProject.getModuleDescription();
+				if (module instanceof AbstractModule) {
+					AbstractModule requiredModule = (AbstractModule) module;
+					for (IPackageExport packageExport : requiredModule.getExportedPackages()) {
+						if (!packageExport.isQualified() || CharOperation.containsEqual(packageExport.targets(), clientModuleName)) {
+							char[] exportName = packageExport.name();
+							if (isMatchAllPrefix || CharOperation.prefixEquals(prefix, exportName))
+								requestor.acceptPackage(exportName);
+						}
+					}
+					for (IModuleReference ref : requiredModule.getRequiredModules()) {
+						if (ref.isTransitive())
+							findPackagesFromRequires(prefix, isMatchAllPrefix, requestor, ref, clientModuleName, visited);
+					}
+				}
+			} catch (JavaModelException e) {
+				// silent
+			}
+		}
+	}
 	/**
 	 * Find the top-level types that are defined
 	 * in the current environment and whose simple name matches the given name.
@@ -526,7 +532,7 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 		System.arraycopy(compoundTypeName, 0, packageName, 0, lengthM1);
 
 		return find(
-			new String(compoundTypeName[lengthM1]),
+			DeduplicationUtil.toString(compoundTypeName[lengthM1]),
 			CharOperation.toString(packageName),
 			moduleLocations);
 	}
@@ -541,8 +547,8 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 		boolean isNamedStrategy = LookupStrategy.get(moduleName) == LookupStrategy.Named;
 		IPackageFragmentRoot[] moduleLocations = isNamedStrategy ? findModuleContext(moduleName) : null;
 		return find(
-			new String(name),
-			packageName == null || packageName.length == 0 ? null : CharOperation.toString(packageName),
+				DeduplicationUtil.toString(name),
+				packageName == null || packageName.length == 0 ? null : CharOperation.toString(packageName),
 			moduleLocations);
 	}
 
@@ -963,9 +969,9 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 			IPackageFragment[] fragments = elementRequestor.getPackageFragments();
 			if (fragments != null) {
 				String className = prefix.substring(index + 1);
-				for (int i = 0, length = fragments.length; i < length; i++)
-					if (fragments[i] != null)
-						this.nameLookup.seekTypes(className, fragments[i], true, type, requestor);
+				for (IPackageFragment fragment : fragments)
+					if (fragment != null)
+						this.nameLookup.seekTypes(className, fragment, true, type, requestor);
 			}
 		}
 	}
@@ -1178,8 +1184,8 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 	 */
 	protected String toStringCharChar(char[][] names) {
 		StringBuilder result = new StringBuilder();
-		for (int i = 0; i < names.length; i++) {
-			result.append(toStringChar(names[i]));
+		for (char[] name : names) {
+			result.append(toStringChar(name));
 		}
 		return result.toString();
 	}
@@ -1240,8 +1246,7 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 		IPackageFragmentRoot[] allRoots = javaProject.getPackageFragmentRoots();
 		IPackageFragmentRoot[] sourceRoots = Arrays.copyOf(allRoots, allRoots.length);
 		int count = 0;
-		for (int i = 0; i < allRoots.length; i++) {
-			IPackageFragmentRoot root = allRoots[i];
+		for (IPackageFragmentRoot root : allRoots) {
 			if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
 				if(root instanceof JarPackageFragmentRoot) {
 					// don't treat jars in a project as part of the project's module

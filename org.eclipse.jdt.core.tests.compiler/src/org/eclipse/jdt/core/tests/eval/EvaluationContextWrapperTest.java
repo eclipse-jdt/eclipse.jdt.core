@@ -13,17 +13,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.eval;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
@@ -43,14 +43,11 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 import org.eclipse.jdt.core.eval.ICodeSnippetRequestor;
 import org.eclipse.jdt.core.tests.util.Util;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
 import org.eclipse.jdt.internal.eval.InstallException;
-
-import junit.framework.Test;
 
 public class EvaluationContextWrapperTest extends EvaluationTest {
 
@@ -92,10 +89,7 @@ public class EvaluationContextWrapperTest extends EvaluationTest {
 		super.tearDown();
 	}
 
-	public void testBug573589_StaticImport() throws JavaModelException, InstallException {
-		if (this.complianceLevel < ClassFileConstants.JDK1_5) {
-			return;
-		}
+	public void testBug573589_StaticImport() throws Exception {
 		try {
 			StringBuilder source = new StringBuilder();
 			source.append("import static java.lang.Math.max;\n");
@@ -120,10 +114,7 @@ public class EvaluationContextWrapperTest extends EvaluationTest {
 		}
 	}
 
-	public void testBug573589_StaticImport_AttachedSource() throws JavaModelException, InstallException {
-		if (this.complianceLevel < ClassFileConstants.JDK1_5) {
-			return;
-		}
+	public void testBug573589_StaticImport_AttachedSource() throws Exception {
 		try {
 			StringBuilder source = new StringBuilder();
 			source.append("import static java.lang.Math.max;\n");
@@ -149,11 +140,11 @@ public class EvaluationContextWrapperTest extends EvaluationTest {
 		}
 	}
 
-	private void compileAndDeploy15(String source, String className) {
+	private void compileAndDeploy15(String source, String className) throws Exception {
 		compileAndDeploy15(source, className, "");
 	}
 
-	private Map<String, String> compileAndDeploy15(String source, String className, String locationPrefix) {
+	private Map<String, String> compileAndDeploy15(String source, String className, String locationPrefix) throws Exception {
 		resetEnv(); // needed to reinitialize the caches
 		String srcDir = this.project.getProject().getLocation().toFile().getAbsolutePath() + File.separator + SOURCE_DIRECTORY.concat(locationPrefix);
 		String binDir = this.project.getProject().getLocation().toFile().getAbsolutePath() + File.separator + BIN_DIR.concat(locationPrefix);
@@ -163,42 +154,35 @@ public class EvaluationContextWrapperTest extends EvaluationTest {
 
 		File directory = new File(srcDir);
 		if (!directory.exists()) {
-			if (!directory.mkdir()) {
-				System.out.println("Could not create " + srcDir);
-				return result;
-			}
+			Files.createDirectories(directory.toPath());
 		}
 
 		String fileName = srcDir + File.separator + className + ".java";
-		try {
-			BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
-			writer.write(source);
-			writer.flush();
-			writer.close();
-		} catch(IOException e) {
-			e.printStackTrace();
-			return result;
-		}
+		Files.write(Paths.get(fileName), source.getBytes());
 		StringBuilder buffer = new StringBuilder();
 		buffer
 			.append("\"")
 			.append(fileName)
 			.append("\" -d \"")
 			.append(binDir)
-			.append("\" -nowarn -1.5 -g -classpath \"")
+			.append("\" -nowarn -" + CompilerOptions.getFirstSupportedJavaVersion() + " -g -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append(srcDir)
 			.append("\"");
-		BatchCompiler.compile(buffer.toString(), new PrintWriter(System.out), new PrintWriter(System.err), null/*progress*/);
+		StringWriter out = new StringWriter();
+		StringWriter err = new StringWriter();
+		PrintWriter errWriter = new PrintWriter(out);
+		PrintWriter outWriter = new PrintWriter(err);
+		boolean compiled = BatchCompiler.compile(buffer.toString(), outWriter, errWriter, null/*progress*/);
+		if (!compiled) {
+			fail("Failed to compile '" + className + "', system error: '" + err.toString() + "', system out: '" + out.toString()+ "'");
+		}
 		return result;
 	}
 
-	private void refreshProject() {
-		try {
-			this.project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
-		} catch (CoreException e1) {
-			e1.printStackTrace();
-		}
+	private void refreshProject() throws Exception {
+		this.project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+		waitForAutoBuild(); // wait for builds to complete.
 	}
 
 	private void removeTempClass(String className) {
@@ -258,7 +242,7 @@ public class EvaluationContextWrapperTest extends EvaluationTest {
 		Map<String, String> options = super.getCompilerOptions();
 		options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
 		options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
-		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 		options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.IGNORE);
 		return options;
@@ -268,10 +252,7 @@ public class EvaluationContextWrapperTest extends EvaluationTest {
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		IProject proj = root.getProject(name);
 		if (proj.exists()) {
-        	try {
-        		proj.delete(true, true, null);
-        	}
-        	catch(Exception e) {}
+			proj.delete(true, true, null);
         }
 		proj = root.getProject(name);
 		proj.create(null);
@@ -294,9 +275,9 @@ public class EvaluationContextWrapperTest extends EvaluationTest {
 		jproject.setOutputLocation(outputLocation, null);
 
 		Map<String, String> map = JavaCore.getOptions();
-		map.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-		map.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-		map.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+		map.put(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
+		map.put(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		map.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
 		jproject.setOptions(map);
 
 
@@ -307,31 +288,19 @@ public class EvaluationContextWrapperTest extends EvaluationTest {
         return jproject;
 	}
 
-	private void addSourceContainer(IJavaProject prj, String name) {
+	private void addSourceContainer(IJavaProject prj, String name) throws Exception {
 		IFolder folder = prj.getProject().getFolder(name);
 		if(!folder.exists()) {
-			try {
-				folder.create(false, true, null);
-			} catch (CoreException e) {
-				throw new AssertionError(e);
-			}
+			folder.create(false, true, null);
 		}
 		IClasspathEntry entry = JavaCore.newSourceEntry(prj.getPackageFragmentRoot(folder).getPath());
-		try {
-			prj.setRawClasspath(addToClasspath(prj.getRawClasspath(), entry), null);
-		} catch (JavaModelException e) {
-			throw new AssertionError(e);
-		}
+		prj.setRawClasspath(addToClasspath(prj.getRawClasspath(), entry), null);
 	}
 
-	private void addLibrary(IJavaProject prj, String path, String sourcePath) {
+	private void addLibrary(IJavaProject prj, String path, String sourcePath) throws Exception {
 		IClasspathEntry entry = JavaCore.newLibraryEntry(new Path(path), Optional.ofNullable(sourcePath).map(Path::new).orElse(null),
 				Optional.ofNullable(sourcePath).map(p -> new Path(path)).orElse(null));
-		try {
-			prj.setRawClasspath(addToClasspath(prj.getRawClasspath(), entry), null);
-		} catch (JavaModelException e) {
-			throw new AssertionError(e);
-		}
+		prj.setRawClasspath(addToClasspath(prj.getRawClasspath(), entry), null);
 	}
 
 	private static IClasspathEntry[] addToClasspath(IClasspathEntry[] original, IClasspathEntry add) {

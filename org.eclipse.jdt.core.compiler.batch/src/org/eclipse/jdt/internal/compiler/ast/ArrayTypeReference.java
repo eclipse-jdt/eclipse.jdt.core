@@ -18,7 +18,6 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.function.Consumer;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
@@ -167,11 +166,9 @@ public class ArrayTypeReference extends SingleTypeReference {
 				}
 			}
 			if (this.annotationsOnDimensions != null) {
-				for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
-					Annotation[] annotations2 = this.annotationsOnDimensions[i];
-					if (annotations2 != null) {
-						for (int j = 0, max2 = annotations2.length; j < max2; j++) {
-							Annotation annotation = annotations2[j];
+				for (Annotation[] annotationsOnDimension : this.annotationsOnDimensions) {
+					if (annotationsOnDimension != null) {
+						for (Annotation annotation : annotationsOnDimension) {
 							annotation.traverse(visitor, scope);
 						}
 					}
@@ -191,11 +188,9 @@ public class ArrayTypeReference extends SingleTypeReference {
 				}
 			}
 			if (this.annotationsOnDimensions != null) {
-				for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
-					Annotation[] annotations2 = this.annotationsOnDimensions[i];
-					if (annotations2 != null) {
-						for (int j = 0, max2 = annotations2.length; j < max2; j++) {
-							Annotation annotation = annotations2[j];
+				for (Annotation[] annotationsOnDimension : this.annotationsOnDimensions) {
+					if (annotationsOnDimension != null) {
+						for (Annotation annotation : annotationsOnDimension) {
 							annotation.traverse(visitor, scope);
 						}
 					}
@@ -295,8 +290,7 @@ public class ArrayTypeReference extends SingleTypeReference {
 				if (this.resolvedType != null && !this.resolvedType.hasNullTypeAnnotations())
 					return false; // shortcut
 				if (this.annotationsOnDimensions != null) {
-					for (int i = 0; i < this.annotationsOnDimensions.length; i++) {
-						Annotation[] innerAnnotations = this.annotationsOnDimensions[i];
+					for (Annotation[] innerAnnotations : this.annotationsOnDimensions) {
 						if (containsNullAnnotation(innerAnnotations))
 							return true;
 					}

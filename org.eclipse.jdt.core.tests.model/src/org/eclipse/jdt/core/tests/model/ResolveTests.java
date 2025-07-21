@@ -14,22 +14,10 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
-
 import junit.framework.Test;
-
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.Flags;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.ILocalVariable;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.ISourceRange;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class ResolveTests extends AbstractJavaModelTests {
 	ICompilationUnit wc = null;
@@ -750,7 +738,7 @@ public void testLocalClass9() throws CoreException, IOException {
 				"  }\n" +
 				"}"
 			},
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		IClassFile classFile = getClassFile("P", "/P/lib.jar", "", "X.class");
 		IJavaElement[] elements = codeSelect(classFile, "Y", "Y");
 		assertTrue("Should be a binary type", ((IType) elements[0]).isBinary());
@@ -2055,7 +2043,7 @@ public void testDuplicateTypeDeclaration7() throws CoreException, IOException {
 			"}\n"
 		};
 
-		addLibrary(jarName, srcName, pathAndContents, JavaCore.VERSION_1_4);
+		addLibrary(jarName, srcName, pathAndContents, CompilerOptions.getFirstSupportedJavaVersion());
 
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
@@ -2423,7 +2411,7 @@ public void testWorkingCopyOrder2() throws Exception {
 			"public class Type {\n" +
 			"}\n"
 		};
-		addLibrary(jarName, srcName, pathAndContents, JavaCore.VERSION_1_4);
+		addLibrary(jarName, srcName, pathAndContents, CompilerOptions.getFirstSupportedJavaVersion());
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Resolve/src/test/p/Type.java",
@@ -2644,7 +2632,7 @@ public void testCodeSelectInHybrid1415Projects() throws CoreException, IOExcepti
 			"class TestCase {}\n"
 		};
 
-		addLibrary(jarName, srcName, pathAndContents, JavaCore.VERSION_1_5);
+		addLibrary(jarName, srcName, pathAndContents, CompilerOptions.getFirstSupportedJavaVersion());
 
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
@@ -2663,7 +2651,7 @@ public void testCodeSelectInHybrid1415Projects() throws CoreException, IOExcepti
 
 		assertElementsEqual(
 			"Unexpected elements",
-			"TestSuite(java.lang.Class) [in TestSuite [in TestSuite.class [in <default> [in bug299384.jar [in Resolve]]]]]",
+			"TestSuite(java.lang.Class<? extends TestCase>) [in TestSuite [in TestSuite.class [in <default> [in bug299384.jar [in Resolve]]]]]",
 			elements
 		);
 	} finally {

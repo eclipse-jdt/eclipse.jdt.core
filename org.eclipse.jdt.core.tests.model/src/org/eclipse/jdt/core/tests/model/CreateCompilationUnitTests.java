@@ -15,14 +15,17 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
 import java.io.IOException;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.*;
-
-import junit.framework.Test;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IImportDeclaration;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
 
 public class CreateCompilationUnitTests extends ModifyingResourceTests {
 public CreateCompilationUnitTests(String name) {

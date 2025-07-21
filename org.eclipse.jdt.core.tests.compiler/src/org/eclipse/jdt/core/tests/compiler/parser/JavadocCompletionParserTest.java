@@ -16,9 +16,7 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 import java.util.Locale;
 import java.util.Map;
 import java.util.StringTokenizer;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.internal.codeassist.complete.CompletionJavadoc;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadocTag;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionParser;
@@ -101,44 +99,44 @@ protected Map getCompilerOptions() {
 	options.put(CompilerOptions.OPTION_Source, this.sourceLevel);
 	return options;
 }
-private char[][] getAdditionalTagsPerLevels() {
+public static char[][] getAdditionalTagsPerLevels(long complianceLevel) {
 	char[][] additionalTags = null;
-	if (this.complianceLevel == ClassFileConstants.JDK1_4) {
+	if (complianceLevel == ClassFileConstants.JDK1_4) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE
 		};
-	} else if (this.complianceLevel > ClassFileConstants.JDK1_4
-			&& this.complianceLevel < ClassFileConstants.JDK9) {
+	} else if (complianceLevel > ClassFileConstants.JDK1_4
+			&& complianceLevel < ClassFileConstants.JDK9) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL
 		};
-	} else if (this.complianceLevel == ClassFileConstants.JDK9) {
+	} else if (complianceLevel == ClassFileConstants.JDK9) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL,
 			TAG_INDEX
 		};
-	} else if (this.complianceLevel >= ClassFileConstants.JDK10
-			&& this.complianceLevel < ClassFileConstants.JDK12) {
+	} else if (complianceLevel >= ClassFileConstants.JDK10
+			&& complianceLevel < ClassFileConstants.JDK12) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL,
 			TAG_INDEX, TAG_SUMMARY
 		};
-	} else if(this.complianceLevel >= ClassFileConstants.JDK12
-			&& this.complianceLevel < ClassFileConstants.JDK16) {
+	} else if(complianceLevel >= ClassFileConstants.JDK12
+			&& complianceLevel < ClassFileConstants.JDK16) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL, TAG_INDEX, TAG_SUMMARY, TAG_SYSTEM_PROPERTY
 		};
-	} else if(this.complianceLevel >= ClassFileConstants.JDK16
-			&& this.complianceLevel < ClassFileConstants.JDK18) {
+	} else if(complianceLevel >= ClassFileConstants.JDK16
+			&& complianceLevel < ClassFileConstants.JDK18) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL, TAG_INDEX, TAG_SUMMARY, TAG_SYSTEM_PROPERTY, TAG_RETURN
 		};
-	} else if(this.complianceLevel >= ClassFileConstants.JDK18) {
+	} else if(complianceLevel >= ClassFileConstants.JDK18) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL, TAG_INDEX, TAG_SUMMARY, TAG_SYSTEM_PROPERTY, TAG_RETURN, TAG_SNIPPET
@@ -236,7 +234,7 @@ protected void verifyAllTagsCompletion() {
 				TAG_LINK,
 				TAG_DOC_ROOT
 			};
-	char[][] additionalTags = getAdditionalTagsPerLevels();
+	char[][] additionalTags = getAdditionalTagsPerLevels(this.complianceLevel);
 	allTagsFinal = this.complianceLevel > ClassFileConstants.JDK1_8 ? allTagsJava9Plus  :  this.complianceLevel == ClassFileConstants.JDK1_8 ? allTagsJava8 : allTags  ;
 	if (additionalTags != null) {
 		int length = allTagsFinal.length;
@@ -248,7 +246,7 @@ protected void verifyAllTagsCompletion() {
 }
 
 /**
- * @tests Test completions for javadoc tag names
+ * tests Test completions for javadoc tag names
  */
 public void test001() {
 	String source = "package javadoc;\n" +
@@ -322,7 +320,7 @@ public void test006() {
 		TAG_LINK,
 		TAG_DOC_ROOT,
 	};
-	char[][] additionalTags = getAdditionalTagsPerLevels();
+	char[][] additionalTags = getAdditionalTagsPerLevels(this.complianceLevel);
 	if (additionalTags != null) {
 		int length = allTags.length;
 		int add = additionalTags.length;
@@ -347,11 +345,11 @@ public void test007() {
 	verifyAllTagsCompletion();
 }
 /**
- * @bug [javadoc][assist] @linkplain no longer proposed when 1.4 compliance is used
+ * bug [javadoc][assist] @linkplain no longer proposed when 1.4 compliance is used
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=123096"
  */
 public void test008() {
-	this.sourceLevel = CompilerOptions.VERSION_1_3;
+	this.sourceLevel = CompilerOptions.getFirstSupportedJavaVersion();
 	String source = "package javadoc;\n" +
 		"/**\n" +
 		" * Completion on empty tag name:\n" +
@@ -363,8 +361,8 @@ public void test008() {
 }
 
 /**
- * @tests Tests to verify completion node flags
- * @bug 113506: [javadoc][assist] No tag proposals when there is a prefix on a line
+ * tests Tests to verify completion node flags
+ * bug 113506: [javadoc][assist] No tag proposals when there is a prefix on a line
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=113506"
  */
 public void test010() {
@@ -450,7 +448,7 @@ public void test015() {
 }
 
 /**
- * @test Bug 113469: CompletionOnJavadocTag token is not correct
+ * test Bug 113469: CompletionOnJavadocTag token is not correct
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=113649"
  */
 public void test020() {
@@ -537,7 +535,7 @@ public void test024() {
 }
 
 /**
- * @test Bug 114091: [assist][javadoc] eternal loop
+ * test Bug 114091: [assist][javadoc] eternal loop
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=114091"
  */
 public void test025() {
@@ -551,7 +549,7 @@ public void test025() {
 		TAG_LINK,
 		TAG_DOC_ROOT,
 	};
-	char[][] additionalTags = getAdditionalTagsPerLevels();
+	char[][] additionalTags = getAdditionalTagsPerLevels(this.complianceLevel);
 	if (additionalTags != null) {
 		int length = allTags.length;
 		int add = additionalTags.length;
@@ -614,7 +612,7 @@ public void test028() {
 		TAG_LINK,
 		TAG_DOC_ROOT,
 	};
-	char[][] additionalTags = getAdditionalTagsPerLevels();
+	char[][] additionalTags = getAdditionalTagsPerLevels(this.complianceLevel);
 	if (additionalTags != null) {
 		int length = allTags.length;
 		int add = additionalTags.length;

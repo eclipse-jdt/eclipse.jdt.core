@@ -18,7 +18,6 @@ package org.eclipse.jdt.internal.apt.pluggable.core.filer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-
 import javax.tools.FileObject;
 
 public abstract class IdeOutputFileObject implements FileObject {

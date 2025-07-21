@@ -17,9 +17,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -822,22 +820,42 @@ public void test021() {
 		"	^^^^^^\n" +
 		"Unnecessary cast from B to A\n" +
 		"----------\n" +
-		"3. ERROR in p1\\C.java (at line 9)\n" +
+		"3. ERROR in p1\\C.java (at line 8)\n" +
+		"	((A)b).new Member4().new M4Member(); // fault tolerance\n" +
+		"	^^^^^^\n" +
+		"Illegal enclosing instance specification for type A.Member4\n" +
+		"----------\n" +
+		"4. ERROR in p1\\C.java (at line 8)\n" +
+		"	((A)b).new Member4().new M4Member(); // fault tolerance\n" +
+		"	^^^^^^^^^^^^^^^^^^^^\n" +
+		"Illegal enclosing instance specification for type A.Member4.M4Member\n" +
+		"----------\n" +
+		"5. ERROR in p1\\C.java (at line 9)\n" +
 		"	((A)zork()).new Member1(); // fault-tolerance\n" +
 		"	    ^^^^\n" +
 		"The method zork() is undefined for the type C\n" +
 		"----------\n" +
-		"4. ERROR in p1\\C.java (at line 12)\n" +
+		"6. ERROR in p1\\C.java (at line 12)\n" +
 		"	((A)b).new Member2(){}; // UNnecessary\n" +
 		"	^^^^^^\n" +
 		"Unnecessary cast from B to A\n" +
 		"----------\n" +
-		"5. ERROR in p1\\C.java (at line 14)\n" +
+		"7. ERROR in p1\\C.java (at line 14)\n" +
 		"	((A)b).new Member4().new M4Member(){}; // fault tolerance\n" +
 		"	^^^^^^\n" +
 		"Unnecessary cast from B to A\n" +
 		"----------\n" +
-		"6. ERROR in p1\\C.java (at line 15)\n" +
+		"8. ERROR in p1\\C.java (at line 14)\n" +
+		"	((A)b).new Member4().new M4Member(){}; // fault tolerance\n" +
+		"	^^^^^^\n" +
+		"Illegal enclosing instance specification for type A.Member4\n" +
+		"----------\n" +
+		"9. ERROR in p1\\C.java (at line 14)\n" +
+		"	((A)b).new Member4().new M4Member(){}; // fault tolerance\n" +
+		"	^^^^^^^^^^^^^^^^^^^^\n" +
+		"Illegal enclosing instance specification for type A.Member4.M4Member\n" +
+		"----------\n" +
+		"10. ERROR in p1\\C.java (at line 15)\n" +
 		"	((A)zork()).new Member1(){}; // fault-tolerance\n" +
 		"	    ^^^^\n" +
 		"The method zork() is undefined for the type C\n" +
@@ -3627,6 +3645,170 @@ public void testBug572534() {
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 	}
+}
+
+public void testGH2470() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_6) return;
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"UnnecessaryCasts.java",
+			"""
+			public class UnnecessaryCasts<T extends C> {
+				void m(T t) {
+					C c = t;
+
+					((C) t).x();
+					((I) t).x();
+					((I) c).x();
+				}
+			}
+
+			interface I {
+				void x();
+			}
+			class C implements I {
+				@Override
+				public void x() {}
+			}
+			"""
+		};
+	runner.expectedCompilerLog =
+			"----------\n" +
+			"1. WARNING in UnnecessaryCasts.java (at line 5)\n" +
+			"	((C) t).x();\n" +
+			"	^^^^^^^\n" +
+			"Unnecessary cast from T to C\n" +
+			"----------\n" +
+			"2. WARNING in UnnecessaryCasts.java (at line 6)\n" +
+			"	((I) t).x();\n" +
+			"	^^^^^^^\n" +
+			"Unnecessary cast from T to I\n" +
+			"----------\n" +
+			"3. WARNING in UnnecessaryCasts.java (at line 7)\n" +
+			"	((I) c).x();\n" +
+			"	^^^^^^^\n" +
+			"Unnecessary cast from C to I\n" +
+			"----------\n";
+	runner.runWarningTest();
+}
+
+public void testGH2470_generic() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return;
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	runner.testFiles = new String[] {
+		"X.java",
+		"""
+		import java.util.List;
+		public class X {
+			void bar() {}
+			@SuppressWarnings({"unchecked"})
+			void test(List list) {
+				((List<X>) list).get(0).bar();
+				list.get(0).bar();
+			}
+		}
+		"""
+	};
+	runner.expectedCompilerLog =
+			"""
+				----------
+				1. ERROR in X.java (at line 7)
+					list.get(0).bar();
+					            ^^^
+				The method bar() is undefined for the type Object
+				----------
+				""";
+	runner.runNegativeTest();
+}
+
+public void testGH2470_generic2() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return;
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	runner.testFiles = new String[] {
+		"X.java",
+		"""
+		import java.util.List;
+		import java.util.function.Supplier;
+		interface XListSupplier extends Supplier<List<X>> {}
+		interface XList extends List<X> {}
+		public class X {
+			void bar() {}
+			@SuppressWarnings({"unchecked"})
+			void test0(Supplier<List> sup) {
+				((Supplier<List<X>>) sup).get().get(0).bar();
+			}
+			@SuppressWarnings({"unchecked"})
+			void test1(Supplier<List> sup) {
+				((XListSupplier) sup).get().get(0).bar();
+			}
+			@SuppressWarnings({"unchecked"})
+			void test2(List list) {
+				((XList) list).get(0).bar();
+				list.get(0).bar();
+			}
+		}
+		"""
+	};
+	runner.expectedCompilerLog =
+			"""
+				----------
+				1. ERROR in X.java (at line 9)
+					((Supplier<List<X>>) sup).get().get(0).bar();
+					^^^^^^^^^^^^^^^^^^^^^^^^^
+				Cannot cast from Supplier<List> to Supplier<List<X>>
+				----------
+				2. ERROR in X.java (at line 13)
+					((XListSupplier) sup).get().get(0).bar();
+					^^^^^^^^^^^^^^^^^^^^^
+				Cannot cast from Supplier<List> to XListSupplier
+				----------
+				3. ERROR in X.java (at line 18)
+					list.get(0).bar();
+					            ^^^
+				The method bar() is undefined for the type Object
+				----------
+				""";
+	runner.runNegativeTest();
+}
+
+public void testGH2470_overload() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	runner.testFiles = new String[] {
+			"p1/C1.java",
+			"""
+			package p1;
+			import p2.C2;
+			public class C1 {
+				void m(String s) {
+					System.out.print("String.");
+				}
+				public void m(CharSequence s) {
+					System.out.print("CharSequence.");
+				}
+
+				public static void main(String[] args) {
+					C1 c = new C2();
+					((C2)c).m("hallo");
+					c.m("hallo");
+				}
+			}
+			""",
+			"p2/C2.java",
+			"""
+			package p2;
+			import p1.C1;
+			public class C2 extends C1 {
+			}
+			"""
+		};
+	runner.expectedOutputString = "CharSequence.String.";
+	runner.runConformTest();
 }
 
 public static Class testClass() {

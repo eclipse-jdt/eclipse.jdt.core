@@ -14,21 +14,9 @@
 package org.eclipse.jdt.internal.compiler.parser;
 
 import java.util.ArrayList;
-
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.ArrayTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.ImportReference;
-import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
-import org.eclipse.jdt.internal.compiler.ast.TypeReference;
-import org.eclipse.jdt.internal.compiler.ast.Wildcard;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -39,14 +27,11 @@ public abstract class TypeConverter {
 	int namePos;
 
 	protected ProblemReporter problemReporter;
-	protected boolean has1_5Compliance;
-	protected boolean has14_Compliance;
+
 	private final char memberTypeSeparator;
 
 	protected TypeConverter(ProblemReporter problemReporter, char memberTypeSeparator) {
 		this.problemReporter = problemReporter;
-		this.has1_5Compliance = problemReporter.options.originalComplianceLevel >= ClassFileConstants.JDK1_5;
-		this.has14_Compliance = problemReporter.options.originalComplianceLevel >= ClassFileConstants.JDK14;
 		this.memberTypeSeparator = memberTypeSeparator;
 	}
 
@@ -98,7 +83,6 @@ public abstract class TypeConverter {
 					parameter.bounds = new TypeReference[length-1];
 					for (int i = 1; i < length; i++) {
 						TypeReference bound = createTypeReference(typeParameterBounds[i], start, end);
-						bound.bits |= ASTNode.IsSuperType;
 						parameter.bounds[i-1] = bound;
 					}
 				}
@@ -283,9 +267,7 @@ public abstract class TypeConverter {
 					break;
 				case Signature.C_GENERIC_START :
 					nameFragmentEnd = this.namePos-1;
-					// convert 1.5 specific constructs only if compliance is 1.5 or above
-					if (!this.has1_5Compliance)
-						break typeLoop;
+					// convert 1.5 specific constructs
 					if (fragments == null) fragments = new ArrayList(2);
 					addIdentifiers(typeSignature, nameFragmentStart, nameFragmentEnd + 1, identCount, fragments);
 					this.namePos++; // skip '<'
@@ -434,32 +416,22 @@ public abstract class TypeConverter {
 					identCount ++;
 					break;
 				case '<' :
-					/* We need to convert and preserve 1.5 specific constructs either if compliance is 1.5 or above,
-					   or the caller has explicitly requested generics to be included. The parameter includeGenericsAnyway
-					   should be used by the caller to signal that in the calling context generics information must be
-					   internalized even when the requesting project is 1.4. But in all cases, we must skip over them to
-					   see if there are any applicable type fragments after the type parameters: i.e we just aren't done
-					   having seen a '<' in 1.4 mode.
 
-					   Because of the way type signatures are encoded, TypeConverter.decodeType(String, int, int, int) is immune
-					   to this problem. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=325633
-					 */
-					if (this.has1_5Compliance || includeGenericsAnyway) {
-						if (fragments == null) fragments = new ArrayList(2);
-					}
+					if (fragments == null) fragments = new ArrayList(2);
+
 					nameFragmentEnd = this.namePos-1;
-					if (this.has1_5Compliance || includeGenericsAnyway) {
-						char[][] identifiers = CharOperation.splitOn('.', typeName, nameFragmentStart, this.namePos);
-						fragments.add(identifiers);
-					}
+
+					char[][] identifiers = CharOperation.splitOn('.', typeName, nameFragmentStart, this.namePos);
+					fragments.add(identifiers);
+
 					this.namePos++; // skip '<'
 					TypeReference[] arguments = decodeTypeArguments(typeName, length, start, end, includeGenericsAnyway); // positionned on '>' at end
-					if (this.has1_5Compliance || includeGenericsAnyway) {
-						fragments.add(arguments);
-						identCount = 0;
-						nameFragmentStart = -1;
-						nameFragmentEnd = -1;
-					}
+
+					fragments.add(arguments);
+					identCount = 0;
+					nameFragmentStart = -1;
+					nameFragmentEnd = -1;
+
 					// next increment will skip '>'
 					break;
 			}

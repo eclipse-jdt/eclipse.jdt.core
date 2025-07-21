@@ -14,12 +14,11 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.Hashtable;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class CompletionWithMissingTypesTests extends AbstractJavaModelCompletionTests {
@@ -32,7 +31,7 @@ public void setUpSuite() throws Exception {
 	if (COMPLETION_PROJECT == null)  {
 		COMPLETION_PROJECT = setUpJavaProject("Completion");
 	} else {
-		setUpProjectCompliance(COMPLETION_PROJECT, "1.4");
+		setUpProjectCompliance(COMPLETION_PROJECT, CompilerOptions.getFirstSupportedJavaVersion());
 	}
 	super.setUpSuite();
 }
@@ -195,13 +194,13 @@ public void test0004() throws JavaModelException {
 	assertResults(
 			"length[FIELD_REF]{length, [Lmissing.MissingType;, I, length, null, ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
 			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}\n" +
-			"clone[METHOD_REF]{clone(), [Lmissing.MissingType;, ()Ljava.lang.Object;, clone, null, ["+start1+", "+end1+"], " + (relevance2) + "}\n" +
+			"clone[METHOD_REF]{clone(), [Lmissing.MissingType;, ()[Lmissing.MissingType;, clone, null, ["+start1+", "+end1+"], " + (relevance2) + "}\n" +
 			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance2) + "}\n" +
 			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), ["+start1+", "+end1+"], " + (relevance2) + "}\n" +
 			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance2) + "}\n" +
 			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, ["+start1+", "+end1+"], " + (relevance2) + "}\n" +
 			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance2) + "}\n" +
-			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, ["+start1+", "+end1+"], " + (relevance2) + "}\n" +
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, ["+start1+", "+end1+"], " + (relevance2) + "}\n" +
 			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance2) + "}\n" +
 			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, ["+start1+", "+end1+"], " + (relevance2) + "}\n" +
 			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance2) + "}\n" +
@@ -1592,7 +1591,7 @@ public void test0038() throws JavaModelException {
 	int start2 = str.lastIndexOf("MissingType");
 	int end2 = start2 + "MissingType".length();
 	assertResults(
-			"class[FIELD_REF]{class, null, Ljava.lang.Class;, class, null, ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"class[FIELD_REF]{class, null, Ljava.lang.Class<Lmissing.MissingType;>;, class, null, ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
 			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 			requestor.getResults());
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,6 +15,9 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import junit.framework.Test;
 
 public class AnnotationTest_9 extends AbstractComparableTest {
+	static {
+//		TESTS_NAMES = new String[] { "testGH1654" };
+	}
 
     public AnnotationTest_9(String name) {
         super(name);
@@ -103,4 +106,44 @@ public class AnnotationTest_9 extends AbstractComparableTest {
     		"----------\n",
     		null, true);
     }
+	public void testGH1654() {
+		runConformTest(
+			new String[] {
+				"p1/Anno.java",
+				"""
+				package p1;
+
+				import java.lang.annotation.ElementType;
+				import java.lang.annotation.Retention;
+				import java.lang.annotation.RetentionPolicy;
+				import java.lang.annotation.Target;
+
+				@Retention(RetentionPolicy.RUNTIME)
+				@Target(ElementType.TYPE)
+				public @interface Anno {
+
+				    String value();
+				}
+
+				""",
+				"p1/Cls.java",
+				"""
+				package p1;
+
+				import p2.Inf;
+
+				@Anno(Cls.CON)
+				public class Cls implements Inf {
+				}
+				""",
+				"p2/Inf.java",
+				"""
+				package p2;
+				public interface Inf {
+				    String CON = "Con";
+				}
+				"""
+			}
+			);
+	}
 }

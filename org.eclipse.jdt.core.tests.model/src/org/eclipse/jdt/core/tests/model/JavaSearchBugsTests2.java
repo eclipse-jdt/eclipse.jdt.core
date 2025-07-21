@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 IBM Corporation and others.
+ * Copyright (c) 2014, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -34,7 +33,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -42,35 +41,13 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jdt.core.IAccessRule;
-import org.eclipse.jdt.core.IClasspathAttribute;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IParent;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.ToolFactory;
-import org.eclipse.jdt.core.search.IJavaSearchConstants;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.MethodNameMatch;
-import org.eclipse.jdt.core.search.MethodNameMatchRequestor;
-import org.eclipse.jdt.core.search.SearchEngine;
-import org.eclipse.jdt.core.search.SearchMatch;
-import org.eclipse.jdt.core.search.SearchParticipant;
-import org.eclipse.jdt.core.search.SearchPattern;
-import org.eclipse.jdt.core.search.TypeNameMatch;
-import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
+import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 import org.eclipse.osgi.service.environment.Constants;
-
-import junit.framework.Test;
 
 // The size of JavaSearchBugsTests.java is very big, Hence continuing here.
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -111,12 +88,12 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	 */
 	public void testBug362633() throws CoreException, IOException {
 		try {
-			IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib325418.jar", "JCL15_LIB" }, "", "1.5");
+			IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib325418.jar", "JCL18_LIB" }, "", CompilerOptions.getFirstSupportedJavaVersion());
 			org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
 					"p325418M/Missing.java",
 					"package p325418M;\n" +
 					"public class Missing{}\n" },
-					p.getProject().getLocation().append("lib325418M.jar").toOSString(), "1.5");
+					p.getProject().getLocation().append("lib325418M.jar").toOSString(), CompilerOptions.getFirstSupportedJavaVersion());
 
 			org.eclipse.jdt.core.tests.util.Util.createJar(
 							new String[] {
@@ -134,7 +111,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 							null,
 							p.getProject().getLocation().append("lib325418.jar").toOSString(),
 							new String[] { p.getProject().getLocation().append("lib325418M.jar").toOSString() },
-							"1.5");
+							CompilerOptions.getFirstSupportedJavaVersion());
 			refresh(p);
 			int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES;
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p }, mask);
@@ -150,15 +127,15 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 
 	/**
-	 * @bug 123836: [1.5][search] for references to overriding method with bound type variable is not polymorphic
-	 * @test Search for references to an overridden method with bound variables should yield.
+	 * bug123836: [1.5][search] for references to overriding method with bound type variable is not polymorphic
+	 * test Search for references to an overridden method with bound variables should yield.
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=123836"
 	 */
 	public void testBug123836a() throws CoreException {
 		IJavaProject project = null;
 		try
 		{
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createFile("/P/Sub.java",
 					"abstract class Sup<C> {\n" +
 					"    protected void m(C classifier) {}\n"+
@@ -182,7 +159,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		IJavaProject project = null;
 		try
 		{
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createFile("/P/Sub.java",
 					"abstract class Sup<C> {\n" +
 					"    protected void m(C classifier) {}\n"+
@@ -209,8 +186,9 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createFile("/P/Test.java",
+				"import java.io.Serializable;\n" +
 				"class Test {\n"+
 				"    void calc(Property prop, Property<? extends Serializable> p2) {\n"+
 				"        prop.compute(null);\n"+
@@ -233,14 +211,45 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			deleteProject(project);
 		}
 	}
+	public void testBug123836c_missingImport() throws CoreException {
+		// original version with missing import, will now give POTENTIAL_MATCH
+		IJavaProject project = null;
+		try
+		{
+			// create the common project and create an interface
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
+			createFile("/P/Test.java",
+				"class Test {\n"+
+				"    void calc(Property prop, Property<? extends Serializable> p2) {\n"+
+				"        prop.compute(null);\n"+
+				"        p2.compute(null);\n"+
+				"    }\n"+
+				"}\n"+
+				"abstract class Property<E> {\n"+
+				"    public abstract void compute(E e);\n"+
+				"}\n"+
+				"class StringProperty extends Property<String> {\n"+
+				"    @Override public void compute(String e) {\n"+
+				"        System.out.println(e);\n"+
+				"    }");
+			IType type = getCompilationUnit("/P/Test.java").getType("StringProperty");
+			IMethod method = type.getMethod("compute", new String[]{"QString;"});
+			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults("Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] EXACT_MATCH\n" +
+								"Test.java void Test.calc(Property, Property<? extends Serializable>) [compute(null)] POTENTIAL_MATCH");
+		} finally {
+			deleteProject(project);
+		}
+	}
 	// Test inner class
 	public void testBug123836d() throws CoreException {
 		IJavaProject project = null;
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createFile("/P/Test.java",
+				"import java.io.Serializable;\n" +
 				"class Test {\n"+
 				"    void calc(Property prop, Property<? extends Serializable> p2) {\n"+
 				"        prop.compute(null);\n"+
@@ -270,8 +279,9 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createFile("/P/Test.java",
+				"import java.io.Serializable;\n" +
 				"class Test {\n"+
 				"    void calc(Property prop, Property<? extends Serializable> p2) {\n"+
 				"        prop.compute(null);\n"+
@@ -300,8 +310,9 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createFile("/P/Test.java",
+				"import java.io.Serializable;\n" +
 				"class Test {\n"+
 				"    void calc(Property prop, Property<? extends Serializable> p2) {\n"+
 				"        prop.compute(null);\n"+
@@ -330,8 +341,9 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createFile("/P/Test.java",
+				"import java.io.Serializable;\n" +
 				"class Test {\n"+
 				"	{\n" +
 				"		new Property<String>() {\n" +
@@ -360,8 +372,9 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createFile("/P/Test.java",
+				"import java.io.Serializable;\n" +
 				"class Test {\n"+
 				"	static {\n" +
 				"		new Property<String>() {\n" +
@@ -390,8 +403,9 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createFile("/P/Test.java",
+				"import java.io.Serializable;\n" +
 				"class Test {\n"+
 				"	Property <?>p = new Property<String>() {\n" +
 				"			@Override public void compute(String e) {}\n" +
@@ -417,8 +431,9 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createFile("/P/Test.java",
+				"import java.io.Serializable;\n" +
 				"class Test {\n"+
 				"    void calc(Property prop, Property<? extends Serializable> p2) {\n"+
 				"        prop.compute(null);\n"+
@@ -453,7 +468,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createFile("/P/Sub.java",
 					"abstract class Sup<C> {\n" +
 					"    protected void m(C classifier) {}\n"+
@@ -480,7 +495,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			project = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createFile("/P/Sub.java",
 					"abstract class Sup<C> {\n" +
 					"    protected void m(C classifier) {}\n"+
@@ -501,14 +516,14 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		}
 	}
 	/**
-	 * @bug 297825: [search] Rename refactoring doesn't update enclosing type
-	 * @test Search for references for enclosing type's subclass should return a match.
+	 * bug297825: [search] Rename refactoring doesn't update enclosing type
+	 * test Search for references for enclosing type's subclass should return a match.
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=297825"
 	 */
 	public void testBug297825a() throws CoreException {
 		try {
 			IJavaProject p = createJavaProject("P", new String[] { "src" },
-					new String[] {"JCL_LIB"}, "bin");
+					new String[] {"JCL18_LIB"}, "bin");
 			createFolder("/P/src/b297825");
 			createFile("/P/src/b297825/_Foo.java",
 					"package b297825;\n" +
@@ -543,14 +558,14 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		}
 	}
 	/**
-	 * @bug 297825: [search] Rename refactoring doesn't update enclosing type
-	 * @test Verify there is no AIOOB when searching for references for a type.
+	 * bug297825: [search] Rename refactoring doesn't update enclosing type
+	 * test Verify there is no AIOOB when searching for references for a type.
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=297825"
 	 */
 	public void testBug297825b() throws CoreException {
 		try {
 			IJavaProject p = createJavaProject("P", new String[] { "src" },
-					new String[] {"JCL_LIB"}, "bin");
+					new String[] {"JCL18_LIB"}, "bin");
 			createFile("/P/src/Foo.java",
 					"class _Foo {\n" +
 					"	public static class Bar {\n" +
@@ -581,14 +596,14 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		}
 	}
 	/**
-	 * @bug 297825: [search] Rename refactoring doesn't update enclosing type
-	 * @test Search for references for the top level type Foo should report no match. "new _Foo.Bar.Foo()" refers to a different type.
+	 * bug297825: [search] Rename refactoring doesn't update enclosing type
+	 * test Search for references for the top level type Foo should report no match. "new _Foo.Bar.Foo()" refers to a different type.
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=297825"
 	 */
 	public void testBug297825c() throws CoreException {
 		try {
 			IJavaProject p = createJavaProject("P", new String[] { "src" },
-					new String[] {"JCL_LIB"}, "bin");
+					new String[] {"JCL18_LIB"}, "bin");
 			createFolder("/P/src/b297825");
 			createFile("/P/src/b297825/_Foo.java",
 					"package b297825;\n" +
@@ -625,14 +640,14 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		}
 	}
 	/**
-	 * @bug 297825: [search] Rename refactoring doesn't update enclosing type
-	 * @test Search for references for enclosing type's subclass should return a match. The inner type is parameterized.
+	 * bug297825: [search] Rename refactoring doesn't update enclosing type
+	 * test Search for references for enclosing type's subclass should return a match. The inner type is parameterized.
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=297825"
 	 */
 	public void testBug297825d() throws CoreException {
 		try {
 			IJavaProject p = createJavaProject("P", new String[] { "src" },
-					new String[] {"JCL_LIB"}, "bin");
+					new String[] {"JCL18_LIB"}, "bin");
 			createFolder("/P/src/b297825");
 			createFile("/P/src/b297825/_Foo.java",
 					"package b297825;\n" +
@@ -667,14 +682,14 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		}
 	}
 	/**
-	 * @bug 342393: Anonymous class' occurrence count is incorrect when two methods in a class have the same name.
-	 * @test Search for Enumerators with anonymous types
+	 * bug342393: Anonymous class' occurrence count is incorrect when two methods in a class have the same name.
+	 * test Search for Enumerators with anonymous types
 	 *
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=342393"
 	 */
 	public void testBug342393() throws CoreException {
 		try {
-			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "bin", "1.5");
+			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			String content = "package b342393;\n" + "class Generic {\n"
 					+ "enum A {\n" + "ONE {\n" + "A getSquare() {\n"
 					+ "return ONE;\n" + "}\n" + "},\n" + "TWO {\n"
@@ -694,8 +709,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 
 	/**
-	 * @bug 376673: DBCS4.2 Can not rename the class names when DBCS (Surrogate e.g. U+20B9F) is in it
-	 * @test Search for DBCS type should report the match
+	 * bug376673: DBCS4.2 Can not rename the class names when DBCS (Surrogate e.g. U+20B9F) is in it
+	 * test Search for DBCS type should report the match
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=376673"
 	 */
 	public void testBug376673a() throws CoreException {
@@ -704,16 +719,12 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				System.out.println("testBug376673* may fail on macosx");
 				return;
 			}
-			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL17_LIB"}, "bin", "1.7");
+			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			String content = "package pkg;\n" +
 					"class \uD842\uDF9F1 {}\n";
 			createFolder("/P/pkg");
-			try {
-				IFile file = createFile("/P/pkg/\uD842\uDF9F1.java", content, "UTF-8");
-				file.setCharset("UTF-8", null);
-			} catch (UnsupportedEncodingException e) {
-				System.out.println("unsupported encoding");
-			}
+			IFile file = createFile("/P/pkg/\uD842\uDF9F1.java", content, StandardCharsets.UTF_8);
+			file.setCharset("UTF-8", null);
 			waitUntilIndexesReady();
 			IJavaSearchScope scope = SearchEngine. createJavaSearchScope(
 					new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
@@ -729,18 +740,14 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			if ("macosx".equals(System.getProperty("osgi.os"))) {
 				return;
 			}
-			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL17_LIB"}, "bin", "1.7");
+			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			String content = "package pkg;\n" +
 					"class \uD842\uDF9F1 {" +
 					"	public void \uD842\uDF9Fm() {}\n" +
 					"}\n";
 			createFolder("/P/pkg");
-			try {
-				IFile file = createFile("/P/pkg/\uD842\uDF9F1.java", content, "UTF-8");
-				file.setCharset("UTF-8", null);
-			} catch (UnsupportedEncodingException e) {
-				System.out.println("unsupported encoding");
-			}
+			IFile file = createFile("/P/pkg/\uD842\uDF9F1.java", content, StandardCharsets.UTF_8);
+			file.setCharset("UTF-8", null);
 			waitUntilIndexesReady();
 			IJavaSearchScope scope = SearchEngine. createJavaSearchScope(
 					new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
@@ -756,18 +763,14 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			if ("macosx".equals(System.getProperty("osgi.os"))) {
 				return;
 			}
-			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL17_LIB"}, "bin", "1.7");
+			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			String content = "package pkg;\n" +
 					"class \uD842\uDF9F1 {" +
 					"	public \uD842\uDF9F1() {}\n" +
 					"}\n";
 			createFolder("/P/pkg");
-			try {
-				IFile file = createFile("/P/pkg/\uD842\uDF9F1.java", content, "UTF-8");
-				file.setCharset("UTF-8", null);
-			} catch (UnsupportedEncodingException e) {
-				System.out.println("unsupported encoding");
-			}
+			IFile file = createFile("/P/pkg/\uD842\uDF9F1.java", content, StandardCharsets.UTF_8);
+			file.setCharset("UTF-8", null);
 			waitUntilIndexesReady();
 			IJavaSearchScope scope = SearchEngine. createJavaSearchScope(
 					new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
@@ -783,18 +786,14 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			if ("macosx".equals(System.getProperty("osgi.os"))) {
 				return;
 			}
-			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL17_LIB"}, "bin", "1.7");
+			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			String content = "package pkg;\n" +
 					"class \uD842\uDF9F1 {" +
 					"	public int \uD842\uDF9Ff;\n" +
 					"}\n";
 			createFolder("/P/pkg");
-			try {
-				IFile file = createFile("/P/pkg/\uD842\uDF9F1.java", content, "UTF-8");
-				file.setCharset("UTF-8", null);
-			} catch (UnsupportedEncodingException e) {
-				System.out.println("unsupported encoding");
-			}
+			IFile file = createFile("/P/pkg/\uD842\uDF9F1.java", content, StandardCharsets.UTF_8);
+			file.setCharset("UTF-8", null);
 			waitUntilIndexesReady();
 			IJavaSearchScope scope = SearchEngine. createJavaSearchScope(
 					new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
@@ -815,7 +814,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			// on Windows we have Windows-1252 as default, *nix should use UTF-8
 			assertUTF8Encoding();
 		}
-		IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib376673.jar", "JCL17_LIB" }, "", "1.7");
+		IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib376673.jar", "JCL18_LIB" }, "", CompilerOptions.getFirstSupportedJavaVersion());
 		IPath jarPath = p.getProject().getLocation().append("lib376673.jar");
 
 		org.eclipse.jdt.core.tests.util.Util.createJar(
@@ -824,7 +823,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 						"package p\uD842\uDF9F.i\uD842\uDF9F;\n" +
 						"public class Test{}\n" },
 						jarPath.toOSString(),
-						"1.7");
+						CompilerOptions.getFirstSupportedJavaVersion());
 		refresh(p);
 		waitForAutoBuild();
 		waitUntilIndexesReady();
@@ -864,8 +863,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 	}
 	/**
-	 * @bug 357547: [search] Search for method references is returning methods as overridden even if the superclass's method is only package-visible
-	 * @test Search for a non-overridden method because of package visibility should not be found
+	 * bug357547: [search] Search for method references is returning methods as overridden even if the superclass's method is only package-visible
+	 * test Search for a non-overridden method because of package visibility should not be found
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=357547"
 	 */
 	public void testBug357547a() throws CoreException {
@@ -1015,12 +1014,12 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		IJavaProject project = null;
 		try
 		{
-			project = createJavaProject("P", new String[] {""}, new String[] { "/P/lib357547.jar", "JCL15_LIB" }, "", "1.5");
+			project = createJavaProject("P", new String[] {""}, new String[] { "/P/lib357547.jar", "JCL18_LIB" }, "", CompilerOptions.getFirstSupportedJavaVersion());
 			org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
 					"p2/A.java",
 					"package p2;\n" +
 					"public class A{}\n" },
-					project.getProject().getLocation().append("libStuff.jar").toOSString(), "1.5");
+					project.getProject().getLocation().append("libStuff.jar").toOSString(), CompilerOptions.getFirstSupportedJavaVersion());
 
 			org.eclipse.jdt.core.tests.util.Util.createJar(
 					new String[] {
@@ -1035,7 +1034,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					null,
 					project.getProject().getLocation().append("lib357547.jar").toOSString(),
 					new String[] { project.getProject().getLocation().append("libStuff.jar").toOSString() },
-					"1.5");
+					CompilerOptions.getFirstSupportedJavaVersion());
 			refresh(project);
 			createFolder("/P/p2");
 			createFile("/P/p2/A.java",
@@ -1063,12 +1062,12 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		IJavaProject project = null;
 		try
 		{
-			project = createJavaProject("P", new String[] {""}, new String[] { "/P/lib357547.jar", "JCL15_LIB" }, "", "1.5");
+			project = createJavaProject("P", new String[] {""}, new String[] { "/P/lib357547.jar", "JCL18_LIB" }, "", CompilerOptions.getFirstSupportedJavaVersion());
 			org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
 					"p2/A.java",
 					"package p2;\n" +
 					"public class A{}\n" },
-					project.getProject().getLocation().append("libStuff.jar").toOSString(), "1.5");
+					project.getProject().getLocation().append("libStuff.jar").toOSString(), CompilerOptions.getFirstSupportedJavaVersion());
 
 			org.eclipse.jdt.core.tests.util.Util.createJar(
 					new String[] {
@@ -1083,7 +1082,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					null,
 					project.getProject().getLocation().append("lib357547.jar").toOSString(),
 					new String[] { project.getProject().getLocation().append("libStuff.jar").toOSString() },
-					"1.5");
+					CompilerOptions.getFirstSupportedJavaVersion());
 			refresh(project);
 			createFolder("/P/p2");
 			createFile("/P/p2/A.java",
@@ -1191,8 +1190,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		}
 	}
 	/**
-	 * @bug 375971: [search] Not finding method references with generics
-	 * @test TODO
+	 * bug375971: [search] Not finding method references with generics
+	 * test TODO
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=375971"
 	 */
 	public void testBug375971a() throws CoreException {
@@ -1467,7 +1466,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	public void testBug381567a() throws CoreException {
 		try {
 			IJavaProject p = createJavaProject("P", new String[] { "src" },
-					new String[] {"JCL_LIB"}, "bin");
+					new String[] {"JCL18_LIB"}, "bin");
 			createFolder("/P/src/b381567");
 			createFile("/P/src/b381567/A.java",
 					"package b381567;\n" +
@@ -1498,7 +1497,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	public void testBug381567b() throws CoreException {
 		try {
 			IJavaProject p = createJavaProject("P", new String[] { "src" },
-					new String[] {"JCL_LIB"}, "bin");
+					new String[] {"JCL18_LIB"}, "bin");
 			createFolder("/P/src/b381567");
 			createFile("/P/src/b381567/A.java",
 					"package b381567;\n" +
@@ -1533,7 +1532,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	public void testBug382778() throws CoreException {
 		try {
 			IJavaProject p = createJavaProject("P", new String[] { "src" },
-					new String[] {"JCL_LIB"}, "bin");
+					new String[] {"JCL18_LIB"}, "bin");
 			createFolder("/P/src/b382778");
 			createFile("/P/src/b382778/Impl2.java",
 					"package b382778;\n" +
@@ -1626,7 +1625,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 	public void testBug383315a() throws CoreException {
 		try {
-			IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "JCL15_LIB" }, "", "1.5");
+			IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "JCL18_LIB" }, "", CompilerOptions.getFirstSupportedJavaVersion());
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p }, IJavaSearchScope.SOURCES);
 
 			search("java.lang.Object.hashCode()", METHOD, ALL_OCCURRENCES, scope, this.resultCollector);
@@ -1678,7 +1677,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 	public void testBug395348() throws CoreException {
 		try {
-			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createFile("/P/X.java",
 					"public class X {\n"+
 					"   static void f() {\n" +
@@ -1709,7 +1708,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		boolean indexState = isIndexDisabledForTest();
 		// the strategy of this test was outlined in https://bugs.eclipse.org/bugs/show_bug.cgi?id=401272#c16
 		try {
-			IJavaProject p = createJavaProject("P", new String[] { "src" }, new String[] { "JCL15_LIB", "/P/libStuff.jar" }, "bin", "1.5");
+			IJavaProject p = createJavaProject("P", new String[] { "src" }, new String[] { "JCL18_LIB", "/P/libStuff.jar" }, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 
 			org.eclipse.jdt.core.tests.util.Util.createJar(
 				new String[] {
@@ -1734,7 +1733,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					"	}\n" +
 					"}\n"
 				},
-				p.getProject().getLocation().append("libStuff.jar").toOSString(), "1.5");
+				p.getProject().getLocation().append("libStuff.jar").toOSString(), CompilerOptions.getFirstSupportedJavaVersion());
 			refresh(p);
 
 			createFolder("/P/src/pkg");
@@ -1766,13 +1765,13 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		}
 	}
 	/**
-	 * @bug 423409: [search] Search shows references to fields as potential matches
+	 * bug423409: [search] Search shows references to fields as potential matches
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=423409"
 	 */
 	public void testBug423409() throws CoreException, JavaModelException {
 		try {
 			createJavaProject("P", new String[] { "src" },
-					new String[] {"JCL_LIB"}, "bin");
+					new String[] {"JCL18_LIB"}, "bin");
 			createFolder("/P/src/com/test");
 			createFile("/P/src/com/test/Test2.java",
 					"package com.test;\n" +
@@ -1818,7 +1817,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		IJavaProject egit = null;
 		IJavaProject jgit = null;
 		try	{
-			jgit = createJavaProject("jgit", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			jgit = createJavaProject("jgit", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createFolder("/jgit/base");
 			createFile("/jgit/base/AbstractPlotRenderer.java",
 					"package base;\n" +
@@ -1842,7 +1841,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					"package base;\n"+
 					"public class PlotLane {\n"+
 					"}");
-			egit = createJavaProject("egit", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+			egit = createJavaProject("egit", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createFolder("/egit/bug");
 			createFile("/egit/bug/SWTPlotLane.java",
 					"package bug;\n" +
@@ -1899,7 +1898,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			"}\n";
 			String jarFileName = "lib469965.jar";
 			String srcZipName = "lib469965.src.zip";
-			createLibrary(project, jarFileName, srcZipName, new String[] {"f3/X.java",libsource}, new String[0], JavaCore.VERSION_1_5);
+			createLibrary(project, jarFileName, srcZipName, new String[] {"f3/X.java",libsource}, new String[0], CompilerOptions.getFirstSupportedJavaVersion());
 			IFile srcZip=(IFile) project.getProject().findMember(srcZipName);
 			IFile jar = (IFile) project.getProject().findMember(jarFileName);
 			project.getPackageFragmentRoot(jar).attachSource(srcZip.getFullPath(), null, null);
@@ -1957,7 +1956,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			"}\n";
 			String jarFileName = "lib469965.jar";
 			String srcZipName = "lib469965.src.zip";
-			createLibrary(project, jarFileName, srcZipName, new String[] {"f3/X.java",libsource}, new String[0], JavaCore.VERSION_1_5);
+			createLibrary(project, jarFileName, srcZipName, new String[] {"f3/X.java",libsource}, new String[0], CompilerOptions.getFirstSupportedJavaVersion());
 			IFile srcZip=(IFile) project.getProject().findMember(srcZipName);
 			IFile jar = (IFile) project.getProject().findMember(jarFileName);
 			project.getPackageFragmentRoot(jar).attachSource(srcZip.getFullPath(), null, null);
@@ -1987,7 +1986,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			IJavaProject p = this.createJavaProject(
 				"P",
 				new String[] {},
-				new String[] { "/P/lib473921.jar", "JCL17_LIB" },
+				new String[] { "/P/lib473921.jar", "JCL18_LIB" },
 				new String[][] {{ "p/*" }, { }},
 				new String[][] {{ "**/*" }, { }},
 				null/*no project*/,
@@ -1998,7 +1997,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				"1.7"
+				CompilerOptions.getFirstSupportedJavaVersion()
 			);
 			org.eclipse.jdt.core.tests.util.Util.createJar(
 					new String[] {
@@ -2010,7 +2009,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 							"public class CEnclosing { interface CNested { class CMatryoshka { } } }\n"
 					},
 					p.getProject().getLocation().append("lib473921.jar").toOSString(),
-					"1.7");
+					CompilerOptions.getFirstSupportedJavaVersion());
 			refresh(p);
 
 			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p });
@@ -2055,7 +2054,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
+			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			createFolder("P/src/p478042");
 			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 				"package p478042;\n" +
@@ -2088,7 +2087,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
+			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			createFolder("P/src/p478042");
 			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 				"package p478042;\n" +
@@ -2119,7 +2118,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	public void testBug478042_0003() throws Exception {
 		IJavaProject project = null;
 		try {
-			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
+			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			createFolder("P/src/p478042");
 			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 				"package p478042;\n" +
@@ -2159,7 +2158,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
+			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			createFolder("P/src/p478042");
 			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 					"package p478042;\n" +
@@ -2191,7 +2190,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 	public void testBug478042_005() throws Exception {
 		try {
-			IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib478042.jar", "JCL15_LIB" }, "", "1.5");
+			IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib478042.jar", "JCL18_LIB" }, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createJar(new String[] {
 				"p478042/AllMethodDeclarations02.java",
 				"package p478042;\n" +
@@ -2209,7 +2208,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				"}"
 			}, p.getProject().getLocation().append("lib478042.jar").toOSString(),
 				new String[] { p.getProject().getLocation().append("lib478042.jar").toOSString() },
-				"1.5");
+				CompilerOptions.getFirstSupportedJavaVersion());
 			refresh(p);
 
 			MethodDeclarationsCollector requestor = new MethodDeclarationsCollector();
@@ -2228,7 +2227,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 	public void testBug478042_006() throws Exception {
 		try {
-			IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib478042.jar", "JCL15_LIB" }, "", "1.5");
+			IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib478042.jar", "JCL18_LIB" }, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createJar(new String[] {
 				"p478042/AllMethodDeclarations01.java",
 				"package p478042;\n" +
@@ -2243,7 +2242,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				"}\n"
 			}, p.getProject().getLocation().append("lib478042.jar").toOSString(),
 				new String[] { p.getProject().getLocation().append("lib478042.jar").toOSString() },
-				"1.5");
+				CompilerOptions.getFirstSupportedJavaVersion());
 			refresh(p);
 
 			MethodDeclarationsCollector requestor = new MethodDeclarationsCollector();
@@ -2261,7 +2260,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 	public void testBug478042_007() throws Exception {
 		try {
-			IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib478042.jar", "JCL15_LIB" }, "", "1.5");
+			IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib478042.jar", "JCL18_LIB" }, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createJar(new String[] {
 				"p478042/AllMethodDeclarations01.java",
 				"package p478042;\n" +
@@ -2276,7 +2275,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				"}\n"
 			}, p.getProject().getLocation().append("lib478042.jar").toOSString(),
 				new String[] { p.getProject().getLocation().append("lib478042.jar").toOSString() },
-				"1.5");
+				CompilerOptions.getFirstSupportedJavaVersion());
 			refresh(p);
 
 			MethodDeclarationsCollector requestor = new MethodDeclarationsCollector();
@@ -2299,7 +2298,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
+			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			createFolder("P/src/p478042");
 			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 					"package p478042;\n" +
@@ -2330,7 +2329,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	public void testBug483303_001() throws Exception {
 		IJavaProject project = null;
 		try {
-			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
+			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			createFolder("P/src/p478042");
 			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 				"package p478042;\n" +
@@ -2372,7 +2371,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
+			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			createFolder("P/src/p478042");
 			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 				"package p478042;\n" +
@@ -2410,7 +2409,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
+			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			createFolder("P/src/p478042");
 			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 				"package p478042;\n" +
@@ -2446,7 +2445,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	public void testBug483650_0003() throws Exception {
 		IJavaProject project = null;
 		try {
-			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
+			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			createFolder("P/src/p478042");
 			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 				"package p478042;\n" +
@@ -2484,7 +2483,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
+			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			createFolder("P/src/p478042");
 			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 					"package p478042;\n" +
@@ -2521,7 +2520,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 	public void testBug483650_005() throws Exception {
 		try {
-			IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib478042.jar", "JCL15_LIB" }, "", "1.5");
+			IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib478042.jar", "JCL18_LIB" }, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createJar(new String[] {
 				"p478042/AllMethodDeclarations02.java",
 				"package p478042;\n" +
@@ -2539,7 +2538,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				"}"
 			}, p.getProject().getLocation().append("lib478042.jar").toOSString(),
 				new String[] { p.getProject().getLocation().append("lib478042.jar").toOSString() },
-				"1.5");
+				CompilerOptions.getFirstSupportedJavaVersion());
 			refresh(p);
 
 			MethodNameMatchCollector collector = new MethodNameMatchCollector() {
@@ -2563,7 +2562,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 	public void testBug483650_006() throws Exception {
 		try {
-			IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib478042.jar", "JCL15_LIB" }, "", "1.5");
+			IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib478042.jar", "JCL18_LIB" }, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createJar(new String[] {
 				"p478042/AllMethodDeclarations01.java",
 				"package p478042;\n" +
@@ -2578,7 +2577,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				"}\n"
 			}, p.getProject().getLocation().append("lib478042.jar").toOSString(),
 				new String[] { p.getProject().getLocation().append("lib478042.jar").toOSString() },
-				"1.5");
+				CompilerOptions.getFirstSupportedJavaVersion());
 			refresh(p);
 
 			MethodNameMatchCollector collector = new MethodNameMatchCollector() {
@@ -2601,7 +2600,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 	public void testBug483650_007() throws Exception {
 		try {
-			IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib478042.jar", "JCL15_LIB" }, "", "1.5");
+			IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib478042.jar", "JCL18_LIB" }, "", CompilerOptions.getFirstSupportedJavaVersion());
 			createJar(new String[] {
 				"p478042/AllMethodDeclarations01.java",
 				"package p478042;\n" +
@@ -2616,7 +2615,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 				"}\n"
 			}, p.getProject().getLocation().append("lib478042.jar").toOSString(),
 				new String[] { p.getProject().getLocation().append("lib478042.jar").toOSString() },
-				"1.5");
+				CompilerOptions.getFirstSupportedJavaVersion());
 			refresh(p);
 
 			MethodNameMatchCollector collector = new MethodNameMatchCollector() {
@@ -2644,7 +2643,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		try
 		{
 			// create the common project and create an interface
-			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
+			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			createFolder("P/src/p478042");
 			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 					"package p478042;\n" +
@@ -2675,7 +2674,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	public void testBug483650_009() throws Exception {
 		IJavaProject project = null;
 		try {
-			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
+			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			createFolder("P/src/p478042");
 			createFile("/P/src/p478042/AllMethodDeclarations01.java",
 				"package p478042;\n" +
@@ -2712,12 +2711,12 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 	public void testBug489404() throws CoreException, IOException {
 		try {
-			IJavaProject p = createJavaProject("P", new String[] { "src" }, new String[] { "/P/p1p2.jar", "JCL15_LIB" }, "bin", "1.5");
+			IJavaProject p = createJavaProject("P", new String[] { "src" }, new String[] { "/P/p1p2.jar", "JCL18_LIB" }, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
 					"p1/MissingClass.java",
 					"package p1;\n" +
 					"public class MissingClass{}\n" },
-					p.getProject().getLocation().append("p1.jar").toOSString(), "1.5");
+					p.getProject().getLocation().append("p1.jar").toOSString(), CompilerOptions.getFirstSupportedJavaVersion());
 
 			org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
 					"p1/p2/BinaryWithField.java",
@@ -2741,7 +2740,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					null,
 					p.getProject().getLocation().append("p1p2.jar").toOSString(),
 					new String[] { p.getProject().getLocation().append("p1.jar").toOSString() },
-					"1.5");
+					CompilerOptions.getFirstSupportedJavaVersion());
 			createFolder("/P/src/test");
 			createFile("/P/src/test/A.java",
 					"package test;\n" +
@@ -2772,7 +2771,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 	public void testBug491656_001() throws CoreException, IOException {
 		try {
-			IJavaProject p = createJavaProject("P", new String[] { "src" }, new String[] { "JCL15_LIB", "/P/lib491656_001.jar" }, "bin", "1.5");
+			IJavaProject p = createJavaProject("P", new String[] { "src" }, new String[] { "JCL18_LIB", "/P/lib491656_001.jar" }, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			String libsource = "package p2;\n" +
 							"import java.util.HashMap;\n"+
 							"import java.util.Map;\n"+
@@ -2807,7 +2806,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 							"}\n";
 			String jarFileName = "lib491656_001.jar";
 			String srcZipName = "lib491656_001.src.zip";
-			createLibrary(p, jarFileName, srcZipName, new String[] {"p2/MyLinkedHashMap.java",libsource}, new String[0], JavaCore.VERSION_1_5);
+			createLibrary(p, jarFileName, srcZipName, new String[] {"p2/MyLinkedHashMap.java",libsource}, new String[0], CompilerOptions.getFirstSupportedJavaVersion());
 			IFile srcZip=(IFile) p.getProject().findMember(srcZipName);
 			IFile jar = (IFile) p.getProject().findMember(jarFileName);
 			p.getPackageFragmentRoot(jar).attachSource(srcZip.getFullPath(), null, null);
@@ -2892,6 +2891,54 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			assertSearchResults("");
 		} finally {
 			deleteProject(projectName);
+		}
+	}
+	public void testCallHierarchyAnonymousInnerTypeGh856() throws CoreException, IOException {
+		try {
+			IJavaProject p = createJavaProject("P", new String[] { "src" }, new String[] { "JCL11_LIB" }, "bin", "11");
+			createFolder("/P/src/test");
+			createFile("/P/src/test/X.java", String.join(System.lineSeparator(), new String[] {
+					"package test;\n",
+					"public class X {\n",
+					"    public static interface Action1 {\n",
+					"        public void doit();\n",
+					"    }\n",
+					"\n",
+					"    public static interface Action2 {\n",
+					"        public void doit();\n",
+					"    }\n",
+					"\n",
+					"    public static void action1( Action1 action ) {\n",
+					"        action.doit();\n",
+					"    }\n",
+					"\n",
+					"    public static void action2( Action2 action ) {\n",
+					"        action.doit();\n",
+					"    }\n",
+					"\n",
+					"    public static void testMethod() {\n",
+					"        action2( new Action2() {\n",
+					"            public void doit() { // call hierarchy here\n",
+					"            }\n",
+					"        } );\n",
+					"    }\n",
+					"}\n",
+			}));
+			buildAndExpectNoProblems(p);
+			IType type = p.findType("test.X");
+			IMethod testMethod = type.getMethod("testMethod", new String[0]);
+			IJavaElement[] children = testMethod.getChildren();
+			assertEquals("Expected to find 1 anonymous type in method, instead found children " + Arrays.toString(children),
+					1, children.length);
+			IType anonymousType = (IType) children[0];
+			IMethod method = anonymousType.getMethod("doit", new String[0]);
+			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults(
+					"Unexpected search results!",
+					"src/test/X.java void test.X.action2(Action2) [doit()] EXACT_MATCH",
+					this.resultCollector);
+		} finally {
+			deleteProject("P");
 		}
 	}
 
@@ -2981,7 +3028,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 
 	/**
-	 * <br>For the following scenario, no call hierarchy is found:</br>
+	 * For the following scenario, no call hierarchy is found:<br>
 	 * A nested private class implements a public nested interface.
 	 * The overridden method from the interface also has an argument of the interface type.
 	 * No call hierarchy is found for the overridden method, when searching from within the nested class.
@@ -2990,7 +3037,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	public void testCallHierarchyWithNestedInterfacesGh821() throws Exception {
 		String projectName = "TestCallHierarchyWithNestedInterfacesGh821";
 		try {
-			IJavaProject project = createJavaProject(projectName, new String[] { "src" }, new String[] { "JCL15_LIB" }, "bin", "1.5");
+			IJavaProject project = createJavaProject(projectName, new String[] { "src" }, new String[] { "JCL18_LIB" }, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			String packageFolder = "/" + projectName + "/src/test";
 			createFolder(packageFolder);
 			String snippet1 =

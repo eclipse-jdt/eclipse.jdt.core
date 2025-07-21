@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2018 IBM Corporation.
+ * Copyright (c) 2016, 2024 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,9 +13,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.util.Objects;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -63,7 +64,41 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements ISourceMod
 		public int getModifiers() {
 			return this.modifiers;
 		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + Arrays.hashCode(this.name);
+			result = prime * result + Objects.hash(this.modifiers);
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (!(obj instanceof ModuleReferenceInfo)) {
+				return false;
+			}
+			ModuleReferenceInfo other = (ModuleReferenceInfo) obj;
+			return this.modifiers == other.modifiers && Arrays.equals(this.name, other.name);
+		}
+
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			builder.append("ModuleReferenceInfo ["); //$NON-NLS-1$
+			if (this.name() != null) {
+				builder.append("name="); //$NON-NLS-1$
+				builder.append(String.valueOf(this.name()));
+			}
+			builder.append("]"); //$NON-NLS-1$
+			return builder.toString();
+		}
 	}
+
 	static class PackageExportInfo extends MemberElementInfo implements IModule.IPackageExport {
 		char[] pack;
 		char[][] target;
@@ -116,6 +151,28 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements ISourceMod
 			buffer.append(';');
 			return buffer.toString();
 		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + Arrays.deepHashCode(this.implNames);
+			result = prime * result + Arrays.hashCode(this.serviceName);
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (!(obj instanceof ServiceInfo)) {
+				return false;
+			}
+			ServiceInfo other = (ServiceInfo) obj;
+			return Arrays.deepEquals(this.implNames, other.implNames)
+					&& Arrays.equals(this.serviceName, other.serviceName);
+		}
 	}
 
 	public static ModuleDescriptionInfo createModule(ModuleDeclaration module) {
@@ -132,7 +189,7 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements ISourceMod
 				mod.requires[i+1].modifiers = refs[i].modifiers;
 			}
 		} else {
-			mod.requires = CharOperation.equals(module.moduleName, TypeConstants.JAVA_BASE)
+			mod.requires = CharOperation.equals(module.moduleName, TypeConstants.JAVA_DOT_BASE)
 					? NO_REQUIRES
 					: new ModuleReferenceInfo[] { getJavaBaseReference() };
 		}
@@ -179,7 +236,7 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements ISourceMod
 
 	private static ModuleReferenceInfo getJavaBaseReference() {
 		ModuleReferenceInfo ref = new ModuleReferenceInfo();
-		ref.name = TypeConstants.JAVA_BASE;
+		ref.name = TypeConstants.JAVA_DOT_BASE;
 		return ref;
 	}
 
@@ -300,44 +357,44 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements ISourceMod
 		buffer.append('{').append('\n');
 		if (this.requires != null && this.requires.length > 0) {
 			buffer.append('\n');
-			for(int i = 0; i < this.requires.length; i++) {
+			for (ModuleReferenceInfo require : this.requires) {
 				buffer.append("\trequires "); //$NON-NLS-1$
-				if (this.requires[i].isTransitive()) {
+				if (require.isTransitive()) {
 					buffer.append("transitive "); //$NON-NLS-1$
 				}
-				if (this.requires[i].isStatic()) {
+				if (require.isStatic()) {
 					buffer.append("static "); //$NON-NLS-1$
 				}
-				buffer.append(this.requires[i].name);
+				buffer.append(require.name);
 				buffer.append(';').append('\n');
 			}
 		}
 		if (this.exports != null && this.exports.length > 0) {
 			buffer.append('\n');
-			for(int i = 0; i < this.exports.length; i++) {
+			for (PackageExportInfo export : this.exports) {
 				buffer.append("\texports "); //$NON-NLS-1$
-				buffer.append(this.exports[i].toString()).append('\n');
+				buffer.append(export.toString()).append('\n');
 			}
 		}
 		if (this.usedServices != null && this.usedServices.length > 0) {
 			buffer.append('\n');
-			for(int i = 0; i < this.usedServices.length; i++) {
+			for (char[] usedService : this.usedServices) {
 				buffer.append("\tuses "); //$NON-NLS-1$
-				buffer.append(this.usedServices[i]).append('\n');
+				buffer.append(usedService).append('\n');
 			}
 		}
 		if (this.services != null && this.services.length > 0) {
 			buffer.append('\n');
-			for(int i = 0; i < this.services.length; i++) {
+			for (ServiceInfo service : this.services) {
 				buffer.append("\tprovides "); //$NON-NLS-1$
-				buffer.append(this.services[i].toString()).append('\n');
+				buffer.append(service.toString()).append('\n');
 			}
 		}
 		if (this.opens != null && this.opens.length > 0) {
 			buffer.append('\n');
-			for(int i = 0; i < this.opens.length; i++) {
+			for (PackageExportInfo open : this.opens) {
 				buffer.append("\topens "); //$NON-NLS-1$
-				buffer.append(this.opens[i].toString()).append('\n');
+				buffer.append(open.toString()).append('\n');
 			}
 		}
 		buffer.append('\n').append('}').toString();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -45,8 +45,10 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching.CheckMode;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -190,12 +192,12 @@ void analyseOneArgument18(BlockScope currentScope, FlowContext flowContext, Flow
 		ce.internalAnalyseOneArgument18(currentScope, flowContext, expectedType, ce.valueIfTrue, flowInfo, ce.ifTrueNullStatus, expectedNonNullness, originalExpected);
 		ce.internalAnalyseOneArgument18(currentScope, flowContext, expectedType, ce.valueIfFalse, flowInfo, ce.ifFalseNullStatus, expectedNonNullness, originalExpected);
 		return;
-	} else 	if (argument instanceof SwitchExpression && argument.isPolyExpression()) {
-		SwitchExpression se = (SwitchExpression) argument;
-		for (int i = 0; i < se.resultExpressions.size(); i++) {
+	} else 	if (argument instanceof SwitchExpression && ((SwitchExpression) argument).isPolyExpression()) {
+        SwitchExpression se = (SwitchExpression) argument;
+        for (Expression rExpression : se.resultExpressions()) {
 			se.internalAnalyseOneArgument18(currentScope, flowContext, expectedType,
-					se.resultExpressions.get(i), flowInfo,
-					se.resultExpressionNullStatus.get(i), expectedNonNullness, originalExpected);
+					rExpression, flowInfo,
+					rExpression.nullStatus(flowInfo, flowContext), expectedNonNullness, originalExpected);
 		}
 		return;
 	}
@@ -257,12 +259,12 @@ protected void checkAgainstNullTypeAnnotation(BlockScope scope, TypeBinding requ
 		internalCheckAgainstNullTypeAnnotation(scope, requiredType, ce.valueIfTrue, ce.ifTrueNullStatus, flowContext, flowInfo);
 		internalCheckAgainstNullTypeAnnotation(scope, requiredType, ce.valueIfFalse, ce.ifFalseNullStatus, flowContext, flowInfo);
 		return;
-	} else 	if (expression instanceof SwitchExpression && expression.isPolyExpression()) {
-		SwitchExpression se = (SwitchExpression) expression;
-		for (int i = 0; i < se.resultExpressions.size(); i++) {
+	} else 	if (expression instanceof SwitchExpression && ((SwitchExpression) expression).isPolyExpression()) {
+        SwitchExpression se = (SwitchExpression) expression;
+        for (Expression rExpression : se.resultExpressions()) {
 			internalCheckAgainstNullTypeAnnotation(scope, requiredType,
-					se.resultExpressions.get(i),
-					se.resultExpressionNullStatus.get(i), flowContext, flowInfo);
+					rExpression,
+					rExpression.nullStatus(flowInfo, flowContext), flowContext, flowInfo);
 		}
 		return;
 	}
@@ -281,6 +283,35 @@ private void internalCheckAgainstNullTypeAnnotation(BlockScope scope, TypeBindin
 			flowContext.recordNullityMismatch(scope, expression, expression.resolvedType, requiredType, flowInfo, nullStatus, annotationStatus);
 		}
 	}
+}
+
+/**
+ * Returns the immediately enclosing switch expression (carried by closest blockScope),
+ */
+public SwitchExpression enclosingSwitchExpression(Scope current) {
+	boolean implicitYield = this instanceof YieldStatement && ((YieldStatement) this).isImplicit;
+	do {
+		switch(current.kind) {
+			case Scope.METHOD_SCOPE :
+			case Scope.CLASS_SCOPE :
+			case Scope.COMPILATION_UNIT_SCOPE :
+			case Scope.MODULE_SCOPE :
+				return null;
+			case Scope.BLOCK_SCOPE: {
+				BlockScope bs = (BlockScope) current;
+				if (bs.enclosingCase != null) {
+					if (bs.enclosingCase.swich instanceof SwitchExpression) {
+                        SwitchExpression se = (SwitchExpression) bs.enclosingCase.swich;
+                        return se;
+                    }
+					if (implicitYield)
+						return null; // do not ascend to enclosing: implicit yield always binds to closest switch{expression|statement}
+				}
+				break;
+			}
+		}
+	} while ((current = current.parent) != null);
+	return null;
 }
 
 /**
@@ -434,8 +465,8 @@ public void generateArguments(MethodBinding binding, Expression[] arguments, Blo
 			codeStream.newArray(codeGenVarArgsType); // create a mono-dimensional array
 		}
 	} else if (arguments != null) { // standard generation for method arguments
-		for (int i = 0, max = arguments.length; i < max; i++)
-			arguments[i].generateCode(currentScope, codeStream, true);
+		for (Expression argument : arguments)
+			argument.generateCode(currentScope, codeStream, true);
 	}
 }
 
@@ -454,6 +485,11 @@ public boolean isBoxingCompatible(TypeBinding expressionType, TypeBinding target
 }
 
 public boolean isEmptyBlock() {
+	return false;
+}
+
+// for switch statement
+public boolean isTrulyExpression() {
 	return false;
 }
 
@@ -498,16 +534,31 @@ public void resolveWithBindings(LocalVariableBinding[] bindings, BlockScope scop
 		scope.exclude(bindings);
 	}
 }
-/**
- * Returns the resolved expression if any associated to this statement - used
- * parameter statement has to be either a SwitchStatement or a SwitchExpression
- */
-public TypeBinding resolveExpressionType(BlockScope scope) {
-	return null;
-}
+
+
 public boolean containsPatternVariable() {
-	return false;
+	return containsPatternVariable(false);
 }
+
+public boolean containsPatternVariable(boolean includeUnnamedOnes) {
+	return new ASTVisitor() {
+
+		public boolean declaresVariable = false;
+
+		@Override
+		public boolean visit(TypePattern typePattern, BlockScope blockScope) {
+			 if (typePattern.local != null && (includeUnnamedOnes || (typePattern.local.name.length != 1 || typePattern.local.name[0] != '_')))
+				 this.declaresVariable = true;
+			 return !this.declaresVariable;
+		}
+
+		public boolean containsPatternVariable() {
+			Statement.this.traverse(this, null);
+			return this.declaresVariable;
+		}
+	}.containsPatternVariable();
+}
+
 /**
  * Implementation of {@link org.eclipse.jdt.internal.compiler.lookup.InvocationSite#invocationTargetType}
  * suitable at this level. Subclasses should override as necessary.

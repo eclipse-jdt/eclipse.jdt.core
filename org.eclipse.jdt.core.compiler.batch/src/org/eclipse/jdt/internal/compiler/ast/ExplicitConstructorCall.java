@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -35,31 +35,15 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.INVOCATION_CONTEXT;
 
+import java.util.Arrays;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
-import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
-import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
-import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
-import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class ExplicitConstructorCall extends Statement implements Invocation {
 
@@ -79,6 +63,8 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 
 	// TODO Remove once DOMParser is activated
 	public int typeArgumentsSourceStart;
+
+	public boolean firstStatement = true; // Allow Statements before super
 
 	public ExplicitConstructorCall(int accessMode) {
 		this.accessMode = accessMode;
@@ -134,6 +120,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			return flowInfo;
 		} finally {
 			((MethodScope) currentScope).isConstructorCall = false;
+			currentScope.leaveEarlyConstructionContext();
 		}
 	}
 
@@ -196,6 +183,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		} finally {
 			((MethodScope) currentScope).isConstructorCall = false;
+			currentScope.leaveEarlyConstructionContext();
 		}
 	}
 
@@ -311,23 +299,44 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 				if (!checkAndFlagExplicitConstructorCallInCanonicalConstructor(methodDeclaration, scope))
 					return;
 			}
-			if (methodDeclaration == null
-					|| !methodDeclaration.isConstructor()
-					|| ((ConstructorDeclaration) methodDeclaration).constructorCall != this) {
-				if (!(methodDeclaration instanceof CompactConstructorDeclaration)) // already flagged for CCD
+			boolean hasError = false;
+			if (methodDeclaration == null || !methodDeclaration.isConstructor()) {
+				hasError = true;
+			} else {
+				// is it the first constructor call?
+				ConstructorDeclaration constructorDeclaration = (ConstructorDeclaration) methodDeclaration;
+				ExplicitConstructorCall constructorCall = constructorDeclaration.constructorCall;
+				if (constructorCall == null) {
+					constructorCall = constructorDeclaration.getLateConstructorCall(); // JEP 482
+				}
+				if (constructorCall != null && constructorCall != this) {
+					hasError = true;
+				}
+			}
+			if (hasError) {
+				if (!(methodDeclaration instanceof CompactConstructorDeclaration)) {// already flagged for CCD
+					if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())) {
+						boolean isTopLevel = Arrays.stream(methodDeclaration.statements).anyMatch(this::equals);
+						if (isTopLevel)
+							scope.problemReporter().duplicateExplicitConstructorCall(this);
+						else // otherwise it's illegally nested in some control structure:
+							scope.problemReporter().misplacedConstructorCall(this);
+					} else {
 						scope.problemReporter().invalidExplicitConstructorCall(this);
+					}
+				}
 				// fault-tolerance
 				if (this.qualification != null) {
 					this.qualification.resolveType(scope);
 				}
 				if (this.typeArguments != null) {
-					for (int i = 0, max = this.typeArguments.length; i < max; i++) {
-						this.typeArguments[i].resolveType(scope, true /* check bounds*/);
+					for (TypeReference typeArgument : this.typeArguments) {
+						typeArgument.resolveType(scope, true /* check bounds*/);
 					}
 				}
 				if (this.arguments != null) {
-					for (int i = 0, max = this.arguments.length; i < max; i++) {
-						this.arguments[i].resolveType(scope);
+					for (Expression argument : this.arguments) {
+						argument.resolveType(scope);
 					}
 				}
 				return;
@@ -344,7 +353,10 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			}
 			if (receiverType != null) {
 				// prevent (explicit) super constructor invocation from within enum
-				if (this.accessMode == ExplicitConstructorCall.Super && receiverType.erasure().id == TypeIds.T_JavaLangEnum) {
+				MethodBinding mBinding = methodScope.referenceMethod().binding;
+ 				if (this.accessMode == ExplicitConstructorCall.Super &&
+ 						(mBinding != null && (mBinding.tagBits & TagBits.HasMissingType) == 0)
+						&& receiverType.erasure().id == TypeIds.T_JavaLangEnum) {
 					scope.problemReporter().cannotInvokeSuperConstructorInEnum(this, methodScope.referenceMethod().binding);
 				}
 				// qualification should be from the type of the enclosingType
@@ -383,8 +395,8 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 				}
 				if (argHasError) {
 					if (this.arguments != null) { // still attempt to resolve arguments
-						for (int i = 0, max = this.arguments.length; i < max; i++) {
-							this.arguments[i].resolveType(scope);
+						for (Expression argument : this.arguments) {
+							argument.resolveType(scope);
 						}
 					}
 					return;
@@ -474,6 +486,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			}
 		} finally {
 			methodScope.isConstructorCall = false;
+			methodScope.leaveEarlyConstructionContext();
 		}
 	}
 
@@ -514,13 +527,13 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 				this.qualification.traverse(visitor, scope);
 			}
 			if (this.typeArguments != null) {
-				for (int i = 0, typeArgumentsLength = this.typeArguments.length; i < typeArgumentsLength; i++) {
-					this.typeArguments[i].traverse(visitor, scope);
+				for (TypeReference typeArgument : this.typeArguments) {
+					typeArgument.traverse(visitor, scope);
 				}
 			}
 			if (this.arguments != null) {
-				for (int i = 0, argumentLength = this.arguments.length; i < argumentLength; i++)
-					this.arguments[i].traverse(visitor, scope);
+				for (Expression argument : this.arguments)
+					argument.traverse(visitor, scope);
 			}
 		}
 		visitor.endVisit(this, scope);

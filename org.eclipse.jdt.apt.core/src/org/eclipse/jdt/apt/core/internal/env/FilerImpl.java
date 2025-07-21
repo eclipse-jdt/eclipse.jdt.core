@@ -14,19 +14,17 @@
 
 package org.eclipse.jdt.apt.core.internal.env;
 
+import com.sun.mirror.apt.Filer;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
 import org.eclipse.jdt.core.JavaModelException;
-
-import com.sun.mirror.apt.Filer;
 
 
 public abstract class FilerImpl implements Filer {

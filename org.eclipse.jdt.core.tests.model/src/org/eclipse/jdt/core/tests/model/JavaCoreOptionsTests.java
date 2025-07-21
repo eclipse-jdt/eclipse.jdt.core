@@ -14,11 +14,10 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.Hashtable;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 /**
  * Tests JavaCore options
  */
@@ -121,10 +120,12 @@ public void test5() {
 	assertTrue(JavaCore.compareJavaVersions("9.0.1", "9.1.2") == 0);
 	assertTrue(JavaCore.compareJavaVersions("9", "9.1.2") == 0);
 	assertTrue(JavaCore.compareJavaVersions("12", "11") > 0);
-	assertTrue(JavaCore.compareJavaVersions("12", "1.5") > 0);
+	assertTrue(JavaCore.compareJavaVersions("12", "1.8") > 0);
 	String latest = JavaCore.latestSupportedJavaVersion();
 	String latestPlus = "" + (Integer.parseInt(latest) + 1);
 	assertTrue(JavaCore.compareJavaVersions(latest, latestPlus) == 0);
+	String first = CompilerOptions.getFirstSupportedJavaVersion();
+	assertTrue(JavaCore.compareJavaVersions(first, latest) == -1);
 }
 }
 

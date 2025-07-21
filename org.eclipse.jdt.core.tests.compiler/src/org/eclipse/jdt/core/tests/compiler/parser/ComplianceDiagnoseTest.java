@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,7 +15,6 @@
 package org.eclipse.jdt.core.tests.compiler.parser;
 
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
@@ -107,6 +106,69 @@ public void runComplianceParserTest(
 			this.runNegativeTest(testFiles, expected18ProblemLog);
 		}
 	}
+public void runComplianceParserTest(
+		String[] testFiles,
+		String expected1_3ProblemLog,
+		String expected1_4ProblemLog,
+		String expected1_5ProblemLog,
+		String expected1_6ProblemLog,
+		String expected1_7ProblemLog,
+		String expected1_8ProblemLog,
+		String expected9ProblemLog,
+		String expected10ProblemLog,
+		String expected11ProblemLog,
+		String expected12ProblemLog,
+		String expected13ProblemLog,
+		String expected14ProblemLog,
+		String expected15ProblemLog,
+		String below16ProblemLog,
+		String expected16ProblemLog,
+		String expected17ProblemLog,
+		String expected18ProblemLog,
+		String expected19ProblemLog,
+		String expected20ProblemLog,
+		String expected22ProblemLog
+		){
+		if (this.complianceLevel == ClassFileConstants.JDK1_3) {
+			this.runNegativeTest(testFiles, expected1_3ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK1_4) {
+			this.runNegativeTest(testFiles, expected1_4ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK1_5) {
+			this.runNegativeTest(testFiles, expected1_5ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK1_6) {
+			this.runNegativeTest(testFiles, expected1_6ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK1_7) {
+			this.runNegativeTest(testFiles, expected1_7ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK1_8) {
+			this.runNegativeTest(testFiles, expected1_8ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK9) {
+			this.runNegativeTest(testFiles, expected9ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK10) {
+			this.runNegativeTest(testFiles, expected10ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK11) {
+			this.runNegativeTest(testFiles, expected11ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK12) {
+			this.runNegativeTest(testFiles, expected12ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK13) {
+			this.runNegativeTest(testFiles, expected13ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK14) {
+			this.runNegativeTest(testFiles, expected14ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK15) {
+			this.runNegativeTest(testFiles, expected15ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK16) {
+			this.runNegativeTest(testFiles, expected16ProblemLog);
+		} else if (this.complianceLevel == ClassFileConstants.JDK17) {
+			this.runNegativeTest(testFiles, expected17ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK18) {
+			this.runNegativeTest(testFiles, expected18ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK19) {
+			this.runNegativeTest(testFiles, expected19ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK20) {
+			this.runNegativeTest(testFiles, expected20ProblemLog);
+		} else {
+			this.runNegativeTest(testFiles, expected22ProblemLog);
+		}
+	}
 public void test0001() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -186,18 +248,21 @@ public void test0002() {
 // TODO: Fix this and Enable
 public void test0003() {
 	String[] testFiles = new String[] {
-		"X.java",
-		"public enum X {\n" +
-		"}\n"
+		"x/X.java", """
+			package x;
+			public enum X {
+			}
+			"""
 	};
 
-	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public enum X {\n" +
-		"	       ^^^^\n" +
-		"Syntax error on token \"enum\", class expected\n" +
-		"----------\n";
+	String expected13ProblemLog = """
+		----------
+		1. ERROR in x\\X.java (at line 2)
+			public enum X {
+			       ^^^^
+		Syntax error on token "enum", class expected
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
@@ -450,6 +515,313 @@ public void test0009() {
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 	}
 }
+
+public void testPatternsInCase() {
+	String[] testFiles = new String[] {
+		"X.java",
+		"""
+		public class X {
+		    public static void main(String [] args) {
+		        Object o = null;
+		        switch (o) {
+		            case X x, null:
+		                break;
+		            case String s, default :
+		               break;
+		        }
+		    }
+	    }
+		"""
+	};
+
+	String expectedProblemLogFrom1_1_6 =
+					"----------\n" +
+					"1. ERROR in X.java (at line 4)\n" +
+					"	switch (o) {\n" +
+					"	        ^\n" +
+					"Cannot switch on a value of type Object. Only convertible int values or enum variables are permitted\n" +
+					"----------\n" +
+					"2. ERROR in X.java (at line 5)\n" +
+					"	case X x, null:\n" +
+					"	^^^^^^^^^^^^^^\n" +
+					"Multi-constant case labels supported from Java 14 onwards only\n" +
+					"----------\n" +
+					"3. ERROR in X.java (at line 5)\n" +
+					"	case X x, null:\n" +
+					"	     ^^^\n" +
+					"The Java feature 'Type Patterns' is only available with source level 16 and above\n" +
+					"----------\n" +
+					"4. ERROR in X.java (at line 5)\n" +
+					"	case X x, null:\n" +
+					"	     ^^^\n" +
+					"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
+					"----------\n" +
+					"5. ERROR in X.java (at line 5)\n" +
+					"	case X x, null:\n" +
+					"	          ^^^^\n" +
+					"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
+					"----------\n" +
+					"6. ERROR in X.java (at line 5)\n" +
+					"	case X x, null:\n" +
+					"	          ^^^^\n" +
+					"Cannot mix pattern with other case labels\n" +
+					"----------\n" +
+					"7. ERROR in X.java (at line 5)\n" +
+					"	case X x, null:\n" +
+					"	          ^^^^\n" +
+					"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
+					"----------\n" +
+					"8. ERROR in X.java (at line 7)\n" +
+					"	case String s, default :\n" +
+					"	^^^^^^^^^^^^^^^^^^^^^^\n" +
+					"Multi-constant case labels supported from Java 14 onwards only\n" +
+					"----------\n" +
+					"9. ERROR in X.java (at line 7)\n" +
+					"	case String s, default :\n" +
+					"	     ^^^^^^^^\n" +
+					"The Java feature 'Type Patterns' is only available with source level 16 and above\n" +
+					"----------\n" +
+					"10. ERROR in X.java (at line 7)\n" +
+					"	case String s, default :\n" +
+					"	     ^^^^^^^^\n" +
+					"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
+					"----------\n" +
+					"11. ERROR in X.java (at line 7)\n" +
+					"	case String s, default :\n" +
+					"	               ^^^^^^^\n" +
+					"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
+					"----------\n" +
+					"12. ERROR in X.java (at line 7)\n" +
+					"	case String s, default :\n" +
+					"	               ^^^^^^^\n" +
+					"Cannot mix pattern with other case labels\n" +
+					"----------\n" +
+					"13. ERROR in X.java (at line 7)\n" +
+					"	case String s, default :\n" +
+					"	               ^^^^^^^\n" +
+					"A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default' \n" +
+					"----------\n";
+
+	String expectedProblemLogFrom7_13 =
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	switch (o) {\n" +
+			"	        ^\n" +
+			"Cannot switch on a value of type Object. Only convertible int values, strings or enum variables are permitted\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	case X x, null:\n" +
+			"	^^^^^^^^^^^^^^\n" +
+			"Multi-constant case labels supported from Java 14 onwards only\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 5)\n" +
+			"	case X x, null:\n" +
+			"	     ^^^\n" +
+			"The Java feature 'Type Patterns' is only available with source level 16 and above\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 5)\n" +
+			"	case X x, null:\n" +
+			"	     ^^^\n" +
+			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 5)\n" +
+			"	case X x, null:\n" +
+			"	          ^^^^\n" +
+			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
+			"----------\n" +
+			"6. ERROR in X.java (at line 5)\n" +
+			"	case X x, null:\n" +
+			"	          ^^^^\n" +
+			"Cannot mix pattern with other case labels\n" +
+			"----------\n" +
+			"7. ERROR in X.java (at line 5)\n" +
+			"	case X x, null:\n" +
+			"	          ^^^^\n" +
+			"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
+			"----------\n" +
+			"8. ERROR in X.java (at line 7)\n" +
+			"	case String s, default :\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Multi-constant case labels supported from Java 14 onwards only\n" +
+			"----------\n" +
+			"9. ERROR in X.java (at line 7)\n" +
+			"	case String s, default :\n" +
+			"	     ^^^^^^^^\n" +
+			"The Java feature 'Type Patterns' is only available with source level 16 and above\n" +
+			"----------\n" +
+			"10. ERROR in X.java (at line 7)\n" +
+			"	case String s, default :\n" +
+			"	     ^^^^^^^^\n" +
+			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
+			"----------\n" +
+			"11. ERROR in X.java (at line 7)\n" +
+			"	case String s, default :\n" +
+			"	               ^^^^^^^\n" +
+			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
+			"----------\n" +
+			"12. ERROR in X.java (at line 7)\n" +
+			"	case String s, default :\n" +
+			"	               ^^^^^^^\n" +
+			"Cannot mix pattern with other case labels\n" +
+			"----------\n" +
+			"13. ERROR in X.java (at line 7)\n" +
+			"	case String s, default :\n" +
+			"	               ^^^^^^^\n" +
+			"A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default' \n" +
+			"----------\n";
+
+	String expectedProblemLogFrom14_15 =
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	switch (o) {\n" +
+			"	        ^\n" +
+			"Cannot switch on a value of type Object. Only convertible int values, strings or enum variables are permitted\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	case X x, null:\n" +
+			"	     ^^^\n" +
+			"The Java feature 'Type Patterns' is only available with source level 16 and above\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 5)\n" +
+			"	case X x, null:\n" +
+			"	     ^^^\n" +
+			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 5)\n" +
+			"	case X x, null:\n" +
+			"	          ^^^^\n" +
+			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 5)\n" +
+			"	case X x, null:\n" +
+			"	          ^^^^\n" +
+			"Cannot mix pattern with other case labels\n" +
+			"----------\n" +
+			"6. ERROR in X.java (at line 5)\n" +
+			"	case X x, null:\n" +
+			"	          ^^^^\n" +
+			"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
+			"----------\n" +
+			"7. ERROR in X.java (at line 7)\n" +
+			"	case String s, default :\n" +
+			"	     ^^^^^^^^\n" +
+			"The Java feature 'Type Patterns' is only available with source level 16 and above\n" +
+			"----------\n" +
+			"8. ERROR in X.java (at line 7)\n" +
+			"	case String s, default :\n" +
+			"	     ^^^^^^^^\n" +
+			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
+			"----------\n" +
+			"9. ERROR in X.java (at line 7)\n" +
+			"	case String s, default :\n" +
+			"	               ^^^^^^^\n" +
+			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
+			"----------\n" +
+			"10. ERROR in X.java (at line 7)\n" +
+			"	case String s, default :\n" +
+			"	               ^^^^^^^\n" +
+			"Cannot mix pattern with other case labels\n" +
+			"----------\n" +
+			"11. ERROR in X.java (at line 7)\n" +
+			"	case String s, default :\n" +
+			"	               ^^^^^^^\n" +
+			"A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default' \n" +
+			"----------\n";
+
+	String expectedProblemLogFrom16_20 =
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	switch (o) {\n" +
+			"	        ^\n" +
+			"Cannot switch on a value of type Object. Only convertible int values, strings or enum variables are permitted\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	case X x, null:\n" +
+			"	     ^^^\n" +
+			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 5)\n" +
+			"	case X x, null:\n" +
+			"	          ^^^^\n" +
+			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 5)\n" +
+			"	case X x, null:\n" +
+			"	          ^^^^\n" +
+			"Cannot mix pattern with other case labels\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 5)\n" +
+			"	case X x, null:\n" +
+			"	          ^^^^\n" +
+			"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
+			"----------\n" +
+			"6. ERROR in X.java (at line 7)\n" +
+			"	case String s, default :\n" +
+			"	     ^^^^^^^^\n" +
+			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
+			"----------\n" +
+			"7. ERROR in X.java (at line 7)\n" +
+			"	case String s, default :\n" +
+			"	               ^^^^^^^\n" +
+			"The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n" +
+			"----------\n" +
+			"8. ERROR in X.java (at line 7)\n" +
+			"	case String s, default :\n" +
+			"	               ^^^^^^^\n" +
+			"Cannot mix pattern with other case labels\n" +
+			"----------\n" +
+			"9. ERROR in X.java (at line 7)\n" +
+			"	case String s, default :\n" +
+			"	               ^^^^^^^\n" +
+			"A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default' \n" +
+			"----------\n";
+
+	String expectedProblemLogFrom21 =
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	case X x, null:\n" +
+			"	          ^^^^\n" +
+			"Cannot mix pattern with other case labels\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	case X x, null:\n" +
+			"	          ^^^^\n" +
+			"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 7)\n" +
+			"	case String s, default :\n" +
+			"	               ^^^^^^^\n" +
+			"Cannot mix pattern with other case labels\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 7)\n" +
+			"	case String s, default :\n" +
+			"	               ^^^^^^^\n" +
+			"A 'default' can occur after 'case' only as a second case label expression and that too only if 'null' precedes  in 'case null, default' \n" +
+			"----------\n";
+
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) {  // before switching on strings
+		runNegativeTest(
+			testFiles,
+			expectedProblemLogFrom1_1_6);
+	}
+	else if (this.complianceLevel < ClassFileConstants.JDK14) { // before multi case
+		runNegativeTest(
+				testFiles,
+				expectedProblemLogFrom7_13);
+	} else if (this.complianceLevel < ClassFileConstants.JDK16) { // before type patterns
+			runNegativeTest(
+					testFiles,
+					expectedProblemLogFrom14_15);
+	} else if (this.complianceLevel < ClassFileConstants.JDK21) { // before case patterns
+		runNegativeTest(
+				testFiles,
+				expectedProblemLogFrom16_20);
+	} else {
+		runNegativeTest(
+				testFiles,
+				expectedProblemLogFrom21);
+	}
+}
 public void test0010() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -655,14 +1027,19 @@ public void test0014() {
 		"}\n"
 	};
 
-	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public enum X \n" +
-		"}\n" +
-		"	       ^^^^^^^^^\n" +
-		"Syntax error on tokens, delete these tokens\n" +
-		"----------\n";
+	String expected13ProblemLog = """
+		----------
+		1. WARNING in X.java (at line 1)
+			public enum X\s
+			       ^^^^
+		'enum' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on
+		----------
+		2. ERROR in X.java (at line 2)
+			}
+			^
+		Syntax error on token "}", ; expected
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
@@ -1154,16 +1531,18 @@ public void _test0024() {
 }
 public void test0025() {
 	String[] testFiles = new String[] {
-		"X.java",
-		"static aaa.*;\n" +
-		"public class X {\n" +
-		"}\n" +
-		"\n"
+		"x/X.java", """
+			package x;
+			static aaa.*;
+			public class X {
+			}
+
+			"""
 	};
 
 	String expected13ProblemLog =
 		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
+		"1. ERROR in x\\X.java (at line 2)\n" +
 		"	static aaa.*;\n" +
 		"	^^^^^^\n" +
 		"Syntax error on token \"static\", import expected\n" +
@@ -1173,10 +1552,10 @@ public void test0025() {
 
 	String expected15ProblemLog =
 		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	static aaa.*;\n" +
-		"	^^^^^^\n" +
-		"Syntax error on token \"static\", import expected before this token\n" +
+		"1. ERROR in x\\X.java (at line 1)\n" +
+		"	package x;\n" +
+		"	         ^\n" +
+		"Syntax error on token \";\", import expected after this token\n" +
 		"----------\n";
 
 	runComplianceParserTest(
@@ -1604,33 +1983,25 @@ public void test0034() {
 		"}\n"
 	};
 
-	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extnds String, T2> extends Y {\n" +
-		"	               ^\n" +
-		"Syntax error on token \"<\", { expected\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extnds String, T2> extends Y {\n" +
-		"	                ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error on tokens, InterfaceHeaderName expected instead\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extnds String, T2> extends Y {\n" +
-		"	                   ^^^^^^\n" +
-		"extnds cannot be resolved to a type\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extnds String, T2> extends Y {\n" +
-		"	                          ^^^^^^\n" +
-		"Syntax error on token \"String\", delete this token\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 3)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error, insert \"}\" to complete ClassBody\n" +
-		"----------\n";
+	String expected13ProblemLog = """
+		----------
+		1. ERROR in X.java (at line 1)
+			public class X <T1 extnds String, T2> extends Y {
+			^^^^^^^^^^^^^^^^^^
+		Syntax error on token(s), misplaced construct(s)
+		----------
+		2. ERROR in X.java (at line 1)
+			public class X <T1 extnds String, T2> extends Y {
+			                   ^^^^^^^^^^^^^^^^^^
+		Syntax error on tokens, ClassHeaderName expected instead
+		----------
+		3. ERROR in X.java (at line 1)
+			public class X <T1 extnds String, T2> extends Y {
+			                   ^^^^^^
+		extnds cannot be resolved to a type
+		----------
+		""";
+
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
@@ -1938,7 +2309,6 @@ public void test0041() {
 		expected15ProblemLog
 	);
 }
-//TODO:  Enable after Bug 552769  is fixed
 public void test0042() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -1967,112 +2337,77 @@ public void test0042() {
 		"}\n"
 	};
 
-	String expected13ProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	void ___eval() {\n" +
-			"	^^^^^^^^^^^^^^\n" +
-			"Syntax error on tokens, delete these tokens\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 2)\n" +
-			"	new Runnable() {\n" +
-			"		int ___run() throws Throwable {\n" +
-			"			return blah;\n" +
-			"		}\n" +
-			"		private String blarg;\n" +
-			"		public void run() {\n" +
-			"		}\n" +
-			"	};\n" +
-			"}\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Syntax error on tokens, delete these tokens\n" +
-			"----------\n";
-	String expected14ProblemLog =
-		expected13ProblemLog;
+	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK23) ?
+			"""
+			----------
+			1. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			Implicitly Declared Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable
+			----------
+			2. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			Implicitly declared class must have a candidate main method
+			----------
+			3. ERROR in X.java (at line 4)
+				return blah;
+				       ^^^^
+			blah cannot be resolved to a variable
+			----------
+			""" :
+			"""
+			----------
+			1. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 23 and above
+			----------
+			2. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			Implicitly declared class must have a candidate main method
+			----------
+			3. ERROR in X.java (at line 4)
+				return blah;
+				       ^^^^
+			blah cannot be resolved to a variable
+			----------
+			""";
 
-	String expected15ProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	void ___eval() {\n" +
-			"	^^^^\n" +
-			"Syntax error on token \"void\", @ expected\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
-			"	void ___eval() {\n" +
-			"	             ^\n" +
-			"Syntax error on token \")\", delete this token\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 9)\n" +
-			"	};\n" +
-			"}\n" +
-			"	^^^^\n" +
-			"Syntax error on tokens, delete these tokens\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \"}\" to complete ClassBody\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \"}\" to complete MemberValue\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \")\" to complete Modifiers\n" +
-			"----------\n" +
-			"7. ERROR in X.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \"enum Identifier\" to complete EnumHeader\n" +
-			"----------\n" +
-			"8. ERROR in X.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \"EnumBody\" to complete CompilationUnit\n" +
-			"----------\n";
-
-	String expectedJ14ProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	void ___eval() {\n" +
-			"	^^^^\n" +
-			"Syntax error on token \"void\", record expected\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 2)\n" +
-			"	new Runnable() {\n" +
-			"	^^^\n" +
-			"Syntax error on token \"new\", record expected\n" +
-			"----------\n";
-	runComplianceParserTest(
-		testFiles,
-		expected13ProblemLog,
-		expected14ProblemLog,
-		(this.complianceLevel < ClassFileConstants.JDK14 ? expected15ProblemLog : expectedJ14ProblemLog)
-	);
+	if (this.complianceLevel < ClassFileConstants.JDK16) {
+		problemLog += """
+			4. ERROR in X.java (at line 14)
+				public static void main(String[] args) {
+				                   ^^^^^^^^^^^^^^^^^^^
+			The method main cannot be declared static; static methods can only be declared in a static or top level type
+			----------
+			""";
+	}
+	runNegativeTest(testFiles, problemLog);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72942
  */
 public void test0043() {
 	String[] testFiles = new String[] {
-		"X.java",
-		"public class X {\n" +
-		"}\n" +
-		"public static void foo(){}\n" +
-		"\n"
+		"x/X.java", """
+			package x;
+			public class X {
+			}
+			public static void foo(){}
+
+			"""
 	};
 
 	String expected13ProblemLog =
 		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
+		"1. ERROR in x\\X.java (at line 3)\n" +
 		"	}\n" +
 		"	^\n" +
 		"Syntax error on token \"}\", delete this token\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
+		"2. ERROR in x\\X.java (at line 4)\n" +
 		"	public static void foo(){}\n" +
 		"	                         ^\n" +
 		"Syntax error, insert \"}\" to complete ClassBody\n" +
@@ -2125,11 +2460,6 @@ public void test0044() {
 		"Syntax error on token \"}\", delete this token\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 9)\n" +
-		"	<String>super(\"SUCCESS\");\n" +
-		"	 ^^^^^^\n" +
-		"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 9)\n" +
 		"	<String>super(\"SUCCESS\");\n" +
 		"	 ^^^^^^\n" +
 		"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +
@@ -2324,7 +2654,6 @@ public void test0049() {
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
-	String token = (this.complianceLevel >= ClassFileConstants.JDK21) ? "." : "<";
 	String expected15ProblemLog =
 		"----------\n" +
 		"1. ERROR in X.java (at line 6)\n" +
@@ -2335,7 +2664,7 @@ public void test0049() {
 		"2. ERROR in X.java (at line 6)\n" +
 		"	public @MyAnn(\"\",\"\") class Test {		\n" +
 		"	                ^\n" +
-		"Syntax error on token \",\", "+ token +" expected\n" +
+		"Syntax error on token \",\", < expected\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 6)\n" +
 		"	public @MyAnn(\"\",\"\") class Test {		\n" +
@@ -3232,75 +3561,126 @@ public void testBug399781() {
 		"   }\n" +
 		"}\n",
 	};
-	String usLevel = this.complianceLevel < ClassFileConstants.JDK9 ? "WARNING" : "ERROR";
-	String errorMessage = this.complianceLevel < ClassFileConstants.JDK9 ? "\'_\' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on\n" : "\'_\' is a keyword from source level 9 onwards, cannot be used as identifier\n";
-	if (this.complianceLevel >= ClassFileConstants.JDK21) {
-		errorMessage = "Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable\n";
+	String problemLog = null;
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		problemLog = """
+						----------
+						1. WARNING in X.java (at line 4)
+							int _   = 3;
+							    ^
+						The local variable _ is hiding a field from type X
+						----------
+						2. WARNING in X.java (at line 8)
+							void goo(int _) {}
+							             ^
+						The parameter _ is hiding a field from type X
+						----------
+						3. WARNING in X.java (at line 11)
+							} catch (Exception _) {
+							                   ^
+						The parameter _ is hiding a field from type X
+						----------
+						""";
+	} else if (this.complianceLevel == ClassFileConstants.JDK1_8) {
+		problemLog = """
+					----------
+					1. WARNING in X.java (at line 2)
+						int _;
+						    ^
+					'_' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on
+					----------
+					2. WARNING in X.java (at line 4)
+						int _   = 3;
+						    ^
+					'_' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on
+					----------
+					3. WARNING in X.java (at line 4)
+						int _   = 3;
+						    ^
+					The local variable _ is hiding a field from type X
+					----------
+					4. WARNING in X.java (at line 8)
+						void goo(int _) {}
+						             ^
+					'_' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on
+					----------
+					5. WARNING in X.java (at line 8)
+						void goo(int _) {}
+						             ^
+					The parameter _ is hiding a field from type X
+					----------
+					6. WARNING in X.java (at line 11)
+						} catch (Exception _) {
+						                   ^
+					'_' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on
+					----------
+					7. WARNING in X.java (at line 11)
+						} catch (Exception _) {
+						                   ^
+					The parameter _ is hiding a field from type X
+					----------
+					""";
+	} else if (this.complianceLevel < ClassFileConstants.JDK22) {
+		problemLog = """
+					----------
+					1. ERROR in X.java (at line 2)
+						int _;
+						    ^
+					'_' is a keyword from source level 9 onwards, cannot be used as identifier
+					----------
+					2. ERROR in X.java (at line 4)
+						int _   = 3;
+						    ^
+					'_' is a keyword from source level 9 onwards, cannot be used as identifier
+					----------
+					3. WARNING in X.java (at line 4)
+						int _   = 3;
+						    ^
+					The local variable _ is hiding a field from type X
+					----------
+					4. ERROR in X.java (at line 8)
+						void goo(int _) {}
+						             ^
+					'_' is a keyword from source level 9 onwards, cannot be used as identifier
+					----------
+					5. WARNING in X.java (at line 8)
+						void goo(int _) {}
+						             ^
+					The parameter _ is hiding a field from type X
+					----------
+					6. ERROR in X.java (at line 11)
+						} catch (Exception _) {
+						                   ^
+					'_' is a keyword from source level 9 onwards, cannot be used as identifier
+					----------
+					7. WARNING in X.java (at line 11)
+						} catch (Exception _) {
+						                   ^
+					The parameter _ is hiding a field from type X
+					----------
+					""";
+	} else {
+		problemLog = """
+				----------
+				1. ERROR in X.java (at line 2)
+					int _;
+					    ^
+				As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters
+				----------
+				2. ERROR in X.java (at line 8)
+					void goo(int _) {}
+					             ^
+				As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters
+				----------
+				3. WARNING in X.java (at line 8)
+					void goo(int _) {}
+					             ^
+				The parameter _ is hiding a field from type X
+				----------
+				""";
 	}
-	String expectedProblemLog =
-			"----------\n" +
-			"1. " + usLevel +" in X.java (at line 2)\n" +
-			"	int _;\n" +
-			"	    ^\n" +
-			errorMessage +
-			"----------\n" +
-			"2. " + usLevel +" in X.java (at line 4)\n" +
-			"	int _   = 3;\n" +
-			"	    ^\n" +
-			errorMessage +
-			"----------\n" +
-			"3. WARNING in X.java (at line 4)\n" +
-			"	int _   = 3;\n" +
-			"	    ^\n" +
-			"The local variable _ is hiding a field from type X\n" +
-			"----------\n" +
-			"4. " + usLevel +" in X.java (at line 8)\n" +
-			"	void goo(int _) {}\n" +
-			"	             ^\n" +
-			errorMessage +
-			"----------\n" +
-			"5. WARNING in X.java (at line 8)\n" +
-			"	void goo(int _) {}\n" +
-			"	             ^\n" +
-			"The parameter _ is hiding a field from type X\n" +
-			"----------\n" +
-			"6. " + usLevel +" in X.java (at line 11)\n" +
-			"	} catch (Exception _) {\n" +
-			"	                   ^\n" +
-			errorMessage +
-			"----------\n" +
-			"7. WARNING in X.java (at line 11)\n" +
-			"	} catch (Exception _) {\n" +
-			"	                   ^\n" +
-			"The parameter _ is hiding a field from type X\n" +
-			"----------\n";
-	String expected13ProblemLog =
-			"----------\n" +
-			"1. WARNING in X.java (at line 4)\n" +
-			"	int _   = 3;\n" +
-			"	    ^\n" +
-			"The local variable _ is hiding a field from type X\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 8)\n" +
-			"	void goo(int _) {}\n" +
-			"	             ^\n" +
-			"The parameter _ is hiding a field from type X\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 11)\n" +
-			"	} catch (Exception _) {\n" +
-			"	                   ^\n" +
-			"The parameter _ is hiding a field from type X\n" +
-			"----------\n";
-
-	runComplianceParserTest(
-			testFiles,
-			expected13ProblemLog,
-			expected13ProblemLog,
-			expected13ProblemLog,
-			expected13ProblemLog,
-			expected13ProblemLog,
-			expectedProblemLog
-	);
+//	(this.complianceLevel < ClassFileConstants.JDK22) ? "" : "";
+	runNegativeTest(testFiles, problemLog);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406846:  [1.8] compiler NPE for method reference/lambda code compiled with < 1.8 compliance
 public void test406846() {
@@ -3706,25 +4086,28 @@ public void testIssue2008() {
 			----------
 			""";
 
-	String expected21ProblemLog = """
-			----------
-			1. ERROR in X.java (at line 4)
-				void _() {
-				     ^
-			Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable
-			----------
-			2. ERROR in X.java (at line 5)
-				_();
-				^
-			Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable
-			----------
-			3. ERROR in X.java (at line 10)
-				class _ {
-				      ^
-			Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable
-			----------
-			""";
-
+	String expected22ProblemLog = """
+					----------
+					1. ERROR in X.java (at line 4)
+						void _() {
+						     ^
+					Syntax error on token "_", Identifier expected
+					----------
+					2. ERROR in X.java (at line 4)
+						void _() {
+						     ^
+					void is an invalid type for the variable _
+					----------
+					3. ERROR in X.java (at line 5)
+						_();
+						^
+					Syntax error on token "_", this expected
+					----------
+					4. ERROR in X.java (at line 10)
+						class _ {
+						      ^
+					Syntax error on token "_", Identifier expected
+					----------\n""";
 
 	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
 		runConformTest(
@@ -3740,14 +4123,14 @@ public void testIssue2008() {
 				expected1_8ProblemLog,
 				"OK", null,
 				JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
-	} else if(this.complianceLevel < ClassFileConstants.JDK21) {
+	} else if(this.complianceLevel < ClassFileConstants.JDK22) {
 		runNegativeTest(
 				testFiles,
 				expected9to20ProblemLog);
 	} else {
 		runNegativeTest(
 				testFiles,
-				expected21ProblemLog);
+				expected22ProblemLog);
 	}
 }
 }

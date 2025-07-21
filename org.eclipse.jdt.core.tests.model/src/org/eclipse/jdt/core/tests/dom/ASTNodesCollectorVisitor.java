@@ -16,9 +16,7 @@ package org.eclipse.jdt.core.tests.dom;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.dom.ASTVisitor;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 class ASTNodesCollectorVisitor extends ASTVisitor {

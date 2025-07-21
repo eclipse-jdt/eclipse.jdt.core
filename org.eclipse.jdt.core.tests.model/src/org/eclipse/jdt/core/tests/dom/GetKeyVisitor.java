@@ -14,7 +14,6 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import junit.framework.TestCase;
-
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.IMethodBinding;

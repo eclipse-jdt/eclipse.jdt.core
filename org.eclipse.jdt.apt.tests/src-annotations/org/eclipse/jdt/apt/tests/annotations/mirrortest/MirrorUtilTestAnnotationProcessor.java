@@ -15,16 +15,14 @@
 
 package org.eclipse.jdt.apt.tests.annotations.mirrortest;
 
-import java.io.File;
-import java.util.Map;
-
-import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
-import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
-
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.declaration.FieldDeclaration;
 import com.sun.mirror.declaration.MethodDeclaration;
 import com.sun.mirror.declaration.TypeDeclaration;
+import java.io.File;
+import java.util.Map;
+import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
+import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 
 public class MirrorUtilTestAnnotationProcessor extends BaseProcessor
 {

@@ -34,7 +34,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -42,6 +41,7 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 public class BlockScope extends Scope {
@@ -70,6 +70,7 @@ public class BlockScope extends Scope {
 	// annotation support
 	public boolean insideTypeAnnotation = false;
 	public Statement blockStatement;
+	public boolean resolvingGuardExpression = false;
 
     private boolean reparentLocals = false;
 
@@ -112,7 +113,8 @@ public final void addAnonymousType(TypeDeclaration anonymousType, ReferenceBindi
 	while (methodScope != null && methodScope.referenceContext instanceof LambdaExpression) {
 		LambdaExpression lambda = (LambdaExpression) methodScope.referenceContext;
 		if (!lambda.scope.isStatic && !lambda.scope.isConstructorCall) {
-			lambda.shouldCaptureInstance = true;
+			if (!isInsideEarlyConstructionContext(null, true))
+				lambda.shouldCaptureInstance = true;
 		}
 		methodScope = methodScope.enclosingMethodScope();
 	}
@@ -146,20 +148,21 @@ public final void addLocalVariable(LocalVariableBinding binding) {
 		return;
 	}
 	checkAndSetModifiersForVariable(binding);
-	// insert local in scope
-	if (this.localIndex == this.locals.length)
-		System.arraycopy(
-			this.locals,
-			0,
-			(this.locals = new LocalVariableBinding[this.localIndex * 2]),
-			0,
-			this.localIndex);
-	this.locals[this.localIndex++] = binding;
+	// insert local in scope, skipping unnamed pattern variables.
+	if (!binding.isPatternVariable() || !binding.declaration.isUnnamed(this)) {
+		if (this.localIndex == this.locals.length)
+			System.arraycopy(
+				this.locals,
+				0,
+				(this.locals = new LocalVariableBinding[this.localIndex * 2]),
+				0,
+				this.localIndex);
+		this.locals[this.localIndex++] = binding;
+		binding.id = outerMostMethodScope().analysisIndex++; // share the outermost method scope analysisIndex
+	}
 
 	// update local variable binding
 	binding.declaringScope = this;
-	binding.id = outerMostMethodScope().analysisIndex++;
-	// share the outermost method scope analysisIndex
 }
 
 public void addSubscope(Scope childScope) {
@@ -218,8 +221,8 @@ private void checkAndSetModifiersForVariable(LocalVariableBinding varBinding) {
 	varBinding.modifiers = modifiers;
 }
 
-public void adjustLocalVariablePositions(int delta, boolean offsetAlreadyUpdated) {
-	this.offset += offsetAlreadyUpdated ? 0 : delta;
+public void adjustLocalVariablePositions(int delta) {
+	this.offset += delta;
 	if (this.offset > this.maxOffset)
 		this.maxOffset = this.offset;
 
@@ -245,8 +248,14 @@ public void adjustCurrentAndSubScopeLocalVariablePositions(int delta) {
 		this.maxOffset = this.offset;
 
 	for (LocalVariableBinding lvb : this.locals) {
-		if (lvb != null && lvb.resolvedPosition != -1)
+		if (lvb != null && lvb.resolvedPosition != -1) {
 			lvb.resolvedPosition += delta;
+			if (lvb.resolvedPosition > 0xFFFF) { // no more than 65535 words of locals
+				problemReporter().noMoreAvailableSpaceForLocal(
+					lvb,
+					lvb.declaration == null ? (ASTNode)methodScope().referenceContext : lvb.declaration);
+			}
+		}
 	}
 	for (Scope subScope : this.subscopes) {
 		if (subScope instanceof BlockScope) {
@@ -310,7 +319,8 @@ void computeLocalVariablePositions(int ilocal, int initOffset, CodeStream codeSt
 			// could be optimized out, but does need to preserve unread variables ?
 			if (!generateCurrentLocalVar) {
 				if ((local.declaration != null && compilerOptions().preserveAllLocalVariables) ||
-						local.isPatternVariable()) { // too much voodoo around pattern codegen. Having warned, just treat them as used.
+						local.isPatternVariable() || // too much voodoo around pattern codegen. Having warned, just treat them as used.
+						local.isResourceVariable()) {
 					generateCurrentLocalVar = true; // force it to be preserved in the generated code
 					if (local.useFlag == LocalVariableBinding.UNUSED)
 						local.useFlag = LocalVariableBinding.USED;
@@ -907,7 +917,7 @@ public Object[] getEmulationPath(ReferenceBinding targetEnclosingType, boolean o
 			if (enclosingArgument != null) {
 				FieldBinding syntheticField = sourceType.getSyntheticField(enclosingArgument);
 				if (syntheticField != null) {
-					if (TypeBinding.equalsEquals(syntheticField.type, targetEnclosingType) || (!onlyExactMatch && ((ReferenceBinding)syntheticField.type).findSuperTypeOriginatingFrom(targetEnclosingType) != null))
+					if (TypeBinding.equalsEquals(syntheticField.type, targetEnclosingType) || (!onlyExactMatch && syntheticField.type.findSuperTypeOriginatingFrom(targetEnclosingType) != null))
 						return new Object[] { syntheticField };
 				}
 			}
@@ -925,13 +935,28 @@ public Object[] getEmulationPath(ReferenceBinding targetEnclosingType, boolean o
 	// could be reached through a sequence of enclosing instance link (nested members)
 	Object[] path = new Object[2]; // probably at least 2 of them
 	ReferenceBinding currentType = sourceType.enclosingType();
-	if (insideConstructor) {
-		path[0] = ((NestedTypeBinding) sourceType).getSyntheticArgument(currentType, onlyExactMatch, currentMethodScope.isConstructorCall);
-	} else {
-		if (currentMethodScope.isConstructorCall){
-			return synEAoL != null ? synEAoL : BlockScope.NoEnclosingInstanceInConstructorCall;
+	if ((methodScope().referenceContext instanceof ConstructorDeclaration) && JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(compilerOptions())) {
+		// JEP 482: find the outermost arg up-to the target depth, available as a synthetic argument
+		// this allows us to "skip over" any intermediate early construction context not having an enclosing instance
+		ReferenceBinding outer = currentType;
+		while (outer != null && outer.depth() >= targetEnclosingType.depth()) {
+			SyntheticArgumentBinding arg = ((NestedTypeBinding) sourceType).getSyntheticArgument(outer, onlyExactMatch, currentMethodScope.isConstructorCall);
+			if (arg != null) {
+				currentType = outer;
+				path[0] = arg;
+			}
+			outer = outer.enclosingType();
 		}
-		path[0] = sourceType.getSyntheticField(currentType, onlyExactMatch);
+	}
+	if (path[0] == null) {
+		if (insideConstructor) {
+			path[0] = ((NestedTypeBinding) sourceType).getSyntheticArgument(currentType, onlyExactMatch, currentMethodScope.isConstructorCall);
+		} else {
+			if (currentMethodScope.isConstructorCall){
+				return synEAoL != null ? synEAoL : BlockScope.NoEnclosingInstanceInConstructorCall;
+			}
+			path[0] = sourceType.getSyntheticField(currentType, onlyExactMatch);
+		}
 	}
 	if (path[0] != null) { // keep accumulating
 
@@ -953,6 +978,7 @@ public Object[] getEmulationPath(ReferenceBinding targetEnclosingType, boolean o
 				}
 			}
 
+			// TODO JEP 482: do we need a search for far outer starting at currentType, like in the above JEP 482 section?
 			syntheticField = ((NestedTypeBinding) currentType).getSyntheticField(currentEnclosingType, onlyExactMatch);
 			if (syntheticField == null) break;
 
@@ -989,9 +1015,9 @@ public final boolean isDuplicateLocalVariable(char[] name) {
 public int maxShiftedOffset() {
 	int max = -1;
 	if (this.shiftScopes != null){
-		for (int i = 0, length = this.shiftScopes.length; i < length; i++){
-			if (this.shiftScopes[i] != null) {
-				int subMaxOffset = this.shiftScopes[i].maxOffset;
+		for (BlockScope shiftScope : this.shiftScopes) {
+			if (shiftScope != null) {
+				int subMaxOffset = shiftScope.maxOffset;
 				if (subMaxOffset > max) max = subMaxOffset;
 			}
 		}
@@ -1047,8 +1073,7 @@ public void propagateInnerEmulation(ReferenceBinding targetType, boolean isEnclo
 
 	SyntheticArgumentBinding[] syntheticArguments;
 	if ((syntheticArguments = targetType.syntheticOuterLocalVariables()) != null) {
-		for (int i = 0, max = syntheticArguments.length; i < max; i++) {
-			SyntheticArgumentBinding syntheticArg = syntheticArguments[i];
+		for (SyntheticArgumentBinding syntheticArg : syntheticArguments) {
 			// need to filter out the one that could match a supplied enclosing instance
 			if (!(isEnclosingInstanceSupplied
 				&& (TypeBinding.equalsEquals(syntheticArg.type, targetType.enclosingType())))) {
@@ -1401,8 +1426,8 @@ public void checkAppropriateMethodAgainstSupers(char[] selector, MethodBinding c
 	if (checkAppropriate(compileTimeMethod, otherMethod, site)) {
 		ReferenceBinding[] superInterfaces = enclosingType.superInterfaces();
 		if (superInterfaces != null) {
-			for (int i = 0; i < superInterfaces.length; i++) {
-				otherMethod = getMethod(superInterfaces[i], selector, parameters, site);
+			for (ReferenceBinding superInterface : superInterfaces) {
+				otherMethod = getMethod(superInterface, selector, parameters, site);
 				if (!checkAppropriate(compileTimeMethod, otherMethod, site))
 					break;
 			}
@@ -1433,6 +1458,12 @@ public void reportClashingDeclarations(LocalVariableBinding [] left, LocalVariab
 		}
 	}
 }
+
+@Override
+public boolean resolvingGuardExpression() {
+	return this.resolvingGuardExpression;
+}
+
 public void include(LocalVariableBinding[] bindings) {
 	// `this` is assumed to be populated with bindings.
 	if (bindings != null) {

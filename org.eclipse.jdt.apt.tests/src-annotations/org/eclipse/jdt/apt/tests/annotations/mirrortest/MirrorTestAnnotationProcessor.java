@@ -16,11 +16,6 @@
 
 package org.eclipse.jdt.apt.tests.annotations.mirrortest;
 
-import java.util.Collection;
-
-import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
-import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
-
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.declaration.ClassDeclaration;
 import com.sun.mirror.declaration.EnumDeclaration;
@@ -32,6 +27,9 @@ import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.declaration.TypeParameterDeclaration;
 import com.sun.mirror.type.InterfaceType;
 import com.sun.mirror.util.Declarations;
+import java.util.Collection;
+import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
+import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 
 public class MirrorTestAnnotationProcessor extends BaseProcessor {
 

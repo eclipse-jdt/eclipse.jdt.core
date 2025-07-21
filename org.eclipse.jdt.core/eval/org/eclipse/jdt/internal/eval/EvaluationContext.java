@@ -15,13 +15,14 @@ package org.eclipse.jdt.internal.eval;
 
 import java.util.Locale;
 import java.util.Map;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.CompletionRequestor;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.WorkingCopyOwner;
-import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.ISelectionRequestor;
 import org.eclipse.jdt.internal.codeassist.SelectionEngine;
@@ -187,8 +188,7 @@ public void complete(
 		}
 
 		ClassFile[] classFiles = this.installedVars.classFiles;
-		for (int i = 0; i < classFiles.length; i++) {
-			ClassFile classFile = classFiles[i];
+		for (ClassFile classFile : classFiles) {
 			IBinaryType binary = null;
 			try {
 				binary = new ClassFileReader(classFile.getBytes(), null);

@@ -14,13 +14,11 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.IOException;
 import java.util.Map;
-
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import junit.framework.Test;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 public class PatternMatching16Test extends AbstractRegressionTest {
 
@@ -90,7 +88,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"1. ERROR in X1.java (at line 3)\n" +
 				"	if (obj instanceof String s) {\n" +
 				"	                   ^^^^^^^^\n" +
-				"The Java feature 'Pattern Matching in instanceof Expressions' is only available with source level 16 and above\n" +
+				"The Java feature 'Type Patterns' is only available with source level 16 and above\n" +
 				"----------\n",
 				null,
 				true,
@@ -198,17 +196,24 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	public void test003a() {
 		Map<String, String> options = getCompilerOptions(true);
-		runNegativeTest(
+		String[] testFiles =
 				new String[] {
 						"X3.java",
 						"@SuppressWarnings(\"preview\")\n" +
 						"public class X3 {\n" +
 						"  public void foo(Number num) {\n" +
 						"		if (num instanceof int) {\n" +
+						"			System.out.print(\"int\");\n" +
 						"		}\n " +
 						"	}\n" +
+						"	public static void main(String... args) {\n" +
+						"		new X3().foo(3);" +
+						"	}\n" +
 						"}\n",
-				},
+				};
+		if (this.complianceLevel < ClassFileConstants.JDK23) {
+			runNegativeTest(
+				testFiles,
 				"----------\n" +
 				"1. ERROR in X3.java (at line 4)\n" +
 				"	if (num instanceof int) {\n" +
@@ -219,6 +224,9 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				null,
 				true,
 				options);
+		} else {
+			runConformTest(testFiles, "int", options, new String[] {"--enable-preview"}, JavacTestOptions.DEFAULT);
+		}
 	}
 	public void test004() {
 		Map<String, String> options = getCompilerOptions(true);
@@ -2393,7 +2401,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"----------\n" +
 				"1. ERROR in X.java (at line 4)\n" +
 				"	if (obj instanceof T t) {\n" +
-				"	    ^^^\n" +
+				"	    ^^^^^^^^^^^^^^^^^^\n" +
 				"Type Object cannot be safely cast to T\n" +
 				"----------\n",
 				"X.java:4: error: Object cannot be safely cast to T\n" +
@@ -2452,7 +2460,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"----------\n" +
 				"1. ERROR in X.java (at line 4)\n" +
 				"	if (obj instanceof X<String> p) {\n" +
-				"	    ^^^\n" +
+				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"Type X<capture#1-of ?> cannot be safely cast to X<String>\n" +
 				"----------\n",
 				"",
@@ -4548,4 +4556,296 @@ public class PatternMatching16Test extends AbstractRegressionTest {
                 options);
 
     }
+	// Test for regression caused by fix for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1889
+	public void testIssue1889() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							static public Object a0 = "a";
+
+							public static void main(String argv[]) {
+								String res = "";
+								Object ax = a0;
+
+								if ( (! (ax instanceof String a)) && (ax instanceof String a) ) {
+									res += "t" + a; // after then
+								} else {
+									res += "e" + ""; // after else
+								}
+								if (!res.equals("e")) {
+									System.out.println("Got: " + res + ", expected: e");
+								} else {
+									System.out.println("OK!");
+								}
+							}
+						}
+						""",
+				},
+				"OK!");
+	}
+	// Test for regression caused by fix for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1889
+	public void testIssue1889_2() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						  public static void main(String[] o) {
+								foo("one");
+								foo(new X());
+							}
+						  public static void foo(Object o) {
+							  	boolean b  = (o instanceof String) ? (o instanceof String a) : (! (o instanceof String  a));
+							  	System.out.println(b);
+							}
+						}
+						""",
+				},
+				"true\n"
+				+ "true");
+	}
+	// Test for regression caused by fix for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1889
+	public void testIssue1889_3() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						  public static void main(String[] o) {
+								foo("one");
+								foo(new X());
+							}
+						  public static void foo(Object o) {
+							  	boolean b  = (o instanceof String) ? !(o instanceof String a) : (o instanceof String  a);
+							  	System.out.println(b);
+							}
+						}
+						""",
+				},
+				"false\n"
+				+ "false");
+	}
+	// Test for regression caused by fix for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1889
+	public void testIssue1889_4() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						  public static void main(String[] o) {
+								foo("one");
+								foo(new X());
+							}
+						  public static void foo(Object o) {
+							  	boolean b  = (o instanceof String) ? !!(o instanceof String a) : (o instanceof String  c);
+							  	System.out.println(b);
+							}
+						}
+						""",
+				},
+				"true\n"
+				+ "false");
+	}
+	// Test for regression caused by fix for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1889
+	public void testIssue1889_5() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						  public static void main(String[] o) {
+								foo("one");
+								foo(new X());
+							}
+						  public static void foo(Object o) {
+							  	boolean b  = (o instanceof String) ? (o instanceof String a) : (o instanceof String  c);
+							  	System.out.println(b);
+							}
+						}
+						""",
+				},
+				"true\n"
+				+ "false");
+	}
+	// Test for regression caused by fix for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1889
+	public void testIssue1889_6() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						  public static void main(String[] o) {
+								foo("one");
+								foo(new X());
+							}
+						  public static void foo(Object o) {
+							  	boolean b  = (o instanceof String) ? (o instanceof String a) : !!(o instanceof String  c);
+							  	System.out.println(b);
+							}
+						}
+						""",
+				},
+				"true\n"
+				+ "false");
+	}
+	// Test for regression caused by fix for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1889
+	public void testIssue1889_7() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						  public static void main(String[] o) {
+								foo("one");
+								foo(new X());
+							}
+						  public static void foo(Object o) {
+							  	boolean b  = (o instanceof String s1) ? (o instanceof String s2) : (o instanceof String  s3);
+							  	System.out.println(b);
+							}
+						}
+						""",
+				},
+				"true\n"
+				+ "false");
+	}
+	// Test for regression caused by fix for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1889
+	public void testIssue1889_8() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						  public static void main(String[] o) {
+								foo("one");
+								foo(new X());
+							}
+						  public static void foo(Object o) {
+							  	boolean b  = !(o instanceof String s1) ? (o instanceof String s2) : (o instanceof String  s3);
+							  	System.out.println(b);
+							}
+						}
+						""",
+				},
+				"true\n"
+				+ "false");
+	}
+	// Test for regression caused by fix for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1889
+	public void testIssue1889_9() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						  public static void main(String[] o) {
+								foo("one");
+								foo(new X());
+							}
+						  public static void foo(Object o) {
+							  	boolean b  = !!(o instanceof String s1) ? (o instanceof String s2) : (o instanceof String  s3);
+							  	System.out.println(b);
+							}
+						}
+						""",
+				},
+				"true\n"
+				+ "false");
+	}
+	// Test for regression caused by fix for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1889
+	public void testIssue1889_10() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						  public static void main(String[] o) {
+								foo("one");
+								foo(new X());
+							}
+						  public static void foo(Object o) {
+							  	boolean b  = !!(o instanceof String s1) ? !!!!(o instanceof String s2) : !!!!!!!(o instanceof String  s3);
+							  	System.out.println(b);
+							}
+						}
+						""",
+				},
+				"true\n"
+				+ "true");
+	}
+	public void testWhileLoop() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							void foo(Object o) {
+								while (o instanceof String s) {
+									System.out.println("while");
+									return;
+								}
+								System.out.println("!while");
+							}
+							public static void main(String [] args) {
+							    new X().foo("");
+							     new X().foo(null);
+							}
+						}
+						""",
+				},
+				"while\n"
+				+ "!while");
+	}
+	public void testForLoop() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							void foo(Object o) {
+								for(; (o instanceof String s);) {
+									System.out.println("for");
+									return;
+								}
+								System.out.println("!for");
+							}
+							public static void main(String [] args) {
+							    new X().foo("");
+							     new X().foo(null);
+							}
+						}
+						""",
+				},
+				"for\n"
+				+ "!for");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2104
+	// [Patterns] Missing boxing conversion after instanceof leads to verify error
+	public void testBoxing() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+
+							public static void foo(Boolean b) {
+								System.out.println(b);
+							}
+
+							public static void main(String [] args) {
+								Object o = new Object();
+								foo(o instanceof String);
+								foo("Hello" instanceof String);
+								foo(o instanceof String s);
+								foo("Hello" instanceof String s);
+							}
+						}
+						""",
+				},
+				"false\n"
+				+ "true\n"
+				+ "false\n"
+				+ "true");
+	}
 }

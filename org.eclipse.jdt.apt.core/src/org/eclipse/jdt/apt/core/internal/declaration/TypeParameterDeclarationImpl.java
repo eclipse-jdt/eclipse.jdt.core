@@ -14,19 +14,6 @@
 
 package org.eclipse.jdt.apt.core.internal.declaration;
 
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-
-import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
-import org.eclipse.jdt.apt.core.internal.util.Factory;
-import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-
 import com.sun.mirror.declaration.AnnotationMirror;
 import com.sun.mirror.declaration.Declaration;
 import com.sun.mirror.declaration.Modifier;
@@ -36,6 +23,17 @@ import com.sun.mirror.type.TypeVariable;
 import com.sun.mirror.util.DeclarationVisitor;
 import com.sun.mirror.util.SourcePosition;
 import com.sun.mirror.util.TypeVisitor;
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
+import org.eclipse.jdt.apt.core.internal.util.Factory;
+import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class TypeParameterDeclarationImpl extends DeclarationImpl implements
 	TypeParameterDeclaration, TypeVariable, EclipseMirrorType

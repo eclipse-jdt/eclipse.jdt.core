@@ -15,7 +15,6 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
-
 import junit.framework.Test;
 
 @SuppressWarnings({ "rawtypes" })
@@ -29,7 +28,7 @@ public InnerEmulationTest_1_5(String name) {
 	super(name);
 }
 public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_1_5);
+	return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=275381
 public void test1() throws Exception {

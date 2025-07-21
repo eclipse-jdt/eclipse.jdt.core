@@ -19,9 +19,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Hashtable;
-
 import junit.framework.Test;
-
 import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -36,24 +34,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jdt.core.IBuffer;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMember;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IModularClassFile;
-import org.eclipse.jdt.core.IModuleDescription;
-import org.eclipse.jdt.core.IOrdinaryClassFile;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.ISourceRange;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.SourceRange;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -136,10 +117,10 @@ private void setupExternalLibrary() throws IOException {
 			"public class X {\n" +
 			"}"
 		};
-	org.eclipse.jdt.core.tests.util.Util.createClassFolder(pathsAndContents, externalFolder + "/lib", "1.4");
+	org.eclipse.jdt.core.tests.util.Util.createClassFolder(pathsAndContents, externalFolder + "/lib", CompilerOptions.getFirstSupportedJavaVersion());
 	org.eclipse.jdt.core.tests.util.Util.createSourceDir(pathsAndContents, externalFolder + "/src");
 
-	org.eclipse.jdt.core.tests.util.Util.createJar(pathsAndContents, externalFolder + "/lib.abc", "1.4");
+	org.eclipse.jdt.core.tests.util.Util.createJar(pathsAndContents, externalFolder + "/lib.abc", CompilerOptions.getFirstSupportedJavaVersion());
 	org.eclipse.jdt.core.tests.util.Util.createSourceZip(pathsAndContents, externalFolder + "/src.abc");
 }
 private void setUpGenericJar() throws IOException, CoreException {
@@ -182,7 +163,7 @@ private void setUpGenericJar() throws IOException, CoreException {
 		"	}\n" +
 		"}"
 	};
-	addLibrary("generic.jar", "genericsrc.zip", pathAndContents, JavaCore.VERSION_1_5);
+	addLibrary("generic.jar", "genericsrc.zip", pathAndContents, CompilerOptions.getFirstSupportedJavaVersion());
 }
 private void setUpInnerClassesJar() throws IOException, CoreException {
 	String[] pathAndContents = new String[] {
@@ -223,7 +204,7 @@ private void setUpInnerClassesJar() throws IOException, CoreException {
 		"  }\n" +
 		"}"
 	};
-	addLibrary("innerClasses.jar", "innerClassessrc.zip", pathAndContents, JavaCore.VERSION_1_4);
+	addLibrary("innerClasses.jar", "innerClassessrc.zip", pathAndContents, CompilerOptions.getFirstSupportedJavaVersion());
 }
 @Override
 protected void tearDown() throws Exception {
@@ -1000,7 +981,7 @@ public void testInnerClass5() throws JavaModelException {
 	attachSource(root, "/AttachSourceTests/innerClassessrc.zip", null);
 	IPackageFragment fragment = root.getPackageFragment("inner");
 
-	IType type = fragment.getOrdinaryClassFile("X$1$Y.class").getType();
+	IType type = fragment.getOrdinaryClassFile("X$1Y.class").getType();
 	assertSourceEquals(
 		"Unexpected source",
 		"class Y {}",
@@ -1016,7 +997,7 @@ public void testInnerClass6() throws JavaModelException {
 	attachSource(root, "/AttachSourceTests/innerClassessrc.zip", null);
 	IPackageFragment fragment = root.getPackageFragment("inner");
 
-	IType type = fragment.getOrdinaryClassFile("X$1$W.class").getType();
+	IType type = fragment.getOrdinaryClassFile("X$1W.class").getType();
 	assertSourceEquals(
 		"Unexpected source",
 		"class W {\n" +
@@ -1066,12 +1047,13 @@ public void testInnerClass8() throws JavaModelException {
  * Ensures that the source of an inner class can be retrieved.
  * (regression test for bug 124611 IAE in Signature.createCharArrayTypeSignature)
  */
-public void testInnerClass9() throws JavaModelException {
+public void _2551_testInnerClass9() throws JavaModelException {
 	IJavaProject project = this.getJavaProject("/AttachSourceTests");
 	IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/AttachSourceTests/innerClasses.jar"));
 	attachSource(root, "/AttachSourceTests/innerClassessrc.zip", null);
 	IPackageFragment fragment = root.getPackageFragment("inner");
-
+	// TODO: source mapping for inner classes on Java 1.8 broken.
+	// See BinaryType.getSource() where SourceMapper can't find source for inner classes for source compiled with Java 8 target (works with 1.4)
 	IType type = fragment.getOrdinaryClassFile("X$4$U.class").getType();
 	assertSourceEquals(
 		"Unexpected source",
@@ -1653,7 +1635,7 @@ public void testRootPath13() throws JavaModelException {
 	attachSource(root, null, null); // detach source
 }
 /**
- * @test bug 153133: [model] toggle breakpoint in constructor creates a class load breakpoint
+ * bug 153133: [model] toggle breakpoint in constructor creates a class load breakpoint
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=153133"
  */
 public void testBug153133() throws JavaModelException {
@@ -1678,7 +1660,7 @@ public void testBug153133() throws JavaModelException {
 		// Need to get type members constructors
 		for (int i = 0; i < length; i++) {
 			assertTrue(members[i] instanceof IMember);
-			if (((IMember)members[i]).getElementType() == IJavaElement.TYPE) {
+			if (members[i].getElementType() == IJavaElement.TYPE) {
 				IType typeMember = (IType) members[i];
 				String typeName = typeMember.getElementName();
 				IMethod[] methods = typeMember.getMethods();

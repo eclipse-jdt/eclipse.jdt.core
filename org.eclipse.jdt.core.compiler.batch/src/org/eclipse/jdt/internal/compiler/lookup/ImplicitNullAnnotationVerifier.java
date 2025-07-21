@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
@@ -25,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching.CheckMode;
+import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -277,9 +277,26 @@ public class ImplicitNullAnnotationVerifier {
 					if (inheritedNullnessBits != 0) {
 						if (hasReturnNonNullDefault) {
 							// both inheritance and default: check for conflict?
-							if (shouldComplain && inheritedNullnessBits == TagBits.AnnotationNullable)
-								scope.problemReporter().conflictingNullAnnotations(currentMethod, ((MethodDeclaration) srcMethod).returnType, inheritedMethod);
-							// 	still use the inherited bits to avoid incompatibility
+							if (shouldComplain && inheritedNullnessBits == TagBits.AnnotationNullable) {
+								ASTNode location = null;
+								if (srcMethod instanceof MethodDeclaration) {
+									location = ((MethodDeclaration) srcMethod).returnType;
+								} else if (currentMethod instanceof SyntheticMethodBinding) {
+									SyntheticMethodBinding synth = (SyntheticMethodBinding) currentMethod;
+									switch (synth.purpose) {
+										case SyntheticMethodBinding.FieldReadAccess:
+											if (synth.recordComponentBinding != null) {
+												RecordComponent sourceRecordComponent = synth.sourceRecordComponent();
+												if (sourceRecordComponent != null)
+													location = sourceRecordComponent.type;
+											}
+									}
+								}
+								if (location == null)
+									location = (ASTNode) scope.referenceContext(); // fallback just in case
+								scope.problemReporter().conflictingNullAnnotations(currentMethod, location, inheritedMethod);
+								// 	still use the inherited bits to avoid incompatibility
+							}
 						}
 						if (inheritedNonNullnessInfos != null && srcMethod != null) {
 							recordDeferredInheritedNullness(scope, ((MethodDeclaration) srcMethod).returnType,

@@ -13,9 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
 import junit.framework.Test;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class LeakTestsBefore9 extends AbstractLeakTest {
 
@@ -28,7 +27,7 @@ public class LeakTestsBefore9 extends AbstractLeakTest {
 	}
 
 	String getCompatibilityLevel() {
-		return CompilerOptions.VERSION_1_4;
+		return CompilerOptions.getFirstSupportedJavaVersion();
 	}
 
 	@Override

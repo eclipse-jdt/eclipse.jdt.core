@@ -19,9 +19,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -47,7 +45,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 //		TESTS_RANGE = new int[] { 23 -1,};
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_6);
+		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
 	}
 	public void test001() throws Exception {
 		this.runConformTest(
@@ -7145,7 +7143,6 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=366999
 	public void test056() throws Exception {
-		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
 		this.runConformTest(
 				new String[] {
 					"X.java",
@@ -7793,8 +7790,6 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=380313
 	// Verify the generated code does not have same branch target for the 2 return statements
 	public void testBug380313b() throws Exception {
-		if (this.complianceLevel < ClassFileConstants.JDK1_7)
-			return;
 		this.runConformTest(
 				new String[] {
 						"X.java",
@@ -8254,7 +8249,6 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 
 	// https://bugs.eclipse.org/412203
 	public void testBug412203_a() throws Exception {
-		if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // using <>
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 		options.put(JavaCore.COMPILER_PB_NULL_REFERENCE, JavaCore.ERROR);
@@ -8320,7 +8314,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"}\n",
 				},
 				"",
-				getLibsWithNullAnnotations(ClassFileConstants.JDK1_7),
+				getLibsWithNullAnnotations(),
 				true/*flush*/,
 				null/*vmArgs*/,
 				options,
@@ -8442,7 +8436,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"}\n",
 				},
 				"",
-				getLibsWithNullAnnotations(ClassFileConstants.JDK1_7),
+				getLibsWithNullAnnotations(),
 				true/*flush*/,
 				null/*vmArgs*/,
 				options,
@@ -8559,7 +8553,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"}\n",
 				},
 				"",
-				getLibsWithNullAnnotations(ClassFileConstants.JDK1_7),
+				getLibsWithNullAnnotations(),
 				true/*flush*/,
 				null/*vmArgs*/,
 				options,

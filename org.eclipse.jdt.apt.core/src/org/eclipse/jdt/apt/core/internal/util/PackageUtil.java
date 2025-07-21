@@ -14,7 +14,6 @@
 package org.eclipse.jdt.apt.core.internal.util;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;

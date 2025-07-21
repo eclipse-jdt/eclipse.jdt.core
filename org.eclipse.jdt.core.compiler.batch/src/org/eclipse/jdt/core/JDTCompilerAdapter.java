@@ -25,14 +25,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.Javac;
 import org.apache.tools.ant.taskdefs.compilers.DefaultCompilerAdapter;
 import org.apache.tools.ant.types.Commandline;
-import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Commandline.Argument;
+import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.util.JavaEnvUtils;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.antadapter.AntAdapterMessages;
@@ -244,9 +243,8 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		 */
 		if (this.attributes.getNowarn()) {
 			// disable all warnings
-			Object[] entries = this.customDefaultOptions.entrySet().toArray();
-			for (int i = 0, max = entries.length; i < max; i++) {
-				Map.Entry entry = (Map.Entry) entries[i];
+			for (Object o : this.customDefaultOptions.entrySet()) {
+				Map.Entry entry = (Map.Entry) o;
 				if (!(entry.getKey() instanceof String))
 					continue;
 				if (!(entry.getValue() instanceof String))
@@ -383,10 +381,10 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 	 * @param args compiler arguments to process
 	 */
 	private void checkCompilerArgs(String[] args) {
-		for (int i = 0; i < args.length; i++) {
-			if (args[i].charAt(0) == '@') {
+		for (String arg : args) {
+			if (arg.charAt(0) == '@') {
 				try {
-					char[] content = Util.getFileCharContent(new File(args[i].substring(1)), null);
+					char[] content = Util.getFileCharContent(new File(arg.substring(1)), null);
 					int offset = 0;
 					int prefixLength = ADAPTER_PREFIX.length;
 					while ((offset = CharOperation.indexOf(ADAPTER_PREFIX, content, true, offset)) > -1) {
@@ -550,8 +548,8 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			Arrays.sort(encodedDirs, comparator);
 		}
 
-		for (int i = 0; i < this.compileList.length; i++) {
-			String arg = this.compileList[i].getAbsolutePath();
+		for (File file : this.compileList) {
+			String arg = file.getAbsolutePath();
 			boolean encoded = false;
 			if (encodedFiles != null) {
 				//check for file level custom encoding

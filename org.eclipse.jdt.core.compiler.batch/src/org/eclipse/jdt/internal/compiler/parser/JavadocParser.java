@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,27 +16,9 @@ package org.eclipse.jdt.internal.compiler.parser;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
-import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.ast.Expression;
-import org.eclipse.jdt.internal.compiler.ast.IJavadocTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.Javadoc;
-import org.eclipse.jdt.internal.compiler.ast.JavadocAllocationExpression;
-import org.eclipse.jdt.internal.compiler.ast.JavadocArgumentExpression;
-import org.eclipse.jdt.internal.compiler.ast.JavadocArrayQualifiedTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.JavadocArraySingleTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference;
-import org.eclipse.jdt.internal.compiler.ast.JavadocImplicitTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend;
-import org.eclipse.jdt.internal.compiler.ast.JavadocModuleReference;
-import org.eclipse.jdt.internal.compiler.ast.JavadocQualifiedTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.JavadocReturnStatement;
-import org.eclipse.jdt.internal.compiler.ast.JavadocSingleNameReference;
-import org.eclipse.jdt.internal.compiler.ast.JavadocSingleTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -93,6 +75,7 @@ public class JavadocParser extends AbstractCommentParser {
 		this.javadocStart = this.sourceParser.scanner.commentStarts[commentPtr];
 		this.javadocEnd = this.sourceParser.scanner.commentStops[commentPtr]-1;
 		this.firstTagPosition = this.sourceParser.scanner.commentTagStarts[commentPtr];
+		this.markdown = this.sourceParser.scanner.commentIsMarkdown[commentPtr];
 		this.validValuePositions = -1;
 		this.invalidValuePositions = -1;
 		this.tagWaitingForDescription = NO_TAG_VALUE;
@@ -100,11 +83,13 @@ public class JavadocParser extends AbstractCommentParser {
 		// Init javadoc if necessary
 		if (this.checkDocComment) {
 			this.docComment = new Javadoc(this.javadocStart, this.javadocEnd);
+			this.docComment.isMarkdown = this.markdown;
 		} else if (this.setJavadocPositions) {
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=189459
 			// if annotation processors are there, javadoc object is required but
 			// they need not be resolved
 			this.docComment = new Javadoc(this.javadocStart, this.javadocEnd);
+			this.docComment.isMarkdown = this.markdown;
 			this.docComment.bits &= ~ASTNode.ResolveJavadoc;
 		} else {
 			this.docComment = null;
@@ -123,6 +108,7 @@ public class JavadocParser extends AbstractCommentParser {
 		try {
 			this.source = this.sourceParser.scanner.source;
 			this.scanner.setSource(this.source); // updating source in scanner
+			this.markdown = this.source[this.javadocStart + 1] == '/';
 			if (this.checkDocComment) {
 				// Initialization
 				this.scanner.lineEnds = this.sourceParser.scanner.lineEnds;
@@ -150,6 +136,11 @@ public class JavadocParser extends AbstractCommentParser {
 					nextCharacter : while (this.index < this.lineEnd) {
 						char c = readChar(); // consider unicodes
 						switch (c) {
+							case '/' :
+								if (!this.markdown) {
+									break;
+								}
+								//$FALL-THROUGH$
 							case '*' :
 							case '\u000c' :	/* FORM FEED               */
 							case ' ' :			/* SPACE                   */
@@ -349,6 +340,7 @@ public class JavadocParser extends AbstractCommentParser {
 	@Override
 	protected void createTag() {
 		this.tagValue = TAG_OTHERS_VALUE;
+		this.markdownHelper.resetLineStart();
 	}
 
 	@Override
@@ -560,9 +552,65 @@ public class JavadocParser extends AbstractCommentParser {
 				break;
 		}
 	}
-
+	@Override
+	protected boolean parseMarkdownLinks(int previousPosition) throws InvalidInputException {
+		boolean valid = false;
+		// The markdown links can come in single [] or pair of [] with no space between them
+		// We are here after we have seen [
+		// Look for closing ] and then an option [
+		// immediately without any other characters, including whitespace
+		// If there are two [], then the first one becomes the link text
+		// and the second one is the reference
+		// in case of just one [], then that is the reference
+		int start = this.index;
+		char currentChar = readChar();
+		loop: while (this.index < this.scanner.eofPosition) {
+			switch(currentChar) {
+				case '\\':
+					char c = peekChar();
+					if (c == '[' || c == ']') {
+						readChar();
+					}
+					break;
+				case ']':
+					if (peekChar() == '[') {
+						// We might want to store the description in case of DOM parser
+						// but the compiler does not need it
+						//int length = this.index - start - 1;
+						//System.arraycopy(this.scanner.source, start, desc = new char[length], 0, length);
+						// move it past '['
+						currentChar = readChar();
+						start = this.index;
+					} else {
+						break loop;
+					}
+					break;
+				case '\r':
+				case '\n':
+					if ((this.kind & PARSER_KIND) == COMPLETION_PARSER) {
+						// TODO would like to trigger parseReference() with more tokens,
+						// but in "[some text][#theLink]" arbitrary chars are allowed which do not imply end of link identifier.
+						// To resolve this we would need to scan for detection of a second pair of brackets ...
+						break loop;
+					}
+					return false;
+				default:
+					break;
+			}
+			currentChar = readChar();
+		}
+		int eofBkup = this.scanner.eofPosition;
+		this.scanner.resetTo(start, Math.max(this.javadocEnd, this.index));
+		this.tagValue = TAG_LINK_VALUE;
+		valid = parseReference(true);
+		this.tagValue = NO_TAG_VALUE;
+		this.scanner.eofPosition = eofBkup;
+		this.markdownHelper.resetLineStart();
+		return valid;
+	}
 	@Override
 	protected boolean parseTag(int previousPosition) throws InvalidInputException {
+		this.markdownHelper.resetLineStart();
 
 		// Complain when tag is missing a description
 		// Note that if the parse of an inline tag has already started, consider it

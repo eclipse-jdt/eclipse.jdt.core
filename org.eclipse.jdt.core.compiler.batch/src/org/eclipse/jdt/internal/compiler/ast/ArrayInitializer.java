@@ -25,11 +25,14 @@ package org.eclipse.jdt.internal.compiler.ast;
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.ASSIGNMENT_CONTEXT;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class ArrayInitializer extends Expression {
 
@@ -51,14 +54,14 @@ public class ArrayInitializer extends Expression {
 			CompilerOptions compilerOptions = currentScope.compilerOptions();
 			boolean analyseResources = compilerOptions.analyseResourceLeaks;
 			boolean evalNullTypeAnnotations = currentScope.environment().usesNullTypeAnnotations();
-			for (int i = 0, max = this.expressions.length; i < max; i++) {
-				flowInfo = this.expressions[i].analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
+			for (Expression expression : this.expressions) {
+				flowInfo = expression.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
 
-				if (analyseResources && FakedTrackingVariable.isAnyCloseable(this.expressions[i].resolvedType)) {
-					flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.expressions[i], flowInfo, flowContext, false);
+				if (analyseResources && FakedTrackingVariable.isAnyCloseable(expression.resolvedType)) {
+					flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, expression, flowInfo, flowContext, false);
 				}
 				if (evalNullTypeAnnotations) {
-					checkAgainstNullTypeAnnotation(currentScope, this.binding.elementsType(), this.expressions[i], flowContext, flowInfo);
+					checkAgainstNullTypeAnnotation(currentScope, this.binding.elementsType(), expression, flowContext, flowInfo);
 				}
 			}
 		}
@@ -184,8 +187,7 @@ public class ArrayInitializer extends Expression {
 			if (this.expressions == null)
 				return this.binding;
 			TypeBinding elementType = this.binding.elementsType();
-			for (int i = 0, length = this.expressions.length; i < length; i++) {
-				Expression expression = this.expressions[i];
+			for (Expression expression : this.expressions) {
 				expression.setExpressionContext(ASSIGNMENT_CONTEXT);
 				expression.setExpectedType(elementType);
 				TypeBinding expressionType = expression instanceof ArrayInitializer

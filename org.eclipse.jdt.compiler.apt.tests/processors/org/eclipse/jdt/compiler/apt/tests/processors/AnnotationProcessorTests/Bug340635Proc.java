@@ -14,7 +14,6 @@
 package org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests;
 
 import java.util.Set;
-
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.RoundEnvironment;

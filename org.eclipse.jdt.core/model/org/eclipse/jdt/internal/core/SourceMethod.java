@@ -14,8 +14,15 @@
 package org.eclipse.jdt.internal.core;
 
 import java.util.Arrays;
-
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.Flags;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.ILocalVariable;
+import org.eclipse.jdt.core.IMemberValuePair;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeParameter;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -52,8 +59,8 @@ protected void closing(Object info) throws JavaModelException {
 	super.closing(info);
 	SourceMethodElementInfo elementInfo = (SourceMethodElementInfo) info;
 	ITypeParameter[] typeParameters = elementInfo.typeParameters;
-	for (int i = 0, length = typeParameters.length; i < length; i++) {
-		((TypeParameter) typeParameters[i]).close();
+	for (ITypeParameter typeParameter : typeParameters) {
+		((TypeParameter) typeParameter).close();
 	}
 }
 @Override
@@ -101,9 +108,9 @@ protected void getHandleMemento(StringBuilder buff) {
 	char delimiter = getHandleMementoDelimiter();
 	buff.append(delimiter);
 	escapeMementoName(buff, getElementName());
-	for (int i = 0; i < this.parameterTypes.length; i++) {
+	for (String parameterType : this.parameterTypes) {
 		buff.append(delimiter);
-		escapeMementoName(buff, this.parameterTypes[i]);
+		escapeMementoName(buff, parameterType);
 	}
 	if (this.getOccurrenceCount() > 1) {
 		buff.append(JEM_COUNT);
@@ -296,7 +303,7 @@ public JavaElement resolved(Binding binding) {
 	return new ResolvedSourceMethod(this.getParent(), this.name, this.parameterTypes, new String(binding.computeUniqueKey()), this.getOccurrenceCount());
 }
 /**
- * @private Debugging purposes
+ * for debugging only
  */
 @Override
 protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean showResolvedInfo) {

@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -74,14 +73,10 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 			testSuite.addTest(suite);
 		}
 		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
-		if ((complianceLevels & AbstractCompilerTest.F_1_3) != 0) {
-			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTest_1_3.class, ClassFileConstants.JDK1_3));
-		}
-		if ((complianceLevels & AbstractCompilerTest.F_1_4) != 0) {
-			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTest_1_4.class, ClassFileConstants.JDK1_4));
-		}
-		if ((complianceLevels & AbstractCompilerTest.F_1_5) != 0) {
-			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTest_1_5.class, ClassFileConstants.JDK1_5));
+		if ((complianceLevels & AbstractCompilerTest.F_1_8) != 0) {
+			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTest_1_3.class, ClassFileConstants.JDK1_8));
+			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTest_1_4.class, ClassFileConstants.JDK1_8));
+			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTest_1_5.class, ClassFileConstants.JDK1_8));
 		}
 		if ((complianceLevels & AbstractCompilerTest.F_9) != 0) {
 			testSuite.addTest(buildUniqueComplianceTestSuite(JavadocTestForModule.class, ClassFileConstants.JDK9));
@@ -344,7 +339,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		if (RUN_JAVAC) {
+		if (shouldRunJavac()) {
 			javadocCommandLineHeader =
 				jdkRootDirPath.append("bin").append(JAVADOC_NAME).toString(); // PREMATURE replace JAVA_NAME and JAVAC_NAME with locals? depends on potential reuse
 		}
@@ -457,7 +452,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 					contents = "package "+packName+";"+contents.substring(contents.indexOf(';')+1);
 					File dir = new File(dirFileName, subdirs);
 					if (!dir.exists()) dir.mkdirs();
-					if (RUN_JAVAC) {
+					if (shouldRunJavac()) {
 						Util.writeToFile(contents, dirFileName+"/"+fileName);
 						// PREMATURE this results into a duplicate file.
 					}
@@ -630,7 +625,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 
 	@Override
 	protected void	printJavacResultsSummary() {
-		if (RUN_JAVAC) {
+		if (shouldRunJavac()) {
 			Integer count = (Integer)TESTS_COUNTERS.get(CURRENT_CLASS_NAME);
 			if (count != null) {
 				int newCount = count.intValue()-1;

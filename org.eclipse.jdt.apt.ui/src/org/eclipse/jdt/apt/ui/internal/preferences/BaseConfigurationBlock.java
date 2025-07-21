@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.preferences.DefaultScope;
@@ -60,9 +59,9 @@ import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.forms.events.ExpansionAdapter;
 import org.eclipse.ui.forms.events.ExpansionEvent;
 import org.eclipse.ui.forms.widgets.ExpandableComposite;
-import org.eclipse.ui.preferences.WorkingCopyManager;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 import org.eclipse.ui.preferences.IWorkingCopyManager;
+import org.eclipse.ui.preferences.WorkingCopyManager;
 import org.osgi.service.prefs.BackingStoreException;
 
 /**

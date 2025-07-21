@@ -14,33 +14,10 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.util.List;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ArrayInitializer;
-import org.eclipse.jdt.core.dom.AssertStatement;
-import org.eclipse.jdt.core.dom.Assignment;
-import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.EmptyStatement;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.ExpressionStatement;
-import org.eclipse.jdt.core.dom.ForStatement;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.NumberLiteral;
-import org.eclipse.jdt.core.dom.ReturnStatement;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.Statement;
-import org.eclipse.jdt.core.dom.StringLiteral;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
-import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
+import org.eclipse.jdt.core.dom.*;
 
 @SuppressWarnings("rawtypes")
 public class ASTConverterRecoveryTest extends ConverterTestSetup {
@@ -990,10 +967,6 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 				"Comparing identical expressions\n" +
 				"2. ERROR in /Converter/src/p/X.java (at line 4)\n" +
 				"	if (1==1 && var.equals(1) {\n" +
-				"	                ^^^^^^\n" +
-				"The method equals(Object) in the type Object is not applicable for the arguments (int)\n" +
-				"3. ERROR in /Converter/src/p/X.java (at line 4)\n" +
-				"	if (1==1 && var.equals(1) {\n" +
 				"	                        ^\n" +
 				"Syntax error, insert \") Statement\" to complete BlockStatements\n",
 				result);
@@ -1112,4 +1085,74 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 			List statements = block.statements();
 			assertEquals("wrong size", 0, statements.size()); //$NON-NLS-1$
 		}
+
+	public void testGH3155() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter18/src/test/TestDependsOnClass.java",
+			"""
+			package test;
+			public class TestDependsOnClass {
+				public TestDependsOnClass(@Qualifier(value= ) Object mybean) { }
+			}
+			""");
+		ASTNode result = runConversion(getJLS8(), this.workingCopies[0], true, true);
+
+		assertASTNodeEquals(
+			"""
+			package test;
+			public class TestDependsOnClass {
+			  public TestDependsOnClass(  @Qualifier(value=$missing$) Object mybean){
+			  }
+			}
+			""",
+			result);
+
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		assertTrue(methodDeclaration.isConstructor());
+		assertEquals(1, methodDeclaration.parameters().size());
+		SingleVariableDeclaration param = (SingleVariableDeclaration) methodDeclaration.parameters().get(0);
+		assertEquals(1, param.modifiers().size());
+		IExtendedModifier mod = (IExtendedModifier) param.modifiers().get(0);
+		assertTrue(mod.isAnnotation());
+		assertEquals("Qualifier", ((Annotation) mod).getTypeName().toString());
+	}
+
+	public void testGH3156() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Converter18/src/test/X.java",
+			"""
+			package test;
+			public class X {
+				@Value(spring.) private String value1;
+			}
+			""");
+		ASTNode result = runConversion(getJLS8(), this.workingCopies[0], true, true);
+
+		assertASTNodeEquals(
+			"""
+			package test;
+			public class X {
+			  @Value(spring.$missing$) private String value1;
+			}
+			""",
+			result);
+
+		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
+		assertNotNull(node);
+		assertTrue("Not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION); //$NON-NLS-1$
+		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
+		IExtendedModifier mod = (IExtendedModifier) fieldDeclaration.modifiers().get(0);
+		assertTrue(mod.isAnnotation());
+		Annotation annotation = (Annotation) mod;
+		assertEquals("Value", annotation.getTypeName().toString());
+		assertTrue(annotation.isSingleMemberAnnotation());
+		Expression value = ((SingleMemberAnnotation) annotation).getValue();
+		assertEquals(QualifiedName.class, value.getClass());
+		assertEquals("spring.$missing$", value.toString());
+	}
 }

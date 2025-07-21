@@ -14,6 +14,9 @@
 
 package org.eclipse.jdt.apt.core.internal.util;
 
+import com.sun.mirror.declaration.MemberDeclaration;
+import com.sun.mirror.declaration.MethodDeclaration;
+import com.sun.mirror.util.Declarations;
 import org.eclipse.jdt.apt.core.internal.NonEclipseImplementationException;
 import org.eclipse.jdt.apt.core.internal.declaration.DeclarationImpl;
 import org.eclipse.jdt.apt.core.internal.declaration.EclipseDeclarationImpl;
@@ -25,10 +28,6 @@ import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.Modifier;
-
-import com.sun.mirror.declaration.MemberDeclaration;
-import com.sun.mirror.declaration.MethodDeclaration;
-import com.sun.mirror.util.Declarations;
 
 public class DeclarationsUtil implements Declarations
 {

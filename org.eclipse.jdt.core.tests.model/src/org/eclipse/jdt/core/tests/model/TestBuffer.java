@@ -14,10 +14,12 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.ArrayList;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.BufferChangedEvent;
+import org.eclipse.jdt.core.IBuffer;
+import org.eclipse.jdt.core.IBufferChangedListener;
+import org.eclipse.jdt.core.IOpenable;
 
 /*
  * A simple implementation of IBuffer.

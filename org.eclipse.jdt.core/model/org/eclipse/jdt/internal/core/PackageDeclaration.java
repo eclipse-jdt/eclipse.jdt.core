@@ -13,7 +13,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IPackageDeclaration;
+import org.eclipse.jdt.core.ISourceRange;
+import org.eclipse.jdt.core.JavaModelException;
 
 /**
  * @see IPackageDeclaration
@@ -66,7 +69,7 @@ public JavaElement getPrimaryElement(boolean checkOwner) {
 	return cu.getPackageDeclaration(this.name);
 }
 /**
- * @private Debugging purposes
+ * for debugging only
  */
 @Override
 protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean showResolvedInfo) {

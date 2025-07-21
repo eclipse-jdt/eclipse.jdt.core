@@ -14,7 +14,6 @@ package org.eclipse.jdt.core.dom;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -61,8 +60,8 @@ public final class ModuleModifier extends ASTNode {
 					STATIC_KEYWORD,
 					TRANSITIVE_KEYWORD,
 				};
-			for (int i = 0; i < ops.length; i++) {
-				KEYWORDS.put(ops[i].toString(), ops[i]);
+			for (ModuleModifierKeyword op : ops) {
+				KEYWORDS.put(op.toString(), op);
 			}
 		}
 
@@ -80,8 +79,8 @@ public final class ModuleModifier extends ASTNode {
 		 * @see #toFlagValue()
 		 */
 		public static ModuleModifierKeyword fromFlagValue(int flagValue) {
-			for (Iterator it = KEYWORDS.values().iterator(); it.hasNext(); ) {
-				ModuleModifierKeyword k = (ModuleModifierKeyword) it.next();
+			for (Object o : KEYWORDS.values()) {
+				ModuleModifierKeyword k = (ModuleModifierKeyword) o;
 				if (k.toFlagValue() == flagValue) {
 					return k;
 				}

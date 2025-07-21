@@ -13,16 +13,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.IJavaProject;
-
-import junit.framework.Test;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class Bug376673Test extends ModifyingResourceTests {
 
@@ -45,12 +45,12 @@ public class Bug376673Test extends ModifyingResourceTests {
 			if ("macosx".equals(System.getProperty("osgi.os"))) {
 				return;
 			}
-			IJavaProject p = createJavaProject("P", new String[] { "src" }, new String[] { "/P/lib376673.jar", "JCL17_LIB" }, "bin", "1.7");
+			IJavaProject p = createJavaProject("P", new String[] { "src" }, new String[] { "/P/lib376673.jar", "JCL18_LIB" }, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 
 			org.eclipse.jdt.core.tests.util.Util.createJar(
 					new String[] { "p\uD842\uDF9F/i\uD842\uDF9F/Test.java",
 							"package p\uD842\uDF9F.i\uD842\uDF9F;\n" + "public class Test{}\n" },
-					p.getProject().getLocation().append("lib376673.jar").toOSString(), "1.7");
+					p.getProject().getLocation().append("lib376673.jar").toOSString(), CompilerOptions.getFirstSupportedJavaVersion());
 
 			createFolder("/P/src/pkg");
 			String[] classFileContent = new String[] {
@@ -59,7 +59,7 @@ public class Bug376673Test extends ModifyingResourceTests {
 					"	public p\uD842\uDF9F.i\uD842\uDF9F.Test test;",
 					"}",
 			};
-			IFile file = createFile("/P/src/pkg/UseJarClass.java", String.join(System.lineSeparator(), classFileContent), "UTF-8");
+			IFile file = createFile("/P/src/pkg/UseJarClass.java", String.join(System.lineSeparator(), classFileContent), StandardCharsets.UTF_8);
 			file.setCharset("UTF-8", null);
 			refresh(p);
 			waitForAutoBuild();

@@ -77,7 +77,7 @@ public final class SingleMemberAnnotation extends Annotation {
 	 * The value; lazily initialized; defaults to a unspecified, but legal,
 	 * expression.
 	 */
-	private Expression value = null;
+	private volatile Expression value;
 
 	/**
 	 * Creates a new unparented normal annotation node owned
@@ -168,8 +168,7 @@ public final class SingleMemberAnnotation extends Annotation {
 			synchronized (this) {
 				if (this.value == null) {
 					preLazyInit();
-					this.value = new SimpleName(this.ast);
-					postLazyInit(this.value, VALUE_PROPERTY);
+					this.value = postLazyInit(new SimpleName(this.ast), VALUE_PROPERTY);
 				}
 			}
 		}

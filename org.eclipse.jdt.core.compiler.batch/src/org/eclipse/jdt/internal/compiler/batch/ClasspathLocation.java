@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
@@ -38,10 +37,10 @@ public abstract class ClasspathLocation implements FileSystem.Classpath,
 
 	String path;
 	char[] normalizedPath;
-	public AccessRuleSet accessRuleSet;
+	public final AccessRuleSet accessRuleSet;
 	IModule module;
 
-	public String destinationPath;
+	public final String destinationPath;
 		// destination path for compilation units that are reached through this
 		// classpath location; the coding is consistent with the one of
 		// Main.destinationPath:

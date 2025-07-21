@@ -14,8 +14,12 @@
 package org.eclipse.jdt.internal.core.jdom;
 
 import java.util.Enumeration;
-
-import org.eclipse.jdt.core.jdom.*;
+import org.eclipse.jdt.core.jdom.DOMException;
+import org.eclipse.jdt.core.jdom.DOMFactory;
+import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
+import org.eclipse.jdt.core.jdom.IDOMFactory;
+import org.eclipse.jdt.core.jdom.IDOMMethod;
+import org.eclipse.jdt.core.jdom.IDOMNode;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 import org.eclipse.jdt.internal.core.util.Messages;
 
@@ -480,7 +484,7 @@ private DOMNode cloneSharingDocument(char[] document, int rootOffset) {
 }
 /**
  * Sets this node's fragmented flag and all ancestor fragmented flags
- * to <code>true<code>. This happens when an attribute of this node or a descendant
+ * to <code>true</code>. This happens when an attribute of this node or a descendant
  * node has been altered. When a node is fragmented, its contents must
  * be generated from its attributes and original "form" rather than
  * from the original contents in the document.

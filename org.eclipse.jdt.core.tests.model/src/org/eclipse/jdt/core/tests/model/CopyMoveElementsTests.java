@@ -14,11 +14,11 @@
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
-
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class CopyMoveElementsTests extends CopyMoveTests {
 public CopyMoveElementsTests(String name) {
@@ -28,7 +28,7 @@ public CopyMoveElementsTests(String name) {
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
-	IJavaProject project = this.createJavaProject("BinaryProject", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+	IJavaProject project = this.createJavaProject("BinaryProject", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
 	this.createFile(
 		"/BinaryProject/src/X.java",
 		"public class X {\n" +
@@ -47,7 +47,7 @@ public void setUpSuite() throws Exception {
 public void setUp() throws Exception {
 	super.setUp();
 
-	this.createJavaProject("P", new String[] {"src"}, new String[] {"/BinaryProject/bin"}, "bin", "1.5");
+	this.createJavaProject("P", new String[] {"src"}, new String[] {"/BinaryProject/bin"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 }
 // Use this static initializer to specify subset for tests
 // All specified tests which do not belong to the class are skipped...
@@ -405,7 +405,7 @@ public void testCopyFieldsMultiStatus() throws CoreException {
 			typeDest.getJavaModel().copy(fieldsSource, dests, null, null, false, null);
 		} catch (JavaModelException jme) {
 			assertTrue("Should be multistatus", jme.getStatus().isMultiStatus());
-			assertTrue("Should be an invalid destination", ((IJavaModelStatus)jme.getStatus().getChildren()[0]).getCode()== IJavaModelStatusConstants.INVALID_DESTINATION);
+			assertTrue("Should be an invalid destination", jme.getStatus().getChildren()[0].getCode()== IJavaModelStatusConstants.INVALID_DESTINATION);
 			e = true;
 		}
 		assertTrue("Should have been an exception", e);
@@ -457,7 +457,7 @@ public void testCopyFieldsMultiStatusInDifferentProject() throws CoreException {
 			typeDest.getJavaModel().copy(fieldsSource, dests, null, null, false, null);
 		} catch (JavaModelException jme) {
 			assertTrue("Should be multistatus", jme.getStatus().isMultiStatus());
-			assertTrue("Should be an invalid destination", ((IJavaModelStatus)jme.getStatus().getChildren()[0]).getCode()== IJavaModelStatusConstants.INVALID_DESTINATION);
+			assertTrue("Should be an invalid destination", jme.getStatus().getChildren()[0].getCode()== IJavaModelStatusConstants.INVALID_DESTINATION);
 			e = true;
 		}
 		assertTrue("Should have been an exception", e);

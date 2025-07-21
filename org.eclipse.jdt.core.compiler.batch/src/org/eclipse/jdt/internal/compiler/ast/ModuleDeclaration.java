@@ -14,14 +14,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import static org.eclipse.jdt.internal.compiler.problem.ProblemSeverities.*;
+import static org.eclipse.jdt.internal.compiler.problem.ProblemSeverities.AbortCompilation;
+import static org.eclipse.jdt.internal.compiler.problem.ProblemSeverities.AbortCompilationUnit;
+import static org.eclipse.jdt.internal.compiler.problem.ProblemSeverities.AbortMethod;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -453,11 +454,6 @@ public class ModuleDeclaration extends ASTNode implements ReferenceContext {
 	@Override
 	public void tagAsHavingErrors() {
 		this.ignoreFurtherInvestigation = true;
-	}
-
-	@Override
-	public void tagAsHavingIgnoredMandatoryErrors(int problemId) {
-		// Nothing to do for this context;
 	}
 
 	public String getModuleVersion() {

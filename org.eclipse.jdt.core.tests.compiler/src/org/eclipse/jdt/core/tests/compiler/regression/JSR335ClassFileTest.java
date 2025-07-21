@@ -17,9 +17,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -1336,7 +1334,7 @@ public void test009() throws Exception {
 				"        [pc: 0, pc: 14] local: this index: 0 type: X\n" +
 				"  \n" +
 				"  // Method descriptor #25 (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;\n" +
-				"  // Stack: 3, Locals: 2\n" +
+				"  // Stack: 2, Locals: 2\n" +
 				"  private static synthetic java.lang.String lambda$0(java.lang.String s1, java.lang.String s2);\n" +
 				"    0  aload_0 [s1]\n" +
 				"    1  aload_1 [s2]\n" +
@@ -1631,7 +1629,7 @@ public void test010() throws Exception {
 				"        [pc: 14, pc: 24] local: s0 index: 1 type: java.lang.String\n" +
 				"  \n" +
 				"  // Method descriptor #34 (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;\n" +
-				"  // Stack: 4, Locals: 3\n" +
+				"  // Stack: 3, Locals: 3\n" +
 				"  private static synthetic java.lang.String lambda$0(java.lang.String arg0, java.lang.String s1, java.lang.String s2);\n" +
 				"    0  aload_0 [arg0]\n" +
 				"    1  aload_1 [s1]\n" +
@@ -1928,7 +1926,7 @@ public void test011() throws Exception {
 				"        [pc: 14, pc: 24] local: s0 index: 1 type: java.lang.String\n" +
 				"  \n" +
 				"  // Method descriptor #34 (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;\n" +
-				"  // Stack: 4, Locals: 3\n" +
+				"  // Stack: 3, Locals: 3\n" +
 				"  private static synthetic java.lang.String lambda$0(java.lang.String arg0, java.lang.String s1, java.lang.String s2);\n" +
 				"    0  aload_0 [arg0]\n" +
 				"    1  aload_1 [s1]\n" +
@@ -3707,7 +3705,7 @@ public void test430035() throws IOException, ClassFormatException {
 				"        [pc: 30, pc: 41] local: i index: 3 type: I<java.lang.String>\n" +
 				"  \n" +
 				"  // Method descriptor #28 (Ljava/lang/String;Ljava/lang/String;)V\n" +
-				"  // Stack: 4, Locals: 2\n" +
+				"  // Stack: 3, Locals: 2\n" +
 				"  private static synthetic void lambda$0(java.lang.String s, java.lang.String u);\n" +
 				"     0  getstatic java.lang.System.out : java.io.PrintStream [57]\n" +
 				"     3  aload_0 [s]\n" +

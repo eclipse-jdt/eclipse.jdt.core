@@ -81,8 +81,8 @@ public class ForStatement extends Statement {
 
 		// process the initializations
 		if (this.initializations != null) {
-			for (int i = 0, count = this.initializations.length; i < count; i++) {
-				flowInfo = this.initializations[i].analyseCode(this.scope, flowContext, flowInfo);
+			for (Statement initialization : this.initializations) {
+				flowInfo = initialization.analyseCode(this.scope, flowContext, flowInfo);
 			}
 		}
 		this.preCondInitStateIndex =
@@ -187,8 +187,8 @@ public class ForStatement extends Statement {
 				FlowInfo incrementInfo = actionInfo;
 				this.preIncrementsInitStateIndex =
 					currentScope.methodScope().recordInitializationStates(incrementInfo);
-				for (int i = 0, count = this.increments.length; i < count; i++) {
-					incrementInfo = this.increments[i].
+				for (Statement increment : this.increments) {
+					incrementInfo = increment.
 						analyseCode(this.scope, incrementContext, incrementInfo);
 				}
 				incrementContext.complainOnDeferredFinalChecks(this.scope,
@@ -236,8 +236,7 @@ public class ForStatement extends Statement {
 		// Variables initialized only for the purpose of the for loop can be removed for further flow info
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=359495
 		if (this.initializations != null) {
-			for (int i = 0; i < this.initializations.length; i++) {
-				Statement init = this.initializations[i];
+			for (Statement init : this.initializations) {
 				if (init instanceof LocalDeclaration) {
 					LocalVariableBinding binding = ((LocalDeclaration) init).binding;
 					mergedInfo.resetAssignmentInfo(binding);
@@ -266,14 +265,12 @@ public class ForStatement extends Statement {
 
 		// generate the initializations
 		if (this.initializations != null) {
-			for (int i = 0, max = this.initializations.length; i < max; i++) {
-				this.initializations[i].generateCode(this.scope, codeStream);
+			for (Statement initialization : this.initializations) {
+				initialization.generateCode(this.scope, codeStream);
 			}
 		}
-		if (containsPatternVariable()) {
-			this.condition.addPatternVariables(currentScope, codeStream);
-		}
 		Constant cst = this.condition == null ? null : this.condition.optimizedBooleanConstant();
+		boolean conditionInjectsBindings = this.condition != null ? this.condition.bindingsWhenTrue().length > 0 : false;
 		boolean isConditionOptimizedFalse = cst != null && (cst != Constant.NotAConstant && cst.booleanValue() == false);
 		if (isConditionOptimizedFalse) {
 			this.condition.generateCode(this.scope, codeStream, false);
@@ -294,7 +291,10 @@ public class ForStatement extends Statement {
 		actionLabel.tagBits |= BranchLabel.USED;
 		BranchLabel conditionLabel = new BranchLabel(codeStream);
 		this.breakLabel.initialize(codeStream);
-		if (this.continueLabel == null) {
+		if (this.continueLabel == null || conditionInjectsBindings) {
+			if (this.continueLabel != null) {
+				this.continueLabel.initialize(codeStream);
+			}
 			conditionLabel.place();
 			if ((this.condition != null) && (this.condition.constant == Constant.NotAConstant)) {
 				this.condition.generateOptimizedBoolean(this.scope, codeStream, null, this.breakLabel, true);
@@ -320,6 +320,9 @@ public class ForStatement extends Statement {
 				codeStream.addDefinitelyAssignedVariables(
 					currentScope,
 					this.condIfTrueInitStateIndex);
+				codeStream.removeNotDefinitelyAssignedVariables(
+						currentScope,
+						this.condIfTrueInitStateIndex);
 			}
 			actionLabel.place();
 			this.action.generateCode(this.scope, codeStream);
@@ -335,8 +338,8 @@ public class ForStatement extends Statement {
 			this.continueLabel.place();
 			// generate the increments for next iteration
 			if (this.increments != null) {
-				for (int i = 0, max = this.increments.length; i < max; i++) {
-					this.increments[i].generateCode(this.scope, codeStream);
+				for (Statement increment : this.increments) {
+					increment.generateCode(this.scope, codeStream);
 				}
 			}
 			// May loose some local variable initializations : affecting the local variable attributes
@@ -344,12 +347,16 @@ public class ForStatement extends Statement {
 			if (this.preCondInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preCondInitStateIndex);
 			}
-			// generate the condition
-			conditionLabel.place();
-			if ((this.condition != null) && (this.condition.constant == Constant.NotAConstant)) {
-				this.condition.generateOptimizedBoolean(this.scope, codeStream, actionLabel, null, true);
+			// generate the condition or loop back to condition if it was flattened ahead of body
+			if (conditionInjectsBindings) {
+				codeStream.goto_(conditionLabel);
 			} else {
-				codeStream.goto_(actionLabel);
+				conditionLabel.place();
+				if ((this.condition != null) && (this.condition.constant == Constant.NotAConstant)) {
+					this.condition.generateOptimizedBoolean(this.scope, codeStream, actionLabel, null, true);
+				} else {
+					codeStream.goto_(actionLabel);
+				}
 			}
 
 		} else {
@@ -408,7 +415,7 @@ public class ForStatement extends Statement {
 
 	@Override
 	public LocalVariableBinding[] bindingsWhenComplete() {
-		return this.condition != null && this.condition.containsPatternVariable() && this.action != null && !this.action.breaksOut(null) ?
+		return this.condition != null && this.action != null && !this.action.breaksOut(null) ?
 				this.condition.bindingsWhenFalse() : NO_VARIABLES;
 	}
 
@@ -419,8 +426,8 @@ public class ForStatement extends Statement {
 		// use the scope that will hold the init declarations
 		this.scope = (this.bits & ASTNode.NeededScope) != 0 ? new BlockScope(upperScope) : upperScope;
 		if (this.initializations != null)
-			for (int i = 0, length = this.initializations.length; i < length; i++)
-				this.initializations[i].resolve(this.scope);
+			for (Statement initialization : this.initializations)
+				initialization.resolve(this.scope);
 		if (this.condition != null) {
 			if ((this.bits & ASTNode.NeededScope) != 0) {
 				// We have created a new scope for for-inits and the condition has to be resolved in that scope.
@@ -434,18 +441,13 @@ public class ForStatement extends Statement {
 			patternVariablesInTrueScope = this.condition.bindingsWhenTrue();
 		}
 		if (this.increments != null)
-			for (int i = 0, length = this.increments.length; i < length; i++) {
-				this.increments[i].resolveWithBindings(patternVariablesInTrueScope, this.scope);
+			for (Statement increment : this.increments) {
+				increment.resolveWithBindings(patternVariablesInTrueScope, this.scope);
 			}
 
 		if (this.action != null) {
 			this.action.resolveWithBindings(patternVariablesInTrueScope, this.scope);
 		}
-	}
-
-	@Override
-	public boolean containsPatternVariable() {
-		return this.condition != null && this.condition.containsPatternVariable();
 	}
 
 	@Override

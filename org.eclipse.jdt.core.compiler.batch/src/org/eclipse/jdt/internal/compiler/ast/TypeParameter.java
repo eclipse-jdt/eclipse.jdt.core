@@ -19,7 +19,6 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.List;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationCollector;
@@ -27,19 +26,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationContext;
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
-import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
-import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class TypeParameter extends AbstractVariableDeclaration {
 
@@ -60,8 +47,8 @@ public class TypeParameter extends AbstractVariableDeclaration {
 			this.type.checkBounds(scope);
 		}
 		if (this.bounds != null) {
-			for (int i = 0, length = this.bounds.length; i < length; i++) {
-				this.bounds[i].checkBounds(scope);
+			for (TypeReference bound : this.bounds) {
+				bound.checkBounds(scope);
 			}
 		}
 	}
@@ -192,9 +179,9 @@ public class TypeParameter extends AbstractVariableDeclaration {
 			this.type.print(0, output);
 		}
 		if (this.bounds != null){
-			for (int i = 0; i < this.bounds.length; i++) {
+			for (TypeReference bound : this.bounds) {
 				output.append(" & "); //$NON-NLS-1$
-				this.bounds[i].print(0, output);
+				bound.print(0, output);
 			}
 		}
 		return output;
@@ -260,8 +247,7 @@ public class TypeParameter extends AbstractVariableDeclaration {
 			}
 		}
 		if (this.bounds != null) {
-			for (int i = 0; i < this.bounds.length; i++) {
-				TypeReference bound = this.bounds[i];
+			for (TypeReference bound : this.bounds) {
 				TypeBinding prevType = bound.resolvedType;
 				bound.updateWithAnnotations(scope, Binding.DefaultLocationTypeBound);
 				if (bound.resolvedType instanceof ReferenceBinding && prevType != bound.resolvedType) { //$IDENTITY-COMPARISON$

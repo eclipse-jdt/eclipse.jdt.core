@@ -14,16 +14,7 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IImportDeclaration;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaModelStatus;
-import org.eclipse.jdt.core.IJavaModelStatusConstants;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaConventions;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -63,8 +54,8 @@ protected StructuralPropertyDescriptor getChildPropertyDescriptor(ASTNode parent
 protected ASTNode generateElementAST(ASTRewrite rewriter, ICompilationUnit cu) throws JavaModelException {
 	//look for an existing package declaration
 	IJavaElement[] children = getCompilationUnit().getChildren();
-	for (int i = 0; i < children.length; i++) {
-		if (children[i].getElementType() ==  IJavaElement.PACKAGE_DECLARATION && this.name.equals(children[i].getElementName())) {
+	for (IJavaElement child : children) {
+		if (child.getElementType() ==  IJavaElement.PACKAGE_DECLARATION && this.name.equals(child.getElementName())) {
 			//equivalent package declaration already exists
 			this.creationOccurred = false;
 			return null;
@@ -96,6 +87,7 @@ public String getMainTaskName(){
  * <li> if no imports, before the first type
  * <li> if no type - first thing in the CU
  * <li>
+ * </ul>
  */
 @Override
 protected void initializeDefaultPosition() {

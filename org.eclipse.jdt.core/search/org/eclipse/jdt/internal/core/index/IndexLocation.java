@@ -20,9 +20,9 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -113,9 +113,9 @@ public abstract class IndexLocation {
 	public abstract String fileName();
 
 	/**
-	 * @return the canonical file path if the location is a file or null otherwise
+	 * @return the path if the location is a file or null otherwise
 	 */
-	public abstract String getCanonicalFilePath();
+	public abstract Path getIndexPath();
 
 	public abstract File getIndexFile();
 

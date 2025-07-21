@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc">
+    <target name="javadoc">
+        <javadoc access="protected" author="true" classpath="." destdir="doc" doctitle="My title" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="21" sourcepath="src" splitindex="true" use="true" version="true"/>
+    </target>
+</project>

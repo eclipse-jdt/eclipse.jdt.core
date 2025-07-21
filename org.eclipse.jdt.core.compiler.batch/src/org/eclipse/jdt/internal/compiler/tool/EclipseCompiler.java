@@ -30,7 +30,6 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 import java.util.WeakHashMap;
-
 import javax.annotation.processing.Processor;
 import javax.lang.model.SourceVersion;
 import javax.tools.DiagnosticListener;
@@ -39,7 +38,6 @@ import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
-
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -60,6 +58,8 @@ public class EclipseCompiler implements JavaCompiler {
 
 	WeakHashMap<Thread, EclipseCompilerImpl> threadCache;
 	public DiagnosticListener<? super JavaFileObject> diagnosticListener;
+
+	public static final RuntimeException REACHED_DEAD_CODE = new RuntimeException() { private static final long serialVersionUID = 1L; };
 
 	public EclipseCompiler() {
 		this.threadCache = new WeakHashMap<>();
@@ -247,5 +247,10 @@ public class EclipseCompiler implements JavaCompiler {
 				null/* options */,
 				null/* progress */).compile(arguments);
 		return succeed ? 0 : -1;
+	}
+
+	@Override
+	public String name() {
+		return "ecj"; //$NON-NLS-1$
 	}
 }

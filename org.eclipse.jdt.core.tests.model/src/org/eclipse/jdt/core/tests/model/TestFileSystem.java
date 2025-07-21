@@ -14,7 +14,6 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.net.URI;
-
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.provider.FileSystem;
 

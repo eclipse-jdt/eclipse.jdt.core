@@ -20,25 +20,24 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.FactoryPluginManager;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
+import org.eclipse.jdt.apt.core.internal.util.FactoryContainer.FactoryType;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
-import org.eclipse.jdt.apt.core.internal.util.FactoryContainer.FactoryType;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.core.util.AptPreferenceConstants;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class PreferencesTests extends APTTestBase {
 
@@ -220,10 +219,10 @@ public class PreferencesTests extends APTTestBase {
 		assertTrue(sourcepath.length() > 0);
 
 		String target = options.get("-target");
-		assertEquals(target, "1.5");
+		assertEquals(target, CompilerOptions.getFirstSupportedJavaVersion());
 
 		String source = options.get("-source");
-		assertEquals(source, "1.5");
+		assertEquals(source, CompilerOptions.getFirstSupportedJavaVersion());
 
 		String bindir = options.get("-d");
 		assertNotNull(bindir);
@@ -264,7 +263,7 @@ public class PreferencesTests extends APTTestBase {
 	public void testConfigGenSrcDir() throws Exception {
 
 		final String projectName = "ConfigTestProj";
-		IPath projectPath = env.addProject( projectName, "1.5" );
+		IPath projectPath = env.addProject( projectName, CompilerOptions.getFirstSupportedJavaVersion() );
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
 		final IJavaProject javaProj = env.getJavaProject(projectName);
 		// APT is not enabled

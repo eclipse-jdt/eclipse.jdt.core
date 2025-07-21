@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+    <classpathentry kind="var" path="JCL_23_LIB" sourcepath="JCL_23_SRC" rootpath="JCL_SRCROOT"/>
+	<classpathentry kind="lib" path="lib/mod.one.jar">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+    <classpathentry kind="output" path="bin"/>
+</classpath>

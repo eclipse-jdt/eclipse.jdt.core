@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,9 +14,8 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.Hashtable;
-
+import junit.framework.ComparisonFailure;
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -25,6 +24,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class CompletionTests_1_5 extends AbstractJavaModelCompletionTests {
@@ -37,9 +37,9 @@ public CompletionTests_1_5(String name) {
 @Override
 public void setUpSuite() throws Exception {
 	if (COMPLETION_PROJECT == null)  {
-		COMPLETION_PROJECT = setUpJavaProject("Completion", "1.5");
+		COMPLETION_PROJECT = setUpJavaProject("Completion", CompilerOptions.getFirstSupportedJavaVersion());
 	} else {
-		setUpProjectCompliance(COMPLETION_PROJECT, "1.5");
+		setUpProjectCompliance(COMPLETION_PROJECT, CompilerOptions.getFirstSupportedJavaVersion());
 	}
 	super.setUpSuite();
 }
@@ -51,6 +51,23 @@ protected void setUp() throws Exception {
 public static Test suite() {
 	return buildModelTestSuite(CompletionTests_1_5.class);
 }
+
+protected void assertResults(String expected, String actual) {
+	try {
+		// TODO: after switching defaults from 1.4 to 1.8,
+		// source seem to format differently.
+		// Once it is understood what is breaking tests, the two lines below could be removed
+		expected = expected.replaceAll(" = ,", "=,");
+		actual = actual.replaceAll(" = ,", "=,");
+
+		assertEquals(expected, actual);
+	} catch(ComparisonFailure c) {
+		System.out.println(actual);
+		System.out.println();
+		throw c;
+	}
+}
+
 private ICompilationUnit[] getExternalQQTypes() throws JavaModelException {
 	ICompilationUnit[] units = new ICompilationUnit[6];
 
@@ -135,7 +152,7 @@ public void test0001() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals("should have one class",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED),
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_JAVA_LIBRARY),
 		requestor.getResults());
 }
 public void test0002() throws JavaModelException {
@@ -148,7 +165,7 @@ public void test0002() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals("should have one class",
-		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED),
+		"element:Object    completion:Object    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_JAVA_LIBRARY),
 		requestor.getResults());
 }
 public void test0003() throws JavaModelException {
@@ -161,7 +178,7 @@ public void test0003() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals("should have one class",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED),
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED + R_JAVA_LIBRARY),
 		requestor.getResults());
 }
 public void test0004() throws JavaModelException {
@@ -201,7 +218,7 @@ public void test0005() throws JavaModelException {
             result.context);
 
     assertResults(
-            "String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
+            "String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_JAVA_LIBRARY)+"}",
             result.proposals);
 }
 public void test0006() throws JavaModelException {
@@ -227,7 +244,7 @@ public void test0006() throws JavaModelException {
             result.context);
 
     assertResults(
-            "Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) +"}",
+            "Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_JAVA_LIBRARY) +"}",
             result.proposals);
 }
 public void test0007() throws JavaModelException {
@@ -253,7 +270,7 @@ public void test0007() throws JavaModelException {
             result.context);
 
     assertResults(
-            "String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED) +"}",
+            "String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED + R_JAVA_LIBRARY) +"}",
             result.proposals);
 }
 public void test0008() throws JavaModelException {
@@ -654,7 +671,7 @@ public void test0025() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals("should have one class",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED),
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_JAVA_LIBRARY),
 		requestor.getResults());
 }
 public void test0026() throws JavaModelException {
@@ -681,7 +698,7 @@ public void test0026() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_JAVA_LIBRARY) + "}",
 			requestor.getResults());
 }
 public void test0027() throws JavaModelException {
@@ -708,7 +725,7 @@ public void test0027() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_JAVA_LIBRARY) + "}",
 			requestor.getResults());
 
 
@@ -723,7 +740,7 @@ public void test0028() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals("should have one class",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED),
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED + R_JAVA_LIBRARY),
 		requestor.getResults());
 }
 public void test0029() throws JavaModelException {
@@ -798,7 +815,7 @@ public void test0032() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals("unexpected result",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED),
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_JAVA_LIBRARY),
 		requestor.getResults());
 }
 /*
@@ -814,7 +831,7 @@ public void test0033() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertEquals("unexpected result",
-		"element:String    completion:String    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED),
+		"element:String    completion:String    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_JAVA_LIBRARY),
 		requestor.getResults());
 }
 /*
@@ -937,7 +954,7 @@ public void test0040() throws JavaModelException {
             result.context);
 
     assertResults(
-            "String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE  + R_UNQUALIFIED + R_NON_RESTRICTED) +"}",
+            "String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE  + R_UNQUALIFIED + R_NON_RESTRICTED + R_JAVA_LIBRARY) +"}",
             result.proposals);
 }
 /*
@@ -966,7 +983,7 @@ public void test0041() throws JavaModelException {
             result.context);
 
     assertResults(
-            "String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED  + R_NON_RESTRICTED) +"}",
+            "String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED  + R_NON_RESTRICTED + R_JAVA_LIBRARY) +"}",
             result.proposals);
 }
 /*
@@ -2437,8 +2454,8 @@ public void test0087() throws JavaModelException {
 				"YAAnnot[TYPE_REF]{testxxx.YAAnnot, testxxx, Ltestxxx.YAAnnot;, null, null, " + (R_NAME_PREFIX + R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
 				"_ConfigurationData[TYPE_REF]{test325481._ConfigurationData, test325481, Ltest325481._ConfigurationData;, null, null, " + (R_NAME_PREFIX + R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
 				"_Path[TYPE_REF]{test325481._Path, test325481, Ltest325481._Path;, null, null, " + (R_NAME_PREFIX + R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
-				"Deprecated[TYPE_REF]{Deprecated, java.lang, Ljava.lang.Deprecated;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED + R_UNQUALIFIED) + "}\n" +
-				"TestAnnotation[TYPE_REF]{TestAnnotation, test0087, Ltest0087.TestAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+				"TestAnnotation[TYPE_REF]{TestAnnotation, test0087, Ltest0087.TestAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED + R_UNQUALIFIED) + "}\n" +
+				"Deprecated[TYPE_REF]{Deprecated, java.lang, Ljava.lang.Deprecated;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED + R_UNQUALIFIED + R_JAVA_LIBRARY) + "}",
 				requestor.getResults());
 	}
 }
@@ -7913,7 +7930,7 @@ public void test0246() throws JavaModelException {
 			"ann");
 
 		assertResults(
-			"Annotation[TYPE_REF]{java.lang.annotation.Annotation, java.lang.annotation, Ljava.lang.annotation.Annotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
+			"Annotation[TYPE_REF]{java.lang.annotation.Annotation, java.lang.annotation, Ljava.lang.annotation.Annotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_JAVA_LIBRARY) + "}",
 			result.proposals);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102284
@@ -9037,7 +9054,7 @@ public void test0290() throws JavaModelException {
 			"YAAnnot[TYPE_REF]{testxxx.YAAnnot, testxxx, Ltestxxx.YAAnnot;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED) + "}\n" +
 			"_ConfigurationData[TYPE_REF]{test325481._ConfigurationData, test325481, Ltest325481._ConfigurationData;, null, null, " + (R_NAME_PREFIX + R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
 			"_Path[TYPE_REF]{test325481._Path, test325481, Ltest325481._Path;, null, null, " + (R_NAME_PREFIX + R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_NON_RESTRICTED) + "}\n" +
-			"Deprecated[TYPE_REF]{Deprecated, java.lang, Ljava.lang.Deprecated;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"Deprecated[TYPE_REF]{Deprecated, java.lang, Ljava.lang.Deprecated;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ANNOTATION + R_TARGET + R_NON_RESTRICTED + R_UNQUALIFIED + R_JAVA_LIBRARY) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=123225
@@ -9280,7 +9297,7 @@ public void test0295() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"compareTo[METHOD_REF]{compareTo(), Ltest.ComparableTest<Ljava.lang.Object;>;, (Ljava.lang.Object;)I, compareTo, (t), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			"compareTo[METHOD_REF]{compareTo(), Ltest.ComparableTest<*>;, (*)I, compareTo, (t), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99928
@@ -9335,7 +9352,7 @@ public void test0296() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"compareTo[METHOD_REF]{compareTo(), Ltest.ComparableTest<Ljava.lang.Object;>;, (Ljava.lang.Object;)I, compareTo, (t), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			"compareTo[METHOD_REF]{compareTo(), Ltest.ComparableTest<*>;, (*)I, compareTo, (t), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=154993
@@ -10688,6 +10705,7 @@ public void test0331() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
+			"foo1[METHOD_NAME_REFERENCE]{foo1;, Ltest0331.q.Y;, ()Ltest0331.p.X;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
 			"foo2[METHOD_NAME_REFERENCE]{foo2;, Ltest0331.q.Y;, ()V, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
@@ -11426,7 +11444,8 @@ public void test0354() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"xxxxx[LOCAL_VARIABLE_REF]{xxxxx, null, Ltest.X<Ljava.lang.String;*>;, xxxxx, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"xxxxx[LOCAL_VARIABLE_REF]{xxxxx, null, Ltest.X<Ljava.lang.String;*>;, xxxxx, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"[LAMBDA_EXPRESSION]{->, Ltest.util.List<Ljava.lang.String;>;, (I)Ljava.lang.String;, get, (i), 89}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96604
@@ -11888,7 +11907,7 @@ public void test0369() throws JavaModelException {
 
 	assertResults(
 			"enu[POTENTIAL_METHOD_DECLARATION]{enu, Ltest.Test;, ()V, enu, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"Enum[TYPE_REF]{Enum, java.lang, Ljava.lang.Enum;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"Enum[TYPE_REF]{Enum, java.lang, Ljava.lang.Enum;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_JAVA_LIBRARY) + "}\n" +
 			"enum[KEYWORD]{enum, null, null, enum, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
 			"enumFoo[TYPE_REF]{enumFoo, test, Ltest.enumFoo;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
@@ -13684,7 +13703,7 @@ public void testCompletionWithUnboxing() throws JavaModelException {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=84720
  * Additional tests for bug 84720
  *
- * @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=273991 also
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=273991 also"
  */
 public void testCompletionWithUnboxing_1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];
@@ -14569,7 +14588,7 @@ public void testBug526590() throws JavaModelException {
 	assertResults(
 			"Bug526590[TYPE_REF]{Bug526590, testbug526590, Ltestbug526590.Bug526590;, null, null, 52}\n" +
 			"value[ANNOTATION_ATTRIBUTE_REF]{value = , Ltestbug526590.QQAnnotation;, [Ljava.lang.String;, value, null, 52}\n" +
-			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, 82}",
+			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, 84}",
 			requestor.getResults());
 }
 
@@ -14601,7 +14620,7 @@ public void testBug526590b() throws JavaModelException {
 	assertResults(
 			"Bug526590[TYPE_REF]{Bug526590, testbug526590, Ltestbug526590.Bug526590;, null, null, 52}\n" +
 			"value[ANNOTATION_ATTRIBUTE_REF]{value = , Ltestbug526590.QQAnnotation;, [Ljava.lang.String;, value, null, 52}\n" +
-			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, 82}",
+			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, 84}",
 			requestor.getResults());
 }
 
@@ -14909,5 +14928,51 @@ public void testGH969_completeOnArgumentPosition_onMethodInvocation() throws Exc
 					+ relevance + "}\n"
 					+ "emptyList[METHOD_REF]{emptyList(), LGH969;, <T:Ljava.lang.Object;>()LGH969List<TT;>;, null, null, emptyList, null, replace[98, 98], token[98, 98], " + symbolRelevance + "}",
 			requestor.getResults());
+}
+public void testGH2597() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/jdbi/Dao.java", """
+			package jdbi;
+
+			public interface Dao {
+
+			    String LABELS_BOOK_TITLES = "labels_book_titles";
+				String LABELS_CHAPTERS = "labels_chapters";
+				String TRAIN_ARTICLE_DATA = "training_article_data";
+				String TRAIN_ARTICLE_DATA_CLEAN = "training_article_data_clean";
+				String TRAIN_ARTICLE_LABELS = "training_article_labels";
+
+			    @SqlUpdate("update "+TRAIN) //***** THIS IS WHERE THE ERROR HAPPENS, WHEN TRYING TO AUTO COMPLETE THE PARTIAL WORD.
+				void resetBookTitleTrainingData();
+			}
+
+			interface DaoExtended extends Dao { }
+
+			@interface SqlUpdate {
+				String value();
+			}
+			""");
+	// try to provoke proposing "resetBookTitleTrainingData()":
+	IJavaProject javaProject = getJavaProject("Completion");
+	javaProject.setOption(JavaCore.CODEASSIST_SUBWORD_MATCH, JavaCore.ENABLED);
+	try {
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "+TRAIN";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
+		assertEquals(
+				"TRAIN_ARTICLE_DATA[FIELD_REF]{TRAIN_ARTICLE_DATA, Ljdbi.Dao;, Ljava.lang.String;, null, null, TRAIN_ARTICLE_DATA, null, replace[342, 347], token[342, 347], "
+				 	+ relevance + "}\n" +
+				"TRAIN_ARTICLE_DATA_CLEAN[FIELD_REF]{TRAIN_ARTICLE_DATA_CLEAN, Ljdbi.Dao;, Ljava.lang.String;, null, null, TRAIN_ARTICLE_DATA_CLEAN, null, replace[342, 347], token[342, 347], "
+					+ relevance + "}\n" +
+				"TRAIN_ARTICLE_LABELS[FIELD_REF]{TRAIN_ARTICLE_LABELS, Ljdbi.Dao;, Ljava.lang.String;, null, null, TRAIN_ARTICLE_LABELS, null, replace[342, 347], token[342, 347], "
+			 		+ relevance + "}",
+				requestor.getResults());
+	} finally {
+		javaProject.setOption(JavaCore.CODEASSIST_SUBWORD_MATCH, JavaCore.DISABLED);
+	}
 }
 }

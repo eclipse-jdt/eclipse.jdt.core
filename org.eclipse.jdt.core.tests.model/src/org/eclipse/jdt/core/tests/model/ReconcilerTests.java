@@ -18,12 +18,8 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
-
 import junit.framework.Test;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
@@ -50,7 +46,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.osgi.framework.Bundle;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
+@SuppressWarnings({"unchecked"})
 public class ReconcilerTests extends ModifyingResourceTests {
 
 	protected ICompilationUnit workingCopy;
@@ -247,7 +243,7 @@ public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
 	// Create project with 1.4 compliance
-	IJavaProject project14 = createJavaProject("Reconciler", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+	IJavaProject project14 = createJavaProject("Reconciler", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
 	createFolder("/Reconciler/src/p1");
 	createFolder("/Reconciler/src/p2");
 	createFile(
@@ -259,12 +255,12 @@ public void setUpSuite() throws Exception {
 		"  }\n" +
 		"}"
 	);
-	project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+	project14.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
 	project14.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
 	project14.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.WARNING);
 
 	// Create project with 1.5 compliance
-	IJavaProject project15 = createJavaProject("Reconciler15", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
+	IJavaProject project15 = createJavaProject("Reconciler15", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 	addLibrary(
 		project15,
 		"lib15.jar",
@@ -296,7 +292,7 @@ public void setUpSuite() throws Exception {
 			"   String[] value();\n" +
 			"}"
 		},
-		JavaCore.VERSION_1_5
+		CompilerOptions.getFirstSupportedJavaVersion()
 	);
 	project15.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
 	project15.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
@@ -345,11 +341,11 @@ public void tearDownSuite() throws Exception {
  */
 public void testAccessRestriction() throws CoreException {
 	try {
-		createJavaProject("P1", new String[] {"src"}, new String[] {"JCL_LIB"}, null, null, new String[0], null, null, new boolean[0], "bin", null, new String[][] {{"**/X.java"}}, null, "1.4");
+		createJavaProject("P1", new String[] {"src"}, new String[] {"JCL18_LIB"}, null, null, new String[0], null, null, new boolean[0], "bin", null, new String[][] {{"**/X.java"}}, null, CompilerOptions.getFirstSupportedJavaVersion());
 		createFolder("/P1/src/p");
 		createFile("/P1/src/p/X.java", "package p; public class X {}");
 
-		createJavaProject("P2", new String[] {"src"}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "bin");
+		createJavaProject("P2", new String[] {"src"}, new String[] {"JCL18_LIB"}, new String[] {"/P1"}, "bin");
 		setUpWorkingCopy("/P2/src/Y.java", "public class Y extends p.X {}");
 		assertProblems(
 			"Unexpected problems",
@@ -383,10 +379,10 @@ public void testAccessRestriction2() throws CoreException, IOException {
 				"**/*"
 			},
 			null,
-			"1.4",
+			CompilerOptions.getFirstSupportedJavaVersion(),
 			null
 		);
-		createJavaProject("P2", new String[] {"src"}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "bin");
+		createJavaProject("P2", new String[] {"src"}, new String[] {"JCL18_LIB"}, new String[] {"/P1"}, "bin");
 		setUpWorkingCopy("/P2/src/Y.java", "public class Y extends p.X {}");
 		assertProblems(
 			"Unexpected problems",
@@ -408,9 +404,9 @@ public void testAccessRestriction3() throws CoreException {
 		createFolder("/P1/p");
 		createFile("/P1/p/X.java", "package p; public class X {}");
 
-		createJavaProject("P2", new String[] {}, new String[] {}, null, null, new String[] {"/P1"}, null, null, new boolean[] {true}, "", null, null, null, "1.4");
+		createJavaProject("P2", new String[] {}, new String[] {}, null, null, new String[] {"/P1"}, null, null, new boolean[] {true}, "", null, null, null, CompilerOptions.getFirstSupportedJavaVersion());
 
-		createJavaProject("P3", new String[] {"src"}, new String[] {"JCL_LIB"}, null, null, new String[] {"/P2"}, null, new String[][] {new String[] {"**/X"}}, false/*don't combine access restrictions*/, new boolean[] {true}, "bin", null, null, null, "1.4", false/*don't import*/);
+		createJavaProject("P3", new String[] {"src"}, new String[] {"JCL18_LIB"}, null, null, new String[] {"/P2"}, null, new String[][] {new String[] {"**/X"}}, false/*don't combine access restrictions*/, new boolean[] {true}, "bin", null, null, null, CompilerOptions.getFirstSupportedJavaVersion(), false/*don't import*/);
 		setUpWorkingCopy("/P3/src/Y.java", "public class Y extends p.X {}");
 		assertProblems(
 			"Unexpected problems",
@@ -431,9 +427,9 @@ public void testAccessRestriction4() throws CoreException {
 		createFolder("/P1/p");
 		createFile("/P1/p/X.java", "package p; public class X {}");
 
-		createJavaProject("P2", new String[] {}, new String[] {}, null, null, new String[] {"/P1"}, null, null, new boolean[] {true}, "", null, null, null, "1.4");
+		createJavaProject("P2", new String[] {}, new String[] {}, null, null, new String[] {"/P1"}, null, null, new boolean[] {true}, "", null, null, null, CompilerOptions.getFirstSupportedJavaVersion());
 
-		createJavaProject("P3", new String[] {"src"}, new String[] {"JCL_LIB"}, null, null, new String[] {"/P2"}, null, new String[][] {new String[] {"**/X"}}, true/*combine access restrictions*/, new boolean[] {true}, "bin", null, null, null, "1.4", false/*don't import*/);
+		createJavaProject("P3", new String[] {"src"}, new String[] {"JCL18_LIB"}, null, null, new String[] {"/P2"}, null, new String[][] {new String[] {"**/X"}}, true/*combine access restrictions*/, new boolean[] {true}, "bin", null, null, null, CompilerOptions.getFirstSupportedJavaVersion(), false/*don't import*/);
 		setUpWorkingCopy("/P3/src/Y.java", "public class Y extends p.X {}");
 		assertProblems(
 			"Unexpected problems",
@@ -457,7 +453,7 @@ public void testAccessRestriction5() throws CoreException {
 		createJavaProject("P1");
 		createFolder("/P1/p");
 		createFile("/P1/p/X.java", "package p; public class X {}");
-		IJavaProject p2 = createJavaProject("P2", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+		IJavaProject p2 = createJavaProject("P2", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
 		IClasspathEntry[] classpath = p2.getRawClasspath();
 		int length = classpath.length;
 		System.arraycopy(classpath, 0, classpath = new IClasspathEntry[length+1], 0, length);
@@ -1155,117 +1151,14 @@ public void testCategories4() throws JavaModelException {
 		"	f2[*]: {CATEGORIES}"
 	);
 }
-/*
- * Ensures that changing the source level to make a type valid doesn't report an error any longer
- * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=233568 )
- */
-public void testChangeSourceLevel1() throws Exception {
-	try {
-		IJavaProject p = createJavaProject("P1", new String[] {"src"}, new String[] {"JCL15_LIB", "/P1/lib.jar"}, "bin", "1.5");
-		Util.createJar(new String[] {
-				"p/enum/X.java",
-				"package p.enum;\n" +
-				"public class X{\n" +
-				"}"
-			},
-			p.getProject().getLocation().append("lib.jar").toOSString(),
-			"1.3");
-		refresh(p);
-		setUpWorkingCopy(
-			"/P1/src/p1/X.java",
-			"package p1;\n" +
-			"public class X {\n" +
-			"  p.enum.X field;\n" +
-			"}");
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-		/* At this point, the following error is reported:
-		"----------\n" +
-		"1. ERROR in /P1/src/p1/X.java (at line 3)\n" +
-		"	p.enum.X field;\n" +
-		"	  ^^^^\n" +
-		"Syntax error on token \"enum\", Identifier expected\n" +
-		"----------\n"
-		*/
 
-		this.problemRequestor.reset();
-		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, null, null);
-		assertProblems(
-			"Unexpected problems",
-			"----------\n" +
-			"1. WARNING in /P1/src/p1/X.java (at line 3)\n" +
-			"	p.enum.X field;\n" +
-			"	  ^^^^\n" +
-			"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on\n" +
-			"----------\n"
-		);
-	} finally {
-		deleteProject("P1");
-	}
-}
-/*
- * Ensures that changing the source level to make a type valid doesn't report an error any longer
- * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=233568 )
- */
-public void testChangeSourceLevel2() throws Exception {
-	Hashtable defaultOptions = null;
-	try {
-		defaultOptions = JavaCore.getOptions();
-		Hashtable newOptions = new Hashtable();
-		newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-		JavaCore.setOptions(newOptions);
-		IJavaProject p = createJavaProject("P1", new String[] {"src"}, new String[] {"JCL15_LIB", "/P1/lib.jar"}, "bin");
-		Util.createJar(new String[] {
-				"p/enum/X.java",
-				"package p.enum;\n" +
-				"public class X{\n" +
-				"}"
-			},
-			p.getProject().getLocation().append("lib.jar").toOSString(),
-			"1.3");
-		refresh(p);
-		setUpWorkingCopy(
-			"/P1/src/p1/X.java",
-			"package p1;\n" +
-			"public class X {\n" +
-			"  p.enum.X field;\n" +
-			"}");
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, false, null, null);
-		/* At this point, the following error is reported:
-		"----------\n" +
-		"1. ERROR in /P1/src/p1/X.java (at line 3)\n" +
-		"	p.enum.X field;\n" +
-		"	  ^^^^\n" +
-		"Syntax error on token \"enum\", Identifier expected\n" +
-		"----------\n"
-		*/
-
-		this.problemRequestor.reset();
-		newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
-		JavaCore.setOptions(newOptions);
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, null, null);
-		assertProblems(
-			"Unexpected problems",
-			"----------\n" +
-			"1. WARNING in /P1/src/p1/X.java (at line 3)\n" +
-			"	p.enum.X field;\n" +
-			"	  ^^^^\n" +
-			"\'enum\' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on\n" +
-			"----------\n"
-		);
-	} finally {
-		deleteProject("P1");
-		if (defaultOptions != null)
-			JavaCore.setOptions(defaultOptions);
-	}
-}
 /*
  * Ensures that changing a binary folder used as class folder in 2 projects doesn't cause the old binary to be seen
  * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=210746 )
  */
 public void testChangeClassFolder() throws CoreException {
 	try {
-		createJavaProject("P1", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+		createJavaProject("P1", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
 		createFolder("/P1/src/p");
 		createFile(
 			"/P1/src/p/X.java",
@@ -1275,7 +1168,7 @@ public void testChangeClassFolder() throws CoreException {
 		);
 		getProject("P1").build(IncrementalProjectBuilder.FULL_BUILD, null);
 		createJavaProject("P2", new String[0], new String[] {"/P1/bin"}, "bin");
-		createJavaProject("P3", new String[] {"src"}, new String[] {"JCL_LIB", "/P1/bin"}, "bin");
+		createJavaProject("P3", new String[] {"src"}, new String[] {"JCL18_LIB", "/P1/bin"}, "bin");
 		setUpWorkingCopy(
 			"/P3/src/q/Y.java",
 			"package q;\n" +
@@ -1371,8 +1264,8 @@ public void testChangeExternalJar() throws CoreException, IOException {
 	}
 }
 /**
- * @bug 162621: [model][delta] Validation errors do not clear after replacing jar file
- * @test Ensures that changing an internal jar and refreshing takes the change into account
+ * bug 162621: [model][delta] Validation errors do not clear after replacing jar file
+ * test Ensures that changing an internal jar and refreshing takes the change into account
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=162621"
  */
 public void testChangeInternalJar() throws CoreException, IOException {
@@ -1385,7 +1278,7 @@ public void testChangeInternalJar() throws CoreException, IOException {
 			"public class Foo {\n" +
 			"}\n"
 		};
-		addLibrary(project, jarName, "b162621_src.zip", pathAndContents, JavaCore.VERSION_1_4);
+		addLibrary(project, jarName, "b162621_src.zip", pathAndContents, CompilerOptions.getFirstSupportedJavaVersion());
 
 		// Wait a little bit to be sure file system is aware of zip file creation
 		try {
@@ -3315,7 +3208,7 @@ public void testRenameClasspathFile() throws CoreException {
 			"public class X {\n" +
 			"}"
 		);
-		createJavaProject("P2", new String[] {"src"}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "bin");
+		createJavaProject("P2", new String[] {"src"}, new String[] {"JCL18_LIB"}, new String[] {"/P1"}, "bin");
 		createFolder("/P2/src/p2");
 		copy = getWorkingCopy(
 			"/P2/src/p2/Y.java",
@@ -3632,7 +3525,7 @@ public void testBug60689() throws JavaModelException {
 public void testTwoProjectsWithDifferentCompliances() throws CoreException {
 	this.workingCopy.discardWorkingCopy(); // don't use the one created in setUp()
 	try {
-		createJavaProject("P1", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getLatestVersion());
 		createFolder("/P1/p");
 		createFile(
 			"/P1/p/X.java",
@@ -3643,7 +3536,9 @@ public void testTwoProjectsWithDifferentCompliances() throws CoreException {
 			"}"
 		);
 
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "", "1.4");
+		IJavaProject project14 = createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P1"}, "", CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
+		project14.setOption(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
 		createFolder("/P2/p");
 		this.workingCopy = getWorkingCopy("/P2/p/Y.java", "", this.wcOwner);
 		setWorkingCopyContents(
@@ -3936,7 +3831,7 @@ public void testBug114338() throws CoreException {
 public void testBug36032a() throws CoreException, InterruptedException {
 	try {
 		// Resources creation
-		createJavaProject("P", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+		createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "bin");
 		String source =
 			"public class Test {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -3986,7 +3881,7 @@ public void testBug36032a() throws CoreException, InterruptedException {
 public void testBug36032b() throws CoreException, InterruptedException {
 	try {
 		// Resources creation
-		createJavaProject("P", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+		createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "bin");
 		String source =
 			"public class Test {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -4050,7 +3945,7 @@ public void testBug36032b() throws CoreException, InterruptedException {
 public void testBug36032c() throws CoreException, InterruptedException {
 	try {
 		// Create first project
-		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL18_LIB"}, "bin");
 		createFolder("/P1/test");
 		createFile(
 			"/P1/test/Foo.java",
@@ -4068,7 +3963,7 @@ public void testBug36032c() throws CoreException, InterruptedException {
 		);
 
 		// Create second project
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "bin");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] { "/P1" }, "bin");
 		String source =
 			"package test;\n" +
 			"public class Test2 {\n" +
@@ -4101,13 +3996,13 @@ public void testBug36032c() throws CoreException, InterruptedException {
 public void testBug118823() throws CoreException, InterruptedException, IOException {
 	try {
 		// Resources creation
-		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL18_LIB"}, "bin");
 		String source = "class Test {}\n";
 		createFile(
 			"/P1/Test.java",
 			source
 		);
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "bin");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] { "/P1" }, "bin");
 		String source2 =
 			"class A {\n" +
 			"	Secondary s;\n" +
@@ -4182,13 +4077,13 @@ public void testBug118823() throws CoreException, InterruptedException, IOExcept
 public void testBug118823b() throws CoreException, InterruptedException {
 	try {
 		// Resources creation
-		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL18_LIB"}, "bin");
 		String source1 = "class Test {}\n";
 		createFile(
 			"/P1/Test.java",
 			source1
 		);
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "bin");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] { "/P1" }, "bin");
 		String source2 =
 			"class A {\n" +
 			"	Secondary s;\n" +
@@ -4250,13 +4145,13 @@ public void testBug118823b() throws CoreException, InterruptedException {
 public void testBug118823c() throws CoreException, InterruptedException {
 	try {
 		// Resources creation
-		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL18_LIB"}, "bin");
 		String source1 = "class Test {}\n";
 		createFile(
 			"/P1/Test.java",
 			source1
 		);
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "bin");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] { "/P1" }, "bin");
 		String source2 =
 			"class A {\n" +
 			"	Secondary s;\n" +
@@ -4331,13 +4226,13 @@ public void test1001() throws CoreException, InterruptedException, IOException {
 		// Resources creation
 		String sources[] = new String[3];
 		char[] sourcesAsCharArrays[] = new char[3][];
-		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL18_LIB"}, "bin");
 		sources[0] = "class X {}\n";
 		createFile(
 			"/P1/X.java",
 			sources[0]
 		);
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "bin");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] { "/P1" }, "bin");
 		sources[1] =
 			"interface I {\n" +
 			"  void foo();\n" +
@@ -4347,7 +4242,7 @@ public void test1001() throws CoreException, InterruptedException, IOException {
 			"/P2/I.java",
 			sources[1]
 		);
-		createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P2" }, "bin");
+		createJavaProject("P3", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] { "/P2" }, "bin");
 		sources[2] =
 			"class Y implements I {\n" +
 			"  // public void foo() { }\n" +
@@ -4402,13 +4297,13 @@ public void test1002() throws CoreException, InterruptedException, IOException {
 		// Resources creation
 		String sources[] = new String[3];
 		char[] sourcesAsCharArrays[] = new char[3][];
-		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL18_LIB"}, "bin");
 		sources[0] = "class X {}\n";
 		createFile(
 			"/P1/X.java",
 			sources[0]
 		);
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" }, "bin");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] { "/P1" }, "bin");
 		sources[1] =
 			"interface I {\n" +
 			"  void foo();\n" +
@@ -4418,7 +4313,7 @@ public void test1002() throws CoreException, InterruptedException, IOException {
 			"/P2/I.java",
 			sources[1]
 		);
-		createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] { "/P1" /* compare with test1001 */, "/P2" }, "bin");
+		createJavaProject("P3", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] { "/P1" /* compare with test1001 */, "/P2" }, "bin");
 		sources[2] =
 			"class Y implements I {\n" +
 			"  // public void foo() { }\n" +
@@ -4472,7 +4367,7 @@ public void test1002() throws CoreException, InterruptedException, IOException {
 public void testFallthroughDiagnosis() throws CoreException, InterruptedException {
 	try {
 		// Resources creation
-		IJavaProject p1 = createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "bin");
+		IJavaProject p1 = createJavaProject("P1", new String[] {""}, new String[] {"JCL18_LIB"}, "bin");
 		p1.setOption(JavaCore.COMPILER_PB_FALLTHROUGH_CASE, JavaCore.ERROR);
 		String source =
 			"public class X {\n" +
@@ -4648,7 +4543,7 @@ public void testGenericAPIUsageFromA14Project() throws CoreException {
 	IJavaProject project14 = null;
 	IJavaProject project15 = null;
 	try {
-		project15 = createJavaProject("Reconciler15API", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+		project15 = createJavaProject("Reconciler15API", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
 		createFolder("/Reconciler15API/src/p2");
 		createFile(
 			"/Reconciler15API/src/p2/BundleContext.java",
@@ -4659,14 +4554,14 @@ public void testGenericAPIUsageFromA14Project() throws CoreException {
 			"  }\n" +
 			"}"
 		);
-		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
 
-		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
-		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
-		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
-		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
+		project14.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
 
 		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
 		int oldLength = oldClasspath.length;
@@ -4715,7 +4610,7 @@ public void testGenericAPIUsageFromA14Project2() throws CoreException {
 	IJavaProject project14 = null;
 	IJavaProject project15 = null;
 	try {
-		project15 = createJavaProject("Reconciler15API", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+		project15 = createJavaProject("Reconciler15API", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
 		createFolder("/Reconciler15API/src/p2");
 		createFile(
 			"/Reconciler15API/src/p2/BundleContext.java",
@@ -4726,14 +4621,14 @@ public void testGenericAPIUsageFromA14Project2() throws CoreException {
 			"  }\n" +
 			"}"
 		);
-		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+		project15.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
 
-		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
-		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
-		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
-		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
+		project14.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
 
 		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
 		int oldLength = oldClasspath.length;
@@ -4782,7 +4677,7 @@ public void testGenericAPIUsageFromA14Project3() throws CoreException {
 	IJavaProject project14 = null;
 	IJavaProject project15 = null;
 	try {
-		project15 = createJavaProject("Reconciler15API", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
+		project15 = createJavaProject("Reconciler15API", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
 		createFolder("/Reconciler15API/src/p2");
 		createFile(
 			"/Reconciler15API/src/p2/X.java",
@@ -4833,14 +4728,15 @@ public void testGenericAPIUsageFromA14Project3() throws CoreException {
 			"	}\n" +
 			"}\n"
 		);
-		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
 
-		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
-		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
-		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
-		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
+		project14.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
 
 		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
 		int oldLength = oldClasspath.length;
@@ -4889,7 +4785,7 @@ public void testGenericAPIUsageFromA14Project4() throws CoreException {
 	IJavaProject project14 = null;
 	IJavaProject project15 = null;
 	try {
-		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
+		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
 		createFolder("/Reconciler1415/src/p1");
 		String source =
 			"package p1;\n" +
@@ -4905,11 +4801,11 @@ public void testGenericAPIUsageFromA14Project4() throws CoreException {
 			source
 		);
 
-		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
-		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
-		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+		project14.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
 
-		project15 = createJavaProject("Reconciler15API", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
+		project15 = createJavaProject("Reconciler15API", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
 		createFolder("/Reconciler15API/src/p2");
 		String otherSource = "package p2;\n" +
 		                     "public class X { \n" +
@@ -4921,9 +4817,9 @@ public void testGenericAPIUsageFromA14Project4() throws CoreException {
 			"/Reconciler15API/src/p2/X.java",
 			otherSource
 		);
-		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
 
 		IClasspathEntry[] oldClasspath = project15.getRawClasspath();
 		int oldLength = oldClasspath.length;
@@ -4957,7 +4853,7 @@ public void testGenericAPIUsageFromA14Project5() throws CoreException {
 	IJavaProject project14 = null;
 	IJavaProject project15 = null;
 	try {
-		project15 = createJavaProject("Reconciler15API", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
+		project15 = createJavaProject("Reconciler15API", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
 		createFolder("/Reconciler15API/src/p2");
 		createFile(
 				"/Reconciler15API/src/p2/List.java",
@@ -4971,14 +4867,16 @@ public void testGenericAPIUsageFromA14Project5() throws CoreException {
 				"  }\n" +
 				"}"
 			);
-		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getLatestVersion());
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getLatestVersion());
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getLatestVersion());
 
-		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
-		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
-		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
-		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
+		project14.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
+		project14.setOption(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
 
 		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
 		int oldLength = oldClasspath.length;
@@ -5026,7 +4924,7 @@ public void testGenericAPIUsageFromA14Project6() throws CoreException {
 	IJavaProject project14 = null;
 	IJavaProject project15 = null;
 	try {
-		project15 = createJavaProject("Reconciler15API", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
+		project15 = createJavaProject("Reconciler15API", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
 		createFolder("/Reconciler15API/src/p2");
 		createFile(
 				"/Reconciler15API/src/p2/Y.java",
@@ -5044,14 +4942,14 @@ public void testGenericAPIUsageFromA14Project6() throws CoreException {
 				"}\n" +
 				"interface J<S> {}\n"
 			);
-		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
 
-		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
-		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
-		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
-		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
+		project14.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
 
 		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
 		int oldLength = oldClasspath.length;
@@ -5096,208 +4994,16 @@ public void testGenericAPIUsageFromA14Project6() throws CoreException {
 			deleteProject(project15);
 	}
 }
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850
-public void testGenericAPIUsageFromA14Project7() throws CoreException, IOException {
-	IJavaProject project14 = null;
-	IJavaProject project15 = null;
-	try {
-		project15 = createJavaProject("Reconciler15API", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
-		createFolder("/Reconciler15API/src/p2");
-		createFile(
-				"/Reconciler15API/src/p2/Y.java",
-				"package p2;\n" +
-				"import java.util.List;\n" +
-				"public class Y<T> extends List<T> {\n" +
-				"    public static Y<String> getY() {\n" +
-				"        return new Y<String>();\n" +
-				"    }\n" +
-				"}\n"
-			);
-		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
 
-		addLibrary(
-				project15,
-				"libList15.jar",
-				"libList15src.zip",
-				new String[] {
-					"java/util/List.java",
-					"package java.util;\n" +
-					"public class List<T> {\n" +
-					"}"
-				},
-				JavaCore.VERSION_1_5
-			);
-
-		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
-		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
-		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
-		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
-
-		addLibrary(
-				project14,
-				"libList14.jar",
-				"libList14src.zip",
-				new String[] {
-					"java/util/List.java",
-					"package java.util;\n" +
-					"public class List {\n" +
-					"}"
-				},
-				JavaCore.VERSION_1_4
-			);
-
-		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
-		int oldLength = oldClasspath.length;
-		IClasspathEntry[] newClasspath = new IClasspathEntry[oldLength+1];
-		System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
-		newClasspath[oldLength] = JavaCore.newProjectEntry(new Path("/Reconciler15API"));
-		project14.setRawClasspath(newClasspath, null);
-
-		createFolder("/Reconciler1415/src/p1");
-		String source =
-			"package p1;\n" +
-			"import java.util.List;\n" +
-			"import p2.Y;\n" +
-			"public class X {\n" +
-			"	private static List getList(boolean test) {\n" +
-			"	    if (test)\n" +
-			"	        return new Y();\n" +
-			"	    else\n" +
-			"		    return Y.getY();\n" +
-			"   }\n" +
-			"}";
-
-		createFile(
-			"/Reconciler1415/src/p1/X.java",
-			source
-		);
-
-		this.workingCopies = new ICompilationUnit[1];
-		char[] sourceChars = source.toCharArray();
-		this.problemRequestor.initialize(sourceChars);
-		this.workingCopies[0] = getCompilationUnit("/Reconciler1415/src/p1/X.java").getWorkingCopy(this.wcOwner, null);
-		assertProblems(
-			"Unexpected problems",
-			"----------\n" +
-			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 5)\n" +
-			"	private static List getList(boolean test) {\n" +
-			"	                    ^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The method getList(boolean) from the type X is never used locally\n" +
-			"----------\n"
-		);
-	} finally {
-		if (project14 != null)
-			deleteProject(project14);
-		if (project15 != null)
-			deleteProject(project15);
-	}
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850
-public void testGenericAPIUsageFromA14Project8() throws CoreException, IOException {
-	IJavaProject project14 = null;
-	IJavaProject project15 = null;
-	try {
-		project15 = createJavaProject("Reconciler15API", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
-		createFolder("/Reconciler15API/src/p2");
-		createFile(
-				"/Reconciler15API/src/p2/Y.java",
-				"package p2;\n" +
-				"public class Y<T> extends java.util.List<T> {\n" +
-				"    public static Y<String> getY() {\n" +
-				"        return new Y<String>();\n" +
-				"    }\n" +
-				"}\n"
-			);
-		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
-
-		addLibrary(
-				project15,
-				"libList15.jar",
-				"libList15src.zip",
-				new String[] {
-					"java/util/List.java",
-					"package java.util;\n" +
-					"public class List<T> {\n" +
-					"}"
-				},
-				JavaCore.VERSION_1_5
-			);
-
-		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
-		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
-		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
-		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
-
-		addLibrary(
-				project14,
-				"libList14.jar",
-				"libList14src.zip",
-				new String[] {
-					"java/util/List.java",
-					"package java.util;\n" +
-					"public class List {\n" +
-					"}"
-				},
-				JavaCore.VERSION_1_4
-			);
-
-		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
-		int oldLength = oldClasspath.length;
-		IClasspathEntry[] newClasspath = new IClasspathEntry[oldLength+1];
-		System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
-		newClasspath[oldLength] = JavaCore.newProjectEntry(new Path("/Reconciler15API"));
-		project14.setRawClasspath(newClasspath, null);
-
-		createFolder("/Reconciler1415/src/p1");
-		String source =
-			"package p1;\n" +
-			"import p2.Y;\n" +
-			"public class X {\n" +
-			"	private static java.util.List getList(boolean test) {\n" +
-			"	    if (test)\n" +
-			"	        return new Y();\n" +
-			"	    else\n" +
-			"		    return Y.getY();\n" +
-			"   }\n" +
-			"}";
-
-		createFile(
-			"/Reconciler1415/src/p1/X.java",
-			source
-		);
-
-		this.workingCopies = new ICompilationUnit[1];
-		char[] sourceChars = source.toCharArray();
-		this.problemRequestor.initialize(sourceChars);
-		this.workingCopies[0] = getCompilationUnit("/Reconciler1415/src/p1/X.java").getWorkingCopy(this.wcOwner, null);
-		assertProblems(
-			"Unexpected problems",
-			"----------\n" +
-			"1. WARNING in /Reconciler1415/src/p1/X.java (at line 4)\n" +
-			"	private static java.util.List getList(boolean test) {\n" +
-			"	                              ^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The method getList(boolean) from the type X is never used locally\n" +
-			"----------\n"
-		);
-	} finally {
-		if (project14 != null)
-			deleteProject(project14);
-		if (project15 != null)
-			deleteProject(project15);
-	}
-}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=328775
 public void test14ProjectWith15JRE() throws CoreException, IOException {
 	IJavaProject project14 = null;
 	try {
-		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
-		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
-		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
-		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
+		project14.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
 
 		createFolder("/Reconciler1415/src/p1");
 		String source =
@@ -5333,10 +5039,11 @@ public void test14ProjectWith15JRE() throws CoreException, IOException {
 public void testJsr14TargetProjectWith14JRE() throws CoreException, IOException {
 	IJavaProject project14 = null;
 	try {
-		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
-		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
+		project14.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
 
 		createFolder("/Reconciler1415/src/p1");
 		String source =
@@ -5376,7 +5083,7 @@ public void testGenericAPIUsageFromA14Project9() throws CoreException {
 	IJavaProject project14 = null;
 	IJavaProject project15 = null;
 	try {
-		project15 = createJavaProject("Reconciler15API", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
+		project15 = createJavaProject("Reconciler15API", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
 		createFolder("/Reconciler15API/src/p1");
 		createFile(
 				"/Reconciler15API/src/p1/Y.java",
@@ -5391,14 +5098,16 @@ public void testGenericAPIUsageFromA14Project9() throws CoreException {
 				"package p1;\n" +
 				"public class List<T> {}\n"
 			);
-		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getLatestVersion());
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getLatestVersion());
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getLatestVersion());
 
-		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
-		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
-		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
-		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
+		project14 = createJavaProject("Reconciler1415", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
+		project14.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
+		project14.setOption(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
 
 		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
 		int oldLength = oldClasspath.length;
@@ -5448,7 +5157,7 @@ public void testGenericAPIUsageFromA14Project9() throws CoreException {
 public void testBug374176() throws CoreException, IOException, InterruptedException {
 	IJavaProject project15 = null;
 	try {
-		project15 = createJavaProject("TestAnnot", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
+		project15 = createJavaProject("TestAnnot", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
 		createFolder("/TestAnnot/src/p1");
 		String source = "package p1;\n" +
 				"public class Y {\n" +
@@ -5464,8 +5173,8 @@ public void testBug374176() throws CoreException, IOException, InterruptedExcept
 				"public class Y2{\n" +
 				"}\n"
 			);
-		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
 		project15.setOption(JavaCore.COMPILER_PB_NULL_REFERENCE, JavaCore.ERROR);
 		project15.setOption(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
 		project15.setOption(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
@@ -5492,15 +5201,15 @@ public void testBug374176() throws CoreException, IOException, InterruptedExcept
 public void testBug374176b() throws CoreException, IOException, InterruptedException {
 	IJavaProject project15 = null;
 	try {
-		project15 = createJavaProject("TestAnnot", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
+		project15 = createJavaProject("TestAnnot", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
 		createFolder("/TestAnnot/src/p1");
 		String source = "package p1;\n";
 		createFile(
 				"/TestAnnot/src/p1/package-info.java",
 				source
 			);
-		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
 		project15.setOption(JavaCore.COMPILER_PB_NULL_REFERENCE, JavaCore.ERROR);
 		project15.setOption(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
 		project15.setOption(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
@@ -5571,215 +5280,11 @@ public void testSecondaryTypeDeletion() throws CoreException, IOException {
 			"----------\n"
 			);
 	}
-/**
- * Project's compliance: source: 1.5, compiler: 1.5
- * Jar's compliance: source: 1.3, compiler: 1.3
- * Jar contains a class with "enum" package and is located inside the project.
- * The test verifies that class from the "enum" package is correctly reconciled.
- */
-public void testBug410207a() throws Exception {
-	try {
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB", "/P/lib.jar"}, "bin", "1.5");
-		Util.createJar(new String[] {
-				"a/enum/b/NonCompliant.java",
-				"package a.enum.b;\n" +
-				"public class NonCompliant {\n" +
-				"}",
-				"lib/External.java",
-				"package lib;\n" +
-				"import a.enum.b.NonCompliant;\n" +
-				"public class External {\n" +
-				"   public NonCompliant setNonCompliant(NonCompliant x) {\n" +
-				"      return null;\n" +
-				"	}\n" +
-				"}"
-			},
-			p.getProject().getLocation().append("lib.jar").toOSString(),
-			"1.3");
-		refresh(p);
-		setUpWorkingCopy(
-				"/P/src/p/Main.java",
-				"package p;\n" +
-				"import lib.External;\n" +
-				"public class Main {\n" +
-				"   public void m() {\n" +
-				"      External external = new External();\n" +
-				"      external.setNonCompliant(null);\n" +
-				"   };\n" +
-				"}"
-		);
-		this.problemRequestor.reset();
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, null, null);
-		assertProblems(
-				"Unexpected problems",
-				"----------\n" +
-				"----------\n"
-		);
-	} finally {
-		deleteProject("P");
-	}
-}
-/**
- * Project's compliance: source: 1.5, compiler: 1.5
- * Jar's compliance: source: 1.4, compiler: 1.6
- * Jar contains a class with "enum" package and is located inside the project.
- * The test verifies that class from the "enum" package is correctly reconciled.
- */
-public void testBug410207b() throws Exception {
-	try {
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB", "/P/lib.jar"}, "bin", "1.5");
-		Map options = new HashMap();
-		options.put(CompilerOptions.OPTION_Source, "1.4");
-		Util.createJar(new String[] {
-				"a/enum/b/NonCompliant.java",
-				"package a.enum.b;\n" +
-				"public class NonCompliant {\n" +
-				"}",
-				"lib/External.java",
-				"package lib;\n" +
-				"import a.enum.b.NonCompliant;\n" +
-				"public class External {\n" +
-				"   public NonCompliant setNonCompliant(NonCompliant x) {\n" +
-				"      return null;\n" +
-				"	}\n" +
-				"}"
-			},
-			null,/*extraPathsAndContents*/
-			p.getProject().getLocation().append("lib.jar").toOSString(),
-			null,/*classpath*/
-			"1.6",
-			options);
-		refresh(p);
-		setUpWorkingCopy(
-				"/P/src/p/Main.java",
-				"package p;\n" +
-				"import lib.External;\n" +
-				"public class Main {\n" +
-				"   public void m() {\n" +
-				"      External external = new External();\n" +
-				"      external.setNonCompliant(null);\n" +
-				"   };\n" +
-				"}"
-		);
-		this.problemRequestor.reset();
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, null, null);
-		assertProblems(
-				"Unexpected problems",
-				"----------\n" +
-				"----------\n"
-		);
-	} finally {
-		deleteProject("P");
-	}
-}
-/**
- * Two projects:
- * 		Lib: source: 1.4, compiler: 1.4
- * 		P: source: 1.5, compiler: 1.5
- * Lib contains a class with "enum" package and is required by P (dependency on the bin folder).
- * The test verifies that class from the "enum" package is correctly reconciled for P.
- */
-public void testBug410207c() throws Exception {
-	try {
-		createJavaProject("Lib", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.4");
-		createFolder("/Lib/src/a/enum/b");
-		createFile(
-				"/Lib/src/a/enum/b/NonCompliant.java",
-				"package a.enum.b;\n" +
-				"public class NonCompliant {\n" +
-				"}"
-		);
-		createFolder("/Lib/src/lib");
-		createFile(
-				"/Lib/src/lib/External.java",
-				"package lib;\n" +
-				"import a.enum.b.NonCompliant;\n" +
-				"public class External {\n" +
-				"   public NonCompliant setNonCompliant(NonCompliant x) {\n" +
-				"      return null;\n" +
-				"	}\n" +
-				"}"
-		);
-		getProject("Lib").build(IncrementalProjectBuilder.FULL_BUILD, null);
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB", "/Lib/bin"}, "bin", "1.5");
-		setUpWorkingCopy(
-				"/P/src/p/Main.java",
-				"package p;\n" +
-				"import lib.External;\n" +
-				"public class Main {\n" +
-				"   public void m() {\n" +
-				"      External external = new External();\n" +
-				"      external.setNonCompliant(null);\n" +
-				"   };\n" +
-				"}"
-		);
-		this.problemRequestor.reset();
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, null, null);
-		assertProblems(
-				"Unexpected problems",
-				"----------\n" +
-				"----------\n"
-		);
-	} finally {
-		deleteProjects(new String[] { "Lib", "P" });
-	}
-}
-/**
- * Two projects:
- * 		Lib: source: 1.4, compiler: 1.4
- * 		P: source: 1.5, compiler: 1.5
- * Lib contains a class with "enum" package and is required by P (dependency on the whole project).
- * The test verifies that class from the "enum" package is correctly reconciled for P.
- */
-public void testBug410207d() throws Exception {
-	try {
-		createJavaProject("Lib", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.4");
-		createFolder("/Lib/src/a/enum/b");
-		createFile(
-				"/Lib/src/a/enum/b/NonCompliant.java",
-				"package a.enum.b;\n" +
-				"public class NonCompliant {\n" +
-				"}"
-		);
-		createFolder("/Lib/src/lib");
-		createFile(
-				"/Lib/src/lib/External.java",
-				"package lib;\n" +
-				"import a.enum.b.NonCompliant;\n" +
-				"public class External {\n" +
-				"   public NonCompliant setNonCompliant(NonCompliant x) {\n" +
-				"      return null;\n" +
-				"	}\n" +
-				"}"
-		);
-		getProject("Lib").build(IncrementalProjectBuilder.FULL_BUILD, null);
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, new String[] {"/Lib"}, "bin", "1.5");
-		setUpWorkingCopy(
-				"/P/src/p/Main.java",
-				"package p;\n" +
-				"import lib.External;\n" +
-				"public class Main {\n" +
-				"   public void m() {\n" +
-				"      External external = new External();\n" +
-				"      external.setNonCompliant(null);\n" +
-				"   };\n" +
-				"}"
-		);
-		this.problemRequestor.reset();
-		this.workingCopy.reconcile(ICompilationUnit.NO_AST, true/*force problem detection*/, null, null);
-		assertProblems(
-				"Unexpected problems",
-				"----------\n" +
-				"----------\n"
-		);
-	} finally {
-		deleteProjects(new String[] { "Lib", "P" });
-	}
-}
+
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=440592, Cannot easily launch application in case of certain usage of lambda expressions
 public void testBug440592() throws Exception {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_FULL"}, "bin", "1.8", true);
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_FULL"}, "bin", CompilerOptions.getFirstSupportedJavaVersion(), true);
 		createFile(
 				"/P/src/BugTest.java",
 				"public class BugTest {\n" +
@@ -5883,7 +5388,7 @@ public void testBug485092() throws CoreException, InterruptedException {
 	IJavaProject project15 = null;
 	IJavaProject project18 = null;
 	try {
-		project15 = createJavaProject("Reconciler1518", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
+		project15 = createJavaProject("Reconciler1518", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
 		createFolder("/Reconciler1518/src/p1");
 		String source =
 				"package p1;\n" +
@@ -5895,11 +5400,11 @@ public void testBug485092() throws CoreException, InterruptedException {
 			source
 		);
 
-		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
 
-		project18 = createJavaProject("Reconciler18", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
+		project18 = createJavaProject("Reconciler18", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
 		createFolder("/Reconciler18/src/p2");
 		String otherSource =
 				"package p2;\n" +
@@ -5959,7 +5464,7 @@ public void testBug534865() throws CoreException, IOException {
 	IJavaProject project18 = null;
 	try {
 		project18 = createJavaProject("Reconciler18", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
-		setUpProjectCompliance(project18, "1.8");
+		setUpProjectCompliance(project18, CompilerOptions.getFirstSupportedJavaVersion());
 		project18.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 		createFolder("/Reconciler18/src/org/eclipse/jdt/annotation");
 		createFile(

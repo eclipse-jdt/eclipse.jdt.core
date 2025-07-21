@@ -15,10 +15,8 @@
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.BindingKey;
-import org.eclipse.jdt.core.ICodeAssist;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.ILocalVariable;
@@ -27,6 +25,11 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.internal.core.LambdaExpression;
 import org.eclipse.jdt.internal.core.LambdaMethod;
 
@@ -1026,7 +1029,7 @@ public void testBug408230a() throws CoreException {
 
 		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "barg";
-		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		IJavaElement [] variable = unit.codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
 	} finally {
 		deleteProject("P");
@@ -1051,7 +1054,7 @@ public void testBug408230b() throws CoreException {
 
 		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "barg";
-		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		IJavaElement [] variable = unit.codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
 	} finally {
 		deleteProject("P");
@@ -1076,7 +1079,7 @@ public void testBug408230c() throws CoreException {
 
 		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "barg";
-		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		IJavaElement [] variable = unit.codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
 	} finally {
 		deleteProject("P");
@@ -1099,7 +1102,7 @@ public void testBug408230d() throws CoreException {
 
 		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "barg";
-		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		IJavaElement [] variable = unit.codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
 	} finally {
 		deleteProject("P");
@@ -1122,7 +1125,7 @@ public void testBug408230e() throws CoreException {
 
 		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "aarg";
-		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		IJavaElement [] variable = unit.codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
 	} finally {
 		deleteProject("P");
@@ -1145,7 +1148,7 @@ public void testBug408230f() throws CoreException {
 
 		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "aarg";
-		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		IJavaElement [] variable = unit.codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
 	} finally {
 		deleteProject("P");
@@ -1171,7 +1174,7 @@ public void testBug408230g() throws CoreException {
 
 		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "aarg";
-		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		IJavaElement [] variable = unit.codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
 	} finally {
 		deleteProject("P");
@@ -1197,7 +1200,7 @@ public void testBug408230h() throws CoreException {
 
 		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "aarg";
-		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		IJavaElement [] variable = unit.codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
 	} finally {
 		deleteProject("P");
@@ -1223,7 +1226,7 @@ public void testBug408230i() throws CoreException {
 
 		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "aarg";
-		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		IJavaElement [] variable = unit.codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
 	} finally {
 		deleteProject("P");
@@ -1249,7 +1252,7 @@ public void testBug408230j() throws CoreException {
 
 		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "aarg";
-		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		IJavaElement [] variable = unit.codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
 	} finally {
 		deleteProject("P");
@@ -1275,7 +1278,7 @@ public void testBug408230k() throws CoreException {
 
 		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "aarg";
-		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		IJavaElement [] variable = unit.codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
 	} finally {
 		deleteProject("P");
@@ -1301,7 +1304,7 @@ public void testBug408230l() throws CoreException {
 
 		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "aarg";
-		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		IJavaElement [] variable = unit.codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
 	} finally {
 		deleteProject("P");
@@ -1327,7 +1330,7 @@ public void testBug408230m() throws CoreException {
 
 		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "aarg";
-		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		IJavaElement [] variable = unit.codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
 	} finally {
 		deleteProject("P");
@@ -1353,7 +1356,7 @@ public void testBug408230n() throws CoreException {
 
 		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
 		String selectString = "aarg";
-		IJavaElement [] variable = ((ICodeAssist) unit).codeSelect(source.lastIndexOf(selectString), selectString.length());
+		IJavaElement [] variable = unit.codeSelect(source.lastIndexOf(selectString), selectString.length());
 		assertEquals(1, variable.length);
 	} finally {
 		deleteProject("P");
@@ -3123,6 +3126,82 @@ public void testBug546563() throws Exception {
 	assertElementsEqual(
 		"Unexpected elements",
 		"getOptionalValue() [in Test [in [Working copy] Test.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+}
+
+// Inspired from ReslveTests18.test0027
+public void test0027_BindingForLambdaMethod() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"""
+			interface I {
+			    I doit(I xyz);
+			}
+			public class X {
+				public static void main(String[] args) {
+					I i = (pqr) -> {
+						return (xyz) -> {
+							return (abc) -> abc;
+						};
+					};
+				}
+			}
+			""");
+
+	String str = this.wc.getSource();
+	String selection = "abc";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+	parser.setSource(this.wc);
+	parser.setProject(this.wc.getJavaProject());
+	parser.setWorkingCopyOwner(this.wc.getOwner());
+	parser.setCompilerOptions(this.wc.getOptions(true));
+	parser.setResolveBindings(true);
+	parser.setBindingsRecovery(true);
+	parser.setStatementsRecovery(true);
+	CompilationUnit dom = (CompilationUnit)parser.createAST(null);
+	Name variable = (Name)new NodeFinder(dom, start, length).getCoveredNode();
+	IJavaElement javaElement = variable.resolveBinding().getJavaElement();
+
+	assertElementsEqual(
+		"Unexpected elements",
+		"abc [in doit(I) [in <lambda #1> [in doit(I) [in <lambda #1> [in doit(I) [in <lambda #1> [in main(String[]) [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]]]]]",
+		new IJavaElement[] { javaElement }
+	);
+}
+public void testGH2571() throws JavaModelException {
+	String contents = """
+			package org.eclipse;
+
+			import java.util.function.Predicate;
+			import java.util.function.Supplier;
+
+			public class PopupKiller {
+
+				public final Supplier<Predicate<String>> predicateSupplier = () -> new Predicate<String>() {
+
+					@SuppressWarnings("unused")
+					public static boolean THIS_VARIABLE_KILLS_JAVADOC_POPUPS_AND_F3 = true;
+
+					@Override
+					public boolean test(final String record) {
+						System.out.println("<-- try to Mouseover System.out.: nothing!");
+						return true;
+					}
+				};
+			}
+			""";
+	this.wc = getWorkingCopy("/Resolve/src/org/eclipse/PopupKiller.java", contents);
+	String selectionIdentifier = "out";
+	int start = contents.indexOf(selectionIdentifier);
+
+	IJavaElement[] elements = this.wc.codeSelect(start, selectionIdentifier.length());
+	assertElementsEqual(
+		"Unexpected elements",
+		"out [in System [in System.class [in java.lang [in "+ getExternalPath() + "jclFull1.8.jar]]]]",
 		elements
 	);
 }

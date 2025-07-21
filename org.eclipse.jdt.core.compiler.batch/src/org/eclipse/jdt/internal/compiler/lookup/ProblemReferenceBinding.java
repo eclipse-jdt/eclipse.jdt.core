@@ -15,7 +15,6 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.lang.reflect.Field;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 
 @SuppressWarnings("rawtypes")
@@ -92,8 +91,7 @@ public static String problemReasonString(int problemReason) {
 			simpleName = simpleName.substring(lastDot+1);
 		}
 		Field[] fields = reasons.getFields();
-		for (int i = 0, length = fields.length; i < length; i++) {
-			Field field = fields[i];
+		for (Field field : fields) {
 			if (!field.getType().equals(int.class)) continue;
 			if (field.getInt(reasons) == problemReason) {
 				return simpleName + '.' + field.getName();

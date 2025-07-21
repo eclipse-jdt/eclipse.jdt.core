@@ -36,7 +36,8 @@ public class SetContainerOperation extends ChangeClasspathOperation {
 	 * Creates a new SetContainerOperation.
 	 */
 	public SetContainerOperation(IPath containerPath, IJavaProject[] affectedProjects, IClasspathContainer[] respectiveContainers) {
-		super(new IJavaElement[] {JavaModelManager.getJavaModelManager().getJavaModel()}, !ResourcesPlugin.getWorkspace().isTreeLocked());
+		super(new IJavaElement[] { JavaModelManager.getJavaModelManager().getJavaModel() },
+				!(ResourcesPlugin.getWorkspace().isTreeLocked() || JavaModelManager.isReadOnly()));
 		this.containerPath = containerPath;
 		this.affectedProjects = affectedProjects;
 		this.respectiveContainers = respectiveContainers;
@@ -71,8 +72,7 @@ public class SetContainerOperation extends ChangeClasspathOperation {
 				boolean found = false;
 				if (JavaProject.hasJavaNature(affectedProject.getProject())){
 					IClasspathEntry[] rawClasspath = affectedProject.getRawClasspath();
-					for (int j = 0, cpLength = rawClasspath.length; j <cpLength; j++) {
-						IClasspathEntry entry = rawClasspath[j];
+					for (IClasspathEntry entry : rawClasspath) {
 						if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER && entry.getPath().equals(this.containerPath)){
 							found = true;
 							break;
@@ -191,9 +191,9 @@ public class SetContainerOperation extends ChangeClasspathOperation {
 						buffer.append(" {\n"); //$NON-NLS-1$
 						IClasspathEntry[] entries = container.getClasspathEntries();
 						if (entries != null){
-							for (int i = 0; i < entries.length; i++){
+							for (IClasspathEntry entry : entries) {
 								buffer.append(" 			"); //$NON-NLS-1$
-								buffer.append(entries[i]);
+								buffer.append(entry);
 								buffer.append('\n');
 							}
 						}

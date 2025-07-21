@@ -13,7 +13,6 @@
 package org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests;
 
 import java.util.Set;
-
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -26,7 +25,6 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
-
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
 /**

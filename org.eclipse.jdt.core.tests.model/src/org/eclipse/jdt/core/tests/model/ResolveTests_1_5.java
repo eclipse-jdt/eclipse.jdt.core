@@ -15,26 +15,13 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
-
 import junit.framework.Test;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.BindingKey;
-import org.eclipse.jdt.core.IAnnotatable;
-import org.eclipse.jdt.core.IAnnotation;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.ISourceRange;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeParameter;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class ResolveTests_1_5 extends AbstractJavaModelTests {
 	ICompilationUnit wc = null;
@@ -74,7 +61,7 @@ private IJavaElement[] selectAfter(String path, String source, String selection)
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
-	setUpJavaProject("Resolve", "1.5");
+	setUpJavaProject("Resolve", CompilerOptions.getFirstSupportedJavaVersion());
 
 	waitUntilIndexesReady();
 }
@@ -2285,7 +2272,7 @@ public void test0101() throws JavaModelException {
  */
 public void test0102() throws CoreException, IOException {
 	try {
-		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"JCL15_LIB"}, "", "1.5");
+		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 		String source =
 			"public class X<E> {\n" +
 			"  private class Y {\n" +
@@ -2294,7 +2281,7 @@ public void test0102() throws CoreException, IOException {
 			"    return new Y();\n" +
 			"  }\n" +
 			"}";
-		addLibrary(project, "lib15.jar", "lib15.zip", new String[] {"X.java", source}, "1.5");
+		addLibrary(project, "lib15.jar", "lib15.zip", new String[] {"X.java", source}, CompilerOptions.getFirstSupportedJavaVersion());
 		IClassFile classFile = getClassFile("P", "/P/lib15.jar", "", "X.class");
 		int start = source.indexOf("Y()");
 		int end = source.indexOf("();");
@@ -2617,7 +2604,7 @@ public void test0114() throws Exception {
 			"}"
 			},
 			rootLocation.toOSString(),
-			"1.5");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		rootResource.refreshLocal(IResource.DEPTH_INFINITE, null);
 		IJavaElement[] elements = select(
 				"/Resolve/src2/test0114/Test2.java",
@@ -2952,7 +2939,7 @@ public void test0123() throws Exception {
 
 	assertElementsEqual(
 			"Unexpected elements",
-			"bar(T) {key=Ltest/Test;.bar<T:Ljava/lang/Object;>(TT;)TT;%<Ljava/lang/Object;>} [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]",
+			"bar(T) {key=Ltest/Test;.bar<T:Ljava/lang/Object;>(TT;)TT;%<>} [in Test [in [Working copy] Test.java [in test [in src [in Resolve]]]]]",
 			elements,
 			true
 		);
@@ -2986,9 +2973,9 @@ public void test0124() throws Exception {
 // Bug 300576 - NPE Computing type hierarchy when compliance doesn't match libraries
 // test that missing java.lang.Enum due to bogus project setup doesn't cause NPE
 public void test0125() throws CoreException {
-	// using wrong JCL (should be "1.5"):
+	// using wrong JCL (should be CompilerOptions.getFirstSupportedJavaVersion()):
 	try {
-		this.createJavaProject("P0125", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		this.createJavaProject("P0125", new String[] {"src"}, new String[] {getExternalJCLPathString()}, "bin", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		WorkingCopyOwner owner = newWorkingCopyOwner(new BasicProblemRequestor());
 		ICompilationUnit cu = getWorkingCopy(
 				"/P0125/src/Test.java",
@@ -3023,7 +3010,7 @@ public void testBrokenSwitch0() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "length()", "length");
 	assertElementsEqual(
 				"Unexpected elements",
-				"length() [in String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]]",
+				"length() [in String [in String.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]]",
 				elements);
 }
 
@@ -3048,7 +3035,7 @@ public void testBrokenSwitch1() throws JavaModelException {
 	IJavaElement[] elements = codeSelect(cu, "length()", "length");
 	assertElementsEqual(
 				"Unexpected elements",
-				"length() [in String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]]",
+				"length() [in String [in String.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]]",
 				elements);
 }
 }

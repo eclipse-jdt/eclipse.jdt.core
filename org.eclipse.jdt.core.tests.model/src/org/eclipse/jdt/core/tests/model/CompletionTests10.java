@@ -15,10 +15,8 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.stream.Stream;
-
-import org.eclipse.jdt.core.JavaModelException;
-
 import junit.framework.Test;
+import org.eclipse.jdt.core.JavaModelException;
 
 public class CompletionTests10 extends AbstractJavaModelCompletionTests {
 	static {

@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
+import static org.eclipse.jdt.internal.compiler.util.Util.isJrt;
 import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 
 import java.io.BufferedWriter;
@@ -22,21 +23,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.CRC32;
-
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -63,7 +53,6 @@ import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
-import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
@@ -278,8 +267,8 @@ public synchronized void cleanUpIndexes() {
 	IJavaSearchScope scope = BasicSearchEngine.createWorkspaceScope();
 	PatternSearchJob job = new PatternSearchJob(null, SearchEngine.getDefaultSearchParticipant(), scope, null);
 	Index[] selectedIndexes = job.getIndexes(null);
-	for (int i = 0, l = selectedIndexes.length; i < l; i++) {
-		IndexLocation IndexLocation = selectedIndexes[i].getIndexLocation();
+	for (Index selectedIndex : selectedIndexes) {
+		IndexLocation IndexLocation = selectedIndex.getIndexLocation();
 		knownPaths.add(IndexLocation);
 	}
 
@@ -287,8 +276,8 @@ public synchronized void cleanUpIndexes() {
 		Object[] keys = this.indexStates.keyTable;
 		IndexLocation[] locations = new IndexLocation[this.indexStates.elementSize];
 		int count = 0;
-		for (int i = 0, l = keys.length; i < l; i++) {
-			IndexLocation key = (IndexLocation) keys[i];
+		for (Object o : keys) {
+			IndexLocation key = (IndexLocation) o;
 			if (key != null && !knownPaths.includes(key))
 				locations[count++] = key;
 		}
@@ -366,15 +355,15 @@ private void deleteIndexFiles(SimpleSet pathsToKeep, IProgressMonitor monitor) {
 	if (indexesFiles == null) return;
 
 	SubMonitor subMonitor = SubMonitor.convert(monitor, indexesFiles.length);
-	for (int i = 0, l = indexesFiles.length; i < l; i++) {
+	for (File indexesFile : indexesFiles) {
 		subMonitor.split(1);
-		String fileName = indexesFiles[i].getAbsolutePath();
-		if (pathsToKeep != null && pathsToKeep.includes(new FileIndexLocation(indexesFiles[i]))) continue;
+		String fileName = indexesFile.getAbsolutePath();
+		if (pathsToKeep != null && pathsToKeep.includes(new FileIndexLocation(indexesFile))) continue;
 		String suffix = ".index"; //$NON-NLS-1$
 		if (fileName.regionMatches(true, fileName.length() - suffix.length(), suffix, 0, suffix.length())) {
 			if (VERBOSE || DEBUG)
-				trace("Deleting index file " + indexesFiles[i]); //$NON-NLS-1$
-			indexesFiles[i].delete();
+				trace("Deleting index file " + indexesFile); //$NON-NLS-1$
+			indexesFile.delete();
 		}
 	}
 }
@@ -441,7 +430,6 @@ public synchronized Index getIndex(IPath containerPath, boolean reuseExistingFil
  * Warning: Does not check whether index is consistent (not being used)
  */
 public synchronized Index getIndex(IPath containerPath, IndexLocation indexLocation, boolean reuseExistingFile, boolean createIfMissing) {
-	// Path is already canonical per construction
 	Index index = getIndex(indexLocation);
 	if (index == null) {
 		Object state = getIndexStates().get(indexLocation);
@@ -712,8 +700,7 @@ public void indexAll(IProject project) {
 			// NOTE: force to resolve CP variables before calling indexer - 19303, so that initializers
 			// will be run in the current thread.
 			IClasspathEntry[] entries = javaProject.getResolvedClasspath();
-			for (int i = 0; i < entries.length; i++) {
-				IClasspathEntry entry= entries[i];
+			for (IClasspathEntry entry : entries) {
 				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY)
 					indexLibrary(entry.getPath(), project, ((ClasspathEntry)entry).getLibraryIndexLocation());
 			}
@@ -737,9 +724,6 @@ private IndexRequest getRequest(Object target, IPath jPath, IndexLocation indexF
 		new AddJarFileToIndex(jPath, indexFile, this, updateIndex);
 }
 
-private boolean isJrt(String fileName) {
-	return fileName != null && fileName.endsWith(JRTUtil.JRT_FS_JAR);
-}
 /**
  * Trigger addition of a library to an index
  * Note: the actual operation is performed in background
@@ -898,7 +882,6 @@ public synchronized Index recreateIndex(IPath containerPath) {
 	// only called to over write an existing cached index...
 	String containerPathString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
 	try {
-		// Path is already canonical
 		IndexLocation indexLocation = computeIndexLocation(containerPath);
 		Index index = getIndex(indexLocation);
 		ReadWriteMonitor monitor = index == null ? null : index.monitor;
@@ -1050,8 +1033,8 @@ public void removeIndexFamily(IPath path) {
 	List<IPath> toRemove = null;
 	synchronized (this) {
 		Object[] containerPaths = this.indexLocations.keyTable;
-		for (int i = 0, length = containerPaths.length; i < length; i++) {
-			IPath containerPath = (IPath) containerPaths[i];
+		for (Object o : containerPaths) {
+			IPath containerPath = (IPath) o;
 			if (containerPath == null)
 				continue;
 			if (path.isPrefixOf(containerPath)) {
@@ -1062,8 +1045,8 @@ public void removeIndexFamily(IPath path) {
 		}
 	}
 	if (toRemove != null)
-		for (int i = 0, length = toRemove.size(); i < length; i++)
-			removeIndex(toRemove.get(i));
+		for (IPath p : toRemove)
+			removeIndex(p);
 }
 /**
  * Remove the content of the given source folder from the index.
@@ -1102,7 +1085,6 @@ public synchronized boolean resetIndex(IPath containerPath) {
 	// only called to over write an existing cached index...
 	String containerPathString = containerPath.getDevice() == null ? containerPath.toString() : containerPath.toOSString();
 	try {
-		// Path is already canonical
 		IndexLocation indexLocation = computeIndexLocation(containerPath);
 		Index index = getIndex(indexLocation);
 		if (VERBOSE) {
@@ -1173,16 +1155,15 @@ public void saveIndexes() {
 	List<Index> toSave = new ArrayList<>();
 	synchronized(this) {
 		Object[] valueTable = this.indexes.valueTable;
-		for (int i = 0, l = valueTable.length; i < l; i++) {
-			Index index = (Index) valueTable[i];
+		for (Object i : valueTable) {
+			Index index = (Index) i;
 			if (index != null)
 				toSave.add(index);
 		}
 	}
 
 	boolean allSaved = true;
-	for (int i = 0, length = toSave.size(); i < length; i++) {
-		Index index = toSave.get(i);
+	for (Index index : toSave) {
 		ReadWriteMonitor monitor = index.monitor;
 		if (monitor == null) continue; // index got deleted since acquired
 		try {
@@ -1280,7 +1261,7 @@ public void scheduleDocumentIndexing(final SearchDocument searchDocument, IPath 
 			if (index == null) return true;
 			ReadWriteMonitor monitor = index.monitor;
 			if (monitor == null) return true; // index got deleted since acquired
-			final Path indexPath = new Path(indexLocation.getCanonicalFilePath());
+			final Path indexPath = indexLocation.getIndexPath();
 			try {
 				monitor.enterWrite(); // ask permission to write
 				indexDocument(searchDocument, searchParticipant, index, indexPath);
@@ -1311,8 +1292,8 @@ public synchronized String toString() {
 	buffer.append("In-memory indexes:\n"); //$NON-NLS-1$
 	int count = 0;
 	Object[] valueTable = this.indexes.valueTable;
-	for (int i = 0, l = valueTable.length; i < l; i++) {
-		Index index = (Index) valueTable[i];
+	for (Object i : valueTable) {
+		Index index = (Index) i;
 		if (index != null)
 			buffer.append(++count).append(" - ").append(index.toString()).append('\n'); //$NON-NLS-1$
 	}

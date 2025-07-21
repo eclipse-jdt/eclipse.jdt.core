@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -36,18 +36,9 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  * This type is used to store all the constant pool entries.
  */
 public class ConstantPool implements ClassFileConstants, TypeIds {
-	public static final int DOUBLE_INITIAL_SIZE = 5;
-	public static final int FLOAT_INITIAL_SIZE = 3;
-	public static final int INT_INITIAL_SIZE = 248;
-	public static final int LONG_INITIAL_SIZE = 5;
-	public static final int UTF8_INITIAL_SIZE = 778;
-	public static final int STRING_INITIAL_SIZE = 761;
-	public static final int METHODS_AND_FIELDS_INITIAL_SIZE = 450;
-	public static final int CLASS_INITIAL_SIZE = 86;
-	public static final int NAMEANDTYPE_INITIAL_SIZE = 272;
-	public static final int CONSTANTPOOL_INITIAL_SIZE = 2000;
-	public static final int CONSTANTPOOL_GROW_SIZE = 6000;
-	public static final int DYNAMIC_INITIAL_SIZE = 10;
+	private static final int METHODS_AND_FIELDS_INITIAL_SIZE = 450;
+	private static final int NAMEANDTYPE_INITIAL_SIZE = 272;
+	private static final int DYNAMIC_INITIAL_SIZE = 10;
 	protected DoubleCache doubleCache;
 	protected FloatCache floatCache;
 	protected IntegerCache intCache;
@@ -159,6 +150,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] JavaIoPrintStreamSignature = "Ljava/io/PrintStream;".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaLangAssertionErrorConstantPoolName = "java/lang/AssertionError".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaLangBooleanConstantPoolName = "java/lang/Boolean".toCharArray(); //$NON-NLS-1$
+	public static final char[] JavaLangBooleanSignature = "Ljava/lang/Boolean;".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaLangByteConstantPoolName = "java/lang/Byte".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaLangCharacterConstantPoolName = "java/lang/Character".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaLangClassConstantPoolName = "java/lang/Class".toCharArray(); //$NON-NLS-1$
@@ -331,16 +323,66 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 
 	public static final char[] PROCESS = "process".toCharArray(); //$NON-NLS-1$
 
+	public static final char[] JAVA_LANG_RUNTIME_EXACTCONVERSIONSSUPPORT = "java/lang/runtime/ExactConversionsSupport".toCharArray(); //$NON-NLS-1$
+	public static final char[] isIntToFloatExact = "isIntToFloatExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isIntToFloatExactSignature = "(I)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isLongToFloatExact = "isLongToFloatExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isLongToFloatExactSignature = "(J)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isLongToDoubleExact = "isLongToDoubleExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isLongToDoubleExactSignature = "(J)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isFloatToDoubleExact = "isFloatToDoubleExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isFloatToDoubleExactSignature = "(Z)J".toCharArray(); //$NON-NLS-1$
+
+	public static final char[] isDoubleToByteExact = "isDoubleToByteExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isDoubleToByteExactSignature = "(D)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isDoubleToShortExact = "isDoubleToShortExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isDoubleToShortExactSignature = "(D)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isDoubleToCharExact = "isDoubleToCharExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isDoubleToCharExactSignature = "(D)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isDoubleToIntExact = "isDoubleToIntExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isDoubleToIntExactSignature = "(D)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isDoubleToLongExact = "isDoubleToLongExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isDoubleToLongExactSignature = "(D)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isDoubleToFloatExact = "isDoubleToFloatExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isDoubleToFloatExactSignature = "(D)Z".toCharArray(); //$NON-NLS-1$
+
+	public static final char[] isFloatToByteExact = "isFloatToByteExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isFloatToByteExactSignature = "(F)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isFloatToShortExact = "isFloatToShortExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isFloatToShortExactSignature = "(F)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isFloatToCharExact = "isFloatToCharExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isFloatToCharExactSignature = "(F)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isFloatToIntExact = "isFloatToIntExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isFloatToIntExactSignature = "(F)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isFloatToLongExact = "isFloatToLongExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isFloatToLongExactSignature = "(F)Z".toCharArray(); //$NON-NLS-1$
+
+	public static final char[] isLongToByteExact = "isLongToByteExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isLongToByteExactSignature = "(J)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isLongToShortExact = "isLongToShortExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isLongToShortExactSignature = "(J)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isLongToCharExact = "isLongToCharExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isLongToCharExactSignature = "(J)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isLongToIntExact = "isLongToIntExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isLongToIntExactSignature = "(J)Z".toCharArray(); //$NON-NLS-1$
+
+	public static final char[] isIntToByteExact = "isIntToByteExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isIntToByteExactSignature = "(I)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isIntToShortExact = "isIntToShortExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isIntToShortExactSignature = "(I)Z".toCharArray(); //$NON-NLS-1$
+	public static final char[] isIntToCharExact = "isIntToCharExact".toCharArray(); //$NON-NLS-1$
+	public static final char[] isIntToCharExactSignature = "(I)Z".toCharArray(); //$NON-NLS-1$
+
 	/**
 	 * ConstantPool constructor comment.
 	 */
 	public ConstantPool(ClassFile classFile) {
-		this.UTF8Cache = new CharArrayCache(UTF8_INITIAL_SIZE);
-		this.stringCache = new CharArrayCache(STRING_INITIAL_SIZE);
+		this.UTF8Cache = new CharArrayCache();
+		this.stringCache = new CharArrayCache();
 		this.methodsAndFieldsCache = new HashtableOfObject(METHODS_AND_FIELDS_INITIAL_SIZE);
-		this.classCache = new CharArrayCache(CLASS_INITIAL_SIZE);
-		this.moduleCache = new CharArrayCache(5);
-		this.packageCache = new CharArrayCache(5);
+		this.classCache = new CharArrayCache();
+		this.moduleCache = new CharArrayCache();
+		this.packageCache = new CharArrayCache();
 		this.nameAndTypeCacheForFieldsAndMethods = new HashtableOfObject(NAMEANDTYPE_INITIAL_SIZE);
 		this.dynamicCache = new HashtableOfInteger(DYNAMIC_INITIAL_SIZE);
 		this.offsets = new int[5];
@@ -427,8 +469,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 			}
 			this.currentOffset += 2;
 			length = 0;
-			for (int i = 0; i < utf8Constant.length; i++) {
-				char current = utf8Constant[i];
+			for (char current : utf8Constant) {
 				if ((current >= 0x0001) && (current <= 0x007F)) {
 					// we only need one byte: ASCII table
 					writeU1(current);
@@ -509,7 +550,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 		// lazy initialization for base type caches
 		// If it is null, initialize it, otherwise use it
 		if (this.doubleCache == null) {
-			this.doubleCache = new DoubleCache(DOUBLE_INITIAL_SIZE);
+			this.doubleCache = new DoubleCache();
 		}
 		if ((index = this.doubleCache.putIfAbsent(key, this.currentIndex)) < 0) {
 			if ((index = -index)> 0xFFFF){
@@ -556,7 +597,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 		// lazy initialization for base type caches
 		// If it is null, initialize it, otherwise use it
 		if (this.floatCache == null) {
-			this.floatCache = new FloatCache(FLOAT_INITIAL_SIZE);
+			this.floatCache = new FloatCache();
 		}
 		if ((index = this.floatCache.putIfAbsent(key, this.currentIndex)) < 0) {
 			if ((index = -index) > 0xFFFF){
@@ -598,7 +639,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 		// lazy initialization for base type caches
 		// If it is null, initialize it, otherwise use it
 		if (this.intCache == null) {
-			this.intCache = new IntegerCache(INT_INITIAL_SIZE);
+			this.intCache = new IntegerCache();
 		}
 		if ((index = this.intCache.putIfAbsent(key, this.currentIndex)) < 0) {
 			this.currentIndex++;
@@ -641,7 +682,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 		// lazy initialization for base type caches
 		// If it is null, initialize it, otherwise use it
 		if (this.longCache == null) {
-			this.longCache = new LongCache(LONG_INITIAL_SIZE);
+			this.longCache = new LongCache();
 		}
 		if ((index = this.longCache.putIfAbsent(key, this.currentIndex)) < 0) {
 			if ((index = -index) > 0xFFFF){
@@ -1064,8 +1105,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 				}
 				this.currentOffset += 2;
 				length = 0;
-				for (int i = 0; i < stringCharArray.length; i++) {
-					char current = stringCharArray[i];
+				for (char current : stringCharArray) {
 					if ((current >= 0x0001) && (current <= 0x007F)) {
 						// we only need one byte: ASCII table
 						length++;

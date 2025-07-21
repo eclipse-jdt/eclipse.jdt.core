@@ -78,13 +78,13 @@ public class CastExpression extends Expression {
 	 * The type; lazily initialized; defaults to a unspecified,
 	 * legal type.
 	 */
-	private Type type = null;
+	private volatile Type type;
 
 	/**
 	 * The expression; lazily initialized; defaults to a unspecified, but legal,
 	 * expression.
 	 */
-	private Expression expression = null;
+	private volatile Expression expression;
 
 	/**
 	 * Creates a new AST node for a cast expression owned by the given
@@ -168,8 +168,7 @@ public class CastExpression extends Expression {
 			synchronized (this) {
 				if (this.type == null) {
 					preLazyInit();
-					this.type = this.ast.newPrimitiveType(PrimitiveType.INT);
-					postLazyInit(this.type, TYPE_PROPERTY);
+					this.type = postLazyInit(this.ast.newPrimitiveType(PrimitiveType.INT), TYPE_PROPERTY);
 				}
 			}
 		}
@@ -207,8 +206,7 @@ public class CastExpression extends Expression {
 			synchronized (this) {
 				if (this.expression == null) {
 					preLazyInit();
-					this.expression = new SimpleName(this.ast);
-					postLazyInit(this.expression, EXPRESSION_PROPERTY);
+					this.expression = postLazyInit(new SimpleName(this.ast), EXPRESSION_PROPERTY);
 				}
 			}
 		}

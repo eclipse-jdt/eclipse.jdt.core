@@ -13,18 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
+import java.io.*;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -34,12 +23,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-
 import junit.framework.AssertionFailedError;
 import junit.framework.ComparisonFailure;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
@@ -85,12 +72,12 @@ import org.eclipse.text.edits.TextEdit;
  * Note the <code>clean</code> arguments added at the end of the outputDir
  * system property to signify that the formatter outputs must be cleaned and
  * stored.
- * </p><p>
+ * <p>
  * The <code>logDir</code> system property can be set to tell the suite to
  * write the console output in a file located in the specified directory. That makes
  * the comparison between version and patches easier to do using the eclipse
  * file comparison...
- * </p><p><br>
+ * <p>
  * <b>***************************************<br>
  * * Process to run massive tests against a patch *<br>
  * ***************************************</b>
@@ -98,25 +85,23 @@ import org.eclipse.text.edits.TextEdit;
  * Here is the full description of the process to run massive tests against a patch
  * using this test suite and all the compilation units of the JDT/Core performance
  * <b>full-source-R3_0.zip</b> file...
- * </p>
  * <h3>Set-up input directory</h3>
  * <p>
  * The test suite needs to know where are the sources which will be used
  * to massively test the formatter. To make it easy to set-up, only a root directory
  * is necessary. From there, all compilation units found while traversing the tree of
  * this directory will be used for the massive tests.
- * </p><p>
+ * <p>
  * In our example, we will extract the content of the <b>full-source-R3_0.zip</b>
  * file located in the <b>org.eclipse.jdt.core.tests.performance</b> plugin
  * somewhere on our local disk... let's say in the
  * <b>D:\tmp\formatter\inputs\full-src-30</b> directory.
- * </p>
  * <h3>Create the output reference</h3>
  * <p>
  * The reference from which the patch output will be compared to while running
  * the massive test needs also to be created. To do this, a launch config
  * for the <code>FormatterMassiveRegressionTests</code> test suite is necessary.
- * </p><p>
+ * <p>
  *  For example, create a launch config named
  * <b>FormatterMassiveRegressionTests (Eclipse 3.0 - clean)</b> with the
  * following VM arguments:
@@ -126,10 +111,10 @@ import org.eclipse.text.edits.TextEdit;
  * -DoutputDir=D:\tmp\formatter\outputs,clean
  * -DlogDir=D:\tmp\formatter\log
  * </pre>
- * </p><p>
+ * <p>
  * Load the last version of JDT/Core plugins (e.g. <code>v_B11</code>) and
  * launch this config...
- * </p><p>
+ * <p>
  * When done, the console should have the following content:
  * <pre>
  * Get all files from D:\tmp\formatter\inputs\full-src-30...done
@@ -144,7 +129,6 @@ import org.eclipse.text.edits.TextEdit;
  * </pre>
  * Looking at the output directory, it should contain the same folders tree than
  * the input one...
- * </p>
  * <h3>Create the log reference</h3>
  * <p>
  * The test suite log several problems which may occur while formatting a unit:
@@ -155,14 +139,13 @@ import org.eclipse.text.edits.TextEdit;
  * 	<li>the output may be different while formatting twice but only by leading whitespaces</li>
  * 	<li>the output may be different while formatting twice but only by whitespaces</li>
  *	</ul>
- * </p><p>
  * Even with last version of the formatter, such problems may happen on one or
  * several tested compilation unit. So, it's important to know which are the existing
  * issues of the used formatter version (e.g. <code>v_B11</code> in our example...).
- * </p><p>
+ * <p>
  * To do this, another launch config is necessary to run the massive tests of the
  * loaded JDT/Core version.
- * </p><p>
+ * <p>
  *  For example, copy the previous launch config and rename it
  * <b>FormatterMassiveRegressionTests (Eclipse 3.0)</b>. Change the VM
  * arguments as follows (<i>note that the <code>clean</code> has been removed
@@ -173,13 +156,13 @@ import org.eclipse.text.edits.TextEdit;
  * -DoutputDir=D:\tmp\formatter\outputs
  * -DlogDir=D:\tmp\formatter\log
  * </pre>
- * </p><p>
+ * <p>
  * Launch the config...
- * </p><p>
+ * <p>
  * The log file contains the console output but also the complete list of the units
  * on which problems were observed. As this run was done with the JDT/Core
  * version it can be considered as the reference for this version...
- * </p><p>
+ * <p>
  * Note that for our example, the observed problems for <code>v_B11</code>
  * version while running massive tests on a Eclipse 3.0 performance workspace
  * (9951 units) are:
@@ -189,14 +172,12 @@ import org.eclipse.text.edits.TextEdit;
  * 	<li>10 files have different output while reformatting twice but only by leading whitespaces!</li>
  * 	<li>4 files have different output while reformatting twice but only by whitespaces!</li>
  *	</ul>
- * </p>
  * <h3>Run the massive tests on the patch</h3>
- * <p>
  * As the setup has been done for the massive tests, it's now possible to test a
  * patch applied on the reference version (<code>v_B11</code>). For this, the
  * patch needs of course to be applied first and also the <b>buildnotes_jdt-core.html</b>
  * modified.
- * </p><p>
+ * <p>
  * If the patch vXX of bug XXXXXX is about to be tested, then the line
  * <code>Patch vXX for bug XXXXXX</code> needs to be added at the
  * beginning of the first <b>What's new in this drop</b> section of the
@@ -207,13 +188,12 @@ import org.eclipse.text.edits.TextEdit;
  * &lt;ul&gt;
  * ...
  * </pre>
- * </p><p>
+ * <p>
  * Launch the <b>FormatterMassiveRegressionTests (Eclipse 3.0)</b> config...
- * </p><p>
+ * <p>
  * Like the previous run, the written log file contains the complete list of the units
  * on which problems were observed. Comparing this log file with the reference one
  * will show whether the patch implies behavior changes for the formatter or not.
- * </p>
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
@@ -1505,8 +1485,8 @@ private Map getDefaultCompilerOptions() {
 	optionsMap.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportEmptyStatement, CompilerOptions.IGNORE);
-	optionsMap.put(CompilerOptions.OPTION_ReportAssertIdentifier, CompilerOptions.IGNORE);
-	optionsMap.put(CompilerOptions.OPTION_ReportEnumIdentifier, CompilerOptions.IGNORE);
+	optionsMap.put(CompilerOptions.OPTION_ReportAssertIdentifier, CompilerOptions.ERROR);
+	optionsMap.put(CompilerOptions.OPTION_ReportEnumIdentifier, CompilerOptions.ERROR);
 	optionsMap.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.IGNORE);
@@ -1525,8 +1505,8 @@ private Map getDefaultCompilerOptions() {
 	optionsMap.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, CompilerOptions.IGNORE);
 	optionsMap.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionWhenOverriding, CompilerOptions.DISABLED);
 	optionsMap.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, CompilerOptions.IGNORE);
-	optionsMap.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
-	optionsMap.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+	optionsMap.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+	optionsMap.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 	optionsMap.put(CompilerOptions.OPTION_TaskTags, ""); //$NON-NLS-1$
 	optionsMap.put(CompilerOptions.OPTION_TaskPriorities, ""); //$NON-NLS-1$
 	optionsMap.put(CompilerOptions.OPTION_TaskCaseSensitive, CompilerOptions.DISABLED);
@@ -1534,8 +1514,7 @@ private Map getDefaultCompilerOptions() {
 	optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, CompilerOptions.DISABLED);
 	optionsMap.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.DISABLED);
 	optionsMap.put(CompilerOptions.OPTION_MaxProblemPerUnit, String.valueOf(100));
-	optionsMap.put(CompilerOptions.OPTION_InlineJsr, CompilerOptions.DISABLED);
-	optionsMap.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
+	optionsMap.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 	return optionsMap;
 }
 

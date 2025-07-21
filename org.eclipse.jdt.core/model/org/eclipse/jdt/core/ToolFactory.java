@@ -14,6 +14,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -41,14 +48,6 @@ import org.eclipse.jdt.internal.core.util.ClassFileReader;
 import org.eclipse.jdt.internal.core.util.Disassembler;
 import org.eclipse.jdt.internal.core.util.PublicScanner;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 /**
  * Factory for creating various compiler tools, such as scanners, parsers and compilers.
@@ -110,11 +109,11 @@ public class ToolFactory {
 			IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, JavaModelManager.FORMATTER_EXTPOINT_ID);
 			if (extension != null) {
 				IExtension[] extensions =  extension.getExtensions();
-				for(int i = 0; i < extensions.length; i++){
-					IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
-					for(int j = 0; j < configElements.length; j++){
+				for (IExtension ext : extensions) {
+					IConfigurationElement [] configElements = ext.getConfigurationElements();
+					for (IConfigurationElement configElement : configElements) {
 						try {
-							Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$
+							Object execExt = configElement.createExecutableExtension("class"); //$NON-NLS-1$
 							if (execExt instanceof ICodeFormatter){
 								// use first contribution found
 								return (ICodeFormatter)execExt;
@@ -191,13 +190,13 @@ public class ToolFactory {
 					JavaCore.JAVA_FORMATTER_EXTENSION_POINT_ID);
 			if (extension != null) {
 				IExtension[] extensions = extension.getExtensions();
-				for (int i = 0; i < extensions.length; i++) {
-					IConfigurationElement[] configElements = extensions[i].getConfigurationElements();
-					for (int j = 0; j < configElements.length; j++) {
-						String initializerID = configElements[j].getAttribute("id"); //$NON-NLS-1$
+				for (IExtension ext : extensions) {
+					IConfigurationElement[] configElements = ext.getConfigurationElements();
+					for (IConfigurationElement configElement : configElements) {
+						String initializerID = configElement.getAttribute("id"); //$NON-NLS-1$
 						if (initializerID != null && initializerID.equals(formatterId)) {
 							try {
-								Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$
+								Object execExt = configElement.createExecutableExtension("class"); //$NON-NLS-1$
 								if (execExt instanceof CodeFormatter) {
 									CodeFormatter formatter = (CodeFormatter) execExt;
 									formatter.setOptions(currentOptions);

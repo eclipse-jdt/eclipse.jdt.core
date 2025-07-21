@@ -13,12 +13,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJarEntryResource;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -171,8 +175,7 @@ boolean ignoreOptionalProblems(PackageFragmentRoot packageFragmentRoot) throws J
 	return this.ignoreOptionalProblems;
 }
 private static boolean isClasspathEntry(IPath path, IClasspathEntry[] resolvedClasspath) {
-	for (int i = 0, length = resolvedClasspath.length; i < length; i++) {
-		IClasspathEntry entry = resolvedClasspath[i];
+	for (IClasspathEntry entry : resolvedClasspath) {
 		if (entry.getPath().equals(path)) {
 			return true;
 		}

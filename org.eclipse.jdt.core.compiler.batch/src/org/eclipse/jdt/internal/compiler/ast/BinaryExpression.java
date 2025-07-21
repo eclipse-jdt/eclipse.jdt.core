@@ -17,13 +17,18 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.List;
-
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.flow.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 public class BinaryExpression extends OperatorExpression {
 
@@ -513,7 +518,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					codeStream.iconst_0();
 				} else {
 					codeStream.goto_(endLabel = new BranchLabel(codeStream));
-					codeStream.decrStackSize(1);
 					falseLabel.place();
 					codeStream.iconst_0();
 					endLabel.place();
@@ -536,7 +540,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					codeStream.iconst_0();
 				} else {
 					codeStream.goto_(endLabel = new BranchLabel(codeStream));
-					codeStream.decrStackSize(1);
 					falseLabel.place();
 					codeStream.iconst_0();
 					endLabel.place();
@@ -559,7 +562,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					codeStream.iconst_0();
 				} else {
 					codeStream.goto_(endLabel = new BranchLabel(codeStream));
-					codeStream.decrStackSize(1);
 					falseLabel.place();
 					codeStream.iconst_0();
 					endLabel.place();
@@ -582,7 +584,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					codeStream.iconst_0();
 				} else {
 					codeStream.goto_(endLabel = new BranchLabel(codeStream));
-					codeStream.decrStackSize(1);
 					falseLabel.place();
 					codeStream.iconst_0();
 					endLabel.place();
@@ -1825,15 +1826,6 @@ public StringBuilder printExpressionNoParenthesis(int indent, StringBuilder outp
 	return this.right.printExpression(0, output);
 }
 
-@Override
-public void addPatternVariables(BlockScope scope, CodeStream codeStream) {
-	this.left.addPatternVariables(scope, codeStream); // Srikanth
-	this.right.addPatternVariables(scope, codeStream);
-}
-@Override
-public boolean containsPatternVariable() {
-	return this.left.containsPatternVariable() || this.right.containsPatternVariable();
-}
 @Override
 public TypeBinding resolveType(BlockScope scope) {
 	// keep implementation in sync with CombinedBinaryExpression#resolveType

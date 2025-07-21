@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -52,16 +52,18 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
@@ -322,7 +324,7 @@ public boolean canBeSeenBy(PackageBinding invocationPackage) {
 public boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding invocationType) {
 	if (isPublic()) return true;
 
-	if (isStatic() && (receiverType.isRawType() || receiverType.isParameterizedType()))
+	if (isStatic())
 		receiverType = receiverType.actualType(); // outer generics are irrelevant
 
 	if (TypeBinding.equalsEquals(invocationType, this) && TypeBinding.equalsEquals(invocationType, receiverType)) return true;
@@ -478,8 +480,8 @@ public char[] computeGenericTypeSignature(TypeVariableBinding[] typeVariables) {
 	    sig.append(';');
 	} else {
 	    sig.append('<');
-	    for (int i = 0, length = typeVariables.length; i < length; i++) {
-	        sig.append(typeVariables[i].genericTypeSignature());
+	    for (TypeVariableBinding typeVariable : typeVariables) {
+	        sig.append(typeVariable.genericTypeSignature());
 	    }
 	    sig.append(">;"); //$NON-NLS-1$
 	}
@@ -708,8 +710,8 @@ public void computeId() {
 						this.id = TypeIds.T_JavaLangLong;
 					return;
 				case 'N' :
-					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_NOCLASSDEFERROR[2]))
-						this.id = TypeIds.T_JavaLangNoClassDefError;
+					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_NOCLASSDEFFOUNDERROR[2]))
+						this.id = TypeIds.T_JavaLangNoClassDefFoundError;
 					return;
 				case 'O' :
 					switch (typeName.length) {
@@ -984,8 +986,8 @@ public void computeId(LookupEnvironment environment) {
 	environment.getUnannotatedType(this);
 }
 
-/**{@code 
- * p.X<T extends Y & I, U extends Y> -> Lp/X<TT;TU;>; 
+/**{@code
+ * p.X<T extends Y & I, U extends Y> -> Lp/X<TT;TU;>;
  * }
  */
 @Override
@@ -1026,16 +1028,16 @@ public boolean detectAnnotationCycle() {
 	this.tagBits |= TagBits.BeginAnnotationCheck;
 	MethodBinding[] currentMethods = methods();
 	boolean inCycle = false; // check each method before failing
-	for (int i = 0, l = currentMethods.length; i < l; i++) {
-		TypeBinding returnType = currentMethods[i].returnType.leafComponentType().erasure();
+	for (MethodBinding currentMethod : currentMethods) {
+		TypeBinding returnType = currentMethod.returnType.leafComponentType().erasure();
 		if (TypeBinding.equalsEquals(this, returnType)) {
 			if (this instanceof SourceTypeBinding) {
-				MethodDeclaration decl = (MethodDeclaration) currentMethods[i].sourceMethod();
+				MethodDeclaration decl = (MethodDeclaration) currentMethod.sourceMethod();
 				((SourceTypeBinding) this).scope.problemReporter().annotationCircularity(this, this, decl != null ? decl.returnType : null);
 			}
 		} else if (returnType.isAnnotationType() && ((ReferenceBinding) returnType).detectAnnotationCycle()) {
 			if (this instanceof SourceTypeBinding) {
-				MethodDeclaration decl = (MethodDeclaration) currentMethods[i].sourceMethod();
+				MethodDeclaration decl = (MethodDeclaration) currentMethod.sourceMethod();
 				((SourceTypeBinding) this).scope.problemReporter().annotationCircularity(this, returnType, decl != null ? decl.returnType : null);
 			}
 			inCycle = true;
@@ -1055,11 +1057,16 @@ public final ReferenceBinding enclosingTypeAt(int relativeDepth) {
 	return current;
 }
 
+@Override
+public ReferenceBinding actualType() {
+	return this;
+}
+
 public int enumConstantCount() {
 	int count = 0;
 	FieldBinding[] fields = fields();
-	for (int i = 0, length = fields.length; i < length; i++) {
-		if ((fields[i].modifiers & ClassFileConstants.AccEnum) != 0) count++;
+	for (FieldBinding field : fields) {
+		if ((field.modifiers & ClassFileConstants.AccEnum) != 0) count++;
 	}
 	return count;
 }
@@ -1558,6 +1565,7 @@ public final boolean isNonSealed() {
 /**
  * Answer true if the receiver has sealed modifier
  */
+@Override
 public boolean isSealed() {
 	return (this.modifiers & ExtraCompilerModifiers.AccSealed) != 0;
 }
@@ -1599,10 +1607,10 @@ protected boolean isSubTypeOfRTL(TypeBinding other) {
 		return (lower != null && isSubtypeOf(lower, false));
 	}
 	if (other instanceof ReferenceBinding) {
-		TypeBinding[] intersecting = ((ReferenceBinding) other).getIntersectingTypes();
+		TypeBinding[] intersecting = other.getIntersectingTypes();
 		if (intersecting != null) {
-			for (int i = 0; i < intersecting.length; i++) {
-				if (!isSubtypeOf(intersecting[i], false))
+			for (TypeBinding binding : intersecting) {
+				if (!isSubtypeOf(binding, false))
 					return false;
 			}
 			return true;
@@ -1800,7 +1808,9 @@ public final boolean isViewedAsDeprecated() {
 	}
 	return false;
 }
-
+public boolean isImplicitType() {
+	return false;
+}
 /**
  * Returns the member types of this type sorted by simple name.
  */
@@ -2038,7 +2048,8 @@ public char[] sourceName() {
  * @return Upwards type projection of 'this', or null if downwards projection is undefined
 */
 @Override
-public ReferenceBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
+public TypeBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
+	// Note: return type remains as TypeBinding, because subclass CaptureBinding may return an ArrayBinding :(
 	return this;
 }
 
@@ -2049,7 +2060,8 @@ public ReferenceBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTy
  * @return Downwards type projection of 'this', or null if downwards projection is undefined
 */
 @Override
-public ReferenceBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
+public TypeBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
+	// Note: return type remains as TypeBinding, because subclass CaptureBinding may return an ArrayBinding :(
 	return this;
 }
 
@@ -2089,11 +2101,6 @@ SimpleLookupTable storedAnnotations(boolean forceInitialize, boolean forceStore)
 @Override
 public ReferenceBinding superclass() {
 	return null;
-}
-
-@Override
-public ReferenceBinding[] permittedTypes() {
-	return Binding.NO_PERMITTEDTYPES;
 }
 
 @Override
@@ -2156,6 +2163,16 @@ protected int applyCloseableClassWhitelists(CompilerOptions options) {
 					}
 				}
 			}
+			for (int i=0; i<3; i++) {
+				if (!CharOperation.equals(this.compoundName[i], TypeConstants.ONE_UTIL_STREAMEX[i])) {
+					return 0;
+				}
+			}
+			for (char[] streamName : TypeConstants.RESOURCE_FREE_CLOSEABLE_STREAMEX) {
+				if (CharOperation.equals(this.compoundName[3], streamName)) {
+					return TypeIds.BitResourceFreeCloseable;
+				}
+			}
 			break;
 	}
 	int l = TypeConstants.OTHER_WRAPPER_CLOSEABLES.length;
@@ -2188,7 +2205,11 @@ protected boolean hasMethodWithNumArgs(char[] selector, int numArgs) {
 	}
 	return false;
 }
-
+protected int applyCloseableWhitelists(CompilerOptions options) {
+	return isInterface()
+			? applyCloseableInterfaceWhitelists(options)
+			: applyCloseableClassWhitelists(options);
+}
 /*
  * If a type - known to be a Closeable - is mentioned in one of our white lists
  * answer the typeBit for the white list (BitWrapperCloseable or BitResourceFreeCloseable).
@@ -2203,17 +2224,6 @@ protected int applyCloseableInterfaceWhitelists(CompilerOptions options) {
 					}
 				}
 				for (char[] streamName : TypeConstants.RESOURCE_FREE_CLOSEABLE_J_U_STREAMS) {
-					if (CharOperation.equals(this.compoundName[3], streamName)) {
-						return TypeIds.BitResourceFreeCloseable;
-					}
-				}
-			} else {
-				for (int i=0; i<3; i++) {
-					if (!CharOperation.equals(this.compoundName[i], TypeConstants.ONE_UTIL_STREAMEX[i])) {
-						return 0;
-					}
-				}
-				for (char[] streamName : TypeConstants.RESOURCE_FREE_CLOSEABLE_STREAMEX) {
 					if (CharOperation.equals(this.compoundName[3], streamName)) {
 						return TypeIds.BitResourceFreeCloseable;
 					}
@@ -2272,9 +2282,9 @@ protected MethodBinding [] getInterfaceAbstractContracts(Scope scope, boolean re
 	int contractsLength = 0;
 
 	ReferenceBinding [] superInterfaces = superInterfaces();
-	for (int i = 0, length = superInterfaces.length; i < length; i++) {
+	for (ReferenceBinding superInterface : superInterfaces) {
 		// filterDefaultMethods=false => keep default methods needed to filter out any abstract methods they may override:
-		MethodBinding [] superInterfaceContracts = superInterfaces[i].getInterfaceAbstractContracts(scope, replaceWildcards, false);
+		MethodBinding [] superInterfaceContracts = superInterface.getInterfaceAbstractContracts(scope, replaceWildcards, false);
 		final int superInterfaceContractsLength = superInterfaceContracts == null  ? 0 : superInterfaceContracts.length;
 		if (superInterfaceContractsLength == 0) continue;
 		if (contractsLength < contractsCount + superInterfaceContractsLength) {
@@ -2356,10 +2366,8 @@ public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcar
 		return this.singleAbstractMethod[index];
 	} else {
 		this.singleAbstractMethod = new MethodBinding[2];
-		// Sec 9.8 of sealed preview - A functional interface is an interface that is not declared sealed...
-		if (JavaFeature.SEALED_CLASSES.isSupported(scope.compilerOptions())
-				&& this.isSealed())
-			return this.singleAbstractMethod[index] = samProblemBinding;
+		if (this.isSealed())
+			return this.singleAbstractMethod[index] = samProblemBinding; // JLS 9.8
 	}
 
 	if (this.compoundName != null)
@@ -2371,8 +2379,7 @@ public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcar
 			return this.singleAbstractMethod[index] = samProblemBinding;
 		int contractParameterLength = 0;
 		char [] contractSelector = null;
-		for (int i = 0, length = methods.length; i < length; i++) {
-			MethodBinding method = methods[i];
+		for (MethodBinding method : methods) {
 			if (method == null) continue;
 			if (contractSelector == null) {
 				contractSelector = method.selector;
@@ -2522,14 +2529,101 @@ public ModuleBinding module() {
 }
 
 public boolean hasEnclosingInstanceContext() {
-	if (isMemberType() && !isStatic())
-		return true;
-	if (isLocalType() && isStatic())
+	// This method intentionally disregards early construction contexts (JEP 482).
+	// Details of how each outer level is handled are coordinated in
+	// TypeDeclaration.manageEnclosingInstanceAccessIfNecessary().
+	if (isStatic())
 		return false;
+	if (isNestedType())
+		return true;
 	MethodBinding enclosingMethod = enclosingMethod();
 	if (enclosingMethod != null)
 		return !enclosingMethod.isStatic();
+	// FIXME: should we consider enclosing instances of superclass??
 	return false;
+}
+
+public List<ReferenceBinding> getAllEnumerableAvatars() {
+	if (!isSealed())
+		throw new UnsupportedOperationException("Operation valid only on sealed types!"); //$NON-NLS-1$
+
+	Set<ReferenceBinding> permSet = new HashSet<>(Arrays.asList(permittedTypes()));
+	if (isClass() && canBeInstantiated())
+		permSet.add(this);
+	Set<ReferenceBinding> oldSet = new HashSet<>(permSet);
+	do {
+		for (ReferenceBinding type : permSet) {
+			if (type.isSealed())
+				oldSet.addAll(Arrays.asList(type.permittedTypes()));
+		}
+		Set<ReferenceBinding> tmp = oldSet;
+		oldSet = permSet;
+		permSet = tmp;
+	} while (oldSet.size() != permSet.size());
+	return new ArrayList<>(permSet);
+}
+
+// 5.1.6.1 Allowed Narrowing Reference Conversion
+public boolean isDisjointFrom(ReferenceBinding that) {
+	if (this.isInterface()) {
+		if (that.isInterface()) {
+			/* • An interface named I is disjoint from another interface named J if (i) it is not that case that I <: J, and (ii) it is not the case that J <: I, and
+			 *  (iii) one of the following cases applies:
+		             – I is sealed, and all of the permitted direct subclasses and subinterfaces of I are disjoint from J.
+		             – J is sealed, and I is disjoint from all the permitted direct subclasses and subinterfaces of J.
+			 */
+			if (this.findSuperTypeOriginatingFrom(that) != null || that.findSuperTypeOriginatingFrom(this) != null)
+				return false;
+			if (this.isSealed()) {
+				for (ReferenceBinding directSubType : this.permittedTypes()) {
+					if (!directSubType.isDisjointFrom(that))
+						return false;
+				}
+				return true;
+			}
+			if (that.isSealed()) {
+				for (ReferenceBinding directSubType : that.permittedTypes()) {
+					if (!this.isDisjointFrom(directSubType))
+						return false;
+				}
+				return true;
+			}
+			return false;
+		} else {
+			// • An interface named I is disjoint from a class named C if C is disjoint from I.
+			return that.isDisjointFrom(this);
+		}
+	} else {
+		if (that.isInterface()) {
+			/* • A class named C is disjoint from an interface named I if (i) it is not the case that C <: I, and (ii) one of the following cases applies:
+			 – C is final.
+			 – C is sealed, and all of the permitted direct subclasses of C are disjoint from I.
+			 – C is freely extensible (§8.1.1.2), and I is sealed, and C is disjoint from all of the permitted direct subclasses and subinterfaces of I
+			 */
+			if (this.findSuperTypeOriginatingFrom(that) != null)
+				return false;
+			if (this.isFinal())
+				return true;
+			if (this.isSealed()) {
+				for (ReferenceBinding directSubclass : this.permittedTypes()) {
+					if (!directSubclass.isDisjointFrom(that))
+						return false;
+				}
+				return true;
+			}
+			if (that.isSealed()) {
+				for (ReferenceBinding directSubType : that.permittedTypes()) {
+					if (!this.isDisjointFrom(directSubType))
+						return false;
+				}
+				return true;
+			}
+			return false;
+		} else {
+			// • A class named C is disjoint from another class named D if (i) it is not the case that C <: D, and (ii) it is not the case that D <: C.
+			return this.findSuperTypeOriginatingFrom(that) == null && that.findSuperTypeOriginatingFrom(this) == null;
+		}
+	}
 }
 static class InvalidBindingException extends Exception {
 	private static final long serialVersionUID = 1L;

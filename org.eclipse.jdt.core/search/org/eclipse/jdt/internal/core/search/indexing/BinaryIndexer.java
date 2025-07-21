@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.core.search.indexing;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.Flags;
@@ -189,8 +188,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 		addAnnotationTypeReference(replace('/', '.', Signature.toCharArray(annotation.getTypeName())));
 		IBinaryElementValuePair[] valuePairs = annotation.getElementValuePairs();
 		if (valuePairs != null) {
-			for (int j=0, vpLength=valuePairs.length; j<vpLength; j++) {
-				IBinaryElementValuePair valuePair = valuePairs[j];
+			for (IBinaryElementValuePair valuePair : valuePairs) {
 				addMethodReference(valuePair.getName(), 0);
 				Object pairValue = valuePair.getValue();
 				addPairValue(pairValue);
@@ -209,8 +207,8 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			addBinaryAnnotation((IBinaryAnnotation) pairValue);
 		} else if (pairValue instanceof Object[]) {
 			Object[] objects = (Object[]) pairValue;
-			for (int i=0,l=objects.length; i<l; i++) {
-				addPairValue(objects[i]);
+			for (Object o : objects) {
+				addPairValue(o);
 			}
 		}
 	}
@@ -645,8 +643,8 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 
 					// also add a simple reference on each segment of the qualification (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=24741)
 					char[][] qualification = CharOperation.splitOn('.', name);
-					for (int j = 0, length = qualification.length; j < length; j++) {
-						addNameReference(qualification[j]);
+					for (char[] nr : qualification) {
+						addNameReference(nr);
 					}
 					break;
 			}
@@ -764,8 +762,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			// Look for references in class annotations
 			IBinaryAnnotation[] annotations = reader.getAnnotations();
 			if (annotations != null) {
-				for (int a=0, length=annotations.length; a<length; a++) {
-					IBinaryAnnotation annotation = annotations[a];
+				for (IBinaryAnnotation annotation : annotations) {
 					addBinaryAnnotation(annotation);
 				}
 			}
@@ -780,8 +777,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			MethodInfo[] methods = (MethodInfo[]) reader.getMethods();
 			boolean noConstructor = true;
 			if (methods != null) {
-				for (int i = 0, max = methods.length; i < max; i++) {
-					MethodInfo method = methods[i];
+				for (MethodInfo method : methods) {
 					boolean isConstructor = method.isConstructor();
 					char[] descriptor = method.getMethodDescriptor();
 					boolean isStatic = Flags.isStatic(reader.getModifiers());
@@ -838,8 +834,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 					// look for references in method annotations
 					annotations = method.getAnnotations();
 					if (annotations != null) {
-						for (int a=0, length=annotations.length; a<length; a++) {
-							IBinaryAnnotation annotation = annotations[a];
+						for (IBinaryAnnotation annotation : annotations) {
 							addBinaryAnnotation(annotation);
 						}
 					}
@@ -854,16 +849,14 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			}
 			FieldInfo[] fields = (FieldInfo[]) reader.getFields();
 			if (fields != null) {
-				for (int i = 0, max = fields.length; i < max; i++) {
-					FieldInfo field = fields[i];
+				for (FieldInfo field : fields) {
 					char[] fieldName = field.getName();
 					char[] fieldType = decodeFieldType(replace('/', '.', field.getTypeName()));
 					addFieldDeclaration(fieldType, fieldName);
 					// look for references in field annotations
 					annotations = field.getAnnotations();
 					if (annotations != null) {
-						for (int a=0, length=annotations.length; a<length; a++) {
-							IBinaryAnnotation annotation = annotations[a];
+						for (IBinaryAnnotation annotation : annotations) {
 							addBinaryAnnotation(annotation);
 						}
 					}
@@ -927,8 +920,8 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 	private void indexTypeReferences(char[][] ref) {
 		if (ref == null || ref == CharOperation.NO_CHAR_CHAR)
 			return;
-		for (int i = 0; i < ref.length; i++) {
-			addTypeReference(ref[i]);
+		for (char[] name : ref) {
+			addTypeReference(name);
 		}
 	}
 	private void indexTypeReference(char[] ref) {
@@ -958,8 +951,8 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 	 */
 	private char[][] replace(char toBeReplaced, char newChar, char[][] array) {
 		if (array == null) return null;
-		for (int i = 0, max = array.length; i < max; i++) {
-			replace(toBeReplaced, newChar, array[i]);
+		for (char[] element : array) {
+			replace(toBeReplaced, newChar, element);
 		}
 		return array;
 	}

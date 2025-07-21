@@ -17,7 +17,6 @@ package org.eclipse.jdt.apt.core.internal.env;
 import com.sun.mirror.type.MirroredTypeException;
 import com.sun.mirror.type.MirroredTypesException;
 import com.sun.mirror.type.TypeMirror;
-
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
@@ -28,8 +27,8 @@ import java.util.Collection;
 import java.util.Collections;
 import org.eclipse.jdt.apt.core.internal.declaration.AnnotationMirrorImpl;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
-import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 

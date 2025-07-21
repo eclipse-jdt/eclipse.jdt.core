@@ -5,3 +5,8 @@ Bug 574551 - Comparator errors in Y20210629-0800
 https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/issues/1184
 https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/issues/1659
 https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/issues/1757
+https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/issues/1923
+https://github.com/eclipse-jdt/eclipse.jdt.core/pull/2362
+https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/issues/2163
+https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2669
+https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2672

@@ -22,4 +22,26 @@ public interface ICompilerRequestor {
 	 * Accept a compilation result.
 	 */
 	public void acceptResult(CompilationResult result);
+
+	/**
+	 * Optionally called to start multiple {@link #acceptResult(CompilationResult)}
+	 */
+	public default void startBatch() {
+		//nothing
+	}
+
+	/**
+	 * Optionally called after some {@link #acceptResult(CompilationResult)} to signal a good point in time
+	 */
+	public default void flushBatch() {
+		//nothing
+	}
+
+	/**
+	 * if {@link #startBatch} was called then endBatch is called to finalize possibly multiple
+	 * {@link #acceptResult(CompilationResult)}
+	 */
+	public default void endBatch() {
+		// nothing
+	}
 }

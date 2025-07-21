@@ -13,10 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import junit.framework.Test;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.Signature;
-
-import junit.framework.Test;
 
 public class BindingKeyTests extends AbstractJavaModelTests {
 

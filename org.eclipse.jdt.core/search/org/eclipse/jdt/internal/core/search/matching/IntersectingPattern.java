@@ -15,12 +15,14 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import java.io.IOException;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
-import org.eclipse.jdt.internal.core.index.*;
+import org.eclipse.jdt.internal.core.index.EntryResult;
+import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
 
 /**
@@ -47,20 +49,19 @@ public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchP
 
 			SearchPattern decodedResult = pattern.getBlankPattern();
 			SimpleSet newIntersectedNames = new SimpleSet(3);
-			for (int i = 0, l = entries.length; i < l; i++) {
+			for (EntryResult entry : entries) {
 				if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 
-				EntryResult entry = entries[i];
 				decodedResult.decodeIndexKey(entry.getWord());
 				if (pattern.matchesDecodedKey(decodedResult)) {
 					String[] names = entry.getDocumentNames(index);
 					if (intersectedNames != null) {
-						for (int j = 0, n = names.length; j < n; j++)
-							if (intersectedNames.includes(names[j]))
-								newIntersectedNames.add(names[j]);
+						for (String name : names)
+							if (intersectedNames.includes(name))
+								newIntersectedNames.add(name);
 					} else {
-						for (int j = 0, n = names.length; j < n; j++)
-							newIntersectedNames.add(names[j]);
+						for (String name : names)
+							newIntersectedNames.add(name);
 					}
 				}
 			}
@@ -75,9 +76,9 @@ public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchP
 	String containerPath = index.containerPath;
 	char separator = index.separator;
 	Object[] names = intersectedNames.values;
-	for (int i = 0, l = names.length; i < l; i++)
-		if (names[i] != null)
-			acceptMatch((String) names[i], containerPath, separator, null/*no pattern*/, requestor, participant, scope, progressMonitor); // AndPatterns cannot provide the decoded result
+	for (Object name : names)
+		if (name != null)
+			acceptMatch((String) name, containerPath, separator, null/*no pattern*/, requestor, participant, scope, progressMonitor); // AndPatterns cannot provide the decoded result
 }
 
 @Override

@@ -19,7 +19,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
@@ -38,8 +37,8 @@ public class IntersectionCastTypeReference extends TypeReference {
 		this.sourceStart = typeReferences[0].sourceStart;
 		int length = typeReferences.length;
 		this.sourceEnd = typeReferences[length - 1].sourceEnd;
-		for (int i = 0, max = typeReferences.length; i < max; i++) {
-			if ((typeReferences[i].bits & ASTNode.HasTypeAnnotations) != 0) {
+		for (TypeReference reference : typeReferences) {
+			if ((reference.bits & ASTNode.HasTypeAnnotations) != 0) {
 				this.bits |= ASTNode.HasTypeAnnotations;
 				break;
 			}

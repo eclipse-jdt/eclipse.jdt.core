@@ -15,19 +15,26 @@
 
 package org.eclipse.jdt.apt.core.internal;
 
+import com.sun.mirror.apt.AnnotationProcessorFactory;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
+import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
 import org.eclipse.jdt.apt.core.internal.util.TestCodeUtil;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -37,8 +44,6 @@ import org.eclipse.jdt.core.compiler.BuildContext;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.compiler.ReconcileContext;
-
-import com.sun.mirror.apt.AnnotationProcessorFactory;
 
 /**
  * A singleton object, created by callback through the
@@ -206,6 +211,45 @@ public class AptCompilationParticipant extends CompilationParticipant
 		finally {
 			_buildRound ++;
 		}
+	}
+
+	@Override
+	public URI[] getAnnotationProcessorPaths(IJavaProject project, boolean isTest) {
+		List<URI> processorPaths = new ArrayList<>();
+		FactoryPath factoryPath = FactoryPathUtil.getFactoryPath(project);
+		if (factoryPath == null) {
+			return null;
+		}
+
+		factoryPath.getEnabledContainers().keySet().forEach(container -> {
+			if (container instanceof JarFactoryContainer jarContainer) {
+				if (jarContainer.exists()) {
+					processorPaths.add(jarContainer.getJarFile().toURI());
+				}
+			}
+		});
+
+		if (!processorPaths.isEmpty()) {
+			return processorPaths.toArray(new URI[processorPaths.size()]);
+		}
+
+		return null;
+	}
+
+	@Override
+	public IContainer[] getGeneratedSourcePaths(IJavaProject project, boolean isTest) {
+		AptProject aptProject = AptPlugin.getAptProject(project);
+		if (aptProject == null) {
+			return null;
+		}
+
+		GeneratedSourceFolderManager generatedSourceFolderManager = aptProject.getGeneratedSourceFolderManager(isTest);
+		if (generatedSourceFolderManager == null) {
+			return null;
+		}
+
+		IFolder folder = generatedSourceFolderManager.getFolder();
+		return folder == null? null : new IContainer[] { folder };
 	}
 
 	@Override

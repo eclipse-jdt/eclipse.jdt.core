@@ -17,7 +17,6 @@ import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -42,6 +41,7 @@ import org.eclipse.jdt.internal.core.ResolvedBinaryType;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeFactory;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.ResourceCompilationUnit;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -136,8 +136,8 @@ public abstract class HierarchyBuilder {
 		}
 	}
 	/**
-	 * Connect the supplied type to its superclass & superinterfaces.
-	 * The superclass & superinterfaces are the identical binary or source types as
+	 * Connect the supplied type to its superclass and superinterfaces.
+	 * The superclass and superinterfaces are the identical binary or source types as
 	 * supplied by the name environment.
 	 */
 	public void connect(
@@ -164,9 +164,9 @@ public abstract class HierarchyBuilder {
 				trace(" <None>"); //$NON-NLS-1$
 			} else {
 				trace(""); //$NON-NLS-1$
-				for (int i = 0, length = superinterfaceHandles.length; i < length; i++) {
-					if (superinterfaceHandles[i] == null) continue;
-					trace("    " + ((JavaElement) superinterfaceHandles[i]).toStringWithAncestors()); //$NON-NLS-1$
+				for (IType superinterfaceHandle : superinterfaceHandles) {
+					if (superinterfaceHandle == null) continue;
+					trace("    " + ((JavaElement) superinterfaceHandle).toStringWithAncestors()); //$NON-NLS-1$
 				}
 			}
 		}
@@ -222,7 +222,8 @@ public abstract class HierarchyBuilder {
 				classFile = (ClassFile) handle.getParent();
 				this.infoToHandle.put(genericType, classFile);
 			}
-			return new ResolvedBinaryType(classFile, classFile.getTypeName(), new String(binding.computeUniqueKey()));
+			return new ResolvedBinaryType(classFile, classFile.getTypeName(),
+					DeduplicationUtil.toString(binding.computeUniqueKey()));
 		} else if (genericType instanceof SourceTypeElementInfo) {
 			IType handle = ((SourceTypeElementInfo) genericType).getHandle();
 			return (IType) ((JavaElement) handle).resolved(binding);

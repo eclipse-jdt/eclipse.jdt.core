@@ -13,20 +13,19 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 
 public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "571833" };
+//		TESTS_NAMES = new String[] { "testBug545567_18" };
 	}
 
 	public static Class<?> testClass() {
@@ -170,7 +169,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"	int tw = switch (i) {\n" +
 			"		};\n" +
 			"	         ^^^^^^^^^^^^^^^^\n" +
-			"A switch expression should have a non-empty switch block\n" +
+			"A switch expression should have at least one result expression\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 6)\n" +
 			"	int tw = switch (i) {\n" +
@@ -204,7 +203,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 12)\n" +
 			"	case \"hello\" -> throw new java.io.IOException(\"hello\");\n" +
 			"	     ^^^^^^^\n" +
-			"Type mismatch: cannot convert from String to int\n" +
+			"Case constant of type String is incompatible with switch selector type int\n" +
 			"----------\n");
 	}
 	public void testBug544073_005() {
@@ -273,7 +272,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"2. ERROR in X.java (at line 13)\n" +
 			"	case \"hello\" -> throw new IOException(\"hello\");\n" +
 			"	     ^^^^^^^\n" +
-			"Type mismatch: cannot convert from String to int\n" +
+			"Case constant of type String is incompatible with switch selector type int\n" +
 			"----------\n");
 	}
 	/*
@@ -578,7 +577,8 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	 * A simple multi constant case statement, compiler reports missing enum constants
 	 */
 	public void testBug544073_018() {
-		String[] testFiles = new String[] {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
 				"X.java",
 				"public class X {\n" +
 						"	public static void main(String[] args) {\n" +
@@ -596,16 +596,15 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"enum Day { SATURDAY, SUNDAY, MONDAY, TUESDAY;}",
 		};
 
-		String expectedProblemLog =
+		runner.expectedCompilerLog =
 						"----------\n" +
 						"1. WARNING in X.java (at line 5)\n" +
 						"	switch (day) {\n" +
 						"	        ^^^\n" +
 						"The enum constant TUESDAY needs a corresponding case label in this enum switch on Day\n" +
 						"----------\n";
-		this.runWarningTest(
-				testFiles,
-				expectedProblemLog);
+		runner.javacTestOptions = Excuse.EclipseHasSomeMoreWarnings;
+		runner.runWarningTest();
 	}
 	/*
 	 * A simple multi constant case statement with duplicate enums
@@ -696,7 +695,8 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	/*
 	 */
 	public void testBug544073_021() {
-		String[] testFiles = new String[] {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
 				"X.java",
 				"public class X {\n" +
 						"public static void bar(Day day) {\n" +
@@ -715,16 +715,15 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"enum Day { SATURDAY, SUNDAY, MONDAY, TUESDAY;}",
 		};
 
-		String expectedProblemLog =
+		runner.expectedCompilerLog =
 				"----------\n" +
 				"1. WARNING in X.java (at line 3)\n" +
 				"	switch (day) {\n" +
 				"	        ^^^\n" +
 				"The enum constant MONDAY needs a corresponding case label in this enum switch on Day\n" +
 				"----------\n";
-		this.runWarningTest(
-				testFiles,
-				expectedProblemLog);
+		runner.javacTestOptions = Excuse.EclipseHasSomeMoreWarnings;
+		runner.runWarningTest();
 	}
 	public void testBug544073_022() {
 		String[] testFiles = new String[] {
@@ -929,7 +928,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 9)\n" +
 				"	case \"2\": \n" +
 				"	     ^^^\n" +
-				"Type mismatch: cannot convert from String to int\n" +
+				"Case constant of type String is incompatible with switch selector type int\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -1701,6 +1700,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	case 0 -> x;\n" +
 				"	          ^\n" +
 				"x cannot be resolved to a variable\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 7)\n" +
+				"	return v;\n" +
+				"	       ^\n" +
+				"Type mismatch: cannot convert from Object to int\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -2028,8 +2032,6 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	public void testBug544073_071() {
-		if (this.complianceLevel < ClassFileConstants.JDK12)
-			return;
 		String message =
 				"----------\n" +
 				"1. WARNING in X.java (at line 5)\n" +
@@ -2054,8 +2056,6 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"-Xlint:preview");
 	}
 	public void testBug544073_072() {
-		if (this.complianceLevel < ClassFileConstants.JDK12)
-			return;
 		String message =
 				"----------\n" +
 				"1. WARNING in X.java (at line 5)\n" +
@@ -2147,11 +2147,6 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"	continue;\n" +
 			"	^^^^^^^^^\n" +
 			"Continue out of switch expressions not permitted\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 11)\n" +
-			"	continue;\n" +
-			"	^^^^^^^^^\n" +
-			"'continue' or 'return' cannot be the last statement in a Switch expression case body\n" +
 			"----------\n");
 	}
 	public void testBug544073_077() {
@@ -2184,11 +2179,6 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"	return 2;\n" +
 			"	^^^^^^^^^\n" +
 			"Return within switch expressions not permitted\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 11)\n" +
-			"	return 2;\n" +
-			"	^^^^^^^^^\n" +
-			"'continue' or 'return' cannot be the last statement in a Switch expression case body\n" +
 			"----------\n");
 	}
 	public void testBug544073_078() {
@@ -2311,6 +2301,38 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	                  ^\n" +
 				"Syntax error on token \"2\", delete this token\n" +
 				"----------\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2323
+	// [Switch Expression] Internal compiler error: java.lang.ClassCastException while compiling switch expression
+	public void testIssue2323() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void f() {
+						int[] array = null;
+						(array = new int[1])[0] = 42;
+					}
+					public static int g() {
+						int[] array = null;
+						System.out.println(switch(10) {
+						default -> {
+							try {
+								yield 42;
+							} finally {
+
+							}
+						}
+					});
+						return (array = new int[1])[0];
+					}
+				}
+				"""
+				},
+				"");
 	}
 	public void testBug547891_01() {
 		this.runNegativeTest(
@@ -2686,8 +2708,6 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				expectedProblemLog);
 	}
 	public void testBug547891_15() {
-		if (this.complianceLevel < ClassFileConstants.JDK12)
-			return;
 		String message =
 				"----------\n" +
 				"1. ERROR in X.java (at line 6)\n" +
@@ -2732,8 +2752,6 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			message);
 	}
 	public void testBug547891_16() {
-		if (this.complianceLevel < ClassFileConstants.JDK12)
-			return;
 		String message =
 				"----------\n" +
 				"1. ERROR in X.java (at line 9)\n" +
@@ -2875,8 +2893,6 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"-1");
 	}
 	public void testBug547891_21() {
-		if (this.complianceLevel < ClassFileConstants.JDK12)
-			return;
 		String message =
 				"----------\n" +
 				"1. ERROR in X.java (at line 7)\n" +
@@ -3308,6 +3324,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	default -> 3;\n" +
 				"	^^^^^^^\n" +
 				"Arrow in case statement supported from Java 14 onwards only\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	default -> 3;\n" +
+				"	           ^\n" +
+				"Invalid expression as statement\n" +
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -3862,6 +3883,42 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"one");
 	}
+
+	public void testBug545567_5_1() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						    public String toString() { return "some X"; }
+						    public static void main(String[] args) {
+						    	String t = switch (0) {
+						        default -> {
+						            try {
+						                yield new X().toString();
+						            }
+						            catch (Exception ex) {
+						            }
+						            yield "zero";
+						        }
+						     };
+						     System.out.print(t);
+						    }
+
+						    static int foo() {
+						    	try {
+						    		return 42;
+						    	} catch (Exception ex) {
+
+						    	}
+						    	return -1;
+						    }
+						}
+						"""
+				},
+				"some X");
+	}
+
 	public void testBug545567_6() {
 		runConformTest(
 				new String[] {
@@ -4410,7 +4467,10 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"10");
 	}
-	public void testBug545567_22() {
+	// Disabled until https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3259 and
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3258 are comprehensively
+	// resolved. Same issue, but was "compensated" for earlier
+	public void _testBug545567_22() {
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -5729,7 +5789,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 5)\n" +
 				"	case AAABBB -> 1;\n" +
 				"	                ^\n" +
-				"Syntax error on token \";\", case expected after this token\n" +
+				"Syntax error on token \";\", [ expected\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 6)\n" +
 				"	(I)()->();\n" +
@@ -5742,6 +5802,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"Syntax error, insert \")\" to complete Expression\n" +
 				"----------\n" +
 				"4. ERROR in X.java (at line 6)\n" +
+				"	(I)()->();\n" +
+				"	        ^\n" +
+				"Syntax error, insert \"]\" to complete ArrayAccess\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 6)\n" +
 				"	(I)()->();\n" +
 				"	        ^\n" +
 				"Syntax error, insert \":\" to complete SwitchLabel\n" +
@@ -5996,7 +6061,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 7)\n" +
 				"	boolean b = foo( switch(i+1) {\n" +
 				"	            ^^^\n" +
-				"The method foo(short) in the type X is not applicable for the arguments (double)\n" +
+				"The method foo(short) in the type X is not applicable for the arguments (switch ((i + 1)) { ... })\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 9)\n" +
 				"	default -> Double.valueOf(2.0d);\n" +
@@ -6032,7 +6097,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 7)\n" +
 				"	boolean b = foo( switch(i+1) {\n" +
 				"	            ^^^\n" +
-				"The method foo(short) in the type X is not applicable for the arguments (double)\n" +
+				"The method foo(short) in the type X is not applicable for the arguments (switch ((i + 1)) { ... })\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 9)\n" +
 				"	default -> 2.0d;\n" +
@@ -6069,7 +6134,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 7)\n" +
 				"	boolean b = foo( switch(i+1) {\n" +
 				"	            ^^^\n" +
-				"The method foo(short) in the type X is not applicable for the arguments (double)\n" +
+				"The method foo(short) in the type X is not applicable for the arguments (switch ((i + 1)) { ... })\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 9)\n" +
 				"	default : yield 2.0d;\n" +
@@ -6316,12 +6381,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 3)\n" +
 			"	foo(switch (i) {\n" +
 			"	^^^\n" +
-			"The method foo(T) in the type X is not applicable for the arguments (switch (i) {\n" +
-			"case 0 ->\n" +
-			"    m.call();\n" +
-			"default ->\n" +
-			"    null;\n" +
-			"})\n" +
+			"The method foo(T) in the type X is not applicable for the arguments (switch (i) { ... })\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 4)\n" +
 			"	case 0 -> m.call();\n" +
@@ -6797,5 +6857,1493 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"Switcher :0\n"
 				+ "Switcher :1");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2231
+	// [Switch-Expression] Assertion failure compiling array access + switch expressions with try blocks
+	public void testIssue2231() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void foo(String... ss) {
+						System.out.println("Entry = " + switch(ss) {
+															case null -> "None";
+															case String [] s when s.length == 0 -> "none";
+															default ->  {
+																try {
+																	yield ss[0];
+																} finally {
+
+																}
+															}
+						});
+					}
+
+					public static void main(String[] args) {
+						foo("Hello");
+					}
+				}
+				"""
+				},
+				"Entry = Hello");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2231
+	// [Switch-Expression] Assertion failure compiling array access + switch expressions with try blocks
+	public void testIssue2231_2() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void foo(String [] ss) {
+						System.out.println("Entry = " + switch(ss) {
+															case null -> "None";
+															case String [] s when s.length == 0 -> "none";
+															default ->  {
+																try {
+																	yield ss[0];
+																} finally {
+
+																}
+															}
+						});
+					}
+
+					public static void main(String[] args) {
+						foo(new String [] { "Hello" });
+					}
+				}
+				"""
+				},
+				"Entry = Hello");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
+	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	public void testIssue2228() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					int k;
+					void foo() {
+						new X() {
+							{
+								System.out.println ("Switch Expr = " +  switch (X.this.k) {
+								default -> {
+									try {
+										yield throwing();
+									} catch (NumberFormatException nfe) {
+										yield 10;
+									}
+									finally {
+										System.out.println("Finally");
+									}
+								}
+							});
+							}
+
+							private Object throwing() {
+								throw new NumberFormatException();
+							}
+						};
+					}
+
+					public static void main(String[] args) {
+						new X().foo();
+					}
+				}
+				"""
+				},
+				"Finally\n"
+				+ "Switch Expr = 10");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
+	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	public void testIssue2228_2() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					int k;
+					void foo() {
+						int fooLocal = 10;
+						class Local {
+							Local() {
+								System.out.println("Switch result = " + switch(X.this.k) {
+																			default -> {
+																				try {
+																					System.out.println("Try");
+																					yield 10;
+																				} catch (Exception e) {
+																					System.out.println("Catch");
+																					yield 20;
+																				} finally {
+																					System.out.println("Finally");
+																				}
+																			}
+																		});
+							}
+						}
+						new Local();
+					}
+					public static void main(String[] args) {
+						new X().foo();
+					}
+				}
+				"""
+				},
+				"Try\n" +
+				"Finally\n"
+				+ "Switch result = 10");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
+	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	public void testIssue2228_3() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					int k;
+
+					{
+						System.out.println ("Switch Expr = " +  switch (k) {
+						default -> {
+							try {
+								yield throwing();
+							} catch (NumberFormatException nfe) {
+								yield 10;
+							}
+							finally {
+								System.out.println("Finally");
+							}
+						}
+					});
+					}
+					private Object throwing() {
+						throw new NumberFormatException();
+					}
+					public static void main(String[] args) {
+						new X();
+					}
+				}
+				"""
+				},
+				"Finally\n"
+				+ "Switch Expr = 10");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
+	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	public void testIssue2228_4() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						args = new String [] { "one" , "two"};
+						System.out.println(switch (args) {
+							case null ->  0;
+							default -> switch(args.length) {
+											case 0 -> 0;
+											case 1 -> "One";
+											default -> new X();
+										};
+							});
+					}
+					public String toString() {
+						return "some X()";
+					}
+				}
+				"""
+				},
+				"some X()");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
+	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	public void testIssue2228_5() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					int k;
+					void foo() {
+						String val = "123";
+						new X() {
+							{
+								System.out.println ("Switch Expr = " +  switch (X.this.k) {
+								default -> {
+									try {
+										yield throwing();
+									} catch (NumberFormatException nfe) {
+										yield val;
+									}
+									finally {
+										System.out.println("Finally");
+									}
+								}
+							});
+							}
+
+							private Object throwing() {
+								throw new NumberFormatException();
+							}
+						};
+					}
+
+					public static void main(String[] args) {
+						new X().foo();
+					}
+				}
+				"""
+				},
+				"Finally\n"
+				+ "Switch Expr = 123");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2228
+	// [Switch-expression] Internal inconsistency warning at compile time & verify error at runtime
+	public void testIssue2228_6() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					static int k;
+
+					static {
+						System.out.println ("Switch Expr = " +  switch (k) {
+						default -> {
+							try {
+								yield throwing();
+							} catch (NumberFormatException nfe) {
+								yield 10;
+							}
+							finally {
+								System.out.println("Finally");
+							}
+						}
+					});
+					}
+					private static Object throwing() {
+						throw new NumberFormatException();
+					}
+					public static void main(String[] args) {
+						new X();
+					}
+				}
+				"""
+				},
+				"Finally\n"
+				+ "Switch Expr = 10");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2233
+	// [Switch-Expression] Assertion failure while compiling enum class that uses switch expression with try block
+	public void testIssue2233() {
+		if (this.complianceLevel < ClassFileConstants.JDK16)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public enum X {
+					PARAMETER, FIELD, METHOD;
+					X() {
+						System.out.println(switch (this) {
+												default -> {
+													try {
+														yield 10;
+													} finally {
+
+													}
+												}
+											});
+					}
+
+				    public static void notmain(String [] args) {
+				        X x = PARAMETER;
+				        System.out.println(x);
+				    }
+				}
+				"""
+				},
+				"");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2322
+	// [Switch Expression] Internal compiler error: java.util.EmptyStackException at java.base/java.util.Stack.peek
+	public void testIssue2322() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String [] args) {
+				    int lineCount = 10;
+				    long time = 1000;
+				    print((int) (lineCount * 10000.0 / time));
+				    print((double) (lineCount * 10000.0 / time));
+				    System.out.println(switch(lineCount) {
+				        default -> {
+				    	try {
+				    		yield "OK";
+				    	} finally {
+
+				    	}
+				        }
+				    });
+				  }
+				  static void print(double d) {}
+				}
+				"""
+				},
+				"OK");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2335
+	// [Switch Expression] Internal compiler error: java.lang.ClassCastException: class org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding cannot be cast to class org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
+	public void testIssue2335() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public final class X {
+
+				  public void show() {
+
+				    int size1 = 1;
+				    int size2 = 2;
+				    int size3 = 3;
+
+				    short[][][] array = new short[size1][size2][size3];
+
+				    for (int i = 0; i < size1; i++) {
+				      for (int j = 0; j < size2; j++) {
+				        boolean on = false;
+				        for (int k = 0; k < size3; k++) {
+				          array[i][j][k] = on ? (short) 1 : (short) 0;
+				        }
+				      }
+				    }
+				    System.out.println(switch(42) {
+				    	default -> {
+				    		try {
+				    			yield 42;
+				    		} finally {
+
+				    		}
+				    	}
+				    });
+
+				  }
+
+				  public static void main(String[] args) {
+				    new X().show();
+				  }
+				}
+				"""
+				},
+				"42");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2335
+	// [Switch Expression] Internal compiler error: java.lang.ClassCastException: class org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding cannot be cast to class org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
+	public void testIssue2335_min() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public final class X {
+				  public static void main(String[] args) {
+					   short[] array = new short[10];
+
+					    for (int i = 0; i < 10; i++) {
+					        boolean on = false;
+					          array[i] = on ? (short) 1 : (short) 0;
+					    }
+					    System.out.println(switch(42) {
+					    	default -> {
+					    		try {
+					    			yield 42;
+					    		} finally {
+
+					    		}
+					    	}
+					    });
+				  }
+				}
+				"""
+				},
+				"42");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2335
+	// [Switch Expression] Internal compiler error: java.lang.ClassCastException: class org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding cannot be cast to class org.eclipse.jdt.internal.compiler.lookup.ArrayBinding
+	public void testIssue2335_other() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						System.out.println(switch (1) {
+						default -> {
+							try {
+								System.out.println(switch (10) { default -> { try { yield 10; } finally {} } });
+							} finally {}
+							yield 1;
+						}
+						});
+					}
+					X() {}
+				}
+				"""
+				},
+				"10\n" +
+				"1");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2349
+	// [Switch Expression] Verify error at runtime with switch expression and exception handling inside lambda expression
+	public void testIssue2349() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				interface I {
+					int doit();
+				}
+				public class X {
+					public static void main(String[] args) {
+						I i = () -> {
+							return 10 + switch (10) {
+								default -> { try { yield 32; } catch (NullPointerException npe) { yield -10; } }
+						};
+						};
+						System.out.println(i.doit());
+					}
+				}
+				"""
+				},
+				"42");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2360
+	// [Switch Expression] Internal compiler error: java.lang.NullPointerException: Cannot read field "binding" because "this.methodDeclaration" is null
+	public void testIssue2360() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				interface I {
+					void foo(int p, int q);
+				}
+				public class X {
+				   int f;
+					void foo(int a) {
+				       int loc = 10;
+						I i = (int p, int q)  -> {
+				           I i2 = new I() { public void foo(int f, int p0) {};};
+				           System.out.println(10 + switch (10) {
+							default -> { try { yield 32; } catch (NullPointerException npe) { yield -10; } }});
+							System.out.println(10 + switch (loc) {
+							default -> { try { yield 0; } catch (NullPointerException npe) { yield -10; } }});
+							System.out.println(10 + switch (p) {
+							default -> { try { yield p; } catch (NullPointerException npe) { yield -10; } }});
+							System.out.println(10 + switch (q) {
+							default -> { try { yield q; } catch (NullPointerException npe) { yield -10; } }});
+						};
+						i.foo(10,  20);
+					}
+
+					public static void main(String[] args) {
+						new X().foo(42);
+					}
+				}
+				"""
+				},
+				"42\n" +
+				"10\n" +
+				"20\n" +
+				"30");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2360
+	// [Switch Expression] Internal compiler error: java.lang.NullPointerException: Cannot read field "binding" because "this.methodDeclaration" is null
+	public void testIssue2360_2() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				interface I {
+					void foo(int p, int q);
+				}
+				public class X {
+				   int f;
+					void foo(int a) {
+				       int loc;
+						I i = (int p, int q)  -> {
+				           I i2 = new I() { public void foo(int f, int p0) {};};
+				           System.out.println(10 + switch (10) {
+							default -> { try { yield 32; } catch (NullPointerException npe) { yield -10; } }});
+						};
+						i.foo(10,  20);
+					}
+
+					public static void main(String[] args) {
+						new X().foo(42);
+					}
+				}
+				"""
+				},
+				"42");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2363
+	// [Switch Expressions] Compiler crashes with Switch expressions mixed with exception handling
+	public void testIssue2363() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String argv[]) {
+						System.out.println(void.class == Void.TYPE);
+						System.out.println(switch(42) {
+				    	default -> {
+				    		try {
+				    			yield 42;
+				    		} finally {
+
+				    		}
+				    	}
+				    });
+
+					}
+				}
+				"""
+				},
+				"true\n42");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2366
+	// [Switch Expression] Assertion fails when IDE is launched with JVM option -ea
+	public void testIssue2366() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+				  public X() {
+				    super();
+				  }
+				  public static void foo() {
+				    X z;
+				    while (((z = getObject()) != null))      {
+				        z.bar();
+				      }
+				    System.out.println(switch(42) {
+					  default -> {
+						try {
+							yield 42;
+						} finally {
+
+						}
+					  }
+				    });
+				  }
+				  public void bar() {
+				  }
+				  public static X getObject() {
+				    return null;
+				  }
+				  public static void main(String[] args) {
+				    new X().foo();
+				  }
+				}
+				"""
+				},
+				"42");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
+	// VerifyError in switch expression on double
+	public void testIssue2382() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+				  public static void main(String[] args) {
+				    double d = 3;
+
+				    double r = switch (d) {
+				      case 1.0 -> 0.2;
+				      case 2.0 -> 0.5;
+				      case 8.0 -> 2;
+				      case 9.0 -> 3;
+				      default -> 3;
+				    };
+				    System.out.println(r);
+				  }
+
+				  X() {}
+
+				}
+				"""
+				},
+				"----------\n"
+				+ "1. ERROR in X.java (at line 6)\n"
+				+ "	double r = switch (d) {\n"
+				+ "	                   ^\n"
+				+ "Cannot switch on a value of type double. Only convertible int values, strings or enum variables are permitted\n"
+				+ "----------\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
+	// VerifyError in switch expression on double
+	public void testIssue2382_2() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+				  public static void main(String[] args) {
+				    long d = 3;
+
+				    double r = switch (d) {
+				      case 1.0 -> 0.2;
+				      case 2.0 -> 0.5;
+				      case 8.0 -> 2;
+				      case 9.0 -> 3;
+				      default -> 3;
+				    };
+				    System.out.println(r);
+				  }
+
+				  X() {}
+
+				}
+				"""
+				},
+				"----------\n"
+				+ "1. ERROR in X.java (at line 6)\n"
+				+ "	double r = switch (d) {\n"
+				+ "	                   ^\n"
+				+ "Cannot switch on a value of type long. Only convertible int values, strings or enum variables are permitted\n"
+				+ "----------\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
+	// VerifyError in switch expression on double
+	public void testIssue2382_3() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+				  public static void main(String[] args) {
+				    float d = 3;
+
+				    double r = switch (d) {
+				      case 1.0 -> 0.2;
+				      case 2.0 -> 0.5;
+				      case 8.0 -> 2;
+				      case 9.0 -> 3;
+				      default -> 3;
+				    };
+				    System.out.println(r);
+				  }
+
+				  X() {}
+
+				}
+				"""
+				},
+				"----------\n"
+				+ "1. ERROR in X.java (at line 6)\n"
+				+ "	double r = switch (d) {\n"
+				+ "	                   ^\n"
+				+ "Cannot switch on a value of type float. Only convertible int values, strings or enum variables are permitted\n"
+				+ "----------\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
+	// VerifyError in switch expression on double
+	public void testIssue2382_4() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+				  public static void main(String[] args) {
+				    boolean d = true;
+
+				    double r = switch (d) {
+				      default -> 3;
+				    };
+				    System.out.println(r);
+				  }
+
+				  X() {}
+
+				}
+				"""
+				},
+				"----------\n"
+				+ "1. ERROR in X.java (at line 6)\n"
+				+ "	double r = switch (d) {\n"
+				+ "	                   ^\n"
+				+ "Cannot switch on a value of type boolean. Only convertible int values, strings or enum variables are permitted\n"
+				+ "----------\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
+	// VerifyError in switch expression on double
+	public void testIssue2382_5() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+				  public static void main(String[] args) {
+				    double d = 3;
+
+				    switch (d) {
+				      case 1.0 -> System.out.println(d);
+				    };
+
+				  }
+
+				  X() {}
+
+				}
+				"""
+				},
+				"----------\n"
+				+ "1. ERROR in X.java (at line 6)\n"
+				+ "	switch (d) {\n"
+				+ "	        ^\n"
+				+ "Cannot switch on a value of type double. Only convertible int values, strings or enum variables are permitted\n"
+				+ "----------\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
+	// VerifyError in switch expression on double
+	public void testIssue2382_6() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+                  static void foo() {}
+				  public static void main(String[] args) {
+				    double d = 3;
+
+				    switch (foo()) {
+				      case 1.0 -> System.out.println(d);
+				    };
+
+				  }
+
+				  X() {}
+
+				}
+				"""
+				},
+				this.complianceLevel < ClassFileConstants.JDK21 ?
+				"----------\n"
+				+ "1. ERROR in X.java (at line 7)\n"
+				+ "	switch (foo()) {\n"
+				+ "	        ^^^^^\n"
+				+ "Cannot switch on a value of type void. Only convertible int values, strings or enum variables are permitted\n"
+				+ "----------\n" :
+						"----------\n"
+						+ "1. ERROR in X.java (at line 8)\n"
+						+ "	case 1.0 -> System.out.println(d);\n"
+						+ "	     ^^^\n"
+						+ "Case constant of type double is incompatible with switch selector type void\n"
+						+ "----------\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
+	// VerifyError in switch expression on double
+	public void testIssue2382_7() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+                  static void foo() {}
+				  public static void main(String[] args) {
+				    double d = 3;
+
+				    switch (null) {
+				      case null -> System.out.println(d);
+				    };
+
+				  }
+
+				  X() {}
+
+				}
+				"""
+				},
+				this.complianceLevel < ClassFileConstants.JDK21 ?
+				"----------\n"
+				+ "1. ERROR in X.java (at line 7)\n"
+				+ "	switch (null) {\n"
+				+ "	        ^^^^\n"
+				+ "Cannot switch on a value of type null. Only convertible int values, strings or enum variables are permitted\n"
+				+ "----------\n"
+				+ "2. ERROR in X.java (at line 8)\n"
+				+ "	case null -> System.out.println(d);\n"
+				+ "	     ^^^^\n"
+				+ "The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n"
+				+ "----------\n" :
+						"----------\n"
+						+ "1. ERROR in X.java (at line 7)\n"
+						+ "	switch (null) {\n"
+						+ "	        ^^^^\n"
+						+ "An enhanced switch statement should be exhaustive; a default label expected\n"
+						+ "----------\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
+	// VerifyError in switch expression on double
+	public void testIssue2382_8() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+                  static void foo() {}
+				  public static void main(String[] args) {
+				    double d = 3;
+
+				    switch (null) {
+				      case null -> System.out.println(d);
+				      default -> System.out.println("Default");
+				    };
+
+				  }
+
+				  X() {}
+
+				}
+				"""
+				},
+				"3.0");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
+	// VerifyError in switch expression on double
+	public void testIssue2382_9() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+                  static void foo() {}
+				  public static void main(String[] args) {
+				    double d = 3;
+
+				    switch (foo()) {
+				      case null -> System.out.println(d);
+				    };
+
+				  }
+
+				  X() {}
+
+				}
+				"""
+				},
+				this.complianceLevel < ClassFileConstants.JDK21 ?
+				"----------\n"
+				+ "1. ERROR in X.java (at line 7)\n"
+				+ "	switch (foo()) {\n"
+				+ "	        ^^^^^\n"
+				+ "Cannot switch on a value of type void. Only convertible int values, strings or enum variables are permitted\n"
+				+ "----------\n"
+				+ "2. ERROR in X.java (at line 8)\n"
+				+ "	case null -> System.out.println(d);\n"
+				+ "	     ^^^^\n"
+				+ "The Java feature 'Pattern Matching in Switch' is only available with source level 21 and above\n"
+				+ "----------\n" :
+						"----------\n" +
+						"1. ERROR in X.java (at line 7)\n" +
+						"	switch (foo()) {\n" +
+						"	        ^^^^^\n" +
+						"An enhanced switch statement should be exhaustive; a default label expected\n" +
+						"----------\n" +
+						"2. ERROR in X.java (at line 8)\n" +
+						"	case null -> System.out.println(d);\n" +
+						"	     ^^^^\n" +
+						"Case constant of type null is incompatible with switch selector type void\n" +
+						"----------\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2387
+	// [Switch Expression] Empty Stack exception compiling switch expression with exception handling
+	public void testIssue2387() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					static class Y {}
+					void foo() {
+						new X().new Y(){};
+						System.out.println(switch (42) {
+						default -> {
+							try {
+								yield 42;
+							} finally {
+
+							}
+						}
+						});
+					}
+				}
+				"""
+				},
+				"----------\n"
+				+ "1. ERROR in X.java (at line 4)\n"
+				+ "	new X().new Y(){};\n"
+				+ "	^^^^^^^\n"
+				+ "Illegal enclosing instance specification for type X.Y\n"
+				+ "----------\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2423
+	// [Switch-expression] Internal compiler error: java.lang.ClassCastException while compiling switch expression with exception handling
+	public void testIssue2423() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					static String getString(int i) {
+						System.out.println(switch (42) {
+						default -> {
+							try {
+								yield 42;
+							} finally {
+
+							}
+						}
+						});
+						return new String[] { "Hello", "World" }[i];
+					}
+					public static void main(String [] args) {
+						System.out.println(getString(0));
+					}
+				}
+				"""
+				},
+				"42\n"
+				+ "Hello");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2447
+	// [Switch-expressions] Internal inconsistency warning at compile time and verify error at runtime
+	public void testIssue2447() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					static void foo(long l) {
+
+					}
+					public static void main(String[] args) {
+						long [] larray = { 10 };
+
+						foo(larray[0] = 10);
+						System.out.println(switch (42) {
+						default -> {
+							try {
+								yield 42;
+							} finally {
+
+							}
+						}
+						});
+					}
+				}
+				"""
+				},
+				"42");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2451
+	// Internal compiler error: java.lang.AssertionError: Anomalous/Inconsistent operand stack!
+	public void testIssue2451() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				import java.util.HashMap;
+				import java.util.Map;
+
+				public class X {
+
+					static void foo(long l) {
+
+					}
+
+					private static Map<String, Long> getLevelMapTable() {
+						Map<String, Long> t = new HashMap<>();
+						t.put(null, 0l);
+
+
+						System.out.println(switch (42) {
+						default -> {
+							try {
+								yield 42;
+							} finally {
+
+							}
+						}
+						});
+						return null;
+					}
+
+					public static void main(String[] args) {
+						getLevelMapTable();
+					}
+				}
+				"""
+				},
+				"42");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2453
+	// [Switch-expressions] Internal inconsistency warning at compile time and verify error at runtime
+	public void testIssue2453() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						System.out.println(double.class);
+						System.out.println(switch (42) {
+						default -> {
+							try {
+								yield 42;
+							} finally {
+
+							}
+						}
+						});
+					}
+				}
+				"""
+				},
+				"double\n42");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2455
+	// [Switch-expressions] java.lang.VerifyError: Bad type on operand stack
+	public void testIssue2455() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					static void foo(String s, int i) {
+						System.out.println("String = " + s + " int = " + i);
+					}
+					public static void main(String[] args) {
+
+						foo("Hello", switch (42) {
+						default -> {
+							try {
+								yield 42;
+							} finally {
+
+							}
+						}
+						});
+					}
+				}
+				"""
+				},
+				"String = Hello int = 42");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2485
+	// Empty stack error compiling project with broken classpath
+	public void testIssue2485() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+				    public static int convertOpcode(int from, int to) {
+				        return switch (from) {
+				            case 42 ->
+			                    switch (to) {
+			                        case 42 -> 42;
+			                        default -> throw new UnsupportedOperationException();
+			                    };
+				            default -> throw new UnsupportedOperationException();
+				        };
+				    }
+				    public static void main(String [] args) {
+				        System.out.println("With 42 & 42 = " + convertOpcode(42, 42));
+			        }
+				}
+				"""
+				},
+				"With 42 & 42 = 42");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2476
+	// [Switch expressions] java.lang.VerifyError: Bad type on operand stack
+	public void testIssue2476() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						boolean b = args != null;
+						foo(X[].class, b ? switch (42) {
+						default -> {
+							try {
+								yield 42;
+							} finally {
+
+							}
+						}
+						} : 10);
+					}
+
+					static void foo(Class<?> c, int v) {
+						System.out.println(c);
+						System.out.println(v);
+					}
+				}
+				"""
+				},
+				"class [LX;\n42");
+	}
+
+	// test mixing of -> and : in the same switch
+	public void testMixingCaseStyles() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						 int i = switch(args.length) {
+							 case 2: yield 2;
+							 default -> 1;
+							 case 1 : yield 2;
+						 };
+					}
+				}
+				"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	default -> 1;\n" +
+				"	^^^^^^^\n" +
+				"Mixing of '->' and ':' case statement styles is not allowed within a switch\n" +
+				"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3205
+	// [Switch Expressions] ECJ accepts ambiguous method invocation involving switch expressions with poly type result expression
+	public void testIssue3205() {
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				interface I {
+					void foo();
+				}
+
+				interface J {
+					void foo();
+				}
+
+				public class X implements I, J {
+
+					public void foo() {
+					}
+
+					static void doit() {}
+
+					public static void foo(Object o, J j) {
+						System.out.println("Object");
+					}
+
+					public static void foo(String s, I i) {
+						System.out.println(s);
+					}
+
+					public static void main(String[] args) {
+
+						// Compiles with both ECJ and javac
+						foo("OK", () -> {});
+
+						// Compiles with both ECJ and javac
+						foo("OK", args == null ? () -> {} : () -> {});
+
+						// Compiles with both ECJ and javac
+						foo("OK", X::doit);
+
+						// Rejected by both ECJ and javac.
+						//foo("OK", new X());
+
+						// Rejected by javac, accepted by ECJ.
+						foo("OK", switch (0) {
+									 	case 0 -> () -> {};
+									 	default -> () -> {};
+						});
+					}
+				}
+				"""
+				},
+				"OK\nOK\nOK\nOK");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3205
+	// [Switch Expressions] ECJ accepts ambiguous method invocation involving switch expressions with poly type result expression
+	public void testIssue3205_2() {
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"""
+				interface I {
+					void foo();
+				}
+
+				interface J {
+					void foo();
+				}
+
+				public class X implements I, J {
+
+					public void foo() {
+					}
+
+					static void doit() {}
+
+					public static void foo(Object o, J j) {
+						System.out.println("Object");
+					}
+
+					public static void foo(String s, I i) {
+						System.out.println(s);
+					}
+
+					public static void main(String[] args) {
+
+						// Compiles with both ECJ and javac
+						foo("OK", () -> {});
+
+						// Compiles with both ECJ and javac
+						foo("OK", args == null ? () -> {} : () -> {});
+
+						// Compiles with both ECJ and javac
+						foo("OK", X::doit);
+
+						// Rejected by both ECJ and javac.
+						foo("OK", new X());
+
+						// Rejected by javac, accepted by ECJ.
+						foo("OK", switch (0) {
+									 	case 0 -> () -> {};
+									 	default -> () -> {};
+						});
+					}
+				}
+				"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 36)\n" +
+				"	foo(\"OK\", new X());\n" +
+				"	^^^\n" +
+				"The method foo(Object, J) is ambiguous for the type X\n" +
+				"----------\n");
+	}
+
+	// fails when run as org.eclipse.jdt.core.tests.model.JavaSearchBugs14SwitchExpressionTests.testBug542559_0012
+	public void testBug542559_0012() {
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				import java.util.function.Supplier;
+				interface I0 { void i(); }
+				interface I1 extends I0 {}
+				interface I2 extends I0 {}
+				public class X {
+					I1 n1() { return null; }
+					<I extends I2> I n2() { return null; }
+
+					void test(int i, boolean b) {
+						m(switch (i) {
+							case 1 -> this::n1;
+							default -> this::n2;
+						}).i();
+					}
+
+					<M> M m(Supplier<M> m) { return m.get(); }
+
+					public static void main(String[] args) {
+						try {
+							new X().test(1, true);
+						} catch (NullPointerException e) {
+							System.out.println("NPE as expected!");
+						}
+					}
+				}
+				"""
+				},
+				"NPE as expected!");
+	}
+
+	// Disabled until https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3259 and
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3258 are comprehensively
+	// resolved. Same issue, but was "compensated" for earlier
+	public void _testBug545567_22_minimal() {
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X implements AutoCloseable {
+				   public static void main(String[] args) {
+				       int t = switch (1) {
+				               default -> {
+				                   try (X x = new X()) {
+				                       if (args.length < 1)
+				                    	   yield 10;
+				                       else
+				                           yield 12;
+				                       } finally {
+				                            yield 3;
+				                       }
+				               }
+				       };
+				       System.out.println(t);
+				   }
+
+				   public void close() throws Exception {}
+				}
+				"""
+				},
+				"3");
+	}
+
+	public void testConditionalSwitchLabel() {
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+				    public static void main(String[] args) {
+				        var foo = switch (10) {
+				            case (10 > 20 ? 10 :  10) : yield "special" ;
+				            default : yield "default value";
+				        };
+				        System.out.println(foo);
+				    }
+
+				}
+				"""
+				},
+				"special");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3283
+	// ECJ fails to recognize "yield" as a contextual keyword when there is a case fall-through
+	public void testIssue3283() {
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static int var = 0;
+					public static void main(String argv[]) {
+				        int j = switch(var){
+				        case 0: yield (0 + 42); // If this is removed, there's a different error
+				        case 1: // If I remove this line, the error goes away
+				        case 2: yield 1; // multiple errors
+				        default:
+				          throw new IllegalArgumentException("Unexpected value: " + var);
+				    };
+				    System.out.println("Yield = " + j);
+				    }
+				}
+				"""
+				},
+				"Yield = 42");
 	}
 }

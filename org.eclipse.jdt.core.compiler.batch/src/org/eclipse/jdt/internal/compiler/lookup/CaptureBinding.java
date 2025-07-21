@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -63,13 +63,10 @@ public class CaptureBinding extends TypeVariableBinding {
 			this.environment.typeSystem.cacheDerivedType(this, unannotated, this);
 			// propagate from wildcard to capture - use super version, because our own method propagates type annotations in the opposite direction:
 			super.setTypeAnnotations(wildcard.getTypeAnnotations(), wildcard.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled);
-			if (wildcard.hasNullTypeAnnotations())
-				this.tagBits |= TagBits.HasNullTypeAnnotation;
+			this.tagBits |= wildcard.tagBits & (TagBits.HasNullTypeAnnotation|TagBits.HasMissingType);
 		} else {
 			computeId(this.environment);
-			if(wildcard.hasNullTypeAnnotations()) {
-				this.tagBits |= (wildcard.tagBits & TagBits.AnnotationNullMASK) | TagBits.HasNullTypeAnnotation;
-			}
+			this.tagBits |= wildcard.tagBits & (TagBits.AnnotationNullMASK|TagBits.HasNullTypeAnnotation|TagBits.HasMissingType);
 		}
 	}
 
@@ -287,15 +284,15 @@ public class CaptureBinding extends TypeVariableBinding {
 		}
 	}
 	@Override
-	public ReferenceBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
+	public TypeBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
 		if (enterRecursiveProjectionFunction()) {
 			try {
-				for (int i = 0; i < mentionedTypeVariables.length; ++i) {
-					if (TypeBinding.equalsEquals(this, mentionedTypeVariables[i])) {
+				for (TypeBinding mentionedTypeVariable : mentionedTypeVariables) {
+					if (TypeBinding.equalsEquals(this, mentionedTypeVariable)) {
 						TypeBinding upperBoundForProjection = this.upperBoundForProjection();
 						if (upperBoundForProjection == null)
 							upperBoundForProjection = scope.getJavaLangObject();
-						return ((ReferenceBinding)upperBoundForProjection).upwardsProjection(scope, mentionedTypeVariables);
+						return upperBoundForProjection.upwardsProjection(scope, mentionedTypeVariables);
 					}
 				}
 				return this;
@@ -538,13 +535,13 @@ public class CaptureBinding extends TypeVariableBinding {
 	}
 
 	@Override
-	public ReferenceBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
-		ReferenceBinding result = null;
+	public TypeBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
+		TypeBinding result = null;
 		if (enterRecursiveProjectionFunction()) {
-			for (int i = 0; i < mentionedTypeVariables.length; ++i) {
-				if (TypeBinding.equalsEquals(this, mentionedTypeVariables[i])) {
+			for (TypeBinding mentionedTypeVariable : mentionedTypeVariables) {
+				if (TypeBinding.equalsEquals(this, mentionedTypeVariable)) {
 					if (this.lowerBound != null) {
-						result = (ReferenceBinding) this.lowerBound.downwardsProjection(scope, mentionedTypeVariables);
+						result = this.lowerBound.downwardsProjection(scope, mentionedTypeVariables);
 					}
 					break;
 				}

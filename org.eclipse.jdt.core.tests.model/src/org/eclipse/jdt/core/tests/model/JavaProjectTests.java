@@ -19,23 +19,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.IResourceChangeListener;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceDescription;
-import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.resources.IncrementalProjectBuilder;
-import org.eclipse.core.resources.ResourcesPlugin;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ILogListener;
 import org.eclipse.core.runtime.IPath;
@@ -44,33 +35,14 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.jdt.core.IAccessRule;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.IClasspathAttribute;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJarEntryResource;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaModelMarker;
-import org.eclipse.jdt.core.IJavaModelStatusConstants;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IOrdinaryClassFile;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
 import org.eclipse.jdt.internal.core.util.Util;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 public class JavaProjectTests extends ModifyingResourceTests {
 public JavaProjectTests(String name) {
@@ -375,7 +347,7 @@ public void testAddNonJavaResourcePackageFragmentRoot() throws JavaModelExceptio
 public void testAddZIPArchive1() throws Exception {
 	try {
 		IJavaProject p = createJavaProject("P");
-		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(getExternalResourcePath("externalLib.abc"), JavaCore.VERSION_1_4);
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(getExternalResourcePath("externalLib.abc"), CompilerOptions.getFirstSupportedJavaVersion());
 
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalResourcePath("externalLib.abc")), null, null)});
 		assertElementDescendants(
@@ -453,7 +425,7 @@ public void testAddZIPArchive4() throws Exception {
 		refreshExternalArchives(p);
 		expandAll(p);
 
-		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(getExternalResourcePath("externalLib.abc"), JavaCore.VERSION_1_4);
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(getExternalResourcePath("externalLib.abc"), CompilerOptions.getFirstSupportedJavaVersion());
 		refreshExternalArchives(p);
 		assertElementDescendants(
 			"Unexpected project content",
@@ -513,7 +485,7 @@ public void testAddZIPArchive6() throws Exception {
 					"Manifest-Version: 1.0\n" +
 					"Class-Path: lib2.jar\n",
 				},
-				JavaCore.VERSION_1_4);
+				CompilerOptions.getFirstSupportedJavaVersion());
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("/P/internalLib.abc"), null, null)});
 		waitForAutoBuild();
 		assertElementDescendants(
@@ -632,7 +604,7 @@ public void testChangeExternalLibFolder2() throws CoreException, IOException {
  */
 public void testChangeZIPArchive1() throws CoreException, IOException {
 	try {
-		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(getExternalResourcePath("externalLib.abc"), JavaCore.VERSION_1_4);
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(getExternalResourcePath("externalLib.abc"), CompilerOptions.getFirstSupportedJavaVersion());
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "bin");
 		refreshExternalArchives(p);
 		expandAll(p);
@@ -713,7 +685,7 @@ public void testChangeZIPArchive3() throws CoreException, IOException {
 	try {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {"/P/internalLib.abc"}, "bin");
 		String libPath = p.getProject().getLocation().toOSString()+ File.separator + "internalLib.abc";
-		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(libPath, JavaCore.VERSION_1_4);
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(libPath, CompilerOptions.getFirstSupportedJavaVersion());
 		expandAll(p);
 
 		createJar(
@@ -1306,7 +1278,7 @@ public void testPackageFragmentHasSubpackages() throws JavaModelException {
 	IPackageFragment lang= getPackageFragment("JavaProjectTests", getExternalJCLPathString(), "java.lang");
 
 	assertTrue("java should have subpackages",					java.hasSubpackages());
-	assertTrue("java.lang  should NOT have subpackages",			!lang.hasSubpackages());
+	assertTrue("java.lang  should have subpackages",			lang.hasSubpackages());
 }
 /*
  * Ensures that the structure is known for a package fragment on the classpath.
@@ -1685,6 +1657,18 @@ public void testPackageFragmentRootNonJavaResources9() throws Exception {
 			// the bug occurred only if META-INF/MANIFEST.MF was before META-INF in the ZIP file
 			// Altered the test for 534624. Usage of Zip file system for traversal no longer sees two different entries, but just the file.
 			zip.putNextEntry(new ZipEntry("META-INF/MANIFEST.MF"));
+
+			// a java class:
+			zip.putNextEntry(new ZipEntry("p1/p2/p3/java.class"));
+
+			// some more resources:
+			zip.putNextEntry(new ZipEntry("legalPackageName/MANIFEST2.MF"));
+			zip.putNextEntry(new ZipEntry("r1/r2/r3/resource.png"));
+			zip.putNextEntry(new ZipEntry("p/x.y/Test.txt"));
+			zip.putNextEntry(new ZipEntry("p1/-invalid-/p3/fake.class"));
+
+			/// just another resource:
+			zip.putNextEntry(new ZipEntry("invalid-/legalPackageName2/-MANIFEST.MF2"));
 		}
 		createJavaProject("P", new String[0], new String[] {getExternalResourcePath("lib.jar")}, "");
 		waitForManualRefresh();
@@ -1692,14 +1676,48 @@ public void testPackageFragmentRootNonJavaResources9() throws Exception {
 		Object[] resources = root.getNonJavaResources();
 		assertResourceTreeEquals(
 			"unexpected non java resources",
-			"META-INF\n" +
-			"  MANIFEST.MF",
-			resources);
+			"""
+			META-INF
+			  MANIFEST.MF
+			invalid-
+			  legalPackageName2
+			    -MANIFEST.MF2"""
+			,resources);
+		IJavaElement[] children= root.getChildren();
+		Arrays.sort(children, Comparator.comparing(IJavaElement::getElementName));
+		String expected = """
+				<default> [in lib.jar]
+				legalPackageName [in lib.jar]
+				p [in lib.jar]
+				p1 [in lib.jar]
+				p1.p2 [in lib.jar]
+				p1.p2.p3 [in lib.jar]
+				r1 [in lib.jar]
+				r1.r2 [in lib.jar]
+				r1.r2.r3 [in lib.jar]""";
+		expected = expected.replace("lib.jar", root.getPath().toOSString());
+		assertElementsEqual("Unexpected package fragment roots", expected, children);
+
+		IPackageFragment pf= getPackageFragment("P", getExternalResourcePath("lib.jar"), "legalPackageName");
+		assertResourceTreeEquals(
+			"unexpected non java resources",
+			"""
+			MANIFEST2.MF"""
+			, pf.getNonJavaResources());
+		IPackageFragment pf2= getPackageFragment("P", getExternalResourcePath("lib.jar"), "p1");
+		assertResourceTreeEquals(
+			"unexpected non java resources",
+			"""
+			-invalid-
+			  p3
+			    fake.class"""
+			, pf2.getNonJavaResources());
 	} finally {
 		deleteExternalResource("lib.jar");
 		deleteProject("P");
 	}
 }
+
 /**
  * Test raw entry inference performance for package fragment root
  */
@@ -1771,8 +1789,8 @@ public void testPackageFragmentRootRawEntry2() throws CoreException, IOException
 	}
 }
 /**
- * @bug 162104: NPE in PackageExplorerContentProvider.getPackageFragmentRoots()
- * @test That a JME is thrown when a classpath entry is no longer on the classpath
+ * bug 162104: NPE in PackageExplorerContentProvider.getPackageFragmentRoots()
+ * test That a JME is thrown when a classpath entry is no longer on the classpath
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=162104"
  */
 public void testPackageFragmentRootRawEntry3() throws CoreException, IOException {
@@ -1958,6 +1976,9 @@ public void testProjectGetPackageFragments() throws JavaModelException {
 		"java [in "+ getExternalJCLPathString() + "]\n" +
 		"java.io [in "+ getExternalJCLPathString() + "]\n" +
 		"java.lang [in "+ getExternalJCLPathString() + "]\n" +
+		"java.lang.annotation [in "+ getExternalJCLPathString() + "]\n" +
+		"java.lang.invoke [in "+ getExternalJCLPathString() + "]\n" +
+		"java.util [in "+ getExternalJCLPathString() + "]\n" +
 		"p [in lib.jar [in JavaProjectTests]]\n" +
 		"p [in lib142530.jar [in JavaProjectTests]]\n" +
 		"p [in lib148949.jar [in JavaProjectTests]]\n" +
@@ -2191,7 +2212,7 @@ public void testRemoveExternalLibFolder3() throws CoreException {
  */
 public void testRemoveZIPArchive1() throws CoreException, IOException {
 	try {
-		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(getExternalResourcePath("externalLib.abc"), JavaCore.VERSION_1_4);
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(getExternalResourcePath("externalLib.abc"), CompilerOptions.getFirstSupportedJavaVersion());
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		refreshExternalArchives(p);
 		expandAll(p);
@@ -2234,7 +2255,7 @@ public void testRemoveZIPArchive2() throws CoreException {
  */
 public void testRemoveZIPArchive3() throws CoreException, IOException {
 	try {
-		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(getExternalResourcePath("externalLib.abc"), JavaCore.VERSION_1_4);
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(getExternalResourcePath("externalLib.abc"), CompilerOptions.getFirstSupportedJavaVersion());
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		refreshExternalArchives(p);
 		expandAll(p);
@@ -2258,7 +2279,7 @@ public void testRemoveZIPArchive3() throws CoreException, IOException {
 public void testRemoveZIPArchive4() throws CoreException, IOException {
 	try {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {"/P/internalLib.abc"}, "");
-		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(p.getProject().getLocation().toOSString()+ File.separator + "internalLib.abc", JavaCore.VERSION_1_4);
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(p.getProject().getLocation().toOSString()+ File.separator + "internalLib.abc", CompilerOptions.getFirstSupportedJavaVersion());
 		expandAll(p);
 
 		setClasspath(p, new IClasspathEntry[] {});
@@ -2399,7 +2420,7 @@ public void testJdkLevelRoot() throws JavaModelException {
  * Test User Library preference. External jar file referenced in library entry does not exist.
  * It does not need to as we only test the preference value...
  *
- * @test bug 88719: UserLibrary.serialize /createFromString need support for access restriction / attributes
+ * test bug 88719: UserLibrary.serialize /createFromString need support for access restriction / attributes
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=88719"
  */
 public void testUserLibrary() throws JavaModelException {
@@ -2468,7 +2489,7 @@ public void testUserLibrary() throws JavaModelException {
 }
 
 /**
- * @bug 148859: [model][delta] Package Explorer only shows default package after import
+ * bug 148859: [model][delta] Package Explorer only shows default package after import
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=148859"
  */
 public void testBug148859() throws CoreException {
@@ -2482,8 +2503,12 @@ public void testBug148859() throws CoreException {
 				}
 			},
 			null);
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		waitForManualRefresh();
-		waitForAutoBuild();
 		IPackageFragmentRoot root = getPackageFragmentRoot("P", "");
 		assertElementsEqual(
 			"Unexpected children size in 'P' default source folder",
@@ -2496,8 +2521,8 @@ public void testBug148859() throws CoreException {
 }
 
 /**
- * @bug 183923: [prefs] NPE in JavaProject#setOptions
- * @test Verify that no NPE occurs when options is set on an invalid project
+ * bug 183923: [prefs] NPE in JavaProject#setOptions
+ * test Verify that no NPE occurs when options is set on an invalid project
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=183923"
  */
 public void testBug183923() throws CoreException, IOException {
@@ -2514,7 +2539,7 @@ public void testBug183923() throws CoreException, IOException {
 public void testBug360164() throws IOException, CoreException {
 	String libPath = getWorkspacePath()+"JavaProjectTests/bin/bug360164.jar";
 	try {
-		this.createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB", libPath}, "bin", JavaCore.VERSION_1_4);
+		this.createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB", libPath}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		IFile file = createFile("/P/src/X.java",
 				"import p360164.Provider;\n" +
 				"import p360164.MyEnum;\n" +
@@ -2546,7 +2571,7 @@ public void testBug360164() throws IOException, CoreException {
 public void testBug360164a() throws IOException, CoreException {
 	String libPath = getWorkspacePath()+"JavaProjectTests/bin/bug360164.jar";
 	try {
-		this.createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB", libPath}, "bin", JavaCore.VERSION_1_4);
+		this.createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB", libPath}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		IFile file = createFile("/P/src/X.java",
 				"import p360164.Provider;\n" +
 				"import p360164.MyEnum;\n" +
@@ -2561,55 +2586,18 @@ public void testBug360164a() throws IOException, CoreException {
 		ProblemRequestor problemRequestor = new ProblemRequestor();
 		WorkingCopyOwner owner = newWorkingCopyOwner(problemRequestor);
 		unit.getWorkingCopy(owner, null);
-		assertProblems("Unexpected problems",
+		assertProblems("",
 				"----------\n" +
-				"1. ERROR in /P/src/X.java\n" +
-				"The type java.lang.Enum cannot be resolved. It is indirectly referenced from required type p360164.MyEnum\n" +
 				"----------\n",
 				problemRequestor);
 	} finally {
 		this.deleteProject("P");
 	}
 }
-// Bug 360317 - [compiler] report switch over enum in 1.4- mode
-public void testBug360317() throws IOException, CoreException {
-	// use the setup from testBug360164():
-	String libPath = getWorkspacePath()+"JavaProjectTests/bin/bug360164.jar";
-	try {
-		this.createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB", libPath}, "bin", JavaCore.VERSION_1_4);
-		String sourceX = "import p360164.Provider;\n" +
-						 "import p360164.MyEnum;\n" +
-						 "public class X {\n" +
-						 "    int foo(Provider p) {\n" +
-						 "        MyEnum e = p.getE();\n" +
-						 "        switch (e) {\n" +
-						 "        case ONE: return 1;\n" +
-						 "        case TWO: return 2;\n" +
-						 "        }\n" +
-						 "        return 0;\n" +
-						 "    }\n" +
-						 "}";
-		IFile file = createFile("/P/src/X.java", sourceX);
-		ICompilationUnit unit = (ICompilationUnit)JavaCore.create(file);
-		ProblemRequestor problemRequestor = new ProblemRequestor();
-		problemRequestor.initialize(sourceX.toCharArray());
-		WorkingCopyOwner owner = newWorkingCopyOwner(problemRequestor);
-		unit.getWorkingCopy(owner, null);
-		assertProblems("Unexpected problems",
-				"----------\n" +
-				"1. ERROR in /P/src/X.java (at line 6)\n" +
-				"	switch (e) {\n" +
-				"	        ^\n" +
-				"Cannot switch on an enum value for source level below 1.5. Only convertible int values are permitted\n" +
-				"----------\n",
-				problemRequestor);
-	} finally {
-		this.deleteProject("P");
-	}
-}
+
 /**
- * @bug 347386: Cannot delete package from java project (two source and output folders)
- * @test Verify that when source folders are set specific output location, deleted packge fragments
+ * bug 347386: Cannot delete package from java project (two source and output folders)
+ * test Verify that when source folders are set specific output location, deleted packge fragments
  * 		are not recreated as part of output generation.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=347386"
  */
@@ -2651,8 +2639,8 @@ public void testBug347386() throws CoreException {
 	}
 }
 /**
- * @bug 351697: java.lang.ClassCastException
- * @test Verify that ClassCastException is not thrown when a .class file is copied to a wrong source package.
+ * bug 351697: java.lang.ClassCastException
+ * test Verify that ClassCastException is not thrown when a .class file is copied to a wrong source package.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=351697"
  */
 public void testBug351697() throws Exception {
@@ -2712,9 +2700,10 @@ public void testBug462756() throws CoreException {
 		IJavaProject proj = this.createJavaProject("P", new String[] {"src"}, new String[]{}, "bin");
 		proj.getProject().open(null);
 		createFolder("/P/.settings");
-		String content = "org.eclipse.jdt.core.compiler.codegen.targetPlatform=1.7\n" +
-				"org.eclipse.jdt.core.compiler.compliance=1.7\n" +
-				"org.eclipse.jdt.core.compiler.source=1.7\n";
+		String compliance = CompilerOptions.getFirstSupportedJavaVersion();
+		String content = "org.eclipse.jdt.core.compiler.codegen.targetPlatform=" + compliance + "\n" +
+				"org.eclipse.jdt.core.compiler.compliance=" + compliance + "\n" +
+				"org.eclipse.jdt.core.compiler.source=" + compliance + "\n";
 
 		IFile file = getFile("/P/.settings/org.eclipse.jdt.core.prefs");
 		try (BufferedWriter output = new BufferedWriter(new FileWriter(file.getLocation().toFile()))) {
@@ -2736,7 +2725,7 @@ public void testBug462756() throws CoreException {
 		if (buffer.length() > 0) {
 			fail(buffer.toString());
 		}
-		assertEquals("Compliance should be updated", "1.7", proj.getOption("org.eclipse.jdt.core.compiler.compliance", true));
+		assertEquals("Compliance should be updated", CompilerOptions.getFirstSupportedJavaVersion(), proj.getOption("org.eclipse.jdt.core.compiler.compliance", true));
 	} finally {
 		 this.deleteProject("P");
 		 JavaCore.setOptions(javaCoreOptions);
@@ -2750,7 +2739,7 @@ public void testBug490724() throws CoreException {
 	IJavaProject project14 = null;
 	IJavaProject project15 = null;
 	try {
-		project15 = createJavaProject("Bug490724_15", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+		project15 = createJavaProject("Bug490724_15", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
 		createFolder("/Bug490724_15/src/p2");
 		createFile(
 				"/Bug490724_15/src/p2/Klass.java",
@@ -2762,14 +2751,15 @@ public void testBug490724() throws CoreException {
 				"	void addMethod(MethodInfo<String>.InnerMethodInfo<String> mi) { }" +
 				"}"
 			);
-		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
 
-		project14 = createJavaProject("BugBug490724_14", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
-		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
-		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_3);
-		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_3);
+		project14 = createJavaProject("BugBug490724_14", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
+		project14.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, "ignore");
 
 		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
 		int oldLength = oldClasspath.length;
@@ -2811,7 +2801,7 @@ public void testBug491354() throws CoreException {
 	IJavaProject project14 = null;
 	IJavaProject project15 = null;
 	try {
-		project15 = createJavaProject("Bug491354_15", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+		project15 = createJavaProject("Bug491354_15", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
 		createFolder("/Bug491354_15/src/p");
 		createFile(
 				"/Bug491354_15/src/p/ServiceTracker.java",
@@ -2822,14 +2812,15 @@ public void testBug491354() throws CoreException {
 				"}\n" +
 				""
 				);
-		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
 
-		project14 = createJavaProject("Bug491354_14", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
-		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
-		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_3);
-		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_3);
+		project14 = createJavaProject("Bug491354_14", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
+		project14.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
+		project14.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, "ignore");
 
 		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
 		int oldLength = oldClasspath.length;
@@ -2866,7 +2857,7 @@ public void testBug491354() throws CoreException {
 public void testBug501220() throws CoreException {
 	IJavaProject jdkPrj = null, swtPrj = null, egitPrj = null;
 	try {
-		jdkPrj = createJavaProject("JDK8", new String[]{"src"}, new String[] {"JCL_LIB"}, null, null, "bin", new String[]{"bin"}, null, null, "1.8");
+		jdkPrj = createJavaProject("JDK8", new String[]{"src"}, new String[] {"JCL18_LIB"}, null, null, "bin", new String[]{"bin"}, null, null, CompilerOptions.getFirstSupportedJavaVersion());
 		createFolder("/JDK8/src/jdk8");
 		createFile("/JDK8/src/jdk8/MyConsumer.java",
 				"package jdk8;\n" +
@@ -2875,7 +2866,7 @@ public void testBug501220() throws CoreException {
 				"    void accept(T t);\n" +
 				"}\n");
 
-		swtPrj = createJavaProject("SWT", new String[]{"src"}, new String[] {"JCL_LIB"}, new String[]{"/JDK8"}, null, "bin", new String[]{"bin"}, null, null, "1.8");
+		swtPrj = createJavaProject("SWT", new String[]{"src"}, new String[] {"JCL18_LIB"}, new String[]{"/JDK8"}, null, "bin", new String[]{"bin"}, null, null, CompilerOptions.getFirstSupportedJavaVersion());
 		createFolder("/SWT/src/swt");
 		createFile("/SWT/src/swt/EventObject.java",
 				"package swt;\n" +
@@ -2902,7 +2893,7 @@ public void testBug501220() throws CoreException {
 				"		};\n" +
 				"	}\n" +
 				"}");
-		egitPrj = createJavaProject("EGit", new String[]{"src"}, new String[] {"JCL_LIB"}, new String[]{"/SWT"}, null, "bin", new String[]{"bin"}, null, null, "1.8");
+		egitPrj = createJavaProject("EGit", new String[]{"src"}, new String[] {"JCL18_LIB"}, new String[]{"/SWT"}, null, "bin", new String[]{"bin"}, null, null, CompilerOptions.getFirstSupportedJavaVersion());
 		egitPrj.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 		createFolder("/EGit/src/egit");
 		createFile("/EGit/src/egit/UIUtils.java",
@@ -2936,7 +2927,7 @@ public void testBug501220() throws CoreException {
 public void testBug519435() throws Exception {
 	try {
 		final String externalResourcePath = getExternalResourcePath("bug519435.jar");
-		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(externalResourcePath, JavaCore.VERSION_1_4);
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(externalResourcePath, CompilerOptions.getFirstSupportedJavaVersion());
 		createJavaProject("P", new String[0], new String[] {externalResourcePath}, "");
 		IProject project = getProject("P");
 		waitForManualRefresh();

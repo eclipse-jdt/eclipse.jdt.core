@@ -12,17 +12,18 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import junit.framework.Test;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
-import junit.framework.Test;
-
 public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletionTests {
+	private static int UNQUALIFIED_REL = R_DEFAULT + R_RESOLVED + R_CASE + R_INTERESTING + R_UNQUALIFIED
+			+ R_NON_RESTRICTED;
 
 
 	static {
-//		 TESTS_NAMES = new String[]{"test012"};
+		 //TESTS_NAMES = new String[]{"testGH2299_SwitchStatement"};
 	}
 
 	public CompletionTestsForRecordPattern(String name) {
@@ -52,7 +53,7 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 				+ "  public static void printLowerRight(Rectangle r) {\n"
 				+ "    int res = switch(r) {\n"
 				+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-				+ "                               ColoredPoint lr) r1  -> {\n"
+				+ "                               ColoredPoint lr)  -> {\n"
 				+ "        		yield 1;  \n"
 				+ "        } \n"
 				+ "        default -> 0;\n"
@@ -89,7 +90,7 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 				+ "  public static void printLowerRight(Rectangle r) {\n"
 				+ "    int res = switch(r) {\n"
 				+ "       case /*here*/ Rectangl (ColoredPoint(Point(int x, int y), Color c),\n"
-				+ "                               ColoredPoint lr) r1  -> {\n"
+				+ "                               ColoredPoint lr)  -> {\n"
 				+ "        		yield 1;  \n"
 				+ "        } \n"
 				+ "        default -> 0;\n"
@@ -111,7 +112,7 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 		String completeBehind = "/*here*/ Rectangl";
 		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-		assertResults("Rectangle[TYPE_REF]{Rectangle, , LRectangle;, null, null, 52}",
+		assertResults("Rectangle[TYPE_REF]{Rectangle, , LRectangle;, null, null, 82}",
 				requestor.getResults());
 
 	}
@@ -125,7 +126,7 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 				+ "  public static void printLowerRight(Rectangle r) {\n"
 				+ "    int res = switch(r) {\n"
 				+ "       case  Rectangle(/*here*/ ColoredPoin(Point(int x, int y), Color c),\n"
-				+ "                               ColoredPoint lr) r1  -> {\n"
+				+ "                               ColoredPoint lr)  -> {\n"
 				+ "        		yield 1;  \n"
 				+ "        } \n"
 				+ "        default -> 0;\n"
@@ -161,7 +162,7 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 				+ "  public static void printLowerRight(Rectangle r) {\n"
 				+ "    int res = switch(r) {\n"
 				+ "       case  Rectangle(ColoredPoint(/*here*/ Poin(int x, int y), Color c),\n"
-				+ "                               ColoredPoint lr) r1  -> {\n"
+				+ "                               ColoredPoint lr)  -> {\n"
 				+ "        		yield 1;  \n"
 				+ "        } \n"
 				+ "        default -> 0;\n"
@@ -197,7 +198,7 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 				+ "  public static void printLowerRight(Rectangle r) {\n"
 				+ "    int res = switch(r) {\n"
 				+ "       case  Rectangle(ColoredPoint( Point(int x, int y), /*here*/ Colo c),\n"
-				+ "                               ColoredPoint lr) r1  -> {\n"
+				+ "                               ColoredPoint lr)  -> {\n"
 				+ "        		yield 1;  \n"
 				+ "        } \n"
 				+ "        default -> 0;\n"
@@ -556,6 +557,261 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 			assertResults("ar_ray[LOCAL_VARIABLE_REF]{ar_ray, null, [LColoredRectangle;, ar_ray, null, 52}",
+					requestor.getResults());
+		}
+
+		public void testGH2299_SwitchStatement() throws JavaModelException {
+			this.workingCopies = new ICompilationUnit[2];
+			this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchRecordPattern.java", """
+					public class SwitchRecordPattern {
+						public void foo(java.io.Serializable o) {
+							switch(o) {
+								case Person(var name, var age) : {
+									/*here*/nam
+								}
+							}
+						}
+					}\
+					""");
+			this.workingCopies[1] = getWorkingCopy("/Completion/src/Person.java", """
+					public record Person(String name, int age) implements java.io.Serializable  {}\
+					""");
+			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+			requestor.allowAllRequiredProposals();
+			String str = this.workingCopies[0].getSource();
+			String completeBehind = "/*here*/nam";
+			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+			assertResults("name[LOCAL_VARIABLE_REF]{name, null, Ljava.lang.String;, name, null, " + UNQUALIFIED_REL + "}",
+					requestor.getResults());
+		}
+
+		public void testGH2299_SwitchExpression() throws JavaModelException {
+			this.workingCopies = new ICompilationUnit[2];
+			this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchRecordPattern.java", """
+					public class SwitchRecordPattern {
+						public void foo(java.io.Serializable o) {
+							String result = switch(o) {
+								case Person(var name, var age) -> {
+									/*here*/nam
+								}
+							};
+						}
+					}\
+					""");
+			this.workingCopies[1] = getWorkingCopy("/Completion/src/Person.java", """
+					public record Person(String name, int age) implements java.io.Serializable  {}\
+					""");
+			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+			requestor.allowAllRequiredProposals();
+			String str = this.workingCopies[0].getSource();
+			String completeBehind = "/*here*/nam";
+			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+			assertResults("name[LOCAL_VARIABLE_REF]{name, null, Ljava.lang.String;, name, null, " + UNQUALIFIED_REL + "}",
+					requestor.getResults());
+		}
+
+		public void testGH2299_Switch_StatementsBeforeCompletion() throws JavaModelException {
+			this.workingCopies = new ICompilationUnit[2];
+			this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchRecordPattern.java", """
+					public class SwitchRecordPattern {
+						public void foo(java.io.Serializable o) {
+							switch(o) {
+								case Person(var name, var age): {
+									System.out.println(age);
+									/*here*/nam
+								}
+							};
+						}
+					}\
+					""");
+			this.workingCopies[1] = getWorkingCopy("/Completion/src/Person.java", """
+					public record Person(String name, int age) implements java.io.Serializable  {}\
+					""");
+			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+			requestor.allowAllRequiredProposals();
+			String str = this.workingCopies[0].getSource();
+			String completeBehind = "/*here*/nam";
+			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+			assertResults("name[LOCAL_VARIABLE_REF]{name, null, Ljava.lang.String;, name, null, " + UNQUALIFIED_REL + "}",
+					requestor.getResults());
+		}
+
+		public void testGH2299_Switch_CompletionInSideDifferentControlBlock() throws JavaModelException {
+			this.workingCopies = new ICompilationUnit[2];
+			this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchRecordPattern.java", """
+					public class SwitchRecordPattern {
+						public void foo(java.io.Serializable o) {
+							switch(o) {
+								case Person(var name, var age): {
+									if (age > 10) {
+										/*here*/nam
+									}
+								}
+							};
+						}
+					}\
+					""");
+			this.workingCopies[1] = getWorkingCopy("/Completion/src/Person.java", """
+					public record Person(String name, int age) implements java.io.Serializable  {}\
+					""");
+			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+			requestor.allowAllRequiredProposals();
+			String str = this.workingCopies[0].getSource();
+			String completeBehind = "/*here*/nam";
+			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+			assertResults("name[LOCAL_VARIABLE_REF]{name, null, Ljava.lang.String;, name, null, " + UNQUALIFIED_REL + "}",
+					requestor.getResults());
+		}
+
+		public void testGH2299_Switch_CompletionInsideLambda() throws JavaModelException {
+			this.workingCopies = new ICompilationUnit[2];
+			this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchRecordPattern.java", """
+					interface List<T> { Stream<T> stream(); }
+					interface Stream<T> { Stream<T> filter(Predicate<T> pred); }
+					interface Predicate<T> { boolean test(T t); }
+					public class SwitchRecordPattern {
+						public void foo(java.io.Serializable o, List<String> col) {
+							switch(o) {
+								case Person(var name, var age): {
+									col.stream().filter(el -> el.equals(/*here*/nam))
+								}
+							};
+						}
+					}\
+					""");
+			this.workingCopies[1] = getWorkingCopy("/Completion/src/Person.java", """
+					public record Person(String name, int age) implements java.io.Serializable  {}\
+					""");
+			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+			requestor.allowAllRequiredProposals();
+			String str = this.workingCopies[0].getSource();
+			String completeBehind = "/*here*/nam";
+			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+			assertResults("name[LOCAL_VARIABLE_REF]{name, null, Ljava.lang.String;, name, null, " + (UNQUALIFIED_REL + R_PACKAGE_EXPECTED_TYPE) + "}",
+					requestor.getResults());
+		}
+
+		public void testGH2299_Switch_SwitchInsideLambda() throws JavaModelException {
+			this.workingCopies = new ICompilationUnit[2];
+			this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchRecordPattern.java", """
+					interface List<T> { Stream<T> stream(); }
+					interface Stream<T> { Stream<T> filter(Predicate<T> pred); }
+					interface Predicate<T> { boolean test(T t); }
+					public class SwitchRecordPattern {
+						public void foo(List<java.io.Serializable> col) {
+							col.stream().filter(el -> {
+								switch(el) {
+									case Person(var name, var age): {
+										/*here*/nam
+									}
+								};
+							})
+						}
+					}\
+					""");
+			this.workingCopies[1] = getWorkingCopy("/Completion/src/Person.java", """
+					public record Person(String name, int age) implements java.io.Serializable  {}\
+					""");
+			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+			requestor.allowAllRequiredProposals();
+			String str = this.workingCopies[0].getSource();
+			String completeBehind = "/*here*/nam";
+			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+			assertResults("name[LOCAL_VARIABLE_REF]{name, null, Ljava.lang.String;, name, null, " + UNQUALIFIED_REL + "}",
+					requestor.getResults());
+		}
+
+		public void testGH2299_SwitchInsideAnotherControlStatement() throws JavaModelException {
+			this.workingCopies = new ICompilationUnit[2];
+			this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchRecordPattern.java", """
+					public class SwitchRecordPattern {
+						public void foo(java.util.List<java.io.Serializable> col) {
+							if(col.size() > 1) {
+								switch(col.get(0)) {
+									case Person(var name, var age): {
+										/*here*/nam
+									}
+								};
+							}
+						}
+					}\
+					""");
+			this.workingCopies[1] = getWorkingCopy("/Completion/src/Person.java", """
+					public record Person(String name, int age) implements java.io.Serializable  {}\
+					""");
+			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+			requestor.allowAllRequiredProposals();
+			String str = this.workingCopies[0].getSource();
+			String completeBehind = "/*here*/nam";
+			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+			assertResults("name[LOCAL_VARIABLE_REF]{name, null, Ljava.lang.String;, name, null, " + UNQUALIFIED_REL + "}",
+					requestor.getResults());
+		}
+
+		public void testGH2299_NestedSwitchRecordPatternsCompletionVariableOnParentSwitch() throws JavaModelException {
+			this.workingCopies = new ICompilationUnit[2];
+			this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchRecordPattern.java", """
+					public class SwitchRecordPattern {
+						public void foo(java.io.Serializable parent, java.io.Serializable child) {
+							switch(parent) {
+								case Person(var name, var age): {
+									switch(child) {
+										case Person(var childName, var childAge): {
+											/*here*/nam
+										}
+									}
+								}
+							};
+						}
+					}\
+					""");
+			this.workingCopies[1] = getWorkingCopy("/Completion/src/Person.java", """
+					public record Person(String name, int age) implements java.io.Serializable  {}\
+					""");
+			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+			requestor.allowAllRequiredProposals();
+			String str = this.workingCopies[0].getSource();
+			String completeBehind = "/*here*/nam";
+			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+			assertResults("name[LOCAL_VARIABLE_REF]{name, null, Ljava.lang.String;, name, null, " + UNQUALIFIED_REL + "}",
+					requestor.getResults());
+		}
+
+		public void testGH2299_NestedSwitchRecordPatternsCompletionVariableOnChildSwitch() throws JavaModelException {
+			this.workingCopies = new ICompilationUnit[2];
+			this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchRecordPattern.java", """
+					public class SwitchRecordPattern {
+						public void foo(java.io.Serializable parent, java.io.Serializable child) {
+							switch(parent) {
+								case Person(var name, var age): {
+									switch(child) {
+										case Person(var childName, var childAge): {
+											/*here*/childNa
+										}
+									}
+								}
+							};
+						}
+					}\
+					""");
+			this.workingCopies[1] = getWorkingCopy("/Completion/src/Person.java", """
+					public record Person(String name, int age) implements java.io.Serializable  {}\
+					""");
+			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+			requestor.allowAllRequiredProposals();
+			String str = this.workingCopies[0].getSource();
+			String completeBehind = "/*here*/childNa";
+			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+			assertResults("childName[LOCAL_VARIABLE_REF]{childName, null, Ljava.lang.String;, childName, null, " + UNQUALIFIED_REL + "}",
 					requestor.getResults());
 		}
 }

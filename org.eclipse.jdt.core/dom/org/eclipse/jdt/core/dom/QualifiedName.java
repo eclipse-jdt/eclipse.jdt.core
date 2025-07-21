@@ -85,13 +85,13 @@ public class QualifiedName extends Name {
 	 * The identifier; lazily initialized; defaults to a unspecified, legal
 	 * Java identifier.
 	 */
-	private Name qualifier = null;
+	private volatile Name qualifier;
 
 	/**
 	 * The name being qualified; lazily initialized; defaults to a unspecified,
 	 * legal Java identifier.
 	 */
-	private SimpleName name = null;
+	private volatile SimpleName name;
 
 	/**
 	 * Creates a new AST node for a qualified name owned by the given AST.
@@ -176,8 +176,7 @@ public class QualifiedName extends Name {
 			synchronized (this) {
 				if (this.qualifier == null) {
 					preLazyInit();
-					this.qualifier = new SimpleName(this.ast);
-					postLazyInit(this.qualifier, QUALIFIER_PROPERTY);
+					this.qualifier = postLazyInit(new SimpleName(this.ast), QUALIFIER_PROPERTY);
 				}
 			}
 		}
@@ -216,8 +215,7 @@ public class QualifiedName extends Name {
 			synchronized (this) {
 				if (this.name == null) {
 					preLazyInit();
-					this.name = new SimpleName(this.ast);
-					postLazyInit(this.name, NAME_PROPERTY);
+					this.name = postLazyInit(new SimpleName(this.ast), NAME_PROPERTY);
 				}
 			}
 		}

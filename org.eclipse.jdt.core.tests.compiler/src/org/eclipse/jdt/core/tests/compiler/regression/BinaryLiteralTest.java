@@ -14,10 +14,8 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
 import junit.framework.Test;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class BinaryLiteralTest extends AbstractRegressionTest {
@@ -25,7 +23,7 @@ public class BinaryLiteralTest extends AbstractRegressionTest {
 		super(name);
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_7);
+		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
 	}
 
 	public static Class testClass() {
@@ -80,9 +78,9 @@ public class BinaryLiteralTest extends AbstractRegressionTest {
 	}
 	public void test004() {
 		Map customedOptions = getCompilerOptions();
-		customedOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
-		customedOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
-		customedOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+		customedOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+		customedOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+		customedOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -92,21 +90,16 @@ public class BinaryLiteralTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}"
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(0b1110000);\n" +
-			"	                   ^^^^^^^^^\n" +
-			"Binary literals can only be used with source level 1.7 or greater\n" +
-			"----------\n",
+			"",
 			null,
 			true,
 			customedOptions);
 	}
 	public void test005() {
 		Map customedOptions = getCompilerOptions();
-		customedOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
-		customedOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
-		customedOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+		customedOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+		customedOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+		customedOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -116,21 +109,16 @@ public class BinaryLiteralTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}"
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(-0b1110000);\n" +
-			"	                    ^^^^^^^^^\n" +
-			"Binary literals can only be used with source level 1.7 or greater\n" +
-			"----------\n",
+			"",
 			null,
 			true,
 			customedOptions);
 	}
 	public void test006() {
 		Map customedOptions = getCompilerOptions();
-		customedOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
-		customedOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
-		customedOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+		customedOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+		customedOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+		customedOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -140,12 +128,14 @@ public class BinaryLiteralTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}"
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	System.out.println(0b1113000);\n" +
-			"	                   ^^^^^\n" +
-			"Binary literals can only be used with source level 1.7 or greater\n" +
-			"----------\n",
+			"""
+----------
+1. ERROR in X.java (at line 3)
+	System.out.println(0b1113000);
+	                        ^^^^
+Syntax error on token "3000", delete this token
+----------
+			""",
 			null,
 			true,
 			customedOptions);

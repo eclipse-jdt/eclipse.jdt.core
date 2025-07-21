@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.core;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
-
 import org.eclipse.jdt.internal.core.util.LRUCache;
 import org.eclipse.jdt.internal.core.util.Messages;
 
@@ -46,7 +45,7 @@ import org.eclipse.jdt.internal.core.util.Messages;
  *	<p>Use the <code>#peek(Object)</code> and <code>#disableTimestamps()</code> method to
  *	circumvent the timestamp feature of the cache.  This feature is intended to be used
  *	only when the <code>#close(LRUCacheEntry)</code> method causes changes to the cache.
- *	For example, if a parent closes its children when </code>#close(LRUCacheEntry)</code> is called,
+ *	For example, if a parent closes its children when <code>#close(LRUCacheEntry)</code> is called,
  *	it should be careful not to change the LRU linked list.  It can be sure it is not causing
  *	problems by calling <code>#peek(Object)</code> instead of <code>#get(Object)</code> method.
  *

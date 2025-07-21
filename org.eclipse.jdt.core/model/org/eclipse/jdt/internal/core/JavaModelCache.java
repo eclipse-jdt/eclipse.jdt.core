@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -17,7 +17,6 @@
 package org.eclipse.jdt.internal.core;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -25,6 +24,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.internal.compiler.env.IBinaryInfo;
 import org.eclipse.jdt.internal.compiler.env.IElementInfo;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.util.LRUCache;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -294,6 +294,10 @@ protected void removeInfo(JavaElement element) {
 		case IJavaElement.COMPILATION_UNIT:
 		case IJavaElement.CLASS_FILE:
 			this.openableCache.remove((ITypeRoot) element);
+			if (element.getElementName().equals(TypeConstants.MODULE_INFO_FILE_NAME_STRING)
+					|| element.getElementName().equals(TypeConstants.MODULE_INFO_CLASS_NAME_STRING)) {
+				removeInfo(element.getJavaProject());
+			}
 			break;
 		default:
 			this.childrenCache.remove(element);

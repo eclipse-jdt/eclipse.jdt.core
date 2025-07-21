@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.core;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.ITypeRoot;
@@ -96,7 +95,7 @@ public interface AbstractModule extends IModuleDescription {
 			}
 			return result.toArray(new String[result.size()]);
 		}
-		return new String[0];
+		return JavaElement.NO_STRINGS;
 	}
 	@Override
 	default String[] getOpenedPackageNames(IModuleDescription targetModule) throws JavaModelException {
@@ -112,7 +111,7 @@ public interface AbstractModule extends IModuleDescription {
 			}
 			return result.toArray(new String[result.size()]);
 		}
-		return new String[0];
+		return JavaElement.NO_STRINGS;
 	}
 	default IModuleReference[] getRequiredModules() throws JavaModelException {
 		return getModuleInfo().requires();
@@ -130,7 +129,7 @@ public interface AbstractModule extends IModuleDescription {
 		for (IService service : services) {
 			results.add(new String(service.name()));
 		}
-		return results.toArray(new String[0]);
+		return results.toArray(String[]::new);
 
 	}
 	default char[][] getUsedServices() throws JavaModelException {
@@ -140,11 +139,10 @@ public interface AbstractModule extends IModuleDescription {
 	default String[] getUsedServiceNames() throws JavaModelException {
 		ArrayList<String> results = new ArrayList<>();
 		char[][] services = getUsedServices();
-		for (int i = 0; i < services.length; ++i) {
-			char[] service = services[i];
+		for (char[] service : services) {
 			results.add(new String(service));
 		}
-		return results.toArray(new String[0]);
+		return results.toArray(String[]::new);
 	}
 	default IPackageExport[] getOpenedPackages() throws JavaModelException {
 		return getModuleInfo().opens();
@@ -173,20 +171,20 @@ public interface AbstractModule extends IModuleDescription {
 		buffer.append(getElementName()).append(' ');
 		buffer.append('{').append(lineDelimiter);
 		if (exports != null) {
-			for(int i = 0; i < exports.length; i++) {
+			for (IPackageExport export : exports) {
 				buffer.append("\texports "); //$NON-NLS-1$
-				buffer.append(exports[i].toString());
+				buffer.append(export.toString());
 				buffer.append(lineDelimiter);
 			}
 		}
 		buffer.append(lineDelimiter);
 		if (requires != null) {
-			for(int i = 0; i < requires.length; i++) {
+			for (IModuleReference require : requires) {
 				buffer.append("\trequires "); //$NON-NLS-1$
-				if (requires[i].isTransitive()) {
+				if (require.isTransitive()) {
 					buffer.append(" public "); //$NON-NLS-1$
 				}
-				buffer.append(requires[i].name());
+				buffer.append(require.name());
 				buffer.append(';').append(lineDelimiter);
 			}
 		}

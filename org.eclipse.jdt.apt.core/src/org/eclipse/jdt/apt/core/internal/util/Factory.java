@@ -24,11 +24,9 @@ import com.sun.mirror.type.ClassType;
 import com.sun.mirror.type.InterfaceType;
 import com.sun.mirror.type.PrimitiveType;
 import com.sun.mirror.type.TypeMirror;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.declaration.*;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;

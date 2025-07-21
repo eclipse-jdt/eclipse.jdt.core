@@ -13,11 +13,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import junit.framework.Test;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.core.*;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -90,13 +93,6 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 
 	// All possible compiler versions
 	static final String[] VERSIONS = new String[] {
-		CompilerOptions.VERSION_1_1,
-		CompilerOptions.VERSION_1_2,
-		CompilerOptions.VERSION_1_3,
-		CompilerOptions.VERSION_1_4,
-		CompilerOptions.VERSION_1_5,
-		CompilerOptions.VERSION_1_6,
-		CompilerOptions.VERSION_1_7,
 		CompilerOptions.VERSION_1_8,
 		CompilerOptions.VERSION_9,
 		CompilerOptions.VERSION_10,
@@ -108,7 +104,7 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 	 * Use JavaConventions default source and compliance levels.
 	 */
 	int validate(String string, int kind) {
-		return validate(string, kind, CompilerOptions.VERSION_1_3, CompilerOptions.VERSION_1_3);
+		return validate(string, kind, CompilerOptions.getFirstSupportedJavaVersion(), CompilerOptions.getFirstSupportedJavaVersion());
 	}
 
 	/*
@@ -147,7 +143,7 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 	 * @see JavaConventions
 	 */
 	public void testInvalidIdentifier() {
-		String[] invalidIds = new String[] {" s\\u0069ze", " s\\u0069ze ", "", "1java", "Foo Bar", "#@$!", "Foo-Bar", "if", "InvalidEscapeSequence\\g", "true", "false", "null", null, " untrimmmed "};
+		String[] invalidIds = new String[] {"non-sealed", "non-sealed ", " s\\u0069ze", " s\\u0069ze ", "", "1java", "Foo Bar", "#@$!", "Foo-Bar", "if", "InvalidEscapeSequence\\g", "true", "false", "null", null, " untrimmmed "};
 		for (int i = 0; i < invalidIds.length; i++) {
 			assertEquals("identifier not recognized as invalid: " + invalidIds[i], IStatus.ERROR, validate(invalidIds[i], IDENTIFIER));
 		}
@@ -181,7 +177,7 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 			// ensure the external JCL is copied
 			setupExternalJCL("jclMin");
 
-			copy(new java.io.File(getExternalJCLPathString()), new java.io.File(getWorkspaceRoot().getLocation().toOSString() + java.io.File.separator + "P1" + java.io.File.separator + "jclMin.jar"));
+			copy(new java.io.File(getExternalJCLPathString("")), new java.io.File(getWorkspaceRoot().getLocation().toOSString() + java.io.File.separator + "P1" + java.io.File.separator + "jclMin.jar"));
 			project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 
 			IPackageFragmentRoot p1Zip= getPackageFragmentRoot("P1", "jclMin.jar");
@@ -236,7 +232,7 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 	 * @see JavaConventions
 	 */
 	public void testValidIdentifier() {
-		String[] validIds = new String[] {"s\\u0069ze", "Object", "An_Extremly_Long_Class_Name_With_Words_Separated_By_Undescores"};
+		String[] validIds = new String[] {"non", "s\\u0069ze", "Object", "An_Extremly_Long_Class_Name_With_Words_Separated_By_Undescores"};
 		for (int i = 0; i < validIds.length; i++) {
 			assertEquals("identifier not recognized as valid: " + validIds[i], IStatus.OK, validate(validIds[i], IDENTIFIER));
 		}
@@ -322,76 +318,8 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 	}
 
 	/**
-	 * Test fix for bug 79392: [prefs] JavaConventions should offer compiler options validation API
-	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=79392">79392</a>
-	 * TODO (frederic) activate all following tests when bug 79392 will be finalized
-	 */
-	/*
-	public void testInvalidCompilerOptions01() throws CoreException, BackingStoreException {
-		// Set options
-		Map options = JavaCore.getOptions();
-		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
-
-		// Validate options
-		String[] expectedMessages = {
-			"Target level '1.4' is incompatible with source level '1.5'. A target level '1.5' or better is required"
-		};
-		verifyStatus(JavaConventions.validateCompilerOptions(options), expectedMessages);
-	}
-	public void testInvalidCompilerOptions02() throws CoreException, BackingStoreException {
-		Map options = JavaCore.getOptions();
-		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-
-		// Validate options
-		String[] expectedMessages = {
-			"Target level '1.2' is incompatible with source level '1.5'. A target level '1.5' or better is required",
-			"Compliance level '1.4' is incompatible with source level '1.5'. A compliance level '1.5' or better is required"
-		};
-		verifyStatus(JavaConventions.validateCompilerOptions(options), expectedMessages);
-	}
-	public void testInvalidCompilerOptions04() throws CoreException, BackingStoreException {
-		// Set options
-		Map options = JavaCore.getOptions();
-		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_3);
-		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
-		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
-
-		// Validate options
-		String[] expectedMessages = {
-			"Compliance level '1.3' is incompatible with target level '1.4'. A compliance level '1.4' or better is required",
-			"Compliance level '1.3' is incompatible with source level '1.4'. A compliance level '1.4' or better is required"
-		};
-		verifyStatus(JavaConventions.validateCompilerOptions(options), expectedMessages);
-	}
-	public void testValidCompilerOptions01() throws CoreException, BackingStoreException {
-		// Set options
-		Map options = JavaCore.getOptions();
-		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
-		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
-
-		// Validate options
-		String[] expectedMessages = {};
-		verifyStatus(JavaConventions.validateCompilerOptions(options), expectedMessages);
-	}
-	public void testValidCompilerOptions02() throws CoreException, BackingStoreException {
-		// Set options
-		Map options = JavaCore.getOptions();
-		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
-		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
-		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
-
-		// Validate options
-		String[] expectedMessages = {};
-		verifyStatus(JavaConventions.validateCompilerOptions(options), expectedMessages);
-	}
-	*/
-
-	/**
-	 * @bug 161621: enum is a Keyword for Java5 and cannot be used as a Enum name
-	 * @test Ensure that 'assert' identifier is rejected when source level greater than 1.3
+	 * bug161621: enum is a Keyword for Java5 and cannot be used as a Enum name
+	 * test Ensure that 'assert' identifier is rejected when source level greater than 1.3
 	 * 	and that 'enum' identifier is rejected when source level greater than 1.4
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=161621"
 	 */
@@ -399,12 +327,7 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 		int length = VERSIONS.length;
 		for (int i=0; i<length; i++) { // source level
 			for (int j=0; j<length; j++) { // compliance level
-				if (i < 3) { // source level < VERSION_1_4
-					assertEquals("'assert' should be accepted with source level "+VERSIONS[i], IStatus.OK, validate("assert", IDENTIFIER,VERSIONS[i], VERSIONS[j]));
-					assertEquals("By convention, Java type names usually start with an uppercase letter", IStatus.WARNING, validate("assert", JAVA_TYPE_NAME,VERSIONS[i], VERSIONS[j]));
-				} else {
-					assertEquals("'assert' should be rejected with source level "+VERSIONS[i], IStatus.ERROR, validate("assert", IDENTIFIER,VERSIONS[i], VERSIONS[j]));
-				}
+				assertEquals("'assert' should be rejected with source level "+VERSIONS[i], IStatus.ERROR, validate("assert", IDENTIFIER,VERSIONS[i], VERSIONS[j]));
 			}
 		}
 	}
@@ -412,12 +335,7 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 		int length = VERSIONS.length;
 		for (int i=0; i<length; i++) { // source level
 			for (int j=0; j<length; j++) { // compliance level
-				if (i < 4) { // source level < VERSION_1_5
-					assertEquals("'enum' should be accepted with source level "+VERSIONS[i], IStatus.OK, validate("enum", IDENTIFIER,VERSIONS[i], VERSIONS[j]));
-					assertEquals("By convention, Java type names usually start with an uppercase letter", IStatus.WARNING, validate("enum", JAVA_TYPE_NAME,VERSIONS[i], VERSIONS[j]));
-				} else {
-					assertEquals("'enum' should be rejected with source level "+VERSIONS[i], IStatus.ERROR, validate("enum", IDENTIFIER,VERSIONS[i], VERSIONS[j]));
-				}
+				assertEquals("'enum' should be rejected with source level "+VERSIONS[i], IStatus.ERROR, validate("enum", IDENTIFIER,VERSIONS[i], VERSIONS[j]));
 			}
 		}
 	}

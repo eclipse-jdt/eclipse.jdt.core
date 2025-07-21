@@ -17,9 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -30,7 +28,6 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -166,26 +163,6 @@ public class StackMapFrameCodeStream extends CodeStream {
 		localBinding.recordInitializationStartPC(this.position);
 	}
 
-	@Override
-	public void recordExpressionType(TypeBinding typeBinding, int delta, boolean adjustStackDepth) {
-		if (adjustStackDepth) {
-			// optimized goto
-			// the break label already adjusted the stack depth (-1 or -2 depending on the return type)
-			// we need to adjust back to what it was
-			switch (typeBinding.id) {
-				case TypeIds.T_long:
-				case TypeIds.T_double:
-					this.stackDepth += 2;
-					break;
-				case TypeIds.T_void:
-					break;
-				default:
-					this.stackDepth++;
-					break;
-			}
-		}
-	}
-
 	/**
 	 * Macro for building a class descriptor object
 	 */
@@ -193,7 +170,7 @@ public class StackMapFrameCodeStream extends CodeStream {
 	public void generateClassLiteralAccessForType(Scope scope, TypeBinding accessedType,
 			FieldBinding syntheticFieldBinding) {
 		if (accessedType.isBaseType() && accessedType != TypeBinding.NULL) {
-			getTYPE(accessedType.id);
+			getClass(accessedType);
 			return;
 		}
 
@@ -296,16 +273,10 @@ public class StackMapFrameCodeStream extends CodeStream {
 		int size = exceptionMarkerSet.size();
 		ExceptionMarker[] markers = new ExceptionMarker[size];
 		int n = 0;
-		for (Iterator iterator = exceptionMarkerSet.iterator(); iterator.hasNext();) {
-			markers[n++] = (ExceptionMarker) iterator.next();
+		for (Object marker : exceptionMarkerSet) {
+			markers[n++] = (ExceptionMarker) marker;
 		}
 		Arrays.sort(markers);
-//  System.out.print('[');
-//  for (int n = 0; n < size; n++) {
-//  	if (n != 0) System.out.print(',');
-//  	System.out.print(positions[n]);
-//  }
-//  System.out.println(']');
 		return markers;
 	}
 
@@ -314,16 +285,10 @@ public class StackMapFrameCodeStream extends CodeStream {
 		int size = set.size();
 		int[] positions = new int[size];
 		int n = 0;
-		for (Iterator iterator = set.iterator(); iterator.hasNext();) {
-			positions[n++] = ((Integer) iterator.next()).intValue();
+		for (Object pos : set) {
+			positions[n++] = ((Integer) pos).intValue();
 		}
 		Arrays.sort(positions);
-//  System.out.print('[');
-//  for (int n = 0; n < size; n++) {
-//  	if (n != 0) System.out.print(',');
-//  	System.out.print(positions[n]);
-//  }
-//  System.out.println(']');
 		return positions;
 	}
 
@@ -511,8 +476,7 @@ public class StackMapFrameCodeStream extends CodeStream {
 	}
 
 	public void resetSecretLocals() {
-		for (int i = 0, max = this.locals.length; i < max; i++) {
-			LocalVariableBinding localVariableBinding = this.locals[i];
+		for (LocalVariableBinding localVariableBinding : this.locals) {
 			if (localVariableBinding != null && localVariableBinding.isSecret()) {
 				// all other locals are reinitialized inside the computation of their resolved positions
 				localVariableBinding.resetInitializations();

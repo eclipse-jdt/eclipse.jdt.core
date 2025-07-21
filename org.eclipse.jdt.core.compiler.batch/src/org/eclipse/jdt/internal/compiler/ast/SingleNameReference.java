@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -35,24 +35,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
-import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
-import org.eclipse.jdt.internal.compiler.lookup.MissingTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemFieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
-import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
@@ -244,6 +227,7 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 		if (scope.compilerOptions().getSeverity(CompilerOptions.UnqualifiedFieldAccess) != ProblemSeverities.Ignore) {
 			scope.problemReporter().unqualifiedFieldAccess(this, fieldBinding);
 		}
+		checkFieldAccessInEarlyConstructionContext(scope, this.token, fieldBinding, this.actualReceiverType);
 		// must check for the static status....
 		if (methodScope.isStatic) {
 			scope.problemReporter().staticFieldAccessToNonStaticVariable(this, fieldBinding);
@@ -424,6 +408,7 @@ public void generateAssignment(BlockScope currentScope, CodeStream codeStream, A
 
 @Override
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+	emitDeclaringClassOfConstant(codeStream);
 	int pc = codeStream.position;
 	if (this.constant != Constant.NotAConstant) {
 		if (valueRequired) {

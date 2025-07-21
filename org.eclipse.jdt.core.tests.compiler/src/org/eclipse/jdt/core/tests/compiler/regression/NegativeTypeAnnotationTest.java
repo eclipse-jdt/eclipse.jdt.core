@@ -15,12 +15,11 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.EclipseJustification;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
@@ -4492,5 +4491,36 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"	             ^^^^^^^^^^^^^^^\n" +
 				"Annotation types that do not specify explicit target element types cannot be applied here\n" +
 				"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2554
+	// [sealed types] ECJ should not accept type annotations on permitted types
+	public void testIssue2554() throws Exception {
+		if (this.complianceLevel < ClassFileConstants.JDK17)
+			return;
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"""
+					import java.lang.annotation.ElementType;
+					import java.lang.annotation.Target;
+
+					@Target(ElementType.TYPE_USE)
+					@interface T {
+					}
+					public sealed interface X permits @T A {
+						public static void main(String[] args) {
+							System.out.println();
+						}
+					}
+					final class A implements X {}
+					""",
+				},
+				"----------\n"
+				+ "1. ERROR in X.java (at line 7)\n"
+				+ "	public sealed interface X permits @T A {\n"
+				+ "	                                  ^^\n"
+				+ "Syntax error, type annotations are illegal here\n"
+				+ "----------\n");
 	}
 }

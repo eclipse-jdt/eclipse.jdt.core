@@ -15,19 +15,18 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class RunCompletionParserTests extends junit.framework.TestCase {
 
 	public final static List TEST_CLASSES = new ArrayList();
 	public final static List TEST_CLASSES_1_5 = new ArrayList();
+	public final static List TEST_CLASSES_23 = new ArrayList();
 	static {
 		TEST_CLASSES.add(AllocationExpressionCompletionTest.class);
 		TEST_CLASSES.add(ClassLiteralAccessCompletionTest.class);
@@ -48,6 +47,8 @@ public class RunCompletionParserTests extends junit.framework.TestCase {
 		TEST_CLASSES_1_5.add(GenericsCompletionParserTest.class);
 		TEST_CLASSES_1_5.add(EnumCompletionParserTest.class);
 		TEST_CLASSES_1_5.add(AnnotationCompletionParserTest.class);
+
+		TEST_CLASSES_23.add(MarkdownCompletionParserTest.class);
 	}
 
 	public RunCompletionParserTests(String name) {
@@ -61,59 +62,6 @@ public class RunCompletionParserTests extends junit.framework.TestCase {
 
 		TestSuite all = new TestSuite(TestAll.class.getName());
 		int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
-		if ((possibleComplianceLevels & AbstractCompilerTest.F_1_3) != 0) {
-			ArrayList tests_1_3 = (ArrayList)testClasses.clone();
-			// Reset forgotten subsets tests
-			TestCase.TESTS_PREFIX = null;
-			TestCase.TESTS_NAMES = null;
-			TestCase.TESTS_NUMBERS= null;
-			TestCase.TESTS_RANGE = null;
-			TestCase.RUN_ONLY_ID = null;
-			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK1_3, tests_1_3));
-		}
-		if ((possibleComplianceLevels & AbstractCompilerTest.F_1_4) != 0) {
-			ArrayList tests_1_4 = (ArrayList)testClasses.clone();
-			// Reset forgotten subsets tests
-			TestCase.TESTS_PREFIX = null;
-			TestCase.TESTS_NAMES = null;
-			TestCase.TESTS_NUMBERS= null;
-			TestCase.TESTS_RANGE = null;
-			TestCase.RUN_ONLY_ID = null;
-			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK1_4, tests_1_4));
-		}
-		if ((possibleComplianceLevels & AbstractCompilerTest.F_1_5) != 0) {
-			ArrayList tests_1_5 = (ArrayList)testClasses.clone();
-			tests_1_5.addAll(TEST_CLASSES_1_5);
-			// Reset forgotten subsets tests
-			TestCase.TESTS_PREFIX = null;
-			TestCase.TESTS_NAMES = null;
-			TestCase.TESTS_NUMBERS= null;
-			TestCase.TESTS_RANGE = null;
-			TestCase.RUN_ONLY_ID = null;
-			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK1_5, tests_1_5));
-		}
-		if ((possibleComplianceLevels & AbstractCompilerTest.F_1_6) != 0) {
-			ArrayList tests_1_6 = (ArrayList)testClasses.clone();
-			tests_1_6.addAll(TEST_CLASSES_1_5);
-			// Reset forgotten subsets tests
-			TestCase.TESTS_PREFIX = null;
-			TestCase.TESTS_NAMES = null;
-			TestCase.TESTS_NUMBERS= null;
-			TestCase.TESTS_RANGE = null;
-			TestCase.RUN_ONLY_ID = null;
-			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK1_6, tests_1_6));
-		}
-		if ((possibleComplianceLevels & AbstractCompilerTest.F_1_7) != 0) {
-			ArrayList tests_1_7 = (ArrayList)testClasses.clone();
-			tests_1_7.addAll(TEST_CLASSES_1_5);
-			// Reset forgotten subsets tests
-			TestCase.TESTS_PREFIX = null;
-			TestCase.TESTS_NAMES = null;
-			TestCase.TESTS_NUMBERS= null;
-			TestCase.TESTS_RANGE = null;
-			TestCase.RUN_ONLY_ID = null;
-			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK1_7, tests_1_7));
-		}
 		if ((possibleComplianceLevels & AbstractCompilerTest.F_1_8) != 0) {
 			ArrayList tests_1_8 = (ArrayList)testClasses.clone();
 			tests_1_8.addAll(TEST_CLASSES_1_5);
@@ -146,6 +94,50 @@ public class RunCompletionParserTests extends junit.framework.TestCase {
 			TestCase.TESTS_RANGE = null;
 			TestCase.RUN_ONLY_ID = null;
 			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK10, tests_10));
+		}
+		if ((possibleComplianceLevels & AbstractCompilerTest.F_11) != 0) {
+			ArrayList tests_11 = (ArrayList)testClasses.clone();
+			tests_11.addAll(TEST_CLASSES_1_5);
+			// Reset forgotten subsets tests
+			TestCase.TESTS_PREFIX = null;
+			TestCase.TESTS_NAMES = null;
+			TestCase.TESTS_NUMBERS= null;
+			TestCase.TESTS_RANGE = null;
+			TestCase.RUN_ONLY_ID = null;
+			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK11, tests_11));
+		}
+		if ((possibleComplianceLevels & AbstractCompilerTest.F_17) != 0) {
+			ArrayList tests_17 = (ArrayList)testClasses.clone();
+			tests_17.addAll(TEST_CLASSES_1_5);
+			// Reset forgotten subsets tests
+			TestCase.TESTS_PREFIX = null;
+			TestCase.TESTS_NAMES = null;
+			TestCase.TESTS_NUMBERS= null;
+			TestCase.TESTS_RANGE = null;
+			TestCase.RUN_ONLY_ID = null;
+			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK17, tests_17));
+		}
+		if ((possibleComplianceLevels & AbstractCompilerTest.F_21) != 0) {
+			ArrayList tests_21 = (ArrayList)testClasses.clone();
+			tests_21.addAll(TEST_CLASSES_1_5);
+			// Reset forgotten subsets tests
+			TestCase.TESTS_PREFIX = null;
+			TestCase.TESTS_NAMES = null;
+			TestCase.TESTS_NUMBERS= null;
+			TestCase.TESTS_RANGE = null;
+			TestCase.RUN_ONLY_ID = null;
+			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK21, tests_21));
+		}
+		if ((possibleComplianceLevels & AbstractCompilerTest.F_23) != 0) {
+			ArrayList tests_23 = (ArrayList)testClasses.clone();
+			tests_23.addAll(TEST_CLASSES_23);
+			// Reset forgotten subsets tests
+			TestCase.TESTS_PREFIX = null;
+			TestCase.TESTS_NAMES = null;
+			TestCase.TESTS_NUMBERS= null;
+			TestCase.TESTS_RANGE = null;
+			TestCase.RUN_ONLY_ID = null;
+			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK23, tests_23));
 		}
 		return all;
 	}

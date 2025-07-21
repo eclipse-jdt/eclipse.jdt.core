@@ -17,7 +17,6 @@ import static org.eclipse.jdt.internal.core.JavaModelManager.traceDumpStack;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -27,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
@@ -74,8 +74,8 @@ public void acceptConstructorReference(char[] typeName, int argCount, int source
 	int lastDot = CharOperation.lastIndexOf('.', typeName);
 	if (lastDot != -1) {
 		char[][] qualification = CharOperation.splitOn('.', CharOperation.subarray(typeName, 0, lastDot));
-		for (int i = 0, length = qualification.length; i < length; i++) {
-			this.indexer.addNameReference(qualification[i]);
+		for (char[] name : qualification) {
+			this.indexer.addNameReference(name);
 		}
 	}
 }
@@ -91,7 +91,10 @@ public void acceptFieldReference(char[] fieldName, int sourcePosition) {
  */
 @Override
 public void acceptImport(int declarationStart, int declarationEnd, int nameStart, int nameEnd, char[][] tokens, boolean onDemand, int modifiers) {
-	// imports have already been reported while creating the ImportRef node (see SourceElementParser#comsume*ImportDeclarationName() methods)
+	if ((modifiers & ClassFileConstants.AccModule) != 0) {
+		this.indexer.addModuleReference(CharOperation.concatWithAll(tokens, '.'));
+	}
+	// other imports have already been reported while creating the ImportRef node (see SourceElementParser#comsume*ImportDeclarationName() methods)
 }
 /**
  * @see ISourceElementRequestor#acceptLineSeparatorPositions(int[])
@@ -143,8 +146,8 @@ public void acceptTypeReference(char[] simpleTypeName, int sourcePosition) {
  */
 @Override
 public void acceptUnknownReference(char[][] name, int sourceStart, int sourceEnd) {
-	for (int i = 0; i < name.length; i++) {
-		acceptUnknownReference(name[i], 0);
+	for (char[] element : name) {
+		acceptUnknownReference(element, 0);
 	}
 }
 /**

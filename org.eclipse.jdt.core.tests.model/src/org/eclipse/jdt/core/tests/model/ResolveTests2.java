@@ -15,10 +15,14 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
 import java.util.HashMap;
-
-import org.eclipse.jdt.core.*;
+import junit.framework.Test;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.tests.util.Util;
-import junit.framework.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({"rawtypes"})
 public class ResolveTests2 extends ModifyingResourceTests {
@@ -242,7 +246,7 @@ public void testBug232880a() throws Exception {
 		IJavaProject project1 = this.createJavaProject(
 			"PS1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB", externalJar1, externalJar2},
+			new String[]{"JCL18_LIB", externalJar1, externalJar2},
 			 "bin");
 
 		this.createFolder("/PS1/attachment/test2");
@@ -312,7 +316,7 @@ public void testBug232880b() throws Exception {
 		IJavaProject project1 = this.createJavaProject(
 			"PS1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB", externalJar2},
+			new String[]{"JCL18_LIB", externalJar2},
 			 "bin");
 
 		this.createFolder("/PS1/attachment/test2");
@@ -382,7 +386,7 @@ public void testBug232880c() throws Exception {
 		IJavaProject project1 = this.createJavaProject(
 			"PS1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB", externalJar2},
+			new String[]{"JCL18_LIB", externalJar2},
 			 "bin");
 
 		this.createFolder("/PS1/attachment/test2");
@@ -397,7 +401,7 @@ public void testBug232880c() throws Exception {
 		this.createJavaProject(
 			"PS2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB", externalJar1},
+			new String[]{"JCL18_LIB", externalJar1},
 			 "bin");
 
 		waitUntilIndexesReady();
@@ -464,7 +468,7 @@ public void testBug232880d() throws Exception {
 		IJavaProject project1 = this.createJavaProject(
 			"PS1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB", externalJar2},
+			new String[]{"JCL18_LIB", externalJar2},
 			 "bin");
 
 		this.createFolder("/PS1/attachment/test2");
@@ -479,7 +483,7 @@ public void testBug232880d() throws Exception {
 		this.createJavaProject(
 			"PS2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 
 		this.createFolder("/PS2/src/test1");
@@ -567,7 +571,7 @@ public void testBug232880e() throws Exception {
 		IJavaProject project1 = this.createJavaProject(
 			"PS1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB", externalJar2},
+			new String[]{"JCL18_LIB", externalJar2},
 			 "bin");
 
 		this.createFolder("/PS1/attachment/test2");
@@ -582,7 +586,7 @@ public void testBug232880e() throws Exception {
 		this.createJavaProject(
 			"PS2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 
 		this.createFolder("/PS2/src/test1");
@@ -655,7 +659,7 @@ public void testBug232880f() throws Exception {
 		IJavaProject project1 = this.createJavaProject(
 			"PS1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB", externalJar2},
+			new String[]{"JCL18_LIB", externalJar2},
 			 "bin");
 
 		this.createFolder("/PS1/attachment/test3");
@@ -670,7 +674,7 @@ public void testBug232880f() throws Exception {
 		this.createJavaProject(
 			"PS2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB", externalJar1},
+			new String[]{"JCL18_LIB", externalJar1},
 			 "bin");
 
 		waitUntilIndexesReady();
@@ -738,7 +742,7 @@ public void testBug232880g() throws Exception {
 		IJavaProject project1 = this.createJavaProject(
 			"PS1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB", externalJar2},
+			new String[]{"JCL18_LIB", externalJar2},
 			 "bin");
 
 		this.createFolder("/PS1/attachment/test3");
@@ -753,7 +757,7 @@ public void testBug232880g() throws Exception {
 		this.createJavaProject(
 			"PS2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB", externalJar1},
+			new String[]{"JCL18_LIB", externalJar1},
 			 "bin");
 
 		waitUntilIndexesReady();
@@ -821,7 +825,7 @@ public void testBug232880h() throws Exception {
 		IJavaProject project1 = this.createJavaProject(
 			"PS1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB", externalJar2},
+			new String[]{"JCL18_LIB", externalJar2},
 			 "bin");
 
 		this.createFolder("/PS1/attachment/test3");
@@ -836,7 +840,7 @@ public void testBug232880h() throws Exception {
 		this.createJavaProject(
 			"PS2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB", externalJar1},
+			new String[]{"JCL18_LIB", externalJar1},
 			 "bin");
 
 		waitUntilIndexesReady();
@@ -902,7 +906,7 @@ public void testBug232880i() throws Exception {
 		IJavaProject project1 = this.createJavaProject(
 			"PS1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB", externalJar2},
+			new String[]{"JCL18_LIB", externalJar2},
 			 "bin");
 
 		this.createFolder("/PS1/attachment/test3");
@@ -917,7 +921,7 @@ public void testBug232880i() throws Exception {
 		this.createJavaProject(
 			"PS2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB", externalJar1},
+			new String[]{"JCL18_LIB", externalJar1},
 			 "bin");
 
 		waitUntilIndexesReady();
@@ -985,7 +989,7 @@ public void testBug232880j() throws Exception {
 		IJavaProject project1 = this.createJavaProject(
 			"PS1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB", externalJar2},
+			new String[]{"JCL18_LIB", externalJar2},
 			 "bin");
 
 		this.createFolder("/PS1/attachment/test2");
@@ -1000,7 +1004,7 @@ public void testBug232880j() throws Exception {
 		this.createJavaProject(
 			"PS2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB", externalJar1},
+			new String[]{"JCL18_LIB", externalJar1},
 			 "bin");
 
 		waitUntilIndexesReady();
@@ -1123,9 +1127,9 @@ public void testBug343693() throws Exception{
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL15_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin",
-			 "1.7");
+			 CompilerOptions.getFirstSupportedJavaVersion());
 
 		this.createFolder("/P1/src/p1");
 		this.createFile(
@@ -1165,9 +1169,9 @@ public void testBug349486() throws Exception{
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL17_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin",
-			 "1.7");
+			 CompilerOptions.getFirstSupportedJavaVersion());
 
 		this.createFolder("/P1/src/p1");
 		this.createFile("/P1/src/p1/X.java",
@@ -1204,7 +1208,7 @@ public void testBug349486() throws Exception{
 
 		assertElementsEqual(
 			"Unexpected elements",
-			"invokeExact(java.lang.Object[]) [in MethodHandle [in MethodHandle.class [in java.lang.invoke [in "+ getExternalPath() + "jclMin1.7.jar]]]]",
+			"invokeExact(java.lang.Object[]) [in MethodHandle [in MethodHandle.class [in java.lang.invoke [in "+ getExternalPath() + "jclMin" + CompilerOptions.getFirstSupportedJavaVersion() + ".jar]]]]",
 			elements
 		);
 	} finally {
@@ -1217,9 +1221,9 @@ public void testBug356325() throws Exception{
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL15_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin",
-			 "1.5");
+			 CompilerOptions.getFirstSupportedJavaVersion());
 
 		this.createFolder("/P1/src/p");
 		this.createFile("/P1/src/p/C.java",

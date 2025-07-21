@@ -25,10 +25,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
@@ -100,7 +98,7 @@ public class ClasspathJsr199 extends ClasspathLocation {
 				return null; // most common case
 
 			try (InputStream inputStream = jfo.openInputStream()) {
-				ClassFileReader reader = ClassFileReader.read(inputStream, qualifiedBinaryFileName);
+				ClassFileReader reader = ClassFileReader.read(inputStream.readAllBytes(), qualifiedBinaryFileName);
 				if (reader != null) {
 					return new NameEnvironmentAnswer(reader, fetchAccessRestriction(qualifiedBinaryFileName));
 				}

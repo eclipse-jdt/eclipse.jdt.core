@@ -104,7 +104,7 @@ public class TypeParameter extends ASTNode {
 	 * The type variable node; lazily initialized; defaults to an unspecified,
 	 * but legal, name.
 	 */
-	private SimpleName typeVariableName = null;
+	private volatile SimpleName typeVariableName;
 
 	/**
 	 * The type bounds (element type: {@link Type}).
@@ -182,7 +182,7 @@ public class TypeParameter extends ASTNode {
 			result.modifiers().addAll(
 					ASTNode.copySubtrees(target, modifiers()));
 		}
-		result.setName((SimpleName) ((ASTNode) getName()).clone(target));
+		result.setName((SimpleName) getName().clone(target));
 		result.typeBounds().addAll(
 			ASTNode.copySubtrees(target, typeBounds()));
 		return result;
@@ -219,8 +219,7 @@ public class TypeParameter extends ASTNode {
 			synchronized (this) {
 				if (this.typeVariableName == null) {
 					preLazyInit();
-					this.typeVariableName = new SimpleName(this.ast);
-					postLazyInit(this.typeVariableName, NAME_PROPERTY);
+					this.typeVariableName = postLazyInit(new SimpleName(this.ast), NAME_PROPERTY);
 				}
 			}
 		}

@@ -16,11 +16,9 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.util.Iterator;
 import java.util.Map.Entry;
-
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
-import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 
 public class DefaultJavaRuntimeEnvironment extends FileSystem {
 
@@ -42,7 +40,7 @@ public class DefaultJavaRuntimeEnvironment extends FileSystem {
 				defaultJreClassLibs = new INameEnvironment[1];
 				Classpath[] classpath = new Classpath[jreClasspaths.length];
 				for(int i = 0; i < classpath.length; i++) {
-					if (jreClasspaths[i].endsWith(JRTUtil.JRT_FS_JAR)) {
+					if (org.eclipse.jdt.internal.compiler.util.Util.isJrt(jreClasspaths[i])) {
 						File file = new File(jreClasspaths[0]);
 						classpath[i] = FileSystem.getOlderSystemRelease(file.getParentFile().getParent(), release, null);
 

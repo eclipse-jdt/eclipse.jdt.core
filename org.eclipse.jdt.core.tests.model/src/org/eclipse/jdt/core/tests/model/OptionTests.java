@@ -22,9 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import junit.framework.Test;
-
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
@@ -34,6 +32,7 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChange
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
@@ -70,6 +69,14 @@ protected void tearDown() throws Exception {
 	super.tearDown();
 }
 
+@Override
+public void tearDownSuite() throws Exception {
+	// We have to reset classpath variables because we've modified defaults
+	// in getExternalJCLPathString() below
+	Util.cleanupClassPathVariablesAndContainers();
+	super.tearDownSuite();
+}
+
 /**
  * Test persistence of project custom options
  */
@@ -81,14 +88,16 @@ public void test01() throws CoreException {
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
-				"");
+				"",
+				"" /* no compliance to force defaults */);
 		IJavaProject projectB =
 			this.createJavaProject(
 				"B",
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
-				"");
+				"",
+				"" /* no compliance to force defaults */);
 
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, JavaCore.DISABLED);
@@ -134,14 +143,16 @@ public void test02() throws CoreException {
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
-				"");
+				"",
+				"" /* no compliance to force defaults */);
 		IJavaProject projectB =
 			this.createJavaProject(
 				"B",
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
-				"");
+				"",
+				"" /* no compliance to force defaults */);
 
 		String globalEncoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
 
@@ -176,14 +187,16 @@ public void test03() throws CoreException {
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
-				"");
+				"",
+				"" /* no compliance to force defaults */);
 		IJavaProject projectB =
 			this.createJavaProject(
 				"B",
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
-				"");
+				"",
+				"" /* no compliance to force defaults */);
 
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, JavaCore.DISABLED);
@@ -228,14 +241,16 @@ public void test04() throws CoreException {
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
-				"");
+				"",
+				"" /* no compliance to force defaults */);
 		IJavaProject projectB =
 			this.createJavaProject(
 				"B",
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
-				"");
+				"",
+				"" /* no compliance to force defaults */);
 
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, JavaCore.DISABLED);
@@ -281,14 +296,16 @@ public void test05() throws CoreException {
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
-				"");
+				"",
+				"" /* no compliance to force defaults */);
 		IJavaProject projectB =
 			this.createJavaProject(
 				"B",
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
-				"");
+				"",
+				"" /* no compliance to force defaults */);
 
 		String globalEncoding = JavaCore.getOption(JavaCore.CORE_ENCODING);
 
@@ -323,14 +340,16 @@ public void test06() throws CoreException {
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
-				"");
+				"",
+				"" /* no compliance to force defaults */);
 		IJavaProject projectB =
 			this.createJavaProject(
 				"B",
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
-				"");
+				"",
+				"" /* no compliance to force defaults */);
 
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.COMPILER_PB_DEPRECATION_IN_DEPRECATED_CODE, JavaCore.DISABLED);
@@ -378,7 +397,8 @@ public void test07() throws CoreException {
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
-				"");
+				"",
+				"" /* no compliance to force defaults */);
 //		Preferences preferences = projectA.getPreferences();
 //		preferences.addPropertyChangeListener(new TestPropertyListener());
 		IEclipsePreferences eclipsePreferences = projectA.getEclipsePreferences();
@@ -424,7 +444,8 @@ public void test08() throws CoreException {
 				new String[] {}, // source folders
 				new String[] {}, // lib folders
 				new String[] {}, // projects
-				"");
+				"",
+				"" /* no compliance to force defaults */);
 
 		Hashtable options = new Hashtable();
 		options.put(JavaCore.COMPILER_TASK_TAGS, "TODO:");
@@ -464,7 +485,8 @@ public void test08() throws CoreException {
 public void test09() throws CoreException {
 	try {
 		this.eventCount = 0;
-		JavaProject projectA = (JavaProject) this.createJavaProject("A", new String[] {}, "");
+		JavaProject projectA = (JavaProject) this.createJavaProject("A", new String[] {}, new String[] {}, "",
+				"" /* no compliance to force defaults */);
 //		Preferences preferences = projectA.getPreferences();
 //		preferences.addPropertyChangeListener(new TestPropertyListener());
 		IEclipsePreferences eclipsePreferences = projectA.getEclipsePreferences();
@@ -526,12 +548,13 @@ public void test11() throws CoreException {
  * Ensures that classpath problems are removed when a missing classpath variable is added through the preferences
  * (regression test for bug 109691 Importing preferences does not update classpath variables)
  */
-public void test12() throws CoreException {
+public void test12() throws Exception {
 	IEclipsePreferences preferences = JavaModelManager.getJavaModelManager().getInstancePreferences();
 	try {
 		IJavaProject project = createJavaProject("P", new String[0], new String[] {"TEST"}, "");
 		waitForAutoBuild();
-		preferences.put(JavaModelManager.CP_VARIABLE_PREFERENCES_PREFIX+"TEST", getExternalJCLPathString());
+		setupExternalJCL("jclMin" + CompilerOptions.getFirstSupportedJavaVersion());
+		preferences.put(JavaModelManager.CP_VARIABLE_PREFERENCES_PREFIX+"TEST", getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()));
 		assertBuildPathMarkers("Unexpected markers", "", project);
 	} finally {
 		deleteProject("P");
@@ -621,7 +644,7 @@ public void testBug100393b() throws CoreException, BackingStoreException {
 }
 
 /**
- * @bug 125360: IJavaProject#setOption() doesn't work if same option as default
+ * bug 125360: IJavaProject#setOption() doesn't work if same option as default
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=125360"
  */
 public void testBug125360() throws CoreException, BackingStoreException {
@@ -642,7 +665,7 @@ public void testBug125360() throws CoreException, BackingStoreException {
 }
 
 /**
- * @bug 131707: Cannot add classpath variables when starting with -pluginCustomization option
+ * bug 131707: Cannot add classpath variables when starting with -pluginCustomization option
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=131707"
  */
 public void testBug131707() throws CoreException {
@@ -667,8 +690,8 @@ public void testBug131707() throws CoreException {
 }
 
 /**
- * @bug 152562: [prefs] IJavaProject.setOption(..., null) does not work
- * @test Verify that setting an option to null removes it from project preferences
+ * bug 152562: [prefs] IJavaProject.setOption(..., null) does not work
+ * test Verify that setting an option to null removes it from project preferences
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=152562"
  */
 public void testBug152562() throws CoreException {
@@ -690,8 +713,8 @@ public void testBug152562() throws CoreException {
 }
 
 /**
- * @bug 152578: [prefs] IJavaProject.setOption(Object,Object) wrongly removes key when value is equals to JavaCore one
- * @test Verify that setting an option to workspace value does not remove it from project preferences
+ * bug 152578: [prefs] IJavaProject.setOption(Object,Object) wrongly removes key when value is equals to JavaCore one
+ * test Verify that setting an option to workspace value does not remove it from project preferences
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=152578"
  */
 public void testBug152578() throws CoreException {
@@ -717,8 +740,8 @@ public void testBug152578() throws CoreException {
 }
 
 /**
- * @bug 324987: [formatter] API compatibility problem with Annotation Newline options
- * @test Verify that a deprecated option is well preserved when a client use it
+ * bug 324987: [formatter] API compatibility problem with Annotation Newline options
+ * test Verify that a deprecated option is well preserved when a client use it
  * 		through the IJavaProject.setOption(String, String) API
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324987"
  * @deprecated As using deprecated constants
@@ -743,8 +766,8 @@ public void testBug324987_Project01() throws CoreException {
 	}
 }
 /**
- * @bug 324987: [formatter] API compatibility problem with Annotation Newline options
- * @test Verify that a new option beats the deprecated option when a client sets both
+ * bug 324987: [formatter] API compatibility problem with Annotation Newline options
+ * test Verify that a new option beats the deprecated option when a client sets both
  * 		through the IJavaProject#setOptions(Map) API
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324987"
  * @deprecated As using deprecated constants
@@ -771,8 +794,8 @@ public void testBug324987_Project02() throws CoreException {
 	}
 }
 /**
- * @bug 346010 - [model] strange initialization dependency in OptionTests
- * @test Verify that unfortunate order of map entries doesn't spoil intended semantics.
+ * bug 346010 - [model] strange initialization dependency in OptionTests
+ * test Verify that unfortunate order of map entries doesn't spoil intended semantics.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=346010"
  * @deprecated As using deprecated constants
  */
@@ -829,8 +852,8 @@ public void testBug346010() throws CoreException {
 }
 
 /**
- * @bug 324987: [formatter] API compatibility problem with Annotation Newline options
- * @test Verify that a deprecated option is well preserved when read through
+ * bug 324987: [formatter] API compatibility problem with Annotation Newline options
+ * test Verify that a deprecated option is well preserved when read through
  * 		the IEclipsePreferences (i.e. simulate reading project preferences of a project
  * 		coming from an older workspace)
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324987"
@@ -857,8 +880,8 @@ public void testBug324987_Project03() throws CoreException {
 	}
 }
 /**
- * @bug 324987: [formatter] API compatibility problem with Annotation Newline options
- * @test Verify that a new option beats the deprecated option when a client sets both
+ * bug 324987: [formatter] API compatibility problem with Annotation Newline options
+ * test Verify that a new option beats the deprecated option when a client sets both
  * 		through the JavaCore.setOptions(Hashtable) API
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324987"
  * @deprecated As using deprecated constants
@@ -884,8 +907,8 @@ public void testBug324987_Workspace01() throws CoreException {
 	}
 }
 /**
- * @bug 324987: [formatter] API compatibility problem with Annotation Newline options
- * @test Verify that a deprecated option is well preserved when read through
+ * bug 324987: [formatter] API compatibility problem with Annotation Newline options
+ * test Verify that a deprecated option is well preserved when read through
  * 		the IEclipsePreferences (i.e. simulate reading an older workspace)
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324987"
  * @deprecated As using deprecated constants
@@ -911,8 +934,8 @@ public void testBug324987_Workspace02() throws CoreException {
 	}
 }
 /**
- * @bug 324987: [formatter] API compatibility problem with Annotation Newline options
- * @test Verify that a deprecated option is well preserved when a client use it
+ * bug 324987: [formatter] API compatibility problem with Annotation Newline options
+ * test Verify that a deprecated option is well preserved when a client use it
  * 		through the JavaCore.setOptions(Hashtable) API
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324987"
  * @deprecated As using deprecated constants
@@ -938,8 +961,8 @@ public void testBug324987_Workspace03() throws CoreException {
 	}
 }
 /**
- * @bug 324987: [formatter] API compatibility problem with Annotation Newline options
- * @test Verify that a deprecated option is well preserved when read through
+ * bug 324987: [formatter] API compatibility problem with Annotation Newline options
+ * test Verify that a deprecated option is well preserved when read through
  * 		the IEclipsePreferences (i.e. simulate reading an older workspace)
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324987"
  * @deprecated As using deprecated constants

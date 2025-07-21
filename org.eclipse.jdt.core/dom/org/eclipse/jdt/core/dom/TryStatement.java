@@ -161,7 +161,7 @@ public class TryStatement extends Statement {
 	/**
 	 * The body; lazily initialized; defaults to an empty block.
 	 */
-	private Block body = null;
+	private volatile Block body;
 
 	/**
 	 * The catch clauses (element type: {@link CatchClause}).
@@ -289,8 +289,7 @@ public class TryStatement extends Statement {
 			synchronized (this) {
 				if (this.body == null) {
 					preLazyInit();
-					this.body = new Block(this.ast);
-					postLazyInit(this.body, BODY_PROPERTY);
+					this.body = postLazyInit(new Block(this.ast), BODY_PROPERTY);
 				}
 			}
 		}
@@ -361,7 +360,7 @@ public class TryStatement extends Statement {
 	/**
 	 * Returns the live ordered list of resources for this try statement (added in JLS4 API).
 	 *
-	 * <p>A resource is either a {@link VariableDeclarationExpression} or (since JLS9) a {@link Name}.</p>
+	 * <p>A resource is either a {@link VariableDeclarationExpression} or (since JLS9) a {@link Name} or a {@link FieldAccess} or a {@link SuperFieldAccess}.</p>
 	 *
 	 * @return the live list of resources (element type: {@link Expression}).
 	 *    In the deprecated JLS4 and JLS8 APIs, this used to be

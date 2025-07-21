@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,7 +15,6 @@ package org.eclipse.jdt.internal.core.dom.rewrite;
 
 import java.util.Iterator;
 import java.util.List;
-
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
@@ -97,6 +96,9 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 	/** @deprecated using deprecated code */
 	private static final int JLS14_INTERNAL = AST.JLS14;
+
+	/** @deprecated using deprecated code */
+	private static final int JLS23_INTERNAL = AST.JLS23;
 
 	public static String asString(ASTNode node, RewriteEventStore store) {
 		ASTRewriteFlattener flattener= new ASTRewriteFlattener(store);
@@ -603,7 +605,12 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	@Override
 	public boolean visit(ImportDeclaration node) {
 		this.result.append("import "); //$NON-NLS-1$
-		if (node.getAST().apiLevel() >= JLS3_INTERNAL) {
+		if (node.getAST().apiLevel() >= JLS23_INTERNAL) {
+			List<Modifier> modifiers = node.modifiers();
+			for (Modifier modifier : modifiers) {
+				this.result.append(modifier.getKeyword().toString()).append(' ');
+			}
+		} else if (node.getAST().apiLevel() >= JLS3_INTERNAL) {
 			if (getBooleanAttribute(node, ImportDeclaration.STATIC_PROPERTY)) {
 				this.result.append("static ");//$NON-NLS-1$
 			}
@@ -677,9 +684,9 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	public boolean visit(Javadoc node) {
 		this.result.append("/**"); //$NON-NLS-1$
 		List list= getChildList(node, Javadoc.TAGS_PROPERTY);
-		for (int i= 0; i < list.size(); i++) {
+		for (Object child : list) {
 			this.result.append("\n * "); //$NON-NLS-1$
-			((ASTNode) list.get(i)).accept(this);
+			((ASTNode) child).accept(this);
 		}
 		this.result.append("\n */"); //$NON-NLS-1$
 		return false;
@@ -951,6 +958,21 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		return false;
 	}
 
+	@Override
+	public boolean visit(EitherOrMultiPattern node) {
+		if (DOMASTUtil.isEitherOrMultiPatternSupported(node.getAST())) {
+			int size = 1;
+			for (Pattern pattern : node.patterns()) {
+				visitPattern(pattern);
+				if (size < node.patterns().size()) {
+					this.result.append(", ");//$NON-NLS-1$
+				}
+				size++;
+			}
+		}
+		return false;
+	}
+
 	private boolean visitPattern(Pattern node) {
 		if (node instanceof RecordPattern) {
 			return visit((RecordPattern) node);
@@ -1175,6 +1197,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			StructuralPropertyDescriptor desc = level < JLS9_INTERNAL ? INTERNAL_TRY_STATEMENT_RESOURCES_PROPERTY : TryStatement.RESOURCES2_PROPERTY;
 			visitList(node, desc, String.valueOf(';'), String.valueOf('('), String.valueOf(')'));
 		}
+		this.result.append(' ');
 		getChildNode(node, TryStatement.BODY_PROPERTY).accept(this);
 		this.result.append(' ');
 		visitList(node, TryStatement.CATCH_CLAUSES_PROPERTY, null);
@@ -1183,6 +1206,17 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			this.result.append(" finally "); //$NON-NLS-1$
 			finallyClause.accept(this);
 		}
+		return false;
+	}
+
+	@Override
+	public boolean visit(ImplicitTypeDeclaration node) {
+		ASTNode javadoc= getChildNode(node, TypeDeclaration.JAVADOC_PROPERTY);
+		if (javadoc != null) {
+			javadoc.accept(this);
+		}
+
+		visitList(node, TypeDeclaration.BODY_DECLARATIONS_PROPERTY, null);
 		return false;
 	}
 
@@ -1604,7 +1638,12 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	@Override
 	public boolean visit(TypePattern node) {
 		if (DOMASTUtil.isPatternSupported(node.getAST())) {
-			node.getPatternVariable().accept(this);
+			if(node.getAST().apiLevel() < AST.JLS22) {
+				node.getPatternVariable().accept(this);
+			} else {
+				node.getPatternVariable2().accept(this);
+			}
+
 		}
 		return false;
 	}
@@ -1640,40 +1679,6 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			expression.accept(this);
 		}
 		this.result.append(';');
-		return false;
-	}
-	@Override
-	public boolean visit(StringFragment node) {
-		this.result.append(node.getEscapedValue());
-		return false;
-	}
-	@Override
-	public boolean visit(StringTemplateExpression node) {
-		ASTNode expression = getChildNode(node, StringTemplateExpression.TEMPLATE_PROCESSOR);
-		if (expression != null) {
-			expression.accept(this);
-		}
-		this.result.append('.');
-		this.result.append((node.isMultiline() ? "\"\"\"\n" : "\"")); //$NON-NLS-1$ //$NON-NLS-2$
-		expression = node.getFirstFragment();
-		expression.accept(this);
-		List<StringTemplateComponent> components = node.components();
-		int size = components.size();
-		for(int i = 0; i < size; i++) {
-			Expression comp = components.get(i);
-			comp.accept(this);
-		}
-		this.result.append((node.isMultiline() ? "\"\"\"" : "\"")); //$NON-NLS-1$ //$NON-NLS-2$
-		return false;
-	}
-	@Override
-	public boolean visit(StringTemplateComponent node) {
-		this.result.append("\\{"); //$NON-NLS-1$
-		Expression expression = node.getEmbeddedExpression();
-		expression.accept(this);
-		this.result.append('}');
-		StringFragment fragment = node.getStringFragment();
-		fragment.accept(this);
 		return false;
 	}
 }

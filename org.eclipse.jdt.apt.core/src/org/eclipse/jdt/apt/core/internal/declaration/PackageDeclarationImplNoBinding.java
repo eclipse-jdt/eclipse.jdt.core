@@ -13,12 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.declaration;
 
-import java.lang.annotation.Annotation;
-import java.util.Collection;
-import java.util.Collections;
-
-import org.eclipse.jdt.core.IPackageFragment;
-
 import com.sun.mirror.declaration.AnnotationMirror;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 import com.sun.mirror.declaration.ClassDeclaration;
@@ -28,6 +22,10 @@ import com.sun.mirror.declaration.Modifier;
 import com.sun.mirror.declaration.PackageDeclaration;
 import com.sun.mirror.util.DeclarationVisitor;
 import com.sun.mirror.util.SourcePosition;
+import java.lang.annotation.Annotation;
+import java.util.Collection;
+import java.util.Collections;
+import org.eclipse.jdt.core.IPackageFragment;
 
 /**
  * For packages that have no binding. E.g. Packages with no

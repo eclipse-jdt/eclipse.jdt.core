@@ -39,7 +39,6 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.Stack;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -53,7 +52,6 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 /**
  * Annotation
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class Annotation extends Expression {
 
 	Annotation persistibleAnnotation = this;  // Emit this into class file, unless this is a repeating annotation, in which case package this into the designated container.
@@ -66,12 +64,12 @@ public abstract class Annotation extends Expression {
 			final Annotation annotation) {
 
 		class LocationCollector extends ASTVisitor {
-			Stack typePathEntries;
+			Stack<int[]> typePathEntries;
 			Annotation searchedAnnotation;
 			boolean continueSearch = true;
 
 			public LocationCollector(Annotation currentAnnotation) {
-				this.typePathEntries = new Stack();
+				this.typePathEntries = new Stack<>();
 				this.searchedAnnotation = currentAnnotation;
 			}
 
@@ -213,8 +211,7 @@ public abstract class Annotation extends Expression {
 					.append("search location for ") //$NON-NLS-1$
 					.append(this.searchedAnnotation)
 					.append("\ncurrent type_path entries : "); //$NON-NLS-1$
-				for (int i = 0, maxi = this.typePathEntries.size(); i < maxi; i++) {
-					int[] typePathEntry = (int[]) this.typePathEntries.get(i);
+				for (int[] typePathEntry : this.typePathEntries) {
 					buffer
 						.append('(')
 						.append(typePathEntry[0])
@@ -235,7 +232,7 @@ public abstract class Annotation extends Expression {
 		int[] result = new int[size*2];
 		int offset=0;
 		for (int i = 0; i < size; i++) {
-			int[] pathElement = (int[])collector.typePathEntries.get(i);
+			int[] pathElement = collector.typePathEntries.get(i);
 			result[offset++] = pathElement[0];
 			result[offset++] = pathElement[1];
 		}
@@ -357,8 +354,7 @@ public abstract class Annotation extends Expression {
 						ArrayInitializer initializer = (ArrayInitializer) expr;
 						final Expression[] expressions = initializer.expressions;
 						if (expressions != null) {
-							for (int i = 0, length = expressions.length; i < length; i++) {
-								Expression initExpr = expressions[i];
+							for (Expression initExpr : expressions) {
 								if ((initExpr.bits & Binding.VARIABLE) == Binding.FIELD) {
 									FieldBinding field = ((Reference) initExpr).fieldBinding();
 									if (field != null && field.declaringClass.id == T_JavaLangAnnotationElementType) {
@@ -626,8 +622,7 @@ public abstract class Annotation extends Expression {
 	public static void checkContainerAnnotationType(ASTNode culpritNode, BlockScope scope, ReferenceBinding containerAnnotationType, ReferenceBinding repeatableAnnotationType, boolean useSite) {
 		MethodBinding[] annotationMethods = containerAnnotationType.methods();
 		boolean sawValue = false;
-		for (int i = 0, length = annotationMethods.length; i < length; ++i) {
-			MethodBinding method = annotationMethods[i];
+		for (MethodBinding method : annotationMethods) {
 			if (CharOperation.equals(method.selector, TypeConstants.VALUE)) {
 				sawValue = true;
 				if (method.returnType.isArrayType() && method.returnType.dimensions() == 1) {
@@ -840,18 +835,18 @@ public abstract class Annotation extends Expression {
 					ArrayInitializer initializer = (ArrayInitializer) value;
 					Expression[] inits = initializer.expressions;
 					if (inits != null) {
-						for (int j = 0, initsLength = inits.length; j < initsLength; j++) {
-							Constant cst = inits[j].constant;
+						for (Expression init : inits) {
+							Constant cst = init.constant;
 							if (cst != Constant.NotAConstant && cst.typeID() == T_JavaLangString) {
 								IrritantSet irritants = CompilerOptions.warningTokenToIrritants(cst.stringValue());
 								if (irritants != null) {
 									if (suppressWarningIrritants == null) {
 										suppressWarningIrritants = new IrritantSet(irritants);
 									} else if (suppressWarningIrritants.set(irritants) == null) {
-											scope.problemReporter().unusedWarningToken(inits[j]);
+											scope.problemReporter().unusedWarningToken(init);
 									}
 								} else {
-									scope.problemReporter().unhandledWarningToken(inits[j]);
+									scope.problemReporter().unhandledWarningToken(init);
 								}
 							}
 						}
@@ -1366,8 +1361,7 @@ public abstract class Annotation extends Expression {
 		TypeBinding elementsType = array.elementsType();
 		if (! elementsType.isRepeatableAnnotationType()) return; // Can't be a problem, then
 
-		for (int i= 0; i < sourceAnnotations.length; ++i) {
-			Annotation annotation = sourceAnnotations[i];
+		for (Annotation annotation : sourceAnnotations) {
 			if (TypeBinding.equalsEquals(elementsType, annotation.resolvedType)) {
 				scope.problemReporter().repeatableAnnotationWithRepeatingContainer(annotation, repeatedAnnotationType);
 				return; // One is enough for this annotation type
@@ -1399,8 +1393,7 @@ public abstract class Annotation extends Expression {
 			return;
 
 		nextAnnotation:
-			for (int i = 0, annotationsLength = annotations.length; i < annotationsLength; i++) {
-				Annotation annotation = annotations[i];
+			for (Annotation annotation : annotations) {
 				long metaTagBits = annotation.resolvedType.getAnnotationTagBits();
 				if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0 && (metaTagBits & TagBits.AnnotationForDeclarationMASK) == 0) {
 					ReferenceBinding currentType = (ReferenceBinding) resolvedType;

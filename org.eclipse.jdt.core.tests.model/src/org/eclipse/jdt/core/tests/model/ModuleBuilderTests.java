@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2023 IBM Corporation and others.
+ * Copyright (c) 2016, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -20,7 +20,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
-
+import java.util.function.Consumer;
+import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
@@ -33,29 +34,17 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IAccessRule;
-import org.eclipse.jdt.core.IClasspathAttribute;
-import org.eclipse.jdt.core.IClasspathContainer;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaModelMarker;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IModuleDescription;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IProblemRequestor;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.SplitPackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.ClasspathAttribute;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.builder.ClasspathJrt;
 import org.eclipse.jdt.internal.core.util.Messages;
-
-import junit.framework.Test;
 
 public class ModuleBuilderTests extends ModifyingResourceTests {
 	public ModuleBuilderTests(String name) {
@@ -105,8 +94,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 	@Override
 	public void tearDownSuite() throws Exception {
-		super.tearDownSuite();
 		deleteProject("P1");
+		super.tearDownSuite();
 	}
 
 	// Test that the java.base found as a module package fragment root in the project
@@ -3421,6 +3410,48 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			};
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			IJavaProject p1= setupModuleProject("debugger_project", sources, new IClasspathEntry[]{dep});
+			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+
+			assertNull("Option should not be stored", JavaCore.getOption(CompilerOptions.OPTION_JdtDebugCompileMode));
+		} finally {
+			deleteProject("debugger_project");
+			JavaCore.setOptions(javaCoreOptions);
+		}
+	}
+
+	public void test_no_conflicting_packages_for_debugger_both_named() throws CoreException {
+		// the current project is modular, hence we need to suppress a conflict between 2 named modules
+		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
+		try {
+			String[] sources = new String[] {
+					"src/module-info.java",
+					"module Test {}\n",
+					"src/java/util/Map___.java",
+					"package java.util;\n" +
+					"abstract class Map___ implements java.util.Map {\n" +
+					"  Map___() {\n" +
+					"    super();\n" +
+					"  }\n" +
+					"  Object[] ___run() throws Throwable {\n" +
+					"    return entrySet().toArray();\n" +
+					"  }\n" +
+					"}"
+			};
+			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
+			IJavaProject p1= setupModuleProject("debugger_project", sources, new IClasspathEntry[]{dep});
+			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("Unexpected markers",
+					"The package java.util conflicts with a package accessible from another module: java.base\n" +
+					"The package java.util is accessible from more than one module: Test, java.base\n" +
+					"The method entrySet() is undefined for the type Map___",
+					markers);
+
+			Hashtable<String, String> newOptions=new Hashtable<>(javaCoreOptions);
+			newOptions.put(CompilerOptions.OPTION_JdtDebugCompileMode, JavaCore.ENABLED);
+			JavaCore.setOptions(newOptions);
 			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			assertNoErrors();
 
@@ -7067,12 +7098,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	public void testBug527569e() throws CoreException {
 		if (!isJRE9 || isJRE12) return;
-		IJavaProject p1 = createJava9Project("Bug527569", "1.8");
+		IJavaProject p1 = createJava9Project("Bug527569", CompilerOptions.getFirstSupportedJavaVersion());
 		Map<String, String> options = new HashMap<>();
 		// Make sure the new options map doesn't reset.
-		options.put(CompilerOptions.OPTION_Compliance, "1.7");
-		options.put(CompilerOptions.OPTION_Source, "1.7");
-		options.put(CompilerOptions.OPTION_TargetPlatform, "1.7");
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 		options.put(CompilerOptions.OPTION_Release, "enabled");
 		p1.setOptions(options);
 		try {
@@ -7941,6 +7972,15 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	public void testBug543701() throws Exception {
 		IJavaProject p = createJava9Project("p");
 		String outputDirectory = Util.getOutputDirectory();
+		class Counter implements Consumer<SplitPackageBinding> {
+			int count;
+			@Override
+			public void accept(SplitPackageBinding t) {
+				this.count++;
+			}
+		}
+		Counter counter = new Counter();
+		SplitPackageBinding.instanceListener = counter;
 		try {
 			String jar1Path = outputDirectory + File.separator + "lib1.jar";
 			Util.createJar(new String[] {
@@ -7984,7 +8024,9 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					"----------\n" +
 					"----------\n",
 					this.problemRequestor);
+			assertTrue("Number of SplitPackageBinding created: "+counter.count, counter.count <= 80);
 		} finally {
+			SplitPackageBinding.instanceListener = null;
 			deleteProject(p);
 			// clean up output dir
 			File outputDir = new File(outputDirectory);
@@ -8422,85 +8464,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				Util.flushDirectoryContent(outputDir);
 		}
 	}
-	public void testReleaseOption6() throws Exception {
-		if (isJRE20) return; // Effectively disable it for most older versions.
-		Hashtable<String, String> options = JavaCore.getOptions();
-		IJavaProject p = createJava9Project("p");
-		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
-		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
-		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
-		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
-		String outputDirectory = Util.getOutputDirectory();
-		try {
-			String testSource = "interface I {\n" +
-								"  int add(int x, int y);\n" +
-								"}\n" +
-								"public class X {\n" +
-								"  public static void main(String[] args) {\n" +
-								"    I i = (x, y) -> {\n" +
-								"      return x + y;\n" +
-								"    };\n" +
-								"  }\n" +
-								"}\n";
-			String mPath = "p/src/X.java";
-			createFile(mPath,
-					testSource);
-			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
-			waitForAutoBuild();
-			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
-			assertMarkers("Unexpected markers",
-					"Lambda expressions are allowed only at source level 1.8 or above",  markers);
 
-		} finally {
-			JavaCore.setOptions(options);
-			deleteProject(p);
-			File outputDir = new File(outputDirectory);
-			if (outputDir.exists())
-				Util.flushDirectoryContent(outputDir);
-		}
-	}
-	public void testReleaseOption7() throws Exception {
-		if (isJRE12)
-			return;
-		Hashtable<String, String> options = JavaCore.getOptions();
-		IJavaProject p = createJava9Project("p");
-		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_6);
-		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_6);
-		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_6);
-		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
-		String outputDirectory = Util.getOutputDirectory();
-		try {
-			String testSource = "import java.io.*;\n" +
-								"public class X {\n" +
-								"	public static void main(String[] args) {\n" +
-								"		try {\n" +
-								"			System.out.println();\n" +
-								"			Reader r = new FileReader(args[0]);\n" +
-								"			r.read();\n" +
-								"		} catch(IOException | FileNotFoundException e) {\n" +
-								"			e.printStackTrace();\n" +
-								"		}\n" +
-								"	}\n" +
-								"}";
-			String mPath = "p/src/X.java";
-			createFile(mPath,
-					testSource);
-			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
-			waitForAutoBuild();
-			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
-			sortMarkers(markers);
-			assertMarkers("Unexpected markers",
-							"Multi-catch parameters are not allowed for source level below 1.7\n" +
-							"The exception FileNotFoundException is already caught by the alternative IOException",  markers);
-
-		} finally {
-			JavaCore.setOptions(options);
-			deleteProject(p);
-			File outputDir = new File(outputDirectory);
-			if (outputDir.exists())
-				Util.flushDirectoryContent(outputDir);
-		}
-	}
 	public void testReleaseOption8() throws Exception {
 		Hashtable<String, String> options = JavaCore.getOptions();
 		IJavaProject p = createJava9Project("p");
@@ -8580,10 +8544,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			String expected =
-					"Syntax error on token \"module\", package expected\n" +
-					"Syntax error on token(s), misplaced construct(s)\n" +
-					"Syntax error on token \".\", , expected\n" +
-					"Syntax error on token \"}\", delete this token";
+					"""
+					Syntax error on token(s), misplaced construct(s)
+					Syntax error on token(s), misplaced construct(s)
+					Syntax error on token ".", , expected
+					Syntax error on token "}", delete this token""";
 			assertMarkers("Unexpected markers",
 							expected,  markers);
 

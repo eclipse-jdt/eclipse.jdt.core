@@ -36,7 +36,7 @@ public class ProjectEntry implements IModulePathEntry {
 		return false;
 	}
 
-	JavaProject project;
+	final JavaProject project;
 
 	public ProjectEntry(JavaProject project) {
 		//

@@ -2134,9 +2134,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens, C
 		int currentKind = this.lexStream.kind(token);
 		String errorTokenName = Parser.name[Parser.terminal_index[this.lexStream.kind(token)]];
 		char[] errorTokenSource = this.lexStream.name(token);
-		if (currentKind == TerminalTokens.TokenNameStringLiteral ||
-				currentKind == TerminalTokens.TokenNameStringTemplate ||
-				currentKind == TerminalTokens.TokenNameTextBlockTemplate) {
+		if (currentKind == TerminalTokens.TokenNameStringLiteral) {
 			errorTokenSource = displayEscapeCharacters(errorTokenSource, 1, errorTokenSource.length - 1);
 		}
 
@@ -2275,12 +2273,12 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens, C
 		                } else {
 		                	int[] template = getNTermTemplate(-tmpAddedToken);
 		                	if(template != null) {
-			                	for (int j = 0; j < template.length; j++) {
+			                	for (int t : template) {
 									int length = addedTokens.length;
 		                			if(addedTokenCount == length) {
 				                		System.arraycopy(addedTokens, 0, addedTokens = new int[length * 2], 0, length);
 				                	}
-		                			addedTokens[addedTokenCount++] = template[j];
+		                			addedTokens[addedTokenCount++] = t;
 								}
 		                	} else {
 			                	addedTokenCount = 0;
@@ -2496,12 +2494,12 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens, C
 		                } else {
 		                	int[] template = getNTermTemplate(-tmpAddedToken);
 		                	if(template != null) {
-			                	for (int j = 0; j < template.length; j++) {
+			                	for (int t : template) {
 									int length = addedTokens.length;
 		                			if(addedTokenCount == length) {
 				                		System.arraycopy(addedTokens, 0, addedTokens = new int[length * 2], 0, length);
 				                	}
-		                			addedTokens[addedTokenCount++] = template[j];
+		                			addedTokens[addedTokenCount++] = t;
 								}
 		                	} else {
 			                	addedTokenCount = 0;

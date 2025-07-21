@@ -15,7 +15,6 @@ package org.eclipse.jdt.internal.codeassist.complete;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
@@ -112,6 +111,7 @@ public class CompletionJavadocParser extends JavadocParser {
 	@Override
 	protected boolean commentParse() {
 		this.docComment = new CompletionJavadoc(this.javadocStart, this.javadocEnd);
+		this.docComment.isMarkdown = this.markdown;
 		this.firstTagPosition = 1; // bug 429340: completion parser needs to parse the whole comment
 		return super.commentParse();
 	}

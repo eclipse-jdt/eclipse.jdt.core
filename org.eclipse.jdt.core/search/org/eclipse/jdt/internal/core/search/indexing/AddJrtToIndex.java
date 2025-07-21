@@ -21,12 +21,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileVisitResult;
 import java.nio.file.attribute.BasicFileAttributes;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchParticipant;
@@ -126,7 +124,7 @@ public class AddJrtToIndex extends BinaryContainer {
 			this.participant = (participant != null) ? participant : SearchEngine.getDefaultSearchParticipant();
 			this.index = index;
 			IndexLocation indexLocation = index.getIndexLocation();
-			this.indexPath = indexLocation != null ? new Path(indexLocation.getCanonicalFilePath()) : null;
+			this.indexPath = indexLocation != null ? indexLocation.getIndexPath() : null;
 			this.container = container;
 			this.indexManager = indexManager;
 		}
@@ -246,8 +244,8 @@ public class AddJrtToIndex extends BinaryContainer {
 					boolean needToReindex = indexedFileNames.elementSize != max; // a new file was added
 					if (!needToReindex) {
 						Object[] valueTable = indexedFileNames.valueTable;
-						for (int i = 0, l = valueTable.length; i < l; i++) {
-							if (valueTable[i] == FILE_INDEX_STATE.DELETED) {
+						for (Object v : valueTable) {
+							if (v == FILE_INDEX_STATE.DELETED) {
 								needToReindex = true; // a file was deleted so re-index
 								break;
 							}

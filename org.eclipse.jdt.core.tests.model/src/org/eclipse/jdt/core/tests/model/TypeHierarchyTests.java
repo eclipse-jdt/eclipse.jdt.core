@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -22,9 +22,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
-
 import junit.framework.Test;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
@@ -32,23 +30,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.Flags;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IOrdinaryClassFile;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IRegion;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeHierarchy;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.model.SearchTests.WaitingJob;
 import org.eclipse.jdt.core.tests.model.Semaphore.TimeOutException;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings("rawtypes")
 public class TypeHierarchyTests extends ModifyingResourceTests {
@@ -91,14 +77,14 @@ public void setUpSuite() throws Exception {
 		"    new X() {};" +
 		"  }\n" +
 		"}",
-	}, JavaCore.VERSION_1_4);
+	}, CompilerOptions.getFirstSupportedJavaVersion());
 
 	IPackageFragmentRoot root = this.currentProject.getPackageFragmentRoot(this.currentProject.getProject().getFile("lib.jar"));
 	IRegion region = JavaCore.newRegion();
 	region.add(root);
 	this.typeHierarchy = this.currentProject.newTypeHierarchy(region, null);
 
-	IJavaProject project15 = createJavaProject("TypeHierarchy15", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
+	IJavaProject project15 = createJavaProject("TypeHierarchy15", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 	addLibrary(project15, "lib15.jar", "lib15src.zip", new String[] {
 		"util/AbstractList.java",
 		"package util;\n" +
@@ -116,7 +102,7 @@ public void setUpSuite() throws Exception {
 		"package util;\n" +
 		"public class Map<K,V> extends AbstractList<V> {\n" +
 		"}",
-	}, JavaCore.VERSION_1_5);
+	}, CompilerOptions.getFirstSupportedJavaVersion());
 	createFile(
 		"/TypeHierarchy15/src/X.java",
 		"import util.*;\n" +
@@ -332,10 +318,10 @@ public void testAnonymousType08() throws CoreException {
 	assertHierarchyEquals(
 		"Focus: Try [in Try.java [in <default> [in src [in TypeHierarchy15]]]]\n" +
 		"Super types:\n" +
-		"  Enum [in Enum.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" +
-		"    Comparable [in Comparable.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" +
-		"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" +
-		"    Serializable [in Serializable.class [in java.io [in "+ getExternalJCLPathString("1.5") + "]]]\n" +
+		"  Enum [in Enum.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]\n" +
+		"    Comparable [in Comparable.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]\n" +
+		"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]\n" +
+		"    Serializable [in Serializable.class [in java.io [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]\n" +
 		"Sub types:\n" +
 		"  <anonymous #1> [in ANONYMOUS [in Try [in Try.java [in <default> [in src [in TypeHierarchy15]]]]]]\n",
 		hierarchy);
@@ -351,10 +337,10 @@ public void testAnonymousType09() throws CoreException {
 		"Focus: <anonymous #1> [in ANONYMOUS [in Try [in Try.java [in <default> [in src [in TypeHierarchy15]]]]]]\n" +
 		"Super types:\n" +
 		"  Try [in Try.java [in <default> [in src [in TypeHierarchy15]]]]\n" +
-		"    Enum [in Enum.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" +
-		"      Comparable [in Comparable.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" +
-		"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" +
-		"      Serializable [in Serializable.class [in java.io [in "+ getExternalJCLPathString("1.5") + "]]]\n" +
+		"    Enum [in Enum.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]\n" +
+		"      Comparable [in Comparable.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]\n" +
+		"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]\n" +
+		"      Serializable [in Serializable.class [in java.io [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]\n" +
 		"Sub types:\n",
 		hierarchy);
 }
@@ -436,7 +422,7 @@ public void testBinaryInnerTypeGetSuperInterfaces() throws JavaModelException {
  */
 public void testBinaryInWrongPackage() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB", "lib"}, "bin");
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB", "lib"}, "bin");
 		createFolder("/P/src/p");
 		createFile(
 			"/P/src/p/X.java",
@@ -562,7 +548,7 @@ public void testBinaryTypeHiddenByOtherJar() throws CoreException, IOException {
 			new HashMap(),
 			externalJar2
 		);
-		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"JCL_LIB", externalJar1, externalJar2}, "");
+		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"JCL18_LIB", externalJar1, externalJar2}, "");
 		IType focus = project.getPackageFragmentRoot(externalJar2).getPackageFragment("p").getOrdinaryClassFile("Y.class").getType();
 		assertHierarchyEquals(
 			"Focus: Y [in Y.class [in p [in " + externalJar2 + "]]]\n" +
@@ -606,7 +592,7 @@ public void testBinaryTypeInDotClassJar() throws CoreException, IOException {
 			new HashMap(),
 			externalJar
 		);
-		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"JCL_LIB", externalJar}, "");
+		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"JCL18_LIB", externalJar}, "");
 		IType focus = project.getPackageFragmentRoot(externalJar).getPackageFragment("p").getOrdinaryClassFile("X.class").getType();
 		assertHierarchyEquals(
 			"Focus: X [in X.class [in p [in " + externalJar + "]]]\n" +
@@ -676,7 +662,7 @@ public void testCycle2() throws JavaModelException {
 		"Focus: CycleParent [in CycleParent.java [in <default> [in src [in TypeHierarchy15]]]]\n" +
 		"Super types:\n" +
 		"  CycleBase [in CycleBase.java [in <default> [in src [in TypeHierarchy15]]]]\n" +
-		"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" +
+		"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]\n" +
 		"Sub types:\n",
 		hierarchy
 	);
@@ -686,9 +672,9 @@ public void testCycle2() throws JavaModelException {
  */
 public void testEfficiencyMultipleProjects() throws CoreException {
 	try {
-		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "");
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
-		createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL18_LIB"}, "");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P1"}, "");
+		createJavaProject("P3", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P1"}, "");
 		createFile("/P1/X.java", "public class X {}");
 		createFile("/P3/Y.java", "public class Y extends X {}");
 		createFile("/P3/Z.java", "public class Z extends X {}");
@@ -848,7 +834,7 @@ public void testGeneric01() throws JavaModelException {
 		"Super types:\n" +
 		"  ArrayList [in ArrayList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" +
 		"    AbstractList [in AbstractList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" +
-		"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" +
+		"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]\n" +
 		"    List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" +
 		"  List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" +
 		"Sub types:\n",
@@ -865,7 +851,7 @@ public void testGeneric02() throws JavaModelException {
 		"Focus: ArrayList [in ArrayList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" +
 		"Super types:\n" +
 		"  AbstractList [in AbstractList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" +
-		"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" +
+		"    Object [in Object.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]\n" +
 		"  List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" +
 		"Sub types:\n" +
 		"  X [in X.java [in <default> [in src [in TypeHierarchy15]]]]\n" +
@@ -884,7 +870,7 @@ public void testGeneric03() throws JavaModelException {
 		"Super types:\n" +
 		"  ArrayList [in ArrayList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" +
 		"    AbstractList [in AbstractList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" +
-		"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" +
+		"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]\n" +
 		"    List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" +
 		"  List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" +
 		"Sub types:\n",
@@ -903,7 +889,7 @@ public void testGeneric04() throws JavaModelException {
 		"Super types:\n" +
 		"  ArrayList [in ArrayList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" +
 		"    AbstractList [in AbstractList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" +
-		"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" +
+		"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]\n" +
 		"    List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" +
 		"  List [in List.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" +
 		"Sub types:\n",
@@ -946,7 +932,7 @@ public void testGeneric07() throws JavaModelException {
 	assertHierarchyEquals(
 		"Focus: Y99606 [in Y99606.java [in <default> [in src [in TypeHierarchy15]]]]\n" +
 		"Super types:\n" +
-		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" +
+		"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]\n" +
 		"Sub types:\n" +
 		"  X99606 [in X99606.java [in <default> [in src [in TypeHierarchy15]]]]\n",
 		hierarchy
@@ -961,7 +947,7 @@ public void testGeneric08() throws JavaModelException {
 		"Super types:\n" +
 		"  B108740 [in B108740.java [in <default> [in src [in TypeHierarchy15]]]]\n" +
 		"    A108740 [in A108740.java [in <default> [in src [in TypeHierarchy15]]]]\n" +
-		"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" +
+		"      Object [in Object.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]\n" +
 		"Sub types:\n",
 		hierarchy
 	);
@@ -995,7 +981,7 @@ public void testGeneric09() throws CoreException {
 			"  I1_136095 [in I1_136095.java [in <default> [in src [in TypeHierarchy15]]]]\n" +
 			"  I2_136095 [in I2_136095.java [in <default> [in src [in TypeHierarchy15]]]]\n" +
 			"    I1_136095 [in I1_136095.java [in <default> [in src [in TypeHierarchy15]]]]\n" +
-			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" +
+			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]\n" +
 			"Sub types:\n",
 			hierarchy
 		);
@@ -1031,7 +1017,7 @@ public void testGeneric10() throws CoreException {
 			"Focus: X_140340 [in X_140340.java [in <default> [in src [in TypeHierarchy15]]]]\n" +
 			"Super types:\n" +
 			"  I1_140340 [in X_140340.java [in <default> [in src [in TypeHierarchy15]]]]\n" +
-			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" +
+			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]\n" +
 			"Sub types:\n",
 			hierarchy
 		);
@@ -1670,7 +1656,7 @@ public void testMemberTypeSubtypeDifferentProject() throws CoreException {
 			"  }\n" +
 			"}"
 			);
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P1"}, "");
 		createFile(
 			"/P2/Y.java",
 			"public class Y extends X.Member {\n" +
@@ -1729,7 +1715,7 @@ public void testMissingBinarySuperclass1() throws Exception {
 			"package p;\n" +
 			"public class Z213249 extends Y213249 {\n" +
 			"}",
-		}, "1.4");
+		}, CompilerOptions.getFirstSupportedJavaVersion());
 		deleteFile("/P/lib/p/X213249.class");
 		IType type = getClassFile("/P/lib/p/Z213249.class").getType();
 		ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
@@ -1764,7 +1750,7 @@ public void testMissingBinarySuperclass2() throws Exception {
 			"package p;\n" +
 			"public class Z213249 extends Y213249 {\n" +
 			"}",
-		}, "1.4");
+		}, CompilerOptions.getFirstSupportedJavaVersion());
 		deleteFile("/P/lib/p/X213249.class");
 		IType type = getClassFile("/P/lib/p/Z213249.class").getType();
 		ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
@@ -1784,7 +1770,7 @@ public void testMissingBinarySuperclass2() throws Exception {
  */
 public void testPotentialSubtypeInDependentProject() throws Exception {
 	try {
-		createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, "");
+		createJavaProject("P1", new String[] {""}, new String[] {"JCL18_LIB"}, "");
 		createFolder("/P1/p1");
 		createFile(
 			"/P1/p1/X169678.java",
@@ -1800,7 +1786,7 @@ public void testPotentialSubtypeInDependentProject() throws Exception {
 			"public class Z169678 extends X169678.Y169678 {\n" +
 			"}"
 		);
-		createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P1"}, "");
 		createFolder("/P2/p2");
 		createFile(
 			"/P2/p2/Y169678.java",
@@ -1930,8 +1916,8 @@ public void testRegion3() throws JavaModelException {
 public void _testRegion4() throws CoreException {
 	try {
 		IJavaProject p1 = createJavaProject("P1");
-		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
-		IJavaProject p3 = createJavaProject("P3", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P1"}, "");
+		IJavaProject p3 = createJavaProject("P3", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P1"}, "");
 		createFile(
 			"/P1/X.java",
 			"public class X {\n" +
@@ -1981,7 +1967,7 @@ public void _testRegion4() throws CoreException {
  */
 public void testRegion5() throws Exception {
 	try {
-		createJavaProject("P", new String[] {""}, new String[] {"JCL_LIB"}, "");
+		createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "");
 		createFolder("/P/p");
 		createFile(
 			"/P/p/X.java",
@@ -2017,8 +2003,8 @@ public void testRegion5() throws Exception {
 	}
 }
 /**
- * @bug 150289: [hierarchy] NPE in hierarchy builder when region is empy
- * @test Ensure that no NPE is thrown when IRegion has no associated project
+ * bug 150289: [hierarchy] NPE in hierarchy builder when region is empy
+ * test Ensure that no NPE is thrown when IRegion has no associated project
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=150289"
  */
 public void testRegion_Bug150289() throws JavaModelException {
@@ -2028,28 +2014,31 @@ public void testRegion_Bug150289() throws JavaModelException {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=144976
 public void testResilienceToMissingBinaries() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB", "/TypeHierarchy/test144976.jar"}, "bin");
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB", "/TypeHierarchy/test144976.jar"}, "bin");
 		createFolder("/P/src/tools/");
 		createFile(
 			"/P/src/tools/DisplayTestResult2.java",
-			"pakage tools;\n" +
+			"package tools;\n" +
 			"import servlet.*;\n" +
 			"public class DisplayTestResult2 extends TmrServlet2 {\n" +
-			"}"
+			"}\n" +
+			"obscruction"
 		);
 		createFolder("/P/src/servlet/");
 		createFile(
 				"/P/src/servlet/TmrServlet2.java",
-				"pakage servlet;\n" +
+				"package servlet;\n" +
 				"public class TmrServlet2 extends TmrServlet {\n" +
-				"}"
+				"}\n" +
+				"obstruction"
 			);
 		createFile(
 				"/P/src/servlet/TmrServlet.java",
-				"pakage servlet;\n" +
+				"package servlet;\n" +
 				"import gk.*;\n" +
 				"public class TmrServlet extends GKServlet {\n" +
-				"}"
+				"}\n" +
+				"obstruction"
 			);
 		IType type = getCompilationUnit("P", "src", "tools", "DisplayTestResult2.java").getType("DisplayTestResult2");
 		ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null);
@@ -2072,7 +2061,7 @@ public void testResilienceToMissingBinaries() throws CoreException {
  */
 public void testResolvedTypeAsFocus() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 		String source =
 			"public class X {\n" +
 			"  Y<String> field;\n" +
@@ -2100,7 +2089,7 @@ public void testResolvedTypeAsFocus() throws CoreException {
  */
 public void testRootOrder() throws CoreException, IOException {
 	try {
-		IJavaProject project = createJavaProject("P", new String[] {"abc"}, new String[] {"JCL_LIB"}, "bin");
+		IJavaProject project = createJavaProject("P", new String[] {"abc"}, new String[] {"JCL18_LIB"}, "bin");
 		createFolder("/P/abc/p");
 		createFile(
 			"/P/abc/p/X.java",
@@ -2119,7 +2108,7 @@ public void testRootOrder() throws CoreException, IOException {
 			"p/Y.java",
 			"package p;\n"+
 			"public class Y extends X {}"
-		}, "1.4");
+		}, CompilerOptions.getFirstSupportedJavaVersion());
 		IType type = getCompilationUnit("/P/abc/p/X.java").getType("X");
 		ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 		assertHierarchyEquals(
@@ -2359,8 +2348,8 @@ public void testVisibility2() throws JavaModelException {
 }
 
 /**
- * @bug 186781: StackOverflowError while computing launch button tooltip
- * @test Verify that StackOverflowException does no longer occur with the given test case
+ * bug 186781: StackOverflowError while computing launch button tooltip
+ * test Verify that StackOverflowException does no longer occur with the given test case
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=186781"
  */
 public void testBug186781() throws JavaModelException {
@@ -2377,8 +2366,8 @@ public void testBug186781() throws JavaModelException {
 }
 
 /**
- * @bug 215841: [search] Opening Type Hierarchy extremely slow
- * @test Ensure that the non-existing library referenced through a linked resource
+ * bug 215841: [search] Opening Type Hierarchy extremely slow
+ * test Ensure that the non-existing library referenced through a linked resource
  * 	is not indexed on each search request while building the hierarchy
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=215841"
  */
@@ -2420,13 +2409,13 @@ public void testBug215841() throws JavaModelException, CoreException, Interrupte
 	}
 }
 /**
- * @bug 254738: NPE in HierarchyResolver.setFocusType
- * @test that a nested method/anonymous sub type is included in the hierarchy when the number of annotations > 10
+ * bug 254738: NPE in HierarchyResolver.setFocusType
+ * test that a nested method/anonymous sub type is included in the hierarchy when the number of annotations > 10
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=254738"
  */
 public void testBug254738() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[] {}, "bin", "1.5");
+		createJavaProject("P", new String[] {"src"}, new String[] {}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		createFolder("/P/src/abc");
 		createFile(
 			"/P/src/abc/Parent.java",
@@ -2473,8 +2462,8 @@ public void testBug254738() throws CoreException {
 	}
 }
 /**
- * @bug 288698: Can't create type hierarchy for abstract types when they have inline descendants and *.class* in project name
- * @test Ensure that ".class" as a substring of a path name is not interpreted as the ".class" suffix.
+ * bug 288698: Can't create type hierarchy for abstract types when they have inline descendants and *.class* in project name
+ * test Ensure that ".class" as a substring of a path name is not interpreted as the ".class" suffix.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=288698"
  */
 public void testBug288698() throws JavaModelException {
@@ -2490,15 +2479,15 @@ public void testBug288698() throws JavaModelException {
 		hierarchy);
 }
 /**
- * @bug  329663:[type hierarchy] Interfaces duplicated in type hierarchy on two packages from multiple projects
- * @test that when two selected regions contains the same interface, it's not reported twice in the hierarchy.
+ * bug  329663:[type hierarchy] Interfaces duplicated in type hierarchy on two packages from multiple projects
+ * test that when two selected regions contains the same interface, it's not reported twice in the hierarchy.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=329663"
  */
 public void _testBug329663() throws JavaModelException, CoreException {
 	try {
-		IJavaProject p1 = createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, new String[0], "");
-		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+		IJavaProject p1 = createJavaProject("P1", new String[] {""}, new String[] {"JCL18_LIB"}, new String[0], "");
+		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P1"}, "");
 		createFolder("/P1/p");
 		createFile(
 				"/P1/p/I.java",
@@ -2534,16 +2523,16 @@ public void _testBug329663() throws JavaModelException, CoreException {
 	}
 }
 /**
- * @bug  329663:[type hierarchy] Interfaces duplicated in type hierarchy on two packages from multiple projects
- * @test that when two selected regions contains interfaces with same name but different, they are reported individually
+ * bug  329663:[type hierarchy] Interfaces duplicated in type hierarchy on two packages from multiple projects
+ * test that when two selected regions contains interfaces with same name but different, they are reported individually
  * in the hierarchy.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=329663"
  */
 public void _testBug329663a() throws JavaModelException, CoreException {
 try {
-	IJavaProject p1 = createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, new String[0], "");
-	IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
+	IJavaProject p1 = createJavaProject("P1", new String[] {""}, new String[] {"JCL18_LIB"}, new String[0], "");
+	IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, new String[] {"/P1"}, "");
 	createFolder("/P1/p");
 	createFile(
 			"/P1/p/I.java",
@@ -2587,7 +2576,7 @@ finally{
 public void testBug300576() throws CoreException {
 	IJavaProject prj = null;
 	try {
-		prj = createJavaProject("Bug300576", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.5");
+		prj = createJavaProject("Bug300576", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		createFolder("/Bug300576/src/p");
 		createFile("/Bug300576/src/p/Outer.java",
 				"package p;\n" +
@@ -2612,10 +2601,17 @@ public void testBug300576() throws CoreException {
 		IRegion region = JavaCore.newRegion();
 		region.add(getPackageFragmentRoot("Bug300576", "src"));
 		ITypeHierarchy hierarchy = prj.newTypeHierarchy(a, region, new NullProgressMonitor());
+		String externalJCLPath = getExternalJCLPathString();
 		assertHierarchyEquals(
-				"Focus: A [in Outer [in Outer.java [in p [in src [in Bug300576]]]]]\n" +
-				"Super types:\n" +
-				"Sub types:\n",
+				"""
+				Focus: A [in Outer [in Outer.java [in p [in src [in Bug300576]]]]]
+				Super types:
+				  Enum [in Enum.class [in java.lang [in %s]]]
+				    Comparable [in Comparable.class [in java.lang [in %s]]]
+				    Object [in Object.class [in java.lang [in %s]]]
+				    Serializable [in Serializable.class [in java.io [in %s]]]
+				Sub types:
+				""".formatted(externalJCLPath, externalJCLPath, externalJCLPath, externalJCLPath),
 				hierarchy);
 	} finally {
 		if (prj != null)
@@ -2627,7 +2623,7 @@ public void testBug300576() throws CoreException {
 public void testBug300576b() throws CoreException {
 	IJavaProject prj = null;
 	try {
-		prj = createJavaProject("Bug300576", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.5");
+		prj = createJavaProject("Bug300576", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		createFolder("/Bug300576/src/p");
 		createFolder("/Bug300576/src/java/lang");
 		createFile("/Bug300576/src/java/lang/Enum.java",
@@ -2670,7 +2666,7 @@ public void testBug300576b() throws CoreException {
 public void testBug393192() throws CoreException {
 	IJavaProject prj = null;
 	try {
-		prj = createJavaProject("Bug393192", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.5");
+		prj = createJavaProject("Bug393192", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		createFolder("/Bug393192/src/pullup");
 		createFile("/Bug393192/src/pullup/A.java",
 				"package pullup;\n" +
@@ -2756,7 +2752,7 @@ public void testBug393192() throws CoreException {
 }
 public void testBug436155() throws CoreException, IOException {
 	try {
-		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
 		createFolder("/P/abc/p");
 		addLibrary(project, "lib.jar", "libsrc.zip", new String[] {
 			"p/I.java",
@@ -2768,7 +2764,7 @@ public void testBug436155() throws CoreException, IOException {
 			"p/Text.java",
 			"package p;\n"+
 			"public class Text extends I2 {}",
-		}, "1.4");
+		}, CompilerOptions.getFirstSupportedJavaVersion());
 
 		createFolder("/P/src/q");
 		String source = "package q;\n" +
@@ -2800,7 +2796,7 @@ public void testBug436155() throws CoreException, IOException {
 public void testBug436139() throws CoreException, IOException {
 	IJavaProject prj = null;
 	try {
-		prj = createJavaProject("Bug436139", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.8");
+		prj = createJavaProject("Bug436139", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 		createFolder("/Bug436139/src/p1");
 		String iSource = "package p1;\n" +
 				"public interface I {\n" +
@@ -2860,7 +2856,7 @@ public void testBug436139() throws CoreException, IOException {
 public void testBug469668() throws CoreException, IOException {
 	IJavaProject project = null;
 	try {
-		project = createJavaProject("Bug469668", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.8");
+		project = createJavaProject("Bug469668", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 		createFolder("/Bug469668/src/hierarchy");
 		StringBuilder buffer = new StringBuilder();
 		for (int i = 1; i < 21; i++) {
@@ -2972,7 +2968,7 @@ public void testBug507954_0001() throws JavaModelException, CoreException {
 	IJavaProject javaProject = null;
 	try {
 		String projectName = "507954";
-		javaProject = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
+		javaProject = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		String packA = "/" + projectName + "/src/a/";
 		createFolder(packA);
 		String fileA = 				"package a;\n" +
@@ -3309,7 +3305,7 @@ public void testBug425111() throws Exception {
 }
 public void testBug559210() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB", "lib"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB", "lib"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		createFolder("/P/src/java/io");
 		createFile(
 				"/P/src/java/io/Closeable.java",
@@ -3366,13 +3362,13 @@ public void testBug559210() throws CoreException {
 	}
 }
 /**
- * @bug 457813: StackOverflowError while computing launch button tooltip
- * @test Verify that StackOverflowException does no longer occur with the given test case
+ * bug 457813: StackOverflowError while computing launch button tooltip
+ * test Verify that StackOverflowException does no longer occur with the given test case
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=457813"
  */
 public void testBug457813() throws CoreException {
 	try {
-		createJavaProject("P", new String[] { "src" }, new String[] { "JCL_LIB", "/TypeHierarchy/test457813.jar" },
+		createJavaProject("P", new String[] { "src" }, new String[] { "JCL18_LIB", "/TypeHierarchy/test457813.jar" },
 				"bin");
 		createFolder("/P/src/hierarchy");
 		createFile(
@@ -3387,6 +3383,7 @@ public void testBug457813() throws CoreException {
 		assertHierarchyEquals(
 				"Focus: X [in X.java [in hierarchy [in src [in P]]]]\n" +
 				"Super types:\n" +
+				"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" +
 				"Sub types:\n",
 				hierarchy);
 	} finally {
@@ -3397,7 +3394,7 @@ public void testBug457813() throws CoreException {
 public void testBug573450_001() throws CoreException {
 	if (!isJRE16) return;
 	try {
-		IJavaProject proj = createJava16Project("P", new String[] {"src"});
+		IJavaProject proj = createJava21Project("P");
 		proj.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		createFolder("/P/src/hierarchy");
 		createFile(
@@ -3425,7 +3422,7 @@ public void testBug573450_001() throws CoreException {
 public void testBug573450_002() throws CoreException {
 	if (!isJRE16) return;
 	try {
-		IJavaProject proj = createJava16Project("P", new String[] {"src"});
+		IJavaProject proj = createJava21Project("P");
 		proj.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		createFolder("/P/src/hierarchy");
 		createFile(
@@ -3451,7 +3448,7 @@ public void testBug573450_002() throws CoreException {
 }
 
 private void setupQualifierProject() throws Exception {
-	IJavaProject projectQ = createJavaProject("TypeHierarchyQ", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+	IJavaProject projectQ = createJavaProject("TypeHierarchyQ", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 	addClasspathEntry(projectQ, getJRTLibraryEntry());
 	addClasspathEntry(projectQ, JavaCore.newProjectEntry(getProject("TypeHierarchy15").getFullPath()));
 	addLibraryEntry(projectQ, Paths.get(getSourceWorkspacePath(), "TypeHierarchy", "test57007.jar").toFile().getAbsolutePath(), false);
@@ -3513,7 +3510,7 @@ private void setupQualifierProject() throws Exception {
 			"public class Middle extends COuter {}\n"
 	);
 
-	IJavaProject projectR = createJavaProject("TypeHierarchyR", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+	IJavaProject projectR = createJavaProject("TypeHierarchyR", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 	addClasspathEntry(projectR, JavaCore.newProjectEntry(getProject("TypeHierarchyQ").getFullPath()));
 	addClasspathEntry(projectR, getJRTLibraryEntry());
 	createFolder("/TypeHierarchyR/src/p3");
@@ -3674,7 +3671,7 @@ public void testIndexQualificationBinaryNestedSubTypes_SearchForNestedSuperType(
 }
 
 /**
- * @bug GitHub 269: Wrong type hierarchy computed for types with cyclic static imports.
+ * bug GitHub 269: Wrong type hierarchy computed for types with cyclic static imports.
  * @see "https://github.com/eclipse-jdt/eclipse.jdt.core/issues/269"
  */
 public void testBugGh269() throws Exception {

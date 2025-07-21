@@ -15,18 +15,8 @@
 package org.eclipse.jdt.internal.core;
 
 import java.util.Arrays;
-
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.Flags;
-import org.eclipse.jdt.core.IAnnotation;
-import org.eclipse.jdt.core.ILocalVariable;
-import org.eclipse.jdt.core.IMemberValuePair;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeParameter;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
@@ -36,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -48,7 +39,7 @@ public class BinaryMethod extends BinaryMember implements IMethod {
 	 * to perform equality test. <code>CharOperation.NO_STRINGS</code> indicates no
 	 * parameters. Note that the parameter type signatures are expected to be dot-based.
 	 */
-	protected String[] parameterTypes;
+	protected final String[] parameterTypes;
 	protected String [] erasedParamaterTypes; // lazily initialized via call to getErasedParameterTypes
 
 	/**
@@ -125,7 +116,7 @@ public ILocalVariable[] getParameters() throws JavaModelException {
 		if (i < startIndex) {
 			LocalVariable localVariable = new LocalVariable(
 					this,
-					new String(argumentNames[i]),
+					DeduplicationUtil.toString(argumentNames[i]),
 					0,
 					-1,
 					0,
@@ -231,9 +222,9 @@ protected void getHandleMemento(StringBuilder buff) {
 	char delimiter = getHandleMementoDelimiter();
 	buff.append(delimiter);
 	escapeMementoName(buff, getElementName());
-	for (int i = 0; i < this.parameterTypes.length; i++) {
+	for (String parameterType : this.parameterTypes) {
 		buff.append(delimiter);
-		escapeMementoName(buff, this.parameterTypes[i]);
+		escapeMementoName(buff, parameterType);
 	}
 	if (this.getOccurrenceCount() > 1) {
 		buff.append(JEM_COUNT);
@@ -315,11 +306,11 @@ public String[] getParameterNames() throws JavaModelException {
 		if ((modifiers & ClassFileConstants.AccSynthetic) != 0) {
 			return this.parameterNames = getRawParameterNames(paramCount);
 		}
-		JavadocContents javadocContents = null;
+		IJavadocContents javadocContents = null;
 		IType declaringType = getDeclaringType();
 		PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(getJavaProject().getProject());
 		synchronized (projectInfo.javadocCache) {
-			javadocContents = (JavadocContents) projectInfo.javadocCache.get(declaringType);
+			javadocContents = (IJavadocContents) projectInfo.javadocCache.get(declaringType);
 			if (javadocContents == null) {
 				projectInfo.javadocCache.put(declaringType, BinaryType.EMPTY_JAVADOC);
 			}
@@ -532,10 +523,12 @@ private String [] getErasedParameterTypes() {
 		boolean erasureNeeded = false;
 		for (int i = 0; i < paramCount; i++) {
 			String parameterType = this.parameterTypes[i];
-			if ((erasedTypes[i] = Signature.getTypeErasure(parameterType)) != parameterType)
+			if ((erasedTypes[i] = Signature.getTypeErasure(parameterType)) != parameterType) {
 				erasureNeeded = true;
+			}
 		}
-		this.erasedParamaterTypes = erasureNeeded ? erasedTypes : this.parameterTypes;
+		this.erasedParamaterTypes = erasureNeeded ? DeduplicationUtil.intern(erasedTypes) : this.parameterTypes;
+
 	}
 	return this.erasedParamaterTypes;
 }
@@ -683,10 +676,10 @@ public String readableName() {
 }
 @Override
 public JavaElement resolved(Binding binding) {
-	SourceRefElement resolvedHandle = new ResolvedBinaryMethod(this.getParent(), this.name, this.parameterTypes, new String(binding.computeUniqueKey()), this.getOccurrenceCount());
+	SourceRefElement resolvedHandle = new ResolvedBinaryMethod(this.getParent(), this.name, this.parameterTypes, DeduplicationUtil.toString(binding.computeUniqueKey()), this.getOccurrenceCount());
 	return resolvedHandle;
 }/*
- * @private Debugging purposes
+ * for debugging only
  */
 @Override
 protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean showResolvedInfo) {
@@ -748,7 +741,7 @@ protected void toStringName(StringBuilder buffer, int flags) {
 }
 @Override
 public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelException {
-	JavadocContents javadocContents = ((BinaryType) this.getDeclaringType()).getJavadocContents(monitor);
+	IJavadocContents javadocContents = ((BinaryType) this.getDeclaringType()).getJavadocContents(monitor);
 	if (javadocContents == null) return null;
 	return javadocContents.getMethodDoc(this);
 }

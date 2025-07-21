@@ -14,12 +14,20 @@
 
 package org.eclipse.jdt.apt.core.internal.env;
 
+import com.sun.mirror.apt.Filer;
+import com.sun.mirror.declaration.AnnotationTypeDeclaration;
+import com.sun.mirror.declaration.PackageDeclaration;
+import com.sun.mirror.declaration.TypeDeclaration;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IWorkspace;
@@ -38,13 +46,15 @@ import org.eclipse.jdt.apt.core.internal.util.Visitors.AnnotationVisitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.BuildContext;
-import org.eclipse.jdt.core.dom.*;
-import com.sun.mirror.apt.Filer;
-import com.sun.mirror.declaration.AnnotationTypeDeclaration;
-import com.sun.mirror.declaration.PackageDeclaration;
-import com.sun.mirror.declaration.TypeDeclaration;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.Annotation;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class BuildEnv extends AbstractCompilationEnv
 {

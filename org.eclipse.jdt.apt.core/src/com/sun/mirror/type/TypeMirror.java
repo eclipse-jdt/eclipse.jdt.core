@@ -33,8 +33,8 @@ package com.sun.mirror.type;
 
 
 import com.sun.mirror.declaration.Declaration;
-import com.sun.mirror.util.Types;
 import com.sun.mirror.util.TypeVisitor;
+import com.sun.mirror.util.Types;
 
 
 /**

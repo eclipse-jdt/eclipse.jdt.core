@@ -15,7 +15,6 @@ package org.eclipse.jdt.core.tests.rewrite.describing;
 
 import java.util.List;
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;

@@ -15,7 +15,7 @@ package org.eclipse.jdt.core.tests.performance;
 
 import java.io.PrintStream;
 import java.text.NumberFormat;
-
+import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IField;
@@ -30,12 +30,8 @@ import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.SearchRequestor;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 
-import junit.framework.Test;
-
 /**
- * Performance test suite which covers all main search requests:
- * <ul>
- * </ul>
+ * Performance test suite which covers all main search requests.
  *
  * Note that this test suite was not supposed to be included in releng performance tests
  * as it would take too much time to be run...
@@ -217,10 +213,10 @@ protected void cleanCategoryTableCache(boolean type, JavaSearchResultCollector r
 /**
  * Performance tests for search types in workspace:
  * <ul>
- * <li>declarations using string pattern</i>
- * <li>references using string pattern</i>
- * <li>delcarations using java element pattern</i>
- * <li>references using java element pattern</i>
+ * <li>declarations using string pattern</li>
+ * <li>references using string pattern</li>
+ * <li>delcarations using java element pattern</li>
+ * <li>references using java element pattern</li>
  * </ul>
  */
 public void testSearchStringTypeDeclarations() throws CoreException {
@@ -335,10 +331,10 @@ public void testSearchJavaElementTypeReferences() throws CoreException {
 /**
  * Performance tests for search fields in workspace:
  * <ul>
- * <li>declarations using string pattern</i>
- * <li>references using string pattern</i>
- * <li>delcarations using java element pattern</i>
- * <li>references using java element pattern</i>
+ * <li>declarations using string pattern</li>
+ * <li>references using string pattern</li>
+ * <li>delcarations using java element pattern</li>
+ * <li>references using java element pattern</li>
  * </ul>
  */
 public void testSearchStringFieldDeclarations() throws CoreException {
@@ -467,10 +463,10 @@ public void testSearchJavaElementFieldReferences() throws CoreException {
 /**
  * Performance tests for search methods in workspace:
  * <ul>
- * <li>declarations using string pattern</i>
- * <li>references using string pattern</i>
- * <li>delcarations using java element pattern</i>
- * <li>references using java element pattern</i>
+ * <li>declarations using string pattern</li>
+ * <li>references using string pattern</li>
+ * <li>delcarations using java element pattern</li>
+ * <li>references using java element pattern</li>
  * </ul>
  */
 public void testSearchStringMethodDeclarations() throws CoreException {
@@ -599,10 +595,10 @@ public void testSearchJavaElementMethodReferences() throws CoreException {
 /**
  * Performance tests for search constructors in workspace:
  * <ul>
- * <li>declarations using string pattern</i>
- * <li>references using string pattern</i>
- * <li>delcarations using java element pattern</i>
- * <li>references using java element pattern</i>
+ * <li>declarations using string pattern</li>
+ * <li>references using string pattern</li>
+ * <li>delcarations using java element pattern</li>
+ * <li>references using java element pattern</li>
  * </ul>
  */
 public void testSearchStringConstructorDeclarations() throws CoreException {

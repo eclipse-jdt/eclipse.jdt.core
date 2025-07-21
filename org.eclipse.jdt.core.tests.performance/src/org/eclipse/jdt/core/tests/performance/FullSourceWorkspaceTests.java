@@ -27,17 +27,9 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.DateFormat;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-
+import java.util.*;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -54,17 +46,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaModelStatusConstants;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IOrdinaryClassFile;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -85,9 +67,6 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.test.internal.performance.data.DataPoint;
 import org.eclipse.test.performance.Dimension;
 import org.eclipse.test.performance.Performance;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -125,17 +104,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		}
 	}
 	protected static String compliance() {
-		String compliance = null;
-		if ("1.3".equals(COMPLIANCE)) {
-			compliance = CompilerOptions.VERSION_1_3;
-		} else if ("1.4".equals(COMPLIANCE)) {
-			compliance = CompilerOptions.VERSION_1_4;
-		} else if ("1.5".equals(COMPLIANCE) || "5.0".equals(COMPLIANCE)) {
-			compliance = CompilerOptions.VERSION_1_5;
-		} else if ("1.6".equals(COMPLIANCE) || "6.0".equals(COMPLIANCE)) {
-			compliance = CompilerOptions.VERSION_1_6;
-		}
-		return compliance;
+		return null;
 	}
 
 	// Garbage collect constants
@@ -190,9 +159,9 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 	/**
 	 * Count of measures done for all tests.
-	 * <b>
+	 * <p>
 	 * Default value is 10 but can be modified using system property "measures".
-	 * <b>
+	 * <p>
 	 * For example, "-Dmeasures=1" will make all performance test suites to run
 	 * only 1 iteration for each test.
 	 */
@@ -965,16 +934,6 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 				// set classpath and output location
 				IJavaProject javaProject = ENV.getJavaProject(projectName);
 				javaProject.setRawClasspath(entries, projectPath.append(outputPath), null);
-
-				// set compliance level options
-				if ("1.5".equals(compliance)) {
-					Map options = new HashMap();
-					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-					javaProject.setOptions(options);
-				}
-
 				result[0] = javaProject;
 			}
 		};
@@ -1253,7 +1212,6 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			optionsMap.put(CompilerOptions.OPTION_ReportFieldHiding, warning);
 			optionsMap.put(CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment, warning);
 			optionsMap.put(CompilerOptions.OPTION_ReportEmptyStatement, warning);
-			optionsMap.put(CompilerOptions.OPTION_ReportAssertIdentifier, warning);
 			optionsMap.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, warning);
 			optionsMap.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, warning);
 			optionsMap.put(CompilerOptions.OPTION_ReportUnnecessaryElse, warning);
@@ -1270,12 +1228,10 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 			optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, enabled);
 			optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, enabled);
 			optionsMap.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, enabled);
-			optionsMap.put(CompilerOptions.OPTION_InlineJsr, enabled);
 		}
 
 		// Ignore 3.1 options
 		optionsMap.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
-		optionsMap.put(CompilerOptions.OPTION_ReportEnumIdentifier, CompilerOptions.IGNORE);
 
 		// Ignore 3.2 options
 		optionsMap.put(CompilerOptions.OPTION_ReportUnusedLabel, CompilerOptions.IGNORE);

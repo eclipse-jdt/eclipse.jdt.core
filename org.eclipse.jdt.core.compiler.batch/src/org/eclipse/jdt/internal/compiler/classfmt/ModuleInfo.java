@@ -15,7 +15,6 @@ package org.eclipse.jdt.internal.compiler.classfmt;
 
 import java.net.URI;
 import java.util.Arrays;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryModule;
@@ -261,8 +260,8 @@ public class ModuleInfo extends ClassFileStruct implements IBinaryModule {
 		this.annotations = annotationInfos;
 		this.tagBits = tagBits;
 		if (fullyInitialize) {
-			for (int i = 0, max = annotationInfos.length; i < max; i++) {
-				annotationInfos[i].initialize();
+			for (AnnotationInfo info : annotationInfos) {
+				info.initialize();
 			}
 		}
 	}

@@ -109,13 +109,13 @@ public class FieldAccess extends Expression {
 	 * The expression; lazily initialized; defaults to an unspecified,
 	 * but legal, simple name.
 	 */
-	private Expression expression = null;
+	private volatile Expression expression;
 
 	/**
 	 * The field; lazily initialized; defaults to an unspecified,
 	 * but legal, simple field name.
 	 */
-	private SimpleName fieldName = null;
+	private volatile SimpleName fieldName;
 
 	/**
 	 * Creates a new unparented node for a field access expression owned by the
@@ -200,8 +200,7 @@ public class FieldAccess extends Expression {
 			synchronized (this) {
 				if (this.expression == null) {
 					preLazyInit();
-					this.expression = new SimpleName(this.ast);
-					postLazyInit(this.expression, EXPRESSION_PROPERTY);
+					this.expression = postLazyInit(new SimpleName(this.ast), EXPRESSION_PROPERTY);
 				}
 			}
 		}
@@ -240,8 +239,7 @@ public class FieldAccess extends Expression {
 			synchronized (this) {
 				if (this.fieldName == null) {
 					preLazyInit();
-					this.fieldName = new SimpleName(this.ast);
-					postLazyInit(this.fieldName, NAME_PROPERTY);
+					this.fieldName = postLazyInit(new SimpleName(this.ast), NAME_PROPERTY);
 				}
 			}
 		}

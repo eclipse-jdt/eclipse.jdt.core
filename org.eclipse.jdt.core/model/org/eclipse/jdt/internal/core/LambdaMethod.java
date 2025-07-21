@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.ILocalVariable;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -33,7 +34,8 @@ public class LambdaMethod extends SourceMethod {
 	LambdaMethod(JavaElement parent, String name, String key, int sourceStart, String [] parameterTypes, String [] parameterNames, String returnType, SourceMethodElementInfo elementInfo) {
 		super(parent, name, parameterTypes);
 		this.sourceStart = sourceStart;
-		this.parameterNameStrings = parameterNames;
+		this.parameterNameStrings = (parameterNames == null || parameterNames.length == 0) ? CharOperation.NO_STRINGS
+				: parameterNames;
 		this.returnTypeString = returnType;
 		this.elementInfo = elementInfo;
 		this.key = key;
@@ -102,8 +104,8 @@ public class LambdaMethod extends SourceMethod {
 		appendEscapedDelimiter(buff, JEM_STRING);
 		escapeMementoName(buff, this.key);
 		ILocalVariable[] arguments = this.elementInfo.arguments;
-		for (int i = 0, length = arguments.length; i < length; i++) {
-			LocalVariable local = (LocalVariable) arguments[i];
+		for (ILocalVariable argument : arguments) {
+			LocalVariable local = (LocalVariable) argument;
 			local.getHandleMemento(buff, false);
 		}
 	}

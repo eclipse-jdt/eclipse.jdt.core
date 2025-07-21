@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2023 IBM Corporation and others.
+ * Copyright (c) 2019, 2024 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,15 +15,13 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 
@@ -8104,8 +8102,18 @@ public void testBug566846_1() {
 			"----------\n" +
 			"1. ERROR in X.java (at line 1)\n" +
 			"	public record X;\n" +
+			"	^\n" +
+			"The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 23 and above\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 1)\n" +
+			"	public record X;\n" +
+			"	^\n" +
+			"Implicitly declared class must have a candidate main method\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 1)\n" +
+			"	public record X;\n" +
 			"	       ^^^^^^\n" +
-			"Syntax error on token \"record\", package expected\n" +
+			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 			"----------\n",
 			null,
 			true,
@@ -8121,20 +8129,20 @@ public void testBug566846_2() {
 				+ "record R1;\n"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	} \n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	public class X {\n" +
 			"	^\n" +
-			"Syntax error on token \"}\", delete this token\n" +
+			"The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 23 and above\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	record R1;\n" +
-			"	^^^^^^\n" +
-			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
+			"2. ERROR in X.java (at line 1)\n" +
+			"	public class X {\n" +
+			"	^\n" +
+			"Implicitly declared class must have a candidate main method\n" +
 			"----------\n" +
 			"3. ERROR in X.java (at line 3)\n" +
 			"	record R1;\n" +
-			"	         ^\n" +
-			"Syntax error, insert \"}\" to complete ClassBody\n" +
+			"	^^^^^^\n" +
+			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 			"----------\n",
 			null,
 			true,
@@ -8632,12 +8640,22 @@ public void testBug571765_001() {
 					"module-info.java",
 					"public record R() {}\n",
 				},
-	        "----------\n" +
+			"----------\n" +
 			"1. ERROR in module-info.java (at line 1)\n" +
 			"	public record R() {}\n" +
+			"	^\n" +
+			"The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 23 and above\n" +
+			"----------\n" +
+			"2. ERROR in module-info.java (at line 1)\n" +
+			"	public record R() {}\n" +
+			"	^\n" +
+			"Implicitly declared class must have a candidate main method\n" +
+			"----------\n" +
+			"3. ERROR in module-info.java (at line 1)\n" +
+			"	public record R() {}\n" +
 			"	       ^^^^^^\n" +
-			"Syntax error on token \"record\", record expected\n" +
-	        "----------\n");
+			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
+			"----------\n");
 }
 public void testBug571905_01() throws Exception {
 	runConformTest(

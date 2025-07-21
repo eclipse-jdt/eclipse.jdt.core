@@ -14,6 +14,7 @@
 package org.eclipse.jdt.internal.compiler.classfmt;
 
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
+import org.eclipse.jdt.internal.compiler.util.CharDeduplication;
 
 /**
  * Describes one entry in the classes table of the InnerClasses attribute.
@@ -48,7 +49,7 @@ public char[] getEnclosingTypeName() {
 				this.constantPoolOffsets[u2At(
 					this.constantPoolOffsets[this.outerClassNameIndex] - this.structOffset + 1)]
 					- this.structOffset;
-			this.outerClassName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+			this.outerClassName = CharDeduplication.intern(utf8At(utf8Offset + 3, u2At(utf8Offset + 1)));
 		}
 		this.readOuterClassName = true;
 
@@ -72,7 +73,7 @@ public char[] getName() {
 		if (this.innerClassNameIndex != 0) {
 			int  classOffset = this.constantPoolOffsets[this.innerClassNameIndex] - this.structOffset;
 			int utf8Offset = this.constantPoolOffsets[u2At(classOffset + 1)] - this.structOffset;
-			this.innerClassName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+			this.innerClassName = CharDeduplication.intern(utf8At(utf8Offset + 3, u2At(utf8Offset + 1)));
 		}
 		this.readInnerClassName = true;
 	}
@@ -88,7 +89,7 @@ public char[] getSourceName() {
 	if (!this.readInnerName) {
 		if (this.innerNameIndex != 0) {
 			int utf8Offset = this.constantPoolOffsets[this.innerNameIndex] - this.structOffset;
-			this.innerName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+			this.innerName = CharDeduplication.intern(utf8At(utf8Offset + 3, u2At(utf8Offset + 1)));
 		}
 		this.readInnerName = true;
 	}

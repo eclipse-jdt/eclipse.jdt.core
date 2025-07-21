@@ -27,30 +27,16 @@
 
 package org.eclipse.jdt.apt.tests.annotations.mirrortest;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
-import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
-
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
-import com.sun.mirror.declaration.AnnotationMirror;
-import com.sun.mirror.declaration.AnnotationTypeDeclaration;
-import com.sun.mirror.declaration.AnnotationTypeElementDeclaration;
-import com.sun.mirror.declaration.AnnotationValue;
-import com.sun.mirror.declaration.ClassDeclaration;
-import com.sun.mirror.declaration.ConstructorDeclaration;
-import com.sun.mirror.declaration.EnumConstantDeclaration;
-import com.sun.mirror.declaration.EnumDeclaration;
-import com.sun.mirror.declaration.FieldDeclaration;
-import com.sun.mirror.declaration.MethodDeclaration;
-import com.sun.mirror.declaration.Modifier;
-import com.sun.mirror.declaration.ParameterDeclaration;
-import com.sun.mirror.declaration.TypeDeclaration;
+import com.sun.mirror.declaration.*;
 import com.sun.mirror.type.AnnotationType;
 import com.sun.mirror.type.ClassType;
 import com.sun.mirror.type.ReferenceType;
 import com.sun.mirror.util.SourcePosition;
+import java.util.ArrayList;
+import java.util.Collection;
+import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
+import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 
 public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,9 +16,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
@@ -152,8 +152,6 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 	 * @param scope used to determine source level
 	 */
 	public boolean isUnnamed(BlockScope scope) {
-		return this.name.length == 1 && this.name[0] == '_'
-				&& scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK21
-				&& scope.compilerOptions().enablePreviewFeatures;
+		return this.name.length == 1 && this.name[0] == '_' && JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(scope.compilerOptions().sourceLevel, scope.compilerOptions().enablePreviewFeatures);
 	}
 }

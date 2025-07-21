@@ -51,7 +51,7 @@ public class ResolvedBinaryField extends BinaryField {
 	}
 
 	/**
-	 * @private Debugging purposes
+	 * for debugging only
 	 */
 	@Override
 	protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean showResolvedInfo) {

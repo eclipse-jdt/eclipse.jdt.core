@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -67,6 +67,10 @@ public class SuperReference extends ThisReference {
 	public TypeBinding resolveType(BlockScope scope) {
 
 		this.constant = Constant.NotAConstant;
+		if (scope.isInsideEarlyConstructionContext(null, false)) {
+			// always error, no need to check any details:
+			scope.problemReporter().errorExpressionInEarlyConstructionContext(this);
+		}
 		ReferenceBinding enclosingReceiverType = scope.enclosingReceiverType();
 		if (!checkAccess(scope, enclosingReceiverType))
 			return null;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2023 IBM Corporation and others.
+ * Copyright (c) 2018, 2024 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Advantest R & D - Switch Expressions 2.0
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -18,23 +19,16 @@ import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.VANILLA_CO
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
-import java.util.stream.Collectors;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -48,30 +42,137 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 public class SwitchExpression extends SwitchStatement implements IPolyExpression {
 
 	/* package */ TypeBinding expectedType;
-	private ExpressionContext expressionContext = VANILLA_CONTEXT;
-	private boolean isPolyExpression = false;
-	private TypeBinding[] originalValueResultExpressionTypes;
-	private TypeBinding[] finalValueResultExpressionTypes;
-	/* package */ Map<Expression, TypeBinding> originalTypeMap = new HashMap<>();
-
-
+	ExpressionContext expressionContext = VANILLA_CONTEXT;
 	private int nullStatus = FlowInfo.UNKNOWN;
-	public List<Expression> resultExpressions;
-	public boolean resolveAll;
-	/* package */ List<Integer> resultExpressionNullStatus;
-	LocalVariableBinding hiddenYield;
-	/* package */ int hiddenYieldResolvedPosition = -1;
-	public boolean containsTry = false;
-	private static Map<TypeBinding, TypeBinding[]> type_map;
+	public boolean jvmStackVolatile = false;
 	static final char[] SECRET_YIELD_VALUE_NAME = " yieldValue".toCharArray(); //$NON-NLS-1$
-	int yieldResolvedPosition = -1;
-	List<LocalVariableBinding> typesOnStack;
+	private List<LocalVariableBinding> typesOnStack;
 
-	static {
-		type_map = new HashMap<>();
-		type_map.put(TypeBinding.CHAR, new TypeBinding[] {TypeBinding.CHAR, TypeBinding.INT});
-		type_map.put(TypeBinding.SHORT, new TypeBinding[] {TypeBinding.SHORT, TypeBinding.BYTE, TypeBinding.INT});
-		type_map.put(TypeBinding.BYTE, new TypeBinding[] {TypeBinding.BYTE, TypeBinding.INT});
+	public Results results = new Results();
+
+	class Results { // Abstraction to help with 15.28.1 determination of the type of a switch expression.
+
+		private Set<Expression> rExpressions = new LinkedHashSet<>(4);
+		private Set<TypeBinding> rTypes = new HashSet<>();
+
+		// Result expressions aggregate classification - will be negated as and when the picture changes
+		private boolean allUniform = true;
+		private boolean allBoolean = true;
+		private boolean allNumeric = true;
+		private boolean allWellFormed = true; // true as long as result expression completely fail to resolve (resolvedType == null)
+
+		private TypeBinding resultType() {
+
+			if (!this.allWellFormed)
+				return null;
+
+			if (SwitchExpression.this.isPolyExpression())
+				return resolveAsType(SwitchExpression.this.expectedType);
+
+			if (this.allUniform) {
+				TypeBinding uniformType = null;
+				for (Expression rExpression : this.rExpressions)
+					uniformType = uniformType == null ? rExpression.resolvedType : NullAnnotationMatching.moreDangerousType(uniformType, rExpression.resolvedType);
+				return uniformType;
+			}
+
+			if (this.allBoolean)
+				return resolveAsType(TypeBinding.BOOLEAN);
+
+			if (this.allNumeric) {
+				for (TypeBinding type : TypeBinding.NUMERIC_TYPES) {
+					TypeBinding result;
+					switch (type.id) {
+						case T_double:
+						case T_float:
+						case T_long:
+						case T_int:
+							result = this.rTypes.contains(type) ? type : null;
+							break;
+						case T_short:
+						case T_byte:
+						case T_char:
+							if (this.rTypes.contains(type)) {
+								if (type.id != T_char && this.rTypes.contains(TypeBinding.CHAR)) {
+									result = TypeBinding.INT;
+								} else {
+									for (Expression rExpression : this.rExpressions) {
+										if (rExpression.resolvedType.id == T_int && rExpression.constant != Constant.NotAConstant && !rExpression.isConstantValueOfTypeAssignableToType(rExpression.resolvedType, type)) {
+											result = TypeBinding.INT;
+											break;
+										}
+									}
+									result = type;
+								}
+							} else {
+								result = null;
+							}
+							break;
+						default:
+							throw new IllegalStateException("Unexpected control flow!"); //$NON-NLS-1$;
+					}
+					if (result != null)
+						return resolveAsType(result);
+				}
+				throw new IllegalStateException("Unexpected control flow!"); //$NON-NLS-1$
+			}
+			// Non-uniform, non-boolean, non-numeric: Force to reference versions, compute lub and apply capture and we are done!
+			LookupEnvironment env = SwitchExpression.this.scope.environment();
+			TypeBinding [] resultReferenceTypes = new TypeBinding[this.rExpressions.size()];
+			int i = 0;
+			for (Expression rExpression : this.rExpressions)
+				resultReferenceTypes[i++] = rExpression.resolvedType.isBaseType() ? env.computeBoxingType(rExpression.resolvedType) : rExpression.resolvedType;
+
+			TypeBinding lub = SwitchExpression.this.scope.lowerUpperBound(resultReferenceTypes);
+			if (lub != null)
+				return resolveAsType(lub);
+
+			SwitchExpression.this.scope.problemReporter().incompatibleSwitchExpressionResults(SwitchExpression.this); // Is this unreachable ? can lub be null with only reference types ??!
+			return null;
+		}
+
+		/** Add an expression to known result expressions, gather some aggregate characteristics if in standalone context.
+		 *  @return a flag indicating the overall well-formedness of result expression set.
+		 */
+		public boolean add(/*@NonNull*/ Expression rxpression) {
+
+			this.rExpressions.add(rxpression);
+
+			TypeBinding rxpressionType = rxpression.resolvedType;
+			if (rxpressionType == null) { // tolerate poly-expression resolving to null in the absence of target type.
+				if (!rxpression.isPolyExpression() || ((IPolyExpression) rxpression).expectedType() != null)
+					this.allWellFormed = false;
+			} else if (!rxpressionType.isValidBinding()) {
+				this.allWellFormed = false;
+			}
+
+			// Classify result expressions on an aggregate basis - needed only for well formed, non-poly switches.
+			if (!this.allWellFormed || SwitchExpression.this.isPolyExpression())
+				return this.allWellFormed;
+
+			rxpressionType = rxpressionType.unboxedType();
+			this.allUniform &= TypeBinding.equalsEquals(this.rExpressions.iterator().next().resolvedType, rxpression.resolvedType);
+			this.allBoolean &= rxpressionType.id == T_boolean;
+			this.allNumeric &= rxpressionType.isNumericType();
+
+			if (this.allNumeric) {
+				boolean definiteType = true;
+				if (rxpressionType.id == T_int && rxpression.constant != Constant.NotAConstant) {
+					int i = rxpression.constant.intValue();
+					if (i <= Character.MAX_VALUE && i >= Short.MIN_VALUE)
+						definiteType = false;
+					//  else int constants may get reclassified as they undergo narrowing conversions - can't pin them yet.
+				}
+				if (definiteType)
+					this.rTypes.add(rxpressionType);
+			}
+			return true;
+		}
+
+		@Override
+		public String toString() {
+			return this.rExpressions.toString();
+		}
 	}
 
 	@Override
@@ -89,25 +190,15 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		return this.expressionContext;
 	}
 	@Override
-	protected boolean ignoreMissingDefaultCase(CompilerOptions compilerOptions, boolean isEnumSwitch) {
-		return isEnumSwitch; // mandatory error if not enum in switch expressions
-	}
-	@Override
 	protected void reportMissingEnumConstantCase(BlockScope upperScope, FieldBinding enumConstant) {
+		// seeming identical body with super method causes varied overload selection
 		upperScope.problemReporter().missingEnumConstantCase(this, enumConstant);
 	}
 	@Override
 	protected int getFallThroughState(Statement stmt, BlockScope blockScope) {
-		if ((stmt instanceof Expression && ((Expression) stmt).isTrulyExpression())|| stmt instanceof ThrowStatement)
+		if (stmt.isTrulyExpression() || stmt instanceof ThrowStatement)
 			return BREAKING;
-		if ((this.switchBits & LabeledRules) != 0 // do this check for every block if '->' (Switch Labeled Rules)
-				&& stmt instanceof Block) {
-			Block block = (Block) stmt;
-			if (!block.canCompleteNormally()) {
-				return BREAKING;
-			}
-		}
-		return FALLTHROUGH;
+		return stmt.canCompleteNormally() ? FALLTHROUGH : BREAKING;
 	}
 	@Override
 	public boolean checkNPE(BlockScope skope, FlowContext flowContext, FlowInfo flowInfo, int ttlForFieldCheck) {
@@ -118,88 +209,24 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		return true; // all checking done
 	}
 
-	private void computeNullStatus(FlowInfo flowInfo, FlowContext flowContext) {
-		 boolean precomputed = this.resultExpressionNullStatus.size() > 0;
-		 if (!precomputed)
-		         this.resultExpressionNullStatus.add(this.resultExpressions.get(0).nullStatus(flowInfo, flowContext));	int status =  this.resultExpressions.get(0).nullStatus(flowInfo, flowContext);
-		int combinedStatus = status;
-		boolean identicalStatus = true;
-		for (int i = 1, l = this.resultExpressions.size(); i < l; ++i) {
-		    if (!precomputed)
-	             this.resultExpressionNullStatus.add(this.resultExpressions.get(i).nullStatus(flowInfo, flowContext));
-		    int tmp = this.resultExpressions.get(i).nullStatus(flowInfo, flowContext);
-			identicalStatus &= status == tmp;
-			combinedStatus |= tmp;
-		}
-		if (identicalStatus) {
-			this.nullStatus = status;
-			return;
-		}
-		status = Expression.computeNullStatus(0, combinedStatus);
-		if (status > 0)
-			this.nullStatus = status;
-	}
-
-	@Override
-	protected void completeNormallyCheck(BlockScope blockScope) {
-		int sz = this.statements != null ? this.statements.length : 0;
-		if (sz == 0) return;
-		/* JLS 12 15.28.1 Given a switch expression, if the switch block consists of switch labeled rules
-		 * then it is a compile-time error if any switch labeled block can complete normally.
-		 */
-		if ((this.switchBits & LabeledRules) != 0) {
-			for (Statement stmt : this.statements) {
-				if (!(stmt instanceof Block))
-					continue;
-				if (stmt.canCompleteNormally())
-					blockScope.problemReporter().switchExpressionLastStatementCompletesNormally(stmt);
-			}
-			return;
-		}
-		/* JLS 12 15.28.1
-		 * If, on the other hand, the switch block consists of switch labeled statement groups, then it is a
-		 * compile-time error if either the last statement in the switch block can complete normally, or the
-		 * switch block includes one or more switch labels at the end.
-		 */
-		Statement lastNonCaseStmt = null;
-		Statement firstTrailingCaseStmt = null;
-		for (int i = sz - 1; i >= 0; i--) {
-			Statement stmt = this.statements[sz - 1];
-			if (stmt instanceof CaseStatement)
-				firstTrailingCaseStmt = stmt;
-			else {
-				lastNonCaseStmt = stmt;
-				break;
-			}
-		}
-		if (lastNonCaseStmt != null) {
-			if (lastNonCaseStmt.canCompleteNormally())
-				blockScope.problemReporter().switchExpressionLastStatementCompletesNormally(lastNonCaseStmt);
-			else if (lastNonCaseStmt instanceof ContinueStatement || lastNonCaseStmt instanceof ReturnStatement) {
-				blockScope.problemReporter().switchExpressionIllegalLastStatement(lastNonCaseStmt);
-			}
-		}
-		if (firstTrailingCaseStmt != null) {
-			blockScope.problemReporter().switchExpressionTrailingSwitchLabels(firstTrailingCaseStmt);
-		}
-	}
 	@Override
 	protected boolean needToCheckFlowInAbsenceOfDefaultBranch() { // JLS 12 16.1.8
 		return (this.switchBits & LabeledRules) == 0;
 	}
+
 	@Override
 	public Expression[] getPolyExpressions() {
 		List<Expression> polys = new ArrayList<>();
-		for (Expression e : this.resultExpressions) {
+		for (Expression e : this.results.rExpressions) {
 			Expression[] ea = e.getPolyExpressions();
-			if (ea == null || ea.length ==0) continue;
+			if (ea == null || ea.length == 0) continue;
 			polys.addAll(Arrays.asList(ea));
 		}
 		return polys.toArray(new Expression[0]);
 	}
 	@Override
 	public boolean isPertinentToApplicability(TypeBinding targetType, MethodBinding method) {
-		for (Expression e : this.resultExpressions) {
+		for (Expression e : this.results.rExpressions) {
 			if (!e.isPertinentToApplicability(targetType, method))
 				return false;
 		}
@@ -207,7 +234,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	}
 	@Override
 	public boolean isPotentiallyCompatibleWith(TypeBinding targetType, Scope scope1) {
-		for (Expression e : this.resultExpressions) {
+		for (Expression e : this.results.rExpressions) {
 			if (!e.isPotentiallyCompatibleWith(targetType, scope1))
 				return false;
 		}
@@ -215,7 +242,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	}
 	@Override
 	public boolean isFunctionalType() {
-		for (Expression e : this.resultExpressions) {
+		for (Expression e : this.results.rExpressions) {
 			if (e.isFunctionalType()) // return true even for one functional type
 				return true;
 		}
@@ -227,25 +254,13 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			return FlowInfo.NON_NULL;
 		return this.nullStatus;
 	}
-	@Override
-	protected void statementGenerateCode(BlockScope currentScope, CodeStream codeStream, Statement statement) {
-		if (!(statement instanceof Expression && ((Expression) statement).isTrulyExpression())
-				|| statement instanceof Assignment
-				|| statement instanceof MessageSend
-				|| (statement instanceof SwitchStatement && !(statement instanceof SwitchExpression))) {
-			super.statementGenerateCode(currentScope, codeStream, statement);
-			return;
-		}
-		Expression expression1 = (Expression) statement;
-		expression1.generateCode(currentScope, codeStream, true /* valueRequired */);
-	}
-	private TypeBinding createType(int typeId) {
-		TypeBinding type = TypeBinding.wellKnownType(this.scope, typeId);
-		return type != null ? type : this.scope.getJavaLangObject();
-	}
-	private LocalVariableBinding addTypeStackVariable(CodeStream codeStream, TypeBinding type, int typeId, int index, int resolvedPosition) {
+	private LocalVariableBinding createStackSpillSlot(CodeStream codeStream, TypeBinding type, int typeId, int index, int resolvedPosition) {
 		char[] name = CharOperation.concat(SECRET_YIELD_VALUE_NAME, String.valueOf(index).toCharArray());
-		type = type != null ? type : createType(typeId);
+		if (type == null) {
+			type = TypeBinding.wellKnownType(this.scope, typeId);
+			if (type == null)
+				type = this.scope.getJavaLangObject();
+		}
 		LocalVariableBinding lvb =
 				new LocalVariableBinding(
 					name,
@@ -255,450 +270,177 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		lvb.setConstant(Constant.NotAConstant);
 		lvb.useFlag = LocalVariableBinding.USED;
 		lvb.resolvedPosition = resolvedPosition;
-//		if (this.offset > 0xFFFF) { // no more than 65535 words of locals // TODO - also the cumulative at MethodScope
-//			problemReporter().noMoreAvailableSpaceForLocal(
-//				local,
-//				local.declaration == null ? (ASTNode)methodScope().referenceContext : local.declaration);
-//		}
 		this.scope.addLocalVariable(lvb);
-		lvb.declaration = new LocalDeclaration(name, 0, 0);
 		return lvb;
 	}
-	private int getNextOffset(LocalVariableBinding local) {
-		int delta =  ((TypeBinding.equalsEquals(local.type, TypeBinding.LONG)) || (TypeBinding.equalsEquals(local.type, TypeBinding.DOUBLE))) ?
-				2 : 1;
-		return local.resolvedPosition + delta;
-	}
-	private void processTypesBindingsOnStack(CodeStream codeStream) {
-		int count = 0;
-		int nextResolvedPosition = this.scope.offset;
-		if (!codeStream.switchSaveTypeBindings.empty()) {
-			this.typesOnStack = new ArrayList<>();
-			int index = 0;
-			Stack<TypeBinding> typeStack = new Stack<>();
-			int sz = codeStream.switchSaveTypeBindings.size();
-			for (int i = codeStream.lastSwitchCumulativeSyntheticVars; i < sz; ++i) {
-				typeStack.add(codeStream.switchSaveTypeBindings.get(i));
-			}
-			while (!typeStack.empty()) {
-				TypeBinding type = typeStack.pop();
-				LocalVariableBinding lvb = addTypeStackVariable(codeStream, type, TypeIds.T_undefined, index++, nextResolvedPosition);
-				nextResolvedPosition = getNextOffset(lvb);
-				this.typesOnStack.add(lvb);
-				codeStream.store(lvb, false);
-				codeStream.addVariable(lvb);
-				++count;
-			}
-		}
-		// now keep a position reserved for yield result value
-		this.yieldResolvedPosition = nextResolvedPosition;
-		nextResolvedPosition += ((TypeBinding.equalsEquals(this.resolvedType, TypeBinding.LONG)) ||
-				(TypeBinding.equalsEquals(this.resolvedType, TypeBinding.DOUBLE))) ?
-				2 : 1;
 
-		codeStream.lastSwitchCumulativeSyntheticVars += count + 1; // 1 for yield var
+	private void spillOperandStackIfNeeded(CodeStream codeStream) {
+		int operandStackSize = codeStream.operandStack.size();
+		if (!this.jvmStackVolatile || (codeStream.stackDepth == 0 && operandStackSize == 0)) // nothing to spill and nothing to compain
+			return;
+		int nextResolvedPosition = this.scope.offset;
+		this.typesOnStack = new ArrayList<>();
+		int index = 0;
+		while (operandStackSize > 0) {
+			TypeBinding type = codeStream.operandStack.peek();
+			LocalVariableBinding lvb = createStackSpillSlot(codeStream, type, TypeIds.T_undefined, index++, nextResolvedPosition);
+			switch (lvb.type.id) {
+				case TypeIds.T_long:
+				case TypeIds.T_double:
+					nextResolvedPosition += 2;
+					break;
+				default:
+					nextResolvedPosition += 1;
+					break;
+			}
+			this.typesOnStack.add(lvb);
+			codeStream.store(lvb, false);
+			codeStream.addVariable(lvb);
+			operandStackSize = codeStream.operandStack.size();
+		}
+		if (codeStream.stackDepth != 0 || codeStream.operandStack.size() != 0)
+			codeStream.classFile.referenceBinding.scope.problemReporter().operandStackSizeInappropriate(codeStream.classFile.referenceBinding.scope.referenceContext);
+
 		int delta = nextResolvedPosition - this.scope.offset;
-		this.scope.adjustLocalVariablePositions(delta, false);
+		if (delta > 0)
+			this.scope.adjustLocalVariablePositions(delta);
 	}
-	public void loadStoredTypesAndKeep(CodeStream codeStream) {
+
+	public void refillOperandStackIfNeeded(CodeStream codeStream, YieldStatement yield) {
+		if (!this.jvmStackVolatile || this.typesOnStack == null || this.typesOnStack.isEmpty() || (yield.bits & ASTNode.IsAnyFinallyBlockEscaping) != 0) // nothing spilled or no point restoring.
+			 return;
+
+		if (codeStream.stackDepth != 0 || codeStream.operandStack.size() != 0)
+			codeStream.classFile.referenceBinding.scope.problemReporter().operandStackSizeInappropriate(codeStream.classFile.referenceBinding.scope.referenceContext);
+
 		List<LocalVariableBinding> tos = this.typesOnStack;
-		int sz = tos != null ? tos.size() : 0;
-		codeStream.clearTypeBindingStack();
-		int index = sz - 1;
+		int index = tos != null ? tos.size() - 1 : -1;
 		while (index >= 0) {
 			LocalVariableBinding lvb = tos.get(index--);
 			codeStream.load(lvb);
-//		    lvb.recordInitializationEndPC(codeStream.position);
-//			codeStream.removeVariable(lvb);
 		}
 	}
-	private void removeStoredTypes(CodeStream codeStream) {
+
+	private void releaseStackSpillSlots(CodeStream codeStream) {
 		List<LocalVariableBinding> tos = this.typesOnStack;
-		int sz = tos != null ? tos.size() : 0;
-		int index = sz - 1;
+		int index = tos != null ? tos.size() -1 : - 1;
 		while (index >= 0) {
 			LocalVariableBinding lvb = tos.get(index--);
 			codeStream.removeVariable(lvb);
 		}
 	}
+
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
-		int tmp = 0;
-		if (this.containsTry) {
-			tmp = codeStream.lastSwitchCumulativeSyntheticVars;
-			processTypesBindingsOnStack(codeStream);
-		}
+		spillOperandStackIfNeeded(codeStream);
 		super.generateCode(currentScope, codeStream);
-		if (this.containsTry) {
-			removeStoredTypes(codeStream);
-			codeStream.lastSwitchCumulativeSyntheticVars = tmp;
-		}
-		if (!valueRequired) {
-			// switch expression is saved to a variable that is not used. We need to pop the generated value from the stack
-			switch(postConversionType(currentScope).id) {
-				case TypeIds.T_long :
-				case TypeIds.T_double :
+		if (this.jvmStackVolatile)
+			releaseStackSpillSlots(codeStream);
+		if (!valueRequired) { // switch expression result discarded (saved to a variable that is not used.)
+			switch (postConversionType(currentScope).id) {
+				case TypeIds.T_long:
+				case TypeIds.T_double:
 					codeStream.pop2();
 					break;
-				case TypeIds.T_void :
-					break;
-				default :
+				default:
 					codeStream.pop();
 					break;
 			}
-		} else {
-			if (!this.isPolyExpression()) // not in invocation or assignment contexts
-				codeStream.generateImplicitConversion(this.implicitConversion);
-		}
+		} else if (!this.isPolyExpression())
+			codeStream.generateImplicitConversion(this.implicitConversion);
 	}
-	protected boolean computeConversions(BlockScope blockScope, TypeBinding targetType) {
-		boolean ok = true;
-		for (int i = 0, l = this.resultExpressions.size(); i < l; ++i) {
-			ok &= computeConversionsResultExpressions(blockScope, targetType, this.originalValueResultExpressionTypes[i], this.resultExpressions.get(i));
-		}
-		return ok;
-	}
-	private boolean computeConversionsResultExpressions(BlockScope blockScope, TypeBinding targetType, TypeBinding resultExpressionType,
-			Expression resultExpression) {
-		if (resultExpressionType != null && resultExpressionType.isValidBinding()) {
-			if (resultExpression.isConstantValueOfTypeAssignableToType(resultExpressionType, targetType)
-					|| resultExpressionType.isCompatibleWith(targetType)) {
 
-				resultExpression.computeConversion(blockScope, targetType, resultExpressionType);
-				if (resultExpressionType.needsUncheckedConversion(targetType)) {
-					blockScope.problemReporter().unsafeTypeConversion(resultExpression, resultExpressionType, targetType);
-				}
-				if (resultExpression instanceof CastExpression
-						&& (resultExpression.bits & (ASTNode.UnnecessaryCast|ASTNode.DisableUnnecessaryCastCheck)) == 0) {
-					CastExpression.checkNeedForAssignedCast(blockScope, targetType, (CastExpression) resultExpression);
-				}
-			} else if (isBoxingCompatible(resultExpressionType, targetType, resultExpression, blockScope)) {
-				resultExpression.computeConversion(blockScope, targetType, resultExpressionType);
-				if (resultExpression instanceof CastExpression
-						&& (resultExpression.bits & (ASTNode.UnnecessaryCast|ASTNode.DisableUnnecessaryCastCheck)) == 0) {
-					CastExpression.checkNeedForAssignedCast(blockScope, targetType, (CastExpression) resultExpression);
-				}
-			} else {
-				blockScope.problemReporter().typeMismatchError(resultExpressionType, targetType, resultExpression, null);
-				return false;
-			}
-		}
-		return true;
+	@Override
+	public void resolve(BlockScope upperScope) {
+		resolveType(upperScope);
 	}
 
 	@Override
 	public TypeBinding resolveType(BlockScope upperScope) {
-		return resolveTypeInternal(upperScope);
-	}
-	public TypeBinding resolveTypeInternal(BlockScope upperScope) {
 		try {
-			int resultExpressionsCount;
 			if (this.constant != Constant.NotAConstant) {
 				this.constant = Constant.NotAConstant;
-
-				// A switch expression is a poly expression if it appears in an assignment context or an invocation context (5.2, 5.3).
-				// Otherwise, it is a standalone expression.
-				if (this.expressionContext == ASSIGNMENT_CONTEXT || this.expressionContext == INVOCATION_CONTEXT) {
-					for (Expression e : this.resultExpressions) {
-						//Where a poly switch expression appears in a context of a particular kind with target type T,
-						//its result expressions similarly appear in a context of the same kind with target type T.
-						e.setExpressionContext(this.expressionContext);
-						e.setExpectedType(this.expectedType);
-					}
+				super.resolve(upperScope); // drills down into switch block, which will cause yield expressions to be discovered and added to `this.results`
+				if (this.results.rExpressions.size() == 0) {
+					upperScope.problemReporter().unyieldingSwitchExpression(this);
+					return this.resolvedType = null;
 				}
-
-				if (this.originalTypeMap == null)
-					this.originalTypeMap = new HashMap<>();
-				resolve(upperScope);
-
-				if (this.statements == null || this.statements.length == 0) {
-					//	Report Error JLS 13 15.28.1  The switch block must not be empty.
-					upperScope.problemReporter().switchExpressionEmptySwitchBlock(this);
-					return null;
-				}
-
-				resultExpressionsCount = this.resultExpressions != null ? this.resultExpressions.size() : 0;
-				if (resultExpressionsCount == 0) {
-					//  Report Error JLS 13 15.28.1
-					// It is a compile-time error if a switch expression has no result expressions.
-					upperScope.problemReporter().switchExpressionNoResultExpressions(this);
-					return null;
-				}
-
-				if (this.originalValueResultExpressionTypes == null) {
-					this.originalValueResultExpressionTypes = new TypeBinding[resultExpressionsCount];
-					this.finalValueResultExpressionTypes = new TypeBinding[resultExpressionsCount];
-					for (int i = 0; i < resultExpressionsCount; ++i) {
-						this.finalValueResultExpressionTypes[i] = this.originalValueResultExpressionTypes[i] =
-								this.resultExpressions.get(i).resolvedType;
-					}
-				}
-				if (isPolyExpression()) { //The type of a poly switch expression is the same as its target type.
-					if (this.expectedType == null || !this.expectedType.isProperType(true)) {
-						return new PolyTypeBinding(this);
-					}
-					return this.resolvedType = computeConversions(this.scope, this.expectedType) ? this.expectedType : null;
-				}
-				// fall through
-			} else {
-				// re-resolving of poly expression:
-				resultExpressionsCount = this.resultExpressions != null ? this.resultExpressions.size() : 0;
-				if (resultExpressionsCount == 0)
-					return this.resolvedType = null; // error flagging would have been done during the earlier phase.
-				for (int i = 0; i < resultExpressionsCount; i++) {
-					Expression resultExpr = this.resultExpressions.get(i);
-					TypeBinding origType = this.originalTypeMap.get(resultExpr);
-					// NB: if origType == null we assume that initial resolving failed hard, rendering re-resolving impossible
-					if (origType != null &&  origType.kind() == Binding.POLY_TYPE) {
-						this.finalValueResultExpressionTypes[i] = this.originalValueResultExpressionTypes[i] =
-							resultExpr.resolveTypeExpecting(upperScope, this.expectedType);
-					}
-					// This is a kludge and only way completion can tell this node to resolve all
-					// resultExpressions. Ideal solution is to remove all other expressions except
-					// the one that contain the completion node.
-					if (this.resolveAll) continue;
-					if (resultExpr.resolvedType == null || !resultExpr.resolvedType.isValidBinding())
-						return this.resolvedType = null;
-				}
-				this.resolvedType = computeConversions(this.scope, this.expectedType) ? this.expectedType : null;
-				// fall through
+				if (isPolyExpression() && (this.expectedType == null || !this.expectedType.isProperType(true)))
+					return new PolyTypeBinding(this);
+			} else { // re-resolve poly-expression against the eventual target type.
+				for (Expression rExpression : this.results.rExpressions)
+					if (rExpression.isPolyExpression())
+						rExpression.resolveTypeExpecting(upperScope, this.expectedType);
 			}
-
-			if (resultExpressionsCount == 1)
-				return this.resolvedType = this.originalValueResultExpressionTypes[0];
-
-			boolean typeUniformAcrossAllArms = true;
-			TypeBinding tmp = this.originalValueResultExpressionTypes[0];
-			for (int i = 1, l = this.originalValueResultExpressionTypes.length; i < l; ++i) {
-				TypeBinding originalType = this.originalValueResultExpressionTypes[i];
-				if (originalType != null && TypeBinding.notEquals(tmp, originalType)) {
-					typeUniformAcrossAllArms = false;
-					break;
-				}
-			}
-			// If the result expressions all have the same type (which may be the null type),
-			// then that is the type of the switch expression.
-			if (typeUniformAcrossAllArms) {
-				tmp = this.originalValueResultExpressionTypes[0];
-				for (int i = 1; i < resultExpressionsCount; ++i) {
-					if (this.originalValueResultExpressionTypes[i] != null)
-						tmp = NullAnnotationMatching.moreDangerousType(tmp, this.originalValueResultExpressionTypes[i]);
-				}
-				return this.resolvedType = tmp;
-			}
-
-			boolean typeBbolean = true;
-			for (TypeBinding t : this.originalValueResultExpressionTypes) {
-				if (t != null)
-					typeBbolean &= t.id == T_boolean || t.id == T_JavaLangBoolean;
-			}
-			LookupEnvironment env = this.scope.environment();
-			/*
-			 * Otherwise, if the type of each result expression is boolean or Boolean,
-			 * an unboxing conversion (5.1.8) is applied to each result expression of type Boolean,
-			 * and the switch expression has type boolean.
-			 */
-			if (typeBbolean) {
-				for (int i = 0; i < resultExpressionsCount; ++i) {
-					if (this.originalValueResultExpressionTypes[i] == null) continue;
-					if (this.originalValueResultExpressionTypes[i].id == T_boolean) continue;
-					this.finalValueResultExpressionTypes[i] = env.computeBoxingType(this.originalValueResultExpressionTypes[i]);
-					this.resultExpressions.get(i).computeConversion(this.scope, this.finalValueResultExpressionTypes[i], this.originalValueResultExpressionTypes[i]);
-				}
-				return this.resolvedType = TypeBinding.BOOLEAN;
-			}
-
-			/*
-			 * Otherwise, if the type of each result expression is convertible to a numeric type (5.1.8), the type
-			 * of the switch expression is given by numeric promotion (5.6.3) applied to the result expressions.
-			 */
-			boolean typeNumeric = true;
-			TypeBinding resultNumeric = null;
-			HashSet<TypeBinding> typeSet = new HashSet<>();
-			/*  JLS 13 5.6 Numeric Contexts
-			 * An expression appears in a numeric context if it is one of:....
-			 * ...8. a result expression of a standalone switch expression (15.28.1),
-			 * where all the result expressions are convertible to a numeric type
-			 * If any expression is of a reference type, it is subjected to unboxing conversion (5.1.8).
-			 */
-			for (int i = 0; i < resultExpressionsCount; ++i) {
-				TypeBinding originalType = this.originalValueResultExpressionTypes[i];
-				if (originalType == null) continue;
-				tmp = originalType.isNumericType() ? originalType : env.computeBoxingType(originalType);
-				if (!tmp.isNumericType()) {
-					typeNumeric = false;
-					break;
-				}
-				typeSet.add(TypeBinding.wellKnownType(this.scope, tmp.id));
-			}
-			if (typeNumeric) {
-				 /* If any result expression is of type double, then other result expressions that are not of type double
-				 *  are widened to double.
-				 *  Otherwise, if any result expression is of type float, then other result expressions that are not of
-				 *  type float are widened to float.
-				 *  Otherwise, if any result expression is of type long, then other result expressions that are not of
-				 *  type long are widened to long.
-				 */
-				TypeBinding[] dfl = new TypeBinding[]{// do not change the order JLS 13 5.6
-						TypeBinding.DOUBLE,
-						TypeBinding.FLOAT,
-						TypeBinding.LONG};
-				for (TypeBinding binding : dfl) {
-					if (typeSet.contains(binding)) {
-						resultNumeric = binding;
-						break;
-					}
-				}
-
-				/* Otherwise, if any expression appears in a numeric array context or a numeric arithmetic context,
-				 * rather than a numeric choice context, then the promoted type is int and other expressions that are
-				 * not of type int undergo widening primitive conversion to int. - not applicable since numeric choice context.
-				 * [Note: A numeric choice context is a numeric context that is either a numeric conditional expression or
-				 * a standalone switch expression where all the result expressions are convertible to a numeric type.]
-				 */
-
-				 /*  Otherwise, if any result expression is of type int and is not a constant expression, the other
-				 *  result expressions that are not of type int are widened to int.
-				 */
-				resultNumeric = resultNumeric != null ? resultNumeric : check_nonconstant_int();
-
-				resultNumeric = resultNumeric != null ? resultNumeric : // one among the first few rules applied.
-					getResultNumeric(typeSet); // check the rest
-				typeSet = null; // hey gc!
-				for (int i = 0; i < resultExpressionsCount; ++i) {
-					this.resultExpressions.get(i).computeConversion(this.scope,
-							resultNumeric, this.originalValueResultExpressionTypes[i]);
-					this.finalValueResultExpressionTypes[i] = resultNumeric;
-				}
-				// After the conversion(s), if any, value set conversion (5.1.13) is then applied to each result expression.
-				return this.resolvedType = resultNumeric;
-			}
-
-			/* Otherwise, boxing conversion (5.1.7) is applied to each result expression that has a primitive type,
-			 * after which the type of the switch expression is the result of applying capture conversion (5.1.10)
-			 * to the least upper bound (4.10.4) of the types of the result expressions.
-			 */
-			for (int i = 0; i < resultExpressionsCount; ++i) {
-				TypeBinding finalType = this.finalValueResultExpressionTypes[i];
-				if (finalType != null && finalType.isBaseType())
-					this.finalValueResultExpressionTypes[i] = env.computeBoxingType(finalType);
-			}
-			TypeBinding commonType = this.scope.lowerUpperBound(this.finalValueResultExpressionTypes);
-			if (commonType != null) {
-				for (int i = 0, l = this.resultExpressions.size(); i < l; ++i) {
-					if (this.originalValueResultExpressionTypes[i] == null) continue;
-					this.resultExpressions.get(i).computeConversion(this.scope, commonType, this.originalValueResultExpressionTypes[i]);
-					this.finalValueResultExpressionTypes[i] = commonType;
-				}
-				return this.resolvedType = commonType.capture(this.scope, this.sourceStart, this.sourceEnd);
-			}
-			this.scope.problemReporter().switchExpressionIncompatibleResultExpressions(this);
-			return null;
+			return this.resolvedType = this.results.resultType();
 		} finally {
 			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
 		}
 	}
-	private TypeBinding check_nonconstant_int() {
-		for (int i = 0, l = this.resultExpressions.size(); i < l; ++i) {
-			Expression e = this.resultExpressions.get(i);
-			TypeBinding type = this.originalValueResultExpressionTypes[i];
-			if (type != null && type.id == T_int && e.constant == Constant.NotAConstant)
-				return TypeBinding.INT;
+
+	// We have resolved the switch expression to be if type `switchType'. Allow result expressions to adapt.
+	// Return the type after applying capture conversion.
+	private TypeBinding resolveAsType(TypeBinding switchType) {
+		for (Expression rExpression : this.results.rExpressions) {
+			if (rExpression.resolvedType != null && rExpression.resolvedType.isValidBinding()) {
+				if (rExpression.isConstantValueOfTypeAssignableToType(rExpression.resolvedType, switchType) || rExpression.resolvedType.isCompatibleWith(switchType)) {
+					rExpression.computeConversion(this.scope, switchType, rExpression.resolvedType);
+					if (rExpression.resolvedType.needsUncheckedConversion(switchType))
+						this.scope.problemReporter().unsafeTypeConversion(rExpression, rExpression.resolvedType, switchType);
+					if (rExpression instanceof CastExpression && (rExpression.bits & (ASTNode.UnnecessaryCast | ASTNode.DisableUnnecessaryCastCheck)) == 0)
+						CastExpression.checkNeedForAssignedCast(this.scope, switchType, (CastExpression) rExpression);
+				} else if (isBoxingCompatible(rExpression.resolvedType, switchType, rExpression, this.scope)) {
+					rExpression.computeConversion(this.scope, switchType, rExpression.resolvedType);
+					if (rExpression instanceof CastExpression && (rExpression.bits & (ASTNode.UnnecessaryCast | ASTNode.DisableUnnecessaryCastCheck)) == 0)
+						CastExpression.checkNeedForAssignedCast(this.scope, switchType, (CastExpression) rExpression);
+				} else {
+					this.scope.problemReporter().typeMismatchError(rExpression.resolvedType, switchType, rExpression, null);
+					return null;
+				}
+			}
 		}
-		return null;
+		return switchType.capture(this.scope, this.sourceStart, this.sourceEnd);
 	}
-	private boolean areAllIntegerResultExpressionsConvertibleToTargetType(TypeBinding targetType) {
-		for (int i = 0, l = this.resultExpressions.size(); i < l; ++i) {
-			Expression e = this.resultExpressions.get(i);
-			TypeBinding t = this.originalValueResultExpressionTypes[i];
-			if (!TypeBinding.equalsEquals(t, TypeBinding.INT)) continue;
-			if (!e.isConstantValueOfTypeAssignableToType(t, targetType))
-				return false;
-		}
-		return true;
-	}
+
+
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		flowInfo = super.analyseCode(currentScope, flowContext, flowInfo);
-		this.resultExpressionNullStatus = new ArrayList<>(0);
-		final CompilerOptions compilerOptions = currentScope.compilerOptions();
-		if (compilerOptions.enableSyntacticNullAnalysisForFields) {
-			for (Expression re : this.resultExpressions) {
-				this.resultExpressionNullStatus.add(re.nullStatus(flowInfo, flowContext));
-				// wipe information that was meant only for this result expression:
-				flowContext.expireNullCheckedFieldInfo();
+		if ((this.switchBits & LabeledRules) != 0) { // 15.28.1
+			for (Statement stmt : this.statements) {
+				if (stmt instanceof Block && stmt.canCompleteNormally())
+					currentScope.problemReporter().switchExpressionBlockCompletesNormally(stmt);
 			}
+		} else {
+			Statement ultimateStmt = this.statements[this.statements.length - 1]; // length guaranteed > 0
+			if (ultimateStmt.canCompleteNormally())
+				currentScope.problemReporter().switchExpressionBlockCompletesNormally(ultimateStmt);
 		}
-		computeNullStatus(flowInfo, flowContext);
+
+		if (currentScope.compilerOptions().enableSyntacticNullAnalysisForFields)
+			flowContext.expireNullCheckedFieldInfo(); // wipe information that was meant only for this result expression:
+
+		int status =  this.results.rExpressions.iterator().next().nullStatus(flowInfo, flowContext);
+		int combinedStatus = status;
+		boolean identicalStatus = true;
+		for (Expression rExpression : this.results.rExpressions) {
+		    status = rExpression.nullStatus(flowInfo, flowContext);
+			identicalStatus &= combinedStatus == status;
+			combinedStatus |= status;
+		}
+		if (identicalStatus) {
+			this.nullStatus = status;
+			return flowInfo;
+		}
+		status = Expression.computeNullStatus(0, combinedStatus);
+		if (status > 0)
+			this.nullStatus = status;
 		return flowInfo;
 	}
-	@Override
-	protected void addSecretTryResultVariable() {
-		if (this.containsTry) {
-			this.hiddenYield =
-					new LocalVariableBinding(
-						SwitchExpression.SECRET_YIELD_VALUE_NAME,
-						null,
-						ClassFileConstants.AccDefault,
-						false);
-			this.hiddenYield.setConstant(Constant.NotAConstant);
-			this.hiddenYield.useFlag = LocalVariableBinding.USED;
-			this.scope.addLocalVariable(this.hiddenYield);
-			this.hiddenYield.declaration = new LocalDeclaration(SECRET_YIELD_VALUE_NAME, 0, 0);
-		}
-	}
-	private TypeBinding check_csb(Set<TypeBinding> typeSet, TypeBinding candidate) {
-		if (!typeSet.contains(candidate))
-			return null;
 
-		TypeBinding[] allowedTypes = SwitchExpression.type_map.get(candidate);
-		Set<TypeBinding> allowedSet = Arrays.stream(allowedTypes).collect(Collectors.toSet());
-
-		if (!allowedSet.containsAll(typeSet))
-			return null;
-
-		return areAllIntegerResultExpressionsConvertibleToTargetType(candidate) ?
-				candidate : null;
-	}
-	private TypeBinding getResultNumeric(Set<TypeBinding> typeSet) {
-		// note: if an expression has a type integer, then it will be a constant
-		// since non-constant integers are already processed before reaching here.
-
-		/* Otherwise, if any expression is of type short, and every other expression is either of type short,
-		 * or of type byte, or a constant expression of type int with a value that is representable in the
-		 * type short, then T is short, the byte expressions undergo widening primitive conversion to short,
-		 * and the int expressions undergo narrowing primitive conversion to short.\
-		 *
-		 * Otherwise, if any expression is of type byte, and every other expression is either of type byte or a
-		 * constant expression of type int with a value that is representable in the type byte, then T is byte
-		 * and the int expressions undergo narrowing primitive conversion to byte.
-		 *
-		 * Otherwise, if any expression is of type char, and every other expression is either of type char or a
-		 * constant expression of type int with a value that is representable in the type char, then T is char
-		 * and the int expressions undergo narrowing primitive conversion to char.
-		 *
-		 * Otherwise, T is int and all the expressions that are not of type int undergo widening
-		 * primitive conversion to int.
-		 */
-
-		// DO NOT Change the order below [as per JLS 13 5.6 ].
-		TypeBinding[] csb = new TypeBinding[] {TypeBinding.SHORT, TypeBinding.BYTE, TypeBinding.CHAR};
-		for (TypeBinding c : csb) {
-			TypeBinding result = check_csb(typeSet, c);
-			if (result != null)
-				return result;
-		}
-		 /*  Otherwise, all the result expressions that are not of type int are widened to int. */
-		return TypeBinding.INT;
-	}
 	@Override
 	public boolean isPolyExpression() {
-		if (this.isPolyExpression)
-			return true;
-		// JLS 13 15.28.1 A switch expression is a poly expression if it appears in an assignment context or
-		// an invocation context (5.2, 5.3). Otherwise, it is a standalone expression.
-		return this.isPolyExpression = this.expressionContext == ASSIGNMENT_CONTEXT ||
-				this.expressionContext == INVOCATION_CONTEXT;
+		return this.expressionContext == ASSIGNMENT_CONTEXT || this.expressionContext == INVOCATION_CONTEXT;
 	}
 	@Override
 	public boolean isTrulyExpression() {
@@ -709,7 +451,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		if (!isPolyExpression())
 			return super.isCompatibleWith(left, skope);
 
-		for (Expression e : this.resultExpressions) {
+		for (Expression e : this.results.rExpressions) {
 			if (!e.isCompatibleWith(left, skope))
 				return false;
 		}
@@ -720,7 +462,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		if (!isPolyExpression())
 			return super.isBoxingCompatibleWith(targetType, skope);
 
-		for (Expression e : this.resultExpressions) {
+		for (Expression e : this.results.rExpressions) {
 			if (!(e.isCompatibleWith(targetType, skope) || e.isBoxingCompatibleWith(targetType, skope)))
 				return false;
 		}
@@ -732,29 +474,29 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			return true;
 		if (!isPolyExpression())
 			return false;
-		for (Expression e : this.resultExpressions) {
+		for (Expression e : this.results.rExpressions) {
 			if (!e.sIsMoreSpecific(s, t, skope))
 				return false;
 		}
 		return true;
 	}
+
+	@Override
+	public StringBuilder printExpression(int tab, StringBuilder output, boolean makeShort) {
+		if (!makeShort) {
+			return super.printExpression(tab, output);
+		} else {
+			printIndent(tab, output).append("switch ("); //$NON-NLS-1$
+			return this.expression.printExpression(0, output).append(") { ... }"); //$NON-NLS-1$
+		}
+	}
+
 	@Override
 	public TypeBinding expectedType() {
 		return this.expectedType;
 	}
-	@Override
-	public void traverse(
-			ASTVisitor visitor,
-			BlockScope blockScope) {
 
-		if (visitor.visit(this, blockScope)) {
-			this.expression.traverse(visitor, blockScope);
-			if (this.statements != null) {
-				int statementsLength = this.statements.length;
-				for (int i = 0; i < statementsLength; i++)
-					this.statements[i].traverse(visitor, this.scope);
-			}
-		}
-		visitor.endVisit(this, blockScope);
+	public Set<Expression> resultExpressions() {
+		return this.results.rExpressions;
 	}
 }

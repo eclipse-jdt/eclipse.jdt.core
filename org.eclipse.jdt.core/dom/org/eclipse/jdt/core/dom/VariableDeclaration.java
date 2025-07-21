@@ -36,7 +36,7 @@ public abstract class VariableDeclaration extends ASTNode {
 	 * The variable name; lazily initialized; defaults to an unspecified,
 	 * legal Java identifier.
 	 */
-	SimpleName variableName = null;
+	volatile SimpleName variableName;
 
 	/**
 	 * The number of extra array dimensions that appear after the variable;
@@ -213,8 +213,7 @@ public abstract class VariableDeclaration extends ASTNode {
 			synchronized (this) {
 				if (this.variableName == null) {
 					preLazyInit();
-					this.variableName = new SimpleName(this.ast);
-					postLazyInit(this.variableName, internalNameProperty());
+					this.variableName = postLazyInit(new SimpleName(this.ast), internalNameProperty());
 				}
 			}
 		}

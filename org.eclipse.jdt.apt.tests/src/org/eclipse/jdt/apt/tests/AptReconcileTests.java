@@ -17,7 +17,6 @@ package org.eclipse.jdt.apt.tests;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -29,6 +28,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.tests.model.ModifyingResourceTests;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class AptReconcileTests extends ModifyingResourceTests
 {
@@ -490,8 +490,8 @@ public class AptReconcileTests extends ModifyingResourceTests
 		this._problemRequestor = new ProblemRequestor();
 
 		final IJavaProject project = createJavaProject( _testProject,
-				new String[] { "src" }, new String[] { "JCL15_LIB" },
-				"bin", "1.5" );
+				new String[] { "src" }, new String[] { "JCL18_LIB" },
+				"bin", CompilerOptions.getFirstSupportedJavaVersion() );
 		TestUtil.createAndAddAnnotationJar(project);
 		AptConfig.setEnabled(project, true);
 

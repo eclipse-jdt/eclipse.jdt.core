@@ -13,13 +13,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.rewrite.describing;
 import java.util.List;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
@@ -707,95 +705,6 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 		buf.append("        } catch (CoreException e) {\n");
 		buf.append("            return;\n");
 		buf.append("        }\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		assertEqualString(preview, buf.toString());
-
-	}
-
-	/** @deprecated using deprecated code */
-	public void testClassInstanceCreation_only_2() throws Exception {
-		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
-		StringBuilder buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo() {\n");
-		buf.append("        goo().new Inner();\n");
-		buf.append("        new Runnable(\"Hello\") {\n");
-		buf.append("            public void run() {\n");
-		buf.append("            }\n");
-		buf.append("        };\n");
-		buf.append("    }\n");
-		buf.append("}\n");
-		ICompilationUnit cu= pack1.createCompilationUnit("E.java", buf.toString(), false, null);
-
-		CompilationUnit astRoot= createAST(cu);
-		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
-
-		AST ast= astRoot.getAST();
-
-		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
-		TypeDeclaration type= findTypeDeclaration(astRoot, "E");
-		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
-		Block block= methodDecl.getBody();
-		List statements= block.statements();
-		assertTrue("Number of statements not 2", statements.size() == 2);
-		{ // remove expression, change type name, add argument, add anonym decl
-			ExpressionStatement stmt= (ExpressionStatement) statements.get(0);
-			ClassInstanceCreation creation= (ClassInstanceCreation) stmt.getExpression();
-
-			rewrite.remove(creation.getExpression(), null);
-
-			SimpleName newName= ast.newSimpleName("NewInner");
-			rewrite.replace(creation.getName(), newName, null);
-
-			StringLiteral stringLiteral1= ast.newStringLiteral();
-			stringLiteral1.setLiteralValue("Hello");
-			rewrite.getListRewrite(creation, ClassInstanceCreation.ARGUMENTS_PROPERTY).insertLast(stringLiteral1, null);
-
-
-			StringLiteral stringLiteral2= ast.newStringLiteral();
-			stringLiteral2.setLiteralValue("World");
-			rewrite.getListRewrite(creation, ClassInstanceCreation.ARGUMENTS_PROPERTY).insertLast(stringLiteral2, null);
-
-			assertTrue("Has anonym class decl", creation.getAnonymousClassDeclaration() == null);
-
-			AnonymousClassDeclaration anonymDecl= ast.newAnonymousClassDeclaration();
-			MethodDeclaration anonymMethDecl= createNewMethod(ast, "newMethod", false);
-			anonymDecl.bodyDeclarations().add(anonymMethDecl);
-
-			rewrite.set(creation, ClassInstanceCreation.ANONYMOUS_CLASS_DECLARATION_PROPERTY, anonymDecl, null);
-
-		}
-		{ // add expression, remove argument, remove anonym decl
-			ExpressionStatement stmt= (ExpressionStatement) statements.get(1);
-			ClassInstanceCreation creation= (ClassInstanceCreation) stmt.getExpression();
-
-			assertTrue("Has expression", creation.getExpression() == null);
-
-			SimpleName newExpression= ast.newSimpleName("x");
-			rewrite.set(creation, ClassInstanceCreation.EXPRESSION_PROPERTY, newExpression, null);
-
-
-			List arguments= creation.arguments();
-			assertTrue("Must have 1 argument", arguments.size() == 1);
-
-			rewrite.remove((ASTNode) arguments.get(0), null);
-
-			rewrite.remove(creation.getAnonymousClassDeclaration(), null);
-		}
-
-		String preview= evaluateRewrite(cu, rewrite);
-
-		buf= new StringBuilder();
-		buf.append("package test1;\n");
-		buf.append("public class E {\n");
-		buf.append("    public void foo() {\n");
-		buf.append("        new NewInner(\"Hello\", \"World\") {\n");
-		buf.append("            private void newMethod(String str) {\n");
-		buf.append("            }\n");
-		buf.append("        };\n");
-		buf.append("        x.new Runnable();\n");
 		buf.append("    }\n");
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());

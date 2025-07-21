@@ -1,9 +1,20 @@
+/*******************************************************************************
+ * Copyright (c) 2024 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 
@@ -23,11 +34,11 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 		if (options.sourceLevel < ClassFileConstants.JDK9) {
 			message = "'_' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on";
 			errorLevel = "WARNING";
-		} else if (options.sourceLevel < ClassFileConstants.JDK21) {
+		} else if (options.sourceLevel < ClassFileConstants.JDK22) {
 			message = "'_' is a keyword from source level 9 onwards, cannot be used as identifier";
 			errorLevel = "ERROR";
-		} else {
-			message = "Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable";
+		} else  {
+			message = "As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
 			errorLevel = "ERROR";
 		}
 
@@ -56,11 +67,11 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 		if (options.sourceLevel < ClassFileConstants.JDK9) {
 			message = "'_' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on";
 			errorLevel = "WARNING";
-		} else if (options.sourceLevel < ClassFileConstants.JDK21) {
+		} else if (options.sourceLevel < ClassFileConstants.JDK22) {
 			message = "'_' is a keyword from source level 9 onwards, cannot be used as identifier";
 			errorLevel = "ERROR";
 		} else {
-			message =  "Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable";
+			message = "As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
 			errorLevel = "ERROR";
 		}
 
@@ -88,11 +99,11 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 		if (options.sourceLevel < ClassFileConstants.JDK9) {
 			message = "'_' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on";
 			errorLevel = "WARNING";
-		} else if (options.sourceLevel < ClassFileConstants.JDK21) {
+		} else if (options.sourceLevel < ClassFileConstants.JDK22) {
 			message = "'_' is a keyword from source level 9 onwards, cannot be used as identifier";
 			errorLevel = "ERROR";
 		} else {
-			message =  "Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable";
+			message = "As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
 			errorLevel = "ERROR";
 		}
 
@@ -122,11 +133,11 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 		if (options.sourceLevel < ClassFileConstants.JDK9) {
 			message = "'_' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on";
 			errorLevel = "WARNING";
-		} else if (options.sourceLevel < ClassFileConstants.JDK21) {
+		} else if (options.sourceLevel < ClassFileConstants.JDK22) {
 			message = "'_' is a keyword from source level 9 onwards, cannot be used as identifier";
 			errorLevel = "ERROR";
 		} else {
-			message =  "Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable";
+			message = "As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
 			errorLevel = "ERROR";
 		}
 
@@ -170,7 +181,7 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 					'_' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on
 					----------
 					""");
-		} else if (options.sourceLevel < ClassFileConstants.JDK21) {
+		} else if (options.sourceLevel < ClassFileConstants.JDK22) {
 			runNegativeTest(new String[] { "A.java", SOURCE_CODE },
 					"""
 					----------
@@ -181,15 +192,8 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 					----------
 					""");
 		} else {
-			runNegativeTest(new String[] { "A.java", SOURCE_CODE },
-					"""
-					----------
-					1. ERROR in A.java (at line 3)
-						int \\u005F = 12;
-						    ^^^^^^
-					Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable
-					----------
-					""");
+			runConformTest(new String[] { "A.java", SOURCE_CODE },
+					"hello, world");
 		}
 	}
 

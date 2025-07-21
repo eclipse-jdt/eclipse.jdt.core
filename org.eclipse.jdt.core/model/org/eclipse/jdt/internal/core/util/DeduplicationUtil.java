@@ -15,6 +15,10 @@
 
 package org.eclipse.jdt.internal.core.util;
 
+import java.util.ArrayList;
+import java.util.List;
+import org.eclipse.jdt.internal.core.JavaElement;
+
 /** Utility to provide deduplication by best effort. **/
 public final class DeduplicationUtil {
 	private DeduplicationUtil() {
@@ -37,12 +41,57 @@ public final class DeduplicationUtil {
 		}
 	}
 
+	public static String toString(char[] array) {
+		synchronized (stringSymbols) {
+			return stringSymbols.add(new String(array));
+		}
+	}
+
 	/*
 	 * Used as a replacement for String#intern() that could prevent garbage collection of strings on some VMs.
 	 */
 	public static String intern(String s) {
+		if (s == null) {
+			return null;
+		}
 		synchronized (stringSymbols) {
 			return stringSymbols.add(s);
 		}
+	}
+
+	public static String[] intern(String[] a) {
+		if (a.length == 0) {
+			return JavaElement.NO_STRINGS;
+		}
+		synchronized (stringSymbols) {
+			for (int j = 0; j < a.length; j++) {
+				a[j] = a[j] == null ? null : stringSymbols.add(a[j]);
+			}
+			return a;
+		}
+	}
+
+	/** interns the elements and the list as whole **/
+	public static List<String> intern(List<String> a) {
+		if (a.size() == 0) {
+			return List.of();
+		}
+		synchronized (objectCache) {
+			Object existing = objectCache.get(a);
+			if (existing instanceof List) {
+                List l = (List) existing;
+                @SuppressWarnings("unchecked")
+				List<String> existingList = l;
+				return existingList;
+			}
+		}
+
+		ArrayList<String> result= new ArrayList<>(a.size());
+		synchronized (stringSymbols) {
+			for (String s:a) {
+				result.add(s == null ? null :stringSymbols.add(s));
+			}
+		}
+		return internObject(List.copyOf(result));
 	}
 }

@@ -14,7 +14,6 @@
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -23,7 +22,12 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.core.search.TypeNameRequestor;
 public class WorkingCopySearchTests extends JavaSearchTests {
 	ICompilationUnit workingCopy;
 
@@ -329,6 +333,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			);
 			assertSearchResults(
 				"Unexpected all type names",
+				"java.lang.annotation.Annotation\n" +
 				"p2.A2\n" +
 				"p2.A2$A2Inner1\n" +
 				"p2.A2$A2Inner2",

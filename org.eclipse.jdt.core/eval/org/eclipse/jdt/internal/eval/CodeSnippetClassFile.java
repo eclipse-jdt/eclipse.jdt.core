@@ -155,8 +155,8 @@ public static void createProblemType(TypeDeclaration typeDeclaration, Compilatio
 	if (typeBinding.hasMemberTypes()) {
 		// see bug 180109
 		ReferenceBinding[] members = typeBinding.memberTypes;
-		for (int i = 0, l = members.length; i < l; i++)
-			classFile.recordInnerClasses(members[i]);
+		for (ReferenceBinding member : members)
+			classFile.recordInnerClasses(member);
 	}
 	// TODO (olivier) handle cases where a field cannot be generated (name too long)
 	// TODO (olivier) handle too many methods
@@ -165,8 +165,7 @@ public static void createProblemType(TypeDeclaration typeDeclaration, Compilatio
 		classFile.recordInnerClasses(typeBinding);
 	}
 	TypeVariableBinding[] typeVariables = typeBinding.typeVariables();
-	for (int i = 0, max = typeVariables.length; i < max; i++) {
-		TypeVariableBinding typeVariableBinding = typeVariables[i];
+	for (TypeVariableBinding typeVariableBinding : typeVariables) {
 		if ((typeVariableBinding.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
 			Util.recordNestedType(classFile, typeVariableBinding);
 		}
@@ -200,8 +199,7 @@ public static void createProblemType(TypeDeclaration typeDeclaration, Compilatio
 			// We generate a clinit which contains all the problems, since we may not be able to generate problem methods (< 1.8) and problem constructors (all levels).
 			classFile.addProblemClinit(problemsCopy);
 		}
-		for (int i = 0, length = methodDecls.length; i < length; i++) {
-			AbstractMethodDeclaration methodDecl = methodDecls[i];
+		for (AbstractMethodDeclaration methodDecl : methodDecls) {
 			MethodBinding method = methodDecl.binding;
 			if (method == null) continue;
 			if (abstractMethodsOnly) {
@@ -221,8 +219,7 @@ public static void createProblemType(TypeDeclaration typeDeclaration, Compilatio
 	}
 	// propagate generation of (problem) member types
 	if (typeDeclaration.memberTypes != null) {
-		for (int i = 0, max = typeDeclaration.memberTypes.length; i < max; i++) {
-			TypeDeclaration memberType = typeDeclaration.memberTypes[i];
+		for (TypeDeclaration memberType : typeDeclaration.memberTypes) {
 			if (memberType.binding != null) {
 				ClassFile.createProblemType(memberType, unitResult);
 			}

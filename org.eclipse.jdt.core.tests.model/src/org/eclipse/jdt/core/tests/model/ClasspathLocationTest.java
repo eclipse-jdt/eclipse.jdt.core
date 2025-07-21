@@ -16,7 +16,6 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.core.builder.ClasspathJrt;
 import org.eclipse.jdt.internal.core.builder.ClasspathJrtWithReleaseOption;

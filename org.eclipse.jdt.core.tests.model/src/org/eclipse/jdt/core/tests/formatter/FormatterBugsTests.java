@@ -21,9 +21,7 @@
 package org.eclipse.jdt.core.tests.formatter;
 
 import java.util.Map;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
@@ -75,14 +73,14 @@ private void setUpBracesPreferences(String braces) {
 @Override
 public void setUpSuite() throws Exception {
 	if (JAVA_PROJECT == null) {
-		JAVA_PROJECT = setUpJavaProject("FormatterBugs", "1.5"); //$NON-NLS-1$
+		JAVA_PROJECT = setUpJavaProject("FormatterBugs", CompilerOptions.getFirstSupportedJavaVersion()); //$NON-NLS-1$
 	}
 	super.setUpSuite();
 }
 
 /**
- * @bug 27079: [formatter] Tags for disabling/enabling code formatter (feature)
- * @test Ensure that the formatter does not format code between specific javadoc comments
+ * bug 27079: [formatter] Tags for disabling/enabling code formatter (feature)
+ * test Ensure that the formatter does not format code between specific javadoc comments
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=27079"
  */
 public void testBug027079a() throws JavaModelException {
@@ -664,8 +662,8 @@ public void testBug027079f4() throws JavaModelException {
 }
 
 /**
- * @bug 59891: [formatter] the code formatter doesn't respect my new lines
- * @test Ensure that the formatter keep line breaks wrapping set by users in the code
+ * bug 59891: [formatter] the code formatter doesn't respect my new lines
+ * test Ensure that the formatter keep line breaks wrapping set by users in the code
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=59891"
  */
 public void testBug059891_01() throws JavaModelException {
@@ -1187,8 +1185,8 @@ public void testBug059891_wksp1_12() throws JavaModelException {
 }
 
 /**
- * @bug 198074: [formatter] the code formatter doesn't respect my new lines
- * @test Ensure that the formatter keep line breaks wrapping set by users in the code
+ * bug 198074: [formatter] the code formatter doesn't respect my new lines
+ * test Ensure that the formatter keep line breaks wrapping set by users in the code
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=198074"
  */
 public void testBug198074() throws JavaModelException {
@@ -1433,8 +1431,8 @@ public void testBug198074_dup213700() throws JavaModelException {
 }
 
 /**
- * @bug 199265: [formatter] 3.3 Code Formatter mis-places commented-out import statements
- * @test Ensure that the formatter keep commented import declarations on their lines
+ * bug 199265: [formatter] 3.3 Code Formatter mis-places commented-out import statements
+ * test Ensure that the formatter keep commented import declarations on their lines
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=199265"
  */
 public void testBug199265a() throws JavaModelException {
@@ -1635,7 +1633,7 @@ public void testBug199265_wksp3a() throws JavaModelException {
 }
 
 /**
- * @bug 208541: [formatter] Formatter does not format whole region/selection
+ * bug 208541: [formatter] Formatter does not format whole region/selection
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=208541"
  */
 public void testBug208541() throws JavaModelException {
@@ -1666,7 +1664,7 @@ public void testBug208541() throws JavaModelException {
 }
 
 /**
- * @bug 203588: [formatter] Qualified invocation + binary expressions excessive wrap
+ * bug 203588: [formatter] Qualified invocation + binary expressions excessive wrap
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=203588"
  */
 public void testBug203588() throws JavaModelException {
@@ -1701,7 +1699,7 @@ public void testBug203588() throws JavaModelException {
 }
 
 /**
- * @bug 252556: [formatter] Spaces removed before formatted region of a compilation unit.
+ * bug 252556: [formatter] Spaces removed before formatted region of a compilation unit.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=252556"
  */
 public void testBug252556() {
@@ -1890,8 +1888,8 @@ public void testBug252556_wksp3a() {
 }
 
 /**
- * @bug 281655: [formatter] "Never join lines" does not work for annotations.
- * @test Verify that "Never join lines" now works for annotations and also that
+ * bug 281655: [formatter] "Never join lines" does not work for annotations.
+ * test Verify that "Never join lines" now works for annotations and also that
  * 		element-value pairs are well wrapped using the new formatter option
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=281655"
  */
@@ -2080,8 +2078,8 @@ public void testBug281655f() throws JavaModelException {
 }
 
 /**
- * @bug 282030: [formatter] Java annotation formatting
- * @test Verify that element-value pairs are well wrapped using the new formatter option
+ * bug 282030: [formatter] Java annotation formatting
+ * test Verify that element-value pairs are well wrapped using the new formatter option
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=282030"
  */
 public void testBug282030() throws JavaModelException {
@@ -2257,7 +2255,7 @@ public void testBug282030h2() throws JavaModelException {
 }
 
 /**
- * @bug 283467: [formatter] wrong indentation with 'Never join lines' selected
+ * bug 283467: [formatter] wrong indentation with 'Never join lines' selected
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=283467"
  */
 public void testBug283467() throws JavaModelException {
@@ -2298,8 +2296,8 @@ public void testBug283467() throws JavaModelException {
 }
 
 /**
- * @bug 284789: [formatter] Does not line-break method declaration exception with parameters
- * @test Verify that the new preference to split method declaration works properly
+ * bug 284789: [formatter] Does not line-break method declaration exception with parameters
+ * test Verify that the new preference to split method declaration works properly
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=284789"
  */
 public void testBug284789() throws JavaModelException {
@@ -2556,8 +2554,8 @@ public void testBug284789_02f() throws JavaModelException {
 }
 
 /**
- * @bug 285565: [formatter] wrong indentation with 'Never join lines' selected
- * @test Test to make sure that use either formatter or {@link IndentManipulation}
+ * bug 285565: [formatter] wrong indentation with 'Never join lines' selected
+ * test Test to make sure that use either formatter or {@link IndentManipulation}
  * 	API methods an indentation set to zero does not thrown any exception.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=285565"
  */
@@ -2642,8 +2640,8 @@ public void testBug285565e() {
 }
 
 /**
- * @bug 286601: [formatter] Code formatter formats anonymous inner classes wrongly when 'Never join lines' is on
- * @test Test to make sure that indentation is correct in anonymous inner class
+ * bug 286601: [formatter] Code formatter formats anonymous inner classes wrongly when 'Never join lines' is on
+ * test Test to make sure that indentation is correct in anonymous inner class
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=286601"
  */
 public void testBug286601() throws JavaModelException {
@@ -2988,8 +2986,8 @@ public void testBug286601_wksp_03b() {
 }
 
 /**
- * @bug 286668: [formatter] 'Never Join Lines' joins lines that are split on method invocation
- * @test Test to make sure that lines are joined when using 'Never Join Lines' preference
+ * bug 286668: [formatter] 'Never Join Lines' joins lines that are split on method invocation
+ * test Test to make sure that lines are joined when using 'Never Join Lines' preference
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=286668"
  */
 public void testBug286668() throws JavaModelException {
@@ -3228,8 +3226,8 @@ public void testBug286668c_60w() throws JavaModelException {
 }
 
 /**
- * @bug 290905: [formatter] Certain formatter pref constellation cause endless loop ==> OOME
- * @test Verify that there's endless loop when setting tab length to zero.
+ * bug 290905: [formatter] Certain formatter pref constellation cause endless loop ==> OOME
+ * test Verify that there's endless loop when setting tab length to zero.
  * 	As the fix finalize bug 285565 implementation, added tests address only
  * 	missed test cases.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=290905"
@@ -3384,8 +3382,8 @@ public void testBug290905f() throws JavaModelException {
 }
 
 /**
- * @bug 293496:  [formatter] 'insert_space_before_opening_brace_in_array_initializer' preference may be reset in certain circumstances
- * @test Verify that a realigned annotation keep the 'insert_space_before_opening_brace_in_array_initializer'
+ * bug 293496:  [formatter] 'insert_space_before_opening_brace_in_array_initializer' preference may be reset in certain circumstances
+ * test Verify that a realigned annotation keep the 'insert_space_before_opening_brace_in_array_initializer'
  * 		preference initial value.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=293496"
  */
@@ -3423,8 +3421,8 @@ public void testBug293240() {
 }
 
 /**
- * @bug 293300: [formatter] The formatter is still unstable in certain circumstances
- * @test Verify that formatting twice a compilation unit does not produce different output
+ * bug 293300: [formatter] The formatter is still unstable in certain circumstances
+ * test Verify that formatting twice a compilation unit does not produce different output
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=293300"
  */
 public void testBug293300_wksp1_01() {
@@ -4732,8 +4730,8 @@ public void testBug293300_wksp3_01() {
 }
 
 /**
- * @bug 293496:  [formatter] 'insert_space_before_opening_brace_in_array_initializer' preference may be reset in certain circumstances
- * @test Verify that non ArithmeticException occurs when using tab size = 0
+ * bug 293496:  [formatter] 'insert_space_before_opening_brace_in_array_initializer' preference may be reset in certain circumstances
+ * test Verify that non ArithmeticException occurs when using tab size = 0
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=293496"
  */
 public void testBug293496() {
@@ -4747,8 +4745,8 @@ public void testBug293496() {
 }
 
 /**
- * @bug 294500: [formatter] MalformedTreeException when formatting an invalid sequence of <code> tags in a javadoc comment
- * @test Verify that no MalformedTreeException occurs while formatting bug test cases
+ * bug 294500: [formatter] MalformedTreeException when formatting an invalid sequence of {@code <code>} tags in a javadoc comment
+ * test Verify that no MalformedTreeException occurs while formatting bug test cases
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=294500"
  */
 public void testBug294500a() {
@@ -4821,8 +4819,8 @@ public void testBug294500b() {
 }
 
 /**
- * @bug 294618: [formatter] The formatter takes two passes to format a common sequence of html tags
- * @test Verify that the specific sequence of html tags is well formatted in one pass
+ * bug 294618: [formatter] The formatter takes two passes to format a common sequence of html tags
+ * test Verify that the specific sequence of html tags is well formatted in one pass
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=294618"
  */
 public void testBug294618a() {
@@ -4940,8 +4938,8 @@ public void testBug294618b() {
 }
 
 /**
- * @bug 294631: [formatter] The formatter takes two passes to format a common sequence of html tags
- * @test Verify that the specific sequence of html tags is well formatted in one pass
+ * bug 294631: [formatter] The formatter takes two passes to format a common sequence of html tags
+ * test Verify that the specific sequence of html tags is well formatted in one pass
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=294631"
  */
 public void testBug294631() {
@@ -4978,8 +4976,8 @@ public void testBug294631() {
 }
 
 /**
- * @bug 295175: [formatter] Missing space before a string at the beginning of a javadoc comment
- * @test Verify that space is well inserted before the leading string
+ * bug 295175: [formatter] Missing space before a string at the beginning of a javadoc comment
+ * test Verify that space is well inserted before the leading string
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=295175"
  */
 public void testBug295175a() {
@@ -5157,8 +5155,8 @@ public void testBug295175f() {
 }
 
 /**
- * @bug 295238: [formatter] The comment formatter add an unexpected new line in block comment
- * @test Verify that formatting a block comment with a tag does not add an unexpected new line
+ * bug 295238: [formatter] The comment formatter add an unexpected new line in block comment
+ * test Verify that formatting a block comment with a tag does not add an unexpected new line
  * 		when the 'Never join lines' option is set
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=295238"
  */
@@ -5293,8 +5291,8 @@ public void testBug295238b3() {
 }
 
 /**
- * @bug 264112: [Formatter] Wrap when necessary too aggressive on short qualifiers
- * @test
+ * bug 264112: [Formatter] Wrap when necessary too aggressive on short qualifiers
+ * test
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=264112"
  */
 // Max line width = 24
@@ -5621,8 +5619,8 @@ public void testBug264112_wksp2_02() {
 }
 
 /**
- * @bug 297225: [formatter] Indentation may be still wrong in certain circumstances after formatting
- * @test Verify that comment indentation is correct when there's a mix of tab and spaces in
+ * bug 297225: [formatter] Indentation may be still wrong in certain circumstances after formatting
+ * test Verify that comment indentation is correct when there's a mix of tab and spaces in
  * 		existing indentation and all comments formatting is off.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=297225"
  */
@@ -5651,8 +5649,8 @@ public void testBug297225() {
 }
 
 /**
- * @bug 297546: [formatter] Formatter removes blank after @see if reference is wrapped
- * @test Verify that space after the @see tag is not removed while formatting
+ * bug 297546: [formatter] Formatter removes blank after @see if reference is wrapped
+ * test Verify that space after the @see tag is not removed while formatting
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=297546"
  */
 public void testBug297546() {
@@ -5696,8 +5694,8 @@ public void testBug297546() {
 }
 
 /**
- * @bug 298243: [formatter] Removing empty lines between import groups
- * @test Verify that space after the @see tag is not removed while formatting
+ * bug 298243: [formatter] Removing empty lines between import groups
+ * test Verify that space after the @see tag is not removed while formatting
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=298243"
  */
 public void testBug298243() {
@@ -5719,8 +5717,8 @@ public void testBug298243() {
 }
 
 /**
- * @bug 298844: [formatter] New lines in empty method body wrong behavior
- * @test Verify that comment is well indented inside empty constructor and method
+ * bug 298844: [formatter] New lines in empty method body wrong behavior
+ * test Verify that comment is well indented inside empty constructor and method
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=298844"
  */
 public void testBug298844a() {
@@ -5758,8 +5756,8 @@ public void testBug298844b() {
 }
 
 /**
- * @bug 302123: [formatter] AssertionFailedException occurs while formatting a source containing the specific javadoc comment...
- * @test Verify that no exception occurs while formatting source including the specific comment
+ * bug 302123: [formatter] AssertionFailedException occurs while formatting a source containing the specific javadoc comment...
+ * test Verify that no exception occurs while formatting source including the specific comment
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=302123"
  */
 public void testBug302123() {
@@ -5848,8 +5846,8 @@ public void testBug302123d() {
 }
 
 /**
- * @bug 302552: [formatter] Formatting qualified invocations can be broken when the Line Wrapping policy forces element to be on a new line
- * @test Verify that wrapping policies forcing the first element to be on a new line are working again...
+ * bug 302552: [formatter] Formatting qualified invocations can be broken when the Line Wrapping policy forces element to be on a new line
+ * test Verify that wrapping policies forcing the first element to be on a new line are working again...
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=302552"
  */
 public void testBug302552_LW0() {
@@ -5935,8 +5933,8 @@ public void testBug302552_LW5() {
 }
 
 /**
- * @bug 304529: [formatter] NPE when either the disabling or the enabling tag is not defined
- * @test Verify that having an empty disabling or enabling is now accepted by the formatter
+ * bug 304529: [formatter] NPE when either the disabling or the enabling tag is not defined
+ * test Verify that having an empty disabling or enabling is now accepted by the formatter
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=304529"
  */
 public void testBug304529() {
@@ -6038,8 +6036,8 @@ public void testBug304529e() {
 }
 
 /**
- * @bug 309706: [formatter] doesn't work when code has three semicolons side by side
- * @test Verify that formatter does get puzzled by three consecutive semicolons
+ * bug 309706: [formatter] doesn't work when code has three semicolons side by side
+ * test Verify that formatter does get puzzled by three consecutive semicolons
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=309706"
  */
 public void testBug309706() {
@@ -6093,8 +6091,8 @@ public void testBug309706b() {
 }
 
 /**
- * @bug 311578: [formatter] Enable/disable tag detection should include comment start/end tokens
- * @test Ensure that the formatter now accepts tags with comment start/end tokens
+ * bug 311578: [formatter] Enable/disable tag detection should include comment start/end tokens
+ * test Ensure that the formatter now accepts tags with comment start/end tokens
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=311578"
  */
 public void testBug311578a() throws JavaModelException {
@@ -6112,9 +6110,9 @@ public void testBug311578a() throws JavaModelException {
 		"\n" +
 		"char                       x;\n" +
 		"\n" +
-		"////J-\n" +
+		"//J-\n" +
 		"int c      =  -     1  +    42;\n" +
-		"////J+\n" +
+		"//J+\n" +
 		"\n" +
 		"char                       y;\n" +
 		"\n" +
@@ -6143,9 +6141,9 @@ public void testBug311578a() throws JavaModelException {
 		"\n" +
 		"	char x;\n" +
 		"\n" +
-		"////J-\n" +
+		"//J-\n" +
 		"int c      =  -     1  +    42;\n" +
-		"////J+\n" +
+		"//J+\n" +
 		"\n" +
 		"	char y;\n" +
 		"\n" +
@@ -6180,9 +6178,9 @@ public void testBug311578b() throws JavaModelException {
 		"\n" +
 		"char                       x;\n" +
 		"\n" +
-		"////J-\n" +
+		"//J-\n" +
 		"int c      =  -     1  +    42;\n" +
-		"////J+\n" +
+		"//J+\n" +
 		"\n" +
 		"char                       y;\n" +
 		"\n" +
@@ -6211,9 +6209,9 @@ public void testBug311578b() throws JavaModelException {
 		"\n" +
 		"	char x;\n" +
 		"\n" +
-		"	//// J-\n" +
+		"	// J-\n" +
 		"	int c = -1 + 42;\n" +
-		"	//// J+\n" +
+		"	// J+\n" +
 		"\n" +
 		"	char y;\n" +
 		"\n" +
@@ -6248,9 +6246,9 @@ public void testBug311578c() throws JavaModelException {
 		"\n" +
 		"char                       x;\n" +
 		"\n" +
-		"////F--\n" +
+		"//F--\n" +
 		"int c      =  -     1  +    42;\n" +
-		"////F++\n" +
+		"//F++\n" +
 		"\n" +
 		"char                       y;\n" +
 		"\n" +
@@ -6279,9 +6277,9 @@ public void testBug311578c() throws JavaModelException {
 		"\n" +
 		"	char x;\n" +
 		"\n" +
-		"////F--\n" +
+		"//F--\n" +
 		"int c      =  -     1  +    42;\n" +
-		"////F++\n" +
+		"//F++\n" +
 		"\n" +
 		"	char y;\n" +
 		"\n" +
@@ -6318,9 +6316,9 @@ public void testBug311578d() throws JavaModelException {
 		"\n" +
 		"char                       x;\n" +
 		"\n" +
-		"////F--\n" +
+		"//F--\n" +
 		"int c      =  -     1  +    42;\n" +
-		"////F++\n" +
+		"//F++\n" +
 		"\n" +
 		"char                       y;\n" +
 		"\n" +
@@ -6355,9 +6353,9 @@ public void testBug311578d() throws JavaModelException {
 		"\n" +
 		"	char x;\n" +
 		"\n" +
-		"	//// F--\n" +
+		"	// F--\n" +
 		"	int c = -1 + 42;\n" +
-		"	//// F++\n" +
+		"	// F++\n" +
 		"\n" +
 		"	char y;\n" +
 		"\n" +
@@ -6513,8 +6511,8 @@ public void testBug311578_320754b() throws JavaModelException {
 }
 
 /**
- * @bug 311582: [formatter] Master switch to enable/disable on/off tags
- * @test Ensure that the formatter does take care of formatting tags by default
+ * bug 311582: [formatter] Master switch to enable/disable on/off tags
+ * test Ensure that the formatter does take care of formatting tags by default
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=311582"
  */
 public void testBug311582a() throws JavaModelException {
@@ -6561,8 +6559,8 @@ public void testBug311582b() {
 }
 
 /**
- * @bug 311617: [formatter] Master switch to enable/disable on/off tags
- * @test Ensure that the formatter does not take care of formatting tags by default
+ * bug 311617: [formatter] Master switch to enable/disable on/off tags
+ * test Ensure that the formatter does not take care of formatting tags by default
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=311617"
  */
 public void testBug311617() throws JavaModelException {
@@ -6607,8 +6605,8 @@ public void testBug311617b() {
 }
 
 /**
- * @bug 313524: [formatter] Add preference for improved lines wrapping in nested method calls
- * @test Ensure that the formatter keep previous eclipse versions behavior when
+ * bug 313524: [formatter] Add preference for improved lines wrapping in nested method calls
+ * test Ensure that the formatter keep previous eclipse versions behavior when
  * 		the "Try to keep nested expressions on one line" preference is set.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=313524"
  */
@@ -7153,8 +7151,8 @@ public void testBug313524_wksp1_12() throws JavaModelException {
 }
 
 /**
- * @bug 317039: [formatter] Code Formatter fails on inner class source indentation
- * @test Ensure formatter is stable when 'Never Join Lines' preference is checked
+ * bug 317039: [formatter] Code Formatter fails on inner class source indentation
+ * test Ensure formatter is stable when 'Never Join Lines' preference is checked
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=317039"
  */
 public void testBug317039_njl() {
@@ -7193,8 +7191,8 @@ public void testBug317039_njl() {
 }
 
 /**
- * @bug 320754: [formatter] formatter:off/on tags does not work correctly
- * @test Ensure disabling/enabling tags work properly around annotations
+ * bug 320754: [formatter] formatter:off/on tags does not work correctly
+ * test Ensure disabling/enabling tags work properly around annotations
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=320754"
  */
 public void testBug320754_00() throws JavaModelException {
@@ -7483,8 +7481,8 @@ public void testBug320754_03() throws JavaModelException {
 }
 
 /**
- * @bug 328240: org.eclipse.text.edits.MalformedTreeException: Overlapping text edits
- * @test Ensure that no exception occurs while formatting the given sample
+ * bug 328240: org.eclipse.text.edits.MalformedTreeException: Overlapping text edits
+ * test Ensure that no exception occurs while formatting the given sample
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=328240"
  */
 public void testBug328240() {
@@ -7538,8 +7536,8 @@ public void testBug328240() {
 }
 
 /**
- * @bug 328362: [formatter] Format regions does not format as expected
- * @test Ensure that the given regions are well formatted
+ * bug 328362: [formatter] Format regions does not format as expected
+ * test Ensure that the given regions are well formatted
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=328362"
  */
 public void testBug328362() throws Exception {
@@ -7563,8 +7561,8 @@ public void testBug328362() throws Exception {
 }
 
 /**
- * @bug 330313: [formatter] 'Never join already wrapped lines' formatter option does correctly indent
- * @test Ensure that indentation is correct when 'Never join already wrapped lines' is set
+ * bug 330313: [formatter] 'Never join already wrapped lines' formatter option does correctly indent
+ * test Ensure that indentation is correct when 'Never join already wrapped lines' is set
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=330313"
  */
 public void testBug330313() {
@@ -10489,8 +10487,8 @@ public void testBug330313_b286601_08() {
 }
 
 /**
- * @bug 332818: [formatter] Java formatter, Blank Lines tab, only 1st line indented when multiple lines is set
- * @test Ensure that the indentation is set on all blank lines
+ * bug 332818: [formatter] Java formatter, Blank Lines tab, only 1st line indented when multiple lines is set
+ * test Ensure that the indentation is set on all blank lines
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=332818"
  */
 public void testBug332818() throws Exception {
@@ -10542,8 +10540,8 @@ public void testBug332818() throws Exception {
 }
 
 /**
- * @bug 332877: [formatter] line comment wrongly put on a new line
- * @test Ensure that the comment on last enum constant is not wrongly put on a new line
+ * bug 332877: [formatter] line comment wrongly put on a new line
+ * test Ensure that the comment on last enum constant is not wrongly put on a new line
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=332877"
  */
 public void testBug332877() throws Exception {
@@ -10561,8 +10559,8 @@ public void testBug332877() throws Exception {
 }
 
 /**
- * @bug 282988: [formatter] Option to align single-line comments in a column
- * @test Ensure that with line comment formatting turned off comment alignment doesn't change
+ * bug 282988: [formatter] Option to align single-line comments in a column
+ * test Ensure that with line comment formatting turned off comment alignment doesn't change
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=282988"
  */
 public void testBug282988() throws Exception {
@@ -10619,8 +10617,8 @@ public void testBug356851() throws Exception {
     );
 }
 /**
- * @bug 437639: [formatter] ArrayIndexOutOfBoundsException while formatting source code
- * @test test that the AIOOB is not generated
+ * bug 437639: [formatter] ArrayIndexOutOfBoundsException while formatting source code
+ * test test that the AIOOB is not generated
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=437639"
  */
 public void testBug437639() throws Exception {
@@ -10670,8 +10668,8 @@ public void testBug437639() throws Exception {
     );
 }
 /**
- * @bug 460008: [formatter] Inserts wrong line breaks on ASTRewrite (Extract Constant, Extract Local Variable)
- * @test test line break is not added at end of expression
+ * bug 460008: [formatter] Inserts wrong line breaks on ASTRewrite (Extract Constant, Extract Local Variable)
+ * test test line break is not added at end of expression
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=460008"
  */
 public void testBug460008() throws Exception {
@@ -10692,8 +10690,8 @@ public void testBug460008() throws Exception {
 	// K_COMPILATION_UNIT is tested by FormatterRegressionTests#test512() and #test643()
 }
 /**
- * @bug 462945 - [formatter] IndexOutOfBoundsException in TokenManager
- * @test no exception is thrown for malformed code
+ * bug 462945 - [formatter] IndexOutOfBoundsException in TokenManager
+ * test no exception is thrown for malformed code
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=462945"
  */
 public void testBug462945() throws Exception {
@@ -10771,8 +10769,8 @@ public void testBug464312() throws Exception {
 	formatSource(source, source, CodeFormatter.K_STATEMENTS);
 }
 /**
- * @bug 458208: [formatter] follow up bug for comments
- * @test test a space is not added after a lambda expression in parenthesis
+ * bug 458208: [formatter] follow up bug for comments
+ * test test a space is not added after a lambda expression in parenthesis
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=458208#c2"
  */
 public void testBug458208() throws Exception {
@@ -10798,8 +10796,8 @@ public void testBug458208() throws Exception {
 	);
 }
 /**
- * @bug 458208: [formatter] follow up bug for comments
- * @test test that comments in switch statements are properly indented
+ * bug 458208: [formatter] follow up bug for comments
+ * test test that comments in switch statements are properly indented
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=458208#c21"
  */
 public void testBug458208b() throws Exception {
@@ -10840,8 +10838,8 @@ public void testBug458208b() throws Exception {
 	);
 }
 /**
- * @bug 458208: [formatter] follow up bug for comments
- * @test test that elements separated with empty lines are properly indented
+ * bug 458208: [formatter] follow up bug for comments
+ * test test that elements separated with empty lines are properly indented
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=458208#c18"
  */
 public void testBug458208c() throws Exception {
@@ -10900,8 +10898,8 @@ public void testBug458208c() throws Exception {
 	);
 }
 /**
- * @bug 458208: [formatter] follow up bug for comments
- * @test test that enum constants are not indented with spaces when "Use spaces to indent wrapped lines" is on
+ * bug 458208: [formatter] follow up bug for comments
+ * test test that enum constants are not indented with spaces when "Use spaces to indent wrapped lines" is on
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=458208#c24"
  */
 public void testBug458208d() throws Exception {
@@ -10924,8 +10922,8 @@ public void testBug458208d() throws Exception {
 	);
 }
 /**
- * @bug 465669: NPE in WrapExecutor during Java text formatting
- * @test test that no NPE is thrown
+ * bug 465669: NPE in WrapExecutor during Java text formatting
+ * test test that no NPE is thrown
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=465669"
  */
 public void testBug465669() throws Exception {
@@ -10980,8 +10978,8 @@ public void testBug471090() throws JavaModelException {
 	);
 }
 /**
- * @bug 471364: [formatter] Method declarations in interfaces are sometimes indented incorrectly
- * @test test that methods without modifiers are properly indented
+ * bug 471364: [formatter] Method declarations in interfaces are sometimes indented incorrectly
+ * test test that methods without modifiers are properly indented
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=471364"
  */
 public void testBug471364() throws JavaModelException {
@@ -11020,8 +11018,8 @@ public void testBug471364() throws JavaModelException {
 	formatSource(source);
 }
 /**
- * @bug 471145: [Formatter] doesn't remove space before "{" on the if line
- * @test test that no unnecessary space is added
+ * bug 471145: [Formatter] doesn't remove space before "{" on the if line
+ * test test that no unnecessary space is added
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=471145"
  */
 public void testBug471145() throws JavaModelException {
@@ -11051,8 +11049,8 @@ public void testBug471145() throws JavaModelException {
 		"}");
 }
 /**
- * @Bug 469438: ArrayIndexOutOfBoundsException in TokenManager.applyFormatOff (443)
- * @test test that no exception is thrown
+ * bug 469438: ArrayIndexOutOfBoundsException in TokenManager.applyFormatOff (443)
+ * test test that no exception is thrown
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=469438"
  */
 public void testBug469438() {
@@ -11080,8 +11078,8 @@ public void testBug469438() {
 			);
 }
 /**
- * @bug 471883: NullPointerException in TokenManager.firstIndexIn (188)
- * @test test that no NPE is thrown
+ * bug 471883: NullPointerException in TokenManager.firstIndexIn (188)
+ * test test that no NPE is thrown
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=471883"
  */
 public void testBug471883() throws Exception {
@@ -11099,8 +11097,8 @@ public void testBug471883() throws Exception {
 	formatSource(source);
 }
 /**
- * @bug 470977: [formatter] Whitespace removed between assert and unary operator or primary expression
- * @test test that spaces after assert are correct
+ * bug 470977: [formatter] Whitespace removed between assert and unary operator or primary expression
+ * test test that spaces after assert are correct
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=470977"
  */
 public void testBug470977() throws Exception {
@@ -11122,8 +11120,8 @@ public void testBug470977() throws Exception {
 	formatSource(source);
 }
 /**
- * @bug 472962: [formatter] Missing whitespace after >, ] in annotation type declaration
- * @test test that there is whitespace before element identifiers
+ * bug 472962: [formatter] Missing whitespace after >, ] in annotation type declaration
+ * test test that there is whitespace before element identifiers
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=472962"
  */
 public void testBug472962() {
@@ -11136,8 +11134,8 @@ public void testBug472962() {
 	formatSource(source);
 }
 /**
- * @bug 470506: formatter option "align field in columns" changed in Mars
- * @test test that fields separated by extra blank lines are not considered separate groups when aligning
+ * bug 470506: formatter option "align field in columns" changed in Mars
+ * test test that fields separated by extra blank lines are not considered separate groups when aligning
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=470506"
  */
 public void testBug470506() {
@@ -11154,7 +11152,7 @@ public void testBug470506() {
 }
 
 /**
- * @bug 472205: Class extends generic type and implements another type, missing space after ">"
+ * bug 472205: Class extends generic type and implements another type, missing space after ">"
  */
 public void testBug472205() {
 	String source =
@@ -11175,7 +11173,7 @@ public void testBug472205() {
 	formatSource(source);
 }
 /**
- * @bug 471780 - [formatter] Regression in enum value Javadoc formatting
+ * bug 471780 - [formatter] Regression in enum value Javadoc formatting
  */
 public void testBug471780() {
 	String source =
@@ -11240,8 +11238,8 @@ public void testBug467618() {
 	);
 }
 /**
- * @bug 474916: [formatter] Formatting GridBagLayout from Java 8 takes too long
- * @test test that formatting finishes in reasonable time
+ * bug 474916: [formatter] Formatting GridBagLayout from Java 8 takes too long
+ * test test that formatting finishes in reasonable time
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=474916"
  */
 public void testBug474916() {
@@ -12658,7 +12656,7 @@ public void testBug500853() {
 }
 /**
  * https://bugs.eclipse.org/500853 - [formatter] Errors around formatter:off regions with "use space to indent wrapped lines"
- * @test no {@code IndexOutOfBoundsException} is thrown
+ * test no {@code IndexOutOfBoundsException} is thrown
  */
 public void testBug512791a() {
 	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
@@ -12677,7 +12675,7 @@ public void testBug512791a() {
 }
 /**
  * https://bugs.eclipse.org/500853 - [formatter] Errors around formatter:off regions with "use space to indent wrapped lines"
- * @test formatter doesn't get stuck in an infinite loop
+ * test formatter doesn't get stuck in an infinite loop
  */
 public void testBug512791b() {
 	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;

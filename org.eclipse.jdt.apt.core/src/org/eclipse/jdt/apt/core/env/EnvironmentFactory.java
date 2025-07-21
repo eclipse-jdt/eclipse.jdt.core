@@ -15,14 +15,13 @@
 
 package org.eclipse.jdt.apt.core.env;
 
+import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.TestCodeUtil;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-
-import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 
 public class EnvironmentFactory {
 

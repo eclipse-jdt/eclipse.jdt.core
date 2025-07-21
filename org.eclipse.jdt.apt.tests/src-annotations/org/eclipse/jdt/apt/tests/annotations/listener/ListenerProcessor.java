@@ -14,11 +14,10 @@
 
 package org.eclipse.jdt.apt.tests.annotations.listener;
 
-import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
-
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.RoundCompleteEvent;
 import com.sun.mirror.apt.RoundCompleteListener;
+import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
 
 /**
  * Ensure that the RoundCompleteListener does get called, and that it is possible

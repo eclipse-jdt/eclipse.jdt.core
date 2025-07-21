@@ -13,9 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
@@ -142,18 +140,7 @@ public class CommitWorkingCopyOperation extends JavaModelOperation {
 					byte[] bytes = encoding == null
 						? contents.getBytes()
 						: contents.getBytes(encoding);
-					ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
-					if (resource.exists()) {
-						resource.setContents(
-							stream,
-							this.force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
-							null);
-					} else {
-						resource.create(
-							stream,
-							this.force,
-							this.progressMonitor);
-					}
+					resource.write(bytes, this.force, false, true, this.progressMonitor);
 				} catch (CoreException e) {
 					throw new JavaModelException(e);
 				} catch (UnsupportedEncodingException e) {

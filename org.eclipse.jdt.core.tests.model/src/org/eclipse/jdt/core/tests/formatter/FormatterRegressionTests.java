@@ -6766,9 +6766,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
         preferences.tab_size = 4;
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
 		Map compilerOptions = new HashMap();
-		compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-		compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-		compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+		compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+		compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+		compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 		runTest(codeFormatter, "test503", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -6784,15 +6784,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test504", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -6811,15 +6811,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test505", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -6839,15 +6839,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test506", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -6866,15 +6866,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test507", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -6893,15 +6893,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test508", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -6984,15 +6984,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test513", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7024,15 +7024,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test515", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7053,15 +7053,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test516", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7082,15 +7082,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test517", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7111,15 +7111,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test518", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7140,15 +7140,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test519", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7167,15 +7167,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test520", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7194,15 +7194,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test521", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7221,15 +7221,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test522", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7251,15 +7251,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test523", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7281,15 +7281,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test524", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7311,15 +7311,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test525", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7341,15 +7341,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test526", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7369,15 +7369,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test527", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7394,15 +7394,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test527b", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7421,15 +7421,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test528", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7448,15 +7448,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test529", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7475,15 +7475,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test530", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7502,15 +7502,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test531", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7529,15 +7529,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test532", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7556,15 +7556,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test533", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7583,15 +7583,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test534", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7610,15 +7610,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test535", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7639,15 +7639,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test536", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7668,15 +7668,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test537", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7704,15 +7704,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test539", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7730,15 +7730,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test540", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7757,15 +7757,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test541", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7802,15 +7802,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test544", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -7829,15 +7829,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test545", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -8043,15 +8043,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test558", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -8084,15 +8084,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test559", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -8140,15 +8140,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test562", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -8167,15 +8167,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test563", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -8222,15 +8222,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test566", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -8293,15 +8293,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test570", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -8319,15 +8319,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test571", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -8387,15 +8387,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test575", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -8410,15 +8410,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test576", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -8465,15 +8465,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test581", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -8489,15 +8489,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test582", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -8512,15 +8512,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test583", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -8539,15 +8539,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test584", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -8566,15 +8566,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test585", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -8593,15 +8593,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test586", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -8620,15 +8620,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test587", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -8643,15 +8643,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test588", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -8814,15 +8814,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test605", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -8948,15 +8948,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test612", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -8974,15 +8974,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test613", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -9046,15 +9046,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test620", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -9069,15 +9069,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test621", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -9091,15 +9091,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test622", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -9113,15 +9113,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test623", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -9135,15 +9135,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test624", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -9170,15 +9170,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test626", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -9194,15 +9194,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test627", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -9217,15 +9217,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test628", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -9240,15 +9240,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test629", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -9616,15 +9616,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test667", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -10417,15 +10417,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test706", "X.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -10448,15 +10448,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test707", "X.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -10480,15 +10480,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test708", "X.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -10516,15 +10516,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test709", "X.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -10550,15 +10550,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test710", "X.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -10585,15 +10585,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test711", "X.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -10611,15 +10611,15 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			newJavaCoreOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newJavaCoreOptions);
 
 			Map compilerOptions = new HashMap();
-			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+			compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+			compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 			DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 			runTest(codeFormatter, "test712", "X.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 		} finally {
@@ -10720,9 +10720,9 @@ public void test720() {
 	final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 	DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 	Map compilerOptions = new HashMap();
-	compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-	compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-	compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+	compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+	compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+	compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 	runTest(codeFormatter, "test720", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 }
@@ -10731,9 +10731,9 @@ public void test721() {
 	final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 	DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 	Map compilerOptions = new HashMap();
-	compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-	compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-	compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+	compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+	compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+	compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 	runTest(codeFormatter, "test721", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 }
@@ -10750,9 +10750,9 @@ public void test723() {
 	final Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 	DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 	Map compilerOptions = new HashMap();
-	compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-	compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-	compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+	compilerOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
+	compilerOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+	compilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences, compilerOptions);
 	runTest(codeFormatter, "test723", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);//$NON-NLS-1$ //$NON-NLS-2$
 }
@@ -15961,10 +15961,52 @@ public void testBug573949() {
 		"}\n" +
 		"}";
 	formatSource(source,
+			"public class X {\n" +
+			"	private static void foo(Object o) {\n" +
+			"		switch (o) {\n" +
+			"		case Integer t, String:\n" +
+			"			System.out.println(\"Error should be flagged for Integer and String\");\n" +
+			"		default:\n" +
+			"			System.out.println(\"Object\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"\n" +
+			"	static void testTriangle(Shape s) {\n" +
+			"		switch (s) {\n" +
+			"		case Triangle t when t.calculateArea() > 100 -> System.out.println(\"Large triangle\");\n" +
+			"		default -> System.out.println(\"A shape, possibly a small triangle\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"}"
+		);
+}
+
+public void testBug573949_0() {
+	setComplianceLevel(CompilerOptions.VERSION_21);
+	this.formatterOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+	String source =
+		"public class X {\n" +
+		" private static void foo(Object o) {\n" +
+		"   switch (o) {\n" +
+		"     case Integer t, String s : System.out.println(\"Error should be flagged for Integer and String\");\n" +
+		"     default : System.out.println(\"Object\");\n" +
+		"   }\n" +
+		" }\n" +
+		"\n" +
+		"static void testTriangle(Shape s) {\n" +
+		"    switch (s) {\n" +
+		"        case Triangle t when t.calculateArea() > 100 ->\n" +
+		"            System.out.println(\"Large triangle\");\n" +
+		"        default ->\n" +
+		"            System.out.println(\"A shape, possibly a small triangle\");\n" +
+		"    }\n" +
+		"}\n" +
+		"}";
+	formatSource(source,
 		"public class X {\n" +
 		"	private static void foo(Object o) {\n" +
 		"		switch (o) {\n" +
-		"		case Integer t, String:\n" +
+		"		case Integer t,String s:\n" +
 		"			System.out.println(\"Error should be flagged for Integer and String\");\n" +
 		"		default:\n" +
 		"			System.out.println(\"Object\");\n" +
@@ -16260,6 +16302,7 @@ public void testGH59() {
  * https://github.com/eclipse-jdt/eclipse.jdt/pull/1817 - [formatter] Align arrows on column in switch statements/expressions
  */
 public void testGH1817a() {
+	setComplianceLevel(CompilerOptions.VERSION_14);
 	this.formatterPrefs.align_arrows_in_switch_on_columns = true;
 	String source =
 		"""
@@ -16353,5 +16396,98 @@ public void testGH1473c() throws JavaModelException {
 	this.formatterPrefs.brace_position_for_block_in_case_after_arrow = DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED;
 	String input = getCompilationUnit("Formatter", "", "testGH1473", "in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "testGH1473", "C_out.java").getSource());
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3070
+// [Formatter] leading space added to conditional statements following an unnamed variable
+public void testIssue3070() {
+	setComplianceLevel(CompilerOptions.VERSION_23);
+	String source =
+		"""
+		class Example {
+			private void foo() {
+				var a = false;
+
+				try {
+				} catch (Exception _) { // <- the unnamed variable triggers the issue
+				}
+
+				if (a) { // <- no leading space before the variable name
+				}
+			}
+		}
+		""";
+	formatSource(source,
+		"""
+		class Example {
+			private void foo() {
+				var a = false;
+
+				try {
+				} catch (Exception _) { // <- the unnamed variable triggers the issue
+				}
+
+				if (a) { // <- no leading space before the variable name
+				}
+			}
+		}
+		""");
+}
+public void testIssue3070_2() {
+	setComplianceLevel(CompilerOptions.VERSION_23);
+	String source =
+		"""
+		class Example {
+			private void foo() {
+				var a = false;
+
+				try {
+				} catch (Exception e) { // <- the unnamed variable triggers the issue
+				}
+
+				if (a) { // <- no leading space before the variable name
+				}
+			}
+		}
+		""";
+	formatSource(source,
+		"""
+		class Example {
+			private void foo() {
+				var a = false;
+
+				try {
+				} catch (Exception e) { // <- the unnamed variable triggers the issue
+				}
+
+				if (a) { // <- no leading space before the variable name
+				}
+			}
+		}
+		""");
+}
+//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2977
+//[23] Formatter Support for Implicit classes - investigate
+public void testIssue2977() {
+	setComplianceLevel(CompilerOptions.VERSION_23);
+	this.formatterOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+	String source =
+		"""
+		import java.util.List;
+		String greeting() { return "Hello, World!"; }
+		void  main( )  {println(greeting());}
+		""";
+	formatSource(source,
+		"""
+		import java.util.List;
+
+		String greeting() {
+			return "Hello, World!";
+		}
+
+		void main() {
+			println(greeting());
+		}
+		""",
+		CodeFormatter.K_COMPILATION_UNIT);
 }
 }

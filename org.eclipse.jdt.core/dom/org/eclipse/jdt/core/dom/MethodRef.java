@@ -93,7 +93,7 @@ public class MethodRef extends ASTNode implements IDocElement {
 	 * The method name; lazily initialized; defaults to a unspecified,
 	 * legal Java method name.
 	 */
-	private SimpleName methodName = null;
+	private volatile SimpleName methodName;
 
 	/**
 	 * The parameter declarations
@@ -230,8 +230,7 @@ public class MethodRef extends ASTNode implements IDocElement {
 			synchronized (this) {
 				if (this.methodName == null) {
 					preLazyInit();
-					this.methodName = new SimpleName(this.ast);
-					postLazyInit(this.methodName, NAME_PROPERTY);
+					this.methodName = postLazyInit(new SimpleName(this.ast), NAME_PROPERTY);
 				}
 			}
 		}

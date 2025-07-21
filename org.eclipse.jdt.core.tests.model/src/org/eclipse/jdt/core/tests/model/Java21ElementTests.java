@@ -13,12 +13,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import junit.framework.Test;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
-
-import junit.framework.Test;
 
 public class Java21ElementTests extends AbstractJavaModelTests {
 
@@ -365,6 +365,27 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 
 		ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Test.java");
 		assertFalse(unit.getTypes()[0].getMethods()[0].isMainMethodCandidate());
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2574
+	// [Sealed types][selection] Can't navigate in files in 2nd level child
+	public void testIssue2574() throws Exception {
+
+		this.project.open(null);
+
+		createFile("/Java21Elements/src/Top.java", "public sealed interface Top permits Middle {}\n");
+		createFile("/Java21Elements/src/Middle.java", "public sealed interface Middle extends Top permits Down {}\n");
+		createFile("/Java21Elements/src/Down.java", "public record Down(String foo) implements Middle {}\n");
+		createFile("/Java21Elements/src/String.java", "public class String {}\n");
+
+		ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Down.java");
+		int start = unit.getWorkingCopy(null).getSource().lastIndexOf("String");
+		IJavaElement[] elements = unit.codeSelect(start, 6);
+		assertElementsEqual(
+				"Unexpected elements",
+				"String [in String.java [in <default> [in src [in Java21Elements]]]]",
+				elements
+			);
 	}
 
 }

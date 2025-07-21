@@ -18,9 +18,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
-
 import javax.lang.model.SourceVersion;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -36,12 +35,9 @@ import org.eclipse.jdt.core.tests.builder.BuilderTests;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 
-import junit.framework.Test;
-
 public class TestBase extends BuilderTests
 {
 
-	protected static final String JAVA_16_COMPLIANCE = "1.6";
 	protected static final String JAVA_18_COMPLIANCE = "1.8";
 	protected static final String JAVA_9_COMPLIANCE = "9";
 
@@ -63,18 +59,16 @@ public class TestBase extends BuilderTests
 	private static void addAnnotationJar(IJavaProject jproj, boolean addToModulePath) throws Exception {
 		final String resName = "lib/annotations.jar"; // name in bundle
 		final String libName = resName; // name in destination project
-		InputStream is = null;
 		URL resURL = Apt6TestsPlugin.thePlugin().getBundle().getEntry(resName);
-		is = resURL.openStream();
+		byte[] bytes;
+		try (InputStream is = resURL.openStream()) {
+			bytes= is.readAllBytes();
+		}
 		IPath projPath = jproj.getPath();
 		IProject proj = jproj.getProject();
 		IFile libFile = proj.getFile(libName);
 		env.addFolder(projPath, "lib");
-		if (libFile.exists()) {
-			libFile.setContents(is, true, false, null);
-		} else {
-			libFile.create(is, true, null);
-		}
+		libFile.write(bytes, true, false, false, null);
 		if (addToModulePath) {
 			IClasspathAttribute[] attributes = { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
 			env.addEntry(projPath, JavaCore.newLibraryEntry(libFile.getFullPath(), null, null,
@@ -93,7 +87,7 @@ public class TestBase extends BuilderTests
 	 */
 	protected static IJavaProject createJavaProject(final String projectName) throws Exception
 	{
-		IPath projectPath = env.addProject(projectName, JAVA_16_COMPLIANCE);
+		IPath projectPath = env.addProject(projectName, JAVA_18_COMPLIANCE);
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		// remove old package fragment root so that names don't collide
 		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$

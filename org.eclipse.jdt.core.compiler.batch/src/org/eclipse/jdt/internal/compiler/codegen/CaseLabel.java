@@ -42,6 +42,7 @@ void branch() {
 		 */
 		this.codeStream.writeSignedWord(this.position - this.instructionPosition);
 	}
+	trackStackDepth(true);
 }
 
 /*
@@ -79,6 +80,7 @@ public void place() {
 		// add the label in the codeStream labels collection
 		this.codeStream.addLabel(this);
 	}
+	trackStackDepth(false);
 }
 
 /*

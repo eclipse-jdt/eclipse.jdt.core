@@ -20,14 +20,26 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
-
 import junit.framework.Test;
-
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.LocalVariableDeclarationMatch;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.search.SearchMatch;
+import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.core.search.SearchRequestor;
+import org.eclipse.jdt.core.search.TypeNameRequestor;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 
@@ -72,7 +84,7 @@ public void setUpSuite() throws Exception {
 
 	if (JAVA_PROJECT == null) {
 		JAVA_PROJECT = setUpJavaProject("JavaSearch");
-		setUpJavaProject("JavaSearch15", "1.5");
+		setUpJavaProject("JavaSearch15", CompilerOptions.getFirstSupportedJavaVersion());
 	}
 }
 @Override
@@ -518,7 +530,7 @@ public void testDeclarationOfReferencedTypes09() throws CoreException {
 	);
 	assertSearchResults(
 		"Starting search...\n" +
-		getExternalJCLPathString("1.5") + " java.lang.Object\n" +
+		getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + " java.lang.Object\n" +
 		"Done searching.",
 		result);
 }
@@ -875,7 +887,7 @@ public void testFieldReference05() throws CoreException {
 	// Set 1.4 compliance level (no constant yet)
 	Hashtable options = JavaCore.getOptions();
 	String currentOption = (String)options.get("org.eclipse.jdt.core.compiler.compliance");
-	options.put("org.eclipse.jdt.core.compiler.compliance", "1.4");
+	options.put("org.eclipse.jdt.core.compiler.compliance", CompilerOptions.getFirstSupportedJavaVersion());
 	JavaCore.setOptions(options);
 
 	try {
@@ -1238,8 +1250,8 @@ public void testLocalVariableDeclaration2() throws CoreException {
 		this.resultCollector);
 }
 /**
- * @bug 207257: [search] SearchEngine returns incorrectly typed SearchMatch when searching for local variable declarations
- * @test The accepted match should be a {@link LocalVariableDeclarationMatch}
+ * bug 207257: [search] SearchEngine returns incorrectly typed SearchMatch when searching for local variable declarations
+ * test The accepted match should be a {@link LocalVariableDeclarationMatch}
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=207257"
  */
 public void testLocalVariableDeclaration_Bug207257() throws CoreException {
@@ -1959,6 +1971,9 @@ public void testPackageDeclarationBug183062b() throws CoreException {
 		""+ getExternalJCLPathString() + " java\n" +
 		""+ getExternalJCLPathString() + " java.io\n" +
 		""+ getExternalJCLPathString() + " java.lang\n" +
+		""+ getExternalJCLPathString() + " java.lang.annotation\n" +
+		""+ getExternalJCLPathString() + " java.lang.invoke\n" +
+		""+ getExternalJCLPathString() + " java.util\n" +
 		"src/j1 j1\n" +
 		"src/j2 j2\n" +
 		"src/j3 j3\n" +
@@ -2005,7 +2020,8 @@ public void testPackageDeclarationBug183062e() throws CoreException {
 		getJavaSearchScope(),
 		packageCollector);
 	assertSearchResults(
-		""+ getExternalJCLPathString() + " java.lang",
+		""+ getExternalJCLPathString() + " java.lang\n" +
+		""+ getExternalJCLPathString() + " java.util",
 		packageCollector);
 }
 /**
@@ -4142,8 +4158,8 @@ public void testStaticImportPackage02() throws CoreException {
 }
 
 /**
- * @test Bug 110060: [plan][search] Add support for Camel Case search pattern
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=110060"
+ * test Bug 110060: [plan][search] Add support for Camel Case search pattern
+ * see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=110060"
  *
  * These tests are not really duplicates of {@link JavaSearchBugsTests} ones
  * as they also test camel case in indexes...
@@ -4152,7 +4168,9 @@ public void testCamelCaseTypePattern01_CamelCase() throws CoreException {
 	search("RE", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
 		"src/a3/References.java a3.References [References]\n" +
-		""+ getExternalJCLPathString() + " java.lang.RuntimeException"
+		""+ getExternalJCLPathString() + " java.lang.RuntimeException\n" +
+		""+ getExternalJCLPathString() + " java.lang.annotation.Retention\n" +
+		""+ getExternalJCLPathString() + " java.lang.annotation.RetentionPolicy"
 	);
 }
 public void testCamelCaseTypePattern02_CamelCase() throws CoreException {
@@ -4177,7 +4195,9 @@ public void testCamelCaseTypePattern05_CamelCase() throws CoreException {
 	search("R*E*", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_MATCH);
 	assertSearchResults(
 		"src/a3/References.java a3.References [References]\n" +
-		""+ getExternalJCLPathString() + " java.lang.RuntimeException"
+		""+ getExternalJCLPathString() + " java.lang.RuntimeException\n" +
+		""+ getExternalJCLPathString() + " java.lang.annotation.Retention\n" +
+		""+ getExternalJCLPathString() + " java.lang.annotation.RetentionPolicy"
 	);
 }
 public void testCamelCaseTypePattern06_CamelCase() throws CoreException {
@@ -4329,7 +4349,9 @@ public void testCamelCaseTypePattern05_CamelCaseSamePartCount() throws CoreExcep
 	search("R*E*", TYPE, DECLARATIONS, SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH);
 	assertSearchResults(
 		"src/a3/References.java a3.References [References]\n" +
-		""+ getExternalJCLPathString() + " java.lang.RuntimeException"
+		""+ getExternalJCLPathString() + " java.lang.RuntimeException\n" +
+		""+ getExternalJCLPathString() + " java.lang.annotation.Retention\n" +
+		""+ getExternalJCLPathString() + " java.lang.annotation.RetentionPolicy"
 	);
 }
 public void testCamelCaseTypePattern06_CamelCaseSamePartCount() throws CoreException {
@@ -4441,8 +4463,8 @@ public void testCamelCaseTypePattern13_CamelCaseSamePartCount() throws CoreExcep
 }
 
 /**
- * @bug 160323: [search] TypeNameMatch: support hashCode/equals
- * @test Ensure that match equals and hashCode methods return same values than those of stored {@link IType}.
+ * bug 160323: [search] TypeNameMatch: support hashCode/equals
+ * test Ensure that match equals and hashCode methods return same values than those of stored {@link IType}.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=160323"
  */
 public void testBug160323() throws CoreException {

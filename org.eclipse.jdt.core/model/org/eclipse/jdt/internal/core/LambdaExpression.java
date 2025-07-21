@@ -31,6 +31,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.Substitution;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -54,7 +55,7 @@ public class LambdaExpression extends SourceType {
 		this.arrowPosition = lambdaExpression.arrowPosition;
 
 		TypeBinding supertype = findLambdaSuperType(lambdaExpression);
-		this.interphase = new String(CharOperation.replaceOnCopy(supertype.genericTypeSignature(), '/', '.'));
+		this.interphase = DeduplicationUtil.toString(CharOperation.replaceOnCopy(supertype.genericTypeSignature(), '/', '.'));
 		this.elementInfo = makeTypeElementInfo(this, this.interphase, this.sourceStart, this.sourceEnd, this.arrowPosition);
 		this.lambdaMethod = LambdaFactory.createLambdaMethod(this, lambdaExpression);
 		this.elementInfo.children = new IJavaElement[] { this.lambdaMethod };
@@ -134,8 +135,7 @@ public class LambdaExpression extends SourceType {
 		elementInfo.setSuperclassName(null);
 		elementInfo.addCategories(handle, null);
 
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		char[][] superinterfaces = new char [][] { manager.intern(Signature.toString(interphase).toCharArray()) }; // drops marker interfaces - to fix.
+		char[][] superinterfaces = new char [][] { DeduplicationUtil.intern(Signature.toString(interphase).toCharArray()) }; // drops marker interfaces - to fix.
 		elementInfo.setSuperInterfaceNames(superinterfaces);
 		return elementInfo;
 	}
@@ -258,7 +258,7 @@ public class LambdaExpression extends SourceType {
 
 	@Override
 	public ResolvedLambdaExpression resolved(Binding binding) {
-		return new ResolvedLambdaExpression(this.getParent(), this, new String(binding.computeUniqueKey()));
+		return new ResolvedLambdaExpression(this.getParent(), this, DeduplicationUtil.toString(binding.computeUniqueKey()));
 	}
 
 	public IMethod getMethod() {

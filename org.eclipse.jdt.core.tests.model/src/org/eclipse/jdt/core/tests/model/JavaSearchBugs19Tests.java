@@ -13,7 +13,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
-
+import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
@@ -29,8 +29,6 @@ import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
 import org.eclipse.jdt.internal.core.SourceType;
-
-import junit.framework.Test;
 
 public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 
@@ -458,7 +456,7 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 						+ "  public static void printLowerRight(Rectangle r) {\n"
 						+ "    int res = switch(r) {\n"
 						+ "       case Rectangle(ColoredPoint(Point(int xyz, int y), Color c1),\n"
-						+ "                               ColoredPoint lr) r11  -> {\n"
+						+ "                               ColoredPoint lr)  -> {\n"
 						+ "             System.out.println(c1);\n"
 						+ "        		yield 1;  \n"
 						+ "        } \n"
@@ -506,7 +504,7 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 						+ "  public static void printLowerRight(Rectangle r) {\n"
 						+ "    int res = switch(r) {\n"
 						+ "       case Rectangle(ColoredPoint(Point(int xyz, int y), Color c1),\n"
-						+ "                               ColoredPoint lr) r11  -> {\n"
+						+ "                               ColoredPoint lr)  -> {\n"
 						+ "             System.out.println(c1);\n"
 						+ "        		yield 1;  \n"
 						+ "        } \n"
@@ -557,7 +555,7 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 						+ "  public static void printLowerRight(Rectangle r) {\n"
 						+ "    int res = switch(r) {\n"
 						+ "       case Rectangle(ColoredPoint(Point(int xyz, int y), Color c1),\n"
-						+ "                               ColoredPoint lr) r11  -> {\n"
+						+ "                               ColoredPoint lr)  -> {\n"
 						+ "             System.out.println(c1);\n"
 						+ "        		yield 1;  \n"
 						+ "        } \n"

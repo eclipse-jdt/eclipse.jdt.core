@@ -13,20 +13,18 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.declaration;
 
-import java.util.Collection;
-import java.util.List;
-
-import org.eclipse.core.resources.IFile;
-import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.TypeParameter;
-
 import com.sun.mirror.declaration.ExecutableDeclaration;
 import com.sun.mirror.declaration.ParameterDeclaration;
 import com.sun.mirror.declaration.TypeParameterDeclaration;
 import com.sun.mirror.type.ReferenceType;
 import com.sun.mirror.util.DeclarationVisitor;
+import java.util.Collection;
+import java.util.List;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.TypeParameter;
 
 public abstract class ASTBasedExecutableDeclarationImpl
 	extends ASTBasedMemberDeclarationImpl

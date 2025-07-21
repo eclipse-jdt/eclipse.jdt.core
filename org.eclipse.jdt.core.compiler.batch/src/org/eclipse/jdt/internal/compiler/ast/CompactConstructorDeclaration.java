@@ -14,7 +14,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
@@ -34,7 +33,6 @@ public class CompactConstructorDeclaration extends ConstructorDeclaration {
 	public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 		this.constructorCall = SuperReference.implicitSuperConstructorCall();
 		parser.parse(this, unit, false);
-		this.containsSwitchWithTry = parser.switchWithTry;
 	}
 	@Override
 	public void analyseCode(ClassScope classScope, InitializationFlowContext initializerFlowContext, FlowInfo flowInfo, int initialReachMode) {

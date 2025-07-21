@@ -14,18 +14,24 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.List;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.ExternalJavaProject;
 import org.eclipse.jdt.internal.core.util.Util;
-
-import junit.framework.Test;
 
 /**
  * Tests APIs that take a WorkingCopyOwner.
@@ -1220,7 +1226,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 	 */
 	public void testParseCompilationUnit3() throws CoreException {
 		try {
-			createJavaProject("P1", new String[] {"src"}, new String[] {"JCL_LIB", "lib"}, "bin");
+			createJavaProject("P1", new String[] {"src"}, new String[] {"JCL18_LIB", "lib"}, "bin");
 
 			// create X.class in lib folder
 			/* Evaluate the following in a scrapbook:

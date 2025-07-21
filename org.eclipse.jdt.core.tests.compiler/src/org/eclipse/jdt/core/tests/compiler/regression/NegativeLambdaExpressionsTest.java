@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2023 IBM Corporation and others.
+ * Copyright (c) 2011, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -27,13 +27,11 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.IOException;
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class NegativeLambdaExpressionsTest extends AbstractRegressionTest {
@@ -61,6 +59,7 @@ public static Test setUpTest(Test test) throws Exception {
 protected Map getCompilerOptions() {
 	Map defaultOptions = super.getCompilerOptions();
 	defaultOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.WARNING);
+	defaultOptions.put(CompilerOptions.OPTION_ReportUnusedLambdaParameter, CompilerOptions.IGNORE);
 	return defaultOptions;
 }
 
@@ -7369,12 +7368,14 @@ public void testIntersectionCast() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421711, [1.8][compiler] '_' as identifier for a lambda parameter should be rejected.
 public void testUnderScoreParameter() {
+		if (this.complianceLevel >= ClassFileConstants.JDK22)
+			return;
 		String level = this.complianceLevel >= ClassFileConstants.JDK9 ? "ERROR" : "WARNING";
 		String errorMessage = this.complianceLevel >= ClassFileConstants.JDK9 ? "\'_\' is a keyword from source level 9 onwards, cannot be used as identifier\n" : "\'_\' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on\n";
-		if (this.complianceLevel >= ClassFileConstants.JDK21) {
+		if (this.complianceLevel >= ClassFileConstants.JDK22) {
 			errorMessage = "Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable\n";
 		}
-		String otherErrorMessage = this.complianceLevel >= ClassFileConstants.JDK21 ? errorMessage : "\'_\' is a keyword from source level 9 onwards, cannot be used as identifier\n";
+		String otherErrorMessage = this.complianceLevel >= ClassFileConstants.JDK22 ? errorMessage : "\'_\' is a keyword from source level 9 onwards, cannot be used as identifier\n";
 		this.runNegativeTest(
 			new String[] {
 					"X.java",
@@ -8610,7 +8611,7 @@ public void test428177() {
 		"5. ERROR in X.java (at line 38)\n" +
 		"	return stream.collect(Collectors.toList()); // NO ERROR\n" +
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from List<capture#17-of ? extends String> to Stream<String>\n" +
+		"Type mismatch: cannot convert from List<capture#16-of ? extends String> to Stream<String>\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428795, - [1.8]Internal compiler error: java.lang.NullPointerException at org.eclipse.jdt.internal.compiler.ast.MessageSend.analyseCode
