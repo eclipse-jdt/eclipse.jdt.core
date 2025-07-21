@@ -56,22 +56,21 @@ Those properties can be set separately, which can useful when developing one par
   * generating DOM from alternative parser ✔DONE
   * codeSelect ✔DONE
   * indexing ✔DONE
-  * completion ⌨️IN PROGRESS
-  * search/match ⌨️IN PROGRESS
+  * completion ⌨️IN PROGRESS: mostly working, fixing corner cases
+  * search/match ⌨️IN PROGRESS: mostly working, fixing corner cases
   * compiler ✔DONE
 * Javac backend for
   * producing Javac AST & Symbols ✔DONE (incl. annotation processing)
   * Javac->JDT AST conversion ✔DONE (incl. annotation processing)
   * binding conversion ✔DONE
-  * JavacCompiler ✔DONE
+  * JavaCompiler (generate .class from the IDE) ✔DONE
+     * with "proceed on error" to generate code for erroneous files ✔DONE
+* Performance: Javac based operations can still be noticibly slower, particularly for big projects.
 
 
 🤔 What are the potential concerns:
 * **Memory cost** of retaining Javac contexts needs to be evaluated (can we get rid of the context earlier? Can we share subparts of the concerns across multiple files in the project?...)
 * It seems hard to find reusable parts from the **CompletionEngine**, although many proposals shouldn't really depend on the parser (so should be reusable)
 
-
 😧 What are the confirmed concerns:
 * **Null analysis** and some other **static analysis** are coded deep in ECJ and cannot be used with Javac. A solution can be to leverage another analysis engine (eg SpotBugs, SonarQube) deal with those features.
-* At the moment, Javac cannot be configured to **generate .class despite CompilationError** in them like ECJ can do to allow updating the target application even when some code is not complete yet
-  * We may actually be capable of hacking something like this in Eclipse/Javac integration (although it would be best to provide this directly in Javac), but running a 1st attempt of compilation, collecting errors, and then alterating the working copy of the source passed to Javac in case of error. More or less `if (diagnostics.anyMatch(getKind() == "error") { removeBrokenAST(diagnostic); injectAST("throw new CompilationError(diagnostic.getMessage()")`.
