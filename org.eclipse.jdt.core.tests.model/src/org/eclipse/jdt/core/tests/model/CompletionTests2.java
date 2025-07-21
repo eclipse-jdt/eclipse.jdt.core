@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.StringTokenizer;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -30,27 +30,12 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.CompletionContext;
-import org.eclipse.jdt.core.CompletionProposal;
-import org.eclipse.jdt.core.CompletionRequestor;
-import org.eclipse.jdt.core.IAccessRule;
-import org.eclipse.jdt.core.IClasspathAttribute;
-import org.eclipse.jdt.core.IClasspathContainer;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.InternalCompletionContext;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.SourceType;
-
-import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class CompletionTests2 extends AbstractJavaModelCompletionTests {
@@ -158,7 +143,7 @@ public void setUpSuite() throws Exception {
 	if (AbstractJavaModelCompletionTests.COMPLETION_PROJECT == null)  {
 		AbstractJavaModelCompletionTests.COMPLETION_PROJECT = setUpJavaProject("Completion");
 	} else {
-		setUpProjectCompliance(AbstractJavaModelCompletionTests.COMPLETION_PROJECT, "1.4");
+		setUpProjectCompliance(AbstractJavaModelCompletionTests.COMPLETION_PROJECT, CompilerOptions.getFirstSupportedJavaVersion());
 		this.currentProject = AbstractJavaModelCompletionTests.COMPLETION_PROJECT;
 	}
 	super.setUpSuite();
@@ -168,23 +153,6 @@ public void setUpSuite() throws Exception {
 protected void setUp() throws Exception {
 	this.indexDisabledForTest = false;
 	super.setUp();
-}
-
-@Override
-public void tearDownSuite() throws Exception {
-	if (AbstractJavaModelCompletionTests.COMPLETION_SUITES == null) {
-		deleteProject("Completion");
-	} else {
-		AbstractJavaModelCompletionTests.COMPLETION_SUITES.remove(getClass());
-		if (AbstractJavaModelCompletionTests.COMPLETION_SUITES.size() == 0) {
-			deleteProject("Completion");
-			AbstractJavaModelCompletionTests.COMPLETION_SUITES = null;
-		}
-	}
-	if (AbstractJavaModelCompletionTests.COMPLETION_SUITES == null) {
-		AbstractJavaModelCompletionTests.COMPLETION_PROJECT = null;
-	}
-	super.tearDownSuite();
 }
 
 static {
@@ -231,7 +199,7 @@ public void testBug29832() throws Exception {
 	try {
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -240,16 +208,16 @@ public void testBug29832() throws Exception {
 		IJavaProject p = this.createJavaProject(
 			"P1",
 			new String[]{},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "");
-		this.createFile("/P1/lib.jar", f.getContents());
+		this.createFile("/P1/lib.jar", f.readAllBytes());
 		this.addLibraryEntry(p, "/P1/lib.jar", true);
 
 		// create P2
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			new String[]{"/P1"},
 			"bin");
 		this.createFile(
@@ -347,7 +315,7 @@ public void testBug33560() throws Exception {
 	try {
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -356,16 +324,16 @@ public void testBug33560() throws Exception {
 		IJavaProject p = this.createJavaProject(
 			"P1",
 			new String[]{},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "");
-		this.createFile("/P1/lib.jar", f.getContents());
+		this.createFile("/P1/lib.jar", f.readAllBytes());
 		this.addLibraryEntry(p, "/P1/lib.jar", true);
 
 		// create P2
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			new String[]{"/P1"},
 			new boolean[]{true},
 			"bin");
@@ -374,7 +342,7 @@ public void testBug33560() throws Exception {
 		this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			new String[]{"/P2"},
 			"bin");
 		this.createFile(
@@ -469,7 +437,7 @@ public void testBug33560() throws Exception {
 public void testBug6930_01() throws Exception {
 
 	try {
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin");
 
 		createFolder("/P/src/p6930");
 
@@ -536,7 +504,7 @@ private String getSetCodeAssistProperty(IJavaProject project, String property, S
 	return old;
 }
 public void testBug6930_02() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib6930.jar"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		createJar(new String[] {
@@ -595,7 +563,7 @@ public void testBug6930_02() throws Exception {
 	}
 }
 public void testBug6930_03() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		createFolder("/P/src/p6930");
@@ -656,7 +624,7 @@ public void testBug6930_03() throws Exception {
 	}
 }
 public void testBug6930_04() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		refresh(p);
@@ -718,7 +686,7 @@ public void testBug6930_04() throws Exception {
 	}
 }
 public void testBug6930_05() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		refresh(p);
@@ -777,7 +745,7 @@ public void testBug6930_05() throws Exception {
 	}
 }
 public void testBug6930_06() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib6930.jar"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		createFolder("/P/src/p6930");
@@ -842,7 +810,7 @@ public void testBug6930_06() throws Exception {
 	}
 }
 public void testBug6930_07() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib6930.jar"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		createFolder("/P/src/p6930");
@@ -905,7 +873,7 @@ public void testBug6930_07() throws Exception {
 	}
 }
 public void testBug6930_08() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib6930.jar"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		createFolder("/P/src/p6930");
@@ -969,7 +937,7 @@ public void testBug6930_08() throws Exception {
 }
 
 public void testBug6930_09() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib6930.jar"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		createFolder("/P/src/p6930");
@@ -1038,7 +1006,7 @@ public void testBug6930_09() throws Exception {
 	}
 }
 public void testBug6930_10() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib6930.jar"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		createFolder("/P/src/p6930");
@@ -1118,7 +1086,7 @@ public void testBug6930_10() throws Exception {
 	}
 }
 public void testBug6930_11() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib6930.jar"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		createFolder("/P/src/p6930");
@@ -1165,7 +1133,7 @@ public void testBug6930_11() throws Exception {
 	}
 }
 public void testBug6930_12() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib6930.jar"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		createFolder("/P/src/p6930");
@@ -1214,7 +1182,7 @@ public void testBug6930_12() throws Exception {
 	}
 }
 public void testBug6930_13() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib6930.jar"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		createFolder("/P/src/p6930");
@@ -1259,7 +1227,7 @@ public void testBug6930_13() throws Exception {
 	}
 }
 public void testBug6930_14() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib6930.jar"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		createFolder("/P/src/p6930");
@@ -1306,7 +1274,7 @@ public void testBug6930_14() throws Exception {
 	}
 }
 public void testBug6930_15() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib6930.jar"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		createFolder("/P/src/p6930");
@@ -1325,8 +1293,8 @@ public void testBug6930_15() throws Exception {
 					"}"
 				},
 				p.getProject().getLocation().append("lib6930.jar").toOSString(),
-				new String[]{getExternalJCLPathString("1.5")},
-				"1.5");
+				new String[]{getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion())},
+				CompilerOptions.getFirstSupportedJavaVersion());
 
 		refresh(p);
 
@@ -1371,7 +1339,7 @@ public void testBug6930_15() throws Exception {
 	}
 }
 public void testBug6930_16() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib6930.jar"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		createFolder("/P/src/p6930");
@@ -1392,8 +1360,8 @@ public void testBug6930_16() throws Exception {
 					"}"
 				},
 				p.getProject().getLocation().append("lib6930.jar").toOSString(),
-				new String[]{getExternalJCLPathString("1.5")},
-				"1.5");
+				new String[]{getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion())},
+				CompilerOptions.getFirstSupportedJavaVersion());
 
 		refresh(p);
 
@@ -1439,7 +1407,7 @@ public void testBug6930_16() throws Exception {
 	}
 }
 public void testBug6930_17() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib6930.jar"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 
@@ -1461,8 +1429,8 @@ public void testBug6930_17() throws Exception {
 					"}"
 				},
 				p.getProject().getLocation().append("lib6930.jar").toOSString(),
-				new String[]{getExternalJCLPathString("1.5")},
-				"1.5");
+				new String[]{getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion())},
+				CompilerOptions.getFirstSupportedJavaVersion());
 
 		refresh(p);
 
@@ -1508,7 +1476,7 @@ public void testBug6930_17() throws Exception {
 	}
 }
 public void testBug6930_18() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib6930.jar"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		createFolder("/P/src/p6930");
@@ -1569,7 +1537,7 @@ public void testBug6930_18() throws Exception {
 	}
 }
 public void testBug6930_19() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib6930.jar"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		createFolder("/P/src/p6930");
@@ -1633,7 +1601,7 @@ public void testBug6930_19() throws Exception {
 	}
 }
 public void testBug6930_20() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib6930.jar"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		createFolder("/P/src/p6930");
@@ -1653,8 +1621,8 @@ public void testBug6930_20() throws Exception {
 				"}"
 			},
 			p.getProject().getLocation().append("lib6930.jar").toOSString(),
-			new String[]{getExternalJCLPathString("1.5")},
-			"1.5");
+			new String[]{getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion())},
+			CompilerOptions.getFirstSupportedJavaVersion());
 
 		refresh(p);
 
@@ -1695,7 +1663,7 @@ public void testBug6930_20() throws Exception {
 	}
 }
 public void testBug6930_21() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib6930.jar"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		createFolder("/P/src/p6930");
@@ -1716,8 +1684,8 @@ public void testBug6930_21() throws Exception {
 					"}"
 				},
 				p.getProject().getLocation().append("lib6930.jar").toOSString(),
-				new String[]{getExternalJCLPathString("1.5")},
-				"1.5");
+				new String[]{getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion())},
+				CompilerOptions.getFirstSupportedJavaVersion());
 
 		refresh(p);
 
@@ -1761,7 +1729,7 @@ public void testBug6930_21() throws Exception {
 	}
 }
 public void testBug6930_22() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib6930.jar"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 
@@ -1826,7 +1794,7 @@ public void testBug6930_22() throws Exception {
 	}
 }
 public void testBug6930_23() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib6930.jar"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 
@@ -1894,7 +1862,7 @@ public void testBug6930_23() throws Exception {
 	}
 }
 public void testBug6930_24() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib6930.jar"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 
@@ -1962,7 +1930,7 @@ public void testBug6930_24() throws Exception {
 	}
 }
 public void testBug6930_25() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib6930.jar"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 
@@ -2033,7 +2001,7 @@ public void testBug6930_25() throws Exception {
 	}
 }
 public void testBug6930_26() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 
@@ -2079,7 +2047,7 @@ public void testBug6930_26() throws Exception {
 	}
 }
 public void testBug6930_27() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 
@@ -2125,7 +2093,7 @@ public void testBug6930_27() throws Exception {
 	}
 }
 public void testBug6930_28() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		refresh(p);
@@ -2179,7 +2147,7 @@ public void testBug6930_28() throws Exception {
 	}
 }
 public void testBug6930_29() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib6930.jar"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 
@@ -2230,7 +2198,7 @@ public void testBug6930_29() throws Exception {
 	}
 }
 public void testBug6930_30() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		refresh(p);
@@ -2272,7 +2240,7 @@ public void testBug6930_30() throws Exception {
 	}
 }
 public void testBug6930_31() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		refresh(p);
@@ -2315,7 +2283,7 @@ public void testBug6930_31() throws Exception {
 	}
 }
 public void testBug6930_32() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		refresh(p);
@@ -2359,7 +2327,7 @@ public void testBug6930_32() throws Exception {
 	}
 }
 public void testBug6930_33() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		createFolder("/P/src/p6930");
@@ -2422,7 +2390,7 @@ public void testBug6930_33() throws Exception {
 	}
 }
 public void testBug6930_34() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		Map compileOptions = new HashMap();
@@ -2476,7 +2444,7 @@ public void testBug6930_34() throws Exception {
 	}
 }
 public void testBug6930_35() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 
@@ -2538,7 +2506,7 @@ public void testBug79288() throws Exception {
 	try {
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -2546,7 +2514,7 @@ public void testBug79288() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 
 		this.createFolder("/P1/src/a");
@@ -2560,7 +2528,7 @@ public void testBug79288() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			new String[]{"/P1"},
 			"bin");
 
@@ -2575,7 +2543,7 @@ public void testBug79288() throws Exception {
 		this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			new String[]{"/P2"},
 			"bin");
 
@@ -2611,7 +2579,7 @@ public void testBug91772() throws Exception {
 	try {
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -2619,7 +2587,7 @@ public void testBug91772() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 
 		this.createFolder("/P1/src/a");
@@ -2631,7 +2599,7 @@ public void testBug91772() throws Exception {
 
 		// create P2
 		ContainerInitializer.setInitializer(new CompletionContainerInitializer("P2", new String[] {"/P1"}, new boolean[] {true}));
-		String[] classLib = new String[]{"JCL_LIB"};
+		String[] classLib = new String[]{"JCL18_LIB"};
 		int classLibLength = classLib.length;
 		String[] lib = new String[classLibLength + 1];
 		System.arraycopy(classLib, 0, lib, 0, classLibLength);
@@ -2653,7 +2621,7 @@ public void testBug91772() throws Exception {
 		this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			new String[]{"/P2"},
 			"bin");
 
@@ -2685,19 +2653,14 @@ public void testBug91772() throws Exception {
 		this.deleteProject("P2");
 		this.deleteProject("P3");
 
-
-		// TODO the following code is not the correct way to remove the container
-		// Cleanup caches
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		manager.containers = new HashMap(5);
-		manager.variables = new HashMap(5);
+		Util.cleanupClassPathVariablesAndContainers();
 	}
 }
 public void testBug93891() throws Exception {
 	try {
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -2705,7 +2668,7 @@ public void testBug93891() throws Exception {
 		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
@@ -2727,7 +2690,7 @@ public void testBug93891() throws Exception {
 
 		// create P2
 		ContainerInitializer.setInitializer(new CompletionContainerInitializer("P2", new String[] {"/P1"}, new boolean[] {true}, new String[]{"a/*"}));
-		String[] classLib = new String[]{"JCL_LIB"};
+		String[] classLib = new String[]{"JCL18_LIB"};
 		int classLibLength = classLib.length;
 		String[] lib = new String[classLibLength + 1];
 		System.arraycopy(classLib, 0, lib, 0, classLibLength);
@@ -2767,20 +2730,14 @@ public void testBug93891() throws Exception {
 	} finally {
 		this.deleteProject("P1");
 		this.deleteProject("P2");
-
-		// TODO the following code is not the correct way to remove the container
-		// Cleanup caches
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		manager.containers = new HashMap(5);
-		manager.variables = new HashMap(5);
-
+		Util.cleanupClassPathVariablesAndContainers();
 	}
 }
 public void testAccessRestriction1() throws Exception {
 	try {
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -2788,7 +2745,7 @@ public void testAccessRestriction1() throws Exception {
 		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
 		project.setOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
@@ -2813,7 +2770,7 @@ public void testAccessRestriction1() throws Exception {
 		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			new String[]{"/P1"},
 			"bin");
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
@@ -2854,7 +2811,7 @@ public void testAccessRestriction2() throws Exception {
 	try {
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -2862,7 +2819,7 @@ public void testAccessRestriction2() throws Exception {
 		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
 		project.setOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
@@ -2887,7 +2844,7 @@ public void testAccessRestriction2() throws Exception {
 		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -2898,7 +2855,7 @@ public void testAccessRestriction2() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
 		project.setOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -2936,7 +2893,7 @@ public void testAccessRestriction3() throws Exception {
 	try {
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -2944,7 +2901,7 @@ public void testAccessRestriction3() throws Exception {
 		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -2968,7 +2925,7 @@ public void testAccessRestriction3() throws Exception {
 		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -2979,7 +2936,7 @@ public void testAccessRestriction3() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
 		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -3016,7 +2973,7 @@ public void testAccessRestriction4() throws Exception {
 	try {
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -3024,7 +2981,7 @@ public void testAccessRestriction4() throws Exception {
 		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
 		project.setOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
@@ -3049,7 +3006,7 @@ public void testAccessRestriction4() throws Exception {
 		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -3060,7 +3017,7 @@ public void testAccessRestriction4() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
 		project.setOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
@@ -3098,7 +3055,7 @@ public void testAccessRestriction5() throws Exception {
 	try {
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -3106,7 +3063,7 @@ public void testAccessRestriction5() throws Exception {
 		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
@@ -3130,7 +3087,7 @@ public void testAccessRestriction5() throws Exception {
 		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -3141,7 +3098,7 @@ public void testAccessRestriction5() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -3177,7 +3134,7 @@ public void testAccessRestriction6() throws Exception {
 	try {
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -3185,7 +3142,7 @@ public void testAccessRestriction6() throws Exception {
 		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
@@ -3216,7 +3173,7 @@ public void testAccessRestriction6() throws Exception {
 		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -3227,7 +3184,7 @@ public void testAccessRestriction6() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -3236,7 +3193,7 @@ public void testAccessRestriction6() throws Exception {
 		project = this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P2"},
@@ -3247,7 +3204,7 @@ public void testAccessRestriction6() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -3285,7 +3242,7 @@ public void testAccessRestriction7() throws Exception {
 	try {
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -3293,7 +3250,7 @@ public void testAccessRestriction7() throws Exception {
 		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
@@ -3317,7 +3274,7 @@ public void testAccessRestriction7() throws Exception {
 		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P1", "/P3"},
@@ -3328,7 +3285,7 @@ public void testAccessRestriction7() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -3345,7 +3302,7 @@ public void testAccessRestriction7() throws Exception {
 		project = this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -3356,7 +3313,7 @@ public void testAccessRestriction7() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -3386,7 +3343,7 @@ public void testAccessRestriction8() throws Exception {
 	try {
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -3394,7 +3351,7 @@ public void testAccessRestriction8() throws Exception {
 		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
@@ -3418,7 +3375,7 @@ public void testAccessRestriction8() throws Exception {
 		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P3", "/P1"},
@@ -3429,7 +3386,7 @@ public void testAccessRestriction8() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -3446,7 +3403,7 @@ public void testAccessRestriction8() throws Exception {
 		project = this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -3457,7 +3414,7 @@ public void testAccessRestriction8() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -3488,7 +3445,7 @@ public void testAccessRestriction9() throws Exception {
 	try {
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -3496,7 +3453,7 @@ public void testAccessRestriction9() throws Exception {
 		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
@@ -3520,7 +3477,7 @@ public void testAccessRestriction9() throws Exception {
 		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P1", "/P3"},
@@ -3531,7 +3488,7 @@ public void testAccessRestriction9() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -3554,7 +3511,7 @@ public void testAccessRestriction9() throws Exception {
 		project = this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -3565,7 +3522,7 @@ public void testAccessRestriction9() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -3588,7 +3545,7 @@ public void testAccessRestriction9() throws Exception {
 		project = this.createJavaProject(
 				"PX",
 				new String[]{"src"},
-				new String[]{"JCL_LIB"},
+				new String[]{"JCL18_LIB"},
 				null,
 				null,
 				new String[]{"/P2"},
@@ -3599,7 +3556,7 @@ public void testAccessRestriction9() throws Exception {
 				null,
 				null,
 				null,
-				"1.4");
+				CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -3641,7 +3598,7 @@ public void testAccessRestriction10() throws Exception {
 	try {
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -3649,7 +3606,7 @@ public void testAccessRestriction10() throws Exception {
 		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -3673,7 +3630,7 @@ public void testAccessRestriction10() throws Exception {
 		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P1", "/P3"},
@@ -3684,7 +3641,7 @@ public void testAccessRestriction10() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
 		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -3707,7 +3664,7 @@ public void testAccessRestriction10() throws Exception {
 		project = this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -3718,7 +3675,7 @@ public void testAccessRestriction10() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
 		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -3741,7 +3698,7 @@ public void testAccessRestriction10() throws Exception {
 		project = this.createJavaProject(
 				"PX",
 				new String[]{"src"},
-				new String[]{"JCL_LIB"},
+				new String[]{"JCL18_LIB"},
 				null,
 				null,
 				new String[]{"/P2"},
@@ -3752,7 +3709,7 @@ public void testAccessRestriction10() throws Exception {
 				null,
 				null,
 				null,
-				"1.4");
+				CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
 		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -3796,7 +3753,7 @@ public void testAccessRestriction11() throws Exception {
 	try {
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -3804,7 +3761,7 @@ public void testAccessRestriction11() throws Exception {
 		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
@@ -3828,7 +3785,7 @@ public void testAccessRestriction11() throws Exception {
 		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P3", "/P1"},
@@ -3839,7 +3796,7 @@ public void testAccessRestriction11() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -3862,7 +3819,7 @@ public void testAccessRestriction11() throws Exception {
 		project = this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -3873,7 +3830,7 @@ public void testAccessRestriction11() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -3896,7 +3853,7 @@ public void testAccessRestriction11() throws Exception {
 		project = this.createJavaProject(
 				"PX",
 				new String[]{"src"},
-				new String[]{"JCL_LIB"},
+				new String[]{"JCL18_LIB"},
 				null,
 				null,
 				new String[]{"/P2"},
@@ -3907,7 +3864,7 @@ public void testAccessRestriction11() throws Exception {
 				null,
 				null,
 				null,
-				"1.4");
+				CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -3948,7 +3905,7 @@ public void testAccessRestriction12() throws Exception {
 	try {
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -3956,7 +3913,7 @@ public void testAccessRestriction12() throws Exception {
 		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -3980,7 +3937,7 @@ public void testAccessRestriction12() throws Exception {
 		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P3", "/P1"},
@@ -3991,7 +3948,7 @@ public void testAccessRestriction12() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
 		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -4014,7 +3971,7 @@ public void testAccessRestriction12() throws Exception {
 		project = this.createJavaProject(
 			"P3",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -4025,7 +3982,7 @@ public void testAccessRestriction12() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
 		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -4048,7 +4005,7 @@ public void testAccessRestriction12() throws Exception {
 		project = this.createJavaProject(
 				"PX",
 				new String[]{"src"},
-				new String[]{"JCL_LIB"},
+				new String[]{"JCL18_LIB"},
 				null,
 				null,
 				new String[]{"/P2"},
@@ -4059,7 +4016,7 @@ public void testAccessRestriction12() throws Exception {
 				null,
 				null,
 				null,
-				"1.4");
+				CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
 		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -4103,7 +4060,7 @@ public void testAccessRestriction13() throws Exception {
 
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -4111,7 +4068,7 @@ public void testAccessRestriction13() throws Exception {
 		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.WARNING);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
@@ -4135,7 +4092,7 @@ public void testAccessRestriction13() throws Exception {
 		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -4146,7 +4103,7 @@ public void testAccessRestriction13() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.WARNING);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -4183,7 +4140,7 @@ public void testAccessRestriction14() throws Exception {
 
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -4191,7 +4148,7 @@ public void testAccessRestriction14() throws Exception {
 		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.WARNING);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
@@ -4215,7 +4172,7 @@ public void testAccessRestriction14() throws Exception {
 		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -4226,7 +4183,7 @@ public void testAccessRestriction14() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.WARNING);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
@@ -4269,7 +4226,7 @@ public void testAccessRestriction14() throws Exception {
 //
 //		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 //
@@ -4277,7 +4234,7 @@ public void testAccessRestriction14() throws Exception {
 //		this.createJavaProject(
 //			"P1",
 //			new String[]{"src"},
-//			new String[]{"JCL_LIB"},
+//			new String[]{"JCL18_LIB"},
 //			 "bin");
 //
 //		this.createFolder("/P1/src/a");
@@ -4293,7 +4250,7 @@ public void testAccessRestriction14() throws Exception {
 //		this.createJavaProject(
 //			"P2",
 //			new String[]{"src"},
-//			new String[]{"JCL_LIB"},
+//			new String[]{"JCL18_LIB"},
 //			null,
 //			null,
 //			new String[]{"/P1"},
@@ -4304,7 +4261,7 @@ public void testAccessRestriction14() throws Exception {
 //			null,
 //			null,
 //			null,
-//			"1.4");
+//			CompilerOptions.getFirstSupportedJavaVersion());
 //		this.createFile(
 //			"/P2/src/YY.java",
 //			"public class YY {\n"+
@@ -4338,7 +4295,7 @@ public void testBug96950() throws Exception {
 	try {
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -4346,7 +4303,7 @@ public void testBug96950() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 		this.createFile(
 				"/P1/src/Taratata.java",
@@ -4357,7 +4314,7 @@ public void testBug96950() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -4368,7 +4325,7 @@ public void testBug96950() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		this.createFile(
 				"/P2/src/BreakRules.java",
 				"public class BreakRules {\n"+
@@ -4396,7 +4353,7 @@ public void testBug96950() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=276890
 public void testBug276890_01() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB"}, "bin", "1.5");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 
@@ -4452,7 +4409,7 @@ public void testBug276890_01() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=276890
 public void testBug276890_02() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB"}, "bin", "1.5");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		createFolder("/P/src/p276890");
@@ -4507,7 +4464,7 @@ public void testBug276890_02() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=276890
 public void testBug276890_03() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib276890.jar"}, "bin", "1.5");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib276890.jar"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		createFolder("/P/src/p276890");
@@ -4524,8 +4481,8 @@ public void testBug276890_03() throws Exception {
 						"}"
 				},
 				p.getProject().getLocation().append("lib276890.jar").toOSString(),
-				new String[]{getExternalJCLPathString("1.5")},
-				"1.5");
+				new String[]{getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion())},
+				CompilerOptions.getFirstSupportedJavaVersion());
 
 		refresh(p);
 
@@ -4566,8 +4523,8 @@ public void testBug276890_03() throws Exception {
 	}
 }
 /**
- * @bug 162621: [model][delta] Validation errors do not clear after replacing jar file
- * @test Ensures that changing an internal jar and refreshing takes the change into account
+ * bug 162621: [model][delta] Validation errors do not clear after replacing jar file
+ * test Ensures that changing an internal jar and refreshing takes the change into account
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=162621"
  */
 public void testChangeInternalJar() throws CoreException, IOException {
@@ -4583,7 +4540,7 @@ public void testChangeInternalJar() throws CoreException, IOException {
 			"    public void doit2B(int x) { }\n" +
 			"}\n"
 		};
-		addLibrary(jarName, sourceZipName, pathAndContents, JavaCore.VERSION_1_4);
+		addLibrary(jarName, sourceZipName, pathAndContents, CompilerOptions.getFirstSupportedJavaVersion());
 
 		// Wait a little bit to be sure file system is aware of zip file creation
 		try {
@@ -4657,7 +4614,7 @@ public void testBug237469a() throws Exception {
 	try {
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -4692,7 +4649,7 @@ public void testBug237469a() throws Exception {
 		this.createJavaProject(
 			"PS1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB", externalJar1, externalJar2},
+			new String[]{"JCL18_LIB", externalJar1, externalJar2},
 			 "bin");
 
 		this.createFolder("/PS1/src/test");
@@ -4710,7 +4667,7 @@ public void testBug237469a() throws Exception {
 		this.createJavaProject(
 			"PS2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB", externalJar2},
+			new String[]{"JCL18_LIB", externalJar2},
 			new String[]{"/PS1"},
 			"bin");
 
@@ -4753,7 +4710,7 @@ public void testBug237469b() throws Exception {
 	try {
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -4788,7 +4745,7 @@ public void testBug237469b() throws Exception {
 		this.createJavaProject(
 			"PS1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB", externalJar1, externalJar2},
+			new String[]{"JCL18_LIB", externalJar1, externalJar2},
 			 "bin");
 
 		this.createFolder("/PS1/src/test");
@@ -4806,7 +4763,7 @@ public void testBug237469b() throws Exception {
 		this.createJavaProject(
 			"PS2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB", externalJar2},
+			new String[]{"JCL18_LIB", externalJar2},
 			new String[]{"/PS1"},
 			"bin");
 
@@ -4861,7 +4818,7 @@ public void testBug237469b() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=270113
 public void testBug270113_01() throws Exception {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib270113.jar"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib270113.jar"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 
@@ -4910,7 +4867,7 @@ public void testBug281598() throws Exception {
 
 	try {
 		// Create project and jar
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/empty.jar"}, "bin");
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/empty.jar"}, "bin");
 		createFile("/P/empty.jar", "");
 		refresh(p);
 		waitUntilIndexesReady();
@@ -4945,7 +4902,7 @@ public void testBug281598() throws Exception {
 public void testBug281598b() throws Exception {
 	try {
 		// Create project and jar
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/empty.jar"}, "bin");
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/empty.jar"}, "bin");
 		createFile("/P/empty.jar", "");
 		refresh(p);
 		waitUntilIndexesReady();
@@ -4983,7 +4940,7 @@ public void testBug281598c() throws Exception {
 	boolean indexState = isIndexDisabledForTest();
 	try {
 		// Create project
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin", "1.4");
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		waitUntilIndexesReady();
 
 		// Disable indexing
@@ -5012,7 +4969,7 @@ public void testBug281598c() throws Exception {
 	    type.getTypeRoot().codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 
 	    assertResults(
-			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT+R_RESOLVED+R_INTERESTING+R_CASE+R_UNQUALIFIED+R_NON_RESTRICTED)+"}",
+			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT+R_RESOLVED+R_INTERESTING+R_CASE+R_UNQUALIFIED+R_NON_RESTRICTED+R_JAVA_LIBRARY)+"}",
 			requestor.getResults());
 	} finally {
 		enableIndexer();
@@ -5024,7 +4981,7 @@ public void testBug281598c() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=151500
 public void testBug151500a() throws Exception {
 	try {
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib151500.jar"}, "bin", "1.4");
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib151500.jar"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		createJar(
 				new String[] {
 						"foo/Foo.java",
@@ -5044,8 +5001,8 @@ public void testBug151500a() throws Exception {
 						"}"
 				},
 				p.getProject().getLocation().append("lib151500.jar").toOSString(),
-				new String[]{getExternalJCLPathString("1.3")},
-				"1.3");
+				null,
+				CompilerOptions.getFirstSupportedJavaVersion());
 
 		refresh(p);
 
@@ -5083,7 +5040,7 @@ public void testBug151500a() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=151500
 public void testBug151500b() throws Exception {
 	try {
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib151500.jar"}, "bin", "1.4");
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib151500.jar"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		createJar(
 				new String[] {
 						"foo/Foo.java",
@@ -5103,8 +5060,8 @@ public void testBug151500b() throws Exception {
 						"}"
 				},
 				p.getProject().getLocation().append("lib151500.jar").toOSString(),
-				new String[]{getExternalJCLPathString("1.3")},
-				"1.3");
+				null,
+				CompilerOptions.getFirstSupportedJavaVersion());
 
 		refresh(p);
 
@@ -5142,7 +5099,7 @@ public void testBug151500b() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=151500
 public void testBug151500c() throws Exception {
 	try {
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib151500.jar"}, "bin", "1.4");
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB", "/P/lib151500.jar"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		createJar(
 				new String[] {
 						"foo/Foo.java",
@@ -5162,8 +5119,8 @@ public void testBug151500c() throws Exception {
 						"}"
 				},
 				p.getProject().getLocation().append("lib151500.jar").toOSString(),
-				new String[]{getExternalJCLPathString("1.3")},
-				"1.3");
+				null,
+				CompilerOptions.getFirstSupportedJavaVersion());
 
 		refresh(p);
 
@@ -5203,7 +5160,7 @@ public void testBug317264a() throws CoreException {
 	IJavaProject project = null;
 	try
 	{
-		project = createJavaProject("P2", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		project = createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/Completion/b317264/org.apache.commons.lang_2.modified.jar"), null, null));
 
 		createFile(
@@ -5224,52 +5181,20 @@ public void testBug317264a() throws CoreException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
 		assertResults(
-				"Enum[TYPE_REF]{Enum, java.lang, Ljava.lang.Enum;, null, null, " + (R_DEFAULT + 12) + "}",
+				"Enum[TYPE_REF]{Enum, java.lang, Ljava.lang.Enum;, null, null, " + (R_DEFAULT + R_JAVA_LIBRARY + 12) + "}",
 				requestor.getResults());
 
 	} finally {
 		deleteProject(project);
 	}
 }
-// types in enum package of org.apache.commons.lang.jar should be proposed for 1.4 projects
-public void testBug317264b() throws CoreException {
-	IJavaProject project = null;
-	try
-	{
-		project = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, "", "1.4");
-		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/Completion/b317264/org.apache.commons.lang_2.modified.jar"), null, null));
 
-		createFile(
-				"/P2/X.java",
-				"import org.apache.commons.lang.*;\n"+
-				"public class X {\n"+
-				"  public void foo() {\n"+
-				"    enu\n"+
-				"  }\n"+
-				"}");
-		waitUntilIndexesReady();
-
-		ICompilationUnit cu= getCompilationUnit("P2", "", "", "X.java");
-
-		String str = cu.getSource();
-		String completeBehind = "enu";
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
-		assertResults(
-				"Enum[TYPE_REF]{org.apache.commons.lang.enum.Enum, org.apache.commons.lang.enum, Lorg.apache.commons.lang.enum.Enum;, null, null, " + (R_DEFAULT + 9) + "}",
-				requestor.getResults());
-
-	} finally {
-		deleteProject(project);
-	}
-}
 // enum package of org.apache.commons.lang.jar should not be proposed for 1.5 projects
 public void testBug317264c() throws CoreException {
 	IJavaProject project = null;
 	try
 	{
-		project = createJavaProject("P2", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		project = createJavaProject("P2", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/Completion/b317264/org.apache.commons.lang_2.modified.jar"), null, null));
 
 		createFile(
@@ -5289,38 +5214,6 @@ public void testBug317264c() throws CoreException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
 		assertResults("", requestor.getResults());
-
-	} finally {
-		deleteProject(project);
-	}
-}
-// enum package of org.apache.commons.lang.jar should be proposed for 1.4 projects
-public void testBug317264d() throws CoreException {
-	IJavaProject project = null;
-	try
-	{
-		project = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, "", "1.4");
-		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/Completion/b317264/org.apache.commons.lang_2.modified.jar"), null, null));
-
-		createFile(
-				"/P2/X.java",
-				"import org.apache.commons.lang.enu;\n"+
-				"public class X {\n"+
-				"  public void foo() {\n"+
-				"  }\n"+
-				"}");
-		waitUntilIndexesReady();
-
-		ICompilationUnit cu= getCompilationUnit("P2", "", "", "X.java");
-
-		String str = cu.getSource();
-		String completeBehind = "lang.enu";
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		cu.codeComplete(cursorLocation, requestor);
-		assertResults(
-				"org.apache.commons.lang.enum[PACKAGE_REF]{org.apache.commons.lang.enum.*;, org.apache.commons.lang.enum, null, null, null, " + (R_DEFAULT + 19) + "}",
-				requestor.getResults());
 
 	} finally {
 		deleteProject(project);
@@ -5378,7 +5271,7 @@ public void testBug340945() throws JavaModelException {
 			"public final void notifyAll() throws java.lang.IllegalMonitorStateException\n" +
 			"public final void notify() throws java.lang.IllegalMonitorStateException\n" +
 			"public int hashCode() \n" +
-			"public final java.lang.Class getClass() \n" +
+			"public final Class<? extends java.lang.Object> getClass() \n" +
 			"protected void finalize() throws java.lang.Throwable\n" +
 			"public boolean equals(java.lang.Object) \n" +
 			"protected java.lang.Object clone() throws java.lang.CloneNotSupportedException\n" +
@@ -5427,7 +5320,7 @@ public void testBug340945a() throws JavaModelException {
 			"public final void notifyAll() throws java.lang.IllegalMonitorStateException\n" +
 			"public final void notify() throws java.lang.IllegalMonitorStateException\n" +
 			"public int hashCode() \n" +
-			"public final java.lang.Class getClass() \n" +
+			"public final Class<? extends java.lang.Object> getClass() \n" +
 			"protected void finalize() throws java.lang.Throwable\n" +
 			"public boolean equals(java.lang.Object) \n" +
 			"protected java.lang.Object clone() throws java.lang.CloneNotSupportedException\n",
@@ -5479,7 +5372,7 @@ public void testBug340945b() throws JavaModelException {
 			"public final void notifyAll() throws java.lang.IllegalMonitorStateException\n" +
 			"public final void notify() throws java.lang.IllegalMonitorStateException\n" +
 			"public int hashCode() \n" +
-			"public final java.lang.Class getClass() \n" +
+			"public final Class<? extends java.lang.Object> getClass() \n" +
 			"protected void finalize() throws java.lang.Throwable\n" +
 			"public boolean equals(java.lang.Object) \n" +
 			"protected java.lang.Object clone() throws java.lang.CloneNotSupportedException\n",
@@ -5533,7 +5426,7 @@ public void testBug340945c() throws JavaModelException {
 			"public final void notifyAll() throws java.lang.IllegalMonitorStateException\n" +
 			"public final void notify() throws java.lang.IllegalMonitorStateException\n" +
 			"public int hashCode() \n" +
-			"public final java.lang.Class getClass() \n" +
+			"public final Class<? extends java.lang.Object> getClass() \n" +
 			"protected void finalize() throws java.lang.Throwable\n" +
 			"public boolean equals(java.lang.Object) \n" +
 			"protected java.lang.Object clone() throws java.lang.CloneNotSupportedException\n",
@@ -5591,12 +5484,12 @@ public void testBug326610() throws Exception {
 		IJavaProject p = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin",
-			 "1.5");
+			 CompilerOptions.getFirstSupportedJavaVersion());
 
 		this.createFolder("/P1/src/p");
-		this.createFile("/P1/lib.jar", f.getContents());
+		this.createFile("/P1/lib.jar", f.readAllBytes());
 		this.addLibraryEntry(p, "/P1/lib.jar", true);
 
 		this.createFile(
@@ -5630,7 +5523,7 @@ public void testBug326610() throws Exception {
 public void testBug373409() throws Exception {
 	try {
 		// Create project and jar
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin");
 		refresh(p);
 
 		createFolder("/P/src/java/llang");
@@ -5693,7 +5586,7 @@ public void testBug373409() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 
 	    assertResults(
-	    	"ThreadLocal[TYPE_REF]{java.llang.ThreadLocal, java.llang, Ljava.llang.ThreadLocal;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+	    	"ThreadLocal[TYPE_REF]{java.llang.ThreadLocal, java.llang, Ljava.llang.ThreadLocal;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_JAVA_LIBRARY) + "}\n" +
 			"Thread[CONSTRUCTOR_INVOCATION]{(), Ljava.llang.Thread;, ()V, Thread, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR) + "}\n" +
 			"   Thread[TYPE_REF]{java.llang.Thread, java.llang, Ljava.llang.Thread;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR) + "}\n" +
 			"Thread[CONSTRUCTOR_INVOCATION]{(), Ljava.llang.Thread;, (Ljava.lang.String;)V, Thread, (s), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_CONSTRUCTOR) + "}\n" +
@@ -5775,7 +5668,7 @@ public void testBug397070() throws JavaModelException {
 public void testBug392581() throws CoreException {
 	try {
 		// Create project and jar
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin");
 		createFolder("/P/src/p");
 		refresh(p);
 		// Create working copy
@@ -5810,7 +5703,7 @@ public void testBug392581() throws CoreException {
 	    	"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n"
 	    	+ "equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n"
 	    	+ "finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, "+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n"
-	    	+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, "+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n"
+	    	+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, "+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n"
 	    	+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n"
 	    	+ "notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, "+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n"
 	    	+ "notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, "+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n"
@@ -5832,7 +5725,7 @@ public void testBug392581() throws CoreException {
  */
 public void testBug410207a() throws Exception {
 	try {
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB", "/P/lib.jar"}, "bin", "1.5");
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB", "/P/lib.jar"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		Util.createJar(new String[] {
 				"a/enum/b/NonCompliant.java",
 				"package a.enum.b;\n" +
@@ -5848,7 +5741,7 @@ public void testBug410207a() throws Exception {
 				"}"
 			},
 			p.getProject().getLocation().append("lib.jar").toOSString(),
-			"1.3");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		refresh(p);
 		createFolder("/P/src/p/");
 		createFile(
@@ -5885,9 +5778,9 @@ public void testBug410207a() throws Exception {
  */
 public void testBug410207b() throws Exception {
 	try {
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB", "/P/lib.jar"}, "bin", "1.5");
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB", "/P/lib.jar"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		Map options = new HashMap();
-		options.put(CompilerOptions.OPTION_Source, "1.4");
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 		Util.createJar(new String[] {
 				"a/enum/b/NonCompliant.java",
 				"package a.enum.b;\n" +
@@ -5905,7 +5798,7 @@ public void testBug410207b() throws Exception {
 			null,/*extraPathsAndContents*/
 			p.getProject().getLocation().append("lib.jar").toOSString(),
 			null,/*classpath*/
-			"1.6",
+			CompilerOptions.getFirstSupportedJavaVersion(),
 			options);
 		refresh(p);
 		createFolder("/P/src/p/");
@@ -5943,7 +5836,7 @@ public void testBug410207b() throws Exception {
  */
 public void testBug410207c() throws Exception {
 	try {
-		createJavaProject("Lib", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.4");
+		createJavaProject("Lib", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		createFolder("/Lib/src/a/enum/b");
 		createFile(
 				"/Lib/src/a/enum/b/NonCompliant.java",
@@ -5963,7 +5856,7 @@ public void testBug410207c() throws Exception {
 				"}"
 		);
 		getProject("Lib").build(IncrementalProjectBuilder.FULL_BUILD, null);
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB", "/Lib/bin"}, "bin", "1.5");
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB", "/Lib/bin"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		createFolder("/P/src/p");
 		createFile(
 				"/P/src/p/Main.java",
@@ -5999,7 +5892,7 @@ public void testBug410207c() throws Exception {
  */
 public void testBug410207d() throws Exception {
 	try {
-		createJavaProject("Lib", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.4");
+		createJavaProject("Lib", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		createFolder("/Lib/src/a/enum/b");
 		createFile(
 				"/Lib/src/a/enum/b/NonCompliant.java",
@@ -6019,7 +5912,7 @@ public void testBug410207d() throws Exception {
 				"}"
 		);
 		getProject("Lib").build(IncrementalProjectBuilder.FULL_BUILD, null);
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, new String[] {"/Lib"}, "bin", "1.5");
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, new String[] {"/Lib"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		createFolder("/P/src/p");
 		createFile(
 				"/P/src/p/Main.java",
@@ -6051,7 +5944,7 @@ public void testBug410207d() throws Exception {
 public void testBug418011() throws CoreException {
 	try {
 		// Create project and jar
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin");
 		createFolder("/P/src/p");
 		refresh(p);
 		// Create working copy
@@ -6084,7 +5977,7 @@ public void testBug418011() throws CoreException {
 // Content Assist / Quick Fix import suggestion for nested annotations with argument list
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376977
 public void testBug376977() throws CoreException {
-	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL18_LIB"}, "bin");
 	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
 		refresh(p);
@@ -6157,7 +6050,7 @@ public void test442868() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, null, null, [218, 224], " +
 			(RelevanceConstants.R_DEFAULT + RelevanceConstants.R_RESOLVED + RelevanceConstants.R_INTERESTING + RelevanceConstants.R_NON_RESTRICTED
-			+ RelevanceConstants.R_CASE + RelevanceConstants.R_UNQUALIFIED) + "}", requestor.getResults());
+			+ RelevanceConstants.R_CASE + RelevanceConstants.R_UNQUALIFIED + RelevanceConstants.R_JAVA_LIBRARY) + "}", requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=479656
 public void test479656() throws Exception {
@@ -6166,9 +6059,9 @@ public void test479656() throws Exception {
 		IJavaProject p = this.createJavaProject(
 			"P",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
-			 "bin", "1.5");
-		this.createFile("/P/bug479656.jar", f.getContents());
+			new String[]{"JCL18_LIB"},
+			 "bin", CompilerOptions.getFirstSupportedJavaVersion());
+		this.createFile("/P/bug479656.jar", f.readAllBytes());
 		this.addLibraryEntry(p, "/P/bug479656.jar", true);
 		this.createFolder("/P/src/com/google/gwt/event/shared");
 		this.createFile(
@@ -6206,11 +6099,11 @@ public void test479656() throws Exception {
 public void testBug575562_AccessRestrictionCheck_ENABLED() throws Exception {
 	try {
 
-		setUpJavaProject("AccessRestrictions", "1.4", false);
+		setUpJavaProject("AccessRestrictions", CompilerOptions.getFirstSupportedJavaVersion(), false);
 		IJavaProject project = createJavaProject(
 				"P1",
 				new String[] {"src"},
-				new String[] {"JCL_LIB", "/AccessRestrictions/lib.jar"},
+				new String[] {"JCL18_LIB", "/AccessRestrictions/lib.jar"},
 				new String[][]{{}, {}},
 				new String[][]{{}, {"**/*"}},
 				null/*no project*/,
@@ -6221,7 +6114,7 @@ public void testBug575562_AccessRestrictionCheck_ENABLED() throws Exception {
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				"1.4");
+				CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
 		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -6255,11 +6148,11 @@ public void testBug575562_AccessRestrictionCheck_ENABLED() throws Exception {
 }
 public void testBug575562_AccessRestrictionCheck_DISABLED() throws Exception {
 	try {
-		setUpJavaProject("AccessRestrictions", "1.4", false);
+		setUpJavaProject("AccessRestrictions", CompilerOptions.getFirstSupportedJavaVersion(), false);
 		IJavaProject project = createJavaProject(
 				"P1",
 				new String[] {"src"},
-				new String[] {"JCL_LIB", "/AccessRestrictions/lib.jar"},
+				new String[] {"JCL18_LIB", "/AccessRestrictions/lib.jar"},
 				new String[][]{{}, {}},
 				new String[][]{{}, {"**/*"}},
 				null/*no project*/,
@@ -6270,7 +6163,7 @@ public void testBug575562_AccessRestrictionCheck_DISABLED() throws Exception {
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				"1.4");
+				CompilerOptions.getFirstSupportedJavaVersion());
 		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
 		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  * Copyright (c) 2000, 2021 IBM Corporation and others.
+ *  * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -23,7 +23,6 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.Map;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -32,6 +31,8 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
@@ -338,6 +339,15 @@ public void computeLocalVariablePositions(int initOffset, CodeStream codeStream)
 		LocalVariableBinding local = this.locals[ilocal];
 		if (local == null || ((local.tagBits & TagBits.IsArgument) == 0)) break; // done with arguments
 
+		if (local.useFlag == LocalVariableBinding.UNUSED && isLambdaScope() && !local.declaration.isUnnamed(local.declaringScope)) {
+			CompilerOptions compilerOptions = compilerOptions();
+			long sourceLevel = compilerOptions.sourceLevel;
+			boolean enablePreviewFeatures = compilerOptions.enablePreviewFeatures;
+			if (JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(sourceLevel, enablePreviewFeatures)) {
+				problemReporter().unusedLambdaParameter(local.declaration);
+			}
+		}
+
 		// record user-defined argument for attribute generation
 		codeStream.record(local);
 
@@ -358,8 +368,8 @@ public void computeLocalVariablePositions(int initOffset, CodeStream codeStream)
 
 	// sneak in extra argument before other local variables
 	if (this.extraSyntheticArguments != null) {
-		for (int iarg = 0, maxArguments = this.extraSyntheticArguments.length; iarg < maxArguments; iarg++){
-			SyntheticArgumentBinding argument = this.extraSyntheticArguments[iarg];
+		for (SyntheticArgumentBinding extraSyntheticArgument : this.extraSyntheticArguments) {
+			SyntheticArgumentBinding argument = extraSyntheticArgument;
 			argument.resolvedPosition = this.offset;
 			if ((TypeBinding.equalsEquals(argument.type, TypeBinding.LONG)) || (TypeBinding.equalsEquals(argument.type, TypeBinding.DOUBLE))){
 				this.offset += 2;
@@ -486,7 +496,22 @@ public FieldBinding findField(TypeBinding receiverType, char[] fieldName, Invoca
 	if (field.isStatic())
 		return field; // static fields are always accessible
 
-	if (!this.isConstructorCall || TypeBinding.notEquals(receiverType, enclosingSourceType()))
+	if (this.isConstructorCall) {
+		// JEP 482 exception to old rules.
+		// 'this.field' is already detected when FieldReference triggers ThisReference.resolveType() -> checkAccess()
+		// hence here we only handle single name references:
+		if (invocationSite instanceof SingleNameReference
+            && (((SingleNameReference) invocationSite).bits & ASTNode.IsStrictlyAssigned) != 0
+            && JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(compilerOptions())) {
+            SingleNameReference nameRef = (SingleNameReference) invocationSite;
+            problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES, invocationSite.sourceStart(), invocationSite.sourceEnd());
+			return field;
+		}
+	} else {
+		return field;
+	}
+
+	if (TypeBinding.notEquals(receiverType, enclosingSourceType()))
 		return field;
 
 	if (invocationSite instanceof SingleNameReference)

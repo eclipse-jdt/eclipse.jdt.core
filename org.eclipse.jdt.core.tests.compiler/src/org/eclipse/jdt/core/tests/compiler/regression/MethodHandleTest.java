@@ -14,10 +14,8 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
 import junit.framework.Test;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /**
  * Regression test for MethodHandle.invokeExact(..)/invokeGeneric(..) invocation
@@ -28,7 +26,7 @@ public class MethodHandleTest extends AbstractRegressionTest {
 		super(name);
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_7);
+		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
 	}
 
 	public static Class testClass() {

@@ -15,7 +15,6 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -281,8 +280,8 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 			// root doesn't exist: ignore
 			return;
 		}
-		for (int j = 0, length = frags.length; j < length; j++) {
-			if (frags[j] instanceof PackageFragment) fragmentsCache.add(((PackageFragment) frags[j]).names);
+		for (IJavaElement frag : frags) {
+			if (frag instanceof PackageFragment) fragmentsCache.add(((PackageFragment) frag).names);
 		}
 	}
 
@@ -291,8 +290,7 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 	 */
 	private boolean isClasspathEntryOrOutputLocation(IPath path, IPath location, IClasspathEntry[] resolvedClasspath, IPath projectOutput) {
 		if (projectOutput.equals(path)) return true;
-		for (int i = 0, length = resolvedClasspath.length; i < length; i++) {
-			IClasspathEntry entry = resolvedClasspath[i];
+		for (IClasspathEntry entry : resolvedClasspath) {
 			IPath entryPath;
 			if ((entryPath = entry.getPath()).equals(path) || entryPath.equals(location)) {
 				return true;
@@ -342,8 +340,8 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 					initializePackageNames(root, fragmentsCache);
 				}
 				Object[][] set = fragmentsCache.set;
-				for (int j = 0, length2 = set.length; j < length2; j++) {
-					String[] pkgName = (String[]) set[j];
+				for (Object[] element : set) {
+					String[] pkgName = (String[]) element;
 					if (pkgName == null)
 						continue;
 					Object existing = allPkgFragmentsCache.get(pkgName);

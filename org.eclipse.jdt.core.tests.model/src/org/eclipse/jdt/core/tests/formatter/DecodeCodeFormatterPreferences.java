@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
+import com.ibm.icu.util.StringTokenizer;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileReader;
@@ -22,16 +23,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
-
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-
-import com.ibm.icu.util.StringTokenizer;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class DecodeCodeFormatterPreferences extends DefaultHandler {

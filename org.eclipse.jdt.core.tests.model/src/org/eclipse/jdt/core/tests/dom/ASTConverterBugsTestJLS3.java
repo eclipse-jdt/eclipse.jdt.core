@@ -15,24 +15,13 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.io.IOException;
 import java.util.List;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
-import org.eclipse.jdt.core.dom.ClassInstanceCreation;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.IAnnotationBinding;
-import org.eclipse.jdt.core.dom.IMemberValuePairBinding;
-import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaElement;
 
@@ -61,7 +50,7 @@ public static Test suite() {
 }
 
 /**
- * @bug 130778: Invalid annotation elements cause no annotation to be in the AST
+ * bug 130778: Invalid annotation elements cause no annotation to be in the AST
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778"
  */
 public void testBug130778a() throws JavaModelException {
@@ -1064,7 +1053,7 @@ public void testBug130778x() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=388137
 public void testbug388137() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
-	IJavaProject project = createJavaProject("P1", new String[] {""}, new String[] {"CONVERTER_JCL15_LIB"}, "", "1.5");
+	IJavaProject project = createJavaProject("P1", new String[] {""}, new String[] {"CONVERTER_JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 	try {
 		String contents = "package p;\n" +
 							"import java.util.List;\n" +
@@ -1078,7 +1067,7 @@ public void testbug388137() throws Exception {
 							"	}\n" +
 							"}\n" +
 							"interface Handler {}\n";
-		addLibrary(project, "lib.jar", "src.zip", new String[] {"/P1/p/X.java", contents}, "1.5");
+		addLibrary(project, "lib.jar", "src.zip", new String[] {"/P1/p/X.java", contents}, CompilerOptions.getFirstSupportedJavaVersion());
 
 		this.workingCopies[0] = getWorkingCopy("/P1/q/Y.java", true);
 		contents =
@@ -1113,7 +1102,7 @@ public void testbug388137() throws Exception {
 
 public void testBug405908() throws CoreException, IOException {
 	try {
-		createJavaProject("P", new String[] { "" }, new String[0], "", CompilerOptions.VERSION_1_5);
+		createJavaProject("P", new String[] { "" }, new String[0], "", CompilerOptions.getFirstSupportedJavaVersion());
 			createFile("P/A.java",
 					"@interface Generated {\n" +
 					"    String comment() default \"\";\n" +

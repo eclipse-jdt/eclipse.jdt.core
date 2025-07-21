@@ -15,14 +15,31 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.util;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.nio.file.Files;
-import java.util.*;
-import java.util.zip.*;
-
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
@@ -48,6 +65,7 @@ import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class Util {
@@ -217,6 +235,7 @@ private static IModule extractModuleDesc(String contents, String compliance,
 								IErrorHandlingPolicy errorHandlingPolicy, IProblemFactory problemFactory)
 {
 	Map<String,String> opts = new HashMap<>();
+	compliance = fixCompliance(compliance);
 	opts.put(CompilerOptions.OPTION_Source, compliance);
 	Parser parser = new Parser(new ProblemReporter(errorHandlingPolicy, new CompilerOptions(opts), problemFactory), false);
 	ICompilationUnit cu = new CompilationUnit(contents.toCharArray(), "module-info.java", null);
@@ -594,7 +613,7 @@ public static String displayString(String inputString){
  * This method doesn't convert \r\n to \n.
  * <p>
  * Example of use:
- * <o>
+ * <ol>
  * <li>
  * <pre>
  * input string = "abc\ndef\tghi",
@@ -620,7 +639,6 @@ public static String displayString(String inputString){
  * </pre>
  * </li>
  * </ol>
- * </p>
  *
  * @param inputString the given input string
  * @param indent number of tabs are added at the begining of each line.
@@ -801,6 +819,7 @@ public static boolean flushDirectoryContent(File dir) {
 }
 private static Map getCompileOptions(String compliance) {
     Map options = new HashMap();
+    compliance = fixCompliance(compliance);
     options.put(CompilerOptions.OPTION_Compliance, compliance);
     options.put(CompilerOptions.OPTION_Source, compliance);
     options.put(CompilerOptions.OPTION_TargetPlatform, compliance);
@@ -813,6 +832,13 @@ private static Map getCompileOptions(String compliance) {
     options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
     options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
     return options;
+}
+
+private static String fixCompliance(String compliance) {
+	if(compliance == null || compliance.isBlank() || (compliance.startsWith("1.") && !compliance.equals("1.8") && !compliance.equals("1.9"))) {
+		throw new IllegalStateException("Unsupported compliance: '" + compliance + "'");
+    }
+	return compliance;
 }
 /**
  * Returns the next available port number on the local host.
@@ -1206,68 +1232,31 @@ public static String toString(String[] strings, boolean addExtraNewLine) {
 	}
 	return buffer.toString();
 }
-private static String  getZipEntryFileName(File destDir, ZipEntry e, String canonicalDestDirPath) throws IOException {
-	  String result = e.getName();
-	  File destfile = new File(destDir, result);
-	  String canonicalDestFile = destfile.getCanonicalPath();
-	  if (!canonicalDestFile.startsWith(canonicalDestDirPath + File.separator)) {
-		  throw new ZipEntryStorageException("Entry is outside of the target dir: " + e.getName());
-	  }
-	  return result;
-}
 /**
  * Unzip the contents of the given zip in the given directory (create it if it doesn't exist)
  */
 public static void unzip(String zipPath, String destDirPath) throws IOException {
-
-    InputStream zipIn = new FileInputStream(zipPath);
-    byte[] buf = new byte[8192];
-    File destDir = new File(destDirPath);
-    String canonicalDestDirPath = destDir.getCanonicalPath();
-    ZipInputStream zis = new ZipInputStream(zipIn);
-    FileOutputStream fos = null;
-    try {
-        ZipEntry zEntry;
-        while ((zEntry = zis.getNextEntry()) != null) {
-            // if it is empty directory, create it
-            if (zEntry.isDirectory()) {
-                new File(destDir, zEntry.getName()).mkdirs();
-                continue;
-            }
-            // if it is a file, extract it
-            String filePath = getZipEntryFileName(destDir, zEntry, canonicalDestDirPath);
-            int lastSeparator = filePath.lastIndexOf("/"); //$NON-NLS-1$
-            String fileDir = ""; //$NON-NLS-1$
-            if (lastSeparator >= 0) {
-                fileDir = filePath.substring(0, lastSeparator);
-            }
-            //create directory for a file
-            new File(destDir, fileDir).mkdirs();
-            //write file
-            File outFile = new File(destDir, filePath);
-            fos = new FileOutputStream(outFile);
-            int n = 0;
-            while ((n = zis.read(buf)) >= 0) {
-                fos.write(buf, 0, n);
-            }
-            fos.close();
-        }
-    } catch (IOException ioe) {
-        if (fos != null) {
-            try {
-                fos.close();
-            } catch (IOException ioe2) {
-            }
-        }
-    } finally {
-        try {
-            zipIn.close();
-            if (zis != null)
-                zis.close();
-        } catch (IOException ioe) {
-        }
-    }
+	File destDir = new File(destDirPath);
+	try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipPath))) {
+		ZipEntry zEntry;
+		while ((zEntry = zis.getNextEntry()) != null) {
+			// if it is empty directory, create it
+			String filePath = org.eclipse.jdt.internal.core.util.Util.getEntryName(destDirPath, zEntry);
+			File outFile = new File(destDir, filePath);
+			if (zEntry.isDirectory()) {
+				outFile.mkdirs();
+				continue;
+			}
+			// if it is a file, extract it
+			Path entryTarget = outFile.toPath();
+			// create directory for a file
+			Files.createDirectories(entryTarget.getParent());
+			// write file
+			Files.copy(zis, entryTarget);
+		}
+	}
 }
+
 public static void waitAtLeast(int time) {
 	long start = System.currentTimeMillis();
 	do {
@@ -1294,12 +1283,17 @@ private static boolean waitUntilFileDeleted(File file) {
         System.out.print("	- wait for ("+DELETE_MAX_WAIT+"ms max): ");
     }
     int count = 0;
-    int delay = 10; // ms
+    int delay = 1; // ms
     int maxRetry = DELETE_MAX_WAIT / delay;
     int time = 0;
     while (count < maxRetry) {
         try {
             count++;
+
+            // manually trigger GC to invoke Cleaner for ZipFile that is forgotten to be closed
+            // see https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2766
+            System.gc(); // workaround
+
             Thread.sleep(delay);
             time += delay;
             if (time > DELETE_MAX_TIME) DELETE_MAX_TIME = time;
@@ -1380,6 +1374,7 @@ public static boolean waitUntilResourceDeleted(IResource resource) {
     while (count < maxRetry) {
         try {
             count++;
+            System.gc(); // workaround
             Thread.sleep(delay);
             time += delay;
             if (time > DELETE_MAX_TIME) DELETE_MAX_TIME = time;
@@ -1595,5 +1590,43 @@ public static long getMajorMinorVMVersion() {
 		}
 	}
 	return -1;
+}
+
+/**
+ * Discards all classpath variables and containers
+ */
+public static void cleanupClassPathVariablesAndContainers() {
+	// TODO the following code is not the correct way to remove CP containers
+	// but it was used since years...
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
+	manager.containers = new HashMap<>(5);
+	manager.variables = new HashMap<>(5);
+}
+
+/**
+ * Deletes every single project in the workspace
+ */
+public static void cleanupWorkspace(String testName) throws CoreException {
+	IWorkspace workspace = ResourcesPlugin.getWorkspace();
+	// Remove whatever left from previous tests
+	IProject[] projects = workspace.getRoot().getProjects(IContainer.INCLUDE_HIDDEN);
+	if(projects.length > 0) {
+		System.out.println("\n\nWorkspace cleanup before " + testName);
+		System.out.println("Found following projects: " + Arrays.toString(projects));
+		for (IProject project : projects) {
+			System.out.println("Deleting project: " + project);
+			try {
+				project.delete(true, null);
+			} catch (Exception e) {
+				e.printStackTrace(System.out);
+			}
+		}
+	}
+	projects = workspace.getRoot().getProjects(IContainer.INCLUDE_HIDDEN);
+	if(projects.length > 0) {
+		System.out.println("Still found projects: " + Arrays.toString(projects));
+	} else {
+		System.out.println("Workspace cleanup done for " + testName + "\n\n");
+	}
 }
 }

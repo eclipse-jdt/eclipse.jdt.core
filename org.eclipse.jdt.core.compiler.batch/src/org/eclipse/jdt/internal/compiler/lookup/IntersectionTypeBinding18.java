@@ -24,7 +24,6 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.Set;
-
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
@@ -212,7 +211,7 @@ public class IntersectionTypeBinding18 extends ReferenceBinding {
 		if (TypeBinding.equalsEquals(this, other))
 			return true;
 		if (other instanceof ReferenceBinding) {
-			TypeBinding[] rightIntersectingTypes = ((ReferenceBinding) other).getIntersectingTypes();
+			TypeBinding[] rightIntersectingTypes = other.getIntersectingTypes();
 			if (rightIntersectingTypes != null && rightIntersectingTypes.length > 1) {
 				int numRequired = rightIntersectingTypes.length;
 				TypeBinding[] required = new TypeBinding[numRequired];
@@ -231,8 +230,8 @@ public class IntersectionTypeBinding18 extends ReferenceBinding {
 				return false;
 			}
 		}
-		for (int i = 0; i < this.intersectingTypes.length; i++) {
-			if (this.intersectingTypes[i].isSubtypeOf(other, false))
+		for (ReferenceBinding intersectingType : this.intersectingTypes) {
+			if (intersectingType.isSubtypeOf(other, false))
 				return true;
 		}
 		return false;
@@ -327,8 +326,7 @@ public class IntersectionTypeBinding18 extends ReferenceBinding {
 	}
 
 	public TypeBinding getSAMType(Scope scope) {
-		for (int i = 0, max = this.intersectingTypes.length; i < max; i++) {
-			TypeBinding typeBinding = this.intersectingTypes[i];
+		for (ReferenceBinding typeBinding : this.intersectingTypes) {
 			MethodBinding methodBinding = typeBinding.getSingleAbstractMethod(scope, true);
 			// Why doesn't getSingleAbstractMethod do as the javadoc says, and return null
 			// when it is not a SAM type
@@ -341,15 +339,20 @@ public class IntersectionTypeBinding18 extends ReferenceBinding {
 
 	@Override
 	void collectInferenceVariables(Set<InferenceVariable> variables) {
-		for (int i = 0; i < this.intersectingTypes.length; i++)
-			this.intersectingTypes[i].collectInferenceVariables(variables);
+		for (ReferenceBinding intersectingType : this.intersectingTypes)
+			intersectingType.collectInferenceVariables(variables);
 	}
 
 	@Override
 	public ReferenceBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
 		ReferenceBinding[] projectedTypes = new ReferenceBinding[this.intersectingTypes.length];
 		for (int i = 0; i < this.intersectingTypes.length; ++i) {
-			projectedTypes[i] =  this.intersectingTypes[i].upwardsProjection(scope, mentionedTypeVariables);
+			TypeBinding projected = this.intersectingTypes[i].upwardsProjection(scope, mentionedTypeVariables);
+			if (projected instanceof ReferenceBinding) {
+                ReferenceBinding refBinding = (ReferenceBinding) projected;
+                projectedTypes[i] =  refBinding;
+            } else
+				return null;
 		}
 		return (ReferenceBinding) scope.environment().createIntersectionType18(projectedTypes);
 	}
@@ -358,7 +361,12 @@ public class IntersectionTypeBinding18 extends ReferenceBinding {
 	public ReferenceBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
 		ReferenceBinding[] projectedTypes = new ReferenceBinding[this.intersectingTypes.length];
 		for (int i = 0; i < this.intersectingTypes.length; ++i) {
-			projectedTypes[i] = this.intersectingTypes[i].downwardsProjection(scope, mentionedTypeVariables);
+			TypeBinding projected = this.intersectingTypes[i].downwardsProjection(scope, mentionedTypeVariables);
+			if (projected instanceof ReferenceBinding) {
+                ReferenceBinding refBind = (ReferenceBinding) projected;
+                projectedTypes[i] = refBind;
+            } else
+				return null;
 		}
 		return (ReferenceBinding) scope.environment().createIntersectionType18(projectedTypes);
 	}
@@ -367,8 +375,8 @@ public class IntersectionTypeBinding18 extends ReferenceBinding {
 	public boolean mentionsAny(TypeBinding[] parameters, int idx) {
 		if (super.mentionsAny(parameters, idx))
 			return true;
-		for (int i = 0; i < this.intersectingTypes.length; i++) {
-			if (this.intersectingTypes[i].mentionsAny(parameters, -1))
+		for (ReferenceBinding intersectingType : this.intersectingTypes) {
+			if (intersectingType.mentionsAny(parameters, -1))
 				return true;
 		}
 		return false;

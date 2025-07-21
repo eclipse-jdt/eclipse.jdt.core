@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -264,7 +263,7 @@ public class ClasspathJep247Jdk12 extends ClasspathJep247 {
 	public synchronized char[][] getModulesDeclaringPackage(String qualifiedPackageName, String moduleName) {
 		if (this.jdklevel >= ClassFileConstants.JDK9) {
 			// Delegate to the boss, even if it means inaccurate error reporting at times
-			List<String> mods = JRTUtil.getModulesDeclaringPackage(this.file, qualifiedPackageName, moduleName);
+			List<String> mods = JRTUtil.getModulesDeclaringPackage(this.jrtFileSystem, qualifiedPackageName, moduleName);
 			return CharOperation.toCharArrays(mods);
 		}
 		if (this.packageCache == null) {

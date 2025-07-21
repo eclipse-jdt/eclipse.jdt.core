@@ -31,5 +31,4 @@ public interface ExtendedTagBits {
 
 	// @Owning / closing
 	int IsClosingMethod = ASTNode.Bit1; // method
-
 }

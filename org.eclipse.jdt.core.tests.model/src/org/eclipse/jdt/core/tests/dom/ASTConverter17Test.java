@@ -16,9 +16,7 @@ package org.eclipse.jdt.core.tests.dom;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -26,35 +24,7 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTRequestor;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.CastExpression;
-import org.eclipse.jdt.core.dom.CatchClause;
-import org.eclipse.jdt.core.dom.ClassInstanceCreation;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.ExpressionStatement;
-import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.IAnnotationBinding;
-import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.NullLiteral;
-import org.eclipse.jdt.core.dom.NumberLiteral;
-import org.eclipse.jdt.core.dom.QualifiedName;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.SwitchStatement;
-import org.eclipse.jdt.core.dom.TryStatement;
-import org.eclipse.jdt.core.dom.Type;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.*;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ASTConverter17Test extends ConverterTestSetup {
@@ -408,7 +378,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 			"            int option= 1;\n" +
 			"            throw option == 1 ? new ExceptionA() : new ExceptionB();\n" +
 			"        } catch (/*final*/ ExceptionA | ExceptionB ex) {\n" +
-			"            System.out.println(\"type of ex: \" + ex.getClass());\n" +
+			"            // System.out.println(\"type of ex: \" + ex.getClass());\n" +
 			"            // next 2 methods on 'ex' use different parts of lub:\n" +
 			"            ex.myMethod();\n" +
 			"            throw ex;\n" +
@@ -701,7 +671,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=350897
 	 */
-	public void test0018() throws JavaModelException {
+	public void _2551_test0018() throws JavaModelException {
 		String contents =
 			"public class X<T> {\n" +
 			"	T field1;\n" +
@@ -721,7 +691,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 			"		X.testFunction(d.getField()); // prints 1\n" +
 			"	}\n" +
 			"	public static void testFunction(String param){\n" +
-			"		System.out.println(1 + \", String param: \" + param);\n" +
+			"		// System.out.println(1 + \", String param: \" + param);\n" +
 			"	}\n" +
 			"	public static void testFunction(Object param){\n" +
 			"		System.out.println(2);\n" +
@@ -802,7 +772,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	/**
      * https://bugs.eclipse.org/bugs/show_bug.cgi?id=402673
      */
-    public void test402673a() throws JavaModelException {
+    public void _2551_test402673a() throws JavaModelException {
             String contents = "package test402673;"
                     + "public class X {\n"
                     + "    Runnable r = () -> System.out.println(\"hi\");\n"
@@ -830,7 +800,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
     /**
      * https://bugs.eclipse.org/bugs/show_bug.cgi?id=402673
      */
-    public void test402673b() throws JavaModelException {
+    public void _2551_test402673b() throws JavaModelException {
             String contents = "package test402673;"
                     + "public class X {\n"
             		+ "    public void foo() {\n"
@@ -862,7 +832,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=402674
 	 */
-	public void test403444() throws JavaModelException {
+	public void _2551_test403444() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test403444/X.java",
 				true/* resolve */);
 		String contents = "package test403444;" +
@@ -942,7 +912,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399791
 	 */
-	public void test0021() throws JavaModelException {
+	public void _2551_test0021() throws JavaModelException {
 		String contents =
 				"public interface X {\n" +
 				"	static void foo(){}\n" +
@@ -966,7 +936,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 *
 	 * @deprecated as it uses deprecated methods
 	 */
-	public void test0022() throws JavaModelException {
+	public void _2551_test0022() throws JavaModelException {
 		String contents =
 				"public class X {\n" +
 				"	void foo() throws  @NonNull EOFException, java.io.@NonNull FileNotFoundException {}\n" +

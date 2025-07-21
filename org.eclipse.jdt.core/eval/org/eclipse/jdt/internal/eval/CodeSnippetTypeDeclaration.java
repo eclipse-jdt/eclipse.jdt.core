@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.eval;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
@@ -54,15 +55,13 @@ public void generateCode(ClassFile enclosingClassFile) {
 			classFile.recordInnerClasses(this.binding);
 		}
 		TypeVariableBinding[] typeVariables = this.binding.typeVariables();
-		for (int i = 0, max = typeVariables.length; i < max; i++) {
-			TypeVariableBinding typeVariableBinding = typeVariables[i];
+		for (TypeVariableBinding typeVariableBinding : typeVariables) {
 			if ((typeVariableBinding.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
 				Util.recordNestedType(classFile, typeVariableBinding);
 			}
 		}
 		if (this.memberTypes != null) {
-			for (int i = 0, max = this.memberTypes.length; i < max; i++) {
-				TypeDeclaration memberType = this.memberTypes[i];
+			for (TypeDeclaration memberType : this.memberTypes) {
 				classFile.recordInnerClasses(memberType.binding);
 				memberType.generateCode(this.scope, classFile);
 			}
@@ -70,8 +69,8 @@ public void generateCode(ClassFile enclosingClassFile) {
 		// generate all methods
 		classFile.setForMethodInfos();
 		if (this.methods != null) {
-			for (int i = 0, max = this.methods.length; i < max; i++) {
-				this.methods[i].generateCode(this.scope, classFile);
+			for (AbstractMethodDeclaration method : this.methods) {
+				method.generateCode(this.scope, classFile);
 			}
 		}
 

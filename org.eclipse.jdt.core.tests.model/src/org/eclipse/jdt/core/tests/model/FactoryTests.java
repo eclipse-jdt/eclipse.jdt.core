@@ -13,12 +13,18 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
-
-import org.eclipse.jdt.core.*;
-import junit.framework.Test;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaCore;
 public class FactoryTests extends ModifyingResourceTests {
 public FactoryTests(String name) {
 	super(name);
@@ -76,7 +82,7 @@ public void testCreateCompilationUnits() throws CoreException {
 		assertTrue("wrong object B created", objectB instanceof ICompilationUnit);
 		assertTrue("compilation unit B does not exist", objectB.exists());
 
-		assertEquals("should share project", ((ICompilationUnit)objectA).getJavaProject(), ((ICompilationUnit)objectB).getJavaProject());
+		assertEquals("should share project", objectA.getJavaProject(), objectB.getJavaProject());
 	} finally {
 		this.deleteProject("P");
 	}
@@ -103,7 +109,7 @@ public void testCreateCompilationUnitsNotOnClasspath() throws CoreException {
 		assertTrue("wrong object B created", objectB instanceof ICompilationUnit);
 		assertTrue("compilation unit B should not exist", !objectB.exists());
 
-		assertEquals("should share project", ((ICompilationUnit)objectA).getJavaProject(), ((ICompilationUnit)objectB).getJavaProject());
+		assertEquals("should share project", objectA.getJavaProject(), objectB.getJavaProject());
 
 		IJavaElement objectC = JavaCore.create(fileC);
 		assertTrue("tooling object C not created", objectC != null);

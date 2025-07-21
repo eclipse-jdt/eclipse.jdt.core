@@ -14,15 +14,31 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.search.SearchMatch;
+import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.core.search.TypeReferenceMatch;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
+import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
+import org.eclipse.jdt.internal.compiler.env.IBinaryField;
+import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.BinaryType;
-import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.ClassFile;
+import org.eclipse.jdt.internal.core.ResolvedBinaryField;
+import org.eclipse.jdt.internal.core.ResolvedBinaryMethod;
+import org.eclipse.jdt.internal.core.ResolvedBinaryType;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 
 public class ClassFileMatchLocator implements IIndexConstants {
 
@@ -41,7 +57,7 @@ private static final char[] JAVA_LANG_ANNOTATION_ELEMENTTYPE = CharOperation.con
 
 /**
  * Convert binary name internally used in class files to binary name as specified by jls-13.1.
- * <p/>
+ * <p>
  * Examples:
  * <ul>
  * <li>"java/lang/String" -> "java.lang.String",</li>
@@ -105,8 +121,7 @@ private  boolean checkAnnotation(IBinaryAnnotation annotation, TypeReferencePatt
 	}
 	IBinaryElementValuePair[] valuePairs = annotation.getElementValuePairs();
 	if (valuePairs != null) {
-		for (int j=0, vpLength=valuePairs.length; j<vpLength; j++) {
-			IBinaryElementValuePair valuePair = valuePairs[j];
+		for (IBinaryElementValuePair valuePair : valuePairs) {
 			Object pairValue = valuePair.getValue();
 			if (pairValue instanceof IBinaryAnnotation) {
 				if (checkAnnotation((IBinaryAnnotation) pairValue, pattern)) {
@@ -119,8 +134,7 @@ private  boolean checkAnnotation(IBinaryAnnotation annotation, TypeReferencePatt
 }
 private boolean checkAnnotations(TypeReferencePattern pattern, IBinaryAnnotation[] annotations, long tagBits) {
 	if (annotations != null) {
-		for (int a=0, length=annotations.length; a<length; a++) {
-			IBinaryAnnotation annotation = annotations[a];
+		for (IBinaryAnnotation annotation : annotations) {
 			if (checkAnnotation(annotation, pattern)) {
 				return true;
 			}
@@ -351,13 +365,14 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 			} else {
 				name = method.getSelector();
 			}
-			String selector = new String(name);
+			String selector = DeduplicationUtil.toString(name);
 			char[] methodSignature = binaryMethodSignatures == null ? null : binaryMethodSignatures[i];
 			if (methodSignature == null) {
 				methodSignature = method.getGenericSignature();
 				if (methodSignature == null) methodSignature = method.getMethodDescriptor();
 			}
-			String[] parameterTypes = CharOperation.toStrings(Signature.getParameterTypes(convertClassFileFormat(methodSignature)));
+			String[] parameterTypes =  DeduplicationUtil.intern(CharOperation.toStrings(Signature.getParameterTypes(convertClassFileFormat(methodSignature))));
+
 			IMethod methodHandle = binaryType.getMethod(selector, parameterTypes);
 			methodHandle = new ResolvedBinaryMethod(binaryType, selector, parameterTypes, methodHandle.getKey());
 			locator.reportBinaryMemberDeclaration(null, methodHandle, null, info, accuracy);
@@ -388,8 +403,8 @@ private void matchAnnotations(SearchPattern pattern, MatchLocator locator, Class
 			break;
 		case OR_PATTERN:
 			SearchPattern[] patterns = ((OrPattern) pattern).patterns;
-			for (int i = 0, length = patterns.length; i < length; i++) {
-				matchAnnotations(patterns[i], locator, classFile, binaryType);
+			for (SearchPattern p : patterns) {
+				matchAnnotations(p, locator, classFile, binaryType);
 			}
 			// $FALL-THROUGH$ - fall through default to return
 		default:
@@ -412,8 +427,7 @@ private void matchAnnotations(SearchPattern pattern, MatchLocator locator, Class
 	// Look for references in methods annotations
 	IBinaryMethod[] methods = binaryType.getMethods();
 	if (methods != null) {
-		for (int i = 0, max = methods.length; i < max; i++) {
-			IBinaryMethod method = methods[i];
+		for (IBinaryMethod method : methods) {
 			if (checkAnnotations(typeReferencePattern, method.getAnnotations(), method.getTagBits())) {
 					binaryTypeBinding = locator.cacheBinaryType(classFileBinaryType, binaryType);
 					IMethod methodHandle = classFileBinaryType.getMethod(
@@ -430,8 +444,7 @@ private void matchAnnotations(SearchPattern pattern, MatchLocator locator, Class
 	// Look for references in fields annotations
 	IBinaryField[] fields = binaryType.getFields();
 	if (fields != null) {
-		for (int i = 0, max = fields.length; i < max; i++) {
-			IBinaryField field = fields[i];
+		for (IBinaryField field : fields) {
 			if (checkAnnotations(typeReferencePattern, field.getAnnotations(), field.getTagBits())) {
 					IField fieldHandle = classFileBinaryType.getField(new String(field.getName()));
 					TypeReferenceMatch match = new TypeReferenceMatch(fieldHandle, SearchMatch.A_ACCURATE, -1, 0, false, locator.getParticipant(), locator.currentPossibleMatch.resource);
@@ -460,8 +473,8 @@ boolean matchBinary(SearchPattern pattern, Object binaryInfo, IBinaryType enclos
 			return matchTypeDeclaration((TypeDeclarationPattern) pattern, binaryInfo, enclosingBinaryType);
 		case OR_PATTERN :
 			SearchPattern[] patterns = ((OrPattern) pattern).patterns;
-			for (int i = 0, length = patterns.length; i < length; i++)
-				if (matchBinary(patterns[i], binaryInfo, enclosingBinaryType)) return true;
+			for (SearchPattern p : patterns)
+				if (matchBinary(p, binaryInfo, enclosingBinaryType)) return true;
 	}
 	return false;
 }
@@ -532,8 +545,8 @@ boolean matchSuperTypeReference(SuperTypeReferencePattern pattern, Object binary
 	if (pattern.superRefKind != SuperTypeReferencePattern.ONLY_SUPER_CLASSES) {
 		char[][] superInterfaces = type.getInterfaceNames();
 		if (superInterfaces != null) {
-			for (int i = 0, max = superInterfaces.length; i < max; i++) {
-				char[] superInterfaceName = convertClassFileFormat(superInterfaces[i]);
+			for (char[] superInterface : superInterfaces) {
+				char[] superInterfaceName = convertClassFileFormat(superInterface);
 				if (checkTypeName(pattern.superSimpleName, pattern.superQualification, superInterfaceName, pattern.isCaseSensitive(), pattern.isCamelCase()))
 					return true;
 			}

@@ -13,12 +13,14 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
-
+import java.util.Map;
+import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ILocalVariable;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
@@ -31,8 +33,7 @@ import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
 import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.SourceField;
-
-import junit.framework.Test;
+import org.eclipse.jdt.internal.core.SourceType;
 
 public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 
@@ -955,7 +956,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	//not a working copy test
 	public void testBug573943_022() throws Exception {
 		try {
-			IJavaProject project = createJavaProject("first", new String[] {"src"}, new String[] {"JCL17_LIB"}, "bin", "21");
+			IJavaProject project = createJavaProject("first", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "21");
 			project.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			project.open(null);
 			createFolder("/first/src/p1");
@@ -1158,7 +1159,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	// find all occurrence on a class in switch pattern - without select
 	public void testBug573943_029() throws Exception {
 		try {
-			IJavaProject project = createJavaProject("first", new String[] {"src"}, new String[] {"JCL17_LIB"}, "bin", "21");
+			IJavaProject project = createJavaProject("first", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "21");
 			project.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			project.open(null);
 			createFolder("/first/src/p1");
@@ -1204,7 +1205,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	// find all references on a class in switch pattern - without select
 	public void testBug573943_030() throws Exception {
 		try {
-			IJavaProject project = createJavaProject("first", new String[] {"src"}, new String[] {"JCL17_LIB"}, "bin", "21");
+			IJavaProject project = createJavaProject("first", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "21");
 			project.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			project.open(null);
 			createFolder("/first/src/p1");
@@ -1520,7 +1521,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 		// JavaElementHyperlinkDetector: Parser runs into NegativeArraySizeException in some cases
 		public void testGH968() throws CoreException {
 			try {
-				IJavaProject project = createJavaProject("p", new String[] {"src"}, new String[] {"JCL17_LIB"}, "bin", "17");
+				IJavaProject project = createJavaProject("p", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "17");
 				project.open(null);
 				createFile("/p/src/TestEcl.java",
 						"import java.lang.StackWalker.Option;\n" +
@@ -1723,6 +1724,270 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 					"src/TestEcl.java Void TestEcl.test:<anonymous>#1.call() [opt] EXACT_MATCH\n" +
 					"src/TestEcl.java Void TestEcl.test:<anonymous>#1.call() [opt] EXACT_MATCH");
 		}
+
+		// check for permit reference
+		public void test564049_001() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+					"public sealed class X permits Y{ \n" +
+							"	}\n" +
+							"	final class Y extends X {}\n"
+
+					);
+			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+			try {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+				search("Y", CLASS, REFERENCES);
+				assertSearchResults("src/X.java X [Y] EXACT_MATCH");
+			} finally {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+			}
+		}
+		// select a class and check its permit reference
+		public void test564049_002() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+					"public sealed class X permits Y{ \n" +
+							"	}\n" +
+							"	final class /*here*/Y extends X {}\n"
+
+					);
+			String str = this.workingCopies[0].getSource();
+			String selection = "/*here*/Y";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			assertTrue(elements.length ==1);
+			assertTrue((elements[0] instanceof SourceType));
+			search(elements[0], REFERENCES, EXACT_RULE);
+			assertSearchResults(
+					"src/X.java X [Y] EXACT_MATCH");
+		}
+
+		// select a class ( at permit location) and check its reference
+		public void test564049_003() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+					"public sealed class X permits /*here*/Y{ \n" +
+							"	}\n" +
+							"	final class Y extends X {}\n"
+
+					);
+			String str = this.workingCopies[0].getSource();
+			String selection = "/*here*/Y";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			assertTrue(elements.length ==1);
+			assertTrue((elements[0] instanceof SourceType));
+			search(elements[0], REFERENCES, EXACT_RULE);
+			assertSearchResults(
+					"src/X.java X [Y] EXACT_MATCH");
+		}
+		// check for permit reference if it is the nth permitted item
+		public void test564049_004() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+					"public sealed class X permits Y,Q{ \n" +
+							"	}\n" +
+							"	final class Q extends X {}\n" +
+							"	final class Y extends X {}\n"
+
+					);
+			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+			try {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+				search("Q", CLASS, REFERENCES);
+				assertSearchResults("src/X.java X [Q] EXACT_MATCH");
+			} finally {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+			}
+		}
+
+		// select a class and check its nth permit reference
+		public void test564049_005() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+					"public sealed class X permits Y,Q{ \n" +
+							"	}\n" +
+							"	final class /*here*/Q extends X {}\n" +
+							"	final class Y extends X {}\n"
+
+					);
+			String str = this.workingCopies[0].getSource();
+			String selection = "/*here*/Q";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			assertTrue(elements.length ==1);
+			assertTrue((elements[0] instanceof SourceType));
+			search(elements[0], REFERENCES, EXACT_RULE);
+			assertSearchResults(
+					"src/X.java X [Q] EXACT_MATCH");
+		}
+
+		// check for permit reference with supertype finegrain
+		public void test564049_006() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+					"public sealed class X permits Y{ \n" +
+							"	}\n" +
+							"	final class Y extends X {}\n"
+
+					);
+			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+			try {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+				search("Y", CLASS, SUPERTYPE_TYPE_REFERENCE);
+				assertSearchResults("");
+			} finally {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+			}
+		}
+
+		// check for permit reference with permittype finegrain
+		public void test564049_007() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+					"public sealed class X permits Y{ \n" +
+							"	}\n" +
+							"	final class Y extends X {}\n"
+
+					);
+			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+			try {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+				search("Y", CLASS, PERMITTYPE_TYPE_REFERENCE);
+				assertSearchResults("src/X.java X [Y] EXACT_MATCH");
+			} finally {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+			}
+		}
+		// check for permit reference with permittype or supertype finegrain
+		public void test564049_008() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+					"public sealed class X permits Y{ \n" +
+							"	}\n" +
+							"	final class Y extends X {}\n"
+
+					);
+			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+			try {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+				search("Y", CLASS, PERMITTYPE_TYPE_REFERENCE | SUPERTYPE_TYPE_REFERENCE);
+				assertSearchResults("src/X.java X [Y] EXACT_MATCH");
+			} finally {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+			}
+		}
+
+		// check for permit reference for qualified type
+		public void test564049_009() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/p1/X.java",
+					"package p1;\n"+
+							"public sealed class X permits A.Y {\n" +
+							"	public static void main(String[] args) {}\n" +
+							"}\n" +
+							"class A {\n" +
+							"	sealed class Y extends X {\n" +
+							"		final class SubInnerY extends Y {}\n" +
+							"	} \n" +
+							"	final class Z extends Y {}\n" +
+							"   final class SubY extends Y {}" +
+							"}"
+
+					);
+			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+			try {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+				search("A.Y", CLASS, REFERENCES);
+				assertSearchResults(
+						"src/p1/X.java p1.X [A.Y] EXACT_MATCH\n" +
+						"src/p1/X.java p1.A$Y$SubInnerY [Y] EXACT_MATCH\n" +
+						"src/p1/X.java p1.A$Z [Y] EXACT_MATCH\n" +
+						"src/p1/X.java p1.A$SubY [Y] EXACT_MATCH");
+			} finally {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+			}
+		}
+
+
+		// check for permit reference with permittype finegrain - negative test case
+		public void test564049_010() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+					"public sealed class X extends Y{ \n" +
+							"	}\n" +
+							"	 class Y {}\n"
+
+					);
+			IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+			try {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+				search("Y", CLASS, PERMITTYPE_TYPE_REFERENCE);
+				assertSearchResults("");
+			} finally {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+			}
+		}
+		// permit reference in another file
+		public void test564049_011() throws CoreException {
+			IJavaProject project1 = createJavaProject("JavaSearchBugs15", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "17");
+			try {
+				Map<String, String> options = project1.getOptions(false);
+				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_17);
+				project1.setOptions(options);
+				project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+				project1.open(null);
+				createFolder("/JavaSearchBugs15/src/pack11");
+				String fileContent = "package pack11;\n" +
+						"public sealed class X11_ permits X12_{\n" +
+						"}\n";
+				String fileContent2 = "package pack11;\n" +
+						"final public class /*here*/X12_ extends X11_ {\n" +
+						"}\n";
+
+				createFile("/JavaSearchBugs15/src/pack11/X11_.java", fileContent);
+				createFile("/JavaSearchBugs15/src/pack11/X12_.java",fileContent2);
+				ICompilationUnit unit = getCompilationUnit("/JavaSearchBugs15/src/pack11/X12_.java");
+				String x11 = "/*here*/X12_";
+				int start = fileContent2.indexOf(x11);
+				IJavaElement[] elements = unit.codeSelect(start, x11.length());
+				assertTrue(elements.length ==1);
+				IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+				search(elements[0].getElementName(), TYPE, PERMITTYPE_TYPE_REFERENCE, EXACT_RULE, scope);
+				assertSearchResults("src/pack11/X11_.java pack11.X11_ [X12_] EXACT_MATCH");
+			} finally {
+				deleteProject(project1);
+			}
+		}
+
+	 	public void testPermitReferenceInSourceJar() throws CoreException {
+
+	 		IType myClass = getClassFile("JavaSearchBugs", "lib/permit_reference_in_source_jar.jar", "pack", "PermitClass2.class").getType();
+	 		search(
+	 			myClass,
+	 			ALL_OCCURRENCES,
+	 			getJavaSearchScope(),
+	 			this.resultCollector);
+	 		assertSearchResults(
+	 				"lib/permit_reference_in_source_jar.jar pack.MyClass2 EXACT_MATCH\n" +
+	 				"lib/permit_reference_in_source_jar.jar pack.PermitClass2 EXACT_MATCH",
+	 			this.resultCollector);
+
+	 	}
 }
 
 

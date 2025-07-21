@@ -16,18 +16,40 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
-import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.internal.compiler.impl.*;
-import org.eclipse.jdt.internal.compiler.ast.*;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.CompilationProgress;
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.parser.*;
-import org.eclipse.jdt.internal.compiler.problem.*;
-import org.eclipse.jdt.internal.compiler.util.*;
-
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.env.ISourceType;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.CompilerStats;
+import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.SourceTypeCollisionException;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.parser.Parser;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
+import org.eclipse.jdt.internal.compiler.util.Messages;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class Compiler implements ITypeRequestor, ProblemSeverities {
 	public Parser parser;
@@ -553,7 +575,6 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 
 	protected void processCompiledUnits(int startingIndex, boolean lastRound) throws java.lang.Error {
 		CompilationUnitDeclaration unit = null;
-		ProcessTaskManager processingTask = null;
 		try {
 			if (this.useSingleThread) {
 				// process all units (some more could be injected in the loop by the lookup environment)
@@ -596,30 +617,37 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 							}));
 				}
 			} else {
-				processingTask = new ProcessTaskManager(this, startingIndex);
-				int acceptedCount = 0;
-				// process all units (some more could be injected in the loop by the lookup environment)
-				// the processTask can continue to process units until its fixed sized cache is full then it must wait
-				// for this this thread to accept the units as they appear (it only waits if no units are available)
-				while (true) {
+				try (ProcessTaskManager processingTask = new ProcessTaskManager(this, startingIndex)){
+					int acceptedCount = 0;
+					// process all units (some more could be injected in the loop by the lookup environment)
+					// the processTask can continue to process units until its fixed sized cache is full then it must wait
+					// for this this thread to accept the units as they appear (it only waits if no units are available)
+					this.requestor.startBatch();
 					try {
-						unit = processingTask.removeNextUnit(); // waits if no units are in the processed queue
-					} catch (Error | RuntimeException e) {
-						unit = processingTask.unitToProcess;
-						throw e;
+						Collection<CompilationUnitDeclaration> units;
+						do {
+							try {
+								units = processingTask.removeNextUnits();
+							} catch (Error | RuntimeException e) {
+								unit = processingTask.getUnitWithError();
+								throw e;
+							}
+							for (CompilationUnitDeclaration u : units) {
+								unit = u;
+								reportWorked(1, acceptedCount++);
+								this.stats.lineCount += unit.compilationResult.lineSeparatorPositions.length;
+								this.requestor.acceptResult(unit.compilationResult.tagAsAccepted());
+								if (this.options.verbose)
+									this.out.println(Messages.bind(Messages.compilation_done,
+											new String[] { String.valueOf(acceptedCount),
+													String.valueOf(this.totalUnits), new String(unit.getFileName()) }));
+							}
+							// processingTask had no more units available => use the time to flush:
+							this.requestor.flushBatch();
+						} while (!units.isEmpty());
+					} finally {
+						this.requestor.endBatch();
 					}
-					if (unit == null) break;
-					reportWorked(1, acceptedCount++);
-					this.stats.lineCount += unit.compilationResult.lineSeparatorPositions.length;
-					this.requestor.acceptResult(unit.compilationResult.tagAsAccepted());
-					if (this.options.verbose)
-						this.out.println(
-							Messages.bind(Messages.compilation_done,
-							new String[] {
-								String.valueOf(acceptedCount),
-								String.valueOf(this.totalUnits),
-								new String(unit.getFileName())
-							}));
 				}
 			}
 			if (!lastRound) {
@@ -640,10 +668,6 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			this.handleInternalException(e, unit, null);
 			throw e; // rethrow
 		} finally {
-			if (processingTask != null) {
-				processingTask.shutdown();
-				processingTask = null;
-			}
 			reset();
 			this.annotationProcessorStartIndex  = 0;
 			this.stats.endTime = System.currentTimeMillis();
@@ -818,13 +842,33 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			throw a;
 		}
 	}
+
+	private  void abortIfVersionNotAllowed(ICompilationUnit[] sourceUnits, int maxUnits) {
+		try {
+			long firstSupportedJdkLevel = CompilerOptions.getFirstSupportedJdkLevel();
+			if (this.options.sourceLevel < firstSupportedJdkLevel
+					|| this.options.targetJDK < firstSupportedJdkLevel
+					|| this.options.complianceLevel < firstSupportedJdkLevel) {
+				long badVersion = Math.min(this.options.complianceLevel, Math.min(this.options.sourceLevel, this.options.targetJDK));
+				this.problemReporter.abortDueToNotSupportedJavaVersion(CompilerOptions.versionFromJdkLevel(badVersion),
+						CompilerOptions.getFirstSupportedJavaVersion());
+			}
+		} catch (AbortCompilation a) {
+			// best effort to find a way for reporting this problem: report on the first source
+			if (a.compilationResult == null) {
+				a.compilationResult = new CompilationResult(sourceUnits[0], 0, maxUnits, this.options.maxProblemsPerUnit);
+			}
+			throw a;
+		}
+	}
 	/**
 	 * Add the initial set of compilation units into the loop
 	 *  ->  build compilation unit declarations, their bindings and record their results.
 	 */
 	protected void internalBeginToCompile(ICompilationUnit[] sourceUnits, int maxUnits) {
+		abortIfVersionNotAllowed(sourceUnits,maxUnits);
 		abortIfPreviewNotAllowed(sourceUnits,maxUnits);
-		if (!this.useSingleThread && maxUnits >= ReadManager.THRESHOLD)
+		if (!this.useSingleThread)
 			this.parser.readManager = new ReadManager(sourceUnits, maxUnits);
 		try {
 			// Switch the current policy and compilation result for this unit to the requested one.
@@ -847,6 +891,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 					if (this.totalUnits < this.parseThreshold) {
 						parsedUnit = this.parser.parse(sourceUnits[i], unitResult);
 					} else {
+						unitResult.cacheSource();
 						parsedUnit = this.parser.dietParse(sourceUnits[i], unitResult);
 					}
 					long resolveStart = System.currentTimeMillis();

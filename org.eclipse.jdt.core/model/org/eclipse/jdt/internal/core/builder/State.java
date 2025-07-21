@@ -35,7 +35,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -56,6 +55,7 @@ import org.eclipse.jdt.internal.compiler.env.IUpdatableModule.UpdateKind;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class State {
@@ -264,8 +264,8 @@ void removePackage(IResourceDelta sourceDelta) {
 	switch(resource.getType()) {
 		case IResource.FOLDER :
 			IResourceDelta[] children = sourceDelta.getAffectedChildren();
-			for (int i = 0, l = children.length; i < l; i++)
-				removePackage(children[i]);
+			for (IResourceDelta child : children)
+				removePackage(child);
 			return;
 		case IResource.FILE :
 			IPath typeLocatorPath = resource.getProjectRelativePath();
@@ -489,7 +489,7 @@ private static AccessRuleSet readRestriction(CompressedReader in) throws IOExcep
 		int problemId = in.readIntWithHint(PROBLEM_IDS);
 		accessRules[i] = manager.getAccessRuleForProblemId(pattern, problemId);
 	}
-	return new AccessRuleSet(accessRules, in.readByte(), manager.intern(in.readStringUsingDictionary()));
+	return new AccessRuleSet(accessRules, in.readByte(), DeduplicationUtil.intern(in.readStringUsingDictionary()));
 }
 
 void tagAsNoopBuild() {
@@ -642,26 +642,22 @@ void write(DataOutputStream output) throws IOException {
 	SimpleLookupTable internedSimpleNames = new SimpleLookupTable(31);
 	for (ReferenceCollection collection : this.references.values()) {
 		char[][] rNames = collection.rootReferences;
-		for (int j = 0, m = rNames.length; j < m; j++) {
-			char[] rName = rNames[j];
+		for (char[] rName : rNames) {
 			if (!internedRootNames.containsKey(rName)) // remember the names have been interned
 				internedRootNames.put(rName, Integer.valueOf(internedRootNames.elementSize));
 		}
 		char[][][] qNames = collection.qualifiedNameReferences;
-		for (int j = 0, m = qNames.length; j < m; j++) {
-			char[][] qName = qNames[j];
+		for (char[][] qName : qNames) {
 			if (!internedQualifiedNames.containsKey(qName)) { // remember the names have been interned
 				internedQualifiedNames.put(qName, Integer.valueOf(internedQualifiedNames.elementSize));
-				for (int k = 0, n = qName.length; k < n; k++) {
-					char[] sName = qName[k];
+				for (char[] sName : qName) {
 					if (!internedSimpleNames.containsKey(sName)) // remember the names have been interned
 						internedSimpleNames.put(sName, Integer.valueOf(internedSimpleNames.elementSize));
 				}
 			}
 		}
 		char[][] sNames = collection.simpleNameReferences;
-		for (int j = 0, m = sNames.length; j < m; j++) {
-			char[] sName = sNames[j];
+		for (char[] sName : sNames) {
 			if (!internedSimpleNames.containsKey(sName)) // remember the names have been interned
 				internedSimpleNames.put(sName, Integer.valueOf(internedSimpleNames.elementSize));
 		}
@@ -781,8 +777,7 @@ private void writeBinaryLocations(CompressedWriter out, ClasspathLocation[] loca
 	*/
 
 	out.writeInt(locations.length);
-	for (int i = 0; i < locations.length; i++) {
-		ClasspathLocation c = locations[i];
+	for (ClasspathLocation c : locations) {
 		if (c instanceof ClasspathMultiDirectory) {
 			out.writeByte(SOURCE_FOLDER);
 			for (int j = 0, m = srcLocations.length; j < m; j++) {

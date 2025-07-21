@@ -16,9 +16,9 @@ package org.eclipse.jdt.internal.core;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -36,17 +36,13 @@ public class UserLibraryManager {
 
 	public final static String CP_USERLIBRARY_PREFERENCES_PREFIX = JavaCore.PLUGIN_ID+".userLibrary."; //$NON-NLS-1$
 
-	private Map userLibraries;
-
-	public UserLibraryManager() {
-		initialize();
-	}
+	private final Map<String, UserLibrary> userLibraries = new ConcurrentHashMap<>();
 
 	/*
 	 * Gets the library for a given name or <code>null</code> if no such library exists.
 	 */
 	public synchronized UserLibrary getUserLibrary(String libName) {
-		return (UserLibrary) this.userLibraries.get(libName);
+		return this.userLibraries.get(libName);
 	}
 
 	/*
@@ -54,12 +50,11 @@ public class UserLibraryManager {
 	 * is the name appended to the CONTAINER_ID.
 	 */
 	public synchronized String[] getUserLibraryNames() {
-		Set set = this.userLibraries.keySet();
-		return (String[]) set.toArray(new String[set.size()]);
+		Set<String> set = this.userLibraries.keySet();
+		return set.toArray(String[]::new);
 	}
 
-	private void initialize() {
-		this.userLibraries = new HashMap();
+	public UserLibraryManager() {
 		IEclipsePreferences instancePreferences = JavaModelManager.getJavaModelManager().getInstancePreferences();
 		String[] propertyNames;
 		try {
@@ -70,8 +65,7 @@ public class UserLibraryManager {
 		}
 
 		boolean preferencesNeedFlush = false;
-		for (int i = 0, length = propertyNames.length; i < length; i++) {
-			String propertyName = propertyNames[i];
+		for (String propertyName : propertyNames) {
 			if (propertyName.startsWith(CP_USERLIBRARY_PREFERENCES_PREFIX)) {
 				String propertyValue = instancePreferences.get(propertyName, null);
 				if (propertyValue != null) {
@@ -105,11 +99,9 @@ public class UserLibraryManager {
 			IPath containerPath = new Path(JavaCore.USER_LIBRARY_CONTAINER_ID).append(libName);
 			IJavaProject[] allJavaProjects = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot()).getJavaProjects();
 			ArrayList affectedProjects = new ArrayList();
-			for (int i= 0; i < allJavaProjects.length; i++) {
-				IJavaProject javaProject = allJavaProjects[i];
+			for (IJavaProject javaProject : allJavaProjects) {
 				IClasspathEntry[] entries= javaProject.getRawClasspath();
-				for (int j= 0; j < entries.length; j++) {
-					IClasspathEntry entry = entries[j];
+				for (IClasspathEntry entry : entries) {
 					if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
 						if (containerPath.equals(entry.getPath())) {
 							affectedProjects.add(javaProject);

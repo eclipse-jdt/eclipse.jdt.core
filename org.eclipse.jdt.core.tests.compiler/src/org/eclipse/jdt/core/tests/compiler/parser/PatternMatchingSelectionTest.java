@@ -13,10 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
+import junit.framework.Test;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-
-import junit.framework.Test;
 
 public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 	static {
@@ -201,7 +200,7 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 				"    new Object() {\n" +
 				"      private void methodA(Object object) {\n" +
 				"        if ((! (object instanceof Random varX)))\n" +
-				"            return ;\n" +
+				"            return;\n" +
 				"      }\n" +
 				"      private void methodB(Object object) {\n" +
 				"        if ((object instanceof <SelectOnType:String> var1))\n" +

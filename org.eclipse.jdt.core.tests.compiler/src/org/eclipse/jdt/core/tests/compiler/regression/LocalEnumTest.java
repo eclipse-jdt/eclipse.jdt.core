@@ -21,9 +21,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -4879,7 +4877,7 @@ public void test127() throws Exception {
 			"        [pc: 0, pc: 5] local: this index: 0 type: X\n" +
 			"  \n" +
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
-			"  // Stack: 3, Locals: 1\n" +
+			"  // Stack: 2, Locals: 1\n" +
 			"  public static void main(java.lang.String[] args);\n" +
 			"     0  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
 			"     3  invokestatic X$1Y.values() : X$1Y[] [22]\n" +
@@ -5947,7 +5945,7 @@ public void test151() throws Exception {
 		+ "    [inner class info: #1 p/X$1E, outer class info: #0\n"
 		+ "     inner name: #54 E, accessflags: 17416 abstract static],\n"
 		+ "    [inner class info: #14 p/X$1E$1, outer class info: #0\n"
-		+ "     inner name: #0, accessflags: 16384 default]\n"
+		+ "     inner name: #0, accessflags: 16392 static]\n"
 		+ "  Enclosing Method: #48  #50 p/X.main([Ljava/lang/String;)V\n"
 		+ "\n"
 		+ "Nest Host: #48 p/X\n"

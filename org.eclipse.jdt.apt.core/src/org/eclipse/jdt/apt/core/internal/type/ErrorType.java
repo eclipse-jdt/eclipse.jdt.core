@@ -23,13 +23,10 @@ import com.sun.mirror.type.ArrayType;
 import com.sun.mirror.type.ClassType;
 import com.sun.mirror.type.DeclaredType;
 import com.sun.mirror.type.InterfaceType;
-import com.sun.mirror.type.ReferenceType;
 import com.sun.mirror.type.TypeMirror;
 import com.sun.mirror.util.TypeVisitor;
-
 import java.util.Collection;
 import java.util.Collections;
-
 import org.eclipse.jdt.apt.core.internal.declaration.EclipseMirrorType;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -37,7 +34,7 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 /**
  * This is the error type marker
  */
-public abstract class ErrorType implements DeclaredType, ReferenceType, EclipseMirrorType
+public abstract class ErrorType implements DeclaredType, EclipseMirrorType
 {
     final String _name;
 

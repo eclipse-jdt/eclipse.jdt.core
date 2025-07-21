@@ -14,9 +14,7 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
@@ -40,7 +38,7 @@ public class BootstrapMethodAttributeTest extends AbstractRegressionTest {
 //		TESTS_RANGE = new int[] { 23 -1,};
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_1_7);
+		return buildMinimalComplianceTestSuite(testClass(), FIRST_SUPPORTED_JAVA_VERSION);
 	}
 	public void test001() throws Exception {
 

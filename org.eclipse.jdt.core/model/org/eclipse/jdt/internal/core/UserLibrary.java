@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
-
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -92,8 +91,8 @@ public class UserLibrary {
 		if (this.isSystemLibrary) {
 			hashCode++;
 		}
-		for (int i= 0; i < this.entries.length; i++) {
-			hashCode= hashCode * 17 + this.entries[i].hashCode();
+		for (IClasspathEntry entry : this.entries) {
+			hashCode= hashCode * 17 + entry.hashCode();
 		}
 		return hashCode;
 	}
@@ -107,8 +106,8 @@ public class UserLibrary {
 		library.put(TAG_SYSTEMLIBRARY, String.valueOf(isSystemLibrary));
 		xmlWriter.printTag(TAG_USERLIBRARY, library, true, true, false);
 
-		for (int i = 0, length = entries.length; i < length; ++i) {
-			ClasspathEntry cpEntry = (ClasspathEntry) entries[i];
+		for (IClasspathEntry entry : entries) {
+			ClasspathEntry cpEntry = (ClasspathEntry) entry;
 
 			HashMap archive = new HashMap();
 			archive.put(TAG_PATH, cpEntry.getPath().toPortableString());

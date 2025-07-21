@@ -16,7 +16,6 @@ package org.eclipse.jdt.core.dom;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -412,8 +411,8 @@ class ASTRecoveryPropagator extends DefaultASTVisitor {
 	public void endVisit(VariableDeclarationStatement node) {
 		endVisitNode(node);
 		List fragments = node.fragments();
-		for (int i = 0, max = fragments.size(); i <max; i++) {
-			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(i);
+		for (Object f : fragments) {
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) f;
 			Expression expression = fragment.getInitializer();
 			if (expression == null) continue;
 			if ((expression.getFlags() & ASTNode.RECOVERED) == 0) continue;

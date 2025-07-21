@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.compiler.batch;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.eclipse.jdt.internal.compiler.env.IModule;
 
 public class FileFinder {
@@ -38,8 +37,8 @@ private static void find0(File f, String pattern, List<String> collector) {
 	if (f.isDirectory()) {
 		String[] files = f.list();
 		if (files == null) return;
-		for (int i = 0, max = files.length; i < max; i++) {
-			File current = new File(f, files[i]);
+		for (String file : files) {
+			File current = new File(f, file);
 			if (current.isDirectory()) {
 				find0(current, pattern, collector);
 			} else {

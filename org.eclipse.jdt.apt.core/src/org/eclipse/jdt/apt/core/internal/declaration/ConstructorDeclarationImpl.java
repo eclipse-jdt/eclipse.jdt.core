@@ -14,12 +14,11 @@
 
 package org.eclipse.jdt.apt.core.internal.declaration;
 
-import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
-import org.eclipse.jdt.core.dom.IMethodBinding;
-
 import com.sun.mirror.declaration.ConstructorDeclaration;
 import com.sun.mirror.declaration.ParameterDeclaration;
 import com.sun.mirror.util.DeclarationVisitor;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
+import org.eclipse.jdt.core.dom.IMethodBinding;
 
 public class ConstructorDeclarationImpl extends ExecutableDeclarationImpl implements ConstructorDeclaration
 {

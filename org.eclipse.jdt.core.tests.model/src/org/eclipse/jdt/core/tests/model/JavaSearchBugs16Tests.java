@@ -13,7 +13,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
-
+import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
@@ -30,10 +30,9 @@ import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.search.matching.DeclarationOfAccessedFieldsPattern;
-
-import junit.framework.Test;
 
 public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 
@@ -686,7 +685,7 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 		IJavaProject project = null;
 		try
 		{
-			project = createJavaProject("P", new String[] {""}, new String[] { "/P/lib1297.jar", "JCL15_LIB" }, "", "1.5");
+			project = createJavaProject("P", new String[] {""}, new String[] { "/P/lib1297.jar", "JCL18_LIB" }, "", CompilerOptions.getFirstSupportedJavaVersion());
 			org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
 					"p1/AnnotationTypes.java",
 					"package p1;\n" +
@@ -704,7 +703,7 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 					"	@MyCustomAnnotation(value = \"Eclipse1\")\n" +
 					"	public void newAnnotation() { }\n" +
 					"}\n" },
-					project.getProject().getLocation().append("lib1297.jar").toOSString(), "1.5");
+					project.getProject().getLocation().append("lib1297.jar").toOSString(), CompilerOptions.getFirstSupportedJavaVersion());
 
 
 			refresh(project);

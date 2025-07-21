@@ -13,10 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.util;
 
-import org.eclipse.jdt.core.dom.ASTNode;
-
 import com.sun.mirror.apt.Messager;
 import com.sun.mirror.util.SourcePosition;
+import org.eclipse.jdt.core.dom.ASTNode;
 
 /**
  * Extend the APT {@link Messager} to allow the registrating of diagnostics on ast nodes.

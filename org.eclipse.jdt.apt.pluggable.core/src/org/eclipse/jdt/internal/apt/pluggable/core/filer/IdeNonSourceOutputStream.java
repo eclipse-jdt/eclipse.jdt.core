@@ -14,19 +14,14 @@
 
 package org.eclipse.jdt.internal.apt.pluggable.core.filer;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collection;
-
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.internal.env.BinaryFileOutputStream;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
-import org.eclipse.jdt.internal.apt.pluggable.core.Apt6Plugin;
 import org.eclipse.jdt.internal.apt.pluggable.core.dispatch.IdeProcessingEnvImpl;
 
 /**
@@ -48,40 +43,20 @@ public class IdeNonSourceOutputStream  extends ByteArrayOutputStream
 	public void close() throws IOException {
 		super.close();
 
-		InputStream contents = new ByteArrayInputStream(toByteArray());
+		byte[] newContent = toByteArray();
+		boolean contentsChanged = true;
 		try {
-
-			boolean contentsChanged = true;
-			if (!_file.exists()) {
-				saveToDisk(contents, true);
+			// Only write the contents if the data is different
+			byte[] oldContent = _file.readAllBytes();
+			if (Arrays.equals(newContent, oldContent)) {
+				contentsChanged = false;
 			}
-			else {
-				InputStream in = null;
-				InputStream oldData = null;
-				try {
-					// Only write the contents if the data is different
-					in = new ByteArrayInputStream(toByteArray());
-					oldData = new BufferedInputStream(_file.getContents());
-					if (FileSystemUtil.compareStreams(in, oldData)) {
-						contentsChanged = false;
-					}
-				}
-				catch (CoreException ce) {
-					// Ignore -- couldn't read the old data, so assume it's different
-					contentsChanged = true;
-				}
-				finally {
-					closeInputStream(in);
-					closeInputStream(oldData);
-				}
-				if (contentsChanged) {
-					contents.reset();
-					saveToDisk(contents, false);
-				}
-			}
+		} catch (CoreException ce) {
+			// Ignore -- couldn't read the old data, so assume it's different
+			contentsChanged = true;
 		}
-		finally {
-			closeInputStream(contents);
+		if (contentsChanged) {
+			FileSystemUtil.saveToDisk(_file, newContent);
 		}
 
 		// If there are no parents, we don't need to track dependencies
@@ -90,36 +65,4 @@ public class IdeNonSourceOutputStream  extends ByteArrayOutputStream
 			_env.addNewResource(_file);
 		}
 	}
-
-	private void closeInputStream(InputStream stream) {
-		if (stream != null) {
-			try {
-				stream.close();
-			}
-			catch (IOException ioe) {}
-		}
-	}
-
-	private void saveToDisk(InputStream toSave, boolean create) throws IOException{
-		try {
-			FileSystemUtil.makeDerivedParentFolders(_file.getParent());
-			if (create) {
-				_file.create(toSave, IResource.FORCE | IResource.DERIVED, null);
-			}
-			else {
-				_file.setContents(toSave, true, false, null);
-			}
-		}
-		catch (CoreException ce) {
-			if (_file.exists()) {
-				// Do nothing. This is a case-insensitive file system mismatch,
-				// and the underlying platform has saved the contents already.
-			}
-			else {
-				Apt6Plugin.log(ce, "Could not create generated non-Java file " + _file.getName()); //$NON-NLS-1$
-				throw new IOException(ce);
-			}
-		}
-	}
-
 }

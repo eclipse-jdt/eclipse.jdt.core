@@ -25,32 +25,38 @@ public final class StringOperation {
 
 /**
  * Answers all the regions in a given name matching a given camel case pattern.
- * </p><p>
+ * <p>
  * Each of these regions is made of its starting index and its length in the given
  * name. They are all concatenated in a single array of <code>int</code>
  * which therefore always has an even length.
- * </p><p>
+ * <p>
  * Note that each region is disjointed from the following one.<br>
  * E.g. if the regions are <code>{ start1, length1, start2, length2 }</code>,
  * then <code>start1+length1</code> will always be smaller than
  * <code>start2</code>.
- * </p><p>
- * <pre>
  * Examples:
  * <ol><li>  pattern = "NPE"
+ * <pre>{@code
  *  name = NullPointerException / NoPermissionException
  *  result:  { 0, 1, 4, 1, 11, 1 } / { 0, 1, 2, 1, 12, 1 } </li>
+ *  }</pre>
  * <li>  pattern = "NuPoEx"
+ * <pre>{@code
  *  name = NullPointerException
  *  result:  { 0, 2, 4, 2, 11, 2 }</li>
+ *  }</pre>
  * <li>  pattern = "IPL3"
+ * <pre>{@code
  *  name = "IPerspectiveListener3"
  *  result:  { 0, 2, 12, 1, 20, 1 }</li>
+ *  }</pre>
  * <li>  pattern = "HashME"
+ * <pre>{@code
  *  name = "HashMapEntry"
  *  result:  { 0, 5, 7, 1 }</li>
- * </ol></pre>
- *</p>
+ *  }</pre>
+ * </ol>
+ *
  * @see CharOperation#camelCaseMatch(char[], int, int, char[], int, int, boolean)
  * 	for more details on the camel case behavior
  * @see CharOperation#match(char[], char[], boolean) for more details on the
@@ -250,27 +256,30 @@ public static final int[] getCamelCaseMatchingRegions(String pattern, int patter
 /**
  * Answers all the regions in a given name matching a given <i>pattern</i>
  * pattern (e.g. "H*M??").
- * </p><p>
+ * <p>
  * Each of these regions is made of its starting index and its length in the given
  * name. They are all concatenated in a single array of <code>int</code>
  * which therefore always has an even length.
- * </p><p>
+ * <p>
  * Note that each region is disjointed from the following one.<br>
  * E.g. if the regions are <code>{ start1, length1, start2, length2 }</code>,
  * then <code>start1+length1</code> will always be smaller than
  * <code>start2</code>.
- * </p><p>
- * <pre>
+ * <p>
  * Examples:
  * <ol>
  * <li>  pattern = "N???Po*Ex?eption"
+ * <pre>{@code
  *  name = NullPointerException
  *  result:  { 0, 1, 4, 2, 11, 2, 14, 6 }</li>
+ *  }</pre>
  * <li>  pattern = "Ha*M*ent*"
+ * <pre>{@code
  *  name = "HashMapEntry"
  *  result:  { 0, 2, 4, 1, 7, 3 }</li>
- * </ol></pre>
- *</p>
+ *  }</pre>
+ * </ol>
+ *
  * @see CharOperation#match(char[], char[], boolean) for more details on the
  * 	pattern match behavior
  *

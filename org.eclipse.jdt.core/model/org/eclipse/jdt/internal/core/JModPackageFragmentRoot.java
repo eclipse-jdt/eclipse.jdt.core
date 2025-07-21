@@ -15,9 +15,7 @@ package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathAttribute;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.builder.ClasspathJMod;
-import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 
 /**
  * A package fragment root that corresponds to a JMod file.
@@ -47,15 +45,10 @@ public class JModPackageFragmentRoot extends JarPackageFragmentRoot {
 	 */
 	@Override
 	public String getClassFilePath(String entryName) {
-		char[] name = CharOperation.append(ClasspathJMod.CLASSES_FOLDER, entryName.toCharArray());
-		return new String(name);
+		return ClasspathJMod.CLASSES_FOLDER + entryName;
 	}
 	@Override
-	protected void initRawPackageInfo(HashtableOfArrayToObject rawPackageInfo, String entryName, boolean isDirectory, String compliance) {
-		char[] name = entryName.toCharArray();
-		if (CharOperation.prefixEquals(ClasspathJMod.CLASSES_FOLDER, name)) {
-			name = CharOperation.subarray(name, ClasspathJMod.CLASSES_FOLDER.length, name.length);
-		}
-		super.initRawPackageInfo(rawPackageInfo, new String(name), isDirectory, compliance);
+	protected String getClassNameSubFolder() {
+		return ClasspathJMod.CLASSES_FOLDER;
 	}
 }

@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -25,8 +26,6 @@ import org.eclipse.jdt.core.search.ReferenceMatch;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
-
-import junit.framework.Test;
 
 /**
  * Moved from JavaSearchBugs13Tests
@@ -173,6 +172,42 @@ public void testBug542559_004() throws CoreException {
 			"			case 1 -> 2;\n" +
 			"			default ->{ \n" +
 			"			switch_expr_field*9; \n" +
+			"		}};\n" +
+			"		return tw;\n" +
+			"	}\n" +
+			"	public static void main(String... args) {\n" +
+			"		System.out.print(new X().twice(3));\n" +
+			"	}\n" +
+			"}\n"
+			);
+	IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+	String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+	try {
+		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
+		search("switch_expr_field", FIELD, REFERENCES);
+		assertSearchResults(
+				"src/X.java int X.twice(int) [switch_expr_field] EXACT_MATCH\n" +
+				"src/X.java int X.twice(int) [switch_expr_field] POTENTIAL_MATCH" // altered recovery from syntax error results in potential match
+		);
+	} finally {
+		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+	}
+}
+
+/*
+ * java search reference for an integer in default block of switch expression
+ */
+public void testBug542559_004_1() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+			"public class X {\n" +
+			"	int switch_expr_field = 10;\n" +
+			"	int twice(int i) {\n" +
+			"		int tw = switch (i) {\n" +
+			"			case 0 -> switch_expr_field * 0;\n" +
+			"			case 1 -> 2;\n" +
+			"			default ->{ \n" +
+			"			yield switch_expr_field*9; \n" +
 			"		}};\n" +
 			"		return tw;\n" +
 			"	}\n" +
@@ -346,10 +381,12 @@ public void testBug542559_008() throws CoreException {
 public void testBug542559_0012() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-			"import java.util.function.Supplier;\n" +
 			"interface I0 { void i(); }\n" +
 			"interface I1 extends I0 {}\n" +
 			"interface I2 extends I0 {}\n" +
+			"public interface Supplier<T> {\n" +
+			"    T get();\n" +
+			"}\n" +
 			"public class X {\n" +
 			"	I1 n1() { return null; }\n" +
 			"	<I extends I2> I n2() { return null; }\n" +

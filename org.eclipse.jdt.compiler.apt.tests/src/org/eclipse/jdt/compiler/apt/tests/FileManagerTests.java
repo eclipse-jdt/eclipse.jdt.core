@@ -31,16 +31,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-
 import javax.lang.model.SourceVersion;
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
-
-import org.eclipse.jdt.internal.compiler.apt.util.EclipseFileManager;
-
 import junit.framework.TestCase;
+import org.eclipse.jdt.internal.compiler.apt.util.EclipseFileManager;
 
 /**
  * Test the implementation of the Filer interface,

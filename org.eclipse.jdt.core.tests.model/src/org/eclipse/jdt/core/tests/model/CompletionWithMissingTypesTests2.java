@@ -17,55 +17,28 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Hashtable;
-
+import junit.framework.Test;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
-
-import junit.framework.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class CompletionWithMissingTypesTests2 extends ModifyingResourceTests implements RelevanceConstants {
+public class CompletionWithMissingTypesTests2 extends AbstractJavaModelCompletionTests {
 
 public CompletionWithMissingTypesTests2(String name) {
 	super(name);
 }
 @Override
 public void setUpSuite() throws Exception {
-	if (AbstractJavaModelCompletionTests.COMPLETION_PROJECT == null)  {
-		AbstractJavaModelCompletionTests.COMPLETION_PROJECT = setUpJavaProject("Completion");
+	if (COMPLETION_PROJECT == null)  {
+		COMPLETION_PROJECT = setUpJavaProject("Completion");
 	} else {
-		setUpProjectCompliance(AbstractJavaModelCompletionTests.COMPLETION_PROJECT, "1.4");
-		this.currentProject = AbstractJavaModelCompletionTests.COMPLETION_PROJECT;
+		setUpProjectCompliance(COMPLETION_PROJECT, CompilerOptions.getFirstSupportedJavaVersion());
+		this.currentProject = COMPLETION_PROJECT;
 	}
 	super.setUpSuite();
 }
-@Override
-public void tearDownSuite() throws Exception {
-	if (AbstractJavaModelCompletionTests.COMPLETION_SUITES == null) {
-		deleteProject("Completion");
-	} else {
-		AbstractJavaModelCompletionTests.COMPLETION_SUITES.remove(getClass());
-		if (AbstractJavaModelCompletionTests.COMPLETION_SUITES.size() == 0) {
-			deleteProject("Completion");
-			AbstractJavaModelCompletionTests.COMPLETION_SUITES = null;
-		}
-	}
-	if (AbstractJavaModelCompletionTests.COMPLETION_SUITES == null) {
-		AbstractJavaModelCompletionTests.COMPLETION_PROJECT = null;
-	}
-	super.tearDownSuite();
-}
 
-protected static void assertResults(String expected, String actual) {
-	try {
-		assertEquals(expected, actual);
-	} catch(ComparisonFailure c) {
-		System.out.println(actual);
-		System.out.println();
-		throw c;
-	}
-}
 static {
 //	TESTS_NAMES = new String[] { "testBug96950" };
 }
@@ -88,9 +61,8 @@ File createDirectory(File parent, String name) {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
 public void test0001() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(oldOptions);
+		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		options.put(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.WARNING);
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
@@ -99,7 +71,7 @@ public void test0001() throws Exception {
 
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -107,7 +79,7 @@ public void test0001() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 
 		this.createFolder("/P1/src/a");
@@ -130,7 +102,7 @@ public void test0001() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -141,7 +113,7 @@ public void test0001() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		this.createFile(
 			"/P2/src/YY.java",
 			"public class YY {\n"+
@@ -177,14 +149,13 @@ public void test0001() throws Exception {
 	} finally {
 		this.deleteProject("P1");
 		this.deleteProject("P2");
-		JavaCore.setOptions(oldOptions);
+		JavaCore.setOptions(this.oldOptions);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44984
 public void test0002() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(oldOptions);
+		Hashtable options = new Hashtable(this.oldOptions);
 		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
 		options.put(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.WARNING);
 		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
@@ -193,7 +164,7 @@ public void test0002() throws Exception {
 
 		// create variable
 //		JavaCore.setClasspathVariables(
-//			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
+//			new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 //			new IPath[] {getExternalJCLPath(), getExternalJCLSourcePath(), getExternalJCLRootSourcePath()},
 //			null);
 
@@ -201,7 +172,7 @@ public void test0002() throws Exception {
 		this.createJavaProject(
 			"P1",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			 "bin");
 
 		this.createFolder("/P1/src/a");
@@ -224,7 +195,7 @@ public void test0002() throws Exception {
 		this.createJavaProject(
 			"P2",
 			new String[]{"src"},
-			new String[]{"JCL_LIB"},
+			new String[]{"JCL18_LIB"},
 			null,
 			null,
 			new String[]{"/P1"},
@@ -235,7 +206,7 @@ public void test0002() throws Exception {
 			null,
 			null,
 			null,
-			"1.4");
+			CompilerOptions.getFirstSupportedJavaVersion());
 		this.createFile(
 			"/P2/src/YY.java",
 			"public class YY {\n"+
@@ -269,7 +240,7 @@ public void test0002() throws Exception {
 	} finally {
 		this.deleteProject("P1");
 		this.deleteProject("P2");
-		JavaCore.setOptions(oldOptions);
+		JavaCore.setOptions(this.oldOptions);
 	}
 }
 }

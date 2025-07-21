@@ -15,7 +15,6 @@
 package org.eclipse.jdt.core.dom;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -141,7 +140,7 @@ public class VariableDeclarationStatement extends Statement {
 	 * The base type; lazily initialized; defaults to an unspecified,
 	 * legal type.
 	 */
-	private Type baseType = null;
+	private volatile Type baseType;
 
 	/**
 	 * The list of variable variable declaration fragments (element type:
@@ -298,8 +297,7 @@ public class VariableDeclarationStatement extends Statement {
 			// performance could be improved by caching computed flags
 			// but this would require tracking changes to this.modifiers
 			int computedModifierFlags = Modifier.NONE;
-			for (Iterator it = modifiers().iterator(); it.hasNext(); ) {
-				Object x = it.next();
+			for (Object x : modifiers()) {
 				if (x instanceof Modifier) {
 					computedModifierFlags |= ((Modifier) x).getKeyword().toFlagValue();
 				}
@@ -354,8 +352,7 @@ public class VariableDeclarationStatement extends Statement {
 			synchronized (this) {
 				if (this.baseType == null) {
 					preLazyInit();
-					this.baseType = this.ast.newPrimitiveType(PrimitiveType.INT);
-					postLazyInit(this.baseType, TYPE_PROPERTY);
+					this.baseType = postLazyInit(this.ast.newPrimitiveType(PrimitiveType.INT), TYPE_PROPERTY);
 				}
 			}
 		}

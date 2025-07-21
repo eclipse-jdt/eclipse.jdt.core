@@ -157,13 +157,13 @@ public class ClassInstanceCreation extends Expression {
 	 * The type name; lazily initialized; defaults to a unspecified,
 	 * legal type name. Not used in JLS3.
 	 */
-	private Name typeName = null;
+	private volatile Name typeName;
 
 	/**
 	 * The type; lazily initialized; defaults to a unspecified type.
 	 * @since 3.0
 	 */
-	private Type type = null;
+	private volatile Type type;
 
 	/**
 	 * The list of argument expressions (element type:
@@ -383,8 +383,7 @@ public class ClassInstanceCreation extends Expression {
 			synchronized (this) {
 				if (this.typeName == null) {
 					preLazyInit();
-					this.typeName = new SimpleName(this.ast);
-					postLazyInit(this.typeName, NAME_PROPERTY);
+					this.typeName = postLazyInit(new SimpleName(this.ast), NAME_PROPERTY);
 				}
 			}
 		}
@@ -443,8 +442,7 @@ public class ClassInstanceCreation extends Expression {
 			synchronized (this) {
 				if (this.type == null) {
 					preLazyInit();
-					this.type = new SimpleType(this.ast);
-					postLazyInit(this.type, TYPE_PROPERTY);
+					this.type = postLazyInit(new SimpleType(this.ast), TYPE_PROPERTY);
 				}
 			}
 		}

@@ -13,8 +13,22 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.complete;
 
-import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Argument;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.Javadoc;
+import org.eclipse.jdt.internal.compiler.ast.JavadocSingleNameReference;
+import org.eclipse.jdt.internal.compiler.ast.JavadocSingleTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 /**
  * Node representing a Javadoc comment including code selection.
@@ -106,20 +120,20 @@ public class CompletionJavadoc extends Javadoc {
 		printIndent(indent, output).append("/**\n"); //$NON-NLS-1$
 		boolean nodePrinted = false;
 		if (this.paramReferences != null) {
-			for (int i = 0, length = this.paramReferences.length; i < length; i++) {
+			for (JavadocSingleNameReference ref : this.paramReferences) {
 				printIndent(indent, output).append(" * @param "); //$NON-NLS-1$
-				this.paramReferences[i].print(indent, output).append('\n');
+				ref.print(indent, output).append('\n');
 				if (!nodePrinted && this.completionNode != null) {
-					nodePrinted =  this.completionNode == this.paramReferences[i];
+					nodePrinted =  this.completionNode == ref;
 				}
 			}
 		}
 		if (this.paramTypeParameters != null) {
-			for (int i = 0, length = this.paramTypeParameters.length; i < length; i++) {
+			for (JavadocSingleTypeReference paramTypeParameter : this.paramTypeParameters) {
 				printIndent(indent, output).append(" * @param <"); //$NON-NLS-1$
-				this.paramTypeParameters[i].print(indent, output).append(">\n"); //$NON-NLS-1$
+				paramTypeParameter.print(indent, output).append(">\n"); //$NON-NLS-1$
 				if (!nodePrinted && this.completionNode != null) {
-					nodePrinted =  this.completionNode == this.paramTypeParameters[i];
+					nodePrinted =  this.completionNode == paramTypeParameter;
 				}
 			}
 		}
@@ -128,20 +142,20 @@ public class CompletionJavadoc extends Javadoc {
 			this.returnStatement.print(indent, output).append('\n');
 		}
 		if (this.exceptionReferences != null) {
-			for (int i = 0, length = this.exceptionReferences.length; i < length; i++) {
+			for (TypeReference ref : this.exceptionReferences) {
 				printIndent(indent, output).append(" * @throws "); //$NON-NLS-1$
-				this.exceptionReferences[i].print(indent, output).append('\n');
+				ref.print(indent, output).append('\n');
 				if (!nodePrinted && this.completionNode != null) {
-					nodePrinted =  this.completionNode == this.exceptionReferences[i];
+					nodePrinted =  this.completionNode == ref;
 				}
 			}
 		}
 		if (this.seeReferences != null) {
-			for (int i = 0, length = this.seeReferences.length; i < length; i++) {
+			for (Expression ref : this.seeReferences) {
 				printIndent(indent, output).append(" * @see "); //$NON-NLS-1$
-				this.seeReferences[i].print(indent, output).append('\n');
+				ref.print(indent, output).append('\n');
 				if (!nodePrinted && this.completionNode != null) {
-					nodePrinted =  this.completionNode == this.seeReferences[i];
+					nodePrinted =  this.completionNode == ref;
 				}
 			}
 		}

@@ -14,19 +14,17 @@
 
 package org.eclipse.jdt.apt.core.internal.declaration;
 
-import java.util.Collection;
-
-import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
-import org.eclipse.jdt.apt.core.internal.util.Factory;
-import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-
 import com.sun.mirror.declaration.ExecutableDeclaration;
 import com.sun.mirror.declaration.ParameterDeclaration;
 import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.declaration.TypeParameterDeclaration;
 import com.sun.mirror.type.ReferenceType;
 import com.sun.mirror.util.DeclarationVisitor;
+import java.util.Collection;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
+import org.eclipse.jdt.apt.core.internal.util.Factory;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public abstract class ExecutableDeclarationImpl
 	extends MemberDeclarationImpl implements ExecutableDeclaration

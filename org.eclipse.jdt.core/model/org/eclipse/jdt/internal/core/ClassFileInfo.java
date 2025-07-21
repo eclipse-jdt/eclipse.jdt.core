@@ -15,7 +15,6 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
 import java.util.Map;
-
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -30,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.env.IRecordComponent;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 
 /**
  * Element info for <code>ClassFile</code> handles.
@@ -56,8 +56,7 @@ private void generateAnnotationsInfos(JavaElement member, IBinaryAnnotation[] bi
  */
 private void generateAnnotationsInfos(JavaElement member, char[] parameterName, IBinaryAnnotation[] binaryAnnotations, long tagBits, Map<IJavaElement, IElementInfo> newElements) {
 	if (binaryAnnotations != null) {
-		for (int i = 0, length = binaryAnnotations.length; i < length; i++) {
-			IBinaryAnnotation annotationInfo = binaryAnnotations[i];
+		for (IBinaryAnnotation annotationInfo : binaryAnnotations) {
 			generateAnnotationInfo(member, parameterName, newElements, annotationInfo, null);
 		}
 	}
@@ -76,17 +75,16 @@ private void generateAnnotationInfo(JavaElement parent, char[] parameterName, Ma
 
 	newElements.put(annotation, annotationInfo);
 	IBinaryElementValuePair[] pairs = annotationInfo.getElementValuePairs();
-	for (int i = 0, length = pairs.length; i < length; i++) {
-		Object value = pairs[i].getValue();
+	for (IBinaryElementValuePair pair : pairs) {
+		Object value = pair.getValue();
 		if (value instanceof IBinaryAnnotation) {
-			generateAnnotationInfo(annotation, newElements, (IBinaryAnnotation) value, new String(pairs[i].getName()));
+			generateAnnotationInfo(annotation, newElements, (IBinaryAnnotation) value, new String(pair.getName()));
 		} else if (value instanceof Object[]) {
 			// if the value is an array, it can have no more than 1 dimension - no need to recurse
 			Object[] valueArray = (Object[]) value;
-			for (int j = 0, valueArrayLength = valueArray.length; j < valueArrayLength; j++) {
-				Object nestedValue = valueArray[j];
+			for (Object nestedValue : valueArray) {
 				if (nestedValue instanceof IBinaryAnnotation) {
-					generateAnnotationInfo(annotation, newElements, (IBinaryAnnotation) nestedValue, new String(pairs[i].getName()));
+					generateAnnotationInfo(annotation, newElements, (IBinaryAnnotation) nestedValue, new String(pair.getName()));
 				}
 			}
 		}
@@ -165,14 +163,12 @@ private void generateFieldInfos(IType type, IBinaryType typeInfo, Map<IJavaEleme
 	if (fields == null) {
 		return;
 	}
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	for (int i = 0, fieldCount = fields.length; i < fieldCount; i++) {
-		IBinaryField fieldInfo = fields[i];
+	for (IBinaryField fieldInfo : fields) {
 		// If the type is a record and this is an instance field, it can only be a record component
 		// Filter out
 		if (typeInfo.isRecord() && (fieldInfo.getModifiers() & ClassFileConstants.AccStatic) == 0)
 			continue;
-		BinaryField field = new BinaryField((JavaElement)type, manager.intern(new String(fieldInfo.getName())));
+		BinaryField field = new BinaryField((JavaElement)type, DeduplicationUtil.toString(fieldInfo.getName()));
 		newElements.put(field, fieldInfo);
 		childrenHandles.add(field);
 		generateAnnotationsInfos(field, fieldInfo.getAnnotations(), fieldInfo.getTagBits(), newElements);
@@ -188,10 +184,8 @@ private void generateRecordComponentInfos(IType type, IBinaryType typeInfo, Map<
 	if (components == null) {
 		return;
 	}
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	for (int i = 0, fieldCount = components.length; i < fieldCount; i++) {
-		IRecordComponent componentInfo = components[i];
-		BinaryField component = new BinaryField((JavaElement)type, manager.intern(new String(componentInfo.getName()))) {
+	for (IRecordComponent componentInfo : components) {
+		BinaryField component = new BinaryField((JavaElement)type, DeduplicationUtil.toString(componentInfo.getName())) {
 			@Override
 			public boolean isRecordComponent() throws JavaModelException {
 				return true;
@@ -214,10 +208,9 @@ private void generateInnerClassHandles(IType type, IBinaryType typeInfo, ArrayLi
 	IBinaryNestedType[] innerTypes = typeInfo.getMemberTypes();
 	if (innerTypes != null) {
 		IPackageFragment pkg = (IPackageFragment) type.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
-		for (int i = 0, typeCount = innerTypes.length; i < typeCount; i++) {
-			IBinaryNestedType binaryType = innerTypes[i];
+		for (IBinaryNestedType binaryType : innerTypes) {
 			IClassFile parentClassFile= pkg.getClassFile(new String(ClassFile.unqualifiedName(binaryType.getName())) + SUFFIX_STRING_class);
-			BinaryType innerType = new BinaryType((JavaElement) parentClassFile, ClassFile.simpleName(binaryType.getName()));
+			BinaryType innerType = new BinaryType((JavaElement) parentClassFile, DeduplicationUtil.intern(ClassFile.simpleName(binaryType.getName())));
 			childrenHandles.add(innerType);
 		}
 	}
@@ -231,8 +224,7 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, Map<IJavaElem
 	if (methods == null) {
 		return;
 	}
-	for (int i = 0, methodCount = methods.length; i < methodCount; i++) {
-		IBinaryMethod methodInfo = methods[i];
+	for (IBinaryMethod methodInfo : methods) {
 		final boolean isConstructor = methodInfo.isConstructor();
 		boolean isEnum = false;
 		try {
@@ -284,10 +276,9 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, Map<IJavaElem
 			paramNames[j]= pNames[j].toCharArray();
 		}
 		char[][] parameterTypes = ClassFile.translatedNames(paramNames);
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		selector =  manager.intern(selector);
+		selector =  DeduplicationUtil.intern(selector);
 		for (int j= 0; j < pNames.length; j++) {
-			pNames[j]= manager.intern(new String(parameterTypes[j]));
+			pNames[j]= DeduplicationUtil.toString(parameterTypes[j]);
 		}
 		int occurrenceCount = 0;
 		BinaryMethod method;
@@ -326,7 +317,7 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, Map<IJavaElem
 			if (parameterAnnotations != null) {
 				LocalVariable localVariable = new LocalVariable(
 						method,
-						new String(argumentNames[j]),
+						DeduplicationUtil.toString(argumentNames[j]),
 						0,
 						-1,
 						0,
@@ -353,8 +344,7 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, Map<IJavaElem
 private void generateTypeParameterInfos(BinaryMember parent, char[] signature, Map<IJavaElement, IElementInfo> newElements, ArrayList<ITypeParameter> typeParameterHandles) {
 	if (signature == null) return;
 	char[][] typeParameterSignatures = Signature.getTypeParameters(signature);
-	for (int i = 0, typeParameterCount = typeParameterSignatures.length; i < typeParameterCount; i++) {
-		char[] typeParameterSignature = typeParameterSignatures[i];
+	for (char[] typeParameterSignature : typeParameterSignatures) {
 		char[] typeParameterName = Signature.getTypeVariable(typeParameterSignature);
 		CharOperation.replace(typeParameterSignature, '/', '.');
 		char[][] typeParameterBoundSignatures = Signature.getTypeParameterBounds(typeParameterSignature);
@@ -412,8 +402,7 @@ protected void readBinaryChildren(ClassFile classFile, Map<IJavaElement, IElemen
 void removeBinaryChildren() throws JavaModelException {
 	if (this.binaryChildren != null) {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		for (int i = 0; i <this.binaryChildren.length; i++) {
-			JavaElement child = this.binaryChildren[i];
+		for (JavaElement child : this.binaryChildren) {
 			if (child instanceof BinaryType) {
 				manager.removeInfoAndChildren(child.getParent());
 			} else {
@@ -424,8 +413,8 @@ void removeBinaryChildren() throws JavaModelException {
 	}
 	if (this.typeParameters != null) {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		for (int i = 0; i <this.typeParameters.length; i++) {
-			TypeParameter typeParameter = (TypeParameter) this.typeParameters[i];
+		for (ITypeParameter p : this.typeParameters) {
+			TypeParameter typeParameter = (TypeParameter) p;
 			manager.removeInfoAndChildren(typeParameter);
 		}
 		this.typeParameters = TypeParameter.NO_TYPE_PARAMETERS;

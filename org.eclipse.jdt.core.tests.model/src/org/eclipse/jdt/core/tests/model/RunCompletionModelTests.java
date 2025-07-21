@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,14 +16,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.lang.reflect.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.eclipse.jdt.core.tests.junit.extension.TestCase;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class RunCompletionModelTests extends junit.framework.TestCase {
@@ -45,7 +44,7 @@ public class RunCompletionModelTests extends junit.framework.TestCase {
 			COMPLETION_SUITES.add(CompletionTests16_1.class);
 			COMPLETION_SUITES.add(CompletionTests16_2.class);
 			COMPLETION_SUITES.add(CompletionTests17.class);
-			COMPLETION_SUITES.add(EmbeddedExpressionCompletionTests.class);
+			COMPLETION_SUITES.add(CompletionTests23.class);
 			COMPLETION_SUITES.add(CompletionTestsForRecordPattern.class);
 			COMPLETION_SUITES.add(CompletionContextTests.class);
 			COMPLETION_SUITES.add(CompletionContextTests_1_5.class);

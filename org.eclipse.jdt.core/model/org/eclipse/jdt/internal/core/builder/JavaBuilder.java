@@ -16,18 +16,46 @@ package org.eclipse.jdt.internal.core.builder;
 
 import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
-
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.compiler.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import org.eclipse.core.resources.ICommand;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaModelMarker;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
-import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.ClasspathEntry;
+import org.eclipse.jdt.internal.core.ClasspathValidation;
+import org.eclipse.jdt.internal.core.CompilationGroup;
+import org.eclipse.jdt.internal.core.ExternalFoldersManager;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
-
-import java.io.*;
-import java.util.*;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class JavaBuilder extends IncrementalProjectBuilder {
@@ -69,14 +97,14 @@ public static IMarker[] getProblemsFor(IResource resource) {
 			Set markerTypes = JavaModelManager.getJavaModelManager().compilationParticipants.managedMarkerTypes();
 			if (markerTypes.isEmpty()) return markers;
 			ArrayList markerList = new ArrayList(5);
-			for (int i = 0, length = markers.length; i < length; i++) {
-				markerList.add(markers[i]);
+			for (IMarker marker : markers) {
+				markerList.add(marker);
 			}
 			Iterator iterator = markerTypes.iterator();
 			while (iterator.hasNext()) {
 				markers = resource.findMarkers((String) iterator.next(), false, IResource.DEPTH_INFINITE);
-				for (int i = 0, length = markers.length; i < length; i++) {
-					markerList.add(markers[i]);
+				for (IMarker marker : markers) {
+					markerList.add(marker);
 				}
 			}
 			IMarker[] result;
@@ -389,8 +417,8 @@ private void clearLastState() {
 boolean filterExtraResource(IResource resource) {
 	if (this.extraResourceFileFilters != null) {
 		char[] name = resource.getName().toCharArray();
-		for (int i = 0, l = this.extraResourceFileFilters.length; i < l; i++)
-			if (CharOperation.match(this.extraResourceFileFilters[i], name, true))
+		for (char[] extraResourceFileFilter : this.extraResourceFileFilters)
+			if (CharOperation.match(extraResourceFileFilter, name, true))
 				return true;
 	}
 	if (this.extraResourceFolderFilters != null) {
@@ -398,10 +426,10 @@ boolean filterExtraResource(IResource resource) {
 		String pathName = path.toString();
 		int count = path.segmentCount();
 		if (resource.getType() == IResource.FILE) count--;
-		for (int i = 0, l = this.extraResourceFolderFilters.length; i < l; i++)
-			if (pathName.indexOf(this.extraResourceFolderFilters[i]) != -1)
+		for (String extraResourceFolderFilter : this.extraResourceFolderFilters)
+			if (pathName.indexOf(extraResourceFolderFilter) != -1)
 				for (int j = 0; j < count; j++)
-					if (this.extraResourceFolderFilters[i].equals(path.segment(j)))
+					if (extraResourceFolderFilter.equals(path.segment(j)))
 						return true;
 	}
 	return false;
@@ -485,8 +513,7 @@ private IProject[] getRequiredProjects(boolean includeBinaryPrerequisites) {
 	ExternalFoldersManager externalFoldersManager = JavaModelManager.getExternalManager();
 	try {
 		IClasspathEntry[] entries = this.javaProject.getExpandedClasspath();
-		for (int i = 0, l = entries.length; i < l; i++) {
-			IClasspathEntry entry = entries[i];
+		for (IClasspathEntry entry : entries) {
 			IPath path = entry.getPath();
 			IProject p = null;
 			switch (entry.getEntryKind()) {
@@ -521,8 +548,8 @@ private IProject[] getRequiredProjects(boolean includeBinaryPrerequisites) {
 
 boolean hasBuildpathErrors() throws CoreException {
 	IMarker[] markers = this.currentProject.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
-	for (int i = 0, l = markers.length; i < l; i++)
-		if (markers[i].getAttribute(IJavaModelMarker.CATEGORY_ID, -1) == CategorizedProblem.CAT_BUILDPATH)
+	for (IMarker marker : markers)
+		if (marker.getAttribute(IJavaModelMarker.CATEGORY_ID, -1) == CategorizedProblem.CAT_BUILDPATH)
 			return true;
 	return false;
 }
@@ -613,8 +640,8 @@ private boolean hasClasspathChanged(CompilationGroup compilationGroup) {
 
 private boolean hasJavaBuilder(IProject project) throws CoreException {
 	ICommand[] buildCommands = project.getDescription().getBuildSpec();
-	for (int i = 0, l = buildCommands.length; i < l; i++)
-		if (buildCommands[i].getBuilderName().equals(JavaCore.BUILDER_ID))
+	for (ICommand buildCommand : buildCommands)
+		if (buildCommand.getBuilderName().equals(JavaCore.BUILDER_ID))
 			return true;
 	return false;
 }
@@ -625,8 +652,7 @@ private boolean hasStructuralDelta() {
 	if (delta != null && delta.getKind() != IResourceDelta.NO_CHANGE) {
 		ClasspathLocation[] classFoldersAndJars = (ClasspathLocation[]) this.binaryLocationsPerProject.get(this.currentProject);
 		if (classFoldersAndJars != null) {
-			for (int i = 0, l = classFoldersAndJars.length; i < l; i++) {
-				ClasspathLocation classFolderOrJar = classFoldersAndJars[i]; // either a .class file folder or a zip/jar file
+			for (ClasspathLocation classFolderOrJar : classFoldersAndJars) {
 				if (classFolderOrJar != null) {
 					IPath p = classFolderOrJar.getProjectRelativePath();
 					if (p != null) {
@@ -650,8 +676,8 @@ private int initializeBuilder(int kind, boolean forBuild) throws CoreException {
 		// cache the known participants for this project
 		this.participants = JavaModelManager.getJavaModelManager().compilationParticipants.getCompilationParticipants(this.javaProject);
 		if (this.participants != null)
-			for (int i = 0, l = this.participants.length; i < l; i++)
-				if (this.participants[i].aboutToBuild(this.javaProject) == CompilationParticipant.NEEDS_FULL_BUILD)
+			for (CompilationParticipant participant : this.participants)
+				if (participant.aboutToBuild(this.javaProject) == CompilationParticipant.NEEDS_FULL_BUILD)
 					kind = FULL_BUILD;
 
 		// Flush the existing external files cache if this is the beginning of a build cycle
@@ -676,15 +702,13 @@ private int initializeBuilder(int kind, boolean forBuild) throws CoreException {
 			this.extraResourceFolderFilters = null;
 		} else {
 			int fileCount = 0, folderCount = 0;
-			for (int i = 0, l = filters.length; i < l; i++) {
-				char[] f = filters[i];
+			for (char[] f : filters) {
 				if (f.length == 0) continue;
 				if (f[f.length - 1] == '/') folderCount++; else fileCount++;
 			}
 			this.extraResourceFileFilters = new char[fileCount][];
 			this.extraResourceFolderFilters = new String[folderCount];
-			for (int i = 0, l = filters.length; i < l; i++) {
-				char[] f = filters[i];
+			for (char[] f : filters) {
 				if (f.length == 0) continue;
 				if (f[f.length - 1] == '/')
 					this.extraResourceFolderFilters[--folderCount] = new String(f, 0, f.length - 1);
@@ -698,10 +722,10 @@ private int initializeBuilder(int kind, boolean forBuild) throws CoreException {
 
 private boolean isClasspathBroken(JavaProject jProj, boolean tryRepair) throws CoreException {
 	IMarker[] markers = jProj.getProject().findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
-	for (int i = 0, l = markers.length; i < l; i++) {
-		if (markers[i].getAttribute(IMarker.SEVERITY, -1) == IMarker.SEVERITY_ERROR) {
+	for (IMarker marker : markers) {
+		if (marker.getAttribute(IMarker.SEVERITY, -1) == IMarker.SEVERITY_ERROR) {
 			if (tryRepair) {
-				Object code = markers[i].getAttribute(IJavaModelMarker.ID);
+				Object code = marker.getAttribute(IJavaModelMarker.ID);
 				if (code instanceof Integer && ((Integer)code) == IJavaModelStatusConstants.CP_INVALID_EXTERNAL_ANNOTATION_PATH) {
 					new ClasspathValidation(jProj).validate();
 					return isClasspathBroken(jProj, false);
@@ -747,8 +771,7 @@ private boolean isWorthBuilding() throws CoreException {
 	// make sure all prereq projects have valid build states... only when aborting builds since projects in cycles do not have build states
 	// except for projects involved in a 'warning' cycle (see below)
 	IProject[] requiredProjects = getRequiredProjects(false);
-	for (int i = 0, l = requiredProjects.length; i < l; i++) {
-		IProject p = requiredProjects[i];
+	for (IProject p : requiredProjects) {
 		if (getLastState(p) == null)  {
 			// The prereq project has no build state: if this prereq project has a 'warning' cycle marker then allow build (see bug id 23357)
 			JavaProject prereq = (JavaProject) JavaCore.create(p);
@@ -818,19 +841,19 @@ void mustPropagateStructuralChanges() {
 
 private void printLocations(ClasspathLocation[] newLocations, ClasspathLocation[] oldLocations) {
 	trace("JavaBuilder: New locations:"); //$NON-NLS-1$
-	for (int i = 0, length = newLocations.length; i < length; i++) {
-		trace("    " + newLocations[i].debugPathString()); //$NON-NLS-1$
+	for (ClasspathLocation newLocation : newLocations) {
+		trace("    " + newLocation.debugPathString()); //$NON-NLS-1$
 	}
 	trace("JavaBuilder: Old locations:"); //$NON-NLS-1$
-	for (int i = 0, length = oldLocations.length; i < length; i++) {
-		trace("    " + oldLocations[i].debugPathString()); //$NON-NLS-1$
+	for (ClasspathLocation oldLocation : oldLocations) {
+		trace("    " + oldLocation.debugPathString()); //$NON-NLS-1$
 	}
 }
 
 private void recordNewState(State state) {
 	Object[] keyTable = this.binaryLocationsPerProject.keyTable;
-	for (int i = 0, l = keyTable.length; i < l; i++) {
-		IProject prereqProject = (IProject) keyTable[i];
+	for (Object proj : keyTable) {
+		IProject prereqProject = (IProject) proj;
 		if (prereqProject != null && prereqProject != this.currentProject)
 			state.recordStructuralDependency(prereqProject, getLastState(prereqProject));
 	}

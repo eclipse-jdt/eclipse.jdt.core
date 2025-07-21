@@ -16,9 +16,11 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import java.io.IOException;
 import java.util.stream.Stream;
-
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.IParallelizable;
+import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
@@ -54,8 +56,8 @@ public class OrPattern extends SearchPattern implements IIndexConstants, IParall
 
 		// Store erasure match
 		this.matchCompatibility = 0;
-		for (int i = 0, length = this.patterns.length; i < length; i++) {
-			this.matchCompatibility |= ((JavaSearchPattern) this.patterns[i]).matchCompatibility;
+		for (SearchPattern pattern : this.patterns) {
+			this.matchCompatibility |= ((JavaSearchPattern) pattern).matchCompatibility;
 		}
 	}
 	@Override
@@ -63,8 +65,8 @@ public class OrPattern extends SearchPattern implements IIndexConstants, IParall
 		// per construction, OR pattern can only be used with a PathCollector (which already gather results using a set)
 		try {
 			index.startQuery();
-			for (int i = 0, length = this.patterns.length; i < length; i++)
-				this.patterns[i].findIndexMatches(index, requestor, participant, scope, progressMonitor);
+			for (SearchPattern pattern : this.patterns)
+				pattern.findIndexMatches(index, requestor, participant, scope, progressMonitor);
 		} finally {
 			index.stopQuery();
 		}
@@ -75,8 +77,8 @@ public class OrPattern extends SearchPattern implements IIndexConstants, IParall
 		// per construction, OR pattern can only be used with a PathCollector (which already gather results using a set)
 		try {
 			index.startQuery();
-			for (int i = 0, length = this.patterns.length; i < length; i++)
-				this.patterns[i].findIndexMatches(index, requestor, participant, scope, resolveDocumentName, progressMonitor);
+			for (SearchPattern pattern : this.patterns)
+				pattern.findIndexMatches(index, requestor, participant, scope, resolveDocumentName, progressMonitor);
 		} finally {
 			index.stopQuery();
 		}
@@ -93,8 +95,8 @@ public class OrPattern extends SearchPattern implements IIndexConstants, IParall
 
 	@Override
 	public boolean isPolymorphicSearch() {
-		for (int i = 0, length = this.patterns.length; i < length; i++)
-			if (this.patterns[i].isPolymorphicSearch()) return true;
+		for (SearchPattern pattern : this.patterns)
+			if (pattern.isPolymorphicSearch()) return true;
 		return false;
 	}
 
@@ -105,8 +107,8 @@ public class OrPattern extends SearchPattern implements IIndexConstants, IParall
 	 * 	pattern ({@link PackageDeclarationPattern}), <code>false</code> otherwise.
 	 */
 	public final boolean hasPackageDeclaration() {
-		for (int i = 0, length = this.patterns.length; i < length; i++) {
-			if (this.patterns[i] instanceof PackageDeclarationPattern) return true;
+		for (SearchPattern pattern : this.patterns) {
+			if (pattern instanceof PackageDeclarationPattern) return true;
 		}
 		return false;
 	}

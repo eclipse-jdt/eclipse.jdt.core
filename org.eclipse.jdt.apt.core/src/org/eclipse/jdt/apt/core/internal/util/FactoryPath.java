@@ -23,7 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Status;
@@ -35,7 +34,7 @@ import org.eclipse.jdt.apt.core.util.IFactoryPath;
  * Provides access to the annotation processor factory path for a Java project.
  * This class should not be instantiated or subclassed.
  *
- * The factory path is an ordered Map<FactoryContainer, FactoryPath.Attributes>.
+ * The factory path is an ordered {@code Map<FactoryContainer, FactoryPath.Attributes>}.
  * Containers are things like jar files or plugins, that contain one or more
  * annotation processor factories.  In the context of a particular project,
  * processors are given precedence according to the order of their container on

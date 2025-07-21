@@ -55,7 +55,7 @@ public interface TypeIds {
 	final int T_JavaLangError = 19;
 	final int T_JavaLangReflectConstructor = 20;
 	final int T_JavaLangThrowable = 21;
-	final int T_JavaLangNoClassDefError = 22;
+	final int T_JavaLangNoClassDefFoundError = 22;
 	final int T_JavaLangClassNotFoundException = 23;
 	final int T_JavaLangRuntimeException = 24;
 	final int T_JavaLangException = 25;
@@ -296,5 +296,28 @@ public interface TypeIds {
 
 	public static int getCategory(int typeId) {
 		return typeId == TypeIds.T_double || typeId == TypeIds.T_long ? 2 : 1;
+	}
+
+	public static int box2primitive(int id) {
+		switch (id) {
+			case T_JavaLangBoolean:
+				return T_boolean;
+			case T_JavaLangByte:
+				return T_byte;
+			case T_JavaLangCharacter:
+				return T_char;
+			case T_JavaLangShort:
+				return T_short;
+			case T_JavaLangInteger:
+				return T_int;
+			case T_JavaLangLong:
+				return T_long;
+			case T_JavaLangFloat:
+				return T_float;
+			case T_JavaLangDouble:
+				return T_double;
+			default:
+				return -1;
+		}
 	}
 }

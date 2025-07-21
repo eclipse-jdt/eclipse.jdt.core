@@ -23,7 +23,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
-
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -52,15 +51,14 @@ import org.eclipse.jdt.internal.core.util.Util;
 
 public class PatternSearchJob implements IJob {
 
-protected SearchPattern pattern;
-protected IJavaSearchScope scope;
-protected SearchParticipant participant;
-protected IndexQueryRequestor requestor;
-protected boolean resolveDocumentForJar;
-protected boolean resolveDocumentForSourceFiles;
-protected boolean areIndexesReady;
-protected AtomicLong executionTime;
-boolean parallel;
+protected final SearchPattern pattern;
+protected final IJavaSearchScope scope;
+protected final SearchParticipant participant;
+protected final IndexQueryRequestor requestor;
+protected final boolean resolveDocumentForJar;
+protected final boolean resolveDocumentForSourceFiles;
+protected volatile boolean areIndexesReady;
+protected final AtomicLong executionTime;
 
 public static final String ENABLE_PARALLEL_SEARCH = "enableParallelJavaIndexSearch";//$NON-NLS-1$
 public static final boolean ENABLE_PARALLEL_SEARCH_DEFAULT = true;
@@ -112,17 +110,17 @@ public boolean execute(IProgressMonitor progressMonitor) {
 	try {
 		int max = indexes.length;
 		SubMonitor loopMonitor = subMonitor.split(2).setWorkRemaining(max);
-		this.parallel = canRunInParallel();
-		if(this.parallel) {
+		boolean parallel = canRunInParallel();
+		if(parallel) {
 			isComplete = performParallelSearch(indexes, loopMonitor);
 		} else {
 			for (int i = 0; i < max; i++) {
-				isComplete &= search(indexes[i], this.requestor, loopMonitor.split(1));
+				isComplete &= search(indexes[i], this.requestor, loopMonitor.split(1), parallel);
 			}
 		}
 
 		if (JobManager.VERBOSE) {
-			if (this.parallel) {
+			if (parallel) {
 				long wallClockTime = System.currentTimeMillis() - startTime;
 				trace("-> execution time: " + wallClockTime + "ms - " + this);//$NON-NLS-1$//$NON-NLS-2$
 				trace("-> cumulative execution time (" + ForkJoinPool.getCommonPoolParallelism() + "): " //$NON-NLS-1$//$NON-NLS-2$
@@ -147,7 +145,7 @@ private boolean performParallelSearch(Index[] indexes, SubMonitor loopMonitor) {
 			((IParallelizable) this.scope).initBeforeSearch(monitor);
 		}
 		for (Index index : indexes) {
-			futures.add(commonPool.submit(() -> search(index, monitor)));
+			futures.add(commonPool.submit(() -> search(index, monitor, true)));
 		}
 
 		for (Future<IndexResult> future : futures) {
@@ -209,15 +207,14 @@ public String getJobFamily() {
 	return ""; //$NON-NLS-1$
 }
 
-private IndexResult search(Index index, IProgressMonitor progressMonitor) {
+private IndexResult search(Index index, IProgressMonitor progressMonitor, boolean parallel) {
 	List<IndexMatch> matches = new ArrayList<>();
-	boolean complete = search(index,
-			collectTo(matches, progressMonitor), progressMonitor);
+	boolean complete = search(index, collectTo(matches, progressMonitor), progressMonitor, parallel);
 	return new IndexResult(complete, matches);
 }
 
 
-public boolean search(Index index, IndexQueryRequestor queryRequestor, IProgressMonitor progressMonitor) {
+public boolean search(Index index, IndexQueryRequestor queryRequestor, IProgressMonitor progressMonitor, boolean parallel) {
 	if (index == null) return COMPLETE;
 	if (progressMonitor != null && progressMonitor.isCanceled()) throw new OperationCanceledException();
 	ReadWriteMonitor monitor = index.monitor;
@@ -227,7 +224,7 @@ public boolean search(Index index, IndexQueryRequestor queryRequestor, IProgress
 		long start = System.currentTimeMillis();
 		SearchPattern searchPattern = this.pattern;
 		IJavaSearchScope searchScope = this.scope;
-		if(this.parallel) {
+		if(parallel) {
 			searchPattern = clone(searchPattern);
 			searchScope = clone(searchScope);
 		}

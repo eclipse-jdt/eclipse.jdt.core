@@ -16,7 +16,6 @@ package org.eclipse.jdt.core.dom;
 
 import java.util.Iterator;
 import java.util.List;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -25,7 +24,6 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
@@ -72,12 +70,12 @@ class PackageBinding implements IPackageBinding {
 			if (pkgs == null)
 				return AnnotationBinding.NoAnnotations;
 
-			for (int i = 0, len = pkgs.length; i < len; i++) {
-				int fragType = pkgs[i].getKind();
+			for (IPackageFragment pkg : pkgs) {
+				int fragType = pkg.getKind();
 				switch(fragType) {
 					case IPackageFragmentRoot.K_SOURCE:
 						String unitName = "package-info.java"; //$NON-NLS-1$
-						ICompilationUnit unit = pkgs[i].getCompilationUnit(unitName);
+						ICompilationUnit unit = pkg.getCompilationUnit(unitName);
 						if (unit != null && unit.exists()) {
 							ASTParser p = ASTParser.newParser(AST.JLS3_INTERNAL);
 							p.setSource(unit);

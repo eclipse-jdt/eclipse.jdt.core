@@ -14,7 +14,6 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import java.util.HashSet;
-
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
@@ -51,8 +50,8 @@ public PossibleMatch[] getPossibleMatches(IPackageFragmentRoot[] roots) {
 	PossibleMatch[] result = new PossibleMatch[this.elementCount];
 	int index = 0;
 	HashSet<IPath> processedHash = new HashSet<>();
-	for (int i = 0, length = roots.length; i < length; i++) {
-		IPath path = roots[i].getPath();
+	for (IPackageFragmentRoot root : roots) {
+		IPath path = root.getPath();
 		ObjectVector possibleMatches = (ObjectVector) this.rootsToPossibleMatches.get(path);
 		if (possibleMatches != null && !processedHash.contains(path)) {
 			possibleMatches.copyInto(result, index);

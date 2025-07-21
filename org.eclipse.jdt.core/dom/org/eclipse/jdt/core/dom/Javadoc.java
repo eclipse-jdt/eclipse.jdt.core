@@ -16,7 +16,6 @@ package org.eclipse.jdt.core.dom;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
@@ -49,6 +48,13 @@ public class Javadoc extends Comment {
 	public static final ChildListPropertyDescriptor TAGS_PROPERTY =
 		new ChildListPropertyDescriptor(Javadoc.class, "tags", TagElement.class, CYCLE_RISK); //$NON-NLS-1$
 
+	/**
+	 * The "markdown" structural property of this node type (type: {@link Boolean}) (added in JLS23 API).
+	 * @since 3.40
+	 * @noreference This field belongs to a preview feature and is not intended to be referenced by clients
+	 */
+	public static final SimplePropertyDescriptor MARKDOWN_PROPERTY =
+		new SimplePropertyDescriptor(Javadoc.class, "static", boolean.class, MANDATORY); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:
@@ -66,6 +72,14 @@ public class Javadoc extends Comment {
 	 */
 	private static final List PROPERTY_DESCRIPTORS_3_0;
 
+	/**
+	 * A list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.39
+	 */
+	private static final List PROPERTY_DESCRIPTORS_23;
+
 	static {
 		List properyList = new ArrayList(3);
 		createPropertyList(Javadoc.class, properyList);
@@ -77,6 +91,12 @@ public class Javadoc extends Comment {
 		createPropertyList(Javadoc.class, properyList);
 		addProperty(TAGS_PROPERTY, properyList);
 		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList(properyList);
+
+		properyList = new ArrayList(3);
+		createPropertyList(Javadoc.class, properyList);
+		addProperty(TAGS_PROPERTY, properyList);
+		addProperty(MARKDOWN_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS_23 = reapPropertyList(properyList);
 	}
 
 	/**
@@ -92,8 +112,10 @@ public class Javadoc extends Comment {
 	public static List propertyDescriptors(int apiLevel) {
 		if (apiLevel == AST.JLS2_INTERNAL) {
 			return PROPERTY_DESCRIPTORS_2_0;
-		} else {
+		} else if (apiLevel < AST.JLS23_INTERNAL) {
 			return PROPERTY_DESCRIPTORS_3_0;
+		} else {
+			return PROPERTY_DESCRIPTORS_23;
 		}
 	}
 
@@ -119,6 +141,8 @@ public class Javadoc extends Comment {
 	 */
 	private final ASTNode.NodeList tags =
 		new ASTNode.NodeList(TAGS_PROPERTY);
+
+	private boolean isMarkdown;
 
 	/**
 	 * Creates a new AST node for a doc comment owned by the given AST.
@@ -153,6 +177,20 @@ public class Javadoc extends Comment {
 		}
 		// allow default implementation to flag the error
 		return super.internalGetSetObjectProperty(property, get, value);
+	}
+
+	@Override
+	boolean internalGetSetBooleanProperty(SimplePropertyDescriptor property, boolean get, boolean value) {
+		if (property == MARKDOWN_PROPERTY) {
+			if (get) {
+				return isMarkdown();
+			} else {
+				setMarkdown(value);
+				return false;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetBooleanProperty(property, get, value);
 	}
 
 	@Override
@@ -289,9 +327,41 @@ public class Javadoc extends Comment {
 		return this.tags;
 	}
 
+	/**
+	 * Returns whether this javadoc is a markdown comment (added in JLS23 API).
+	 *
+	 * @return <code>true</code> if this is a markdown comment,
+	 *    and <code>false</code> if this is a traditional javadoc comment.
+	 * @since 3.39
+	 * @noreference preview feature
+	 */
+	public boolean isMarkdown() {
+		if (this.ast.apiLevel < AST.JLS23_INTERNAL) {
+			throw new UnsupportedOperationException("Operation not supported in AST below JLS23"); //$NON-NLS-1$
+		}
+		return this.isMarkdown;
+	}
+
+	/**
+	 * Sets whether this javadoc is a markdown comment (added in JLS23 API).
+	 *
+	 * @param isMarkdown <code>true</code> if this is a markdown comment,
+	 *    and <code>false</code> if this is a traditional javadoc comment.
+	 * @since 3.39
+	 * @noreference preview feature
+	 */
+	public void setMarkdown(boolean isMarkdown) {
+		if (this.ast.apiLevel < AST.JLS23_INTERNAL) {
+			throw new UnsupportedOperationException("Operation not supported in AST below JLS23"); //$NON-NLS-1$
+		}
+		preValueChange(MARKDOWN_PROPERTY);
+		this.isMarkdown = isMarkdown;
+		postValueChange(MARKDOWN_PROPERTY);
+	}
+
 	@Override
 	int memSize() {
-		int size = super.memSize() + 2 * 4;
+		int size = super.memSize() + 3 * 4;
 		if (this.comment != MINIMAL_DOC_COMMENT) {
 			// anything other than the default string takes space
 			size += stringSize(this.comment);

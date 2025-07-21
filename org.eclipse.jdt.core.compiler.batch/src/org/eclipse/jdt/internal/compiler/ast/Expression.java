@@ -36,7 +36,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -46,24 +45,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
-import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
-import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
-import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
-import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
-import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
-import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.ShouldNotImplement;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 
@@ -81,7 +63,6 @@ public abstract class Expression extends Statement {
 	public TypeBinding resolvedType;
 
 	public static Expression [] NO_EXPRESSIONS = new Expression[0];
-
 
 public static final boolean isConstantValueRepresentable(Constant constant, int constantTypeID, int targetTypeID) {
 	//true if there is no loss of precision while casting.
@@ -263,6 +244,10 @@ protected void updateFlowOnBooleanResult(FlowInfo flowInfo, boolean result) {
 	// nop
 }
 
+public boolean hasSideEffects() {
+	return (this.constant == Constant.NotAConstant || (this.implicitConversion & TypeIds.BOXING) != 0) && !(this instanceof NullLiteral);
+}
+
 /**
  * Returns false if cast is not legal.
  */
@@ -323,8 +308,8 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 
 	if (castType.isIntersectionType18()) {
 		ReferenceBinding [] intersectingTypes = castType.getIntersectingTypes();
-		for (int i = 0, length = intersectingTypes.length; i < length; i++) {
-			if (!checkCastTypesCompatibility(scope, intersectingTypes[i], expressionType, expression, useAutoBoxing))
+		for (ReferenceBinding intersectingType : intersectingTypes) {
+			if (!checkCastTypesCompatibility(scope, intersectingType, expressionType, expression, useAutoBoxing))
 				return false;
 		}
 		return true;
@@ -418,8 +403,8 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 			return checkCastTypesCompatibility(scope, castType, bound, expression, useAutoBoxing);
 		case Binding.INTERSECTION_TYPE18:
 			ReferenceBinding [] intersectingTypes = expressionType.getIntersectingTypes();
-			for (int i = 0, length = intersectingTypes.length; i < length; i++) {
-				if (checkCastTypesCompatibility(scope, castType, intersectingTypes[i], expression, useAutoBoxing))
+			for (ReferenceBinding intersectingType : intersectingTypes) {
+				if (checkCastTypesCompatibility(scope, castType, intersectingType, expression, useAutoBoxing))
 					return true;
 			}
 			return false;
@@ -463,6 +448,8 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 							if (match != null) {
 								return checkUnsafeCast(scope, castType, interfaceType, match, true);
 							}
+							if (((ReferenceBinding) castType).isDisjointFrom(interfaceType))
+								return false;
 							if (use15specifics) {
 								checkUnsafeCast(scope, castType, expressionType, null /*no match*/, true);
 								// ensure there is no collision between both interfaces: i.e. I1 extends List<String>, I2 extends List<Object>
@@ -481,11 +468,11 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 								MethodBinding[] castTypeMethods = getAllOriginalInheritedMethods((ReferenceBinding) castType);
 								MethodBinding[] expressionTypeMethods = getAllOriginalInheritedMethods((ReferenceBinding) expressionType);
 								int exprMethodsLength = expressionTypeMethods.length;
-								for (int i = 0, castMethodsLength = castTypeMethods.length; i < castMethodsLength; i++) {
+								for (MethodBinding castTypeMethod : castTypeMethods) {
 									for (int j = 0; j < exprMethodsLength; j++) {
-										if ((TypeBinding.notEquals(castTypeMethods[i].returnType, expressionTypeMethods[j].returnType))
-												&& (CharOperation.equals(castTypeMethods[i].selector, expressionTypeMethods[j].selector))
-												&& castTypeMethods[i].areParametersEqual(expressionTypeMethods[j])) {
+										if ((TypeBinding.notEquals(castTypeMethod.returnType, expressionTypeMethods[j].returnType))
+												&& (CharOperation.equals(castTypeMethod.selector, expressionTypeMethods[j].selector))
+												&& castTypeMethod.areParametersEqual(expressionTypeMethods[j])) {
 											return false;
 
 										}
@@ -507,6 +494,9 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 							}
 							if (((ReferenceBinding) castType).isFinal()) {
 								// no subclass for castType, thus compile-time check is invalid
+								return false;
+							}
+							if (((ReferenceBinding) castType).isDisjointFrom((ReferenceBinding) expressionType)) {
 								return false;
 							}
 							if (use15specifics) {
@@ -563,6 +553,9 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 							match = castType.findSuperTypeOriginatingFrom(expressionType);
 							if (match != null) {
 								return checkUnsafeCast(scope, castType, expressionType, match, true);
+							}
+							if (refExprType.isDisjointFrom((ReferenceBinding) castType)) {
+								return false;
 							}
 							if (use15specifics) {
 								checkUnsafeCast(scope, castType, expressionType, null /*no match*/, true);
@@ -678,6 +671,9 @@ public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding ex
 /**
  * Base types need that the widening is explicitly done by the compiler using some bytecode like i2f.
  * Also check unsafe type operations.
+ * @param scope a scope
+ * @param runtimeType this is the type <strong>required</strong> at runtime
+ * @param compileTimeType this is what the compiler knows about the provided value
  */
 public void computeConversion(Scope scope, TypeBinding runtimeType, TypeBinding compileTimeType) {
 	if (runtimeType == null || compileTimeType == null)
@@ -781,12 +777,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		// actual non-constant code generation
 		throw new ShouldNotImplement(Messages.ast_missingCode);
 	}
-}
-public void addPatternVariables(BlockScope scope, CodeStream codeStream) {
-	// Nothing by default
-}
-public LocalDeclaration getPatternVariable() {
-	return null;
 }
 
 /**
@@ -907,8 +897,6 @@ private void addArgumentToRecipe(BlockScope blockScope, CodeStream codeStream, S
 		recipe.delete(0, recipe.length());
 		recipe.append(TypeConstants.STRING_CONCAT_MARKER_1);
 		args.add(blockScope.getJavaLangString());
-		// We popped 190 and adding 1 for the invokeDynamic
-		codeStream.stackDepth -= 189;
 	}
 }
 public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStream, int typeID, StringBuilder recipe, List<TypeBinding> argTypes) {
@@ -958,12 +946,12 @@ private MethodBinding[] getAllOriginalInheritedMethods(ReferenceBinding binding)
 private void getAllInheritedMethods0(ReferenceBinding binding, ArrayList<MethodBinding> collector) {
 	if (!binding.isInterface()) return;
 	MethodBinding[] methodBindings = binding.methods();
-	for (int i = 0, max = methodBindings.length; i < max; i++) {
-		collector.add(methodBindings[i]);
+	for (MethodBinding methodBinding : methodBindings) {
+		collector.add(methodBinding);
 	}
 	ReferenceBinding[] superInterfaces = binding.superInterfaces();
-	for (int i = 0, max = superInterfaces.length; i < max; i++) {
-		getAllInheritedMethods0(superInterfaces[i], collector);
+	for (ReferenceBinding superInterface : superInterfaces) {
+		getAllInheritedMethods0(superInterface, collector);
 	}
 }
 
@@ -1116,6 +1104,10 @@ public StringBuilder print(int indent, StringBuilder output) {
 
 public abstract StringBuilder printExpression(int indent, StringBuilder output);
 
+public StringBuilder printExpression(int tab, StringBuilder output, boolean makeShort) {
+	return printExpression(tab, output);
+}
+
 @Override
 public StringBuilder printStatement(int indent, StringBuilder output) {
 	return print(indent, output).append(";"); //$NON-NLS-1$
@@ -1126,10 +1118,6 @@ public void resolve(BlockScope scope) {
 	// drops the returning expression's type whatever the type is.
 	this.resolveType(scope);
 	return;
-}
-@Override
-public TypeBinding resolveExpressionType(BlockScope scope) {
-	return resolveType(scope);
 }
 
 public TypeBinding resolveTypeWithBindings(LocalVariableBinding[] bindings, BlockScope scope) {
@@ -1255,25 +1243,13 @@ public boolean forcedToBeRaw(ReferenceContext referenceContext) {
 			return true;
 		}
 	} else if (this instanceof SwitchExpression) {
-		SwitchExpression se = (SwitchExpression) this;
-		for (Expression e : se.resultExpressions) {
+        SwitchExpression se = (SwitchExpression) this;
+        for (Expression e : se.resultExpressions()) {
 			if (e.forcedToBeRaw(referenceContext))
 				return true;
 		}
 	}
 	return false;
-}
-
-/**
- * Returns an object which can be used to identify identical JSR sequence targets
- * (see TryStatement subroutine codegen)
- * or <code>null</code> if not reusable
- */
-public Object reusableJSRTarget() {
-	if (this.constant != Constant.NotAConstant && (this.implicitConversion & TypeIds.BOXING) == 0) {
-		return this.constant;
-	}
-	return null;
 }
 
 /**
@@ -1362,7 +1338,8 @@ public void traverse(ASTVisitor visitor, ClassScope scope) {
 public boolean statementExpression() {
 	return false;
 }
-// for switch statement
+
+@Override
 public boolean isTrulyExpression() {
 	return true;
 }

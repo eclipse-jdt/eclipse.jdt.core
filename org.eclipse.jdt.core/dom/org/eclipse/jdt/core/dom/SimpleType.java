@@ -16,7 +16,6 @@ package org.eclipse.jdt.core.dom;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 /**
@@ -109,7 +108,7 @@ public class SimpleType extends AnnotatableType {
 	 * The type name node; lazily initialized; defaults to a type with
 	 * an unspecified, but legal, name.
 	 */
-	private Name typeName = null;
+	private volatile Name typeName;
 
 	/**
 	 * Creates a new unparented node for a simple type owned by the given AST.
@@ -208,8 +207,7 @@ public class SimpleType extends AnnotatableType {
 			synchronized (this) {
 				if (this.typeName == null) {
 					preLazyInit();
-					this.typeName = new SimpleName(this.ast);
-					postLazyInit(this.typeName, NAME_PROPERTY);
+					this.typeName = postLazyInit(new SimpleName(this.ast), NAME_PROPERTY);
 				}
 			}
 		}

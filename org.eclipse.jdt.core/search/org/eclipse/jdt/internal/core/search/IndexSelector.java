@@ -21,20 +21,10 @@ import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
-
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaModel;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMethod;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeHierarchy;
-import org.eclipse.jdt.core.ITypeRoot;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchPattern;
@@ -95,8 +85,8 @@ public static int canSeeFocus(SearchPattern pattern, IPath projectOrJarPath) {
 		// it can see the focus only if it is on the classpath of a project that can see the focus
 		int result = PROJECT_CAN_NOT_SEE_FOCUS;
 		IJavaProject[] allProjects = model.getJavaProjects();
-		for (int i = 0, length = allProjects.length; i < length; i++) {
-			JavaProject otherProject = (JavaProject) allProjects[i];
+		for (IJavaProject p : allProjects) {
+			JavaProject otherProject = (JavaProject) p;
 			IClasspathEntry entry = otherProject.getClasspathEntryFor(projectOrJarPath);
 			if (entry != null && entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 				int canSeeFocus = canSeeFocus(focuses, otherProject, null);
@@ -132,8 +122,7 @@ private static int canSeeFocus(IJavaElement focus, JavaProject javaProject, char
 			// focus is part of a jar
 			IPath focusPath = focus.getPath();
 			IClasspathEntry[] entries = javaProject.getExpandedClasspath();
-			for (int i = 0, length = entries.length; i < length; i++) {
-				IClasspathEntry entry = entries[i];
+			for (IClasspathEntry entry : entries) {
 				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY && entry.getPath().equals(focusPath))
 					return PROJECT_CAN_SEE_FOCUS;
 			}
@@ -142,8 +131,7 @@ private static int canSeeFocus(IJavaElement focus, JavaProject javaProject, char
 		// look for dependent projects
 		IPath focusPath = ((JavaProject) focus).getProject().getFullPath();
 		IClasspathEntry[] entries = javaProject.getExpandedClasspath();
-		for (int i = 0, length = entries.length; i < length; i++) {
-			IClasspathEntry entry = entries[i];
+		for (IClasspathEntry entry : entries) {
 			if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT && entry.getPath().equals(focusPath)) {
 				if (focusQualifiedNames != null) { // builder state is usable, hence use it to try to reduce project which can see the focus...
 					State projectState = (State) JavaModelManager.getJavaModelManager().getLastBuiltState(javaProject.getProject(), null);
@@ -221,8 +209,8 @@ private void initializeIndexLocations() {
 	LinkedHashSet<IndexLocation> locations = new LinkedHashSet<>();
 	IJavaElement focus = this.pattern instanceof ModulePattern ? null : MatchLocator.projectOrJarFocus(this.pattern);
 	if (focus == null) {
-		for (int i = 0; i < projectsAndJars.length; i++) {
-			IPath path = projectsAndJars[i];
+		for (IPath projectsAndJar : projectsAndJars) {
+			IPath path = projectsAndJar;
 			Object target = JavaModel.getTarget(path, false/*don't check existence*/);
 			if (target instanceof IFolder) // case of an external folder
 				path = ((IFolder) target).getFullPath();

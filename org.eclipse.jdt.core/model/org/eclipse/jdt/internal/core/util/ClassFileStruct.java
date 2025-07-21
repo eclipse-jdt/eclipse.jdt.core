@@ -58,10 +58,20 @@ public abstract class ClassFileStruct {
 		int position = relativeOffset + structOffset;
 		return ((reference[position++] & 0xFF) << 8) + (reference[position] & 0xFF);
 	}
-	protected long u4At(byte[] reference, int relativeOffset, int structOffset) {
+
+	/**
+	 * Returns an 32 bit integer created of 4 bytes. The return value should be treated as an <strong>unsigned</strong> integer! i.e. if the caller does math with
+	 * the result he should use the unsigned methods from Integer like {@link java.lang.Integer#toUnsignedLong(int)} or
+	 * {@link java.lang.Integer#compareUnsigned(int, int)}. Note that addition with the + operator is safe to use.
+	 * @param reference byte array
+	 * @param relativeOffset unsigned integer
+	 * @param structOffset unsigned integer
+	 * @return unsigned integer
+	 */
+	protected int u4At(byte[] reference, int relativeOffset, int structOffset) {
 		int position = relativeOffset + structOffset;
 		return (
-			((reference[position++] & 0xFFL) << 24)
+			((reference[position++] & 0xFF) << 24)
 				+ ((reference[position++] & 0xFF) << 16)
 				+ ((reference[position++] & 0xFF) << 8)
 				+ (reference[position] & 0xFF));

@@ -23,17 +23,20 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import java.util.List;
-
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.ASSIGNMENT_CONTEXT;
 
+import java.util.List;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationCollector;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.codegen.AnnotationContext;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
@@ -109,11 +112,15 @@ public FlowInfo analyseCode(MethodScope initializationScope, FlowContext flowCon
 	}
 	if (options.isAnnotationBasedResourceAnalysisEnabled
 			&& this.binding != null
-			&& this.binding.type.hasTypeBit(TypeIds.BitAutoCloseable|TypeIds.BitCloseable))
+			&& FakedTrackingVariable.isCloseableNotWhiteListed(this.binding.type))
 	{
-		if ((this.binding.tagBits & TagBits.AnnotationOwning) == 0) {
+		long owningTagBits = this.binding.tagBits & TagBits.AnnotationOwningMASK;
+		if (this.binding.isStatic()) {
+			initializationScope.problemReporter().staticResourceField(this);
+		} else if (owningTagBits == 0) {
 			initializationScope.problemReporter().shouldMarkFieldAsOwning(this);
-		} else if (!this.binding.declaringClass.hasTypeBit(TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) {
+		} else if (owningTagBits == TagBits.AnnotationOwning
+				&& !this.binding.declaringClass.hasTypeBit(TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) {
 			initializationScope.problemReporter().shouldImplementAutoCloseable(this);
 		}
 	}
@@ -167,8 +174,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 }
 public void getAllAnnotationContexts(int targetType, List<AnnotationContext> allAnnotationContexts) {
 	AnnotationCollector collector = new AnnotationCollector(this.type, targetType, allAnnotationContexts);
-	for (int i = 0, max = this.annotations.length; i < max; i++) {
-		Annotation annotation = this.annotations[i];
+	for (Annotation annotation : this.annotations) {
 		annotation.traverse(collector, (BlockScope) null);
 	}
 }
@@ -273,8 +279,8 @@ public void resolve(MethodScope initializationScope) {
 		resolveAnnotations(initializationScope, this.annotations, this.binding);
 		// Check if this declaration should now have the type annotations bit set
 		if (this.annotations != null) {
-			for (int i = 0, max = this.annotations.length; i < max; i++) {
-				TypeBinding resolvedAnnotationType = this.annotations[i].resolvedType;
+			for (Annotation annotation : this.annotations) {
+				TypeBinding resolvedAnnotationType = annotation.resolvedType;
 				if (resolvedAnnotationType != null && (resolvedAnnotationType.getAnnotationTagBits() & TagBits.AnnotationForTypeUse) != 0) {
 					this.bits |= ASTNode.HasTypeAnnotations;
 					break;

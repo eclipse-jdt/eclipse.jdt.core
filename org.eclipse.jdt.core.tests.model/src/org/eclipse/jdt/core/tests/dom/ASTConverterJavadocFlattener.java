@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,7 +15,6 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.util.Iterator;
 import java.util.List;
-
 import org.eclipse.jdt.core.dom.*;
 
 @SuppressWarnings("rawtypes")
@@ -28,6 +27,7 @@ public class ASTConverterJavadocFlattener extends ASTVisitor {
 	private final StringBuilder buffer;
 	private final int indent = 0;
 	private final String comment;
+	private boolean markdown = false;
 
 /**
  * Creates a new AST printer.
@@ -92,13 +92,20 @@ public boolean visit(BlockComment node) {
  * @see ASTVisitor#visit(Javadoc)
  */
 public boolean visit(Javadoc javadoc) {
+	try {
+		this.markdown = javadoc.isMarkdown();
+	} catch(UnsupportedOperationException usoe) {
+		// nothing
+	}
 	printIndent();
-	this.buffer.append("/**");//$NON-NLS-1$
+	if (!this.markdown)
+		this.buffer.append("/**");//$NON-NLS-1$
 	for (Iterator it = javadoc.tags().iterator(); it.hasNext(); ) {
 		ASTNode e = (ASTNode) it.next();
 		e.accept(this);
 	}
-	this.buffer.append("\n */\n");//$NON-NLS-1$
+	if (!this.markdown)
+		this.buffer.append("\n */\n");//$NON-NLS-1$
 	return false;
 }
 
@@ -151,13 +158,15 @@ public boolean visit(MethodRef node) {
 	this.buffer.append("(");//$NON-NLS-1$
 	for (Iterator it = node.parameters().iterator(); it.hasNext(); ) {
 		MethodRefParameter e = (MethodRefParameter) it.next();
-		e.accept(this);
+		if (!this.markdown) {
+			e.accept(this);
+		}
 		if (it.hasNext()) {
 			this.buffer.append(",");//$NON-NLS-1$
 		}
 	}
 	this.buffer.append(")");//$NON-NLS-1$
-	return true;
+	return false;
 }
 
 /*
@@ -178,16 +187,24 @@ public boolean visit(MethodRefParameter node) {
  * @since 3.0
  */
 public boolean visit(TagElement node) {
+	String tagName = node.getTagName();
+	boolean isLink = this.markdown && tagName != null && tagName.equals("@link");
 	if (node.isNested()) {
 		// nested tags are always enclosed in braces
-		this.buffer.append("{");//$NON-NLS-1$
+		if (isLink)
+			this.buffer.append("[");//$NON-NLS-1$
+		else
+			this.buffer.append("{");//$NON-NLS-1$
 	} else {
 		// top-level tags always begin on a new line
-		this.buffer.append("\n * ");//$NON-NLS-1$
+		if (this.markdown)
+			this.buffer.append("\n/// ");//$NON-NLS-1$
+		else
+			this.buffer.append("\n * ");//$NON-NLS-1$
 	}
 	boolean previousRequiresWhiteSpace = false;
-	if (node.getTagName() != null) {
-		this.buffer.append(node.getTagName());
+	if (tagName != null && !isLink) {
+		this.buffer.append(tagName);
 		previousRequiresWhiteSpace = true;
 	}
 	boolean previousRequiresNewLine = false;
@@ -197,7 +214,10 @@ public boolean visit(TagElement node) {
 		// but Name, MemberRef, MethodRef, and nested TagElement do not include white space
 		boolean currentIncludesWhiteSpace = (e instanceof TextElement);
 		if (previousRequiresNewLine && currentIncludesWhiteSpace) {
-			this.buffer.append("\n * ");//$NON-NLS-1$
+			if (this.markdown)
+				this.buffer.append("\n/// ");//$NON-NLS-1$
+			else
+				this.buffer.append("\n * ");//$NON-NLS-1$
 		}
 		previousRequiresNewLine = currentIncludesWhiteSpace;
 		// add space if required to separate
@@ -208,7 +228,10 @@ public boolean visit(TagElement node) {
 		previousRequiresWhiteSpace = !currentIncludesWhiteSpace && !(e instanceof TagElement);
 	}
 	if (node.isNested()) {
-		this.buffer.append("}");//$NON-NLS-1$
+		if (isLink)
+			this.buffer.append("]");//$NON-NLS-1$
+		else
+			this.buffer.append("}");//$NON-NLS-1$
 	}
 	return false;
 }

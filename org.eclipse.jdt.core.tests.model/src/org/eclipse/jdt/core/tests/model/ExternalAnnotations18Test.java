@@ -24,9 +24,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-
 import junit.framework.Test;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -39,34 +37,15 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jdt.core.IClasspathAttribute;
-import org.eclipse.jdt.core.IClasspathContainer;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaModelMarker;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.NodeFinder;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.tests.model.ContainerInitializer.ITestInitializer;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ExternalAnnotationUtil;
 import org.eclipse.jdt.core.util.ExternalAnnotationUtil.MergeStrategy;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.core.ClasspathAttribute;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
@@ -171,7 +150,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 			"}\n";
 
 	public ExternalAnnotations18Test(String name) {
-		this(name, "1.8", "JCL18_LIB");
+		this(name, CompilerOptions.getFirstSupportedJavaVersion(), "JCL18_LIB");
 	}
 
 	protected ExternalAnnotations18Test(String name, String compliance, String jclLib) {
@@ -269,7 +248,10 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 	}
 
 	void myCreateJavaProject(String name) throws CoreException {
-		this.project = createJavaProject(name, new String[]{"src"}, new String[]{this.jclLib}, null, null, "bin", null, null, null, this.compliance);
+		myCreateJavaProject(name, this.compliance, this.jclLib);
+	}
+	void myCreateJavaProject(String name, String projectCompliance, String projectJclLib) throws CoreException {
+		this.project = createJavaProject(name, new String[]{"src"}, new String[]{projectJclLib}, null, null, "bin", null, null, null, projectCompliance);
 		addLibraryEntry(this.project, this.ANNOTATION_LIB, false);
 		Map options = this.project.getOptions(true);
 		options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
@@ -3129,7 +3111,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		try {
 			final String projectName = eeaProjectName;
 			eeaProject = createJavaProject(projectName, location,
-					new String[] {""}, new String[] {"JCL_LIB"},
+					new String[] {""}, new String[] {"JCL_LIB"}, // XXX JCL18_LIB
 					null, null, null, null, null, true, null,
 					"", null, null, null, "", false, false);
 			createFolder('/'+eeaProjectName+"/lib/pgen");
@@ -3353,4 +3335,76 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		IProblem[] problems = reconciled.getProblems();
 		assertNoProblems(problems);
 	}
+	public void testGH2178() throws CoreException, IOException {
+		myCreateJavaProject("GH2178", "21", "JCL_21_LIB");
+		Map options = this.project.getOptions(true);
+		options.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.ERROR);
+		options.put(JavaCore.COMPILER_PB_NULL_ANNOTATION_INFERENCE_CONFLICT, JavaCore.ERROR);
+		this.project.setOptions(options);
+
+		addLibraryWithExternalAnnotations(this.project, "21", "jreext.jar", "annots", new String[] {
+				"/UnannotatedLib/lib/Objects.java",
+				"""
+				package lib;
+				public class Objects {
+					public static <T> T requireNonNull(T t) { return t; }
+				}
+				"""
+			}, null);
+		createFileInProject("annots/java/lang", "String.eea",
+				"""
+				class java/lang/String
+				valueOf
+				 (Z)Ljava/lang/String;
+				 (Z)L1java/lang/String;
+				""");
+		createFileInProject("annots/lib", "Objects.eea",
+				"""
+				class lib/Objects
+				requireNonNull
+				 <T:Ljava/lang/Object;>(TT;)TT;
+				 <T:Ljava/lang/Object;>(T0T;)T1T;
+				""");
+		addEeaToVariableEntry("JCL_21_LIB", "/GH2178/annots");
+
+
+		IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("repro", true, null);
+		ICompilationUnit unit = fragment.createCompilationUnit("ExternalNullAnnotationsConfusion.java",
+				"""
+				package repro;
+
+				import lib.Objects;
+
+				import org.eclipse.jdt.annotation.NonNull;
+
+				public class ExternalNullAnnotationsConfusion {
+
+					public String conflictingNonNullAndNullable() {
+
+						// String.valueOf() is annotated to return @NonNull
+						@NonNull
+						String valueOfAnnotatedNonNull = String.valueOf(false);
+
+						// Objects.requireNonNull is annotated to take a @Nullable parameter
+						@NonNull
+						String result = Objects.requireNonNull(valueOfAnnotatedNonNull);
+
+						// error marker at the last argument in the previous line:
+						// Contradictory null annotations:
+						// method was inferred as '@NonNull String requireNonNull(@Nullable @NonNull String)',
+						// but only one of '@NonNull' and '@Nullable' can be effective at any location
+						return result;
+					}
+				}
+				""",
+				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
+		IProblem[] problems = reconciled.getProblems();
+		assertNoProblems(problems);
+
+		this.project.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+		IMarker[] markers = this.project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
+		assertNoMarkers(markers);
+	}
+
 }

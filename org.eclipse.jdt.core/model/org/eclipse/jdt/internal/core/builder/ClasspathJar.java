@@ -28,13 +28,14 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -50,7 +51,6 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
-import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -58,72 +58,106 @@ import org.eclipse.jdt.internal.core.util.Util;
 public class ClasspathJar extends ClasspathLocation {
 final boolean isOnModulePath;
 
-static class PackageCacheEntry {
-	WeakReference<ZipFile> zipFile;
-	long lastModified;
-	long fileSize;
-	SimpleSet packageSet;
+    private static final class PackageCacheEntry {
+        private final WeakReference<ZipFile> zipFile;
+        private final long lastModified;
+        private final long fileSize;
+        private final Set<String> packageSet;
 
-	PackageCacheEntry(ZipFile zipFile, long lastModified, long fileSize, SimpleSet packageSet) {
-		this.zipFile = new WeakReference<>(zipFile);
-		this.lastModified = lastModified;
-		this.fileSize = fileSize;
-		this.packageSet = packageSet;
-	}
-}
+        private PackageCacheEntry(
+                WeakReference<ZipFile> zipFile,
+                long lastModified,
+                long fileSize,
+                Set<String> packageSet) {
+            this.zipFile = zipFile;
+            this.lastModified = lastModified;
+            this.fileSize = fileSize;
+            this.packageSet = packageSet;
+        }
 
-protected static Map<String, PackageCacheEntry> PackageCache = new ConcurrentHashMap<>();
+        public WeakReference<ZipFile> zipFile() {
+            return zipFile;
+        }
 
-protected static void addToPackageSet(SimpleSet packageSet, String fileName, boolean endsWithSep) {
+        public long lastModified() {
+            return lastModified;
+        }
+
+        public long fileSize() {
+            return fileSize;
+        }
+
+        public Set<String> packageSet() {
+            return packageSet;
+        }
+
+        @java.lang.Override
+        public boolean equals(java.lang.Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            var that = (PackageCacheEntry) obj;
+            return java.util.Objects.equals(this.zipFile, that.zipFile) &&
+                   this.lastModified == that.lastModified &&
+                   this.fileSize == that.fileSize &&
+                   java.util.Objects.equals(this.packageSet, that.packageSet);
+        }
+
+        @java.lang.Override
+        public int hashCode() {
+            return java.util.Objects.hash(zipFile, lastModified, fileSize, packageSet);
+        }
+
+        @java.lang.Override
+        public String toString() {
+            return "PackageCacheEntry[" +
+                   "zipFile=" + zipFile + ", " +
+                   "lastModified=" + lastModified + ", " +
+                   "fileSize=" + fileSize + ", " +
+                   "packageSet=" + packageSet + ']';
+        }
+
+    }
+
+protected static final Map<String, PackageCacheEntry> packageCache = new ConcurrentHashMap<>();
+
+protected static void addToPackageSet(Set<String> packageSet, String fileName, boolean endsWithSep) {
 	int last = endsWithSep ? fileName.length() : fileName.lastIndexOf('/');
 	while (last > 0) {
 		// extract the package name
 		String packageName = fileName.substring(0, last);
-		if (packageSet.addIfNotIncluded(packageName) == null)
+		if (!packageSet.add(packageName)) {
 			return; // already existed
+		}
 		last = packageName.lastIndexOf('/');
 	}
 }
 
-/**
- * Calculate and cache the package list available in the zipFile.
- * @return A SimpleSet with the all the package names in the zipFile.
- */
-protected SimpleSet findPackageSet() {
-	PackageCacheEntry entry = PackageCache.compute(this.zipFilename, (zipFileName, cacheEntry) -> {
+private Set<String> getCachedPackageNames() {
+	PackageCacheEntry entry = packageCache.compute(this.zipFilename, (zipFileName, cacheEntry) -> {
 		if(cacheEntry != null && cacheEntry.zipFile.get() == this.zipFile) {
 			return cacheEntry;
 		}
 		long timestamp = this.lastModified();
 		if (cacheEntry != null && cacheEntry.lastModified == timestamp && cacheEntry.fileSize == this.fileSize) {
-			cacheEntry.zipFile = new WeakReference<>(this.zipFile);
-			return cacheEntry;
+			// cacheEntry.zipFile.get() != this.zipFile => update zipFile
+			return new PackageCacheEntry(new WeakReference<>(this.zipFile), cacheEntry.lastModified , cacheEntry.fileSize, cacheEntry.packageSet);
 		}
-		final SimpleSet packageSet = new SimpleSet(41);
-		packageSet.add(""); //$NON-NLS-1$
-		readJarContent(packageSet);
-		return new PackageCacheEntry(this.zipFile, timestamp, this.fileSize, packageSet);
+		return new PackageCacheEntry(new WeakReference<>(this.zipFile), timestamp, this.fileSize, Set.copyOf(readPackageNames()));
 	});
 
 	return entry.packageSet;
 }
-protected String readJarContent(final SimpleSet packageSet) {
-	String modInfo = null;
+/** overloaded */
+protected Set<String> readPackageNames() {
+	final Set<String> packageSet = new HashSet<>();
+	packageSet.add(""); //$NON-NLS-1$
 	for (Enumeration<? extends ZipEntry> e = this.zipFile.entries(); e.hasMoreElements(); ) {
 		String fileName = e.nextElement().getName();
 		if (fileName.startsWith("META-INF/")) //$NON-NLS-1$
 			continue;
-		if (modInfo == null) {
-			int folderEnd = fileName.lastIndexOf('/');
-			folderEnd += 1;
-			String className = fileName.substring(folderEnd, fileName.length());
-			if (className.equalsIgnoreCase(IModule.MODULE_INFO_CLASS)) {
-				modInfo = fileName;
-			}
-		}
 		addToPackageSet(packageSet, fileName, false);
 	}
-	return modInfo;
+	return packageSet;
 }
 IModule initializeModule() {
 	IModule mod = null;
@@ -150,30 +184,33 @@ IModule initializeModule() {
 	return mod;
 }
 
-String zipFilename; // keep for equals
-IFile resource;
-ZipFile zipFile;
-long lastModified;
-long fileSize;
-boolean closeZipFileAtEnd;
-private SimpleSet knownPackageNames;
+final String zipFilename; // keep for equals
+final IFile resource;
+/** lazy initialized, closed and reset to null in {@link #cleanup()} **/
+volatile protected ZipFile zipFile;
+volatile long lastModified;
+volatile long fileSize;
+/** lazy initialized **/
+private volatile Set<String> knownPackageNames;
 // Meant for ClasspathMultiReleaseJar, not used in here
 String compliance;
 
 ClasspathJar(IFile resource, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, boolean isOnModulePath) {
 	this.resource = resource;
+	String filename;
 	try {
 		java.net.URI location = resource.getLocationURI();
 		if (location == null) {
-			this.zipFilename = ""; //$NON-NLS-1$
+			filename = ""; //$NON-NLS-1$
 		} else {
 			File localFile = Util.toLocalFile(location, null);
-			this.zipFilename = localFile.getPath();
+			filename = localFile.getPath();
 		}
 	} catch (CoreException e) {
 		// ignore
-		this.zipFilename = ""; //$NON-NLS-1$
+		filename = ""; //$NON-NLS-1$
 	}
+	this.zipFilename = filename;
 	this.zipFile = null;
 	this.knownPackageNames = null;
 	this.accessRuleSet = accessRuleSet;
@@ -183,6 +220,7 @@ ClasspathJar(IFile resource, AccessRuleSet accessRuleSet, IPath externalAnnotati
 }
 
 ClasspathJar(String zipFilename, long lastModified, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, boolean isOnModulePath) {
+	this.resource = null;
 	this.zipFilename = zipFilename;
 	this.lastModified = lastModified;
 	this.zipFile = null;
@@ -196,43 +234,31 @@ ClasspathJar(String zipFilename, long lastModified, AccessRuleSet accessRuleSet,
 public ClasspathJar(ZipFile zipFile, AccessRuleSet accessRuleSet, boolean isOnModulePath) {
 	this(zipFile.getName(), 0, accessRuleSet, null, isOnModulePath);
 	this.zipFile = zipFile;
-	this.closeZipFileAtEnd = true;
 }
 
 @Override
 public void cleanup() {
-	if (this.closeZipFileAtEnd) {
-		if (this.zipFile != null) {
-			try {
-				this.zipFile.close();
-				if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-					trace("(" + Thread.currentThread() + ") [ClasspathJar.cleanup()] Closed ZipFile on " + this.zipFilename); //$NON-NLS-1$	//$NON-NLS-2$
-				}
-			} catch(IOException e) { // ignore it
-				JavaCore.getPlugin().getLog().log(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, "Error closing " + this.zipFile.getName(), e)); //$NON-NLS-1$
+	if (this.zipFile != null) {
+		try {
+			this.zipFile.close();
+			if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
+				trace("(" + Thread.currentThread() + ") [ClasspathJar.cleanup()] Closed ZipFile on " + this.zipFilename); //$NON-NLS-1$	//$NON-NLS-2$
 			}
-			this.zipFile = null;
+		} catch(IOException e) { // ignore it
+			JavaCore.getPlugin().getLog().log(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, "Error closing " + this.zipFile.getName(), e)); //$NON-NLS-1$
 		}
-		if (this.annotationZipFile != null) {
-			try {
-				this.annotationZipFile.close();
-				if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-					trace("(" + Thread.currentThread() + ") [ClasspathJar.cleanup()] Closed Annotation ZipFile on " + this.zipFilename); //$NON-NLS-1$	//$NON-NLS-2$
-				}
-			} catch(IOException e) { // ignore it
-				JavaCore.getPlugin().getLog().log(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, "Error closing " + this.annotationZipFile.getName(), e)); //$NON-NLS-1$
+		this.zipFile = null;
+	}
+	if (this.annotationZipFile != null) {
+		try {
+			this.annotationZipFile.close();
+			if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
+				trace("(" + Thread.currentThread() + ") [ClasspathJar.cleanup()] Closed Annotation ZipFile on " + this.zipFilename); //$NON-NLS-1$	//$NON-NLS-2$
 			}
-			this.annotationZipFile = null;
+		} catch(IOException e) { // ignore it
+			JavaCore.getPlugin().getLog().log(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, "Error closing " + this.annotationZipFile.getName(), e)); //$NON-NLS-1$
 		}
-	} else {
-		if (this.zipFile != null && JavaModelManager.ZIP_ACCESS_VERBOSE) {
-			try {
-				this.zipFile.size();
-				trace("(" + Thread.currentThread() + ") [ClasspathJar.cleanup()] ZipFile NOT closed on " + this.zipFilename); //$NON-NLS-1$	//$NON-NLS-2$
-			} catch (IllegalStateException e) {
-				// OK: the file was already closed
-			}
-		}
+		this.annotationZipFile = null;
 	}
 	this.module = null; // TODO(SHMOD): is this safe?
 	this.knownPackageNames = null;
@@ -296,13 +322,13 @@ public boolean isPackage(String qualifiedPackageName, String moduleName) {
 			return false;
 	}
 	if (this.knownPackageNames == null)
-		scanContent();
-	return this.knownPackageNames.includes(qualifiedPackageName);
+		readKnownPackageNames();
+	return this.knownPackageNames.contains(qualifiedPackageName);
 }
 @Override
 public boolean hasCompilationUnit(String pkgName, String moduleName) {
-	if (scanContent()) {
-		if (!this.knownPackageNames.includes(pkgName)) {
+	if (readKnownPackageNames()) {
+		if (!this.knownPackageNames.contains(pkgName)) {
 			// Don't waste time walking through the zip if we know that it doesn't
 			// contain a directory that matches pkgName
 			return false;
@@ -323,22 +349,19 @@ public boolean hasCompilationUnit(String pkgName, String moduleName) {
 	return false;
 }
 
-/** Scan the contained packages and try to locate the module descriptor. */
-private boolean scanContent() {
+/** Scan the contained packages. */
+private boolean readKnownPackageNames() {
 	try {
 		if (this.zipFile == null) {
 			if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
 				trace("(" + Thread.currentThread() + ") [ClasspathJar.isPackage(String)] Creating ZipFile on " + this.zipFilename); //$NON-NLS-1$	//$NON-NLS-2$
 			}
 			this.zipFile = new ZipFile(this.zipFilename);
-			this.closeZipFileAtEnd = true;
-			this.knownPackageNames = findPackageSet();
-		} else {
-			this.knownPackageNames = findPackageSet();
 		}
+		this.knownPackageNames = getCachedPackageNames();
 		return true;
 	} catch(Exception e) {
-		this.knownPackageNames = new SimpleSet(); // assume for this build the zipFile is empty
+		this.knownPackageNames = Set.of(); // assume for this build the zipFile is empty
 		return false;
 	}
 }
@@ -379,7 +402,7 @@ public String debugPathString() {
 @Override
 public IModule getModule() {
 	if (this.knownPackageNames == null)
-		scanContent();
+		readKnownPackageNames();
 	return this.module;
 }
 
@@ -389,7 +412,7 @@ public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageN
 	return findClass(typeName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, false, null);
 }
 public Manifest getManifest() {
-	if (!scanContent()) // ensure zipFile is initialized
+	if (!readKnownPackageNames()) // ensure zipFile is initialized
 		return null;
 	ZipEntry entry = this.zipFile.getEntry(TypeConstants.META_INF_MANIFEST_MF);
 	if (entry == null) {
@@ -404,12 +427,12 @@ public Manifest getManifest() {
 }
 @Override
 public char[][] listPackages() {
-	if (!scanContent()) // ensure zipFile is initialized
+	if (!readKnownPackageNames()) // ensure zipFile is initialized
 		return null;
-	char[][] result = new char[this.knownPackageNames.elementSize][];
+	// -1 because it always contains empty string:
+	char[][] result = new char[this.knownPackageNames.size() - 1][];
 	int count = 0;
-	for (int i=0; i<this.knownPackageNames.values.length; i++) {
-		String string = (String) this.knownPackageNames.values[i];
+	for (String string : this.knownPackageNames) {
 		if (string != null &&!string.isEmpty()) {
 			result[count++] = string.replace('/', '.').toCharArray();
 		}
@@ -421,7 +444,7 @@ public char[][] listPackages() {
 
 @Override
 protected IBinaryType decorateWithExternalAnnotations(IBinaryType reader, String fileNameWithoutExtension) {
-	if (scanContent()) { // ensure zipFile is initialized
+	if (readKnownPackageNames()) { // ensure zipFile is initialized
 		String qualifiedBinaryFileName = fileNameWithoutExtension + ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX;
 		ZipEntry entry = this.zipFile.getEntry(qualifiedBinaryFileName);
 		if (entry != null) {

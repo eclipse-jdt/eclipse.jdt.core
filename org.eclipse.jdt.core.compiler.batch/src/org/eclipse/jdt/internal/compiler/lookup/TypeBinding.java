@@ -38,9 +38,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -101,6 +101,8 @@ abstract public class TypeBinding extends Binding {
 
 	public final static VoidTypeBinding VOID = new VoidTypeBinding();
 
+	public final static TypeBinding [] NUMERIC_TYPES = // // Order sensitive to determine the type in numeric promotion
+			new TypeBinding [] {TypeBinding.DOUBLE, TypeBinding.FLOAT, TypeBinding.LONG, TypeBinding.INT, TypeBinding.SHORT, TypeBinding.BYTE, TypeBinding.CHAR };
 
 public TypeBinding() {
 	super();
@@ -166,7 +168,8 @@ public static final TypeBinding wellKnownBaseType(int id) {
 }
 
 public ReferenceBinding actualType() {
-	return null; // overridden in ParameterizedTypeBinding & WildcardBinding
+	assert false : "Invocation on non-ReferenceBinding not expected"; //$NON-NLS-1$
+	return null; // overridden in ReferenceBinding, ParameterizedTypeBinding & WildcardBinding
 }
 
 TypeBinding [] additionalBounds() {
@@ -307,17 +310,29 @@ public TypeBinding erasure() {
 /**
  * Perform an upwards type projection as per JLS 4.10.5
  * @param scope Relevant scope for evaluating type projection
- * @param mentionedTypeVariables Filter for mentioned type variabled
- * @return Upwards type projection of 'this', or null if downwards projection is undefined
+ * @param mentionedTypeVariables Filter for mentioned type variables
+ * @return Upwards type projection of 'this', or null if upwards projection is undefined
 */
 public TypeBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
+	return this;
+}
+/**
+ * Perform an upwards type projection as per JLS 4.10.5
+ * @param scope Relevant scope for evaluating type projection
+ * @return Upwards type projection of 'this', or null if upwards projection is undefined
+*/
+public TypeBinding upwardsProjection(Scope scope) {
+	TypeBinding[] mentionedTypeVariables= syntheticTypeVariablesMentioned();
+	if (mentionedTypeVariables != null && mentionedTypeVariables.length > 0) {
+		return upwardsProjection(scope, mentionedTypeVariables);
+	}
 	return this;
 }
 
 /**
  * Perform a downwards type projection as per JLS 4.10.5
  * @param scope Relevant scope for evaluating type projection
- * @param mentionedTypeVariables Filter for mentioned type variabled
+ * @param mentionedTypeVariables Filter for mentioned type variables
  * @return Downwards type projection of 'this', or null if downwards projection is undefined
 */
 public TypeBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
@@ -498,14 +513,28 @@ public TypeBinding findSuperTypeOriginatingFrom(TypeBinding otherType) {
 		case Binding.INTERSECTION_TYPE18:
 			IntersectionTypeBinding18 itb18 = (IntersectionTypeBinding18) this;
 			ReferenceBinding[] intersectingTypes = itb18.getIntersectingTypes();
-			for (int i = 0, length = intersectingTypes.length; i < length; i++) {
-				TypeBinding superType = intersectingTypes[i].findSuperTypeOriginatingFrom(otherType);
+			for (ReferenceBinding intersectingType : intersectingTypes) {
+				TypeBinding superType = intersectingType.findSuperTypeOriginatingFrom(otherType);
 				if (superType != null)
 					return superType;
 			}
 			break;
 	}
 	return null;
+}
+
+public TypeVariableBinding[] syntheticTypeVariablesMentioned() {
+	final Set<TypeVariableBinding> mentioned = new HashSet<>();
+	TypeBindingVisitor.visit(new TypeBindingVisitor() {
+		@Override
+		public boolean visit(TypeVariableBinding typeVariable) {
+			if (typeVariable.isCapture())
+				mentioned.add(typeVariable);
+			return super.visit(typeVariable);
+		}
+	}, this);
+	if (mentioned.isEmpty()) return NO_TYPE_VARIABLES;
+	return mentioned.toArray(new TypeVariableBinding[mentioned.size()]);
 }
 
 /**
@@ -548,8 +577,7 @@ public TypeBinding getErasureCompatibleType(TypeBinding declaringClass) {
 			if (variable.superclass != null && variable.superclass.findSuperTypeOriginatingFrom(declaringClass) != null) {
 				return variable.superclass.getErasureCompatibleType(declaringClass);
 			}
-			for (int i = 0, otherLength = variable.superInterfaces.length; i < otherLength; i++) {
-				ReferenceBinding superInterface = variable.superInterfaces[i];
+			for (ReferenceBinding superInterface : variable.superInterfaces) {
 				if (superInterface.findSuperTypeOriginatingFrom(declaringClass) != null) {
 					return superInterface.getErasureCompatibleType(declaringClass);
 				}
@@ -563,8 +591,7 @@ public TypeBinding getErasureCompatibleType(TypeBinding declaringClass) {
 			if (intersection.superclass != null && intersection.superclass.findSuperTypeOriginatingFrom(declaringClass) != null) {
 				return intersection.superclass.getErasureCompatibleType(declaringClass);
 			}
-			for (int i = 0, otherLength = intersection.superInterfaces.length; i < otherLength; i++) {
-				ReferenceBinding superInterface = intersection.superInterfaces[i];
+			for (ReferenceBinding superInterface : intersection.superInterfaces) {
 				if (superInterface.findSuperTypeOriginatingFrom(declaringClass) != null) {
 					return superInterface.getErasureCompatibleType(declaringClass);
 				}
@@ -655,6 +682,29 @@ public boolean isBoxedPrimitiveType() {
 	}
 }
 
+public TypeBinding unboxedType() {
+	switch (this.id) {
+		case TypeIds.T_JavaLangBoolean:
+			return TypeBinding.BOOLEAN;
+		case TypeIds.T_JavaLangByte:
+			return TypeBinding.BYTE;
+		case TypeIds.T_JavaLangCharacter:
+			return TypeBinding.CHAR;
+		case TypeIds.T_JavaLangShort:
+			return TypeBinding.SHORT;
+		case TypeIds.T_JavaLangDouble:
+			return TypeBinding.DOUBLE;
+		case TypeIds.T_JavaLangFloat:
+			return TypeBinding.FLOAT;
+		case TypeIds.T_JavaLangInteger:
+			return TypeBinding.INT;
+		case TypeIds.T_JavaLangLong:
+			return TypeBinding.LONG;
+		default:
+			return this;
+	}
+}
+
 /**
  *  Returns true if parameterized type AND not of the form {@code List<?>}
  */
@@ -675,6 +725,10 @@ public boolean isClass() {
 
 public boolean isRecord() {
 	return false;
+}
+
+public boolean isRecordWithComponents() { // do records without components make sense ??!
+	return isRecord() && components() instanceof RecordComponentBinding[] && components().length > 0;
 }
 
 /* Answer true if the receiver type can be assigned to the argument type (right)
@@ -1334,8 +1388,8 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 				case Wildcard.EXTENDS:
 					if (otherBound instanceof IntersectionTypeBinding18) {
 						TypeBinding [] intersectingTypes = ((IntersectionTypeBinding18) otherBound).intersectingTypes;
-						for (int i = 0, length = intersectingTypes.length; i < length; i++)
-							if (TypeBinding.equalsEquals(intersectingTypes[i], this))
+						for (TypeBinding intersectingType : intersectingTypes)
+							if (TypeBinding.equalsEquals(intersectingType, this))
 								return true;
 					}
 					if (TypeBinding.equalsEquals(otherBound, this))
@@ -1352,8 +1406,8 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 				case Wildcard.SUPER:
 					if (otherBound instanceof IntersectionTypeBinding18) {
 						TypeBinding [] intersectingTypes = ((IntersectionTypeBinding18) otherBound).intersectingTypes;
-						for (int i = 0, length = intersectingTypes.length; i < length; i++)
-							if (TypeBinding.equalsEquals(intersectingTypes[i], this))
+						for (TypeBinding intersectingType : intersectingTypes)
+							if (TypeBinding.equalsEquals(intersectingType, this))
 								return true;
 					}
 					if (TypeBinding.equalsEquals(otherBound, this))
@@ -1602,8 +1656,7 @@ public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNull
 		return;
 	this.typeAnnotations = annotations;
 	if (evalNullAnnotations) {
-		for (int i = 0, length = annotations.length; i < length; i++) {
-			AnnotationBinding annotation = annotations[i];
+		for (AnnotationBinding annotation : annotations) {
 			if (annotation != null) {
 				if (annotation.type.hasNullBit(TypeIds.BitNullableAnnotation))
 					this.tagBits |= TagBits.AnnotationNullable | TagBits.HasNullTypeAnnotation;
@@ -1734,7 +1787,7 @@ public ReferenceBinding superclass() {
 }
 
 public ReferenceBinding[] permittedTypes() {
-	return Binding.NO_PERMITTEDTYPES;
+	return Binding.NO_PERMITTED_TYPES;
 }
 
 public ReferenceBinding[] superInterfaces() {
@@ -1782,4 +1835,7 @@ public boolean isNonDenotable() {
 	return false;
 }
 
+public boolean isSealed() {
+	return false;
+}
 }

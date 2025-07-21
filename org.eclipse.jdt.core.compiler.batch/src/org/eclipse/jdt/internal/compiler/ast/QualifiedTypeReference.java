@@ -82,8 +82,8 @@ public class QualifiedTypeReference extends TypeReference {
 			Annotation[] qualifierAnnot = this.annotations[j];
 			if (qualifierAnnot != null && qualifierAnnot.length > 0) {
 				if (j == 0) {
-					for (int k = 0; k < qualifierAnnot.length; k++) {
-						scope.problemReporter().typeAnnotationAtQualifiedName(qualifierAnnot[k]);
+					for (Annotation annotation : qualifierAnnot) {
+						scope.problemReporter().typeAnnotationAtQualifiedName(annotation);
 					}
 				} else {
 					scope.problemReporter().misplacedTypeAnnotations(qualifierAnnot[0],
@@ -189,8 +189,8 @@ public class QualifiedTypeReference extends TypeReference {
 	void recordResolution(LookupEnvironment env, TypeBinding typeFound) {
 		if (typeFound != null && typeFound.isValidBinding()) {
 			synchronized (env.root) {
-				for (int i = 0; i < env.root.resolutionListeners.length; i++) {
-					env.root.resolutionListeners[i].recordResolution(this, typeFound);
+				for (IQualifiedTypeResolutionListener resolutionListener : env.root.resolutionListeners) {
+					resolutionListener.recordResolution(this, typeFound);
 				}
 			}
 		}

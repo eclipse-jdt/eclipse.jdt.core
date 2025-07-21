@@ -17,13 +17,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 public class Deprecated9Test extends AbstractRegressionTest9 {
 	public Deprecated9Test(String name) {
@@ -915,7 +914,10 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			"----------\n";
 		runner.runWarningTest();
 	}
-	public void testBug534304() throws Exception {
+	public void testBug534304_1() throws Exception {
+		if (this.complianceLevel < ClassFileConstants.JDK13) {
+			return;
+		}
 		runNegativeTest(
 			new String[] {
 				"p1/C1.java",
@@ -938,12 +940,7 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 				"}\n"
 			},
 			"----------\n" +
-			"1. WARNING in p1\\C1.java (at line 3)\n" +
-			"	import pdep.Dep1;\n" +
-			"	       ^^^^^^^^^\n" +
-			"The type Dep1 is deprecated since version 13\n" +
-			"----------\n" +
-			"2. WARNING in p1\\C1.java (at line 6)\n" +
+			"1. WARNING in p1\\C1.java (at line 6)\n" +
 			"	Dep1 f;\n" +
 			"	^^^^\n" +
 			"The type Dep1 is deprecated since version 13\n" +
@@ -959,6 +956,43 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			"	 ^^^^^^^^\n" +
 			"CMissing cannot be resolved to a type\n" +
 			"----------\n");
+	}
+	public void testBug534304_2() throws Exception {
+		if (this.complianceLevel < ClassFileConstants.JDK13) {
+			runNegativeTest(
+				new String[] {
+					"p1/C1.java",
+					"package p1;\n" +
+					"\n" +
+					"import pdep.Dep1;\n" +
+					"\n" +
+					"public class C1 {\n" +
+					"	Dep1 f;\n" +
+					"}\n",
+					"pdep/Dep1.java",
+					"package pdep;\n" +
+					"\n" +
+					"import pmissing.CMissing;\n" +
+					"\n" +
+					"@Deprecated(since=\"13\")\n" +
+					"@CMissing\n" +
+					"public class Dep1 {\n" +
+					"\n" +
+					"}\n"
+				},
+				"----------\n" +
+				"----------\n" +
+				"1. ERROR in pdep\\Dep1.java (at line 3)\n" +
+				"	import pmissing.CMissing;\n" +
+				"	       ^^^^^^^^\n" +
+				"The import pmissing cannot be resolved\n" +
+				"----------\n" +
+				"2. ERROR in pdep\\Dep1.java (at line 6)\n" +
+				"	@CMissing\n" +
+				"	 ^^^^^^^^\n" +
+				"CMissing cannot be resolved to a type\n" +
+				"----------\n");
+		}
 	}
 	public void testBug542795() throws Exception {
 		Runner runner = new Runner();
@@ -1059,6 +1093,77 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			"""
 		};
 		runner.runConformTest();
+	}
+	public void testJEP211_2() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+				"p1/C1.java",
+				"""
+				package p1;
+				public class C1 {
+					@Deprecated public class CInner {}
+					@Deprecated(forRemoval=true) public static int ZERO = 0;
+				}
+				""",
+				"Test.java",
+				"""
+				import p1.C1.CInner;
+				import static p1.C1.ZERO;
+				public class Test {
+					CInner c;
+					int z = ZERO;
+				}
+				"""
+			};
+		runner.expectedCompilerLog = """
+				----------
+				1. WARNING in Test.java (at line 4)
+					CInner c;
+					^^^^^^
+				The type C1.CInner is deprecated
+				----------
+				2. WARNING in Test.java (at line 5)
+					int z = ZERO;
+					        ^^^^
+				The field C1.ZERO has been deprecated and marked for removal
+				----------
+				""";
+		runner.runWarningTest();
+	}
+	public void testJEP211_3() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+				"p1/C1.java",
+				"""
+				package p1;
+				public class C1 {
+					@Deprecated public static int ZERO = 0;
+					@Deprecated public static int nothing() { return 0; };
+				}
+				""",
+				"Test.java",
+				"""
+				import static p1.C1.*;
+				public class Test {
+					int z = ZERO;
+					int zz = nothing();
+				}
+				"""
+			};
+		runner.expectedCompilerLog = """
+				----------
+				1. WARNING in Test.java (at line 3)
+					int z = ZERO;
+					        ^^^^
+				The field C1.ZERO is deprecated
+				----------
+				2. WARNING in Test.java (at line 4)
+					int zz = nothing();
+					         ^^^^^^^^^
+				The method nothing() from the type C1 is deprecated
+				----------
+				""";
+		runner.runWarningTest();
 	}
 	public static Class<?> testClass() {
 		return Deprecated9Test.class;

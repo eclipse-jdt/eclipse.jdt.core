@@ -16,14 +16,13 @@ package org.eclipse.jdt.core.tests.model;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.Flags;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.NamingConventions;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class NamingConventionTests extends AbstractJavaModelTests {
@@ -1315,9 +1314,9 @@ public void testSuggestLocalName001() {
 	Map options = this.project.getOptions(true);
 	try {
 		Map newOptions = new HashMap(options);
-		newOptions.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
-		newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-		newOptions.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+		newOptions.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
+		newOptions.put(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		newOptions.put(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
 		this.project.setOptions(newOptions);
 
 		String[] suggestions = NamingConventions.suggestVariableNames(
@@ -1343,9 +1342,9 @@ public void testSuggestLocalName002() {
 	Map options = this.project.getOptions(true);
 	try {
 		Map newOptions = new HashMap(options);
-		newOptions.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
-		newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-		newOptions.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+		newOptions.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
+		newOptions.put(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		newOptions.put(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
 		this.project.setOptions(newOptions);
 
 		String[] suggestions = NamingConventions.suggestVariableNames(

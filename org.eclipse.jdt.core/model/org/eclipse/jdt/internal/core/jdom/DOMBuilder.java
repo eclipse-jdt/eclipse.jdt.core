@@ -15,11 +15,18 @@ package org.eclipse.jdt.internal.core.jdom;
 
 import java.util.ArrayList;
 import java.util.Map;
-
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.jdom.*;
+import org.eclipse.jdt.core.jdom.IDOMCompilationUnit;
+import org.eclipse.jdt.core.jdom.IDOMFactory;
+import org.eclipse.jdt.core.jdom.IDOMField;
+import org.eclipse.jdt.core.jdom.IDOMImport;
+import org.eclipse.jdt.core.jdom.IDOMInitializer;
+import org.eclipse.jdt.core.jdom.IDOMMethod;
+import org.eclipse.jdt.core.jdom.IDOMNode;
+import org.eclipse.jdt.core.jdom.IDOMPackage;
+import org.eclipse.jdt.core.jdom.IDOMType;
 import org.eclipse.jdt.internal.compiler.DocumentElementParser;
 import org.eclipse.jdt.internal.compiler.IDocumentElementRequestor;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
@@ -313,9 +320,9 @@ public IDOMType createType(char[] sourceCode) {
  * @param parameterNames - a list of the names of the parameters
  * @param parametersEnd - a source position corresponding to the last character of the
  *		parameter list
- * @extendedReturnTypeDimensionCount - the array dimension count as supplied on the
+ * @param extendedReturnTypeDimensionCount - the array dimension count as supplied on the
  *		end of the parameter list (for instance, 'public int foo()[] {}')
- * @extendedReturnTypeDimensionEnd - a source position corresponding to the last character
+ * @param extendedReturnTypeDimensionEnd - a source position corresponding to the last character
  *		of the extended return type dimension
  * @param exceptionTypes - a list of the exception types
  * @param exceptionTypeStarts - a list of source positions corresponding to the first

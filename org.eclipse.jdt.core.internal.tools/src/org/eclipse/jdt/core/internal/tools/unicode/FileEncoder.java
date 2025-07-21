@@ -137,8 +137,7 @@ public class FileEncoder {
 							environment.getResourceFileName() + blockNumber + RESOURCE_FILE_EXTENSION);
 					if (hasMeaningfulValue) {
 						try (DataOutputStream outputStream = new DataOutputStream(new FileOutputStream(f))) {
-							for (int j = 0, max = computedValues.length; j < max; j++) {
-								long value = computedValues[j];
+							for (long value : computedValues) {
 								outputStream.writeLong(value);
 							}
 							outputStream.flush();
@@ -163,8 +162,7 @@ public class FileEncoder {
 			File f = new File(exportDirectory,
 					environment.getResourceFileName() + blockNumber + RESOURCE_FILE_EXTENSION);
 			try (DataOutputStream outputStream = new DataOutputStream(new FileOutputStream(f))) {
-				for (int j = 0, max = computedValues.length; j < max; j++) {
-					long value = computedValues[j];
+				for (long value : computedValues) {
 					outputStream.writeLong(value);
 				}
 				outputStream.flush();

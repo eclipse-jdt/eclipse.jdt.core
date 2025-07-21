@@ -14,9 +14,11 @@
 package org.eclipse.jdt.internal.compiler.codegen;
 
 import java.util.Arrays;
-
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.codegen.OperandStack.NullStack;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 public class BranchLabel extends Label {
 
@@ -26,8 +28,12 @@ public class BranchLabel extends Label {
 
 	// Label tagbits
 	public int tagBits;
+	protected int targetStackDepth = -1;
 	public final static int WIDE = 1;
 	public final static int USED = 2;
+	public final static int VALIDATE = 4;
+	private OperandStack operandStack;
+
 
 public BranchLabel() {
 	// for creating labels ahead of code generation
@@ -38,6 +44,8 @@ public BranchLabel() {
  */
 public BranchLabel(CodeStream codeStream) {
 	super(codeStream);
+	if (this.codeStream.classFile.referenceBinding.scope.compilerOptions().validateOperandStack)
+		this.tagBits |= VALIDATE;
 }
 
 /**
@@ -83,6 +91,8 @@ public void becomeDelegateFor(BranchLabel otherLabel) {
 	// other label is delegating to receiver from now on
 	otherLabel.delegate = this;
 
+	trackStackDepth(true);
+
 	// all existing forward refs to other label are inlined into current label
 	final int otherCount = otherLabel.forwardReferenceCount;
 	if (otherCount == 0) return;
@@ -117,6 +127,69 @@ public void becomeDelegateFor(BranchLabel otherLabel) {
 	this.forwardReferenceCount = indexInMerge;
 }
 
+// If branch target can be reached in more ways than one, verify that operand stack for every edge/arc is mutually compatible
+private boolean compatibleOperandStacks(OperandStack stackNow, OperandStack stackEarlier) {
+	if ((this.tagBits & VALIDATE) == 0)
+		return true;
+	if (stackNow.size() != stackEarlier.size())
+		return false;
+	int depth = 0;
+	for (int i = 0, size = stackNow.size(); i < size; i++) {
+		TypeBinding tn = stackNow.get(i);
+		TypeBinding te = stackEarlier.get(i);
+		if (TypeBinding.notEquals(tn, te)) {
+			if (!tn.isCompatibleWith(te) && !te.isCompatibleWith(tn)) {
+				if (this.codeStream.classFile.referenceBinding.scope.lowerUpperBound(new TypeBinding[] {te, tn}) == null)
+					return false;
+			}
+		}
+		depth += TypeIds.getCategory(tn.id);
+	}
+	return stackNow instanceof NullStack || depth == this.targetStackDepth;
+}
+
+protected void trackStackDepth(boolean branch) {
+	/* Control can reach an instruction with a label in two ways: (1) via a branch using that label or (2) by falling through from the previous instruction.
+	   In both cases, we KNOW the stack depth at the instruction from which control flows to the instruction with the label.
+	   Control cannot reach the instruction with a label by falling through if the previous instruction completes abruptly via a goto/return/throw etc
+	   this.codeStream.lastAbruptCompletion == this.position ==> instruction prior to the one with the label is a goto/return/throw
+	*/
+	boolean sourceDepthKnown = branch || this.codeStream.lastAbruptCompletion != this.position;
+	if (this.targetStackDepth == -1) {
+		// First branch to this label || placement of this label
+		if (sourceDepthKnown) {
+			if (this.codeStream.stackDepth < 0) {
+				this.codeStream.classFile.referenceBinding.scope.problemReporter()
+						.operandStackSizeInappropriate(this.codeStream.classFile.referenceBinding.scope.referenceContext);
+				this.codeStream.stackDepth = 0; // FWIW
+				this.codeStream.operandStack.clear();
+			}
+			this.targetStackDepth = this.codeStream.stackDepth;
+			this.operandStack = this.codeStream.operandStack.copy();
+
+			if (!this.operandStack.depthEquals(this.targetStackDepth)) {
+				this.codeStream.classFile.referenceBinding.scope.problemReporter().operandStackSizeInappropriate(
+						this.codeStream.classFile.referenceBinding.scope.referenceContext);
+			}
+		} // else: previous instruction completes abruptly via goto/return/throw: Wait for a backward branch to be emitted.
+	} else {
+		// Stack depth known at label having encountered a previous branch and/or having fallen through to label
+		if (sourceDepthKnown) {
+			if (this.targetStackDepth != this.codeStream.stackDepth || !compatibleOperandStacks(this.codeStream.operandStack, this.operandStack)) {
+				this.codeStream.classFile.referenceBinding.scope.problemReporter().operandStackSizeInappropriate(
+						this.codeStream.classFile.referenceBinding.scope.referenceContext);
+				if (this.targetStackDepth < this.codeStream.stackDepth) {
+					this.targetStackDepth = this.codeStream.stackDepth; // FWIW, pick the higher water mark.
+					this.operandStack = this.codeStream.operandStack.copy();
+				}
+			}
+		} else {
+			this.codeStream.stackDepth = this.targetStackDepth;
+			this.codeStream.operandStack = this.operandStack.copy();
+		}
+	}
+}
+
 /*
 * Put down  a reference to the array at the location in the codestream.
 */
@@ -137,6 +210,7 @@ void branch() {
 		 */
 		this.codeStream.writePosition(this);
 	}
+	trackStackDepth(true);
 }
 
 /*
@@ -157,6 +231,7 @@ void branchWide() {
 	} else { //Position is set. Write it!
 		this.codeStream.writeWidePosition(this);
 	}
+	trackStackDepth(true);
 }
 
 public int forwardReferenceCount() {
@@ -210,8 +285,7 @@ public void place() { // Currently lacking wide support.
 				// end of new code
 				if ((this.codeStream.generateAttributes & (ClassFileConstants.ATTR_VARS | ClassFileConstants.ATTR_STACK_MAP_TABLE | ClassFileConstants.ATTR_STACK_MAP)) != 0) {
 					LocalVariableBinding locals[] = this.codeStream.locals;
-					for (int i = 0, max = locals.length; i < max; i++) {
-						LocalVariableBinding local = locals[i];
+					for (LocalVariableBinding local : locals) {
 						if ((local != null) && (local.initializationCount > 0)) {
 							if (local.initializationPCs[((local.initializationCount - 1) << 1) + 1] == oldPosition) {
 								// we want to prevent interval of size 0 to have a negative size.
@@ -240,6 +314,7 @@ public void place() { // Currently lacking wide support.
 			this.codeStream.optimizeBranch(oldPosition, this);
 		}
 	}
+	trackStackDepth(false);
 }
 
 /**

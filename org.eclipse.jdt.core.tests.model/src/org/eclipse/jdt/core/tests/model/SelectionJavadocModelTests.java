@@ -14,12 +14,12 @@
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 
@@ -44,7 +44,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		setUpJavaProject("Tests", "1.5");
+		setUpJavaProject("Tests", CompilerOptions.getFirstSupportedJavaVersion());
 	}
 	@Override
 	public void tearDownSuite() throws Exception {
@@ -184,10 +184,10 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 			"Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" +
 			"field [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" +
 			"foo(int, String) [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" +
-			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" +
+			"String [in String.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]\n" +
 			"Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" +
 			"foo(int, String) [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" +
-			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
+			"String [in String.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]",
 			elements
 		);
 	}
@@ -219,10 +219,10 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 			"Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" +
 			"field [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" +
 			"foo(int, String) [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" +
-			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" +
+			"String [in String.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]\n" +
 			"Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]\n" +
 			"foo(int, String) [in Test [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" +
-			"String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
+			"String [in String.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]",
 			elements
 		);
 	}
@@ -263,7 +263,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 			"field [in Test [in [Working copy] Test.java [in test.junit [in <project root> [in Tests]]]]]\n" +
 			"Test [in [Working copy] Test.java [in test.junit [in <project root> [in Tests]]]]\n" +
 			"foo(Object[]) [in Test [in [Working copy] Test.java [in test.junit [in <project root> [in Tests]]]]]\n" +
-			"Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
+			"Object [in Object.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]",
 			elements
 		);
 	}
@@ -303,7 +303,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 			"field [in Test [in [Working copy] Test.java [in test.junit [in <project root> [in Tests]]]]]\n" +
 			"Test [in [Working copy] Test.java [in test.junit [in <project root> [in Tests]]]]\n" +
 			"foo(Object[]) [in Test [in [Working copy] Test.java [in test.junit [in <project root> [in Tests]]]]]\n" +
-			"Object [in Object.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
+			"Object [in Object.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]",
 			elements
 		);
 	}
@@ -322,8 +322,8 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		elements[0] = selectType(this.workingCopies[0], "RuntimeException");
 		elements[1] = selectType(this.workingCopies[0], "InterruptedException");
 		assertElementsEqual("Invalid selection(s)",
-			"RuntimeException [in RuntimeException.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" +
-			"InterruptedException [in InterruptedException.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
+			"RuntimeException [in RuntimeException.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]\n" +
+			"InterruptedException [in InterruptedException.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]",
 			elements
 		);
 	}
@@ -342,8 +342,8 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		elements[0] = selectType(this.workingCopies[0], "RuntimeException");
 		elements[1] = selectType(this.workingCopies[0], "InterruptedException");
 		assertElementsEqual("Invalid selection(s)",
-			"RuntimeException [in RuntimeException.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" +
-			"InterruptedException [in InterruptedException.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
+			"RuntimeException [in RuntimeException.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]\n" +
+			"InterruptedException [in InterruptedException.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]",
 			elements
 		);
 	}
@@ -466,8 +466,8 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 			"foo(int, String) [in Method [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]\n" +
 			"xxx [in foo(int, String) [in Method [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]\n" +
 			"str [in foo(int, String) [in Method [in [Working copy] Test.java [in <default> [in <project root> [in Tests]]]]]]\n" +
-			"RuntimeException [in RuntimeException.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]\n" +
-			"InterruptedException [in InterruptedException.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]",
+			"RuntimeException [in RuntimeException.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]\n" +
+			"InterruptedException [in InterruptedException.class [in java.lang [in "+ getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion()) + "]]]",
 			elements
 		);
 	}
@@ -922,8 +922,8 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 	}
 
 	/**
-	 * @bug 165701: [model] No hint for ambiguous javadoc
-	 * @test Ensure that no exception is thrown while selecting method in javadoc comment
+	 * bug165701: [model] No hint for ambiguous javadoc
+	 * test Ensure that no exception is thrown while selecting method in javadoc comment
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=165701"
 	 */
 	public void testBug165701() throws JavaModelException {
@@ -945,8 +945,8 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 	}
 
 	/**
-	 * @bug 165794: [model] No hint for ambiguous javadoc
-	 * @test Ensure that no exception is thrown while selecting method in javadoc comment
+	 * bug165794: [model] No hint for ambiguous javadoc
+	 * test Ensure that no exception is thrown while selecting method in javadoc comment
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=165794"
 	 */
 	public void testBug165794() throws JavaModelException {
@@ -1029,7 +1029,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 	}
 
 	/**
-	 * @bug 191322: [javadoc] @see or @link reference to method without signature fails to resolve to base class method
+	 * bug191322: [javadoc] @see or @link reference to method without signature fails to resolve to base class method
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=191322"
 	 */
 	public void testBug191322a() throws CoreException {

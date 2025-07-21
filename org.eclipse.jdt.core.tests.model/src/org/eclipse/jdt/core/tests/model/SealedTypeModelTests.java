@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 IBM Corporation.
+ * Copyright (c) 2020, 2024 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,7 +14,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
@@ -29,8 +29,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
-
-import junit.framework.Test;
 
 public class SealedTypeModelTests extends AbstractJavaModelTests {
 
@@ -56,7 +54,7 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 		return buildModelTestSuite(AbstractCompilerTest.F_17, SealedTypeModelTests.class);
 	}
 	protected IJavaProject createJavaProject(String projectName) throws CoreException {
-		IJavaProject createJavaProject = super.createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "17");
+		IJavaProject createJavaProject = super.createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL_17_LIB"}, "bin", "17");
 		return createJavaProject;
 	}
 	// Check types with neither sealed nor non-sealed don't return those modifiers
@@ -146,7 +144,7 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 			createFile(	"/SealedTypes/src/X.java",	fileContent);
 			ICompilationUnit unit = getCompilationUnit("/SealedTypes/src/X.java");
 			IType[] types = unit.getTypes();
-			assertEquals("Incorret no of types", 3, types.length);
+			assertEquals("Incorrect no of types", 3, types.length);
 			for (IType iType : types) {
 				if (iType.getElementName().equals("I")) {
 					assertTrue("modifier should contain sealed", iType.isSealed());
@@ -162,6 +160,137 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 			deleteProject("SealedTypes");
 		}
 	}
+	// Test implicitly permitted sub types in Source Type
+	public void test004_2() throws Exception {
+		String[] permitted = new String[] {"Maybe.Maybe1", "Maybe.Maybe2"};
+		try {
+			IJavaProject project = createJavaProject("SealedTypes");
+			project.open(null);
+			String fileContent =
+					"""
+					interface SuperInt {}
+
+					abstract sealed class Maybe {
+						final class Maybe1  extends Maybe  {}
+						final class Maybe2  extends Maybe implements SuperInt {}
+					}
+
+					class Test {
+
+						void testMaybe(Maybe maybe) {
+							if (maybe == null) return;
+						}
+					}
+					""";
+
+			createFile(	"/SealedTypes/src/X.java",	fileContent);
+			ICompilationUnit unit = getCompilationUnit("/SealedTypes/src/X.java");
+			IType[] types = unit.getTypes();
+			assertEquals("Incorrect no of types", 3, types.length);
+			for (IType iType : types) {
+				if (iType.getElementName().equals("Maybe")) {
+					assertTrue("modifier should contain sealed", iType.isSealed());
+					String[] permittedSubtypeNames = iType.getPermittedSubtypeNames();
+					assertEquals("incorrect permitted sub types", permitted.length, permittedSubtypeNames.length);
+					for (int i = 0; i < permitted.length; i++) {
+						assertEquals("incorrect permitted sub type", permitted[i], permittedSubtypeNames[i]);
+					}
+				}
+			}
+		}
+		finally {
+			deleteProject("SealedTypes");
+		}
+	}
+
+	// Test implicitly permitted sub types in Source Type
+	public void test004_3() throws Exception {
+		String[] permitted = new String[] {"Maybe.Maybe1", "Maybe.Maybe2"};
+		try {
+			IJavaProject project = createJavaProject("SealedTypes");
+			project.open(null);
+			String fileContent =
+					"""
+					interface SuperInt {}
+
+					sealed interface Maybe {
+						final class Maybe1  implements Maybe  {}
+						non-sealed interface Maybe2 extends Maybe {}
+					}
+
+					class Test {
+
+						void testMaybe(Maybe maybe) {
+							if (maybe == null) return;
+						}
+					}
+					""";
+
+			createFile(	"/SealedTypes/src/X.java",	fileContent);
+			ICompilationUnit unit = getCompilationUnit("/SealedTypes/src/X.java");
+			IType[] types = unit.getTypes();
+			assertEquals("Incorrect no of types", 3, types.length);
+			for (IType iType : types) {
+				if (iType.getElementName().equals("Maybe")) {
+					assertTrue("modifier should contain sealed", iType.isSealed());
+					String[] permittedSubtypeNames = iType.getPermittedSubtypeNames();
+					assertEquals("incorrect permitted sub types", permitted.length, permittedSubtypeNames.length);
+					for (int i = 0; i < permitted.length; i++) {
+						assertEquals("incorrect permitted sub type", permitted[i], permittedSubtypeNames[i]);
+					}
+				}
+			}
+		}
+		finally {
+			deleteProject("SealedTypes");
+		}
+	}
+
+	// Test implicitly permitted sub types in Source Type
+	public void test004_4() throws Exception {
+		String[] permitted = new String[] {"Maybe.Maybe1", "Maybe.Maybe2"};
+		try {
+			IJavaProject project = createJavaProject("SealedTypes");
+			project.open(null);
+			String fileContent =
+					"""
+					interface SuperInt {}
+
+					abstract sealed class Maybe<N extends Number> {
+						final class Maybe1 extends Maybe<Long> {}
+						final class Maybe2 extends Maybe<Long> implements SuperInt {}
+					}
+
+					class Test {
+
+						void testMaybe(Maybe<?> maybe) {
+							if (maybe == null) return;
+							zork();
+						}
+					}
+					""";
+
+			createFile(	"/SealedTypes/src/X.java",	fileContent);
+			ICompilationUnit unit = getCompilationUnit("/SealedTypes/src/X.java");
+			IType[] types = unit.getTypes();
+			assertEquals("Incorrect no of types", 3, types.length);
+			for (IType iType : types) {
+				if (iType.getElementName().equals("Maybe")) {
+					assertTrue("modifier should contain sealed", iType.isSealed());
+					String[] permittedSubtypeNames = iType.getPermittedSubtypeNames();
+					assertEquals("incorrect permitted sub types", permitted.length, permittedSubtypeNames.length);
+					for (int i = 0; i < permitted.length; i++) {
+						assertEquals("incorrect permitted sub type", permitted[i], permittedSubtypeNames[i]);
+					}
+				}
+			}
+		}
+		finally {
+			deleteProject("SealedTypes");
+		}
+	}
+
+
 	// Test explicitly permitted sub types in binary
 	public void test005() throws Exception {
 		String[] permitted = new String[] {"p.X", "p.Y"};
@@ -176,7 +305,7 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 			String outputDirectory = Util.getOutputDirectory();
 
 			String jarPath = outputDirectory + File.separator + "sealed.jar";
-			Util.createJar(sources, jarPath, "17", true);
+			Util.createJar(sources, jarPath, "17", false);
 
 			IJavaProject project = createJavaProject("SealedTypes");
 			addClasspathEntry(project, JavaCore.newLibraryEntry(new Path(jarPath), null, null, null, null, false));
@@ -237,7 +366,7 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 			String outputDirectory = Util.getOutputDirectory();
 
 			String jarPath = outputDirectory + File.separator + "sealed.jar";
-			Util.createJar(sources, jarPath, "17", true);
+			Util.createJar(sources, jarPath, "17", false);
 
 			IJavaProject project = createJavaProject("SealedTypes");
 			addClasspathEntry(project, JavaCore.newLibraryEntry(new Path(jarPath), null, null, null, null, false));
@@ -378,7 +507,7 @@ public class SealedTypeModelTests extends AbstractJavaModelTests {
 							"1. ERROR in /SealedTypes/src/p/X.java (at line 2)\n" +
 							"	public non-sealed class X {}\n" +
 							"	                        ^\n" +
-							"A class X declared as non-sealed should have either a sealed direct superclass or a sealed direct superinterface\n" +
+							"The non-sealed class X must have a sealed direct supertype\n" +
 							"----------\n",
 							this.problemRequestor);
 		}

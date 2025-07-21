@@ -68,7 +68,7 @@ public class UsesDirective extends ModuleDirective {
 	 * The module name; lazily initialized; defaults to a unspecified,
 	 * legal Java identifier.
 	 */
-	private Name name = null;
+	private volatile Name name;
 
 	/**
 	 * Creates a new AST node for an uses directive owned by the
@@ -146,9 +146,9 @@ public class UsesDirective extends ModuleDirective {
 			synchronized (this) {
 				if (this.name == null) {
 					preLazyInit();
-					this.name = this.ast.newQualifiedName(
-							new SimpleName(this.ast), new SimpleName(this.ast));
-					postLazyInit(this.name, NAME_PROPERTY);
+					this.name = postLazyInit(
+							this.ast.newQualifiedName(new SimpleName(this.ast), new SimpleName(this.ast)),
+							NAME_PROPERTY);
 				}
 			}
 		}

@@ -32,8 +32,8 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 	}
 }
 @Override
-protected void consumeSingleStaticImportDeclarationName() {
-	super.consumeSingleStaticImportDeclarationName();
+protected void consumeSingleModifierImportDeclarationName(int modifier) {
+	super.consumeSingleModifierImportDeclarationName(modifier);
 	if (this.reportImportMatch) {
 		this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
 	}

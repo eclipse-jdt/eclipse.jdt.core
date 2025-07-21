@@ -19,16 +19,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
 import javax.lang.model.SourceVersion;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
-
-import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
-
 import junit.framework.TestCase;
+import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 
 public class Java12ElementsTests extends TestCase {
 	private static final String MODULE_PROC = "org.eclipse.jdt.compiler.apt.tests.processors.elements.Java12ElementProcessor";

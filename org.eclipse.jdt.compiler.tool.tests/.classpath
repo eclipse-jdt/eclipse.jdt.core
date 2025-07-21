@@ -12,6 +12,6 @@
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/javax18api.jar"/>
+	<classpathentry kind="lib" path="lib/javax23api.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

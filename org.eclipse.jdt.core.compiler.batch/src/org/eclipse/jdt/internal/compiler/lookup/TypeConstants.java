@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -44,6 +44,7 @@ public interface TypeConstants {
 	char[] JAVAX = "javax".toCharArray(); //$NON-NLS-1$
 	char[] JAKARTA = "jakarta".toCharArray(); //$NON-NLS-1$
 	char[] LANG = "lang".toCharArray(); //$NON-NLS-1$
+	char[] BASE = "base".toCharArray(); //$NON-NLS-1$
 	char[] IO = "io".toCharArray(); //$NON-NLS-1$
 	char[] NIO = "nio".toCharArray(); //$NON-NLS-1$
 	char[] UTIL = "util".toCharArray(); //$NON-NLS-1$
@@ -129,6 +130,7 @@ public interface TypeConstants {
 	// JEP 360 Sealed
 	char[] PERMITS = "permits".toCharArray(); //$NON-NLS-1$
 	char[] SEALED = "sealed".toCharArray(); //$NON-NLS-1$
+	char[] NON_SEALED = "non-sealed".toCharArray(); //$NON-NLS-1$
 	String KEYWORD_EXTENDS = "extends"; //$NON-NLS-1$
 	String IMPLEMENTS = "implements"; //$NON-NLS-1$
 
@@ -156,6 +158,7 @@ public interface TypeConstants {
     char[] SPRING = "springframework".toCharArray(); //$NON-NLS-1$
 
 	// Constant compound names
+    char[][] JAVA_BASE = {JAVA, BASE};
 	char[][] JAVA_LANG = {JAVA, LANG};
 	char[][] JAVA_IO = {JAVA, IO};
 	char[][] JAVA_LANG_ANNOTATION = {JAVA, LANG, ANNOTATION};
@@ -171,14 +174,12 @@ public interface TypeConstants {
 	char[][] JAVA_LANG_ILLEGALARGUMENTEXCEPTION = {JAVA, LANG, "IllegalArgumentException".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_INCOMPATIBLECLASSCHANGEERROR = {JAVA, LANG, "IncompatibleClassChangeError".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_ITERABLE = {JAVA, LANG, "Iterable".toCharArray()}; //$NON-NLS-1$
-	char[][] JAVA_LANG_NOCLASSDEFERROR = {JAVA, LANG, "NoClassDefError".toCharArray()}; //$NON-NLS-1$
+	char[][] JAVA_LANG_NOCLASSDEFFOUNDERROR = {JAVA, LANG, "NoClassDefFoundError".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_OBJECT = {JAVA, LANG, OBJECT};
 	char[][] JAVA_LANG_RECORD = {JAVA, LANG, RECORD_CLASS};
 	char[][] JAVA_LANG_STRING = {JAVA, LANG, "String".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_STRINGBUFFER = {JAVA, LANG, "StringBuffer".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_STRINGBUILDER = {JAVA, LANG, "StringBuilder".toCharArray()}; //$NON-NLS-1$
-	char[][] JAVA_LANG_STRINGTEMPLATE = {JAVA, LANG, "StringTemplate".toCharArray()}; //$NON-NLS-1$
-	char[][] JAVA_LANG_STRINGTEMPLATE_PROCESSOR = {JAVA, LANG, "StringTemplate$Processor".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_SYSTEM = {JAVA, LANG, "System".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_RUNTIMEEXCEPTION = {JAVA, LANG, "RuntimeException".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_THROWABLE = {JAVA, LANG, "Throwable".toCharArray()}; //$NON-NLS-1$
@@ -224,6 +225,7 @@ public interface TypeConstants {
 	char[][] JAVA_IO_IOEXCEPTION = new char[][] { JAVA, IO, "IOException".toCharArray()};//$NON-NLS-1$
 	char[][] JAVA_IO_OBJECTOUTPUTSTREAM = new char[][] { JAVA, IO, "ObjectOutputStream".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_IO_OBJECTINPUTSTREAM = new char[][] { JAVA, IO, "ObjectInputStream".toCharArray()}; //$NON-NLS-1$
+	char[][] JAVA_IO_IO = new char[][] {JAVA, IO, "IO".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_NIO_FILE_FILES = new char[][] { JAVA, "nio".toCharArray(), "file".toCharArray(), "Files".toCharArray() };   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 	// javax.rmi.CORBA.Stub
 	char[][] JAVAX_RMI_CORBA_STUB = new char[][] {
@@ -259,10 +261,12 @@ public interface TypeConstants {
 	char[][] JAVA_LANG_RUNTIME_OBJECTMETHODS = {JAVA, LANG, RUNTIME, "ObjectMethods".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_RUNTIME_SWITCHBOOTSTRAPS = {JAVA, LANG, RUNTIME, "SwitchBootstraps".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_INVOKE_CONSTANTBOOTSTRAP = {JAVA, LANG, INVOKE, "ConstantBootstraps".toCharArray()}; //$NON-NLS-1$
+	char[] PRIMITIVE_CLASS = "primitiveClass".toCharArray(); //$NON-NLS-1$
+	char[] PRIMITIVE_CLASS__SIGNATURE = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/Class;".toCharArray(); //$NON-NLS-1$
+	char[] GET_STATIC_FINAL = "getStaticFinal".toCharArray(); //$NON-NLS-1$
+	char[] GET_STATIC_FINAL__SIGNATURE = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
 	char[][] JAVA_LANG_ENUM_ENUMDESC = {JAVA, LANG, "Enum$EnumDesc".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_CONSTANT_CLASSDESC = {JAVA, LANG, "constant".toCharArray(), "ClassDesc".toCharArray()}; //$NON-NLS-1$ //$NON-NLS-2$
-	char[][] JAVA_LANG_RUNTIME_TEMPLATERUNTIME = {JAVA, LANG, RUNTIME, "TemplateRuntime".toCharArray()}; //$NON-NLS-1$
-	char[][] JAVA_LANG_STRING_TEMPLATE_STR = {JAVA, LANG, "StringTemplate".toCharArray(), "STR".toCharArray()}; //$NON-NLS-1$ //$NON-NLS-2$
 
 	// known helper functions for closing a Closeable (all receive a Closeable as their first argument):
 	public static class CloseMethodRecord {
@@ -575,7 +579,7 @@ public interface TypeConstants {
 	public static final String MODULE_INFO_FILE_NAME_STRING = "module-info.java"; //$NON-NLS-1$
 	public static final String MODULE_INFO_CLASS_NAME_STRING = "module-info.class"; //$NON-NLS-1$
 	// java.base module name
-	char[] JAVA_BASE = "java.base".toCharArray(); //$NON-NLS-1$
+	char[] JAVA_DOT_BASE = "java.base".toCharArray(); //$NON-NLS-1$
 	String META_INF_MANIFEST_MF = "META-INF/MANIFEST.MF"; //$NON-NLS-1$
 	String AUTOMATIC_MODULE_NAME = "Automatic-Module-Name";  //$NON-NLS-1$
 	char[][] JDK_INTERNAL_VALUEBASED = {"jdk".toCharArray(), "internal".toCharArray(), "ValueBased".toCharArray()}; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

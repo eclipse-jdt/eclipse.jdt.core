@@ -14,7 +14,6 @@
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -22,6 +21,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 public class ExistenceTests extends ModifyingResourceTests {
 public ExistenceTests(String name) {
 	super(name);
@@ -67,7 +67,7 @@ protected void assertUnderlyingResourceFails(IJavaElement element) {
 }
 public void testBinaryMethodAfterNonExistingMember() throws CoreException {
 	try {
-		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"JCL_LIB"}, "");
+		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"JCL18_LIB"}, "");
 		IOrdinaryClassFile classFile = project.getPackageFragmentRoot(getExternalJCLPathString()).getPackageFragment("java.lang").getOrdinaryClassFile("Object.class");
 		classFile.open(null);
 		IType type = classFile.getType();
@@ -156,7 +156,7 @@ public void testJarFile() throws Exception {
 			"public class X {\n" +
 			"}",
 		};
-		addLibrary(p2, "lib.jar", "libsrc.zip", pathsAndContents, JavaCore.VERSION_1_5);
+		addLibrary(p2, "lib.jar", "libsrc.zip", pathsAndContents, CompilerOptions.getFirstSupportedJavaVersion());
 		IJavaProject p1 = createJavaProject("P1", new String[] {}, new String[] {"/P2/lib.jar"}, "bin");
 		IPackageFragmentRoot root2 = getPackageFragmentRoot("/P2/lib.jar");
 		assertTrue(root2.exists());

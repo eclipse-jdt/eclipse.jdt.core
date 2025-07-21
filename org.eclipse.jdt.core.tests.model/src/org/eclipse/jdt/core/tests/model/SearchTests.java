@@ -14,27 +14,34 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.concurrent.atomic.AtomicReference;
+import junit.framework.Test;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.MethodNameRequestor;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.core.search.TypeNameRequestor;
 import org.eclipse.jdt.core.tests.model.Semaphore.TimeOutException;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
-
-import junit.framework.Test;
 
 /*
  * Test indexing support.
@@ -418,20 +425,43 @@ public void testChangeClasspath2() throws CoreException {
 		assertAllTypes(
 			"Unexpected types before changing the classpath",
 			null, // workspace search
-			"X\n" +
-			"java.io.Serializable\n" +
-			"java.lang.Class\n" +
-			"java.lang.CloneNotSupportedException\n" +
-			"java.lang.Error\n" +
-			"java.lang.Exception\n" +
-			"java.lang.IllegalMonitorStateException\n" +
-			"java.lang.InterruptedException\n" +
-			"java.lang.Object\n" +
-			"java.lang.RuntimeException\n" +
-			"java.lang.String\n" +
-			"java.lang.Throwable\n" +
-			"x.y.Foo\n" +
-			"x.y.I"
+			"""
+			X
+			java.io.Serializable
+			java.lang.CharSequence
+			java.lang.Class
+			java.lang.CloneNotSupportedException
+			java.lang.Comparable
+			java.lang.Deprecated
+			java.lang.Enum
+			java.lang.Error
+			java.lang.Exception
+			java.lang.IllegalMonitorStateException
+			java.lang.InterruptedException
+			java.lang.Object
+			java.lang.RuntimeException
+			java.lang.String
+			java.lang.Throwable
+			java.lang.annotation.Annotation
+			java.lang.annotation.Documented
+			java.lang.annotation.ElementType
+			java.lang.annotation.Inherited
+			java.lang.annotation.Retention
+			java.lang.annotation.RetentionPolicy
+			java.lang.annotation.Target
+			java.lang.invoke.LambdaMetafactory
+			java.lang.invoke.MethodHandle
+			java.lang.invoke.MethodHandle$PolymorphicSignature
+			java.lang.invoke.MethodHandles
+			java.lang.invoke.MethodHandles$Lookup
+			java.lang.invoke.MethodType
+			java.util.Collection
+			java.util.Iterator
+			java.util.List
+			java.util.Map
+			java.util.Map$Entry
+			x.y.Foo
+			x.y.I"""
 		);
 		getWorkspace().run(new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
@@ -442,19 +472,42 @@ public void testChangeClasspath2() throws CoreException {
 		assertAllTypes(
 			"Unexpected types after changing the classpath",
 			null, // workspace search
-			"java.io.Serializable\n" +
-			"java.lang.Class\n" +
-			"java.lang.CloneNotSupportedException\n" +
-			"java.lang.Error\n" +
-			"java.lang.Exception\n" +
-			"java.lang.IllegalMonitorStateException\n" +
-			"java.lang.InterruptedException\n" +
-			"java.lang.Object\n" +
-			"java.lang.RuntimeException\n" +
-			"java.lang.String\n" +
-			"java.lang.Throwable\n" +
-			"x.y.Foo\n" +
-			"x.y.I"
+			"""
+			java.io.Serializable
+			java.lang.CharSequence
+			java.lang.Class
+			java.lang.CloneNotSupportedException
+			java.lang.Comparable
+			java.lang.Deprecated
+			java.lang.Enum
+			java.lang.Error
+			java.lang.Exception
+			java.lang.IllegalMonitorStateException
+			java.lang.InterruptedException
+			java.lang.Object
+			java.lang.RuntimeException
+			java.lang.String
+			java.lang.Throwable
+			java.lang.annotation.Annotation
+			java.lang.annotation.Documented
+			java.lang.annotation.ElementType
+			java.lang.annotation.Inherited
+			java.lang.annotation.Retention
+			java.lang.annotation.RetentionPolicy
+			java.lang.annotation.Target
+			java.lang.invoke.LambdaMetafactory
+			java.lang.invoke.MethodHandle
+			java.lang.invoke.MethodHandle$PolymorphicSignature
+			java.lang.invoke.MethodHandles
+			java.lang.invoke.MethodHandles$Lookup
+			java.lang.invoke.MethodType
+			java.util.Collection
+			java.util.Iterator
+			java.util.List
+			java.util.Map
+			java.util.Map$Entry
+			x.y.Foo
+			x.y.I"""
 		);
 	} finally {
 		deleteProject("P1");
@@ -464,16 +517,17 @@ public void testChangeClasspath2() throws CoreException {
  * Ensure that performing a concurrent job while indexing a jar doesn't use the old index.
  * (regression test for bug 35306 Index update request can be incorrectly handled)
  */
-public void testConcurrentJob() throws CoreException, InterruptedException, IOException, TimeOutException {
+public void _2551_testConcurrentJob() throws Exception {
 	WaitingJob job = new WaitingJob();
+	final String library = "jclMin" + CompilerOptions.getFirstSupportedJavaVersion() + ".jar";
 	try {
 		// setup: suspend indexing and create a project with one empty jar on its classpath
 		job.runAndSuspend(new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
 				JavaCore.run(new IWorkspaceRunnable() {
 					public void run(IProgressMonitor monitor2) throws CoreException {
-						createJavaProject("P1", new String[] {}, new String[] {"/P1/jclMin.jar"}, "bin");
-						createFile("/P1/jclMin.jar", EMPTY_JAR);
+						createJavaProject("P1", new String[] {}, new String[] {"/P1/" + library}, "bin");
+						createFile("/P1/" + library, EMPTY_JAR);
 					}
 				}, monitor);
 			}
@@ -484,6 +538,7 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
 		// start concurrent job
 		final boolean[] success = new boolean[1];
 		final WaitUntilReadyMonitor monitor = new WaitUntilReadyMonitor();
+		AtomicReference<Exception> ex = new AtomicReference<>();
 		Thread thread = new Thread() {
 			@Override
 			public void run() {
@@ -505,8 +560,9 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
 						"java.lang.String\n" +
 						"java.lang.Throwable"
 					);
-				} catch (JavaModelException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
+					ex.set(e);
 					return;
 				}
 				success[0] = true;
@@ -519,7 +575,7 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
 		monitor.sem.acquire(30000); // wait 30s max
 
 		// change jar contents
-		getFile("/P1/jclMin.jar").setContents(new FileInputStream(getExternalJCLPathString()), IResource.NONE, null);
+		getFile("/P1/" + library).setContents(new FileInputStream(getExternalJCLPathString()), IResource.NONE, null);
 			// setContents closes the stream
 
 		// resume waiting job
@@ -528,6 +584,9 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
 		// wait for concurrent job to finish
 		thread.join(10000); // 10s max
 
+		if (ex.get() != null) {
+			throw ex.get();
+		}
 		assertTrue("Failed to get all types", success[0]);
 
 	} finally {

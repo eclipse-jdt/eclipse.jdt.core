@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -1007,8 +1006,7 @@ public class CompilationUnit extends ASTNode {
 			this.optionalCommentTable = null;
 		} else {
 			int nextAvailablePosition = 0;
-			for (int i = 0; i < commentTable.length; i++) {
-				Comment comment = commentTable[i];
+			for (Comment comment : commentTable) {
 				if (comment == null) {
 					throw new IllegalArgumentException();
 				}
@@ -1143,8 +1141,8 @@ public class CompilationUnit extends ASTNode {
 		size += this.types.listSize();
 		// include disconnected comments
 		if (this.optionalCommentList != null) {
-			for (int i = 0; i < this.optionalCommentList.size(); i++) {
-				Comment comment = (Comment) this.optionalCommentList.get(i);
+			for (Object o : this.optionalCommentList) {
+				Comment comment = (Comment) o;
 				if (comment != null && comment.getParent() == null) {
 					size += comment.treeSize();
 				}

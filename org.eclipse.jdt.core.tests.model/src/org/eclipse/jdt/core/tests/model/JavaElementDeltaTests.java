@@ -17,16 +17,33 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
 import java.util.Arrays;
-
-import org.eclipse.core.resources.*;
+import junit.framework.Test;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.internal.core.*;
-
-import junit.framework.Test;
+import org.eclipse.jdt.core.ElementChangedEvent;
+import org.eclipse.jdt.core.IClasspathAttribute;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.internal.core.ClasspathAttribute;
+import org.eclipse.jdt.internal.core.DeltaProcessingState;
+import org.eclipse.jdt.internal.core.JavaElementDelta;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.JrtPackageFragmentRoot;
 
 /**
  * These test ensure that modifications in Java projects are correctly reported as
@@ -767,7 +784,7 @@ public void testBatchOperation() throws CoreException {
  */
 public void testBuildProjectUsedAsLib() throws CoreException {
 	try {
-		IJavaProject p1 = createJavaProject("P1", new String[] {"src1"}, new String[] {"JCL_LIB"}, "bin1");
+		IJavaProject p1 = createJavaProject("P1", new String[] {"src1"}, new String[] {"JCL18_LIB"}, "bin1");
 		createJavaProject("P2", new String[] {"src2"}, new String[] {"/P1/bin1"}, "bin2");
 		createFile(
 			"/P1/src1/X.java",
@@ -3192,8 +3209,8 @@ public void testChangeExternalJar() throws CoreException {
 	}
 }
 /**
- * @bug 455882: AIOOB in JavaElementDelta.addAffectedChild
- * @test Verify that AIOOB is not thrown when childIndex is used.
+ * bug 455882: AIOOB in JavaElementDelta.addAffectedChild
+ * test Verify that AIOOB is not thrown when childIndex is used.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=455882"
  */
 public void testBug455882() {

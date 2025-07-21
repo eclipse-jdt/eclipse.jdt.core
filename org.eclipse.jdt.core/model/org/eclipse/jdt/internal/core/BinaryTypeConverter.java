@@ -23,18 +23,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
-import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.AnnotationMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.Argument;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ImportReference;
-import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
@@ -87,8 +76,7 @@ public class BinaryTypeConverter extends TypeConverter {
 		ImportReference[] imports = new ImportReference[typeNamesLength];
 		char[][][] set = this.typeNames.set;
 		int index = 0;
-		for (int i = 0, length = set.length; i < length; i++) {
-			char[][] typeName = set[i];
+		for (char[][] typeName : set) {
 			if (typeName != null) {
 				imports[index++] = new ImportReference(typeName, new long[typeName.length]/*dummy positions*/, false/*not on demand*/, 0);
 			}
@@ -144,22 +132,20 @@ public class BinaryTypeConverter extends TypeConverter {
 
 		org.eclipse.jdt.internal.compiler.ast.TypeParameter[] typeParams = null;
 
-		// convert 1.5 specific constructs only if compliance is 1.5 or above
-		if (this.has1_5Compliance) {
-			/* convert type parameters */
-			ITypeParameter[] typeParameters = method.getTypeParameters();
-			if (typeParameters != null && typeParameters.length > 0) {
-				int parameterCount = typeParameters.length;
-				typeParams = new org.eclipse.jdt.internal.compiler.ast.TypeParameter[parameterCount];
-				for (int i = 0; i < parameterCount; i++) {
-					ITypeParameter typeParameter = typeParameters[i];
-					typeParams[i] =
-						createTypeParameter(
-								typeParameter.getElementName().toCharArray(),
-								stringArrayToCharArray(typeParameter.getBounds()),
-								0,
-								0);
-				}
+		// convert 1.5 specific constructs only
+		/* convert type parameters */
+		ITypeParameter[] typeParameters = method.getTypeParameters();
+		if (typeParameters != null && typeParameters.length > 0) {
+			int parameterCount = typeParameters.length;
+			typeParams = new org.eclipse.jdt.internal.compiler.ast.TypeParameter[parameterCount];
+			for (int i = 0; i < parameterCount; i++) {
+				ITypeParameter typeParameter = typeParameters[i];
+				typeParams[i] =
+					createTypeParameter(
+							typeParameter.getElementName().toCharArray(),
+							stringArrayToCharArray(typeParameter.getBounds()),
+							0,
+							0);
 			}
 		}
 
@@ -235,7 +221,6 @@ public class BinaryTypeConverter extends TypeConverter {
 			TypeReference typeReference = createTypeReference(type.getSuperclassTypeSignature());
 			if (typeReference != null) {
 				typeDeclaration.superclass = typeReference;
-				typeDeclaration.superclass.bits |= ASTNode.IsSuperType;
 			}
 		}
 
@@ -246,34 +231,31 @@ public class BinaryTypeConverter extends TypeConverter {
 		for (int i = 0; i < interfaceCount; i++) {
 			TypeReference typeReference = createTypeReference(interfaceTypes[i]);
 			if (typeReference != null) {
-				typeDeclaration.superInterfaces[count] = typeReference;
-				typeDeclaration.superInterfaces[count++].bits |= ASTNode.IsSuperType;
+				typeDeclaration.superInterfaces[count++] = typeReference;
 			}
 		}
 		if (count != interfaceCount) {
 			System.arraycopy(typeDeclaration.fields, 0, typeDeclaration.superInterfaces = new TypeReference[interfaceCount], 0, interfaceCount);
 		}
 
-		// convert 1.5 specific constructs only if compliance is 1.5 or above
-		if (this.has1_5Compliance) {
+		// convert 1.5 specific constructs
 
-			/* convert type parameters */
-			ITypeParameter[] typeParameters = type.getTypeParameters();
-			if (typeParameters != null && typeParameters.length > 0) {
-				int parameterCount = typeParameters.length;
-				org.eclipse.jdt.internal.compiler.ast.TypeParameter[] typeParams = new org.eclipse.jdt.internal.compiler.ast.TypeParameter[parameterCount];
-				for (int i = 0; i < parameterCount; i++) {
-					ITypeParameter typeParameter = typeParameters[i];
-					typeParams[i] =
-						createTypeParameter(
-								typeParameter.getElementName().toCharArray(),
-								stringArrayToCharArray(typeParameter.getBounds()),
-								0,
-								0);
-				}
-
-				typeDeclaration.typeParameters = typeParams;
+		/* convert type parameters */
+		ITypeParameter[] typeParameters = type.getTypeParameters();
+		if (typeParameters != null && typeParameters.length > 0) {
+			int parameterCount = typeParameters.length;
+			org.eclipse.jdt.internal.compiler.ast.TypeParameter[] typeParams = new org.eclipse.jdt.internal.compiler.ast.TypeParameter[parameterCount];
+			for (int i = 0; i < parameterCount; i++) {
+				ITypeParameter typeParameter = typeParameters[i];
+				typeParams[i] =
+					createTypeParameter(
+							typeParameter.getElementName().toCharArray(),
+							stringArrayToCharArray(typeParameter.getBounds()),
+							0,
+							0);
 			}
+
+			typeDeclaration.typeParameters = typeParams;
 		}
 
 		/* convert member types */

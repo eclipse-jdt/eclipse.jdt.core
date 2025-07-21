@@ -13,9 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.tests.annotations.mirrortest;
 
-import java.util.Collection;
-
-import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.Messager;
 import com.sun.mirror.declaration.AnnotationTypeDeclaration;
@@ -25,6 +22,8 @@ import com.sun.mirror.declaration.FieldDeclaration;
 import com.sun.mirror.declaration.MethodDeclaration;
 import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.type.DeclaredType;
+import java.util.Collection;
+import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
 
 public class DefaultConstantProcessor extends BaseProcessor {
 	public DefaultConstantProcessor(AnnotationProcessorEnvironment env){

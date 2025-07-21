@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+* Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -19,11 +19,17 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.codegen.*;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class ThisReference extends Reference {
 
@@ -33,6 +39,8 @@ public class ThisReference extends Reference {
 		implicitThis.bits |= IsImplicitThis;
 		return implicitThis;
 	}
+
+	public boolean inFieldReference = false;
 
 	public ThisReference(int sourceStart, int sourceEnd) {
 
@@ -47,12 +55,22 @@ public class ThisReference extends Reference {
 	}
 
 	public boolean checkAccess(BlockScope scope, ReferenceBinding receiverType) {
-
 		MethodScope methodScope = scope.methodScope();
-		// this/super cannot be used in constructor call
-		if (methodScope.isConstructorCall) {
-			methodScope.problemReporter().fieldsOrThisBeforeConstructorInvocation(this);
-			return false;
+		if ((this.bits & ASTNode.IsStrictlyAssigned) == 0) { // checking assignments is deferred to Reference.checkFieldAccessInEarlyConstructionContext()
+			if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())) {
+				if (!this.inFieldReference  // this.f is also covered in Reference.checkFieldAccessInEarlyConstructionContext()
+						&& scope.isInsideEarlyConstructionContext(this.resolvedType, false)) {
+					// JEP 482 message
+					scope.problemReporter().errorExpressionInEarlyConstructionContext(this);
+					return false;
+				}
+			} else {
+				if (methodScope.isConstructorCall) {
+					// old style: this/super cannot be used in constructor call
+					methodScope.problemReporter().fieldsOrThisBeforeConstructorInvocation(this);
+					return false;
+				}
+			}
 		}
 
 		// static may not refer to this/super

@@ -18,19 +18,7 @@ package org.eclipse.jdt.internal.compiler.parser;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.Annotation;
-import org.eclipse.jdt.internal.compiler.ast.Block;
-import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.Initializer;
-import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
-import org.eclipse.jdt.internal.compiler.ast.Statement;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
-import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 /**
@@ -317,8 +305,8 @@ public void attach(RecoveredAnnotation[] annots, int annotCount, int mods, int m
 			this.annotations = new RecoveredAnnotation[annotCount];
 			this.annotationCount = 0;
 			next : for (int i = 0; i < annotCount; i++) {
-				for (int j = 0; j < existingAnnotations.length; j++) {
-					if (annots[i].annotation == existingAnnotations[j]) continue next;
+				for (Annotation existingAnnotation : existingAnnotations) {
+					if (annots[i].annotation == existingAnnotation) continue next;
 				}
 				this.annotations[this.annotationCount++] = annots[i];
 			}
@@ -340,23 +328,26 @@ public int bodyEnd(){
 	if (this.bodyEnd == 0) return this.typeDeclaration.declarationSourceEnd;
 	return this.bodyEnd;
 }
-public boolean bodyStartsAtHeaderEnd(){
-	if (this.typeDeclaration.superInterfaces == null){
-		if (this.typeDeclaration.superclass == null){
-			if(this.typeDeclaration.typeParameters == null) {
-				return this.typeDeclaration.bodyStart == this.typeDeclaration.sourceEnd+1;
+
+public boolean bodyStartsAtHeaderEnd() {
+	if (this.typeDeclaration.permittedTypes == null) {
+		if (this.typeDeclaration.superInterfaces == null) {
+			if (this.typeDeclaration.superclass == null) {
+				if (this.typeDeclaration.typeParameters == null) {
+					return this.typeDeclaration.bodyStart == this.typeDeclaration.sourceEnd + 1;
+				} else {
+					return this.typeDeclaration.bodyStart == this.typeDeclaration.typeParameters[this.typeDeclaration.typeParameters.length - 1].sourceEnd + 1;
+				}
 			} else {
-				return this.typeDeclaration.bodyStart == this.typeDeclaration.typeParameters[this.typeDeclaration.typeParameters.length-1].sourceEnd+1;
+				return this.typeDeclaration.bodyStart == this.typeDeclaration.superclass.sourceEnd + 1;
 			}
 		} else {
-			return this.typeDeclaration.bodyStart == this.typeDeclaration.superclass.sourceEnd+1;
+			return this.typeDeclaration.bodyStart
+					== this.typeDeclaration.superInterfaces[this.typeDeclaration.superInterfaces.length - 1].sourceEnd + 1;
 		}
 	} else {
-		if (this.typeDeclaration.permittedTypes != null)
-			return this.typeDeclaration.bodyStart
-			== this.typeDeclaration.permittedTypes[this.typeDeclaration.permittedTypes.length-1].sourceEnd+1;
 		return this.typeDeclaration.bodyStart
-				== this.typeDeclaration.superInterfaces[this.typeDeclaration.superInterfaces.length-1].sourceEnd+1;
+				== this.typeDeclaration.permittedTypes[this.typeDeclaration.permittedTypes.length - 1].sourceEnd + 1;
 	}
 }
 /*

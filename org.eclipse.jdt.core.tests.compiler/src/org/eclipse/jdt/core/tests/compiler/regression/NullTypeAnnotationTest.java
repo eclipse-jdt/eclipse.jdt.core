@@ -24,11 +24,10 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -53,6 +52,13 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	public static Class testClass() {
 		return NullTypeAnnotationTest.class;
+	}
+
+	@Override
+	protected Map getCompilerOptions() {
+		Map defaultOptions = super.getCompilerOptions();
+		defaultOptions.put(CompilerOptions.OPTION_ReportUnusedLambdaParameter, CompilerOptions.IGNORE);
+		return defaultOptions;
 	}
 
 	// a list with nullable elements is used
@@ -18020,12 +18026,11 @@ public void testBug540264() {
 	);
 }
 public void testBug542707_1() {
-	if (!checkPreviewAllowed()) return; // switch expression
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return;
 	// switch expression has a functional type with interesting type inference and various null issues:
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
-	runner.customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-	runner.customOptions.put(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 	runner.classLibraries = this.LIBS;
 	runner.testFiles = new String[] {
 		"X.java",
@@ -19241,5 +19246,213 @@ public void testGH1693_c() {
 			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
 			"----------\n";
 	runner.runNegativeTest();
+}
+
+public void testGH2158() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+		"abc/Connection.java",
+		"""
+		package abc;
+		public interface Connection<@org.eclipse.jdt.annotation.NonNull M> { }
+		""",
+		"abc/IncomingMessageData.java",
+		"""
+		package abc;
+		public interface IncomingMessageData<@org.eclipse.jdt.annotation.NonNull T> { }
+		""",
+		"abc/MessageHandlerRegistry.java",
+		"""
+		package abc;
+		import org.eclipse.jdt.annotation.*;
+		public interface MessageHandlerRegistry
+			<@NonNull C extends Connection<?>, @NonNull T, @NonNull D extends IncomingMessageData<T>> { }
+		""",
+		"abc/MessageHandlerRegistryImpl.java",
+		"""
+		package abc;
+		import org.eclipse.jdt.annotation.*;
+		public class MessageHandlerRegistryImpl
+				<@NonNull C extends Connection<?>, @NonNull T, @NonNull D extends IncomingMessageData<T>>
+			implements MessageHandlerRegistry<C, T, D> { }
+		""",
+		"abc/d/DConnection.java",
+		"""
+		package abc.d;
+		import abc.*;
+		import org.eclipse.jdt.annotation.*;
+		public interface DConnection extends Connection<@NonNull CharSequence> { }
+		""",
+		"abc/d/DIncomingMessageData.java",
+		"""
+		package abc.d;
+		import org.eclipse.jdt.annotation.*;
+		import abc.*;
+		public interface DIncomingMessageData extends IncomingMessageData<@NonNull CharSequence> { }
+		""",
+		"abc/d/DMessageHandlerRegistry.java",
+		"""
+		package abc.d;
+		import org.eclipse.jdt.annotation.*;
+		import abc.*;
+		public interface DMessageHandlerRegistry<@NonNull C extends DConnection>
+			extends MessageHandlerRegistry<C, @NonNull CharSequence, @NonNull DIncomingMessageData> { }
+		""",
+		"abc/d/DMessageHandlerRegistryImpl.java",
+		"""
+		package abc.d;
+		import org.eclipse.jdt.annotation.*;
+		import abc.*;
+		public class DMessageHandlerRegistryImpl<@NonNull C extends DConnection>
+			extends MessageHandlerRegistryImpl<C, @NonNull CharSequence, @NonNull DIncomingMessageData>
+		implements DMessageHandlerRegistry<C> { }
+		"""
+	};
+	runner.customOptions = getCompilerOptions();
+	runner.classLibraries = this.LIBS;
+	runner.runConformTest();
+
+	// challenge other part of the fix:
+	TypeDeclaration.TESTING_GH_2158 = true;
+	try {
+		runner.runConformTest();
+	} finally {
+		TypeDeclaration.TESTING_GH_2158 = false;
+	}
+}
+public void testGH2325() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+	runner.testFiles = new String[] {
+		"Sample.java",
+		"""
+		import org.eclipse.jdt.annotation.NonNull;
+		import org.eclipse.jdt.annotation.Nullable;
+		interface InterfaceA {
+			@Nullable Object get();
+		}
+		interface InterfaceB {
+			@NonNull Object get();
+		}
+		interface InterfaceAB extends InterfaceA, InterfaceB {}
+		interface InterfaceBA extends InterfaceB, InterfaceA {}
+		class Sample {
+			void ab(InterfaceAB ab) {
+				@NonNull Object obj = ab.get();
+								   // ^^^^^^^^
+								   // ⚠ Null type mismatch (type annotations): required '@NonNull Object' but this expression has type '@Nullable Object'
+								   // Expected: no "Null type mismatch" problem,
+								   //		   because the union of the two null constraints has to be @Nullable, the most restrictive null constraint
+								   //		   (@Nullable violates the null constraint given by InterfaceB; @NonNull fulfills both null constraints from InterfaceA and InterfaceB)
+			}
+			void ba(InterfaceBA ba) {
+				@NonNull Object obj = ba.get(); // (no "Null type mismatch" as expected)
+			}
+		}
+		"""
+	};
+	runner.classLibraries = this.LIBS;
+	runner.runConformTest();
+}
+public void testGH2325_a() {
+	// argument nullness variance
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
+	runner.testFiles = new String[] {
+		"Sample.java",
+		"""
+		import org.eclipse.jdt.annotation.NonNull;
+		import org.eclipse.jdt.annotation.Nullable;
+		interface InterfaceA {
+			void perform(@NonNull Object o);
+		}
+		interface InterfaceB {
+			void perform(@Nullable Object o);
+		}
+		interface InterfaceC {
+			void perform(@NonNull Object o);
+		}
+		interface InterfaceAB extends InterfaceA, InterfaceB, InterfaceC {}
+		interface InterfaceBA extends InterfaceB, InterfaceA, InterfaceC {}
+		class Sample {
+			void ab(InterfaceAB ab) {
+				ab.perform(null);
+			}
+			void ba(InterfaceBA ba) {
+				ba.perform(null);
+			}
+		}
+		"""
+	};
+	runner.classLibraries = this.LIBS;
+	runner.runConformTest();
+}
+public void testGH2325_b() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.testFiles = new String[] {
+		"Test.java",
+		"""
+		interface EntityManager {
+			public <T> T merge(T entity);
+		}
+		interface HibernateEntityManager extends EntityManager { }
+		interface Session extends HibernateEntityManager, EntityManager {
+			@SuppressWarnings("unchecked")
+			Object merge(Object object);
+		}
+		public class Test {
+			void f(Session session) {
+				session.merge(new Test()); // Error: The method merge(Object) is ambiguous for the type Session
+			}
+		}
+		"""
+	};
+	runner.classLibraries = this.LIBS;
+	runner.runConformTest();
+}
+public void testGH3192() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_SyntacticNullAnalysisForFields, CompilerOptions.ENABLED);
+	runner.customOptions.put(CompilerOptions.OPTION_AnnotationBasedResourceAnalysis, CompilerOptions.ENABLED);
+	runner.testFiles = new String[] {
+			"test/Test.java",
+			"""
+			package test;
+
+			public class Test {
+
+			  public void test(final MyClass myClass) {
+			    if (myClass.me == MyEnum.A) { }
+			  }
+			}
+			""",
+			"test/MyClass",
+			"""
+			package test;
+
+			public final class MyClass {
+
+			  public final MyEnum me;
+
+			  public MyClass(final MyEnum me) {
+			    this.me = me;
+			  }
+			}
+			""",
+			"test/MyEnum",
+			"""
+			package test;
+
+			public enum MyEnum {
+			  A,
+			  ;
+			}
+			"""
+		};
+	runner.runConformTest();
 }
 }

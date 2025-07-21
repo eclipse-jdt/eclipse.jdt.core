@@ -13,9 +13,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.eval.target;
 
-import java.lang.reflect.*;
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A code snippet runner loads code snippet classes and global
@@ -210,11 +216,11 @@ public boolean isRunning() {
  * Starts a new CodeSnippetRunner that will serve code snippets from the IDE.
  * It waits for a connection on the given evaluation port number.
  * <p>
- * Usage: java org.eclipse.jdt.tests.eval.target.CodeSnippetRunner -evalport <portNumber> [-options] [<mainClassName>] [<arguments>]
+ * Usage: {@code java org.eclipse.jdt.tests.eval.target.CodeSnippetRunner -evalport <portNumber> [-options] [<mainClassName>] [<arguments>]}
  * where options include:
- * -cscp <codeSnippetClasspath> the the classpath directory for the code snippet classes.
+ * {@code -cscp <codeSnippetClasspath>} the the classpath directory for the code snippet classes.
  * that are not defined in a "java.*" package.
- * -csbp <codeSnippetBootClasspath> the bootclasspath directory for the code snippet classes
+ * {@code -csbp <codeSnippetBootClasspath>} the bootclasspath directory for the code snippet classes
  * that are defined in a "java.*" package.
  * <p>
  * The mainClassName and its arguments are optional: when not present only the server will start

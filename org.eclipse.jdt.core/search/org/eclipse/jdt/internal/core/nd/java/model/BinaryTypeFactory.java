@@ -15,10 +15,8 @@ package org.eclipse.jdt.internal.core.nd.java.model;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
@@ -165,16 +163,14 @@ public class BinaryTypeFactory {
 		} else {
 			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(new String(descriptor.workspacePath)));
 			byte[] contents;
-			try (InputStream stream = file.getContents(true)) {
-				contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsByteArray(stream);
+			try {
+				contents = file.readAllBytes();
 			} catch (CoreException e) {
 				IStatus status = e.getStatus();
 				if (status.getCode() == IResourceStatus.RESOURCE_NOT_FOUND) {
 					throw new FileNotFoundException();
 				}
 				throw new JavaModelException(e);
-			} catch (IOException e) {
-				throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 			}
 			return new ClassFileReader(contents, file.getFullPath().toString().toCharArray(), fullyInitialize);
 		}

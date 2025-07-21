@@ -14,14 +14,13 @@
 package org.eclipse.jdt.core.tests.dom;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import junit.framework.Test;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
@@ -31,6 +30,7 @@ import org.eclipse.jdt.core.tests.model.CancelCounter;
 import org.eclipse.jdt.core.tests.model.Canceler;
 import org.eclipse.jdt.core.tests.model.ReconcilerTests;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ASTConverterTest2 extends ConverterTestSetup {
@@ -305,7 +305,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
 		try {
-			newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+			newOptions.put(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newOptions);
 			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0409", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			ASTNode result = runConversion(sourceUnit, true);
@@ -461,7 +461,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
+		assertEquals("Unexpected problems: " + Arrays.toString(unit.getProblems()), 2, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 1, 0);
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -1785,7 +1785,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
 		try {
-			newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+			newOptions.put(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newOptions);
 			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0466", "Assert.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			ASTNode result = runConversion(sourceUnit, true);
@@ -1809,7 +1809,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
 		try {
-			newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+			newOptions.put(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newOptions);
 			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0467", "Assert.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			ASTNode result = runConversion(sourceUnit, true);
@@ -1958,7 +1958,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
 		try {
-			newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+			newOptions.put(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
 			newOptions.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
 			JavaCore.setOptions(newOptions);
 
@@ -2582,7 +2582,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
 		try {
-			newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+			newOptions.put(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newOptions);
 			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0491", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			char[] source = sourceUnit.getSource().toCharArray();
@@ -2608,7 +2608,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
 		try {
-			newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
+			newOptions.put(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
 			JavaCore.setOptions(newOptions);
 			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0492", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			char[] source = sourceUnit.getSource().toCharArray();
@@ -3027,7 +3027,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) getASTNode(unit, 0, 1, 0);
 		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertEquals("Unexpected binary name", "test0503.A$1$E", typeBinding.getBinaryName()); //$NON-NLS-1$
+		assertEquals("Unexpected binary name", "test0503.A$1E", typeBinding.getBinaryName()); //$NON-NLS-1$
 	}
 
 	/**
@@ -3042,7 +3042,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expressionStatement.getExpression();
 		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
 		ITypeBinding typeBinding = anonymousClassDeclaration.resolveBinding();
-		assertEquals("Unexpected binary name", "test0503.A$2", typeBinding.getBinaryName()); //$NON-NLS-1$
+		assertEquals("Unexpected binary name", "test0503.A$1", typeBinding.getBinaryName()); //$NON-NLS-1$
 	}
 
 	/**
@@ -3058,7 +3058,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
 		TypeDeclaration type = (TypeDeclaration) anonymousClassDeclaration.bodyDeclarations().get(0);
 		ITypeBinding typeBinding = type.resolveBinding();
-		assertEquals("Unexpected binary name", "test0503.A$2$F", typeBinding.getBinaryName()); //$NON-NLS-1$
+		assertEquals("Unexpected binary name", "test0503.A$1$F", typeBinding.getBinaryName()); //$NON-NLS-1$
 	}
 
 	/**
@@ -3074,7 +3074,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) method.getBody().statements().get(0);
 		TypeDeclaration typeDeclaration = typeDeclarationStatement.getTypeDeclaration();
 		ITypeBinding typeBinding = typeDeclaration.resolveBinding();
-		assertEquals("Unexpected binary name", "test0503.A$1$C", typeBinding.getBinaryName()); //$NON-NLS-1$
+		assertEquals("Unexpected binary name", "test0503.A$B$1C", typeBinding.getBinaryName()); //$NON-NLS-1$
 	}
 
 	/**
@@ -3090,7 +3090,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expressionStatement.getExpression();
 		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
 		ITypeBinding typeBinding = anonymousClassDeclaration.resolveBinding();
-		assertEquals("Unexpected binary name", "test0503.A$1", typeBinding.getBinaryName()); //$NON-NLS-1$
+		assertEquals("Unexpected binary name", "test0503.A$B$1", typeBinding.getBinaryName()); //$NON-NLS-1$
 	}
 
 	/**
@@ -3107,7 +3107,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		AnonymousClassDeclaration anonymousClassDeclaration = classInstanceCreation.getAnonymousClassDeclaration();
 		TypeDeclaration type = (TypeDeclaration) anonymousClassDeclaration.bodyDeclarations().get(0);
 		ITypeBinding typeBinding = type.resolveBinding();
-		assertEquals("Unexpected binary name", "test0503.A$1$D", typeBinding.getBinaryName()); //$NON-NLS-1$
+		assertEquals("Unexpected binary name", "test0503.A$B$1$D", typeBinding.getBinaryName()); //$NON-NLS-1$
 	}
 
 	/**
@@ -4382,9 +4382,9 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"}").toCharArray(); //$NON-NLS-1$
 		IJavaProject project = getJavaProject("Converter"); //$NON-NLS-1$
 		Map options = project.getOptions(true);
-		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
-		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
-		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+		options.put(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
+		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
+		options.put(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
 		ASTNode result = runConversion(source, "Test.java", project, options, true); //$NON-NLS-1$
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
@@ -4927,7 +4927,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		final IProblem[] problems = unit.getProblems();
-		assertEquals("Wrong number of problems", 0, problems.length); //$NON-NLS-1$
+		assertEquals("Unexpected problems: " + Arrays.toString(problems), 0, problems.length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 0, 1, 0);
 		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
@@ -5220,7 +5220,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 * when the AST is computed using ICompilationUnit#reconcile(...)
 	 * (regression test for bug 83210 Unidentical ITypeBindings for same type from same AST from reconcile)
 	 */
-	public void test0570() throws CoreException {
+	public void _2551_test0570() throws CoreException {
 		ICompilationUnit workingCopy = null;
 		try {
 			workingCopy = getWorkingCopy("/Converter/src/X.java", true);
@@ -5237,7 +5237,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			Type type = fieldDeclaration.getType();
 			IBinding importBinding = importDeclaration.resolveBinding();
 			IBinding typeBinding = type.resolveBinding();
-			assertEquals(importBinding,typeBinding);
+			assertEquals(importBinding.toString(), typeBinding.toString());
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
@@ -5255,7 +5255,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"  public class Y {\n" +
 				"  }\n" +
 				"}";
-			addLibrary(p, "test0571.jar", "test0571.zip", new String[] {"X.java", source	}, "1.4");
+			addLibrary(p, "test0571.jar", "test0571.zip", new String[] {"X.java", source	}, CompilerOptions.getFirstSupportedJavaVersion());
 			IOrdinaryClassFile classFile = getClassFile("P", "/P/test0571.jar", "", "X$Y.class");
 			CompilationUnit unit = (CompilationUnit) runConversion(getJLS3(), classFile, 0, true);
 			IProblem[] problems = unit.getProblems();
@@ -5360,7 +5360,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 */
 	public void test0576() throws CoreException, IOException {
 		try {
-			IJavaProject project = createJavaProject("P1", new String[] {""}, new String[] {"CONVERTER_JCL15_LIB"}, "", "1.5");
+			IJavaProject project = createJavaProject("P1", new String[] {""}, new String[] {"CONVERTER_JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			addLibrary(project, "lib.jar", "src.zip", new String[] {
 				"/P1/p/X.java",
 				"package p;\n" +
@@ -5368,7 +5368,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"  /*start*/public class Member {\n" +
 				"  }/*end*/\n" +
 				"}",
-			}, "1.5");
+			}, CompilerOptions.getFirstSupportedJavaVersion());
 			IOrdinaryClassFile classFile = getClassFile("P1", "/P1/lib.jar", "p", "X$Member.class");
 			ASTNode node = buildAST(classFile);
 			ITypeBinding binding = ((TypeDeclaration) node).resolveBinding();

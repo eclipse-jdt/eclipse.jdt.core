@@ -86,18 +86,18 @@ public class IfStatement extends Statement {
 	 * The expression; lazily initialized; defaults to an unspecified, but
 	 * legal, expression.
 	 */
-	private Expression expression = null;
+	private volatile Expression expression;
 
 	/**
 	 * The then statement; lazily initialized; defaults to an unspecified, but
 	 * legal, statement.
 	 */
-	private Statement thenStatement = null;
+	private volatile Statement thenStatement;
 
 	/**
 	 * The else statement; <code>null</code> for none; defaults to none.
 	 */
-	private Statement optionalElseStatement = null;
+	private volatile Statement optionalElseStatement;
 
 	/**
 	 * Creates a new unparented if statement node owned by the given
@@ -196,8 +196,7 @@ public class IfStatement extends Statement {
 			synchronized (this) {
 				if (this.expression == null) {
 					preLazyInit();
-					this.expression = new SimpleName(this.ast);
-					postLazyInit(this.expression, EXPRESSION_PROPERTY);
+					this.expression = postLazyInit(new SimpleName(this.ast), EXPRESSION_PROPERTY);
 				}
 			}
 		}
@@ -236,8 +235,7 @@ public class IfStatement extends Statement {
 			synchronized (this) {
 				if (this.thenStatement == null) {
 					preLazyInit();
-					this.thenStatement = new Block(this.ast);
-					postLazyInit(this.thenStatement, THEN_STATEMENT_PROPERTY);
+					this.thenStatement = postLazyInit(new Block(this.ast), THEN_STATEMENT_PROPERTY);
 				}
 			}
 		}

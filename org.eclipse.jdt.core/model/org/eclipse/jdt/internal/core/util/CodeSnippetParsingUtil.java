@@ -15,7 +15,6 @@ package org.eclipse.jdt.internal.core.util;
 
 import java.util.Locale;
 import java.util.Map;
-
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
@@ -23,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -174,8 +174,8 @@ public class CodeSnippetParsingUtil {
 		parser.scanner.setSource(compilationResult);
 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = compilationUnitDeclaration.types;
 		if (types != null) {
-			for (int i = 0, length = types.length; i < length; i++) {
-				types[i].parseMethods(parser, compilationUnitDeclaration);
+			for (TypeDeclaration type : types) {
+				type.parseMethods(parser, compilationUnitDeclaration);
 			}
 		}
 

@@ -15,12 +15,12 @@ package org.eclipse.jdt.apt.tests;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class AnnotationValueConversionTests extends APTTestBase
 {
@@ -67,7 +67,7 @@ public class AnnotationValueConversionTests extends APTTestBase
 	{
 		ProcessorTestStatus.reset();
 		// project will be deleted by super-class's tearDown() method
-		IPath projectPath = env.addProject( getUniqueProjectName(), "1.5" ); //$NON-NLS-1$
+		IPath projectPath = env.addProject( getUniqueProjectName(), CompilerOptions.getFirstSupportedJavaVersion() ); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		env.addExternalJars( projectPath, Util.getJavaClassLibs() );
 		fullBuild( projectPath );

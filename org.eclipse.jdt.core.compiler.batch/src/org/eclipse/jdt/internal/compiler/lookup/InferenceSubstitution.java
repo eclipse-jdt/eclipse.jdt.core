@@ -92,8 +92,8 @@ public class InferenceSubstitution extends Scope.Substitutor implements Substitu
 	}
 
 	private boolean isInSites(InvocationSite otherSite) {
-		for (int i = 0; i < this.sites.length; i++)
-			if (InferenceContext18.isSameSite(this.sites[i], otherSite))
+		for (InvocationSite site : this.sites)
+			if (InferenceContext18.isSameSite(site, otherSite))
 				return true;
 		return false;
 	}
@@ -144,8 +144,7 @@ public class InferenceSubstitution extends Scope.Substitutor implements Substitu
 			typeVariable.superclass = superclass;
 			typeVariable.superInterfaces = superInterfaces;
 			typeVariable.firstBound = superclass != null ? superclass : superInterfaces[0];
-			if (typeVariable.firstBound.hasNullTypeAnnotations())
-				typeVariable.tagBits |= TagBits.HasNullTypeAnnotation;
+			typeVariable.tagBits |= typeVariable.firstBound.tagBits & (TagBits.HasNullTypeAnnotation|TagBits.HasMissingType);
 		}
 		return typeVariable;
 	}

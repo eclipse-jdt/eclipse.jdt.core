@@ -113,7 +113,7 @@ public class Initializer extends BodyDeclaration {
 	/**
 	 * The initializer body; lazily initialized; defaults to an empty block.
 	 */
-	private Block body = null;
+	private volatile Block body;
 
 	/**
 	 * Creates a new AST node for an initializer declaration owned by the given
@@ -249,8 +249,7 @@ public class Initializer extends BodyDeclaration {
 			synchronized (this) {
 				if (this.body == null) {
 					preLazyInit();
-					this.body= new Block(this.ast);
-					postLazyInit(this.body, BODY_PROPERTY);
+					this.body = postLazyInit(new Block(this.ast), BODY_PROPERTY);
 				}
 			}
 		}

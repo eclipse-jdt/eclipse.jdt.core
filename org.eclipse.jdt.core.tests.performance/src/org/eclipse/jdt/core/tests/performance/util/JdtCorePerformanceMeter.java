@@ -15,7 +15,6 @@ package org.eclipse.jdt.core.tests.performance.util;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.eclipse.test.internal.performance.OSPerformanceMeter;
 import org.eclipse.test.internal.performance.data.DataPoint;
 import org.eclipse.test.internal.performance.data.Sample;

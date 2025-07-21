@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -36,9 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -15331,9 +15329,9 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84743 - variation in -source 1.4 mode but 1.5 compliance (ignore covariance)
-public void test0498(){
+public void _2551_test0498(){
 	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
+	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 	runNegativeTest(
 		// test directory preparation
 		true /* flush output directory */,
@@ -15372,7 +15370,7 @@ public void test0498(){
 		"----------\n",
 		// javac options
 		RUN_JAVAC ? /* javac test options */
-			new JavacTestOptions("-source 1.4") :
+			new JavacTestOptions("-source " + CompilerOptions.getFirstSupportedJavaVersion()) :
 			JavacTestOptions.DEFAULT );
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=85157
@@ -20571,37 +20569,42 @@ public void test0617() {
 				"	}\n" +
 				"}\n",
 	        },
-	        "----------\n" +
-			"1. WARNING in X.java (at line 3)\n" +
-			"	Outer.Inner inner = new Outer().new Inner();\n" +
-			"	^^^^^^^^^^^\n" +
-			"Outer.Inner is a raw type. References to generic type Outer.Inner<U> should be parameterized\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 3)\n" +
-			"	Outer.Inner inner = new Outer().new Inner();\n" +
-			"	                        ^^^^^\n" +
-			"Outer is a raw type. References to generic type Outer<T> should be parameterized\n" +
-			"----------\n" +
-			"3. WARNING in X.java (at line 3)\n" +
-			"	Outer.Inner inner = new Outer().new Inner();\n" +
-			"	                                    ^^^^^\n" +
-			"Outer.Inner is a raw type. References to generic type Outer.Inner<U> should be parameterized\n" +
-			"----------\n" +
-			"4. WARNING in X.java (at line 4)\n" +
-			"	X x = inner.set(new X());\n" +
-			"	      ^^^^^^^^^^^^^^^^^^\n" +
-			"Type safety: The method set(Object) belongs to the raw type Outer.Inner. References to generic type Outer.Inner<U> should be parameterized\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 4)\n" +
-			"	X x = inner.set(new X());\n" +
-			"	      ^^^^^^^^^^^^^^^^^^\n" +
-			"Type mismatch: cannot convert from Object to X\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 6)\n" +
-			"	Outer<String>.Inner innerS = inner;\n" +
-			"	^^^^^^^^^^^^^^^^^^^\n" +
-			"The member type Outer.Inner<U> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type Outer<String>\n" +
-			"----------\n");
+            "----------\n" +
+    		"1. WARNING in X.java (at line 3)\n" +
+    		"	Outer.Inner inner = new Outer().new Inner();\n" +
+    		"	^^^^^^^^^^^\n" +
+    		"Outer.Inner is a raw type. References to generic type Outer.Inner<U> should be parameterized\n" +
+    		"----------\n" +
+    		"2. ERROR in X.java (at line 3)\n" +
+    		"	Outer.Inner inner = new Outer().new Inner();\n" +
+    		"	                    ^^^^^^^^^^^\n" +
+    		"Illegal enclosing instance specification for type Outer.Inner\n" +
+    		"----------\n" +
+    		"3. WARNING in X.java (at line 3)\n" +
+    		"	Outer.Inner inner = new Outer().new Inner();\n" +
+    		"	                        ^^^^^\n" +
+    		"Outer is a raw type. References to generic type Outer<T> should be parameterized\n" +
+    		"----------\n" +
+    		"4. WARNING in X.java (at line 3)\n" +
+    		"	Outer.Inner inner = new Outer().new Inner();\n" +
+    		"	                                    ^^^^^\n" +
+    		"Outer.Inner is a raw type. References to generic type Outer.Inner<U> should be parameterized\n" +
+    		"----------\n" +
+    		"5. WARNING in X.java (at line 4)\n" +
+    		"	X x = inner.set(new X());\n" +
+    		"	      ^^^^^^^^^^^^^^^^^^\n" +
+    		"Type safety: The method set(Object) belongs to the raw type Outer.Inner. References to generic type Outer.Inner<U> should be parameterized\n" +
+    		"----------\n" +
+    		"6. ERROR in X.java (at line 4)\n" +
+    		"	X x = inner.set(new X());\n" +
+    		"	      ^^^^^^^^^^^^^^^^^^\n" +
+    		"Type mismatch: cannot convert from Object to X\n" +
+    		"----------\n" +
+    		"7. ERROR in X.java (at line 6)\n" +
+    		"	Outer<String>.Inner innerS = inner;\n" +
+    		"	^^^^^^^^^^^^^^^^^^^\n" +
+    		"The member type Outer.Inner<U> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type Outer<String>\n" +
+    		"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=94644 - variation
 	public void test0648() {
@@ -22758,19 +22761,7 @@ public void test0705() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97219
 public void test0706() {
-	String outputExpectedBelow17 = (this.complianceLevel == ClassFileConstants.JDK1_6)?
-			"----------\n" +
-			"1. WARNING in X.java (at line 9)\n" +
-			"	class BB extends AA<CC> { <U> BB test() {return null;} }\n" +
-			"	                                 ^^^^^^\n" +
-			"Name clash: The method test() of type BB has the same erasure as test() of type AA<T> but does not override it\n" +
-			"----------\n":
-				"----------\n" +
-				"1. ERROR in X.java (at line 9)\n" +
-				"	class BB extends AA<CC> { <U> BB test() {return null;} }\n" +
-				"	                                 ^^^^^^\n" +
-				"Name clash: The method test() of type BB has the same erasure as test() of type AA<T> but does not override it\n" +
-				"----------\n";
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -22778,16 +22769,14 @@ public void test0706() {
 			"	void foo() {\n" +
 			"		BB bb = new BB();\n" +
 			"		bb.<Object>test();\n" +
-			"		((AA<CC>) bb).test();\n" +
+			"		((AA<CC>) bb).test();\n" + // cast relevant for disambiguation
 			"	}\n" +
 			"}\n" +
 			"class AA<T> { AA<Object> test() {return null;} }\n" +
 			"class BB extends AA<CC> { <U> BB test() {return null;} }\n" +
 			"class CC {}\n",
 		},
-		(this.complianceLevel < ClassFileConstants.JDK1_7)
-		? outputExpectedBelow17
-		: "----------\n" +
+		"----------\n" +
 		"1. ERROR in X.java (at line 4)\n" +
 		"	bb.<Object>test();\n" +
 		"	           ^^^^\n" +
@@ -28634,27 +28623,47 @@ public void test0872() {
 			"	^^^^^^^^\n" +
 			"The member type X.M3.N3<U> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.M3<X>\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 25)\n" +
+			"2. ERROR in X.java (at line 22)\n" +
+			"	M3<X>.N3<X> n = m.new N3<X>();\n" +
+			"	                ^\n" +
+			"Illegal enclosing instance specification for type X.M3.N3<X>\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 25)\n" +
 			"	static class N3<U> {\n" +
 			"	             ^^\n" +
 			"The member type N3 cannot be declared static; static types can only be declared in static or top level types\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 30)\n" +
+			"4. ERROR in X.java (at line 30)\n" +
 			"	M4<X>.N4<X> n = m.new N4<X>();\n" +
 			"	^^^^^^^^\n" +
 			"The member type X.M4.N4<U> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.M4<X>\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 30)\n" +
+			"	M4<X>.N4<X> n = m.new N4<X>();\n" +
+			"	                ^\n" +
+			"Illegal enclosing instance specification for type X.M4.N4<X>\n" +
 			"----------\n" :
-			"----------\n" +
-			"1. ERROR in X.java (at line 22)\n" +
-			"	M3<X>.N3<X> n = m.new N3<X>();\n" +
-			"	^^^^^^^^\n" +
-			"The member type X.M3.N3<U> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.M3<X>\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 30)\n" +
-			"	M4<X>.N4<X> n = m.new N4<X>();\n" +
-			"	^^^^^^^^\n" +
-			"The member type X.M4.N4<U> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.M4<X>\n" +
-			"----------\n";
+						"----------\n" +
+						"1. ERROR in X.java (at line 22)\n" +
+						"	M3<X>.N3<X> n = m.new N3<X>();\n" +
+						"	^^^^^^^^\n" +
+						"The member type X.M3.N3<U> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.M3<X>\n" +
+						"----------\n" +
+						"2. ERROR in X.java (at line 22)\n" +
+						"	M3<X>.N3<X> n = m.new N3<X>();\n" +
+						"	                ^\n" +
+						"Illegal enclosing instance specification for type X.M3.N3<X>\n" +
+						"----------\n" +
+						"3. ERROR in X.java (at line 30)\n" +
+						"	M4<X>.N4<X> n = m.new N4<X>();\n" +
+						"	^^^^^^^^\n" +
+						"The member type X.M4.N4<U> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.M4<X>\n" +
+						"----------\n" +
+						"4. ERROR in X.java (at line 30)\n" +
+						"	M4<X>.N4<X> n = m.new N4<X>();\n" +
+						"	                ^\n" +
+						"Illegal enclosing instance specification for type X.M4.N4<X>\n" +
+						"----------\n";
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -29202,9 +29211,9 @@ public void test0885() {
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=124943
-public void test0886() {
+public void _2551_test0886() {
 	Map customOptions= getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
+	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
 	runConformTest(
 		// test directory preparation
 		true /* flush output directory */,
@@ -29225,7 +29234,7 @@ public void test0886() {
 		"" /* expected output string */,
 		null /* do not check error string */,
 		// javac options
-		new JavacTestOptions("-source 1.4 -Xlint:-options") /* javac test options */);
+		new JavacTestOptions("-source " + CompilerOptions.getFirstSupportedJavaVersion() + " -Xlint:-options") /* javac test options */);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=122775
 public void test0887() {
@@ -29707,7 +29716,10 @@ public void test0899() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=97693
 public void test0900() {
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.IGNORE);
+	runner.testFiles =
 		new String[] {
 			"X.java", // =================
 			"public class X<R> {\n" +
@@ -29728,7 +29740,8 @@ public void test0900() {
 			"		Zork z;\n" +
 			"	}\n" +
 			"}\n",
-		},
+		};
+	runner.expectedCompilerLog =
 		"----------\n" +
 		"1. WARNING in X.java (at line 11)\n" +
 		"	((Comparable<R>) new Implements()).toString();\n" +
@@ -29744,7 +29757,8 @@ public void test0900() {
 		"	Zork z;\n" +
 		"	^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
-		"----------\n");
+		"----------\n";
+	runner.runNegativeTest();
 }
 // Object array vs Object into generic method
 public void test0901() {
@@ -36615,7 +36629,7 @@ public void test1066() throws Exception {
 	// 	check presence of checkcast
 	String expectedOutput;
 	if (this.complianceLevel >= ClassFileConstants.JDK9) {
-		expectedOutput = "  // Stack: 4, Locals: 8\n" +
+		expectedOutput = "  // Stack: 3, Locals: 8\n" +
 				"  public static void main(java.lang.String[] args);\n" +
 				"      0  new X [1]\n" +
 				"      3  dup\n" +
@@ -39044,6 +39058,9 @@ public void test1119() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=166963
 public void test1120() {
+	String msg = (this.complianceLevel < ClassFileConstants.JDK23) ?
+						"Constructor call must be the first statement in a constructor\n" :
+							"Flexible Constructor Bodies is a preview feature and disabled by default. Use --enable-preview to enable\n";
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -39060,7 +39077,7 @@ public void test1120() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	this(zork);\n" +
 		"	^^^^^^^^^^^\n" +
-		"Constructor call must be the first statement in a constructor\n" +
+		msg +
 		"----------\n" +
 		"2. ERROR in X.java (at line 4)\n" +
 		"	this(zork);\n" +
@@ -43227,6 +43244,11 @@ public void test1222() {
 		"	public class X<T extends Zork & Runnable> {\n" +
 		"	                         ^^^^\n" +
 		"Zork cannot be resolved to a type\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 4)\n" +
+		"	Runnable r = x2.get();\n" +
+		"	                ^^^\n" +
+		"The method get() from the type X<T> refers to the missing type Zork\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=211718

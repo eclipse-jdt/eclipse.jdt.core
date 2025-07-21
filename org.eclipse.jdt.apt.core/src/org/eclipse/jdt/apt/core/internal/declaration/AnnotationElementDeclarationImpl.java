@@ -21,7 +21,6 @@ import com.sun.mirror.declaration.ParameterDeclaration;
 import com.sun.mirror.util.DeclarationVisitor;
 import java.util.Collection;
 import java.util.Collections;
-
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.Factory;
 import org.eclipse.jdt.core.dom.ASTNode;

@@ -79,13 +79,13 @@ public class CatchClause extends ASTNode {
 	/**
 	 * The body; lazily initialized; defaults to an empty block.
 	 */
-	private Block body = null;
+	private volatile Block body;
 
 	/**
 	 * The exception variable declaration; lazily initialized; defaults to a
 	 * unspecified, but legal, variable declaration.
 	 */
-	private SingleVariableDeclaration exceptionDecl = null;
+	private volatile SingleVariableDeclaration exceptionDecl;
 
 	/**
 	 * Creates a new AST node for a catch clause owned by the given
@@ -171,8 +171,7 @@ public class CatchClause extends ASTNode {
 			synchronized (this) {
 				if (this.exceptionDecl == null) {
 					preLazyInit();
-					this.exceptionDecl = new SingleVariableDeclaration(this.ast);
-					postLazyInit(this.exceptionDecl, EXCEPTION_PROPERTY);
+					this.exceptionDecl = postLazyInit(new SingleVariableDeclaration(this.ast), EXCEPTION_PROPERTY);
 				}
 			}
 		}
@@ -211,8 +210,7 @@ public class CatchClause extends ASTNode {
 			synchronized (this) {
 				if (this.body == null) {
 					preLazyInit();
-					this.body = new Block(this.ast);
-					postLazyInit(this.body, BODY_PROPERTY);
+					this.body = postLazyInit(new Block(this.ast), BODY_PROPERTY);
 				}
 			}
 		}

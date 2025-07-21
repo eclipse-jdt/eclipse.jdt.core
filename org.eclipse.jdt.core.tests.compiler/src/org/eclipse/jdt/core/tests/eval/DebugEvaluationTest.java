@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.eval;
 
+import com.sun.jdi.VirtualMachine;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -20,9 +21,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Map;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
@@ -34,8 +33,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.eval.EvaluationResult;
 import org.eclipse.jdt.internal.eval.InstallException;
-
-import com.sun.jdi.VirtualMachine;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class DebugEvaluationTest extends EvaluationTest {
@@ -143,7 +140,7 @@ public class DebugEvaluationTest extends EvaluationTest {
 			.append(fileName)
 			.append("\" -d \"")
 			.append(EvaluationSetup.EVAL_DIRECTORY + File.separator + LocalVMLauncher.REGULAR_CLASSPATH_DIRECTORY)
-			.append("\" -nowarn -1.5 -g -classpath \"")
+			.append("\" -nowarn -" + CompilerOptions.getFirstSupportedJavaVersion() + " -g -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append(SOURCE_DIRECTORY)
 			.append("\"");
@@ -171,7 +168,7 @@ public class DebugEvaluationTest extends EvaluationTest {
 		Map options = super.getCompilerOptions();
 		options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
 		options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
-		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
 		options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 		return options;
 	}
@@ -2774,9 +2771,9 @@ public void test063() throws Exception {
 				"}\n" +
 				"sum").toCharArray();
 		Map compilerOpts = getCompilerOptions();
-		compilerOpts.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-		compilerOpts.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-		compilerOpts.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_2);
+		compilerOpts.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.getFirstSupportedJavaVersion());
+		compilerOpts.put(CompilerOptions.OPTION_Source, CompilerOptions.getFirstSupportedJavaVersion());
+		compilerOpts.put(CompilerOptions.OPTION_Compliance, CompilerOptions.getFirstSupportedJavaVersion());
 
 		this.context.evaluate(
 			snippet,

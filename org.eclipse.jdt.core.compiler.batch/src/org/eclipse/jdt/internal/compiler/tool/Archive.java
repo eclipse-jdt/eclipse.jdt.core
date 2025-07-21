@@ -26,7 +26,6 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
-
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 
 /**
@@ -55,7 +54,7 @@ public class Archive implements Closeable {
 		// initialize packages
 		this.packagesCache = new Hashtable<>();
 		for (Enumeration<? extends ZipEntry> e = this.zipFile.entries(); e.hasMoreElements(); ) {
-			String fileName = ((ZipEntry) e.nextElement()).getName();
+			String fileName = e.nextElement().getName();
 
 			// add the package name & all of its parent packages
 			int last = fileName.lastIndexOf('/');

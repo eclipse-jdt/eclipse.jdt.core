@@ -21,14 +21,13 @@ package org.eclipse.jdt.internal.compiler.flow;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
-import org.eclipse.jdt.internal.compiler.ast.UnionTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.SubRoutineStatement;
+import org.eclipse.jdt.internal.compiler.ast.StatementWithFinallyBlock;
 import org.eclipse.jdt.internal.compiler.ast.TryStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.ast.UnionTypeReference;
 import org.eclipse.jdt.internal.compiler.codegen.ObjectCache;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CatchParameterBinding;
@@ -155,11 +154,11 @@ public void complainIfUnusedExceptionHandlers(AbstractMethodDeclaration method) 
 			docCommentReferences[i] = method.javadoc.exceptionReferences[i].resolvedType;
 		}
 	}
-	nextHandledException: for (int i = 0, count = this.handledExceptions.length; i < count; i++) {
-		int index = this.indexes.get(this.handledExceptions[i]);
+	nextHandledException: for (ReferenceBinding handledException : this.handledExceptions) {
+		int index = this.indexes.get(handledException);
 		if ((this.isReached[index / ExceptionHandlingFlowContext.BitCacheSize] & 1 << (index % ExceptionHandlingFlowContext.BitCacheSize)) == 0) {
 			for (int j = 0; j < docCommentReferencesLength; j++) {
-				if (TypeBinding.equalsEquals(docCommentReferences[j], this.handledExceptions[i])) {
+				if (TypeBinding.equalsEquals(docCommentReferences[j], handledException)) {
 					continue nextHandledException;
 				}
 			}
@@ -198,8 +197,7 @@ private ASTNode getExceptionType(int index) {
 	ASTNode node = this.catchArguments[catchBlock].type;
 	if (node instanceof UnionTypeReference) {
 		TypeReference[] typeRefs = ((UnionTypeReference)node).typeReferences;
-		for (int i = 0, len = typeRefs.length; i < len; i++) {
-			TypeReference typeRef = typeRefs[i];
+		for (TypeReference typeRef : typeRefs) {
 			if (TypeBinding.equalsEquals(typeRef.resolvedType, this.handledExceptions[index])) return typeRef;
 		}
 	}
@@ -312,19 +310,19 @@ public void recordReturnFrom(UnconditionalFlowInfo flowInfo) {
 }
 
 /**
- * Exception handlers (with no finally block) are also included with subroutine
- * only once (in case parented with true InsideSubRoutineFlowContext).
- * Standard management of subroutines need to also operate on intermediate
+ * Exception handlers (with no finally block) are also included with statement with finally block
+ * only once (in case parented with true InsideStatementWithFinallyBlockFlowContext).
+ * Standard management of statements with finally blocks need to also operate on intermediate
  * exception handlers.
- * @see org.eclipse.jdt.internal.compiler.flow.FlowContext#subroutine()
+ * @see org.eclipse.jdt.internal.compiler.flow.FlowContext#statementWithFinallyBlock()
  */
 @Override
-public SubRoutineStatement subroutine() {
-	if (this.associatedNode instanceof SubRoutineStatement) {
-		// exception handler context may be child of InsideSubRoutineFlowContext, which maps to same handler
-		if (this.parent.subroutine() == this.associatedNode)
+public StatementWithFinallyBlock statementWithFinallyBlock() {
+	if (this.associatedNode instanceof StatementWithFinallyBlock) {
+		// exception handler context may be child of InsideStatementWithFinallyBlockFlowContext, which maps to same handler
+		if (this.parent.statementWithFinallyBlock() == this.associatedNode)
 			return null;
-		return (SubRoutineStatement) this.associatedNode;
+		return (StatementWithFinallyBlock) this.associatedNode;
 	}
 	return null;
 }

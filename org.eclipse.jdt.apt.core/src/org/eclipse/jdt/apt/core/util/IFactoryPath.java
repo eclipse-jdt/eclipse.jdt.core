@@ -15,7 +15,6 @@
 package org.eclipse.jdt.apt.core.util;
 
 import java.io.File;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 

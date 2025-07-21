@@ -47,9 +47,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -18289,11 +18287,10 @@ public void testBug536408() {
 	runner.runNegativeTest();
 }
 public void testBug542707_1() {
-	if (!checkPreviewAllowed()) return; // switch expression
+	if (this.complianceLevel < ClassFileConstants.JDK14) // switch expression
+		return;
 	Runner runner = new Runner();
 	runner.customOptions = new HashMap<>();
-	runner.customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-	runner.customOptions.put(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 	runner.testFiles = new String[] {
 		"X.java",
 		"public class X {\n" +
@@ -18736,5 +18733,34 @@ public void testGH1461_d() {
 			Dead code
 			----------
 			""");
+}
+public void testGH1755() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+			import java.util.function.Supplier;
+
+			public class X {
+				public static void main(String[] args) {
+					String a = "Hello";
+					if (((Supplier<String>) () -> a) instanceof Supplier)
+						System.out.print("yes");
+					if (((Supplier<String>) () -> a) != null)
+						System.out.print("yes");
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 8)
+			if (((Supplier<String>) () -> a) != null)
+			    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+		Redundant null check: this expression cannot be null
+		----------
+		""");
 }
 }

@@ -11,7 +11,6 @@
 package org.eclipse.jdt.apt.tests;
 
 import java.net.URL;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;

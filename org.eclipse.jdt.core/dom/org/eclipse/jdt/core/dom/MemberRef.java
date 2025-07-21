@@ -85,7 +85,7 @@ public class MemberRef extends ASTNode implements IDocElement {
 	 * The member name; lazily initialized; defaults to a unspecified,
 	 * legal Java method name.
 	 */
-	private SimpleName memberName = null;
+	private volatile SimpleName memberName;
 
 	/**
 	 * Creates a new AST node for a member reference owned by the given
@@ -200,8 +200,7 @@ public class MemberRef extends ASTNode implements IDocElement {
 			synchronized (this) {
 				if (this.memberName == null) {
 					preLazyInit();
-					this.memberName = new SimpleName(this.ast);
-					postLazyInit(this.memberName, NAME_PROPERTY);
+					this.memberName = postLazyInit(new SimpleName(this.ast), NAME_PROPERTY);
 				}
 			}
 		}

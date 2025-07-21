@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,7 +16,7 @@ package org.eclipse.jdt.internal.core;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
+import java.util.Objects;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IScanner;
@@ -49,12 +49,28 @@ protected static boolean areSimilarMethods(
 		int params1Length = params1.length;
 		if (params1Length == params2.length) {
 			for (int i = 0; i < params1Length; i++) {
+				String typeErasureParam1Signature = Signature.getTypeErasure(params1[i]);
+				String typeErasureParam2Signature = Signature.getTypeErasure(params2[i]);
 				String simpleName1 =
 					simpleNames1 == null ?
-						Signature.getSimpleName(Signature.toString(Signature.getTypeErasure(params1[i]))) :
+						Signature.getSimpleName(Signature.toString(typeErasureParam1Signature)) :
 						simpleNames1[i];
-				String simpleName2 = Signature.getSimpleName(Signature.toString(Signature.getTypeErasure(params2[i])));
+				String simpleName2 = Signature.getSimpleName(Signature.toString(typeErasureParam2Signature));
 				if (!simpleName1.equals(simpleName2)) {
+					return false;
+				}
+				String param1Qualifier = Signature.getSignatureQualifier(typeErasureParam1Signature);
+				String param2Qualifier = Signature.getSignatureQualifier(typeErasureParam2Signature);
+				if (param1Qualifier.isEmpty() || param2Qualifier.isEmpty()
+					|| Objects.equals(param1Qualifier, param2Qualifier)) {
+					continue;
+				}
+				// qualifier can have multiple forms, particularly for nested types:
+				// * mypackage.Outer.Inner.Innest
+				// * Outer.Inner.Innest (if Outer is is imported)
+				// * Inner.Innest (if Inner is imported)
+				// so we compare the suffix
+				if (!(param1Qualifier.endsWith('.' + param2Qualifier) || param2Qualifier.endsWith('.' + param1Qualifier))) {
 					return false;
 				}
 			}
@@ -63,6 +79,7 @@ protected static boolean areSimilarMethods(
 	}
 	return false;
 }
+
 /**
  * Converts a field constant from the compiler's representation
  * to the Java Model constant representation (Number or String).
@@ -109,8 +126,7 @@ public static IMethod[] findMethods(IMethod method, IMethod[] methods) {
 		simpleNames[i] = Signature.getSimpleName(Signature.toString(erasure));
 	}
 	ArrayList list = new ArrayList();
-	for (int i = 0, length = methods.length; i < length; i++) {
-		IMethod existingMethod = methods[i];
+	for (IMethod existingMethod : methods) {
 		if (areSimilarMethods(
 				elementName,
 				parameters,
@@ -335,6 +351,7 @@ public ISourceRange getJavadocRange() throws JavaModelException {
 			int terminal= scanner.getNextToken();
 			loop: while (true) {
 				switch(terminal) {
+					case ITerminalSymbols.TokenNameCOMMENT_MARKDOWN :
 					case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
 						docOffset= scanner.getCurrentTokenStartPosition();
 						docEnd= scanner.getCurrentTokenEndPosition() + 1;
@@ -413,7 +430,7 @@ protected boolean isMainMethod(IMethod method) throws JavaModelException {
 
 protected boolean isMainMethodCandidate(IMethod method) throws JavaModelException {
 	Map<String, String> options = method.getJavaProject().getOptions(true);
-	if (JavaFeature.UNNAMMED_CLASSES_AND_INSTANCE_MAIN_METHODS.isSupported(
+	if (JavaFeature.IMPLICIT_CLASSES_AND_INSTANCE_MAIN_METHODS.isSupported(
 				options.get(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM),
 				JavaCore.ENABLED.equals(options.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)))) {
 		if ("main".equals(method.getElementName()) && Signature.SIG_VOID.equals(method.getReturnType())) { //$NON-NLS-1$

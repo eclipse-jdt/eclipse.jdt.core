@@ -15,17 +15,27 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.util;
 
-import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
-import org.eclipse.jdt.core.tests.runtime.*;
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
 import java.lang.ref.Cleaner;
-import java.net.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
+import org.eclipse.jdt.core.tests.runtime.LocalVMLauncher;
+import org.eclipse.jdt.core.tests.runtime.LocalVirtualMachine;
+import org.eclipse.jdt.core.tests.runtime.TargetException;
 
 /**
  * Verifies that the .class files resulting from a compilation can be loaded
@@ -218,131 +228,126 @@ static {
 	// Use static initialiser block instead of direct field initialisation, because it permits for code folding in IDEs,
 	// i.e. this huge string can easily be folded away, which minimises scrolling.
 	VERIFY_TEST_CODE_DEFAULT =
-		"/*******************************************************************************\n" +
-		" * Copyright (c) 2000, 2021 IBM Corporation and others.\n" +
-		" *\n" +
-		" * This program and the accompanying materials\n" +
-		" * are made available under the terms of the Eclipse Public License 2.0\n" +
-		" * which accompanies this distribution, and is available at\n" +
-		" * https://www.eclipse.org/legal/epl-2.0/\n" +
-		" *\n" +
-		" * SPDX-License-Identifier: EPL-2.0\n" +
-		" *\n" +
-		" * Contributors:\n" +
-		" *     IBM Corporation - initial API and implementation\n" +
-		" *     Alexander Kriegisch - bug 286316: Get classpath via DataInputStream and\n" +
-		" *         use it in an isolated URLClassLoader, enabling formerly locked\n" +
-		" *         classpath JARs to be closed on Windows\n" +
-		" *******************************************************************************/\n" +
-		"package org.eclipse.jdt.core.tests.util;\n" +
-		"\n" +
-		"import java.io.DataInputStream;\n" +
-		"import java.io.DataOutputStream;\n" +
-		"import java.io.File;\n" +
-		"import java.io.IOException;\n" +
-		"import java.lang.reflect.InvocationTargetException;\n" +
-		"import java.lang.reflect.Method;\n" +
-		"import java.net.MalformedURLException;\n" +
-		"import java.net.Socket;\n" +
-		"import java.net.URL;\n" +
-		"import java.net.URLClassLoader;\n" +
-		"\n" +
-		"/**\n" +
-		" * <b>IMPORTANT NOTE:</b> When modifying this class, please copy the source into the static initialiser block for field\n" +
-		" * {@link TestVerifier#VERIFY_TEST_CODE_DEFAULT}. See also {@link TestVerifier#READ_VERIFY_TEST_FROM_FILE}, if you want\n" +
-		" * to dynamically load the source code directly from this file when running tests, which is a convenient way to test if\n" +
-		" * changes in this class work as expected, without the need to update the hard-coded default value every single time\n" +
-		" * during an ongoing refactoring.\n" +
-		" * <p>\n" +
-		" * In order to make the copying job easier, keep this class compatible with Java 5 language level. You may however use\n" +
-		" * things like {@code @Override} for interfaces, {@code assert} (if in a single line), {@code @SuppressWarnings},\n" +
-		" * because {@link TestVerifier#getVerifyTestsCode()} can filter them out dynamically. You should however avoid things\n" +
-		" * like diamonds, multi-catch, catch-with-resources and more recent Java features.\n" +
-		" */\n" +
-		"@SuppressWarnings({ \"unchecked\", \"rawtypes\" })\n" +
-		"public class VerifyTests {\n" +
-		"	int portNumber;\n" +
-		"	Socket socket;\n" +
-		"\n" +
-		"private static URL[] classPathToURLs(String[] classPath) throws MalformedURLException {\n" +
-		"	URL[] urls = new URL[classPath.length];\n" +
-		"	for (int i = 0; i < classPath.length; i++) {\n" +
-		"		urls[i] = new File(classPath[i]).toURI().toURL();\n" +
-		"	}\n" +
-		"	return urls;\n" +
-		"}\n" +
-		"\n" +
-		"public void loadAndRun(String className, String[] classPath) throws Throwable {\n" +
-		"	URLClassLoader urlClassLoader = new URLClassLoader(classPathToURLs(classPath));\n" +
-		"	try {\n" +
-		"		//System.out.println(\"Loading \" + className + \"...\");\n" +
-		"		Class testClass = urlClassLoader.loadClass(className);\n" +
-		"		//System.out.println(\"Loaded \" + className);\n" +
-		"		try {\n" +
-		"			Method main = testClass.getMethod(\"main\", new Class[] {String[].class});\n" +
-		"			//System.out.println(\"Running \" + className);\n" +
-		"			main.invoke(null, new Object[] {new String[] {}});\n" +
-		"			//System.out.println(\"Finished running \" + className);\n" +
-		"		} catch (NoSuchMethodException e) {\n" +
-		"			return;\n" +
-		"		} catch (InvocationTargetException e) {\n" +
-		"			throw e.getTargetException();\n" +
-		"		}\n" +
-		"	} finally {\n" +
-		"		urlClassLoader.close();\n" +
-		"	}\n" +
-		"}\n" +
-		"public static void main(String[] args) throws IOException {\n" +
-		"	VerifyTests verify = new VerifyTests();\n" +
-		"	verify.portNumber = Integer.parseInt(args[0]);\n" +
-		"	verify.run();\n" +
-		"}\n" +
-		"public void run() throws IOException {\n" +
-		"	this.socket = new Socket(\"localhost\", this.portNumber);\n" +
-		"	this.socket.setTcpNoDelay(true);\n" +
-		"\n" +
-		"	DataInputStream in = new DataInputStream(this.socket.getInputStream());\n" +
-		"	final DataOutputStream out = new DataOutputStream(this.socket.getOutputStream());\n" +
-		"	while (true) {\n" +
-		"		final String className = in.readUTF();\n" +
-		"		final int length = in.readInt();\n" +
-		"		final String[] classPath = new String[length];\n" +
-		"		for (int i = 0; i < length; i++) {\n" +
-		"			classPath[i] = in.readUTF();\n" +
-		"		}\n" +
-		"		Thread thread = new Thread() {\n" +
-		"			@Override\n" +
-		"			public void run() {\n" +
-		"				try {\n" +
-		"					loadAndRun(className, classPath);\n" +
-		"					out.writeBoolean(true);\n" +
-		"					System.out.println(VerifyTests.class.getName());\n" +
-		"					System.err.println(VerifyTests.class.getName());\n" +
-		"				} catch (Throwable e) {\n" +
-		"					e.printStackTrace();\n" +
-		"					try {\n" +
-		"						out.writeBoolean(false);\n" +
-		"						System.out.println(VerifyTests.class.getName());\n" +
-		"						System.err.println(VerifyTests.class.getName());\n" +
-		"					} catch (IOException e1) {\n" +
-		"						e1.printStackTrace();\n" +
-		"					}\n" +
-		"				}\n" +
-		"				// Flush all streams, in case the test executor VM is shut down before\n" +
-		"				// the controlling VM receives the responses it depends on\n" +
-		"				try {\n" +
-		"					out.flush();\n" +
-		"				} catch (IOException e) {\n" +
-		"					e.printStackTrace();\n" +
-		"				}\n" +
-		"				System.out.flush();\n" +
-		"				System.err.flush();\n" +
-		"			}\n" +
-		"		};\n" +
-		"		thread.start();\n" +
-		"	}\n" +
-		"}\n" +
-		"}\n";
+"""
+/*******************************************************************************
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *     Alexander Kriegisch - bug 286316: Get classpath via DataInputStream and
+ *         use it in an isolated URLClassLoader, enabling formerly locked
+ *         classpath JARs to be closed on Windows
+ *******************************************************************************/
+package org.eclipse.jdt.core.tests.util;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.Socket;
+import java.net.URL;
+import java.net.URLClassLoader;
+
+/**
+ * <b>IMPORTANT NOTE:</b> When modifying this class, please copy the source into the static initialiser block for field
+ * {@link TestVerifier#VERIFY_TEST_CODE_DEFAULT}. See also {@link TestVerifier#READ_VERIFY_TEST_FROM_FILE}, if you want
+ * to dynamically load the source code directly from this file when running tests, which is a convenient way to test if
+ * changes in this class work as expected, without the need to update the hard-coded default value every single time
+ * during an ongoing refactoring.
+ * <p>
+ * In order to make the copying job easier, keep this class compatible with the lowest supported Java language level (1.8).
+ */
+public class VerifyTests {
+	int portNumber;
+	Socket socket;
+
+private static URL[] classPathToURLs(String[] classPath) throws MalformedURLException {
+	URL[] urls = new URL[classPath.length];
+	for (int i = 0; i < classPath.length; i++) {
+		urls[i] = new File(classPath[i]).toURI().toURL();
+	}
+	return urls;
+}
+
+public void loadAndRun(String className, String[] classPath) throws Throwable {
+	try (URLClassLoader urlClassLoader = new URLClassLoader(classPathToURLs(classPath))) {
+		//System.out.println("Loading " + className + "...");
+		Class<?> testClass = urlClassLoader.loadClass(className);
+		//System.out.println("Loaded " + className);
+		try {
+			Method main = testClass.getMethod("main", new Class[] {String[].class});
+			//System.out.println("Running " + className);
+			main.invoke(null, new Object[] {new String[] {}});
+			//System.out.println("Finished running " + className);
+		} catch (NoSuchMethodException e) {
+			return;
+		} catch (InvocationTargetException e) {
+			throw e.getTargetException();
+		}
+	}
+}
+public static void main(String[] args) throws IOException {
+	VerifyTests verify = new VerifyTests();
+	verify.portNumber = Integer.parseInt(args[0]);
+	verify.run();
+}
+public void run() throws IOException {
+	this.socket = new Socket("localhost", this.portNumber);
+	this.socket.setTcpNoDelay(true);
+
+	DataInputStream in = new DataInputStream(this.socket.getInputStream());
+	final DataOutputStream out = new DataOutputStream(this.socket.getOutputStream());
+	while (true) {
+		final String className = in.readUTF();
+		final int length = in.readInt();
+		final String[] classPath = new String[length];
+		for (int i = 0; i < length; i++) {
+			classPath[i] = in.readUTF();
+		}
+		Thread thread = new Thread() {
+			@Override
+			public void run() {
+				try {
+					loadAndRun(className, classPath);
+					out.writeBoolean(true);
+					System.out.println(VerifyTests.class.getName());
+					System.err.println(VerifyTests.class.getName());
+				} catch (Throwable e) {
+					e.printStackTrace();
+					try {
+						out.writeBoolean(false);
+						System.out.println(VerifyTests.class.getName());
+						System.err.println(VerifyTests.class.getName());
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
+				// Flush all streams, in case the test executor VM is shut down before
+				// the controlling VM receives the responses it depends on
+				try {
+					out.flush();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				System.out.flush();
+				System.err.flush();
+			}
+		};
+		thread.start();
+	}
+}
+}
+""";
 }
 
 /**
@@ -377,7 +382,7 @@ private static final Object verifyTestCodeLock = new Object();
  * {@link #READ_VERIFY_TEST_FROM_FILE} after calling this method for the first time, the return value will not change
  * anymore.
  *
- * @return {@link VerifyTests} source code, filtered by {@link #filterSourceCode(Stream)}
+ * @return {@link VerifyTests} source code
  */
 String getVerifyTestsCode() {
 	synchronized (verifyTestCodeLock) {
@@ -387,8 +392,8 @@ String getVerifyTestsCode() {
 				if (!new File(sourceFile).exists()) {
 					sourceFile = PROJECT_BASE_DIR + "/org.eclipse.jdt.core.tests.compiler/" + sourceFile;
 				}
-				try (BufferedReader reader = new BufferedReader(new FileReader(sourceFile))) {
-					verifyTestCode = filterSourceCode(reader.lines());
+				try {
+					verifyTestCode=Files.readString(Path.of(sourceFile));
 				}
 				catch (IOException e) {
 					System.out.println("WARNING: Cannot read & filter VerifyTests source code from file, using default value");
@@ -397,33 +402,10 @@ String getVerifyTestsCode() {
 			}
 		}
 		if (verifyTestCode == null) {
-			try (BufferedReader reader = new BufferedReader(new StringReader(VERIFY_TEST_CODE_DEFAULT))) {
-				verifyTestCode = filterSourceCode(reader.lines());
-			}
-			catch (IOException e) {
-				System.out.println("WARNING: Cannot filter VerifyTests source code default value, using unfiltered value");
-				System.out.println("	- exception: " + e);
-				verifyTestCode = VERIFY_TEST_CODE_DEFAULT;
-			}
+			verifyTestCode = VERIFY_TEST_CODE_DEFAULT;
 		}
 		return verifyTestCode;
 	}
-}
-
-/**
- * Filter some elements incompatible with Java source level 1.5 from source code
- * <p>
- * This method cannot convert things like catch-with-resources or other language elements back to Java 1.5, you have to
- * take care of keeping the source code backward compatible by yourself. But a few things you can still use in the
- * source code, such as {@code @SuppressWarnings}, {@code @Override} in interfaces or single-line {@code assert}.
- *
- * @param sourceCodeLines stream of source code lines
- * @return filtered source code file as a string
- */
-private String filterSourceCode(Stream<String> sourceCodeLines) {
-	return sourceCodeLines
-		.filter(s -> !(s.contains("@SuppressWarnings") || s.contains("@Override") || s.contains("assert ")))
-		.collect(Collectors.joining("\n"));
 }
 
 /**

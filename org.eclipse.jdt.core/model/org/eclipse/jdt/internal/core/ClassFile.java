@@ -20,7 +20,6 @@ package org.eclipse.jdt.internal.core;
 import java.io.IOException;
 import java.util.Map;
 import java.util.zip.ZipFile;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -30,34 +29,19 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jdt.core.CompletionRequestor;
-import org.eclipse.jdt.core.IBuffer;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICodeAssist;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaModelStatusConstants;
-import org.eclipse.jdt.core.IMember;
-import org.eclipse.jdt.core.IOrdinaryClassFile;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeRoot;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
-import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IDependent;
+import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeDescriptor;
 import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeFactory;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -70,12 +54,15 @@ public class ClassFile extends AbstractClassFile implements IOrdinaryClassFile {
 	protected BinaryType binaryType = null;
 
 	private IPath externalAnnotationBase;
-
+	final String typeName;
 /*
  * Creates a handle to a class file.
  */
 protected ClassFile(PackageFragment parent, String nameWithoutExtension) {
 	super(parent, nameWithoutExtension);
+	// Internal class file name doesn't contain ".class" file extension
+	int lastDollar = this.name.lastIndexOf('$');
+	this.typeName = lastDollar > -1 ? DeduplicationUtil.intern(Util.localTypeName(this.name, lastDollar, this.name.length())) : this.name;
 }
 
 /**
@@ -150,8 +137,7 @@ public boolean existsUsingJarTypeCache() {
 		if (parentInfo != null) {
 			// if parent is open, this class file must be in its children
 			IJavaElement[] children = parentInfo.getChildren();
-			for (int i = 0, length = children.length; i < length; i++) {
-				IJavaElement child = children[i];
+			for (IJavaElement child : children) {
 				if (child instanceof ClassFile && this.name.equals(((ClassFile) child).name))
 					return true;
 			}
@@ -386,8 +372,8 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 	switch (token.charAt(0)) {
 		case JEM_TYPE:
 			if (!memento.hasMoreTokens()) return this;
-			String typeName = memento.nextToken();
-			JavaElement type = new BinaryType(this, typeName);
+			String newtypeName = memento.nextToken();
+			JavaElement type = new BinaryType(this, DeduplicationUtil.intern(newtypeName));
 			return type.getHandleFromMemento(memento, owner);
 	}
 	return null;
@@ -423,9 +409,7 @@ public IType getType() {
 	return this.binaryType;
 }
 public String getTypeName() {
-	// Internal class file name doesn't contain ".class" file extension
-	int lastDollar = this.name.lastIndexOf('$');
-	return lastDollar > -1 ? Util.localTypeName(this.name, lastDollar, this.name.length()) : this.name;
+	return this.typeName;
 }
 /*
  * @see IClassFile

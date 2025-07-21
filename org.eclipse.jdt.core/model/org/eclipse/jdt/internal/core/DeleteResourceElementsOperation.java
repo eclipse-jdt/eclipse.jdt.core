@@ -13,7 +13,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.core.resources.*;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
@@ -59,8 +62,8 @@ private void deletePackageFragment(IPackageFragment frag)
 		// Discard non-java resources
 		Object[] nonJavaResources = frag.getNonJavaResources();
 		int actualResourceCount = 0;
-		for (int i = 0, max = nonJavaResources.length; i < max; i++){
-			if (nonJavaResources[i] instanceof IResource) actualResourceCount++;
+		for (Object resource : nonJavaResources) {
+			if (resource instanceof IResource) actualResourceCount++;
 		}
 		IResource[] actualNonJavaResources = new IResource[actualResourceCount];
 		for (int i = 0, max = nonJavaResources.length, index = 0; i < max; i++){
@@ -76,8 +79,7 @@ private void deletePackageFragment(IPackageFragment frag)
 			throw new JavaModelException(ce);
 		}
 		boolean isEmpty = true;
-		for (int i = 0, length = remainingFiles.length; i < length; i++) {
-			IResource file = remainingFiles[i];
+		for (IResource file : remainingFiles) {
 			if (file instanceof IFile && org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(file.getName())) {
 				deleteResource(file, IResource.FORCE | IResource.KEEP_HISTORY);
 			} else {

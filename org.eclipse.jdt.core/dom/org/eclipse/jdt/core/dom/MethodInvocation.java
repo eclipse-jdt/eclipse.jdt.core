@@ -128,7 +128,7 @@ public class MethodInvocation extends Expression {
 	 * The method name; lazily initialized; defaults to a unspecified,
 	 * legal Java method name.
 	 */
-	private SimpleName methodName = null;
+	private volatile SimpleName methodName;
 
 	/**
 	 * The list of argument expressions (element type:
@@ -303,8 +303,7 @@ public class MethodInvocation extends Expression {
 			synchronized (this) {
 				if (this.methodName == null) {
 					preLazyInit();
-					this.methodName = new SimpleName(this.ast);
-					postLazyInit(this.methodName, NAME_PROPERTY);
+					this.methodName = postLazyInit(new SimpleName(this.ast), NAME_PROPERTY);
 				}
 			}
 		}

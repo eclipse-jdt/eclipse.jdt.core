@@ -68,8 +68,8 @@ public abstract class AbstractIndexer implements IIndexConstants {
 			SuperTypeReferencePattern.createIndexKey(
 				modifiers, packageName, name, enclosingTypeNames, typeParameterSignatures, CLASS_SUFFIX, superclass, CLASS_SUFFIX));
 		if (superinterfaces != null) {
-			for (int i = 0, max = superinterfaces.length; i < max; i++) {
-				char[] superinterface = erasure(superinterfaces[i]);
+			for (char[] si : superinterfaces) {
+				char[] superinterface = erasure(si);
 				addTypeReference(superinterface, true);
 				addIndexEntry(
 					SUPER_REF,
@@ -113,8 +113,8 @@ public abstract class AbstractIndexer implements IIndexConstants {
 				addTypeReference(parameterTypes[i]);
 		}
 		if (exceptionTypes != null)
-			for (int i = 0, max = exceptionTypes.length; i < max; i++)
-				addTypeReference(exceptionTypes[i]);
+			for (char[] exceptionType : exceptionTypes)
+				addTypeReference(exceptionType);
 	}
 	public void addConstructorReference(char[] typeName, int argCount) {
 		char[] simpleTypeName = CharOperation.lastSegment(typeName,'.');
@@ -142,8 +142,8 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		addIndexMetaQualification(superclass, true);
 
 		if (superinterfaces != null) {
-			for (int i = 0, max = superinterfaces.length; i < max; i++) {
-				char[] superinterface = erasure(superinterfaces[i]);
+			for (char[] si : superinterfaces) {
+				char[] superinterface = erasure(si);
 				addTypeReference(superinterface, true);
 				addIndexEntry(
 					SUPER_REF,
@@ -169,8 +169,8 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		addTypeDeclaration(modifiers, packageName, name, enclosingTypeNames, secondary);
 
 		if (superinterfaces != null) {
-			for (int i = 0, max = superinterfaces.length; i < max; i++) {
-				char[] superinterface = erasure(superinterfaces[i]);
+			for (char[] si : superinterfaces) {
+				char[] superinterface = erasure(si);
 				addTypeReference(superinterface, true);
 				addIndexEntry(
 					SUPER_REF,
@@ -223,8 +223,8 @@ public abstract class AbstractIndexer implements IIndexConstants {
 				addTypeReference(parameterTypes[i]);
 		}
 		if (exceptionTypes != null)
-			for (int i = 0, max = exceptionTypes.length; i < max; i++)
-				addTypeReference(exceptionTypes[i]);
+			for (char[] exceptionType : exceptionTypes)
+				addTypeReference(exceptionType);
 		if (returnType != null)
 			addTypeReference(returnType);
 	}
@@ -236,8 +236,8 @@ public abstract class AbstractIndexer implements IIndexConstants {
 	}
 	public void addModuleExportedPackages(char[] packageName) {
 		char[][] tokens = CharOperation.splitOn('.', packageName);
-		for (int i = 0, l = tokens.length; i < l; ++i)
-			addNameReference(tokens[i]);
+		for (char[] token : tokens)
+			addNameReference(token);
 	}
 	public void addModuleReference(char[] moduleName) {
 		addIndexEntry(MODULE_REF, ModulePattern.createIndexKey(moduleName));

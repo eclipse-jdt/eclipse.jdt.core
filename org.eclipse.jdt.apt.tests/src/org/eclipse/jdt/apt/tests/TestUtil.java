@@ -34,7 +34,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceDescription;
@@ -265,7 +264,7 @@ public class TestUtil
 	 * Could use File.renameTo(File) but it's platform dependant.
 	 *
 	 * @param from - The file to move
-	 * @param path - The path to move it to
+	 * @param toPath - The path to move it to
 	 */
 	public static void moveFile(File from , String toPath)
 		throws FileNotFoundException, IOException {

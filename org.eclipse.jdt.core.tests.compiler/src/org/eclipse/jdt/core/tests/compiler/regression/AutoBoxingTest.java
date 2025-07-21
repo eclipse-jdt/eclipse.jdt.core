@@ -15,9 +15,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
 import java.util.Map;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
@@ -4956,7 +4954,7 @@ public void test165() {
 		"4. ERROR in X.java (at line 8)\n" +
 		"	case s:\n" +
 		"	     ^\n" +
-		"Type mismatch: cannot convert from short to Integer\n" +
+		"Case constant of type short is incompatible with switch selector type Integer\n" +
 		"----------\n" +
 		"5. WARNING in X.java (at line 12)\n" +
 		"	Integer i2 = 10 ;\n" +
@@ -4976,7 +4974,7 @@ public void test165() {
 		"8. ERROR in X.java (at line 17)\n" +
 		"	case b:\n" +
 		"	     ^\n" +
-		"Type mismatch: cannot convert from byte to Integer\n" +
+		"Case constant of type byte is incompatible with switch selector type Integer\n" +
 		"----------\n" +
 		"9. WARNING in X.java (at line 21)\n" +
 		"	Integer i3 = 10 ;\n" +
@@ -4996,7 +4994,7 @@ public void test165() {
 		"12. ERROR in X.java (at line 26)\n" +
 		"	case c:\n" +
 		"	     ^\n" +
-		"Type mismatch: cannot convert from char to Integer\n" +
+		"Case constant of type char is incompatible with switch selector type Integer\n" +
 		"----------\n");
 }
 
@@ -5245,7 +5243,7 @@ public void test169() {
 			"7. ERROR in X.java (at line 7)\n" +
 			"	case 1:\n" +
 			"	     ^\n" +
-			"Type mismatch: cannot convert from int to T\n" +
+			"Case constant of type int is incompatible with switch selector type T\n" +
 			"----------\n" +
 			"8. WARNING in X.java (at line 12)\n" +
 			"	t = 5;\n" +
@@ -5287,7 +5285,7 @@ public void test169() {
 			"6. ERROR in X.java (at line 7)\n" +
 			"	case 1:\n" +
 			"	     ^\n" +
-			"Type mismatch: cannot convert from int to T\n" +
+			"Case constant of type int is incompatible with switch selector type T\n" +
 			"----------\n" +
 			"7. WARNING in X.java (at line 12)\n" +
 			"	t = 5;\n" +

@@ -13,13 +13,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.tests.annotations.aptrounding;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-
 import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.Filer;
 import com.sun.mirror.declaration.TypeDeclaration;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public class Round2GenAnnotationProcessor implements AnnotationProcessor {
 	private final AnnotationProcessorEnvironment _env;

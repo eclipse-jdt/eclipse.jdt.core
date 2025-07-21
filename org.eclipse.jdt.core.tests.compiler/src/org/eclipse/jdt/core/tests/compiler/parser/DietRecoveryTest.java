@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,9 +14,7 @@
 package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.Locale;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionParser;
@@ -786,72 +784,6 @@ public void test06() {
 	String expectedCompletionDietUnitToString = expectedDietUnitToString;
 
 	String testName = "<will not miss nested method>";
-	checkParse(
-		s.toCharArray(),
-		expectedDietUnitToString,
-		expectedDietPlusBodyUnitToString,
-		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString, testName);
-}
-/*
- * Attaching orphan methods and fields
- */
-
-public void test07() {
-
-	String s =
-			"public class X {								\n"
-			+ "	void foo() {								\n"
-			+ "		System.out.println();					\n"
-			+ " }											\n"
-			+ "}											\n"
-			+ "	void bar(){									\n"
-			+ " }											\n"
-			+ " int x;										\n"
-			+ "	void baz(){									\n"
-			+ " }											\n"
-			+ " int y;										\n";
-
-	String expectedDietUnitToString =
-		"public class X {\n" +
-		"  {\n" +
-		"  }\n" +
-		"  int x;\n" +
-		"  int y;\n" +
-		"  public X() {\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"  }\n" +
-		"  void bar() {\n" +
-		"  }\n" +
-		"  void baz() {\n" +
-		"  }\n" +
-		"}\n";
-
-	String expectedDietPlusBodyUnitToString =
-		"public class X {\n" +
-		"  {\n" +
-		"  }\n" +
-		"  int x;\n" +
-		"  int y;\n" +
-		"  public X() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  void foo() {\n" +
-		"    System.out.println();\n" +
-		"  }\n" +
-		"  void bar() {\n" +
-		"  }\n" +
-		"  void baz() {\n" +
-		"  }\n" +
-		"}\n";
-
-	String expectedFullUnitToString = expectedDietUnitToString;
-
-	String expectedCompletionDietUnitToString = expectedDietUnitToString;
-
-	String testName = "<attaching orphans>";
 	checkParse(
 		s.toCharArray(),
 		expectedDietUnitToString,
@@ -4375,30 +4307,6 @@ public void test68() {
  * Unit reduced to a method declaration
  */
 
-public void test69() {
-
-	String s =
-		"	int foo(){					\n" +
-		"		System.out.println();	\n" +
-		"	}							\n";
-
-	String expectedDietUnitToString = "";
-
-	String expectedDietPlusBodyUnitToString = expectedDietUnitToString;
-
-	String expectedFullUnitToString = expectedDietUnitToString;
-
-	String expectedCompletionDietUnitToString = expectedDietUnitToString;
-
-	String testName = "<unit reduced to a method declaration>";
-	checkParse(
-		s.toCharArray(),
-		expectedDietUnitToString,
-		expectedDietPlusBodyUnitToString,
-		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString, testName);
-}
 /*
  * Unit reduced to a constructor declaration
  */
@@ -4419,58 +4327,6 @@ public void test70() {
 	String expectedCompletionDietUnitToString = expectedDietUnitToString;
 
 	String testName = "<unit reduced to a constructor declaration>";
-	checkParse(
-		s.toCharArray(),
-		expectedDietUnitToString,
-		expectedDietPlusBodyUnitToString,
-		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString, testName);
-}
-/*
- * Unit reduced to a field declaration
- */
-
-public void test71() {
-
-	String s =
-		"	String str = new String();";
-
-	String expectedDietUnitToString = "";
-
-	String expectedDietPlusBodyUnitToString = expectedDietUnitToString;
-
-	String expectedFullUnitToString = expectedDietUnitToString;
-
-	String expectedCompletionDietUnitToString = expectedDietUnitToString;
-
-	String testName = "<unit reduced to a field declaration>";
-	checkParse(
-		s.toCharArray(),
-		expectedDietUnitToString,
-		expectedDietPlusBodyUnitToString,
-		expectedDietPlusBodyUnitToString,
-		expectedFullUnitToString,
-		expectedCompletionDietUnitToString, testName);
-}
-/*
- * Unit reduced to a field declaration with array initializer
- */
-
-public void test72() {
-
-	String s =
-		"	String[] str = { \"hello\" };";
-
-	String expectedDietUnitToString = "";
-
-	String expectedDietPlusBodyUnitToString = expectedDietUnitToString;
-
-	String expectedFullUnitToString = expectedDietUnitToString;
-
-	String expectedCompletionDietUnitToString = expectedDietUnitToString;
-
-	String testName = "<unit reduced to a field declaration with array initializer>";
 	checkParse(
 		s.toCharArray(),
 		expectedDietUnitToString,
@@ -6194,76 +6050,148 @@ public void _test101() {
 }
 public void test102() {
 	String s =
-		"void ___eval() {	\n"+
-		"new Runnable(){	\n"+
-		"void ___run() throws Throwable {	\n"+
-		"return blah;	\n"+
-		"}	\n"+
-		"private String blarg;	\n"+
-		"public void run (){	\n"+
-		"		class Local { \n" +
-		"			void baz() {	\n"+
-		"			}	\n" +
-		"		} 	\n"+
-		"}	\n"+
-		"}	\n"+
-		";}	\n"+
-		"public class Hello{	\n"+
-		"private static int x;	\n"+
-		"private String blah;	\n"+
-		"public static void main (String[] args){	\n"+
-		"}	\n"+
-		"public void hello (){	\n"+
-		"}	\n"+
-		"public boolean blah (){	\n"+
-		"return false;}	\n"+
-		"public void foo (){	\n"+
-		"}	\n"+
-		"}	\n";
+		"""
+		void ___eval() {\t
+		new Runnable(){\t
+		void ___run() throws Throwable {\t
+		return blah;\t
+		}\t
+		private String blarg;\t
+		public void run (){\t
+				class Local {\s
+					void baz() {\t
+					}\t
+				}\t\s
+		}\t
+		}\t
+		;}\t
+		public class Hello{\t
+		private static int x;\t
+		private String blah;\t
+		public static void main (String[] args){\t
+		}\t
+		public void hello (){\t
+		}\t
+		public boolean blah (){\t
+		return false;}\t
+		public void foo (){\t
+		}\t
+		}\t
+		""";
 
-	String expectedDietUnitToString =
-		"public class Hello {\n" +
-		"  private static int x;\n" +
-		"  private String blah;\n" +
-		"  public Hello() {\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  public static void main(String[] args) {\n" +
-		"  }\n" +
-		"  public void hello() {\n" +
-		"  }\n" +
-		"  public boolean blah() {\n" +
-		"  }\n" +
-		"  public void foo() {\n" +
-		"  }\n" +
-		"}\n" ;
+	String expectedDietUnitToString = """
+final class handlingtoplevelanonymoustest102 {
+  public class Hello {
+    private static int x;
+    private String blah;
+    <clinit>() {
+    }
+    public Hello() {
+    }
+    public static void main(String[] args) {
+    }
+    public void hello() {
+    }
+    public boolean blah() {
+    }
+    public void foo() {
+    }
+  }
+  handlingtoplevelanonymoustest102() {
+  }
+  void ___eval() {
+  }
+}
+""";
 
-	String expectedDietPlusBodyUnitToString =
-		"public class Hello {\n" +
-		"  private static int x;\n" +
-		"  private String blah;\n" +
-		"  public Hello() {\n" +
-		"    super();\n" +
-		"  }\n" +
-		"  <clinit>() {\n" +
-		"  }\n" +
-		"  public static void main(String[] args) {\n" +
-		"  }\n" +
-		"  public void hello() {\n" +
-		"  }\n" +
-		"  public boolean blah() {\n" +
-		"    return false;\n" +
-		"  }\n" +
-		"  public void foo() {\n" +
-		"  }\n" +
-		"}\n";
+	String expectedDietPlusBodyUnitToString = """
+final class handlingtoplevelanonymoustest102 {
+  public class Hello {
+    private static int x;
+    private String blah;
+    <clinit>() {
+    }
+    public Hello() {
+      super();
+    }
+    public static void main(String[] args) {
+    }
+    public void hello() {
+    }
+    public boolean blah() {
+      return false;
+    }
+    public void foo() {
+    }
+  }
+  handlingtoplevelanonymoustest102() {
+    super();
+  }
+  void ___eval() {
+    new Runnable() {
+      private String blarg;
+      void ___run() throws Throwable {
+        return blah;
+      }
+      public void run() {
+        class Local {
+          Local() {
+            super();
+          }
+          void baz() {
+          }
+        }
+      }
+    };
+  }
+}
+""";
 
-	String expectedFullUnitToString = expectedDietUnitToString;
+	String expectedFullUnitToString = """
+final class handlingtoplevelanonymoustest102 {
+  public class Hello {
+    private static int x;
+    private String blah;
+    <clinit>() {
+    }
+    public Hello() {
+      super();
+    }
+    public static void main(String[] args) {
+    }
+    public void hello() {
+    }
+    public boolean blah() {
+      return false;
+    }
+    public void foo() {
+    }
+  }
+  handlingtoplevelanonymoustest102() {
+  }
+  void ___eval() {
+    new Runnable() {
+      private String blarg;
+      void ___run() throws Throwable {
+        return blah;
+      }
+      public void run() {
+        class Local {
+          Local() {
+            super();
+          }
+          void baz() {
+          }
+        }
+      }
+    };
+  }
+}
+""";
 
 	String expectedCompletionDietUnitToString = expectedDietUnitToString;
 
-	String testName = "<12454 - handling toplevel anonymous>";
+	String testName = "handlingtoplevelanonymoustest102";
 	checkParse(
 		s.toCharArray(),
 		expectedDietUnitToString,

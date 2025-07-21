@@ -57,8 +57,7 @@ public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
 	}
 	VariablesInfo installedVars = this.context.installedVars;
 	ClassFile[] classFiles = installedVars.classFiles;
-	for (int i = 0; i < classFiles.length; i++) {
-		ClassFile classFile = classFiles[i];
+	for (ClassFile classFile : classFiles) {
 		if (CharOperation.equals(compoundTypeName, classFile.getCompoundName())) {
 			ClassFileReader binary = null;
 			try {

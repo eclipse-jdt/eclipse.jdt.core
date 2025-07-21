@@ -22,11 +22,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import junit.framework.Test;
-
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.IAnnotation;
@@ -39,6 +38,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ASTConverter15Test extends ConverterTestSetup {
@@ -72,6 +72,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			this.workingCopy = null;
 		}
 	}
+
 	private void assertArrayEquals(int[] expectedAnnotationsSize,
 			int[] actualAnnotationsSize) {
 		assertEquals("wrong array size", expectedAnnotationsSize.length, actualAnnotationsSize.length);
@@ -80,11 +81,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		}
 	}
 
-	/**
-	 * @deprecated
-	 */
 	private Type componentType(ArrayType array) {
-		return array.getComponentType();
+		return array.getElementType();
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=234609 BindingKey#toSignature() fails with key from createWilcardTypeBindingKey(..)
@@ -684,10 +682,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		String expectedProblems =
-			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized\n" +
-			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized";
-		assertProblemsSize(compilationUnit, 2, expectedProblems);
+		String expectedProblems = "";
+		assertProblemsSize(compilationUnit, 0, expectedProblems);
 		ASTNode node = getASTNode(compilationUnit, 0, 5);
 		assertEquals("Wrong first character", '<', source[node.getStartPosition()]);
 	}
@@ -911,10 +907,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		String expectedProblems =
-			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized\n" +
-			"Pair is a raw type. References to generic type Pair<A,B> should be parameterized";
-		assertProblemsSize(compilationUnit, 2, expectedProblems);
+		String expectedProblems = "";
+		assertProblemsSize(compilationUnit, 0, expectedProblems);
 		ASTNode node = getASTNode(compilationUnit, 0, 5);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
@@ -1199,7 +1193,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				"        double y = Double.parseDouble(args[1]);\n" +
 				"\n" +
 				"        for (X op : X.values())\n" +
-				"            System.out.println(x + \" \" + op + \" \" + y + \" = \" + op.eval(x, y));\n" +
+				"            System.out.println(op.eval(x, y));\n" +
 				"	}", source);
 		node = getASTNode(compilationUnit, 0, 1);
 		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
@@ -2444,11 +2438,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("wrong type", ASTNode.ARRAY_TYPE, type.getNodeType());
 		ArrayType arrayType = (ArrayType) type;
 		type = componentType(arrayType);
-		checkSourceRange(type, "Map<String, Double>[]", source);
-		assertEquals("wrong type", ASTNode.ARRAY_TYPE, type.getNodeType());
-		arrayType = (ArrayType) type;
-		type = componentType(arrayType);
 		checkSourceRange(type, "Map<String, Double>", source);
+		assertEquals("wrong type", ASTNode.PARAMETERIZED_TYPE, type.getNodeType());
 	}
 
 	/*
@@ -2471,11 +2462,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("wrong type", ASTNode.ARRAY_TYPE, type.getNodeType());
 		ArrayType arrayType = (ArrayType) type;
 		type = componentType(arrayType);
-		checkSourceRange(type, "java.util.Map<String, Double>[]", source);
-		assertEquals("wrong type", ASTNode.ARRAY_TYPE, type.getNodeType());
-		arrayType = (ArrayType) type;
-		type = componentType(arrayType);
 		checkSourceRange(type, "java.util.Map<String, Double>", source);
+		assertEquals("wrong type", ASTNode.PARAMETERIZED_TYPE, type.getNodeType());
 	}
 
 	/*
@@ -2563,11 +2551,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		String expectedOutput =
-			"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
-			"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
-			"Type safety: The method foo(Object) belongs to the raw type Y. References to generic type Y<T> should be parameterized\n" +
-			"Y is a raw type. References to generic type Y<T> should be parameterized";
-		assertProblemsSize(compilationUnit, 4, expectedOutput);
+			"Type safety: The method foo(Object) belongs to the raw type Y. References to generic type Y<T> should be parameterized";
+		assertProblemsSize(compilationUnit, 1, expectedOutput);
 		ASTNode node = getASTNode(compilationUnit, 1, 0, 0);
 		assertEquals("Not a method declaration", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -2594,10 +2579,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		String expectedOutput =
-			"Gen is a raw type. References to generic type Gen<X> should be parameterized\n" +
-			"Gen.Inn is a raw type. References to generic type Gen<X>.Inn should be parameterized";
-		assertProblemsSize(compilationUnit, 2, expectedOutput);
+		String expectedOutput =	"";
+		assertProblemsSize(compilationUnit, 0, expectedOutput);
 		ASTNode node = getASTNode(compilationUnit, 0);
 		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -4603,10 +4586,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertNotNull("No node", node);
     	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
     	CompilationUnit compilationUnit = (CompilationUnit) node;
-    	String expectedProblems =
-    		"Iterator is a raw type. References to generic type Iterator<E> should be parameterized\n" +
-    		"Iterator is a raw type. References to generic type Iterator<E> should be parameterized";
-    	assertProblemsSize(compilationUnit, 2, expectedProblems);
+    	String expectedProblems = "";
+    	assertProblemsSize(compilationUnit, 0, expectedProblems);
 		node = getASTNode(compilationUnit, 0, 0, 0);
 		assertEquals("not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -4781,7 +4762,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88548
     @SuppressWarnings("deprecation")
-	public void test0151() throws CoreException {
+	public void _2551_test0151() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
 	   		"public enum X {\n" +
@@ -5769,7 +5750,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		final ASTNode result = runJLS3Conversion(sourceUnit, true, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		final CompilationUnit compilationUnit = (CompilationUnit) result;
-	   	assertProblemsSize(compilationUnit, 0);
+	   	assertProblemsSize(compilationUnit, 1, "At least one of the problems in category 'rawtypes' is not analysed due to a compiler option being ignored");
 	}
 
 	/*
@@ -5781,8 +5762,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		final ASTNode result = runJLS3Conversion(sourceUnit, true, true);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT);
 		final CompilationUnit compilationUnit = (CompilationUnit) result;
-	   	assertProblemsSize(compilationUnit, 2, "Type safety: The expression of type ArrayList needs unchecked conversion to conform to List<String>\n" +
-	   			"ArrayList is a raw type. References to generic type ArrayList<T> should be parameterized");
+	   	assertProblemsSize(compilationUnit, 1, "Type safety: The expression of type ArrayList needs unchecked conversion to conform to List<String>");
 	}
 
 	/*
@@ -5838,7 +5818,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 
 	public void test0189() throws CoreException, IOException {
 		try {
-			IJavaProject project = createJavaProject("P1", new String[] {""}, new String[] {"CONVERTER_JCL15_LIB"}, "", "1.5");
+			IJavaProject project = createJavaProject("P1", new String[] {""}, new String[] {"CONVERTER_JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 			addLibrary(project, "lib.jar", "src.zip", new String[] {
 				"/P1/p/I1.java",
 				"package p;\n" +
@@ -5857,7 +5837,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				"		return null;\n" +
 				"	}	\n" +
 				"}"
-			}, "1.5");
+			}, CompilerOptions.getFirstSupportedJavaVersion());
 			this.workingCopy = getWorkingCopy("/P1/p1/Y.java", true/*resolve*/);
 			ASTNode node = buildAST(
 				"package p1;\n" +
@@ -6117,7 +6097,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	 */
 	public void test0197() throws CoreException {
 		try {
-			createJavaProject("P", new String[] {"src" }, new String[] {"CONVERTER_JCL15_LIB", "/P/lib"}, "bin", "1.5");
+			createJavaProject("P", new String[] {"src" }, new String[] {"CONVERTER_JCL18_LIB", "/P/lib"}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 			IFolder folder = createFolder("/P/lib");
 			String classesPath = folder.getLocation().toOSString();
 			Map options = new HashMap();
@@ -6979,14 +6959,9 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		String expectedOutput =
-			"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
-			"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
 			"Type safety: The method foo(Object) belongs to the raw type Y. References to generic type Y<T> should be parameterized\n" +
-			"Y is a raw type. References to generic type Y<T> should be parameterized\n" +
-			"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
-			"Type safety: The method foo(Object) belongs to the raw type Y. References to generic type Y<T> should be parameterized\n" +
-			"Y is a raw type. References to generic type Y<T> should be parameterized";
-		assertProblemsSize(unit, 7, expectedOutput);
+			"Type safety: The method foo(Object) belongs to the raw type Y. References to generic type Y<T> should be parameterized";
+		assertProblemsSize(unit, 2, expectedOutput);
 		node = getASTNode(unit, 1, 0, 0);
 		assertEquals("Not a variable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 		VariableDeclarationStatement statement = (VariableDeclarationStatement) node;
@@ -7032,10 +7007,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
     			false);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
-		String expectedOutput =
-			"Generic is a raw type. References to generic type Generic<E> should be parameterized\n" +
-			"Collection is a raw type. References to generic type Collection<T> should be parameterized";
-		assertProblemsSize(unit, 2, expectedOutput);
+		String expectedOutput = "";
+		assertProblemsSize(unit, 0, expectedOutput);
 		node = getASTNode(unit, 1, 0);
 		assertEquals("Not a field declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
 		FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
@@ -7199,7 +7172,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=147875
 	 */
-	public void test0221() throws JavaModelException {
+	public void _2551_test0221() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
     		"import p1.p2.MyEnum;\n" +
@@ -7525,7 +7498,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
     	assertNotNull("Should not be null", bindings[0]);
     	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
-		assertProblemsSize(unit, 0);
+		assertProblemsSize(unit, 1, "At least one of the problems in category 'rawtypes' is not analysed due to a compiler option being ignored");
 		node = getASTNode(unit, 0, 0);
     	assertEquals("Not a compilation unit", ASTNode.FIELD_DECLARATION, node.getNodeType());
     	FieldDeclaration fieldDeclaration = (FieldDeclaration) node;
@@ -7892,6 +7865,29 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	/*
+	 * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1915
+	 */
+	public void test0238_ASTParser() throws JavaModelException, CoreException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/test0238/X.java",
+			"""
+			package test0238;
+			public class X extends A {
+			}
+			""", true /*resolve*/);
+		ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+		parser.setBindingsRecovery(true);
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(true);
+		parser.setSource(this.workingCopy);
+		parser.setProject(JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getProject("Converter15")));
+		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) unit.types().get(0);
+		ITypeBinding superTypeBinding = typeDeclaration.resolveBinding().getSuperclass();
+		IMethodBinding[] methodBindings = superTypeBinding.getDeclaredMethods();
+		assertEquals("wrong size", 2, methodBindings.length);
+	}
+
+	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=173338
 	 */
 	public void test0239() throws JavaModelException {
@@ -8189,7 +8185,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		MethodInvocation invocation = (MethodInvocation) expression;
 		IMethodBinding methodBinding = invocation.resolveMethodBinding();
 		assertNotNull("No binding", methodBinding);
-		assertTrue("Not a parameterized method", methodBinding.isParameterizedMethod());
+		assertFalse("Not a parameterized method", methodBinding.isParameterizedMethod());
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=174436
@@ -8289,7 +8285,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		expression = fragment.getInitializer();
 		assertEquals("Not a super method invocation", ASTNode.SUPER_METHOD_INVOCATION, expression.getNodeType());
 		methodInvocation = (SuperMethodInvocation) expression;
-		assertTrue("Wrong value", methodInvocation.isResolvedTypeInferredFromExpectedType());
+		assertFalse("Wrong value", methodInvocation.isResolvedTypeInferredFromExpectedType());
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=174436
@@ -8707,10 +8703,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				0);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
-		String expectedProblems =
-			"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
-			"Class is a raw type. References to generic type Class<T> should be parameterized";
-		assertProblemsSize(unit, 2, expectedProblems);
+		String expectedProblems = "";
+		assertProblemsSize(unit, 0, expectedProblems);
 		node = getASTNode(unit, 3);
 		assertEquals("Not a type declaration unit", ASTNode.TYPE_DECLARATION, node.getNodeType());
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -9003,7 +8997,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		MethodInvocation invocation = (MethodInvocation) expression;
 		IMethodBinding methodBinding = invocation.resolveMethodBinding();
 		assertNotNull("No binding", methodBinding);
-		assertTrue("Not a parameterized method", methodBinding.isParameterizedMethod());
+		assertFalse("Not a parameterized method", methodBinding.isParameterizedMethod());
 		node = getASTNode(unit, 0, 1, 1);
 		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
 		statement = (ExpressionStatement) node;
@@ -9050,7 +9044,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
 		IMethodBinding methodBinding = classInstanceCreation.resolveConstructorBinding();
 		assertNotNull("No binding", methodBinding);
-		assertTrue("Not a parameterized method", methodBinding.isParameterizedMethod());
+		assertFalse("Not a parameterized method", methodBinding.isParameterizedMethod());
 		node = getASTNode(unit, 0, 1, 1);
 		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
 		statement = (ExpressionStatement) node;
@@ -9098,7 +9092,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
 		IMethodBinding methodBinding = classInstanceCreation.resolveConstructorBinding();
 		assertNotNull("No binding", methodBinding);
-		assertTrue("Not a parameterized method", methodBinding.isParameterizedMethod());
+		assertFalse("Not a parameterized method", methodBinding.isParameterizedMethod());
 		node = getASTNode(unit, 0, 1, 1);
 		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
 		statement = (ExpressionStatement) node;
@@ -9147,7 +9141,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expression;
 		IMethodBinding methodBinding = classInstanceCreation.resolveConstructorBinding();
 		assertNotNull("No binding", methodBinding);
-		assertTrue("Not a parameterized method", methodBinding.isParameterizedMethod());
+		assertFalse("Not a parameterized method", methodBinding.isParameterizedMethod());
 		node = getASTNode(unit, 0, 1, 1);
 		assertEquals("Not a expression statement", ASTNode.EXPRESSION_STATEMENT, node.getNodeType());
 		statement = (ExpressionStatement) node;
@@ -9195,7 +9189,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		SuperConstructorInvocation invocation = (SuperConstructorInvocation) node;
 		IMethodBinding methodBinding = invocation.resolveConstructorBinding();
 		assertNotNull("No binding", methodBinding);
-		assertTrue("Not a parameterized method", methodBinding.isParameterizedMethod());
+		assertFalse("Not a parameterized method", methodBinding.isParameterizedMethod());
 		node = getASTNode(unit, 1, 1, 0);
 		assertEquals("Not a expression statement", ASTNode.SUPER_CONSTRUCTOR_INVOCATION, node.getNodeType());
 		invocation = (SuperConstructorInvocation) node;
@@ -9357,7 +9351,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertEquals("Not an expression statement", ASTNode.EXPRESSION_STATEMENT, statement2.getNodeType());
 		Expression expression2 = ((ExpressionStatement) statement2).getExpression();
 		assertEquals("Not a method invocation", ASTNode.METHOD_INVOCATION, expression2.getNodeType());
-		ITypeBinding typeBinding = ((MethodInvocation) expression2).resolveTypeBinding();
+		ITypeBinding typeBinding = expression2.resolveTypeBinding();
 		assertTrue("Not a capture", typeBinding.isCapture());
 		assertNull("No binary type", typeBinding.getBinaryName());
 	}
@@ -9790,8 +9784,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	}
 
 	/**
-	 * @bug 187430: Unresolved types surfacing through DOM AST for annotation default values
-	 * @test That the qualified name of the default value does not contain any '$' character
+	 * bug187430: Unresolved types surfacing through DOM AST for annotation default values
+	 * test That the qualified name of the default value does not contain any '$' character
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=187430"
 	 */
 	public void testBug187430() throws JavaModelException {
@@ -11348,8 +11342,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 			true,
 			true);
 		ExpressionStatement statement = (ExpressionStatement) getASTNode(unit, 0, 1, 0);
-		ITypeBinding binding = ((MethodInvocation) statement.getExpression()).resolveTypeBinding();
-		assertTrue("Should be seen as a wildcard (really an intersection type)", binding.isWildcardType());
+		ITypeBinding binding = statement.getExpression().resolveTypeBinding();
+		assertFalse("Shouldn't be seen as a wildcard (really an intersection type)", binding.isWildcardType());
 		assertNull("should be null", binding.getGenericTypeOfWildcardType());
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=342671
@@ -11475,7 +11469,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	// secondary type comes from binary
 	public void testBug353474a() throws CoreException {
 		String jarLocation = getWorkspacePath()+"Converter15/bins/bug353474.jar";
-		IJavaProject jp = createJavaProject("Bug353464a", new String[]{"src"}, new String[]{"CONVERTER_JCL15_LIB", jarLocation}, "bin", "1.5");
+		IJavaProject jp = createJavaProject("Bug353464a", new String[]{"src"}, new String[]{"CONVERTER_JCL18_LIB", jarLocation}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		try {
 			this.workingCopy = getWorkingCopy("/Bug353464a/src/testBug353474/p1/C2.java", true/*resolve*/);
 			String contents =
@@ -11542,7 +11536,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	 */
 	public void testBug398520() throws CoreException {
 		String jarLocation = getWorkspacePath()+"Converter15/bins/bug398520.jar";
-		IJavaProject jp = createJavaProject("Bug398520", new String[]{"src"}, new String[]{"CONVERTER_JCL15_LIB", jarLocation}, "bin", "1.5");
+		IJavaProject jp = createJavaProject("Bug398520", new String[]{"src"}, new String[]{"CONVERTER_JCL18_LIB", jarLocation}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		try {
 			this.workingCopy = getWorkingCopy("/Bug398520/src/testBug398520/C.java", true/*resolve*/);
 			String contents =

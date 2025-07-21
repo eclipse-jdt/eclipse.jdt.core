@@ -20,11 +20,9 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.*;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class AmbiguousMethodTest extends AbstractComparableTest {
@@ -2444,6 +2442,7 @@ public void test041() {
 			"public abstract class X extends J implements I {\n" +
 			"  void bar() {\n" +
 			"    String s = ((I) this).foo(0.0f);\n" +
+			"    s = this.foo(0.0f);\n" + // without cast a different overload is selected, returning String
 			"  }\n" +
 			"}"
 		},

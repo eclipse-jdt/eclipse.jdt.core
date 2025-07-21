@@ -14,17 +14,21 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.List;
-
+import java.util.zip.ZipException;
+import junit.framework.Test;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform.OS;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.IntersectionType;
 import org.eclipse.jdt.core.dom.NameQualifiedType;
+import org.eclipse.jdt.core.dom.QualifiedType;
+import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.UnionType;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.jdt.internal.core.util.Util;
-
-import junit.framework.Test;
 
 public class UtilTests extends AbstractJavaModelTests {
 
@@ -114,5 +118,59 @@ public class UtilTests extends AbstractJavaModelTests {
 		NameQualifiedType type = ast.newNameQualifiedType(ast.newName("qualifier"), ast.newSimpleName("id"));
 		assertEquals("Qqualifier.id;", Util.getSignature(type));
 	}
+	public void testQualifiedTypeTypeSignature() {
+		AST ast = AST.newAST(AST.getJLSLatest(), false);
+		SimpleType parentType = ast.newSimpleType(ast.newName("ParentType"));
+		QualifiedType qualifiedType = ast.newQualifiedType(parentType, ast.newSimpleName("ChildType"));
+		assertEquals("QParentType.ChildType;", Util.getSignature(qualifiedType));
+	}
+	public void testIntersectionTypeSignature() {
+		AST ast = AST.newAST(AST.getJLSLatest(), false);
+		IntersectionType type = ast.newIntersectionType();
+		type.types().add(ast.newSimpleType(ast.newSimpleName("A")));
+		type.types().add(ast.newSimpleType(ast.newSimpleName("B")));
+		assertEquals("|QA;:QB;", Util.getSignature(type));
+	}
+	public void testUnionTypeSignature() {
+		AST ast = AST.newAST(AST.getJLSLatest(), false);
+		UnionType type = ast.newUnionType();
+		type.types().add(ast.newSimpleType(ast.newSimpleName("A")));
+		type.types().add(ast.newSimpleType(ast.newSimpleName("B")));
+		assertEquals("&QA;:QB;", Util.getSignature(type));
+	}
+	public void testGetSafeName() throws ZipException {
+		assertGetSafeNamePass("simple");
+		assertGetSafeNamePass("dir1/dir2/normal");
+		assertGetSafeNamePass("dir1/../unnormal");
+		assertGetSafeNamePass("dir1/dir2/.../unnormalTripple");
 
+		assertGetSafeNameFail("../slipped");
+		assertGetSafeNameFail("dir1/../../slipped");
+
+		// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/2015#issuecomment-2009162226
+		assertGetSafeNamePass("overrides/..ROOT...override");
+		if (OS.isWindows()) {
+			assertIllegalEntry("overrides/<hello");
+		}
+	}
+
+	private void assertIllegalEntry(String entryName) throws ZipException {
+		String zipfileName = "any";
+		assertNull(Util.getEntryName(zipfileName, new java.util.zip.ZipEntry(entryName)));
+	}
+
+	private void assertGetSafeNamePass(String entryName) throws ZipException {
+		String zipfileName = "any";
+		assertEquals(entryName, Util.getEntryName(zipfileName, new java.util.zip.ZipEntry(entryName)));
+	}
+
+	private void assertGetSafeNameFail(String entryName) {
+		String zipfileName = "any";
+		try {
+			String n = Util.getEntryName(zipfileName, new java.util.zip.ZipEntry(entryName));
+			assertFalse("Expected Exception but got " + n, true);
+		} catch (ZipException expected) {
+			// expected
+		}
+	}
 }

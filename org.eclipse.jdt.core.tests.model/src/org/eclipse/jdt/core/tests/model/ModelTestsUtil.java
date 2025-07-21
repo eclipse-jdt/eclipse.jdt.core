@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -31,7 +30,15 @@ import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -384,7 +391,7 @@ public static String removeWhiteSpace(String input) {
 }
 
 /**
- * Check locally for the required JCL files, <jclName>.jar and <jclName>src.zip.
+ * Check locally for the required JCL files, {@code <jclName>.jar and <jclName>src.zip}.
  * If not available, copy from the project resources.
  */
 static public void setupExternalJCL(String jclName) throws IOException {
@@ -431,22 +438,6 @@ static public void setUpJCLClasspathVariables(String compliance) throws JavaMode
 			setupExternalJCL("jclMin1.8");
 			JavaCore.setClasspathVariables(
 				new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
-				new IPath[] {getExternalJCLPath(compliance), getExternalJCLSourcePath(compliance), getExternalJCLRootSourcePath()},
-				null);
-		}
-	} else if ("1.7".equals(compliance)) {
-		if (JavaCore.getClasspathVariable("JCL17_LIB") == null) {
-			setupExternalJCL("jclMin1.7");
-			JavaCore.setClasspathVariables(
-				new String[] {"JCL17_LIB", "JCL17_SRC", "JCL_SRCROOT"},
-				new IPath[] {getExternalJCLPath(compliance), getExternalJCLSourcePath(compliance), getExternalJCLRootSourcePath()},
-				null);
-		}
-	} else if ("1.5".equals(compliance)) {
-		if (JavaCore.getClasspathVariable("JCL15_LIB") == null) {
-			setupExternalJCL("jclMin1.5");
-			JavaCore.setClasspathVariables(
-				new String[] {"JCL15_LIB", "JCL15_SRC", "JCL_SRCROOT"},
 				new IPath[] {getExternalJCLPath(compliance), getExternalJCLSourcePath(compliance), getExternalJCLRootSourcePath()},
 				null);
 		}

@@ -17,6 +17,21 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Stream;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
@@ -35,22 +50,6 @@ import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Util;
-
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ClasspathDirectory extends ClasspathLocation {
@@ -215,8 +214,7 @@ private Hashtable<String, String> getSecondaryTypes(String qualifiedPackageName)
 	File[] listFiles = dir.isDirectory() ? dir.listFiles() : null;
 	if (listFiles == null) return packageEntry;
 
-	for (int i = 0, l = listFiles.length; i < l; ++i) {
-		File f = listFiles[i];
+	for (File f : listFiles) {
 		if (f.isDirectory()) continue;
 		String s = f.getAbsolutePath();
 		if (s == null) continue;
@@ -234,8 +232,7 @@ private Hashtable<String, String> getSecondaryTypes(String qualifiedPackageName)
 		CompilationUnitDeclaration unit = parser.parse(cu, compilationResult);
 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = unit != null ? unit.types : null;
 		if (types == null) continue;
-		for (int j = 0, k = types.length; j < k; j++) {
-			TypeDeclaration type = types[j];
+		for (TypeDeclaration type : types) {
 			char[] name = type.isSecondary() ? type.name : null;  // add only secondary types
 			if (name != null)
 				packageEntry.put(new String(name), s);

@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -595,6 +594,9 @@ public abstract class JobManager {
 		Thread thread = getProcessingThread();
 		try {
 			if (thread != null) { // see http://bugs.eclipse.org/bugs/show_bug.cgi?id=31858
+				synchronized (this.idleMonitor) {
+					this.idleMonitor.notifyAll(); // ensure its awake so it can be shutdown
+				}
 				synchronized (this) {
 					this.processingThread = null; // mark the job manager as shutting down so that the thread will stop by itself
 					notifyAll(); // ensure its awake so it can be shutdown

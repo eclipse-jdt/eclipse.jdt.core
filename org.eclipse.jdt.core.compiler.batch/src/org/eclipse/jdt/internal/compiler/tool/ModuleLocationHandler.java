@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.tools.JavaFileManager.Location;
 import javax.tools.StandardLocation;
 
@@ -164,8 +163,7 @@ public class ModuleLocationHandler {
 		public SystemLocationContainer(Location loc, JrtFileSystem jrt) throws IOException {
 			super(loc);
 			jrt.initialize();
-			HashMap<String, Path> modulePathMap = jrt.modulePathMap;
-			Set<String> keySet = modulePathMap.keySet();
+			Set<String> keySet = jrt.modulePathMap.keySet();
 			for (String mod : keySet) {
 				Path path = jrt.file.toPath();
 				ModuleLocationWrapper wrapper = new ModuleLocationWrapper(loc, mod, false,

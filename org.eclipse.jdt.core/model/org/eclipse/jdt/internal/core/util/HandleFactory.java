@@ -17,35 +17,34 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IMember;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
-import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.JavaModel;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.LambdaFactory;
+import org.eclipse.jdt.internal.core.Openable;
+import org.eclipse.jdt.internal.core.PackageFragmentRoot;
+import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.search.AbstractJavaSearchScope;
 
 /**
@@ -155,7 +154,7 @@ public class HandleFactory {
 				pkgFragment= this.lastPkgFragmentRoot.getPackageFragment(pkgName);
 				this.packageHandles.put(pkgName, pkgFragment);
 			}
-			String simpleName= simpleNames[length];
+			String simpleName= DeduplicationUtil.intern(simpleNames[length]);
 			if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(simpleName)) {
 				ICompilationUnit unit= pkgFragment.getCompilationUnit(simpleName);
 				return (Openable) unit;
@@ -209,10 +208,10 @@ public class HandleFactory {
 				IJavaElement parentElement = createElement(scope.parent, elementPosition, unit, existingElements, knownScopes);
 				switch (parentElement.getElementType()) {
 					case IJavaElement.COMPILATION_UNIT :
-						newElement = ((ICompilationUnit)parentElement).getType(new String(scope.enclosingSourceType().sourceName));
+						newElement = ((ICompilationUnit)parentElement).getType(DeduplicationUtil.toString(scope.enclosingSourceType().sourceName));
 						break;
 					case IJavaElement.TYPE :
-						newElement = ((IType)parentElement).getType(new String(scope.enclosingSourceType().sourceName));
+						newElement = ((IType)parentElement).getType(DeduplicationUtil.toString(scope.enclosingSourceType().sourceName));
 						break;
 					case IJavaElement.FIELD :
 					case IJavaElement.INITIALIZER :
@@ -221,7 +220,7 @@ public class HandleFactory {
 					    if (member.isBinary()) {
 					        return null;
 					    } else {
-							String name = new String(scope.enclosingSourceType().sourceName);
+							String name = DeduplicationUtil.toString(scope.enclosingSourceType().sourceName);
 							int occurrenceCount = 0;
 							do {
 								newElement = member.getType(name, ++occurrenceCount);
@@ -259,7 +258,7 @@ public class HandleFactory {
 							switch (field.getKind()) {
 								case AbstractVariableDeclaration.FIELD :
 								case AbstractVariableDeclaration.ENUM_CONSTANT :
-									newElement = parentType.getField(new String(field.name));
+									newElement = parentType.getField(DeduplicationUtil.toString(field.name));
 									break;
 								case AbstractVariableDeclaration.INITIALIZER :
 									newElement = parentType.getInitializer(occurenceCount);
@@ -273,7 +272,7 @@ public class HandleFactory {
 				} else {
 					// method element
 					AbstractMethodDeclaration method = methodScope.referenceMethod();
-					newElement = parentType.getMethod(new String(method.selector), Util.typeParameterSignatures(method));
+					newElement = parentType.getMethod(DeduplicationUtil.toString(method.selector), Util.typeParameterSignatures(method));
 					if (newElement != null) {
 						knownScopes.put(scope, newElement);
 					}
@@ -355,9 +354,9 @@ public class HandleFactory {
 		IPath jarPath,
 		Object target,
 		IJavaProject[] projects) {
-		for (int i= 0, projectCount= projects.length; i < projectCount; i++) {
+		for (IJavaProject project : projects) {
 			try {
-				JavaProject javaProject= (JavaProject)projects[i];
+				JavaProject javaProject= (JavaProject)project;
 				IClasspathEntry classpathEnty = javaProject.getClasspathEntryFor(jarPath);
 				if (classpathEnty != null) {
 					if (target instanceof IFile) {
@@ -382,15 +381,14 @@ public class HandleFactory {
 
 		IPath path= new Path(pathString);
 		IProject[] projects= ResourcesPlugin.getWorkspace().getRoot().getProjects();
-		for (int i= 0, max= projects.length; i < max; i++) {
+		for (IProject project : projects) {
 			try {
-				IProject project = projects[i];
 				if (!project.isAccessible()
 					|| !project.hasNature(JavaCore.NATURE_ID)) continue;
 				IJavaProject javaProject= this.javaModel.getJavaProject(project);
 				IPackageFragmentRoot[] roots= javaProject.getPackageFragmentRoots();
-				for (int j= 0, rootCount= roots.length; j < rootCount; j++) {
-					PackageFragmentRoot root= (PackageFragmentRoot)roots[j];
+				for (IPackageFragmentRoot r : roots) {
+					PackageFragmentRoot root= (PackageFragmentRoot)r;
 					if (root.internalPath().isPrefixOf(path) && !Util.isExcluded(path, root.fullInclusionPatternChars(), root.fullExclusionPatternChars(), false)) {
 						return root;
 					}

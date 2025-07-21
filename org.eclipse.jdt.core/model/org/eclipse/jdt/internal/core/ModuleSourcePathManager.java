@@ -15,10 +15,9 @@ package org.eclipse.jdt.internal.core;
 
 import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
+import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.JavaModelException;
@@ -28,7 +27,7 @@ import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
 
 public class ModuleSourcePathManager {
 
-	private final Map<String, IModulePathEntry> knownModules = new HashMap<>(11);
+	private final Map<String, IModulePathEntry> knownModules = new ConcurrentHashMap<>();
 
 	private IModulePathEntry getModuleRoot0(String name) {
 		return this.knownModules.get(name);
@@ -77,8 +76,7 @@ public class ModuleSourcePathManager {
 		IPrefixMatcherCharArray prefixMatcher = prefixMatch ? CharOperation.equals(name, CharOperation.ALL_PREFIX) ?
 				(x, y) -> true : CharOperation::prefixEquals : CharOperation :: equals;
 		IJavaProject[] projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
-		for (int i = 0; i < projects.length; i++) {
-			IJavaProject project = projects[i];
+		for (IJavaProject project : projects) {
 			if (!project.getProject().isAccessible())
 				continue;
 			if (project instanceof JavaProject) {

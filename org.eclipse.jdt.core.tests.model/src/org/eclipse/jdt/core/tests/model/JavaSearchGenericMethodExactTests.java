@@ -14,11 +14,9 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.List;
-
-import org.eclipse.jdt.core.compiler.CharOperation;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.eclipse.jdt.core.compiler.CharOperation;
 
 /**
  * Test for generic methods search using R_EXACT_MATCH rule.

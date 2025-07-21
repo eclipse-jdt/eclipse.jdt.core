@@ -14,7 +14,7 @@
 package org.eclipse.jdt.internal.core.jdom;
 
 /**
- * The <coe>ILineSeparatorFinder</code> finds previous and next line separators
+ * The <code>ILineSeparatorFinder</code> finds previous and next line separators
  * in source.
  */
 public interface ILineStartFinder {

@@ -39,8 +39,8 @@ public void setUpSuite() throws Exception {
 }
 
 /**
- * @bug 426520: [1.8][formatter] inserts spaces into annotated qualified type
- * @test Ensure that formatting does not change the qualified type formatting for c and it
+ * bug 426520: [1.8][formatter] inserts spaces into annotated qualified type
+ * test Ensure that formatting does not change the qualified type formatting for c and it
  * it removes the spaces for s.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=426520"
  */

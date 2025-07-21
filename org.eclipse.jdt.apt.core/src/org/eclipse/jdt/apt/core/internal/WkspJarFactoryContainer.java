@@ -15,7 +15,6 @@
 package org.eclipse.jdt.apt.core.internal;
 
 import java.io.File;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;

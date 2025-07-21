@@ -74,7 +74,7 @@ public class CreationReference extends MethodReference {
 	/**
 	 * The type; lazily initialized; defaults to an unspecified type.
 	 */
-	private Type type = null;
+	private volatile Type type;
 
 	/**
 	 * Creates a new AST node for an CreationReference declaration owned
@@ -167,8 +167,7 @@ public class CreationReference extends MethodReference {
 			synchronized (this) {
 				if (this.type == null) {
 					preLazyInit();
-					this.type = new SimpleType(this.ast);
-					postLazyInit(this.type, TYPE_PROPERTY);
+					this.type = postLazyInit(new SimpleType(this.ast), TYPE_PROPERTY);
 				}
 			}
 		}

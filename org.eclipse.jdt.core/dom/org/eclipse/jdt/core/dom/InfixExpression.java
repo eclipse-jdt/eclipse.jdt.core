@@ -155,8 +155,8 @@ public class InfixExpression extends Expression {
 					CONDITIONAL_OR,
 					CONDITIONAL_AND,
 				};
-			for (int i = 0; i < ops.length; i++) {
-				CODES.put(ops[i].toString(), ops[i]);
+			for (Operator op : ops) {
+				CODES.put(op.toString(), op);
 			}
 		}
 
@@ -247,13 +247,13 @@ public class InfixExpression extends Expression {
 	 * The left operand; lazily initialized; defaults to an unspecified,
 	 * but legal, simple name.
 	 */
-	private Expression leftOperand = null;
+	private volatile Expression leftOperand;
 
 	/**
 	 * The right operand; lazily initialized; defaults to an unspecified,
 	 * but legal, simple name.
 	 */
-	private Expression rightOperand = null;
+	private volatile Expression rightOperand;
 
 	/**
 	 * The list of extended operand expressions (element type:
@@ -398,8 +398,7 @@ public class InfixExpression extends Expression {
 			synchronized (this) {
 				if (this.leftOperand == null) {
 					preLazyInit();
-					this.leftOperand= new SimpleName(this.ast);
-					postLazyInit(this.leftOperand, LEFT_OPERAND_PROPERTY);
+					this.leftOperand = postLazyInit(new SimpleName(this.ast), LEFT_OPERAND_PROPERTY);
 				}
 			}
 		}
@@ -438,8 +437,7 @@ public class InfixExpression extends Expression {
 			synchronized (this) {
 				if (this.rightOperand  == null) {
 					preLazyInit();
-					this.rightOperand= new SimpleName(this.ast);
-					postLazyInit(this.rightOperand, RIGHT_OPERAND_PROPERTY);
+					this.rightOperand = postLazyInit(new SimpleName(this.ast), RIGHT_OPERAND_PROPERTY);
 				}
 			}
 		}

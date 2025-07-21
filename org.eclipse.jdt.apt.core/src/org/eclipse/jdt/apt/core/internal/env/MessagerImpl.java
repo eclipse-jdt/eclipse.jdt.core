@@ -14,9 +14,7 @@
 
 package org.eclipse.jdt.apt.core.internal.env;
 
-import com.sun.mirror.apt.Messager;
 import com.sun.mirror.util.SourcePosition;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
 import org.eclipse.jdt.apt.core.util.EclipseMessager;
@@ -24,7 +22,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 
-public class MessagerImpl implements Messager, EclipseMessager
+public class MessagerImpl implements EclipseMessager
 {
 	public static enum Severity {
 		ERROR,

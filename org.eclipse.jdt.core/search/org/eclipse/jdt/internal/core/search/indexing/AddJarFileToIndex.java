@@ -24,7 +24,6 @@ import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipError;
 import java.util.zip.ZipFile;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -161,7 +160,6 @@ class AddJarFileToIndex extends BinaryContainer {
 					// external file -> it is ok to use toFile()
 					zip = new ZipFile(this.containerPath.toFile());
 					zipFilePath = (Path) this.containerPath;
-					// path is already canonical since coming from a library classpath entry
 				}
 
 				if (this.isCancelled) {
@@ -198,8 +196,8 @@ class AddJarFileToIndex extends BinaryContainer {
 					boolean needToReindex = indexedFileNames.elementSize != max; // a new file was added
 					if (!needToReindex) {
 						Object[] valueTable = indexedFileNames.valueTable;
-						for (int i = 0, l = valueTable.length; i < l; i++) {
-							if (valueTable[i] == DELETED) {
+						for (Object v : valueTable) {
+							if (v == DELETED) {
 								needToReindex = true; // a file was deleted so re-index
 								break;
 							}
@@ -227,7 +225,7 @@ class AddJarFileToIndex extends BinaryContainer {
 				IPath indexPath = null;
 				IndexLocation indexLocation;
 				if ((indexLocation = index.getIndexLocation()) != null) {
-					indexPath = new Path(indexLocation.getCanonicalFilePath());
+					indexPath = indexLocation.getIndexPath();
 				}
 				boolean hasModuleInfoClass = false;
 				for (Enumeration<? extends ZipEntry> e = zip.entries(); e.hasMoreElements();) {

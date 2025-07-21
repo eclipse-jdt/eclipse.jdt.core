@@ -16,6 +16,7 @@ package org.eclipse.jdt.core.dom;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 
 /**
  * Import declaration AST node type.
@@ -52,6 +53,14 @@ public class ImportDeclaration extends ASTNode {
 		new SimplePropertyDescriptor(ImportDeclaration.class, "static", boolean.class, MANDATORY); //$NON-NLS-1$
 
 	/**
+	 * The "modifiers" structural property of this node type (element type: {@link IExtendedModifier}) (added in JLS23 API).
+	 * @since 3.40
+	 * @noreference preview feature
+	 */
+	public static final ChildListPropertyDescriptor MODIFIERS_PROPERTY =
+			new ChildListPropertyDescriptor(ImportDeclaration.class, "modifiers", IExtendedModifier.class, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
@@ -67,6 +76,14 @@ public class ImportDeclaration extends ASTNode {
 	 */
 	private static final List PROPERTY_DESCRIPTORS_3_0;
 
+	/**
+	 * A list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.39
+	 */
+	private static final List PROPERTY_DESCRIPTORS_23;
+
 	static {
 		List properyList = new ArrayList(3);
 		createPropertyList(ImportDeclaration.class, properyList);
@@ -80,6 +97,14 @@ public class ImportDeclaration extends ASTNode {
 		addProperty(NAME_PROPERTY, properyList);
 		addProperty(ON_DEMAND_PROPERTY, properyList);
 		PROPERTY_DESCRIPTORS_3_0 = reapPropertyList(properyList);
+
+		properyList = new ArrayList(5);
+		createPropertyList(ImportDeclaration.class, properyList);
+		addProperty(STATIC_PROPERTY, properyList);
+		addProperty(MODIFIERS_PROPERTY, properyList);
+		addProperty(NAME_PROPERTY, properyList);
+		addProperty(ON_DEMAND_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS_23 = reapPropertyList(properyList);
 	}
 
 	/**
@@ -94,10 +119,12 @@ public class ImportDeclaration extends ASTNode {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel == AST.JLS2_INTERNAL) {
-			return PROPERTY_DESCRIPTORS_2_0;
-		} else {
+		if (apiLevel >= AST.JLS23_INTERNAL) {
+			return PROPERTY_DESCRIPTORS_23;
+		} else if (apiLevel >= AST.JLS3_INTERNAL) {
 			return PROPERTY_DESCRIPTORS_3_0;
+		} else {
+			return PROPERTY_DESCRIPTORS_2_0;
 		}
 	}
 
@@ -105,7 +132,7 @@ public class ImportDeclaration extends ASTNode {
 	 * The import name; lazily initialized; defaults to a unspecified,
 	 * legal Java identifier.
 	 */
-	private Name importName = null;
+	private volatile Name importName;
 
 	/**
 	 * On demand versus single type import; defaults to single type import.
@@ -118,6 +145,14 @@ public class ImportDeclaration extends ASTNode {
 	 * @since 3.1
 	 */
 	private boolean isStatic = false;
+
+	/**
+	 * The extended modifiers (element type: {@link IExtendedModifier}).
+	 * Added in JLS23; defaults to an empty list
+	 * (see constructor).
+	 * @since 3.39
+	 */
+	private ASTNode.NodeList modifiers = null;
 
 	/**
 	 * Creates a new AST node for an import declaration owned by the
@@ -133,6 +168,58 @@ public class ImportDeclaration extends ASTNode {
 	 */
 	ImportDeclaration(AST ast) {
 		super(ast);
+		if (ast.apiLevel >= AST.JLS23_INTERNAL) {
+			this.modifiers = new ASTNode.NodeList(MODIFIERS_PROPERTY);
+		}
+	}
+
+	/**
+	 * Returns the live ordered list of modifiers of this declaration (added in JLS23 API).
+	 *
+	 * @return the live list of modifiers (element type: {@link IExtendedModifier})
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * an AST below JLS23
+	 * @since 3.39
+	 * @noreference preview feature
+	 */
+	public List modifiers() {
+		if (this.ast.apiLevel < AST.JLS23_INTERNAL)
+			throw new UnsupportedOperationException("Operation not supported in AST below JLS23"); //$NON-NLS-1$
+		return this.modifiers;
+	}
+
+	/**
+	 * Returns the modifiers explicitly specified on this declaration.
+	 * <p>
+	 * This method is a convenience method that computes these flags based on availability:
+	 * </p>
+	 * <ul>
+	 * <li>At JLS23 it is computed from from {@link #modifiers()}.</li>
+	 * <li>At JLS3 only the information from {@link #isStatic()} is available.</li>
+	 * <li>At lower JLS {@code 0} is constantly returned.
+	 * </ul>
+	 *
+	 * @return the bit-wise "or" of <code>Modifier</code> constants
+	 * @see Modifier
+	 * @since 3.39
+	 * @noreference preview feature
+	 */
+	public int getModifiers() {
+		if (this.modifiers == null) {
+			// JLS3 behavior (for JLS2 this is constantly 0)
+			return this.isStatic ? Modifier.STATIC : Modifier.NONE;
+		}
+		// JLS23 behavior - convenience method
+		// performance could be improved by caching computed flags
+		// but this would require tracking changes to this.modifiers
+		int computedmodifierFlags = Modifier.NONE;
+		for (Object x : modifiers()) {
+			if (x instanceof Modifier) {
+                Modifier modifier = (Modifier) x;
+                computedmodifierFlags |= modifier.getKeyword().toFlagValue();
+			}
+		}
+		return computedmodifierFlags;
 	}
 
 	@Override
@@ -177,10 +264,20 @@ public class ImportDeclaration extends ASTNode {
 	}
 
 	@Override
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == MODIFIERS_PROPERTY) {
+			return modifiers();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
+	}
+
+	@Override
 	final int getNodeType0() {
 		return IMPORT_DECLARATION;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	ASTNode clone0(AST target) {
 		ImportDeclaration result = new ImportDeclaration(target);
@@ -188,6 +285,9 @@ public class ImportDeclaration extends ASTNode {
 		result.setOnDemand(isOnDemand());
 		if (this.ast.apiLevel >= AST.JLS3_INTERNAL) {
 			result.setStatic(isStatic());
+		}
+		if (this.ast.apiLevel >= AST.JLS23_INTERNAL) {
+			result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
 		}
 		result.setName((Name) getName().clone(target));
 		return result;
@@ -204,6 +304,9 @@ public class ImportDeclaration extends ASTNode {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			acceptChild(visitor, getName());
+			if (this.ast.apiLevel >= AST.JLS23_INTERNAL) {
+				acceptChildren(visitor, this.modifiers);
+			}
 		}
 		visitor.endVisit(this);
 	}
@@ -226,9 +329,9 @@ public class ImportDeclaration extends ASTNode {
 			synchronized (this) {
 				if (this.importName == null) {
 					preLazyInit();
-					this.importName =this.ast.newQualifiedName(
-							new SimpleName(this.ast), new SimpleName(this.ast));
-					postLazyInit(this.importName, NAME_PROPERTY);
+					this.importName = postLazyInit(
+							this.ast.newQualifiedName(new SimpleName(this.ast), new SimpleName(this.ast)),
+							NAME_PROPERTY);
 				}
 			}
 		}
@@ -296,6 +399,16 @@ public class ImportDeclaration extends ASTNode {
 	 * @since 3.1
 	 */
 	public boolean isStatic() {
+		if (this.modifiers != null) {
+			// JLS23 behavior: extract from the list of Modifier
+			for (Object x : modifiers()) {
+				if (x instanceof Modifier && ((Modifier) x).isStatic()) {
+                    Modifier modifier = (Modifier) x;
+                    return true;
+				}
+			}
+			return false;
+		}
 		unsupportedIn2();
 		return this.isStatic;
 	}
@@ -303,13 +416,35 @@ public class ImportDeclaration extends ASTNode {
 	/**
 	 * Sets whether this import declaration is a static import (added in JLS3 API).
 	 *
+	 * Note, that in JLS23 API this method creates a {@link Modifier} without source positions
+	 * (or removes, if {@code isStatic == false}), so it should not be invoked in situations where
+	 * valid source positions are required.
+	 *
 	 * @param isStatic <code>true</code> if this is a static import,
 	 *    and <code>false</code> if this is a regular import
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST
 	 * @since 3.1
+	 *
+	 * @see #modifiers()
 	 */
+	@SuppressWarnings("unchecked")
 	public void setStatic(boolean isStatic) {
+		if (this.ast.apiLevel >= AST.JLS23_INTERNAL) {
+			List<Modifier> mods = modifiers();
+			for (Modifier mod : mods) {
+				if (mod.isStatic()) {
+					if (!isStatic)
+						this.modifiers.remove(mod);
+					return;
+				}
+			}
+			if (isStatic) {
+				Modifier newMod = this.ast.newModifier(ModifierKeyword.STATIC_KEYWORD);
+				this.modifiers.add(newMod);
+			}
+			return;
+		}
 		unsupportedIn2();
 		preValueChange(STATIC_PROPERTY);
 		this.isStatic = isStatic;

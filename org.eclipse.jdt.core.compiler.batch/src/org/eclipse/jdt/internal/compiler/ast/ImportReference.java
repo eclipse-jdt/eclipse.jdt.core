@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,11 +15,13 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.lookup.SplitPackageBinding;
 
 public class ImportReference extends ASTNode {
 
@@ -29,6 +31,7 @@ public class ImportReference extends ASTNode {
 	public int declarationSourceStart;
 	public int declarationSourceEnd;
 	public int modifiers; // 1.5 addition for static imports
+	public int modifiersSourceStart;
 	public Annotation[] annotations;
 	// star end position
 	public int trailingStarPosition;
@@ -87,13 +90,16 @@ public class ImportReference extends ASTNode {
 	}
 
 	public StringBuilder print(int tab, StringBuilder output, boolean withOnDemand) {
-
+		boolean isModule = (this.modifiers & ClassFileConstants.AccModule) != 0;
+		if (isModule) {
+			output.append("module "); //$NON-NLS-1$
+		}
 		/* when withOnDemand is false, only the name is printed */
 		for (int i = 0; i < this.tokens.length; i++) {
 			if (i > 0) output.append('.');
 			output.append(this.tokens[i]);
 		}
-		if (withOnDemand && ((this.bits & ASTNode.OnDemand) != 0)) {
+		if (withOnDemand && !isModule && ((this.bits & ASTNode.OnDemand) != 0)) {
 			output.append(".*"); //$NON-NLS-1$
 		}
 		return output;

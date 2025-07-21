@@ -79,13 +79,13 @@ public class ArrayAccess extends Expression {
 	 * The array expression; lazily initialized; defaults to an unspecified,
 	 * but legal, expression.
 	 */
-	private Expression arrayExpression = null;
+	private volatile Expression arrayExpression;
 
 	/**
 	 * The index expression; lazily initialized; defaults to an unspecified,
 	 * but legal, expression.
 	 */
-	private Expression indexExpression = null;
+	private volatile Expression indexExpression;
 
 	/**
 	 * Creates a new unparented array access expression node owned by the given
@@ -170,8 +170,7 @@ public class ArrayAccess extends Expression {
 			synchronized (this) {
 				if (this.arrayExpression == null) {
 					preLazyInit();
-					this.arrayExpression = new SimpleName(this.ast);
-					postLazyInit(this.arrayExpression, ARRAY_PROPERTY);
+					this.arrayExpression = postLazyInit(new SimpleName(this.ast), ARRAY_PROPERTY);
 				}
 			}
 		}
@@ -212,8 +211,7 @@ public class ArrayAccess extends Expression {
 			synchronized (this) {
 				if (this.indexExpression == null) {
 					preLazyInit();
-					this.indexExpression = new SimpleName(this.ast);
-					postLazyInit(this.indexExpression, INDEX_PROPERTY);
+					this.indexExpression = postLazyInit(new SimpleName(this.ast), INDEX_PROPERTY);
 				}
 			}
 		}

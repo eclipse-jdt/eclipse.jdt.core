@@ -26,7 +26,6 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.Set;
-
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -40,7 +39,6 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
-
 import org.eclipse.jdt.apt.pluggable.tests.ProcessorTestStatus;
 import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;
 import org.eclipse.jdt.internal.apt.pluggable.core.filer.IdeOutputClassFileObject;

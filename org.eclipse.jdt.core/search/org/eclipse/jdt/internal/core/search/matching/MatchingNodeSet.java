@@ -15,10 +15,9 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchPattern;
-import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfLong;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
@@ -119,14 +118,14 @@ void addTrustedMatch(ASTNode node, Integer level) {
 }
 protected boolean hasPossibleNodes(int start, int end) {
 	Object[] nodes = this.possibleMatchingNodesSet.values;
-	for (int i = 0, l = nodes.length; i < l; i++) {
-		ASTNode node = (ASTNode) nodes[i];
+	for (Object n : nodes) {
+		ASTNode node = (ASTNode) n;
 		if (node != null && start <= node.sourceStart && node.sourceEnd <= end)
 			return true;
 	}
 	nodes = this.matchingNodes.keyTable;
-	for (int i = 0, l = nodes.length; i < l; i++) {
-		ASTNode node = (ASTNode) nodes[i];
+	for (Object n : nodes) {
+		ASTNode node = (ASTNode) n;
 		if (node != null && start <= node.sourceStart && node.sourceEnd <= end)
 			return true;
 	}
@@ -138,8 +137,8 @@ protected boolean hasPossibleNodes(int start, int end) {
 protected ASTNode[] matchingNodes(int start, int end) {
 	List<ASTNode> nodes = null;
 	Object[] keyTable = this.matchingNodes.keyTable;
-	for (int i = 0, l = keyTable.length; i < l; i++) {
-		ASTNode node = (ASTNode) keyTable[i];
+	for (Object o : keyTable) {
+		ASTNode node = (ASTNode) o;
 		if (node != null && start <= node.sourceStart && node.sourceEnd <= end) {
 			if (nodes == null) nodes = new ArrayList<>();
 			nodes.add(node);
@@ -202,8 +201,8 @@ public String toString() {
 
 	result.append("\nPossible matches:"); //$NON-NLS-1$
 	Object[] nodes = this.possibleMatchingNodesSet.values;
-	for (int i = 0, l = nodes.length; i < l; i++) {
-		ASTNode node = (ASTNode) nodes[i];
+	for (Object n : nodes) {
+		ASTNode node = (ASTNode) n;
 		if (node == null) continue;
 		result.append("\nPOSSIBLE_MATCH: "); //$NON-NLS-1$
 		node.print(0, result);

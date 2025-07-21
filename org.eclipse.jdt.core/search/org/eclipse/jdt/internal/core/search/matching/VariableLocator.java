@@ -13,7 +13,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.ast.Assignment;
+import org.eclipse.jdt.internal.compiler.ast.CompoundAssignment;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.FieldReference;
+import org.eclipse.jdt.internal.compiler.ast.NameReference;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
+import org.eclipse.jdt.internal.compiler.ast.Reference;
+import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 
 public class VariableLocator extends PatternLocator {
 
@@ -78,8 +85,8 @@ protected int matchReference(Reference node, MatchingNodeSet nodeSet, boolean wr
 				if (matchesName(this.pattern.name, tokens[tokens.length-1]))
 					return nodeSet.addMatch(node, POSSIBLE_MATCH);
 			} else {
-				for (int i = 0, max = tokens.length; i < max; i++)
-					if (matchesName(this.pattern.name, tokens[i]))
+				for (char[] token : tokens)
+					if (matchesName(this.pattern.name, token))
 						return nodeSet.addMatch(node, POSSIBLE_MATCH);
 			}
 		}

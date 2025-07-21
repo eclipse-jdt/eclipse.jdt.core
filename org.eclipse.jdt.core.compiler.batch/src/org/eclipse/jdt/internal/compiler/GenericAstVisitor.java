@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 GK Software SE and others.
+ * Copyright (c) 2021, 2024 GK Software SE and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0

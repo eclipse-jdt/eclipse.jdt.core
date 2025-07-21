@@ -14,9 +14,7 @@
 package org.eclipse.jdt.core.tests.formatter;
 
 import java.util.Map;
-
 import junit.framework.Test;
-
 import org.eclipse.jdt.core.JavaCore;
 
 @SuppressWarnings({"rawtypes", "unchecked"})

@@ -17,7 +17,7 @@
 package org.eclipse.jdt.core.tests.formatter;
 
 import java.util.Hashtable;
-
+import junit.framework.Test;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.JavaCore;
@@ -26,8 +26,6 @@ import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
-
-import junit.framework.Test;
 
 public class FormatterCommentsBugsTest extends FormatterCommentsTests {
 
@@ -52,8 +50,8 @@ IPath getOutputFolder() {
 }
 
 /**
- * @bug 196308: [formatter] Don't escape entity when formatting in <pre> tags within javadoc comments
- * @test Ensure that entity are not escaped when formatting in <pre> tags
+ * bug 196308: [formatter] Don't escape entity when formatting in {@code <pre>} tags within javadoc comments
+ * test Ensure that entity are not escaped when formatting in {@code <pre>} tags
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=196308"
  */
 public void testBug196308() throws JavaModelException {
@@ -125,8 +123,8 @@ public void testBug196308c() throws JavaModelException {
 }
 
 /**
- * @bug 198963: [formatter] 3.3 Code Formatter repeatedly indents block comment
- * @test Ensure that no the formatter indents the block comment only once
+ * bug 198963: [formatter] 3.3 Code Formatter repeatedly indents block comment
+ * test Ensure that no the formatter indents the block comment only once
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=198963"
  */
 public void testBug198963_Tabs01() {
@@ -485,8 +483,8 @@ public void testBug198963_Mixed06() {
 }
 
 /**
- * @bug 204091: [formatter] format region in comment introduces comment start/end tokens
- * @test Ensure that a region inside a javadoc comment is well formatted
+ * bug 204091: [formatter] format region in comment introduces comment start/end tokens
+ * test Ensure that a region inside a javadoc comment is well formatted
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=204091"
  */
 // NOT_FIXED_YET
@@ -518,8 +516,8 @@ public void _testBug204091() {
 }
 
 /**
- * @bug 217108: [formatter] deletes blank lines between comments
- * @test Ensure that blank lines are preserved
+ * bug 217108: [formatter] deletes blank lines between comments
+ * test Ensure that blank lines are preserved
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=217108"
  */
 public void testBug217108a() {
@@ -700,8 +698,8 @@ public void testBug217108h() {
 }
 
 /**
- * @bug 228652: [formatter] New line inserted while formatting a region of a compilation unit.
- * @test Ensure that no new line is inserted before the formatted region
+ * bug 228652: [formatter] New line inserted while formatting a region of a compilation unit.
+ * test Ensure that no new line is inserted before the formatted region
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=228652"
  */
 public void testBug228652() {
@@ -735,8 +733,8 @@ public void testBug228652() {
 }
 
 /**
- * @bug 230944: [formatter] Formatter does not respect /*-
- * @test Ensure that new formatter does not format block comment starting with '/*-'
+ * bug 230944: [formatter] Formatter does not respect /*-
+ * test Ensure that new formatter does not format block comment starting with '/*-'
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=230944"
  */
 public void testBug230944a() throws JavaModelException {
@@ -748,8 +746,8 @@ public void testBug230944b() throws JavaModelException {
 }
 
 /**
- * @bug 231263: [formatter] New JavaDoc formatter wrongly indent tags description
- * @test Ensure that new formatter indent tags description as the old one
+ * bug 231263: [formatter] New JavaDoc formatter wrongly indent tags description
+ * test Ensure that new formatter indent tags description as the old one
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=231263"
  */
 public void testBug231263() throws JavaModelException {
@@ -763,8 +761,8 @@ public void testBug231263a() throws JavaModelException {
 }
 
 /**
- * @bug 231297: [formatter] New JavaDoc formatter wrongly split inline tags before reference
- * @test Ensure that new formatter do not split reference in inline tags
+ * bug 231297: [formatter] New JavaDoc formatter wrongly split inline tags before reference
+ * test Ensure that new formatter do not split reference in inline tags
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=231297"
  */
 public void testBug231297() throws JavaModelException {
@@ -795,8 +793,8 @@ public void testBug231297d() throws JavaModelException {
 }
 
 /**
- * @bug 232285: [formatter] New comment formatter wrongly formats javadoc header/footer with several contiguous stars
- * @test Ensure that new formatter do not add/remove stars in header and footer
+ * bug 232285: [formatter] New comment formatter wrongly formats javadoc header/footer with several contiguous stars
+ * test Ensure that new formatter do not add/remove stars in header and footer
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=232285"
  */
 public void testBug232285a() throws JavaModelException {
@@ -841,8 +839,8 @@ public void testBug232285j() throws JavaModelException {
 }
 
 /**
- * @bug 232488: [formatter] Code formatter scrambles JavaDoc of Generics
- * @test Ensure that comment formatter format properly generic param tags
+ * bug 232488: [formatter] Code formatter scrambles JavaDoc of Generics
+ * test Ensure that comment formatter format properly generic param tags
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=232488"
  */
 public void testBug232488() throws JavaModelException {
@@ -852,8 +850,8 @@ public void testBug232488() throws JavaModelException {
 }
 
 /**
- * @bug 232466: [formatter] References of inlined tags are still split in certain circumstances
- * @test Ensure that new formatter do not add/remove stars in header and footer
+ * bug 232466: [formatter] References of inlined tags are still split in certain circumstances
+ * test Ensure that new formatter do not add/remove stars in header and footer
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=232466"
  */
 public void testBug232466a() throws JavaModelException {
@@ -867,8 +865,8 @@ public void testBug232466b() throws JavaModelException {
 }
 
 /**
- * @bug 232768: [formatter] does not format block and single line comment if too much selected
- * @test Ensure that the new comment formatter formats comments touched by the selection
+ * bug 232768: [formatter] does not format block and single line comment if too much selected
+ * test Ensure that the new comment formatter formats comments touched by the selection
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=232768"
  */
 public void testBug232768a() throws JavaModelException {
@@ -1481,8 +1479,8 @@ public void testBug232768_Line08() throws JavaModelException {
 }
 
 /**
- * @bug 232788: [formatter] Formatter misaligns stars when formatting block comments
- * @test Ensure that block comment formatting is correct even with indentation size=1
+ * bug 232788: [formatter] Formatter misaligns stars when formatting block comments
+ * test Ensure that block comment formatting is correct even with indentation size=1
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=232788"
  */
 public void testBug232788_Tabs01() throws JavaModelException {
@@ -1547,8 +1545,8 @@ public void testBug232788_Mixed03() throws JavaModelException {
 }
 
 /**
- * @bug 233011: [formatter] Formatting edited lines has problems (esp. with comments)
- * @test Ensure that new comment formatter format all comments concerned by selections
+ * bug 233011: [formatter] Formatting edited lines has problems (esp. with comments)
+ * test Ensure that new comment formatter format all comments concerned by selections
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=233011"
  */
 public void testBug233011() throws JavaModelException {
@@ -1579,8 +1577,8 @@ public void testBug233011() throws JavaModelException {
 }
 
 /**
- * @bug 233228: [formatter] line comments which contains \\u are not correctly formatted
- * @test Ensure that the new formatter is not screwed up by invalid unicode value inside comments
+ * bug 233228: [formatter] line comments which contains \\u are not correctly formatted
+ * test Ensure that the new formatter is not screwed up by invalid unicode value inside comments
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=233228"
  */
 public void testBug233228a() throws JavaModelException {
@@ -1600,8 +1598,8 @@ public void testBug233228e() throws JavaModelException {
 }
 
 /**
- * @bug 233224: [formatter] Xdoclet tags looses @ on format
- * @test Ensure that doclet tags are preserved while formatting
+ * bug 233224: [formatter] Xdoclet tags looses @ on format
+ * test Ensure that doclet tags are preserved while formatting
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=233224"
  */
 public void testBug233224() throws JavaModelException {
@@ -1610,8 +1608,8 @@ public void testBug233224() throws JavaModelException {
 }
 
 /**
- * @bug 233259: [formatter] html tag should not be split by formatter
- * @test Ensure that html tag is not split by the new comment formatter
+ * bug 233259: [formatter] html tag should not be split by formatter
+ * test Ensure that html tag is not split by the new comment formatter
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=233259"
  */
 public void testBug233259a() throws JavaModelException {
@@ -1702,8 +1700,8 @@ public void testBug233259d() throws JavaModelException {
 }
 
 /**
- * @bug 237942: [formatter] String references are put on next line when over the max line length
- * @test Ensure that string reference is not put on next line when over the max line width
+ * bug 237942: [formatter] String references are put on next line when over the max line length
+ * test Ensure that string reference is not put on next line when over the max line width
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=237942"
  */
 public void testBug237942a() throws JavaModelException {
@@ -1794,8 +1792,8 @@ public void testBug237942d() throws JavaModelException {
 }
 
 /**
- * @bug 234336: [formatter] JavaDocTestCase.testMultiLineCommentIndent* tests fail in I20080527-2000 build
- * @test Ensure that new comment formatter format all comments concerned by selections
+ * bug 234336: [formatter] JavaDocTestCase.testMultiLineCommentIndent* tests fail in I20080527-2000 build
+ * test Ensure that new comment formatter format all comments concerned by selections
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=234336"
  */
 public void testBug234336() throws JavaModelException {
@@ -1819,8 +1817,8 @@ public void testBug234336() throws JavaModelException {
 
 //static { TESTS_PREFIX = "testBug234583"; }
 /**
- * @bug 234583: [formatter] Code formatter should adapt edits instead of regions
- * @test Ensure that selected region(s) are correctly formatted
+ * bug 234583: [formatter] Code formatter should adapt edits instead of regions
+ * test Ensure that selected region(s) are correctly formatted
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=234583"
  */
 public void testBug234583a() throws JavaModelException {
@@ -2080,8 +2078,8 @@ public void testBug234583_Bug237592() throws JavaModelException {
 }
 
 /**
- * @bug 236230: [formatter] SIOOBE while formatting a compilation unit.
- * @test Ensure that no exception occurs while formatting
+ * bug 236230: [formatter] SIOOBE while formatting a compilation unit.
+ * test Ensure that no exception occurs while formatting
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=236230"
  */
 public void testBug236230() throws JavaModelException {
@@ -2281,8 +2279,8 @@ public void testBug236230f() throws JavaModelException {
 }
 
 /**
- * @bug 236406: [formatter] Formatting qualified invocations can be broken when the Line Wrapping policy forces element to be on a new line
- * @test Verify that wrapping policies forcing the first element to be on a new line are working again...
+ * bug 236406: [formatter] Formatting qualified invocations can be broken when the Line Wrapping policy forces element to be on a new line
+ * test Verify that wrapping policies forcing the first element to be on a new line are working again...
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=236406"
  */
 public void testBug236406_CDB1() {
@@ -2420,8 +2418,8 @@ public void testBug236406_ST2() {
 }
 
 /**
- * @bug 237051: [formatter] Formatter insert blank lines after javadoc if javadoc contains Commons Attributes @@ annotations
- * @test Ensure that Commons Attributes @@ annotations do not screw up the comment formatter
+ * bug 237051: [formatter] Formatter insert blank lines after javadoc if javadoc contains Commons Attributes @@ annotations
+ * test Ensure that Commons Attributes @@ annotations do not screw up the comment formatter
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=237051"
  */
 public void testBug237051() throws JavaModelException {
@@ -2545,8 +2543,8 @@ public void testBug237051d() throws JavaModelException {
 }
 
 /**
- * @bug 237453: [formatter] Save actions fails to remove excess new lines when set to "format edited lines"
- * @test Ensure that empty lines/spaces selection is well formatted
+ * bug 237453: [formatter] Save actions fails to remove excess new lines when set to "format edited lines"
+ * test Ensure that empty lines/spaces selection is well formatted
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=237453"
  */
 public void testBug237453a() throws JavaModelException {
@@ -2772,8 +2770,8 @@ public void testBug237453i() throws JavaModelException {
 }
 
 /**
- * @bug 238090: [formatter] Formatter insert blank lines after javadoc if javadoc contains Commons Attributes @@ annotations
- * @test Ensure that no unexpected empty new lines are added while formatting a reference
+ * bug 238090: [formatter] Formatter insert blank lines after javadoc if javadoc contains Commons Attributes @@ annotations
+ * test Ensure that no unexpected empty new lines are added while formatting a reference
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=238090"
  */
 public void testBug238090() throws JavaModelException {
@@ -2809,8 +2807,8 @@ public void testBug238090() throws JavaModelException {
 }
 
 /**
- * @bug 238210: [formatter] CodeFormatter wraps line comments without whitespaces
- * @test Ensure that line without spaces are not wrapped by the comment formatter
+ * bug 238210: [formatter] CodeFormatter wraps line comments without whitespaces
+ * test Ensure that line without spaces are not wrapped by the comment formatter
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=238210"
  */
 public void testBug238210() throws JavaModelException {
@@ -2966,8 +2964,8 @@ public void testBug238210_X03() throws JavaModelException {
 }
 
 /**
- * @bug 238853: [formatter] Code Formatter does not properly format valid xhtml in javadoc.
- * @test Ensure that xhtml valid tags are taken into account by the comment formatter
+ * bug 238853: [formatter] Code Formatter does not properly format valid xhtml in javadoc.
+ * test Ensure that xhtml valid tags are taken into account by the comment formatter
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=238853"
  */
 public void testBug238853() throws JavaModelException {
@@ -3000,8 +2998,8 @@ public void testBug238853() throws JavaModelException {
 }
 
 /**
- * @bug 238920: [formatter] Code Formatter removes javadoc status if @category present
- * @test Ensure that line without spaces are not wrapped by the comment formatter
+ * bug 238920: [formatter] Code Formatter removes javadoc status if @category present
+ * test Ensure that line without spaces are not wrapped by the comment formatter
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=238920"
  */
 public void testBug238920() throws JavaModelException {
@@ -3070,8 +3068,8 @@ public void testBug238920c() throws JavaModelException {
 }
 
 /**
- * @bug 239130: [formatter] problem formatting block comments
- * @test Ensure that the comment formatter preserve line breaks when specified
+ * bug 239130: [formatter] problem formatting block comments
+ * test Ensure that the comment formatter preserve line breaks when specified
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=239130"
  */
 public void testBug239130_default() throws JavaModelException {
@@ -3407,8 +3405,8 @@ public void testBug239130_96696_javadoc_clearBlankLines_preserveLineBreaks() thr
 }
 
 /**
- * @bug 239719: [formatter] Code formatter destroys pre formatted javadoc comments
- * @test Ensure that annotations inside <pre>...</pre> tags are not considered as javadoc tags
+ * bug 239719: [formatter] Code formatter destroys pre formatted javadoc comments
+ * test Ensure that annotations inside <pre>...</pre> tags are not considered as javadoc tags
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=239719"
  */
 public void testBug239719() throws JavaModelException {
@@ -3495,8 +3493,8 @@ public void testBug239719b() throws JavaModelException {
 }
 
 /**
- * @bug 239941: [formatter] Unclosed html tags make the formatter to produce incorrect outputs
- * @test Ensure that unclosed html tags do not screw up the formatter in following javadoc comments
+ * bug 239941: [formatter] Unclosed html tags make the formatter to produce incorrect outputs
+ * test Ensure that unclosed html tags do not screw up the formatter in following javadoc comments
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=239941"
  */
 public void testBug239941() throws JavaModelException {
@@ -3542,8 +3540,8 @@ public void testBug239941() throws JavaModelException {
 }
 
 /**
- * @bug 240686: [formatter] Formatter do unexpected things
- * @test Ensure that open brace are well taken into account just after the HTML tag opening
+ * bug 240686: [formatter] Formatter do unexpected things
+ * test Ensure that open brace are well taken into account just after the HTML tag opening
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=240686"
  */
 public void testBug240686() throws JavaModelException {
@@ -3584,8 +3582,8 @@ public void testBug240686() throws JavaModelException {
 }
 
 /**
- * @bug 241345: [formatter] Didn't Format HTML tags is unavailable
- * @test Ensure that unset 'Format HTML tags' preference format HTML tags like simple text
+ * bug 241345: [formatter] Didn't Format HTML tags is unavailable
+ * test Ensure that unset 'Format HTML tags' preference format HTML tags like simple text
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=241345"
  */
 public void testBug241345() throws JavaModelException {
@@ -3620,8 +3618,8 @@ public void testBug241345() throws JavaModelException {
 }
 
 /**
- * @bug 241687: [formatter] problem formatting block comments
- * @test Ensure that the comment formatter always honors the tacit contract of not modifying block comments starting with '/*-'
+ * bug 241687: [formatter] problem formatting block comments
+ * test Ensure that the comment formatter always honors the tacit contract of not modifying block comments starting with '/*-'
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=241687"
  */
 public void testBug241687() throws JavaModelException {
@@ -3653,8 +3651,8 @@ public void testBug241687() throws JavaModelException {
 }
 
 /**
- * @bug 251133: [formatter] Automatic formatting single line comments is incoherent among tools
- * @test Test the new formatter capability to completely ignore line comments starting at first column
+ * bug 251133: [formatter] Automatic formatting single line comments is incoherent among tools
+ * test Test the new formatter capability to completely ignore line comments starting at first column
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=251133"
  */
 public void testBug251133() throws JavaModelException {
@@ -3773,8 +3771,8 @@ public void testBug251133h() throws JavaModelException {
 }
 
 /**
- * @bug 256799: [formatter] Formatter wrongly adds space to //$FALL-THROUGH$
- * @test Ensure that the comment formatter preserve $FALL-THROUGH$ tag leading spaces
+ * bug 256799: [formatter] Formatter wrongly adds space to //$FALL-THROUGH$
+ * test Ensure that the comment formatter preserve $FALL-THROUGH$ tag leading spaces
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=256799"
  */
 public void testBug256799_Line01() throws JavaModelException {
@@ -4031,8 +4029,8 @@ public void testBug256799_Block02() throws JavaModelException {
 }
 
 /**
- * @bug 254998: [formatter] wrong type comment format during code generation
- * @test Ensure that the comment formatter works well on the given test case
+ * bug 254998: [formatter] wrong type comment format during code generation
+ * test Ensure that the comment formatter works well on the given test case
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=254998"
  */
 public void testBug254998() throws JavaModelException {
@@ -4133,8 +4131,8 @@ public void testBug254998c() throws JavaModelException {
 }
 
 /**
- * @bug 260011: [formatter] Formatting of html in javadoc comments doesn't work with style attributes
- * @test Ensure that the comment formatter understand <p> html tag with attributes
+ * bug 260011: [formatter] Formatting of html in javadoc comments doesn't work with style attributes
+ * test Ensure that the comment formatter understand <p> html tag with attributes
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=260011"
  */
 public void testBug260011() throws JavaModelException {
@@ -4481,8 +4479,8 @@ public void testBug260011_11() throws JavaModelException {
 }
 
 /**
- * @bug 260274: [formatter] * character is removed while formatting block comments
- * @test Ensure that the comment formatter keep '*' characters while formatting block comments
+ * bug 260274: [formatter] * character is removed while formatting block comments
+ * test Ensure that the comment formatter keep '*' characters while formatting block comments
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=260274"
  */
 public void testBug260274() throws JavaModelException {
@@ -4657,8 +4655,8 @@ public void testBug260274i() throws JavaModelException {
 }
 
 /**
- * @bug 260276: [formatter] Inconsistent formatting of one-line block comment
- * @test Ensure that the comment formatter has a consistent behavior while formatting one-line block comment
+ * bug 260276: [formatter] Inconsistent formatting of one-line block comment
+ * test Ensure that the comment formatter has a consistent behavior while formatting one-line block comment
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=260276"
  */
 public void testBug260276() throws JavaModelException {
@@ -4705,8 +4703,8 @@ public void testBug260276c() throws JavaModelException {
 }
 
 /**
- * @bug 260381: [formatter] Javadoc formatter breaks {@code ...} tags.
- * @test Ensure that the @code tag is similar to <code> HTML tag
+ * bug 260381: [formatter] Javadoc formatter breaks {@code ...} tags.
+ * test Ensure that the @code tag is similar to {@code <code>} HTML tag
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=260381"
  */
 public void testBug260381() throws JavaModelException {
@@ -5550,8 +5548,8 @@ public void testBug260381_wksp2_09() throws JavaModelException {
 }
 
 /**
- * @bug 260798: [formatter] Strange behavior of never join lines
- * @test Ensure that the formatter indents lines correctly when never join lines pref is activated
+ * bug 260798: [formatter] Strange behavior of never join lines
+ * test Ensure that the formatter indents lines correctly when never join lines pref is activated
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=260798"
  */
 public void testBug260798() throws JavaModelException {
@@ -5655,8 +5653,8 @@ public void testBug260798c() throws JavaModelException {
 }
 
 /**
- * @bug 267551: [formatter] Wrong spacing in default array parameter for annotation type
- * @test Ensure that no space is inserted before the array initializer when used inside annotation
+ * bug 267551: [formatter] Wrong spacing in default array parameter for annotation type
+ * test Ensure that no space is inserted before the array initializer when used inside annotation
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=267551"
  */
 public void testBug267551() throws JavaModelException {
@@ -5677,8 +5675,8 @@ public void testBug267551() throws JavaModelException {
 }
 
 /**
- * @bug 267658: [formatter] Javadoc comments may be still formatted as block comments
- * @test Ensure that javadoc comment are formatted as block comment with certain
+ * bug 267658: [formatter] Javadoc comments may be still formatted as block comments
+ * test Ensure that javadoc comment are formatted as block comment with certain
  * 	options configuration
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=267658"
  */
@@ -5731,14 +5729,14 @@ public void testBug267658b() throws JavaModelException {
 	String source =
 		"public class Test {\n" +
 		"/**\n" +
-		" * @test bug\n" +
+		" * test bug\n" +
 		" */\n" +
 		"int field;\n" +
 		"}\n";
 	formatSource(source,
 		"public class Test {\n" +
 		"	/**\n" +
-		"	 * @test bug\n" +
+		"	 * test bug\n" +
 		"	 */\n" +
 		"	int field;\n" +
 		"}\n"
@@ -5746,8 +5744,8 @@ public void testBug267658b() throws JavaModelException {
 }
 
 /**
- * @bug 270209: [format] Condensed block comment formatting
- * @test Verify that block and javadoc comments are formatted in condensed
+ * bug 270209: [format] Condensed block comment formatting
+ * test Verify that block and javadoc comments are formatted in condensed
  * 		mode when the corresponding preferences is set
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=270209"
  */
@@ -5873,8 +5871,8 @@ public void testBug270209_Javadoc03() throws JavaModelException {
 }
 
 /**
- * @bug 273619: [formatter] Formatting repeats *} in javadoc
- * @test Ensure that *} is not repeated while formatting
+ * bug 273619: [formatter] Formatting repeats *} in javadoc
+ * test Ensure that *} is not repeated while formatting
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=273619"
  */
 public void testBug273619a() throws JavaModelException {
@@ -5917,8 +5915,8 @@ public void testBug273619b() throws JavaModelException {
 }
 
 /**
- * @bug 279359: [formatter] Formatter with 'never join lines' produces extra level of indent
- * @test Ensure that no extra indentation is produced at the end of a body when
+ * bug 279359: [formatter] Formatter with 'never join lines' produces extra level of indent
+ * test Ensure that no extra indentation is produced at the end of a body when
  * 	'never join lines' preference is set.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=279359"
  */
@@ -5958,8 +5956,8 @@ public void testBug279359() throws JavaModelException {
 }
 
 /**
- * @bug 280061: [formatter] AIOOBE while formatting javadoc comment
- * @test Ensure that no exception occurs while formatting 1.5 snippet
+ * bug 280061: [formatter] AIOOBE while formatting javadoc comment
+ * test Ensure that no exception occurs while formatting 1.5 snippet
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=280061"
  */
 public void testBug280061() throws JavaModelException {
@@ -6012,8 +6010,8 @@ public void testBug280061() throws JavaModelException {
 }
 
 /**
- * @bug 280255: [formatter] Format edited lines adds two new lines on each save
- * @test Ensure that no new line is added while formatting edited lines
+ * bug 280255: [formatter] Format edited lines adds two new lines on each save
+ * test Ensure that no new line is added while formatting edited lines
  * 	options configuration
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=280255"
  */
@@ -6079,8 +6077,8 @@ public void testBug280255b() throws JavaModelException {
 }
 
 /**
- * @bug 280616: [formatter] Valid 1.5 code is not formatted inside <pre> tag
- * @test Ensure that 1.5 snippet is formatted when source level is 1.5
+ * bug 280616: [formatter] Valid 1.5 code is not formatted inside {@code <pre>} tag
+ * test Ensure that 1.5 snippet is formatted when source level is 1.5
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=280616"
  */
 public void testBug280616() throws JavaModelException {
@@ -6132,7 +6130,7 @@ public void testBug280616() throws JavaModelException {
 }
 
 /**
- * @bug 287833: [formatter] Formatter removes the first character after the * in the <pre> tag
+ * bug 287833: [formatter] Formatter removes the first character after the * in the {@code <pre>} tag
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=287833"
  */
 public void testBug287833a() {
@@ -6216,8 +6214,8 @@ public void testBug287833c() {
 }
 
 /**
- * @bug 295825: [formatter] Commentaries are running away after formatting are used
- * @test Verify that block comment stay unchanged when text starts with a star
+ * bug 295825: [formatter] Commentaries are running away after formatting are used
+ * test Verify that block comment stay unchanged when text starts with a star
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=295825"
  */
 public void testBug295825() {
@@ -6231,8 +6229,8 @@ public void testBug295825() {
 }
 
 /**
- * @bug 300379: [formatter] Fup of bug 287833
- * @test Verify that the leading '{' is not deleted while formatting
+ * bug 300379: [formatter] Fup of bug 287833
+ * test Verify that the leading '{' is not deleted while formatting
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=300379"
  */
 public void testBug300379() {
@@ -6286,8 +6284,8 @@ public void testBug300379b() {
 }
 
 /**
- * @bug 304705: [formatter] Unexpected indentation of wrapped line comments when 'Never indent line comment on first column' preference is checked
- * @test Verify that wrapped line comments are also put at first column
+ * bug 304705: [formatter] Unexpected indentation of wrapped line comments when 'Never indent line comment on first column' preference is checked
+ * test Verify that wrapped line comments are also put at first column
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=304705"
  */
 public void testBug304705() {
@@ -6323,8 +6321,8 @@ public void testBug304705b() {
 }
 
 /**
- * @bug 305281: [formatter] Turning off formatting changes comment's formatting
- * @test Verify that turning off formatting in a javadoc does not screw up its indentation
+ * bug 305281: [formatter] Turning off formatting changes comment's formatting
+ * test Verify that turning off formatting in a javadoc does not screw up its indentation
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=305281"
  */
 public void testBug305281() {
@@ -6365,8 +6363,8 @@ public void testBug305281() {
 }
 
 /**
- * @bug 305371: [formatter] Unexpected indentation of line comment
- * @test Verify that comments with too different indentation are not considered as contiguous
+ * bug 305371: [formatter] Unexpected indentation of line comment
+ * test Verify that comments with too different indentation are not considered as contiguous
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=305371"
  */
 public void testBug305371() {
@@ -6423,8 +6421,8 @@ public void testBug305371d() {
 }
 
 /**
- * @bug 305518: [formatter] Line inside <pre> tag is wrongly indented by one space when starting just after the star
- * @test Verify formatting of a <pre> tag section keep lines right indented
+ * bug 305518: [formatter] Line inside &lt;pre&gt; tag is wrongly indented by one space when starting just after the star
+ * test Verify formatting of a &lt;pre&gt; tag section keep lines right indented
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=305518"
  */
 public void testBug305518() {
@@ -6544,8 +6542,8 @@ public void testBug305518_wksp2_03() {
 }
 
 /**
- * @bug 305830: [formatter] Turning off formatting changes comment's formatting
- * @test Verify that turning off formatting in a javadoc does not screw up its indentation
+ * bug 305830: [formatter] Turning off formatting changes comment's formatting
+ * test Verify that turning off formatting in a javadoc does not screw up its indentation
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=305830"
  */
 public void testBug305830() {
@@ -6644,8 +6642,8 @@ public void testBug305830d() {
 }
 
 /**
- * @bug 309835: [formatter] adds blank lines on each run
- * @test Test that no line is added when the word exceeds the line width
+ * bug 309835: [formatter] adds blank lines on each run
+ * test Test that no line is added when the word exceeds the line width
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=309835"
  */
 public void testBug309835() {
@@ -6849,8 +6847,8 @@ public void testBug309835_wksp2_01() {
 }
 
 /**
- * @bug 311864: [formatter] NPE with empty {@code }
- * @test Ensure that no NPE occurs while formatting an empty code inline tag.
+ * bug 311864: [formatter] NPE with empty {@code }
+ * test Ensure that no NPE occurs while formatting an empty code inline tag.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=311864"
  */
 public void testBug311864() throws JavaModelException {
@@ -6895,8 +6893,8 @@ public void testBug311864() throws JavaModelException {
 }
 
 /**
- * @bug 315577: [formatter] NullPointerException (always) on inserting a custom template proposal into java code when "Use code formatter" is on
- * @test Ensure that no NPE occurs when inserting the custom template
+ * bug 315577: [formatter] NullPointerException (always) on inserting a custom template proposal into java code when "Use code formatter" is on
+ * test Ensure that no NPE occurs when inserting the custom template
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=315577"
  */
 public void testBug315577() throws JavaModelException {
@@ -6918,8 +6916,8 @@ public void testBug315577() throws JavaModelException {
 }
 
 /**
- * @bug 315732: [formatter] NullPointerException (always) on inserting a custom template proposal into java code when "Use code formatter" is on
- * @test Ensure that no NPE occurs when inserting the custom template
+ * bug 315732: [formatter] NullPointerException (always) on inserting a custom template proposal into java code when "Use code formatter" is on
+ * test Ensure that no NPE occurs when inserting the custom template
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=315732"
  */
 public void testBug315732() throws JavaModelException {
@@ -6939,8 +6937,8 @@ public void testBug315732() throws JavaModelException {
 }
 
 /**
- * @bug 313651: [formatter] Unexpected indentation of line comment
- * @test Verify that comments with too different indentation are not considered as contiguous
+ * bug 313651: [formatter] Unexpected indentation of line comment
+ * test Verify that comments with too different indentation are not considered as contiguous
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=313651"
  */
 public void testBug313651_01() {
@@ -7773,5 +7771,46 @@ public void testBug552012d() {
 		"public class MyTest {\n" +
 		"}";
 	formatSource(source);
+}
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2127
+ */
+public void testIssue2127a() {
+	setComplianceLevel(CompilerOptions.VERSION_9);
+	String source = """
+		/** This   is   a   header   comment */
+
+		/** This   is   a   module   javadoc */
+		module test{}
+		""";
+	formatSource(source, """
+		/** This   is   a   header   comment */
+
+		/** This is a module javadoc */
+		module test {
+		}
+		""",
+		CodeFormatter.K_MODULE_INFO | CodeFormatter.F_INCLUDE_COMMENTS);
+}
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2127
+ */
+public void testIssue2127b() {
+	setComplianceLevel(CompilerOptions.VERSION_9);
+	this.formatterPrefs.comment_format_header = true;
+	String source = """
+		/** This   is   a   header   comment */
+
+		/** This   is   a   module   javadoc */
+		module test{}
+		""";
+	formatSource(source, """
+		/** This is a header comment */
+
+		/** This is a module javadoc */
+		module test {
+		}
+		""",
+		CodeFormatter.K_MODULE_INFO | CodeFormatter.F_INCLUDE_COMMENTS);
 }
 }

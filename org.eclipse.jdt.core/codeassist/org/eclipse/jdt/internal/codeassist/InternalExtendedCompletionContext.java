@@ -18,7 +18,6 @@ package org.eclipse.jdt.internal.codeassist;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.ITypeRoot;
@@ -29,46 +28,18 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionNodeDetector;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionParser;
 import org.eclipse.jdt.internal.codeassist.impl.AssistCompilationUnit;
-import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.Initializer;
-import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
-import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
-import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
-import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
-import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ImportBinding;
-import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
-import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.compiler.lookup.SignatureWrapper;
-import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.CompilationUnitElementInfo;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.LocalVariable;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class InternalExtendedCompletionContext {
@@ -282,7 +253,7 @@ public class InternalExtendedCompletionContext {
 
 		return new LocalVariable(
 				parent,
-				new String(local.name),
+				DeduplicationUtil.toString(local.name),
 				local.declarationSourceStart,
 				local.declarationSourceEnd,
 				local.sourceStart,
@@ -849,10 +820,9 @@ public class InternalExtendedCompletionContext {
 
 		// search in static import
 		ImportBinding[] importBindings = scope.compilationUnitScope().imports;
-		for (int i = 0; i < importBindings.length; i++) {
-			ImportBinding importBinding = importBindings[i];
+		for (ImportBinding importBinding : importBindings) {
 			if(importBinding.isValidBinding() && importBinding.isStatic()) {
-				Binding binding = importBinding.resolvedImport;
+				Binding binding = importBinding.getResolvedImport();
 				if(binding != null && binding.isValidBinding()) {
 					if(importBinding.onDemand) {
 						if((binding.kind() & Binding.TYPE) != 0) {
@@ -934,9 +904,9 @@ public class InternalExtendedCompletionContext {
 			// the erasure must be used because guessedType can be a RawTypeBinding
 			guessedType = guessedType.erasure();
 			TypeVariableBinding[] typeVars = guessedType.typeVariables();
-			for (int i = 0; i < parameterTypes.length; i++) {
-				for (int j = 0; j < typeVars.length; j++) {
-					if (CharOperation.equals(parameterTypes[i].toCharArray(), typeVars[j].sourceName))
+			for (String parameterType : parameterTypes) {
+				for (TypeVariableBinding typeVar : typeVars) {
+					if (CharOperation.equals(parameterType.toCharArray(), typeVar.sourceName))
 						return false;
 				}
 			}
@@ -956,9 +926,9 @@ public class InternalExtendedCompletionContext {
 		// Next, find out whether any of the constructor parameters are the same as one of the
 		// class type variables. If yes, diamond cannot be used.
 		if (typeVariables != null) {
-			for (int i = 0; i < parameterTypes.length; i++) {
-				for (int j = 0; j < typeVariables.length; j++) {
-					if (CharOperation.equals(parameterTypes[i].toCharArray(), typeVariables[j]))
+			for (String parameterType : parameterTypes) {
+				for (char[] typeVariable : typeVariables) {
+					if (CharOperation.equals(parameterType.toCharArray(), typeVariable))
 						return false;
 				}
 			}

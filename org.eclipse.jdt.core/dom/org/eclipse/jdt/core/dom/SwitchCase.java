@@ -106,7 +106,7 @@ public class SwitchCase extends Statement {
 	 * does <b>not</b> default to none).
 	 * @see #expressionInitialized
 	 */
-	private Expression optionalExpression = null;
+	private volatile Expression optionalExpression;
 
 	/**
 	 * <code>true</code> indicates "->" and <code>false</code> indicates ":".
@@ -122,7 +122,7 @@ public class SwitchCase extends Statement {
 	/**
 	 * Indicates whether <code>optionalExpression</code> has been initialized.
 	 */
-	private boolean expressionInitialized = false;
+	private volatile boolean expressionInitialized;
 
 	/**
 	 * Creates a new AST node for a switch case pseudo-statement owned by the
@@ -233,9 +233,8 @@ public class SwitchCase extends Statement {
 			synchronized (this) {
 				if (!this.expressionInitialized) {
 					preLazyInit();
-					this.optionalExpression = new SimpleName(this.ast);
+					this.optionalExpression = postLazyInit(new SimpleName(this.ast), EXPRESSION_PROPERTY);
 					this.expressionInitialized = true;
-					postLazyInit(this.optionalExpression, EXPRESSION_PROPERTY);
 				}
 			}
 		}

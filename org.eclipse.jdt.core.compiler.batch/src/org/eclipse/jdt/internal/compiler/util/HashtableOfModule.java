@@ -102,8 +102,8 @@ public final class HashtableOfModule {
 	public String toString() {
 		String s = ""; //$NON-NLS-1$
 		ModuleBinding pkg;
-		for (int i = 0, length = this.valueTable.length; i < length; i++)
-			if ((pkg = this.valueTable[i]) != null)
+		for (ModuleBinding binding : this.valueTable)
+			if ((pkg = binding) != null)
 				s += pkg.toString() + "\n"; //$NON-NLS-1$
 		return s;
 	}

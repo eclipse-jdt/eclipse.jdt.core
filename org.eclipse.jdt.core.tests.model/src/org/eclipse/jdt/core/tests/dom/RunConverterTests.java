@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,11 +16,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import org.eclipse.jdt.core.tests.junit.extension.TestCase;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class RunConverterTests extends junit.framework.TestCase {
@@ -58,9 +56,13 @@ public static Class[] getAllTestClasses() {
 		ASTConverter_15Test.class,
 		ASTConverter_16Test.class,
 		ASTConverter_17Test.class,
+		ASTConverter_23Test.class,
 		ASTConverter_GuardedPattern_Test.class,
 		ASTConverter_RecordPattern_Test.class,
-		ASTConverterStringTemplateTest.class,
+		ASTConverterSuperAfterStatements.class,
+		ASTConverterEitherOrMultiPatternTest.class,
+		CompilationUnitResolverDiscoveryTest.class,
+		//ASTConverterMarkdownTest.class
 	};
 }
 public static Test suite() {

@@ -13,19 +13,21 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.declaration;
 
-import java.lang.annotation.Annotation;
-import java.util.Collection;
-
-import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
-import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
-import org.eclipse.jdt.core.dom.*;
-
 import com.sun.mirror.declaration.AnnotationMirror;
 import com.sun.mirror.declaration.MemberDeclaration;
 import com.sun.mirror.util.DeclarationVisitor;
 import com.sun.mirror.util.SourcePosition;
+import java.lang.annotation.Annotation;
+import java.util.Collection;
+import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
+import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.IAnnotationBinding;
+import org.eclipse.jdt.core.dom.IBinding;
 
-public abstract class MemberDeclarationImpl extends DeclarationImpl implements MemberDeclaration, EclipseMirrorObject
+public abstract class MemberDeclarationImpl extends DeclarationImpl implements MemberDeclaration
 {
     MemberDeclarationImpl(final IBinding binding, BaseProcessorEnv env)
     {
@@ -59,13 +61,13 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
 		switch( binding.getKind() )
 		{
 		case IBinding.TYPE:
-			instances = ((ITypeBinding)binding).getAnnotations();
+			instances = binding.getAnnotations();
 			break;
 		case IBinding.METHOD:
-			instances = ((IMethodBinding)binding).getAnnotations();
+			instances = binding.getAnnotations();
 			break;
 		case IBinding.VARIABLE:
-			instances = ((IVariableBinding)binding).getAnnotations();
+			instances = binding.getAnnotations();
 			break;
 		case IBinding.PACKAGE:
 			// TODO: support package annotation

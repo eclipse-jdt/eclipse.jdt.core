@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Andrey Loskutov (loskutov@gmx.de) and others.
+ * Copyright (c) 2023, 2024 Andrey Loskutov (loskutov@gmx.de) and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,11 +14,9 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -144,7 +142,26 @@ public void testInlineReturn2() {
 		}
 	);
 }
-
+public void testInlineReturn3() {
+	if(this.complianceLevel < ClassFileConstants.JDK16) {
+		return;
+	}
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"""
+			public class X {
+				/** {@return {@code true} or else
+				 *  {@code false}}
+				 */
+				public boolean sample() {
+					return false;
+				}
+			}
+			""",
+		}
+	);
+}
 public void testInlineReturn_broken1() {
 	if(this.complianceLevel < ClassFileConstants.JDK16) {
 		return;

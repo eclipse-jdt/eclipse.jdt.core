@@ -14,12 +14,11 @@
 
 package org.eclipse.jdt.apt.tests.external.annotations.loadertest;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-
 import com.sun.mirror.apt.AnnotationProcessor;
 import com.sun.mirror.apt.AnnotationProcessorEnvironment;
 import com.sun.mirror.apt.Filer;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
  * Used to test loading an annotation processor from a jar file.

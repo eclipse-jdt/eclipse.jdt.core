@@ -13,11 +13,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests;
 
-import org.eclipse.jdt.core.tests.builder.BuilderTests;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.eclipse.jdt.core.tests.builder.BuilderTests;
 
 /**
  * Runs all Java builder tests.

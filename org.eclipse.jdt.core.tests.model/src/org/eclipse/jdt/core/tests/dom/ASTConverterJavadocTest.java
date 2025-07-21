@@ -21,54 +21,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTMatcher;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.ArrayType;
-import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.Comment;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
-import org.eclipse.jdt.core.dom.EnumDeclaration;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.ExpressionStatement;
-import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.IPackageBinding;
-import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.IfStatement;
-import org.eclipse.jdt.core.dom.Javadoc;
-import org.eclipse.jdt.core.dom.MemberRef;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.MethodRef;
-import org.eclipse.jdt.core.dom.MethodRefParameter;
-import org.eclipse.jdt.core.dom.Name;
-import org.eclipse.jdt.core.dom.PackageDeclaration;
-import org.eclipse.jdt.core.dom.PrimitiveType;
-import org.eclipse.jdt.core.dom.QualifiedName;
-import org.eclipse.jdt.core.dom.ReturnStatement;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SimpleType;
-import org.eclipse.jdt.core.dom.Statement;
-import org.eclipse.jdt.core.dom.TagElement;
-import org.eclipse.jdt.core.dom.TextElement;
-import org.eclipse.jdt.core.dom.Type;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
 /**
@@ -147,10 +109,24 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.unix = "true".equals(unix);
 	}
 	public ASTConverterJavadocTest(String name) {
-		this(name.substring(0, name.indexOf(" - ")),
-				name.substring(name.indexOf(" - Doc ") + 7, name.lastIndexOf("abled") + 5),
+		this(preHyphen(name), nameToSupport(name),
 				name.indexOf(" - Unix") != -1 ? "true" : "false");
 	}
+
+	private static String preHyphen(String name) {
+		int hyphenInd = name.indexOf(" - ");
+		String r = hyphenInd == -1 ? name : name.substring(0, hyphenInd);
+		return r;
+	}
+	private static String nameToSupport(String name) {
+		int ind1 = name.indexOf(" - Doc ");
+		int ind2 = name.lastIndexOf("abled");
+		if( ind1 == -1 || ind2 == -1 )
+			return name;
+		String s = name.substring(name.indexOf(" - Doc ") + 7, name.lastIndexOf("abled") + 5);
+		return s;
+	}
+
 
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#getName()
@@ -1231,8 +1207,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			if (this.astLevel == getJLS3()) {
 				complianceLevel = this.currentProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 				sourceLevel = this.currentProject.getOption(JavaCore.COMPILER_SOURCE, true);
-				this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-				this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+				this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, CompilerOptions.getFirstSupportedJavaVersion());
+				this.currentProject.setOption(JavaCore.COMPILER_SOURCE, CompilerOptions.getFirstSupportedJavaVersion());
 			}
 		}
 		CompilationUnit compilUnit = (CompilationUnit) runConversion(testedSource, fileName, this.currentProject, options);
@@ -1944,7 +1920,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		this.stopOnFailure = false;
 		String [] unbound = { "tho",
 				"A#getList(int,long,boolean)",
-				"#getList(Object,java.util.AbstractList)",
+				"#getList(Object,java.util.SequencedCollection)",
 		};
 		verifyComments("testBug54424");
 		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
@@ -2895,7 +2871,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * @bug 103304: [Javadoc] Wrong reference proposal for inner classes.
+	 * bug103304: [Javadoc] Wrong reference proposal for inner classes.
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=103304"
 	 */
 	public void testBug103304() throws JavaModelException {
@@ -3141,7 +3117,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * @bug 125676: [javadoc] @category should not read beyond end of line
+	 * bug125676: [javadoc] @category should not read beyond end of line
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=125676"
 	 */
 	public void testBug125676() throws JavaModelException {
@@ -3204,7 +3180,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * @bug 125903: [javadoc] Treat whitespace in javadoc tags as invalid tags
+	 * bug125903: [javadoc] Treat whitespace in javadoc tags as invalid tags
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=125903"
 	 */
 	public void testBug125903() throws JavaModelException {
@@ -3239,7 +3215,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * @bug 130752: [comments] first BlockComment parsed as LineComment
+	 * bug130752: [comments] first BlockComment parsed as LineComment
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=130752"
 	 */
 	public void testBug130752() throws JavaModelException {
@@ -3299,8 +3275,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * @bug 165525: [comments] ASTParser excludes trailing line comments from extended range of fields in enums
-	 * @test Ensure that extended ranges are correct for enum constants and last comments of enum declaration
+	 * bug165525: [comments] ASTParser excludes trailing line comments from extended range of fields in enums
+	 * test Ensure that extended ranges are correct for enum constants and last comments of enum declaration
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=165525"
 	 */
 	public void testBug165525() throws JavaModelException {
@@ -3356,7 +3332,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * @bug 228648: AST: no binding for Javadoc reference to inner class
+	 * bug228648: AST: no binding for Javadoc reference to inner class
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=228648"
 	 */
 	public void testBug228648() throws JavaModelException {
@@ -3447,7 +3423,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 
 	/**
-	 * @bug 206345: [javadoc] compiler should not interpret contents of {@literal}
+	 * bug206345: [javadoc] compiler should not interpret contents of {@literal}
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345"
 	 * @deprecated
 	 */

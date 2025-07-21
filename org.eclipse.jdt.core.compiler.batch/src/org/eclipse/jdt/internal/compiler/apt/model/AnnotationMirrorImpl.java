@@ -26,7 +26,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.ExecutableElement;
@@ -34,7 +33,6 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.MirroredTypeException;
 import javax.lang.model.type.MirroredTypesException;
 import javax.lang.model.type.TypeMirror;
-
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
@@ -148,11 +146,11 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 		for (MethodBinding method : annoType.methods()) {
 			// if binding is in ElementValuePair list, then get value from there
 			boolean foundExplicitValue = false;
-			for (int i = 0; i < pairs.length; ++i) {
-				MethodBinding explicitBinding = pairs[i].getMethodBinding();
+			for (ElementValuePair pair : pairs) {
+				MethodBinding explicitBinding = pair.getMethodBinding();
 				if (method == explicitBinding) {
 					ExecutableElement e = new ExecutableElementImpl(this._env, explicitBinding);
-					AnnotationValue v = new AnnotationMemberValue(this._env, pairs[i].getValue(), explicitBinding);
+					AnnotationValue v = new AnnotationMemberValue(this._env, pair.getValue(), explicitBinding);
 					valueMap.put(e, v);
 					foundExplicitValue = true;
 					break;
@@ -337,9 +335,9 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 
 					if(bindings != null) {
 						List<TypeMirror> mirrors = new ArrayList<>(bindings.length);
-						for (int i = 0; i < bindings.length; ++i) {
-							if (bindings[i] instanceof TypeBinding) {
-								mirrors.add(this._env.getFactory().newTypeMirror((TypeBinding)bindings[i]));
+						for (Object binding : bindings) {
+							if (binding instanceof TypeBinding) {
+								mirrors.add(this._env.getFactory().newTypeMirror((TypeBinding)binding));
 							}
 						}
 						throw new MirroredTypesException(mirrors);

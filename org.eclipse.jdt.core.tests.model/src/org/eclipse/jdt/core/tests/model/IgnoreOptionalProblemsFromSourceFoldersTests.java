@@ -14,7 +14,6 @@
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
@@ -52,7 +51,7 @@ public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResou
 	public void test001() throws CoreException {
 		ICompilationUnit unit = null;
 		try {
-			IJavaProject project = createJavaProject("P", new String[] {}, new String[] { "JCL_LIB" }, "bin");
+			IJavaProject project = createJavaProject("P", new String[] {}, new String[] { "JCL18_LIB" }, "bin");
 			project.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
 
 			IClasspathEntry[] originalCP = project.getRawClasspath();
@@ -92,7 +91,7 @@ public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResou
 		ICompilationUnit x = null;
 		ICompilationUnit y = null;
 		try {
-			IJavaProject project = createJavaProject("P", new String[] {}, new String[] { "JCL_LIB" }, "bin");
+			IJavaProject project = createJavaProject("P", new String[] {}, new String[] { "JCL18_LIB" }, "bin");
 			project.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
 
 			IClasspathEntry[] originalCP = project.getRawClasspath();
@@ -155,7 +154,7 @@ public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResou
 		ICompilationUnit x = null;
 		ICompilationUnit y = null;
 		try {
-			IJavaProject project = createJavaProject("P", new String[] {}, new String[] { "JCL_LIB" }, "bin");
+			IJavaProject project = createJavaProject("P", new String[] {}, new String[] { "JCL18_LIB" }, "bin");
 			project.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
 
 			IClasspathEntry[] originalCP = project.getRawClasspath();
@@ -216,7 +215,7 @@ public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResou
 	public void test004() throws CoreException {
 		ICompilationUnit unit = null;
 		try {
-			IJavaProject project = createJavaProject("P", new String[] {}, new String[] { "JCL_LIB" }, "bin");
+			IJavaProject project = createJavaProject("P", new String[] {}, new String[] { "JCL18_LIB" }, "bin");
 			project.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
 
 			IClasspathEntry[] originalCP = project.getRawClasspath();
@@ -260,7 +259,7 @@ public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResou
 	public void test005() throws CoreException {
 		ICompilationUnit unit = null;
 		try {
-			IJavaProject project = createJavaProject("P", new String[] {}, new String[] { "JCL_LIB" }, "bin");
+			IJavaProject project = createJavaProject("P", new String[] {}, new String[] { "JCL18_LIB" }, "bin");
 			project.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
 			project.setOption(JavaCore.COMPILER_TASK_TAGS, "TODO");
 			project.setOption(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL");
@@ -308,7 +307,7 @@ public class IgnoreOptionalProblemsFromSourceFoldersTests extends ModifyingResou
 	 */
 	public void test006() throws CoreException {
 		try {
-			IJavaProject project = createJavaProject("P", new String[] {}, new String[] { "JCL_LIB" }, "bin");
+			IJavaProject project = createJavaProject("P", new String[] {}, new String[] { "JCL18_LIB" }, "bin");
 			project.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
 
 			IClasspathEntry[] originalCP = project.getRawClasspath();

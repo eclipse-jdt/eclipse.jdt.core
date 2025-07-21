@@ -27,7 +27,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -45,8 +44,8 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		super(name, dim, pos);
 		this.originalSourceEnd = this.sourceEnd;
 		this.typeArguments = typeArguments;
-		for (int i = 0, max = typeArguments.length; i < max; i++) {
-			if ((typeArguments[i].bits & ASTNode.HasTypeAnnotations) != 0) {
+		for (TypeReference typeArgument : typeArguments) {
+			if ((typeArgument.bits & ASTNode.HasTypeAnnotations) != 0) {
 				this.bits |= ASTNode.HasTypeAnnotations;
 				break;
 			}
@@ -138,8 +137,8 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 	    	if (this.resolvedType != null && !this.resolvedType.hasNullTypeAnnotations())
 	    		return false; // shortcut
 	    	if (this.typeArguments != null) {
-	    		for (int i = 0; i < this.typeArguments.length; i++) {
-					if (this.typeArguments[i].hasNullTypeAnnotation(position))
+	    		for (TypeReference typeArgument : this.typeArguments) {
+					if (typeArgument.hasNullTypeAnnotation(position))
 						return true;
 				}
 	    	}
@@ -280,19 +279,10 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 
 		TypeVariableBinding[] typeVariables = currentOriginal.typeVariables();
 		if (typeVariables == Binding.NO_TYPE_VARIABLES) { // non generic invoked with arguments
-			boolean isCompliant15 = scope.compilerOptions().originalSourceLevel >= ClassFileConstants.JDK1_5;
 			if ((currentOriginal.tagBits & TagBits.HasMissingType) == 0) {
-				if (isCompliant15) { // below 1.5, already reported as syntax error
-					this.resolvedType = currentType;
-					scope.problemReporter().nonGenericTypeCannotBeParameterized(0, this, currentType, argTypes);
-					return null;
-				}
-			}
-			// resilience do not rebuild a parameterized type unless compliance is allowing it
-			if (!isCompliant15) {
-				if (!this.resolvedType.isValidBinding())
-					return currentType;
-				return this.resolvedType = currentType;
+				this.resolvedType = currentType;
+				scope.problemReporter().nonGenericTypeCannotBeParameterized(0, this, currentType, argTypes);
+				return null;
 			}
 			// if missing generic type, and compliance >= 1.5, then will rebuild a parameterized binding
 		} else if (argLength != typeVariables.length) {
@@ -417,18 +407,16 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			}
 			Annotation [][] annotationsOnDimensions = getAnnotationsOnDimensions(true);
 			if (annotationsOnDimensions != null) {
-				for (int i = 0, max = annotationsOnDimensions.length; i < max; i++) {
-					Annotation[] annotations2 = annotationsOnDimensions[i];
-					if (annotations2 != null) {
-						for (int j = 0, max2 = annotations2.length; j < max2; j++) {
-							Annotation annotation = annotations2[j];
+				for (Annotation[] annotationsOnDimension : annotationsOnDimensions) {
+					if (annotationsOnDimension != null) {
+						for (Annotation annotation : annotationsOnDimension) {
 							annotation.traverse(visitor, scope);
 						}
 					}
 				}
 			}
-			for (int i = 0, max = this.typeArguments.length; i < max; i++) {
-				this.typeArguments[i].traverse(visitor, scope);
+			for (TypeReference typeArgument : this.typeArguments) {
+				typeArgument.traverse(visitor, scope);
 			}
 		}
 		visitor.endVisit(this, scope);
@@ -445,16 +433,14 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			}
 			Annotation [][] annotationsOnDimensions = getAnnotationsOnDimensions(true);
 			if (annotationsOnDimensions != null) {
-				for (int i = 0, max = annotationsOnDimensions.length; i < max; i++) {
-					Annotation[] annotations2 = annotationsOnDimensions[i];
-					for (int j = 0, max2 = annotations2.length; j < max2; j++) {
-						Annotation annotation = annotations2[j];
+				for (Annotation[] annotationsOnDimension : annotationsOnDimensions) {
+					for (Annotation annotation : annotationsOnDimension) {
 						annotation.traverse(visitor, scope);
 					}
 				}
 			}
-			for (int i = 0, max = this.typeArguments.length; i < max; i++) {
-				this.typeArguments[i].traverse(visitor, scope);
+			for (TypeReference typeArgument : this.typeArguments) {
+				typeArgument.traverse(visitor, scope);
 			}
 		}
 		visitor.endVisit(this, scope);

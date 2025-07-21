@@ -14,10 +14,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Iterator;
-
+import java.util.Arrays;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
@@ -27,7 +25,12 @@ import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.content.IContentDescription;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.BufferChangedEvent;
+import org.eclipse.jdt.core.IBuffer;
+import org.eclipse.jdt.core.IBufferChangedListener;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IOpenable;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -35,19 +38,24 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class Buffer implements IBuffer {
-	protected final IFile file;
-	protected int flags;
-	protected char[] contents;
-	protected ListenerList<IBufferChangedListener> changeListeners;
-	protected final IOpenable owner;
-	protected int gapStart = -1;
-	protected int gapEnd = -1;
+	private final IFile file;
+	/** synchronized by this.lock **/
+	private int flags;
+	/** synchronized by this.lock **/
+	private char[] contents;
+	/** synchronized by Buffer.this **/
+	private ListenerList<IBufferChangedListener> changeListeners;
+	private final IOpenable owner;
+	/** synchronized by this.lock **/
+	private int gapStart = -1;
+	/** synchronized by this.lock **/
+	private int gapEnd = -1;
 
-	protected Object lock = new Object();
+	private final Object lock = new Object();
 
-	protected static final int F_HAS_UNSAVED_CHANGES = 1;
-	protected static final int F_IS_READ_ONLY = 2;
-	protected static final int F_IS_CLOSED = 4;
+	private static final int F_HAS_UNSAVED_CHANGES = 1;
+	private static final int F_IS_READ_ONLY = 2;
+	private static final int F_IS_CLOSED = 4;
 
 /**
  * Creates a new buffer on an underlying resource.
@@ -208,21 +216,27 @@ public IResource getUnderlyingResource() {
  */
 @Override
 public boolean hasUnsavedChanges() {
-	return (this.flags & F_HAS_UNSAVED_CHANGES) != 0;
+	synchronized(this.lock) {
+		return (this.flags & F_HAS_UNSAVED_CHANGES) != 0;
+	}
 }
 /**
  * @see IBuffer
  */
 @Override
 public boolean isClosed() {
-	return (this.flags & F_IS_CLOSED) != 0;
+	synchronized(this.lock) {
+		return (this.flags & F_IS_CLOSED) != 0;
+	}
 }
 /**
  * @see IBuffer
  */
 @Override
 public boolean isReadOnly() {
-	return (this.flags & F_IS_READ_ONLY) != 0;
+	synchronized(this.lock) {
+		return (this.flags & F_IS_READ_ONLY) != 0;
+	}
 }
 /**
  * Moves the gap to location and adjust its size to the
@@ -271,22 +285,28 @@ protected void moveAndResizeGap(int position, int size) {
  * To avoid deadlock, this should not be called in a synchronized block.
  */
 protected void notifyChanged(final BufferChangedEvent event) {
-	ListenerList<IBufferChangedListener> listeners = this.changeListeners;
-	if (listeners != null) {
-		Iterator<IBufferChangedListener> iterator = listeners.iterator();
-		while (iterator.hasNext()) {
-			final IBufferChangedListener listener = iterator.next();
-			SafeRunner.run(new ISafeRunnable() {
-				@Override
-				public void handleException(Throwable exception) {
-					Util.log(exception, "Exception occurred in listener of buffer change notification"); //$NON-NLS-1$
-				}
-				@Override
-				public void run() throws Exception {
-					listener.bufferChanged(event);
-				}
-			});
+	IBufferChangedListener[] listeners;
+	synchronized(this) {
+		ListenerList<IBufferChangedListener> cListeners = this.changeListeners;
+		if (cListeners == null) {
+			return;
 		}
+		Object[] l =  cListeners.getListeners();
+		// make a copy before leaving synchronized block to make sure there is no concurrent modification:
+		listeners = Arrays.copyOf(l, l.length, IBufferChangedListener[].class);
+	}
+
+	for (IBufferChangedListener listener : listeners) {
+		SafeRunner.run(new ISafeRunnable() {
+			@Override
+			public void handleException(Throwable exception) {
+				Util.log(exception, "Exception occurred in listener of buffer change notification"); //$NON-NLS-1$
+			}
+			@Override
+			public void run() throws Exception {
+				listener.bufferChanged(event);
+			}
+		});
 	}
 }
 /**
@@ -302,7 +322,7 @@ public synchronized void removeBufferChangedListener(IBufferChangedListener list
 	}
 }
 /**
- * Replaces <code>length</code> characters starting from <code>position</code> with <code>text<code>.
+ * Replaces <code>length</code> characters starting from <code>position</code> with <code>text</code>.
  * After that operation, the gap is placed at the end of the
  * inserted <code>text</code>.
  */
@@ -339,7 +359,7 @@ public void replace(int position, int length, char[] text) {
 	}
 }
 /**
- * Replaces <code>length</code> characters starting from <code>position</code> with <code>text<code>.
+ * Replaces <code>length</code> characters starting from <code>position</code> with <code>text</code>.
  * After that operation, the gap is placed at the end of the
  * inserted <code>text</code>.
  */
@@ -401,15 +421,7 @@ public void save(IProgressMonitor progress, boolean force) throws JavaModelExcep
 		}
 
 		// Set file contents
-		ByteArrayInputStream stream = new ByteArrayInputStream(bytes);
-		if (this.file.exists()) {
-			this.file.setContents(
-				stream,
-				force ? IResource.FORCE | IResource.KEEP_HISTORY : IResource.KEEP_HISTORY,
-				null);
-		} else {
-			this.file.create(stream, force, null);
-		}
+		this.file.write(bytes, force, false, true, null);
 	} catch (IOException e) {
 		throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 	} catch (CoreException e) {
@@ -417,7 +429,9 @@ public void save(IProgressMonitor progress, boolean force) throws JavaModelExcep
 	}
 
 	// the resource no longer has unsaved changes
-	this.flags &= ~ (F_HAS_UNSAVED_CHANGES);
+	synchronized(this.lock) {
+		this.flags &= ~ (F_HAS_UNSAVED_CHANGES);
+	}
 }
 /**
  * @see IBuffer
@@ -426,12 +440,12 @@ public void save(IProgressMonitor progress, boolean force) throws JavaModelExcep
 public void setContents(char[] newContents) {
 	// allow special case for first initialization
 	// after creation by buffer factory
-	if (this.contents == null) {
-		synchronized (this.lock) {
-			this.contents = newContents;
-			this.flags &= ~ (F_HAS_UNSAVED_CHANGES);
+	synchronized (this.lock) {
+		if (this.contents == null) {
+				this.contents = newContents;
+				this.flags &= ~ (F_HAS_UNSAVED_CHANGES);
+			return;
 		}
-		return;
 	}
 
 	if (!isReadOnly()) {
@@ -461,10 +475,12 @@ public void setContents(String newContents) {
  * Sets this <code>Buffer</code> to be read only.
  */
 protected void setReadOnly(boolean readOnly) {
-	if (readOnly) {
-		this.flags |= F_IS_READ_ONLY;
-	} else {
-		this.flags &= ~(F_IS_READ_ONLY);
+	synchronized(this.lock) {
+		if (readOnly) {
+			this.flags |= F_IS_READ_ONLY;
+		} else {
+			this.flags &= ~(F_IS_READ_ONLY);
+		}
 	}
 }
 @Override

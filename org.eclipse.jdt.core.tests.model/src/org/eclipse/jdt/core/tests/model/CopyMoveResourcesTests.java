@@ -15,7 +15,6 @@
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
@@ -23,6 +22,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class CopyMoveResourcesTests extends CopyMoveTests {
@@ -211,7 +211,7 @@ public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, I
 public void setUp() throws Exception {
 	super.setUp();
 
-	this.createJavaProject("P", new String[] {"src", "src2"}, new String[] { "JCL_LIB" }, "bin", "1.4");
+	this.createJavaProject("P", new String[] {"src", "src2"}, new String[] { "JCL18_LIB" }, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 }
 static {
 //	TESTS_NAMES = new String[] { "testCopyWorkingCopyDestination"};
@@ -1080,7 +1080,7 @@ public void testMoveCU12() throws CoreException {
  * Ensures that the Javadoc comment is not lost if moving a cu to the default package
  * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=247757 )
  */
-public void testMoveCU13() throws CoreException {
+public void _2551_testMoveCU13() throws CoreException {
 	createFolder("/P/src/p1");
 	createFile(
 		"/P/src/p1/X.java",

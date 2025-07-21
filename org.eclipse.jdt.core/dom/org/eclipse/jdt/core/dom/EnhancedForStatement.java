@@ -87,19 +87,19 @@ public class EnhancedForStatement extends Statement {
 	 * The parameter; lazily initialized; defaults to a unspecified,
 	 * legal node.
 	 */
-	private SingleVariableDeclaration parameter = null;
+	private volatile SingleVariableDeclaration parameter;
 
 	/**
 	 * The expression; lazily initialized; defaults to a unspecified, but legal,
 	 * expression.
 	 */
-	private Expression expression = null;
+	private volatile Expression expression;
 
 	/**
 	 * The body statement; lazily initialized; defaults to an empty block
 	 * statement.
 	 */
-	private Statement body = null;
+	private volatile Statement body;
 
 	/**
 	 * Creates a new AST node for an enchanced for statement owned by the
@@ -194,8 +194,7 @@ public class EnhancedForStatement extends Statement {
 			synchronized (this) {
 				if (this.parameter == null) {
 					preLazyInit();
-					this.parameter = this.ast.newSingleVariableDeclaration();
-					postLazyInit(this.parameter, PARAMETER_PROPERTY);
+					this.parameter = postLazyInit(this.ast.newSingleVariableDeclaration(), PARAMETER_PROPERTY);
 				}
 			}
 		}
@@ -233,8 +232,7 @@ public class EnhancedForStatement extends Statement {
 			synchronized (this) {
 				if (this.expression == null) {
 					preLazyInit();
-					this.expression = new SimpleName(this.ast);
-					postLazyInit(this.expression, EXPRESSION_PROPERTY);
+					this.expression = postLazyInit(new SimpleName(this.ast), EXPRESSION_PROPERTY);
 				}
 			}
 		}
@@ -273,8 +271,7 @@ public class EnhancedForStatement extends Statement {
 			synchronized (this) {
 				if (this.body == null) {
 					preLazyInit();
-					this.body = new Block(this.ast);
-					postLazyInit(this.body, BODY_PROPERTY);
+					this.body = postLazyInit(new Block(this.ast), BODY_PROPERTY);
 				}
 			}
 		}

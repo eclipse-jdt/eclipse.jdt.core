@@ -66,33 +66,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
-import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
-import org.eclipse.jdt.internal.compiler.lookup.ImplicitNullAnnotationVerifier;
-import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
-import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
-import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.SyntheticArgumentBinding;
-import org.eclipse.jdt.internal.compiler.lookup.SyntheticMethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
-import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
-import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 
@@ -151,7 +125,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		char [] source = new char [this.sourceEnd+1];
 		System.arraycopy(this.text, 0, source, this.sourceStart, this.sourceEnd - this.sourceStart + 1);
 		parser.scanner = this.scanner;
-		ReferenceExpression copy =  (ReferenceExpression) parser.parseExpression(source, this.sourceStart, this.sourceEnd - this.sourceStart + 1,
+		ReferenceExpression copy =  (ReferenceExpression) parser.parseReferenceExpression(source, this.sourceStart, this.sourceEnd - this.sourceStart + 1,
 										this.enclosingScope.referenceCompilationUnit(), false /* record line separators */);
 		copy.original = this;
 		copy.sourceStart = this.sourceStart;
@@ -433,7 +407,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		int invokeDynamicNumber = codeStream.classFile.recordBootstrapMethod(this);
 		codeStream.invokeDynamic(invokeDynamicNumber, argumentsSize, 1, this.descriptor.selector, buffer.toString().toCharArray(),
 				this.isConstructorReference(), (this.lhs instanceof TypeReference? (TypeReference) this.lhs : null), this.typeArguments,
-				this.resolvedType.id, this.resolvedType);
+				this.resolvedType);
 		if (!valueRequired)
 			codeStream.pop();
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
@@ -848,15 +822,15 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
         // OK, we have a compile time declaration, see if it passes muster.
         TypeBinding [] methodExceptions = this.binding.thrownExceptions;
         TypeBinding [] kosherExceptions = this.descriptor.thrownExceptions;
-        next: for (int i = 0, iMax = methodExceptions.length; i < iMax; i++) {
-        	if (methodExceptions[i].isUncheckedException(false)) {
+        next: for (TypeBinding methodException : methodExceptions) {
+        	if (methodException.isUncheckedException(false)) {
         		continue next;
     		}
-        	for (int j = 0, jMax = kosherExceptions.length; j < jMax; j++) {
-        		if (methodExceptions[i].isCompatibleWith(kosherExceptions[j], scope))
+        	for (TypeBinding kosherException : kosherExceptions) {
+        		if (methodException.isCompatibleWith(kosherException, scope))
         			continue next;
         	}
-        	scope.problemReporter().unhandledException(methodExceptions[i], this);
+        	scope.problemReporter().unhandledException(methodException, this);
         }
         checkNullAnnotations(scope);
         this.freeParameters = null; // not used after method lookup
@@ -957,18 +931,13 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		if (this.descriptor == null || this.descriptor.parameters == null || this.descriptor.parameters.length == 0)
 			return Binding.NO_PARAMETERS;
 
-		/* 15.13.1, " ... method reference is treated as if it were an invocation with argument expressions of types P1, ..., Pn;"
-		   This implies/requires wildcard capture. This creates interesting complications, we can't just take the descriptor parameters
-		   and apply captures - where a single wildcard type got "fanned out" and propagated into multiple locations through type variable
-		   substitutions, we will end up creating distinct captures defeating the very idea of capture. We need to first capture and then
-		   fan out. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=432759.
-		*/
-		if (this.expectedType.isParameterizedType()) {
-			ParameterizedTypeBinding type = (ParameterizedTypeBinding) this.expectedType;
-			MethodBinding method = type.getSingleAbstractMethod(this.enclosingScope, true, this.sourceStart, this.sourceEnd);
-			return method.parameters;
+		TypeBinding[] parameters = this.descriptor.parameters;
+		TypeBinding[] result = new TypeBinding[parameters.length];
+
+		for (int i = 0, length = result.length; i < length; i++) {
+			result[i] = parameters[i].capture(this.enclosingScope, this.sourceStart, this.sourceEnd);
 		}
-		return this.descriptor.parameters;
+		return result;
 	}
 
 	private boolean contextHasSyntaxError() {
@@ -1224,8 +1193,8 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
                    – The method reference expression has some other form and at least one potentially applicable method is not static.
         	*/
 
-        	for (int i = 0, length = this.potentialMethods.length; i < length; i++) {
-        		if (this.potentialMethods[i].isStatic() || this.potentialMethods[i].isConstructor()) {
+        	for (MethodBinding potentialMethod : this.potentialMethods) {
+        		if (potentialMethod.isStatic() || potentialMethod.isConstructor()) {
         			if (!this.haveReceiver) // form ReferenceType ::[TypeArguments] Identifier
         				return true;
         		} else {
@@ -1249,8 +1218,8 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
               	   OR there is no potentially compatible compile time declaration ...
         		*/
         	}
-        	for (int i = 0, length = this.potentialMethods.length; i < length; i++) {
-			if (!this.potentialMethods[i].isStatic() && !this.potentialMethods[i].isConstructor()) {
+        	for (MethodBinding potentialMethod : this.potentialMethods) {
+			if (!potentialMethod.isStatic() && !potentialMethod.isConstructor()) {
         			return true;
         		}
         	}

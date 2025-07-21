@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.apt.pluggable.core;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Hashtable;
-
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;

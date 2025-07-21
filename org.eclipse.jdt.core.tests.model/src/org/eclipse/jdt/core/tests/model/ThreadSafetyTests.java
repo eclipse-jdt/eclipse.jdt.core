@@ -14,15 +14,16 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.HashMap;
-
+import junit.framework.Test;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.core.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
-
-import junit.framework.*;
 
 /**
  * DO NOT RELEASE AS PART OF REGRESSION TEST - if failing, can cause testing hang

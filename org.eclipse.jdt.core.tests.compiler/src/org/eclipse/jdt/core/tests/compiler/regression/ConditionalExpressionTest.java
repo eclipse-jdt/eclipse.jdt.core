@@ -14,11 +14,9 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
-
+import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-
-import junit.framework.Test;
 
 @SuppressWarnings({ "rawtypes" })
 public class ConditionalExpressionTest extends AbstractRegressionTest {
@@ -618,5 +616,133 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 						"}\n"
 				},
 				"Success");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2677
+	// JDT Core throws ClassCastException: NullTypeBinding cannot be cast to class ArrayBinding
+	public void testIssue2677() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+						"Test.java",
+						"public class Test {\n" +
+						"    public static int test(int[] arr) {\n" +
+						"        return (arr == null ? null : arr)[0];\n" +
+						"    }\n" +
+						"	public static void main(String[] args) {\n" +
+						"		System.out.println(test(new int[] { 42 }));\n" +
+						"	}\n" +
+						"}\n"
+				},
+				"42");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2677
+	// JDT Core throws ClassCastException: NullTypeBinding cannot be cast to class ArrayBinding
+	public void testIssue2677_2() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+						"Test.java",
+						"public class Test {\n" +
+						"    public static int test(int[] arr) {\n" +
+						"        return (arr != null ? arr : null)[0];\n" +
+						"    }\n" +
+						"	public static void main(String[] args) {\n" +
+						"		System.out.println(test(new int[] { 42 }));\n" +
+						"	}\n" +
+						"}\n"
+				},
+				"42");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3042
+	// java.util.EmptyStackException: null when invoking a static method on a null string literal in a ternary operator
+	public void testIssue3042() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+
+							static void parseFailure(X o) {
+								(o != null ? o : null).bar();
+							}
+
+							static void bar() {
+								System.out.println("Bar!");
+							}
+
+							public static void main(String[] args) {
+								parseFailure(new X());
+								parseFailure(null);
+							}
+						}
+						"""
+				},
+				"Bar!\nBar!");
+	}
+
+	public void testIssue3042_2() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+
+							void parseFailure(X o) {
+								(o != null ? o : null).bar();
+							}
+
+							void bar() {
+								System.out.println("Bar!");
+							}
+
+							public static void main(String[] args) {
+								new X().parseFailure(new X());
+								try {
+									new X().parseFailure(null);
+								} catch (NullPointerException npe) {
+									System.out.println("NPE!");
+								}
+							}
+						}
+						"""
+				},
+				"Bar!\nNPE!");
+	}
+
+	public void testIssue3042_3() {
+		if (this.complianceLevel < ClassFileConstants.JDK14)
+			return;
+		this.runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+
+							void parseSuccess(X o) {
+								(o == null ? null : o).bar();
+								((X) null).bar();
+							}
+
+							static void bar() {
+								System.out.println("Bar!");
+							}
+
+							public static void main(String[] args) {
+								new X().parseSuccess(new X());
+								new X().parseSuccess(null);
+							}
+						}
+						"""
+				},
+				"Bar!\nBar!\nBar!\nBar!");
 	}
 }

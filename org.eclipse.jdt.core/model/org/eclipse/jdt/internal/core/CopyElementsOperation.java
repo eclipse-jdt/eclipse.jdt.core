@@ -15,7 +15,6 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IImportDeclaration;
@@ -205,8 +204,7 @@ protected void processElement(IJavaElement element) throws JavaModelException {
 private IJavaElement resolveRenameAnchor(IJavaElement element) throws JavaModelException {
 	IParent parent = (IParent) element.getParent();
 	IJavaElement[] children = parent.getChildren();
-	for (int i = 0; i < children.length; i++) {
-		IJavaElement child = children[i];
+	for (IJavaElement child : children) {
 		if (child.equals(element)) {
 			return child;
 		}

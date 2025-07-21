@@ -13,12 +13,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
-import java.lang.reflect.*;
-
-import org.eclipse.jdt.core.tests.junit.extension.TestCase;
-
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+import org.eclipse.jdt.core.tests.util.CleanupAfterSuiteTests;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class RunAllTests extends junit.framework.TestCase {
@@ -40,7 +40,10 @@ public static Class[] getAllTestClasses() {
 		org.eclipse.jdt.core.tests.rewrite.modifying.ASTRewritingModifyingTest.class,
 		ASTPositionsTest.class,
 		ASTNodeFinderTest.class,
-		org.eclipse.jdt.core.tests.dom.APIDocumentationTests.class
+		org.eclipse.jdt.core.tests.dom.APIDocumentationTests.class,
+
+		// should always be the last one, to cleanup environment after messy tests
+		CleanupAfterSuiteTests.class
 	};
 }
 public static Test suite() {

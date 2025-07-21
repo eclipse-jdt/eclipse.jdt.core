@@ -52,7 +52,7 @@ public class ResolvedBinaryMethod extends BinaryMethod {
 	}
 
 	/**
-	 * @private Debugging purposes
+	 * for debugging only
 	 */
 	@Override
 	protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean showResolvedInfo) {

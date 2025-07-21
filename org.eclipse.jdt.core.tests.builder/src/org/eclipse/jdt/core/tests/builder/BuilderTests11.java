@@ -13,14 +13,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.builder;
 
+import junit.framework.Test;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-
-import junit.framework.Test;
 
 /**
  * Test tries to compile trivial snippet with --release option on Java 11 as host
@@ -37,16 +36,6 @@ public class BuilderTests11 extends BuilderTests {
 
 	public void testBuildWithRelease_1_8() throws JavaModelException, Exception {
 		String compliance = "1.8";
-		runTest(compliance);
-	}
-
-	public void testBuildWithRelease_1_7() throws JavaModelException, Exception {
-		String compliance = "1.7";
-		runTest(compliance);
-	}
-
-	public void testBuildWithRelease_1_6() throws JavaModelException, Exception {
-		String compliance = "1.6";
 		runTest(compliance);
 	}
 

@@ -13,19 +13,20 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.internal.compiler.impl.*;
-import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
 import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -44,7 +45,7 @@ import org.eclipse.jdt.internal.core.util.Messages;
  * - methods
  *
  * If reference information is requested, then all source constructs are
- * investigated and type, field & method references are provided as well.
+ * investigated and type, field and method references are provided as well.
  *
  * Any (parsing) problem encountered is also provided.
  */
@@ -185,8 +186,7 @@ public void checkComment() {
 		// Report reference info in javadoc comment @throws/@exception tags
 		TypeReference[] thrownExceptions = this.javadoc.exceptionReferences;
 		if (thrownExceptions != null) {
-			for (int i = 0, max=thrownExceptions.length; i < max; i++) {
-				TypeReference typeRef = thrownExceptions[i];
+			for (TypeReference typeRef : thrownExceptions) {
 				if (typeRef instanceof JavadocSingleTypeReference) {
 					JavadocSingleTypeReference singleRef = (JavadocSingleTypeReference) typeRef;
 					this.requestor.acceptTypeReference(singleRef.token, singleRef.sourceStart);
@@ -200,8 +200,7 @@ public void checkComment() {
 		// Report reference info in javadoc comment @see tags
 		Expression[] references = this.javadoc.seeReferences;
 		if (references != null) {
-			for (int i = 0, max=references.length; i < max; i++) {
-				Expression reference = references[i];
+			for (Expression reference : references) {
 				acceptJavadocTypeReference(reference);
 				if (reference instanceof JavadocFieldReference) {
 					JavadocFieldReference fieldRef = (JavadocFieldReference) reference;
@@ -619,43 +618,11 @@ protected void consumeSingleMemberAnnotation(boolean isTypeAnnotation) {
 @Override
 protected void consumeSingleStaticImportDeclarationName() {
 	// SingleTypeImportDeclarationName ::= 'import' 'static' Name
-	ImportReference impt;
-	int length;
-	char[][] tokens = new char[length = this.identifierLengthStack[this.identifierLengthPtr--]][];
-	this.identifierPtr -= length;
-	long[] positions = new long[length];
-	System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
-	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
-	pushOnAstStack(impt = newImportReference(tokens, positions, false, ClassFileConstants.AccStatic));
+	super.consumeSingleStaticImportDeclarationName();
 
-	this.modifiers = ClassFileConstants.AccDefault;
-	this.modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)
-
-	if (this.currentToken == TokenNameSEMICOLON){
-		impt.declarationSourceEnd = this.scanner.currentPosition - 1;
-	} else {
-		impt.declarationSourceEnd = impt.sourceEnd;
-	}
-	impt.declarationEnd = impt.declarationSourceEnd;
-	//this.endPosition is just before the ;
-	impt.declarationSourceStart = this.intStack[this.intPtr--];
-
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		impt.modifiers = ClassFileConstants.AccDefault; // convert the static import reference to a non-static importe reference
-		problemReporter().invalidUsageOfStaticImports(impt);
-	}
-
-	// recovery
-	if (this.currentElement != null){
-		this.lastCheckPoint = impt.declarationSourceEnd+1;
-		this.currentElement = this.currentElement.add(impt, 0);
-		this.lastIgnoredToken = -1;
-		this.restartRecovery = true; // used to avoid branching back into the regular automaton
-	}
-	if (this.reportReferenceInfo) {
-		// Name for static import is TypeName '.' Identifier
+	if (this.reportReferenceInfo && this.astStack[this.astPtr] instanceof ImportReference) {
+        ImportReference impt = (ImportReference) this.astStack[this.astPtr];
+        // Name for static import is TypeName '.' Identifier
 		// => accept unknown ref on identifier
 		int tokensLength = impt.tokens.length-1;
 		int start = (int) (impt.sourcePositions[tokensLength] >>> 32);
@@ -716,45 +683,10 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 	/* push an ImportRef build from the last name
 	stored in the identifier stack. */
 
-	ImportReference impt;
-	int length;
-	char[][] tokens = new char[length = this.identifierLengthStack[this.identifierLengthPtr--]][];
-	this.identifierPtr -= length;
-	long[] positions = new long[length];
-	System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
-	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
-	pushOnAstStack(impt = new ImportReference(tokens, positions, true, ClassFileConstants.AccStatic));
-
-	// star end position
-	impt.trailingStarPosition = this.intStack[this.intPtr--];
-	this.modifiers = ClassFileConstants.AccDefault;
-	this.modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)
-
-	if (this.currentToken == TokenNameSEMICOLON){
-		impt.declarationSourceEnd = this.scanner.currentPosition - 1;
-	} else {
-		impt.declarationSourceEnd = impt.sourceEnd;
-	}
-	impt.declarationEnd = impt.declarationSourceEnd;
-	//this.endPosition is just before the ;
-	impt.declarationSourceStart = this.intStack[this.intPtr--];
-
-	if(!this.statementRecoveryActivated &&
-			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
-			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		impt.modifiers = ClassFileConstants.AccDefault; // convert the static import reference to a non-static importe reference
-		problemReporter().invalidUsageOfStaticImports(impt);
-	}
-
-	// recovery
-	if (this.currentElement != null){
-		this.lastCheckPoint = impt.declarationSourceEnd+1;
-		this.currentElement = this.currentElement.add(impt, 0);
-		this.lastIgnoredToken = -1;
-		this.restartRecovery = true; // used to avoid branching back into the regular automaton
-	}
-	if (this.reportReferenceInfo) {
-		this.requestor.acceptTypeReference(impt.tokens, impt.sourceStart, impt.sourceEnd);
+	super.consumeStaticImportOnDemandDeclarationName();
+	if (this.reportReferenceInfo && this.astStack[this.astPtr] instanceof ImportReference) {
+        ImportReference impt = (ImportReference) this.astStack[this.astPtr];
+        this.requestor.acceptTypeReference(impt.tokens, impt.sourceStart, impt.sourceEnd);
 	}
 }
 @Override
@@ -804,8 +736,7 @@ protected void consumeUsesStatement() {
 protected void consumeWithClause() {
 	super.consumeWithClause();
 	ProvidesStatement service = (ProvidesStatement) this.astStack[this.astPtr];
-		for (int i = 0; i < service.implementations.length; i++) {
-			TypeReference ref = service.implementations[i];
+		for (TypeReference ref : service.implementations) {
 			this.requestor.acceptTypeReference(ref.getTypeName(), ref.sourceStart, ref.sourceEnd);
 		}
 }
@@ -1039,73 +970,7 @@ protected QualifiedNameReference newQualifiedNameReference(char[][] tokens, long
 protected SingleNameReference newSingleNameReference(char[] source, long positions) {
 	return new SingleNameReference(source, positions);
 }
-private static class DummyTypeReference extends TypeReference {
-	char[] token;
-	DummyTypeReference(char[] name) {
-		this.token = name;
-	}
-	@Override
-	public TypeReference augmentTypeWithAdditionalDimensions(int additionalDimensions,
-			Annotation[][] additionalAnnotations, boolean isVarargs) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public char[] getLastToken() {
-		return this.token;
-	}
-	@Override
-	protected TypeBinding getTypeBinding(Scope scope) {
-		return null;
-	}
-	@Override
-	public char[][] getTypeName() {
-		return new char[][] {this.token};
-	}
-	@Override
-	public void traverse(ASTVisitor visitor, BlockScope scope) {
-		// TODO Auto-generated method stub
-	}
 
-	@Override
-	public void traverse(ASTVisitor visitor, ClassScope scope) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public StringBuilder printExpression(int indent, StringBuilder output) {
-		return output.append(this.token);
-	}
-	@Override
-	public String toString() {
-		return new String(this.token);
-	}
-}
-private void processImplicitPermittedTypes(TypeDeclaration typeDecl, TypeDeclaration[] allTypes) {
-	if (typeDecl.permittedTypes == null &&
-			(typeDecl.modifiers & ExtraCompilerModifiers.AccSealed) != 0) {
-		List<TypeReference> list = new ArrayList();
-		for (TypeDeclaration type : allTypes) {
-			if (type != typeDecl) {
-				char[][] qName = type.superclass == null ? null : type.superclass.getTypeName();
-				if (qName != null &&
-						CharOperation.equals(qName[qName.length -1], typeDecl.name)) {
-					list.add(new DummyTypeReference(type.name));
-				}
-				if (type.superInterfaces != null) {
-					for (TypeReference ref : type.superInterfaces) {
-						qName = ref.getTypeName();
-						if (CharOperation.equals(qName[qName.length -1], typeDecl.name)) {
-							list.add(new DummyTypeReference(type.name));
-							break;
-						}
-					}
-				}
-			}
-		}
-		typeDecl.permittedTypes = list.toArray(new TypeReference[list.size()]);
-	}
-}
 public CompilationUnitDeclaration parseCompilationUnit(
 	ICompilationUnit unit,
 	boolean fullParse,
@@ -1120,12 +985,7 @@ public CompilationUnitDeclaration parseCompilationUnit(
 		this.reportReferenceInfo = fullParse;
 		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0, this.options.maxProblemsPerUnit);
 		parsedUnit = parse(unit, compilationUnitResult);
-		TypeDeclaration[] types = parsedUnit.types;
-		if (types != null) {
-			for (TypeDeclaration typeDecl : types) {
-				processImplicitPermittedTypes(typeDecl, types);
-			}
-		}
+
 		if (pm != null && pm.isCanceled())
 			throw new OperationCanceledException(Messages.operation_cancelled);
 		if (this.scanner.recordLineSeparator) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -32,17 +32,28 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.ClassFile;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationCollector;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
+import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream;
+import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.parser.*;
-import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.compiler.parser.Parser;
+import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -115,8 +126,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385780
 	if (this.typeParameters != null  &&
 			!this.scope.referenceCompilationUnit().compilationResult.hasSyntaxError) {
-		for (int i = 0, length = this.typeParameters.length; i < length; ++i) {
-			TypeParameter typeParameter = this.typeParameters[i];
+		for (TypeParameter typeParameter : this.typeParameters) {
 			if ((typeParameter.binding.modifiers & ExtraCompilerModifiers.AccLocallyUsed) == 0) {
 				this.scope.problemReporter().unusedTypeParameter(typeParameter);
 			}
@@ -152,15 +162,18 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		// nullity, owning and mark as assigned
 		analyseArguments(classScope.environment(), flowInfo, initializerFlowContext, this.arguments, this.binding);
 
+		if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions())) {
+			this.scope.enterEarlyConstructionContext();
+		}
+
 		// propagate to constructor call
 		if (this.constructorCall != null) {
 			// if calling 'this(...)', then flag all non-static fields as definitely
 			// set since they are supposed to be set inside other local constructor
 			if (this.constructorCall.accessMode == ExplicitConstructorCall.This) {
 				FieldBinding[] fields = this.binding.declaringClass.fields();
-				for (int i = 0, count = fields.length; i < count; i++) {
-					FieldBinding field;
-					if (!(field = fields[i]).isStatic()) {
+				for (FieldBinding field : fields) {
+					if (!field.isStatic()) {
 						flowInfo.markAsDefinitelyAssigned(field);
 					}
 				}
@@ -176,8 +189,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			CompilerOptions compilerOptions = this.scope.compilerOptions();
 			boolean enableSyntacticNullAnalysisForFields = compilerOptions.enableSyntacticNullAnalysisForFields;
 			int complaintLevel = (nonStaticFieldInfoReachMode & FlowInfo.UNREACHABLE) == 0 ? Statement.NOT_COMPLAINED : Statement.COMPLAINED_FAKE_REACHABLE;
-			for (int i = 0, count = this.statements.length; i < count; i++) {
-				Statement stat = this.statements[i];
+			for (Statement stat : this.statements) {
 				if ((complaintLevel = stat.complainIfUnreachable(flowInfo, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
 					flowInfo = stat.analyseCode(this.scope, constructorContext, flowInfo);
 				}
@@ -217,8 +229,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 	}
 }
 protected void doFieldReachAnalysis(FlowInfo flowInfo, FieldBinding[] fields) {
-	for (int i = 0, count = fields.length; i < count; i++) {
-		FieldBinding field = fields[i];
+	for (FieldBinding field : fields) {
 		if (!field.isStatic() && !flowInfo.isDefinitelyAssigned(field)) {
 			if (field.isFinal()) {
 				this.scope.problemReporter().uninitializedBlankFinalField(
@@ -254,18 +265,18 @@ boolean isValueProvidedUsingAnnotation(FieldDeclaration fieldDecl) {
 				MemberValuePair[] memberValuePairs = annotation.memberValuePairs();
 				if (memberValuePairs == Annotation.NoValuePairs)
 					return true;
-				for (int j = 0; j < memberValuePairs.length; j++) {
+				for (MemberValuePair memberValuePair : memberValuePairs) {
 					// if "optional=false" is specified, don't rely on initialization by the injector:
-					if (CharOperation.equals(memberValuePairs[j].name, TypeConstants.OPTIONAL))
-						return memberValuePairs[j].value instanceof FalseLiteral;
+					if (CharOperation.equals(memberValuePair.name, TypeConstants.OPTIONAL))
+						return memberValuePair.value instanceof FalseLiteral;
 				}
 			} else if (annotation.resolvedType.id == TypeIds.T_OrgSpringframeworkBeansFactoryAnnotationAutowired) {
 				MemberValuePair[] memberValuePairs = annotation.memberValuePairs();
 				if (memberValuePairs == Annotation.NoValuePairs)
 					return true;
-				for (int j = 0; j < memberValuePairs.length; j++) {
-					if (CharOperation.equals(memberValuePairs[j].name, TypeConstants.REQUIRED))
-						return memberValuePairs[j].value instanceof TrueLiteral;
+				for (MemberValuePair memberValuePair : memberValuePairs) {
+					if (CharOperation.equals(memberValuePair.name, TypeConstants.REQUIRED))
+						return memberValuePair.value instanceof TrueLiteral;
 				}
 			}
 		}
@@ -352,9 +363,8 @@ public void generateSyntheticFieldInitializationsIfNecessary(MethodScope methodS
 
 	SyntheticArgumentBinding[] syntheticArgs = nestedType.syntheticEnclosingInstances();
 	if (syntheticArgs != null) {
-		for (int i = 0, max = syntheticArgs.length; i < max; i++) {
-			SyntheticArgumentBinding syntheticArg;
-			if ((syntheticArg = syntheticArgs[i]).matchingField != null) {
+		for (SyntheticArgumentBinding syntheticArg : syntheticArgs) {
+			if (syntheticArg.matchingField != null) {
 				codeStream.aload_0();
 				codeStream.load(syntheticArg);
 				codeStream.fieldAccess(Opcodes.OPC_putfield, syntheticArg.matchingField, null /* default declaringClass */);
@@ -363,9 +373,8 @@ public void generateSyntheticFieldInitializationsIfNecessary(MethodScope methodS
 	}
 	syntheticArgs = nestedType.syntheticOuterLocalVariables();
 	if (syntheticArgs != null) {
-		for (int i = 0, max = syntheticArgs.length; i < max; i++) {
-			SyntheticArgumentBinding syntheticArg;
-			if ((syntheticArg = syntheticArgs[i]).matchingField != null) {
+		for (SyntheticArgumentBinding syntheticArg : syntheticArgs) {
+			if (syntheticArg.matchingField != null) {
 				codeStream.aload_0();
 				codeStream.load(syntheticArg);
 				codeStream.fieldAccess(Opcodes.OPC_putfield, syntheticArg.matchingField, null /* default declaringClass */);
@@ -404,10 +413,10 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		}
 
 		if (this.arguments != null) {
-			for (int i = 0, max = this.arguments.length; i < max; i++) {
+			for (Argument argument : this.arguments) {
 				// arguments initialization for local variable debug attributes
 				LocalVariableBinding argBinding;
-				codeStream.addVisibleLocalVariable(argBinding = this.arguments[i].binding);
+				codeStream.addVisibleLocalVariable(argBinding = argument.binding);
 				argBinding.recordInitializationStartPC(0);
 				switch(argBinding.type.id) {
 					case TypeIds.T_long :
@@ -434,6 +443,11 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 			generateSyntheticFieldInitializationsIfNecessary(this.scope, codeStream, declaringClass);
 			codeStream.recordPositionsFrom(0, this.bodyStart > 0 ? this.bodyStart : this.sourceStart);
 		}
+
+		if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions())) {
+			this.scope.enterEarlyConstructionContext();
+		}
+
 		// generate constructor call
 		if (this.constructorCall != null) {
 			this.constructorCall.generateCode(this.scope, codeStream);
@@ -445,9 +459,9 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 			}
 			// generate user field initialization
 			if (declaringType.fields != null) {
-				for (int i = 0, max = declaringType.fields.length; i < max; i++) {
+				for (FieldDeclaration field : declaringType.fields) {
 					FieldDeclaration fieldDecl;
-					if (!(fieldDecl = declaringType.fields[i]).isStatic()) {
+					if (!(fieldDecl = field).isStatic()) {
 						fieldDecl.generateCode(initializerScope, codeStream);
 					}
 				}
@@ -455,8 +469,11 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		}
 		// generate statements
 		if (this.statements != null) {
-			for (int i = 0, max = this.statements.length; i < max; i++) {
-				this.statements[i].generateCode(this.scope, codeStream);
+			for (Statement statement : this.statements) {
+				statement.generateCode(this.scope, codeStream);
+				if (!this.compilationResult.hasErrors() && (codeStream.stackDepth != 0 || codeStream.operandStack.size() != 0)) {
+					this.scope.problemReporter().operandStackSizeInappropriate(this);
+				}
 			}
 		}
 		// if a problem got reported during code gen, then trigger problem method creation
@@ -527,8 +544,7 @@ public void getAllAnnotationContexts(int targetType, List allAnnotationContexts)
 	TypeReference fakeReturnType = new SingleTypeReference(this.selector, 0);
 	fakeReturnType.resolvedType = this.binding.declaringClass;
 	AnnotationCollector collector = new AnnotationCollector(fakeReturnType, targetType, allAnnotationContexts);
-	for (int i = 0, max = this.annotations.length; i < max; i++) {
-		Annotation annotation = this.annotations[i];
+	for (Annotation annotation : this.annotations) {
 		annotation.traverse(collector, (BlockScope) null);
 	}
 }
@@ -593,7 +609,6 @@ public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 		return;
 	}
 	parser.parse(this, unit, false);
-	this.containsSwitchWithTry = parser.switchWithTry;
 }
 
 @Override
@@ -604,9 +619,9 @@ public StringBuilder printBody(int indent, StringBuilder output) {
 		this.constructorCall.printStatement(indent, output);
 	}
 	if (this.statements != null) {
-		for (int i = 0; i < this.statements.length; i++) {
+		for (Statement statement : this.statements) {
 			output.append('\n');
-			this.statements[i].printStatement(indent, output);
+			statement.printStatement(indent, output);
 		}
 	}
 	output.append('\n');
@@ -666,15 +681,43 @@ public void resolveStatements() {
 				this.constructorCall.accessMode != ExplicitConstructorCall.This) {
 			this.scope.problemReporter().recordMissingExplicitConstructorCallInNonCanonicalConstructor(this);
 			this.constructorCall = null;
-		}
-		else {
-			this.constructorCall.resolve(this.scope);
+		} else {
+			ExplicitConstructorCall lateConstructorCall = null;
+			if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions())) {
+				this.scope.enterEarlyConstructionContext(); // even if no late ctor call to also capture arguments of ctor call as 1st stmt
+				lateConstructorCall = getLateConstructorCall();
+			}
+			if (lateConstructorCall != null) {
+				this.constructorCall = null; // not used with JEP 482, conversely, constructorCall!=null signals no JEP 482 context
+				this.scope.problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES,
+						lateConstructorCall.sourceStart,
+						lateConstructorCall.sourceEnd);
+			} else {
+				this.constructorCall.resolve(this.scope);
+			}
 		}
 	}
 	if ((this.modifiers & ExtraCompilerModifiers.AccSemicolonBody) != 0) {
 		this.scope.problemReporter().methodNeedBody(this);
 	}
 	super.resolveStatements();
+}
+
+ExplicitConstructorCall getLateConstructorCall() {
+	if (!JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions()))
+		return null;
+	if (this.constructorCall != null && !this.constructorCall.isImplicitSuper()) {
+		return null;
+	}
+	if (this.statements == null)
+		return null;
+	for (int i = 0; i < this.statements.length; i++) {
+		if (this.statements[i] instanceof ExplicitConstructorCall) {
+            ExplicitConstructorCall ctorCall = (ExplicitConstructorCall) this.statements[i];
+            return i > 0 ? ctorCall : null;
+		}
+	}
+	return null;
 }
 
 @Override

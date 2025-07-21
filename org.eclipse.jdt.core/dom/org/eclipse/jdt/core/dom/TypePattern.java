@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021, 2023 IBM Corporation and others.
+ * Copyright (c) 2021, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,9 +14,7 @@
 package org.eclipse.jdt.core.dom;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
 import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
 
 /**
@@ -24,20 +22,27 @@ import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
  *
  * <pre>
  * TypePattern:
- *      SingleVariableDeclaration
+ *      {@link VariableDeclaration}
  * </pre>
  *
  * @since 3.27
  * @noinstantiate This class is not intended to be instantiated by clients.
- * @noreference This class is not intended to be referenced by clients.
  */
 @SuppressWarnings("rawtypes")
 public class TypePattern extends Pattern {
 	/**
 	 * The "patternVariable" structural property of this node type (child type: {@link SingleVariableDeclaration}).
+	 * @deprecated In the JLS22 API, this property is replaced by {@link VariableDeclaration}.
 	 */
 	public static final ChildPropertyDescriptor PATTERN_VARIABLE_PROPERTY =
 			new ChildPropertyDescriptor(TypePattern.class, "patternVariable", SingleVariableDeclaration.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "patternVariable" structural property of this node type (child type: {@link VariableDeclaration}).
+	 * @since 3.39
+	 */
+	public static final ChildPropertyDescriptor PATTERN_VARIABLE_PROPERTY2 =
+			new ChildPropertyDescriptor(TypePattern.class, "patternVariable2", VariableDeclaration.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:
@@ -46,11 +51,24 @@ public class TypePattern extends Pattern {
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
+	/**
+	 * A list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.38
+	 */
+	private static final List PROPERTY_DESCRIPTORS_2_0;
+
 	static {
 		List properyList = new ArrayList(3);
 		createPropertyList(TypePattern.class, properyList);
 		addProperty(PATTERN_VARIABLE_PROPERTY, properyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
+
+		properyList = new ArrayList(3);
+		createPropertyList(TypePattern.class, properyList);
+		addProperty(PATTERN_VARIABLE_PROPERTY2, properyList);
+		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList(properyList);
 	}
 
 	@Override
@@ -63,11 +81,35 @@ public class TypePattern extends Pattern {
 		supportedOnlyIn21();
 	}
 
+	/**
+	 * Creates a new AST node for a type pattern node owned by the
+	 * given AST.
+	 * <p>
+	 * N.B. This constructor is package-private.
+	 * </p>
+	 *
+	 * @param ast the AST that is to own this node
+	 * @param flag which indicates true for SingleVariableDeclaration | false for VariableDeclarationFragment
+	 */
+	TypePattern(AST ast, boolean flag) {
+		super(ast);
+		supportedOnlyIn21();
+		if (ast.apiLevel >= AST.JLS22_INTERNAL) {
+			if(flag) {
+				this.patternVariable = new SingleVariableDeclaration(ast);
+			} else {
+				this.patternVariable = new VariableDeclarationFragment(ast);
+			}
+		} else {
+			this.patternVariable = new SingleVariableDeclaration(ast);
+		}
+	}
+
 
 	/**
 	 * The pattern Variable list; <code>empty</code> for none;
 	 */
-	private SingleVariableDeclaration patternVariable = null;
+	private volatile VariableDeclaration patternVariable;
 
 	/**
 	 * Returns a list of structural property descriptors for this node type.
@@ -77,7 +119,7 @@ public class TypePattern extends Pattern {
 	 * <code>AST.JLS*</code> constants
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
-	 * @noreference This method is not intended to be referenced by clients.
+	 * @since 3.38
 	 */
 	public static List propertyDescriptors(int apiLevel) {
 		return null;
@@ -92,11 +134,15 @@ public class TypePattern extends Pattern {
 	 * @param previewEnabled the previewEnabled flag
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
-	 * @noreference This method is not intended to be referenced by clients.
+	 * @since 3.38
 	 */
 	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
 		if (DOMASTUtil.isPatternSupported(apiLevel, previewEnabled)) {
-			return PROPERTY_DESCRIPTORS;
+			if(apiLevel < AST.JLS22_INTERNAL) {
+				return PROPERTY_DESCRIPTORS;
+			} else {
+				return PROPERTY_DESCRIPTORS_2_0;
+			}
 		}
 		return null;
 	}
@@ -113,16 +159,13 @@ public class TypePattern extends Pattern {
 
 	@Override
 	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
-		if (property == PATTERN_VARIABLE_PROPERTY ) {
+		if (property == PATTERN_VARIABLE_PROPERTY) {
 			return getPatternVariable();
+		} else if (property == PATTERN_VARIABLE_PROPERTY2) {
+			return getPatternVariable2();
 		}
 		// allow default implementation to flag the error
 		return super.internalGetSetChildProperty(property, get, child);
-	}
-
-	public List<SingleVariableDeclaration> patternVariables() {
-		supportedOnlyIn20();
-		return new ArrayList<>(Arrays.asList(getPatternVariable()));
 	}
 
 	/**
@@ -137,7 +180,7 @@ public class TypePattern extends Pattern {
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used other than JLS19
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
-	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+	 * @since 3.38
 	 */
 	public void setPatternVariable(SingleVariableDeclaration patternVariable) {
 		supportedOnlyIn20();
@@ -151,12 +194,37 @@ public class TypePattern extends Pattern {
 	}
 
 	/**
+	 * Sets the pattern variable.
+	 *
+	 * @param patternVariable the right operand node
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * <li>a cycle in would be created</li>
+	 * </ul>
+	 * @exception UnsupportedOperationException if this operation is used other than JLS19
+	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
+	 * @since 3.39
+	 */
+	public void setPatternVariable(VariableDeclaration patternVariable) {
+		supportedOnlyIn20();
+		if (patternVariable == null) {
+			throw new IllegalArgumentException();
+		}
+		ASTNode oldChild = this.patternVariable;
+		preReplaceChild(oldChild, patternVariable, PATTERN_VARIABLE_PROPERTY2);
+		this.patternVariable = patternVariable;
+		postReplaceChild(oldChild, patternVariable, PATTERN_VARIABLE_PROPERTY2);
+	}
+
+	/**
 	 * Returns the pattern variable of Types Pattern.
 	 *
 	 * @return the pattern variable
 	 * @exception UnsupportedOperationException if this operation is used other than JLS19
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
-	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+	 * @since 3.38
 	 */
 	public SingleVariableDeclaration getPatternVariable() {
 		supportedOnlyIn20();
@@ -165,8 +233,34 @@ public class TypePattern extends Pattern {
 			synchronized (this) {
 				if (this.patternVariable == null) {
 					preLazyInit();
-					this.patternVariable= new SingleVariableDeclaration(this.ast);
-					postLazyInit(this.patternVariable, PATTERN_VARIABLE_PROPERTY);
+
+					this.patternVariable = postLazyInit(new SingleVariableDeclaration(this.ast),
+							PATTERN_VARIABLE_PROPERTY);
+				}
+			}
+		}
+		return (SingleVariableDeclaration) this.patternVariable;
+
+	}
+
+	/**
+	 * Returns the pattern variable of Types Pattern.
+	 *
+	 * @return the pattern variable
+	 * @exception UnsupportedOperationException if this operation is used other than JLS19
+	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
+	 * @since 3.39
+	 */
+	public VariableDeclaration getPatternVariable2() {
+		supportedOnlyIn20();
+		if (this.patternVariable  == null) {
+			// lazy init must be thread-safe for readers
+			synchronized (this) {
+				if (this.patternVariable == null) {
+					preLazyInit();
+
+					this.patternVariable = postLazyInit(new SingleVariableDeclaration(this.ast),
+							PATTERN_VARIABLE_PROPERTY2);
 				}
 			}
 		}
@@ -182,7 +276,7 @@ public class TypePattern extends Pattern {
 	ASTNode clone0(AST target) {
 		TypePattern result = new TypePattern(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setPatternVariable((SingleVariableDeclaration) getPatternVariable().clone(target));
+		result.setPatternVariable((VariableDeclaration) getPatternVariable().clone(target));
 		return result;
 	}
 
@@ -191,7 +285,11 @@ public class TypePattern extends Pattern {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
-			acceptChild(visitor, getPatternVariable());
+			if (this.ast.apiLevel < AST.JLS22_INTERNAL) {
+				acceptChild(visitor, getPatternVariable());
+			} else {
+				acceptChild(visitor, getPatternVariable2());
+			}
 		}
 		visitor.endVisit(this);
 
@@ -206,7 +304,7 @@ public class TypePattern extends Pattern {
 	int treeSize() {
 		return
 				memSize()
-				+ (this.patternVariable == null ? 0 : getPatternVariable().treeSize());
+				+ (this.patternVariable == null ? 0 : ((this.ast.apiLevel < AST.JLS22_INTERNAL) ? getPatternVariable().treeSize() : getPatternVariable2().treeSize()));
 	}
 
 

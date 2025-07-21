@@ -135,7 +135,7 @@ public class FieldDeclaration extends BodyDeclaration {
 	 * The base type; lazily initialized; defaults to an unspecified,
 	 * legal type.
 	 */
-	private Type baseType = null;
+	private volatile Type baseType;
 
 	/**
 	 * The list of variable declaration fragments (element type:
@@ -291,8 +291,7 @@ public class FieldDeclaration extends BodyDeclaration {
 			synchronized (this) {
 				if (this.baseType == null) {
 					preLazyInit();
-					this.baseType = this.ast.newPrimitiveType(PrimitiveType.INT);
-					postLazyInit(this.baseType, TYPE_PROPERTY);
+					this.baseType = postLazyInit(this.ast.newPrimitiveType(PrimitiveType.INT), TYPE_PROPERTY);
 				}
 			}
 		}

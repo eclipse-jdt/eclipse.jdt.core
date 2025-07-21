@@ -32,9 +32,9 @@
 package com.sun.mirror.declaration;
 
 
+import com.sun.mirror.type.DeclaredType;
+import com.sun.mirror.type.InterfaceType;
 import java.util.Collection;
-
-import com.sun.mirror.type.*;
 
 
 /**

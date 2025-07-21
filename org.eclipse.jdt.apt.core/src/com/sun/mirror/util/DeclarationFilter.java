@@ -32,13 +32,14 @@
 package com.sun.mirror.util;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
+import static com.sun.mirror.declaration.Modifier.PRIVATE;
+import static com.sun.mirror.declaration.Modifier.PROTECTED;
+import static com.sun.mirror.declaration.Modifier.PUBLIC;
 
 import com.sun.mirror.declaration.Declaration;
 import com.sun.mirror.declaration.Modifier;
-
-import static com.sun.mirror.declaration.Modifier.*;
+import java.util.ArrayList;
+import java.util.Collection;
 
 
 /**

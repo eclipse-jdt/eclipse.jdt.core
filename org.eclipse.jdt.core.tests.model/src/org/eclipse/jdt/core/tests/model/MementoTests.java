@@ -15,17 +15,19 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
 import java.io.IOException;
-
-import org.eclipse.core.resources.*;
+import junit.framework.Test;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
-
-import junit.framework.Test;
 
 public class MementoTests extends ModifyingResourceTests {
 public MementoTests(String name) {
@@ -94,7 +96,7 @@ public void setUpSuite() throws Exception {
 		"public class X {}"
 		},
 		getExternalResourcePath("myLib"),
-		"1.4");
+		CompilerOptions.getFirstSupportedJavaVersion());
 	this.createJavaProject(
 			"P",
 			new String[] {"src", "!"},
@@ -251,7 +253,7 @@ public void testBinaryMethodMemento3() throws JavaModelException {
 }
 /**
  * Tests that a binary method with a parameter with wildcard can be persisted and restored using its memento.
- * (regression test for bug 75466 [1.5] IAE in JavaElement.exists() for Collection<E>#containsAll(Collection<?>))
+ * (regression test for bug 75466 [1.5] IAE in JavaElement.exists() for {@code  Collection<E>#containsAll(Collection<?>))}
  */
 public void testBinaryMethodMemento4() throws JavaModelException {
 	IType type = getClassFile("/P/lib/p/X.class").getType();
@@ -527,7 +529,7 @@ public void testLocalVariableMemento3() {
  */
 public void testLocalVariableMemento4() throws Exception {
 	try {
-		createJavaProject("P1", new String[] {"src"}, new String[] {getExternalJCLPathString("1.5")}, "bin", "1.5");
+		createJavaProject("P1", new String[] {"src"}, new String[] {getExternalJCLPathString(CompilerOptions.getFirstSupportedJavaVersion())}, "bin", CompilerOptions.getFirstSupportedJavaVersion());
 		createFile(
 			"/P1/src/X.java",
 			"public class X<T> {\n" +

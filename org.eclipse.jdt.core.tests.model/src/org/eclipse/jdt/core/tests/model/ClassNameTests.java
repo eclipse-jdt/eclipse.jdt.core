@@ -14,7 +14,6 @@
 package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -31,6 +30,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.SourceType;
 
 /**
@@ -75,7 +75,7 @@ protected void setUp() throws Exception {
 		for (int i=0; i<SF_LENGTH; i++) {
 			sourceFolders[i] = "src" + i;
 		}
-		TEST_PROJECT = createJavaProject("TestProject", sourceFolders, new String[] {"JCL_LIB"}, "bin");
+		TEST_PROJECT = createJavaProject("TestProject", sourceFolders, new String[] {"JCL18_LIB"}, "bin");
 		createFolder("/TestProject/src0/org/eclipse/jdt/core/test0");
 		createFile(
 			"/TestProject/src0/org/eclipse/jdt/core/test0/Foo.java",
@@ -1192,13 +1192,13 @@ public void testFindSecondaryType_Unknown03() throws JavaModelException, CoreExc
 }
 
 /**
- * @bug 152841: [model] IJavaProject.findType(name, monitor) doesn't find secondary type
- * @test Ensure that secondary type is found just after having created the compilation unit
+ * bug 152841: [model] IJavaProject.findType(name, monitor) doesn't find secondary type
+ * test Ensure that secondary type is found just after having created the compilation unit
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=152841"
  */
 public void testBug152841() throws Exception{
 	try {
-		IJavaProject project= createJavaProject("P", new String[] { "src" }, new String[] { "JCL_LIB" }, "bin");
+		IJavaProject project= createJavaProject("P", new String[] { "src" }, new String[] { "JCL18_LIB" }, "bin");
 		IPackageFragmentRoot root = (IPackageFragmentRoot) project.getChildren()[0];
 		IPackageFragment pack= root.createPackageFragment("p", true, null);
 
@@ -1260,8 +1260,8 @@ public void testBug152841() throws Exception{
 }
 
 /**
- * @bug 302455: java.lang.ClassCastException in secondary types removal
- * @test Ensure that no invalid entries are put in the secondary types caches
+ * bug 302455: java.lang.ClassCastException in secondary types removal
+ * test Ensure that no invalid entries are put in the secondary types caches
  * 		when a file extension spec is removed from the workspace as the CCE
  * 		does no longer occur...
  * 		Also verify that secondary types from the removed file extension are not
@@ -1303,14 +1303,14 @@ public void testBug302455() throws CoreException, InterruptedException {
 }
 
 /**
- * @bug 306477: Indexer(?) fails to recognise enum as a type
- * @test Ensure that enum secondary type are well indexed
+ * bug 306477: Indexer(?) fails to recognise enum as a type
+ * test Ensure that enum secondary type are well indexed
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=306477"
  */
 public void testBug306477() throws Exception {
 	try {
 		// create test case
-		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
+		IJavaProject project = createJavaProject("P", new String[] {""}, new String[] {"JCL18_LIB"}, "", CompilerOptions.getFirstSupportedJavaVersion());
 		createFolder("/P/p");
 		createFile(
 			"/P/p/Alice.java",

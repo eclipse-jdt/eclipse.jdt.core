@@ -146,8 +146,8 @@ public class Assignment extends Expression {
 					RIGHT_SHIFT_SIGNED_ASSIGN,
 					RIGHT_SHIFT_UNSIGNED_ASSIGN
 				};
-			for (int i = 0; i < ops.length; i++) {
-				CODES.put(ops[i].toString(), ops[i]);
+			for (Operator o : ops) {
+				CODES.put(o.toString(), o);
 			}
 		}
 	}
@@ -213,13 +213,13 @@ public class Assignment extends Expression {
 	 * The left hand side; lazily initialized; defaults to an unspecified,
 	 * but legal, simple name.
 	 */
-	private Expression leftHandSide = null;
+	private volatile Expression leftHandSide;
 
 	/**
 	 * The right hand side; lazily initialized; defaults to an unspecified,
 	 * but legal, simple name.
 	 */
-	private Expression rightHandSide = null;
+	private volatile Expression rightHandSide;
 
 	/**
 	 * Creates a new AST node for an assignment expression owned by the given
@@ -340,8 +340,7 @@ public class Assignment extends Expression {
 			synchronized (this) {
 				if (this.leftHandSide == null) {
 					preLazyInit();
-					this.leftHandSide= new SimpleName(this.ast);
-					postLazyInit(this.leftHandSide, LEFT_HAND_SIDE_PROPERTY);
+					this.leftHandSide = postLazyInit(new SimpleName(this.ast), LEFT_HAND_SIDE_PROPERTY);
 				}
 			}
 		}
@@ -381,8 +380,7 @@ public class Assignment extends Expression {
 			synchronized (this) {
 				if (this.rightHandSide == null) {
 					preLazyInit();
-					this.rightHandSide= new SimpleName(this.ast);
-					postLazyInit(this.rightHandSide, RIGHT_HAND_SIDE_PROPERTY);
+					this.rightHandSide = postLazyInit(new SimpleName(this.ast), RIGHT_HAND_SIDE_PROPERTY);
 				}
 			}
 		}

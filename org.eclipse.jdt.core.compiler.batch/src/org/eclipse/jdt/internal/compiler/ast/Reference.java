@@ -27,16 +27,8 @@ import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
-import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
+import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class Reference extends Expression  {
 /**
@@ -190,6 +182,40 @@ void reportOnlyUselesslyReadPrivateField(BlockScope currentScope, FieldBinding f
 				// compoundAssignment/postIncrement is the only usage of this field
 				currentScope.problemReporter().unusedPrivateField(fieldBinding.sourceField());
 			}
+		}
+	}
+}
+
+protected void checkFieldAccessInEarlyConstructionContext(BlockScope scope, char[] token, FieldBinding fieldBinding, TypeBinding actualReceiverType) {
+	if (actualReceiverType != null && JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(scope.compilerOptions())) {
+		if (scope.isInsideEarlyConstructionContext(actualReceiverType, false)) {
+			// §6.5.6.1 (JEP 482):
+			// If the declaration denotes an instance variable of a class C ... then .. or a compile time occurs:
+			// - [...]
+			// - If the expression name appears in an early construction context of C (8.8.7.1),
+			// 		then it is the left-hand operand of a simple assignment expression (15.26),
+			//		and the declaration of the named variable lacks an initializer.
+			if ((this.bits & ASTNode.IsStrictlyAssigned) == 0) {
+				// Error: not 'left-hand operand of a simple assignment expression'
+				if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())) {
+					scope.problemReporter().fieldReadInEarlyConstructionContext(token, this.sourceStart, this.sourceEnd);
+				}
+				// otherwise we leave it to later phase to detect if required enclosing instance is available
+				return;
+			} else if (TypeBinding.notEquals(fieldBinding.declaringClass, scope.enclosingReceiverType())) {
+				// Error: not field of class C
+				scope.problemReporter().superFieldAssignInEarlyConstructionContext(this, fieldBinding);
+				return;
+			} else {
+				FieldDeclaration sourceField = fieldBinding.sourceField();
+				if (sourceField != null && sourceField.initialization != null) {
+					// Error: field has an initializer
+					scope.problemReporter().assignFieldWithInitializerInEarlyConstructionContext(token, this.sourceStart, this.sourceEnd);
+					return;
+				}
+			}
+			// otherwise legal if JEP 482 is enabled
+			scope.problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES, this.sourceStart, this.sourceEnd);
 		}
 	}
 }
