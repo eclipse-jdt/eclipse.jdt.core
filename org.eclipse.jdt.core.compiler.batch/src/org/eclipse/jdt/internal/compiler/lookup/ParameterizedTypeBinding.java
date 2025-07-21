@@ -1725,7 +1725,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 
 	@Override
-	protected Stream<MethodBinding> collateFunctionalInterfaceContracts(Scope scope, boolean replaceWildcards) throws DysfunctionalInterfaceException {
+	protected Stream<MethodBinding> collateFunctionalInterfaceContracts(Scope scope, boolean replaceWildcards, Set<ReferenceBinding> visitedInterfaces) throws DysfunctionalInterfaceException {
 		if (replaceWildcards) {
 			TypeBinding[] types = getNonWildcardParameters(scope);
 			if (types == null)
@@ -1740,11 +1740,11 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 						if (!typeParameters[j].boundCheck(declaringType, types[j], scope, null).isOKbyJLS())
 							throw DYSFUNCTIONAL_INTERFACE_EXCEPTION;
 					}
-					return declaringType.collateFunctionalInterfaceContracts(scope, replaceWildcards);
+					return declaringType.collateFunctionalInterfaceContracts(scope, replaceWildcards, visitedInterfaces);
 				}
 			}
 		}
-		return super.collateFunctionalInterfaceContracts(scope, replaceWildcards);
+		return super.collateFunctionalInterfaceContracts(scope, replaceWildcards, visitedInterfaces);
 	}
 
 	@Override
