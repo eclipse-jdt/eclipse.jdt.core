@@ -161,6 +161,11 @@ public class ZipFileSystemProviderWithCache extends FileSystemProvider {
 			// create and use a new container/filesystem
 			return null;
 		}
+		if (!cached.isOpen()) {
+			// filesystem was closed by some other execution chain (this is not
+			// usually desired, but still can happen...) and isn't reusable any more
+			return null;
+		}
 		return cached;
 	}
 
