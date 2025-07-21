@@ -1238,32 +1238,52 @@ public class DOMCompletionEngine implements ICompletionEngine {
 			suggestDefaultCompletions = false;
 		} else {
 			DOMThrownExceptionFinder thrownExceptionFinder = new DOMThrownExceptionFinder();
-			Bindings catchExceptionBindings = new Bindings();
+			Map<String, ITypeBinding> toSuggest = new HashMap<>();
+
 			Bindings contextBindings = new Bindings();
 			contextBindings.scrapeAccessibleBindings();
 			thrownExceptionFinder.processThrownExceptions((TryStatement) catchClause.getParent());
+			Set<String> caughtExceptions = Stream.of(thrownExceptionFinder.getAlreadyCaughtExceptions()) //
+					.map(ITypeBinding::getKey) //
+					.collect(Collectors.toSet());
+
+			for (ITypeBinding discouraged : thrownExceptionFinder.getDiscouragedExceptions()) {
+				this.expectedTypes.getUninterestingTypes().add(discouraged);
+			}
+
+			// uncaught exceptions
+			List<ITypeBinding> thrownExceptionBindings = new ArrayList<>();
 			for (ITypeBinding thrownUncaughtException : thrownExceptionFinder.getThrownUncaughtExceptions()) {
 				ITypeBinding cursor = thrownUncaughtException;
 				// jdt doesn't suggest Throwable itself for some reason
 				while (cursor != null && !"Ljava/lang/Throwable;".equals(cursor.getKey())) {
-					catchExceptionBindings.add(cursor);
+					if (!caughtExceptions.contains(cursor.getKey())) {
+						toSuggest.putIfAbsent(cursor.getKey(), cursor);
+					}
 					cursor = cursor.getSuperclass();
 				}
 			}
-			// consolidate context bindings into catchExceptionBindings
-			contextBindings: for (IBinding contextBinding : contextBindings.all().toList()) {
-				if (contextBinding instanceof ITypeBinding contextTypeBinding) {
-					for (ITypeBinding caughtException : thrownExceptionFinder.getAlreadyCaughtExceptions()) {
-						if (contextTypeBinding.getKey().equals(caughtException.getKey())) {
-							continue contextBindings;
-						}
-					}
-					if (DOMCompletionUtils.findInSupers(contextTypeBinding, "Ljava/lang/Throwable;")) {
-						catchExceptionBindings.add(contextTypeBinding);
-					}
+
+			// discouraged exceptions
+			List<ITypeBinding> discouragedExceptionBindings = new ArrayList<>();
+			for (ITypeBinding discouragedException : thrownExceptionFinder.getDiscouragedExceptions()) {
+				if (!caughtExceptions.contains(discouragedException.getKey())) {
+					toSuggest.putIfAbsent(discouragedException.getKey(), discouragedException);
 				}
 			}
-			publishFromScope(catchExceptionBindings);
+
+			// other exceptions accessible exceptions
+			 for (ITypeBinding contextBinding : contextBindings.all().filter(ITypeBinding.class::isInstance).map(ITypeBinding.class::cast).toList()) {
+				if (!caughtExceptions.contains(contextBinding.getKey())
+						&& DOMCompletionUtils.findInSupers(contextBinding, "Ljava/lang/Throwable;")) {
+					toSuggest.putIfAbsent(contextBinding.getKey(), contextBinding);
+				}
+			}
+			Bindings localExceptionBindings = new Bindings();
+			localExceptionBindings.addAll(toSuggest.values());
+			publishFromScope(localExceptionBindings);
+
+			// Type search for more exceptions if there is search text
 			if (!completionContext.getTokenString().isBlank()) {
 				Set<String> alreadySuggestedFqn = ConcurrentHashMap.newKeySet();
 				findTypes(completionContext.getTokenString(), null)
@@ -1279,12 +1299,9 @@ public class DOMCompletionEngine implements ICompletionEngine {
 						}
 					})
 					.filter(typeMatch -> {
-						for (var scrapedBinding : catchExceptionBindings.all().toList()) {
-							if (scrapedBinding instanceof ITypeBinding scrapedTypeBinding) {
-								if (typeMatch.getType().equals(scrapedTypeBinding.getJavaElement()) || typeMatch.getType().getKey().equals(scrapedTypeBinding.getKey())) {
-									return false;
-								}
-							}
+						if (toSuggest.containsKey(typeMatch.getType().getKey())) {
+							// already suggested from the IBinding
+							return false;
 						}
 						return true;
 					})

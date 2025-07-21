@@ -173,7 +173,10 @@ public class DOMThrownExceptionFinder extends ASTVisitor {
 							// is in some inner try-catch. Discourage already caught checked exceptions
 							// from being proposed in an outer catch.
 							if (!isUncheckedException(unionMemberTypeBinding)) {
-								this.discouragedExceptions.add(unionMemberTypeBinding);
+								boolean actuallyThrown = this.thrownExceptions.stream().anyMatch(thrown -> thrown.getKey().equals(unionMemberTypeBinding.getKey()));
+								if (actuallyThrown) {
+									this.discouragedExceptions.add(unionMemberTypeBinding);
+								}
 							}
 						}
 					}
@@ -189,7 +192,10 @@ public class DOMThrownExceptionFinder extends ASTVisitor {
 						// is in some inner try-catch. Discourage already caught checked exceptions
 						// from being proposed in an outer catch
 						if (!isUncheckedException(exception)) {
-							this.discouragedExceptions.add(exception);
+							boolean actuallyThrown = this.thrownExceptions.stream().anyMatch(thrown -> thrown.getKey().equals(exception.getKey()));
+							if (actuallyThrown) {
+								this.discouragedExceptions.add(exception);
+							}
 						}
 					}
 				}
