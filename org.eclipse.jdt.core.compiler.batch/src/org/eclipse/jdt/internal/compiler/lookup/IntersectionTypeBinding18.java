@@ -23,6 +23,7 @@
 
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
@@ -68,10 +69,10 @@ public class IntersectionTypeBinding18 extends ReferenceBinding {
 	}
 
 	@Override
-	protected Stream<MethodBinding> collateFunctionalInterfaceContracts(Scope scope, boolean replaceWildcards, Set<MethodBinding> contracts) throws DysfunctionalInterfaceException {
-		for (ReferenceBinding intersectingType : this.intersectingTypes)
-			intersectingType.collateFunctionalInterfaceContracts(scope, replaceWildcards, contracts);
-		return contracts.stream();
+	protected Stream<MethodBinding> collateFunctionalInterfaceContracts(Scope scope, boolean replaceWildcards) throws DysfunctionalInterfaceException {
+		return Arrays.stream(this.intersectingTypes).flatMap( //
+						intersectingType -> intersectingType.collateFunctionalInterfaceContracts(scope, replaceWildcards) //
+		);
 	}
 
 	@Override

@@ -57,12 +57,10 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -2334,8 +2332,9 @@ private MethodBinding[] getFunctionalInterfaceAbstractContracts(Scope scope, boo
 	boolean isAnnotationBasedNullAnalysisEnabled = environment.globalOptions.isAnnotationBasedNullAnalysisEnabled;
 	MethodBinding samCandidate = null;
 
-	MethodBinding[] methods = collateFunctionalInterfaceContracts(scope, replaceWildcards, new LinkedHashSet<>())
+	MethodBinding[] methods = collateFunctionalInterfaceContracts(scope, replaceWildcards)
 		.sorted((m1, m2) -> CharOperation.compareTo(m1.selector, m2.selector))
+		.distinct()
 		.toArray(MethodBinding []::new);
 
 	for (int i = 0, length = methods.length; i < length; i++) {
@@ -2361,23 +2360,23 @@ private MethodBinding[] getFunctionalInterfaceAbstractContracts(Scope scope, boo
 	return Arrays.stream(methods).filter(m -> m != null && m.isAbstract()).toArray(MethodBinding []::new);
 }
 
-protected Stream<MethodBinding> collateFunctionalInterfaceContracts(Scope scope, boolean replaceWildcards, Set<MethodBinding> contracts) throws DysfunctionalInterfaceException {
+protected Stream<MethodBinding> collateFunctionalInterfaceContracts(Scope scope, boolean replaceWildcards) throws DysfunctionalInterfaceException {
 
 	if (!isInterface() || !isValidBinding())
 		throw DYSFUNCTIONAL_INTERFACE_EXCEPTION;
 
-	for (ReferenceBinding superInterface : superInterfaces())
-		superInterface.collateFunctionalInterfaceContracts(scope, replaceWildcards, contracts);
-
 	Predicate<MethodBinding> isContractual = m -> { // select valid public abstract || default methods
-									if (m == null || m.isStatic() || m.redeclaresPublicObjectMethod(scope) || m.isPrivate())
-										return false;
-									if (!m.isValidBinding())
-										throw DYSFUNCTIONAL_INTERFACE_EXCEPTION;
-									return true;
-							};
-	contracts.addAll(Arrays.stream(methods()).filter(isContractual).collect(Collectors.toList()));
-	return contracts.stream();
+		if (m == null || m.isStatic() || m.redeclaresPublicObjectMethod(scope) || m.isPrivate())
+			return false;
+		if (!m.isValidBinding())
+			throw DYSFUNCTIONAL_INTERFACE_EXCEPTION;
+		return true;
+	};
+
+	return Stream.concat( //
+			Arrays.stream(superInterfaces()).flatMap(superInterface -> superInterface.collateFunctionalInterfaceContracts(scope, replaceWildcards)), //
+			Arrays.stream(methods()).filter(isContractual)
+	);
 }
 
 @Override
