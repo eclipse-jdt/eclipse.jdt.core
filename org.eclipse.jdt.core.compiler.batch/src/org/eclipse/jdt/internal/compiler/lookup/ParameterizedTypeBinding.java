@@ -1120,8 +1120,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				if (sooper.isParameterizedType() && current.isParameterizedType()) {
 					for (int i = 0, length = sooper.typeArguments().length; i < length; i++) {
 						TypeBinding t = sooper.typeArguments()[i];
-						if (t instanceof TypeVariableBinding tvb) {
-							map.put(tvb, current.typeArguments()[i]);
+						if (t instanceof TypeVariableBinding) {
+                            TypeVariableBinding tvb = (TypeVariableBinding) t;
+                            map.put(tvb, current.typeArguments()[i]);
 						}
 					}
 				}

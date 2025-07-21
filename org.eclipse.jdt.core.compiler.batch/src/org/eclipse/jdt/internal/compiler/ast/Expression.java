@@ -1242,8 +1242,9 @@ public boolean forcedToBeRaw(ReferenceContext referenceContext) {
 		if (ternary.valueIfTrue.forcedToBeRaw(referenceContext) || ternary.valueIfFalse.forcedToBeRaw(referenceContext)) {
 			return true;
 		}
-	} else if (this instanceof SwitchExpression se) {
-		for (Expression e : se.resultExpressions()) {
+	} else if (this instanceof SwitchExpression) {
+        SwitchExpression se = (SwitchExpression) this;
+        for (Expression e : se.resultExpressions()) {
 			if (e.forcedToBeRaw(referenceContext))
 				return true;
 		}

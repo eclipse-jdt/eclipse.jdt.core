@@ -438,11 +438,12 @@ public void setAnnotations(AnnotationBinding[] annotations, boolean forceStore) 
 	this.declaringClass.storeAnnotations(this, annotations, forceStore);
 }
 public FieldDeclaration sourceField() {
-	if (!(this.declaringClass instanceof SourceTypeBinding sourceType)) {
+	if (!(this.declaringClass instanceof SourceTypeBinding)) {
 		return null;
 	}
+    SourceTypeBinding sourceType = (SourceTypeBinding) this.declaringClass;
 
-	FieldDeclaration[] fields = sourceType.scope.referenceContext.fields;
+    FieldDeclaration[] fields = sourceType.scope.referenceContext.fields;
 	if (fields != null) {
 		for (int i = fields.length; --i >= 0;)
 			if (this == fields[i].binding)

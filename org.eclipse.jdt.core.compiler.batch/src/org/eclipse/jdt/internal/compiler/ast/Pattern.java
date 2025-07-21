@@ -56,7 +56,52 @@ public abstract class Pattern extends Expression {
 
 	protected TypeBinding outerExpressionType; // the expression type of the enclosing instanceof, switch or outer record pattern
 
-	record TestContextRecord(TypeBinding left, TypeBinding right, PrimitiveConversionRoute route) {}
+    static final class TestContextRecord {
+        private final TypeBinding left;
+        private final TypeBinding right;
+        private final PrimitiveConversionRoute route;
+
+        TestContextRecord(TypeBinding left, TypeBinding right, PrimitiveConversionRoute route) {
+            this.left = left;
+            this.right = right;
+            this.route = route;
+        }
+
+        public TypeBinding left() {
+            return left;
+        }
+
+        public TypeBinding right() {
+            return right;
+        }
+
+        public PrimitiveConversionRoute route() {
+            return route;
+        }
+
+        @java.lang.Override
+        public boolean equals(java.lang.Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            var that = (TestContextRecord) obj;
+            return java.util.Objects.equals(this.left, that.left) &&
+                   java.util.Objects.equals(this.right, that.right) &&
+                   java.util.Objects.equals(this.route, that.route);
+        }
+
+        @java.lang.Override
+        public int hashCode() {
+            return java.util.Objects.hash(left, right, route);
+        }
+
+        @java.lang.Override
+        public String toString() {
+            return "TestContextRecord[" +
+                   "left=" + left + ", " +
+                   "right=" + right + ", " +
+                   "route=" + route + ']';
+        }
+    }
 
 	public Pattern getEnclosingPattern() {
 		return this.enclosingPattern;

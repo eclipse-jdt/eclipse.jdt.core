@@ -60,8 +60,9 @@ public CaseStatement(Expression[] constantExpressions, int sourceStart, int sour
 public Expression [] peeledLabelExpressions() {
 	Expression [] constants = Expression.NO_EXPRESSIONS;
 	for (Expression e : this.constantExpressions) {
-		if (e instanceof Pattern p1) {
-			constants = Stream.concat(Arrays.stream(constants), Arrays.stream(p1.getAlternatives())).toArray(Expression[]::new);
+		if (e instanceof Pattern) {
+            Pattern p1 = (Pattern) e;
+            constants = Stream.concat(Arrays.stream(constants), Arrays.stream(p1.getAlternatives())).toArray(Expression[]::new);
 		} else {
 			constants = Stream.concat(Arrays.stream(constants), Stream.of(e)).toArray(Expression[]::new);
 		}
@@ -222,8 +223,9 @@ public ResolvedCase[] resolveCase(BlockScope scope, TypeBinding switchExpression
 			((SingleNameReference) e).setActualReceiverType((ReferenceBinding)switchExpressionType);
 
 		e.setExpressionContext(ExpressionContext.TESTING_CONTEXT);
-		if (e instanceof Pattern p) {
-			switchStatement.containsPatterns = switchStatement.isNonTraditional =  true;
+		if (e instanceof Pattern) {
+            Pattern p = (Pattern) e;
+            switchStatement.containsPatterns = switchStatement.isNonTraditional =  true;
 			p.setOuterExpressionType(switchExpressionType);
 		}
 

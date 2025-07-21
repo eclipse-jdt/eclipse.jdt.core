@@ -545,8 +545,9 @@ public TypeBinding resolveType(BlockScope scope) {
 
 protected void checkEarlyConstructionContext(BlockScope scope) {
 	if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(scope.compilerOptions())
-			&& this.type != null && this.type.resolvedType instanceof ReferenceBinding currentType) {
-		// only enclosing types of non-static member types are relevant
+        && this.type != null && this.type.resolvedType instanceof ReferenceBinding) {
+        ReferenceBinding currentType = (ReferenceBinding) this.type.resolvedType;
+        // only enclosing types of non-static member types are relevant
 		if (currentType.isStatic() || currentType.isLocalType())
 			return;
 		currentType = currentType.enclosingType();

@@ -712,8 +712,9 @@ ExplicitConstructorCall getLateConstructorCall() {
 	if (this.statements == null)
 		return null;
 	for (int i = 0; i < this.statements.length; i++) {
-		if (this.statements[i] instanceof ExplicitConstructorCall ctorCall) {
-			return i > 0 ? ctorCall : null;
+		if (this.statements[i] instanceof ExplicitConstructorCall) {
+            ExplicitConstructorCall ctorCall = (ExplicitConstructorCall) this.statements[i];
+            return i > 0 ? ctorCall : null;
 		}
 	}
 	return null;

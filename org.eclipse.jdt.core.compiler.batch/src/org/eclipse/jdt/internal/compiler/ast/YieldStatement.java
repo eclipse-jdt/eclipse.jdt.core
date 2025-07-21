@@ -71,8 +71,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		traversedContext.recordBreakTo(targetContext);
 
 		if (traversedContext instanceof InsideStatementWithFinallyBlockFlowContext) {
-			if (traversedContext.associatedNode instanceof TryStatement ts)
-				flowInfo.addInitializationsFrom(ts.finallyBlockInits); // collect inits
+			if (traversedContext.associatedNode instanceof TryStatement) {
+                TryStatement ts = (TryStatement) traversedContext.associatedNode;
+                flowInfo.addInitializationsFrom(ts.finallyBlockInits); // collect inits
+            }
 		} else if (traversedContext == targetContext) {
 			targetContext.recordBreakFrom(flowInfo);
 			break;

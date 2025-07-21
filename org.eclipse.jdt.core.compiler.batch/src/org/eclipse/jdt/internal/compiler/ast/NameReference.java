@@ -56,8 +56,9 @@ public NameReference() {
  * See https://bugs.openjdk.org/browse/JDK-7153958
  */
 public void emitDeclaringClassOfConstant(CodeStream codeStream) {
-	if (this.constant != Constant.NotAConstant && this.binding instanceof FieldBinding f) {
-		codeStream.constantPool.literalIndexForType(f.declaringClass);
+	if (this.constant != Constant.NotAConstant && this.binding instanceof FieldBinding) {
+        FieldBinding f = (FieldBinding) this.binding;
+        codeStream.constantPool.literalIndexForType(f.declaringClass);
 	}
 }
 /**

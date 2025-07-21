@@ -3617,8 +3617,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 				localContentsOffset = addBootStrapTypeCaseConstantEntry(localContentsOffset, (ResolvedCase) o, fPtr);
 			} else if (o instanceof TypeBinding) {
 				localContentsOffset = addClassDescBootstrap(localContentsOffset, (TypeBinding) o, fPtr);
-			} else if (o instanceof SingletonBootstrap sb) {
-				localContentsOffset = addSingletonBootstrap(localContentsOffset, sb, fPtr);
+			} else if (o instanceof SingletonBootstrap) {
+                SingletonBootstrap sb = (SingletonBootstrap) o;
+                localContentsOffset = addSingletonBootstrap(localContentsOffset, sb, fPtr);
 			}
 		}
 
@@ -4034,8 +4035,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 				this.contents[localContentsOffset++] = (byte) typeIndex;
 			} else {
 				if (c.e instanceof NullLiteral) continue;
-				String s = c.e instanceof QualifiedNameReference qnr ? // handle superfluously qualified enumerator.
-								new String(qnr.tokens[qnr.tokens.length-1]) : c.e.toString();
+				String s = c.e instanceof QualifiedNameReference ? // handle superfluously qualified enumerator.
+								new String(((QualifiedNameReference) c.e).tokens[((QualifiedNameReference) c.e).tokens.length - 1]) : c.e.toString();
 				int intValIdx =
 						this.constantPool.literalIndex(s);
 				this.contents[localContentsOffset++] = (byte) (intValIdx >> 8);

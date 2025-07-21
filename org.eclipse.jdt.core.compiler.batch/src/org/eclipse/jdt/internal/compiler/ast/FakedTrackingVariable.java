@@ -240,8 +240,9 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			else if (expression instanceof ConditionalExpression) {
 				return getMoreUnsafeFromBranches((ConditionalExpression)expression, flowInfo,
 										branch -> getCloseTrackingVariable(branch, flowInfo, flowContext, useAnnotations));
-			} else if (expression instanceof SwitchExpression se) {
-				for (Expression re : se.resultExpressions()) {
+			} else if (expression instanceof SwitchExpression) {
+                SwitchExpression se = (SwitchExpression) expression;
+                for (Expression re : se.resultExpressions()) {
 					FakedTrackingVariable fakedTrackingVariable = getCloseTrackingVariable(re, flowInfo, flowContext, useAnnotations);
 					if (fakedTrackingVariable != null) {
 						return fakedTrackingVariable;
@@ -337,8 +338,9 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				if (messageSend.binding != null && ((messageSend.binding.tagBits & TagBits.AnnotationNotOwning) == 0))
 					closeTracker.owningState = OWNED;
 			}
-		} else if (rhs instanceof CastExpression cast) {
-			preConnectTrackerAcrossAssignment(location, local, cast.expression, flowInfo, useAnnotations);
+		} else if (rhs instanceof CastExpression) {
+            CastExpression cast = (CastExpression) rhs;
+            preConnectTrackerAcrossAssignment(location, local, cast.expression, flowInfo, useAnnotations);
 		}
 		return closeTracker;
 	}
@@ -885,8 +887,9 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			return getMoreUnsafeFromBranches((ConditionalExpression) expression, flowInfo,
 						branch -> analyseCloseableExpression(scope, flowInfo, flowContext, useAnnotations,
 																local, location, branch, previousTracker));
-		} else if (expression instanceof SwitchExpression se) {
-			FakedTrackingVariable mostRisky = null;
+		} else if (expression instanceof SwitchExpression) {
+            SwitchExpression se = (SwitchExpression) expression;
+            FakedTrackingVariable mostRisky = null;
 			for (Expression result : se.resultExpressions()) {
 				FakedTrackingVariable current = analyseCloseableExpression(scope, flowInfo, flowContext, useAnnotations,
 						local, location, result, previousTracker);

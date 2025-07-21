@@ -566,8 +566,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	}
 
 	private boolean sinceValueUnreached(Binding binding, Scope scope) {
-		if (binding instanceof TypeBinding typeBinding) {
-			if (!typeBinding.isReadyForAnnotations()) {
+		if (binding instanceof TypeBinding) {
+            TypeBinding typeBinding = (TypeBinding) binding;
+            if (!typeBinding.isReadyForAnnotations()) {
 				return false;
 			}
 		}
@@ -577,8 +578,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				ElementValuePair[] pairs = annotation.getElementValuePairs();
 				for (ElementValuePair pair : pairs) {
 					if (CharOperation.equals(pair.getName(), TypeConstants.SINCE)) {
-						if (pair.getValue() instanceof StringConstant strConstant) {
-							try {
+						if (pair.getValue() instanceof StringConstant) {
+                            StringConstant strConstant = (StringConstant) pair.getValue();
+                            try {
 								String value = strConstant.stringValue();
 								long sinceLevel = CompilerOptions.versionToJdkLevel(value);
 								long complianceLevel = scope.compilerOptions().complianceLevel;

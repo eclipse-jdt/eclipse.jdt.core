@@ -7310,7 +7310,7 @@ public void notCompatibleTypesError(ASTNode location, TypeBinding leftType, Type
 		rightShortName = rightName;
 	}
 	int problemId = IProblem.IncompatibleTypesInEqualityOperator;
-	if (location instanceof Pattern p && p.getEnclosingPattern() instanceof RecordPattern) {
+	if (location instanceof Pattern && ((Pattern) location).getEnclosingPattern() instanceof RecordPattern) {
 		problemId = IProblem.PatternTypeMismatch;
 	} else if (location instanceof InstanceOfExpression) {
 		problemId = IProblem.IncompatibleTypesInConditionalOperator;
@@ -12344,7 +12344,7 @@ public void unnamedVariableMustHaveInitializer(LocalDeclaration variableDeclarat
 public void errorExpressionInEarlyConstructionContext(Expression expr) {
 	String[] arguments = new String[] {expr.toString()};
 	this.handle(
-		expr instanceof ThisReference thisRef && thisRef.inFieldReference
+            expr instanceof ThisReference && ((ThisReference) expr).inFieldReference
 			? IProblem.ThisInEarlyConstructionContext
 			: IProblem.ExpressionInEarlyConstructionContext,
 		arguments,

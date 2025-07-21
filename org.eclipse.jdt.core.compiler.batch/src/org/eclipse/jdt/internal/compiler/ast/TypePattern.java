@@ -74,8 +74,9 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 			patternInfo.markAsDefinitelyNonNull(this.local.binding);
 		} else {
 			// total type patterns inherit the nullness of the value being switched over, unless ...
-			if (flowContext.associatedNode instanceof SwitchStatement swStmt) {
-				int nullStatus = swStmt.containsNull
+			if (flowContext.associatedNode instanceof SwitchStatement) {
+                SwitchStatement swStmt = (SwitchStatement) flowContext.associatedNode;
+                int nullStatus = swStmt.containsNull
 						? FlowInfo.NON_NULL // ... null is handled in a separate case
 						: swStmt.expression.nullStatus(patternInfo, flowContext);
 				patternInfo.markNullStatus(this.local.binding, nullStatus);

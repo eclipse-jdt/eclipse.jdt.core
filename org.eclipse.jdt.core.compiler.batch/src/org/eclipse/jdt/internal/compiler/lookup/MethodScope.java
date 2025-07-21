@@ -500,10 +500,11 @@ public FieldBinding findField(TypeBinding receiverType, char[] fieldName, Invoca
 		// JEP 482 exception to old rules.
 		// 'this.field' is already detected when FieldReference triggers ThisReference.resolveType() -> checkAccess()
 		// hence here we only handle single name references:
-		if (invocationSite instanceof SingleNameReference nameRef
-				&& (nameRef.bits & ASTNode.IsStrictlyAssigned) != 0
-				&& JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(compilerOptions())) {
-			problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES, invocationSite.sourceStart(), invocationSite.sourceEnd());
+		if (invocationSite instanceof SingleNameReference
+            && (((SingleNameReference) invocationSite).bits & ASTNode.IsStrictlyAssigned) != 0
+            && JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(compilerOptions())) {
+            SingleNameReference nameRef = (SingleNameReference) invocationSite;
+            problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES, invocationSite.sourceStart(), invocationSite.sourceEnd());
 			return field;
 		}
 	} else {

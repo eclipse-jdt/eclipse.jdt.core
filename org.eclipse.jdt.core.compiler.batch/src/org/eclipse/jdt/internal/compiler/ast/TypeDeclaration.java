@@ -1078,8 +1078,9 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 			// Locations MethodBinding.computeSignature() and BlockScope.getEmulationPath() will faithfully
 			// use the information generated here, to decide about signature and call sequence.
 			while (outerScope != null) {
-				if (outerScope instanceof ClassScope cs) {
-					if (earlySeen && !cs.insideEarlyConstructionContext) {
+				if (outerScope instanceof ClassScope) {
+                    ClassScope cs = (ClassScope) outerScope;
+                    if (earlySeen && !cs.insideEarlyConstructionContext) {
 						// a direct outer beyond an early construction context disrupts
 						// the chain of fields, supply a local copy instead (arg & field):
 						nestedType.addSyntheticArgumentAndField(cs.referenceContext.binding);
@@ -1087,8 +1088,10 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 					earlySeen = cs.insideEarlyConstructionContext;
 				}
 				outerScope = outerScope.parent;
-				if (outerScope instanceof MethodScope ms && ms.isStatic)
-					break;
+				if (outerScope instanceof MethodScope && ((MethodScope) outerScope).isStatic) {
+                    MethodScope ms = (MethodScope) outerScope;
+                    break;
+                }
 			}
 		}
 	}
@@ -1970,10 +1973,12 @@ protected ReferenceBinding updateWithAnnotations(TypeReference typeRef, Referenc
 		Map<ReferenceBinding, ReferenceBinding> outerUpdates, Map<ReferenceBinding, ReferenceBinding> updates)
 {
 	if (!TESTING_GH_2158
-			&& previousType instanceof ParameterizedTypeBinding previousPTB
-			&& previousPTB.original() instanceof SourceTypeBinding previousOriginal
-			&& previousOriginal.supertypeAnnotationsUpdated) {
-		// re-initialized parameterized type with updated annotations from the original:
+        && previousType instanceof ParameterizedTypeBinding
+        && ((ParameterizedTypeBinding) previousType).original() instanceof SourceTypeBinding
+        && ((SourceTypeBinding) ((ParameterizedTypeBinding) previousType).original()).supertypeAnnotationsUpdated) {
+        SourceTypeBinding previousOriginal = (SourceTypeBinding) ((ParameterizedTypeBinding) previousType).original();
+        ParameterizedTypeBinding previousPTB = (ParameterizedTypeBinding) previousType;
+        // re-initialized parameterized type with updated annotations from the original:
 		typeRef.resolvedType = this.scope.environment().createParameterizedType(previousOriginal,		// <- has been updated
 				previousPTB.arguments, previousType.enclosingType(), previousType.getAnnotations());	// <- no changes here
 	}

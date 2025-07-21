@@ -15,6 +15,43 @@ package org.eclipse.jdt.internal.compiler.util;
 
 public interface Tuples {
 
-	record Pair<T> (T left, T right) {}
+    static final class Pair<T> {
+        private final T left;
+        private final T right;
+
+        public Pair(T left, T right) {
+            this.left = left;
+            this.right = right;
+        }
+
+        public T left() {
+            return left;
+        }
+
+        public T right() {
+            return right;
+        }
+
+        @java.lang.Override
+        public boolean equals(java.lang.Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            var that = (Pair) obj;
+            return java.util.Objects.equals(this.left, that.left) &&
+                   java.util.Objects.equals(this.right, that.right);
+        }
+
+        @java.lang.Override
+        public int hashCode() {
+            return java.util.Objects.hash(left, right);
+        }
+
+        @java.lang.Override
+        public String toString() {
+            return "Pair[" +
+                   "left=" + left + ", " +
+                   "right=" + right + ']';
+        }
+    }
 
 }

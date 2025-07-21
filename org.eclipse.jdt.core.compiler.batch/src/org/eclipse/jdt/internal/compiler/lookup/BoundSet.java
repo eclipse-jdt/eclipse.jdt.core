@@ -1013,8 +1013,9 @@ class BoundSet {
 			if (result instanceof ConstraintFormula) {
 				if (!reduceOneConstraint(context, (ConstraintFormula) result))
 					return false;
-			} else if (result instanceof ConstraintFormula[] resultArray) {
-				for (ConstraintFormula formula : resultArray)
+			} else if (result instanceof ConstraintFormula[]) {
+                ConstraintFormula[] resultArray = (ConstraintFormula[]) result;
+                for (ConstraintFormula formula : resultArray)
 					if (!reduceOneConstraint(context, formula))
 						return false;
 			} else {

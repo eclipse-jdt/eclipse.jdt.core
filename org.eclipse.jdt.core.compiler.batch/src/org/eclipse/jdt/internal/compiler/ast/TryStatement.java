@@ -1012,8 +1012,9 @@ public void resolve(BlockScope upperScope) {
 	// special scope for secret locals optimization.
 	this.scope = new BlockScope(upperScope);
 
-	if (enclosingSwitchExpression(upperScope) instanceof SwitchExpression swich) {
-		swich.jvmStackVolatile = true; // ought to prepare for any raised exception blowing up the the operand stack to smithereens
+	if (enclosingSwitchExpression(upperScope) instanceof SwitchExpression) {
+        SwitchExpression swich = (SwitchExpression) enclosingSwitchExpression(upperScope);
+        swich.jvmStackVolatile = true; // ought to prepare for any raised exception blowing up the the operand stack to smithereens
 	}
 	BlockScope finallyScope = null;
     BlockScope resourceManagementScope = null; // Single scope to hold all resources and additional secret variables.

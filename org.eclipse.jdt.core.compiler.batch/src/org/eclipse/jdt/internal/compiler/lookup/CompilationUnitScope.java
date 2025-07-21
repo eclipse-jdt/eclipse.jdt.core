@@ -1168,9 +1168,10 @@ private int checkAndRecordImportBinding(
 					ImportBinding resolved = this.tempImports[j];
 					Binding resolvedImport = resolved.getResolvedImport();
 					if (resolved.isStatic()
-							&& resolvedImport instanceof ReferenceBinding type
-							&& importBinding != resolvedImport) {
-						if (CharOperation.equals(compoundName[compoundName.length - 1], resolved.compoundName[resolved.compoundName.length - 1])) {
+                        && resolvedImport instanceof ReferenceBinding
+                        && importBinding != resolvedImport) {
+                        ReferenceBinding type = (ReferenceBinding) resolvedImport;
+                        if (CharOperation.equals(compoundName[compoundName.length - 1], resolved.compoundName[resolved.compoundName.length - 1])) {
 							resolved.setResolvedImport(new ProblemReferenceBinding(new char[][] { name }, type, ProblemReasons.Ambiguous));
 							return -1;
 						}
@@ -1187,9 +1188,10 @@ private int checkAndRecordImportBinding(
 			// find other static fields with the same name
 			Binding resolvedImport = resolved.getResolvedImport();
 			if (resolved.isStatic()
-					&& resolvedImport instanceof FieldBinding field
-					&& importBinding != resolvedImport) {
-				if (CharOperation.equals(name, resolved.compoundName[resolved.compoundName.length - 1])) {
+                && resolvedImport instanceof FieldBinding
+                && importBinding != resolvedImport) {
+                FieldBinding field = (FieldBinding) resolvedImport;
+                if (CharOperation.equals(name, resolved.compoundName[resolved.compoundName.length - 1])) {
 					if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8) {
 						// 7.5.3 says nothing about collision of single static imports and JDK8 tolerates them, though use is flagged.
 						resolved.setResolvedImport(new ProblemFieldBinding(field, field.declaringClass, name, ProblemReasons.Ambiguous));

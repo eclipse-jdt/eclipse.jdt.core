@@ -97,11 +97,13 @@ public class ReadManager {
 			return getWhileInterrupted(unit);
 		} catch (ExecutionException e) {
 			// rethrow the caught exception from the reading threads in the main compiler thread
-			if (e.getCause() instanceof Error err) {
-				throw err;
+			if (e.getCause() instanceof Error) {
+                Error err = (Error) e.getCause();
+                throw err;
 			}
-			if (e.getCause() instanceof RuntimeException ex) {
-				throw ex;
+			if (e.getCause() instanceof RuntimeException) {
+                RuntimeException ex = (RuntimeException) e.getCause();
+                throw ex;
 			}
 			throw new RuntimeException(e);
 		}

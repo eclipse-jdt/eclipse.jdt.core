@@ -145,8 +145,9 @@ public class RecordPattern extends Pattern {
 		for (int i = 0; i < components.length; i++) {
 			Pattern p1 = this.patterns[i];
 			RecordComponentBinding componentBinding = components[i];
-			if (p1 instanceof TypePattern tp) {
-				if (tp.getType() == null || tp.getType().isTypeNameVar(scope)) {
+			if (p1 instanceof TypePattern) {
+                TypePattern tp = (TypePattern) p1;
+                if (tp.getType() == null || tp.getType().isTypeNameVar(scope)) {
 					if (tp.local.binding != null) // rewrite with the inferred type
 						tp.local.binding.type = componentBinding.type;
 				}
@@ -264,7 +265,7 @@ public class RecordPattern extends Pattern {
 					if (current.index != outer.patterns.length - 1)
 						pops++;
 					current = outer;
-					outer = outer.getEnclosingPattern() instanceof RecordPattern rp ? rp : null;
+					outer = outer.getEnclosingPattern() instanceof RecordPattern ? (RecordPattern) outer.getEnclosingPattern() : null;
 				}
 				while (pops > 1) {
 					codeStream.pop2();

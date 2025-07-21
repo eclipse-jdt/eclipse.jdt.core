@@ -60,8 +60,58 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 @SuppressWarnings("rawtypes")
 public class SwitchStatement extends Expression {
 
-	/** Descriptor for a bootstrap method that is created only once but can be used more than once. */
-	public static record SingletonBootstrap(String id, char[] selector, char[] signature) { }
+    /**
+     * Descriptor for a bootstrap method that is created only once but can be used more than once.
+     */
+    public static final class SingletonBootstrap {
+        private final String id;
+        private final char[] selector;
+        private final char[] signature;
+
+        /**
+         *
+         */
+        public SingletonBootstrap(String id, char[] selector, char[] signature) {
+            this.id = id;
+            this.selector = selector;
+            this.signature = signature;
+        }
+
+        public String id() {
+            return id;
+        }
+
+        public char[] selector() {
+            return selector;
+        }
+
+        public char[] signature() {
+            return signature;
+        }
+
+        @java.lang.Override
+        public boolean equals(java.lang.Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            var that = (SingletonBootstrap) obj;
+            return java.util.Objects.equals(this.id, that.id) &&
+                   java.util.Objects.equals(this.selector, that.selector) &&
+                   java.util.Objects.equals(this.signature, that.signature);
+        }
+
+        @java.lang.Override
+        public int hashCode() {
+            return java.util.Objects.hash(id, selector, signature);
+        }
+
+        @java.lang.Override
+        public String toString() {
+            return "SingletonBootstrap[" +
+                   "id=" + id + ", " +
+                   "selector=" + selector + ", " +
+                   "signature=" + signature + ']';
+        }
+    }
 	/** represents {@link ConstantBootstraps#primitiveClass(java.lang.invoke.MethodHandles.Lookup, String, Class)}*/
 	public static final SingletonBootstrap PRIMITIVE_CLASS__BOOTSTRAP = new SingletonBootstrap(
 			CONSTANT_BOOTSTRAP__PRIMITIVE_CLASS, PRIMITIVE_CLASS, PRIMITIVE_CLASS__SIGNATURE);
@@ -367,8 +417,9 @@ public class SwitchStatement extends Expression {
 					availableTypes.add(child.type);
 				}
 			}
-			if (node.type instanceof ReferenceBinding ref && ref.isSealed()) {
-				this.covers &= caseElementsCoverSealedType(ref, availableTypes);
+			if (node.type instanceof ReferenceBinding && ((ReferenceBinding) node.type).isSealed()) {
+                ReferenceBinding ref = (ReferenceBinding) node.type;
+                this.covers &= caseElementsCoverSealedType(ref, availableTypes);
 				return this.covers;
 			}
 			this.covers = false;
@@ -381,8 +432,9 @@ public class SwitchStatement extends Expression {
 				return BREAKING;
 			if (!stmt.canCompleteNormally())
 				return BREAKING;
-			if (stmt instanceof Block block) {
-				BreakStatement breakStatement = new BreakStatement(null, block.sourceEnd -1, block.sourceEnd);
+			if (stmt instanceof Block) {
+                Block block = (Block) stmt;
+                BreakStatement breakStatement = new BreakStatement(null, block.sourceEnd -1, block.sourceEnd);
 				breakStatement.isSynthetic = true; // suppress dead code flagging - codegen will not generate dead code anyway
 				int length = block.statements == null ? 0 : block.statements.length;
 				if (length == 0) {
@@ -1139,14 +1191,17 @@ public class SwitchStatement extends Expression {
 				for (int i = 0; i < length; i++) {
 					ResolvedCase[] constantsList;
 					final Statement statement = this.statements[i];
-					if (statement instanceof CaseStatement caseStmt) {
-						caseNullDefaultFound |= isCaseStmtNullDefault(caseStmt);
+					if (statement instanceof CaseStatement) {
+                        CaseStatement caseStmt = (CaseStatement) statement;
+                        caseNullDefaultFound |= isCaseStmtNullDefault(caseStmt);
 						defaultFound |= caseStmt.constantExpressions == Expression.NO_EXPRESSIONS;
 						constantsList = caseStmt.resolveCase(this.scope, expressionType, this);
 						patternVariables = statement.bindingsWhenTrue();
 						for (ResolvedCase c : constantsList) {
-							if (c.e instanceof Pattern p && p.isTotalTypeNode && p.isUnguarded)
-								aTotalPattern = p;
+							if (c.e instanceof Pattern && ((Pattern) c.e).isTotalTypeNode && ((Pattern) c.e).isUnguarded) {
+                                Pattern p = (Pattern) c.e;
+                                aTotalPattern = p;
+                            }
 							Constant con = c.c;
 							if (con == Constant.NotAConstant)
 								continue;
@@ -1336,8 +1391,9 @@ public class SwitchStatement extends Expression {
 			}
 			for (int j = 0; j < constantCount; j++) {
 				if (TypeBinding.equalsEquals(this.otherConstants[j].e.resolvedType, enumType)) {
-					if (this.otherConstants[j].e instanceof NameReference reference) {
-						FieldBinding field = reference.fieldBinding();
+					if (this.otherConstants[j].e instanceof NameReference) {
+                        NameReference reference = (NameReference) this.otherConstants[j].e;
+                        FieldBinding field = reference.fieldBinding();
 						int intValue = field.original().id + 1;
 						if ((enumConstant.id + 1) == intValue) { // zero should not be returned see bug 141810
 							unenumerated.remove(enumConstant);

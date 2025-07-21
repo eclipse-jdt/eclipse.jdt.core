@@ -192,8 +192,9 @@ void analyseOneArgument18(BlockScope currentScope, FlowContext flowContext, Flow
 		ce.internalAnalyseOneArgument18(currentScope, flowContext, expectedType, ce.valueIfTrue, flowInfo, ce.ifTrueNullStatus, expectedNonNullness, originalExpected);
 		ce.internalAnalyseOneArgument18(currentScope, flowContext, expectedType, ce.valueIfFalse, flowInfo, ce.ifFalseNullStatus, expectedNonNullness, originalExpected);
 		return;
-	} else 	if (argument instanceof SwitchExpression se && se.isPolyExpression()) {
-		for (Expression rExpression : se.resultExpressions()) {
+	} else 	if (argument instanceof SwitchExpression && ((SwitchExpression) argument).isPolyExpression()) {
+        SwitchExpression se = (SwitchExpression) argument;
+        for (Expression rExpression : se.resultExpressions()) {
 			se.internalAnalyseOneArgument18(currentScope, flowContext, expectedType,
 					rExpression, flowInfo,
 					rExpression.nullStatus(flowInfo, flowContext), expectedNonNullness, originalExpected);
@@ -258,8 +259,9 @@ protected void checkAgainstNullTypeAnnotation(BlockScope scope, TypeBinding requ
 		internalCheckAgainstNullTypeAnnotation(scope, requiredType, ce.valueIfTrue, ce.ifTrueNullStatus, flowContext, flowInfo);
 		internalCheckAgainstNullTypeAnnotation(scope, requiredType, ce.valueIfFalse, ce.ifFalseNullStatus, flowContext, flowInfo);
 		return;
-	} else 	if (expression instanceof SwitchExpression se && se.isPolyExpression()) {
-		for (Expression rExpression : se.resultExpressions()) {
+	} else 	if (expression instanceof SwitchExpression && ((SwitchExpression) expression).isPolyExpression()) {
+        SwitchExpression se = (SwitchExpression) expression;
+        for (Expression rExpression : se.resultExpressions()) {
 			internalCheckAgainstNullTypeAnnotation(scope, requiredType,
 					rExpression,
 					rExpression.nullStatus(flowInfo, flowContext), flowContext, flowInfo);
@@ -287,7 +289,7 @@ private void internalCheckAgainstNullTypeAnnotation(BlockScope scope, TypeBindin
  * Returns the immediately enclosing switch expression (carried by closest blockScope),
  */
 public SwitchExpression enclosingSwitchExpression(Scope current) {
-	boolean implicitYield = this instanceof YieldStatement yield && yield.isImplicit;
+	boolean implicitYield = this instanceof YieldStatement && ((YieldStatement) this).isImplicit;
 	do {
 		switch(current.kind) {
 			case Scope.METHOD_SCOPE :
@@ -298,8 +300,10 @@ public SwitchExpression enclosingSwitchExpression(Scope current) {
 			case Scope.BLOCK_SCOPE: {
 				BlockScope bs = (BlockScope) current;
 				if (bs.enclosingCase != null) {
-					if (bs.enclosingCase.swich instanceof SwitchExpression se)
-						return se;
+					if (bs.enclosingCase.swich instanceof SwitchExpression) {
+                        SwitchExpression se = (SwitchExpression) bs.enclosingCase.swich;
+                        return se;
+                    }
 					if (implicitYield)
 						return null; // do not ascend to enclosing: implicit yield always binds to closest switch{expression|statement}
 				}

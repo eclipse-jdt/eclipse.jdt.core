@@ -1265,11 +1265,12 @@ public AbstractMethodDeclaration sourceMethod() {
 	if (isSynthetic()) {
 		return null;
 	}
-	if (!(this.declaringClass instanceof SourceTypeBinding sourceType)) {
+	if (!(this.declaringClass instanceof SourceTypeBinding)) {
 		return null;
 	}
+    SourceTypeBinding sourceType = (SourceTypeBinding) this.declaringClass;
 
-	AbstractMethodDeclaration[] methods = sourceType.scope != null ? sourceType.scope.referenceContext.methods : null;
+    AbstractMethodDeclaration[] methods = sourceType.scope != null ? sourceType.scope.referenceContext.methods : null;
 	if (methods != null) {
 		for (int i = methods.length; --i >= 0;)
 			if (this == methods[i].binding)

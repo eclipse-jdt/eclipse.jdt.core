@@ -592,8 +592,9 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 					this.scope.problemReporter().shouldReturn(returnTypeBinding, this);
 				}
 			}
-		} else if (this.body instanceof Expression expression ){
-			if (lambdaInfo.reachMode() == FlowInfo.REACHABLE) {
+		} else if (this.body instanceof Expression){
+            Expression expression = (Expression) this.body;
+            if (lambdaInfo.reachMode() == FlowInfo.REACHABLE) {
 				CompilerOptions compilerOptions = currentScope.compilerOptions();
 				if (compilerOptions.isAnnotationBasedNullAnalysisEnabled) {
 					checkAgainstNullAnnotation(flowContext, expression, flowInfo, expression.nullStatus(lambdaInfo, flowContext));

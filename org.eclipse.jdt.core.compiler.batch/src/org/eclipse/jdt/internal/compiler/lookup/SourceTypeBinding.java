@@ -3091,8 +3091,9 @@ public ReferenceBinding setSuperClass(ReferenceBinding superClass) {
 			annotatedType.superclass = superClass;
 		}
 	}
-	if (superClass != null && superClass.actualType() instanceof SourceTypeBinding sourceSuperType && sourceSuperType.isSealed() && sourceSuperType.scope.referenceContext.permittedTypes == null) {
-		sourceSuperType.setImplicitPermittedType(this);
+	if (superClass != null && superClass.actualType() instanceof SourceTypeBinding && ((SourceTypeBinding) superClass.actualType()).isSealed() && ((SourceTypeBinding) superClass.actualType()).scope.referenceContext.permittedTypes == null) {
+        SourceTypeBinding sourceSuperType = (SourceTypeBinding) superClass.actualType();
+        sourceSuperType.setImplicitPermittedType(this);
 		if (this.isAnonymousType() && superClass.isEnum())
 			this.modifiers |= ClassFileConstants.AccFinal;
 	}
@@ -3114,8 +3115,9 @@ public ReferenceBinding [] setSuperInterfaces(ReferenceBinding [] superInterface
 	}
 	for (int i = 0, length = superInterfaces == null ? 0 : superInterfaces.length; i < length; i++) {
 		ReferenceBinding superInterface = superInterfaces[i];
-		if (superInterface.actualType() instanceof SourceTypeBinding sourceSuperType && sourceSuperType.isSealed() && sourceSuperType.scope.referenceContext.permittedTypes == null) {
-			sourceSuperType.setImplicitPermittedType(this);
+		if (superInterface.actualType() instanceof SourceTypeBinding && ((SourceTypeBinding) superInterface.actualType()).isSealed() && ((SourceTypeBinding) superInterface.actualType()).scope.referenceContext.permittedTypes == null) {
+            SourceTypeBinding sourceSuperType = (SourceTypeBinding) superInterface.actualType();
+            sourceSuperType.setImplicitPermittedType(this);
 		}
 	}
 	return this.superInterfaces = superInterfaces;

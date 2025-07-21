@@ -1158,10 +1158,11 @@ public abstract class Scope {
 		Scope scope = this;
 		while (true) {
 			scope = scope.parent;
-			if (scope == null || scope instanceof MethodScope ms && ms.isStatic) {
+			if (scope == null || scope instanceof MethodScope && ((MethodScope) scope).isStatic) {
 				return null;
-			} else if (scope instanceof ClassScope cs) {
-				return cs;
+			} else if (scope instanceof ClassScope) {
+                ClassScope cs = (ClassScope) scope;
+                return cs;
 			}
 		}
 	}
@@ -2136,8 +2137,10 @@ public abstract class Scope {
 										variableDeclaration.bits |= ASTNode.ShadowsOuterLocal;
 									}
 								}
-								if (resolvingGuardExpression && invocationSite instanceof NameReference nameReference)
-									nameReference.bits |= ASTNode.IsUsedInPatternGuard;
+								if (resolvingGuardExpression && invocationSite instanceof NameReference) {
+                                    NameReference nameReference = (NameReference) invocationSite;
+                                    nameReference.bits |= ASTNode.IsUsedInPatternGuard;
+                                }
 								return variableBinding;
 							}
 							break;
@@ -2166,9 +2169,9 @@ public abstract class Scope {
 									if (fieldBinding.isValidBinding()) {
 										if (!fieldBinding.isStatic()) {
 											if (insideConstructorCall) {
-												if (invocationSite instanceof ASTNode node
-														&& (node.bits & ASTNode.IsStrictlyAssigned) != 0
-														&& JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(compilerOptions())) {
+												if (invocationSite instanceof ASTNode
+                                                    && (((ASTNode) invocationSite).bits & ASTNode.IsStrictlyAssigned) != 0
+                                                    && JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(compilerOptions())) {
 													// enablement check for assignment deferred to Reference.checkFieldAccessInEarlyConstructionContext()
 												} else if (!JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(compilerOptions())) {
 													insideProblem =
@@ -2264,9 +2267,10 @@ public abstract class Scope {
 							if (importBinding.isStatic() && !importBinding.onDemand) {
 								if (CharOperation.equals(importBinding.getSimpleName(), name)) {
 									if (unitScope.resolveSingleImport(importBinding, Binding.TYPE | Binding.FIELD | Binding.METHOD) != null
-											&& importBinding.getResolvedImport() instanceof FieldBinding resolvedField)
+                                        && importBinding.getResolvedImport() instanceof FieldBinding)
 									{
-										foundField = resolvedField;
+                                        FieldBinding resolvedField = (FieldBinding) importBinding.getResolvedImport();
+                                        foundField = resolvedField;
 										ImportReference importReference = importBinding.reference;
 										if (importReference != null && needResolve) {
 											importReference.bits |= ASTNode.Used;
@@ -3819,8 +3823,10 @@ public abstract class Scope {
 	public CaseStatement enclosingSwitchLabel() {
 		Scope scope = this;
 		do {
-			if (scope instanceof BlockScope bs)
-				return bs.enclosingCase;
+			if (scope instanceof BlockScope) {
+                BlockScope bs = (BlockScope) scope;
+                return bs.enclosingCase;
+            }
 			scope = scope.parent;
 		} while (scope != null);
 		return null;
@@ -5765,7 +5771,7 @@ public abstract class Scope {
 							break;
 					}
 					if (!considerEnclosings
-							|| (currentTarget instanceof ReferenceBinding currentRefBind && !currentRefBind.hasEnclosingInstanceContext())) {
+							|| (currentTarget instanceof ReferenceBinding && !((ReferenceBinding) currentTarget).hasEnclosingInstanceContext())) {
 						break;
 					}
 					if (currentTarget.isStatic() || currentTarget.isLocalType())
@@ -5787,8 +5793,9 @@ public abstract class Scope {
 		List<ClassScope> list = null;
 		Scope skope = this;
 		while (skope != null) {
-			if (skope instanceof ClassScope cs && cs.insideEarlyConstructionContext) {
-				if (list == null)
+			if (skope instanceof ClassScope && ((ClassScope) skope).insideEarlyConstructionContext) {
+                ClassScope cs = (ClassScope) skope;
+                if (list == null)
 					list = new ArrayList<>();
 				list.add(cs);
 			}

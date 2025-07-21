@@ -935,8 +935,9 @@ public TypeBinding resolveType(BlockScope scope) {
 		return null;
 	}
 
-	if (this.receiver instanceof CastExpression castedRecevier) {
-		// this check was suppressed while resolving receiver, check now based on the resolved method
+	if (this.receiver instanceof CastExpression) {
+        CastExpression castedRecevier = (CastExpression) this.receiver;
+        // this check was suppressed while resolving receiver, check now based on the resolved method
 		if (isUnnecessaryReceiverCast(scope, castedRecevier.expression.resolvedType))
 			scope.problemReporter().unnecessaryCast(castedRecevier);
 	}
@@ -986,8 +987,9 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 		}
 		if (this.actualReceiverType != null && scope.isInsideEarlyConstructionContext(this.actualReceiverType, true) &&
-				(this.receiver instanceof ThisReference thisReference && thisReference.isImplicitThis())) {
-			scope.problemReporter().messageSendInEarlyConstructionContext(this);
+				(this.receiver instanceof ThisReference && ((ThisReference) this.receiver).isImplicitThis())) {
+            ThisReference thisReference = (ThisReference) this.receiver;
+            scope.problemReporter().messageSendInEarlyConstructionContext(this);
 		}
 	} else {
 		// static message invoked through receiver? legal but unoptimal (optional warning).

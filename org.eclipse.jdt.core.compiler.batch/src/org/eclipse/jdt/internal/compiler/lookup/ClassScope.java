@@ -641,8 +641,9 @@ public class ClassScope extends Scope {
 			    	// 8.1.1.4 local enum classes are implicitly static - we can't trust isLocalType() which answers true for all anonymous types.
 			    	Scope scope = this;
 					while ((scope = scope.parent) != null) {
-						if (scope instanceof MethodScope methodScope) {
-							if (methodScope.referenceContext instanceof TypeDeclaration)
+						if (scope instanceof MethodScope) {
+                            MethodScope methodScope = (MethodScope) scope;
+                            if (methodScope.referenceContext instanceof TypeDeclaration)
 								continue;
 							modifiers |= ClassFileConstants.AccStatic;
 							break;

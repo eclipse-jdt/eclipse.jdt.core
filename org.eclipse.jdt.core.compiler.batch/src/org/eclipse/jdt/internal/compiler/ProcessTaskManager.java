@@ -80,8 +80,9 @@ public class ProcessTaskManager implements AutoCloseable {
 				if (next == null) {
 					next = this.units.take();
 				}
-				while (next instanceof CompilationUnitDeclaration cu) {
-					elements.add(cu);
+				while (next instanceof CompilationUnitDeclaration) {
+                    CompilationUnitDeclaration cu = (CompilationUnitDeclaration) next;
+                    elements.add(cu);
 					// optionally read more elements if already available:
 					next = this.units.poll();
 				}
@@ -95,11 +96,13 @@ public class ProcessTaskManager implements AutoCloseable {
 			} catch (InterruptedException interrupt) {
 				throw new AbortCompilation(true/* silent */, new RuntimeException(interrupt));
 			}
-			if (next instanceof Error error) {
-				throw error;
+			if (next instanceof Error) {
+                Error error = (Error) next;
+                throw error;
 			}
-			if (next instanceof RuntimeException runtimeException) {
-				throw runtimeException;
+			if (next instanceof RuntimeException) {
+                RuntimeException runtimeException = (RuntimeException) next;
+                throw runtimeException;
 			}
 			if (next == STOP_SIGNAL) {
 				return Collections.emptyList();
