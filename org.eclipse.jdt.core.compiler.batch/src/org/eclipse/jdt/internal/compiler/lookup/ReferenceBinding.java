@@ -2332,9 +2332,8 @@ private MethodBinding[] getFunctionalInterfaceAbstractContracts(Scope scope, boo
 	boolean isAnnotationBasedNullAnalysisEnabled = environment.globalOptions.isAnnotationBasedNullAnalysisEnabled;
 	MethodBinding samCandidate = null;
 
-	MethodBinding[] methods = collateFunctionalInterfaceContracts(scope, replaceWildcards)
+	MethodBinding[] methods = collateFunctionalInterfaceContracts(scope, replaceWildcards, new HashSet<>())
 		.sorted((m1, m2) -> CharOperation.compareTo(m1.selector, m2.selector))
-		.distinct()
 		.toArray(MethodBinding []::new);
 
 	for (int i = 0, length = methods.length; i < length; i++) {
@@ -2360,7 +2359,7 @@ private MethodBinding[] getFunctionalInterfaceAbstractContracts(Scope scope, boo
 	return Arrays.stream(methods).filter(m -> m != null && m.isAbstract()).toArray(MethodBinding []::new);
 }
 
-protected Stream<MethodBinding> collateFunctionalInterfaceContracts(Scope scope, boolean replaceWildcards) throws DysfunctionalInterfaceException {
+protected Stream<MethodBinding> collateFunctionalInterfaceContracts(Scope scope, boolean replaceWildcards, Set<ReferenceBinding> visitedInterfaces) throws DysfunctionalInterfaceException {
 
 	if (!isInterface() || !isValidBinding())
 		throw DYSFUNCTIONAL_INTERFACE_EXCEPTION;
@@ -2374,7 +2373,7 @@ protected Stream<MethodBinding> collateFunctionalInterfaceContracts(Scope scope,
 	};
 
 	return Stream.concat( //
-			Arrays.stream(superInterfaces()).flatMap(superInterface -> superInterface.collateFunctionalInterfaceContracts(scope, replaceWildcards)), //
+			Arrays.stream(superInterfaces()).filter(iface->visitedInterfaces.add(iface)).flatMap(superInterface -> superInterface.collateFunctionalInterfaceContracts(scope, replaceWildcards, visitedInterfaces)), //
 			Arrays.stream(methods()).filter(isContractual)
 	);
 }

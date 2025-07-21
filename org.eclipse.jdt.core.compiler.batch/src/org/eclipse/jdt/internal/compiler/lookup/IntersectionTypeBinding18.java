@@ -69,9 +69,9 @@ public class IntersectionTypeBinding18 extends ReferenceBinding {
 	}
 
 	@Override
-	protected Stream<MethodBinding> collateFunctionalInterfaceContracts(Scope scope, boolean replaceWildcards) throws DysfunctionalInterfaceException {
+	protected Stream<MethodBinding> collateFunctionalInterfaceContracts(Scope scope, boolean replaceWildcards, Set<ReferenceBinding> visitedInterfaces) throws DysfunctionalInterfaceException {
 		return Arrays.stream(this.intersectingTypes).flatMap( //
-						intersectingType -> intersectingType.collateFunctionalInterfaceContracts(scope, replaceWildcards) //
+						intersectingType -> intersectingType.collateFunctionalInterfaceContracts(scope, replaceWildcards, visitedInterfaces) //
 		);
 	}
 
