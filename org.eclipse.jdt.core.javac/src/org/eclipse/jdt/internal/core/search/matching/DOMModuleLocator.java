@@ -54,6 +54,9 @@ public class DOMModuleLocator extends DOMPatternLocator {
 		if (binding instanceof IModuleBinding mod && matchesName(mod.getName().toCharArray(), pattern.name)) {
 			return toResponse(ACCURATE_MATCH);
 		}
+		if (binding == null) {
+			return toResponse(ACCURATE_MATCH);
+		}
 		return toResponse(IMPOSSIBLE_MATCH);
 	}
 }
