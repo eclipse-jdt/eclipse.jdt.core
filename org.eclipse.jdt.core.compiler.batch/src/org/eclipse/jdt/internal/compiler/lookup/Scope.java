@@ -454,7 +454,12 @@ public abstract class Scope {
 						TypeBinding[] bounds = new TypeBinding[numTypeArgs];
 						for (int k = 0; k < numTypeArgs; k++) {
 							TypeBinding argument = wideType.arguments[k];
-							bounds[k] = argument.isTypeVariable() ? ((TypeVariableBinding)argument).upperBound() : argument;
+							bounds[k] = argument;
+							if (argument instanceof TypeVariableBinding typeVar) {
+								TypeBinding upperBound = typeVar.upperBound();
+								if (upperBound != null) // null may occur when invoked during CaptureBinding.initializeBounds()
+									bounds[k] = upperBound;
+							}
 						}
 						ReferenceBinding wideOriginal = (ReferenceBinding) wideType.original();
 						TypeBinding substitutedWideType =

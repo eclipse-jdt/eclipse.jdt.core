@@ -6782,5 +6782,94 @@ public void testGH4214() {
 		"""
 	});
 }
+public void testGH4235() {
+	runConformTest(new String[] {
+			"repro/AssertJStubs.java",
+			"""
+			package repro;
+			import java.util.List;
+			public class AssertJStubs {
+				interface Descriptable<SELF> {}
+				interface ExtensionPoints<SELF extends ExtensionPoints<SELF, ACTUAL>, ACTUAL> {}
+
+				public interface Assert<SELF extends Assert<SELF, ACTUAL>, ACTUAL> extends Descriptable<SELF>, ExtensionPoints<SELF, ACTUAL> { }
+				public static abstract class AbstractAssert<SELF extends AbstractAssert<SELF, ACTUAL>, ACTUAL> implements Assert<SELF, ACTUAL> {
+					protected ACTUAL actual;
+					protected SELF myself;
+				}
+				interface AssertFactory<T, ASSERT extends Assert<?, ?>> {
+					  ASSERT createAssert(T actual);
+				}
+
+				public static class FactoryBasedNavigableListAssert<SELF extends FactoryBasedNavigableListAssert<SELF, ACTUAL, ELEMENT, ELEMENT_ASSERT>,
+				    											ACTUAL extends List<? extends ELEMENT>,
+				    											ELEMENT,
+				    											ELEMENT_ASSERT extends AbstractAssert<ELEMENT_ASSERT, ELEMENT>>
+					extends AbstractAssert<SELF, ACTUAL> {
+					public boolean isEmpty() { return true; }
+				}
+
+				public static class Assertions {
+					public static <ACTUAL extends List<? extends ELEMENT>, ELEMENT, ELEMENT_ASSERT extends AbstractAssert<ELEMENT_ASSERT, ELEMENT>>
+					FactoryBasedNavigableListAssert<?, ACTUAL, ELEMENT, ELEMENT_ASSERT> assertThat(List<? extends ELEMENT> actual,
+							AssertFactory<ELEMENT, ELEMENT_ASSERT> assertFactory) {
+						return null;
+					}
+				}
+			}
+			""",
+			"repro/SourceType.java",
+			"""
+			package repro;
+			import java.util.List;
+
+			public interface SourceType {
+				List<TargetType> getTargets();
+			}
+			""",
+			"repro/SourceTypeAssert.java",
+			"""
+			package repro;
+			import java.util.List;
+			import repro.AssertJStubs.*;
+
+			public class SourceTypeAssert extends AbstractAssert<SourceTypeAssert, SourceType> {
+				protected SourceTypeAssert(SourceType actual, Class<?> selfType) {
+				}
+				public final FactoryBasedNavigableListAssert<?, List<? extends TargetType>, TargetType, ? extends AbstractTargetTypeAssert<?>> targets() {
+					return Assertions.assertThat(actual.getTargets(), TargetTypeAssert::new);
+				}
+				public final SourceTypeAssert hasNoTargets() {
+					targets().isEmpty();
+					return myself;
+				}
+			}
+			""",
+			"repro/TargetType.java",
+			"""
+			package repro;
+			public interface TargetType { }
+			""",
+			"repro/AbstractTargetTypeAssert.java",
+			"""
+			package repro;
+			import repro.AssertJStubs.AbstractAssert;
+
+			public abstract class AbstractTargetTypeAssert<S extends AbstractTargetTypeAssert<S>> extends AbstractAssert<S, TargetType> {
+				protected AbstractTargetTypeAssert(TargetType actual, Class<?> selfType) {
+				}
+			}
+			""",
+			"repro/TargetTypeAssert.java",
+			"""
+			package repro;
+			public class TargetTypeAssert extends AbstractTargetTypeAssert<TargetTypeAssert> {
+				protected TargetTypeAssert(TargetType actual) {
+					super(actual, TargetTypeAssert.class);
+				}
+			}
+			"""
+		});
+}
 }
 
