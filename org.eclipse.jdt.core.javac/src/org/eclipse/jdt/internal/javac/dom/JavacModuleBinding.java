@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.javac.dom;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -18,6 +19,7 @@ import javax.lang.model.element.ModuleElement.DirectiveKind;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -100,11 +102,21 @@ public abstract class JavacModuleBinding implements IModuleBinding {
 	@Override
 	public IJavaElement getJavaElement() {
 		try {
-			return this.resolver.javaProject.findModule(getName(), this.resolver.getWorkingCopyOwner());
+			var res = this.resolver.javaProject.findModule(getName(), this.resolver.getWorkingCopyOwner());
+			if (res != null) {
+				return res;
+			}
+			// module not in module path, try looking up project model
+			return Arrays.stream(this.resolver.javaProject.getAllPackageFragmentRoots())
+				.map(IPackageFragmentRoot::getModuleDescription)
+				.filter(Objects::nonNull)
+				.filter(module -> Objects.equals(getName(), module.getElementName()))
+				.findAny()
+				.orElse(null);
 		} catch (JavaModelException e) {
 			ILog.get().error(e.getMessage(), e);
-			return null;
 		}
+		return null;
 	}
 
 	@Override
