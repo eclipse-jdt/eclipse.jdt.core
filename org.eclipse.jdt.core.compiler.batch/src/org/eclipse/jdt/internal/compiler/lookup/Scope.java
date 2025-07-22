@@ -428,50 +428,6 @@ public abstract class Scope {
 					}
 					result[j] = null;
 					removed ++;
-				} else if (!jType.isCompatibleWith(iType, scope)) {
-					// avoid creating unsatisfiable intersection types (see https://bugs.eclipse.org/405706):
-					if (iType.isParameterizedType() && jType.isParameterizedType()) {
-						// if the wider of the two types (judged by originals) has type variables
-						// substitute those with their upper bounds and re-check (see https://bugs.eclipse.org/413958):
-						ParameterizedTypeBinding wideType, narrowType;
-						if (iType.original().isCompatibleWith(jType.original(), scope)) {
-							wideType = (ParameterizedTypeBinding) jType;
-							narrowType = (ParameterizedTypeBinding) iType;
-						} else if (jType.original().isCompatibleWith(iType.original(), scope)) {
-							wideType = (ParameterizedTypeBinding) iType;
-							narrowType = (ParameterizedTypeBinding) jType;
-						} else {
-							continue;
-						}
-						if (wideType.arguments == null)
-							continue; // assume we already have an error here
-						// Skip the following check if inference variables or CaptureBinding18 are involved,
-						// hopefully during inference a contradictory glb will simply not produce a solution
-						// (should essentially be detected beforehand in CaptureBinding18.setUpperBounds()):
-						if (!narrowType.isProperType(false) || !wideType.isProperType(false))
-							continue;
-						int numTypeArgs = wideType.arguments.length;
-						TypeBinding[] bounds = new TypeBinding[numTypeArgs];
-						for (int k = 0; k < numTypeArgs; k++) {
-							TypeBinding argument = wideType.arguments[k];
-							bounds[k] = argument;
-							if (argument instanceof TypeVariableBinding typeVar) {
-								TypeBinding upperBound = typeVar.upperBound();
-								if (upperBound != null) // null may occur when invoked during CaptureBinding.initializeBounds()
-									bounds[k] = upperBound;
-							}
-						}
-						ReferenceBinding wideOriginal = (ReferenceBinding) wideType.original();
-						TypeBinding substitutedWideType =
-								environment.createParameterizedType(wideOriginal, bounds, wideOriginal.enclosingType());
-						// if the narrow type is compatible with the substituted wide type, we keep silent,
-						// substituting type variables with proper types can still satisfy all constraints,
-						// otherwise ...
-						if (!narrowType.isCompatibleWith(substitutedWideType, scope)) {
-							// ... parameterized types are incompatible due to incompatible type arguments => unsatisfiable
-							return null;
-						}
-					}
 				}
 			}
 		}
