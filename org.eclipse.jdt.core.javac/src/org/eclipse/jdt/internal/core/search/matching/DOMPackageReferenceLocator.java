@@ -10,18 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import java.util.Arrays;
-
-import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
-import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.Name;
-import org.eclipse.jdt.core.dom.NameQualifiedType;
-import org.eclipse.jdt.core.dom.QualifiedName;
-import org.eclipse.jdt.core.dom.QualifiedType;
-import org.eclipse.jdt.core.dom.SimpleType;
-import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.internal.core.search.LocatorResponse;
 
 public class DOMPackageReferenceLocator extends DOMPatternLocator {
@@ -34,45 +25,8 @@ public class DOMPackageReferenceLocator extends DOMPatternLocator {
 	}
 
 	@Override
-	public LocatorResponse match(org.eclipse.jdt.core.dom.Annotation node, NodeSetWrapper nodeSet, MatchLocator locator) {
-		return match(node.getTypeName(), nodeSet, locator);
-	}
-
-	@Override
-	public LocatorResponse match(org.eclipse.jdt.core.dom.ASTNode node, NodeSetWrapper nodeSet, MatchLocator locator) {
-		// interested in ImportReference
-		if (node instanceof ImportDeclaration decl) {
-			return match(decl.getName(), nodeSet, locator);
-		}
-		return toResponse(IMPOSSIBLE_MATCH);
-	}
-
-	@Override
 	public LocatorResponse match(Name node, NodeSetWrapper nodeSet, MatchLocator locator) {
-		// interested in QualifiedNameReference
-		char[][] arr = Arrays.stream(node.getFullyQualifiedName().split("\\.")).map(String::toCharArray) //$NON-NLS-1$
-				.toArray(char[][]::new);
-		int level = nodeSet.addMatch(node, this.locator.matchLevelForTokens(arr));
-		return toResponse(level, true);
-	}
-
-	@Override
-	public LocatorResponse match(Type node, NodeSetWrapper nodeSet, MatchLocator locator) { // interested in QualifiedTypeReference
-																					// only
-		if (node instanceof ArrayType att) {
-			return match(att.getElementType(), nodeSet, locator);
-		}
-		Name typePkg = null;
-		if (node instanceof SimpleType stt) {
-			Name n = stt.getName();
-			typePkg = n instanceof QualifiedName qn ? qn.getQualifier() : n;
-		} else if (node instanceof QualifiedType qt3) {
-			Type t1 = qt3.getQualifier();
-			typePkg = t1 instanceof SimpleType sttt ? sttt.getName() : null;
-		} else if (node instanceof NameQualifiedType qt) {
-			typePkg = qt.getQualifier();
-		}
-		return typePkg != null ? match(typePkg, nodeSet, locator) : toResponse(IMPOSSIBLE_MATCH);
+		return toResponse(matchesName(this.locator.pattern.pkgName, node.getFullyQualifiedName().toCharArray()) ? POSSIBLE_MATCH :IMPOSSIBLE_MATCH);
 	}
 
 	@Override
@@ -83,6 +37,9 @@ public class DOMPackageReferenceLocator extends DOMPatternLocator {
 			if (patternName.equals(n)) {
 				return toResponse(ACCURATE_MATCH);
 			}
+		}
+		if (binding == null) {
+			return toResponse(INACCURATE_MATCH);
 		}
 		return toResponse(IMPOSSIBLE_MATCH);
 	}
