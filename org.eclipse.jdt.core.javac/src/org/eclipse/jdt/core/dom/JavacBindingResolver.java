@@ -211,9 +211,6 @@ public class JavacBindingResolver extends BindingResolver {
 		//
 		private Map<JavacPackageBinding, JavacPackageBinding> packageBindings = new HashMap<>();
 		public JavacPackageBinding getPackageBinding(PackageSymbol packageSymbol) {
-			if (!packageSymbol.exists()) {
-				return null;
-			}
 			if( packageSymbol.owner instanceof PackageSymbol parentPack) {
 				if( !(parentPack instanceof RootPackageSymbol) )
 					getPackageBinding(parentPack);
