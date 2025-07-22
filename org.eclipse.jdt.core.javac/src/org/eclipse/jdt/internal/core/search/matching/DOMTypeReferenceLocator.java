@@ -20,6 +20,7 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.ISourceReference;
@@ -68,6 +69,8 @@ import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeDeclarationMatch;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
 import org.eclipse.jdt.internal.core.BinaryType;
+import org.eclipse.jdt.internal.core.ClassFileWorkingCopy;
+import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.search.DOMASTNodeUtils;
 import org.eclipse.jdt.internal.core.search.LocatorResponse;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
@@ -956,6 +959,11 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			String pkgName = CharOperation.toString(unit.getPackageName());
 			IJavaElement element = unit.getPackageDeclaration(pkgName);
 			match.setElement(element);
+		}
+		if (object instanceof IImportDeclaration decl
+			&& decl.getAncestor(JavaElement.COMPILATION_UNIT) instanceof ClassFileWorkingCopy wc
+			&& wc.getTypes().length == 1) {
+			match.setElement(wc.getTypes()[0]);
 		}
 		SearchMatchingUtility.reportSearchMatch(locator, match);
 	}
