@@ -31,7 +31,7 @@ public class DOMModuleLocator extends DOMPatternLocator {
 
 	@Override
 	public LocatorResponse match(ModuleDeclaration node, NodeSetWrapper nodeSet, MatchLocator locator) {
-		if (pattern.findDeclarations && matchesName(node.getName().toString().toCharArray(), pattern.name)) {
+		if (pattern.findDeclarations && matchesName(pattern.name, node.getName().toString().toCharArray())) {
 			return toResponse(POSSIBLE_MATCH);
 		}
 		return toResponse(IMPOSSIBLE_MATCH);
@@ -51,7 +51,7 @@ public class DOMModuleLocator extends DOMPatternLocator {
 
 	@Override
 	public LocatorResponse resolveLevel(ASTNode node, IBinding binding, MatchLocator locator) {
-		if (binding instanceof IModuleBinding mod && matchesName(mod.getName().toCharArray(), pattern.name)) {
+		if (binding instanceof IModuleBinding mod && matchesName(pattern.name, mod.getName().toCharArray())) {
 			return toResponse(ACCURATE_MATCH);
 		}
 		if (binding == null) {
