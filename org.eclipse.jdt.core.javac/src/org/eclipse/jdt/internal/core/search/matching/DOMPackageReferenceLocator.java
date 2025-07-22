@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.internal.core.search.LocatorResponse;
 
 public class DOMPackageReferenceLocator extends DOMPatternLocator {
@@ -26,6 +28,13 @@ public class DOMPackageReferenceLocator extends DOMPatternLocator {
 
 	@Override
 	public LocatorResponse match(Name node, NodeSetWrapper nodeSet, MatchLocator locator) {
+		ASTNode n = node;
+		while (n.getParent() instanceof Name parent) {
+			n = parent;
+		}
+		if (n.getParent() instanceof PackageDeclaration) {
+			return toResponse(IMPOSSIBLE_MATCH); // only references
+		}
 		return toResponse(matchesName(this.locator.pattern.pkgName, node.getFullyQualifiedName().toCharArray()) ? POSSIBLE_MATCH :IMPOSSIBLE_MATCH);
 	}
 
@@ -39,7 +48,7 @@ public class DOMPackageReferenceLocator extends DOMPatternLocator {
 			}
 		}
 		if (binding == null) {
-			return toResponse(INACCURATE_MATCH);
+			return toResponse(ACCURATE_MATCH);
 		}
 		return toResponse(IMPOSSIBLE_MATCH);
 	}

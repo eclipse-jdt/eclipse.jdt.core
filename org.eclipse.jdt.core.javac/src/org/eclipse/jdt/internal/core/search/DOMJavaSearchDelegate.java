@@ -527,7 +527,7 @@ public class DOMJavaSearchDelegate implements IJavaSearchDelegate {
 						DOMLocalVariableLocator.isRead(name), DOMLocalVariableLocator.isWrite(name),
 						insideDocComment(node), getParticipant(locator), resource);
 			}
-			if (b instanceof IPackageBinding) {
+			if (b instanceof IPackageBinding || b == null) {
 				var res = new PackageReferenceMatch(enclosing, accuracy, name.getStartPosition(), name.getLength(),
 						insideDocComment(name), getParticipant(locator), resource);
 				res.setLocalElement(DOMASTNodeUtils.getLocalJavaElement(node));
