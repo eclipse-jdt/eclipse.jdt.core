@@ -38,10 +38,13 @@ import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.SearchRequestor;
 import org.eclipse.jdt.core.search.TypeNameRequestor;
+import org.eclipse.jdt.core.tests.javac.JavacFailReason;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
+import org.junit.Ignore;
+import org.junit.experimental.categories.Category;
 
 /**
  * Tests the Java search engine where results are JavaElements and source positions.
@@ -3681,6 +3684,10 @@ public void testEnum02() throws CoreException {
 		"src/e1/Team.java e1.Team.FREDERIC [FREDERIC]",
 		this.resultCollector);
 }
+
+@Category(value=Ignore.class) @JavacFailReason(cause=JavacFailReason.VALID_ALTERNATIVE_IMPL)
+// No API available to tell where an anonymous constructor's closing parenthesis is.
+// Off by one error with added space.
 public void testEnum03() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch15", "src", "e1", "Team.java").getType("Team");
 	IMethod method = type.getMethod("Team", new String[] { "I" });

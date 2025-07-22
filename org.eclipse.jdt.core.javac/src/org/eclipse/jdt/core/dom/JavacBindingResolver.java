@@ -1207,8 +1207,18 @@ public class JavacBindingResolver extends BindingResolver {
 					if (parameterizedType != null) {
 						return parameterizedType;
 					}
-
 				}
+
+//				IBinding ret = resolveNameToJavac(name, tree);
+//				if (ret != null) {
+//					return ret;
+//				}
+//
+//				// That didn't work... checking field access
+//				IBinding fieldAccessBinding = this.getFieldAccessBinding(jcfa);
+//				if( fieldAccessBinding != null ) {
+//					return fieldAccessBinding;
+//				}
 			}
 		}
 		if( tree != null ) {

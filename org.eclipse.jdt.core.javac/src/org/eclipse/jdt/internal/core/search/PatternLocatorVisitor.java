@@ -201,13 +201,17 @@ class PatternLocatorVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(SimpleType type) {
 		visitType(type);
+		LocatorResponse resp = defaultVisitImplementationWithFunc(type, (x,y) -> y.match(type, this.nodeSet, this.locator), DOMASTNodeUtils::getBinding);
 		Name n = type.getName();
 		if( n instanceof QualifiedName qn ) {
 			Name qualifier = qn.getQualifier();
-			if( qualifier instanceof SimpleName sn1 ) {
-				sn1.accept(this);
-			} else if( qualifier instanceof QualifiedName qn1) {
-				qn1.accept(this);
+			boolean replacementIsChild = resp.replacementNodeFound() && (resp.replacement() == qn.getQualifier() || resp.replacement() == qn.getName());
+			if( !replacementIsChild ) {
+				if( qualifier instanceof SimpleName sn1 ) {
+					sn1.accept(this);
+				} else if( qualifier instanceof QualifiedName qn1) {
+					qn1.accept(this);
+				}
 			}
 		}
 		for (var ann : (List<Annotation>)type.annotations() ) {
