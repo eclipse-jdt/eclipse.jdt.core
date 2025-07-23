@@ -54,7 +54,7 @@ public class MultiReleaseTests extends BuilderTests {
 		IPath projectPath = whenSetupMRRpoject(CompilerOptions.VERSION_11);
 		fullBuild();
 		IPath src9 = projectPath.append(JAVA9_SRC_FOLDER);
-		expectingOnlySpecificProblemFor(src9, new Problem("", "Target release for src9 (9) is lower or equal to default release (11).", src9, 0, 1, -1, IMarker.SEVERITY_ERROR, "JDT"));
+		expectingOnlySpecificProblemFor(src9, new Problem("", "Target release for src9 (9) is lower or equal to the project's default release (11).", src9, 0, 1, -1, IMarker.SEVERITY_ERROR, "JDT"));
 	}
 
 	public void testMultiReleaseCompileWithMultipleFolders() throws JavaModelException, IOException {
@@ -209,7 +209,7 @@ public class MultiReleaseTests extends BuilderTests {
 		Problem java9problem = new Problem("", "The method of(URI, null) is undefined for the type URL", src9.append("p/NotInThisRelease.java"), 281, 283, 50, IMarker.SEVERITY_ERROR, "JDT");
 		expectingOnlySpecificProblemFor(src9, java9problem);
 		expectingNoProblemsFor(src21);
-		expectingOnlySpecificProblemsFor(projectPath, new Problem[] {java9problem, new Problem("", "Multi-Release Compilation requires the target option enabled in the project settings", projectPath, 0, 1, -1, IMarker.SEVERITY_ERROR, "JDT")});
+		expectingOnlySpecificProblemsFor(projectPath, new Problem[] {java9problem, new Problem("", "Multi-Release Compilation requires the release option enabled in the project settings", projectPath, 0, 1, -1, IMarker.SEVERITY_ERROR, "JDT")});
 	}
 
 	public void testMultiReleaseCompileWithConflict() throws JavaModelException, IOException {
