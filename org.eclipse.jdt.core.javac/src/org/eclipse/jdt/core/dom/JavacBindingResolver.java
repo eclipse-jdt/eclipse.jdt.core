@@ -755,15 +755,29 @@ public class JavacBindingResolver extends BindingResolver {
 			@Override
 			public IPackageBinding getPackage() {
 				if (type instanceof SimpleType simpleType && simpleType.getName() instanceof SimpleName) {
-					return JavacBindingResolver.this.converter.domToJavac
-						.values()
-						.stream()
-						.filter(CompilationUnit.class::isInstance)
-						.map(CompilationUnit.class::cast)
-						.map(CompilationUnit::getPackage)
-						.map(PackageDeclaration::resolveBinding)
-						.findAny()
-						.orElse(bindings.getPackageBinding(Symtab.instance(context).rootPackage));
+					Collection<JCTree> jctr = JavacBindingResolver.this.converter.domToJavac.values();
+					Iterator<JCTree> jcit = jctr.iterator();
+					while(jcit.hasNext()) {
+						Object o = jcit.next();
+						if( o instanceof CompilationUnit cuuu ) {
+							// Should this even be here? Migrated from prior version
+							PackageDeclaration pd = cuuu.getPackage();
+							if( pd != null ) {
+								IPackageBinding pack = pd.resolveBinding();
+								if( pack != null )
+									return pack;
+							}
+						}
+						if( o instanceof JCCompilationUnit jcuu) {
+							JCPackageDecl jcpd = jcuu.getPackage();
+							if( jcpd != null ) {
+								JavacPackageBinding pckbind = bindings.getPackageBinding(jcpd.packge);
+								if( pckbind != null ) {
+									return pckbind;
+								}
+							}
+						}
+					}
 				}
 				return bindings.getPackageBinding(Symtab.instance(context).rootPackage);
 			}

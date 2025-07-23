@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.BreakStatement;
 import org.eclipse.jdt.core.dom.CastExpression;
@@ -428,8 +429,29 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			return getQualifiedNameFromType(ptt.getType());
 		}
 		if( query instanceof SimpleType st) {
-			String fqqn = fqqnFromImport(st.getName().toString());
-			return fqqn != null ? fqqn : st.getName().toString();
+			String stName = st.getName().toString();
+			if( stName.contains(".")) {
+				return stName;
+			}
+			String fqqn = fqqnFromImport(stName);
+			if( fqqn != null ) {
+				return fqqn;
+			}
+			// Check if node's top level type has class of sought name
+			org.eclipse.jdt.core.dom.CompilationUnit cu = findCompilationUnitAncestor(query);
+			if( cu != null ) {
+				List<AbstractTypeDeclaration> types = cu.types();
+				if( types != null ) {
+					for( AbstractTypeDeclaration ad : types ) {
+						if( ad.getName().toString().equals(stName)) {
+							if( cu.getPackage() != null ) {
+								String pkg = cu.getPackage().getName().toString();
+								return pkg + "." + stName;
+							}
+						}
+					}
+				}
+			}
 		}
 		return null;
 	}
@@ -717,7 +739,8 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 		}
 
 		if (trp.focus != null) {
-			return Objects.equals(typeBinding.getJavaElement(), locator.pattern.focus) ?
+			IJavaElement je = typeBinding.getJavaElement();
+			return Objects.equals(je, locator.pattern.focus) ?
 					ACCURATE_MATCH : IMPOSSIBLE_MATCH;
 		}
 		IImportDiscovery importDiscovery = new IImportDiscovery() {
@@ -931,6 +954,16 @@ public class DOMTypeReferenceLocator extends DOMPatternLocator {
 			working = working.getParent();
 		}
 		return false;
+	}
+
+	private org.eclipse.jdt.core.dom.CompilationUnit findCompilationUnitAncestor(ASTNode node) {
+		ASTNode working = node;
+		while(working != null) {
+			if( working instanceof org.eclipse.jdt.core.dom.CompilationUnit wk)
+				return wk;
+			working = working.getParent();
+		}
+		return null;
 	}
 
 	@Override
