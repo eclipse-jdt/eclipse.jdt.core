@@ -15,14 +15,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
 import org.eclipse.core.runtime.ILog;
-import org.eclipse.jdt.core.Flags;
-import org.eclipse.jdt.core.IAnnotation;
-import org.eclipse.jdt.core.IImportDeclaration;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.ILocalVariable;
-import org.eclipse.jdt.core.IMemberValuePair;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.dom.*;
@@ -1039,7 +1032,11 @@ public class DOMToModelPopulator extends ASTVisitor {
 
 		this.unitInfo.setModule(newElement);
 		try {
-			this.root.getJavaProject().setModuleDescription(newElement);
+			if (this.root.getPackageFragmentRoot().getResolvedClasspathEntry().getEntryKind() == IClasspathEntry.CPE_SOURCE
+				&& this.root.getParent() instanceof IPackageFragment packageFragment
+				&& packageFragment.getElementName().isEmpty()) {
+				this.root.getJavaProject().setModuleDescription(newElement);
+			}
 		} catch (JavaModelException e) {
 			ILog.get().error(e.getMessage(), e);
 		}
