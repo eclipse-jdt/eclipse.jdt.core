@@ -1491,7 +1491,7 @@ public class WrapPreparator extends ASTVisitor {
 				if (token.tokenType == TokenNameCOMMENT_LINE) {
 					commentWrapper.wrapLineComment(token, startPosition);
 				} else {
-					assert token.tokenType == TokenNameCOMMENT_BLOCK || token.tokenType == TokenNameCOMMENT_JAVADOC;
+					assert token.tokenType == TokenNameCOMMENT_BLOCK || token.tokenType == TokenNameCOMMENT_JAVADOC || token.tokenType == TokenNameCOMMENT_MARKDOWN;
 					commentWrapper.wrapMultiLineComment(token, startPosition, false, false);
 				}
 			}
