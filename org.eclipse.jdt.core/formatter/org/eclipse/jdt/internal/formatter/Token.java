@@ -323,6 +323,7 @@ public class Token {
 			case TokenNameCOMMENT_BLOCK:
 			case TokenNameCOMMENT_JAVADOC:
 			case TokenNameCOMMENT_LINE:
+			case TokenNameCOMMENT_MARKDOWN:
 				return true;
 			default:
 				return false;
