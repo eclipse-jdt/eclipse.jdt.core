@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
@@ -134,9 +135,12 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 		if (this == o)
 			return true;
 		if (o instanceof JrtPackageFragmentRoot other) {
-			return this.moduleName.equals(other.moduleName) &&
+			boolean result = this.moduleName.equals(other.moduleName) &&
 					this.jarPath.equals(other.jarPath) &&
 					Arrays.equals(this.extraAttributes, other.extraAttributes);
+			if (!result)
+				return false;
+			return Objects.equals(this.getJavaProject().getReleaseOption(), other.getJavaProject().getReleaseOption());
 		}
 		return false;
 	}
