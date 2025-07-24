@@ -11,6 +11,7 @@
  * Contributors:
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] follow up bug for comments - https://bugs.eclipse.org/458208
+ *     IBM Corporation - Markdown support
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter.linewrap;
 
@@ -1491,7 +1492,8 @@ public class WrapPreparator extends ASTVisitor {
 				if (token.tokenType == TokenNameCOMMENT_LINE) {
 					commentWrapper.wrapLineComment(token, startPosition);
 				} else {
-					assert token.tokenType == TokenNameCOMMENT_BLOCK || token.tokenType == TokenNameCOMMENT_JAVADOC;
+					assert token.tokenType == TokenNameCOMMENT_BLOCK || token.tokenType == TokenNameCOMMENT_JAVADOC
+							|| token.tokenType == TokenNameCOMMENT_MARKDOWN;
 					commentWrapper.wrapMultiLineComment(token, startPosition, false, false);
 				}
 			}
