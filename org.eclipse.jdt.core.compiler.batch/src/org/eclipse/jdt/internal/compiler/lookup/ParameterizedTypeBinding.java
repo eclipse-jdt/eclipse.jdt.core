@@ -160,16 +160,19 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	@Override
 	public TypeBinding findSuperTypeOriginatingFrom(TypeBinding otherType) {
 		// see https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4039 :
-		// if capture makes this and otherType equal, then treat that as the sought super type (for now)
-		TypeBinding capture = InferenceContext18.maybeCapture(this);
-		if (TypeBinding.equalsEquals(capture, otherType))
-			return capture;
+		ReferenceBinding subType = this;
+		// if capture makes subType and otherType equal, then treat that as the sought super type
+		if (otherType instanceof ReferenceBinding && this.typeArgumentDepth() <= otherType.typeArgumentDepth()) { // protect against infinite growth of recursive types under capture
+			subType = CapturingContext.maybeCapture(this);
+			if (TypeBinding.equalsEquals(subType, otherType))
+				return subType;
+		}
 
 		if (otherType instanceof ReferenceBinding otherRef && TypeBinding.equalsEquals(this.type, otherRef.actualType()))
 			return this;
 
-		if (capture != this) //$IDENTITY-COMPARISON$
-			return capture.findSuperTypeOriginatingFrom(otherType);
+		if (subType != this) //$IDENTITY-COMPARISON$
+			return subType.findSuperTypeOriginatingFrom(otherType);
 		return super.findSuperTypeOriginatingFrom(otherType);
 	}
 
@@ -209,7 +212,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		for (int i = 0; i < length; i++) {
 			TypeBinding argument = capturedArguments[i];
 			if (argument.isCapture()) {
-				((CaptureBinding)argument).initializeBounds(scope, capturedParameterizedType);
+				try {
+					CapturingContext.enter(start, end, scope);
+					((CaptureBinding)argument).initializeBounds(scope, capturedParameterizedType);
+				} finally {
+					CapturingContext.leave();
+				}
 			}
 		}
 		return capturedParameterizedType;
@@ -1514,7 +1522,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	        ReferenceBinding genericSuperclass = this.type.superclass();
 	        if (genericSuperclass == null) return null; // e.g. interfaces
 		    this.superclass = (ReferenceBinding) Scope.substitute(this, genericSuperclass);
-		    this.superclass = (ReferenceBinding) InferenceContext18.maybeCapture(this.superclass);
+		    this.superclass = CapturingContext.maybeCapture(this.superclass);
 			this.typeBits |= (this.superclass.typeBits & TypeIds.InheritableBits);
 			if ((this.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0) // avoid the side-effects of hasTypeBit()!
 				this.typeBits |= applyCloseableWhitelists(this.environment.globalOptions);
@@ -1533,7 +1541,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
     		this.superInterfaces = Scope.substitute(this, this.type.superInterfaces());
     		if (this.superInterfaces != null) {
 	    		for (int i = this.superInterfaces.length; --i >= 0;) {
-	    			this.superInterfaces[i] = (ReferenceBinding) InferenceContext18.maybeCapture(this.superInterfaces[i]);
+	    			this.superInterfaces[i] = CapturingContext.maybeCapture(this.superInterfaces[i]);
 	    			this.typeBits |= (this.superInterfaces[i].typeBits & TypeIds.InheritableBits);
 	    			if ((this.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0) // avoid the side-effects of hasTypeBit()!
 	    				this.typeBits |= applyCloseableWhitelists(this.environment.globalOptions);
@@ -1692,6 +1700,22 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	@Override
 	public TypeBinding[] typeArguments() {
 		return this.arguments;
+	}
+
+	@Override
+	public int typeArgumentDepth() {
+		int max = 0;
+		if (!isRawType() && enterRecursiveFunction()) {
+			try {
+				if (this.arguments != null) {
+					for (TypeBinding argument : this.arguments)
+						max = Math.max(max, argument.typeArgumentDepth());
+				}
+			} finally {
+				exitRecursiveFunction();
+			}
+		}
+		return 1 + max;
 	}
 
 	@Override
