@@ -173,7 +173,9 @@ class DOMToIndexVisitor extends ASTVisitor {
 	public boolean visit(ImportDeclaration node) {
 		if (node.isStatic() && !node.isOnDemand()) {
 			this.sourceIndexer.addMethodReference(simpleName(node.getName()), 0);
-		} else if (!node.isOnDemand()) {
+		} else if (Modifier.isModule(node.getModifiers())) {
+			this.sourceIndexer.addModuleReference(node.getName().getFullyQualifiedName().toCharArray());
+		} if (!node.isOnDemand()) {
 			this.sourceIndexer.addTypeReference(node.getName().getFullyQualifiedName().toCharArray());
 		}
 		return true;
