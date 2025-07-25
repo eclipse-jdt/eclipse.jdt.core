@@ -3924,7 +3924,9 @@ public final class CompletionEngine
 	}
 
 	private void checkForVarargExpectedTypes(ASTNode astNodeParent, Scope scope) {
-		if (astNodeParent instanceof MessageSend m && this.expectedTypesPtr == -1) {
+		if (astNodeParent instanceof MessageSend m
+				&& !(m.receiver instanceof CompletionOnSingleNameReference)
+				&& this.expectedTypesPtr == -1) {
 			final ObjectVector methodsToSearchOn = new ObjectVector();
 			final CompletionRequestor actual = this.requestor;
 			this.requestor = new CompletionRequestor(true) {
