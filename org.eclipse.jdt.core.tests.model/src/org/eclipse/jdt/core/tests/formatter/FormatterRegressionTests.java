@@ -16491,29 +16491,50 @@ public void testIssue2977() {
 		""",
 		CodeFormatter.K_COMPILATION_UNIT);
 }
-public void testMarkdownEmptyLinesBtwnDiffTags() throws JavaModelException {
-	setComplianceLevel(CompilerOptions.VERSION_23);
-	this.formatterPrefs.comment_insert_empty_line_between_different_tags = true;
-	String code = """
-		    class Mark {
-		    	/// @param param1
-		    	/// @return int
-		    	public int sample(String param1) {
-		    		return 0;
-		    	}
-		    }
-		    """;
-	String expected = """
-		    class Mark {
-		    	/// @param param1
-		    	///
-		    	/// @return int
-		    	public int sample(String param1) {
-		    		return 0;
-		    	}
-		    }
-		    """;
+	public void testMarkdownSpacingFormat() throws JavaModelException {
+		setComplianceLevel(CompilerOptions.VERSION_23);
+		String expected = """
+			    class Mark {
+			    	/// @param param
+			    	/// @return int
+			    	public int sample(String param) {
+			    		return 0;
+			    	}
+			    }
+			    """;
+		String code = """
+			    class Mark {
+			    	/// @param 		param
+			    	///  @return 			int
+			    	public int sample(String param) {
+			    		return 0;
+			    	}
+			    }
+			    """;
 
-	formatSource(code,expected);
-}
+		formatSource(code,expected);
+	}
+	public void testMarkdownEmptyLinesBtwnDiffTags() throws JavaModelException {
+		setComplianceLevel(CompilerOptions.VERSION_23);
+		this.formatterPrefs.comment_insert_empty_line_between_different_tags = true;
+		String input = """
+			    class Mark {
+			    	/// @param param1
+			    	/// @return int
+			    	public int sample(String param1) {
+			    		return 0;
+			    	}
+			    }
+			    """;
+		String expected = """
+		class Mark {
+			/// @param param1
+			/// \n\t/// @return int
+			public int sample(String param1) {
+				return 0;
+			}
+		}
+		""";
+		formatSource(input,expected);
+	}
 }
