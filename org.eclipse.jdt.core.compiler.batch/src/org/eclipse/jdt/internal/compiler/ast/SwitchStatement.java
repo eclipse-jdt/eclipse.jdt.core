@@ -556,14 +556,14 @@ public class SwitchStatement extends Expression {
 							upperScope.problemReporter().illegalVoidExpression(this.expression);
 							break checkType;
 						}
-						if (JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(compilerOptions)) {
-							upperScope.problemReporter().previewFeatureUsed(this.expression.sourceStart, this.expression.sourceEnd);
-							this.isPrimitiveSwitch = true;
-						}
 						if (this.expression.isConstantValueOfTypeAssignableToType(expressionType, TypeBinding.INT))
 							break checkType;
 						if (expressionType.isCompatibleWith(TypeBinding.INT))
 							break checkType;
+						if (JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(compilerOptions)) {
+							upperScope.problemReporter().previewFeatureUsed(this.expression.sourceStart, this.expression.sourceEnd);
+							this.isPrimitiveSwitch = true;
+						}
 					}
 					if (expressionType.id == TypeIds.T_JavaLangString || expressionType.isEnum() || upperScope.isBoxingCompatibleWith(expressionType, TypeBinding.INT))
 						break checkType;
