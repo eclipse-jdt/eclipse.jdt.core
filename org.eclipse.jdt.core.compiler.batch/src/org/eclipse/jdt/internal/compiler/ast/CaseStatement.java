@@ -187,7 +187,7 @@ private Constant resolvePatternLabel(BlockScope scope, TypeBinding caseType, Typ
 		if (!pattern.isApplicable(selectorType, scope, pattern))
 			return Constant.NotAConstant;
 	} else if (caseType.isValidBinding()) { // already complained if invalid
-		if (Pattern.findPrimitiveConversionRoute(caseType, selectorType, scope) == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
+		if (pattern.findPrimitiveConversionRoute(caseType, selectorType, scope) == PrimitiveConversionRoute.NO_CONVERSION_ROUTE) {
 			if (caseType.isPrimitiveType() && !JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(scope.compilerOptions())) {
 				scope.problemReporter().unexpectedTypeinSwitchPattern(caseType, pattern);
 				return Constant.NotAConstant;
@@ -284,7 +284,8 @@ public void resolve(BlockScope scope) {
 								scope.problemReporter().caseExpressionWrongType(e, selectorType, expectedCaseType);
 								continue;
 							}
-							selectorType = expectedCaseType;
+							if (Pattern.findPrimitiveConversionRoute(caseType, selectorType, scope, this) != Pattern.PrimitiveConversionRoute.NO_CONVERSION_ROUTE)
+								selectorType = expectedCaseType;
 						}
 					}
 				}

@@ -2736,7 +2736,7 @@ protected void runJavac(
 					//      it should have had contents, stderr is leveraged as
 					//      potentially holding indications regarding the failure
 					if (expectedErrorString != null /* null skips error test */ && mismatch == 0) {
-						err = adjustErrorOutput(stderr.toString().trim());
+						err = adjustErrorOutput(stderr.toString().trim(), className);
 						if (!errorStringMatch(expectedErrorString, err)) {
 							mismatch = JavacTestOptions.MismatchType.ErrorOutputMismatch;
 						}
@@ -2861,10 +2861,13 @@ void handleMismatch(JavacCompiler compiler, String testName, String[] testFiles,
 	}
 }
 
-private String adjustErrorOutput(String error) {
+private String adjustErrorOutput(String error, String className) {
 	// VerifyTests performs an explicit e.printStackTrace() which has slightly different format
 	// from a stack trace written directly by a dying JVM (during javac testing), adjust if needed:
-	final String excPrefix = "Exception in thread \"main\" ";
+	String excPrefix = "Exception in thread \"main\" ";
+	if (error.startsWith(excPrefix))
+		return error.substring(excPrefix.length())+'\n';
+	excPrefix = "Error: LinkageError occurred while loading main class "+className+"\n\t";
 	if (error.startsWith(excPrefix))
 		return error.substring(excPrefix.length())+'\n';
 	return error;

@@ -291,7 +291,7 @@ public class RecordPattern extends Pattern {
 		if (p.isTotalTypeNode && !componentType.isPrimitiveType() &&  p instanceof TypePattern tp) {
 			TypeBinding providedType = tp.resolvedType;
 			if (providedType != null && providedType.isPrimitiveType()) {
-				PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(componentType, providedType, currentScope);
+				PrimitiveConversionRoute route = findPrimitiveConversionRoute(componentType, providedType, currentScope);
 				if (route != PrimitiveConversionRoute.NO_CONVERSION_ROUTE
 						|| !componentType.isPrimitiveType()) {
 					p.isTotalTypeNode = false;

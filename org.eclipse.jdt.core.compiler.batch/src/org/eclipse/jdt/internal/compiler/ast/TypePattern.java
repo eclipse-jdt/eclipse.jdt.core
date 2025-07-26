@@ -102,7 +102,7 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 
 	public void generateTypeCheck(BlockScope scope, CodeStream codeStream) {
 		generateTypeCheck(this.outerExpressionType, getType(), scope, codeStream,
-				Pattern.findPrimitiveConversionRoute(this.resolvedType, this.accessorMethod.returnType, scope));
+				findPrimitiveConversionRoute(this.resolvedType, this.accessorMethod.returnType, scope));
 	}
 
 	@Override
@@ -114,7 +114,7 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 	public void generateTestingConversion(BlockScope scope, CodeStream codeStream) {
 		TypeBinding provided = this.outerExpressionType;
 		TypeBinding expected = this.resolvedType;
-		PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(expected, provided, scope);
+		PrimitiveConversionRoute route = findPrimitiveConversionRoute(expected, provided, scope);
 		switch (route) {
 			case IDENTITY_CONVERSION:
 				// Do nothing
