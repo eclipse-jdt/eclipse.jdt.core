@@ -734,7 +734,7 @@ public class InferenceContext18 {
 
 
 	protected int getInferenceKind(MethodBinding nonGenericMethod, TypeBinding[] argumentTypes) {
-		switch (this.scope.parameterCompatibilityLevel(nonGenericMethod, argumentTypes, false, this.currentInvocation)) {
+		switch (this.scope.parameterCompatibilityLevel(nonGenericMethod, argumentTypes, this.currentInvocation)) {
 			case Scope.AUTOBOX_COMPATIBLE:
 			case Scope.COMPATIBLE_IGNORING_MISSING_TYPE: // if in doubt the method with missing types should be accepted to signal its relevance for resolution
 				return CHECK_LOOSE;

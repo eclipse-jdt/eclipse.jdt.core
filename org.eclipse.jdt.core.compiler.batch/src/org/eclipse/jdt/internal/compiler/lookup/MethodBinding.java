@@ -1284,13 +1284,6 @@ public final int sourceStart() {
 	return method.sourceStart;
 }
 
-/**
- * Returns the method to use during tiebreak (usually the method itself).
- * For generic method invocations, tiebreak needs to use generic method with erasure substitutes.
- */
-public MethodBinding tiebreakMethod() {
-	return this;
-}
 @Override
 public String toString() {
 	StringBuilder output = new StringBuilder(10);
