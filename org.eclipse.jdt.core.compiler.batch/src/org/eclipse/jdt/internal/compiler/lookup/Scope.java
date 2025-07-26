@@ -4936,9 +4936,6 @@ public abstract class Scope {
 		return parameterCompatibilityLevel(method, arguments, false, site);
 	}
 
-	public int parameterCompatibilityLevel(MethodBinding method, TypeBinding[] arguments) {
-		return parameterCompatibilityLevel(method, arguments, false, null);
-	}
 	public int parameterCompatibilityLevel(MethodBinding method, TypeBinding[] arguments, boolean tiebreakingVarargsMethods, InvocationSite site) {
 		TypeBinding[] parameters = method.parameters;
 		int paramLength = parameters.length;
