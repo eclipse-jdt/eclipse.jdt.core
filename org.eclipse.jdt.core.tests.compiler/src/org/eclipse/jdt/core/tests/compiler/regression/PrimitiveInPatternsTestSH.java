@@ -1310,20 +1310,20 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				"true|false|49|-1|1|-|49|-1|49|-1|49|-1|49.0|-1.0|49.0|-1.0|");
 	}
 
-	private void testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK(String from, int idx, String expectedError) {
+	private void testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK(String from, int idx, String suppress, String expectedError) {
 		assert from.equals(BOXES[idx]) : "mismatching from vs idx";
 		StringBuilder methods = new StringBuilder();
 		StringBuilder calls = new StringBuilder();
 		String classTmpl =
 				"""
-				public class X {
+				SUPPRESS public class X {
 				METHODS
 					public static void main(String... args) {
 						FROM vFROM= VAL;
 				CALLS
 					}
 				}
-				""".replaceAll("FROM", from).replace("VAL", GOODVALUES[idx]);
+				""".replaceAll("FROM", from).replace("VAL", GOODVALUES[idx]).replace("SUPPRESS", suppress);
 		String methodTmpl =
 				"""
 					public static PRIM switchPRIM(FROM in) {
@@ -1349,10 +1349,15 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				expectedError);
 	}
 	public void testPrimitivePatternInSwitchShort_unboxAndNarrow_NOK() {
-		testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK("Short", 3,
+		testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK("Short", 3, "",
 				"""
 				----------
-				1. ERROR in X.java (at line 4)
+				1. WARNING in X.java (at line 4)
+					case byte v -> v;
+					     ^^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				2. ERROR in X.java (at line 4)
 					case byte v -> v;
 					     ^^^^^^
 				Type mismatch: cannot convert from Short to byte
@@ -1361,6 +1366,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 	}
 	public void testPrimitivePatternInSwitchInt_unboxAndNarrow_NOK() {
 		testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK("Integer", 4,
+				"@SuppressWarnings(\"preview\")",
 				"""
 				----------
 				1. ERROR in X.java (at line 4)
@@ -1377,6 +1383,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 	}
 	public void testPrimitivePatternInSwitchLong_unboxAndNarrow_NOK() {
 		testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK("Long", 5,
+				"@SuppressWarnings(\"preview\")",
 				"""
 				----------
 				1. ERROR in X.java (at line 4)
@@ -1398,6 +1405,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 	}
 	public void testPrimitivePatternInSwitchFloat_unboxAndNarrow_NOK() {
 		testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK("Float", 6,
+				"@SuppressWarnings(\"preview\")",
 				"""
 				----------
 				1. ERROR in X.java (at line 4)
@@ -1424,6 +1432,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 	}
 	public void testPrimitivePatternInSwitchDouble_unboxAndNarrow_NOK() {
 		testPrimitivePatternInSwitch_from_unboxAndNarrow_NOK("Double", 7,
+				"@SuppressWarnings(\"preview\")",
 				"""
 				----------
 				1. ERROR in X.java (at line 4)
@@ -1470,15 +1479,30 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			},
 			"""
 			----------
-			1. ERROR in X.java (at line 4)
+			1. WARNING in X.java (at line 4)
+				case byte b -> b;
+				     ^^^^^^
+			You are using a preview language feature that may or may not be supported in a future release
+			----------
+			2. ERROR in X.java (at line 4)
 				case byte b -> b;
 				     ^^^^^^
 			Type mismatch: cannot convert from Character to byte
 			----------
-			2. ERROR in X.java (at line 5)
+			3. WARNING in X.java (at line 5)
+				case short s -> s;
+				     ^^^^^^^
+			You are using a preview language feature that may or may not be supported in a future release
+			----------
+			4. ERROR in X.java (at line 5)
 				case short s -> s;
 				     ^^^^^^^
 			Type mismatch: cannot convert from Character to short
+			----------
+			5. WARNING in X.java (at line 6)
+				case char c -> c;
+				     ^^^^^^
+			You are using a preview language feature that may or may not be supported in a future release
 			----------
 			""");
 	}
@@ -1783,12 +1807,23 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				"""},
 				"""
 				----------
-				1. ERROR in X.java (at line 3)
+				1. WARNING in X.java (at line 3)
+					return switch (b) {
+					               ^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				2. ERROR in X.java (at line 3)
 					return switch (b) {
 					               ^
 				A switch expression should have a default case
 				----------
-				""");
+				3. WARNING in X.java (at line 5)
+					case char c -> c;
+					     ^^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				"""
+);
 	}
 
 	private void testNarrowingInSwitchFrom(String from, int idx, String expectedOut) {
@@ -1881,7 +1916,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			"X.java",
 			"""
 			public class X {
-				int m1(long in) {
+				@SuppressWarnings("preview") int m1(long in) {
 					return switch(in) {
 						case 1 -> 1;
 						case 'a' -> 2;
@@ -1953,7 +1988,12 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			     ^^
 		Case constants in a switch on 'Float' must have type 'float'
 		----------
-		4. ERROR in X.java (at line 8)
+		4. WARNING in X.java (at line 7)
+			case 4.0f -> 4;
+			^^^^^^^^^
+		You are using a preview language feature that may or may not be supported in a future release
+		----------
+		5. ERROR in X.java (at line 8)
 			case 5.0d -> 5;
 			     ^^^^
 		Case constants in a switch on 'Float' must have type 'float'
@@ -2036,7 +2076,17 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			},
 			"""
 			----------
-			1. ERROR in XBoolean.java (at line 5)
+			1. WARNING in XBoolean.java (at line 4)
+				case true -> 1;
+				^^^^^^^^^
+			You are using a preview language feature that may or may not be supported in a future release
+			----------
+			2. WARNING in XBoolean.java (at line 5)
+				case true -> 2;
+				^^^^^^^^^
+			You are using a preview language feature that may or may not be supported in a future release
+			----------
+			3. ERROR in XBoolean.java (at line 5)
 				case true -> 2;
 				     ^^^^
 			Duplicate case
@@ -2078,10 +2128,20 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			},
 			"""
 			----------
-			1. ERROR in X.java (at line 3)
+			1. WARNING in X.java (at line 3)
+				return switch (b) {
+				               ^
+			You are using a preview language feature that may or may not be supported in a future release
+			----------
+			2. ERROR in X.java (at line 3)
 				return switch (b) {
 				               ^
 			A switch expression should have a default case
+			----------
+			3. WARNING in X.java (at line 4)
+				case true -> 1;
+				^^^^^^^^^
+			You are using a preview language feature that may or may not be supported in a future release
 			----------
 			""");
 	}
@@ -2110,6 +2170,21 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 					};
 				       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 			Switch cannot have both boolean values and a default label
+			----------
+			2. WARNING in X.java (at line 3)
+				return switch (b) {
+				               ^
+			You are using a preview language feature that may or may not be supported in a future release
+			----------
+			3. WARNING in X.java (at line 4)
+				case true -> 1;
+				^^^^^^^^^
+			You are using a preview language feature that may or may not be supported in a future release
+			----------
+			4. WARNING in X.java (at line 5)
+				case false -> 2;
+				^^^^^^^^^^
+			You are using a preview language feature that may or may not be supported in a future release
 			----------
 			""");
 	}
@@ -2140,6 +2215,16 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 					}
 				^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 			Switch cannot have both boolean values and a default label
+			----------
+			2. WARNING in X.java (at line 6)
+				case TRUE -> { break;}
+				^^^^^^^^^
+			You are using a preview language feature that may or may not be supported in a future release
+			----------
+			3. WARNING in X.java (at line 7)
+				case FALSE -> { break;}
+				^^^^^^^^^^
+			You are using a preview language feature that may or may not be supported in a future release
 			----------
 			""");
 	}
@@ -2213,10 +2298,25 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				              ^
 			A switch expression should have a default case
 			----------
-			2. ERROR in X.java (at line 9)
+			2. WARNING in X.java (at line 5)
+				case float f -> f;
+				     ^^^^^^^
+			You are using a preview language feature that may or may not be supported in a future release
+			----------
+			3. WARNING in X.java (at line 9)
+				return switch(i) {
+				              ^
+			You are using a preview language feature that may or may not be supported in a future release
+			----------
+			4. ERROR in X.java (at line 9)
 				return switch(i) {
 				              ^
 			A switch expression should have a default case
+			----------
+			5. WARNING in X.java (at line 11)
+				case float f -> f;
+				     ^^^^^^^
+			You are using a preview language feature that may or may not be supported in a future release
 			----------
 			""");
 	}
@@ -2280,10 +2380,35 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				              ^
 			A switch expression should have a default case
 			----------
-			2. ERROR in X.java (at line 9)
+			2. WARNING in X.java (at line 4)
+				case 1L -> 1.0f;
+				^^^^^^^
+			You are using a preview language feature that may or may not be supported in a future release
+			----------
+			3. WARNING in X.java (at line 5)
+				case float f -> f;
+				     ^^^^^^^
+			You are using a preview language feature that may or may not be supported in a future release
+			----------
+			4. WARNING in X.java (at line 9)
+				return switch(l) {
+				              ^
+			You are using a preview language feature that may or may not be supported in a future release
+			----------
+			5. ERROR in X.java (at line 9)
 				return switch(l) {
 				              ^
 			A switch expression should have a default case
+			----------
+			6. WARNING in X.java (at line 10)
+				case 1L -> 1.0d;
+				^^^^^^^
+			You are using a preview language feature that may or may not be supported in a future release
+			----------
+			7. WARNING in X.java (at line 11)
+				case double d -> d;
+				     ^^^^^^^^
+			You are using a preview language feature that may or may not be supported in a future release
 			----------
 			""");
 	}
@@ -2436,27 +2561,57 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				},
 				"""
 				----------
-				1. ERROR in X.java (at line 5)
+				1. WARNING in X.java (at line 3)
+					return switch (myInt) {
+					               ^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				2. ERROR in X.java (at line 5)
 					default -> 0; // conflict with preceding total pattern (unguarded and unconditional)
 					^^^^^^^
 				Switch case cannot have both unconditional pattern and default label
 				----------
-				2. ERROR in X.java (at line 11)
+				3. WARNING in X.java (at line 9)
+					return switch (myInt) { // swapped order of cases
+					               ^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				4. ERROR in X.java (at line 11)
 					case int i  -> i; // conflict with preceding default
 					     ^^^^^
 				This case label is dominated by one of the preceding case labels
 				----------
-				3. ERROR in X.java (at line 17)
+				5. WARNING in X.java (at line 15)
+					return switch (myInt) {
+					               ^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				6. ERROR in X.java (at line 17)
 					case int i  -> i; // conflict with preceding default
 					     ^^^^^
 				This case label is dominated by one of the preceding case labels
 				----------
-				4. ERROR in X.java (at line 18)
+				7. WARNING in X.java (at line 18)
+					case short s -> s; // additionally dominated by int i
+					     ^^^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				8. ERROR in X.java (at line 18)
 					case short s -> s; // additionally dominated by int i
 					     ^^^^^^^
 				This case label is dominated by one of the preceding case labels
 				----------
-				5. ERROR in X.java (at line 24)
+				9. WARNING in X.java (at line 22)
+					return switch (myInt) {
+					               ^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				10. WARNING in X.java (at line 24)
+					case short s -> s; // dominated by int i
+					     ^^^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				11. ERROR in X.java (at line 24)
 					case short s -> s; // dominated by int i
 					     ^^^^^^^
 				This case label is dominated by one of the preceding case labels
@@ -2482,6 +2637,11 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 					if (this instanceof int i)
 					    ^^^^^^^^^^^^^^^^^^^^^
 				Incompatible conditional operand types X and int
+				----------
+				2. WARNING in X.java (at line 3)
+					if (this instanceof int i)
+					                    ^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
 				----------
 				""");
 	}
@@ -2562,12 +2722,29 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 					}
 				}
 				"""},
-				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	case 0.5f + 0.5f -> \"1.0\";\n" +
-				"	     ^^^^^^^^^^^\n" +
-				"Duplicate case\n" +
-				"----------\n");
+				"""
+				----------
+				1. WARNING in X.java (at line 3)
+					return switch (f) {
+					               ^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				2. WARNING in X.java (at line 4)
+					case 1.0f -> "1.0";
+					^^^^^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				3. WARNING in X.java (at line 5)
+					case 0.5f + 0.5f -> "1.0";
+					^^^^^^^^^^^^^^^^
+				You are using a preview language feature that may or may not be supported in a future release
+				----------
+				4. ERROR in X.java (at line 5)
+					case 0.5f + 0.5f -> "1.0";
+					     ^^^^^^^^^^^
+				Duplicate case
+				----------
+				""");
 	}
 
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3337
@@ -2577,7 +2754,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			"X.java",
 			"""
 			public class X {
-
+				@SuppressWarnings("preview")
 				public static void main(String[] args) {
 					Boolean b = true;
 					switch (b) {
@@ -2664,6 +2841,34 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		runner.javacTestOptions = JAVAC_OPTIONS;
 		runner.vmArguments = VMARGS;
 		runner.expectedOutputString = "1";
+		runner.runConformTest();
+	}
+	public void testJDK8348410_previewFlag() {
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions(true); // preview enabled
+		runner.testFiles = new String[] {
+				"Test.java",
+				"""
+				 public class Test {
+					public static void main(String[] args) {
+						new Test().d(true);
+					}
+
+					void d(Boolean b) {
+						switch (b) {
+							case true -> System.out.println("1");
+							case false -> System.out.println("2");
+						};
+					}
+				}
+				"""
+			};
+		runner.javacTestOptions = JAVAC_OPTIONS;
+//		runner.vmArguments = VMARGS; not passing --enable-preview to java
+		runner.expectedErrorString =
+				"""
+				java.lang.UnsupportedClassVersionError: Preview features are not enabled for Test (class file version 69.65535). Try running with '--enable-preview'
+				""";
 		runner.runConformTest();
 	}
 	public void testGH3128() {

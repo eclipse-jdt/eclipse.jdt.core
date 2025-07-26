@@ -557,7 +557,7 @@ public class SwitchStatement extends Expression {
 							break checkType;
 						}
 						if (JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(compilerOptions)) {
-							upperScope.referenceContext().compilationResult().usesPreview = true;
+							upperScope.problemReporter().previewFeatureUsed(this.expression.sourceStart, this.expression.sourceEnd);
 							this.isPrimitiveSwitch = true;
 						}
 						if (this.expression.isConstantValueOfTypeAssignableToType(expressionType, TypeBinding.INT))
