@@ -6871,5 +6871,27 @@ public void testGH4235() {
 			"""
 		});
 }
+public void testGH4236() {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return; // uses records
+	runConformTest(new String[]{
+			"A.java",
+			"""
+			import java.io.Serializable;
+			public record A(DR<? extends TI<?>> effective) {
+			  A(DR<? extends TI<?>> effective, Object x) {
+			    this(effective);
+			  }
+			}
+
+			class DR<T extends Comparable<? super T> & Serializable> {
+			}
+
+			abstract class TI<M> implements Comparable<TI<M>>, Serializable {
+			  private static final long serialVersionUID = 1L;
+			}
+			"""
+		});
+}
 }
 

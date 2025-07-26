@@ -822,7 +822,7 @@ public abstract class Scope {
 			}
 		}
 
-		int level = parameterCompatibilityLevel(method, arguments, tiebreakingVarargsMethods);
+		int level = parameterCompatibilityLevel(method, arguments, tiebreakingVarargsMethods, invocationSite);
 		if (level > NOT_COMPATIBLE) {
 			if (method.hasPolymorphicSignature(this)) {
 				// generate polymorphic method and set polymorphic tagbits as well
@@ -3809,8 +3809,8 @@ public abstract class Scope {
 			for (int i = (oneParamsLength > twoParamsLength ? twoParamsLength : oneParamsLength) - 2; i >= 0; i--)
 				if (TypeBinding.notEquals(oneParams[i], twoParams[i]) && !oneParams[i].isCompatibleWith(twoParams[i]))
 					return false;
-			if (parameterCompatibilityLevel(one, twoParams, true) == NOT_COMPATIBLE
-					&& parameterCompatibilityLevel(two, oneParams, true) == VARARGS_COMPATIBLE)
+			if (parameterCompatibilityLevel(one, twoParams, true, null) == NOT_COMPATIBLE
+					&& parameterCompatibilityLevel(two, oneParams, true, null) == VARARGS_COMPATIBLE)
 				return true;
 		}
 		return false;
@@ -4933,13 +4933,10 @@ public abstract class Scope {
 					break;
 				}
 		}
-		return parameterCompatibilityLevel(method, arguments, false);
+		return parameterCompatibilityLevel(method, arguments, false, site);
 	}
 
-	public int parameterCompatibilityLevel(MethodBinding method, TypeBinding[] arguments) {
-		return parameterCompatibilityLevel(method, arguments, false);
-	}
-	public int parameterCompatibilityLevel(MethodBinding method, TypeBinding[] arguments, boolean tiebreakingVarargsMethods) {
+	public int parameterCompatibilityLevel(MethodBinding method, TypeBinding[] arguments, boolean tiebreakingVarargsMethods, InvocationSite site) {
 		TypeBinding[] parameters = method.parameters;
 		int paramLength = parameters.length;
 		int argLength = arguments.length;
@@ -4989,7 +4986,17 @@ public abstract class Scope {
 			TypeBinding param = parameters[i];
 			TypeBinding arg = (tiebreakingVarargsMethods && (i == (argLength - 1))) ? ((ArrayBinding)arguments[i]).elementsType() : arguments[i];
 			if (TypeBinding.notEquals(arg,param)) {
-				int newLevel = parameterCompatibilityLevel(arg, param, env, tiebreakingVarargsMethods, method);
+				if (site instanceof Invocation invocation) {
+					Expression[] invArgs = invocation.arguments();
+					int idx = i < invArgs.length ? i : invArgs.length - 1;
+					CapturingContext.enter(invArgs[idx].sourceStart, invArgs[idx].sourceEnd, this);
+				}
+				int newLevel;
+				try {
+					newLevel = parameterCompatibilityLevel(arg, param, env, tiebreakingVarargsMethods, method);
+				} finally {
+					CapturingContext.leave();
+				}
 				if (newLevel == NOT_COMPATIBLE) {
 					return NOT_COMPATIBLE;
 				} else if (newLevel == COMPATIBLE_IGNORING_MISSING_TYPE) {
