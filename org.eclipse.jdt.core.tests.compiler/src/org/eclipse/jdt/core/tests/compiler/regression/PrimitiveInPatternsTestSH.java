@@ -1807,17 +1807,12 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				"""},
 				"""
 				----------
-				1. WARNING in X.java (at line 3)
-					return switch (b) {
-					               ^
-				You are using a preview language feature that may or may not be supported in a future release
-				----------
-				2. ERROR in X.java (at line 3)
+				1. ERROR in X.java (at line 3)
 					return switch (b) {
 					               ^
 				A switch expression should have a default case
 				----------
-				3. WARNING in X.java (at line 5)
+				2. WARNING in X.java (at line 5)
 					case char c -> c;
 					     ^^^^^^
 				You are using a preview language feature that may or may not be supported in a future release
@@ -2303,17 +2298,12 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				     ^^^^^^^
 			You are using a preview language feature that may or may not be supported in a future release
 			----------
-			3. WARNING in X.java (at line 9)
-				return switch(i) {
-				              ^
-			You are using a preview language feature that may or may not be supported in a future release
-			----------
-			4. ERROR in X.java (at line 9)
+			3. ERROR in X.java (at line 9)
 				return switch(i) {
 				              ^
 			A switch expression should have a default case
 			----------
-			5. WARNING in X.java (at line 11)
+			4. WARNING in X.java (at line 11)
 				case float f -> f;
 				     ^^^^^^^
 			You are using a preview language feature that may or may not be supported in a future release
@@ -2561,57 +2551,37 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 				},
 				"""
 				----------
-				1. WARNING in X.java (at line 3)
-					return switch (myInt) {
-					               ^^^^^
-				You are using a preview language feature that may or may not be supported in a future release
-				----------
-				2. ERROR in X.java (at line 5)
+				1. ERROR in X.java (at line 5)
 					default -> 0; // conflict with preceding total pattern (unguarded and unconditional)
 					^^^^^^^
 				Switch case cannot have both unconditional pattern and default label
 				----------
-				3. WARNING in X.java (at line 9)
-					return switch (myInt) { // swapped order of cases
-					               ^^^^^
-				You are using a preview language feature that may or may not be supported in a future release
-				----------
-				4. ERROR in X.java (at line 11)
+				2. ERROR in X.java (at line 11)
 					case int i  -> i; // conflict with preceding default
 					     ^^^^^
 				This case label is dominated by one of the preceding case labels
 				----------
-				5. WARNING in X.java (at line 15)
-					return switch (myInt) {
-					               ^^^^^
-				You are using a preview language feature that may or may not be supported in a future release
-				----------
-				6. ERROR in X.java (at line 17)
+				3. ERROR in X.java (at line 17)
 					case int i  -> i; // conflict with preceding default
 					     ^^^^^
 				This case label is dominated by one of the preceding case labels
 				----------
-				7. WARNING in X.java (at line 18)
+				4. WARNING in X.java (at line 18)
 					case short s -> s; // additionally dominated by int i
 					     ^^^^^^^
 				You are using a preview language feature that may or may not be supported in a future release
 				----------
-				8. ERROR in X.java (at line 18)
+				5. ERROR in X.java (at line 18)
 					case short s -> s; // additionally dominated by int i
 					     ^^^^^^^
 				This case label is dominated by one of the preceding case labels
 				----------
-				9. WARNING in X.java (at line 22)
-					return switch (myInt) {
-					               ^^^^^
-				You are using a preview language feature that may or may not be supported in a future release
-				----------
-				10. WARNING in X.java (at line 24)
+				6. WARNING in X.java (at line 24)
 					case short s -> s; // dominated by int i
 					     ^^^^^^^
 				You are using a preview language feature that may or may not be supported in a future release
 				----------
-				11. ERROR in X.java (at line 24)
+				7. ERROR in X.java (at line 24)
 					case short s -> s; // dominated by int i
 					     ^^^^^^^
 				This case label is dominated by one of the preceding case labels

@@ -6941,10 +6941,20 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 			"""
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
+			"1. WARNING in X.java (at line 4)\n" +
+			"	switch (d) {\n" +
+			"	        ^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
 			"	switch (d) {\n" +
 			"	        ^\n" +
 			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 5)\n" +
+			"	case 1d : i = 1; break;\n" +
+			"	^^^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
 			"----------\n");
 	}
 
@@ -7117,8 +7127,8 @@ public class PrimitiveInPatternsTest extends AbstractRegressionTest9 {
 				"""
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 8)\r\n" +
-			"	default -> -1;\r\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	default -> -1;\n" +
 			"	^^^^^^^\n" +
 			"Switch case cannot have both unconditional pattern and default label\n" +
 			"----------\n");
