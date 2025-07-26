@@ -931,11 +931,16 @@ public class CompilerOptions {
 
 	public static long releaseToJDKLevel(String release) {
 		if (release != null && release.length() > 0) {
-			int major = Integer.parseInt(release) + ClassFileConstants.MAJOR_VERSION_0;
-			if (major <= ClassFileConstants.MAJOR_LATEST_VERSION) {
-				long jdkLevel = ((long) major << 16) + ClassFileConstants.MINOR_VERSION_0;
-				return jdkLevel;
-			}
+			return releaseToJDKLevel(Integer.parseInt(release));
+		}
+		return 0;
+	}
+	
+	public static long releaseToJDKLevel(int release) {
+		int major = release + ClassFileConstants.MAJOR_VERSION_0;
+		if (major <= ClassFileConstants.MAJOR_LATEST_VERSION) {
+			long jdkLevel = ((long) major << 16) + ClassFileConstants.MINOR_VERSION_0;
+			return jdkLevel;
 		}
 		return 0;
 	}

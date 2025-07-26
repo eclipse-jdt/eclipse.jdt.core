@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
@@ -243,6 +244,29 @@ public class CompilationUnitProblemFinder extends Compiler {
 		return false;
 	}
 
+	private static int getRelease(IJavaProject project, ICompilationUnit cu) {
+		try {
+			IClasspathEntry[] rawClasspath = project.getRawClasspath();
+			final IPath resourcePath = cu.getResource().getFullPath();
+			for (IClasspathEntry e : rawClasspath) {
+				if (e.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+					IClasspathAttribute[] extraAttributes = e.getExtraAttributes();
+					for (IClasspathAttribute extra : extraAttributes) {
+						if (IClasspathAttribute.RELEASE.equals(extra.getName())) {
+						if (e.getPath().isPrefixOf(resourcePath)) {
+							return Integer.parseInt(extra.getValue());
+						}
+						}
+					}
+				}
+			}
+		} catch (JavaModelException | NumberFormatException e) {
+			Util.log(e, "Exception while determining the release value for compilation unit \"" + cu.getElementName() //$NON-NLS-1$
+					+ "\"."); //$NON-NLS-1$
+		}
+		return JavaProject.NO_RELEASE;
+	}
+
 	/*
 	 * Can return null if the process was aborted or canceled
 	 */
@@ -262,11 +286,18 @@ public class CompilationUnitProblemFinder extends Compiler {
 		CompilationUnitProblemFinder problemFinder = null;
 		CompilationUnitDeclaration unit = null;
 		try {
-			environment = new CancelableNameEnvironment(project, workingCopyOwner, monitor, !isTestSource(unitElement.getJavaProject(), unitElement));
+			int release = getRelease(project, unitElement);
+			environment = new CancelableNameEnvironment(project, workingCopyOwner, monitor, !isTestSource(unitElement.getJavaProject(), unitElement), release);
 			problemFactory = new CancelableProblemFactory(monitor);
 			CompilerOptions compilerOptions = getCompilerOptions(project.getOptions(true), creatingAST, ((reconcileFlags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0));
 			boolean ignoreMethodBodies = (reconcileFlags & ICompilationUnit.IGNORE_METHOD_BODIES) != 0;
 			compilerOptions.ignoreMethodBodies = ignoreMethodBodies;
+			if (release >= JavaProject.FIRST_MULTI_RELEASE) {
+				compilerOptions.targetJDK = CompilerOptions.releaseToJDKLevel(release);
+				compilerOptions.complianceLevel =compilerOptions.targetJDK;
+				compilerOptions.sourceLevel= compilerOptions.targetJDK;
+				compilerOptions.release = true;
+			}
 			problemFinder = new CompilationUnitProblemFinder(
 				environment,
 				getHandlingPolicy(),
