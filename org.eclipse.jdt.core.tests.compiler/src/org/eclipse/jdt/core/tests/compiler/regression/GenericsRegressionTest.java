@@ -6893,5 +6893,27 @@ public void testGH4236() {
 			"""
 		});
 }
+public void testGH4254() {
+	runConformTest(new String[] {
+			"WorkerPool.java",
+			"""
+			public abstract class WorkerPool<P extends WorkerPool<P, K, W>, K, W extends WorkerPool.Worker<K, P>> {
+
+				void deschedule(K key) { }
+
+				public static abstract class Worker<K, P extends WorkerPool<? extends P, K, ? extends Worker<K, P>>> {
+					private P workPool;
+
+					private K key;
+
+					protected void run() {
+						workPool.deschedule(key);
+					}
+				}
+			}
+			"""
+		}
+	);
+}
 }
 

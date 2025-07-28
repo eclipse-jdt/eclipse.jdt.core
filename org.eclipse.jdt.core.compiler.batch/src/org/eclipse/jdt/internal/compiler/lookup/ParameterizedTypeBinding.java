@@ -78,6 +78,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public ReferenceBinding[] memberTypes;
 	public MethodBinding[] methods;
 	protected ReferenceBinding enclosingType;
+	boolean isCaptureInProgress;
 
 	public ParameterizedTypeBinding(ReferenceBinding type, TypeBinding[] arguments,  ReferenceBinding enclosingType, LookupEnvironment environment){
 		this.environment = environment;
@@ -185,42 +186,47 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		if ((this.tagBits & TagBits.HasDirectWildcard) == 0)
 			return this;
 
-		TypeBinding[] originalArguments = this.arguments;
-		int length = originalArguments.length;
-		TypeBinding[] capturedArguments = new TypeBinding[length];
+		this.isCaptureInProgress = true;
+		try {
+			TypeBinding[] originalArguments = this.arguments;
+			int length = originalArguments.length;
+			TypeBinding[] capturedArguments = new TypeBinding[length];
 
-		// Retrieve the type context for capture bindingKey
-		ReferenceBinding contextType = scope.enclosingSourceType();
-		if (contextType != null) contextType = contextType.outermostEnclosingType(); // maybe null when used programmatically by DOM
+			// Retrieve the type context for capture bindingKey
+			ReferenceBinding contextType = scope.enclosingSourceType();
+			if (contextType != null) contextType = contextType.outermostEnclosingType(); // maybe null when used programmatically by DOM
 
-		CompilationUnitScope compilationUnitScope = scope.compilationUnitScope();
-		ASTNode cud = compilationUnitScope.referenceContext;
+			CompilationUnitScope compilationUnitScope = scope.compilationUnitScope();
+			ASTNode cud = compilationUnitScope.referenceContext;
 
-		for (int i = 0; i < length; i++) {
-			TypeBinding argument = originalArguments[i];
-			if (argument.kind() == Binding.WILDCARD_TYPE) { // no capture for intersection types
-				final WildcardBinding wildcard = (WildcardBinding) argument;
-				if (wildcard.boundKind == Wildcard.SUPER && wildcard.bound.id == TypeIds.T_JavaLangObject)
-					capturedArguments[i] = wildcard.bound;
-				else
-					capturedArguments[i] = this.environment.createCapturedWildcard(wildcard, contextType, start, end, cud, compilationUnitScope::nextCaptureID);
-			} else {
-				capturedArguments[i] = argument;
-			}
-		}
-		ParameterizedTypeBinding capturedParameterizedType = this.environment.createParameterizedType(this.type, capturedArguments, enclosingType(), this.typeAnnotations);
-		for (int i = 0; i < length; i++) {
-			TypeBinding argument = capturedArguments[i];
-			if (argument.isCapture()) {
-				try {
-					CapturingContext.enter(start, end, scope);
-					((CaptureBinding)argument).initializeBounds(scope, capturedParameterizedType);
-				} finally {
-					CapturingContext.leave();
+			for (int i = 0; i < length; i++) {
+				TypeBinding argument = originalArguments[i];
+				if (argument.kind() == Binding.WILDCARD_TYPE) { // no capture for intersection types
+					final WildcardBinding wildcard = (WildcardBinding) argument;
+					if (wildcard.boundKind == Wildcard.SUPER && wildcard.bound.id == TypeIds.T_JavaLangObject)
+						capturedArguments[i] = wildcard.bound;
+					else
+						capturedArguments[i] = this.environment.createCapturedWildcard(wildcard, contextType, start, end, cud, compilationUnitScope::nextCaptureID);
+				} else {
+					capturedArguments[i] = argument;
 				}
 			}
+			ParameterizedTypeBinding capturedParameterizedType = this.environment.createParameterizedType(this.type, capturedArguments, enclosingType(), this.typeAnnotations);
+			for (int i = 0; i < length; i++) {
+				TypeBinding argument = capturedArguments[i];
+				if (argument.isCapture()) {
+					try {
+						CapturingContext.enter(start, end, scope);
+						((CaptureBinding)argument).initializeBounds(scope, capturedParameterizedType);
+					} finally {
+						CapturingContext.leave();
+					}
+				}
+			}
+			return capturedParameterizedType;
+		} finally {
+			this.isCaptureInProgress = false;
 		}
-		return capturedParameterizedType;
 	}
 
 	/**

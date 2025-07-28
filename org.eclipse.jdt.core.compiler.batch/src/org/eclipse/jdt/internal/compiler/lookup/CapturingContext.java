@@ -51,7 +51,7 @@ public class CapturingContext {
 	}
 
 	public static ReferenceBinding maybeCapture(ReferenceBinding type) {
-		if (type instanceof ParameterizedTypeBinding ptb) {
+		if (type instanceof ParameterizedTypeBinding ptb && !ptb.isCaptureInProgress) {
 			CapturingContext inst = activeContexts.get();
 			if (inst != null && !inst.isCaptureInProgress) {
 				try {
