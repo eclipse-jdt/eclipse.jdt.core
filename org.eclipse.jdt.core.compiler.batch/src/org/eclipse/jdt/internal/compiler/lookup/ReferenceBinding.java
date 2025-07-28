@@ -2341,10 +2341,10 @@ private MethodBinding[] getFunctionalInterfaceAbstractContracts(Scope scope, boo
 		for (int j = i + 1; j < length; j++) {
 			MethodBinding otherMethod = methods[j];
 			if (method.selector.length != otherMethod.selector.length || !CharOperation.equals(method.selector, otherMethod.selector))
-				break; // Skip comparing apple to oranges.
+				break; // Skip comparing apple to oranges (input sorted by selector, so no viable overrides past this point)
 			if (MethodVerifier.doesMethodOverride(otherMethod, method, environment)) {
 				methods[i] = method = null;
-				break; // Skip comparing rotten apple with remaining lot.
+				break; // Skip comparing rotten apple with remaining lot: is overridden already, no use checking if is overridden also by another
 			}
 		}
 		if (method != null && method.isAbstract()) {
