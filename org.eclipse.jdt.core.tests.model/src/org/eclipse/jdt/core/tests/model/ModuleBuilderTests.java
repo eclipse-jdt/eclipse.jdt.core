@@ -7266,7 +7266,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			addLibraryEntry(p2, file.getFullPath(), false);
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
-			assertMarkers("Unexpected markers", "", markers);
+			assertMarkers(
+					"Should see one marker for missing jar",
+					"""
+					Archive for required library: 'link.jar' in project 'Bug540904' cannot be read or is not a valid ZIP file
+					The project cannot be built until build path errors are resolved""",
+					markers);
 		} finally {
 			this.deleteProject("Bug540904");
 		}

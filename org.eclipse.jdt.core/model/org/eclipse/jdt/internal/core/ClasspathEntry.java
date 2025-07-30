@@ -2548,11 +2548,9 @@ public class ClasspathEntry implements IClasspathEntry {
 		try {
 			manager.verifyArchiveContent(path);
 		} catch (CoreException e) {
-			if (e.getStatus().getMessage() == Messages.status_IOException) {
-				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(
-						Messages.classpath_archiveReadError,
-						new String[] {entryPathMsg, project.getElementName()}));
-			}
+			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(
+					Messages.classpath_archiveReadError,
+					new String[] {entryPathMsg, project.getElementName()}));
 		}
 		return JavaModelStatus.VERIFIED_OK;
 	}
