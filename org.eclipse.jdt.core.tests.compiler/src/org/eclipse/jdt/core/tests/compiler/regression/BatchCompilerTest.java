@@ -68,7 +68,7 @@ import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
 public class BatchCompilerTest extends AbstractBatchCompilerTest {
 
 	static {
-//		TESTS_NAMES = new String[] { "test3445" };
+		TESTS_NAMES = new String[] { "testBug550255" };
 //		TESTS_NUMBERS = new int[] { 306 };
 //		TESTS_RANGE = new int[] { 298, -1 };
 	}
@@ -13325,5 +13325,36 @@ public void testIssue3827_3() {
 				"",
 				"",
 				true);
+}
+public void testBug550255() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	public static int field1;\n" +
+			"	public static int field2;\n" +
+			"	private synchronized static String foo() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public synchronized void foo1() {\n" +
+			"		System.out.println(field1);\n" +
+			"	}\n" +
+			"	public final void foo2() {\n" +
+			"		System.out.println(field2);\n" +
+			"	}\n" +
+			"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -warn:static-method -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" +
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 10)\n"
+		+ "	public final void foo2() {\n"
+		+ "	                  ^^^^^^\n"
+		+ "The method foo2() from the type X can be declared as static\n"
+		+ "----------\n"
+		+ "1 problem (1 warning)\n",
+		true);
 }
 }
