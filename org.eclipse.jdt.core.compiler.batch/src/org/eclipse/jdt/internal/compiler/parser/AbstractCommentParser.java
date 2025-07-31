@@ -435,30 +435,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345: count opening braces when ignoring tags
 						if (considerTagAsPlainText) {
 							openingBraces++;
-						} else if (this.inlineTagStarted) {
-							if (this.tagValue == TAG_RETURN_VALUE) {
-								this.inlineReturn= true;
-							}
-							if (this.inlineReturn && peekChar() != '@') {
-								++this.inlineReturnOpenBraces;
-								doNotResetInlineTagStart= true;
-							} else {
-								if (this.lineStarted && this.textStart != -1 && this.textStart < textEndPosition) {
-									pushText(this.textStart, textEndPosition);
-								}
-								setInlineTagStarted(false);
-								// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53279
-								// Cannot have opening brace in inline comment
-								if (this.reportProblems && !this.inlineReturn) {
-									int end = previousPosition<invalidInlineTagLineEnd ? previousPosition : invalidInlineTagLineEnd;
-									this.sourceParser.problemReporter().javadocUnterminatedInlineTag(this.inlineTagStart, end);
-								}
-								refreshInlineTagPosition(textEndPosition);
-								textEndPosition = this.index;
-							}
-						} else if (peekChar() != '@') {
-							if (this.textStart == -1) this.textStart = previousPosition;
-							textEndPosition = this.index;
+						} else if (this.inlineTagStarted && this.tagValue == TAG_RETURN_VALUE) {
+					        this.inlineReturn= true;
+					        this.inlineReturnOpenBraces++;
 						}
 						if (!this.lineStarted && !this.inlineReturn) {
 							this.textStart = previousPosition;

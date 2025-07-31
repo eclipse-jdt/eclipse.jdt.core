@@ -1866,7 +1866,6 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 		}
 	}
 
-	//this is a malfound test. Need to to analysis how it works
 	public void testIllegelTagElement_02() throws JavaModelException {
 		String source= """
 				///{@link #getValue()
@@ -1881,15 +1880,15 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			Javadoc javadoc = typedeclaration.getJavadoc();
 			List<TagElement> te = javadoc.tags();
 			assertEquals("TagElement length is grater than one", 1, te.size());
-			List<TagElement> tes = (te.get(0)).fragments();
-			assertEquals("fragments count does not match", 1, tes.size());
-			assertEquals("TagName", "@link", tes.get(0).getTagName());
-			List<?> fragments = tes.get(0).fragments();
+			List<?> tes = (te.get(0)).fragments();
+			assertEquals("fragments count does not match", 2, tes.size());
+			assertEquals("TagName", "@link", ((TagElement) tes.get(0)).getTagName());
+			List<?> fragments = ((TagElement) tes.get(0)).fragments();
 			assertTrue(fragments.get(0) instanceof MethodRef);
 			assertTrue(fragments.get(1) instanceof TextElement);
-			assertEquals("Incorrect text", "value", fragments.get(1).toString());
+			assertEquals("Incorrect text", "value{", fragments.get(1).toString());
 			assertEquals("Incorrect name", "#getValue()", fragments.get(0).toString());
-			assertTrue(te.get(0).getLength() < tes.get(0).getLength());
+			assertEquals(te.get(0).getLength(), ((TagElement) tes.get(0)).getLength() + ((TextElement) tes.get(1)).getLength());
 		}
 	}
 
