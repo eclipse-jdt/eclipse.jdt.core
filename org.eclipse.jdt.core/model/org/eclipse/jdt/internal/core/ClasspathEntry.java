@@ -1016,7 +1016,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		if (!(target instanceof IFile || target instanceof File))
 			return null;
 
-		List calledFileNames = null;
+		List<String> calledFileNames = null;
 		try {
 			char[] manifestContents = getManifestContents(jarPath);
 			if (manifestContents == null)
