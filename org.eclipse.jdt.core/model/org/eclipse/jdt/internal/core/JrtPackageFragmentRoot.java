@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
@@ -50,7 +51,7 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 
 	public static final ThreadLocal<Boolean> workingOnOldClasspath = new ThreadLocal<>();
 
-	record JrtModuleKey(File image, String moduleName, String classNameSubFolder) {/** nothing */}
+	record JrtModuleKey(File image, String release, String moduleName, String classNameSubFolder) {/** nothing */}
 	/**
 	 * static cache for org.eclipse.jdt.internal.core.JarPackageFragmentRootInfo.rawPackageInfo across JarPackageFragmentRoot instances per java project
 	 *
@@ -69,7 +70,7 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 
 	@Override
 	protected boolean computeChildren(OpenableElementInfo info, IResource underlyingResource) throws JavaModelException {
-		JrtModuleKey key = new JrtModuleKey(this.jarPath.toFile(), this.moduleName, getClassNameSubFolder());
+		JrtModuleKey key = new JrtModuleKey(this.jarPath.toFile(), this.getJavaProject().getReleaseOption(), this.moduleName, getClassNameSubFolder());
 		Map<List<String>, PackageContent> rawPackageInfo;
 		rawPackageInfo = childrenCache.computeIfAbsent(key, JrtPackageFragmentRoot::computeChildren);
 		info.setChildren(createChildren(rawPackageInfo.keySet()));
@@ -87,7 +88,7 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 		// always create the default package
 		rawPackageInfo.put(List.of(), new PackageContent());
 		try {
-			org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(image,
+			org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(image, key.release(),
 					new org.eclipse.jdt.internal.compiler.util.JRTUtil.JrtFileVisitor<Path>() {
 						@Override
 						public FileVisitResult visitPackage(Path dir, Path mod, BasicFileAttributes attrs)
@@ -134,9 +135,12 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 		if (this == o)
 			return true;
 		if (o instanceof JrtPackageFragmentRoot other) {
-			return this.moduleName.equals(other.moduleName) &&
+			boolean result = this.moduleName.equals(other.moduleName) &&
 					this.jarPath.equals(other.jarPath) &&
 					Arrays.equals(this.extraAttributes, other.extraAttributes);
+			if (!result)
+				return false;
+			return Objects.equals(this.getJavaProject().getReleaseOption(), other.getJavaProject().getReleaseOption());
 		}
 		return false;
 	}

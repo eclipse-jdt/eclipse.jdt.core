@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -33,6 +33,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 import javax.xml.parsers.DocumentBuilder;
@@ -741,9 +742,7 @@ public class JavaProject
 								if (limitModules != null) {
 									rootModules = Arrays.asList(limitModules.split(",")); //$NON-NLS-1$
 								} else if (isUnNamedModule()) {
-									String release = JavaCore.ENABLED.equals(getOption(JavaCore.COMPILER_RELEASE, true))
-											? getOption(JavaCore.COMPILER_COMPLIANCE, true) : null;
-									rootModules = defaultRootModules((Iterable) imageRoots, release);
+									rootModules = defaultRootModules((Iterable) imageRoots, getReleaseOption());
 								}
 								if (rootModules != null) {
 									imageRoots = filterLimitedModules(entryPath, imageRoots, rootModules);
@@ -902,7 +901,8 @@ public class JavaProject
 				JrtPackageFragmentRoot root = this.modNames2Roots.get(moduleName);
 				if (root != null) {
 					try {
-						ClassFileReader classFile = JRTUtil.getClassfile(this.jrtFile, TypeConstants.MODULE_INFO_CLASS_NAME_STRING, root.moduleName, null);
+						String releaseOption = root.getJavaProject().getReleaseOption();
+						ClassFileReader classFile = JRTUtil.getClassfile(this.jrtFile, releaseOption, TypeConstants.MODULE_INFO_CLASS_NAME_STRING, root.moduleName, (Predicate<String>) null);
 						result = classFile.getModuleDeclaration();
 						this.modules.put(moduleName, result);
 					} catch (IOException | ClassFormatException e) {
@@ -952,7 +952,7 @@ public class JavaProject
 	private void loadModulesInJimage(final IPath imagePath, final ObjectVector roots, final Map rootToResolvedEntries,
 				final IClasspathEntry resolvedEntry, final IClasspathEntry referringEntry) {
 		try {
-			org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(imagePath.toFile(),
+			org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(imagePath.toFile(), getReleaseOption(),
 					new org.eclipse.jdt.internal.compiler.util.JRTUtil.JrtFileVisitor<java.nio.file.Path>() {
 				@Override
 				public FileVisitResult visitPackage(java.nio.file.Path dir, java.nio.file.Path mod, BasicFileAttributes attrs) throws IOException {
@@ -1911,7 +1911,14 @@ public class JavaProject
 						manager.deltaState.addClasspathValidation(JavaProject.this);
 					}
 					checkExpireModule(propertyName, event.getOldValue(), event.getNewValue());
-					manager.resetProjectOptions(JavaProject.this);
+					boolean releaseChanged = propertyName.equals(JavaCore.COMPILER_RELEASE) ||
+							(propertyName.equals(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM) &&
+									getOption(JavaCore.COMPILER_RELEASE, true).equals(JavaCore.ENABLED));
+					try {
+						manager.resetProjectOptions(JavaProject.this, releaseChanged);
+					} catch (JavaModelException e) {
+						// Ignore and move on?
+					}
 					JavaProject.this.resetCaches(); // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=233568
 				}
 			}
@@ -2080,7 +2087,19 @@ public class JavaProject
 
 		return ((JavaProjectElementInfo) getElementInfo()).getNonJavaResources(this);
 	}
-
+	public String getReleaseOption() {
+		if (JavaCore.DISABLED.equals(getOption(JavaCore.COMPILER_RELEASE, true)))
+				return null;
+		String compliance = getOption(JavaCore.COMPILER_SOURCE, true);
+		int index = compliance.indexOf('.');
+		if ( index >= -1) {
+			compliance = compliance.substring(index+1);
+		}
+		if (CompilerOptions.releaseToJDKLevel(compliance) != 0) {
+			return compliance;
+		}
+		return null;
+	}
 	/**
 	 * @see org.eclipse.jdt.core.IJavaProject#getOption(String, boolean)
 	 */

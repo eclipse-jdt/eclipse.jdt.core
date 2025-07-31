@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2022 IBM Corporation.
+ * Copyright (c) 2015, 2024 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -80,22 +80,6 @@ public class JRTUtil {
 		 */
 		public default FileVisitResult visitModule(T path, String name) throws IOException  {
 			return FileVisitResult.CONTINUE;
-		}
-	}
-
-	/**
-	 * @param image the path to the root of the JRE whose libraries we are interested in.
-	 * @return may return {@code null}
-	 * @deprecated use {@link JRTUtil#getJrtSystem(File, String)} instead
-	 */
-	public static JrtFileSystem getJrtSystem(File image) {
-		try {
-			return getJrtSystem(image, null);
-		} catch (IOException e) {
-			if(PROPAGATE_IO_ERRORS) {
-				throw new IllegalStateException(e);
-			}
-			return null;
 		}
 	}
 
@@ -217,13 +201,13 @@ public class JRTUtil {
 	 *  {@link JRTUtil#NOTIFY_FILES}, {@link JRTUtil#NOTIFY_PACKAGES} and {@link JRTUtil#NOTIFY_MODULES}.
 	 *
 	 * @param image a java.io.File handle to the JRT image.
+	 * @param release the --release option from the project's build path configuration
 	 * @param visitor an instance of JrtFileVisitor to be notified of the entries in the JRT image.
 	 * @param notify flag indicating the notifications the client is interested in.
 	 */
-	public static void walkModuleImage(File image, JRTUtil.JrtFileVisitor<Path> visitor, int notify) throws IOException {
-		walkModuleImage(getJrtSystem(image, null), visitor, notify);
+	public static void walkModuleImage(File image, String release, JRTUtil.JrtFileVisitor<Path> visitor, int notify) throws IOException {
+		walkModuleImage(getJrtSystem(image, release), visitor, notify);
 	}
-
 	public static void walkModuleImage(JrtFileSystem system, JRTUtil.JrtFileVisitor<Path> visitor, int notify) throws IOException {
 		if (system == null) {
 			return;
@@ -231,20 +215,20 @@ public class JRTUtil {
 		system.walkModuleImage(visitor, notify);
 	}
 
-	public static InputStream getContentFromJrt(File jrt, String fileName, String module) throws IOException {
-		JrtFileSystem system = getJrtSystem(jrt, null);
+	public static InputStream getContentFromJrt(File jrt, String release, String fileName, String module) throws IOException {
+		JrtFileSystem system = getJrtSystem(jrt, release);
 		if (system == null) {
 			throw new FileNotFoundException(String.valueOf(jrt));
 		}
 		return system.getContentFromJrt(fileName, module);
 	}
 
-	public static byte[] getClassfileContent(File jrt, String fileName, String module) throws IOException {
-		JrtFileSystem system = getJrtSystem(jrt, null);
+	public static byte[] getClassfileContent(File jrt, String release, String fileName, String module) throws IOException {
+		JrtFileSystem system = getJrtSystem(jrt, release);
 		if (system == null) {
 			throw new FileNotFoundException(String.valueOf(system));
 		}
-		return getClassfileContent(system,fileName, module);
+		return getClassfileContent(system, fileName, module);
 	}
 
 	public static byte[] getClassfileContent(JrtFileSystem system, String fileName, String module)
@@ -252,16 +236,16 @@ public class JRTUtil {
 		return system.getClassfileContent(fileName, module);
 	}
 
-	public static ClassFileReader getClassfile(File jrt, String fileName, String module) throws IOException, ClassFormatException {
-		JrtFileSystem system = getJrtSystem(jrt, null);
+	public static ClassFileReader getClassfile(File jrt, String release, String fileName, String module) throws IOException, ClassFormatException {
+		JrtFileSystem system = getJrtSystem(jrt, release);
 		if (system == null) {
 			throw new FileNotFoundException(String.valueOf(jrt));
 		}
 		return system.getClassfile(fileName, module);
 	}
 
-	public static ClassFileReader getClassfile(File jrt, String fileName, String module, Predicate<String> moduleNameFilter) throws IOException, ClassFormatException {
-		JrtFileSystem jrtSystem = getJrtSystem(jrt, null);
+	public static ClassFileReader getClassfile(File jrt, String release, String fileName, String module, Predicate<String> moduleNameFilter) throws IOException, ClassFormatException {
+		JrtFileSystem jrtSystem = getJrtSystem(jrt, release);
 		if (jrtSystem == null) {
 			throw new FileNotFoundException(String.valueOf(jrt));
 		}
@@ -274,20 +258,11 @@ public class JRTUtil {
 		return system.getClassfile(fileName, module, moduleNameFilter);
 	}
 
-	public static List<String> getModulesDeclaringPackage(File jrt, String qName, String moduleName) {
-		return getModulesDeclaringPackage(getJrtSystem(jrt), qName, moduleName);
-	}
-
 	public static List<String> getModulesDeclaringPackage(JrtFileSystem system, String qName, String moduleName) {
 		if (system == null) {
 			return List.of();
 		}
 		return system.getModulesDeclaringPackage(qName, moduleName);
-	}
-
-	public static boolean hasCompilationUnit(File jrt, String qualifiedPackageName, String moduleName) {
-		JrtFileSystem system = getJrtSystem(jrt);
-		return hasCompilationUnit(system, qualifiedPackageName, moduleName);
 	}
 
 	public static boolean hasCompilationUnit(JrtFileSystem system, String qualifiedPackageName, String moduleName) {
@@ -349,7 +324,7 @@ class JrtFileSystemWithOlderRelease extends JrtFileSystem {
 
 	private final List<Path> releaseRoots;
 	private final CtSym ctSym;
-
+	String releaseCode;
 	/**
 	 * The jrt file system is based on the location of the JRE home whose libraries
 	 * need to be loaded.
@@ -357,17 +332,61 @@ class JrtFileSystemWithOlderRelease extends JrtFileSystem {
 	 * @param release the older release where classes and modules should be searched for.
 	 */
 	JrtFileSystemWithOlderRelease(Jdk jdkHome, String release) throws IOException {
-		super(jdkHome, release);
-		String releaseCode = CtSym.getReleaseCode(this.release);
+		super(jdkHome);
+		String code = CtSym.getReleaseCode(release);
 		this.ctSym = JRTUtil.getCtSym(this.jdk.path);
-		this.fs = this.ctSym.getFs();
-		if (!Files.exists(this.fs.getPath(releaseCode))
-				|| Files.exists(this.fs.getPath(releaseCode, "system-modules"))) { //$NON-NLS-1$
-			this.fs = null;
-		}
-		this.releaseRoots = this.ctSym.releaseRoots(releaseCode);
+		this.releaseRoots = this.ctSym.releaseRoots(code);
+		this.releaseCode = code;
 	}
-
+	@Override
+	ClassFileReader getClassfileFromModule(String fileName, String module) throws IOException, ClassFormatException {
+		String qualifiedName = fileName.replace(".class", ".sig"); //$NON-NLS-1$ //$NON-NLS-2$
+		Path fullPath = this.ctSym.getFullPath(this.releaseCode, qualifiedName, module);
+		byte[] content = null;
+		if(JRTUtil.DISABLE_CACHE) {
+			content = JRTUtil.safeReadBytes(fullPath);
+		} else {
+			content = JRTUtil.classCache.getClassBytes(this.jdk, fullPath);
+		}
+		if (content != null) {
+			ClassFileReader reader = new ClassFileReader(fullPath.toUri(), content, fileName.toCharArray());
+			reader.moduleName = module.toCharArray();
+			return reader;
+		} else {
+			return null;
+		}
+	}
+	@Override
+	byte[] getClassfileContent(String fileName, String module) throws IOException {
+		String qualifiedName = fileName.replace(".class", ".sig"); //$NON-NLS-1$ //$NON-NLS-2$
+		Path fullPath = this.ctSym.getFullPath(this.releaseCode, qualifiedName, module);
+		byte[] content = null;
+		// If file is known, read it from ct.sym
+		if (fullPath != null) {
+			content = this.ctSym.getFileBytes(fullPath);
+			if (module != null) {
+				content = getFileBytes(fileName, module);
+			} else {
+				String[] modules = getModules(fileName);
+				for (String mod : modules) {
+					content = getFileBytes(fileName, mod);
+					if (content != null) {
+						break;
+					}
+				}
+			}
+		}
+		return content;
+	}
+	private byte[] getFileBytes(String fileName, String module) throws IOException {
+		String qualifiedName = fileName.replace(".class", ".sig"); //$NON-NLS-1$ //$NON-NLS-2$
+		Path fullPath = this.ctSym.getFullPath(this.releaseCode, qualifiedName, module);
+		if(JRTUtil.DISABLE_CACHE) {
+			return JRTUtil.safeReadBytes(fullPath);
+		} else {
+			return JRTUtil.classCache.getClassBytes(this.jdk, fullPath);
+		}
+	}
 	@Override
 	void walkModuleImage(final JRTUtil.JrtFileVisitor<Path> visitor, final int notify) throws IOException {
 		for (Path p : this.releaseRoots) {

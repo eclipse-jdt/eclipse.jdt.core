@@ -465,6 +465,9 @@ protected IBuffer openBuffer(IProgressMonitor pm, IElementInfo info) throws Java
 }
 /** Loads the buffer via SourceMapper, and maps it in SourceMapper */
 private IBuffer mapSource(SourceMapper mapper, IBinaryType info, IClassFile bufferOwner) {
+	if (getJavaProject().getReleaseOption() != null) {
+		return null;
+	}
 	char[] contents = mapper.findSource(getType(), info);
 	if (contents != null) {
 		// create buffer

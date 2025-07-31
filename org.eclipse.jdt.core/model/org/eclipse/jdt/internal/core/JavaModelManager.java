@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -4300,12 +4300,19 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	/*
 	 * Reset project options stored in info cache.
 	 */
-	public void resetProjectOptions(JavaProject javaProject) {
+	public void resetProjectOptions(JavaProject javaProject, boolean releaseChanged) throws JavaModelException {
 		synchronized(this.perProjectInfos) { // use the perProjectInfo collection as its own lock
 			IProject project = javaProject.getProject();
 			PerProjectInfo info= this.perProjectInfos.get(project);
 			if (info != null) {
 				info.options = null;
+				if (releaseChanged) {
+					// Perhaps an easier way out is to treat this as a classpath change?
+					if (info.jrtRoots != null)
+						info.jrtRoots.clear();
+					removeInfoAndChildren(javaProject);
+					resetJarTypeCache();
+				}
 			}
 		}
 	}

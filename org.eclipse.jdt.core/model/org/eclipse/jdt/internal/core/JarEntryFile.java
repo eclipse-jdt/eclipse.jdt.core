@@ -53,7 +53,8 @@ public class JarEntryFile  extends JarEntryResource {
 			try {
 				Object target = JavaModel.getTarget(root, false);
 				if (target instanceof File file) {
-					return JRTUtil.getContentFromJrt(file, getEntryName(), root.getElementName());
+					String release = ((JavaProject) root.getJavaProject()).getReleaseOption();
+					return JRTUtil.getContentFromJrt(file, release, getEntryName(), root.getElementName());
 				}
 			} catch (IOException e) {
 				throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
