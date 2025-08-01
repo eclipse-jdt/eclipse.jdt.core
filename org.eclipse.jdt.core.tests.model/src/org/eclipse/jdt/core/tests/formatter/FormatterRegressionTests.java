@@ -15504,7 +15504,6 @@ public void testBug54627b() throws JavaModelException {
 		"	}\n" +
 		"}");
 }
-
 /**
  * https://bugs.eclipse.org/547261 - [formatter] Separate option for space after not (!) operator
  */
@@ -16493,6 +16492,15 @@ public void testIssue2977() {
 }
 	public void testMarkdownSpacingFormat() throws JavaModelException {
 		setComplianceLevel(CompilerOptions.VERSION_23);
+		String input = """
+			    class Mark {
+			    	/// @param 		param
+			    	///  @return 			int
+			    	public int sample(String param) {
+			    		return 0;
+			    	}
+			    }
+			    """;
 		String expected = """
 			    class Mark {
 			    	/// @param param
@@ -16502,17 +16510,7 @@ public void testIssue2977() {
 			    	}
 			    }
 			    """;
-		String code = """
-			    class Mark {
-			    	/// @param 		param
-			    	///  @return 			int
-			    	public int sample(String param) {
-			    		return 0;
-			    	}
-			    }
-			    """;
-
-		formatSource(code,expected);
+		formatSource(input,expected);
 	}
 	public void testMarkdownEmptyLinesBtwnDiffTags() throws JavaModelException {
 		setComplianceLevel(CompilerOptions.VERSION_23);
