@@ -7266,6 +7266,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			addLibraryEntry(p2, file.getFullPath(), false);
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
 			assertMarkers(
 					"Should see one marker for missing jar",
 					"""
