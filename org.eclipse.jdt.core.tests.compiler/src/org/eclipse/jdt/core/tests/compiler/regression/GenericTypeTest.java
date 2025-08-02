@@ -28976,7 +28976,7 @@ public void test0909() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127583
 public void test0910() {
-	int[] capIds = new int[]{ 1, 2, 3, 4, 8};
+	int[] capIds = new int[]{ 1, 3, 4, 6, 13};
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -31064,11 +31064,6 @@ public void test0962() {
 		"	throw new Exception(\"Bug134645\") {\n" +
 		"	          ^^^^^^^^^\n" +
 		"The generic class new Exception(){} may not subclass java.lang.Throwable\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 3)\n" +
-		"	throw new Exception(\"Bug134645\") {\n" +
-		"	          ^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The serializable class  does not declare a static final serialVersionUID field of type long\n" +
 		"----------\n",
 		// javac options
 		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);

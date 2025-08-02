@@ -899,7 +899,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 				new StringBuilder(" --release 25"),
 				"",
 				"");
-		verifyClassFile("version 25 : 69.0", "module-info.class", ClassFileBytesDisassembler.SYSTEM, true); // FIXME skip due to https://bugs.openjdk.org/browse/JDK-8347646
+		verifyClassFile("version 25 : 69.0", "module-info.class", ClassFileBytesDisassembler.SYSTEM);
 		verifyClassFile("version 25 : 69.0", "p1/Client.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 

@@ -8258,13 +8258,8 @@ protected void consumeLambdaHeader() {
 		if (argument.isReceiver()) {
 			problemReporter().illegalThis(argument);
 		}
-		if (this.parsingJava8Plus && !JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(this.options) && argument.name.length == 1 && argument.name[0] == '_') {
-			if (this.parsingJava22Plus) {
-				problemReporter().validateJavaFeatureSupport(JavaFeature.UNNAMMED_PATTERNS_AND_VARS, argument.sourceStart, argument.sourceEnd);
-			} else {
-				problemReporter().illegalUseOfUnderscoreAsAnIdentifier(argument.sourceStart, argument.sourceEnd, true, false); // true == lambdaParameter
-			}
-		}
+		if (this.parsingJava8Plus && !JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(this.options) && argument.name.length == 1 && argument.name[0] == '_')
+			problemReporter().illegalUseOfUnderscoreAsAnIdentifier(argument.sourceStart, argument.sourceEnd, true, false); // true == lambdaParameter
 	}
 	LambdaExpression lexp = (LambdaExpression) this.astStack[this.astPtr];
 	lexp.setArguments(arguments);
@@ -12451,13 +12446,8 @@ protected void pushIdentifier(char [] identifier, long position) {
 			stackLength);
 	}
 	this.identifierLengthStack[this.identifierLengthPtr] = 1;
-	if (this.parsingJava8Plus && !JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(this.options) && identifier.length == 1 && identifier[0] == '_' && !this.processingLambdaParameterList) {
-		if (this.parsingJava22Plus) {
-			problemReporter().validateJavaFeatureSupport(JavaFeature.UNNAMMED_PATTERNS_AND_VARS, (int) (position >>> 32), (int) position);
-		} else {
-			problemReporter().illegalUseOfUnderscoreAsAnIdentifier((int) (position >>> 32), (int) position, this.parsingJava9Plus, false);
-		}
-	}
+	if (this.parsingJava8Plus && !JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(this.options) && identifier.length == 1 && identifier[0] == '_' && !this.processingLambdaParameterList)
+		problemReporter().illegalUseOfUnderscoreAsAnIdentifier((int) (position >>> 32), (int) position, this.parsingJava9Plus, false);
 }
 protected void pushIdentifier() {
 	/*push the consumeToken on the identifier stack.

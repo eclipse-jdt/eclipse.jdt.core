@@ -26145,11 +26145,11 @@ public void testBug574982() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"ABC[TYPE_REF]{p1.ABC, p1, Lp1.ABC;, null, null, 69}\n" +
-			"ABC[TYPE_REF]{p2.ABC, p2, Lp2.ABC;, null, null, 69}\n" +
-			"A3[TYPE_REF]{A3, , LA3;, null, null, 72}\n" +
-			"ArrayTest[TYPE_REF]{ArrayTest, , LArrayTest;, null, null, 72}\n" +
-			"A[TYPE_REF]{A, , LA;, null, null, 76}",
+			"ABC[TYPE_REF]{p1.ABC, p1, Lp1.ABC;, null, null, 49}\n" +
+			"ABC[TYPE_REF]{p2.ABC, p2, Lp2.ABC;, null, null, 49}\n" +
+			"A3[TYPE_REF]{A3, , LA3;, null, null, 52}\n" +
+			"ArrayTest[TYPE_REF]{ArrayTest, , LArrayTest;, null, null, 52}\n" +
+			"A[TYPE_REF]{A, , LA;, null, null, 56}",
 			requestor.getResults());
 }
 /**
