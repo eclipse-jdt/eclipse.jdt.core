@@ -56,7 +56,7 @@ public class NullAnnotationModelTests9 extends ReconcilerTests {
 //		Bundle[] bundles = org.eclipse.jdt.core.tests.Activator.getPackageAdmin().getBundles("org.eclipse.jdt.annotation", "[2.2.0,3.0.0)");
 //		File bundleFile = FileLocator.getBundleFile(bundles[0]);
 //		this.ANNOTATION_LIB = bundleFile.isDirectory() ? bundleFile.getPath()+"/bin" : bundleFile.getPath();
-		this.ANNOTATION_LIB = NullAnnotationTests9.createAnnotation_2_2_jar(getExternalPath(), getExternalJCLPathString("9"));
+		this.ANNOTATION_LIB = NullAnnotationTests9.createAnnotation_2_4_jar(getExternalPath(), getExternalJCLPathString("9"));
 	}
 
 	protected String testJarPath(String jarName) throws IOException {
