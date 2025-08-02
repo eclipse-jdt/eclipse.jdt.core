@@ -199,18 +199,18 @@ public class TextEditsBuilder extends TokenTraverser {
 		if (isTextBlock)
 			return;
 		if (token != null && token.tokenType == TokenNameNotAToken)
-			return; // this is an unformatted block comment, don't force asterisk
+			return; // this is an unformatted block comment, don't force markerChar
 		if (getNext() == null && !emptyLine) {
-			if(token.tokenType == TokenNameCOMMENT_MARKDOWN) {
-				this.buffer.append("///"); //$NON-NLS-1$
+			if(token != null && token.tokenType == TokenNameCOMMENT_MARKDOWN) {
+				this.buffer.append("/// "); //$NON-NLS-1$
 			}
-			return; // this is the last token of block comment, asterisk is included
+			return; // this is the last token of block comment, markerChar is included
 		}
-		boolean asteriskFound = false;
+		boolean markerCharFound = false;
 		int searchLimit = token != null ? token.originalStart : this.sourceLimit;
 		for (int i = this.counter; i < searchLimit; i++) {
 			char c = this.source.charAt(i);
-			if (c == '*' ) {
+			if (c == '*' && token != null && token.tokenType != TokenNameCOMMENT_MARKDOWN) {
 				this.buffer.append(' ');
 				flushBuffer(i);
 				while (i + 1 < this.sourceLimit && this.source.charAt(i + 1) == '*')
@@ -219,10 +219,10 @@ public class TextEditsBuilder extends TokenTraverser {
 				c = this.source.charAt(i + 1);
 				if ((c != '\r' && c != '\n') || !emptyLine)
 					this.buffer.append(' ');
-				asteriskFound = true;
+				markerCharFound = true;
 				break;
 			}
-			if (c == '/' && token.tokenType == TokenNameCOMMENT_MARKDOWN) {
+			if (c == '/' && token != null && token.tokenType == TokenNameCOMMENT_MARKDOWN) {
 				while(c=='/') {
 					i++;
 					c = this.source.charAt(i);
@@ -231,19 +231,18 @@ public class TextEditsBuilder extends TokenTraverser {
 				flushBuffer(i);
 				this.counter = i + 1;
 				c = this.source.charAt(i);
-				asteriskFound = true;
+				markerCharFound = true;
 				break;
 			}
 			if (!ScannerHelper.isWhitespace(c))
 				break;
 		}
-		if (!asteriskFound) {
+		if (!markerCharFound) {
 			if(token.tokenType == TokenNameCOMMENT_MARKDOWN) {
 				this.buffer.append("/// "); //$NON-NLS-1$
 			} else {
 				this.buffer.append(" * ");//$NON-NLS-1$
 			}
-
 		}
 
 	}
