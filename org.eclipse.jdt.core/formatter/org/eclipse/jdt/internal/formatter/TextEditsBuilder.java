@@ -208,29 +208,20 @@ public class TextEditsBuilder extends TokenTraverser {
 		}
 		boolean markerCharFound = false;
 		int searchLimit = token != null ? token.originalStart : this.sourceLimit;
+		char markerChar = token != null && token.tokenType == TokenNameCOMMENT_MARKDOWN ? '/' : '*';
+		boolean isMarkdown = token != null && token.tokenType == TokenNameCOMMENT_MARKDOWN;
 		for (int i = this.counter; i < searchLimit; i++) {
 			char c = this.source.charAt(i);
-			if (c == '*' && token != null && token.tokenType != TokenNameCOMMENT_MARKDOWN) {
-				this.buffer.append(' ');
+			if (c == markerChar) {
+				if (!isMarkdown)
+					this.buffer.append(' ');
 				flushBuffer(i);
-				while (i + 1 < this.sourceLimit && this.source.charAt(i + 1) == '*')
+				while (i + 1 < this.sourceLimit && this.source.charAt(i + 1) == markerChar)
 					i++;
 				this.counter = i + 1;
 				c = this.source.charAt(i + 1);
 				if ((c != '\r' && c != '\n') || !emptyLine)
 					this.buffer.append(' ');
-				markerCharFound = true;
-				break;
-			}
-			if (c == '/' && token != null && token.tokenType == TokenNameCOMMENT_MARKDOWN) {
-				while(c=='/') {
-					i++;
-					c = this.source.charAt(i);
-				}
-				this.buffer.append("///"); //$NON-NLS-1$
-				flushBuffer(i);
-				this.counter = i + 1;
-				c = this.source.charAt(i);
 				markerCharFound = true;
 				break;
 			}
