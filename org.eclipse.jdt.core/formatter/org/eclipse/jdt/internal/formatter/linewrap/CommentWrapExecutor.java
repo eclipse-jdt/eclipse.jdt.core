@@ -133,8 +133,8 @@ public class CommentWrapExecutor extends TokenTraverser {
 		final int positionIfNewLine = getStartingPosition(token, true);
 
 		int lineBreaksBefore = getLineBreaksBefore();
-		if ((index == 1 || getNext() == null) && this.newLinesAtBoundries && lineBreaksBefore == 0 ) {
-			if (!this.simulation && token.tokenType != TokenNameCOMMENT_MARKDOWN)
+		if ((index == 1 || getNext() == null) && this.newLinesAtBoundries && lineBreaksBefore == 0 && token.tokenType != TokenNameCOMMENT_MARKDOWN) {
+			if (!this.simulation)
 				token.breakBefore();
 			lineBreaksBefore = 1;
 		}
