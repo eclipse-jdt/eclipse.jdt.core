@@ -957,7 +957,7 @@ private VariableBinding resolveTypeFor(VariableBinding variable) {
 				return null;
 			}
 			if (componentDeclaration.isUnnamed(this.scope)) {
-				this.scope.problemReporter().illegalUseOfUnderscoreAsAnIdentifier(componentDeclaration.sourceStart, componentDeclaration.sourceEnd, this.scope.compilerOptions().sourceLevel > ClassFileConstants.JDK1_8, true);
+				this.scope.problemReporter().illegalUseOfUnderscoreAsAnIdentifier(componentDeclaration.sourceStart, componentDeclaration.sourceEnd, true, true);
 				componentDeclaration.setBinding(null);
 				return null;
 			}

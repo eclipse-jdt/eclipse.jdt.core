@@ -113,6 +113,16 @@ public class JavaProject
 	implements IJavaProject, SuffixConstants {
 
 	/**
+	 * Marker value used in cases where a release is passed or used as an argument but no specific release is selected.
+	 */
+	public static final int NO_RELEASE = -1;
+
+	/**
+	 * The first java release that supports multi release jars
+	 */
+	public static final int FIRST_MULTI_RELEASE = 9;
+
+	/**
 	 * Name of file containing project classpath
 	 */
 	public static final String CLASSPATH_FILENAME = IJavaProject.CLASSPATH_FILE_NAME;
@@ -2826,7 +2836,7 @@ public class JavaProject
 	 * Returns a new search name environment for this project. This name environment first looks in the given working copies.
 	 */
 	public SearchableEnvironment newSearchableNameEnvironment(ICompilationUnit[] workingCopies, boolean excludeTestCode) throws JavaModelException {
-		return new SearchableEnvironment(this, workingCopies, excludeTestCode);
+		return new SearchableEnvironment(this, workingCopies, excludeTestCode, NO_RELEASE);
 	}
 
 	/*
@@ -2837,7 +2847,7 @@ public class JavaProject
 		return newSearchableNameEnvironment(owner, false);
 	}
 	public SearchableEnvironment newSearchableNameEnvironment(WorkingCopyOwner owner, boolean excludeTestCode) throws JavaModelException {
-		return new SearchableEnvironment(this, owner, excludeTestCode);
+		return new SearchableEnvironment(this, owner, excludeTestCode, NO_RELEASE);
 	}
 
 	/*
