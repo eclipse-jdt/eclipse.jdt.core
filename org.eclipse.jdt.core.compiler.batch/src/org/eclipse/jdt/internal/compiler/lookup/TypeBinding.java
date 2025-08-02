@@ -289,6 +289,10 @@ public int depth() {
 	return 0;
 }
 
+public int typeArgumentDepth() {
+	return 1;
+}
+
 /* Answer the receiver's enclosing method ... null if the receiver is not a local type.
  */
 public MethodBinding enclosingMethod() {

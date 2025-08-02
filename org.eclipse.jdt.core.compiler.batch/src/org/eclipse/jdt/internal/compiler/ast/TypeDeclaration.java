@@ -1262,6 +1262,7 @@ public void resolve() {
 		boolean needSerialVersion =
 						this.scope.compilerOptions().getSeverity(CompilerOptions.MissingSerialVersion) != ProblemSeverities.Ignore
 						&& sourceType.isClass()
+						&& !sourceType.isAnonymousType()
 						&& !sourceType.isRecord()
 						&& sourceType.findSuperTypeOriginatingFrom(TypeIds.T_JavaIoExternalizable, false /*Externalizable is not a class*/) == null
 						&& sourceType.findSuperTypeOriginatingFrom(TypeIds.T_JavaIoSerializable, false /*Serializable is not a class*/) != null;
@@ -1794,14 +1795,14 @@ private final void updateNestRelations() {
 
 	ClassScope outerMostClassScope = this.scope;
 	Scope skope = this.scope;
-
+	boolean concreteType = true;
 	while (skope != null && skope.kind != Scope.COMPILATION_UNIT_SCOPE) {
 		switch (skope.kind) {
 			case Scope.METHOD_SCOPE :
 				ReferenceContext context = ((MethodScope) skope).referenceContext;
 				if (context instanceof LambdaExpression lambdaExpression) {
 					if (lambdaExpression != lambdaExpression.original) // transient unreal universe.
-						return;
+						concreteType = false;
 				}
 				break;
 			case Scope.CLASS_SCOPE:
@@ -1813,8 +1814,11 @@ private final void updateNestRelations() {
 
 	SourceTypeBinding nestHost =  outerMostClassScope != null ? outerMostClassScope.referenceContext.binding : null;
 	if (nestHost != null && !this.binding.equals(nestHost)) {
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=572190 && https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4204:
+		// The nest host is valid even for a transient type, but a transient type from a lambda copy is not a member of the nest host (its non-transient original is/will be)
 		this.binding.setNestHost(nestHost);
-		nestHost.addNestMember(this.binding);
+		if (concreteType)
+			nestHost.addNestMember(this.binding);
 	}
 }
 

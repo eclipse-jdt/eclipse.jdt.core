@@ -15,6 +15,7 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -1484,5 +1485,39 @@ public void testGH3298() throws Exception {
 	} finally {
 		deleteProject("GH3298");
 	}
+}
+
+public void testModuleImportsNotResolved4121() throws Exception {
+	String contents = """
+				import module java.base;
+		        public class X {
+		            public static void main(String[] args) {
+		            double pi = 3.14159;
+		            	System.out.println(pi + "hi");
+		            }
+		        }
+			""";
+	Map<String, String> options = new HashMap<>();
+    options.put(JavaCore.COMPILER_COMPLIANCE, "24");
+    options.put(JavaCore.COMPILER_SOURCE, "24");
+    createProject("4121");
+    try {
+    	ASTParser astParser = ASTParser.newParser(AST.getJLSLatest());
+    	astParser.setCompilerOptions(options);
+        astParser.setEnvironment(new String[] {}, new String[] {}, new String[] {}, true);
+        astParser.setUnitName("Example.java");
+        astParser.setResolveBindings(true);
+        astParser.setBindingsRecovery(true);
+        astParser.setSource(contents.toCharArray());
+        CompilationUnit cu = (CompilationUnit) astParser.createAST(null);
+        List<ImportDeclaration> ids = cu.imports();
+        ImportDeclaration id = ids.get(0);
+        IModuleBinding idBinding = (IModuleBinding) id.resolveBinding();
+        assertEquals("Import binding not correct", "java.base", idBinding.getName());
+        assertEquals("Binding not correct", IBinding.MODULE, idBinding.getKind());
+    } finally {
+    	deleteProject("4121");
+    }
+
 }
 }

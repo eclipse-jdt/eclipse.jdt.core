@@ -152,4 +152,30 @@ public class ResolveTests10 extends AbstractJavaModelTests {
 		assertEquals(1, selected.length);
 		assertEquals("Number", selected[0].getElementName());
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4216
+	// NPE: Cannot invoke org.eclipse.jdt.internal.compiler.lookup.TypeBinding.isAnonymousType() because binding.type is null" on hyperlink request
+	public void testIssue4216() throws CoreException {
+		this.wc = getWorkingCopy("/Resolve/src/X.java",
+		"""
+		public class Hover {
+
+			private void mat() {
+				var entity/*here*/ = entity.get() == null ? entity : entity.get();
+			}
+		}
+		""");
+		String str = this.wc.getSource();
+		String selection = "entity/*here*/";
+		int start = str.lastIndexOf(selection);
+		int length = selection.length();
+
+		IJavaElement[] selected = this.wc.codeSelect(start, length);
+		assertEquals(1, selected.length);
+		assertElementsEqual(
+				"Unexpected elements",
+				"entity [in mat() [in Hover [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
+				selected
+			);
+	}
 }
