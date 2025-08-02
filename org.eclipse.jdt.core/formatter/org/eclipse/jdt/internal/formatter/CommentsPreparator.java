@@ -632,8 +632,9 @@ public class CommentsPreparator extends ASTVisitor {
 			return true;
 
 		int startIndex = tokenStartingAt(node.getStartPosition());
-		this.ctm.get(startIndex + 1).setWrapPolicy(WrapPolicy.DISABLE_WRAP);
-
+		if(this.ctm.size()>startIndex + 1) {
+			this.ctm.get(startIndex + 1).setWrapPolicy(WrapPolicy.DISABLE_WRAP);
+		}
 		if (node.getParent() instanceof Javadoc) {
 			assert this.ctm.toString(startIndex).startsWith(tagName);
 
@@ -1229,15 +1230,15 @@ public class CommentsPreparator extends ASTVisitor {
 		first.spaceAfter();
 		structure.add(first);
 
-		int lastTokenStart = commentToken.originalEnd - 1;
-		while (lastTokenStart - 1 > firstTokenEnd && this.tm.charAt(lastTokenStart - 1) == markerChar)
-			lastTokenStart--;
+		int positionLimit = isMarkdown? commentToken.originalEnd+ 1: commentToken.originalEnd - 1;
+		while (positionLimit - 1 > firstTokenEnd && this.tm.charAt(positionLimit - 1) == markerChar)
+			positionLimit--;
 
 		int position = firstTokenEnd + 1;
 		int lineBreaks = 0;
 		while (position <= commentToken.originalEnd) {
 			// find line start
-			for (int i = position; i < lastTokenStart; i++) {
+			for (int i = position; i < positionLimit; i++) {
 				char c = this.tm.charAt(i);
 				if (c == '\r' || c == '\n') {
 					lineBreaks++;
@@ -1256,7 +1257,7 @@ public class CommentsPreparator extends ASTVisitor {
 			int tokenStart = position;
 			while (position <= commentToken.originalEnd + 1) {
 				char c = 0;
-				if (position == commentToken.originalEnd + 1 || position == lastTokenStart
+				if (position == commentToken.originalEnd + 1 || position == positionLimit
 						|| ScannerHelper.isWhitespace(c = this.tm.charAt(position))) {
 					if (tokenStart < position) {
 						Token outputToken = new Token(tokenStart, position - 1, commentToken.tokenType);
@@ -1269,9 +1270,13 @@ public class CommentsPreparator extends ASTVisitor {
 						}
 						if (this.tm.charAt(tokenStart) == '@') {
 							outputToken.setWrapPolicy(WrapPolicy.DISABLE_WRAP);
-							if (commentToken.tokenType == TokenNameCOMMENT_BLOCK && lineBreaks == 1
-									&& structure.size() > 1) {
-								outputToken.putLineBreaksBefore(cleanBlankLines ? 1 : 2);
+							if (lineBreaks == 1 && structure.size() > 1) {
+								if(commentToken.tokenType == TokenNameCOMMENT_BLOCK) {
+									outputToken.putLineBreaksBefore(cleanBlankLines ? 1 : 2);
+								}
+								if(commentToken.tokenType == TokenNameCOMMENT_MARKDOWN) {
+									outputToken.breakBefore();
+								}
 							}
 							if (lineBreaks > 0 && isCommonsAttributeAnnotation(this.tm.toString(outputToken))) {
 								outputToken.breakBefore();
@@ -1283,7 +1288,7 @@ public class CommentsPreparator extends ASTVisitor {
 					}
 					if (c == '\r' || c == '\n')
 						break;
-					tokenStart = position == lastTokenStart ? position : position + 1;
+					tokenStart = position == positionLimit ? position : position + 1;
 				}
 				position++;
 			}
@@ -1296,12 +1301,13 @@ public class CommentsPreparator extends ASTVisitor {
 		if (!newLinesAtBoundries) {
 			structure.get(1).clearLineBreaksBefore();
 			last.clearLineBreaksBefore();
-		} else if (this.tm.countLineBreaksBetween(first, last) > 0) {
+		} else if (this.tm.countLineBreaksBetween(first, last) > 0  && commentToken.tokenType != TokenNameCOMMENT_MARKDOWN) {
 			first.breakAfter();
 			last.breakBefore();
 		}
-		last.setAlign(1);
-
+		if(commentToken.tokenType != TokenNameCOMMENT_MARKDOWN) {
+			last.setAlign(1);
+		}
 		if (structure.size() == 2)
 			return false;
 		commentToken.setInternalStructure(structure);
