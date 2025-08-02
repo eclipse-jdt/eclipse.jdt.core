@@ -15,6 +15,7 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -31,6 +32,7 @@ import org.eclipse.jdt.core.tests.model.Canceler;
 import org.eclipse.jdt.core.tests.model.ReconcilerTests;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.core.dom.NaiveASTFlattener;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ASTConverterTest2 extends ConverterTestSetup {
@@ -5512,6 +5514,124 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
 		}
+	}
+
+	public void testBug4234_01() throws CoreException {
+		String source = """
+		        module a {
+		            exports pack to b;
+		        }
+		        """;
+
+		ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	    parser.setUnitName("module-info.java");
+
+	    Map<String, String> options = new HashMap<>();
+	    options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.latestSupportedJavaVersion());
+	    options.put(JavaCore.COMPILER_SOURCE, JavaCore.latestSupportedJavaVersion());
+	    options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.latestSupportedJavaVersion());
+	    parser.setCompilerOptions(options);
+
+	    parser.setSource(source.toCharArray());
+	    parser.setResolveBindings(false);
+	    parser.setStatementsRecovery(false);
+	    parser.setBindingsRecovery(false);
+	    CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+		ModuleDeclaration module = cu.getModule();
+
+		ExportsDirective export = null;
+	    for (Object directive : module.moduleStatements()) {
+	        if (directive instanceof ExportsDirective) {
+	            export = (ExportsDirective) directive;
+	            break;
+	        }
+	    }
+	    assertNotNull("ExportsDirective not found", export);
+
+	    NaiveASTFlattener flattener = new NaiveASTFlattener();
+	    export.accept(flattener);
+	    assertEquals("exports pack to b;\n", flattener.getResult());
+	}
+
+	public void testBug4234_02() throws CoreException {
+		String source = """
+		        module a {
+		            opens pack to b;
+		        }
+		        """;
+
+		ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+	    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	    parser.setUnitName("module-info.java");
+
+	    Map<String, String> options = new HashMap<>();
+	    options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.latestSupportedJavaVersion());
+	    options.put(JavaCore.COMPILER_SOURCE, JavaCore.latestSupportedJavaVersion());
+	    options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.latestSupportedJavaVersion());
+	    parser.setCompilerOptions(options);
+
+	    parser.setSource(source.toCharArray());
+	    parser.setResolveBindings(false);
+	    parser.setStatementsRecovery(false);
+	    parser.setBindingsRecovery(false);
+	    CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+		ModuleDeclaration module = cu.getModule();
+
+		OpensDirective opens = null;
+	    for (Object directive : module.moduleStatements()) {
+	        if (directive instanceof OpensDirective) {
+	            opens = (OpensDirective) directive;
+	            break;
+	        }
+	    }
+	    assertNotNull("OpensDirective not found", opens);
+
+	    NaiveASTFlattener flattener = new NaiveASTFlattener();
+	    opens.accept(flattener);
+	    assertEquals("opens pack to b;\n", flattener.getResult());
+	}
+
+	public void testBug4234_03() throws CoreException {
+		String source = """
+		module a {
+            provides java.util.spi.ResourceBundleProvider
+                with com.example.MyProvider, com.example.AltProvider;
+        }
+        """;
+
+    ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+    parser.setKind(ASTParser.K_COMPILATION_UNIT);
+    parser.setUnitName("module-info.java");
+
+    Map<String, String> options = new HashMap<>();
+    options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.latestSupportedJavaVersion());
+    options.put(JavaCore.COMPILER_SOURCE, JavaCore.latestSupportedJavaVersion());
+    options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.latestSupportedJavaVersion());
+    parser.setCompilerOptions(options);
+
+    parser.setSource(source.toCharArray());
+    parser.setResolveBindings(false);
+    parser.setStatementsRecovery(false);
+    parser.setBindingsRecovery(false);
+    CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+    ModuleDeclaration module = cu.getModule();
+
+    ProvidesDirective provides = null;
+    for (Object directive : module.moduleStatements()) {
+        if (directive instanceof ProvidesDirective) {
+            provides = (ProvidesDirective) directive;
+            break;
+        }
+    }
+    assertNotNull("ProvidesDirective not found", provides);
+
+    NaiveASTFlattener flattener = new NaiveASTFlattener();
+    provides.accept(flattener);
+
+    // Note: Flattener output has no newlines
+    String expected = "provides java.util.spi.ResourceBundleProvider with com.example.MyProvider, com.example.AltProvider;\n";
+    assertEquals(expected, flattener.getResult());
 	}
 
 }
