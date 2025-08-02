@@ -1230,15 +1230,15 @@ public class CommentsPreparator extends ASTVisitor {
 		first.spaceAfter();
 		structure.add(first);
 
-		int lastTokenStart = isMarkdown? commentToken.originalEnd+ 1: commentToken.originalEnd - 1;
-		while (lastTokenStart - 1 > firstTokenEnd && this.tm.charAt(lastTokenStart - 1) == markerChar)
-			lastTokenStart--;
+		int positionLimit = isMarkdown? commentToken.originalEnd+ 1: commentToken.originalEnd - 1;
+		while (positionLimit - 1 > firstTokenEnd && this.tm.charAt(positionLimit - 1) == markerChar)
+			positionLimit--;
 
 		int position = firstTokenEnd + 1;
 		int lineBreaks = 0;
 		while (position <= commentToken.originalEnd) {
 			// find line start
-			for (int i = position; i < lastTokenStart; i++) {
+			for (int i = position; i < positionLimit; i++) {
 				char c = this.tm.charAt(i);
 				if (c == '\r' || c == '\n') {
 					lineBreaks++;
@@ -1257,7 +1257,7 @@ public class CommentsPreparator extends ASTVisitor {
 			int tokenStart = position;
 			while (position <= commentToken.originalEnd + 1) {
 				char c = 0;
-				if (position == commentToken.originalEnd + 1 || position == lastTokenStart
+				if (position == commentToken.originalEnd + 1 || position == positionLimit
 						|| ScannerHelper.isWhitespace(c = this.tm.charAt(position))) {
 					if (tokenStart < position) {
 						Token outputToken = new Token(tokenStart, position - 1, commentToken.tokenType);
@@ -1275,7 +1275,7 @@ public class CommentsPreparator extends ASTVisitor {
 									outputToken.putLineBreaksBefore(cleanBlankLines ? 1 : 2);
 								}
 								if(commentToken.tokenType == TokenNameCOMMENT_MARKDOWN) {
-									outputToken.putLineBreaksBefore(1);
+									outputToken.breakBefore();
 								}
 							}
 							if (lineBreaks > 0 && isCommonsAttributeAnnotation(this.tm.toString(outputToken))) {
@@ -1288,7 +1288,7 @@ public class CommentsPreparator extends ASTVisitor {
 					}
 					if (c == '\r' || c == '\n')
 						break;
-					tokenStart = position == lastTokenStart ? position : position + 1;
+					tokenStart = position == positionLimit ? position : position + 1;
 				}
 				position++;
 			}
