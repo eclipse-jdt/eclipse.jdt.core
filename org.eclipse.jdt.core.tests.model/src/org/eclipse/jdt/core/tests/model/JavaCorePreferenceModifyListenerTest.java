@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBM Corporation and others.
+ * Copyright (c) 2014, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -22,16 +22,16 @@ import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IExportedPreferences;
 import org.eclipse.core.runtime.preferences.IPreferencesService;
-import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.osgi.service.prefs.BackingStoreException;
 
-public class JavaCorePreferenceModifyListenerTest extends TestCase {
+public class JavaCorePreferenceModifyListenerTest extends AbstractJavaModelTests {
 	private static final String NODE_NAME = "bug419219";
 	private static final String KEY = "someKey";
 	private static final String VALUE = "someValue";
 
 	public static Test suite() {
-		return new JavaCorePreferenceModifyListenerTest("testPreApply");
+		return buildModelTestSuite(JavaCorePreferenceModifyListenerTest.class);
+
 	}
 
 	public JavaCorePreferenceModifyListenerTest(String name) {
