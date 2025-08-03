@@ -387,7 +387,7 @@ public void resolve(BlockScope scope) {
 			|| expressionType.isCompatibleWith(methodType, scope)) {
 
 		this.expression.computeConversion(scope, methodType, expressionType);
-		if (expressionType.needsUncheckedConversion(methodType)) {
+		if (!scope.getJavaLangObject().equals(methodType) && expressionType.needsUncheckedConversion(methodType)) {
 		    scope.problemReporter().unsafeTypeConversion(this.expression, expressionType, methodType);
 		}
 		if (this.expression instanceof CastExpression) {
