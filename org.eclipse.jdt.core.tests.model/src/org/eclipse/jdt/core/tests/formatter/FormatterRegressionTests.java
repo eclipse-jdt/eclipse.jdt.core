@@ -16527,7 +16527,8 @@ public void testIssue2977() {
 		String expected = """
 		class Mark {
 			/// @param param1
-			/// \n\t/// @return int
+			///\s
+			/// @return int
 			public int sample(String param1) {
 				return 0;
 			}

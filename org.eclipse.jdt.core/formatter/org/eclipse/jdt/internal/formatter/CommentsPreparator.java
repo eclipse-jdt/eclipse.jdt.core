@@ -14,6 +14,7 @@
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Bad line breaking in Eclipse javadoc comments - https://bugs.eclipse.org/348338
  *     Lars Vogel <Lars.Vogel@vogella.com> - Contributions for
  *     						Bug 473178
+ *     IBM Corporation - Markdown support
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -632,7 +633,7 @@ public class CommentsPreparator extends ASTVisitor {
 			return true;
 
 		int startIndex = tokenStartingAt(node.getStartPosition());
-		if(this.ctm.size()>startIndex + 1) {
+		if (this.ctm.size() > startIndex + 1) {
 			this.ctm.get(startIndex + 1).setWrapPolicy(WrapPolicy.DISABLE_WRAP);
 		}
 		if (node.getParent() instanceof Javadoc) {
@@ -1230,7 +1231,7 @@ public class CommentsPreparator extends ASTVisitor {
 		first.spaceAfter();
 		structure.add(first);
 
-		int positionLimit = isMarkdown? commentToken.originalEnd+ 1: commentToken.originalEnd - 1;
+		int positionLimit = isMarkdown ? commentToken.originalEnd+ 1: commentToken.originalEnd - 1;
 		while (positionLimit - 1 > firstTokenEnd && this.tm.charAt(positionLimit - 1) == markerChar)
 			positionLimit--;
 
@@ -1271,10 +1272,10 @@ public class CommentsPreparator extends ASTVisitor {
 						if (this.tm.charAt(tokenStart) == '@') {
 							outputToken.setWrapPolicy(WrapPolicy.DISABLE_WRAP);
 							if (lineBreaks == 1 && structure.size() > 1) {
-								if(commentToken.tokenType == TokenNameCOMMENT_BLOCK) {
+								if (commentToken.tokenType == TokenNameCOMMENT_BLOCK) {
 									outputToken.putLineBreaksBefore(cleanBlankLines ? 1 : 2);
 								}
-								if(commentToken.tokenType == TokenNameCOMMENT_MARKDOWN) {
+								if (commentToken.tokenType == TokenNameCOMMENT_MARKDOWN) {
 									outputToken.breakBefore();
 								}
 							}
@@ -1305,7 +1306,7 @@ public class CommentsPreparator extends ASTVisitor {
 			first.breakAfter();
 			last.breakBefore();
 		}
-		if(commentToken.tokenType != TokenNameCOMMENT_MARKDOWN) {
+		if (commentToken.tokenType != TokenNameCOMMENT_MARKDOWN) {
 			last.setAlign(1);
 		}
 		if (structure.size() == 2)

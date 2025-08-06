@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 Mateusz Matela and others.
+ * Copyright (c) 2014, 2025 Mateusz Matela and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12,6 +12,7 @@
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
  *     Lars Vogel <Lars.Vogel@vogella.com> - Contributions for
  *     						Bug 473178
+ *     IBM Corporation - Markdown support
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter.linewrap;
 
@@ -133,7 +134,8 @@ public class CommentWrapExecutor extends TokenTraverser {
 		final int positionIfNewLine = getStartingPosition(token, true);
 
 		int lineBreaksBefore = getLineBreaksBefore();
-		if ((index == 1 || getNext() == null) && this.newLinesAtBoundries && lineBreaksBefore == 0 && token.tokenType != TokenNameCOMMENT_MARKDOWN) {
+		if ((index == 1 || getNext() == null) && this.newLinesAtBoundries && lineBreaksBefore == 0 &&
+				token.tokenType != TokenNameCOMMENT_MARKDOWN) {
 			if (!this.simulation)
 				token.breakBefore();
 			lineBreaksBefore = 1;
@@ -212,7 +214,8 @@ public class CommentWrapExecutor extends TokenTraverser {
 		new TokenTraverser() {
 			@Override
 			protected boolean token(Token token, int index) {
-				if ((token.tokenType == TokenNameCOMMENT_JAVADOC || token.tokenType == TokenNameCOMMENT_MARKDOWN) && token.getInternalStructure() == null) {
+				if ((token.tokenType == TokenNameCOMMENT_JAVADOC || token.tokenType == TokenNameCOMMENT_MARKDOWN)
+					&& token.getInternalStructure() == null) {
 					if (getLineBreaksBefore() > 0)
 						token.setAlign(token.getAlign() + token.getIndent());
 					token.setIndent(0);

@@ -10,6 +10,7 @@
  *
  * Contributors:
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
+ *     IBM Corporation - Markdown support
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -199,17 +200,17 @@ public class TextEditsBuilder extends TokenTraverser {
 		if (isTextBlock)
 			return;
 		if (token != null && token.tokenType == TokenNameNotAToken)
-			return; // this is an unformatted block comment, don't force markerChar
+			return; // this is an unformatted block comment, don't force asterisk
 		if (getNext() == null && !emptyLine) {
-			if(token != null && token.tokenType == TokenNameCOMMENT_MARKDOWN) {
+			if (token != null && token.tokenType == TokenNameCOMMENT_MARKDOWN) {
 				this.buffer.append("/// "); //$NON-NLS-1$
 			}
-			return; // this is the last token of block comment, markerChar is included
+			return;
 		}
 		boolean markerCharFound = false;
 		int searchLimit = token != null ? token.originalStart : this.sourceLimit;
-		char markerChar = token != null && token.tokenType == TokenNameCOMMENT_MARKDOWN ? '/' : '*';
 		boolean isMarkdown = token != null && token.tokenType == TokenNameCOMMENT_MARKDOWN;
+		char markerChar = isMarkdown ? '/' : '*';
 		for (int i = this.counter; i < searchLimit; i++) {
 			char c = this.source.charAt(i);
 			if (c == markerChar) {
@@ -228,12 +229,9 @@ public class TextEditsBuilder extends TokenTraverser {
 			if (!ScannerHelper.isWhitespace(c))
 				break;
 		}
+
 		if (!markerCharFound) {
-			if(token.tokenType == TokenNameCOMMENT_MARKDOWN) {
-				this.buffer.append("/// "); //$NON-NLS-1$
-			} else {
-				this.buffer.append(" * ");//$NON-NLS-1$
-			}
+			this.buffer.append(isMarkdown ? "/// " : " * "); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 	}
