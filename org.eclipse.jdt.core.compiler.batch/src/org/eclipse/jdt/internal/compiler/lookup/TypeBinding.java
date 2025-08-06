@@ -1557,7 +1557,7 @@ public boolean needsUncheckedConversion(TypeBinding targetType) {
 	if (TypeBinding.equalsEquals(this, targetType))
 		return false;
 	targetType = targetType.leafComponentType();
-	if (!(targetType instanceof ReferenceBinding))
+	if (!(targetType instanceof ParameterizedTypeBinding))
 		return false;
 
 	TypeBinding currentType = leafComponentType();
