@@ -530,7 +530,7 @@ public final class AST {
 	 * up to and including Java SE 25(aka JDK 25).
 	 * </p>
 	 *
-	 * @since 3.42 BETA_JAVA25
+	 * @since 3.43
 	 */
 	public static final int JLS25 = 25;
 	/**
