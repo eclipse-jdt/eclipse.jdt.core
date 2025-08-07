@@ -64,6 +64,12 @@ public LocalTypeBinding(LocalTypeBinding prototype) {
 	this.enclosingMethod = prototype.enclosingMethod;
 }
 
+@Override
+public MethodBinding[] methods() {
+	if (this.isRecord())
+		this.scope.collateRecordComponents();
+	return super.methods();
+}
 /* Record a dependency onto a source target type which may be altered
 * by the end of the innerclass emulation. Later on, we will revisit
 * all its dependents so as to update them (see updateInnerEmulationDependents()).
