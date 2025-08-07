@@ -1275,7 +1275,7 @@ public class CommentsPreparator extends ASTVisitor {
 								if (commentToken.tokenType == TokenNameCOMMENT_BLOCK) {
 									outputToken.putLineBreaksBefore(cleanBlankLines ? 1 : 2);
 								}
-								if (commentToken.tokenType == TokenNameCOMMENT_MARKDOWN) {
+								if (isMarkdown) {
 									outputToken.breakBefore();
 								}
 							}
@@ -1296,17 +1296,17 @@ public class CommentsPreparator extends ASTVisitor {
 		}
 
 		Token last = structure.get(structure.size() - 1);
-		boolean newLinesAtBoundries = commentToken.tokenType == TokenNameCOMMENT_JAVADOC
-				? this.options.comment_new_lines_at_javadoc_boundaries
-				: this.options.comment_new_lines_at_block_boundaries;
-		if (!newLinesAtBoundries) {
-			structure.get(1).clearLineBreaksBefore();
-			last.clearLineBreaksBefore();
-		} else if (this.tm.countLineBreaksBetween(first, last) > 0  && commentToken.tokenType != TokenNameCOMMENT_MARKDOWN) {
-			first.breakAfter();
-			last.breakBefore();
-		}
-		if (commentToken.tokenType != TokenNameCOMMENT_MARKDOWN) {
+		if(!isMarkdown) {
+			boolean newLinesAtBoundries = commentToken.tokenType == TokenNameCOMMENT_JAVADOC
+					? this.options.comment_new_lines_at_javadoc_boundaries
+					: this.options.comment_new_lines_at_block_boundaries;
+			if (!newLinesAtBoundries) {
+				structure.get(1).clearLineBreaksBefore();
+				last.clearLineBreaksBefore();
+			} else if (this.tm.countLineBreaksBetween(first, last) > 0) {
+				first.breakAfter();
+				last.breakBefore();
+			}
 			last.setAlign(1);
 		}
 		if (structure.size() == 2)

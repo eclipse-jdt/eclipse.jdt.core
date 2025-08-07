@@ -91,7 +91,8 @@ public class TextEditsBuilder extends TokenTraverser {
 
 			if (start > sourceStart) {
 				Token token = this.tm.get(this.tm.findIndex(start, ANY, false));
-				if ((token.tokenType == TokenNameCOMMENT_BLOCK || token.tokenType == TokenNameCOMMENT_JAVADOC || token.tokenType == TokenNameCOMMENT_MARKDOWN)
+				if ((token.tokenType == TokenNameCOMMENT_BLOCK || token.tokenType == TokenNameCOMMENT_JAVADOC
+						|| token.tokenType == TokenNameCOMMENT_MARKDOWN)
 						&& start <= token.originalEnd) {
 					start = token.originalStart;
 				}
@@ -99,7 +100,8 @@ public class TextEditsBuilder extends TokenTraverser {
 
 			if (end > start && end > sourceStart) {
 				Token token = this.tm.get(this.tm.findIndex(end, ANY, false));
-				if ((token.tokenType == TokenNameCOMMENT_BLOCK || token.tokenType == TokenNameCOMMENT_JAVADOC || token.tokenType == TokenNameCOMMENT_MARKDOWN )
+				if ((token.tokenType == TokenNameCOMMENT_BLOCK || token.tokenType == TokenNameCOMMENT_JAVADOC
+						|| token.tokenType == TokenNameCOMMENT_MARKDOWN )
 						&& end < token.originalEnd) {
 					end = token.originalEnd;
 				}
@@ -191,6 +193,7 @@ public class TextEditsBuilder extends TokenTraverser {
 		}
 
 		boolean isTextBlock = token != null && token.tokenType == TokenNameTextBlock;
+		boolean isMarkdown = token != null && token.tokenType == TokenNameCOMMENT_MARKDOWN;
 		this.parent.counter = this.counter;
 		this.parent.bufferLineSeparator(null, false);
 		if (!(isTextBlock && emptyLine && !this.options.indent_empty_lines))
@@ -202,14 +205,14 @@ public class TextEditsBuilder extends TokenTraverser {
 		if (token != null && token.tokenType == TokenNameNotAToken)
 			return; // this is an unformatted block comment, don't force asterisk
 		if (getNext() == null && !emptyLine) {
-			if (token != null && token.tokenType == TokenNameCOMMENT_MARKDOWN) {
+			if (isMarkdown) {
 				this.buffer.append("/// "); //$NON-NLS-1$
 			}
 			return;
 		}
 		boolean markerCharFound = false;
 		int searchLimit = token != null ? token.originalStart : this.sourceLimit;
-		boolean isMarkdown = token != null && token.tokenType == TokenNameCOMMENT_MARKDOWN;
+
 		char markerChar = isMarkdown ? '/' : '*';
 		for (int i = this.counter; i < searchLimit; i++) {
 			char c = this.source.charAt(i);

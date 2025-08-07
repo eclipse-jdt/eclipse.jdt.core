@@ -72,10 +72,11 @@ public class CommentWrapExecutor extends TokenTraverser {
 		this.simulation = simulate;
 		this.wrapDisabled = noWrap;
 		this.potentialWrapToken = this.potentialWrapTokenSubstitute = null;
-		this.newLinesAtBoundries = commentToken.tokenType == TokenNameCOMMENT_JAVADOC
-				? this.options.comment_new_lines_at_javadoc_boundaries
-				: this.options.comment_new_lines_at_block_boundaries;
-
+		if(commentToken.tokenType != TokenNameCOMMENT_MARKDOWN) {
+			this.newLinesAtBoundries = commentToken.tokenType == TokenNameCOMMENT_JAVADOC
+					? this.options.comment_new_lines_at_javadoc_boundaries
+					: this.options.comment_new_lines_at_block_boundaries;
+		}
 		List<Token> structure = commentToken.getInternalStructure();
 		if (structure == null || structure.isEmpty())
 			return startPosition + this.tm.getLength(commentToken, startPosition);
