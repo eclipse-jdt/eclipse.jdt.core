@@ -631,7 +631,6 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 	 * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/790
 	 */
 	public void testAIOOBEForRecordClassGh790() throws Exception {
-		if (isJRE25) return; // FIXME see https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3976
 		String testProjectName = "gh790AIOOBEForRecordClass";
 		try {
 			IJavaProject project = createJava16Project(testProjectName, new String[] {"src"});
@@ -653,9 +652,14 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 			IType type = project.findType("test.Test");
 			IField field = type.getField("internal");
 			search(field, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
-			assertSearchResults(
+			String expectedMatches =
 					"src/test/Test.java test.Test() [internal] EXACT_MATCH\n" +
-					"src/test/Test.java test.Test() [internal] EXACT_MATCH");
+					"src/test/Test.java test.Test() [internal] EXACT_MATCH";
+			if (isJRE25) {
+				expectedMatches += "\n" +
+						System.getProperty("java.home")+"/lib/jrt-fs.jar java.security.PrivateKey sun.security.pkcs.PKCS8Key.parseKey(byte[]) POTENTIAL_MATCH";
+			}
+			assertSearchResults( expectedMatches);
 		} finally {
 			deleteProject(testProjectName);
 		}
