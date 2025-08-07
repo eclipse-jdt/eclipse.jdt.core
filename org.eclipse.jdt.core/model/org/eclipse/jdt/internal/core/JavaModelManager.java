@@ -2644,17 +2644,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public HashMap<IJavaElement, IElementInfo> getTemporaryCache() {
 		HashMap<IJavaElement, IElementInfo> result = this.temporaryCache.get();
 		if (result == null) {
-			result = new HashMap<>() {
-				/**
-				 *
-				 */
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public IElementInfo put(IJavaElement key, IElementInfo value) {
-					return super.put(key, value);
-				}
-			};
+			result = new HashMap<>();
 			this.temporaryCache.set(result);
 		}
 		return result;
