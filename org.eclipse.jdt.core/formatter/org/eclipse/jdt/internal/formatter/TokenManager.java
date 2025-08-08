@@ -10,11 +10,13 @@
  *
  * Contributors:
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
+ *     IBM Corporation - Markdown support
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
 import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_JAVADOC;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_LINE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_MARKDOWN;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameNotAToken;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameStringLiteral;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameTextBlock;
@@ -282,8 +284,12 @@ public class TokenManager implements Iterable<Token> {
 				}
 			} else if (traversed.isComment()) {
 				assert traversed.tokenType != TokenNameCOMMENT_LINE;
-				this.counter = TokenManager.this.commentWrapper.wrapMultiLineComment(traversed, this.counter, true,
-						this.isNLSTagInLine);
+				if (traversed.tokenType == TokenNameCOMMENT_MARKDOWN) {
+					 TokenManager.this.commentWrapper.setNewLinesAtBoundries(false);
+				} else {
+					this.counter = TokenManager.this.commentWrapper.wrapMultiLineComment(traversed, this.counter, true,
+							this.isNLSTagInLine);
+				}
 			} else {
 				this.counter += getLength(traversed, this.counter);
 			}
