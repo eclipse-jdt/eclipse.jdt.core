@@ -1135,7 +1135,7 @@ public long getAnnotationTagBits() {
 	if (!isPrototype())
 		return this.prototype.getAnnotationTagBits();
 
-	if ((this.extendedTagBits & ExtendedTagBits.AnnotationResolved) == 0 && this.scope != null) {
+	if (!ExtendedTagBits.areAllAnnotationsResolved(this.extendedTagBits) && this.scope != null) {
 		TypeDeclaration typeDecl = this.scope.referenceContext;
 		boolean old = typeDecl.staticInitializerScope.insideTypeAnnotation;
 		try {
