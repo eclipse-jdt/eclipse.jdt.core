@@ -1083,7 +1083,15 @@ public final int getAccessFlags() {
 public AnnotationBinding[] getAnnotations() {
 	return retrieveAnnotations(prototype());
 }
-
+/**
+ * Get annotations, but request initialization only for specific ones
+ * @param requestedInitialization uses the bits from {@link ExtendedTagBits#DeprecatedAnnotationResolved}
+ *  or {@link ExtendedTagBits#AllAnnotationsResolved} to request initialization of specific annotations
+ *  (with option to select others in the future).
+ */
+public AnnotationBinding[] getAnnotations(long requestedInitialization) {
+	return getAnnotations();
+}
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.Binding#getAnnotationTagBits()
  */

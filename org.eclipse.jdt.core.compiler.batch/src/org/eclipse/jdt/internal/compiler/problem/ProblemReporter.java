@@ -1916,7 +1916,7 @@ public void deprecatedType(TypeBinding type, ASTNode location) {
 // a deprecated type in a qualified reference (see bug 292510)
 public void deprecatedType(TypeBinding type, ASTNode location, int index) {
 	if (location == null) return; // 1G828DN - no type ref for synthetic arguments
-	final TypeBinding leafType = type.leafComponentType();
+	final ReferenceBinding leafType = (ReferenceBinding) type.leafComponentType();
 	if (!leafType.isReadyForAnnotations() && scheduleProblemForContext(() -> deprecatedType(type, location, index)))
 		return;
 	int sourceStart = -1;
@@ -1926,7 +1926,7 @@ public void deprecatedType(TypeBinding type, ASTNode location, int index) {
 			sourceStart = (int) (ref.sourcePositions[index] >> 32);
 		}
 	}
-	String sinceValue = deprecatedSinceValue(() -> leafType.getAnnotations());
+	String sinceValue = deprecatedSinceValue(() -> leafType.getAnnotations(ExtendedTagBits.DeprecatedAnnotationResolved));
 	if (sinceValue != null) {
 		this.handle(
 			((leafType.tagBits & TagBits.AnnotationTerminallyDeprecated) == 0) ? IProblem.UsingDeprecatedSinceVersionType : IProblem.UsingTerminallyDeprecatedSinceVersionType,
