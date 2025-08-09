@@ -41,7 +41,7 @@ protected Map getCompilerOptions() {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which does not belong to the class are skipped...
 static {
-//	TESTS_NAMES = new String[] { "test000" };
+//	TESTS_NAMES = new String[] { "testIssue3990" };
 //	TESTS_NUMBERS = new int[] { 69 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -2106,6 +2106,451 @@ public void testBug486908_B() {
 			"	}\n" +
 			"}\n"
 	});
+}
+public void testIssue3990_1() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+				public class X {
+
+					boolean test() {
+						return true;
+					}
+
+					int foo0() {
+						if ((test() ? null : null) == null)
+							return 1;
+						return 0;
+					}
+
+					int foo1() {
+						if ((test() ? null : null) != null)
+							return 1;
+						return 0;
+					}
+
+					// more complex
+					int bar0() {
+						X s = null;
+						if ((test() ? s : null) == null)
+							return 1;
+						return 0;
+					}
+
+					int bar1() {
+						X s = null;
+						if ((test() ? s : null) != null)
+							return 1;
+						return 0;
+					}
+				}
+			""",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 8)\n" +
+		"	if ((test() ? null : null) == null)\n" +
+		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Redundant null check: this expression can only be null\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 10)\n" +
+		"	return 0;\n" +
+		"	^^^^^^^^^\n" +
+		"Dead code\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 14)\n" +
+		"	if ((test() ? null : null) != null)\n" +
+		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Redundant null check: this expression can only be null\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 15)\n" +
+		"	return 1;\n" +
+		"	^^^^^^^^^\n" +
+		"Dead code\n" +
+		"----------\n" +
+		"5. ERROR in X.java (at line 22)\n" +
+		"	if ((test() ? s : null) == null)\n" +
+		"	    ^^^^^^^^^^^^^^^^^^^\n" +
+		"Redundant null check: this expression can only be null\n" +
+		"----------\n" +
+		"6. ERROR in X.java (at line 24)\n" +
+		"	return 0;\n" +
+		"	^^^^^^^^^\n" +
+		"Dead code\n" +
+		"----------\n" +
+		"7. ERROR in X.java (at line 29)\n" +
+		"	if ((test() ? s : null) != null)\n" +
+		"	    ^^^^^^^^^^^^^^^^^^^\n" +
+		"Redundant null check: this expression can only be null\n" +
+		"----------\n" +
+		"8. ERROR in X.java (at line 30)\n" +
+		"	return 1;\n" +
+		"	^^^^^^^^^\n" +
+		"Dead code\n" +
+		"----------\n",
+		null/*classLibs*/,
+		true/*shouldFlush*/,
+		options);
+}
+public void testIssue3990_2() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+				public class X {
+
+					boolean test() {
+						return true;
+					}
+
+					int foo0() {
+						if ((test() ? this : this) == null)
+							return 1;
+						return 0;
+					}
+
+					int foo1() {
+						if ((test() ? this : this) != null)
+							return 1;
+						return 0;
+					}
+
+					// more complex
+					int bar0() {
+						X s = this;
+						if ((test() ? s : this) == null)
+							return 1;
+						return 0;
+					}
+
+					int bar1() {
+						X s = this;
+						if ((test() ? s : this) != null)
+							return 1;
+						return 0;
+					}
+				}
+			""",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 8)\n" +
+		"	if ((test() ? this : this) == null)\n" +
+		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Null comparison always yields false: this expression cannot be null\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 9)\n" +
+		"	return 1;\n" +
+		"	^^^^^^^^^\n" +
+		"Dead code\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 14)\n" +
+		"	if ((test() ? this : this) != null)\n" +
+		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Redundant null check: this expression cannot be null\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 16)\n" +
+		"	return 0;\n" +
+		"	^^^^^^^^^\n" +
+		"Dead code\n" +
+		"----------\n" +
+		"5. ERROR in X.java (at line 22)\n" +
+		"	if ((test() ? s : this) == null)\n" +
+		"	    ^^^^^^^^^^^^^^^^^^^\n" +
+		"Null comparison always yields false: this expression cannot be null\n" +
+		"----------\n" +
+		"6. ERROR in X.java (at line 23)\n" +
+		"	return 1;\n" +
+		"	^^^^^^^^^\n" +
+		"Dead code\n" +
+		"----------\n" +
+		"7. ERROR in X.java (at line 29)\n" +
+		"	if ((test() ? s : this) != null)\n" +
+		"	    ^^^^^^^^^^^^^^^^^^^\n" +
+		"Redundant null check: this expression cannot be null\n" +
+		"----------\n" +
+		"8. ERROR in X.java (at line 31)\n" +
+		"	return 0;\n" +
+		"	^^^^^^^^^\n" +
+		"Dead code\n" +
+		"----------\n",
+		null/*classLibs*/,
+		true/*shouldFlush*/,
+		options);
+}
+public void testIssue3990_3() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+				public class X {
+
+					boolean test() {
+						return true;
+					}
+
+					int foo0() {
+						if (null == (test() ? null : null))
+							return 1;
+						return 0;
+					}
+
+					int foo1() {
+						if (null != (test() ? null : null))
+							return 1;
+						return 0;
+					}
+
+					// more complex
+					int bar0() {
+						X s = null;
+						if (null == (test() ? s : null))
+							return 1;
+						return 0;
+					}
+
+					int bar1() {
+						X s = null;
+						if (null != (test() ? s : null))
+							return 1;
+						return 0;
+					}
+				}
+			""",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 8)\n" +
+		"	if (null == (test() ? null : null))\n" +
+		"	            ^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Redundant null check: this expression can only be null\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 10)\n" +
+		"	return 0;\n" +
+		"	^^^^^^^^^\n" +
+		"Dead code\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 14)\n" +
+		"	if (null != (test() ? null : null))\n" +
+		"	            ^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Redundant null check: this expression can only be null\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 15)\n" +
+		"	return 1;\n" +
+		"	^^^^^^^^^\n" +
+		"Dead code\n" +
+		"----------\n" +
+		"5. ERROR in X.java (at line 22)\n" +
+		"	if (null == (test() ? s : null))\n" +
+		"	            ^^^^^^^^^^^^^^^^^^^\n" +
+		"Redundant null check: this expression can only be null\n" +
+		"----------\n" +
+		"6. ERROR in X.java (at line 24)\n" +
+		"	return 0;\n" +
+		"	^^^^^^^^^\n" +
+		"Dead code\n" +
+		"----------\n" +
+		"7. ERROR in X.java (at line 29)\n" +
+		"	if (null != (test() ? s : null))\n" +
+		"	            ^^^^^^^^^^^^^^^^^^^\n" +
+		"Redundant null check: this expression can only be null\n" +
+		"----------\n" +
+		"8. ERROR in X.java (at line 30)\n" +
+		"	return 1;\n" +
+		"	^^^^^^^^^\n" +
+		"Dead code\n" +
+		"----------\n",
+		null/*classLibs*/,
+		true/*shouldFlush*/,
+		options);
+}
+public void testIssue3990_4() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+				public class X {
+
+					boolean test() {
+						return true;
+					}
+
+					int foo0() {
+						if ((test() ? this : this) == null)
+							return 1;
+						return 0;
+					}
+
+					int foo1() {
+						if ((test() ? this : this) != null)
+							return 1;
+						return 0;
+					}
+
+					// more complex
+					int bar0() {
+						X s = this;
+						if ((test() ? s : this) == null)
+							return 1;
+						return 0;
+					}
+
+					int bar1() {
+						X s = this;
+						if ((test() ? s : this) != null)
+							return 1;
+						return 0;
+					}
+				}
+			""",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 8)\n" +
+		"	if ((test() ? this : this) == null)\n" +
+		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Null comparison always yields false: this expression cannot be null\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 9)\n" +
+		"	return 1;\n" +
+		"	^^^^^^^^^\n" +
+		"Dead code\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 14)\n" +
+		"	if ((test() ? this : this) != null)\n" +
+		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Redundant null check: this expression cannot be null\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 16)\n" +
+		"	return 0;\n" +
+		"	^^^^^^^^^\n" +
+		"Dead code\n" +
+		"----------\n" +
+		"5. ERROR in X.java (at line 22)\n" +
+		"	if ((test() ? s : this) == null)\n" +
+		"	    ^^^^^^^^^^^^^^^^^^^\n" +
+		"Null comparison always yields false: this expression cannot be null\n" +
+		"----------\n" +
+		"6. ERROR in X.java (at line 23)\n" +
+		"	return 1;\n" +
+		"	^^^^^^^^^\n" +
+		"Dead code\n" +
+		"----------\n" +
+		"7. ERROR in X.java (at line 29)\n" +
+		"	if ((test() ? s : this) != null)\n" +
+		"	    ^^^^^^^^^^^^^^^^^^^\n" +
+		"Redundant null check: this expression cannot be null\n" +
+		"----------\n" +
+		"8. ERROR in X.java (at line 31)\n" +
+		"	return 0;\n" +
+		"	^^^^^^^^^\n" +
+		"Dead code\n" +
+		"----------\n",
+		null/*classLibs*/,
+		true/*shouldFlush*/,
+		options);
+}
+
+public void testIssue3990_5() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+			public class X {
+				int foo0() {
+					int ret = 0;
+
+					for (int i = 0; i < 2; i++) {
+						if ((test() ? null : null) ==  null) // Error here
+							ret = 1;
+					}
+					return ret;
+				}
+				int foo1() {
+					int ret = 0;
+					String s = null;
+
+					for (int i = 0; i < 2; i++) {
+						if ((test() ? s : null) ==  null) // No Error here
+							ret = 1;
+						s = "hello";
+					}
+					return ret;
+				}
+
+				public int  foo4(boolean pred, Integer x)
+				{
+					boolean willFail = (x == (pred ? 0 : 1)); // wrong if non-null error flagged
+					return willFail ? 0 : 1;
+				}
+				boolean test() {
+					return true;
+				}
+			}
+			""",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	if ((test() ? null : null) ==  null) // Error here\n" +
+		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Redundant null check: this expression can only be null\n" +
+		"----------\n",
+		null/*classLibs*/,
+		true/*shouldFlush*/,
+		options);
+}
+
+public void _testIssue3990_6() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+			public class X {
+				int foo3() {
+					int ret = 0;
+					String s = null;
+
+					for (int i = 0; i < 2; i++) {
+						if ((test() ? s : null) ==  null) // Flag null error
+							ret = 1;
+
+						if (s == null) // Flag null error
+							ret = 2;
+
+
+					}
+					return ret;
+				}
+
+				boolean test() {
+					return true;
+				}
+			}
+			""",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	if ((test() ? null : null) ==  null) // Flag null error\n" +
+		"	    ^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Redundant null check: this expression can only be null\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 10)\n" +
+		"	if (s == null) // Flag null error\n" +
+		"	    ^\n" +
+		"Redundant null check: The variable s can only be null at this location\n" +
+		"----------\n",
+		null/*classLibs*/,
+		true/*shouldFlush*/,
+		options);
 }
 public static Class testClass() {
 	return AssignmentTest.class;
