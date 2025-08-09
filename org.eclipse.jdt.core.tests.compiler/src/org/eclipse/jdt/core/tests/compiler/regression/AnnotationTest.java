@@ -12058,6 +12058,7 @@ public void testIssue4107() {
 			true);
 }
 public void testGH4243() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK16) return; // uses records
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
 	runner.customOptions.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
