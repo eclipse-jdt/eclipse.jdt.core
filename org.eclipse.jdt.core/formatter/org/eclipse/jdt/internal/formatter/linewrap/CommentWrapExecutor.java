@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 Mateusz Matela and others.
+ * Copyright (c) 2014, 2025 Mateusz Matela and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12,11 +12,13 @@
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
  *     Lars Vogel <Lars.Vogel@vogella.com> - Contributions for
  *     						Bug 473178
+ *     IBM Corporation - Markdown support
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter.linewrap;
 
 import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_JAVADOC;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_LINE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_MARKDOWN;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameNotAToken;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameWHITESPACE;
 import static org.eclipse.jdt.internal.formatter.CommentsPreparator.COMMENT_LINE_SEPARATOR_LENGTH;
@@ -73,7 +75,6 @@ public class CommentWrapExecutor extends TokenTraverser {
 		this.newLinesAtBoundries = commentToken.tokenType == TokenNameCOMMENT_JAVADOC
 				? this.options.comment_new_lines_at_javadoc_boundaries
 				: this.options.comment_new_lines_at_block_boundaries;
-
 		List<Token> structure = commentToken.getInternalStructure();
 		if (structure == null || structure.isEmpty())
 			return startPosition + this.tm.getLength(commentToken, startPosition);
@@ -211,7 +212,8 @@ public class CommentWrapExecutor extends TokenTraverser {
 		new TokenTraverser() {
 			@Override
 			protected boolean token(Token token, int index) {
-				if (token.tokenType == TokenNameCOMMENT_JAVADOC && token.getInternalStructure() == null) {
+				if ((token.tokenType == TokenNameCOMMENT_JAVADOC || token.tokenType == TokenNameCOMMENT_MARKDOWN)
+					&& token.getInternalStructure() == null) {
 					if (getLineBreaksBefore() > 0)
 						token.setAlign(token.getAlign() + token.getIndent());
 					token.setIndent(0);
@@ -308,5 +310,9 @@ public class CommentWrapExecutor extends TokenTraverser {
 		if (lineLength > pageWidth && commentLength <= pageWidth)
 			lineLength = pageWidth;
 		return lineLength;
+	}
+
+	public void setNewLinesAtBoundries(boolean value) {
+		this.newLinesAtBoundries = value;
 	}
 }
