@@ -1338,6 +1338,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 										break;
 									}
 								}
+								annotations[i].recipient = recipient;
+								annotations[i].resolveType(scope); // allow downstream access to since & forRemoval
 							}
 							recipient.tagBits |= deprecationTagBits;
 						}
