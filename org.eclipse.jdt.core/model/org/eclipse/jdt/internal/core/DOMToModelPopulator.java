@@ -887,6 +887,33 @@ public class DOMToModelPopulator extends ASTVisitor {
 		return toLocalVariable(parameter, parent, parameter.getParent() instanceof MethodDeclaration);
 	}
 
+	public static LocalVariable toLocalVariable(VariableDeclarationFragment fragment, JavaElement parent) {
+		if (fragment.getParent() instanceof VariableDeclarationStatement variableDeclaration) {
+			return new LocalVariable(parent,
+				fragment.getName().getIdentifier(),
+				variableDeclaration.getStartPosition(),
+				variableDeclaration.getStartPosition() + variableDeclaration.getLength() - 1,
+				fragment.getName().getStartPosition(),
+				fragment.getName().getStartPosition() + fragment.getName().getLength() - 1,
+				Util.getSignature(variableDeclaration.getType()),
+				null, // I don't think we need this, also it's the ECJ's annotation node
+				toModelFlags(variableDeclaration.getModifiers(), false),
+				false);
+		} else if (fragment.getParent() instanceof VariableDeclarationExpression variableDeclaration) {
+			return new LocalVariable(parent,
+					fragment.getName().getIdentifier(),
+					variableDeclaration.getStartPosition(),
+					variableDeclaration.getStartPosition() + variableDeclaration.getLength() - 1,
+					fragment.getName().getStartPosition(),
+					fragment.getName().getStartPosition() + fragment.getName().getLength() - 1,
+					Util.getSignature(variableDeclaration.getType()),
+					null, // I don't think we need this, also it's the ECJ's annotation node
+					toModelFlags(variableDeclaration.getModifiers(), false),
+					false);
+		}
+		return null;
+	}
+
 	private static LocalVariable toLocalVariable(SingleVariableDeclaration parameter, JavaElement parent, boolean isParameter) {
 		return new LocalVariable(parent,
 				parameter.getName().getIdentifier(),
