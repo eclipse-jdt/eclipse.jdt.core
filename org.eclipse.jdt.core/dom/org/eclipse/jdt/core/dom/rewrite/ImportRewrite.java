@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -591,7 +591,18 @@ public final class ImportRewrite {
 		this.useContextToFilterImplicitImports = useContextToFilterImplicitImports;
 	}
 
-	private static int compareImport(char prefix, String qualifier, String name, String curr) {
+	private static int compareImport(char prefix, String qualifier, String name, String curr, Map<String, List<String>> moduleExportsMap) {
+		if (curr.charAt(0) == MODULE_PREFIX) {
+			List<String> exportedPackageList= moduleExportsMap.get(curr.substring(1));
+			if (exportedPackageList != null) {
+				for (String exportedPackage : exportedPackageList) {
+					if (exportedPackage.equals(qualifier)) {
+						return ImportRewriteContext.RES_NAME_FOUND;
+					}
+				}
+			}
+			return ImportRewriteContext.RES_NAME_UNKNOWN;
+		}
 		if (curr.charAt(0) != prefix || !curr.endsWith(name)) {
 			return ImportRewriteContext.RES_NAME_UNKNOWN;
 		}
@@ -626,7 +637,7 @@ public final class ImportRewrite {
 
 		for (int i= imports.size() - 1; i >= 0 ; i--) {
 			String curr= (String) imports.get(i);
-			int res= compareImport(prefix, qualifier, name, curr);
+			int res= compareImport(prefix, qualifier, name, curr, this.moduleEntries);
 			if (res != ImportRewriteContext.RES_NAME_UNKNOWN) {
 				if (!allowAmbiguity || res == ImportRewriteContext.RES_NAME_FOUND) {
 					if (prefix != STATIC_PREFIX) {
@@ -1482,13 +1493,23 @@ public final class ImportRewrite {
 	}
 
 	/**
-	 * Returns all static imports that are recorded to be added.
+	 * Returns all module imports that are recorded to be added.
 	 *
-	 * @return the static imports recorded to be added.
+	 * @return the module imports recorded to be added.
 	 * @since 3.43
 	 */
 	public String[] getAddedModuleImports() {
 		return filterFromList(this.addedImports, MODULE_PREFIX);
+	}
+
+	/**
+	 * Returns all the exported packages registeted for an import module.
+	 * @param moduleName name of module to get exports
+	 * @return list of exported package names
+	 * @since 3.43
+	 */
+	public List<String> getAddedModuleExportedPackages(String moduleName) {
+		return this.moduleEntries.get(moduleName);
 	}
 
 	/**
