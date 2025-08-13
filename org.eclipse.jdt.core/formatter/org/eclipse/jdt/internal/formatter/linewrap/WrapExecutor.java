@@ -18,7 +18,6 @@ package org.eclipse.jdt.internal.formatter.linewrap;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_BLOCK;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_JAVADOC;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_LINE;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_MARKDOWN;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameTextBlock;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameWHITESPACE;
 
@@ -190,11 +189,7 @@ public class WrapExecutor {
 			} else if (!token.isComment()) {
 				this.counter += this.tm2.getLength(token, this.counter);
 			} else if (token.tokenType != TokenNameCOMMENT_LINE) {
-				if (token.tokenType == TokenNameCOMMENT_MARKDOWN) {
-					this.commentWrapper.setNewLinesAtBoundries(false);
-				} else {
-					this.counter = this.commentWrapper.wrapMultiLineComment(token, this.counter, true, this.isNLSTagInLine);
-				}
+				this.counter = this.commentWrapper.wrapMultiLineComment(token, this.counter, true, this.isNLSTagInLine);
 				this.extraLines += this.commentWrapper.getLinesCount() - 1;
 				this.extraLinesPerComment.add(this.commentWrapper.getLinesCount() - 1);
 			}

@@ -16510,7 +16510,7 @@ public void testIssue2977() {
 					}
 				}
 				""";
-		formatSource(input,expected);
+		formatSource(input, expected);
 	}
 	public void testMarkdownEmptyLinesBtwnDiffTags() throws JavaModelException {
 		setComplianceLevel(CompilerOptions.VERSION_23);
@@ -16534,6 +16534,6 @@ public void testIssue2977() {
 					}
 				}
 				""";
-		formatSource(input,expected);
+		formatSource(input, expected);
 	}
 }

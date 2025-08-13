@@ -1215,7 +1215,7 @@ public class CommentsPreparator extends ASTVisitor {
 			this.allowSubstituteWrapping = new boolean[commentToken.countChars()];
 		}
 		boolean isMarkdown = commentToken.tokenType == TokenNameCOMMENT_MARKDOWN;
-		boolean isJavadoc = commentToken.tokenType == TokenNameCOMMENT_JAVADOC || isMarkdown;
+		boolean isJavadoc = commentToken.tokenType == TokenNameCOMMENT_JAVADOC;
 		Arrays.fill(this.allowSubstituteWrapping, 0, commentToken.countChars(), !isJavadoc);
 
 		final boolean cleanBlankLines = isJavadoc ? this.options.comment_clear_blank_lines_in_javadoc_comment
@@ -1264,9 +1264,9 @@ public class CommentsPreparator extends ASTVisitor {
 						Token outputToken = new Token(tokenStart, position - 1, commentToken.tokenType);
 						outputToken.spaceBefore();
 						if (lineBreaks > 0) {
-							if (cleanBlankLines)
+							if (cleanBlankLines && !isMarkdown)
 								lineBreaks = 1;
-							if (lineBreaks > 1 || !this.options.join_lines_in_comments)
+							if (lineBreaks > 1 || !this.options.join_lines_in_comments || isMarkdown)
 								outputToken.putLineBreaksBefore(lineBreaks);
 						}
 						if (this.tm.charAt(tokenStart) == '@') {

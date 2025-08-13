@@ -72,9 +72,15 @@ public class CommentWrapExecutor extends TokenTraverser {
 		this.simulation = simulate;
 		this.wrapDisabled = noWrap;
 		this.potentialWrapToken = this.potentialWrapTokenSubstitute = null;
-		this.newLinesAtBoundries = commentToken.tokenType == TokenNameCOMMENT_JAVADOC
-				? this.options.comment_new_lines_at_javadoc_boundaries
-				: this.options.comment_new_lines_at_block_boundaries;
+
+		if(commentToken.tokenType != TokenNameCOMMENT_MARKDOWN) {
+			this.newLinesAtBoundries = commentToken.tokenType == TokenNameCOMMENT_JAVADOC
+					? this.options.comment_new_lines_at_javadoc_boundaries
+					: this.options.comment_new_lines_at_block_boundaries;
+		} else {
+			this.newLinesAtBoundries = false;
+		}
+
 		List<Token> structure = commentToken.getInternalStructure();
 		if (structure == null || structure.isEmpty())
 			return startPosition + this.tm.getLength(commentToken, startPosition);
@@ -213,7 +219,7 @@ public class CommentWrapExecutor extends TokenTraverser {
 			@Override
 			protected boolean token(Token token, int index) {
 				if ((token.tokenType == TokenNameCOMMENT_JAVADOC || token.tokenType == TokenNameCOMMENT_MARKDOWN)
-					&& token.getInternalStructure() == null) {
+						&& token.getInternalStructure() == null) {
 					if (getLineBreaksBefore() > 0)
 						token.setAlign(token.getAlign() + token.getIndent());
 					token.setIndent(0);
@@ -310,9 +316,5 @@ public class CommentWrapExecutor extends TokenTraverser {
 		if (lineLength > pageWidth && commentLength <= pageWidth)
 			lineLength = pageWidth;
 		return lineLength;
-	}
-
-	public void setNewLinesAtBoundries(boolean value) {
-		this.newLinesAtBoundries = value;
 	}
 }
