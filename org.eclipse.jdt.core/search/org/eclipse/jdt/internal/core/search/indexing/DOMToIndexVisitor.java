@@ -133,11 +133,13 @@ class DOMToIndexVisitor extends ASTVisitor {
 			.filter(SingleVariableDeclaration.class::isInstance)
 			.map(SingleVariableDeclaration.class::cast)
 			.map(SingleVariableDeclaration::getType)
-			.map(this::name)
+			.map(Type::toString)
+			.map(String::toCharArray)
 			.toArray(char[][]::new);
-		char[] returnType = name(method.getReturnType2());
+		char[] returnType = method.getReturnType2() == null ? null : method.getReturnType2().toString().toCharArray();
 		char[][] exceptionTypes = ((List<Type>)method.thrownExceptionTypes()).stream()
-			.map(this::name)
+			.map(Type::toString)
+			.map(String::toCharArray)
 			.toArray(char[][]::new);
 		char[][] parameterNames = ((List<VariableDeclaration>)method.parameters()).stream()
 				.map(VariableDeclaration::getName)
@@ -183,7 +185,7 @@ class DOMToIndexVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(FieldDeclaration field) {
-		char[] typeName = name(field.getType());
+		char[] typeName = field.getType() == null ? null : field.getType().toString().toCharArray();
 		for (VariableDeclarationFragment fragment: (List<VariableDeclarationFragment>)field.fragments()) {
 			this.sourceIndexer.addFieldDeclaration(typeName, fragment.getName().getIdentifier().toCharArray());
 		}
