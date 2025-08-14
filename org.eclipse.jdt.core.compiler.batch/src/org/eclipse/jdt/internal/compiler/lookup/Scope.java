@@ -458,23 +458,41 @@ public abstract class Scope {
 	}
 
 	static boolean isMalformedPair(TypeBinding t1, TypeBinding t2, Scope scope) {
-		// not spec-ed in JLS, but per email communication (2017-09-13) it should be
-		switch (t1.kind()) {
-			case Binding.TYPE:
-			case Binding.GENERIC_TYPE:
-			case Binding.PARAMETERIZED_TYPE:
-			case Binding.RAW_TYPE:
-				if (t1.isClass()) {
-					if (t2.getClass() == TypeVariableBinding.class) {
-						TypeBinding bound = ((TypeVariableBinding) t2).firstBound;
-						if (bound == null || !bound.erasure().isCompatibleWith(t1.erasure())) { // use of erasure is heuristic-based
-							return true; // malformed, because substitution could create a contradiction.
-						}
-					}
-				}
+		// this is a combination from JLS 4.9 and private email communication (2017-09-13):
+		InferenceVariable iv1 = t1 instanceof InferenceVariable iv ? iv : null;
+		InferenceVariable iv2 = t2 instanceof InferenceVariable iv ? iv : null;
+		TypeVariableBinding tv1 = getTypeVariable(iv1 != null ? iv1.typeParameter : t1);
+		TypeVariableBinding tv2 = getTypeVariable(iv2 != null ? iv2.typeParameter : t2);
+		if (tv1 != null) {
+			if (tv2 != null)
+				return iv1 == null && iv2 == null; // two real type variables
+			return isTypeVariableClassConflict(tv1, iv1 != null, t2);
+		} else if (tv2 != null) {
+			return isTypeVariableClassConflict(tv2, iv2 != null, t1);
 		}
 		return false;
 	}
+
+	private static TypeVariableBinding getTypeVariable(TypeBinding type) {
+		if (type.getClass() == TypeVariableBinding.class) // exact type only
+			return ((TypeVariableBinding) type);
+		return null;
+	}
+
+	private static boolean isTypeVariableClassConflict(TypeVariableBinding typeVariable, boolean fromInferenceVariable, TypeBinding otherType) {
+		if (otherType.isClass()) {
+			TypeBinding classErasure = otherType.erasure();
+			if (classErasure.id != TypeIds.T_JavaLangObject) {
+				TypeBinding bound1 = typeVariable.firstBound;
+				if (bound1 == null) {
+					return !fromInferenceVariable;
+				} else if (!bound1.erasure().isCompatibleWith(classErasure))  // use of erasure is heuristic-based
+					return true;
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * Returns an array of types, where original types got substituted given a substitution.
 	 * Only allocate an array if anything is different.
