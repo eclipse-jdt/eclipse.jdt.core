@@ -349,7 +349,11 @@ public final class ImportRewrite {
 			for (IImportDeclaration curr : imports) {
 				char prefix= Flags.isStatic(curr.getFlags()) ? STATIC_PREFIX :
 					Flags.isModule(curr.getFlags()) ? MODULE_PREFIX : NORMAL_PREFIX;
-				existingImport.add(prefix + curr.getElementName());
+				String currName= curr.getElementName();
+				if (currName.endsWith(".*")) { //$NON-NLS-1$
+					currName= currName.substring(0, currName.length() - 2);
+				}
+				existingImport.add(prefix + currName);
 				if (Flags.isModule(curr.getFlags())) {
 					List<String> packageNames= new ArrayList<>();
 					if (compilationUnit == null) {
@@ -359,7 +363,7 @@ public final class ImportRewrite {
 						List<ImportDeclaration> astImports= compilationUnit.imports();
 						ImportDeclaration foundModuleImport= null;
 						for (ImportDeclaration astImport : astImports) {
-							if (astImport.getName().getFullyQualifiedName().equals(curr.getElementName())) {
+							if (astImport.getName().getFullyQualifiedName().equals(currName)) {
 								foundModuleImport= astImport;
 								break;
 							}
