@@ -75,17 +75,21 @@ public final class ImportRewriteAnalyzer {
 		}
 
 		public String[] getCreatedImports() {
-			return extractQualifiedNames(false, this.createdImports);
+			return extractQualifiedNames(false, false, this.createdImports);
 		}
 
 		public String[] getCreatedStaticImports() {
-			return extractQualifiedNames(true, this.createdImports);
+			return extractQualifiedNames(true, false, this.createdImports);
 		}
 
-		private String[] extractQualifiedNames(boolean b, Collection<ImportName> imports) {
+		public String[] getCreatedModuleImports() {
+			return extractQualifiedNames(false, true, this.createdImports);
+		}
+
+		private String[] extractQualifiedNames(boolean b, boolean m, Collection<ImportName> imports) {
 			List<String> names = new ArrayList<>(imports.size());
 			for (ImportName importName : imports) {
-				if (importName.isStatic == b) {
+				if (importName.isStatic == b && importName.isModule == m) {
 					names.add(importName.qualifiedName);
 				}
 			}
@@ -505,8 +509,8 @@ public final class ImportRewriteAnalyzer {
 	 * <p>
 	 * Overrides any previous corresponding call to {@link #removeImport}.
 	 */
-	public void addImport(boolean isStatic, String qualifiedName) {
-		ImportName importToAdd = ImportName.createFor(isStatic, qualifiedName);
+	public void addImport(boolean isStatic, boolean isModule, String qualifiedName) {
+		ImportName importToAdd = ImportName.createFor(isStatic, isModule, qualifiedName);
 		this.importsToAdd.add(importToAdd);
 		this.importsToRemove.remove(importToAdd);
 	}
@@ -519,8 +523,8 @@ public final class ImportRewriteAnalyzer {
 	 * <p>
 	 * Overrides any previous corresponding call to {@link #addImport}.
 	 */
-	public void removeImport(boolean isStatic, String qualifiedName) {
-		ImportName importToRemove = ImportName.createFor(isStatic, qualifiedName);
+	public void removeImport(boolean isStatic, boolean isModule, String qualifiedName) {
+		ImportName importToRemove = ImportName.createFor(isStatic, isModule, qualifiedName);
 		this.importsToAdd.remove(importToRemove);
 		this.importsToRemove.add(importToRemove);
 	}
@@ -604,10 +608,14 @@ public final class ImportRewriteAnalyzer {
 				this.importsToAdd.size() + this.importsToRemove.size());
 
 		for (ImportName addedImport : this.importsToAdd) {
-			touchedContainers.add(addedImport.getContainerOnDemand());
+			if (!addedImport.isModule) {
+				touchedContainers.add(addedImport.getContainerOnDemand());
+			}
 		}
 		for (ImportName removedImport : this.importsToRemove) {
-			touchedContainers.add(removedImport.getContainerOnDemand());
+			if (!removedImport.isModule) {
+				touchedContainers.add(removedImport.getContainerOnDemand());
+			}
 		}
 
 		return Collections.unmodifiableSet(new HashSet<>(touchedContainers));
