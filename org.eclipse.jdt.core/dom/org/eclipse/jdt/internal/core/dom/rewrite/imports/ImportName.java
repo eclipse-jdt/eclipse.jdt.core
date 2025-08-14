@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Google Inc and others.
+ * Copyright (c) 2015, 2025 Google Inc and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,6 +15,7 @@ package org.eclipse.jdt.internal.core.dom.rewrite.imports;
 
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.Modifier;
 
 /**
  * Encapsulates an import's fully qualified name, whether it is on-demand, and whether it is static.
@@ -28,29 +29,34 @@ import org.eclipse.jdt.core.dom.ImportDeclaration;
 public final class ImportName {
 	static ImportName createFor(ImportDeclaration importDeclaration) {
 		String declName = importDeclaration.getName().getFullyQualifiedName();
-		if (importDeclaration.isOnDemand()) {
+		if (Modifier.isModule(importDeclaration.getModifiers())) {
+			return createFor(importDeclaration.isStatic(), Modifier.isModule(importDeclaration.getModifiers()), declName);
+		} else if (importDeclaration.isOnDemand()) {
 			return createOnDemand(importDeclaration.isStatic(), declName);
 		}
-		return createFor(importDeclaration.isStatic(), declName);
+		return createFor(importDeclaration.isStatic(), Modifier.isModule(importDeclaration.getModifiers()), declName);
 	}
 
 	static ImportName createOnDemand(boolean isStatic, String containerName) {
-		return new ImportName(isStatic, containerName, "*"); //$NON-NLS-1$
+		return new ImportName(isStatic, false, containerName, "*"); //$NON-NLS-1$
 	}
 
-	public static ImportName createFor(boolean isStatic, String qualifiedName) {
+	public static ImportName createFor(boolean isStatic, boolean isModule, String qualifiedName) {
 		String containerName = Signature.getQualifier(qualifiedName);
 		String simpleName = Signature.getSimpleName(qualifiedName);
-		return new ImportName(isStatic, containerName, simpleName);
+		return new ImportName(isStatic, isModule, containerName, simpleName);
 	}
 
 	public final boolean isStatic;
+	public final boolean isModule;
 	public final String containerName;
 	public final String simpleName;
 	public final String qualifiedName;
 
-	private ImportName(boolean isStatic, String containerName, String simpleName) {
+	private ImportName(boolean isStatic, boolean isModule, String containerName, String simpleName) {
 		this.isStatic = isStatic;
+		this.isModule = isModule;
+		assert(!(this.isStatic && this.isModule));
 		this.containerName = containerName;
 		this.simpleName = simpleName;
 
@@ -59,14 +65,14 @@ public final class ImportName {
 
 	@Override
 	public String toString() {
-		String template = this.isStatic ? "staticImport(%s)" : "typeImport(%s)"; //$NON-NLS-1$ //$NON-NLS-2$
+		String template = this.isStatic ? "staticImport(%s)" : this.isModule ? "moduleImport(%s)" : "typeImport(%s)"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return String.format(template, this.qualifiedName);
 	}
 
 	@Override
 	public int hashCode() {
 		int result = this.qualifiedName.hashCode();
-		result = 31 * result + (this.isStatic ? 1 : 0);
+		result = 31 * result + (this.isStatic ? 1 : 0) + (this.isModule ? 3 : 0);
 		return result;
 	}
 
@@ -78,7 +84,7 @@ public final class ImportName {
 
 		ImportName other = (ImportName) obj;
 
-		return this.qualifiedName.equals(other.qualifiedName) && this.isStatic == other.isStatic;
+		return this.qualifiedName.equals(other.qualifiedName) && this.isStatic == other.isStatic && this.isModule == other.isModule;
 	}
 
 	public boolean isOnDemand() {
