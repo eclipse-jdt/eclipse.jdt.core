@@ -228,6 +228,20 @@ public class IntersectionTypeBinding18 extends ReferenceBinding {
 	}
 
 	@Override
+	public boolean isProperType(boolean admitCapture18) {
+		enterRecursiveFunction();
+		try {
+			for (ReferenceBinding binding : this.intersectingTypes) {
+				if (!binding.isProperType(admitCapture18))
+					return false;
+			}
+		} finally {
+			exitRecursiveFunction();
+		}
+		return true;
+	}
+
+	@Override
 	public TypeBinding erasure() {
 		int classIdx = -1;
 		for (int i = 0; i < this.intersectingTypes.length; i++) {
