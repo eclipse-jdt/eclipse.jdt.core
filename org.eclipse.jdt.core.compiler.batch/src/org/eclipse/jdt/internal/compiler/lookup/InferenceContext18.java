@@ -2213,4 +2213,8 @@ public class InferenceContext18 {
 		}
 		return false;
 	}
+
+	public void restoreB2() {
+		this.currentBounds = this.b2.copy();
+	}
 }
