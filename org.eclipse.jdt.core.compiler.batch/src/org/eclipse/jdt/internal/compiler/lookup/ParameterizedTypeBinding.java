@@ -708,6 +708,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public AnnotationBinding[] getAnnotations() {
 		return this.type.getAnnotations();
 	}
+	@Override
+	public AnnotationBinding[] getAnnotations(long requestedInitialization) {
+		return this.type.getAnnotations(requestedInitialization);
+	}
 
 	@Override
 	public long getAnnotationTagBits() {

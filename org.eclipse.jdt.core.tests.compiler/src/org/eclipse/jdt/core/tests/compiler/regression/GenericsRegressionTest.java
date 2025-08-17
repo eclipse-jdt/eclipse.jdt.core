@@ -6766,6 +6766,65 @@ public void testIssue2523() {
             }
         );
 }
+// regression from issue 2523
+public void testGH4306() {
+	runConformTest(
+		new String[] {
+				"Demo.java",
+				"""
+				public class Demo {
+
+				public static void main(String[] args) throws Throwable {
+					run(Demo::close); // Minimal reproducer
+					run(() -> close()); // no error
+
+					// More complex cases closer to the original code
+					ThrowingRunnable<Exception> run = Demo::close; // no error
+					runAll(() -> close()); // no error
+					runAll(Demo::close); // error
+					runAll(Demo::close, () -> close()); // error on first
+					runAll(() -> close(), Demo::close); // error on second
+				}
+
+				@FunctionalInterface
+				interface ThrowingRunnable<E extends Throwable> {
+					void run() throws E;
+				}
+
+				static void close() throws Exception {
+				}
+
+				@SafeVarargs
+				static <E extends Throwable> void runAll(ThrowingRunnable<? extends E>... actions) throws E {
+				}
+
+				static <E extends Throwable> void run(ThrowingRunnable<? extends E> action) throws E {
+				}
+			}
+				"""
+		});
+}
+public void testGH4306b() {
+	runConformTest(new String[] {
+			"Demo.java",
+			"""
+			public class Demo {
+				public static void main(String[] args) {
+					A type = get(A::new);
+				}
+
+				private static <T extends A> T get(SupplierTest<? extends T> supplier) {
+					return null;
+				}
+
+				private static class A {}
+				private interface SupplierTest<T extends A> {
+					T create();
+				}
+			}
+			"""
+	});
+}
 public void testGH4214() {
 	runConformTest(new String[] {
 		"C.java",

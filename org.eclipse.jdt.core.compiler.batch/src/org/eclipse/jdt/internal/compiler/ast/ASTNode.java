@@ -814,7 +814,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				case Binding.FIELD :
 				case Binding.RECORD_COMPONENT :
 				case Binding.LOCAL :
-					if ((recipient.extendedTagBits & ExtendedTagBits.AnnotationResolved) != 0) return annotations;
+					if (ExtendedTagBits.areAllAnnotationsResolved(recipient.extendedTagBits)) return annotations;
 					recipient.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 					if (length > 0) {
 						annotations = new AnnotationBinding[length];
@@ -853,7 +853,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 								annotations[j] = annot.getCompilerAnnotation();
 							}
 						}
-						break;
+						return annotations;
 					case Binding.LOCAL :
 						LocalVariableBinding local = (LocalVariableBinding) recipient;
 						// Note for JDK>=14, this could be LVB or RCB, hence typecasting to VB
@@ -894,9 +894,10 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 						// copy the se8 annotations.
 						if (annotationRecipient instanceof RecordComponentBinding && copySE8AnnotationsToType)
 							copySE8AnnotationsToType(scope, recipient, sourceAnnotations, false);
-						break;
+						return annotations;
+					default:
+						annotations[i] = annotation.compilerAnnotation;
 				}
-				return annotations;
 			} else {
 				annotation.recipient = recipient;
 				annotation.resolveType(scope);
@@ -1341,6 +1342,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 										break;
 									}
 								}
+								annotations[i].recipient = recipient;
+								annotations[i].resolveType(scope); // allow downstream access to since & forRemoval
 							}
 							recipient.tagBits |= deprecationTagBits;
 						}
@@ -1358,7 +1361,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			if (annotations != null) {
 				int length;
 				if ((length = annotations.length) >= 0) {
-					if ((recipient.tagBits & ExtendedTagBits.NullDefaultAnnotationResolved) != 0) return;
+					if ((recipient.extendedTagBits & ExtendedTagBits.NullDefaultAnnotationResolved) != 0) return;
 					for (int i = 0; i < length; i++) {
 						TypeReference annotationTypeRef = annotations[i].type;
 						// only resolve type name if 'NonNullByDefault' last token (or corresponding configured annotation name)
