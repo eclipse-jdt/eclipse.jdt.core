@@ -673,8 +673,59 @@ public static MethodBinding inferDiamondConstructor(Scope scope, InvocationSite 
 		}
 		return sfmb.applyTypeArgumentsOnConstructor(((ParameterizedTypeBinding)factory.returnType).arguments, constructorTypeArguments, genericFactory.inferredWithUncheckedConversion, site.invocationTargetType());
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4281
+	if (factory == null && argumentTypes != null && argumentTypes.length == 1) {
+	    TypeBinding argType = argumentTypes[0];
+	    if (argType.isParameterizedType() && argType instanceof ParameterizedTypeBinding parameterizedArg) {
+	        // Get generic types using safe casting
+	        ReferenceBinding firstGenericType = parameterizedArg.genericType();
+	        ReferenceBinding secondGenericType = (type.original() instanceof ReferenceBinding ref) ? ref : null;
+	        // Check if we have valid types with type variables
+	        if (secondGenericType != null && secondGenericType.typeVariables() != null &&
+	            secondGenericType.typeVariables().length > 0) {
+	            TypeVariableBinding iTypeVar = secondGenericType.typeVariables()[0];
+	            ParameterizedTypeBinding expectedArgType = scope.environment().createParameterizedType(
+	                firstGenericType,
+	                new TypeBinding[]{iTypeVar},
+	                parameterizedArg.enclosingType()
+	            );
+	            // Create allocation type with type arguments
+	            ParameterizedTypeBinding resolvedType = scope.environment().createParameterizedType(
+	                secondGenericType,
+	                new TypeBinding[]{iTypeVar, scope.getJavaLangObject()},
+	                type.enclosingType()
+	            );
+	            MethodBinding resolvedConstructor = findCompatibleConstructor(
+	                scope, resolvedType, argumentTypes[0], expectedArgType, site
+	            );
+	            if (resolvedConstructor != null && resolvedConstructor.isValidBinding()) {
+	                return resolvedConstructor;
+	            }
+	        }
+	    }
+	}
 	return null;
 }
+
+private static MethodBinding findCompatibleConstructor(Scope scope, ParameterizedTypeBinding resolvedType,
+        TypeBinding argumentType, TypeBinding expectedArgType, InvocationSite site) {
+    TypeBinding[] argTypes = {expectedArgType, argumentType};
+    for (TypeBinding arg : argTypes) {
+        MethodBinding constructor = scope.getConstructor(resolvedType, new TypeBinding[]{arg}, site);
+        if (constructor != null && constructor.isValidBinding()) {
+            return constructor;
+        }
+    }
+    // try to find any 1-argument constructor
+    for (MethodBinding method : resolvedType.getMethods(TypeConstants.INIT)) {
+        if (method.isConstructor() && method.parameters.length == 1) {
+            return method;
+        }
+    }
+    return null;
+}
+
 public TypeBinding[] inferElidedTypes(final Scope scope) {
 	return inferElidedTypes((ParameterizedTypeBinding) this.resolvedType, scope);
 }
