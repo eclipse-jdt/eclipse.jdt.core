@@ -1071,6 +1071,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("SuperclassNotFound", DEPRECATED);
 		expectedProblemAttributes.put("SuperclassNotVisible", DEPRECATED);
 		expectedProblemAttributes.put("SuperfluousSemicolon", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("SwitchExpressionMissingEnumConstantCaseDespiteDefault", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("SwitchOnEnumNotBelow15", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("SwitchOnStringsNotBelow17", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("TargetTypeNotAFunctionalInterface", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -2222,6 +2223,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("SuperclassNotFound", SKIP);
 		expectedProblemAttributes.put("SuperclassNotVisible", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_SUPERINTERFACE));
 		expectedProblemAttributes.put("SuperfluousSemicolon", new ProblemAttributes(JavaCore.COMPILER_PB_EMPTY_STATEMENT));
+		expectedProblemAttributes.put("SwitchExpressionMissingEnumConstantCaseDespiteDefault", new ProblemAttributes(JavaCore.COMPILER_PB_INCOMPLETE_ENUM_SWITCH));
 		expectedProblemAttributes.put("SwitchOnEnumNotBelow15", SKIP);
 		expectedProblemAttributes.put("SwitchOnStringsNotBelow17", SKIP);
 		expectedProblemAttributes.put("TargetTypeNotAFunctionalInterface", SKIP);
