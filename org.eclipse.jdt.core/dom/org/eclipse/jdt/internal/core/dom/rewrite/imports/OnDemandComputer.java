@@ -86,15 +86,17 @@ class OnDemandComputer {
 	private Map<ImportName, Collection<ImportName>> mapByContainer(Collection<ImportName> imports) {
 		Map<ImportName, Collection<ImportName>> importsByContainer = new HashMap<>();
 		for (ImportName importName : imports) {
-			ImportName containerOnDemand = importName.getContainerOnDemand();
+			if (!importName.isModule) {
+				ImportName containerOnDemand = importName.getContainerOnDemand();
 
-			Collection<ImportName> containerImports = importsByContainer.get(containerOnDemand);
-			if (containerImports == null) {
-				containerImports = new ArrayList<>();
-				importsByContainer.put(containerOnDemand, containerImports);
+				Collection<ImportName> containerImports = importsByContainer.get(containerOnDemand);
+				if (containerImports == null) {
+					containerImports = new ArrayList<>();
+					importsByContainer.put(containerOnDemand, containerImports);
+				}
+
+				containerImports.add(importName);
 			}
-
-			containerImports.add(importName);
 		}
 
 		return importsByContainer;
