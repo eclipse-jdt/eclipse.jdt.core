@@ -597,4 +597,13 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 	public InferenceContext18 freshInferenceContext(Scope scope) {
 		return new InferenceContext18(scope, this.arguments, this, null);
 	}
+	@Override
+	public int nameSourceEnd() {
+		if (this.accessMode == Super) {
+			return nameSourceStart() + "super".length() - 1; //$NON-NLS-1$
+		} else if (this.accessMode == This) {
+			return nameSourceStart() + "this".length() - 1; //$NON-NLS-1$
+		}
+		return Invocation.super.nameSourceEnd();
+	}
 }
