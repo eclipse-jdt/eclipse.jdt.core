@@ -2183,7 +2183,7 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 		SimpleName simpleName2 = (SimpleName) name;
 		typeBinding = simpleName2.resolveTypeBinding();
 		assertNotNull("No binding", typeBinding);
-        assertEquals("Wrong name 3", "test0070.Outer", typeBinding.getQualifiedName());
+        assertEquals("Wrong name 3", "test0070.Outer<java.lang.String>", typeBinding.getQualifiedName());
 	}
 
 	/**
@@ -4015,7 +4015,7 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 		simpleName = (SimpleName) name;
 		typeBinding = simpleName.resolveTypeBinding();
 		assertNotNull("No binding", typeBinding);
-		assertEquals("Wrong qualified name 8", "Outer", typeBinding.getQualifiedName());
+		assertEquals("Wrong qualified name 8", "Outer<java.lang.String>", typeBinding.getQualifiedName());
    }
 
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84140
