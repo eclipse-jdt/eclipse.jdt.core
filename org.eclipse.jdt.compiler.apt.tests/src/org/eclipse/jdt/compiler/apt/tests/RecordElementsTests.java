@@ -189,8 +189,6 @@ public class RecordElementsTests extends TestCase {
 			options.add("-source");
 			options.add(compliance);
 		}
-//		if (preview)
-//			options.add("--enable-preview");
 		BatchTestUtils.compileInModuleMode(compiler, options, processor, targetFolder, null, true, processBinaries);
 		// If it succeeded, the processor will have set this property to "succeeded";
 		// if not, it will set it to an error value.
