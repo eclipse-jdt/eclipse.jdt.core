@@ -1512,6 +1512,19 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
+	 * FORMATTER / Option to control whether markdown comments are formatted
+	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.format_markdown_comments"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.43
+	 */
+	public final static String FORMATTER_COMMENT_FORMAT_MARKDOWN_COMMENT = "org.eclipse.jdt.core.formatter.comment.format_markdown_comments"; //$NON-NLS-1$
+
+	/**
+	 * <pre>
 	 * FORMATTER / Option to control whether the header comment of a Java source file is formatted
 	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.format_header"
 	 *     - possible values:   { TRUE, FALSE }
