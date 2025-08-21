@@ -7457,4 +7457,23 @@ public void testIssue3356() {
 				"Enum constants cannot be surrounded by parenthesis\n" +
 				"----------\n");
 }
+public void testEnumParamTest1() {
+	if (this.complianceLevel < ClassFileConstants.JDK13)
+		return;
+	runConformTest(new String[]{"X.java",
+			"""
+			public class X {
+			    public static void main(String argv[]) {
+	 				for(java.lang.reflect.Constructor constr : Color.class.getDeclaredConstructors()) {
+	         			for (java.lang.reflect.Parameter p : constr.getParameters()) {
+	         				System.out.println(p.isSynthetic());
+	         			}
+	     			}
+	     		}
+			}
+			enum Color {}
+			"""},
+			"true\n" +
+			"true");
+}
 }
