@@ -238,6 +238,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean comment_new_lines_at_javadoc_boundaries;
 	public boolean comment_javadoc_do_not_separate_block_tags;
 	public boolean comment_format_javadoc_comment;
+	public boolean comment_format_markdown_comment;
 	public boolean comment_format_line_comment;
 	public boolean comment_format_line_comment_starting_on_first_column;
 	public boolean comment_format_block_comment;
@@ -667,6 +668,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_HEADER, this.comment_format_header ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_HTML, this.comment_format_html ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT, this.comment_format_javadoc_comment ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_MARKDOWN_COMMENT, this.comment_format_markdown_comment ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT, this.comment_format_line_comment ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT_STARTING_ON_FIRST_COLUMN, this.comment_format_line_comment_starting_on_first_column ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_SOURCE, this.comment_format_source ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
@@ -1569,6 +1571,10 @@ public class DefaultCodeFormatterOptions {
 		final Object commentFormatJavadocCommentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT);
 		if (commentFormatJavadocCommentOption != null) {
 			this.comment_format_javadoc_comment = DefaultCodeFormatterConstants.TRUE.equals(commentFormatJavadocCommentOption);
+		}
+		final Object commentFormatMarkdownCommentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_MARKDOWN_COMMENT);
+		if (commentFormatMarkdownCommentOption != null) {
+			this.comment_format_markdown_comment = DefaultCodeFormatterConstants.TRUE.equals(commentFormatMarkdownCommentOption);
 		}
 		final Object commentFormatBlockCommentOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_BLOCK_COMMENT);
 		if (commentFormatBlockCommentOption != null) {
@@ -3063,6 +3069,7 @@ public class DefaultCodeFormatterOptions {
 		this.comment_clear_blank_lines_in_javadoc_comment = false;
 		this.comment_format_block_comment = true;
 		this.comment_format_javadoc_comment = true;
+		this.comment_format_markdown_comment = true;
 		this.comment_format_line_comment = true;
 		this.comment_format_line_comment_starting_on_first_column = true;
 		this.comment_format_header = false;
@@ -3468,6 +3475,7 @@ public class DefaultCodeFormatterOptions {
 		this.comment_clear_blank_lines_in_javadoc_comment = false;
 		this.comment_format_block_comment = true;
 		this.comment_format_javadoc_comment = true;
+		this.comment_format_markdown_comment = true;
 		this.comment_format_line_comment = true;
 		this.comment_format_line_comment_starting_on_first_column = false;
 		this.comment_format_header = false;
