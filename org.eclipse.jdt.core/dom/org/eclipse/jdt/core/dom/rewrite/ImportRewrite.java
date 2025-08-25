@@ -350,7 +350,7 @@ public final class ImportRewrite {
 				char prefix= Flags.isStatic(curr.getFlags()) ? STATIC_PREFIX :
 					Flags.isModule(curr.getFlags()) ? MODULE_PREFIX : NORMAL_PREFIX;
 				String currName= curr.getElementName();
-				if (currName.endsWith(".*")) { //$NON-NLS-1$
+				if (currName.endsWith(".*") && prefix == MODULE_PREFIX) { //$NON-NLS-1$
 					currName= currName.substring(0, currName.length() - 2);
 				}
 				existingImport.add(prefix + currName);
@@ -363,7 +363,7 @@ public final class ImportRewrite {
 						List<ImportDeclaration> astImports= compilationUnit.imports();
 						ImportDeclaration foundModuleImport= null;
 						for (ImportDeclaration astImport : astImports) {
-							if (astImport.getName().getFullyQualifiedName().equals(currName)) {
+							if (Flags.isModule(astImport.getFlags()) && astImport.getName().getFullyQualifiedName().equals(currName)) {
 								foundModuleImport= astImport;
 								break;
 							}
@@ -371,7 +371,7 @@ public final class ImportRewrite {
 						if (foundModuleImport != null) {
 							IBinding moduleImportBinding= foundModuleImport.resolveBinding();
 							if (moduleImportBinding instanceof IModuleBinding moduleBinding) {
-								packageNames= getPackageNames(moduleBinding);
+								packageNames= getPackageNamesForModule(moduleBinding);
 							}
 						}
 					}
@@ -382,11 +382,47 @@ public final class ImportRewrite {
 		return new ImportRewrite(cu, null, existingImport, moduleEntries);
 	}
 
-	private static List<String> getPackageNames(IModuleBinding binding) {
-		List<String> result= new ArrayList<>();
+	/**
+	 * Calculate the list of package names that are exported by a module including
+	 * direct and transitive imports.
+	 *
+	 * @param binding - module binding
+	 * @return a list of package names that are exported by the given binding
+	 *
+	 * @since 3.43
+	 */
+	public static List<String> getPackageNamesForModule(IModuleBinding binding) {
+		Set<String> moduleNames= new HashSet<>();
+		populateModuleNames(binding, moduleNames);
+		return new ArrayList<>(getPackageNames(binding, moduleNames));
+	}
+
+	private static void populateModuleNames(IModuleBinding binding, Set<String> moduleNames) {
+		moduleNames.add(binding.getName());
+		IModuleBinding[] requiredModules= binding.getRequiredModules();
+		for (IModuleBinding requiredModule : requiredModules) {
+			populateModuleNames(requiredModule, moduleNames);
+		}
+	}
+
+	private static Set<String> getPackageNames(IModuleBinding binding, Set<String> moduleNames) {
+		Set<String> result= new HashSet<>();
 		IPackageBinding[] packageBindings= binding.getExportedPackages();
 		for (IPackageBinding packageBinding : packageBindings) {
-			result.add(packageBinding.getName());
+			if (binding.getExportedTo(packageBinding).length > 0) {
+				for (String moduleName : binding.getExportedTo(packageBinding)) {
+					if (moduleNames.contains(moduleName)) {
+						result.add(packageBinding.getName());
+						break;
+					}
+				}
+			} else {
+				result.add(packageBinding.getName());
+			}
+		}
+		IModuleBinding[] requiredBindings= binding.getRequiredModules();
+		for (IModuleBinding requiredBinding : requiredBindings) {
+			result.addAll(getPackageNames(requiredBinding, moduleNames));
 		}
 		return result;
 	}
@@ -441,7 +477,7 @@ public final class ImportRewrite {
 					List<String> packageList= new ArrayList<>();
 					IBinding binding= curr.resolveBinding();
 					if (binding instanceof IModuleBinding moduleBinding) {
-						packageList= getPackageNames(moduleBinding);
+						packageList= getPackageNamesForModule(moduleBinding);
 					}
 					moduleEntries.put(curr.getName().getFullyQualifiedName(), packageList);
 				}
@@ -998,14 +1034,38 @@ public final class ImportRewrite {
 
 
 	/**
-	 * Adds a new module import to the rewriter's record.
+	 * Adds a new module import to the rewriter's record.  The import will register all exported
+	 * package names (direct or transitive) so the rewriter can eliminate all other imports covered
+	 * by these package names.
+	 *
+	 * @param name - name of module to import
+	 * @param moduleBinding - binding of module to import
+	 * @return name if import added or null if there are issues
 	 * @since 3.43
 	 *
 	 */
-
-	public void addModuleImport(String name, List<String> packageList) {
+	public String addModuleImport(String name, IModuleBinding moduleBinding) {
+		if (moduleBinding == null) {
+			return null;
+		}
+		this.moduleEntries.put(name, getPackageNamesForModule(moduleBinding));
 		addEntry(MODULE_PREFIX + name);
-		this.moduleEntries.put(name, packageList);
+		return name;
+	}
+
+	/**
+	 * Adds a new module import to the rewriter's record.  The import will register all exported
+	 * package names passed by the caller so the rewriter can eliminate other imports already covered
+	 * by these package names.
+	 *
+	 * @param name - name of module to import
+	 * @param packageNames - list of package names directly or transitively exported by the module specified
+	 * @since 3.43
+	 *
+	 */
+	public void addModuleImport(String name, List<String> packageNames) {
+		this.moduleEntries.put(name, packageNames);
+		addEntry(MODULE_PREFIX + name);
 	}
 
 	/**
@@ -1467,10 +1527,6 @@ public final class ImportRewrite {
 	/**
 	 * Returns all new module imports created by the last invocation of {@link #rewriteImports(IProgressMonitor)}
 	 * or <code>null</code> if these methods have not been called yet.
-	 * <p>
-	 * Note that this list doesn't need to be the same as the added static imports ({@link #getAddedStaticImports()}) as
-	 * implicit imports are not created and some imports are represented by on-demand imports instead.
-	 * </p>
 	 * @return the created imports
 	 * @since 3.43
 	 */
