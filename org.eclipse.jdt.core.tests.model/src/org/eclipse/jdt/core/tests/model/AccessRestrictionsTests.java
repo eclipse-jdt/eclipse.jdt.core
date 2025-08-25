@@ -167,13 +167,15 @@ public void test001() throws CoreException {
 		);
 		// check the specifics of this test case
 		src =
-			"package p;\n" +
-			"public class Y extends X2 {\n" +
-			"	void foobar() {\n" +
-			"		foo(); // accesses X1.foo, should trigger an error\n" +
-			"		bar(); // accesses X2.bar, OK\n" +
-			"	}\n" +
-			"}";
+			"""
+				package p;
+				public class Y extends X2 {
+					void foobar() {
+						foo(); // accesses foo as inherited method through X2, should not trigger an error
+						((X1)this).foo(); // accesses X1.foo directly, should trigger an error
+						bar(); // accesses X2.bar, OK
+					}
+				}""";
 		this.problemRequestor = new ProblemRequestor(src);
 		y = getWorkingCopy(
 			"/P2/src/p/Y.java",
@@ -181,13 +183,19 @@ public void test001() throws CoreException {
 		);
 		assertProblems(
 			"Unexpected problems value",
-			"----------\n" +
-			"1. ERROR in /P2/src/p/Y.java (at line 4)\n" +
-			"	foo(); // accesses X1.foo, should trigger an error\n" +
-			"	^^^\n" +
-			"Access restriction: The method \'X1.foo()\' is not API (restriction on required project \'P1\')\n" +
-			"----------\n"
-		);
+				"""
+					----------
+					1. ERROR in /P2/src/p/Y.java (at line 5)
+						((X1)this).foo(); // accesses X1.foo directly, should trigger an error
+						  ^^
+					Access restriction: The type 'X1' is not API (restriction on required project 'P1')
+					----------
+					2. ERROR in /P2/src/p/Y.java (at line 5)
+						((X1)this).foo(); // accesses X1.foo directly, should trigger an error
+						           ^^^
+					Access restriction: The method 'X1.foo()' is not API (restriction on required project 'P1')
+					----------
+					""");
 	} finally {
 		if (x1 != null)
 			x1.discardWorkingCopy();
