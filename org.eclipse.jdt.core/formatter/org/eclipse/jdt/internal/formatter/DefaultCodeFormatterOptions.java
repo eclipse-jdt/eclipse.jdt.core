@@ -3069,6 +3069,7 @@ public class DefaultCodeFormatterOptions {
 		this.comment_clear_blank_lines_in_javadoc_comment = false;
 		this.comment_format_block_comment = true;
 		this.comment_format_javadoc_comment = true;
+		this.comment_format_markdown_comment = true;
 		this.comment_format_line_comment = true;
 		this.comment_format_line_comment_starting_on_first_column = true;
 		this.comment_format_header = false;
@@ -3474,6 +3475,7 @@ public class DefaultCodeFormatterOptions {
 		this.comment_clear_blank_lines_in_javadoc_comment = false;
 		this.comment_format_block_comment = true;
 		this.comment_format_javadoc_comment = true;
+		this.comment_format_markdown_comment = true;
 		this.comment_format_line_comment = true;
 		this.comment_format_line_comment_starting_on_first_column = false;
 		this.comment_format_header = false;
