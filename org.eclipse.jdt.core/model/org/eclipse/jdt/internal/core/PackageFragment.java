@@ -186,7 +186,7 @@ public boolean exists() {
 	// so also ensure that:
 	//  - the package is not excluded (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=138577)
 	//  - its name is valide (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=108456)
-	return super.exists() && !Util.isExcluded(this) && isValidPackageName();
+	return isValidPackageName() && !Util.isExcluded(this) && super.exists();
 }
 /**
  * @see IPackageFragment#getOrdinaryClassFile(String)
@@ -591,14 +591,12 @@ protected IStatus validateExistence(IResource underlyingResource) {
 		return newDoesNotExistStatus();
 
 	// check that it is not excluded (https://bugs.eclipse.org/bugs/show_bug.cgi?id=138577)
-	int kind;
 	try {
-		kind = getKind();
+		if (Util.isExcluded(this) && getKind() == IPackageFragmentRoot.K_SOURCE)
+			return newDoesNotExistStatus();
 	} catch (JavaModelException e) {
 		return e.getStatus();
 	}
-	if (kind == IPackageFragmentRoot.K_SOURCE && Util.isExcluded(this))
-		return newDoesNotExistStatus();
 
 	return JavaModelStatus.VERIFIED_OK;
 }
