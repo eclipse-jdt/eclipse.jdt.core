@@ -363,7 +363,7 @@ public final class ImportRewrite {
 						List<ImportDeclaration> astImports= compilationUnit.imports();
 						ImportDeclaration foundModuleImport= null;
 						for (ImportDeclaration astImport : astImports) {
-							if (Flags.isModule(astImport.getFlags()) && astImport.getName().getFullyQualifiedName().equals(currName)) {
+							if (Modifier.isModule(astImport.getModifiers()) && astImport.getName().getFullyQualifiedName().equals(currName)) {
 								foundModuleImport= astImport;
 								break;
 							}
@@ -375,7 +375,11 @@ public final class ImportRewrite {
 							}
 						}
 					}
-					moduleEntries.put(curr.getElementName(), packageNames);
+					String name= curr.getElementName();
+					if (name.endsWith(".*")) { //$NON-NLS-1$
+						name= name.substring(0, name.length() - 2);
+					}
+					moduleEntries.put(name, packageNames);
 				}
 			}
 		}
@@ -467,13 +471,13 @@ public final class ImportRewrite {
 			for (int i= 0; i < imports.size(); i++) {
 				ImportDeclaration curr= (ImportDeclaration) imports.get(i);
 				StringBuilder buf= new StringBuilder();
-				buf.append(curr.isStatic() ? STATIC_PREFIX : Flags.isModule(curr.getFlags()) ? MODULE_PREFIX : NORMAL_PREFIX).append(curr.getName().getFullyQualifiedName());
+				buf.append(curr.isStatic() ? STATIC_PREFIX : Modifier.isModule(curr.getModifiers()) ? MODULE_PREFIX : NORMAL_PREFIX).append(curr.getName().getFullyQualifiedName());
 				if (curr.isOnDemand()) {
 					if (buf.length() > 1)
 						buf.append('.');
 					buf.append('*');
 				}
-				if (Flags.isModule(curr.getFlags())) {
+				if (Modifier.isModule(curr.getModifiers())) {
 					List<String> packageList= new ArrayList<>();
 					IBinding binding= curr.resolveBinding();
 					if (binding instanceof IModuleBinding moduleBinding) {
