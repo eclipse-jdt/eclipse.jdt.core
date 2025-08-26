@@ -126,6 +126,12 @@ public void testCreateTypeSignature() {
 			Signature.createTypeSignature("List<List<int[]>>[]".toCharArray(), false));
 	assertEquals("Signature#createTypeSignature is not correct21", "Qjava.y.Map<[QObject;QString;>.MapEntry<[Qp.K<QT;>;[Qq.r.V2;>;",
 			Signature.createTypeSignature("java.y.Map<Object[],String>.MapEntry<p.K<T>[],q.r.V2[]>".toCharArray(), false));
+	assertEquals("Signature#createTypeSignature is not correct22", "Lvoidtest.$MyData;",
+			Signature.createTypeSignature("voidtest.$MyData".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct23", "Lvoidtest.MyData$;",
+			Signature.createTypeSignature("voidtest.MyData$".toCharArray(), true));
+	assertEquals("Signature#createTypeSignature is not correct24", "Lvoidtest.MyData$$$Generated;",
+			Signature.createTypeSignature("voidtest.MyData$$$Generated".toCharArray(), true));
 }
 /**
  * Ensures that creating an invalid type signature throws an IllegalArgumentException.
@@ -886,6 +892,30 @@ public void testGetSimpleNames04() {
 		"List<java.lang.String>\n",
 		Signature.getSimpleNames("java.util.List<java.lang.String>"));
 }
+public void testGetSimpleNames05() {
+	assertStringsEqual(
+		"Unexpected simple names",
+		"org\n" +
+		"samp$le\n" +
+		"$Foo\n",
+		Signature.getSimpleNames("org.samp$le.$Foo"));
+}
+public void testGetSimpleNames06() {
+	assertStringsEqual(
+		"Unexpected simple names",
+		"org\n" +
+		"samp$le\n" +
+		"Foo$\n",
+		Signature.getSimpleNames("org.samp$le.Foo$"));
+}
+public void testGetSimpleNames07() {
+	assertStringsEqual(
+		"Unexpected simple names",
+		"org\n" +
+		"samp$le\n" +
+		"Foo$$Generated\n",
+		Signature.getSimpleNames("org.samp$le.Foo$$Generated"));
+}
 public void testGetSignaturesSimpleName01() {
 	assertEquals(
 		"Unexpected simple names",
@@ -1551,6 +1581,11 @@ public void testGetPackageFragment04() {
 	assertEquals(
 		"",
 		Signature.getSignatureQualifier("LC<LX;>.D$E;"));
+}
+public void testGetPackageFragment05() {
+	assertEquals(
+		"a.b$e",
+		Signature.getSignatureQualifier("La.b$e.C$D$E;"));
 }
 /*
  * Intersection type signature

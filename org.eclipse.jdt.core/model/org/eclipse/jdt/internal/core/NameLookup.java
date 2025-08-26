@@ -1476,13 +1476,29 @@ public class NameLookup implements SuffixConstants {
 			// look in model
 			switch (packageFlavor) {
 				case IPackageFragmentRoot.K_BINARY :
-					matchName= DeduplicationUtil.intern(matchName.replace('.', '$'));
+					char[] chars = matchName.toCharArray();
+					for (int i=0; i < chars.length; i++) {
+						boolean isPreviousDot = (i - 1 >= 0) ? (chars[i- 1] == '.') : false;
+						boolean isNextDot = (i + 1 < chars.length) ? (chars[i + 1] == '.') : false;
+						if ((chars[i] == '.') && (i != 0) && (i != chars.length - 1) && !isNextDot && !isPreviousDot) {
+							chars[i] = '$';
+						}
+					}
+					matchName = DeduplicationUtil.intern(new String(chars));
 					seekTypesInBinaryPackage(matchName, pkg, partialMatch, acceptFlags, requestor);
 					break;
 				case IPackageFragmentRoot.K_SOURCE :
 					seekTypesInSourcePackage(matchName, pkg, firstDot, partialMatch, topLevelTypeName, acceptFlags, requestor);
 					if (matchName.indexOf('$') != -1) {
-						matchName= matchName.replace('$', '.');
+						char[] string = matchName.toCharArray();
+						for (int i=0; i < string.length; i++) {
+							boolean isPreviousDollar = (i - 1 >= 0) ? (string[i- 1] == '$') : false;
+							boolean isNextDollar = (i + 1 < string.length) ? (string[i + 1] == '$') : false;
+							if ((string[i] == '$') && (i != 0) && (i != string.length - 1) && !isNextDollar && !isPreviousDollar) {
+								string[i] = '.';
+							}
+						}
+						matchName = new String(string);
 						firstDot = matchName.indexOf('.');
 						if (!partialMatch)
 							topLevelTypeName = firstDot == -1 ? matchName : matchName.substring(0, firstDot);
