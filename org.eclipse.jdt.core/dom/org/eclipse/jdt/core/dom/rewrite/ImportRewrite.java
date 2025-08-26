@@ -396,26 +396,39 @@ public final class ImportRewrite {
 	 * @since 3.43
 	 */
 	public static List<String> getPackageNamesForModule(IModuleBinding binding) {
-		Set<String> moduleNames= new HashSet<>();
-		populateModuleNames(binding, moduleNames);
-		return new ArrayList<>(getPackageNames(binding, moduleNames));
+		Set<IModuleBinding> modules= new HashSet<>();
+		modules.add(binding);
+		modules.addAll(Arrays.asList(binding.getRequiredModules()));
+		Set<IModuleBinding> transitiveModules= new HashSet<>();
+		for (IModuleBinding moduleBinding : modules) {
+			populateTransitiveModules(moduleBinding, transitiveModules);
+		}
+		modules.addAll(transitiveModules);
+		String firstModuleName= binding.getName();
+		Set<String> packageList= new HashSet<>();
+		for (IModuleBinding moduleBinding : modules) {
+			packageList.addAll(getPackageNames(moduleBinding, firstModuleName));
+		}
+		return new ArrayList<>(packageList);
 	}
 
-	private static void populateModuleNames(IModuleBinding binding, Set<String> moduleNames) {
-		moduleNames.add(binding.getName());
-		IModuleBinding[] requiredModules= binding.getRequiredModules();
-		for (IModuleBinding requiredModule : requiredModules) {
-			populateModuleNames(requiredModule, moduleNames);
+	private static void populateTransitiveModules(IModuleBinding binding, Set<IModuleBinding> transitiveModules) {
+		if (transitiveModules.add(binding)) {
+			IModuleBinding[] requiredTransitiveModules= binding.getRequiredModules(); // TODO: change to transitive API
+			for (IModuleBinding requiredModule : requiredTransitiveModules) {
+				populateTransitiveModules(requiredModule, transitiveModules);
+			}
 		}
 	}
 
-	private static Set<String> getPackageNames(IModuleBinding binding, Set<String> moduleNames) {
+	private static Set<String> getPackageNames(IModuleBinding binding, String firstModuleName) {
 		Set<String> result= new HashSet<>();
 		IPackageBinding[] packageBindings= binding.getExportedPackages();
 		for (IPackageBinding packageBinding : packageBindings) {
-			if (binding.getExportedTo(packageBinding).length > 0) {
-				for (String moduleName : binding.getExportedTo(packageBinding)) {
-					if (moduleNames.contains(moduleName)) {
+			String[] exportedToList= binding.getExportedTo(packageBinding);
+			if (exportedToList.length > 0) {
+				for (String moduleName : exportedToList) {
+					if (firstModuleName.equals(moduleName)) {
 						result.add(packageBinding.getName());
 						break;
 					}
@@ -423,10 +436,6 @@ public final class ImportRewrite {
 			} else {
 				result.add(packageBinding.getName());
 			}
-		}
-		IModuleBinding[] requiredBindings= binding.getRequiredModules();
-		for (IModuleBinding requiredBinding : requiredBindings) {
-			result.addAll(getPackageNames(requiredBinding, moduleNames));
 		}
 		return result;
 	}

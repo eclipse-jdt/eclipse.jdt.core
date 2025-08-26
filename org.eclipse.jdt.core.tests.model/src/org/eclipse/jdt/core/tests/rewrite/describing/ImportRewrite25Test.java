@@ -13,7 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.rewrite.describing;
 
-import java.io.IOException;
+import static org.eclipse.jdt.core.tests.rewrite.describing.StringAsserts.assertEqualStringIgnoreDelim;
+
 import java.lang.reflect.Method;
 import java.util.List;
 import junit.framework.Test;
@@ -170,10 +171,6 @@ public class ImportRewrite25Test extends AbstractJavaModelTests {
 		assertTrue(actualType.isParameterizedType());
 		apply(rewrite);
 		assertEqualStringIgnoreDelim(cu.getSource(), contents);
-	}
-
-	private void assertEqualStringIgnoreDelim(String actual, String expected) throws IOException {
-		StringAsserts.assertEqualStringIgnoreDelim(actual, expected);
 	}
 
 	private ImportRewrite newImportsRewrite(ICompilationUnit cu, String[] order, int normalThreshold, int staticThreshold, boolean restoreExistingImports) throws CoreException, BackingStoreException {
