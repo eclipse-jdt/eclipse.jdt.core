@@ -36,7 +36,7 @@
     <profile>
       <id>build-individual-bundles</id>
       <properties>
-      	<eclipse-p2-repo.url>https://download.eclipse.org/eclipse/updates/Y-builds</eclipse-p2-repo.url>
+      	<eclipse-p2-repo.url>https://download.eclipse.org/eclipse/updates/4.37-Y-builds/</eclipse-p2-repo.url>
       	<skipAPIAnalysis>true</skipAPIAnalysis>
       </properties>
       <repositories>
