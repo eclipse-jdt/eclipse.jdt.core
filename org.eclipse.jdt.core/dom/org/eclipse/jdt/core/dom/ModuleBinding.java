@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 IBM Corporation and others.
+ * Copyright (c) 2017, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -27,7 +27,7 @@ import org.eclipse.jdt.internal.core.SearchableEnvironment;
  * Internal implementation of module bindings.
  * @since 3.14
  */
-class ModuleBinding implements IModuleBinding {
+class ModuleBinding implements IModuleBinding, IModuleBindingExtended {
 
 	protected static final ITypeBinding[] NO_TYPE_BINDINGS = new ITypeBinding[0];
 	private final String name = null;
@@ -39,6 +39,7 @@ class ModuleBinding implements IModuleBinding {
 
 	private IAnnotationBinding[] annotations;
 	private IModuleBinding[] requiredModules;
+	private IModuleBinding[] requiredTransitiveModules;
 	private IPackageBinding[] exports; // cached
 	private IPackageBinding[] opens; // cached
 	private ITypeBinding[] uses; // cached
@@ -170,6 +171,20 @@ class ModuleBinding implements IModuleBinding {
 	}
 
 	@Override
+	public IModuleBinding[] getRequiredTransitiveModules() {
+		if (this.requiredTransitiveModules != null)
+			return this.requiredTransitiveModules;
+
+		org.eclipse.jdt.internal.compiler.lookup.ModuleBinding[] reqs = this.binding.getRequiresTransitive();
+		IModuleBinding[] result = new IModuleBinding[reqs != null ? reqs.length : 0];
+		for (int i = 0, l = result.length; i < l; ++i) {
+			org.eclipse.jdt.internal.compiler.lookup.ModuleBinding req = reqs[i];
+			result[i] = req != null ? this.resolver.getModuleBinding(req) : null;
+		}
+		return this.requiredTransitiveModules = result;
+	}
+
+	@Override
 	public IPackageBinding[] getExportedPackages() {
 		if (this.exports == null) {
 			org.eclipse.jdt.internal.compiler.lookup.PackageBinding[] compilerExports = this.binding.getExports();
@@ -238,4 +253,5 @@ class ModuleBinding implements IModuleBinding {
 	public String toString() {
 		return this.binding.toString();
 	}
+
 }
