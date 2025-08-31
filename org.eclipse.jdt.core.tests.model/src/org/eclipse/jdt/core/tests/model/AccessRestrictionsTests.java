@@ -364,7 +364,7 @@ public void test003() throws CoreException {
 			"----------\n" +
 			"2. ERROR in /P2/src/p/Y.java (at line 5)\n" +
 			"	super(0);\n" +
-			"	^^^^^^^^^\n" +
+			"	^^^^^\n" +
 			"Access restriction: The constructor \'X1.C1(int)\' is not API (restriction on required project \'P1\')\n" +
 			"----------\n" +
 			"3. ERROR in /P2/src/p/Y.java (at line 6)\n" +
@@ -1008,7 +1008,7 @@ public void test010() throws CoreException {
 			"----------\n" +
 			"2. ERROR in /P2/src/p/Y.java (at line 5)\n" +
 			"	super(0);\n" +
-			"	^^^^^^^^^\n" +
+			"	^^^^^\n" +
 			"Access restriction: The constructor \'X1.C1(int)\' is not API (restriction on required project \'P1\')\n" +
 			"----------\n" +
 			"3. ERROR in /P2/src/p/Y.java (at line 6)\n" +
@@ -1280,6 +1280,74 @@ public void testBug545766_JEP211() throws CoreException {
 				expectedProblems,
 				((CompilationUnit) ast).getProblems(),
 				src.toCharArray());
+	} finally {
+		if (x1 != null)
+			x1.discardWorkingCopy();
+		if (z != null)
+			z.discardWorkingCopy();
+		deleteProjects(new String[] {"P1", "P2"});
+	}
+}
+
+public void testGH4333() throws CoreException {
+	ICompilationUnit x1 = null, z = null;
+	try {
+		createJavaProject(
+			"P1",
+			new String[] {"src"},
+			new String[] {"JCL18_LIB"},
+			"bin");
+		this.problemRequestor = new ProblemRequestor();
+		x1 = getWorkingCopy(
+			"/P1/src/p/X1.java",
+			"package p;\n" +
+			"public class X1 {\n" +
+			"	void foo() {\n" +
+			"	}\n" +
+			"}"
+		);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" +
+			"----------\n"
+		);
+		IJavaProject p2 = createJavaProject("P2", new String[] {"src"},
+				new String[] {"JCL18_LIB"}, "bin");
+		IClasspathEntry[] classpath = p2.getRawClasspath();
+		int length = classpath.length;
+		System.arraycopy(classpath, 0, classpath = new IClasspathEntry[length+1], 0, length);
+		classpath[length] = createSourceEntry("P2", "/P1", "-p/X1");
+		p2.setRawClasspath(classpath, null);
+		String src =
+			"""
+			package p;
+			public class Z extends X1 {
+				public Z() {
+					super();
+				}
+			}
+			""";
+		this.problemRequestor = new ProblemRequestor(src);
+		z = getWorkingCopy(
+			"/P2/src/p/Z.java",
+			src
+		);
+		assertProblems(
+			"Unexpected problems value",
+			"""
+			----------
+			1. ERROR in /P2/src/p/Z.java (at line 2)
+				public class Z extends X1 {
+				                       ^^
+			Access restriction: The type 'X1' is not API (restriction on required project 'P1')
+			----------
+			2. ERROR in /P2/src/p/Z.java (at line 4)
+				super();
+				^^^^^
+			Access restriction: The constructor 'X1()' is not API (restriction on required project 'P1')
+			----------
+			"""
+		);
 	} finally {
 		if (x1 != null)
 			x1.discardWorkingCopy();
