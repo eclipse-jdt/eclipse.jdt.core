@@ -1639,14 +1639,16 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			String fileContent =
 				"module first {\n" +
 				"    requires transitive second;\n" +
+				"    requires third;\n" +
 				"	 uses pack22.I22;\n" +
+				"    uses pack33.I33;\n" +
 				"    provides pack22.I22 with pack1.X11;\n" +
 				"}";
 			createFile("/ConverterTests9/src/module-info.java",	fileContent);
 			createFolder("/ConverterTests9/src/pack1");
 			createFile("/ConverterTests9/src/pack1/X11.java",
 					"package pack1;\n" +
-					"public class X11 implements pack22.I22{}\n");
+					"public class X11 implements pack22.I22{pack33.I33 x;}\n");
 
 			IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
 			project2.open(null);
@@ -1661,10 +1663,26 @@ public class ASTConverter9Test extends ConverterTestSetup {
 					"package pack22;\n" +
 					"public interface I22 {}\n");
 
+			IJavaProject project3 = createJavaProject("third", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project3.open(null);
+			addClasspathEntry(project3, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String thirdFile =
+					"module third {\n" +
+					"    exports pack33 to first;\n" +
+					"}";
+			createFile("/third/src/module-info.java",	thirdFile);
+			createFolder("/third/src/pack33");
+			createFile("/third/src/pack33/I33.java",
+					"package pack33;\n" +
+					"public interface I33 {}\n");
+
 			addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+			addClasspathEntry(project1, JavaCore.newProjectEntry(project3.getPath()));
 
 			project1.close(); // sync
 			project2.close();
+			project3.close();
+			project3.open(null);
 			project2.open(null);
 			project1.open(null);
 
@@ -1685,6 +1703,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 		} finally {
 			deleteProject("ConverterTests9");
 			deleteProject("second");
+			deleteProject("third");
 		}
 	}
 
@@ -1701,9 +1720,10 @@ public class ASTConverter9Test extends ConverterTestSetup {
 
 		IModuleBinding[] reqs = moduleBinding.getRequiredModules();
 		assertTrue("Null requires", reqs != null);
-		assertTrue("incorrect number of requires modules", reqs.length == 2);
+		assertTrue("incorrect number of requires modules", reqs.length == 3);
 		assertTrue("incorrect name for requires modules", reqs[0].getName().equals("java.base"));
 		assertTrue("incorrect name for requires modules", reqs[1].getName().equals("second"));
+		assertTrue("incorrect name for requires modules", reqs[2].getName().equals("third"));
 
 		IModuleBinding[] reqsTransitive= ((IModuleBindingExtended)moduleBinding).getRequiredTransitiveModules();
 		assertTrue("Null requires", reqsTransitive != null);
@@ -1716,10 +1736,17 @@ public class ASTConverter9Test extends ConverterTestSetup {
 		IPackageBinding pack22 = secPacks[0];
 		assertTrue("Incorrect Package", pack22.getName().equals("pack22"));
 
+		secPacks = reqs[2].getExportedPackages();
+		assertTrue("Packages Exported in third module null", secPacks != null);
+		assertTrue("Incorrect number of exported packages in third module", secPacks.length == 1);
+		IPackageBinding pack33 = secPacks[0];
+		assertTrue("Incorrect Package", pack33.getName().equals("pack33"));
+
 		ITypeBinding[] uses = moduleBinding.getUses();
 		assertTrue("uses null", uses != null);
-		assertTrue("Incorrect number of uses", uses.length == 1);
+		assertTrue("Incorrect number of uses", uses.length == 2);
 		assertTrue("Incorrect uses", uses[0].getQualifiedName().equals("pack22.I22"));
+		assertTrue("Incorrect uses", uses[1].getQualifiedName().equals("pack33.I33"));
 
 		ITypeBinding[] services = moduleBinding.getServices();
 		assertTrue("services null", services != null);

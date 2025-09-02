@@ -20,10 +20,10 @@ package org.eclipse.jdt.core.dom;
 public interface IModuleBindingExtended {
 
 	/**
-	 * Returns all required transivite modules.
+	 * Returns all modules that are required with the modifier "transitive".
 	 * <p>The resulting bindings are in no particular order.</p>
 	 *
-	 * @return all required transitive modules
+	 * @return modules required with the modifier "transitive"
 	 */
 	public abstract IModuleBinding[] getRequiredTransitiveModules();
 
