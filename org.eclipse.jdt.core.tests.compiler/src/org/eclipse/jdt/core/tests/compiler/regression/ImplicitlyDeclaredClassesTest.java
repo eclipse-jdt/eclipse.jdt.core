@@ -52,7 +52,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	protected void setUp() throws Exception {
 		this.runJavacOptIn = true;
 		super.setUp();
-	}
+ 	}
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
@@ -83,14 +83,10 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	}
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput) {
-		if(!isJRE23Plus)
-			return;
 		runConformTest(testFiles, expectedOutput, null, VMARGS, new JavacTestOptions("-source 25"));
 	}
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
-		if(!isJRE23Plus)
-			return;
 		runConformTest(testFiles, expectedOutput, customOptions, VMARGS, JAVAC_OPTIONS);
 	}
 	@Override
