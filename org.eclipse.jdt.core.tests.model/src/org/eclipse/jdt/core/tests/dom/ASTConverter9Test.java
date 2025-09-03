@@ -1731,23 +1731,28 @@ public class ASTConverter9Test extends ConverterTestSetup {
 		assertTrue("incorrect number of requires transitive modules", reqsTransitive.length == 1);
 		assertTrue("incorrect name for requires transitive modules", reqsTransitive[0].getName().equals("second"));
 
-		IPackageBinding[] secPacks = reqs[1].getExportedPackages();
-		assertTrue("Packages Exported in second module null", secPacks != null);
-		assertTrue("Incorrect number of exported packages in second module", secPacks.length == 1);
-		IPackageBinding pack22 = secPacks[0];
-		assertTrue("Incorrect Package", pack22.getName().equals("pack22"));
-
-		secPacks = reqs[2].getExportedPackages();
-		assertTrue("Packages Exported in third module null", secPacks != null);
-		assertTrue("Incorrect number of exported packages in third module", secPacks.length == 1);
-		IPackageBinding pack33 = secPacks[0];
-		assertTrue("Incorrect Package", pack33.getName().equals("pack33"));
+		for (int i = 1; i < 3; ++i) {
+			if (reqs[i].getName().equals("second")) {
+				IPackageBinding[] secPacks = reqs[i].getExportedPackages();
+				assertTrue("Packages Exported in second module null", secPacks != null);
+				assertTrue("Incorrect number of exported packages in second module", secPacks.length == 1);
+				IPackageBinding pack22 = secPacks[0];
+				assertTrue("Incorrect Package", pack22.getName().equals("pack22"));
+			} else {
+				IPackageBinding[] secPacks = reqs[i].getExportedPackages();
+				assertTrue("Packages Exported in third module null", secPacks != null);
+				assertTrue("Incorrect number of exported packages in third module", secPacks.length == 1);
+				IPackageBinding pack33 = secPacks[0];
+				assertTrue("Incorrect Package", pack33.getName().equals("pack33"));
+			}
+		}
 
 		ITypeBinding[] uses = moduleBinding.getUses();
 		assertTrue("uses null", uses != null);
 		assertTrue("Incorrect number of uses", uses.length == 2);
-		assertTrue("Incorrect uses", uses[0].getQualifiedName().equals("pack22.I22"));
-		assertTrue("Incorrect uses", uses[1].getQualifiedName().equals("pack33.I33"));
+		assertTrue("Incorrect uses",
+				(uses[0].getQualifiedName().equals("pack22.I22") && uses[1].getQualifiedName().equals("pack33.I33") ||
+						(uses[0].getQualifiedName().equals("pack33.I33") && uses[1].getQualifiedName().equals("pack22.I22"))));
 
 		ITypeBinding[] services = moduleBinding.getServices();
 		assertTrue("services null", services != null);
