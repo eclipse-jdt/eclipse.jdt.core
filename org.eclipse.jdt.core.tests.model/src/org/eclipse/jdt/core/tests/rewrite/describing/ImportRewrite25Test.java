@@ -173,6 +173,45 @@ public class ImportRewrite25Test extends AbstractJavaModelTests {
 		assertEqualStringIgnoreDelim(cu.getSource(), contents);
 	}
 
+	public void testImportListClassNoImportModule_since_25() throws Exception {
+		String contents = """
+			package pack1;
+			public class X{
+				List<String> a;
+			}
+			""";
+		createFolder("/" + PROJECT + "/src/pack1");
+		createFile("/" + PROJECT + "/src/pack1/X.java", contents);
+
+		ASTParser parser = ASTParser.newParser(getJLS25());
+
+		ICompilationUnit cu = getCompilationUnit("/" + PROJECT + "/src/pack1/X.java");
+		parser.setSource(contents.toCharArray());
+		parser.setProject(this.project);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setUnitName("X.java");
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(true);
+		CompilationUnit astRoot = (CompilationUnit) parser.createAST(null);
+		Method setTypeRoot= CompilationUnit.class.getDeclaredMethod("setTypeRoot", ITypeRoot.class);
+		setTypeRoot.setAccessible(true);
+		setTypeRoot.invoke(astRoot, cu);
+		ImportRewrite rewrite = newImportsRewrite((ICompilationUnit) astRoot.getJavaElement(), new String[0], 99, 99, true);
+		String actualType = rewrite.addImport("java.util.List<String>");
+		assertEquals("List<String>", actualType);
+		apply(rewrite);
+		String expected = """
+				package pack1;
+
+				import java.util.List;
+
+				public class X{
+					List<String> a;
+				}
+				""";
+		assertEqualStringIgnoreDelim(cu.getSource(), expected);
+	}
+
 	private ImportRewrite newImportsRewrite(ICompilationUnit cu, String[] order, int normalThreshold, int staticThreshold, boolean restoreExistingImports) throws CoreException, BackingStoreException {
 		ImportRewrite rewrite= ImportRewrite.create(cu, restoreExistingImports);
 		rewrite.setImportOrder(order);

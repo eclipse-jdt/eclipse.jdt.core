@@ -414,7 +414,7 @@ public final class ImportRewrite {
 
 	private static void populateTransitiveModules(IModuleBinding binding, Set<IModuleBinding> transitiveModules) {
 		if (transitiveModules.add(binding)) {
-			IModuleBinding[] requiredTransitiveModules= binding.getRequiredModules(); // TODO: change to transitive API
+			IModuleBinding[] requiredTransitiveModules= ((IModuleBindingExtended)binding).getRequiredTransitiveModules();
 			for (IModuleBinding requiredModule : requiredTransitiveModules) {
 				populateTransitiveModules(requiredModule, transitiveModules);
 			}
