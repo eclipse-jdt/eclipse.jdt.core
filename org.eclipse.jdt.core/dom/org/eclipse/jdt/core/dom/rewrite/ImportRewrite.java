@@ -397,13 +397,7 @@ public final class ImportRewrite {
 	 */
 	public static List<String> getPackageNamesForModule(IModuleBinding binding) {
 		Set<IModuleBinding> modules= new HashSet<>();
-		modules.add(binding);
-		modules.addAll(Arrays.asList(binding.getRequiredModules()));
-		Set<IModuleBinding> transitiveModules= new HashSet<>();
-		for (IModuleBinding moduleBinding : modules) {
-			populateTransitiveModules(moduleBinding, transitiveModules);
-		}
-		modules.addAll(transitiveModules);
+		populateTransitiveModules(binding, modules);
 		String firstModuleName= binding.getName();
 		Set<String> packageList= new HashSet<>();
 		for (IModuleBinding moduleBinding : modules) {
