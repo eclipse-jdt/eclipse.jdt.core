@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IImportDeclaration;
+import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaCore;
@@ -371,7 +372,8 @@ public final class ImportRewrite {
 						if (foundModuleImport != null) {
 							IBinding moduleImportBinding= foundModuleImport.resolveBinding();
 							if (moduleImportBinding instanceof IModuleBinding moduleBinding) {
-								packageNames= getPackageNamesForModule(moduleBinding);
+								IModuleDescription modDesc= cu.getModule();
+								packageNames= getPackageNamesForModule(moduleBinding, modDesc != null ? modDesc.getElementName() : null);
 							}
 						}
 					}
@@ -391,17 +393,17 @@ public final class ImportRewrite {
 	 * direct and transitive imports.
 	 *
 	 * @param binding - module binding
+	 * @param currentModuleName - name of the module for this program or null
 	 * @return a list of package names that are exported by the given binding
 	 *
 	 * @since 3.43
 	 */
-	public static List<String> getPackageNamesForModule(IModuleBinding binding) {
+	public static List<String> getPackageNamesForModule(IModuleBinding binding, String currentModuleName) {
 		Set<IModuleBinding> modules= new HashSet<>();
 		populateTransitiveModules(binding, modules);
-		String firstModuleName= binding.getName();
 		Set<String> packageList= new HashSet<>();
 		for (IModuleBinding moduleBinding : modules) {
-			packageList.addAll(getPackageNames(moduleBinding, firstModuleName));
+			packageList.addAll(getPackageNames(moduleBinding, currentModuleName));
 		}
 		return new ArrayList<>(packageList);
 	}
@@ -415,14 +417,14 @@ public final class ImportRewrite {
 		}
 	}
 
-	private static Set<String> getPackageNames(IModuleBinding binding, String firstModuleName) {
+	private static Set<String> getPackageNames(IModuleBinding binding, String currentModuleName) {
 		Set<String> result= new HashSet<>();
 		IPackageBinding[] packageBindings= binding.getExportedPackages();
 		for (IPackageBinding packageBinding : packageBindings) {
 			String[] exportedToList= binding.getExportedTo(packageBinding);
 			if (exportedToList.length > 0) {
 				for (String moduleName : exportedToList) {
-					if (firstModuleName.equals(moduleName)) {
+					if (currentModuleName != null && currentModuleName.equals(moduleName)) {
 						result.add(packageBinding.getName());
 						break;
 					}
@@ -471,6 +473,7 @@ public final class ImportRewrite {
 			existingImport= new ArrayList();
 			moduleEntries= new HashMap<>();
 			List imports= astRoot.imports();
+			ModuleDeclaration modDecl= astRoot.getModule();
 			for (int i= 0; i < imports.size(); i++) {
 				ImportDeclaration curr= (ImportDeclaration) imports.get(i);
 				StringBuilder buf= new StringBuilder();
@@ -484,7 +487,7 @@ public final class ImportRewrite {
 					List<String> packageList= new ArrayList<>();
 					IBinding binding= curr.resolveBinding();
 					if (binding instanceof IModuleBinding moduleBinding) {
-						packageList= getPackageNamesForModule(moduleBinding);
+						packageList= getPackageNamesForModule(moduleBinding, modDecl != null ? modDecl.getName().getFullyQualifiedName() : null);
 					}
 					moduleEntries.put(curr.getName().getFullyQualifiedName(), packageList);
 				}
@@ -1055,7 +1058,8 @@ public final class ImportRewrite {
 		if (moduleBinding == null) {
 			return null;
 		}
-		this.moduleEntries.put(name, getPackageNamesForModule(moduleBinding));
+		ModuleDeclaration modDecl= this.astRoot.getModule();
+		this.moduleEntries.put(name, getPackageNamesForModule(moduleBinding, modDecl != null ? modDecl.getName().getFullyQualifiedName() : null));
 		addEntry(MODULE_PREFIX + name);
 		return name;
 	}
