@@ -4271,4 +4271,39 @@ public void testIssue4065() {
 			true/*shouldFlushOutputDirectory*/,
 			customOptions);
 }
+//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4328
+public void testIssue4328() {
+	if (this.complianceLevel < ClassFileConstants.JDK14)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, CompilerOptions.WARNING);
+	customOptions.put(CompilerOptions.OPTION_ReportMissingEnumCaseDespiteDefault, CompilerOptions.ENABLED);
+	this.runNegativeTest(
+			new String[] {
+				"IncompleteEnumDespiteDefaultWarning.java",
+				"""
+				public class IncompleteEnumDespiteDefaultWarning {
+
+					enum E { F, G, H }
+					static int testEnumExhaustive(E e) {
+						return switch(e) {
+							case F -> 0;
+							case G -> 1;
+							default -> 2;
+						};
+					}
+				}
+
+				"""
+			},
+			"----------\n" +
+			"1. WARNING in IncompleteEnumDespiteDefaultWarning.java (at line 5)\n" +
+			"	return switch(e) {\n" +
+			"	              ^\n" +
+			"The enum constant H should have a corresponding case label in this enum switch on IncompleteEnumDespiteDefaultWarning.E. To suppress this problem, add a comment //$CASES-OMITTED$ on the line above the \'default:\'\n" +
+			"----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
 }

@@ -2495,6 +2495,8 @@ void setSourceStart(int sourceStart);
 	int SwitchExpressionsContinueOutOfSwitchExpression  = Syntax + 1723;
 	/** @since 3.22 */
 	int SwitchExpressionsReturnWithinSwitchExpression  = Syntax + 1724;
+	/** @since 3.44 */
+	int SwitchExpressionMissingEnumConstantCaseDespiteDefault = FieldRelated + 1725;
 
 	/* records - begin */
 
