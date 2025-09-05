@@ -372,8 +372,7 @@ public final class ImportRewrite {
 						if (foundModuleImport != null) {
 							IBinding moduleImportBinding= foundModuleImport.resolveBinding();
 							if (moduleImportBinding instanceof IModuleBinding moduleBinding) {
-								IModuleDescription modDesc= cu.getModule();
-								packageNames= getPackageNamesForModule(moduleBinding, modDesc != null ? modDesc.getElementName() : null);
+								packageNames= getPackageNamesForModule(moduleBinding, compilationUnit);
 							}
 						}
 					}
@@ -393,13 +392,20 @@ public final class ImportRewrite {
 	 * direct and transitive imports.
 	 *
 	 * @param binding - module binding
-	 * @param currentModuleName - name of the module for this program or null
+	 * @param cu - compilation unit
 	 * @return a list of package names that are exported by the given binding
 	 *
 	 * @since 3.43
 	 */
-	public static List<String> getPackageNamesForModule(IModuleBinding binding, String currentModuleName) {
+	public static List<String> getPackageNamesForModule(IModuleBinding binding, CompilationUnit cu) {
 		Set<IModuleBinding> modules= new HashSet<>();
+		String currentModuleName= null;
+		try {
+			IModuleDescription modDesc= cu.getJavaElement().getJavaProject().getModuleDescription();
+			currentModuleName= modDesc.getElementName();
+		} catch (JavaModelException e) {
+			// should not happen - ignore
+		}
 		populateTransitiveModules(binding, modules);
 		Set<String> packageList= new HashSet<>();
 		for (IModuleBinding moduleBinding : modules) {
@@ -473,7 +479,6 @@ public final class ImportRewrite {
 			existingImport= new ArrayList();
 			moduleEntries= new HashMap<>();
 			List imports= astRoot.imports();
-			ModuleDeclaration modDecl= astRoot.getModule();
 			for (int i= 0; i < imports.size(); i++) {
 				ImportDeclaration curr= (ImportDeclaration) imports.get(i);
 				StringBuilder buf= new StringBuilder();
@@ -487,7 +492,7 @@ public final class ImportRewrite {
 					List<String> packageList= new ArrayList<>();
 					IBinding binding= curr.resolveBinding();
 					if (binding instanceof IModuleBinding moduleBinding) {
-						packageList= getPackageNamesForModule(moduleBinding, modDecl != null ? modDecl.getName().getFullyQualifiedName() : null);
+						packageList= getPackageNamesForModule(moduleBinding, astRoot);
 					}
 					moduleEntries.put(curr.getName().getFullyQualifiedName(), packageList);
 				}
@@ -1058,8 +1063,7 @@ public final class ImportRewrite {
 		if (moduleBinding == null) {
 			return null;
 		}
-		ModuleDeclaration modDecl= this.astRoot.getModule();
-		this.moduleEntries.put(name, getPackageNamesForModule(moduleBinding, modDecl != null ? modDecl.getName().getFullyQualifiedName() : null));
+		this.moduleEntries.put(name, getPackageNamesForModule(moduleBinding, this.astRoot));
 		addEntry(MODULE_PREFIX + name);
 		return name;
 	}
