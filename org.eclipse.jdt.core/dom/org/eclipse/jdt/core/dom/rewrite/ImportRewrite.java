@@ -26,15 +26,7 @@ import java.util.Set;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.jdt.core.Flags;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IImportDeclaration;
-import org.eclipse.jdt.core.IModuleDescription;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeRoot;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.internal.core.dom.rewrite.imports.ImportRewriteAnalyzer;
@@ -372,7 +364,7 @@ public final class ImportRewrite {
 						if (foundModuleImport != null) {
 							IBinding moduleImportBinding= foundModuleImport.resolveBinding();
 							if (moduleImportBinding instanceof IModuleBinding moduleBinding) {
-								packageNames= getPackageNamesForModule(moduleBinding, compilationUnit);
+								packageNames= getPackageNamesForModule(moduleBinding, compilationUnit.getJavaElement().getJavaProject());
 							}
 						}
 					}
@@ -388,23 +380,22 @@ public final class ImportRewrite {
 	}
 
 	/**
-	 * Calculate the list of package names that are exported by a module including
-	 * direct and transitive imports.
+	 * Calculate the list of package names that are exported by a module.
 	 *
 	 * @param binding - module binding
-	 * @param cu - compilation unit
+	 * @param project - Java project that contains the module binding
 	 * @return a list of package names that are exported by the given binding
 	 *
 	 * @since 3.43
 	 */
-	public static List<String> getPackageNamesForModule(IModuleBinding binding, CompilationUnit cu) {
+	public static List<String> getPackageNamesForModule(IModuleBinding binding, IJavaProject project) {
 		Set<IModuleBinding> modules= new HashSet<>();
 		String currentModuleName= null;
 		try {
-			IModuleDescription modDesc= cu.getJavaElement().getJavaProject().getModuleDescription();
+			IModuleDescription modDesc= project.getModuleDescription();
 			currentModuleName= modDesc.getElementName();
 		} catch (JavaModelException e) {
-			// should not happen - ignore
+			// ignore - treat as unnamed module
 		}
 		populateTransitiveModules(binding, modules);
 		Set<String> packageList= new HashSet<>();
@@ -492,7 +483,7 @@ public final class ImportRewrite {
 					List<String> packageList= new ArrayList<>();
 					IBinding binding= curr.resolveBinding();
 					if (binding instanceof IModuleBinding moduleBinding) {
-						packageList= getPackageNamesForModule(moduleBinding, astRoot);
+						packageList= getPackageNamesForModule(moduleBinding, astRoot.getJavaElement().getJavaProject());
 					}
 					moduleEntries.put(curr.getName().getFullyQualifiedName(), packageList);
 				}
@@ -1063,7 +1054,7 @@ public final class ImportRewrite {
 		if (moduleBinding == null) {
 			return null;
 		}
-		this.moduleEntries.put(name, getPackageNamesForModule(moduleBinding, this.astRoot));
+		this.moduleEntries.put(name, getPackageNamesForModule(moduleBinding, this.astRoot.getJavaElement().getJavaProject()));
 		addEntry(MODULE_PREFIX + name);
 		return name;
 	}
