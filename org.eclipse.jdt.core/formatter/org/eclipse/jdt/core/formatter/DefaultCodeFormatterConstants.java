@@ -1211,7 +1211,7 @@ public class DefaultCodeFormatterConstants {
 	/**
 	 * <pre>
 	 * FORMATTER / Option to position parentheses in method declarations
-	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_method_declaration"
+	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_method_delcaration"
 	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPTY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
 	 *     - default:           COMMON_LINES
 	 * </pre>
@@ -1294,7 +1294,7 @@ public class DefaultCodeFormatterConstants {
 	/**
 	 * <pre>
 	 * FORMATTER / Option to position parentheses in 'for' statements
-	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_for_statement"
+	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_for_statment"
 	 *     - possible values:   { COMMON_LINES,  SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
 	 *     - default:           COMMON_LINES
 	 * </pre>
