@@ -27,7 +27,7 @@ import org.eclipse.jdt.internal.core.SearchableEnvironment;
  * Internal implementation of module bindings.
  * @since 3.14
  */
-class ModuleBinding implements IModuleBinding, IModuleBindingExtended {
+class ModuleBinding implements IModuleBinding {
 
 	protected static final ITypeBinding[] NO_TYPE_BINDINGS = new ITypeBinding[0];
 	private final String name = null;

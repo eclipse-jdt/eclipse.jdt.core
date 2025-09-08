@@ -1726,7 +1726,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 				(reqs[1].getName().equals("second") && reqs[2].getName().equals("third")) ||
 				(reqs[1].getName().equals("third") && reqs[2].getName().equals("second")));
 
-		IModuleBinding[] reqsTransitive= ((IModuleBindingExtended)moduleBinding).getRequiredTransitiveModules();
+		IModuleBinding[] reqsTransitive= moduleBinding.getRequiredTransitiveModules();
 		assertTrue("Null requires", reqsTransitive != null);
 		assertTrue("incorrect number of requires transitive modules", reqsTransitive.length == 1);
 		assertTrue("incorrect name for requires transitive modules", reqsTransitive[0].getName().equals("second"));
