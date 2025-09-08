@@ -371,6 +371,7 @@ public static int getIrritant(int problemID) {
 		case IProblem.ConstNonNullFieldComparisonYieldsFalse:
 		case IProblem.FieldComparisonYieldsFalse:
 		case IProblem.UnnecessaryNullCaseInSwitchOverNonNull:
+		case IProblem.RedundantNullCheckNullValueExpression:
 			return CompilerOptions.RedundantNullCheck;
 
 		case IProblem.RequiredNonNullButProvidedNull:
@@ -6058,6 +6059,30 @@ public void localVariableNullComparedToNonNull(LocalVariableBinding local, ASTNo
 		nodeSourceStart(local, location),
 		nodeSourceEnd(local, location));
 }
+
+/**
+ * @param expr expression being compared for null or non-null
+ * @param isExpressionNull true if flow info shows null, false if flow info is non-null
+ */
+
+public void expressionRedundantNullComparison(Expression expr, boolean isExpressionNull) {
+	if (expr.resolvedType == null)
+		return;
+
+	int problemId = isExpressionNull ? IProblem.RedundantNullCheckNullValueExpression
+			: IProblem.RedundantNullCheckOnNonNullExpression;
+	int severity = computeSeverity(problemId);
+	if (severity == ProblemSeverities.Ignore) return;
+	String[] arguments = new String[] {new String(expr.toString())};
+	this.handle(
+		problemId,
+		arguments,
+		arguments,
+		severity,
+		nodeSourceStart(expr),
+		nodeSourceEnd(expr));
+}
+
 
 /**
  * @param expr expression being compared for null or nonnull

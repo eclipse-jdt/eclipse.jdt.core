@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -80,6 +80,8 @@ public class EqualExpression extends BinaryExpression {
 				if (field != null && (field.type.tagBits & TagBits.IsBaseType) == 0) {
 					flowContext.recordNullCheckedFieldReference((Reference) this.left, 1);
 				}
+			} else if (this.left instanceof ConditionalExpression ce) {
+				checkConditionalExpressionComparison(scope, flowContext, flowInfo, rightStatus, ce);
 			}
 		}
 		if (!rightNonNullChecked) {
@@ -96,6 +98,8 @@ public class EqualExpression extends BinaryExpression {
 				if (field != null && (field.type.tagBits & TagBits.IsBaseType) == 0) {
 					flowContext.recordNullCheckedFieldReference((Reference) this.right, 1);
 				}
+			} else if (this.right instanceof ConditionalExpression ce) {
+				checkConditionalExpressionComparison(scope, flowContext, flowInfo, leftStatus, ce);
 			}
 		}
 
@@ -174,6 +178,35 @@ public class EqualExpression extends BinaryExpression {
 		}
 		// we do not impact enclosing try context because this kind of protection
 		// does not preclude the variable from being null in an enclosing scope
+	}
+	private void checkConditionalExpressionComparison(BlockScope scope,
+			FlowContext flowContext, FlowInfo flowInfo,
+			int nullStatus, ConditionalExpression conditionalExpression) {
+
+//		if (conditionalExpression.nullStatus(flowInfo, flowContext) != FlowInfo.NULL)
+//			return;
+
+
+		switch (nullStatus) {
+			case FlowInfo.NULL :
+				if (((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
+					flowContext.recordNullConditional(scope, conditionalExpression,
+							FlowContext.CAN_ONLY_NULL | FlowContext.IN_COMPARISON_NULL, flowInfo);
+				} else {
+					flowContext.recordNullConditional(scope, conditionalExpression,
+							FlowContext.CAN_ONLY_NULL | FlowContext.IN_COMPARISON_NON_NULL, flowInfo);
+				}
+				break;
+			case FlowInfo.NON_NULL :
+				if (((this.bits & OperatorMASK) >> OperatorSHIFT) == EQUAL_EQUAL) {
+//					flowContext.recordNullConditional(scope, conditionalExpression,
+//							FlowContext.CAN_ONLY_NULL_NON_NULL | FlowContext.IN_COMPARISON_NON_NULL, flowInfo);
+				} else {
+					flowContext.recordNullConditional(scope, conditionalExpression,
+							FlowContext.CAN_ONLY_NULL_NON_NULL | FlowContext.IN_COMPARISON_NULL, flowInfo);
+				}
+				break;
+		}
 	}
 	private void analyzeLocalVariable(Expression exp, FlowInfo flowInfo) {
 		if (exp instanceof SingleNameReference && (exp.bits & Binding.LOCAL) != 0 ) {
