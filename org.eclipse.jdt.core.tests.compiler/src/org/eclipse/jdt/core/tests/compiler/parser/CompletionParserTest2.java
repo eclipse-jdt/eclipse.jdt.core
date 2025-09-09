@@ -14,6 +14,7 @@
 package org.eclipse.jdt.core.tests.compiler.parser;
 
 import junit.framework.Test;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class CompletionParserTest2 extends AbstractCompletionTest {
 public CompletionParserTest2(String testName) {
@@ -11788,6 +11789,45 @@ public void test0178_Method() {
 			"        }\n" +
 			"  }\n" +
 			"}\n";
+
+	checkMethodParse(
+			str.toCharArray(),
+			cursorLocation,
+			expectedCompletionNodeToString,
+			expectedParentNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			"full ast");
+}
+public void testBug576272() {
+	if (this.complianceLevel < ClassFileConstants.JDK17)
+		return;
+	String str =
+		"""
+			public class X {
+			   public static void main(String[] args) {
+				  record Person(String firstname, String lastname){}//
+				  syso
+			   }
+			}
+			""";
+
+	String completeBehind = "syso";
+	int cursorLocation = str.lastIndexOf("syso") + completeBehind.length() - 1;
+	String expectedCompletionNodeToString = "<CompleteOnName:syso>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "syso";
+	String expectedReplacedSource = "syso";
+	String expectedUnitDisplayString = "public class X {\n" +
+										"  public X() {\n" +
+										"  }\n" +
+										"  public static void main(String[] args) {\n" +
+										"    record Person(String firstname, String lastname) {\n" +
+										"    }\n" +
+										"    <CompleteOnName:syso>;\n" +
+										"  }\n" +
+										"}\n";
 
 	checkMethodParse(
 			str.toCharArray(),
