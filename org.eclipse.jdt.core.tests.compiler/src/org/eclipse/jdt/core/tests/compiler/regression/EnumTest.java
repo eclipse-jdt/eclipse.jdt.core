@@ -2076,14 +2076,14 @@ public void test070() throws Exception {
 		""
 	);
 	String expectedOutput =
-		"  // Method descriptor #18 (Ljava/lang/String;I)V\n" +
-		"  // Stack: 3, Locals: 3\n" +
-		"  private X(java.lang.String arg0, int arg1);\n" +
-		"    0  aload_0 [this]\n" +
-		"    1  aload_1 [arg0]\n" +
-		"    2  iload_2 [arg1]\n" +
-		"    3  invokespecial java.lang.Enum(java.lang.String, int) [25]\n" +
-		"    6  return\n";
+		"  // Method descriptor #18 (Ljava/lang/String;I)V\n"
+		+ "  // Stack: 3, Locals: 3\n"
+		+ "  private X(java.lang.String $enum$name, int $enum$ordinal);\n"
+		+ "    0  aload_0 [this]\n"
+		+ "    1  aload_1 [$enum$name]\n"
+		+ "    2  iload_2 [$enum$ordinal]\n"
+		+ "    3  invokespecial java.lang.Enum(java.lang.String, int) [25]\n"
+		+ "    6  return\n";
 
 	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"X.class"));
@@ -2504,12 +2504,12 @@ public void test079() throws Exception {
 	String[] expectedOutputs =
 			this.complianceLevel < ClassFileConstants.JDK17 ?
 					new String[] {
-							"  private strictfp X(java.lang.String arg0, int arg1);\n",
+							"  private strictfp X(java.lang.String $enum$name, int $enum$ordinal);\n",
 							"  public static strictfp X[] values();\n",
 							"  public static strictfp X valueOf(java.lang.String arg0);\n"
 						} :
 			new String[] {
-		"  private X(java.lang.String arg0, int arg1);\n",
+		"  private X(java.lang.String $enum$name, int $enum$ordinal);\n",
 		"  public static X[] values();\n",
 		"  public static X valueOf(java.lang.String arg0);\n"
 	};
@@ -2745,7 +2745,7 @@ public void test084() throws Exception {
 	String expectedOutput =
 		"  // Method descriptor #20 (Ljava/lang/String;I)V\n" +
 		"  // Stack: 3, Locals: 3\n" +
-		"  private X(java.lang.String arg0, int arg1);\n";
+		"  private X(java.lang.String $enum$name, int $enum$ordinal);\n";
 
 	int index = actualOutput.indexOf(expectedOutput);
 	if (index == -1 || expectedOutput.length() == 0) {
@@ -3007,18 +3007,21 @@ public void test094() throws Exception {
 		"  \n" +
 		"  // Method descriptor #15 (Ljava/lang/String;I)V\n" +
 		"  // Stack: 3, Locals: 3\n" +
-		"  private X(java.lang.String arg0, int arg1);\n" +
+		"  private X(java.lang.String $enum$name, int $enum$ordinal);\n" +
 		"    0  aload_0 [this]\n" +
-		"    1  aload_1 [arg0]\n" +
-		"    2  iload_2 [arg1]\n" +
+		"    1  aload_1 [$enum$name]\n" +
+		"    2  iload_2 [$enum$ordinal]\n" +
 		"    3  invokespecial java.lang.Enum(java.lang.String, int) [16]\n" +
 		"    6  return\n" +
 		"      Line numbers:\n" +
 		"        [pc: 0, line: 1]\n" +
 		"      Local variable table:\n" +
 		"        [pc: 0, pc: 7] local: this index: 0 type: X\n" +
+		"      Method Parameters:\n" +
+		"        synthetic $enum$name\n" +
+		"        synthetic $enum$ordinal\n" +
 		"  \n" +
-		"  // Method descriptor #21 ()[LX;\n" +
+		"  // Method descriptor #24 ()[LX;\n" +
 		"  // Stack: 5, Locals: 3\n" +
 		"  public static X[] values();\n" +
 		"     0  getstatic X.ENUM$VALUES : X[] [10]\n" +
@@ -3034,18 +3037,18 @@ public void test094() throws Exception {
 		"    14  astore_2\n" +
 		"    15  iconst_0\n" +
 		"    16  iload_1\n" +
-		"    17  invokestatic java.lang.System.arraycopy(java.lang.Object, int, java.lang.Object, int, int) : void [22]\n" +
+		"    17  invokestatic java.lang.System.arraycopy(java.lang.Object, int, java.lang.Object, int, int) : void [25]\n" +
 		"    20  aload_2\n" +
 		"    21  areturn\n" +
 		"      Line numbers:\n" +
 		"        [pc: 0, line: 1]\n" +
 		"  \n" +
-		"  // Method descriptor #29 (Ljava/lang/String;)LX;\n" +
+		"  // Method descriptor #32 (Ljava/lang/String;)LX;\n" +
 		"  // Stack: 2, Locals: 1\n" +
 		"  public static X valueOf(java.lang.String arg0);\n" +
 		"     0  ldc <Class X> [1]\n" +
 		"     2  aload_0 [arg0]\n" +
-		"     3  invokestatic java.lang.Enum.valueOf(java.lang.Class, java.lang.String) : java.lang.Enum [30]\n" +
+		"     3  invokestatic java.lang.Enum.valueOf(java.lang.Class, java.lang.String) : java.lang.Enum [33]\n" +
 		"     6  checkcast X [1]\n" +
 		"     9  areturn\n" +
 		"      Line numbers:\n" +
@@ -4573,18 +4576,21 @@ public void test129() throws Exception {
 		"  \n" +
 		"  // Method descriptor #18 (Ljava/lang/String;I)V\n" +
 		"  // Stack: 3, Locals: 3\n" +
-		"  private X(java.lang.String arg0, int arg1);\n" +
+		"  private X(java.lang.String $enum$name, int $enum$ordinal);\n" +
 		"    0  aload_0 [this]\n" +
-		"    1  aload_1 [arg0]\n" +
-		"    2  iload_2 [arg1]\n" +
+		"    1  aload_1 [$enum$name]\n" +
+		"    2  iload_2 [$enum$ordinal]\n" +
 		"    3  invokespecial java.lang.Enum(java.lang.String, int) [31]\n" +
 		"    6  return\n" +
 		"      Line numbers:\n" +
 		"        [pc: 0, line: 1]\n" +
 		"      Local variable table:\n" +
 		"        [pc: 0, pc: 7] local: this index: 0 type: X\n" +
+		"      Method Parameters:\n" +
+		"        synthetic $enum$name\n" +
+		"        synthetic $enum$ordinal\n" +
 		"  \n" +
-		"  // Method descriptor #34 ()[LX;\n" +
+		"  // Method descriptor #37 ()[LX;\n" +
 		"  // Stack: 5, Locals: 3\n" +
 		"  public static X[] values();\n" +
 		"     0  getstatic X.ENUM$VALUES : X[] [27]\n" +
@@ -4600,18 +4606,18 @@ public void test129() throws Exception {
 		"    14  astore_2\n" +
 		"    15  iconst_0\n" +
 		"    16  iload_1\n" +
-		"    17  invokestatic java.lang.System.arraycopy(java.lang.Object, int, java.lang.Object, int, int) : void [35]\n" +
+		"    17  invokestatic java.lang.System.arraycopy(java.lang.Object, int, java.lang.Object, int, int) : void [38]\n" +
 		"    20  aload_2\n" +
 		"    21  areturn\n" +
 		"      Line numbers:\n" +
 		"        [pc: 0, line: 1]\n" +
 		"  \n" +
-		"  // Method descriptor #42 (Ljava/lang/String;)LX;\n" +
+		"  // Method descriptor #45 (Ljava/lang/String;)LX;\n" +
 		"  // Stack: 2, Locals: 1\n" +
 		"  public static X valueOf(java.lang.String arg0);\n" +
 		"     0  ldc <Class X> [1]\n" +
 		"     2  aload_0 [arg0]\n" +
-		"     3  invokestatic java.lang.Enum.valueOf(java.lang.Class, java.lang.String) : java.lang.Enum [43]\n" +
+		"     3  invokestatic java.lang.Enum.valueOf(java.lang.Class, java.lang.String) : java.lang.Enum [46]\n" +
 		"     6  checkcast X [1]\n" +
 		"     9  areturn\n" +
 		"      Line numbers:\n" +
@@ -6080,7 +6086,7 @@ public void test166() throws Exception {
 		"  \n" +
 		"  // Method descriptor #6 (Ljava/lang/String;I)V\n" +
 		"  // Stack: 3, Locals: 3\n" +
-		"  private X(java.lang.String arg0, int arg1);\n" +
+		"  private X(java.lang.String $enum$name, int $enum$ordinal);\n" +
 		"     0  new java.lang.Error [8]\n" +
 		"     3  dup\n" +
 		"     4  ldc <String \"Unresolved compilation problems: \\n\\tThe enum X already defines the method valueOf(String) implicitly\\n\\tType mismatch: cannot convert from X to int\\n\"> [10]\n" +
@@ -6090,13 +6096,16 @@ public void test166() throws Exception {
 		"        [pc: 0, line: 3]\n" +
 		"      Local variable table:\n" +
 		"        [pc: 0, pc: 10] local: this index: 0 type: X\n" +
+		"      Method Parameters:\n" +
+		"        synthetic $enum$name\n" +
+		"        synthetic $enum$ordinal\n" +
 		"  \n" +
-		"  // Method descriptor #20 ()V\n" +
+		"  // Method descriptor #23 ()V\n" +
 		"  // Stack: 3, Locals: 1\n" +
 		"  void foo();\n" +
 		"     0  new java.lang.Error [8]\n" +
 		"     3  dup\n" +
-		"     4  ldc <String \"Unresolved compilation problem: \\n\\tType mismatch: cannot convert from X to int\\n\"> [21]\n" +
+		"     4  ldc <String \"Unresolved compilation problem: \\n\\tType mismatch: cannot convert from X to int\\n\"> [24]\n" +
 		"     6  invokespecial java.lang.Error(java.lang.String) [12]\n" +
 		"     9  athrow\n" +
 		"      Line numbers:\n" +
@@ -7294,7 +7303,7 @@ public void testBug388314() throws Exception {
 	String expectedOutput =
 		"  // Method descriptor #27 (Ljava/lang/String;ILjava/lang/Object;)V\n" +
 		"  // Stack: 3, Locals: 4\n" +
-		"  private EnumWithNullable(java.lang.String arg0,  int arg1, @p.Nullable java.lang.Object b);\n";
+		"  private EnumWithNullable(java.lang.String $enum$name,  int $enum$ordinal, @p.Nullable java.lang.Object b);\n";
 
 	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  +"p" + File.separator + "EnumWithNullable.class"));
