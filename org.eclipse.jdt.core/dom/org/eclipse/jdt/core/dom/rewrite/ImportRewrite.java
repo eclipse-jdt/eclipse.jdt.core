@@ -393,7 +393,9 @@ public final class ImportRewrite {
 		String currentModuleName= null;
 		try {
 			IModuleDescription modDesc= project.getModuleDescription();
-			currentModuleName= modDesc.getElementName();
+			if (modDesc != null) {
+				currentModuleName= modDesc.getElementName();
+			}
 		} catch (JavaModelException e) {
 			// ignore - treat as unnamed module
 		}
