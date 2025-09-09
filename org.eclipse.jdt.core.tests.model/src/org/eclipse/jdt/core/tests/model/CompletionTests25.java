@@ -59,7 +59,7 @@ public static Test suite() {
 public void testKeyword() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
-			"/Completion23/src/p/X.java",
+			"/Completion25/src/p/X.java",
 			"""
 			package p;
 			import m
@@ -84,10 +84,10 @@ public void testKeyword() throws JavaModelException {
 
 public void test001() throws JavaModelException {
 	// prefixed
-	// only java.base available (from JCL_23_LIB)
+	// only java.base available (from JCL_25_LIB)
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
-			"/Completion23/src/p/X.java",
+			"/Completion25/src/p/X.java",
 			"""
 			package p;
 			import module java.
@@ -108,10 +108,10 @@ public void test001() throws JavaModelException {
 
 public void test002() throws JavaModelException {
 	// no prefix
-	// only java.base available (from JCL_23_LIB)
+	// only java.base available (from JCL_25_LIB)
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
-			"/Completion23/src/p/X.java",
+			"/Completion25/src/p/X.java",
 			"""
 			package p;
 			import module\s
@@ -137,7 +137,7 @@ public void test003() throws JavaModelException {
 	try {
 		addClasspathEntry(this.completion25Project, newModularLibraryEntry(jarPath, null, null));
 		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy("/Completion23/src/p/X.java", """
+		this.workingCopies[0] = getWorkingCopy("/Completion25/src/p/X.java", """
 				package p;
 				import module\s
 				public class X {}
@@ -167,7 +167,7 @@ public void test004() throws JavaModelException {
 		addClasspathEntry(this.completion25Project, newModularLibraryEntry(jarOnePath, null, null));
 		addClasspathEntry(this.completion25Project, newModularLibraryEntry(jarTwoPath, null, null));
 		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy("/Completion23/src/p/X.java", """
+		this.workingCopies[0] = getWorkingCopy("/Completion25/src/p/X.java", """
 				package p;
 				import module mo
 				public class X {}
@@ -190,7 +190,7 @@ public void test004() throws JavaModelException {
 
 public void test005() throws CoreException {
 	// with prefix
-	// 4 modules available: mod.test (self), mod.two (required), mod.one (transitively required) & java.base (from JCL_23_LIB)
+	// 4 modules available: mod.test (self), mod.two (required), mod.one (transitively required) & java.base (from JCL_25_LIB)
 	// prefix selects 3 out of 4
 	IPath jarOnePath = this.completion25Project.getPath().append("mod.one.jar");
 	IPath jarTwoPath = this.completion25Project.getPath().append("mod.two.jar");
@@ -198,14 +198,14 @@ public void test005() throws CoreException {
 	try {
 		addClasspathEntry(this.completion25Project, newModularLibraryEntry(jarOnePath, null, null));
 		addClasspathEntry(this.completion25Project, newModularLibraryEntry(jarTwoPath, null, null));
-		moduleFile = createFile("Completion23/src/module-info.java",
+		moduleFile = createFile("Completion25/src/module-info.java",
 				"""
 				module mod.test {
 					requires mod.two; // mod.two requires transitive mod.one
 				}
 				""");
 		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy("/Completion23/src/p/X.java", """
+		this.workingCopies[0] = getWorkingCopy("/Completion25/src/p/X.java", """
 				package p;
 				import module mo
 				public class X {}
@@ -238,14 +238,14 @@ public void test006() throws CoreException {
 	try {
 		addClasspathEntry(this.completion25Project, newModularLibraryEntry(jarOnePath, null, null));
 		addClasspathEntry(this.completion25Project, newModularLibraryEntry(jarTwoPath, null, null)); // not read my the current module
-		createFile("Completion23/src/module-info.java",
+		createFile("Completion25/src/module-info.java",
 				"""
 				module mod.test {
 					requires mod.one;
 				}
 				""");
 		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy("/Completion23/src/p/X.java", """
+		this.workingCopies[0] = getWorkingCopy("/Completion25/src/p/X.java", """
 				package p;
 				import module mo
 				public class X {}
