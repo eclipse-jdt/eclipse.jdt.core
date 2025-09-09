@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -45,6 +49,7 @@ public class RunCompletionModelTests extends junit.framework.TestCase {
 			COMPLETION_SUITES.add(CompletionTests16_2.class);
 			COMPLETION_SUITES.add(CompletionTests17.class);
 			COMPLETION_SUITES.add(CompletionTests23.class);
+			COMPLETION_SUITES.add(CompletionTests25.class);
 			COMPLETION_SUITES.add(CompletionTestsForRecordPattern.class);
 			COMPLETION_SUITES.add(CompletionContextTests.class);
 			COMPLETION_SUITES.add(CompletionContextTests_1_5.class);
