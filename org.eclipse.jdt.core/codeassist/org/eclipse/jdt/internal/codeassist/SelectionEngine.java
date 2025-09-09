@@ -953,7 +953,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						if (importReference instanceof SelectionOnImportReference) {
 							char[][] tokens = ((SelectionOnImportReference) importReference).tokens;
 							this.noProposal = false;
-							if ((importReference.modifiers & ClassFileConstants.AccModule) != 0 && this.compilerOptions.enablePreviewFeatures) {
+							if ((importReference.modifiers & ClassFileConstants.AccModule) != 0) {
 								this.nameEnvironment.findModules(CharOperation.concatWithAll(tokens, '.'), this, null);
 								return;
 							}
