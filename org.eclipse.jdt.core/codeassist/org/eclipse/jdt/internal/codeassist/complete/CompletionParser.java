@@ -2620,6 +2620,9 @@ protected void consumeClassHeaderName1() {
 
 @Override
 protected void consumeRecordHeaderPart() {
+	popElement(K_SELECTOR_QUALIFIER);
+	popElement(K_SELECTOR_INVOCATION_TYPE);
+	popElement(K_SELECTOR);
 	super.consumeRecordHeaderPart();
 	this.hasUnusedModifiers = false;
 	if (this.pendingAnnotation != null) {
