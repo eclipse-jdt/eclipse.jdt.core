@@ -380,10 +380,15 @@ public final class ImportRewrite {
 	}
 
 	/**
-	 * Calculate the list of package names that are exported by a module.
+	 * Calculate the list of package names that are exported, explicitly or implicitly, by a module.
+	 * A package is implicitly exported if it is exported by a module that is reachable from
+	 * the current module via "requires transitive".
 	 *
-	 * @param binding - module binding
-	 * @param project - Java project that contains the module binding
+	 * @param binding module binding whose exports as queried.
+	 * @param project Java project that defines the module where packages are being imported.
+	 * 	This is needed to respect qualified exports ("exports p to m").
+	 *  If the java project does not declare a module, then importing happens in the unnamed module
+	 *  which cannot leverage any qualified exports.
 	 * @return a list of package names that are exported by the given binding
 	 *
 	 * @since 3.43
@@ -397,7 +402,7 @@ public final class ImportRewrite {
 				currentModuleName= modDesc.getElementName();
 			}
 		} catch (JavaModelException e) {
-			// ignore - treat as unnamed module
+			// if we cannot retrieve a module description then we'll treat it as unnamed module
 		}
 		populateTransitiveModules(binding, modules);
 		Set<String> packageList= new HashSet<>();
@@ -1043,11 +1048,12 @@ public final class ImportRewrite {
 
 	/**
 	 * Adds a new module import to the rewriter's record.  The import will register all exported
-	 * package names (direct or transitive) so the rewriter can eliminate all other imports covered
-	 * by these package names.
+	 * package names (explicit or implicit) so the rewriter can eliminate all other imports covered
+	 * by these package names. See {@link #getPackageNamesForModule(IModuleBinding, IJavaProject)}
+	 * regarding implicit exports.
 	 *
-	 * @param name - name of module to import
-	 * @param moduleBinding - binding of module to import
+	 * @param name name of module to import
+	 * @param moduleBinding binding of module to import
 	 * @return name if import added or null if there are issues
 	 * @since 3.43
 	 *
@@ -1066,8 +1072,8 @@ public final class ImportRewrite {
 	 * package names passed by the caller so the rewriter can eliminate other imports already covered
 	 * by these package names.
 	 *
-	 * @param name - name of module to import
-	 * @param packageNames - list of package names directly or transitively exported by the module specified
+	 * @param name name of module to import
+	 * @param packageNames list of package names explicitly or implicitly exported by the module specified
 	 * @since 3.43
 	 *
 	 */
