@@ -443,6 +443,7 @@ public static int getIrritant(int problemID) {
 			return CompilerOptions.AutoBoxing;
 
 		case IProblem.MissingEnumConstantCase :
+		case IProblem.SwitchExpressionMissingEnumConstantCaseDespiteDefault :
 		case IProblem.MissingEnumConstantCaseDespiteDefault :	// this one is further protected by CompilerOptions.reportMissingEnumCaseDespiteDefault
 			return CompilerOptions.MissingEnumConstantCase;
 
@@ -6625,7 +6626,7 @@ public void missingEnumConstantCase(SwitchExpression switchExpression, FieldBind
 }
 private void missingSwitchExpressionEnumConstantCase(CaseStatement defaultCase, FieldBinding enumConstant, ASTNode expression) {
 	this.handle(
-			IProblem.SwitchExpressionsYieldMissingEnumConstantCase,
+			defaultCase == null ? IProblem.SwitchExpressionsYieldMissingEnumConstantCase : IProblem.SwitchExpressionMissingEnumConstantCaseDespiteDefault,
 			new String[] {new String(enumConstant.declaringClass.readableName()), new String(enumConstant.name) },
 			new String[] {new String(enumConstant.declaringClass.shortReadableName()), new String(enumConstant.name) },
 			expression.sourceStart,
