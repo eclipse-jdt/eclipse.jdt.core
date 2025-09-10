@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Timo Kinnunen - Contributions for bug 377373 - [subwords] known limitations with JDT 3.8
  *     							Bug 420953 - [subwords] Constructors that don't match prefix not found
@@ -69,6 +73,7 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
@@ -2109,7 +2114,8 @@ public final class CompletionEngine
 								long positions = importReference.sourcePositions[importReference.tokens.length - 1];
 								setSourceAndTokenRange((int) (positions >>> 32), (int) positions);
 
-								if ((importReference.modifiers & ClassFileConstants.AccModule) != 0 && this.compilerOptions.enablePreviewFeatures) {
+								boolean isModuleImportsSupported = JavaFeature.MODULE_IMPORTS.isSupported(this.compilerOptions);
+								if ((importReference.modifiers & ClassFileConstants.AccModule) != 0 && isModuleImportsSupported) {
 									this.currentModule = this.unitScope.module(); // enable module-graph analysis for readability
 									this.completionToken = CharOperation.concatWithAll(importReference.tokens, '.');
 									this.tokenStart = importReference.sourceStart;
@@ -2119,10 +2125,8 @@ public final class CompletionEngine
 								}
 								char[][] oldTokens = importReference.tokens;
 								int tokenCount = oldTokens.length;
-								if (tokenCount <= 1 && this.compilerOptions.enablePreviewFeatures) {
-									char[][] choices = this.compilerOptions.enablePreviewFeatures
-											? new char[][] { Keywords.STATIC, Keywords.MODULE }
-											: new char[][] { Keywords.STATIC };
+								if (tokenCount <= 1 && isModuleImportsSupported) {
+									char[][] choices = new char[][] { Keywords.STATIC, Keywords.MODULE };
 									char[] token = tokenCount == 1 ? oldTokens[0] : CharOperation.NO_CHAR;
 									findKeywords(token, choices, false, false);
 								}

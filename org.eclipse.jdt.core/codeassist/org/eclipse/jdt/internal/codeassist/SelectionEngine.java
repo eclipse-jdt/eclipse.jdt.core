@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper Steen Møller <jesper@selskabet.org> - contributions for:
@@ -953,7 +957,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						if (importReference instanceof SelectionOnImportReference) {
 							char[][] tokens = ((SelectionOnImportReference) importReference).tokens;
 							this.noProposal = false;
-							if ((importReference.modifiers & ClassFileConstants.AccModule) != 0 && this.compilerOptions.enablePreviewFeatures) {
+							if ((importReference.modifiers & ClassFileConstants.AccModule) != 0) {
 								this.nameEnvironment.findModules(CharOperation.concatWithAll(tokens, '.'), this, null);
 								return;
 							}
