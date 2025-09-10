@@ -2307,7 +2307,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 											() -> allTypeAnnotationContexts);
 		}
 		if ((this.produceAttributes & ClassFileConstants.ATTR_METHOD_PARAMETERS) != 0 ||
-				binding.isConstructor() &&  binding.declaringClass.isRecord()) {
+				(binding.isConstructor() && (binding.declaringClass.isRecord() || binding.declaringClass.isEnum()))) {
 			attributesNumber += generateMethodParameters(binding);
 		}
 		// update the number of attributes
