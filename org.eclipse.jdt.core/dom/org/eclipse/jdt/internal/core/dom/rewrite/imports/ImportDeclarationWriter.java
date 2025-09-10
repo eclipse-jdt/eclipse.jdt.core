@@ -32,6 +32,10 @@ final class ImportDeclarationWriter {
 			sb.append("static "); //$NON-NLS-1$
 		}
 
+		if (importName.isModule) {
+			sb.append("module "); //$NON-NLS-1$
+		}
+
 		sb.append(importName.qualifiedName);
 
 		if (this.insertSpaceBeforeSemicolon) {

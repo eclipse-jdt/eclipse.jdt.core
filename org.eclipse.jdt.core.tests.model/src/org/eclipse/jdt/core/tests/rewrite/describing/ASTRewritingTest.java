@@ -114,6 +114,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		  suite.addTest(SourceModifierTest.suite());
 		  suite.addTest(ImportRewriteTest.suite());
 		  suite.addTest(ImportRewrite18Test.suite());
+		  suite.addTest(ImportRewrite25Test.suite());
 		  suite.addTest(ImportRewrite_RecordTest.suite());
 		  suite.addTest(ASTRewritingSuperAfterStatementsTest.suite());
 		  suite.addTest(ASTRewritingEitherOrMultiPatternNodeTest.suite());
