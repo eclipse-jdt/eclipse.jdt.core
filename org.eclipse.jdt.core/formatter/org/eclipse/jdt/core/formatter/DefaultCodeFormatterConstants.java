@@ -1519,7 +1519,7 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * @see #TRUE
 	 * @see #FALSE
-	 * @since 3.43
+	 * @since 3.44
 	 */
 	public final static String FORMATTER_COMMENT_FORMAT_MARKDOWN_COMMENT = "org.eclipse.jdt.core.formatter.comment.format_markdown_comments"; //$NON-NLS-1$
 
