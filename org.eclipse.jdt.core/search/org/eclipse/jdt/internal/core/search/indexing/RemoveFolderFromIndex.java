@@ -13,15 +13,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
-import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
-
 import java.io.IOException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.internal.core.index.Index;
-import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.Util;
 
 class RemoveFolderFromIndex extends IndexRequest {
@@ -65,9 +62,7 @@ class RemoveFolderFromIndex extends IndexRequest {
 				}
 			}
 		} catch (IOException e) {
-			if (JobManager.VERBOSE) {
-				trace("-> failed to remove " + this.folderPath + " from index because of the following exception:", e); //$NON-NLS-1$ //$NON-NLS-2$
-			}
+			Util.log(e, "Failed to remove " + this.folderPath + " from index: " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 			return false;
 		} finally {
 			monitor.exitRead(); // free read lock
