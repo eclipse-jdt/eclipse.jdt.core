@@ -2199,7 +2199,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		SimpleName simpleName2 = (SimpleName) name;
 		typeBinding = simpleName2.resolveTypeBinding();
 		assertNotNull("No binding", typeBinding);
-        assertEquals("Wrong name 3", "test0070.Outer", typeBinding.getQualifiedName());
+        assertEquals("Wrong name 3", "test0070.Outer<java.lang.String>", typeBinding.getQualifiedName());
 	}
 
 	/**
@@ -4013,7 +4013,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		simpleName = qualifiedType.getName();
 		typeBinding = simpleName.resolveTypeBinding();
 		assertNotNull("No binding", typeBinding);
-		assertEquals("Wrong qualified name 5", "Outer.Inner", typeBinding.getQualifiedName());
+		assertEquals("Wrong qualified name 5", "Outer<java.lang.String>.Inner", typeBinding.getQualifiedName());
 		type = qualifiedType.getQualifier();
 		assertTrue("Not a parameterized type", type.isParameterizedType());
 		parameterizedType = (ParameterizedType) type;
@@ -4031,7 +4031,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		simpleName = (SimpleName) name;
 		typeBinding = simpleName.resolveTypeBinding();
 		assertNotNull("No binding", typeBinding);
-		assertEquals("Wrong qualified name 8", "Outer", typeBinding.getQualifiedName());
+		assertEquals("Wrong qualified name 8", "Outer<java.lang.String>", typeBinding.getQualifiedName());
    }
 
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84140
@@ -11881,6 +11881,54 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		Type superclassType = ((TypeDeclaration) node).getSuperclassType();
 		ITypeBinding typeBinding = superclassType.resolveBinding();
 		assertNull("Binding", typeBinding);
+	}
+
+	public void testGH4344() throws CoreException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/* resolve */);
+		String contents = """
+				class Sandwich {}
+				class Outer<X> {
+					public class Inner {
+						public class InnerInner<Y> {
+						}
+					}
+				}
+				public class X {
+					public Outer<Sandwich> method1() {
+						return null;
+					}
+					public Outer<Sandwich>.Inner.InnerInner<Sandwich> method2() {
+						return null;
+					}
+				}
+				""";
+		ASTNode node = buildAST(contents, this.workingCopy);
+		assertNotNull("No node", node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+
+		node = getASTNode(compilationUnit, 2, 0);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration firstMethodDeclaration = (MethodDeclaration) node;
+		SimpleType firstSimpleType = (SimpleType) ((ParameterizedType) firstMethodDeclaration.getReturnType2())
+				.getType();
+		ITypeBinding firstSimpleTypeBinding = (ITypeBinding) firstSimpleType.getName().resolveBinding();
+		assertEquals("Outer<Sandwich>", firstSimpleTypeBinding.getQualifiedName());
+
+		node = getASTNode(compilationUnit, 2, 1);
+		assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+		MethodDeclaration secondMethodDeclaration = (MethodDeclaration) node;
+		SimpleType secondSimpleType = (SimpleType) //
+			((ParameterizedType) //
+				((QualifiedType) //
+					((QualifiedType) //
+						((ParameterizedType)secondMethodDeclaration.getReturnType2()).getType()) //
+					.getQualifier()) //
+				.getQualifier()) //
+			.getType();
+		ITypeBinding secondSimpleTypeBinding = (ITypeBinding) secondSimpleType.getName().resolveBinding();
+		assertEquals("Outer<Sandwich>", secondSimpleTypeBinding.getQualifiedName());
 	}
 
 }
