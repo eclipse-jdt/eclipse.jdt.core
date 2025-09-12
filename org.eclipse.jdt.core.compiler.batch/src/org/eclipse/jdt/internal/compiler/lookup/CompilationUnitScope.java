@@ -423,10 +423,26 @@ void integrateAnnotationsInHierarchy() {
 	try {
 		this.environment.suppressImportErrors = true;
 		for (SourceTypeBinding topLevelType : this.topLevelTypes)
-			topLevelType.scope.referenceType().updateSupertypesWithAnnotations(Collections.emptyMap());
+			// Since integrating the annotations can navigate imports too, it's
+			// necessary to "reset" the set of types currently being connected (through pure hierarchy)
+			runWithOwnTypesBeingConnected(() -> {
+				topLevelType.scope.referenceType().updateSupertypesWithAnnotations(Collections.emptyMap());
+			});
 	} finally {
 		this.environment.suppressImportErrors = false;
 	}
+}
+
+private void runWithOwnTypesBeingConnected(Runnable r) {
+	Set<SourceTypeBinding> previous = null;
+	try {
+		previous = environment().typesBeingConnected;
+		environment().typesBeingConnected = new LinkedHashSet<>();
+		r.run();
+	} finally {
+		environment().typesBeingConnected = previous;
+	}
+
 }
 void faultInImports() {
 	if (this.tempImports != null)
