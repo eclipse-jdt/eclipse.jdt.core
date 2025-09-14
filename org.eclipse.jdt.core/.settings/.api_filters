@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
-    <resource path="META-INF/MANIFEST.MF">
-        <filter comment="https://github.com/eclipse-jdt/eclipse.jdt.core/pull/4385" id="929038356">
-            <message_arguments>
-                <message_argument value="3.43.100"/>
-                <message_argument value="org.eclipse.jdt.core.compiler.batch"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/AbstractTagElement.java" type="org.eclipse.jdt.core.dom.AbstractTagElement">
         <filter id="576725006">
             <message_arguments>
