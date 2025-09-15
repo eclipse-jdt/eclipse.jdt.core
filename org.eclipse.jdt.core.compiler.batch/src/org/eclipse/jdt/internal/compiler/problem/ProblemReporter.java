@@ -12034,7 +12034,7 @@ public void duplicatePermittedType(TypeReference reference, ReferenceBinding sup
 		reference.sourceEnd);
 }
 
-public void sealedClassNotDirectSuperClassOf(ReferenceBinding type, TypeReference reference, SourceTypeBinding superType) {
+public void sealedClassNotDirectSuperClassOf(TypeBinding type, TypeReference reference, SourceTypeBinding superType) {
 	if ((type.tagBits & TagBits.HierarchyHasProblems) == 0 && (superType.tagBits & TagBits.HierarchyHasProblems) == 0) {
 		this.handle(IProblem.SealedNotDirectSuperClass,
 				new String[] { new String(type.sourceName()), new String(superType.readableName()) },
@@ -12074,7 +12074,7 @@ public void missingPermitsClause(SourceTypeBinding type, ASTNode node) {
 			node.sourceEnd);
 }
 
-public void sealedInterfaceNotDirectSuperInterfaceOf(ReferenceBinding type, TypeReference reference, SourceTypeBinding superType) {
+public void sealedInterfaceNotDirectSuperInterfaceOf(TypeBinding type, TypeReference reference, SourceTypeBinding superType) {
 	if ((type.tagBits & TagBits.HierarchyHasProblems) == 0 && (superType.tagBits & TagBits.HierarchyHasProblems) == 0) {
 		this.handle(IProblem.SealedNotDirectSuperInterface,
 				new String[] { new String(type.sourceName()), new String(superType.readableName()) },
