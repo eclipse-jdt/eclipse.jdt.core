@@ -472,15 +472,8 @@ public void test004() throws CoreException {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76266
  * Ensures that a problem is created for a reference to a method of a type that is not
- * accessible in a prereq project, even though it is accessed through an intermediate
- * class that implements an interface that defines the same method, both the second
- * class and the interface being accessible.
- * The point here is that the existence of the accessible interface may imply that the
- * foo method be accessible through X2. By design, the lookup returns X1#foo though,
- * like it does for a press upon F3 in the interface, and hence the access restriction
- * gets triggered. Rule of thumb: if pressing F3 on a method or field directs the
- * interface to a definition within a restricted type, then the use of the said method
- * or field is restricted.
+ * accessible in a prereq project, even though it implements an interface that defines
+ * the same method and the interface being accessible.
  */
 public void test005() throws CoreException {
 	ICompilationUnit x1 = null, i1 = null, x2 = null, y =  null;
@@ -542,13 +535,16 @@ public void test005() throws CoreException {
 		classpath[length] = createSourceEntry("P2", "/P1", "-p/X1");
 		p2.setRawClasspath(classpath, null);
 		String src =
-			"package r;\n" +
-			"public class Y {\n" +
-			"	void foobar() {\n" +
-			"		(new q.X2()).foo(); // accesses p.X1#foo, should trigger an error\n" +
-			"		(new q.X2()).bar(); // accesses q.X2#bar, OK\n" +
-			"	}\n" +
-			"}";
+			"""
+			package r;
+			public class Y {
+				void foobar() {
+					(new q.X2()).foo(); // accesses q.X1#foo but through inherited method from public type X2, OK
+					(new q.X2()).bar(); // accesses q.X2#bar, OK
+					p.X1 x = new q.X2(); //not OK, restricted type
+					x.foo(); // accesses q.X1#foo through X!, not OK!
+				}
+			}""";
 		this.problemRequestor = new ProblemRequestor(src);
 		y = getWorkingCopy(
 			"/P2/src/r/Y.java",
@@ -556,12 +552,19 @@ public void test005() throws CoreException {
 		);
 		assertProblems(
 			"Unexpected problems value",
-			"----------\n" +
-			"1. ERROR in /P2/src/r/Y.java (at line 4)\n" +
-			"	(new q.X2()).foo(); // accesses p.X1#foo, should trigger an error\n" +
-			"	             ^^^\n" +
-			"Access restriction: The method \'X1.foo()\' is not API (restriction on required project \'P1\')\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in /P2/src/r/Y.java (at line 6)
+					p.X1 x = new q.X2(); //not OK, restricted type
+					^^^^
+				Access restriction: The type 'X1' is not API (restriction on required project 'P1')
+				----------
+				2. ERROR in /P2/src/r/Y.java (at line 7)
+					x.foo(); // accesses q.X1#foo through X!, not OK!
+					  ^^^
+				Access restriction: The method 'X1.foo()' is not API (restriction on required project 'P1')
+				----------
+				"""
 		);
 	} finally {
 		if (x1 != null)
