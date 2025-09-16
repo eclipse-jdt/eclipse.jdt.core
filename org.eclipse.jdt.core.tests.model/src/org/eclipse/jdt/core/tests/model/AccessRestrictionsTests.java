@@ -814,13 +814,16 @@ public void test008() throws CoreException {
 		classpath[length] = createSourceEntry("P2", "/P1", "-p/X1");
 		p2.setRawClasspath(classpath, null);
 		String src =
-			"package p;\n" +
-			"public class Y extends X2 {\n" +
-			"	void foobar() {\n" +
-			"		foo(); // accesses X1.foo, should trigger an error\n" +
-			"		bar(); // accesses X2.bar, OK\n" +
-			"	}\n" +
-			"}";
+			"""
+			package p;
+			public class Y extends X2 {
+				void foobar() {
+					foo(); // accesses X1.foo through X2, OK
+					bar(); // accesses X2.bar, OK
+					((X1)this).foo(); // accesses X1.foo, should trigger an error
+				}
+			}
+			""";
 		this.problemRequestor = new ProblemRequestor(src);
 		y = getWorkingCopy(
 			"/P2/src/p/Y.java",
@@ -828,12 +831,24 @@ public void test008() throws CoreException {
 		);
 		assertProblems(
 			"Unexpected problems value",
-			"----------\n" +
-			"1. ERROR in /P2/src/p/Y.java (at line 4)\n" +
-			"	foo(); // accesses X1.foo, should trigger an error\n" +
-			"	^^^\n" +
-			"Access restriction: The method \'X1.foo()\' is not API (restriction on required project \'P1\')\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in /P2/src/p/Y.java (at line 6)
+					((X1)this).foo(); // accesses X1.foo, should trigger an error
+					  ^^
+				Access restriction: The type 'X1<T>' is not API (restriction on required project 'P1')
+				----------
+				2. WARNING in /P2/src/p/Y.java (at line 6)
+					((X1)this).foo(); // accesses X1.foo, should trigger an error
+					  ^^
+				X1 is a raw type. References to generic type X1<T> should be parameterized
+				----------
+				3. ERROR in /P2/src/p/Y.java (at line 6)
+					((X1)this).foo(); // accesses X1.foo, should trigger an error
+					           ^^^
+				Access restriction: The method 'X1.foo()' is not API (restriction on required project 'P1')
+				----------
+				"""
 		);
 	} finally {
 		if (x1 != null)
