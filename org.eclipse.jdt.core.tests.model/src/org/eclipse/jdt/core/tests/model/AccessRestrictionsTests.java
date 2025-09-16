@@ -1029,37 +1029,34 @@ public void test010() throws CoreException {
 		);
 		assertProblems(
 			"Unexpected problems value",
-			"----------\n" +
-			"1. ERROR in /P2/src/p/Y.java (at line 3)\n" +
-			"	class C3a extends C1 {      // error\n" +
-			"	                  ^^\n" +
-			"Access restriction: The type \'X1.C1\' is not API (restriction on required project \'P1\')\n" +
-			"----------\n" +
-			"2. ERROR in /P2/src/p/Y.java (at line 5)\n" +
-			"	super(0);\n" +
-			"	^^^^^\n" +
-			"Access restriction: The constructor \'X1.C1(int)\' is not API (restriction on required project \'P1\')\n" +
-			"----------\n" +
-			"3. ERROR in /P2/src/p/Y.java (at line 6)\n" +
-			"	foo();                // error\n" +
-			"	^^^\n" +
-			"Access restriction: The method \'X1.C1.foo()\' is not API (restriction on required project \'P1\')\n" +
-			"----------\n" +
-			"4. ERROR in /P2/src/p/Y.java (at line 11)\n" +
-			"	C1 m1 =                 // error\n" +
-			"	^^\n" +
-			"Access restriction: The type \'X1.C1\' is not API (restriction on required project \'P1\')\n" +
-			"----------\n" +
-			"5. ERROR in /P2/src/p/Y.java (at line 12)\n" +
-			"	new C1(0);      // error\n" +
-			"	    ^^\n" +
-			"Access restriction: The type \'X1.C1\' is not API (restriction on required project \'P1\')\n" +
-			"----------\n" +
-			"6. ERROR in /P2/src/p/Y.java (at line 12)\n" +
-			"	new C1(0);      // error\n" +
-			"	    ^^\n" +
-			"Access restriction: The constructor \'X1.C1(int)\' is not API (restriction on required project \'P1\')\n" +
-			"----------\n"
+			"""
+				----------
+				1. ERROR in /P2/src/p/Y.java (at line 3)
+					class C3a extends C1 {      // error
+					                  ^^
+				Access restriction: The type 'X1.C1' is not API (restriction on required project 'P1')
+				----------
+				2. ERROR in /P2/src/p/Y.java (at line 5)
+					super(0);
+					^^^^^
+				Access restriction: The constructor 'X1.C1(int)' is not API (restriction on required project 'P1')
+				----------
+				3. ERROR in /P2/src/p/Y.java (at line 11)
+					C1 m1 =                 // error
+					^^
+				Access restriction: The type 'X1.C1' is not API (restriction on required project 'P1')
+				----------
+				4. ERROR in /P2/src/p/Y.java (at line 12)
+					new C1(0);      // error
+					    ^^
+				Access restriction: The type 'X1.C1' is not API (restriction on required project 'P1')
+				----------
+				5. ERROR in /P2/src/p/Y.java (at line 12)
+					new C1(0);      // error
+					    ^^
+				Access restriction: The constructor 'X1.C1(int)' is not API (restriction on required project 'P1')
+				----------
+				"""
 		);
 	} finally {
 		if (x1 != null)
