@@ -861,6 +861,8 @@ protected static class JavacTestOptions {
 		JavacErrorsEclipseNone =
 				new DubiousOutcome(MismatchType.JavacErrorsEclipseNone),
 		JDK8319461 = // https://bugs.openjdk.org/browse/JDK-8319461
+				new DubiousOutcome(MismatchType.JavacErrorsEclipseNone),
+		JDK8364144 = // https://bugs.openjdk.org/browse/JDK-8364144
 				new DubiousOutcome(MismatchType.JavacErrorsEclipseNone);
 	}
 	public static class EclipseHasABug extends Excuse {
