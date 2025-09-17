@@ -1308,7 +1308,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"2. ERROR in X.java (at line 12)\n" +
 			"	public Point(Integer myInt) {}\n" +
 			"	       ^^^^^^^^^^^^^^^^^^^^\n" +
-			"A non-canonical constructor must start with an explicit invocation to a constructor\n" +
+			"A non-canonical constructor must invoke another constructor of the same class\n" +
 			"----------\n");
 	}
 	public void testBug553152_016() {
@@ -2404,7 +2404,7 @@ public void testBug558718_001() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	record R() {}\n" +
 		"	^\n" +
-		"The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 24 and above\n" +
+		"The Java feature 'Compact Source Files and Instance Main Methods' is only available with source level 25 and above\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 1)\n" +
 		"	record R() {}\n" +
@@ -4562,7 +4562,7 @@ public void testBug562637_001() {
 			"1. ERROR in X.java (at line 2)\n" +
 			"	public X() {\n" +
 			"	       ^^^\n" +
-			"A non-canonical constructor must start with an explicit invocation to a constructor\n" +
+			"A non-canonical constructor must invoke another constructor of the same class\n" +
 			"----------\n");
 	}
 	public void testBug564146_002() {
@@ -4577,10 +4577,10 @@ public void testBug562637_001() {
 				"}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	public X() {\n" +
-			"	       ^^^\n" +
-			"A non-canonical constructor must start with an explicit invocation to a constructor\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	super();\n" +
+			"	^^^^^^^^\n" +
+			"A non-canonical constructor must invoke another constructor of the same class\n" +
 			"----------\n");
 	}
 	public void testBug564146_003() {
@@ -7918,11 +7918,13 @@ public void testBug566846_1() {
 				"X.java",
 				"public record X;\n"
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	public record X;\n" +
-			"	^\n" +
-			"Implicitly Declared Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+			(this.complianceLevel < ClassFileConstants.JDK25 ?
+					"----------\n"
+					+ "1. ERROR in X.java (at line 1)\n"
+					+ "	public record X;\n"
+					+ "	^\n"
+					+ "The Java feature 'Compact Source Files and Instance Main Methods' is only available with source level 25 and above\n"
+					: "") +
 			"----------\n" +
 			"2. ERROR in X.java (at line 1)\n" +
 			"	public record X;\n" +
@@ -7947,11 +7949,13 @@ public void testBug566846_2() {
 				+ "} \n"
 				+ "record R1;\n"
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	public class X {\n" +
-			"	^\n" +
-			"Implicitly Declared Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+			(this.complianceLevel < ClassFileConstants.JDK25 ?
+					"----------\n"
+					+ "1. ERROR in X.java (at line 1)\n"
+					+ "	public class X {\n"
+					+ "	^\n"
+					+ "The Java feature 'Compact Source Files and Instance Main Methods' is only available with source level 25 and above\n"
+					: "") +
 			"----------\n" +
 			"2. ERROR in X.java (at line 1)\n" +
 			"	public class X {\n" +
@@ -8138,7 +8142,7 @@ public void testBug571015_002() {
 			"1. ERROR in X.java (at line 2)\n" +
 			"	R(I<X> ... t) {}\n" +
 			"	^^^^^^^^^^^^^\n" +
-			"A non-canonical constructor must start with an explicit invocation to a constructor\n" +
+			"A non-canonical constructor must invoke another constructor of the same class\n" +
 			"----------\n" +
 			"2. WARNING in X.java (at line 2)\n" +
 			"	R(I<X> ... t) {}\n" +
@@ -8456,11 +8460,13 @@ public void testBug571765_001() {
 					"module-info.java",
 					"public record R() {}\n",
 				},
-			"----------\n" +
-			"1. ERROR in module-info.java (at line 1)\n" +
-			"	public record R() {}\n" +
-			"	^\n" +
-			"Implicitly Declared Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+			(this.complianceLevel < ClassFileConstants.JDK25 ?
+				"----------\n"
+				+ "1. ERROR in module-info.java (at line 1)\n"
+				+ "	public record R() {}\n"
+				+ "	^\n"
+				+ "The Java feature 'Compact Source Files and Instance Main Methods' is only available with source level 25 and above\n"
+				: "") +
 			"----------\n" +
 			"2. ERROR in module-info.java (at line 1)\n" +
 			"	public record R() {}\n" +
@@ -9696,7 +9702,7 @@ public void testGH3891() {
 		""");
 }
 public void testGH3891_preview() {
-	if (this.complianceLevel < ClassFileConstants.JDK24) return;
+	if (this.complianceLevel < ClassFileConstants.JDK25) return;
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
 	runner.customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);

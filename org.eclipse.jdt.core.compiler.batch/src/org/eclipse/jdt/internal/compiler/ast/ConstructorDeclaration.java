@@ -206,7 +206,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 				}
 			}
 
-			if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions())) {
+			if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.scope.compilerOptions())) {
 				this.scope.enterEarlyConstructionContext();
 			}
 
@@ -226,10 +226,9 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 					}
 				}
 			}
-
-			// reuse the reachMode from non static field info
-			flowInfo.setReachMode(nonStaticFieldInfoReachMode);
 		}
+		// reuse the reachMode from non static field info
+		flowInfo.setReachMode(nonStaticFieldInfoReachMode);
 
 		// propagate to statements
 		if (this.statements != null) {
@@ -510,7 +509,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 			codeStream.recordPositionsFrom(0, this.bodyStart > 0 ? this.bodyStart : this.sourceStart);
 		}
 
-		if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions())) {
+		if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.scope.compilerOptions())) {
 			this.scope.enterEarlyConstructionContext();
 		}
 
@@ -758,23 +757,10 @@ public void resolveStatements() {
 				this.scope.problemReporter().cannotUseSuperInJavaLangObject(this.constructorCall);
 			}
 			this.constructorCall = null;
-		} else if (sourceType.isRecord() &&
-				!this.isCompactConstructor() && // compact constr should be marked as canonical?
-				(this.binding != null && !this.binding.isCanonicalConstructor()) &&
-				this.constructorCall.accessMode != ExplicitConstructorCall.This) {
-			this.scope.problemReporter().missingExplicitConstructorCallInNonCanonicalConstructor(this);
-			this.constructorCall = null;
 		} else {
-			ExplicitConstructorCall lateConstructorCall = null;
-			if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions())) {
-				this.scope.enterEarlyConstructionContext(); // even if no late ctor call to also capture arguments of ctor call as 1st stmt
-				lateConstructorCall = getLateConstructorCall();
-			}
-			if (lateConstructorCall != null) {
-				this.constructorCall = null; // not used with JEP 482, conversely, constructorCall!=null signals no JEP 482 context
-				this.scope.problemReporter().validateJavaFeatureSupport(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES,
-						lateConstructorCall.sourceStart,
-						lateConstructorCall.sourceEnd);
+			this.scope.enterEarlyConstructionContext(); // even if no late ctor call to also capture arguments of ctor call as 1st stmt
+			if (getLateConstructorCall() != null) {
+				this.constructorCall = null; // not used with JEP 513, conversely, constructorCall!=null signals no JEP 513 context
 			} else {
 				this.constructorCall.resolve(this.scope);
 			}
@@ -787,7 +773,7 @@ public void resolveStatements() {
 }
 
 ExplicitConstructorCall getLateConstructorCall() {
-	if (!JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.matchesCompliance(this.scope.compilerOptions()))
+	if (!JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.scope.compilerOptions()))
 		return null;
 	if (this.constructorCall != null && !this.constructorCall.isImplicitSuper()) {
 		return null;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2024 IBM Corporation and others.
+ * Copyright (c) 2020, 2025 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -4917,31 +4917,41 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	@SuppressWarnings({ "rawtypes" })
 	public void testBug566846_001() {
 		Map options = getCompilerOptions();
-		String error = 	this.complianceLevel < ClassFileConstants.JDK24 ?
-				"The preview feature Implicitly Declared Classes and Instance Main Methods is only available with source level 24 and above\n"
-				: "Implicitly Declared Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable\n";
+		String error = 	this.complianceLevel >= ClassFileConstants.JDK25 ?
+				"----------\n" +
+				"1. ERROR in X.java (at line 1)\n" +
+				"	record X;\n" +
+				"	^^^^^^\n" +
+				"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 1)\n" +
+				"	record X;\n" +
+				"	^\n" +
+				"Implicitly declared class must have a candidate main method\n" +
+				"----------\n" :
+					"----------\n" +
+					"1. ERROR in X.java (at line 1)\n" +
+					"	record X;\n" +
+					"	^\n" +
+					"The Java feature \'Compact Source Files and Instance Main Methods\' is only available with source level 25 and above\n" +
+					"----------\n" +
+					"2. ERROR in X.java (at line 1)\n" +
+					"	record X;\n" +
+					"	^^^^^^\n" +
+					"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
+					"----------\n" +
+					"3. ERROR in X.java (at line 1)\n" +
+					"	record X;\n" +
+					"	^\n" +
+					"Implicitly declared class must have a candidate main method\n" +
+					"----------\n";
 
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"record X;\n",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	record X;\n" +
-			"	^\n" +
-			error +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
-			"	record X;\n" +
-			"	^^^^^^\n" +
-			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 1)\n" +
-			"	record X;\n" +
-			"	^\n" +
-			"Implicitly declared class must have a candidate main method\n" +
-			"----------\n",
+			error,
 			null,
 			true,
 			options

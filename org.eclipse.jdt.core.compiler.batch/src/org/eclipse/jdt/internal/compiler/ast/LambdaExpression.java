@@ -1278,7 +1278,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		}
 		codeStream.pushPatternAccessTrapScope(this.scope);
 		if (this.scopesInEarlyConstruction != null) {
-			// JEP 482: restore early construction context info into scopes:
+			// JEP 513: restore early construction context info into scopes:
 			for (ClassScope classScope : this.scopesInEarlyConstruction)
 				classScope.insideEarlyConstructionContext = true;
 		}

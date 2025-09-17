@@ -615,6 +615,8 @@ public class ElementsImpl implements Elements {
 	 */
 	@Override
 	public TypeElement getTypeElement(CharSequence name) {
+		if (name.length() == 0)
+			return null;
 		LookupEnvironment le = this._env.getLookupEnvironment();
 		final char[][] compoundName = CharOperation.splitOn('.', name.toString().toCharArray());
 		ReferenceBinding binding = le.getType(compoundName);

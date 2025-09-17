@@ -89,6 +89,9 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		.map(e -> e.getKey() + "=" + e.getValue())
 		.toArray(String[]::new);
 
+	protected static long PREVIEW_FEATURE_CLASS_FILE_CONST = ClassFileConstants.JDK25;
+	protected static int PREVIEW_FEATURE_LEVEL = 25;
+
 	protected class Runner {
 		boolean shouldFlushOutputDirectory = true;
 		// input:
@@ -337,6 +340,8 @@ static class JavacCompiler {
 			return JavaCore.VERSION_23;
 		} else if(rawVersion.startsWith("24")) {
 			return JavaCore.VERSION_24;
+		} else if(rawVersion.startsWith("25")) {
+			return JavaCore.VERSION_25;
 		} else {
 			throw new RuntimeException("unknown javac version: " + rawVersion);
 		}
@@ -577,6 +582,14 @@ static class JavacCompiler {
 					return 0000;
 				case "24.0.1":
 					return 0100;
+				case "24.0.2":
+					return 0200;
+			}
+		}
+		if (version == JavaCore.VERSION_25) {
+			switch(rawVersion) {
+				case "25-ea", "25-beta", "25":
+					return 0000;
 			}
 		}
 		throw new RuntimeException("unknown raw javac version: " + rawVersion);
@@ -1165,7 +1178,7 @@ protected static class JavacTestOptions {
 			JavacBug8348928 = // https://bugs.openjdk.org/browse/JDK-8348928
 					new JavacHasABug(MismatchType.EclipseErrorsJavacWarnings),
 			JavacBug8348410 = // https://bugs.openjdk.org/browse/JDK-8348410
-					new JavacHasABug(MismatchType.EclipseErrorsJavacNone);
+					new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ClassFileConstants.JDK25, 0000);
 
 
 		// bugs that have been fixed but that we've not identified
@@ -2719,7 +2732,7 @@ protected void runJavac(
 					//      it should have had contents, stderr is leveraged as
 					//      potentially holding indications regarding the failure
 					if (expectedErrorString != null /* null skips error test */ && mismatch == 0) {
-						err = adjustErrorOutput(stderr.toString().trim());
+						err = adjustErrorOutput(stderr.toString().trim(), className);
 						if (!errorStringMatch(expectedErrorString, err)) {
 							mismatch = JavacTestOptions.MismatchType.ErrorOutputMismatch;
 						}
@@ -2844,10 +2857,13 @@ void handleMismatch(JavacCompiler compiler, String testName, String[] testFiles,
 	}
 }
 
-private String adjustErrorOutput(String error) {
+private String adjustErrorOutput(String error, String className) {
 	// VerifyTests performs an explicit e.printStackTrace() which has slightly different format
 	// from a stack trace written directly by a dying JVM (during javac testing), adjust if needed:
-	final String excPrefix = "Exception in thread \"main\" ";
+	String excPrefix = "Exception in thread \"main\" ";
+	if (error.startsWith(excPrefix))
+		return error.substring(excPrefix.length())+'\n';
+	excPrefix = "Error: LinkageError occurred while loading main class "+className+"\n\t";
 	if (error.startsWith(excPrefix))
 		return error.substring(excPrefix.length())+'\n';
 	return error;

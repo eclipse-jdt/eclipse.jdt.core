@@ -214,15 +214,15 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		runNegativeTest(
 				testFiles,
 				"----------\n" +
-						"1. ERROR in X3.java (at line 4)\n" +
-						"	if (num instanceof int) {\n" +
-						"	    ^^^^^^^^^^^^^^^^^^\n" +
-						"Incompatible conditional operand types Number and int\n" +
-						"----------\n",
-						"",
-						null,
-						true,
-						options);
+				"1. ERROR in X3.java (at line 4)\n" +
+				"	if (num instanceof int) {\n" +
+				"	    ^^^^^^^^^^^^^^^^^^\n" +
+				"Incompatible conditional operand types Number and int\n" +
+				"----------\n",
+				"",
+				null,
+				true,
+				options);
 	}
 	public void test004() {
 		Map<String, String> options = getCompilerOptions(true);

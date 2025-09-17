@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -242,18 +242,14 @@ void checkAndSetImports() {
 	for (int i = 0; i < numberOfStatements; i++) {
 		ImportReference importReference = this.referenceContext.imports[i];
 		if ((importReference.bits & ASTNode.OnDemand) != 0) {
-			 if (importReference.isStatic()) {
-				 if (this.referenceContext.isSimpleCompilationUnit() && CharOperation.equals(TypeConstants.JAVA_IO_IO, importReference.tokens)) {
+			 if (!importReference.isStatic()) {
+				 if (CharOperation.equals(TypeConstants.JAVA_LANG, importReference.tokens)) {
+					 numberOfImports--;
+				 } else if ((importReference.modifiers & ClassFileConstants.AccModule) != 0 &&
+						 this.referenceContext.isSimpleCompilationUnit() &&
+						 CharOperation.equals(TypeConstants.JAVA_BASE, importReference.tokens)) {
 					 numberOfImports--;
 				 }
-			 } else {
-					if (CharOperation.equals(TypeConstants.JAVA_LANG, importReference.tokens)) {
-						numberOfImports--;
-					} else if ((importReference.modifiers & ClassFileConstants.AccModule) != 0 &&
-							this.referenceContext.isSimpleCompilationUnit() &&
-							CharOperation.equals(TypeConstants.JAVA_BASE, importReference.tokens)) {
-						numberOfImports--;
-					}
 			 }
 		}
 	}
@@ -268,7 +264,6 @@ void checkAndSetImports() {
 				return false;
 			}
 			return (CharOperation.equals(TypeConstants.JAVA_LANG, imp.tokens) ||
-					(CharOperation.equals(TypeConstants.JAVA_IO_IO, imp.tokens) && imp.isStatic()) ||
 					((imp.modifiers & ClassFileConstants.AccModule) != 0
 						&& CharOperation.equals(TypeConstants.JAVA_BASE, imp.tokens)));
 	};
@@ -488,8 +483,7 @@ void faultInImports() {
 			}
 		}
 		if ((importReference.modifiers & ClassFileConstants.AccModule) != 0) {
-			problemReporter().validateJavaFeatureSupport(JavaFeature.MODULE_IMPORTS, importReference.sourceStart, importReference.sourceEnd);
-			if (!(JavaFeature.MODULE_IMPORTS.isSupported(compilerOptions().sourceLevel, compilerOptions().enablePreviewFeatures))) {
+			if (problemReporter().validateJavaFeatureSupport(JavaFeature.MODULE_IMPORTS, importReference.sourceStart, importReference.sourceEnd)) {
 				continue nextImport;
 			}
 			ModuleBinding importedModule = this.environment.getModule(CharOperation.concatWith(compoundName, '.'));
@@ -749,24 +743,13 @@ private MethodBinding findStaticMethod(ReferenceBinding currentType, char[] sele
 	return null;
 }
 ImportBinding[] getDefaultImports() {
-	ImportBinding javaIOImport = null;
-	if (JavaFeature.IMPLICIT_CLASSES_AND_INSTANCE_MAIN_METHODS.isSupported(this.environment.globalOptions) &&
+	if (JavaFeature.COMPACT_SOURCE_AND_INSTANCE_MAIN_METHODS.isSupported(this.environment.globalOptions) &&
 			this.referenceContext.isSimpleCompilationUnit()) {
 		ModuleBinding module = this.environment.getModule(CharOperation.concatWith(TypeConstants.JAVA_BASE, '.'));
-		Binding javaioIO = findSingleImport(TypeConstants.JAVA_IO_IO, Binding.TYPE, false);
-		if (javaioIO != null) {
-			javaIOImport = new ImportBinding(TypeConstants.JAVA_IO_IO, true, javaioIO, null) {
-				@Override
-				public boolean isStatic() {
-					return true;
-				}
-			};
-		}
 		if (module != null) {
 			ImportBinding javaBase = new ImportBinding(TypeConstants.JAVA_BASE, true, module, null);
 			// No need for the java.lang.* as module java.base covers it
-			return javaIOImport != null ? new ImportBinding[] {javaBase, javaIOImport}:
-												new ImportBinding[] {javaBase};
+			return new ImportBinding[] {javaBase};
 			// this module import is not cached, there shouldn't be many files needing it.
 		}
 	}
@@ -776,10 +759,7 @@ ImportBinding[] getDefaultImports() {
 	Binding importBinding = this.environment.getTopLevelPackage(TypeConstants.JAVA);
 	if (importBinding != null)
 		importBinding = ((PackageBinding) importBinding).getTypeOrPackage(TypeConstants.JAVA_LANG[1], module(), false);
-	ImportBinding[] implicitImports = javaIOImport != null ? new ImportBinding[2] : new ImportBinding[1];
-	if (javaIOImport != null) {
-		implicitImports[1] = javaIOImport;
-	}
+	ImportBinding[] implicitImports = new ImportBinding[1];
 	if (importBinding == null || !importBinding.isValidBinding()) {
 		// create a proxy for the missing BinaryType
 		problemReporter().isClassPathCorrect(

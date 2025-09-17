@@ -25,15 +25,17 @@ import org.eclipse.jdt.core.dom.*;
 
 public class ModuleImportASTConverterTest extends ConverterTestSetup {
 
+	private static String CONV_PREFIX = "Converter_25";
+
 	ICompilationUnit workingCopy;
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(getAST24(), false);
-		this.currentProject = getJavaProject("Converter_24");
-		this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_24);
-		this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_24);
-		this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_24);
+		this.ast = AST.newAST(getAST25(), false);
+		this.currentProject = getJavaProject(CONV_PREFIX);
+		this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_25);
+		this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_25);
+		this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_25);
 		this.currentProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		this.currentProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 	}
@@ -46,8 +48,8 @@ public class ModuleImportASTConverterTest extends ConverterTestSetup {
 		return buildModelTestSuite(ModuleImportASTConverterTest.class);
 	}
 
-	static int getAST24() {
-		return AST.JLS24;
+	static int getAST25() {
+		return AST.JLS25;
 	}
 	protected void tearDown() throws Exception {
 		super.tearDown();
@@ -69,7 +71,7 @@ public class ModuleImportASTConverterTest extends ConverterTestSetup {
 					}
 				}
 				""";
-		this.workingCopy = getWorkingCopy("/Converter_24/src/p/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/" + CONV_PREFIX + "/src/p/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
@@ -110,7 +112,7 @@ public class ModuleImportASTConverterTest extends ConverterTestSetup {
 					    System.out.println("Eclipse");
 					}
 				""";
-		this.workingCopy = getWorkingCopy("/Converter_24/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/" + CONV_PREFIX + "/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(contents, this.workingCopy);
 		assertEquals("Wrong type of statement", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit compilationUnit = (CompilationUnit) node;
@@ -130,7 +132,7 @@ public class ModuleImportASTConverterTest extends ConverterTestSetup {
 	}
 
 	public void test003_a() throws CoreException {
-	    ASTParser astParser = ASTParser.newParser(getAST24());
+	    ASTParser astParser = ASTParser.newParser(getAST25());
 	    Map<String, String> options = new HashMap<>();
 	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
 	    options.put(JavaCore.COMPILER_SOURCE, "23");
@@ -161,7 +163,7 @@ public class ModuleImportASTConverterTest extends ConverterTestSetup {
 	}
 
 	public void test003_b() throws CoreException {
-	    ASTParser astParser = ASTParser.newParser(getAST24());
+	    ASTParser astParser = ASTParser.newParser(getAST25());
 	    Map<String, String> options = new HashMap<>();
 	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
 	    options.put(JavaCore.COMPILER_SOURCE, "23");
@@ -191,7 +193,7 @@ public class ModuleImportASTConverterTest extends ConverterTestSetup {
 
 	//public sealed
 	public void test003_c() throws CoreException {
-	    ASTParser astParser = ASTParser.newParser(getAST24());
+	    ASTParser astParser = ASTParser.newParser(getAST25());
 	    Map<String, String> options = new HashMap<>();
 	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
 	    options.put(JavaCore.COMPILER_SOURCE, "23");
@@ -225,7 +227,7 @@ public class ModuleImportASTConverterTest extends ConverterTestSetup {
 
 	//abstract final
 	public void test003_d() throws CoreException {
-	    ASTParser astParser = ASTParser.newParser(getAST24());
+	    ASTParser astParser = ASTParser.newParser(getAST25());
 	    Map<String, String> options = new HashMap<>();
 	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
 	    options.put(JavaCore.COMPILER_SOURCE, "23");
@@ -255,7 +257,7 @@ public class ModuleImportASTConverterTest extends ConverterTestSetup {
 
 	//abstract non-sealed
 	public void test003_e() throws CoreException {
-	    ASTParser astParser = ASTParser.newParser(getAST24());
+	    ASTParser astParser = ASTParser.newParser(getAST25());
 	    Map<String, String> options = new HashMap<>();
 	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
 	    options.put(JavaCore.COMPILER_SOURCE, "23");
@@ -285,7 +287,7 @@ public class ModuleImportASTConverterTest extends ConverterTestSetup {
 
 	//public final
 	public void test003_f() throws CoreException {
-	    ASTParser astParser = ASTParser.newParser(getAST24());
+	    ASTParser astParser = ASTParser.newParser(getAST25());
 	    Map<String, String> options = new HashMap<>();
 	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
 	    options.put(JavaCore.COMPILER_SOURCE, "23");
@@ -315,7 +317,7 @@ public class ModuleImportASTConverterTest extends ConverterTestSetup {
 
 	//public non-sealed
 	public void test003_g() throws CoreException {
-	    ASTParser astParser = ASTParser.newParser(getAST24());
+	    ASTParser astParser = ASTParser.newParser(getAST25());
 	    Map<String, String> options = new HashMap<>();
 	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
 	    options.put(JavaCore.COMPILER_SOURCE, "23");
@@ -345,7 +347,7 @@ public class ModuleImportASTConverterTest extends ConverterTestSetup {
 
 	//protected non-sealed
 	public void test003_h() throws CoreException {
-	    ASTParser astParser = ASTParser.newParser(getAST24());
+	    ASTParser astParser = ASTParser.newParser(getAST25());
 	    Map<String, String> options = new HashMap<>();
 	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
 	    options.put(JavaCore.COMPILER_SOURCE, "23");
@@ -375,7 +377,7 @@ public class ModuleImportASTConverterTest extends ConverterTestSetup {
 
 	//private non-sealed
 	public void test003_i() throws CoreException {
-	    ASTParser astParser = ASTParser.newParser(getAST24());
+	    ASTParser astParser = ASTParser.newParser(getAST25());
 	    Map<String, String> options = new HashMap<>();
 	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
 	    options.put(JavaCore.COMPILER_SOURCE, "23");
@@ -405,7 +407,7 @@ public class ModuleImportASTConverterTest extends ConverterTestSetup {
 
 	//protected abstract
 	public void test003_j() throws CoreException {
-	    ASTParser astParser = ASTParser.newParser(getAST24());
+	    ASTParser astParser = ASTParser.newParser(getAST25());
 	    Map<String, String> options = new HashMap<>();
 	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
 	    options.put(JavaCore.COMPILER_SOURCE, "23");
@@ -435,7 +437,7 @@ public class ModuleImportASTConverterTest extends ConverterTestSetup {
 
 	//public sealed interface
 	public void test003_k() throws CoreException {
-		ASTParser astParser = ASTParser.newParser(getAST24());
+		ASTParser astParser = ASTParser.newParser(getAST25());
 	    Map<String, String> options = new HashMap<>();
 	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
 	    options.put(JavaCore.COMPILER_SOURCE, "23");
@@ -468,7 +470,7 @@ public class ModuleImportASTConverterTest extends ConverterTestSetup {
 
 	//public non-sealed interface
 	public void test003_l() throws CoreException {
-		ASTParser astParser = ASTParser.newParser(getAST24());
+		ASTParser astParser = ASTParser.newParser(getAST25());
 	    Map<String, String> options = new HashMap<>();
 	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
 	    options.put(JavaCore.COMPILER_SOURCE, "23");
@@ -501,7 +503,7 @@ public class ModuleImportASTConverterTest extends ConverterTestSetup {
 
 	//public strictfp interface
 	public void test003_m() throws CoreException {
-		ASTParser astParser = ASTParser.newParser(getAST24());
+		ASTParser astParser = ASTParser.newParser(getAST25());
 	    Map<String, String> options = new HashMap<>();
 	    options.put(JavaCore.COMPILER_COMPLIANCE, "23");
 	    options.put(JavaCore.COMPILER_SOURCE, "23");

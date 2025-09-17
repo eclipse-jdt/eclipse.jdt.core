@@ -76,7 +76,7 @@ private static final String STREAMEX_CONTENT =
 	""";
 
 static {
-//	TESTS_NAMES = new String[] { "testBug463320" };
+//	TESTS_NAMES = new String[] { "testBug368709b" };
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -3040,6 +3040,14 @@ public void test063e() {
 // Bug 368709 - Endless loop in FakedTrackingVariable.markPassedToOutside
 // original test case from jgit
 public void testBug368709a() {
+	String JDK8225763_Fix = isJRE25Plus ?
+			"2. ERROR in X.java (at line 17)\n" +
+			"	in = new BufferedInputStream(new InflaterInputStream(in, wc.inflater(), 8192), 8192);\n" +
+			"	                                                         ^^^^^^^^^^^^^\n" +
+			potentialOrDefiniteLeak("<unassigned Closeable value>") +
+			"----------\n" +
+			"3."
+			: "2.";
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -3095,7 +3103,8 @@ public void testBug368709a() {
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		potentialOrDefiniteLeak("<unassigned Closeable value>") +
 		"----------\n" +
-		"2. ERROR in X.java (at line 18)\n" +
+		JDK8225763_Fix +
+		" ERROR in X.java (at line 18)\n" +
 		"	return new ObjectStream.Filter(type, size, in);\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		potentialLeakOrCloseNotShownAtExit("in") +
@@ -3105,6 +3114,13 @@ public void testBug368709a() {
 // Bug 368709 - Endless loop in FakedTrackingVariable.markPassedToOutside
 // minimal test case: constructing an indirect self-wrapper
 public void testBug368709b() {
+	String JDK8225763_Fix = isJRE25Plus ?
+			"2. ERROR in X.java (at line 6)\n" +
+			"	in = new BufferedInputStream(new InflaterInputStream(in, inflater(), 8192), 8192);\n" +
+			"	                                                         ^^^^^^^^^^\n" +
+			potentialOrDefiniteLeak("<unassigned Closeable value>") +
+			"----------\n"
+			: "";
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -3128,7 +3144,8 @@ public void testBug368709b() {
 		"	InputStream in = new FileInputStream(\"somefile\");\n" +
 		"	            ^^\n" +
 		potentialLeakOrCloseNotShown("in") +
-		"----------\n",
+		"----------\n" +
+		JDK8225763_Fix,
 		options);
 }
 

@@ -59,6 +59,8 @@ public class ElementsImpl9 extends ElementsImpl {
 
 	@Override
 	public TypeElement getTypeElement(CharSequence name) {
+		if (name.length() == 0)
+			return null;
 		final char[][] compoundName = CharOperation.splitOn('.', name.toString().toCharArray());
 		Set<? extends ModuleElement> allModuleElements = getAllModuleElements();
 		for (ModuleElement moduleElement : allModuleElements) {
