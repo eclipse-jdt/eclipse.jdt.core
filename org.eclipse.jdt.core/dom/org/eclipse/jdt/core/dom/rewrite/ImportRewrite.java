@@ -391,7 +391,7 @@ public final class ImportRewrite {
 	 *  which cannot leverage any qualified exports.
 	 * @return a list of package names that are exported by the given binding
 	 *
-	 * @since 3.43
+	 * @since 3.44
 	 */
 	public static List<String> getPackageNamesForModule(IModuleBinding binding, IJavaProject project) {
 		Set<IModuleBinding> modules= new HashSet<>();
@@ -1055,7 +1055,7 @@ public final class ImportRewrite {
 	 * @param name name of module to import
 	 * @param moduleBinding binding of module to import
 	 * @return name if import added or null if there are issues
-	 * @since 3.43
+	 * @since 3.44
 	 *
 	 */
 	public String addModuleImport(String name, IModuleBinding moduleBinding) {
@@ -1074,7 +1074,7 @@ public final class ImportRewrite {
 	 *
 	 * @param name name of module to import
 	 * @param packageNames list of package names explicitly or implicitly exported by the module specified
-	 * @since 3.43
+	 * @since 3.44
 	 *
 	 */
 	public void addModuleImport(String name, List<String> packageNames) {
@@ -1542,7 +1542,7 @@ public final class ImportRewrite {
 	 * Returns all new module imports created by the last invocation of {@link #rewriteImports(IProgressMonitor)}
 	 * or <code>null</code> if these methods have not been called yet.
 	 * @return the created imports
-	 * @since 3.43
+	 * @since 3.44
 	 */
 	public String[] getCreatedModuleImports() {
 		return this.createdModuleImports;
@@ -1570,7 +1570,7 @@ public final class ImportRewrite {
 	 * Returns all module imports that are recorded to be added.
 	 *
 	 * @return the module imports recorded to be added.
-	 * @since 3.43
+	 * @since 3.44
 	 */
 	public String[] getAddedModuleImports() {
 		return filterFromList(this.addedImports, MODULE_PREFIX);
@@ -1580,7 +1580,7 @@ public final class ImportRewrite {
 	 * Returns all the exported packages registeted for an import module.
 	 * @param moduleName name of module to get exports
 	 * @return list of exported package names
-	 * @since 3.43
+	 * @since 3.44
 	 */
 	public List<String> getAddedModuleExportedPackages(String moduleName) {
 		return this.moduleEntries.get(moduleName);
@@ -1608,7 +1608,7 @@ public final class ImportRewrite {
 	 * Returns all static imports that are recorded to be removed.
 	 *
 	 * @return the static imports recorded to be removed.
-	 * @since 3.43
+	 * @since 3.44
 	 */
 	public String[] getRemovedModuleImports() {
 		return filterFromList(this.removedImports, MODULE_PREFIX);

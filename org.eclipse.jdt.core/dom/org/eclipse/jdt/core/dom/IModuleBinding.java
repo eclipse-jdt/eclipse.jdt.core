@@ -48,7 +48,7 @@ public interface IModuleBinding extends IBinding {
 	 * <p>The resulting bindings are in no particular order.</p>
 	 *
 	 * @return modules required with the modifier "transitive"
-	 * @since 3.43
+	 * @since 3.44
 	 */
 	public abstract IModuleBinding[] getRequiredTransitiveModules();
 
