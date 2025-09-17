@@ -112,7 +112,7 @@ public class JavaSearchSuperAfterStatementTests extends JavaSearchTests {
 
 	@Override
 	public void setUpSuite() throws Exception {
-		JAVA_PROJECT = setUpJavaProject("JavaSearchBugs23", "24");
+		JAVA_PROJECT = setUpJavaProject("JavaSearchBugs23", "25");
 		JAVA_PROJECT.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		super.setUpSuite();
 	}

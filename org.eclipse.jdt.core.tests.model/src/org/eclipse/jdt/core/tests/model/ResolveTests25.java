@@ -19,11 +19,10 @@ import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 
-public class ResolveTests23 extends AbstractJavaModelTests {
+public class ResolveTests25 extends AbstractJavaModelTests {
 	ICompilationUnit wc = null;
 
 static {
@@ -32,9 +31,9 @@ static {
 	// TESTS_RANGE = new int[] { 16, -1 };
 }
 public static Test suite() {
-	return buildModelTestSuite(ResolveTests23.class);
+	return buildModelTestSuite(ResolveTests25.class);
 }
-public ResolveTests23(String name) {
+public ResolveTests25(String name) {
 	super(name);
 }
 @Override
@@ -44,8 +43,7 @@ public ICompilationUnit getWorkingCopy(String path, String source) throws JavaMo
 @Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
-	this.currentProject = setUpJavaProject("Resolve", "23", false);
-	this.currentProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+	this.currentProject = setUpJavaProject("Resolve", "25", false);
 	waitUntilIndexesReady();
 }
 @Override

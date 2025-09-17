@@ -631,6 +631,7 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 	 * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/790
 	 */
 	public void testAIOOBEForRecordClassGh790() throws Exception {
+		if (isJRE25) return; // FIXME see https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3976
 		String testProjectName = "gh790AIOOBEForRecordClass";
 		try {
 			IJavaProject project = createJava16Project(testProjectName, new String[] {"src"});

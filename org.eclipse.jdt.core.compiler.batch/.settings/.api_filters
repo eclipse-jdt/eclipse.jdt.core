@@ -1,10 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core.compiler.batch" version="2">
+    <resource path="META-INF/MANIFEST.MF">
+        <filter comment="BETA_JAVA25 update" id="931135546">
+            <message_arguments>
+                <message_argument value="3.42.50"/>
+                <message_argument value="3.41.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/org/eclipse/jdt/core/compiler/CategorizedProblem.java" type="org.eclipse.jdt.core.compiler.CategorizedProblem">
         <filter comment="BETA_JAVA22 temporary issue" id="576725006">
             <message_arguments>
                 <message_argument value="IProblem"/>
                 <message_argument value="CategorizedProblem"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/jdt/core/compiler/IProblem.java" type="org.eclipse.jdt.core.compiler.IProblem">
+        <filter comment="preview problem modified during graduation" id="405864542">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="ModifierOnRequiresJavaBasePreview"/>
             </message_arguments>
         </filter>
     </resource>

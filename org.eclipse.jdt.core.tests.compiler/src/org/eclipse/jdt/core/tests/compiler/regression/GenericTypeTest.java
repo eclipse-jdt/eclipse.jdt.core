@@ -43,6 +43,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class GenericTypeTest extends AbstractComparableTest {
@@ -54,7 +55,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test0593" };
+//		TESTS_NAMES = new String[] { "test1083" };
 //		TESTS_NUMBERS = new int[] { 470, 627 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
@@ -36035,6 +36036,18 @@ public void test1082() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106451 - variation
 public void test1083() {
+	String JDK8344943_msg = isJRE25Plus ?
+			"3. ERROR in X.java (at line 15)\n" +
+			"	java.util.List<Runtime> d = (LinkedList<Runtime>) a; // inconvertible / unchecked ?\n" +
+			"	                            ^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Cannot cast from List<capture#3-of ? extends Serializable> to LinkedList<Runtime>\n" +
+			"----------\n"
+			:
+			"3. WARNING in X.java (at line 15)\n" +
+			"	java.util.List<Runtime> d = (LinkedList<Runtime>) a; // inconvertible / unchecked ?\n" +
+			"	                            ^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type safety: Unchecked cast from List<capture#3-of ? extends Serializable> to LinkedList<Runtime>\n" +
+			"----------\n";
 	this.runNegativeTest(
 		new String[] {
 			"X.java", // =================
@@ -36070,11 +36083,7 @@ public void test1083() {
 		"	                            ^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type safety: Unchecked cast from List<capture#2-of ? extends Serializable> to LinkedList<Integer>\n" +
 		"----------\n" +
-		"3. WARNING in X.java (at line 15)\n" +
-		"	java.util.List<Runtime> d = (LinkedList<Runtime>) a; // inconvertible / unchecked ?\n" +
-		"	                            ^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: Unchecked cast from List<capture#3-of ? extends Serializable> to LinkedList<Runtime>\n" +
-		"----------\n" +
+		JDK8344943_msg +
 		"4. ERROR in X.java (at line 18)\n" +
 		"	Zork z;\n" +
 		"	^^^^\n" +
@@ -37431,9 +37440,6 @@ public void test1119() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=166963
 public void test1120() {
-	String msg = (this.complianceLevel < ClassFileConstants.JDK24) ?
-						"Constructor call must be the first statement in a constructor\n" :
-							"Flexible Constructor Bodies is a preview feature and disabled by default. Use --enable-preview to enable\n";
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -37446,37 +37452,68 @@ public void test1120() {
 			"	}\n" +
 			"}", // =================
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 4)\n" +
-		"	this(zork);\n" +
-		"	^^^^^^^^^^^\n" +
-		msg +
-		"----------\n" +
-		"2. ERROR in X.java (at line 4)\n" +
-		"	this(zork);\n" +
-		"	     ^^^^\n" +
-		"zork cannot be resolved to a variable\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 5)\n" +
-		"	Zork.this.this();\n" +
-		"	^^^^^^^^^^^^^^^^^\n" +
-		"Constructor call must be the first statement in a constructor\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 5)\n" +
-		"	Zork.this.this();\n" +
-		"	^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 6)\n" +
-		"	<Zork>this();\n" +
-		"	 ^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 6)\n" +
-		"	<Zork>this();\n" +
-		"	      ^^^^^^^\n" +
-		"Constructor call must be the first statement in a constructor\n" +
-		"----------\n");
+		(!JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)
+		?
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	this(zork);\n" +
+			"	^^^^^^^^^^^\n" +
+			"The Java feature 'Flexible Constructor Bodies' is only available with source level 25 and above\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	this(zork);\n" +
+			"	     ^^^^\n" +
+			"zork cannot be resolved to a variable\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 5)\n" +
+			"	Zork.this.this();\n" +
+			"	^^^^^^^^^^^^^^^^^\n" +
+			"The Java feature 'Flexible Constructor Bodies' is only available with source level 25 and above\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 5)\n" +
+			"	Zork.this.this();\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 6)\n" +
+			"	<Zork>this();\n" +
+			"	 ^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n" +
+			"6. ERROR in X.java (at line 6)\n" +
+			"	<Zork>this();\n" +
+			"	      ^^^^^^^\n" +
+			"The Java feature 'Flexible Constructor Bodies' is only available with source level 25 and above\n" +
+			"----------\n"
+		:
+			"""
+			----------
+			1. ERROR in X.java (at line 4)
+				this(zork);
+				     ^^^^
+			zork cannot be resolved to a variable
+			----------
+			2. ERROR in X.java (at line 5)
+				Zork.this.this();
+				^^^^^^^^^^^^^^^^^
+			Constructor cannot have more than one explicit constructor call
+			----------
+			3. ERROR in X.java (at line 5)
+				Zork.this.this();
+				^^^^
+			Zork cannot be resolved to a type
+			----------
+			4. ERROR in X.java (at line 6)
+				<Zork>this();
+				 ^^^^
+			Zork cannot be resolved to a type
+			----------
+			5. ERROR in X.java (at line 6)
+				<Zork>this();
+				      ^^^^^^^
+			Constructor cannot have more than one explicit constructor call
+			----------
+			"""));
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=181270
 public void test1121() {

@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @PreviewTest
 public class PreviewFlagTest extends AbstractRegressionTest9 {
 
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 24");
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 25");
 	private static final String[] VMARGS = new String[] {"--enable-preview"};
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
@@ -38,7 +38,7 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 		return PreviewFlagTest.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_24);
+		return buildMinimalComplianceTestSuite(testClass(), F_25);
 	}
 	public PreviewFlagTest(String testName) {
 		super(testName);
@@ -60,9 +60,9 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_24);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_24);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_24);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_25);
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_25);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_25);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, preview ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
 		return defaultOptions;
@@ -138,11 +138,12 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 			},
 			"world");
 		String expectedOutput =
-				"version 24 : 68.65535"
+				"version 25 : 69."
 				;
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
-	public void testIssue3614_002() throws IOException, ClassFormatException {
+	// No publicly visible preview API in JDK. Disabling
+	public void _testIssue3614_002() throws IOException, ClassFormatException {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		runNegativeTest(new String[] {
@@ -158,12 +159,7 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 					"""
 			},
 				"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
-				"	ScopedValue<Integer> si = ScopedValue.newInstance();\n" +
-				"	                          ^^^^^^^^^^^\n" +
-				"This API is part of the preview feature 'Scoped Values' which is disabled by default. Use --enable-preview to enable\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 6)\n" +
+				"1. ERROR in X.java (at line 6)\n" +
 				"	public int foo() {}\n" +
 				"	           ^^^^^\n" +
 				"This method must return a result of type int\n" +
@@ -188,13 +184,6 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 				}
 				"""
 			};
-		runner.expectedCompilerLog =
-				"----------\n" +
-				"1. WARNING in X.java (at line 4)\n" +
-				"	return tree.isModule();\n" +
-				"	       ^^^^^^^^^^^^^^^\n" +
-				"This API is part of the preview feature 'Module Import Declarations' which is disabled by default. Use --enable-preview to enable\n" +
-				"----------\n";
 		runner.runConformTest();
 	}
 	public void testIssue3614_003_enabled() throws Exception {
@@ -216,17 +205,11 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 				}
 				"""
 			};
-		runner.expectedCompilerLog =
-			"----------\n" +
-			"1. WARNING in X.java (at line 4)\n" +
-			"	return tree.isModule();\n" +
-			"	       ^^^^^^^^^^^^^^^\n" +
-			"You are using an API that is part of the preview feature \'Module Import Declarations\' and may be removed in future\n" +
-			"----------\n";
 		runner.expectedOutputString = "42";
 		runner.runConformTest();
 	}
-	public void testIssue3943_001() throws IOException, ClassFormatException {
+	// No publicly visible preview API in JDK. Disabling
+	public void _testIssue3943_001() throws IOException, ClassFormatException {
 		Map<String, String> options = getCompilerOptions();
 		String str = options.get(CompilerOptions.OPTION_Compliance);
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_23);
@@ -245,12 +228,7 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 				}
 				"""},
 				"----------\n" +
-				"1. WARNING in X.java (at line 3)\n" +
-				"	ScopedValue<Integer> si = ScopedValue.newInstance();\n" +
-				"	                          ^^^^^^^^^^^\n" +
-				"You are using an API that is part of the preview feature \'Scoped Values\' and may be removed in future\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 6)\n" +
+				"1. ERROR in X.java (at line 6)\n" +
 				"	public int foo() {}\n" +
 				"	           ^^^^^\n" +
 				"This method must return a result of type int\n" +

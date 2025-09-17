@@ -11482,17 +11482,12 @@ public void invalidServiceRef(int problem, TypeReference type) {
 		NoArgument, new String[] { CharOperation.charToString(type.resolvedType.readableName()) },
 		type.sourceStart, type.sourceEnd);
 }
-public void modifierRequiresJavaBase(RequiresStatement stat, JavaFeature moduleImports) {
-	if (moduleImports != null) {
-		// don't use validateJavaFeatureSupport() as we want to give a more specific message if not enabled
-		if (moduleImports.isSupported(this.options)) {
-			previewFeatureUsed(stat.sourceStart, stat.sourceEnd);
-			return;
-		}
-		if (moduleImports.matchesCompliance(this.options)) {
-			this.handle(IProblem.ModifierOnRequiresJavaBasePreview, NoArgument, NoArgument, stat.modifiersSourceStart, stat.sourceEnd);
-			return;
-		}
+public void modifierRequiresJavaBase(RequiresStatement stat, JavaFeature moduleImportsFeature) {
+	// don't use validateJavaFeatureSupport() as we want to give a more specific message if not enabled
+	if (moduleImportsFeature != null) {
+		if (!moduleImportsFeature.isSupported(this.options))
+			this.handle(IProblem.ModifierTransitiveOnRequiresJavaBaseBelow25, NoArgument, NoArgument, stat.modifiersSourceStart, stat.sourceEnd);
+		return;
 	}
 	this.handle(IProblem.ModifierOnRequiresJavaBase, NoArgument, NoArgument, stat.modifiersSourceStart, stat.sourceEnd);
 }
@@ -11934,7 +11929,7 @@ public void illegalExplicitAssignmentInCompactConstructor(FieldBinding field, Fi
 		fieldRef.sourceStart,
 		fieldRef.sourceEnd);
 }
-public void missingExplicitConstructorCallInNonCanonicalConstructor(ASTNode location) {
+public void missingThisCallInNonCanonicalConstructor(ASTNode location) {
 	this.handle(
 		IProblem.RecordMissingExplicitConstructorCallInNonCanonicalConstructor,
 		NoArgument,

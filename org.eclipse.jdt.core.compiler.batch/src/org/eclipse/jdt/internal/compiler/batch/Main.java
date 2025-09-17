@@ -3066,6 +3066,9 @@ private String optionStringToVersion(String currentArg) {
 		case "24": //$NON-NLS-1$
 		case "24.0": //$NON-NLS-1$
 			return CompilerOptions.VERSION_24;
+		case "25": //$NON-NLS-1$
+		case "25.0": //$NON-NLS-1$
+			return CompilerOptions.VERSION_25;
 		default:
 			return null;
 	}

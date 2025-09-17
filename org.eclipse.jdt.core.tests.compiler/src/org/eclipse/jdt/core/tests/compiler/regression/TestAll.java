@@ -254,13 +254,14 @@ public static Test suite() {
 	 since_23.add(MarkdownCommentsTest.class);
 
 	 ArrayList since_24 = new ArrayList();
-	 since_24.add(ModuleImportTests.class);
-	 since_24.add(SuperAfterStatementsTest.class);
-	 since_24.add(ImplicitlyDeclaredClassesTest.class);
-	 since_24.add(PrimitiveInPatternsTest.class);
-	 since_24.add(PrimitiveInPatternsTestSH.class);
 	 since_24.add(PreviewFlagTest.class);
-	 // Add new tests for Java 24 here and/or move preview tests being moved from 23 to 24
+
+	 ArrayList since_25 = new ArrayList();
+	 since_25.add(ModuleImportTests.class);
+	 since_25.add(SuperAfterStatementsTest.class);
+	 since_25.add(ImplicitlyDeclaredClassesTest.class);
+	 since_25.add(PrimitiveInPatternsTest.class);
+	 since_25.add(PrimitiveInPatternsTestSH.class);
 
 	 // Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
@@ -580,6 +581,35 @@ public static Test suite() {
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
 				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_24), tests_24));
 	}
+
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_25) != 0) {
+		ArrayList tests_25 = (ArrayList)standardTests.clone();
+		tests_25.addAll(since_1_4);
+		tests_25.addAll(since_1_5);
+		tests_25.addAll(since_1_6);
+		tests_25.addAll(since_1_7);
+		tests_25.addAll(since_1_8);
+		tests_25.addAll(since_9);
+		tests_25.addAll(since_10);
+		tests_25.addAll(since_11);
+		tests_25.addAll(since_12);
+		tests_25.addAll(since_13);
+		tests_25.addAll(since_14);
+		tests_25.addAll(since_15);
+		tests_25.addAll(since_16);
+		tests_25.addAll(since_17);
+		tests_25.addAll(since_18);
+		tests_25.addAll(since_21);
+		tests_25.addAll(since_22);
+		tests_25.addAll(since_23);
+		tests_25.addAll(since_24);
+		tests_25.addAll(since_25);
+		TestCase.resetForgottenFilters(tests_25);
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
+				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_25), tests_25));
+	}
+
+
 	all.addTest(new TestSuite(Jsr14Test.class));
 	return all;
 }

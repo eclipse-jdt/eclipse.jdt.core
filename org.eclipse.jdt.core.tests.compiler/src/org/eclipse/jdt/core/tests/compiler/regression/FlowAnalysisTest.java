@@ -1058,15 +1058,14 @@ public void test032() {
 			"	}\n" +
 			"}\n", // =================
 		},
+		JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false) ?
+		""
+		:
 		"----------\n" +
 		"1. ERROR in X.java (at line 14)\n" +
 		"	super(blank = 0);\n" +
 		"	      ^^^^^\n" +
-		(this.complianceLevel == JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.getCompliance() ?
-		"Flexible Constructor Bodies is a preview feature and disabled by default. Use --enable-preview to enable\n"
-		:
-		"Cannot refer to an instance field blank while explicitly invoking a constructor\n"
-		) +
+		"Cannot refer to an instance field blank while explicitly invoking a constructor\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155423 - variation

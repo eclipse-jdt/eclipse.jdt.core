@@ -36,7 +36,7 @@ public interface TypeOrLambda {
 	 */
 	default void addSyntheticArgumentsBeyondEarlyConstructionContext(boolean earlySeen, Scope outerScope) {
 		if (outerScope != null && JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(outerScope.compilerOptions())) {
-			// JEP 482 / 492:
+			// JEP 513:
 			// This is the central location for organizing synthetic arguments and fields
 			// to serve far outer instances even in inner early construction context.
 			// Locations MethodBinding.computeSignature() and BlockScope.getEmulationPath() will faithfully
@@ -49,6 +49,8 @@ public interface TypeOrLambda {
 						ensureSyntheticOuterAccess(cs.referenceContext.binding);
 					}
 					earlySeen = cs.insideEarlyConstructionContext;
+					if (cs.referenceContext.binding != null && cs.referenceContext.binding.isStatic())
+						break;
 				}
 				outerScope = outerScope.parent;
 				if (outerScope instanceof MethodScope ms && ms.isStatic)

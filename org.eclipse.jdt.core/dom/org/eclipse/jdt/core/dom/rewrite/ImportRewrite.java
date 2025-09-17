@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -26,14 +26,7 @@ import java.util.Set;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.jdt.core.Flags;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IImportDeclaration;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeRoot;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.internal.core.dom.rewrite.imports.ImportRewriteAnalyzer;
@@ -280,6 +273,7 @@ public final class ImportRewrite {
 
 	private static final char STATIC_PREFIX= 's';
 	private static final char NORMAL_PREFIX= 'n';
+	private static final char MODULE_PREFIX= 'm';
 
 	/** @deprecated using deprecated code */
 	private static final int JLS8_INTERNAL = AST.JLS8;
@@ -291,6 +285,7 @@ public final class ImportRewrite {
 
 	private final boolean restoreExistingImports;
 	private final List existingImports;
+	private final Map<String, List<String>> moduleEntries;
 	private final Map importsKindMap;
 
 	private String[] importOrder;
@@ -314,6 +309,7 @@ public final class ImportRewrite {
 
 	private String[] createdImports;
 	private String[] createdStaticImports;
+	private String[] createdModuleImports;
 
 	private boolean filterImplicitImports;
 	private boolean useContextToFilterImplicitImports;
@@ -337,15 +333,120 @@ public final class ImportRewrite {
 			throw new IllegalArgumentException("Compilation unit must not be null"); //$NON-NLS-1$
 		}
 		List existingImport= null;
+		Map<String, List<String>> moduleEntries= null;
 		if (restoreExistingImports) {
 			existingImport= new ArrayList();
+			moduleEntries= new HashMap<>();
 			IImportDeclaration[] imports= cu.getImports();
+			CompilationUnit compilationUnit= null;
 			for (IImportDeclaration curr : imports) {
-				char prefix= Flags.isStatic(curr.getFlags()) ? STATIC_PREFIX : NORMAL_PREFIX;
-				existingImport.add(prefix + curr.getElementName());
+				char prefix= Flags.isStatic(curr.getFlags()) ? STATIC_PREFIX :
+					Flags.isModule(curr.getFlags()) ? MODULE_PREFIX : NORMAL_PREFIX;
+				String currName= curr.getElementName();
+				if (currName.endsWith(".*") && prefix == MODULE_PREFIX) { //$NON-NLS-1$
+					currName= currName.substring(0, currName.length() - 2);
+				}
+				existingImport.add(prefix + currName);
+				if (Flags.isModule(curr.getFlags())) {
+					List<String> packageNames= new ArrayList<>();
+					if (compilationUnit == null) {
+						compilationUnit= convertICUtoCU(cu);
+					}
+					if (compilationUnit != null) {
+						List<ImportDeclaration> astImports= compilationUnit.imports();
+						ImportDeclaration foundModuleImport= null;
+						for (ImportDeclaration astImport : astImports) {
+							if (Modifier.isModule(astImport.getModifiers()) && astImport.getName().getFullyQualifiedName().equals(currName)) {
+								foundModuleImport= astImport;
+								break;
+							}
+						}
+						if (foundModuleImport != null) {
+							IBinding moduleImportBinding= foundModuleImport.resolveBinding();
+							if (moduleImportBinding instanceof IModuleBinding moduleBinding) {
+								packageNames= getPackageNamesForModule(moduleBinding, compilationUnit.getJavaElement().getJavaProject());
+							}
+						}
+					}
+					String name= curr.getElementName();
+					if (name.endsWith(".*")) { //$NON-NLS-1$
+						name= name.substring(0, name.length() - 2);
+					}
+					moduleEntries.put(name, packageNames);
+				}
 			}
 		}
-		return new ImportRewrite(cu, null, existingImport);
+		return new ImportRewrite(cu, null, existingImport, moduleEntries);
+	}
+
+	/**
+	 * Calculate the list of package names that are exported, explicitly or implicitly, by a module.
+	 * A package is implicitly exported if it is exported by a module that is reachable from
+	 * the current module via "requires transitive".
+	 *
+	 * @param binding module binding whose exports as queried.
+	 * @param project Java project that defines the module where packages are being imported.
+	 * 	This is needed to respect qualified exports ("exports p to m").
+	 *  If the java project does not declare a module, then importing happens in the unnamed module
+	 *  which cannot leverage any qualified exports.
+	 * @return a list of package names that are exported by the given binding
+	 *
+	 * @since 3.43
+	 */
+	public static List<String> getPackageNamesForModule(IModuleBinding binding, IJavaProject project) {
+		Set<IModuleBinding> modules= new HashSet<>();
+		String currentModuleName= null;
+		try {
+			IModuleDescription modDesc= project.getModuleDescription();
+			if (modDesc != null) {
+				currentModuleName= modDesc.getElementName();
+			}
+		} catch (JavaModelException e) {
+			// if we cannot retrieve a module description then we'll treat it as unnamed module
+		}
+		populateTransitiveModules(binding, modules);
+		Set<String> packageList= new HashSet<>();
+		for (IModuleBinding moduleBinding : modules) {
+			packageList.addAll(getPackageNames(moduleBinding, currentModuleName));
+		}
+		return new ArrayList<>(packageList);
+	}
+
+	private static void populateTransitiveModules(IModuleBinding binding, Set<IModuleBinding> transitiveModules) {
+		if (transitiveModules.add(binding)) {
+			IModuleBinding[] requiredTransitiveModules= binding.getRequiredTransitiveModules();
+			for (IModuleBinding requiredModule : requiredTransitiveModules) {
+				populateTransitiveModules(requiredModule, transitiveModules);
+			}
+		}
+	}
+
+	private static Set<String> getPackageNames(IModuleBinding binding, String currentModuleName) {
+		Set<String> result= new HashSet<>();
+		IPackageBinding[] packageBindings= binding.getExportedPackages();
+		for (IPackageBinding packageBinding : packageBindings) {
+			String[] exportedToList= binding.getExportedTo(packageBinding);
+			if (exportedToList.length > 0) {
+				for (String moduleName : exportedToList) {
+					if (currentModuleName != null && currentModuleName.equals(moduleName)) {
+						result.add(packageBinding.getName());
+						break;
+					}
+				}
+			} else {
+				result.add(packageBinding.getName());
+			}
+		}
+		return result;
+	}
+
+	private static CompilationUnit convertICUtoCU(ICompilationUnit compilationUnit) {
+		ASTParser parser= ASTParser.newParser(AST.getJLSLatest());
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setSource(compilationUnit);
+		parser.setResolveBindings(true);
+
+		return (CompilationUnit) parser.createAST(null);
 	}
 
 	/**
@@ -371,27 +472,42 @@ public final class ImportRewrite {
 			throw new IllegalArgumentException("AST must have been constructed from a Java element"); //$NON-NLS-1$
 		}
 		List existingImport= null;
+		Map<String, List<String>> moduleEntries= null;
 		if (restoreExistingImports) {
 			existingImport= new ArrayList();
+			moduleEntries= new HashMap<>();
 			List imports= astRoot.imports();
 			for (int i= 0; i < imports.size(); i++) {
 				ImportDeclaration curr= (ImportDeclaration) imports.get(i);
 				StringBuilder buf= new StringBuilder();
-				buf.append(curr.isStatic() ? STATIC_PREFIX : NORMAL_PREFIX).append(curr.getName().getFullyQualifiedName());
+				buf.append(curr.isStatic() ? STATIC_PREFIX : Modifier.isModule(curr.getModifiers()) ? MODULE_PREFIX : NORMAL_PREFIX).append(curr.getName().getFullyQualifiedName());
 				if (curr.isOnDemand()) {
 					if (buf.length() > 1)
 						buf.append('.');
 					buf.append('*');
 				}
+				if (Modifier.isModule(curr.getModifiers())) {
+					List<String> packageList= new ArrayList<>();
+					IBinding binding= curr.resolveBinding();
+					if (binding instanceof IModuleBinding moduleBinding) {
+						packageList= getPackageNamesForModule(moduleBinding, astRoot.getJavaElement().getJavaProject());
+					}
+					moduleEntries.put(curr.getName().getFullyQualifiedName(), packageList);
+				}
 				existingImport.add(buf.toString());
 			}
 		}
-		return new ImportRewrite((ICompilationUnit) typeRoot, astRoot, existingImport);
+		return new ImportRewrite((ICompilationUnit) typeRoot, astRoot, existingImport, moduleEntries);
 	}
 
-	private ImportRewrite(ICompilationUnit cu, CompilationUnit astRoot, List existingImports) {
+	private ImportRewrite(ICompilationUnit cu, CompilationUnit astRoot, List existingImports, Map<String, List<String>> moduleEntries) {
 		this.compilationUnit= cu;
 		this.astRoot= astRoot; // might be null
+		if (moduleEntries != null) {
+			this.moduleEntries= moduleEntries;
+		} else {
+			this.moduleEntries= new HashMap<>();
+		}
 		if (existingImports != null) {
 			this.existingImports= existingImports;
 			this.restoreExistingImports= !existingImports.isEmpty();
@@ -415,6 +531,7 @@ public final class ImportRewrite {
 		this.staticExplicitSimpleNames = new HashSet<>();
 		this.createdImports= null;
 		this.createdStaticImports= null;
+		this.createdModuleImports= null;
 
 		this.importOrder= CharOperation.NO_STRINGS;
 		this.importOnDemandThreshold= 99;
@@ -527,7 +644,18 @@ public final class ImportRewrite {
 		this.useContextToFilterImplicitImports = useContextToFilterImplicitImports;
 	}
 
-	private static int compareImport(char prefix, String qualifier, String name, String curr) {
+	private static int compareImport(char prefix, String qualifier, String name, String curr, Map<String, List<String>> moduleExportsMap) {
+		if (curr.charAt(0) == MODULE_PREFIX) {
+			List<String> exportedPackageList= moduleExportsMap.get(curr.substring(1));
+			if (exportedPackageList != null) {
+				for (String exportedPackage : exportedPackageList) {
+					if (exportedPackage.equals(qualifier)) {
+						return ImportRewriteContext.RES_NAME_FOUND;
+					}
+				}
+			}
+			return ImportRewriteContext.RES_NAME_UNKNOWN;
+		}
 		if (curr.charAt(0) != prefix || !curr.endsWith(name)) {
 			return ImportRewriteContext.RES_NAME_UNKNOWN;
 		}
@@ -562,7 +690,7 @@ public final class ImportRewrite {
 
 		for (int i= imports.size() - 1; i >= 0 ; i--) {
 			String curr= (String) imports.get(i);
-			int res= compareImport(prefix, qualifier, name, curr);
+			int res= compareImport(prefix, qualifier, name, curr, this.moduleEntries);
 			if (res != ImportRewriteContext.RES_NAME_UNKNOWN) {
 				if (!allowAmbiguity || res == ImportRewriteContext.RES_NAME_FOUND) {
 					if (prefix != STATIC_PREFIX) {
@@ -915,6 +1043,43 @@ public final class ImportRewrite {
 			return binding;
 		}
 		return null;
+	}
+
+
+	/**
+	 * Adds a new module import to the rewriter's record.  The import will register all exported
+	 * package names (explicit or implicit) so the rewriter can eliminate all other imports covered
+	 * by these package names. See {@link #getPackageNamesForModule(IModuleBinding, IJavaProject)}
+	 * regarding implicit exports.
+	 *
+	 * @param name name of module to import
+	 * @param moduleBinding binding of module to import
+	 * @return name if import added or null if there are issues
+	 * @since 3.43
+	 *
+	 */
+	public String addModuleImport(String name, IModuleBinding moduleBinding) {
+		if (moduleBinding == null) {
+			return null;
+		}
+		this.moduleEntries.put(name, getPackageNamesForModule(moduleBinding, this.astRoot.getJavaElement().getJavaProject()));
+		addEntry(MODULE_PREFIX + name);
+		return name;
+	}
+
+	/**
+	 * Adds a new module import to the rewriter's record.  The import will register all exported
+	 * package names passed by the caller so the rewriter can eliminate other imports already covered
+	 * by these package names.
+	 *
+	 * @param name name of module to import
+	 * @param packageNames list of package names explicitly or implicitly exported by the module specified
+	 * @since 3.43
+	 *
+	 */
+	public void addModuleImport(String name, List<String> packageNames) {
+		this.moduleEntries.put(name, packageNames);
+		addEntry(MODULE_PREFIX + name);
 	}
 
 	/**
@@ -1274,6 +1439,7 @@ public final class ImportRewrite {
 		if (!hasRecordedChanges()) {
 			this.createdImports= CharOperation.NO_STRINGS;
 			this.createdStaticImports= CharOperation.NO_STRINGS;
+			this.createdModuleImports= CharOperation.NO_STRINGS;
 			return new MultiTextEdit();
 		}
 
@@ -1293,14 +1459,16 @@ public final class ImportRewrite {
 
 		for (String addedImport : this.addedImports) {
 			boolean isStatic = STATIC_PREFIX == addedImport.charAt(0);
+			boolean isModule = MODULE_PREFIX == addedImport.charAt(0);
 			String qualifiedName = addedImport.substring(1);
-			computer.addImport(isStatic, qualifiedName);
+			computer.addImport(isStatic, isModule, qualifiedName);
 		}
 
 		for (String removedImport : this.removedImports) {
 			boolean isStatic = STATIC_PREFIX == removedImport.charAt(0);
+			boolean isModule = MODULE_PREFIX == removedImport.charAt(0);
 			String qualifiedName = removedImport.substring(1);
-			computer.removeImport(isStatic, qualifiedName);
+			computer.removeImport(isStatic, isModule, qualifiedName);
 		}
 
 		for (String typeExplicitSimpleName : this.typeExplicitSimpleNames) {
@@ -1315,6 +1483,7 @@ public final class ImportRewrite {
 
 		this.createdImports= result.getCreatedImports();
 		this.createdStaticImports= result.getCreatedStaticImports();
+		this.createdModuleImports= result.getCreatedModuleImports();
 
 		return result.getTextEdit();
 	}
@@ -1370,6 +1539,16 @@ public final class ImportRewrite {
 	}
 
 	/**
+	 * Returns all new module imports created by the last invocation of {@link #rewriteImports(IProgressMonitor)}
+	 * or <code>null</code> if these methods have not been called yet.
+	 * @return the created imports
+	 * @since 3.43
+	 */
+	public String[] getCreatedModuleImports() {
+		return this.createdModuleImports;
+	}
+
+	/**
 	 * Returns all non-static imports that are recorded to be added.
 	 *
 	 * @return the imports recorded to be added.
@@ -1388,6 +1567,26 @@ public final class ImportRewrite {
 	}
 
 	/**
+	 * Returns all module imports that are recorded to be added.
+	 *
+	 * @return the module imports recorded to be added.
+	 * @since 3.43
+	 */
+	public String[] getAddedModuleImports() {
+		return filterFromList(this.addedImports, MODULE_PREFIX);
+	}
+
+	/**
+	 * Returns all the exported packages registeted for an import module.
+	 * @param moduleName name of module to get exports
+	 * @return list of exported package names
+	 * @since 3.43
+	 */
+	public List<String> getAddedModuleExportedPackages(String moduleName) {
+		return this.moduleEntries.get(moduleName);
+	}
+
+	/**
 	 * Returns all non-static imports that are recorded to be removed.
 	 *
 	 * @return the imports recorded to be removed.
@@ -1403,6 +1602,16 @@ public final class ImportRewrite {
 	 */
 	public String[] getRemovedStaticImports() {
 		return filterFromList(this.removedImports, STATIC_PREFIX);
+	}
+
+	/**
+	 * Returns all static imports that are recorded to be removed.
+	 *
+	 * @return the static imports recorded to be removed.
+	 * @since 3.43
+	 */
+	public String[] getRemovedModuleImports() {
+		return filterFromList(this.removedImports, MODULE_PREFIX);
 	}
 
 	/**
