@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JrtPackageFragmentRoot;
@@ -1627,6 +1628,89 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			}
 		} finally {
 			deleteProject("ASTParserModelTests");
+		}
+	}
+
+	public void testFindTypeInPackageBinding_1() throws Exception { //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4414
+		try {
+
+			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project1.open(null);
+			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String fileContent =
+				"module first {\n" +
+				"    requires transitive second;\n" +
+				"    requires third;\n" +
+				"	 uses pack22.I22;\n" +
+				"    uses pack33.I33;\n" +
+				"    provides pack22.I22 with pack1.X11;\n" +
+				"}";
+			createFile("/ConverterTests9/src/module-info.java",	fileContent);
+			createFolder("/ConverterTests9/src/pack1");
+			createFile("/ConverterTests9/src/pack1/X11.java",
+					"package pack1;\n" +
+					"public class X11 implements pack22.I22{pack33.I33 x;}\n");
+
+			IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project2.open(null);
+			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String secondFile =
+					"module second {\n" +
+					"    exports pack22 to first;\n" +
+					"}";
+			createFile("/second/src/module-info.java",	secondFile);
+			createFolder("/second/src/pack22");
+			createFile("/second/src/pack22/I22.java",
+					"package pack22;\n" +
+					"public interface I22 {}\n");
+
+			IJavaProject project3 = createJavaProject("third", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project3.open(null);
+			addClasspathEntry(project3, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String thirdFile =
+					"module third {\n" +
+					"    exports pack33 to first;\n" +
+					"}";
+			createFile("/third/src/module-info.java",	thirdFile);
+			createFolder("/third/src/pack33");
+			createFile("/third/src/pack33/I33.java",
+					"package pack33;\n" +
+					"public interface I33 {}\n");
+
+			addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+			addClasspathEntry(project1, JavaCore.newProjectEntry(project3.getPath()));
+
+			project1.close(); // sync
+			project2.close();
+			project3.close();
+			project3.open(null);
+			project2.open(null);
+			project1.open(null);
+
+			ICompilationUnit sourceUnit1 = getCompilationUnit("ConverterTests9" , "src", "", "module-info.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode unit1 = runConversion(this.ast.apiLevel(), sourceUnit1, true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, unit1.getNodeType());
+			ModuleDeclaration moduleDecl1 = ((CompilationUnit) unit1).getModule();
+			checkSourceRange(moduleDecl1, fileContent, fileContent);
+
+			IModuleBinding moduleBinding = moduleDecl1.resolveBinding();
+			Name modName1 = moduleDecl1.getName();
+			IBinding binding = modName1.resolveBinding();
+			assertTrue("binding not a module binding", binding instanceof IModuleBinding);
+			moduleBinding = (IModuleBinding) binding;
+
+			assertModuleFirstDetailsTransitive(moduleBinding);
+
+			List<IPackageBinding> packageBindings= ImportRewrite.getPackageBindingsForModule(moduleBinding, project1);
+			assertTrue("Number of package bindings not 1 or not pack22", packageBindings.size() == 1 && packageBindings.get(0).getName().equals("pack22"));
+			ITypeBinding listType= packageBindings.get(0).findTypeBinding("List");
+			assertTrue("List type binding should be null", listType == null);
+			ITypeBinding i22= packageBindings.get(0).findTypeBinding("I22");
+			assertTrue("I22 type not found", i22 != null && i22.getName().equals("I22"));
+		} finally {
+			deleteProject("ConverterTests9");
+			deleteProject("second");
+			deleteProject("third");
 		}
 	}
 
