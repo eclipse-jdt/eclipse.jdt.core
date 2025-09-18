@@ -56,19 +56,6 @@ public class DubiousOutcomeTest extends AbstractRegressionTest {
 	}
 	// =================================================
 
-	// ========= OPT-IN to run.javac mode: ===========
-	@Override
-	protected void setUp() throws Exception {
-		this.runJavacOptIn = true;
-		super.setUp();
-	}
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
-		this.runJavacOptIn = false; // do it last, so super can still clean up
-	}
-	// =================================================
-
 	public void testGH1591() {
 		// javac accepts
 		Runner runner = new Runner();
