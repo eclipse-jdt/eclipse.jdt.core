@@ -2942,9 +2942,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					: lastInstant.until(now, java.time.temporal.ChronoUnit.MILLIS);
 			if (elapsedMs < 100 && elapsedWarningMs > 1000) {
 				this.lastWarning.set(now);
-				new Exception("Zipfile was opened multiple times wihtin " + elapsedMs + "ms in same thread " //$NON-NLS-1$ //$NON-NLS-2$
-						+ Thread.currentThread() + ", consider caching: " + path) //$NON-NLS-1$
-								.printStackTrace();
+				trace("Zipfile was opened multiple times wihtin " + elapsedMs + "ms in same thread " //$NON-NLS-1$ //$NON-NLS-2$
+						+ Thread.currentThread() + ", consider caching: " + path, new Exception()); //$NON-NLS-1$
 			}
 		}
 	}
@@ -4690,7 +4689,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 
 	public static void trace(String msg, Exception e) {
-		DEBUG_TRACE.trace(null, msg, e);
+		if (TRACE_TO_STDOUT) {
+			System.out.println(msg);
+			if (e != null) {
+				e.printStackTrace();
+			}
+		} else {
+			DEBUG_TRACE.trace(null, msg, e);
+		}
 	}
 
 	public static void traceDumpStack() {
