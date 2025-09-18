@@ -875,6 +875,34 @@ private void complainIfUnpermittedSubtyping() {
 		}
 	}
 
+	if (typeDecl.permittedTypes != null) {
+		for (TypeReference permittedTypeRef : typeDecl.permittedTypes) {
+			TypeBinding permittedType = permittedTypeRef.resolvedType;
+			if (permittedType != null && permittedType.isValidBinding()) {
+				if (isClass()) {
+					ReferenceBinding superClass = permittedType.superclass();
+					superClass = superClass == null ? null : superClass.actualType();
+					if (!TypeBinding.equalsEquals(this, superClass))
+						this.scope.problemReporter().sealedClassNotDirectSuperClassOf(permittedType, permittedTypeRef, this);
+				} else if (isInterface()) {
+					ReferenceBinding[] permittedTypesSuperInterfaces = permittedType.superInterfaces();
+					boolean hierarchyOK = false;
+					if (permittedTypesSuperInterfaces != null) {
+						for (ReferenceBinding superInterface : permittedTypesSuperInterfaces) {
+							superInterface = superInterface == null ? null : superInterface.actualType();
+							if (TypeBinding.equalsEquals(this, superInterface)) {
+								hierarchyOK = true;
+								break;
+							}
+						}
+						if (!hierarchyOK)
+							this.scope.problemReporter().sealedInterfaceNotDirectSuperInterfaceOf(permittedType, permittedTypeRef, this);
+					}
+				}
+			}
+		}
+	}
+
 	for (ReferenceBinding memberType : this.memberTypes)
 		((SourceTypeBinding) memberType).complainIfUnpermittedSubtyping();
 
