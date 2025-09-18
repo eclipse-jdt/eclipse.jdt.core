@@ -6974,5 +6974,51 @@ public void testGH4254() {
 		}
 	);
 }
+
+public void testCannotInferTypeArguments_01() {
+	runConformTest(new String[] {
+	    "InferenceTest.java",
+        """
+	        public class InferenceTest {
+                public static class A<I extends C<I, ?>> {}
+                public static class B<I extends C<I, ?>, J> {
+                    public B(A<I> a) {}
+                }
+                public static class C<I extends C<I, J>, J> {}
+                public static void test(A<?> a) {
+                    new B<>(a);
+                }
+            }
+	    """
+	}
+	);
+}
+
+public void testCannotInferTypeArguments_02() {
+	runConformTest(new String[] {
+	    "InferenceTest.java",
+        """
+	        public class InferenceTest {
+                public static class A<I extends C<I, ?>> {}
+                public static class B<I extends C<I, ?>, J> {
+                    public B(A<I> a) {}
+                }
+                public static class C<I extends C<I, J>, J> {}
+                public static class D<K extends D<K, V>, V> {}
+                public static class E<V extends D<V, ?>> {}
+                public static class F<K extends D<K, W>, W, X> {
+                    public F(E<K> e) {}
+                }
+                public static void test(A<?> a) {
+                    new B<>(a);
+                }
+                public static void testD(E<?> e) {
+                    new F<>(e);
+                }
+            }
+	    """
+	}
+	);
+}
 }
 
