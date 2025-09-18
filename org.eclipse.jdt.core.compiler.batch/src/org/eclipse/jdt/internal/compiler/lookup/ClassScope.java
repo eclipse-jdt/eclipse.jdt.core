@@ -1217,27 +1217,6 @@ public class ClassScope extends Scope {
 						continue nextPermittedType;
 					}
 
-					if (sourceType.isClass()) {
-						ReferenceBinding superClass = permittedType.superclass();
-						superClass = superClass == null ? null : superClass.actualType();
-						if (!TypeBinding.equalsEquals(sourceType, superClass))
-							problemReporter().sealedClassNotDirectSuperClassOf(permittedType, permittedTypeRef, sourceType);
-					} else if (sourceType.isInterface()) {
-						ReferenceBinding[] superInterfaces = permittedType.superInterfaces();
-						boolean hierarchyOK = false;
-						if (superInterfaces != null) {
-							for (ReferenceBinding superInterface : superInterfaces) {
-								superInterface = superInterface == null ? null : superInterface.actualType();
-								if (TypeBinding.equalsEquals(sourceType, superInterface)) {
-									hierarchyOK = true;
-									break;
-								}
-							}
-							if (!hierarchyOK)
-								problemReporter().sealedInterfaceNotDirectSuperInterfaceOf(permittedType, permittedTypeRef, sourceType);
-						}
-					}
-
 					checkSealingProximity(permittedType, permittedTypeRef, sourceType);
 
 					for (int j = 0; j < i; j++) {

@@ -945,4 +945,48 @@ public class BasicBuildTests extends BuilderTests {
 		}
 	}
 
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4331
+	// Strange "heisenbug" error in Apache Lucene codebase when opened in Eclipse regarding sealed types
+	public void testGH4331() throws JavaModelException {
+		int max = AbstractImageBuilder.MAX_AT_ONCE;
+		AbstractImageBuilder.MAX_AT_ONCE = 1;
+		try {
+			IPath projectPath = env.addProject("Project", "17");
+			env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+			// remove old package fragment root so that names don't collide
+			env.removePackageFragmentRoot(projectPath, "");
+
+			IPath root = env.addPackageFragmentRoot(projectPath, "src");
+			env.setOutputFolder(projectPath, "bin");
+
+			env.addClass(root, "p1", "A",
+					"""
+					package p1;
+					public record A(C c) {
+					}
+					"""
+			);
+			env.addClass(root, "p1", "B",
+					"""
+					package p1;
+					public sealed interface B permits C {
+					}
+					"""
+			);
+			env.addClass(root, "p1", "C",
+					"""
+					package p1;
+					public final class C implements B {
+					}
+					"""
+			);
+
+			fullBuild(projectPath);
+			expectingNoProblems();
+		} finally {
+			AbstractImageBuilder.MAX_AT_ONCE = max;
+		}
+	}
+
 }
