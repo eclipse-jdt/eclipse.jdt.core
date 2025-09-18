@@ -11605,6 +11605,11 @@ protected void parse() {
 try {
 	this.scanner.setActiveParser(this);
 	ProcessTerminals : for (;;) {
+		if (Thread.currentThread().isInterrupted()) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("[" + Thread.currentThread().getName() + "] Task interrupted", new InterruptedException()); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+
 		int stackLength = this.stack.length;
 		if (++this.stateStackTop >= stackLength) {
 			System.arraycopy(
