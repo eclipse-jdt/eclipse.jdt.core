@@ -30,6 +30,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -263,4 +264,17 @@ class PackageBinding implements IPackageBinding {
 	public String toString() {
 		return this.binding.toString();
 	}
+
+	@Override
+	public ITypeBinding findTypeBinding(String nameString) {
+		char[] typeName= nameString.toCharArray();
+		Binding foundBinding = this.binding.getTypeOrPackage(typeName, this.binding.enclosingModule, false);
+		if (foundBinding == null)
+			return null;
+		if (foundBinding.isValidBinding() && foundBinding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding) {
+			return this.resolver.getTypeBinding(typeBinding);
+		}
+		return null;
+	}
+
 }
