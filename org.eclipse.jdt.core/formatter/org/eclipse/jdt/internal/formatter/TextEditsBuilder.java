@@ -192,8 +192,9 @@ public class TextEditsBuilder extends TokenTraverser {
 			return;
 		}
 
-		boolean isTextBlock = token != null && token.tokenType == TokenNameTextBlock;
-		boolean isMarkdown = token != null && token.tokenType == TokenNameCOMMENT_MARKDOWN;
+		Token parentToken = this.parent.tm.get(this.parentTokenIndex);
+		boolean isTextBlock = parentToken.tokenType == TokenNameTextBlock;
+		boolean isMarkdown = parentToken.tokenType == TokenNameCOMMENT_MARKDOWN;
 		this.parent.counter = this.counter;
 		this.parent.bufferLineSeparator(null, false);
 		if (!(isTextBlock && emptyLine && !this.options.indent_empty_lines))
