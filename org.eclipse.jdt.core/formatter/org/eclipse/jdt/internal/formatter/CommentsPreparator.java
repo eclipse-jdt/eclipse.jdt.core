@@ -29,6 +29,7 @@ import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameWH
 import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNamepackage;
 import static org.eclipse.jdt.internal.formatter.TokenManager.ANY;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,15 +39,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.BlockComment;
-import org.eclipse.jdt.core.dom.Javadoc;
-import org.eclipse.jdt.core.dom.LineComment;
-import org.eclipse.jdt.core.dom.MemberRef;
-import org.eclipse.jdt.core.dom.MethodRef;
-import org.eclipse.jdt.core.dom.QualifiedName;
-import org.eclipse.jdt.core.dom.TagElement;
+import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
@@ -99,6 +92,13 @@ public class CommentsPreparator extends ASTVisitor {
 		SNIPPET_MARKUP_TAG_PATTERN = Pattern.compile(markupTagNames + markupTagArgument + "*"); //$NON-NLS-1$
 	}
 
+	private final static Pattern MARKDOWN_LEADING_SPACES_PATTERN = Pattern.compile("(?m)^[ \\t]*///( *)[^ ]"); //$NON-NLS-1$
+	private final static Pattern MARKDOWN_HEADINGS_PATTERN_1 = Pattern.compile("(?:(?<=^)|(?<=///[ \\t]*))(#{1,6})([ \\t]+)([^\\r\\n]*)"); //$NON-NLS-1$
+	private final static Pattern MARKDOWN_HEADINGS_PATTERN_2 = Pattern.compile("(?:^|(?<=///[ \\t]+))[ \\t]*([=-])\\1*[ \\t]*(?=\\r?\\n|$)"); //$NON-NLS-1$
+	private final static Pattern MARKDOWN_FENCES_PATTERN = Pattern.compile("[ \\t]*(?:///[ \\t]*)?([`~]+)[ \\t]*(.*)"); //$NON-NLS-1$
+	private final static Pattern MARKDOWN_TABLE_START = Pattern.compile("(?m)(?<=^[ \\t]*)\\|"); //$NON-NLS-1$
+	private final static Pattern MARKDOWN_TABLE_END = Pattern.compile("(?m)\\|(?!.*\\|)"); //$NON-NLS-1$
+
 	// Param tags list copied from IJavaDocTagConstants in legacy formatter for compatibility.
 	// There were the following comments:
 	// TODO (frederic) should have another name than 'param' for the following tags
@@ -125,6 +125,7 @@ public class CommentsPreparator extends ASTVisitor {
 	private TokenManager ctm;
 	private List<Token> commentStructure;
 	private int commentIndent;
+	private int markdownLeadingSpaces;
 	/** Index: position within current comment; Value: whether wrapping on special characters is allowed */
 	private boolean[] allowSubstituteWrapping;
 
@@ -134,6 +135,7 @@ public class CommentsPreparator extends ASTVisitor {
 	private final ArrayList<Integer> commonAttributeAnnotations = new ArrayList<>();
 	private DefaultCodeFormatter preTagCodeFormatter;
 	private DefaultCodeFormatter snippetCodeFormatter;
+	private boolean snippetForMarkdown = false;
 
 	public CommentsPreparator(TokenManager tm, DefaultCodeFormatterOptions options, String sourceLevel) {
 		this.tm = tm;
@@ -614,6 +616,7 @@ public class CommentsPreparator extends ASTVisitor {
 		this.commentStructure = commentToken.getInternalStructure();
 		this.commentIndent = this.tm.toIndent(commentToken.getIndent(), true);
 		this.ctm = new TokenManager(commentToken.getInternalStructure(), this.tm);
+		this.markdownLeadingSpaces = findMarkdownLeadingSpaces(commentToken);
 
 		handleJavadocTagAlignment(node);
 		handleJavadocBlankLines(node);
@@ -644,7 +647,7 @@ public class CommentsPreparator extends ASTVisitor {
 			if (startIndex > 1) {
 				this.ctm.get(startIndex).breakBefore();
 			}
-
+			handleMarkdown(node);
 			handleHtml(node);
 			this.ctm.get(tokenStartingAt(node.getStartPosition())).setToEscape(false);
 
@@ -666,10 +669,21 @@ public class CommentsPreparator extends ASTVisitor {
 	public void endVisit(TagElement node) {
 		String tagName = node.getTagName();
 		if (tagName == null || tagName.length() <= 1) {
+			handleMarkdown(node);
 			handleHtml(node);
 		} else if (TagElement.TAG_SEE.equals(tagName)) {
 			handleStringLiterals(this.tm.toString(node), node.getStartPosition());
 		}
+	}
+
+	private int findMarkdownLeadingSpaces(Token commentToken) {
+		if (commentToken.tokenType != TokenNameCOMMENT_MARKDOWN)
+			return 0;
+		int result = Integer.MAX_VALUE;
+		Matcher m = MARKDOWN_LEADING_SPACES_PATTERN.matcher(this.tm.toString(commentToken));
+		while (m.find())
+			result = Math.min(result, m.group(1).length());
+		return result == Integer.MAX_VALUE ? 0 : result;
 	}
 
 	private void handleJavadocTagAlignment(Javadoc node) {
@@ -790,6 +804,252 @@ public class CommentsPreparator extends ASTVisitor {
 			Token token = tagTokens.get(i);
 			token.setAlign(descriptionAlign);
 			token.setIndent(extraIndent ? this.options.indentation_size : 0);
+		}
+	}
+
+	private void handleMarkdown(TagElement node) {
+		if (!(node.getParent() instanceof Javadoc javaDoc) || !javaDoc.isMarkdown()
+				|| !this.options.comment_format_markdown_comment) {
+			return;
+		}
+
+		String text = this.tm.toString(node);
+
+		Matcher matcher = MARKDOWN_HEADINGS_PATTERN_1.matcher(text); // Check for MarkDown headings #h1 - #h6
+		while (matcher.find()) {
+			int startPos = matcher.start() + node.getStartPosition();
+			int tokenIndex = tokenStartingAt(startPos);
+			Token headingToken = this.ctm.get(tokenIndex);
+			if (tokenIndex != 1) {
+				headingToken.putLineBreaksBefore(2);
+			}
+			int endPos = matcher.end() + node.getStartPosition();
+			int endIndex = tokenEndingAt(endPos - 1);
+			Token endingToken = this.ctm.get(endIndex);
+			endingToken.breakAfter();
+			headingToken.spaceBefore();
+		}
+
+		matcher = MARKDOWN_HEADINGS_PATTERN_2.matcher(text); // Check for MarkDown headings with styles '-- & ==='
+		while (matcher.find()) {
+			int startPos = matcher.start() + node.getStartPosition();
+			int tokenIndex = tokenStartingAt(startPos);
+			Token headingToken = this.ctm.get(tokenIndex);
+			if (tokenIndex != 1) {
+				headingToken.breakBefore();
+			}
+			headingToken.breakAfter();
+		}
+
+		List<ASTNode> fragments = node.fragments();
+		ArrayDeque<ASTNode> fragmentsDeque = new ArrayDeque<>(fragments);
+		handleMarkdownList(fragmentsDeque, this.markdownLeadingSpaces, 0, null);
+		handleMarkdownTable(fragments);
+
+		matcher = MARKDOWN_FENCES_PATTERN.matcher(text); // Check for Markdown snippet with styles '``` & ```'
+		while (matcher.find()) {
+			int startPos = matcher.start() + node.getStartPosition();
+			int tokenIndex = this.ctm.findIndex(startPos, ANY, true);
+			Token openingToken = this.ctm.get(tokenIndex);
+			int endPos = -1;
+			int tokenIndexLast = -1;
+			Token closingToken = null;
+			boolean shouldDisable = false;
+			String fenceCharsStart = matcher.group(1);
+		    String infoString = matcher.group(2);
+		    int fenceLengthStart = fenceCharsStart.length();
+			while (matcher.find()) {
+				shouldDisable = true;
+				endPos = matcher.start() + node.getStartPosition();
+				tokenIndexLast = this.ctm.findIndex(endPos, ANY, true);
+				closingToken = this.ctm.get(tokenIndexLast);
+				String fenceCharsEnd = matcher.group(1); // the fence itself
+			    int fenceLengthEnd = fenceCharsStart.length();
+				// Check if fences match
+				if (!fenceCharsStart.equals(fenceCharsEnd))
+					continue;
+
+				if (fenceLengthStart == fenceLengthEnd) {
+					if (tokenIndex > 1)
+						openingToken.breakBefore();
+					openingToken.breakAfter();
+					if (this.ctm.size() - 1 != tokenIndexLast) {
+						closingToken.putLineBreaksAfter(1);
+					}
+					boolean canAssumeJava = infoString.toLowerCase().equals("java") || infoString.isEmpty(); //$NON-NLS-1$
+
+					if (fenceLengthStart >= 3 && canAssumeJava && this.options.comment_format_source) {
+						this.snippetForMarkdown = true;
+						if (formatCode(tokenIndex, tokenIndexLast, true)) {
+							shouldDisable = false;
+						}
+						this.snippetForMarkdown = false;
+					}
+					break;
+				}
+			}
+			if (shouldDisable) {
+				disableFormattingExclusively(tokenIndex, tokenIndexLast + 1);
+			}
+		}
+
+	}
+
+	private Character handleMarkdownList(ArrayDeque<ASTNode> fragments, int srcIndent, int indentToSet,
+			Character itemType) {
+		Character prevRecursionItemType = null;
+		while (!fragments.isEmpty()) {
+			if (handleMarkdownIndentedCodeBlock(fragments, srcIndent, false)) {
+				continue;
+			}
+			ASTNode fragment = fragments.peekFirst();
+			int firstTokenIndex = this.ctm.findIndex(fragment.getStartPosition(), ANY, true);
+			Token firstToken = this.ctm.get(firstTokenIndex);
+
+			String firstString = this.ctm.toString(firstToken);
+			Character thisItemType = null;
+			boolean isBullet = false;
+			if (fragment instanceof TextElement && (firstTokenIndex < 2
+					|| this.ctm.countLineBreaksBetween(this.ctm.get(firstTokenIndex - 1), firstToken) > 0)) {
+				isBullet = firstString.matches("[-+*]"); //$NON-NLS-1$
+				if (isBullet) {
+					thisItemType = firstString.charAt(0);
+				} else if (firstString.matches("\\d+[.)]")) { //$NON-NLS-1$
+					thisItemType = firstString.charAt(firstString.length() - 1);
+				}
+			}
+
+			int slashPos = this.ctm.getSource().lastIndexOf('/', firstToken.originalStart);
+			int indentBase = slashPos + this.markdownLeadingSpaces + 1;
+			int fragmentIndent = this.ctm.getLength(indentBase, firstToken.originalStart - 1, 0);
+			int indentDiff = fragmentIndent - srcIndent;
+			if (thisItemType != null) {
+				int textIndent = this.ctm.getLength(indentBase, this.ctm.get(firstTokenIndex + 1).originalStart - 1, 0);
+				indentDiff = textIndent - srcIndent;
+				boolean isFirst = isBullet || (firstString.length() == 2 && firstString.charAt(0) == '1');
+				boolean isNextLevel = (indentDiff > 1 && fragmentIndent >= srcIndent) || itemType == null;
+				if (fragmentIndent - srcIndent >= 4) {
+					thisItemType = null;
+					indentDiff = fragmentIndent - srcIndent;
+				} else if (isNextLevel) {
+					if (isFirst || thisItemType.equals(prevRecursionItemType)) {
+						prevRecursionItemType = handleMarkdownList(fragments, textIndent,
+								indentToSet + this.ctm.getLength(firstToken, 0) + 1, thisItemType);
+						continue;
+					} else {
+						thisItemType = null;
+						indentDiff = fragmentIndent - srcIndent;
+					}
+				} else {
+					if (thisItemType.equals(itemType)) {
+						srcIndent = textIndent;
+					} else if (isFirst) {
+						firstToken.putLineBreaksBefore(2);
+					}
+				}
+			}
+
+			if (indentDiff < 0 && itemType != null && (thisItemType != null || firstToken.getLineBreaksBefore() > 1)) {
+				return thisItemType;
+			}
+
+			if (itemType == null) {
+				fragments.removeFirst();
+				continue;
+			}
+			int lastTokenIndex = this.ctm.findIndex(fragment.getStartPosition() + fragment.getLength() - 1, ANY, false);
+			for (int i = firstTokenIndex; i <= lastTokenIndex; i++)
+				this.ctm.get(i).setAlign(indentToSet);
+			if (thisItemType != null) {
+				if (firstTokenIndex > 1)
+					firstToken.breakBefore();
+				firstToken.setAlign(indentToSet - (isBullet ? 2 : 3));
+				if (handleMarkdownIndentedCodeBlock(fragments, srcIndent, true)) {
+					continue;
+				}
+			}
+			fragments.removeFirst();
+		}
+		return null;
+	}
+
+	private boolean handleMarkdownIndentedCodeBlock(ArrayDeque<ASTNode> fragments, int srcIndent, boolean isListItem) {
+		int codeBlockStartIndex = -1;
+		int codeBlockEndIndex = -1;
+		while (!fragments.isEmpty()) {
+			ASTNode fragment = fragments.peekFirst();
+			int firstTokenIndex = this.ctm.findIndex(fragment.getStartPosition(), ANY, true);
+			Token firstToken = this.ctm.get(firstTokenIndex);
+			int slashPos = this.ctm.getSource().lastIndexOf('/', firstToken.originalStart);
+			int indentBase = slashPos + this.markdownLeadingSpaces + 1;
+			int fragmentIndent = this.ctm.getLength(indentBase, firstToken.originalStart - 1, 0);
+			int indentDiff = fragmentIndent - srcIndent;
+
+			if (codeBlockStartIndex == -1) {
+				if (isListItem) {
+					srcIndent = this.ctm.getLength(indentBase, firstToken.originalEnd, 0);
+					firstTokenIndex++;
+					firstToken = this.ctm.get(firstTokenIndex);
+					fragmentIndent = this.ctm.getLength(indentBase, firstToken.originalStart - 1, 0);
+					indentDiff = fragmentIndent - srcIndent - 1; // somehow indent threshold is 1 higher in lists
+				}
+
+				if (indentDiff >= 4 && (firstToken.getLineBreaksBefore() > 1 || isListItem)) {
+					codeBlockStartIndex = firstTokenIndex;
+					firstToken.setAlign(this.markdownLeadingSpaces + fragmentIndent - 1);
+				} else {
+					return false;
+				}
+			}
+			if (indentDiff < 4) {
+				firstToken.putLineBreaksBefore(2);
+				break;
+			}
+			codeBlockEndIndex = this.ctm.findIndex(fragment.getStartPosition() + fragment.getLength() - 1, ANY, false);
+			fragments.removeFirst();
+		}
+
+		if (codeBlockStartIndex != -1) {
+			disableFormatting(codeBlockStartIndex, codeBlockEndIndex, true);
+		}
+		return codeBlockStartIndex != -1;
+	}
+
+	private void handleMarkdownTable(List<ASTNode> fragments) {
+		int tableStartIndex = -1;
+		int tableLastIndex = -1;
+		boolean columnUnderlineFound = false;
+		Matcher matcher;
+		for (Object fragment : fragments) {
+			if (fragment instanceof TextElement textElement) {
+				String textContent = textElement.getText();
+				matcher = MARKDOWN_TABLE_START.matcher(textContent);
+				if (matcher.find()) {
+					if (tableStartIndex == -1) {
+						int startPos = matcher.start() + textElement.getStartPosition();
+						tableStartIndex = tokenStartingAt(startPos);
+					} else if (tableStartIndex != -1 && !columnUnderlineFound) {
+						boolean foundStart = textContent.contains("|-"); //$NON-NLS-1$
+						boolean foundEnd = textContent.contains("-|"); //$NON-NLS-1$
+						if (foundStart && foundEnd) {
+							columnUnderlineFound = true;
+						}
+					} else if (columnUnderlineFound) {
+						matcher = MARKDOWN_TABLE_END.matcher(textContent);
+						matcher.find(); // find the last one
+						int startPos = matcher.start() + textElement.getStartPosition();
+						tableLastIndex = tokenStartingAt(startPos);
+					}
+				} else {
+					tableStartIndex = -1;
+					tableLastIndex = -1;
+					columnUnderlineFound = false;
+				}
+			}
+			if (tableStartIndex != -1 && tableLastIndex != -1) {
+				// TODO fix column alignment and format cells
+				disableFormattingExclusively(tableStartIndex, tableLastIndex);
+			}
 		}
 	}
 
@@ -1167,7 +1427,8 @@ public class CommentsPreparator extends ASTVisitor {
 			if (!ScannerHelper.isWhitespace(c))
 				lastNonWhitespace = position;
 		}
-		if (lastNonWhitespace > 0 && this.ctm.charAt(lastNonWhitespace - 1) == ' ')
+		if (this.ctm.get(commentFragmentIndex).tokenType != TokenNameCOMMENT_MARKDOWN && lastNonWhitespace > 0
+				&& this.ctm.charAt(lastNonWhitespace - 1) == ' ')
 			lastNonWhitespace--;
 		return this.ctm.getLength(position, lastNonWhitespace - 1, 0);
 	}
@@ -1218,7 +1479,7 @@ public class CommentsPreparator extends ASTVisitor {
 		}
 		boolean isMarkdown = commentToken.tokenType == TokenNameCOMMENT_MARKDOWN;
 		boolean isJavadoc = commentToken.tokenType == TokenNameCOMMENT_JAVADOC;
-		Arrays.fill(this.allowSubstituteWrapping, 0, commentToken.countChars(), !isJavadoc);
+		Arrays.fill(this.allowSubstituteWrapping, 0, commentToken.countChars(), !isMarkdown && !isJavadoc);
 
 		final boolean cleanBlankLines = isJavadoc ? this.options.comment_clear_blank_lines_in_javadoc_comment
 				: this.options.comment_clear_blank_lines_in_block_comment;
@@ -1250,8 +1511,11 @@ public class CommentsPreparator extends ASTVisitor {
 						i++;
 					position = i + 1;
 				} else if (!ScannerHelper.isWhitespace(c)) {
-					while (this.tm.charAt(i) == markerChar && lineBreaks > 0)
+					int markerCharCount = 0;
+					while (this.tm.charAt(i) == markerChar && lineBreaks > 0 && (markerCharCount < 3 || !isMarkdown)) {
+						markerCharCount++;
 						i++;
+					}
 					position = i;
 					break;
 				}
@@ -1439,6 +1703,9 @@ public class CommentsPreparator extends ASTVisitor {
 				} else if (!ScannerHelper.isWhitespace(c)) {
 					if (c == '*')
 						lineStart = (this.ctm.charAt(i + 1) == ' ') ? i + 2 : i + 1;
+					if (c == '/' && this.snippetForMarkdown)
+						lineStart = ((this.ctm.charAt(i + 1) == '/') && (this.ctm.charAt(i + 2) == '/')) ? i + 4
+								: i + 1;
 					break;
 				}
 			}
@@ -1451,7 +1718,7 @@ public class CommentsPreparator extends ASTVisitor {
 				}
 			}
 
-			while (position + startPos < lineStart) {
+			while (position + startPos < lineStart && position < posMapping.length) {
 				posMapping[position++] = sb.length() - 1;
 			}
 
