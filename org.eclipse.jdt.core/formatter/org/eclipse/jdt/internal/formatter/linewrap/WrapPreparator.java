@@ -1434,16 +1434,6 @@ public class WrapPreparator extends ASTVisitor {
 				|| (token2 != null && !token2.isPreserveLineBreaksBefore())) {
 			return 0;
 		}
-		if (token1 != null) {
-			List<Token> structure = token1.getInternalStructure();
-			if (structure != null && !structure.isEmpty())
-				token1 = structure.get(structure.size() - 1);
-		}
-		if (token2 != null) {
-			List<Token> structure = token2.getInternalStructure();
-			if (structure != null && !structure.isEmpty())
-				token2 = structure.get(0);
-		}
 		int lineBreaks = WrapPreparator.this.tm.countLineBreaksBetween(token1, token2);
 		int toPreserve = this.options.number_of_empty_lines_to_preserve;
 		if (token1 != null && token2 != null)
