@@ -29,9 +29,11 @@ import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameWH
 import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNamepackage;
 import static org.eclipse.jdt.internal.formatter.TokenManager.ANY;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,6 +101,14 @@ public class CommentsPreparator extends ASTVisitor {
 		SNIPPET_MARKUP_TAG_PATTERN = Pattern.compile(markupTagNames + markupTagArgument + "*"); //$NON-NLS-1$
 	}
 
+	private final static Pattern MARKDOWN_LIST_PATTERN = Pattern.compile("(?<!\\S)(?:[-+*]|\\d+\\.)([ \\t]+)"); //$NON-NLS-1$
+	private final static Pattern MARKDOWN_HEADINGS_PATTERN_1 = Pattern.compile("(?:(?<=^)|(?<=///[ \\t]*))(#{1,6})([ \\t]+)([^\\n]*)"); //$NON-NLS-1$
+	private final static Pattern MARKDOWN_HEADINGS_PATTERN_2 = Pattern.compile("(?:^|(?<=///[ \\t]+))[ \\t]*([=-])\\1*[ \\t]*(?=\\n|$)"); //$NON-NLS-1$
+	private final static Pattern MARKDOWN_FENCES_PATTERN = Pattern.compile("[ \\t]*(?:///[ \\t]*)?(?:`+|~+)[ \\t]*(?:\\R)?"); //$NON-NLS-1$
+
+	// TODO Need to replace table pattern with simpler ones
+	private final static Pattern MARKDOWN_TABLE_PATTERN = Pattern.compile("(?m)(?s)(?:\\s*///\\s*)?\\|[^\\r\\n]*?\\|[ \\t]*(?:\\r?\\n|$)(?:\\s*///\\s*)?\\|(?:\\s*[:-]+\\s*\\|)+[ \\t]*(?:\\r?\\n|$)(?:(?:\\s*///\\s*)?\\|[^\\r\\n]*?\\|[ \\t]*(?:\\r?\\n|$))+");  //$NON-NLS-1$
+
 	// Param tags list copied from IJavaDocTagConstants in legacy formatter for compatibility.
 	// There were the following comments:
 	// TODO (frederic) should have another name than 'param' for the following tags
@@ -134,6 +144,7 @@ public class CommentsPreparator extends ASTVisitor {
 	private final ArrayList<Integer> commonAttributeAnnotations = new ArrayList<>();
 	private DefaultCodeFormatter preTagCodeFormatter;
 	private DefaultCodeFormatter snippetCodeFormatter;
+	private boolean snippetForMarkdown = false;
 
 	public CommentsPreparator(TokenManager tm, DefaultCodeFormatterOptions options, String sourceLevel) {
 		this.tm = tm;
@@ -644,7 +655,7 @@ public class CommentsPreparator extends ASTVisitor {
 			if (startIndex > 1) {
 				this.ctm.get(startIndex).breakBefore();
 			}
-
+			handleMarkdown(node);
 			handleHtml(node);
 			this.ctm.get(tokenStartingAt(node.getStartPosition())).setToEscape(false);
 
@@ -666,6 +677,7 @@ public class CommentsPreparator extends ASTVisitor {
 	public void endVisit(TagElement node) {
 		String tagName = node.getTagName();
 		if (tagName == null || tagName.length() <= 1) {
+			handleMarkdown(node);
 			handleHtml(node);
 		} else if (TagElement.TAG_SEE.equals(tagName)) {
 			handleStringLiterals(this.tm.toString(node), node.getStartPosition());
@@ -790,6 +802,141 @@ public class CommentsPreparator extends ASTVisitor {
 			Token token = tagTokens.get(i);
 			token.setAlign(descriptionAlign);
 			token.setIndent(extraIndent ? this.options.indentation_size : 0);
+		}
+	}
+
+	private void handleMarkdown(TagElement node) {
+		if (!(node.getParent() instanceof Javadoc javaDoc) || !javaDoc.isMarkdown()
+				|| !this.options.comment_format_markdown_comment) {
+			return;
+		}
+		String text = this.tm.toString(node);
+		Matcher matcher = MARKDOWN_LIST_PATTERN.matcher(text); // Check for MarkDown lists [Ordered & Unordered])
+		Deque<Integer> indentPerLevel = new ArrayDeque<>();
+		while (matcher.find()) {
+
+			int startPos = matcher.start() + node.getStartPosition();
+			int tokenIndex = tokenStartingAt(startPos);
+			Token listToken = this.ctm.get(tokenIndex);
+			int currentIndent = 0;
+
+			for (int i = matcher.start(); i >= 0 && text.charAt(i) != '/'; i--) {
+				if (text.charAt(i) == '\t') {
+					currentIndent += 2;
+				} else {
+					currentIndent++;
+				}
+			}
+			if (tokenIndex == 1) {
+				currentIndent++;
+			}
+			if (currentIndent > 1 && (currentIndent % 2) != 0) {
+				currentIndent--;
+			}
+			if (tokenIndex != 1) {
+				listToken.breakBefore();
+			}
+
+			while (!indentPerLevel.isEmpty() && currentIndent < indentPerLevel.peekLast()) {
+				indentPerLevel.removeLast();
+			}
+
+			if (indentPerLevel.isEmpty() || currentIndent > indentPerLevel.peekLast()) {
+				indentPerLevel.addLast(currentIndent);
+			}
+
+			int currentLevel = indentPerLevel.size();
+			int indentToSet = 2 * (currentLevel - 1);
+
+			listToken.setIndent(indentToSet);
+			listToken.spaceAfter();
+		}
+
+		matcher = MARKDOWN_HEADINGS_PATTERN_1.matcher(text); // Check for MarkDown headings #h1 - #h6
+		while (matcher.find()) {
+			int startPos = matcher.start() + node.getStartPosition();
+			int tokenIndex = tokenStartingAt(startPos);
+			Token headingToken = this.ctm.get(tokenIndex);
+			if (tokenIndex != 1) {
+				headingToken.breakBefore();
+			}
+			int endPos = matcher.end() + node.getStartPosition();
+			int endIndex = tokenEndingAt(endPos - 1);
+			Token endingToken = this.ctm.get(endIndex);
+			endingToken.breakAfter();
+			headingToken.spaceBefore();
+		}
+
+		matcher = MARKDOWN_HEADINGS_PATTERN_2.matcher(text); // Check for MarkDown headings with styles '-- & ==='
+		while (matcher.find()) {
+			int startPos = matcher.start() + node.getStartPosition();
+			int tokenIndex = tokenStartingAt(startPos);
+			Token headingToken = this.ctm.get(tokenIndex);
+			if (tokenIndex != 1) {
+				headingToken.breakBefore();
+			}
+			headingToken.breakAfter();
+		}
+
+		matcher = MARKDOWN_FENCES_PATTERN.matcher(text); // Check for MarkDown snippet with styles '``` & ```'
+		while (matcher.find()) {
+			int startPos = matcher.start() + node.getStartPosition();
+			int tokenIndex = this.ctm.findIndex(startPos, ANY, true);
+			Token openingToken = this.ctm.get(tokenIndex);
+			String openingFence = this.ctm.toString(openingToken);
+			int endPos = -1;
+			int tokenIndexLast = -1;
+			Token closingToken = null;
+			String closingSnippet = null;
+			boolean hasFormatted = true;
+			while (matcher.find()) {
+				endPos = matcher.start() + node.getStartPosition();
+				tokenIndexLast = this.ctm.findIndex(endPos, ANY, true);
+				closingToken = this.ctm.get(tokenIndexLast);
+				closingSnippet = this.ctm.toString(closingToken);
+
+				if (!openingFence.replaceAll("[^`~]", "").equals(closingSnippet)) { //$NON-NLS-1$ //$NON-NLS-2$
+					hasFormatted = false;
+					continue;
+				}
+				long openCount = openingFence.chars().filter(ch -> ch == openingFence.charAt(0)).count();
+				long closeCount = closingSnippet.chars().filter(ch -> ch == openingFence.charAt(0)).count();
+
+				if (openCount == closeCount) {
+					if (tokenIndex > 1)
+						openingToken.breakBefore();
+					openingToken.breakAfter();
+					if (this.ctm.size() - 1 != tokenIndexLast) {
+						closingToken.putLineBreaksAfter(2);
+					}
+					String languageMarker = openingFence.replaceAll("[`~]", ""); //$NON-NLS-1$ //$NON-NLS-2$
+					boolean canAssumeJava = languageMarker.toLowerCase().equals("java") || languageMarker.isEmpty(); //$NON-NLS-1$
+					if (openCount >= 3 && canAssumeJava && this.options.comment_format_source) {
+						this.snippetForMarkdown = true;
+						if (!formatCode(tokenIndex, tokenIndexLast, true)) {
+							disableFormattingExclusively(tokenIndex, tokenIndexLast + 1);
+						}
+						this.snippetForMarkdown = false;
+					} else {
+						disableFormattingExclusively(tokenIndex, tokenIndexLast + 1);
+					}
+					hasFormatted = true;
+					break;
+				}
+
+			}
+			if (!hasFormatted) {
+				disableFormattingExclusively(tokenIndex, tokenIndexLast + 1);
+			}
+		}
+
+		matcher = MARKDOWN_TABLE_PATTERN.matcher(text); // Check for MarkDown tables
+		while (matcher.find()) {
+			int startPos = matcher.start() + node.getStartPosition();
+			int tokenIndex = tokenStartingAt(startPos);
+			int endPos = matcher.end() + node.getStartPosition();
+			int tokenIndexLast = tokenStartingAt(endPos);
+			disableFormattingExclusively(tokenIndex, tokenIndexLast); // TODO fix column alignment and format cells
 		}
 	}
 
@@ -1218,7 +1365,7 @@ public class CommentsPreparator extends ASTVisitor {
 		}
 		boolean isMarkdown = commentToken.tokenType == TokenNameCOMMENT_MARKDOWN;
 		boolean isJavadoc = commentToken.tokenType == TokenNameCOMMENT_JAVADOC;
-		Arrays.fill(this.allowSubstituteWrapping, 0, commentToken.countChars(), !isJavadoc);
+		Arrays.fill(this.allowSubstituteWrapping, 0, commentToken.countChars(), !isMarkdown && !isJavadoc);
 
 		final boolean cleanBlankLines = isJavadoc ? this.options.comment_clear_blank_lines_in_javadoc_comment
 				: this.options.comment_clear_blank_lines_in_block_comment;
@@ -1369,8 +1516,9 @@ public class CommentsPreparator extends ASTVisitor {
 		formattedTokens = translateFormattedTokens(codeStartPosition, formattedTokens, positionMapping, null);
 
 		Token openingToken = this.ctm.get(openingIndex);
-		for (Token token : formattedTokens)
+		for (Token token : formattedTokens) {
 			token.setAlign(token.getAlign() + openingToken.getAlign() + openingToken.getIndent());
+		}
 		fixJavadocTagAlign(openingToken, closingIndex);
 
 		// there are too few linebreaks at the start and end
@@ -1439,6 +1587,9 @@ public class CommentsPreparator extends ASTVisitor {
 				} else if (!ScannerHelper.isWhitespace(c)) {
 					if (c == '*')
 						lineStart = (this.ctm.charAt(i + 1) == ' ') ? i + 2 : i + 1;
+					if (c == '/' && this.snippetForMarkdown)
+						lineStart = ((this.ctm.charAt(i + 1) == '/') && (this.ctm.charAt(i + 2) == '/')) ? i + 4
+								: i + 1;
 					break;
 				}
 			}
