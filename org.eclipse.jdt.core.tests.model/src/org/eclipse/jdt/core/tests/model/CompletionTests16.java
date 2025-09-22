@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2024 IBM and others.
+ * Copyright (c) 2020, 2025 IBM and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1377,4 +1377,23 @@ public class CompletionTests16 extends AbstractJavaModelCompletionTests {
 				requestor.getResults());
 
 	}
+
+	public void test_CompletionOnRecordConstructor_issue4419() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Person.java",
+				"public record Person(pack2.P) {\n"
+						+ "    public Per\n"
+						+ "}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "public Per";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"Person[TYPE_REF]{Person, , LPerson;, null, null, null, null, [43, 46], "
+						+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	}
+
 }
