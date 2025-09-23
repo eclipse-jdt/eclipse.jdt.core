@@ -1477,6 +1477,21 @@ public void testGH4308() {
 		},
 		"replay");
 }
+public void testGH4392() {
+	runConformTest(new String[] {
+			"AFactory.java",
+			"""
+			public abstract class AFactory<T> {
+
+			    public <U extends T> U getProcess(Object object) {
+			        return getProcess(object.getClass()); // Type mismatch: cannot convert from T to U
+			    }
+
+			    public abstract <U extends T> U getProcess(Class<?> classeObject);
+
+			}
+			"""});
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
