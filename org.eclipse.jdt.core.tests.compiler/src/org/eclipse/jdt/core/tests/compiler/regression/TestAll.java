@@ -250,20 +250,18 @@ public static Test suite() {
 	 since_22.add(UseOfUnderscoreJava22Test.class);
 	 since_22.add(SwitchPatternTest22.class);
 
-	 ArrayList since_23 = new ArrayList();
+	ArrayList since_23 = new ArrayList();
 	 since_23.add(MarkdownCommentsTest.class);
 
-	 ArrayList since_24 = new ArrayList();
-	 since_24.add(PreviewFlagTest.class);
-
-	 ArrayList since_25 = new ArrayList();
+	ArrayList since_25 = new ArrayList();
 	 since_25.add(ModuleImportTests.class);
 	 since_25.add(SuperAfterStatementsTest.class);
 	 since_25.add(ImplicitlyDeclaredClassesTest.class);
 	 since_25.add(PrimitiveInPatternsTest.class);
 	 since_25.add(PrimitiveInPatternsTestSH.class);
+	 since_25.add(PreviewFlagTest.class);
 
-	 // Build final test suite
+	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
 	all.addTest(new TestSuite(StandAloneASTParserTest.class));
 	all.addTest(new TestSuite(HashtableOfObjectTest.class));
@@ -576,7 +574,6 @@ public static Test suite() {
 		tests_24.addAll(since_21);
 		tests_24.addAll(since_22);
 		tests_24.addAll(since_23);
-		tests_24.addAll(since_24);
 		TestCase.resetForgottenFilters(tests_24);
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
 				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_24), tests_24));
@@ -602,7 +599,6 @@ public static Test suite() {
 		tests_25.addAll(since_21);
 		tests_25.addAll(since_22);
 		tests_25.addAll(since_23);
-		tests_25.addAll(since_24);
 		tests_25.addAll(since_25);
 		TestCase.resetForgottenFilters(tests_25);
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
