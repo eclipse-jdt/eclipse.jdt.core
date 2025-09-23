@@ -64,4 +64,8 @@ public class CapturingContext {
 		}
 		return type;
 	}
+
+	public static boolean isActive() {
+		return activeContexts.get() != null;
+	}
 }
