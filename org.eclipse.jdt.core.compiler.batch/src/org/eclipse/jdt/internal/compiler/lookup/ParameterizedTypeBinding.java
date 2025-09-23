@@ -1552,12 +1552,18 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
     		this.superInterfaces = Scope.substitute(this, this.type.superInterfaces());
     		if (this.superInterfaces != null) {
 	    		for (int i = this.superInterfaces.length; --i >= 0;) {
-	    			this.superInterfaces[i] = CapturingContext.maybeCapture(this.superInterfaces[i]);
 	    			this.typeBits |= (this.superInterfaces[i].typeBits & TypeIds.InheritableBits);
 	    			if ((this.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0) // avoid the side-effects of hasTypeBit()!
 	    				this.typeBits |= applyCloseableWhitelists(this.environment.globalOptions);
 	    		}
     		}
+	    }
+	    if (CapturingContext.isActive()) {
+	    	ReferenceBinding[] captured = new ReferenceBinding[this.superInterfaces.length];
+	    	for (int i = 0; i < captured.length; i++) {
+				captured[i] = CapturingContext.maybeCapture(this.superInterfaces[i]);
+			}
+	    	return captured;
 	    }
 		return this.superInterfaces;
 	}
