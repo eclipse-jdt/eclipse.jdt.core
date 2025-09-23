@@ -1559,6 +1559,30 @@ public void testGH4402() {
 		},
 		"");
 }
+public void testGH4346() {
+	if (this.complianceLevel < ClassFileConstants.JDK16)
+		return; // uses records
+	runConformTest(new String[] {
+			"X.java",
+			"""
+			import java.util.function.Function;
+			public class X {
+				public static <T> W1<W2<T>> main(String[] args) {
+					return m(m2(), W2::t, W2::new);
+				}
+
+				public static <T1, T2> W1<T1> m(W1<T2> w1, Function<T1, T2> f1, Function<T2, T1> f2) {
+					return null;
+				}
+				private static <T> W1<W1<T>> m2() {
+					return null;
+				}
+				private record W1<T>(T t) {}
+				private record W2<T>(W1<T> t) {}
+			}
+			"""
+	});
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
