@@ -111,6 +111,16 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			constructorContext = this.prologueContext;
 			flowInfo = this.prologueInfo.addInitializationsFrom(flowInfo);
 			// skip the part already done during PROLOGUE analysis ...
+			if (this.constructorCall != null) {
+				if (this.constructorCall.accessMode == ExplicitConstructorCall.This) {
+					FieldBinding[] fields = this.binding.declaringClass.fields();
+					for (FieldBinding field : fields) {
+						if (!field.isStatic()) {
+							flowInfo.markAsDefinitelyAssigned(field);
+						}
+					}
+				}
+			}
 		} else {
 			flowInfo.setReachMode(initialReachMode);
 
