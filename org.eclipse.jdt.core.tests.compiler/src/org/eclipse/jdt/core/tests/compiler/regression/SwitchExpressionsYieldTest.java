@@ -8560,4 +8560,64 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"The method foo(int) is undefined for the type Object\n" +
 				"----------\n");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4397
+	// [Switch expression] Compiling causes an ArrayIndexOutOfBoundsException
+	public void testIssue4397() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						import java.math.BigDecimal;
+						import java.math.RoundingMode;
+
+						enum MyEnum {
+
+							A, B, C, D, E;
+
+						}
+						public class X {
+
+							private static final BigDecimal ZERO = new BigDecimal("0");
+							private static final BigDecimal UNUSED = new BigDecimal("10");
+
+							public static BigDecimal method(BigDecimal value, MyEnum myEnum, BigDecimal otherValue) {
+
+								BigDecimal result = switch (myEnum) {
+									case null -> null;
+									case A -> method(otherValue, myEnum, null);
+									case B -> value.setScale(0, RoundingMode.UP);
+									case C -> value.setScale(0, RoundingMode.UP);
+									case D -> value.setScale(0, RoundingMode.UP);
+									case E -> value.setScale(0, RoundingMode.UP);
+								};
+
+								if (otherValue != null && result != null && result.compareTo(otherValue) > 0) {
+									BigDecimal roundedMaximumPrice = method(otherValue, myEnum, null);
+									if (roundedMaximumPrice.compareTo(otherValue) > 0) {
+										throw new RuntimeException("");
+									}
+									return null;
+								}
+								return null;
+							}
+
+							private static BigDecimal unusedMethod1(BigDecimal value, BigDecimal otherValue) {
+								BigDecimal a = value.multiply(value);
+								BigDecimal b = a.setScale(0, RoundingMode.DOWN);
+								return BigDecimal.ONE;
+							}
+
+							private static BigDecimal unusedMethod2(BigDecimal value, BigDecimal otherValue) {
+								BigDecimal a = value.multiply(ZERO);
+								BigDecimal b = a.setScale(0, RoundingMode.DOWN);
+								return unusedMethod1(value, otherValue);
+							}
+						}
+						"""
+				},
+				"");
+	}
 }

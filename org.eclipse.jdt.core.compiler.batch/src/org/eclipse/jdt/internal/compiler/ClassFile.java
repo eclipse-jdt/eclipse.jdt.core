@@ -3892,28 +3892,27 @@ public class ClassFile implements TypeConstants, TypeIds {
 		return localContentsOffset;
 	}
 	private int addBootStrapEnumSwitchEntry(int localContentsOffset, SwitchStatement switchStatement, Map<String, Integer> fPtr) {
-		final int contentsEntries = 10;
-		int indexForenumSwitch = fPtr.get(ClassFile.ENUMSWITCH_STRING);
-		if (contentsEntries + localContentsOffset >= this.contents.length) {
-			resizeContents(contentsEntries);
-		}
-		if (indexForenumSwitch == 0) {
-			ReferenceBinding javaLangRuntimeSwitchBootstraps = this.referenceBinding.scope.getJavaLangRuntimeSwitchBootstraps();
-			indexForenumSwitch = this.constantPool.literalIndexForMethodHandle(ClassFileConstants.MethodHandleRefKindInvokeStatic, javaLangRuntimeSwitchBootstraps,
-					ConstantPool.ENUMSWITCH, ConstantPool.JAVA_LANG_RUNTIME_SWITCHBOOTSTRAPS_SWITCH_SIGNATURE, false);
-			fPtr.put(ClassFile.ENUMSWITCH_STRING, indexForenumSwitch);
-		}
-		this.contents[localContentsOffset++] = (byte) (indexForenumSwitch >> 8);
-		this.contents[localContentsOffset++] = (byte) indexForenumSwitch;
-
-		// u2 num_bootstrap_arguments
-		int numArgsLocation = localContentsOffset;
 		CaseStatement.LabelExpression[] constants = switchStatement.labelExpressions;
 		int numArgs = constants.length;
 		if (switchStatement.containsNull) --numArgs;
-		this.contents[numArgsLocation++] = (byte) (numArgs >> 8);
-		this.contents[numArgsLocation] = (byte) numArgs;
-		localContentsOffset += 2;
+
+		final int contentsEntries = 4 + 2 * numArgs;
+		int indexForEnumSwitch = fPtr.get(ClassFile.ENUMSWITCH_STRING);
+		if (contentsEntries + localContentsOffset >= this.contents.length) {
+			resizeContents(contentsEntries);
+		}
+		if (indexForEnumSwitch == 0) {
+			ReferenceBinding javaLangRuntimeSwitchBootstraps = this.referenceBinding.scope.getJavaLangRuntimeSwitchBootstraps();
+			indexForEnumSwitch = this.constantPool.literalIndexForMethodHandle(ClassFileConstants.MethodHandleRefKindInvokeStatic, javaLangRuntimeSwitchBootstraps,
+					ConstantPool.ENUMSWITCH, ConstantPool.JAVA_LANG_RUNTIME_SWITCHBOOTSTRAPS_SWITCH_SIGNATURE, false);
+			fPtr.put(ClassFile.ENUMSWITCH_STRING, indexForEnumSwitch);
+		}
+		this.contents[localContentsOffset++] = (byte) (indexForEnumSwitch >> 8);
+		this.contents[localContentsOffset++] = (byte) indexForEnumSwitch;
+
+		// u2 num_bootstrap_arguments
+		this.contents[localContentsOffset++] = (byte) (numArgs >> 8);
+		this.contents[localContentsOffset++] = (byte) numArgs;
 
 		for (CaseStatement.LabelExpression c : constants) {
 			if (c.isPattern()) {
