@@ -89,9 +89,10 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 public void analyseCode(ClassScope classScope, InitializationFlowContext initializerFlowContext, FlowInfo flowInfo, int initialReachMode, AnalysisMode mode) {
 	// Effect of 'AnalysisMode mode':
 	// ALL: 		analyse in one go as normal.
-	// PROLOGUE:	analyse only statements *before* the explicit constructor call (if any)
-	// REST:		analyse only starting with the explicit constructor call, if none present behaves like ALL
+	// PROLOGUE:	analyse only statements up-to the explicit constructor call (arguments of this call are technically prologue, too)
+	// REST:		analyse only statements after the explicit constructor call
 	// FlowContext and FlowInfo produced during PROLOGUE will be held in fields prologueContext and prologueInfo for use during REST
+	// prologueInfo is furthermore assumed to happen *before* any field initializers, see its use in TypeDeclaration.internalAnalyseCode()
 	if (this.ignoreFurtherInvestigation)
 		return;
 
@@ -215,15 +216,15 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 				flowInfo = this.constructorCall.analyseCode(this.scope, constructorContext, flowInfo);
 				if (mode == AnalysisMode.PROLOGUE && hasArgumentNeedingAnalysis)
 					this.prologueInfo = flowInfo.copy();
-				// if calling 'this(...)', then flag all non-static fields as definitely
-				// set since they are supposed to be set inside other local constructor
-				if (this.constructorCall.accessMode == ExplicitConstructorCall.This) {
-					FieldBinding[] fields = this.binding.declaringClass.fields();
-					for (FieldBinding field : fields) {
-						if (!field.isStatic()) {
-							flowInfo.markAsDefinitelyAssigned(field);
-						}
-					}
+			}
+		}
+		if (this.constructorCall != null && this.constructorCall.accessMode == ExplicitConstructorCall.This) {
+			// if calling 'this(...)', then flag all non-static fields as definitely
+			// set since they are supposed to be set inside other local constructor
+			FieldBinding[] fields = this.binding.declaringClass.fields();
+			for (FieldBinding field : fields) {
+				if (!field.isStatic()) {
+					flowInfo.markAsDefinitelyAssigned(field);
 				}
 			}
 		}
