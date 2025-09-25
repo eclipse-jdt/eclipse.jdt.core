@@ -63,21 +63,22 @@ public interface IPackageBinding extends IBinding {
 	public default IModuleBinding getModule() {
 		return null;
 	}
-//	/**
-//	 * Finds and returns the binding for the class or interface with the given
-//	 * name declared in this package.
-//	 * <p>
-//	 * For top-level classes and interfaces, the name here is just the simple
-//	 * name of the class or interface. For nested classes and interfaces, the
-//	 * name is the VM class name (in other words, a name like
-//	 * <code>"Outer$Inner"</code> as used to name the class file; see
-//	 * <code>ITypeBinding.getName</code>).
-//	 * </p>
-//	 *
-//	 * @param name the name of a class or interface
-//	 * @return the type binding for the class or interface with the
-//	 *   given name declared in this package, or <code>null</code>
-//	 *   if there is no such type
-//	 */
-//	public ITypeBinding findTypeBinding(String name);
+	/**
+	 * Finds and returns the binding for the class or interface with the given
+	 * name declared in this package.
+	 * <p>
+	 * For top-level classes and interfaces, the name here is just the simple
+	 * name of the class or interface. For nested classes and interfaces, the
+	 * name is the VM class name (in other words, a name like
+	 * <code>"Outer$Inner"</code> as used to name the class file; see
+	 * <code>ITypeBinding.getName</code>).
+	 * </p>
+	 *
+	 * @param name the name of a class or interface
+	 * @return the type binding for the class or interface with the
+	 *   given name declared in this package, or <code>null</code>
+	 *   if there is no such type
+	 * @since 3.44
+	 */
+	public ITypeBinding findTypeBinding(String name);
 }
