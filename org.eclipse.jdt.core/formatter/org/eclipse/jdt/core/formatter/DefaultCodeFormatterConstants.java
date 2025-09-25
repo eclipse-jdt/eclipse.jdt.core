@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions.Alignment;
 /**
  * Constants used to set up the options of the code formatter.
  *
- * @since 3.0
+ * @since 3.44
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @noextend This class is not intended to be subclassed by clients.
  */
@@ -1552,6 +1552,19 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.1
 	 */
 	public final static String FORMATTER_COMMENT_FORMAT_HTML = "org.eclipse.jdt.core.formatter.comment.format_html"; //$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to control whether Markdown tags are formatted.
+	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.format_markdown_tags"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.44
+	 */
+	public final static String FORMATTER_COMMENT_FORMAT_MARKDOWN_TAGS = "org.eclipse.jdt.core.formatter.comment.format_markdown_tags"; //$NON-NLS-1$
 
 	/**
 	 * <pre>

@@ -244,6 +244,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean comment_format_block_comment;
 	public boolean comment_format_header;
 	public boolean comment_format_html;
+	public boolean comment_format_markdown_tags;
 	public boolean comment_format_source;
 	public boolean comment_indent_parameter_description;
 	public boolean comment_indent_tag_description;
@@ -667,6 +668,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_BLOCK_COMMENT, this.comment_format_block_comment ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_HEADER, this.comment_format_header ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_HTML, this.comment_format_html ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_MARKDOWN_TAGS, this.comment_format_markdown_tags ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT, this.comment_format_javadoc_comment ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_MARKDOWN_COMMENT, this.comment_format_markdown_comment ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT, this.comment_format_line_comment ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
@@ -1595,6 +1597,10 @@ public class DefaultCodeFormatterOptions {
 		final Object commentFormatHtmlOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_HTML);
 		if (commentFormatHtmlOption != null) {
 			this.comment_format_html = DefaultCodeFormatterConstants.TRUE.equals(commentFormatHtmlOption);
+		}
+		final Object commentFormatMarkdownTagsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_MARKDOWN_TAGS);
+		if (commentFormatMarkdownTagsOption != null) {
+			this.comment_format_markdown_tags = DefaultCodeFormatterConstants.TRUE.equals(commentFormatMarkdownTagsOption);
 		}
 		final Object commentFormatSourceOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_SOURCE);
 		if (commentFormatSourceOption != null) {
@@ -3074,6 +3080,7 @@ public class DefaultCodeFormatterOptions {
 		this.comment_format_line_comment_starting_on_first_column = true;
 		this.comment_format_header = false;
 		this.comment_format_html = true;
+		this.comment_format_markdown_tags = true;
 		this.comment_format_source = true;
 		this.comment_indent_parameter_description = true;
 		this.comment_indent_tag_description = false;
@@ -3480,6 +3487,7 @@ public class DefaultCodeFormatterOptions {
 		this.comment_format_line_comment_starting_on_first_column = false;
 		this.comment_format_header = false;
 		this.comment_format_html = true;
+		this.comment_format_markdown_tags = true;
 		this.comment_format_source = true;
 		this.comment_indent_parameter_description = false;
 		this.comment_indent_tag_description = false;

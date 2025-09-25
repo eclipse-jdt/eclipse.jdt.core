@@ -99,6 +99,12 @@ public class CommentsPreparator extends ASTVisitor {
 		SNIPPET_MARKUP_TAG_PATTERN = Pattern.compile(markupTagNames + markupTagArgument + "*"); //$NON-NLS-1$
 	}
 
+	private final static Pattern MARKDOWN_LIST_PATTERN = Pattern.compile("(?<!\\S)(?:[-+*]|\\d+\\.)([ \\t]+)"); //$NON-NLS-1$
+
+	private final static Pattern MARKDOWN_HEADINGS_PATTERN_1 = Pattern.compile("(?<!\\S)(#{1,6})([ \\t]+)([^#\\n]+)"); //$NON-NLS-1$
+
+	private final static Pattern MARKDOWN_HEADINGS_PATTERN_2 = Pattern.compile("(?<!\\S)[ \\t]*([=-])\\1*[ \\t]*(?=\\n|$)"); //$NON-NLS-1$
+
 	// Param tags list copied from IJavaDocTagConstants in legacy formatter for compatibility.
 	// There were the following comments:
 	// TODO (frederic) should have another name than 'param' for the following tags
@@ -645,7 +651,7 @@ public class CommentsPreparator extends ASTVisitor {
 				this.ctm.get(startIndex).breakBefore();
 			}
 
-			handleHtml(node);
+			handleHtmlAndMarkdown(node);
 			this.ctm.get(tokenStartingAt(node.getStartPosition())).setToEscape(false);
 
 		} else if (node.isNested() && (IMMUTABLE_TAGS.contains(tagName) || TagElement.TAG_SNIPPET.equals(tagName))) {
@@ -666,7 +672,7 @@ public class CommentsPreparator extends ASTVisitor {
 	public void endVisit(TagElement node) {
 		String tagName = node.getTagName();
 		if (tagName == null || tagName.length() <= 1) {
-			handleHtml(node);
+			handleHtmlAndMarkdown(node);
 		} else if (TagElement.TAG_SEE.equals(tagName)) {
 			handleStringLiterals(this.tm.toString(node), node.getStartPosition());
 		}
@@ -793,7 +799,79 @@ public class CommentsPreparator extends ASTVisitor {
 		}
 	}
 
-	private void handleHtml(TagElement node) {
+	private void handleHtmlAndMarkdown(TagElement node) {
+
+		if (node.getParent() instanceof Javadoc javaDoc && javaDoc.isMarkdown()
+				&& this.options.comment_format_markdown_comment && this.options.comment_format_markdown_tags) {
+
+			String text = this.tm.toString(node);
+			Matcher matcher = MARKDOWN_LIST_PATTERN.matcher(text); // Check for MarkDown lists [Ordered & Unordered]
+			int previousLevel = 0;
+			Map<Integer, Token> tokenPositions = new HashMap<>();
+			Token parent = null;
+			while (matcher.find()) {
+				int startPos = matcher.start() + node.getStartPosition();
+				int tokenIndex = tokenStartingAt(startPos);
+				Token listToken = this.ctm.get(tokenIndex);
+				int currentIndent = 0;
+				int i = matcher.start();
+				while (text.charAt(i) != '/') {
+					if (text.charAt(i) == '\t') {
+						currentIndent += 2;
+					} else {
+						currentIndent++;
+					}
+					i--;
+					if (i == -1) {
+						break;
+					}
+				}
+				int currentSize = tokenPositions.size();
+				if (tokenIndex != 1) {
+					listToken.breakBefore();
+				}
+				if (currentSize > 0 && tokenPositions.get(currentIndent) != null) {
+					listToken.setIndent(tokenPositions.get(currentIndent).getIndent());
+				} else if (currentSize > 0 && previousLevel > currentIndent) {
+					listToken.spaceBefore();
+				} else if (currentSize > 0 && currentIndent > 2 && previousLevel < currentIndent) {
+					listToken.setIndent(parent.getIndent() + 2);
+				} else {
+					if (parent != null && parent.getIndent() > 0) {
+						listToken.setIndent(parent.getIndent());
+					} else {
+						listToken.spaceBefore();
+					}
+				}
+				listToken.spaceAfter();
+				parent = listToken;
+				previousLevel = currentIndent;
+				tokenPositions.put(currentIndent, listToken);
+			}
+			matcher = MARKDOWN_HEADINGS_PATTERN_1.matcher(text); // Check for MarkDown headings #h1 - #h6
+			while (matcher.find()) {
+				int startPos = matcher.start() + node.getStartPosition();
+				int tokenIndex = tokenStartingAt(startPos);
+				Token listToken = this.ctm.get(tokenIndex);
+				if (tokenIndex != 1) {
+					listToken.breakBefore();
+				}
+				listToken.spaceBefore();
+				listToken.spaceAfter();
+			}
+
+			matcher = MARKDOWN_HEADINGS_PATTERN_2.matcher(text); // Check for MarkDown headings with styles '-- & ==='
+			while (matcher.find()) {
+				int startPos = matcher.start() + node.getStartPosition();
+				int tokenIndex = tokenStartingAt(startPos);
+				Token listToken = this.ctm.get(tokenIndex);
+				if (tokenIndex != 1) {
+					listToken.breakBefore();
+				}
+			}
+
+		}
+
 		if (!this.options.comment_format_html && !this.options.comment_format_source)
 			return;
 		String text = this.tm.toString(node);
