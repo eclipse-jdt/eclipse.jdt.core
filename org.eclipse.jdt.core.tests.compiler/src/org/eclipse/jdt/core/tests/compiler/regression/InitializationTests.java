@@ -513,6 +513,29 @@ public void testIssue4416() {
 			"""
 	});
 }
+public void testIssue4416_withPrologue() {
+	if (this.complianceLevel < ClassFileConstants.JDK25)
+		return; // uses flexible constructor bodies
+	runConformTest(new String[] {
+			"WrongNotInitialized.java",
+			"""
+			public class WrongNotInitialized {
+			  private final Object o;
+
+			  public WrongNotInitialized(final Object o) {
+			    super();
+			    this.o = o;
+			  }
+
+			  public WrongNotInitialized() {
+			    System.out.println();
+			    this(new Object());
+			    System.out.println(o.toString());
+			  }
+			}
+			"""
+	});
+}
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4416
 // Bogus error: The blank final field o may not have been initialized
 public void testIssue4416b() {
@@ -528,6 +551,31 @@ public void testIssue4416b() {
 				}
 
 				Test(Test a) {
+					this(a.x);
+					//this(1);
+
+					System.out.println(x);
+				}
+			}
+			"""
+	});
+}
+public void testIssue4416b_withPrologue() {
+	if (this.complianceLevel < ClassFileConstants.JDK25)
+		return; // uses flexible constructor bodies
+	runConformTest(new String[] {
+			"Test.java",
+			"""
+			public class Test {
+
+				final int x;
+
+				Test(int x) {
+					this.x = x;
+				}
+
+				Test(Test a) {
+					System.out.println();
 					this(a.x);
 					//this(1);
 
@@ -556,6 +604,24 @@ public void testIssue4416c() {
 			"""
 	});
 }
+public void testIssue4416c_withPrologue() {
+	if (this.complianceLevel < ClassFileConstants.JDK25)
+		return; // uses flexible constructor bodies
+	runConformTest(new String[] {
+			"TestRecord.java",
+			"""
+			public record TestRecord(String a)
+			{
+			    public TestRecord(int b)
+			    {
+			        System.out.println();
+			        this(String.valueOf(b));
+			        System.out.println(a.length());
+			    }
+			}
+			"""
+	});
+}
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4416
 // Bogus error: The blank final field o may not have been initialized
 public void testIssue4416d() {
@@ -567,6 +633,31 @@ public void testIssue4416d() {
 			        private final Object r;
 
 			        Test() {
+			                this(Integer.valueOf(1));
+			                r.hashCode();
+			        }
+
+			        Test(Object r) {
+			                this.r = r;
+			        }
+			}
+			"""
+	});
+}
+//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4416
+//Bogus error: The blank final field o may not have been initialized
+public void testIssue4416d_withPrologue() {
+	if (this.complianceLevel < ClassFileConstants.JDK25)
+		return; // uses flexible constructor bodies
+	runConformTest(new String[] {
+			"Test.java",
+			"""
+			public class Test {
+
+			        private final Object r;
+
+			        Test() {
+			        		System.out.println();
 			                this(Integer.valueOf(1));
 			                r.hashCode();
 			        }
