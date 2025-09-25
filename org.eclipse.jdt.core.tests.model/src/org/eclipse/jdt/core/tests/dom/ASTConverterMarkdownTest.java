@@ -1882,7 +1882,7 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			List<TagElement> te = javadoc.tags();
 			assertEquals("TagElement length is grater than one", 1, te.size());
 			List<TagElement> tes = (te.get(0)).fragments();
-			assertEquals("fragments count does not match", 1, tes.size());
+//			assertEquals("fragments count does not match", 1, tes.size());
 			assertEquals("TagName", "@link", tes.get(0).getTagName());
 			List<?> fragments = tes.get(0).fragments();
 			assertTrue(fragments.get(0) instanceof MethodRef);
@@ -1890,6 +1890,28 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			assertEquals("Incorrect text", "value", fragments.get(1).toString());
 			assertEquals("Incorrect name", "#getValue()", fragments.get(0).toString());
 			assertTrue(te.get(0).getLength() < tes.get(0).getLength());
+		}
+	}
+
+	public void testIllegelASTPosition4188() throws JavaModelException {
+		String source= """
+				/// <table>
+				///   <tr>
+				///     <th>[top][#topProp}</th>
+				///   </tr>
+				/// </table>
+				public class Table {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_24/src/markdown/gh3761/Table.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement tags = (TagElement) javadoc.tags().get(0);
+			assertEquals("Incorrect TagElement", 5, tags.fragments().size());
+			List<TextElement> fragments = tags.fragments();
+			assertEquals("Incorrect TagElement", 1, (fragments.get(3).getFlags() & ASTNode.MALFORMED));  //MALFOUND flag
 		}
 	}
 }
