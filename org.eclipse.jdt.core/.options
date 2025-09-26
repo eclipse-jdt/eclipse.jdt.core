@@ -74,6 +74,9 @@ org.eclipse.jdt.core/debug/search=false
 # Reports source mapper activity
 org.eclipse.jdt.core/debug/sourcemapper=false
 
+# Send traces from the JavaModelManager to the standard output instead of the trace file
+org.eclipse.jdt.core/debug/traceToStdOut=false
+
 # Reports code formatter activity
 org.eclipse.jdt.core/debug/formatter=false
 
