@@ -120,7 +120,6 @@ class AddJarFileToIndex extends BinaryContainer {
 				return true; // index got deleted since acquired
 			}
 			index.separator = JAR_SEPARATOR;
-			@SuppressWarnings("resource")
 			ZipFile zip = null;
 			try {
 				// this path will be a relative path to the workspace in case the zipfile in the workspace otherwise it will be a path in the
@@ -148,15 +147,27 @@ class AddJarFileToIndex extends BinaryContainer {
 					}
 					if (JavaModelManager.ZIP_ACCESS_VERBOSE)
 						trace("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + this.containerPath); //$NON-NLS-1$	//$NON-NLS-2$
-					zip = new ZipFile(file);
 					zipFilePath = (Path) this.resource.getFullPath().makeRelative();
+					try {
+						zip = JavaModelManager.getJavaModelManager().getZipFile(zipFilePath);
+					} catch (CoreException e) {
+						if (JavaModelManager.ZIP_ACCESS_VERBOSE)
+							trace("", e); //$NON-NLS-1$
+						zip = new ZipFile(file);
+					}
 					// absolute path relative to the workspace
 				} else {
 					if (JavaModelManager.ZIP_ACCESS_VERBOSE)
 						trace("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + this.containerPath); //$NON-NLS-1$	//$NON-NLS-2$
 					// external file -> it is ok to use toFile()
-					zip = new ZipFile(this.containerPath.toFile());
 					zipFilePath = (Path) this.containerPath;
+					try {
+						zip = JavaModelManager.getJavaModelManager().getZipFile(zipFilePath);
+					} catch (CoreException e) {
+						if (JavaModelManager.ZIP_ACCESS_VERBOSE)
+							trace("", e); //$NON-NLS-1$
+						zip = new ZipFile(this.containerPath.toFile());
+					}
 				}
 
 				if (this.isCancelled) {
@@ -276,7 +287,7 @@ class AddJarFileToIndex extends BinaryContainer {
 					if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
 						trace("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Closing ZipFile " + this.containerPath); //$NON-NLS-1$	//$NON-NLS-2$
 					}
-					zip.close();
+					JavaModelManager.getJavaModelManager().closeZipFile(zip);
 				}
 				monitor.exitWrite(); // free write lock
 			}
