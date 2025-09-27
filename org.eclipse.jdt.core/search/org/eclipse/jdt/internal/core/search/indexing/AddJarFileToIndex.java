@@ -22,6 +22,7 @@ import java.nio.charset.Charset;
 import java.nio.file.NoSuchFileException;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -120,7 +121,6 @@ class AddJarFileToIndex extends BinaryContainer {
 				return true; // index got deleted since acquired
 			}
 			index.separator = JAR_SEPARATOR;
-			@SuppressWarnings("resource")
 			ZipFile zip = null;
 			try {
 				// this path will be a relative path to the workspace in case the zipfile in the workspace otherwise it will be a path in the
@@ -148,15 +148,15 @@ class AddJarFileToIndex extends BinaryContainer {
 					}
 					if (JavaModelManager.ZIP_ACCESS_VERBOSE)
 						trace("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + this.containerPath); //$NON-NLS-1$	//$NON-NLS-2$
-					zip = new ZipFile(file);
 					zipFilePath = (Path) this.resource.getFullPath().makeRelative();
+					zip = close(zipFilePath, file);
 					// absolute path relative to the workspace
 				} else {
 					if (JavaModelManager.ZIP_ACCESS_VERBOSE)
 						trace("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + this.containerPath); //$NON-NLS-1$	//$NON-NLS-2$
 					// external file -> it is ok to use toFile()
-					zip = new ZipFile(this.containerPath.toFile());
 					zipFilePath = (Path) this.containerPath;
+					zip = close(this.containerPath, this.containerPath.toFile());
 				}
 
 				if (this.isCancelled) {
@@ -276,7 +276,7 @@ class AddJarFileToIndex extends BinaryContainer {
 					if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
 						trace("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Closing ZipFile " + this.containerPath); //$NON-NLS-1$	//$NON-NLS-2$
 					}
-					zip.close();
+					JavaModelManager.getJavaModelManager().closeZipFile(zip);
 				}
 				monitor.exitWrite(); // free write lock
 			}
@@ -292,6 +292,17 @@ class AddJarFileToIndex extends BinaryContainer {
 			return false;
 		}
 		return true;
+	}
+	private ZipFile close(IPath path, File file) throws ZipException, IOException {
+		ZipFile zip;
+		try {
+			zip = JavaModelManager.getJavaModelManager().getZipFile(path);
+		} catch (CoreException e) {
+			if (JavaModelManager.ZIP_ACCESS_VERBOSE)
+				trace("", e); //$NON-NLS-1$
+			zip = new ZipFile(file);
+		}
+		return zip;
 	}
 	@Override
 	public String getJobFamily() {
