@@ -131,10 +131,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	static class ZipCache {
 		private final Map<Object, ZipFile> map;
+		private final Map<Object, Long> lastModifiers;
 		Object owner;
 
 		ZipCache(Object owner) {
 			this.map = new HashMap<>();
+			this.lastModifiers = new HashMap<>();
 			this.owner = owner;
 		}
 
@@ -159,7 +161,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			return this.map.get(path);
 		}
 
-		public void setCache(IPath path, ZipFile zipFile) {
+		public long lastModified(IPath path) {
+			Long result = this.lastModifiers.get(path);
+			return result == null ? 0 : result;
+		}
+
+		public void setCache(IPath path, ZipFile zipFile, long lastModified) {
 			try (ZipFile old = this.map.put(path, zipFile)) {
 				if (old != null) {
 					if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
@@ -168,6 +175,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 								+ "].setCache()] leaked ZipFile on " + old.getName() + " for path: " + path); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 				}
+				this.lastModifiers.put(path, lastModified);
 			} catch (IOException e) {
 				if (VERBOSE) {
 					trace("", e); //$NON-NLS-1$
@@ -2954,10 +2962,22 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 		ZipCache zipCache;
 		ZipFile zipFile;
-		if ((zipCache = this.zipFiles.get()) != null && (zipFile = zipCache.getCache(path)) != null) {
-			return zipFile;
-		}
 		File localFile = getLocalFile(path);
+		if ((zipCache = this.zipFiles.get()) != null && (zipFile = zipCache.getCache(path)) != null) {
+			if (zipCache.lastModified(path) == localFile.lastModified()) {
+				return zipFile;
+			} else {
+				try {
+					zipFile.close();
+				} catch (IOException e) {
+					int code = -1;
+					if(e instanceof FileNotFoundException || e instanceof NoSuchFileException) {
+						code = IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST;
+					}
+					throw new JavaModelException(new JavaModelStatus(code, e));
+				}
+			}
+		}
 		try {
 			if (ZIP_ACCESS_WARNING) {
 				traceZipAccessWarning(path);
@@ -2970,7 +2990,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			}
 			zipFile = new ZipFile(localFile);
 			if (zipCache != null) {
-				zipCache.setCache(path, zipFile);
+				zipCache.setCache(path, zipFile, localFile.lastModified());
 			}
 			addInvalidArchive(path, ArchiveValidity.VALID); // remember its valid
 			return zipFile;

@@ -15,6 +15,9 @@ package org.eclipse.jdt.internal.core.search.indexing;
 
 import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -87,11 +90,30 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 	private CompilationUnit compilationUnit;
 	private CompilationUnitDeclaration cud;
 	private org.eclipse.jdt.core.dom.ASTNode dom;
+	private static Map<JavaProject, INameEnvironment> environments;
 	private static final boolean DEBUG = false;
 
 	public SourceIndexer(SearchDocument document) {
 		super(document);
 		this.requestor = new SourceIndexerRequestor(this);
+		if (environments == null) {
+			environments = Collections.synchronizedMap(new HashMap<>());
+		}
+	}
+
+	public static void cleanup() {
+		if (environments != null) {
+			try {
+				for (INameEnvironment environment : environments.values()) {
+					environment.cleanup();
+				}
+			} catch (Exception e) {
+				if (JobManager.VERBOSE) {
+					trace("", e); //$NON-NLS-1$
+				}
+			}
+			environments.clear();
+		}
 	}
 
 	private boolean usedDomBasedIndexing() {
@@ -183,7 +205,11 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 				this.basicParser.scanner.taskTags = null;
 				this.cud = this.basicParser.parse(this.compilationUnit, new CompilationResult(this.compilationUnit, 0, 0, this.options.maxProblemsPerUnit));
 				// Use a non model name environment to avoid locks, monitors and such.
-				INameEnvironment nameEnvironment = new JavaSearchNameEnvironment(javaProject, JavaModelManager.getJavaModelManager().getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, true/*add primary WCs*/));
+				INameEnvironment nameEnvironment = environments.get(javaProject);
+				if (nameEnvironment == null) {
+					nameEnvironment = new JavaSearchNameEnvironment(javaProject, JavaModelManager.getJavaModelManager().getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, true/*add primary WCs*/));
+					environments.put(javaProject, nameEnvironment);
+				}
 				this.lookupEnvironment = new LookupEnvironment(this, this.options, problemReporter, nameEnvironment);
 				reduceParseTree(this.cud);
 				this.lookupEnvironment.buildTypeBindings(this.cud, null);
