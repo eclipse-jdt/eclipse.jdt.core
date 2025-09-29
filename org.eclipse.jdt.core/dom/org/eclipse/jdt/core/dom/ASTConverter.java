@@ -2415,6 +2415,22 @@ class ASTConverter {
 			Comment comment = this.commentMapper.getComment(javadoc.sourceStart);
 			if (comment != null && comment.isDocComment() && comment.getParent() == null) {
 				docComment = (Javadoc) comment;
+				List<ASTNode> docTags = docComment.tags();
+				if (!docTags.isEmpty()) {
+					ASTNode firstNode = docTags.get(0);
+					if (firstNode instanceof TagElement) {
+						TagElement tag = (TagElement) docTags.get(0);
+						List<ASTNode> fragments = tag.fragments();
+						if (!fragments.isEmpty()) {
+							ASTNode prev = fragments.get(0);
+							for (int i = 1; i < fragments.size(); i++) {
+								ASTNode cur = fragments.get(i);
+								if (cur.getStartPosition() <= prev.getStartPosition()) cur.setFlags(ASTNode.MALFORMED);
+								prev = cur;
+							}
+						}
+					}
+				}
 				if (this.resolveBindings) {
 					recordNodes(docComment, javadoc);
 					// resolve member and method references binding
