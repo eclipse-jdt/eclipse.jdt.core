@@ -14,7 +14,6 @@
 package org.eclipse.jdt.internal.formatter;
 
 import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_JAVADOC;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_LINE;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameNotAToken;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameStringLiteral;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameTextBlock;
@@ -281,7 +280,6 @@ public class TokenManager implements Iterable<Token> {
 					this.counter += getLength(lines.get(lines.size() - 1), this.counter);
 				}
 			} else if (traversed.isComment()) {
-				assert traversed.tokenType != TokenNameCOMMENT_LINE;
 				this.counter = TokenManager.this.commentWrapper.wrapMultiLineComment(traversed, this.counter, true,
 						this.isNLSTagInLine);
 			} else {
