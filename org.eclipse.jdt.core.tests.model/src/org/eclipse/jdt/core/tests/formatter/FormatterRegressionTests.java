@@ -16648,4 +16648,74 @@ public void testIssue2977() {
 				""";
 		formatSource(input, expected);
 	}
+
+	public void testMarkdownSnippetComments() throws JavaModelException {
+		setComplianceLevel(CompilerOptions.VERSION_23);
+		String input = """
+				/// Markdown Snippet
+				/// ```
+				/// public class HelloWorld2 { public static void main(String... args) {
+				///         System.out.println("Hello World!"); // the traditional example
+				///     }
+				/// }
+				/// ```
+				class Test2 {
+				}
+				""";
+		String expected = """
+				/// Markdown Snippet
+				/// ```
+				/// public class HelloWorld2 {
+				/// 	public static void main(String...args) {
+				/// 		System.out.println("Hello World!");// the traditional example
+				/// 	}
+				/// }
+				/// ```
+				class Test2 {
+				}
+				""";
+		formatSource(input, expected);
+	}
+
+	public void testMarkdownMultiSnippetComments() throws JavaModelException {
+		setComplianceLevel(CompilerOptions.VERSION_23);
+		String input = """
+				/// ```
+				/// public class HelloWorld {
+				/// 	public static void main(String...   args) {
+				/// 		System.out.println("Hello World!");// the traditional example
+				/// 	}
+				/// }
+				/// ```
+				///
+				/// ```
+				/// public class HelloWorld2 {public static void main(String...args) {
+				/// 		System.out.println("ssdd World!");// the traditional example
+				/// 	}
+				/// }
+				/// ```
+				class Test3 {
+				}
+				""";
+		String expected = """
+				/// ```
+				/// public class HelloWorld {
+				/// 	public static void main(String...args) {
+				/// 		System.out.println("Hello World!");// the traditional example
+				/// 	}
+				/// }
+				/// ```
+				///
+				/// ```
+				/// public class HelloWorld2 {
+				/// 	public static void main(String...args) {
+				/// 		System.out.println("ssdd World!");// the traditional example
+				/// 	}
+				/// }
+				/// ```
+				class Test3 {
+				}
+				""";
+		formatSource(input, expected);
+	}
 }
