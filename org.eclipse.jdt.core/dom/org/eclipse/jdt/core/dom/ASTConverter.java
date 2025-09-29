@@ -2425,7 +2425,7 @@ class ASTConverter {
 							ASTNode prev = fragments.get(0);
 							for (int i = 1; i < fragments.size(); i++) {
 								ASTNode cur = fragments.get(i);
-								if (cur.getStartPosition() <= prev.getStartPosition()) fragments.get(i).setFlags(ASTNode.MALFORMED);
+								if (cur.getStartPosition() <= prev.getStartPosition()) cur.setFlags(ASTNode.MALFORMED);
 								prev = cur;
 							}
 						}
