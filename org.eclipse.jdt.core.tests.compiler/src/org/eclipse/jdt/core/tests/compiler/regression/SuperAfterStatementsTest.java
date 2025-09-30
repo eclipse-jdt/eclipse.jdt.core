@@ -3331,4 +3331,161 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		----------
 		""");
 	}
+	public void testGH4449a() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+
+			  final int i;
+
+			  public X() {
+			    this.i = 1;
+			    this(2);
+			    System.out.print(this.i);
+			  }
+
+			  public X(int i) {
+			    this.i = i;
+			  }
+
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 7)
+			this(2);
+			^^^^^^^^
+		The final field i may already have been assigned
+		----------
+		""");
+	}
+	public void testGH4449b() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+
+			  final int i;
+			  public X(Integer o) { this(o.intValue()); }
+			  public X() {
+			    this.i = 1;
+			    this(2);
+			    System.out.print(this.i);
+			  }
+
+			  public X(int i) {
+			    this.i = i;
+			  }
+
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 7)
+			this(2);
+			^^^^^^^^
+		The final field i may already have been assigned
+		----------
+		""");
+	}
+	public void testGH4449c() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+
+			  final int i;
+			  public X(Integer o) { this.i = o.intValue(); }
+			  public X() {
+			    this.i = 1;
+			    this(2);
+			    System.out.print(this.i);
+			  }
+
+			  public X(int i) {
+			    this.i = i;
+			  }
+
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 7)
+			this(2);
+			^^^^^^^^
+		The final field i may already have been assigned
+		----------
+		""");
+	}
+	public void testGH4449d() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"""
+			class X {
+				final Integer f1 = 1;
+				final Integer f2;
+				final Integer f3;
+				final Integer f4;
+				{
+					// f1 DA
+					// f2 DU
+					// f3 PUA
+					// f4 PUA
+					Integer l1;
+					f2 = 2 * f1;
+					if (cond())
+						l1 = f3;
+					else
+						f3 = 3;
+					// f1 DA
+					// f2 DA
+					// f3 PUA
+					// f4 PUA
+				}
+
+				X() {
+					f3 = 31;
+					f4 = 4;
+					// after prologue:
+					// f1 DU
+					// f2 DU
+					// f3 DA
+					// f4 DA
+					super();
+				}
+				X(Double d) {
+					// f1 DA
+					// f2 DA
+					// f3 PUA
+					// f4 DU
+					f3 = 33;
+					f4 = 44;
+				}
+				static boolean cond() { return false; }
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 14)
+			l1 = f3;
+			     ^^
+		The blank final field f3 may not have been initialized
+		----------
+		2. ERROR in X.java (at line 16)
+			f3 = 3;
+			^^
+		The final field f3 may already have been assigned
+		----------
+		3. ERROR in X.java (at line 38)
+			f3 = 33;
+			^^
+		The final field f3 may already have been assigned
+		----------
+		""");
+	}
 }

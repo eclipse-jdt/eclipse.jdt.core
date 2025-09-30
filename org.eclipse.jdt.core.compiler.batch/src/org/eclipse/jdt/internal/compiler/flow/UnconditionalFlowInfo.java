@@ -895,7 +895,7 @@ public FlowInfo initsWhenTrue() {
  * It deals with the dual representation of the InitializationInfo2:
  * bits for the first 64 entries, then an array of booleans.
  */
-final private boolean isDefinitelyAssigned(int position) {
+private boolean isDefinitelyAssigned(int position) {
 	if (position < BitCacheSize) {
 		// use bits
 		return (this.definiteInits & (1L << position)) != 0;
@@ -913,7 +913,7 @@ final private boolean isDefinitelyAssigned(int position) {
 }
 
 @Override
-final public boolean isDefinitelyAssigned(FieldBinding field) {
+public boolean isDefinitelyAssigned(FieldBinding field) {
 	// Mirrored in CodeStream.isDefinitelyAssigned(..)
 	// do not want to complain in unreachable code
 	if ((this.tagBits & UNREACHABLE_OR_DEAD) != 0) {
@@ -923,7 +923,7 @@ final public boolean isDefinitelyAssigned(FieldBinding field) {
 }
 
 @Override
-final public boolean isDefinitelyAssigned(LocalVariableBinding local) {
+public boolean isDefinitelyAssigned(LocalVariableBinding local) {
 	// do not want to complain in unreachable code if local declared in reachable code
 	if ((this.tagBits & UNREACHABLE_OR_DEAD) != 0 && (local.declaration.bits & ASTNode.IsLocalDeclarationReachable) != 0) {
 		return true;
@@ -1064,7 +1064,7 @@ final private boolean isPotentiallyAssigned(int position) {
 }
 
 @Override
-final public boolean isPotentiallyAssigned(FieldBinding field) {
+public boolean isPotentiallyAssigned(FieldBinding field) {
 	return isPotentiallyAssigned(field.id);
 }
 
@@ -1411,7 +1411,7 @@ public void markAsComparedEqualToNull(LocalVariableBinding local) {
 /**
  * Record a definite assignment at a given position.
  */
-final private void markAsDefinitelyAssigned(int position) {
+private void markAsDefinitelyAssigned(int position) {
 
 	if (this != DEAD_END) {
 		// position is zero-based
