@@ -14,6 +14,7 @@
 
 package org.eclipse.jdt.internal.compiler.apt.model;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.lang.model.type.IntersectionType;
@@ -21,6 +22,7 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVisitor;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 /**
@@ -29,9 +31,15 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 public class IntersectionTypeImpl extends TypeMirrorImpl implements IntersectionType {
 	private final List<? extends TypeMirror> bounds;
 
-	IntersectionTypeImpl(BaseProcessingEnvImpl env, TypeVariableBinding binding) {
+	IntersectionTypeImpl(BaseProcessingEnvImpl env, TypeVariableBinding binding, ReferenceBinding superClass) {
 		super(env, binding);
-		this.bounds = Arrays.stream(binding.superInterfaces).map(referenceBinding -> this._env.getFactory().newTypeMirror(referenceBinding)).toList();
+        List<ReferenceBinding> superTypes = new ArrayList<>(Arrays.asList(binding.superInterfaces));
+        if (superClass != null) {
+            superTypes.add(0, superClass);
+        }
+		this.bounds = superTypes.stream()
+                .map(referenceBinding -> this._env.getFactory().newTypeMirror(referenceBinding))
+                .toList();
 	}
 
 	/* (non-Javadoc)
