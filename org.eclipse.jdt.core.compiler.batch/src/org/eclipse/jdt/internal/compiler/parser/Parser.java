@@ -11607,7 +11607,7 @@ try {
 	ProcessTerminals : for (;;) {
 		if (Thread.currentThread().isInterrupted()) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException("[" + Thread.currentThread().getName() + "] Task interrupted", new InterruptedException()); //$NON-NLS-1$ //$NON-NLS-2$
+            throw new AbortCompilation(true, null); // fail silently
         }
 
 		int stackLength = this.stack.length;
