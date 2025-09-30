@@ -761,7 +761,7 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 					ctorInfo = constructor.getPrologueInfo();
 					if (ctorInfo == ConstructorDeclaration.EMPTY_FLOW_INFO) {
 						allConstructorsHavePrologue = false;
-					} else {
+					} else if (ctorInfo.hasInits()) {
 						if (prologueInfo == null)
 							prologueInfo = ctorInfo.copy();
 						else

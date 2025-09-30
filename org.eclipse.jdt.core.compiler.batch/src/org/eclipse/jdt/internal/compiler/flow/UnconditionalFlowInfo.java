@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1013,6 +1013,11 @@ final public boolean isDefinitelyUnknown(LocalVariableBinding local) {
 	return ((this.extra[2][vectorIndex] & this.extra[5][vectorIndex]
 	    & ~this.extra[3][vectorIndex] & ~this.extra[4][vectorIndex])
 		    & (1L << (position % BitCacheSize))) != 0;
+}
+
+@Override
+public boolean hasInits() {
+	return this.definiteInits != 0 || this.potentialInits != 0 || (this.tagBits & NULL_FLAG_MASK) != 0;
 }
 
 @Override

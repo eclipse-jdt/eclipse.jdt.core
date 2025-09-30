@@ -119,6 +119,11 @@ public boolean isDefinitelyUnknown(LocalVariableBinding local) {
 }
 
 @Override
+public boolean hasInits() {
+	return this.initsWhenTrue.hasInits() || this.initsWhenFalse.hasInits();
+}
+
+@Override
 public boolean hasNullInfoFor(LocalVariableBinding local) {
 	return this.initsWhenTrue.hasNullInfoFor(local)
 			|| this.initsWhenFalse.hasNullInfoFor(local);
