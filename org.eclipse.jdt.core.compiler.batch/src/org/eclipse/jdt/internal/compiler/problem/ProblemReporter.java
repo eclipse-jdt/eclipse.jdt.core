@@ -2120,14 +2120,14 @@ public void duplicateInheritedMethods(SourceTypeBinding type, MethodBinding inhe
 		type.sourceStart(),
 		type.sourceEnd());
 }
-public void duplicateInitializationOfBlankFinalField(FieldBinding field, Reference reference) {
+public void duplicateInitializationOfBlankFinalField(FieldBinding field, ASTNode location) {
 	String[] arguments = new String[]{ new String(field.readableName())};
 	this.handle(
 		IProblem.DuplicateBlankFinalFieldInitialization,
 		arguments,
 		arguments,
-		nodeSourceStart(field, reference),
-		nodeSourceEnd(field, reference));
+		nodeSourceStart(field, location),
+		nodeSourceEnd(field, location));
 }
 public void duplicateInitializationOfFinalLocal(LocalVariableBinding local, ASTNode location) {
 	int problemId = local.isPatternVariable() ? IProblem.PatternVariableRedefined : IProblem.DuplicateFinalLocalInitialization;

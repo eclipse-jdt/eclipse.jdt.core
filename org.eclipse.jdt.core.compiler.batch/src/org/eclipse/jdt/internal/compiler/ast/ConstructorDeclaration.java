@@ -58,6 +58,8 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ConstructorDeclaration extends AbstractMethodDeclaration {
 
+	public static final UnconditionalFlowInfo EMPTY_FLOW_INFO = new UnconditionalFlowInfo();
+
 	public ExplicitConstructorCall constructorCall;
 
 	public TypeParameter[] typeParameters;
@@ -76,7 +78,7 @@ enum AnalysisMode { ALL, PROLOGUE, REST }
 FlowInfo getPrologueInfo() {
 	if (this.prologueInfo != null)
 		return this.prologueInfo;
-	return new UnconditionalFlowInfo();
+	return EMPTY_FLOW_INFO;
 }
 
 /**
@@ -240,6 +242,8 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 						lateConstructorCall = null; 	// no more checking for subsequent statements
 					}
 					continue;							// skip statements already processed during PROLOGUE analysis
+				} else if (mode == AnalysisMode.PROLOGUE && stat instanceof ExplicitConstructorCall ctorCall) {
+					complainAboutInitializedFinalFields(flowInfo, ctorCall);
 				}
 				if ((complaintLevel = stat.complainIfUnreachable(flowInfo, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
 					flowInfo = stat.analyseCode(this.scope, constructorContext, flowInfo);
@@ -302,6 +306,19 @@ private void markFieldsAsInitializedAfterThisCall(ExplicitConstructorCall call, 
 		for (FieldBinding field : fields) {
 			if (!field.isStatic()) {
 				flowInfo.markAsDefinitelyAssigned(field);
+			}
+		}
+	}
+}
+
+private void complainAboutInitializedFinalFields(FlowInfo flowInfo, ExplicitConstructorCall call) {
+	if (call.accessMode == ExplicitConstructorCall.This) {
+		// if calling 'this(...)', complain about final fields that are already assigned
+		FieldBinding[] fields = this.binding.declaringClass.fields();
+		for (FieldBinding field : fields) {
+			if (!field.isStatic()) {
+				if (flowInfo.isPotentiallyAssigned(field))
+					this.scope.problemReporter().duplicateInitializationOfBlankFinalField(field, call);
 			}
 		}
 	}

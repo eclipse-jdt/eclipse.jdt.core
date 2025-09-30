@@ -38,9 +38,11 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration.AnalysisMode;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.DualFlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
+import org.eclipse.jdt.internal.compiler.flow.UnconditionalDualFlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
@@ -749,6 +751,7 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 		if (this.methods != null) {
 			// collect field initializations happening in constructor prologues
 			FlowInfo prologueInfo = null;
+			boolean allConstructorsHavePrologue = true;
 			for (int i=0; i<this.methods.length; i++) {
 				AbstractMethodDeclaration method = this.methods[i];
 				if (method.isConstructor()) {
@@ -756,23 +759,32 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 					ConstructorDeclaration constructor = (ConstructorDeclaration) method;
 					constructor.analyseCode(this.scope, initializerContext, ctorInfo, ctorInfo.reachMode(), AnalysisMode.PROLOGUE);
 					ctorInfo = constructor.getPrologueInfo();
-					if (prologueInfo == null)
-						prologueInfo = ctorInfo.copy();
-					else
-						prologueInfo = prologueInfo.mergeDefiniteInitsWith(ctorInfo.unconditionalInits()); // will only evaluate field inits below
+					if (ctorInfo == ConstructorDeclaration.EMPTY_FLOW_INFO) {
+						allConstructorsHavePrologue = false;
+					} else if (ctorInfo.hasInits()) {
+						if (prologueInfo == null)
+							prologueInfo = ctorInfo.copy();
+						else
+							prologueInfo = prologueInfo.mergeDefiniteInitsWith(ctorInfo.unconditionalInits()); // will only evaluate field inits below
+					}
 				}
 			}
 			if (prologueInfo != null) {
-				// field initializers should see inits from ctor prologues:
-				for (FieldBinding field : this.binding.fields()) {
-					if (prologueInfo.isDefinitelyAssigned(field)) {
-						nonStaticFieldInfo.markAsDefinitelyAssigned(field);
-					} else if (prologueInfo.isPotentiallyAssigned(field)) {
-						// mimic missing method markAsPotentiallyAssigned(field):
-						UnconditionalFlowInfo assigned = FlowInfo.initial(this.maxFieldCount);
-						assigned.markAsDefinitelyAssigned(field);
-						nonStaticFieldInfo.addPotentialInitializationsFrom(assigned);
+				if (allConstructorsHavePrologue) {
+					// field initializers should see inits from ctor prologues:
+					for (FieldBinding field : this.binding.fields()) {
+						if (prologueInfo.isDefinitelyAssigned(field)) {
+							nonStaticFieldInfo.markAsDefinitelyAssigned(field);
+						} else if (prologueInfo.isPotentiallyAssigned(field)) {
+							// mimic missing method markAsPotentiallyAssigned(field):
+							UnconditionalFlowInfo assigned = FlowInfo.initial(this.maxFieldCount);
+							assigned.markAsDefinitelyAssigned(field);
+							nonStaticFieldInfo.addPotentialInitializationsFrom(assigned);
+						}
 					}
+				} else {
+					// need to keep variants with and without prologue info separate:
+					nonStaticFieldInfo = new DualFlowInfo(nonStaticFieldInfo, prologueInfo);
 				}
 			}
 		}
@@ -845,6 +857,11 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 	}
 	if (this.methods != null) {
 		UnconditionalFlowInfo outerInfo = flowInfo.unconditionalFieldLessCopy();
+		if (nonStaticFieldInfo instanceof UnconditionalDualFlowInfo udfi) {
+			nonStaticFieldInfo = udfi.getMainInits(); // drop info from prologues
+		} else if (nonStaticFieldInfo instanceof DualFlowInfo dfi) {
+			nonStaticFieldInfo = dfi.initsWhenTrue;
+		}
 		FlowInfo constructorInfo = nonStaticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo);
 		SimpleSetOfCharArray jUnitMethodSourceValues = getJUnitMethodSourceValues();
 		for (AbstractMethodDeclaration method : this.methods) {
