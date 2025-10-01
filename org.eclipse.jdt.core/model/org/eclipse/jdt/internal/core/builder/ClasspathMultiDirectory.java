@@ -18,12 +18,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.CompilationResult;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.batch.BasicModule;
-import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -135,23 +129,6 @@ String[] directoryList(String qualifiedPackageName) {
 public String toString() {
 	return "Source classpath directory " + this.sourceFolder.getFullPath().toString() + //$NON-NLS-1$
 		" with " + super.toString(); //$NON-NLS-1$
-}
-
-public void acceptModuleInfo(ICompilationUnit cu, Parser parser) {
-	CompilationResult compilationResult = new CompilationResult(cu, 0, 1, 10);
-	CompilationUnitDeclaration unit = parser.parse(cu, compilationResult);
-	// Request could also come in when module-info has changed or removed.
-	if (unit.isModuleInfo() && unit.moduleDeclaration != null) {
-		this.module = new BasicModule(unit.moduleDeclaration, null);
-	}
-}
-@Override
-public void setModule(IModule mod) {
-	this.module = mod;
-}
-
-public IModule module() {
-	return this.module;
 }
 
 }
