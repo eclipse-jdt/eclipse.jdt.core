@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core;
 import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.*;
@@ -277,7 +278,7 @@ public class DOMToModelPopulator extends ASTVisitor {
 			}
 		}
 		if (node.getAST().apiLevel() > 2 && node.getSuperclassType() != null) {
-			newInfo.setSuperclassName(node.getSuperclassType().toString().toCharArray());
+			newInfo.setSuperclassName(typeName(node.getSuperclassType()).toCharArray());
 		}
 		if (node.getAST().apiLevel() >= AST.JLS17) {
 			char[][] permitted = ((List<Type>)node.permittedTypes()).stream().map(Type::toString).map(String::toCharArray).toArray(char[][]::new);
@@ -450,7 +451,7 @@ public class DOMToModelPopulator extends ASTVisitor {
 			setSourceRange(newInfo, node);
 			newInfo.setNameSourceStart(node.getName().getStartPosition());
 			newInfo.setNameSourceEnd(node.getName().getStartPosition() + node.getName().getLength() - 1);
-			newInfo.setTypeName(node.getType().toString().toCharArray());
+			newInfo.setTypeName(typeName(node.getType()).toCharArray());
 			newInfo.setFlags(toModelFlags(node.getModifiers(), false));
 			newInfo.isRecordComponent = true;
 			this.infos.push(newInfo);
@@ -507,7 +508,7 @@ public class DOMToModelPopulator extends ASTVisitor {
 		info.setArgumentNames(parameters.stream().map(param -> param.getName().toString().toCharArray()).toArray(char[][]::new));
 		if (method.getAST().apiLevel() > 2) {
 			if (method.getReturnType2() != null) {
-				info.setReturnType(method.getReturnType2().toString().toCharArray());
+				info.setReturnType(typeName(method.getReturnType2()).toCharArray());
 			} else {
 				info.setReturnType("void".toCharArray()); //$NON-NLS-1$
 			}
@@ -516,7 +517,7 @@ public class DOMToModelPopulator extends ASTVisitor {
 			parentInfo.addCategories(newElement, getCategories(method));
 		}
 		if (method.getAST().apiLevel() >= AST.JLS8) {
-			info.setExceptionTypeNames(((List<Type>)method.thrownExceptionTypes()).stream().map(Type::toString).map(String::toCharArray).toArray(char[][]::new));
+			info.setExceptionTypeNames(((List<Type>)method.thrownExceptionTypes()).stream().map(DOMToModelPopulator::typeName).map(String::toCharArray).toArray(char[][]::new));
 		}
 		setSourceRange(info, method);
 		boolean isDeprecated = isNodeDeprecated(method);
@@ -552,7 +553,7 @@ public class DOMToModelPopulator extends ASTVisitor {
 		this.elements.push(newElement);
 		addAsChild(this.infos.peek(), newElement);
 		SourceAnnotationMethodInfo info = new SourceAnnotationMethodInfo();
-		info.setReturnType(method.getType().toString().toCharArray());
+		info.setReturnType(typeName(method.getType()).toCharArray());
 		setSourceRange(info, method);
 		((SourceTypeElementInfo)this.infos.peek()).addCategories(newElement, getCategories(method));
 		boolean isDeprecated = isNodeDeprecated(method);
@@ -719,7 +720,7 @@ public class DOMToModelPopulator extends ASTVisitor {
 					.map(Name::getFullyQualifiedName)
 					.forEach(this.currentTypeParameters::add);
 				Type type = constructorInvocation.getType();
-				newInfo.setSuperclassName(type.toString().toCharArray());
+				newInfo.setSuperclassName(typeName(type).toCharArray());
 				newInfo.setNameSourceStart(type.getStartPosition());
 				// TODO consider leading comments just like in setSourceRange(newInfo, node);
 				newInfo.setSourceRangeStart(constructorInvocation.getStartPosition());
@@ -939,7 +940,7 @@ public class DOMToModelPopulator extends ASTVisitor {
 			this.elements.push(newElement);
 			addAsChild(parentInfo, newElement);
 			SourceFieldWithChildrenInfo info = new SourceFieldWithChildrenInfo(new IJavaElement[0]);
-			info.setTypeName(field.getType().toString().toCharArray());
+			info.setTypeName(typeName(field.getType()).toCharArray());
 			setSourceRange(info, field);
 			if (parentInfo instanceof SourceTypeElementInfo parentTypeInfo) {
 				parentTypeInfo.addCategories(newElement, categories);
@@ -1279,5 +1280,36 @@ public class DOMToModelPopulator extends ASTVisitor {
 			}
 		}
 		return null;
+	}
+
+	private static String typeName(Type type) {
+		if (type == null) {
+			return "";
+		}
+		if (type instanceof PrimitiveType primitive) {
+			return primitive.getPrimitiveTypeCode().toString();
+		}
+		if (type instanceof SimpleType simple) {
+			return simple.getName().toString();
+		}
+		if (type instanceof NameQualifiedType nameQualified) {
+			return nameQualified.getQualifier().toString() + '.' + nameQualified.getName().getIdentifier();
+		}
+		if (type instanceof QualifiedType qtype) {
+			return typeName(qtype.getQualifier()) + '.' + qtype.getName().getIdentifier();
+		}
+		if (type instanceof WildcardType) {
+			return type.toString();
+		}
+		if (type instanceof ArrayType arrayType) {
+			return typeName(arrayType.getElementType()) +
+					Collections.nCopies(arrayType.getDimensions(), "[]").stream().collect(Collectors.joining()); //$NON-NLS-1$
+		}
+		if (type instanceof ParameterizedType parameterizedType) {
+			return typeName(parameterizedType.getType()) + '<' +
+					((List<Type>)parameterizedType.typeArguments()).stream().map(DOMToModelPopulator::typeName).collect(Collectors.joining(",")) //$NON-NLS-1$
+					+ '>';
+		}
+		return type.toString();
 	}
 }
