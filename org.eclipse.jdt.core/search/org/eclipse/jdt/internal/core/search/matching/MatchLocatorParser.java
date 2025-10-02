@@ -1059,6 +1059,7 @@ protected void parseBodies(TypeDeclaration type, CompilationUnitDeclaration unit
 				}
 			} else if (method.isDefaultConstructor()) {
 				method.parseStatements(this, unit);
+				method.traverse(this.localDeclarationVisitor, (ClassScope) null);
 			}
 		}
 	}

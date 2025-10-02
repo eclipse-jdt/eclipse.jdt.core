@@ -5942,6 +5942,7 @@ public void testBug110291() throws CoreException {
 	);
 	search("Test110291", CONSTRUCTOR, DECLARATIONS, SearchPattern.R_PREFIX_MATCH);
 	assertSearchResults(
+		"src/b110291/Test110291XX.java b110291.Test110291XX [Test110291XX] EXACT_MATCH\n" +
 		"src/b110291/Test110291XX.java b110291.Test110291XX$Test110291YY [Test110291YY] EXACT_MATCH"
 	);
 }
