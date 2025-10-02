@@ -13,12 +13,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.eval;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameInvalid;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameTWIDDLE;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 /**
@@ -193,7 +197,7 @@ protected void consumeClassHeaderName1() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = typeDecl.bodyStart;
 		this.currentElement = this.currentElement.add(typeDecl, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 	}
 	// javadoc
 	typeDecl.javadoc = this.javadoc;
@@ -817,7 +821,7 @@ private void recordLastStatementIfNeeded() {
 }
 
 @Override
-protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
+protected void reportSyntaxErrors(boolean isDietParse, TerminalToken oldFirstToken) {
 	if (!isDietParse) {
 		this.scanner.initialPosition = this.lastStatement;
 		this.scanner.eofPosition = this.codeSnippetEnd + 1; // stop after expression

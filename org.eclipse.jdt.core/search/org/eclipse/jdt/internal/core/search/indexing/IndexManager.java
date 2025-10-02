@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
@@ -39,6 +40,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -1309,7 +1311,15 @@ private void readIndexMap() {
 			String savedSignature = DiskIndex.SIGNATURE;
 			if (savedSignature.equals(new String(names[0]))) {
 				for (int i = 1, l = names.length-1 ; i < l ; i+=2) {
-					IndexLocation indexPath = IndexLocation.createIndexLocation(new URL(new String(names[i])));
+					IndexLocation indexPath = null;
+					String name = new String(names[i]);
+					try {
+						URI uri = URIUtil.fromString(name);
+						indexPath = IndexLocation.createIndexLocation(uri.toURL());
+					} catch (URISyntaxException e) {
+						Util.log(e, "Failed to create index name '" + name + "' for " + this.indexNamesMapFile); //$NON-NLS-1$ //$NON-NLS-2$
+						// Ignore the null path and continue
+					}
 					if (indexPath == null) continue;
 					this.indexLocations.put(new Path(new String(names[i+1])), indexPath );
 					this.indexStates.put(indexPath, REUSE_STATE);

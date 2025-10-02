@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,6 +14,7 @@
 package org.eclipse.jdt.core.tests.util;
 
 import java.io.File;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -49,6 +50,8 @@ public class AbstractCompilerTest extends TestCase {
 	public static final int F_21  = 0x40000;
 	public static final int F_22  = 0x80000;
 	public static final int F_23  = 0x100000;
+	public static final int F_24  = 0x200000;
+	public static final int F_25  = 0x400000;
 	/** Should be adopted if {@link CompilerOptions#getFirstSupportedJdkLevel()} changes */
 	public static final int FIRST_SUPPORTED_JAVA_VERSION = F_1_8;
 
@@ -81,6 +84,8 @@ public class AbstractCompilerTest extends TestCase {
 	protected static boolean isJRE21Plus = false;
 	protected static boolean isJRE22Plus = false;
 	protected static boolean isJRE23Plus = false;
+	protected static boolean isJRE24Plus = false;
+	protected static boolean isJRE25Plus = false;
 	protected static boolean reflectNestedClassUseDollar;
 
 	public static int[][] complianceTestLevelMapping = new int[][] {
@@ -100,6 +105,8 @@ public class AbstractCompilerTest extends TestCase {
 		new int[] {F_21, ClassFileConstants.MAJOR_VERSION_21},
 		new int[] {F_22, ClassFileConstants.MAJOR_VERSION_22},
 		new int[] {F_23, ClassFileConstants.MAJOR_VERSION_23},
+		new int[] {F_24, ClassFileConstants.MAJOR_VERSION_24},
+		new int[] {F_25, ClassFileConstants.MAJOR_VERSION_25},
 	};
 
 	/**
@@ -191,10 +198,18 @@ public class AbstractCompilerTest extends TestCase {
 		}
 		if (complianceSuite == null)
 			return null;
-
+		String specVersion = System.getProperty("java.specification.version");
+		int spec = Integer.parseInt(specVersion);
+		boolean futureJREUsed = spec > Integer.parseInt(CompilerOptions.getLatestVersion());
 		// add tests
 		for (int i=0, m=testClasses.size(); i<m ; i++) {
 			Class testClass = (Class)testClasses.get(i);
+			if (futureJREUsed) {
+				Annotation annotation = testClass.getAnnotation(PreviewTest.class);
+				if (annotation != null) {
+					continue;
+				}
+			}
 			TestSuite suite = new TestSuite(testClass.getName());
 			int inheritedDepth = 0;
 			try {
@@ -336,7 +351,9 @@ public class AbstractCompilerTest extends TestCase {
 			if (spec > Integer.parseInt(CompilerOptions.getLatestVersion())) {
 				specVersion = CompilerOptions.getLatestVersion();
 			}
-			isJRE23Plus = CompilerOptions.VERSION_23.equals(specVersion);
+			isJRE25Plus = CompilerOptions.VERSION_25.equals(specVersion);
+			isJRE24Plus = isJRE25Plus || CompilerOptions.VERSION_24.equals(specVersion);
+			isJRE23Plus = isJRE24Plus || CompilerOptions.VERSION_23.equals(specVersion);
 			isJRE22Plus = isJRE23Plus || CompilerOptions.VERSION_22.equals(specVersion);
 			isJRE21Plus = isJRE22Plus || CompilerOptions.VERSION_21.equals(specVersion);
 			isJRE20Plus = isJRE21Plus || CompilerOptions.VERSION_20.equals(specVersion);
@@ -389,7 +406,8 @@ public class AbstractCompilerTest extends TestCase {
 						System.out.println(CompilerOptions.VERSION_20 + ", ");
 						System.out.println(CompilerOptions.VERSION_21 + ", ");
 						System.out.println(CompilerOptions.VERSION_22 + ", ");
-						System.out.println(CompilerOptions.VERSION_23);
+						System.out.println(CompilerOptions.VERSION_23 + ", ");
+						System.out.println(CompilerOptions.VERSION_24);
 					}
 				}
 				if (possibleComplianceLevels == 0) {

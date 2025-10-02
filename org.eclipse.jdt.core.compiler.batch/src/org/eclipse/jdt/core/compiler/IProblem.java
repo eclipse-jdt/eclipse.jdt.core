@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -428,6 +428,7 @@ void setSourceStart(int sourceStart);
 	int IncorrectEnclosingInstanceReference = TypeRelated + 22;
 	int IllegalEnclosingInstanceSpecification = TypeRelated + 23;
 	int CannotDefineStaticInitializerInLocalType = Internal + 24;
+	/** @deprecated - problem is no longer generated, use {@link #OuterLocalMustBeEffectivelyFinal} instead */
 	int OuterLocalMustBeFinal = Internal + 25;
 	int CannotDefineInterfaceInLocalType = Internal + 26;
 	int IllegalPrimitiveOrArrayTypeForEnclosingInstance = TypeRelated + 27;
@@ -773,12 +774,19 @@ void setSourceStart(int sourceStart);
 	int UnnecessaryNLSTag = Internal + 265;
 	/** @since 3.7.1 */
 	int InvalidBinary = Syntax + Internal + 266;
+
+	/** @deprecated - problem no longer generated in 1.8+ code */
+	@Deprecated(forRemoval = true)
 	/** @since 3.7.1 */
 	int BinaryLiteralNotBelow17 = Syntax + Internal + 267;
 	/** @since 3.7.1 */
 	int IllegalUnderscorePosition = Syntax + Internal + 268;
+
+	/** @deprecated - problem no longer generated in 1.8+ code */
+	@Deprecated(forRemoval = true)
 	/** @since 3.7.1 */
 	int UnderscoresInLiteralsNotBelow17 = Syntax + Internal + 269;
+
 	/** @since 3.7.1 */
 	int IllegalHexaLiteral = Syntax + Internal + 270;
 
@@ -898,6 +906,8 @@ void setSourceStart(int sourceStart);
 	int IllegalModifierForArgument = MethodRelated + 356;
 	int DuplicateModifierForMethod = MethodRelated + 357;
 	int IllegalModifierForMethod = MethodRelated + 358;
+	/** @deprecated - problem no longer generated in 1.8+ code */
+	@Deprecated(forRemoval = true)
 	int IllegalModifierForInterfaceMethod = MethodRelated + 359;
 	int IllegalVisibilityModifierCombinationForMethod = MethodRelated + 360;
 	int UnexpectedStaticModifierForMethod = MethodRelated + 361;
@@ -1434,22 +1444,47 @@ void setSourceStart(int sourceStart);
 	/**
 	 * 1.5 Syntax errors (when source level < 1.5)
 	 */
+
+    /** @deprecated - problem no longer generated in 1.8+ code */
+    @Deprecated(forRemoval = true)
 	/** @since 3.1 */
     int InvalidUsageOfTypeParameters = Syntax + Internal + 590;
+
+    /** @deprecated - problem no longer generated in 1.8+ code */
+    @Deprecated(forRemoval = true)
     /** @since 3.1 */
     int InvalidUsageOfStaticImports = Syntax + Internal + 591;
+
+    /** @deprecated - problem no longer generated in 1.8+ code */
+    @Deprecated(forRemoval = true)
     /** @since 3.1 */
     int InvalidUsageOfForeachStatements = Syntax + Internal + 592;
+
+    /** @deprecated - problem no longer generated in 1.8+ code */
+    @Deprecated(forRemoval = true)
     /** @since 3.1 */
     int InvalidUsageOfTypeArguments = Syntax + Internal + 593;
+
+    /** @deprecated - problem no longer generated in 1.8+ code */
+    @Deprecated(forRemoval = true)
     /** @since 3.1 */
     int InvalidUsageOfEnumDeclarations = Syntax + Internal + 594;
+
+    /** @deprecated - problem no longer generated in 1.8+ code */
+    @Deprecated(forRemoval = true)
     /** @since 3.1 */
     int InvalidUsageOfVarargs = Syntax + Internal + 595;
+
+    /** @deprecated - problem no longer generated in 1.8+ code */
+    @Deprecated(forRemoval = true)
     /** @since 3.1 */
     int InvalidUsageOfAnnotations = Syntax + Internal + 596;
+
+    /** @deprecated - problem no longer generated in 1.8+ code */
+    @Deprecated(forRemoval = true)
     /** @since 3.1 */
     int InvalidUsageOfAnnotationDeclarations = Syntax + Internal + 597;
+
     /** @since 3.4 */
     int InvalidUsageOfTypeParametersForAnnotationDeclaration = Syntax + Internal + 598;
     /** @since 3.4 */
@@ -1544,14 +1579,29 @@ void setSourceStart(int sourceStart);
     int IllegalUsageOfTypeAnnotations = Internal + Syntax + 641;
     /** @since 3.10 */
     int IllegalDeclarationOfThisParameter = Internal + Syntax + 642;
+
+	/** @deprecated - problem no longer generated in 1.8+ code */
+	@Deprecated(forRemoval = true)
     /** @since 3.10 */
     int ExplicitThisParameterNotBelow18 = Internal + Syntax + 643;
+
+	/** @deprecated - problem no longer generated in 1.8+ code */
+	@Deprecated(forRemoval = true)
     /** @since 3.10 */
     int DefaultMethodNotBelow18 = Internal + Syntax + 644;
+
+	/** @deprecated - problem no longer generated in 1.8+ code */
+	@Deprecated(forRemoval = true)
     /** @since 3.10 */
     int LambdaExpressionNotBelow18 = Internal + Syntax + 645;
+
+	/** @deprecated - problem no longer generated in 1.8+ code */
+	@Deprecated(forRemoval = true)
     /** @since 3.10 */
     int MethodReferenceNotBelow18 = Internal + Syntax + 646;
+
+	/** @deprecated - problem no longer generated in 1.8+ code */
+	@Deprecated(forRemoval = true)
     /** @since 3.10 */
     int ConstructorReferenceNotBelow18 = Internal + Syntax + 647;
     /** @since 3.10 */
@@ -1595,10 +1645,17 @@ void setSourceStart(int sourceStart);
 	int ConstructionTypeMismatch = Internal + TypeRelated + 665;
     /** @since 3.10 */
     int ToleratedMisplacedTypeAnnotations = Syntax + Internal + 666;
+
+	/** @deprecated - problem no longer generated in 1.8+ code */
+	@Deprecated(forRemoval = true)
     /** @since 3.13*/
     int InterfaceSuperInvocationNotBelow18 = Internal + Syntax + 667;
-    /** @since 3.13*/
+
+	/** @deprecated - problem no longer generated in 1.8+ code */
+	@Deprecated(forRemoval = true)
+	/** @since 3.13*/
     int InterfaceStaticMethodInvocationNotBelow18 = Internal + Syntax + 668;
+
 	/** @since 3.14 */
 	int FieldMustBeFinal = Internal + 669;
 
@@ -1614,6 +1671,10 @@ void setSourceStart(int sourceStart);
 	int NullExpressionReference = Internal + 672;
 	/** @since 3.9 */
 	int PotentialNullExpressionReference = Internal + 673;
+	/** @since 3.42*/
+	int LocalMustBeEffectivelyFinal = Internal + 674;
+	/** @since 3.42*/
+	int ResourceLocalMustBeEffectivelyFinal = Internal + 675;
 
 	/**
 	 * Corrupted binaries
@@ -1750,10 +1811,19 @@ void setSourceStart(int sourceStart);
 	int AssignmentToResource = Internal + 872;
 	/** @since 3.7.1 */
 	int InvalidUnionTypeReferenceSequence = Internal + TypeRelated + 873;
+
+	/** @deprecated - problem no longer generated in 1.8+ code */
+	@Deprecated(forRemoval = true)
 	/** @since 3.7.1 */
 	int AutoManagedResourceNotBelow17 = Syntax + Internal + 874;
+
+	/** @deprecated - problem no longer generated in 1.8+ code */
+	@Deprecated(forRemoval = true)
 	/** @since 3.7.1 */
 	int MultiCatchNotBelow17 =  Syntax + Internal + 875;
+
+	/** @deprecated - problem no longer generated in 1.8+ code */
+	@Deprecated(forRemoval = true)
 	/** @since 3.7.1 */
 	int PolymorphicMethodNotBelow17 = MethodRelated + 876;
 	/** @since 3.7.1 */
@@ -1764,10 +1834,17 @@ void setSourceStart(int sourceStart);
 	int CannotUseDiamondWithExplicitTypeArguments = TypeRelated + 879;
 	/** @since 3.7.1 */
 	int CannotUseDiamondWithAnonymousClasses = TypeRelated + 880;
+
+	/** @deprecated - problem no longer generated in 1.8+ code */
+	@Deprecated(forRemoval = true)
 	/** @since 3.7.1 */
 	int SwitchOnStringsNotBelow17 = TypeRelated + 881;	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=348492
+
 	/** @since 3.7.1 */
 	int UnhandledExceptionOnAutoClose =  TypeRelated + 882;
+
+	/** @deprecated - problem no longer generated in 1.8+ code */
+	@Deprecated(forRemoval = true)
 	/** @since 3.7.1 */
 	int DiamondNotBelow17 =  TypeRelated + 883;
 	/** @since 3.7.1 */
@@ -1782,10 +1859,16 @@ void setSourceStart(int sourceStart);
 	int UnclosedCloseableAtExit = Internal + 888;
 	/** @since 3.8 */
 	int ExplicitlyClosedAutoCloseable = Internal + 889;
+
+	/** @deprecated - problem no longer generated in 1.8+ code */
 	/** @since 3.8 */
 	int SwitchOnEnumNotBelow15 = TypeRelated + 890;	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=360317
+
+	/** @deprecated - problem no longer generated in 1.8+ code */
+	@Deprecated(forRemoval = true)
 	/** @since 3.10 */
 	int IntersectionCastNotBelow18 = TypeRelated + 891;
+
 	/** @since 3.10 */
 	int IllegalBasetypeInIntersectionCast = TypeRelated + 892;
 	/** @since 3.10 */
@@ -1796,8 +1879,12 @@ void setSourceStart(int sourceStart);
 	 * @since 3.10 */
 	@Deprecated
 	int MultipleFunctionalInterfaces = TypeRelated + 895;
+
+	/** @deprecated - problem no longer generated in 1.8+ code */
+	@Deprecated(forRemoval = true)
 	/** @since 3.10 */
 	int StaticInterfaceMethodNotBelow18 = Internal + Syntax + 896;
+
 	/** @since 3.10 */
 	int DuplicateAnnotationNotMarkedRepeatable = TypeRelated + 897;
 	/** @since 3.10 */
@@ -1913,6 +2000,8 @@ void setSourceStart(int sourceStart);
 	int ConstNonNullFieldComparisonYieldsFalse = Internal + 945;
 	/** @since 3.21 */
 	int InheritedParameterLackingNonNullAnnotation = MethodRelated + 946;
+	/** @since 3.43 */
+	int RecordComponentIncompatibleNullnessVsInheritedAccessor = MethodRelated + 947;
 
 	/** @since 3.10 */
 	int ArrayReferencePotentialNullReference = Internal + 951;
@@ -2095,6 +2184,10 @@ void setSourceStart(int sourceStart);
 	int UndefinedModuleAddReads = ModuleRelated + 1319;
 	/** @since 3.20 */
 	int ExportingForeignPackage = ModuleRelated + 1320;
+	/** @since 3.42*/
+	int ModifierOnRequiresJavaBase = ModuleRelated + 1321;
+	/** @since 3.44 */
+	int ModifierTransitiveOnRequiresJavaBaseBelow25 = ModuleRelated + 1322;
 
 
 	/** @since 3.14 */
@@ -2239,6 +2332,8 @@ void setSourceStart(int sourceStart);
 	int JavaVersionNotSupported = Compliance + 1109;
 	/** @since 3.40*/
 	int JavaVersionTooRecent = Compliance + 1110;
+	/** @since 3.42*/
+	int PreviewAPIDisabled = Compliance + 1111;
 
 	/** @since 3.13 */
 	int UnlikelyCollectionMethodArgumentType = 1200;
@@ -2260,9 +2355,13 @@ void setSourceStart(int sourceStart);
 	int VarLocalInitializedToVoid = TypeRelated + 1505; // Variable initializer is ''void'' -- cannot infer variable type
 	/** @since 3.14 */
 	int VarLocalCannotBeArrayInitalizers = TypeRelated + 1506; // Array initializer needs an explicit target-type
-	/** @since 3.14 */
+	/** @since 3.14
+	 *  @deprecated no longer issued - will be removed
+	 * */
 	int VarLocalCannotBeLambda = TypeRelated + 1507; // Lambda expression needs an explicit target-type
-	/** @since 3.14 */
+	/** @since 3.14
+	 *  @deprecated no longer issued - will be removed
+	 * */
 	int VarLocalCannotBeMethodReference = TypeRelated + 1508; // Method reference needs an explicit target-type
 	/** @since 3.14 */
 	int VarIsReserved = Syntax + 1509; // ''var'' is not a valid type name
@@ -2393,19 +2492,16 @@ void setSourceStart(int sourceStart);
 	int SwitchExpressionsContinueOutOfSwitchExpression  = Syntax + 1723;
 	/** @since 3.22 */
 	int SwitchExpressionsReturnWithinSwitchExpression  = Syntax + 1724;
+	/** @since 3.44 */
+	int SwitchExpressionMissingEnumConstantCaseDespiteDefault = FieldRelated + 1725;
 
-	/* Java 14 errors end */
-	/* Java 15 errors begin */
 	/* records - begin */
 
 	/** @since 3.26 */
 	int RecordIllegalModifierForInnerRecord = TypeRelated + 1730;
 	/** @since 3.26 */
 	int RecordIllegalModifierForRecord = TypeRelated + 1731;
-	/** @since 3.26
-	 * JLS 14 Sec 8.10.1
-	 * it is always a compile-time error for a record header to declare a record component with the name
-	 * finalize, getClass, hashCode, notify, notifyAll, or toString. */
+	/** @since 3.26 */
 	int RecordIllegalComponentNameInRecord = TypeRelated + 1732;
 	/** @since 3.26
 	 */
@@ -2450,6 +2546,7 @@ void setSourceStart(int sourceStart);
 	 */
 	int RecordCanonicalConstructorShouldNotBeGeneric = TypeRelated + 1746;
 	/** @since 3.26
+	 *  @deprecated problem no longer generated
 	 */
 	int RecordCanonicalConstructorHasReturnStatement = TypeRelated + 1747;
 	/** @since 3.26
@@ -2459,6 +2556,7 @@ void setSourceStart(int sourceStart);
 	 */
 	int RecordCompactConstructorHasExplicitConstructorCall = TypeRelated + 1749;
 	/** @since 3.26
+	 *  @deprecated problem no longer generated
 	 */
 	int RecordNestedRecordInherentlyStatic = TypeRelated + 1750;
 	/** @since 3.26
@@ -2468,6 +2566,7 @@ void setSourceStart(int sourceStart);
 	 */
 	int RecordCannotExtendRecord= TypeRelated + 1752;
 	/** @since 3.26
+	 *  @deprecated problem no longer generated
 	 */
 	int RecordComponentCannotBeVoid= TypeRelated + 1753;
 	/** @since 3.26
@@ -2504,8 +2603,6 @@ void setSourceStart(int sourceStart);
 	 */
 	int SafeVarargsOnSyntheticRecordAccessor = TypeRelated + 1764;
 
-
-	/* records - end */
 	/* Local and Nested Static Declarations - Begin */
 	/** @since 3.28 */
 	int LocalStaticsIllegalVisibilityModifierForInterfaceLocalType = TypeRelated + 1765;
@@ -2515,6 +2612,10 @@ void setSourceStart(int sourceStart);
 	int ClassExtendFinalRecord = TypeRelated + 1767;
 	/** @since 3.29 */
 	int RecordErasureIncompatibilityInCanonicalConstructor = TypeRelated + 1768;
+	/** @since 3.41 */
+	int CompactConstructorOnlyInRecords = TypeRelated + 1769;
+	/** @since 3.42 */
+	int RecordAccessorMissingOverrideAnnotation = TypeRelated + 1770;
 	/* records - end */
 
 
@@ -2759,6 +2860,17 @@ void setSourceStart(int sourceStart);
 	int ConstructorCallNotAllowedHere = PreviewRelated + 2031;
 
 	/**
+	 * @since 3.42
+	 */
+	int AllocatingLocalInStaticContext = TypeRelated + 2032;
+
+	/**
+	 * @since 3.42
+	 * @noreference preview feature
+	 */
+	int SuperFieldAssignInEarlyConstructionContextLambda = PreviewRelated + 2033;
+
+	/**
 	 * @since 3.40
 	 * @noreference preview feature
 	 */
@@ -2775,4 +2887,7 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature
 	 */
 	int DefaultTrueAndFalseCases = PreviewRelated + 2102;
+
+	/** @since 3.41 */
+	int MissingTypeForInference = Internal + 2103;
 }

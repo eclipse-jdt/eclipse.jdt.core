@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2019 GK Software AG, and others.
+ * Copyright (c) 2017, 2025 GK Software AG, and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,12 +15,12 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.IntFunction;
 import java.util.stream.Stream;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 public class SourceModuleBinding extends ModuleBinding {
 
@@ -137,14 +137,13 @@ public class SourceModuleBinding extends ModuleBinding {
 		return this.tagBits;
 	}
 	protected void ensureAnnotationsResolved() {
-		if ((this.tagBits & TagBits.AnnotationResolved) == 0 && this.scope != null) {
+		if ((this.extendedTagBits & ExtendedTagBits.AnnotationResolved) == 0 && this.scope != null) {
 			ModuleDeclaration module = this.scope.referenceContext.moduleDeclaration;
 			ASTNode.resolveAnnotations(module.scope, module.annotations, this);
 			if ((this.tagBits & TagBits.AnnotationDeprecated) != 0) {
 				this.modifiers |= ClassFileConstants.AccDeprecated;
-				this.tagBits |= TagBits.DeprecatedAnnotationResolved;
 			}
-			this.tagBits |= TagBits.AnnotationResolved;
+			this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 		}
 	}
 	@Override
@@ -154,9 +153,9 @@ public class SourceModuleBinding extends ModuleBinding {
 	}
 
 	@Override
-	SimpleLookupTable storedAnnotations(boolean forceInitialize, boolean forceStore) {
+	Map<Binding, AnnotationHolder> storedAnnotations(boolean forceInitialize, boolean forceStore) {
 		if (this.scope != null) { // scope null when no annotation cached, and module got processed fully (159631)
-			SimpleLookupTable annotationTable = super.storedAnnotations(forceInitialize, forceStore);
+			Map<Binding, AnnotationHolder> annotationTable = super.storedAnnotations(forceInitialize, forceStore);
 			if (annotationTable != null)
 				this.scope.referenceCompilationUnit().compilationResult.hasAnnotations = true;
 			return annotationTable;

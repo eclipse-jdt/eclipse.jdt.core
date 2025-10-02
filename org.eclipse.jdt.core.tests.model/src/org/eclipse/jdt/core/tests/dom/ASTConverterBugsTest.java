@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,12 +15,14 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import junit.framework.Test;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -636,7 +638,7 @@ public void testBug214002b() throws CoreException, IOException {
 			);
 			ICompilationUnit cuA = getCompilationUnit("P/A.java");
 			try {
-				runConversion(getJLS3(), cuA, true, true, true);
+				runConversion(cuA, true, true, true);
 			} catch(IllegalArgumentException e) {
 				assertTrue("Unexpected IllegalArgumentException", false);
 			}
@@ -1444,5 +1446,78 @@ public void testGH3047_2() throws Exception {
 	}
 	parser.createASTs(paths, null, new String[] {}, new MyFileASTRequestor() {}, null);
 	assertEquals(expectedProblems, actualProblems);
+}
+public void testGH3298() throws Exception {
+	Hashtable<String, String> options = JavaCore.getDefaultOptions();
+	options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_9);
+	options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_9);
+	options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_9);
+
+	createProject("GH3298");
+	IFile javaFile = createFile("GH3298/Test.java", "public class Test{}");
+	ICompilationUnit javaElement = JavaCore.createCompilationUnitFrom(javaFile);
+
+	try {
+		ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+		parser.setSource(javaElement);
+		parser.setCompilerOptions(options);
+		parser.setResolveBindings(true);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		assertNotNull(parser.createAST(null));
+
+		addJavaNature("GH3298");
+		parser.setSource(javaElement);
+		parser.setCompilerOptions(options);
+		parser.setResolveBindings(true);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		try {
+			parser.createAST(null);
+			fail("Expected exception was not thrown");
+		} catch (IllegalStateException ise) {
+			assertEquals("Missing system library", ise.getMessage());
+		}
+
+		parser.setSource(javaElement);
+		parser.setCompilerOptions(options);
+		parser.setResolveBindings(false);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		assertNotNull(parser.createAST(null));
+	} finally {
+		deleteProject("GH3298");
+	}
+}
+
+public void testModuleImportsNotResolved4121() throws Exception {
+	String contents = """
+				import module java.base;
+		        public class X {
+		            public static void main(String[] args) {
+		            double pi = 3.14159;
+		            	System.out.println(pi + "hi");
+		            }
+		        }
+			""";
+	Map<String, String> options = new HashMap<>();
+    options.put(JavaCore.COMPILER_COMPLIANCE, "24");
+    options.put(JavaCore.COMPILER_SOURCE, "24");
+    createProject("4121");
+    try {
+    	ASTParser astParser = ASTParser.newParser(AST.getJLSLatest());
+    	astParser.setCompilerOptions(options);
+        astParser.setEnvironment(new String[] {}, new String[] {}, new String[] {}, true);
+        astParser.setUnitName("Example.java");
+        astParser.setResolveBindings(true);
+        astParser.setBindingsRecovery(true);
+        astParser.setSource(contents.toCharArray());
+        CompilationUnit cu = (CompilationUnit) astParser.createAST(null);
+        List<ImportDeclaration> ids = cu.imports();
+        ImportDeclaration id = ids.get(0);
+        IModuleBinding idBinding = (IModuleBinding) id.resolveBinding();
+        assertEquals("Import binding not correct", "java.base", idBinding.getName());
+        assertEquals("Binding not correct", IBinding.MODULE, idBinding.getKind());
+    } finally {
+    	deleteProject("4121");
+    }
+
 }
 }

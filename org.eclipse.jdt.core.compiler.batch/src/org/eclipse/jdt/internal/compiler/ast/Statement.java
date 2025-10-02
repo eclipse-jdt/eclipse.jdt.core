@@ -44,12 +44,10 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching.CheckMode;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class Statement extends ASTNode {
@@ -113,8 +111,7 @@ protected void analyseArguments(BlockScope currentScope, FlowContext flowContext
 {
 	// compare actual null-status against parameter annotations of the called method:
 	if (arguments != null) {
-		CompilerOptions compilerOptions = currentScope.compilerOptions();
-		if (compilerOptions.sourceLevel >= ClassFileConstants.JDK1_7 && methodBinding.isPolymorphic())
+		if (methodBinding.isPolymorphic())
 			return;
 		boolean considerTypeAnnotations = currentScope.environment().usesNullTypeAnnotations();
 		boolean hasJDK15FlowAnnotations = methodBinding.parameterFlowBits != null;
@@ -194,7 +191,7 @@ void internalAnalyseOneArgument18(BlockScope currentScope, FlowContext flowConte
 	// here we consume special case information generated in the ctor of ParameterizedGenericMethodBinding (see there):
 	int statusFromAnnotatedNull = expectedNonNullness == Boolean.TRUE ? nullStatus : 0;
 
-	NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(expectedType, argument.resolvedType, nullStatus);
+	NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(expectedType, argument.resolvedType, null, null, nullStatus, argument, CheckMode.COMPATIBLE, false);
 
 	if (!annotationStatus.isAnyMismatch() && statusFromAnnotatedNull != 0)
 		expectedType = originalExpected; // to avoid reports mentioning '@NonNull null'!
@@ -209,9 +206,11 @@ void internalAnalyseOneArgument18(BlockScope currentScope, FlowContext flowConte
 			expectedType = env.createNonNullAnnotatedType(expectedType);
 		}
 		flowContext.recordNullityMismatch(currentScope, argument, argument.resolvedType, expectedType, flowInfo, nullStatus, annotationStatus);
+	} else if (annotationStatus.wantToReport()) {
+		annotationStatus.report(currentScope);
 	}
 }
-/* package */ void checkAgainstNullAnnotation(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, Expression expr) {
+/* package */ void checkAgainstNullAnnotation(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, Expression expr, boolean localFlow) {
 	int nullStatus = expr.nullStatus(flowInfo, flowContext);
 	long tagBits;
 	MethodBinding methodBinding = null;
@@ -225,7 +224,7 @@ void internalAnalyseOneArgument18(BlockScope currentScope, FlowContext flowConte
 		return;
 	}
 	if (useTypeAnnotations) {
-		checkAgainstNullTypeAnnotation(scope, methodBinding.returnType, expr, flowContext, flowInfo);
+		checkAgainstNullTypeAnnotation(scope, methodBinding.returnType, expr, flowContext, flowInfo, localFlow);
 	} else if (nullStatus != FlowInfo.NON_NULL) {
 		// if we can't prove non-null check against declared null-ness of the enclosing method:
 		if ((tagBits & TagBits.AnnotationNonNull) != 0) {
@@ -233,28 +232,30 @@ void internalAnalyseOneArgument18(BlockScope currentScope, FlowContext flowConte
 		}
 	}
 }
-
 protected void checkAgainstNullTypeAnnotation(BlockScope scope, TypeBinding requiredType, Expression expression, FlowContext flowContext, FlowInfo flowInfo) {
+	checkAgainstNullTypeAnnotation(scope, requiredType, expression, flowContext, flowInfo, true);
+}
+protected void checkAgainstNullTypeAnnotation(BlockScope scope, TypeBinding requiredType, Expression expression, FlowContext flowContext, FlowInfo flowInfo, boolean localFlow) {
 	if (expression instanceof ConditionalExpression && expression.isPolyExpression()) {
 		// drill into both branches using existing nullStatus per branch:
 		ConditionalExpression ce = (ConditionalExpression) expression;
-		internalCheckAgainstNullTypeAnnotation(scope, requiredType, ce.valueIfTrue, ce.ifTrueNullStatus, flowContext, flowInfo);
-		internalCheckAgainstNullTypeAnnotation(scope, requiredType, ce.valueIfFalse, ce.ifFalseNullStatus, flowContext, flowInfo);
+		internalCheckAgainstNullTypeAnnotation(scope, requiredType, ce.valueIfTrue, ce.ifTrueNullStatus, flowContext, flowInfo, localFlow);
+		internalCheckAgainstNullTypeAnnotation(scope, requiredType, ce.valueIfFalse, ce.ifFalseNullStatus, flowContext, flowInfo, localFlow);
 		return;
 	} else 	if (expression instanceof SwitchExpression se && se.isPolyExpression()) {
 		for (Expression rExpression : se.resultExpressions()) {
 			internalCheckAgainstNullTypeAnnotation(scope, requiredType,
 					rExpression,
-					rExpression.nullStatus(flowInfo, flowContext), flowContext, flowInfo);
+					rExpression.nullStatus(flowInfo, flowContext), flowContext, flowInfo, localFlow);
 		}
 		return;
 	}
 	int nullStatus = expression.nullStatus(flowInfo, flowContext);
-	internalCheckAgainstNullTypeAnnotation(scope, requiredType, expression, nullStatus, flowContext, flowInfo);
+	internalCheckAgainstNullTypeAnnotation(scope, requiredType, expression, nullStatus, flowContext, flowInfo, localFlow);
 }
 private void internalCheckAgainstNullTypeAnnotation(BlockScope scope, TypeBinding requiredType, Expression expression,
-		int nullStatus, FlowContext flowContext, FlowInfo flowInfo) {
-	NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(requiredType, expression.resolvedType, null, null, nullStatus, expression, CheckMode.COMPATIBLE);
+		int nullStatus, FlowContext flowContext, FlowInfo flowInfo, boolean localFlow) {
+	NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(requiredType, expression.resolvedType, null, null, nullStatus, expression, CheckMode.COMPATIBLE, localFlow);
 	if (annotationStatus.isDefiniteMismatch()) {
 		scope.problemReporter().nullityMismatchingTypeAnnotation(expression, expression.resolvedType, requiredType, annotationStatus);
 	} else {
@@ -324,6 +325,20 @@ public boolean breaksOut(final char[] label) {
 		public boolean visit(SwitchStatement switchStatement, BlockScope skope) { return label != null; }
 
 		@Override
+		public boolean visit(Block block, BlockScope scope) {
+			if ((block.bits & BlockShouldEndDead) != 0) { // switch rule blocks don't fall through and have an implicit break unless they dead-end already.
+				Statement ultimateStatement = block.statements == null ? null : block.statements[block.statements.length - 1];
+				if (ultimateStatement == null || // empty switch rule block - ought to end with an implicit break;
+					    ultimateStatement.breaksOut(label) || // ends with explicit break;
+							!ultimateStatement.doesNotCompleteNormally()) { // ought to end with an implicit break;
+					this.breaksOut = true;
+					return false;
+				}
+			}
+			return super.visit(block, scope);
+		}
+
+		@Override
 		public boolean visit(BreakStatement breakStatement, BlockScope skope) {
 			if (label == null || CharOperation.equals(label,  breakStatement.label))
 				this.breaksOut = true;
@@ -331,6 +346,8 @@ public boolean breaksOut(final char[] label) {
 	    }
 		@Override
 		public boolean visit(YieldStatement yieldStatement, BlockScope skope) {
+			if (yieldStatement.isImplicit && yieldStatement.switchExpression == null) // implicit yield in a switch rule with a statement expression implies an implicit break;
+				this.breaksOut = true;
 	    	return false;
 	    }
 		public boolean breaksOut() {
@@ -454,7 +471,6 @@ public boolean isBoxingCompatible(TypeBinding expressionType, TypeBinding target
 	return expressionType.isBaseType()  // narrowing then boxing ? Only allowed for some target types see 362279
 		&& !targetType.isBaseType()
 		&& !targetType.isTypeVariable()
-		&& scope.compilerOptions().sourceLevel >= org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.JDK1_5 // autoboxing
 		&& (targetType.id == TypeIds.T_JavaLangByte || targetType.id == TypeIds.T_JavaLangShort || targetType.id == TypeIds.T_JavaLangCharacter)
 		&& expression.isConstantValueOfTypeAssignableToType(expressionType, scope.environment().computeBoxingType(targetType));
 }

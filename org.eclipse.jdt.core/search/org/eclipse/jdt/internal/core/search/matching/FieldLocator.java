@@ -360,7 +360,7 @@ public int resolveLevel(Binding binding) {
 	if (binding == null) return INACCURATE_MATCH;
 	if( binding instanceof LocalVariableBinding) {
 		// for matching the component in constructor of a record
-		if ( ((LocalVariableBinding)binding).declaringScope.referenceContext() instanceof CompactConstructorDeclaration) {
+		if ( ((LocalVariableBinding)binding).declaringScope.referenceContext() instanceof ConstructorDeclaration cd && cd.isCompactConstructor()) {
 			return matchLocal((LocalVariableBinding) binding, true);
 		}
 	}

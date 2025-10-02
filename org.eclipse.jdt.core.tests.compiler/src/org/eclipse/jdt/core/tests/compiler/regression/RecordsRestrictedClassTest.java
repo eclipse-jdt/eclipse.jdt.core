@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import junit.framework.Test;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
@@ -91,21 +92,6 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 		runner.runWarningTest();
 	}
 
-	private static void verifyClassFile(String expectedOutput, String classFileName, int mode)
-			throws IOException, ClassFormatException {
-		File f = new File(OUTPUT_DIR + File.separator + classFileName);
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String result = disassembler.disassemble(classFileBytes, "\n", mode);
-		int index = result.indexOf(expectedOutput);
-		if (index == -1 || expectedOutput.length() == 0) {
-			System.out.println(Util.displayString(result, 3));
-			System.out.println("...");
-		}
-		if (index == -1) {
-			assertEquals("Wrong contents", expectedOutput, result);
-		}
-	}
 	private void verifyOutputNegative(String result, String expectedOutput) {
 		verifyOutput(result, expectedOutput, false);
 	}
@@ -586,11 +572,6 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"	record Point(int myInt, int myZ, int myZ) implements I {\n" +
 			"	                                     ^^^\n" +
 			"Duplicate component myZ in record\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 6)\n" +
-			"	record Point(int myInt, int myZ, int myZ) implements I {\n" +
-			"	                                     ^^^\n" +
-			"Duplicate parameter myZ\n" +
 			"----------\n");
 	}
 	public void testBug550750_026() {
@@ -624,18 +605,8 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"----------\n" +
 			"3. ERROR in X.java (at line 6)\n" +
 			"	record Point(int myInt, int myInt, int myInt, int myZ) implements I {\n" +
-			"	                            ^^^^^\n" +
-			"Duplicate parameter myInt\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 6)\n" +
-			"	record Point(int myInt, int myInt, int myInt, int myZ) implements I {\n" +
 			"	                                       ^^^^^\n" +
 			"Duplicate component myInt in record\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 6)\n" +
-			"	record Point(int myInt, int myInt, int myInt, int myZ) implements I {\n" +
-			"	                                       ^^^^^\n" +
-			"Duplicate parameter myInt\n" +
 			"----------\n");
 	}
 	public void testBug550750_027() {
@@ -695,7 +666,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 7)\n" +
 			"	int z;\n" +
 			"	    ^\n" +
-			"User declared non-static fields z are not permitted in a record\n" +
+			"Instance fields may not be declared in a record class\n" +
 			"----------\n");
 	}
 	public void testBug550750_029() {
@@ -717,7 +688,17 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"interface I {}\n"
 				},
 			"----------\n" +
-			"1. ERROR in X.java (at line 11)\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	this.myInt = myInt;\n" +
+			"	^^^^^^^^^^\n" +
+			"Illegal explicit assignment of a final field myInt in compact constructor\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 9)\n" +
+			"	this.myZ = myZ;\n" +
+			"	^^^^^^^^\n" +
+			"Illegal explicit assignment of a final field myZ in compact constructor\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 11)\n" +
 			"	public native void foo();\n" +
 			"	                   ^^^^^\n" +
 			"Illegal modifier native for method foo; native methods are not allowed in record\n" +
@@ -929,7 +910,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 7)\n" +
 			"	private int f;\n" +
 			"	            ^\n" +
-			"User declared non-static fields f are not permitted in a record\n" +
+			"Instance fields may not be declared in a record class\n" +
 			"----------\n");
 	}
 	public void testBug550750_041() {
@@ -1134,17 +1115,22 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"interface I {}\n"
 				},
 			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	public Point {\n" +
+			"	       ^^^^^\n" +
+			"Duplicate method Point(Integer, int) in type Point\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 8)\n" +
 			"	this.myInt = 0;\n" +
 			"	^^^^^^^^^^\n" +
 			"Illegal explicit assignment of a final field myInt in compact constructor\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 9)\n" +
+			"3. ERROR in X.java (at line 9)\n" +
 			"	this.myZ = 0;\n" +
 			"	^^^^^^^^\n" +
 			"Illegal explicit assignment of a final field myZ in compact constructor\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 11)\n" +
+			"4. ERROR in X.java (at line 11)\n" +
 			"	public Point(Integer myInt, int myZ) {\n" +
 			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Duplicate method Point(Integer, int) in type Point\n" +
@@ -1322,7 +1308,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"2. ERROR in X.java (at line 12)\n" +
 			"	public Point(Integer myInt) {}\n" +
 			"	       ^^^^^^^^^^^^^^^^^^^^\n" +
-			"A non-canonical constructor must start with an explicit invocation to a constructor\n" +
+			"A non-canonical constructor must invoke another constructor of the same class\n" +
 			"----------\n");
 	}
 	public void testBug553152_016() {
@@ -1622,7 +1608,7 @@ public void testBug558494_001() throws Exception {
 			"  \n" +
 			"// Component descriptor #6 I\n" +
 			"int heyPinkCity;\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug558494_002() throws Exception {
 	runConformTest(
@@ -1644,7 +1630,7 @@ public void testBug558494_002() throws Exception {
 	String expectedOutput = "Record: #Record\n" +
 			"Components:\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug558494_003() throws Exception {
 	runConformTest(
@@ -1664,7 +1650,7 @@ public void testBug558494_003() throws Exception {
 	String expectedOutput = "Record: #Record\n" +
 			"Components:\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Forts.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Forts.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug558494_004() throws Exception {
 	runConformTest(
@@ -1689,7 +1675,7 @@ public void testBug558494_004() throws Exception {
 			"int x;\n" +
 			"// Component descriptor #8 [Ljava/lang/String;\n" +
 			"java.lang.String[] wonders;\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Forts.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Forts.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug558764_001() {
 	runConformTest(
@@ -1811,7 +1797,7 @@ public void testBug559281_001() {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	record X(void k) {}\n" +
 			"	              ^\n" +
-			"void is an invalid type for the component k of a record\n" +
+			"void is an invalid type for the variable k\n" +
 			"----------\n");
 }
 public void testBug559281_002() {
@@ -1863,11 +1849,6 @@ public void testBug559448_002() {
 			"	record Point(int... x, int y){\n" +
 			"	                    ^\n" +
 			"The variable argument type int of the record Point must be the last parameter\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 6)\n" +
-			"	record Point(int... x, int y){\n" +
-			"	                    ^\n" +
-			"The variable argument type int of the method Point must be the last parameter\n" +
 			"----------\n");
 }
 public void testBug559448_003() {
@@ -1887,11 +1868,6 @@ public void testBug559448_003() {
 			"	record Point(int... x, int... y){\n" +
 			"	                    ^\n" +
 			"The variable argument type int of the record Point must be the last parameter\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 6)\n" +
-			"	record Point(int... x, int... y){\n" +
-			"	                    ^\n" +
-			"The variable argument type int of the method Point must be the last parameter\n" +
 			"----------\n");
 }
 public void testBug559574_001() {
@@ -2100,7 +2076,7 @@ public void testBug560569_001() throws Exception {
 				"		#60 model;year\n" +
 				"		#62 REF_getField model:Ljava/lang/String;\n" +
 				"		#63 REF_getField year:I";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Car.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Car.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput = 			"  // Method descriptor #12 (Ljava/lang/String;I)V\n" +
 			"  // Stack: 2, Locals: 3\n" +
 			"  public Car(java.lang.String model, int year);\n" +
@@ -2124,7 +2100,7 @@ public void testBug560569_001() throws Exception {
 			"        mandated model\n" +
 			"        mandated year\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Car.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Car.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug560496_001() throws Exception {
 	runConformTest(
@@ -2140,7 +2116,7 @@ public void testBug560496_001() throws Exception {
 	 "0");
 	String expectedOutput =
 			"public final int hashCode();\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug560496_002() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK17)
@@ -2158,7 +2134,7 @@ public void testBug560496_002() throws Exception {
 	 "0");
 	String expectedOutput =
 			"public final int hashCode();\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug560797_001() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK17)
@@ -2176,7 +2152,7 @@ public void testBug560797_001() throws Exception {
 	 "true");
 	String expectedOutput =
 			"public int x();\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug560797_002() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK17)
@@ -2196,7 +2172,7 @@ public void testBug560797_002() throws Exception {
 	 "true");
 	String expectedOutput =
 			"public int x();\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug560798_001() throws Exception {
 	runConformTest(
@@ -2427,51 +2403,19 @@ public void testBug558718_001() {
 		"----------\n" +
 		"1. ERROR in X.java (at line 1)\n" +
 		"	record R() {}\n" +
-		"	       ^\n" +
-		"The Java feature \'Records\' is only available with source level 16 and above\n" +
-		"----------\n",
-		null,
-		true,
-		options
-	);
-}
-@SuppressWarnings({ "unchecked", "rawtypes" })
-public void testBug558718_002() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-	new String[] {
-			"X.java",
-			"record R() {}\n",
-		},
+		"	^\n" +
+		"The Java feature 'Compact Source Files and Instance Main Methods' is only available with source level 25 and above\n" +
 		"----------\n" +
-				"1. ERROR in X.java (at line 1)\n" +
-				"	record R() {}\n" +
-				"	       ^\n" +
-				"The Java feature \'Records\' is only available with source level 16 and above\n" +
-				"----------\n",
-		null,
-		true,
-		options
-	);
-}
-@SuppressWarnings({ "unchecked", "rawtypes" })
-public void testBug558718_003() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-	new String[] {
-			"X.java",
-			"record R() {}\n",
-		},
-	"----------\n" +
-	"1. ERROR in X.java (at line 1)\n" +
-	"	record R() {}\n" +
-	"	       ^\n" +
-	"The Java feature \'Records\' is only available with source level 16 and above\n" +
-	"----------\n",
+		"2. ERROR in X.java (at line 1)\n" +
+		"	record R() {}\n" +
+		"	^^^^^^\n" +
+		"'record' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 1)\n" +
+		"	record R() {}\n" +
+		"	^\n" +
+		"Implicitly declared class must have a candidate main method\n" +
+		"----------\n",
 		null,
 		true,
 		options
@@ -2491,7 +2435,7 @@ public void testBug56180_001() throws Exception {
 	 "R[]");
 	String expectedOutput =
 			" public final java.lang.String toString();\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug561528_001() {
 	runConformTest(
@@ -2556,7 +2500,7 @@ public void testBug561528_004() {
 			},
 		"0");
 }
-public void testBug561528_005() {
+public void testBug561528_005() { // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3880 - second error is due to bad recovery
 	this.runNegativeTest(
 			new String[] {
 					"X.java",
@@ -2576,6 +2520,11 @@ public void testBug561528_005() {
 		"	record R <N extends Node<AB<CD<N>>>>> (N value){\n" +
 		"	                                ^^^\n" +
 		"Syntax error on token \">>>\", >> expected\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 12)\n" +
+		"	record R <N extends Node<AB<CD<N>>>>> (N value){\n" +
+		"	                                         ^^^^^\n" +
+		"Instance fields may not be declared in a record class\n" +
 		"----------\n",
 		null,
 		true
@@ -2599,32 +2548,30 @@ public void testBug561778_001() throws IOException, ClassFormatException {
 			},
 		"0");
 	String expectedOutput =
-			"  // Method descriptor #10 (Ljava/lang/Object;)V\n" +
+			"  // Method descriptor #32 (Ljava/lang/Object;)V\n" +
 			"  // Signature: (TT;)V\n" +
 			"  // Stack: 2, Locals: 2\n" +
 			"  public X(java.lang.Object value);\n" +
 			"     0  aload_0 [this]\n" +
-			"     1  invokespecial java.lang.Record() [13]\n" +
+			"     1  invokespecial java.lang.Record() [34]\n" +
 			"     4  aload_0 [this]\n" +
 			"     5  aload_1 [value]\n" +
-			"     6  putfield X.value : java.lang.Object [16]\n" +
+			"     6  putfield X.value : java.lang.Object [12]\n" +
 			"     9  return\n" +
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 1]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 10] local: this index: 0 type: X\n" +
-			"        [pc: 0, pc: 10] local: value index: 1 type: java.lang.Object\n" +
-			"      Local variable type table:\n" +
-			"        [pc: 0, pc: 10] local: this index: 0 type: X<T>\n" +
-			"        [pc: 0, pc: 10] local: value index: 1 type: T\n" +
 			"      Method Parameters:\n" +
 			"        value\n" +
-			"  \n" +
-			"  // Method descriptor #25 ()Ljava/lang/Object;\n" +
+			"\n";
+
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+
+	expectedOutput =
+			"  // Method descriptor #9 ()Ljava/lang/Object;\n" +
 			"  // Signature: ()TT;\n" +
 			"  // Stack: 1, Locals: 1\n" +
 			"  public java.lang.Object value();\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug561778_002() throws IOException, ClassFormatException {
 	runConformTest(
@@ -2646,11 +2593,11 @@ public void testBug561778_002() throws IOException, ClassFormatException {
 			},
 		"0");
 	String expectedOutput =
-			"  // Method descriptor #25 ()LY;\n" +
+			"  // Method descriptor #9 ()LY;\n" +
 			"  // Signature: ()LY<TT;>;\n" +
 			"  // Stack: 1, Locals: 1\n" +
 			"  public Y value();\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562219_001() {
 	runConformTest(
@@ -2838,9 +2785,49 @@ public void testBug562439_001() throws IOException, ClassFormatException {
 			"// Component descriptor #6 I\n" +
 			"int myInt;\n" +
 			"  RuntimeInvisibleAnnotations: \n" +
-			"    #62 @RC(\n" +
+			"    #60 @RC(\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+}
+public void testBug562439_001_1() throws IOException, ClassFormatException {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"""
+			import java.lang.annotation.Annotation;
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Retention;
+			import java.lang.annotation.RetentionPolicy;
+			import java.lang.annotation.Target;
+			import java.lang.reflect.RecordComponent;
+
+			public class X {
+
+			  public static void main(String[] args){
+			      RecordComponent[] recordComponents = Point.class.getRecordComponents();
+			      if (recordComponents.length != 2)
+			    	 throw new AssertionError("Wrong number of components");
+			      Annotation[] annotations = recordComponents[0].getAnnotations();
+			      if (annotations.length != 1)
+			     	 throw new AssertionError("Wrong number of annotations");
+			      if (!annotations[0].toString().equals("@RC()"))
+			    	  throw new AssertionError("Wrong annotation " + annotations[0]);
+			      annotations = recordComponents[1].getAnnotations();
+			      if (annotations.length != 0)
+			     	 throw new AssertionError("Wrong number of annotations");
+		     	  System.out.println("All well!");
+		      }
+			}
+
+			record Point(@RC int myInt, char myChar) {
+			}
+
+			@Target({ElementType.RECORD_COMPONENT})
+			@Retention(RetentionPolicy.RUNTIME)
+			@interface RC {}
+			"""
+		},
+		"All well!");
 }
 public void testBug562439_002() throws IOException, ClassFormatException {
 	runConformTest(
@@ -2873,9 +2860,9 @@ public void testBug562439_002() throws IOException, ClassFormatException {
 			"// Component descriptor #6 I\n" +
 			"int myInt;\n" +
 			"  RuntimeVisibleAnnotations: \n" +
-			"    #62 @RC(\n" +
+			"    #60 @RC(\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_003() throws IOException, ClassFormatException {
 	runConformTest(
@@ -2903,7 +2890,7 @@ public void testBug562439_003() throws IOException, ClassFormatException {
 			"      #8 @RCF(\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -2913,7 +2900,7 @@ public void testBug562439_003() throws IOException, ClassFormatException {
 			"  RuntimeInvisibleAnnotations: \n" +
 			"    #8 @RCF(\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_004() throws IOException, ClassFormatException {
 	runConformTest(
@@ -2944,7 +2931,7 @@ public void testBug562439_004() throws IOException, ClassFormatException {
 			"      #8 @RCF(\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -2954,7 +2941,7 @@ public void testBug562439_004() throws IOException, ClassFormatException {
 			"  RuntimeVisibleAnnotations: \n" +
 			"    #8 @RCF(\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_005() throws IOException, ClassFormatException {
 	runConformTest(
@@ -2982,7 +2969,7 @@ public void testBug562439_005() throws IOException, ClassFormatException {
 			"      #8 @RF(\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -2991,7 +2978,7 @@ public void testBug562439_005() throws IOException, ClassFormatException {
 			"int myInt;\n" +
 			"// Component descriptor #10 C\n" +
 			"char myChar;\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_006() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3022,7 +3009,7 @@ public void testBug562439_006() throws IOException, ClassFormatException {
 			"      #8 @RF(\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3031,7 +3018,7 @@ public void testBug562439_006() throws IOException, ClassFormatException {
 			"int myInt;\n" +
 			"// Component descriptor #10 C\n" +
 			"char myChar;\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_007() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3063,7 +3050,7 @@ public void testBug562439_007() throws IOException, ClassFormatException {
 			"        target type = 0x13 FIELD\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput = 			"Record: #Record\n" +
 			"Components:\n" +
 			"  \n" +
@@ -3076,7 +3063,7 @@ public void testBug562439_007() throws IOException, ClassFormatException {
 			"    #8 @RCFU(\n" +
 			"      target type = 0x13 FIELD\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_008() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3112,7 +3099,7 @@ public void testBug562439_008() throws IOException, ClassFormatException {
 			"        target type = 0x13 FIELD\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3126,7 +3113,7 @@ public void testBug562439_008() throws IOException, ClassFormatException {
 			"    #8 @RCFU(\n" +
 			"      target type = 0x13 FIELD\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_009() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3149,19 +3136,19 @@ public void testBug562439_009() throws IOException, ClassFormatException {
 		},
 		"100");
 	String expectedOutput =
-			"  // Method descriptor #24 ()I\n" +
+			"  // Method descriptor #9 ()I\n" +
 			"  // Stack: 1, Locals: 1\n" +
 			"  public int myInt();\n" +
 			"    0  aload_0 [this]\n" +
-			"    1  getfield Point.myInt : int [15]\n" +
+			"    1  getfield Point.myInt : int [13]\n" +
 			"    4  ireturn\n" +
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 11]\n" +
 			"    RuntimeInvisibleAnnotations: \n" +
-			"      #26 @RCM(\n" +
+			"      #11 @RCM(\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3169,11 +3156,11 @@ public void testBug562439_009() throws IOException, ClassFormatException {
 			"// Component descriptor #6 I\n" +
 			"int myInt;\n" +
 			"  RuntimeInvisibleAnnotations: \n" +
-			"    #26 @RCM(\n" +
+			"    #11 @RCM(\n" +
 			"    )\n" +
 			"// Component descriptor #8 C\n" +
 			"char myChar;\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_010() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3201,14 +3188,14 @@ public void testBug562439_010() throws IOException, ClassFormatException {
 	String expectedOutput =
 			"  public int myInt();\n" +
 			"    0  aload_0 [this]\n" +
-			"    1  getfield Point.myInt : int [15]\n" +
+			"    1  getfield Point.myInt : int [13]\n" +
 			"    4  ireturn\n" +
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 13]\n" +
 			"    RuntimeVisibleAnnotations: \n" +
-			"      #26 @RCM(\n" +
+			"      #11 @RCM(\n" +
 			"      )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3216,11 +3203,11 @@ public void testBug562439_010() throws IOException, ClassFormatException {
 			"// Component descriptor #6 I\n" +
 			"int myInt;\n" +
 			"  RuntimeVisibleAnnotations: \n" +
-			"    #26 @RCM(\n" +
+			"    #11 @RCM(\n" +
 			"    )\n" +
 			"// Component descriptor #8 C\n" +
 			"char myChar;\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_011() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3243,19 +3230,19 @@ public void testBug562439_011() throws IOException, ClassFormatException {
 		},
 		"100");
 	String expectedOutput =
-			"  // Method descriptor #24 ()I\n" +
+			"  // Method descriptor #9 ()I\n" +
 			"  // Stack: 1, Locals: 1\n" +
 			"  public int myInt();\n" +
 			"    0  aload_0 [this]\n" +
-			"    1  getfield Point.myInt : int [15]\n" +
+			"    1  getfield Point.myInt : int [13]\n" +
 			"    4  ireturn\n" +
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 11]\n" +
 			"    RuntimeInvisibleAnnotations: \n" +
-			"      #26 @M(\n" +
+			"      #11 @M(\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3264,7 +3251,7 @@ public void testBug562439_011() throws IOException, ClassFormatException {
 			"int myInt;\n" +
 			"// Component descriptor #8 C\n" +
 			"char myChar;\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_012() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3292,14 +3279,14 @@ public void testBug562439_012() throws IOException, ClassFormatException {
 	String expectedOutput =
 			"  public int myInt();\n" +
 			"    0  aload_0 [this]\n" +
-			"    1  getfield Point.myInt : int [15]\n" +
+			"    1  getfield Point.myInt : int [13]\n" +
 			"    4  ireturn\n" +
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 13]\n" +
 			"    RuntimeVisibleAnnotations: \n" +
-			"      #26 @M(\n" +
+			"      #11 @M(\n" +
 			"      )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3308,7 +3295,7 @@ public void testBug562439_012() throws IOException, ClassFormatException {
 			"int myInt;\n" +
 			"// Component descriptor #8 C\n" +
 			"char myChar;\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_013() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3338,13 +3325,13 @@ public void testBug562439_013() throws IOException, ClassFormatException {
 			"        target type = 0x13 FIELD\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
-			"  // Method descriptor #26 ()I\n" +
+			"  // Method descriptor #11 ()I\n" +
 			"  // Stack: 1, Locals: 1\n" +
 			"  public int myInt();\n" +
 			"    0  aload_0 [this]\n" +
-			"    1  getfield Point.myInt : int [17]\n" +
+			"    1  getfield Point.myInt : int [14]\n" +
 			"    4  ireturn\n" +
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 11]\n" +
@@ -3356,7 +3343,7 @@ public void testBug562439_013() throws IOException, ClassFormatException {
 			"        target type = 0x14 METHOD_RETURN\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"// Component descriptor #6 I\n" +
 			"int myInt;\n" +
@@ -3367,7 +3354,7 @@ public void testBug562439_013() throws IOException, ClassFormatException {
 			"    #8 @RCMU(\n" +
 			"      target type = 0x13 FIELD\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_014() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3400,20 +3387,20 @@ public void testBug562439_014() throws IOException, ClassFormatException {
 			"        target type = 0x13 FIELD\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
-			"  // Method descriptor #26 ()I\n" +
+			"  // Method descriptor #11 ()I\n" +
 			"  // Stack: 1, Locals: 1\n" +
 			"  public int myInt();\n" +
 			"    0  aload_0 [this]\n" +
-			"    1  getfield Point.myInt : int [17]\n" +
+			"    1  getfield Point.myInt : int [14]\n" +
 			"    4  ireturn\n" +
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 13]\n" +
 			"    RuntimeVisibleAnnotations: \n" +
 			"      #8 @RCMU(\n" +
 			"      )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3427,7 +3414,7 @@ public void testBug562439_014() throws IOException, ClassFormatException {
 			"    #8 @RCMU(\n" +
 			"      target type = 0x13 FIELD\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_015() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3458,13 +3445,13 @@ public void testBug562439_015() throws IOException, ClassFormatException {
 			"        target type = 0x13 FIELD\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
-			"  // Method descriptor #26 ()I\n" +
+			"  // Method descriptor #11 ()I\n" +
 			"  // Stack: 1, Locals: 1\n" +
 			"  public int myInt();\n" +
 			"    0  aload_0 [this]\n" +
-			"    1  getfield Point.myInt : int [17]\n" +
+			"    1  getfield Point.myInt : int [13]\n" +
 			"    4  ireturn\n" +
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 11]\n" +
@@ -3473,7 +3460,7 @@ public void testBug562439_015() throws IOException, ClassFormatException {
 			"        target type = 0x14 METHOD_RETURN\n" +
 			"      )\n" +
 			"  ";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3484,24 +3471,20 @@ public void testBug562439_015() throws IOException, ClassFormatException {
 			"    #8 @T(\n" +
 			"      target type = 0x13 FIELD\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"  Point(int myInt, char myChar);\n" +
 			"     0  aload_0 [this]\n" +
-			"     1  invokespecial java.lang.Record() [14]\n" +
+			"     1  invokespecial java.lang.Record() [36]\n" +
 			"     4  aload_0 [this]\n" +
 			"     5  iload_1 [myInt]\n" +
-			"     6  putfield Point.myInt : int [17]\n" +
+			"     6  putfield Point.myInt : int [13]\n" +
 			"     9  aload_0 [this]\n" +
 			"    10  iload_2 [myChar]\n" +
-			"    11  putfield Point.myChar : char [19]\n" +
+			"    11  putfield Point.myChar : char [18]\n" +
 			"    14  return\n" +
 			"      Line numbers:\n" +
-			"        [pc: 0, line: 11]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 15] local: this index: 0 type: Point\n" +
-			"        [pc: 0, pc: 15] local: myInt index: 1 type: int\n" +
-			"        [pc: 0, pc: 15] local: myChar index: 2 type: char\n" +
+			"        [pc: 0, line: 1]\n" +
 			"      Method Parameters:\n" +
 			"        myInt\n" +
 			"        myChar\n" +
@@ -3510,7 +3493,7 @@ public void testBug562439_015() throws IOException, ClassFormatException {
 			"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" +
 			"        method parameter index = 0\n" +
 			"      )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_016() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3544,11 +3527,11 @@ public void testBug562439_016() throws IOException, ClassFormatException {
 			"        target type = 0x13 FIELD\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"  public int myInt();\n" +
 			"    0  aload_0 [this]\n" +
-			"    1  getfield Point.myInt : int [17]\n" +
+			"    1  getfield Point.myInt : int [13]\n" +
 			"    4  ireturn\n" +
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 13]\n" +
@@ -3557,7 +3540,7 @@ public void testBug562439_016() throws IOException, ClassFormatException {
 			"        target type = 0x14 METHOD_RETURN\n" +
 			"      )\n" +
 			"  ";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3568,24 +3551,20 @@ public void testBug562439_016() throws IOException, ClassFormatException {
 			"    #8 @T(\n" +
 			"      target type = 0x13 FIELD\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"  Point(int myInt, char myChar);\n" +
 			"     0  aload_0 [this]\n" +
-			"     1  invokespecial java.lang.Record() [14]\n" +
+			"     1  invokespecial java.lang.Record() [36]\n" +
 			"     4  aload_0 [this]\n" +
 			"     5  iload_1 [myInt]\n" +
-			"     6  putfield Point.myInt : int [17]\n" +
+			"     6  putfield Point.myInt : int [13]\n" +
 			"     9  aload_0 [this]\n" +
 			"    10  iload_2 [myChar]\n" +
-			"    11  putfield Point.myChar : char [19]\n" +
+			"    11  putfield Point.myChar : char [18]\n" +
 			"    14  return\n" +
 			"      Line numbers:\n" +
-			"        [pc: 0, line: 13]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 15] local: this index: 0 type: Point\n" +
-			"        [pc: 0, pc: 15] local: myInt index: 1 type: int\n" +
-			"        [pc: 0, pc: 15] local: myChar index: 2 type: char\n" +
+			"        [pc: 0, line: 1]\n" +
 			"      Method Parameters:\n" +
 			"        myInt\n" +
 			"        myChar\n" +
@@ -3594,8 +3573,8 @@ public void testBug562439_016() throws IOException, ClassFormatException {
 			"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" +
 			"        method parameter index = 0\n" +
 			"      )\n" +
-			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+			"\n";
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_017() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3620,30 +3599,26 @@ public void testBug562439_017() throws IOException, ClassFormatException {
 	String expectedOutput =
 			"  Point(int myInt, char myChar);\n" +
 			"     0  aload_0 [this]\n" +
-			"     1  invokespecial java.lang.Record() [14]\n" +
+			"     1  invokespecial java.lang.Record() [36]\n" +
 			"     4  aload_0 [this]\n" +
 			"     5  iload_1 [myInt]\n" +
-			"     6  putfield Point.myInt : int [17]\n" +
+			"     6  putfield Point.myInt : int [11]\n" +
 			"     9  aload_0 [this]\n" +
 			"    10  iload_2 [myChar]\n" +
-			"    11  putfield Point.myChar : char [19]\n" +
+			"    11  putfield Point.myChar : char [16]\n" +
 			"    14  return\n" +
 			"      Line numbers:\n" +
-			"        [pc: 0, line: 11]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 15] local: this index: 0 type: Point\n" +
-			"        [pc: 0, pc: 15] local: myInt index: 1 type: int\n" +
-			"        [pc: 0, pc: 15] local: myChar index: 2 type: char\n" +
+			"        [pc: 0, line: 1]\n" +
 			"      Method Parameters:\n" +
 			"        myInt\n" +
 			"        myChar\n" +
 			"    RuntimeInvisibleParameterAnnotations: \n" +
 			"      Number of annotations for parameter 0: 1\n" +
-			"        #12 @RCP(\n" +
+			"        #35 @RCP(\n" +
 			"        )\n" +
 			"      Number of annotations for parameter 1: 0\n" +
-			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+			"\n";
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3651,9 +3626,9 @@ public void testBug562439_017() throws IOException, ClassFormatException {
 			"// Component descriptor #6 I\n" +
 			"int myInt;\n" +
 			"  RuntimeInvisibleAnnotations: \n" +
-			"    #12 @RCP(\n" +
+			"    #35 @RCP(\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_018() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3681,30 +3656,26 @@ public void testBug562439_018() throws IOException, ClassFormatException {
 	String expectedOutput =
 			"  Point(int myInt, char myChar);\n" +
 			"     0  aload_0 [this]\n" +
-			"     1  invokespecial java.lang.Record() [14]\n" +
+			"     1  invokespecial java.lang.Record() [36]\n" +
 			"     4  aload_0 [this]\n" +
 			"     5  iload_1 [myInt]\n" +
-			"     6  putfield Point.myInt : int [17]\n" +
+			"     6  putfield Point.myInt : int [11]\n" +
 			"     9  aload_0 [this]\n" +
 			"    10  iload_2 [myChar]\n" +
-			"    11  putfield Point.myChar : char [19]\n" +
+			"    11  putfield Point.myChar : char [16]\n" +
 			"    14  return\n" +
 			"      Line numbers:\n" +
-			"        [pc: 0, line: 13]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 15] local: this index: 0 type: Point\n" +
-			"        [pc: 0, pc: 15] local: myInt index: 1 type: int\n" +
-			"        [pc: 0, pc: 15] local: myChar index: 2 type: char\n" +
+			"        [pc: 0, line: 1]\n" +
 			"      Method Parameters:\n" +
 			"        myInt\n" +
 			"        myChar\n" +
 			"    RuntimeVisibleParameterAnnotations: \n" +
 			"      Number of annotations for parameter 0: 1\n" +
-			"        #12 @RCP(\n" +
+			"        #35 @RCP(\n" +
 			"        )\n" +
 			"      Number of annotations for parameter 1: 0\n" +
-			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+			"\n";
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3712,9 +3683,9 @@ public void testBug562439_018() throws IOException, ClassFormatException {
 			"// Component descriptor #6 I\n" +
 			"int myInt;\n" +
 			"  RuntimeVisibleAnnotations: \n" +
-			"    #12 @RCP(\n" +
+			"    #35 @RCP(\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_019() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3742,24 +3713,20 @@ public void testBug562439_019() throws IOException, ClassFormatException {
 			"      #8 @Annot(\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"  Point(int myInt, char myChar);\n" +
 			"     0  aload_0 [this]\n" +
-			"     1  invokespecial java.lang.Record() [15]\n" +
+			"     1  invokespecial java.lang.Record() [37]\n" +
 			"     4  aload_0 [this]\n" +
 			"     5  iload_1 [myInt]\n" +
-			"     6  putfield Point.myInt : int [18]\n" +
+			"     6  putfield Point.myInt : int [13]\n" +
 			"     9  aload_0 [this]\n" +
 			"    10  iload_2 [myChar]\n" +
-			"    11  putfield Point.myChar : char [20]\n" +
+			"    11  putfield Point.myChar : char [18]\n" +
 			"    14  return\n" +
 			"      Line numbers:\n" +
-			"        [pc: 0, line: 11]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 15] local: this index: 0 type: Point\n" +
-			"        [pc: 0, pc: 15] local: myInt index: 1 type: int\n" +
-			"        [pc: 0, pc: 15] local: myChar index: 2 type: char\n" +
+			"        [pc: 0, line: 1]\n" +
 			"      Method Parameters:\n" +
 			"        myInt\n" +
 			"        myChar\n" +
@@ -3768,21 +3735,21 @@ public void testBug562439_019() throws IOException, ClassFormatException {
 			"        #8 @Annot(\n" +
 			"        )\n" +
 			"      Number of annotations for parameter 1: 0\n" +
-			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+			"\n";
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
-			"  // Method descriptor #27 ()I\n" +
+			"  // Method descriptor #11 ()I\n" +
 			"  // Stack: 1, Locals: 1\n" +
 			"  public int myInt();\n" +
 			"    0  aload_0 [this]\n" +
-			"    1  getfield Point.myInt : int [18]\n" +
+			"    1  getfield Point.myInt : int [13]\n" +
 			"    4  ireturn\n" +
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 11]\n" +
 			"    RuntimeInvisibleAnnotations: \n" +
 			"      #8 @Annot(\n" +
 			"      )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3792,7 +3759,7 @@ public void testBug562439_019() throws IOException, ClassFormatException {
 			"  RuntimeInvisibleAnnotations: \n" +
 			"    #8 @Annot(\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug562439_020() throws IOException, ClassFormatException {
 	runConformTest(
@@ -3820,30 +3787,26 @@ public void testBug562439_020() throws IOException, ClassFormatException {
 	String expectedOutput =
 			"  Point(int myInt, char myChar);\n" +
 			"     0  aload_0 [this]\n" +
-			"     1  invokespecial java.lang.Record() [14]\n" +
+			"     1  invokespecial java.lang.Record() [36]\n" +
 			"     4  aload_0 [this]\n" +
 			"     5  iload_1 [myInt]\n" +
-			"     6  putfield Point.myInt : int [17]\n" +
+			"     6  putfield Point.myInt : int [11]\n" +
 			"     9  aload_0 [this]\n" +
 			"    10  iload_2 [myChar]\n" +
-			"    11  putfield Point.myChar : char [19]\n" +
+			"    11  putfield Point.myChar : char [16]\n" +
 			"    14  return\n" +
 			"      Line numbers:\n" +
-			"        [pc: 0, line: 13]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 15] local: this index: 0 type: Point\n" +
-			"        [pc: 0, pc: 15] local: myInt index: 1 type: int\n" +
-			"        [pc: 0, pc: 15] local: myChar index: 2 type: char\n" +
+			"        [pc: 0, line: 1]\n" +
 			"      Method Parameters:\n" +
 			"        myInt\n" +
 			"        myChar\n" +
 			"    RuntimeVisibleParameterAnnotations: \n" +
 			"      Number of annotations for parameter 0: 1\n" +
-			"        #12 @Annot(\n" +
+			"        #35 @Annot(\n" +
 			"        )\n" +
 			"      Number of annotations for parameter 1: 0\n" +
-			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+			"\n";
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"Record: #Record\n" +
 			"Components:\n" +
@@ -3851,9 +3814,9 @@ public void testBug562439_020() throws IOException, ClassFormatException {
 			"// Component descriptor #6 I\n" +
 			"int myInt;\n" +
 			"  RuntimeVisibleAnnotations: \n" +
-			"    #12 @Annot(\n" +
+			"    #35 @Annot(\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug563178_001() {
 	this.runNegativeTest(
@@ -4391,18 +4354,18 @@ public void testBug562637_001() {
 				},
 				"");
 		String expectedOutput =
-				"  // Method descriptor #26 ()I\n" +
+				"  // Method descriptor #11 ()I\n" +
 				"  // Stack: 1, Locals: 1\n" +
 				"  public int myInt();\n" +
 				"    0  aload_0 [this]\n" +
-				"    1  getfield Point.myInt : int [17]\n" +
+				"    1  getfield Point.myInt : int [13]\n" +
 				"    4  ireturn\n" +
 				"      Line numbers:\n" +
 				"        [pc: 0, line: 8]\n" +
 				"      Local variable table:\n" +
 				"        [pc: 0, pc: 5] local: this index: 0 type: Point\n" +
 				"  \n";
-		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug563181_02() throws IOException, ClassFormatException {
 		runConformTest(
@@ -4423,11 +4386,11 @@ public void testBug562637_001() {
 				},
 				"");
 		String expectedOutput =
-				"  // Method descriptor #26 ()I\n" +
+				"  // Method descriptor #11 ()I\n" +
 				"  // Stack: 1, Locals: 1\n" +
 				"  public int myInt();\n" +
 				"    0  aload_0 [this]\n" +
-				"    1  getfield Point.myInt : int [17]\n" +
+				"    1  getfield Point.myInt : int [14]\n" +
 				"    4  ireturn\n" +
 				"      Line numbers:\n" +
 				"        [pc: 0, line: 8]\n" +
@@ -4441,7 +4404,7 @@ public void testBug562637_001() {
 				"        target type = 0x14 METHOD_RETURN\n" +
 				"      )\n" +
 				"  \n";
-		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug563181_03() throws IOException, ClassFormatException {
 		runConformTest(
@@ -4461,23 +4424,23 @@ public void testBug562637_001() {
 				},
 				"");
 		String expectedOutput =
-				"  // Method descriptor #26 ()I\n" +
+				"  // Method descriptor #11 ()I\n" +
 				"  // Stack: 1, Locals: 1\n" +
 				"  public int myInt();\n" +
 				"    0  aload_0 [this]\n" +
-				"    1  getfield Point.myInt : int [17]\n" +
+				"    1  getfield Point.myInt : int [15]\n" +
 				"    4  ireturn\n" +
 				"      Line numbers:\n" +
 				"        [pc: 0, line: 5]\n" +
 				"    RuntimeVisibleAnnotations: \n" +
-				"      #28 @SimpleAnnot(\n" +
+				"      #13 @SimpleAnnot(\n" +
 				"      )\n" +
 				"    RuntimeVisibleTypeAnnotations: \n" +
 				"      #8 @TypeAnnot(\n" +
 				"        target type = 0x14 METHOD_RETURN\n" +
 				"      )\n" +
 				"  \n";
-		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug563181_04() throws IOException, ClassFormatException {
 		runConformTest(
@@ -4501,25 +4464,25 @@ public void testBug562637_001() {
 				},
 				"");
 		String expectedOutput =
-				" // Method descriptor #26 ()I\n" +
+				" // Method descriptor #11 ()I\n" +
 				"  // Stack: 1, Locals: 1\n" +
 				"  public int myInt();\n" +
 				"    0  aload_0 [this]\n" +
-				"    1  getfield Point.myInt : int [17]\n" +
+				"    1  getfield Point.myInt : int [15]\n" +
 				"    4  ireturn\n" +
 				"      Line numbers:\n" +
 				"        [pc: 0, line: 7]\n" +
 				"      Local variable table:\n" +
 				"        [pc: 0, pc: 5] local: this index: 0 type: Point\n" +
 				"    RuntimeVisibleAnnotations: \n" +
-				"      #28 @SimpleAnnot(\n" +
+				"      #13 @SimpleAnnot(\n" +
 				"      )\n" +
 				"    RuntimeVisibleTypeAnnotations: \n" +
 				"      #8 @TypeAnnot(\n" +
 				"        target type = 0x14 METHOD_RETURN\n" +
 				"      )\n" +
 				"  \n";
-		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug565104_001() throws IOException, ClassFormatException {
 		runConformTest(
@@ -4535,7 +4498,7 @@ public void testBug562637_001() {
 				"  // Stack: 1, Locals: 1\n" +
 				"  public X$R();\n" +
 				"    0  aload_0 [this]\n";
-		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug565104_002() throws IOException, ClassFormatException {
 		runConformTest(
@@ -4551,7 +4514,7 @@ public void testBug562637_001() {
 				"  // Stack: 1, Locals: 1\n" +
 				"  X$R();\n" +
 				"    0  aload_0 [this]\n";
-		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug565104_003() throws IOException, ClassFormatException {
 		runConformTest(
@@ -4567,7 +4530,7 @@ public void testBug562637_001() {
 				"  // Stack: 1, Locals: 1\n" +
 				"  protected X$R();\n" +
 				"    0  aload_0 [this]\n";
-		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug565104_004() throws IOException, ClassFormatException {
 		runConformTest(
@@ -4583,7 +4546,7 @@ public void testBug562637_001() {
 				"  // Stack: 1, Locals: 1\n" +
 				"  private X$R();\n" +
 				"    0  aload_0 [this]\n";
-		RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug564146_001() {
 		this.runNegativeTest(
@@ -4599,7 +4562,7 @@ public void testBug562637_001() {
 			"1. ERROR in X.java (at line 2)\n" +
 			"	public X() {\n" +
 			"	       ^^^\n" +
-			"A non-canonical constructor must start with an explicit invocation to a constructor\n" +
+			"A non-canonical constructor must invoke another constructor of the same class\n" +
 			"----------\n");
 	}
 	public void testBug564146_002() {
@@ -4614,10 +4577,10 @@ public void testBug562637_001() {
 				"}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	public X() {\n" +
-			"	       ^^^\n" +
-			"A non-canonical constructor must start with an explicit invocation to a constructor\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	super();\n" +
+			"	^^^^^^^^\n" +
+			"A non-canonical constructor must invoke another constructor of the same class\n" +
 			"----------\n");
 	}
 	public void testBug564146_003() {
@@ -5098,10 +5061,15 @@ public void testBug564672_019() {
 		"----------\n" +
 		"2. ERROR in X.java (at line 3)\n" +
 		"	record r=new record(i,j);\n" +
+		"	       ^\n" +
+		"Instance fields may not be declared in a record class\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 3)\n" +
+		"	record r=new record(i,j);\n" +
 		"	             ^^^^^^\n" +
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n" +
-		"3. ERROR in X.java (at line 4)\n" +
+		"4. ERROR in X.java (at line 4)\n" +
 		"	return r;\n" +
 		"	^^^^^^\n" +
 		"Syntax error on token \"return\", byte expected\n" +
@@ -5135,14 +5103,19 @@ public void testBug564672_020() {
 		"----------\n" +
 		"3. ERROR in X.java (at line 4)\n" +
 		"	record r=new record();\n" +
+		"	       ^\n" +
+		"Instance fields may not be declared in a record class\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 4)\n" +
+		"	record r=new record();\n" +
 		"	             ^^^^^^\n" +
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n" +
-		"4. ERROR in X.java (at line 5)\n" +
+		"5. ERROR in X.java (at line 5)\n" +
 		"	return r;\n" +
 		"	^^^^^^\n" +
 		"Syntax error on token \"return\", byte expected\n" +
-			"----------\n");
+		"----------\n");
 }
 public void testBug564672_021() {
 	this.runConformTest(
@@ -5643,11 +5616,6 @@ public void testBug564672_042() {
 		},
 		"----------\n" +
 		"1. ERROR in X.java (at line 1)\n" +
-		"	record Point(record x, int i) { }\n" +
-		"	^\n" +
-		"record cannot be resolved to a type\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
 		"	record Point(record x, int i) { }\n" +
 		"	             ^^^^^^\n" +
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
@@ -6342,10 +6310,15 @@ public void testBug564672b_019() {
 		"----------\n" +
 		"2. ERROR in X.java (at line 3)\n" +
 		"	record r=new record(i,j);\n" +
+		"	       ^\n" +
+		"Instance fields may not be declared in a record class\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 3)\n" +
+		"	record r=new record(i,j);\n" +
 		"	             ^^^^^^\n" +
 		"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 		"----------\n" +
-		"3. ERROR in X.java (at line 4)\n" +
+		"4. ERROR in X.java (at line 4)\n" +
 		"	return r;\n" +
 		"	^^^^^^\n" +
 		"Syntax error on token \"return\", byte expected\n" +
@@ -7200,7 +7173,7 @@ public void testBug565786_001() throws IOException, ClassFormatException {
 		},
 		"0");
 	String expectedOutput =
-			"  // Method descriptor #6 ()V\n" +
+			"  // Method descriptor #24 ()V\n" +
 			"  // Stack: 1, Locals: 1\n" +
 			"  public I$R();\n";
 	verifyClassFile(expectedOutput, "I$R.class", ClassFileBytesDisassembler.SYSTEM);
@@ -7938,18 +7911,20 @@ public void testBug567731_002() {
 		true);
 }
 public void testBug566846_1() {
-	if (this.complianceLevel < ClassFileConstants.JDK23)
+	if (this.complianceLevel < ClassFileConstants.JDK24)
 		return;
 	runNegativeTest(
 			new String[] {
 				"X.java",
 				"public record X;\n"
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	public record X;\n" +
-			"	^\n" +
-			"Implicitly Declared Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+			(this.complianceLevel < ClassFileConstants.JDK25 ?
+					"----------\n"
+					+ "1. ERROR in X.java (at line 1)\n"
+					+ "	public record X;\n"
+					+ "	^\n"
+					+ "The Java feature 'Compact Source Files and Instance Main Methods' is only available with source level 25 and above\n"
+					: "") +
 			"----------\n" +
 			"2. ERROR in X.java (at line 1)\n" +
 			"	public record X;\n" +
@@ -7965,7 +7940,7 @@ public void testBug566846_1() {
 			true);
 }
 public void testBug566846_2() {
-	if (this.complianceLevel < ClassFileConstants.JDK23)
+	if (this.complianceLevel < ClassFileConstants.JDK24)
 		return;
 	runNegativeTest(
 			new String[] {
@@ -7974,11 +7949,13 @@ public void testBug566846_2() {
 				+ "} \n"
 				+ "record R1;\n"
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	public class X {\n" +
-			"	^\n" +
-			"Implicitly Declared Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+			(this.complianceLevel < ClassFileConstants.JDK25 ?
+					"----------\n"
+					+ "1. ERROR in X.java (at line 1)\n"
+					+ "	public class X {\n"
+					+ "	^\n"
+					+ "The Java feature 'Compact Source Files and Instance Main Methods' is only available with source level 25 and above\n"
+					: "") +
 			"----------\n" +
 			"2. ERROR in X.java (at line 1)\n" +
 			"	public class X {\n" +
@@ -8165,7 +8142,7 @@ public void testBug571015_002() {
 			"1. ERROR in X.java (at line 2)\n" +
 			"	R(I<X> ... t) {}\n" +
 			"	^^^^^^^^^^^^^\n" +
-			"A non-canonical constructor must start with an explicit invocation to a constructor\n" +
+			"A non-canonical constructor must invoke another constructor of the same class\n" +
 			"----------\n" +
 			"2. WARNING in X.java (at line 2)\n" +
 			"	R(I<X> ... t) {}\n" +
@@ -8194,7 +8171,7 @@ public void testBug571038_1() throws Exception {
 			+ "  // Signature: ()[LMyIntf<TT;>;\n"
 			+ "  // Stack: 1, Locals: 1\n"
 			+ "  public MyIntf[] t();\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug571038_2() throws Exception {
 	runConformTest(
@@ -8218,7 +8195,7 @@ public void testBug571038_2() throws Exception {
 			+ "  // Signature: ()[LMyIntf<TT;>;\n"
 			+ "  // Stack: 1, Locals: 1\n"
 			+ "  public MyIntf[] t();\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug571038_3() throws Exception {
 	runConformTest(
@@ -8245,7 +8222,7 @@ public void testBug571038_3() throws Exception {
 			+ "  // Signature: ()[LMyIntf<TT;>;\n"
 			+ "  // Stack: 1, Locals: 1\n"
 			+ "  public MyIntf[] t();\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug571038_4() throws Exception {
 	runConformTest(
@@ -8273,7 +8250,7 @@ public void testBug571038_4() throws Exception {
 			+ "  // Signature: ()[LMyIntf<TT;>;\n"
 			+ "  // Stack: 1, Locals: 1\n"
 			+ "  public MyIntf[] t();\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "MyRecord.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug571454() {
 	this.runNegativeTest(
@@ -8475,17 +8452,21 @@ public void testBugLazyCanon_006() throws IOException, ClassFormatException {
 	"100");
 }
 // Disabled waiting for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3347
-public void _testBug571765_001() {
+public void testBug571765_001() {
+	if (this.complianceLevel < ClassFileConstants.JDK24)
+		return;
 	this.runNegativeTest(
 			new String[] {
 					"module-info.java",
 					"public record R() {}\n",
 				},
-			"----------\n" +
-			"1. ERROR in module-info.java (at line 1)\n" +
-			"	public record R() {}\n" +
-			"	^\n" +
-			"Implicitly Declared Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+			(this.complianceLevel < ClassFileConstants.JDK25 ?
+				"----------\n"
+				+ "1. ERROR in module-info.java (at line 1)\n"
+				+ "	public record R() {}\n"
+				+ "	^\n"
+				+ "The Java feature 'Compact Source Files and Instance Main Methods' is only available with source level 25 and above\n"
+				: "") +
 			"----------\n" +
 			"2. ERROR in module-info.java (at line 1)\n" +
 			"	public record R() {}\n" +
@@ -8515,20 +8496,17 @@ public void testBug571905_01() throws Exception {
 	 "helo");
 	String expectedOutput = // constructor
 			"  \n" +
-			"  // Method descriptor #10 ([I)V\n" +
+			"  // Method descriptor #49 ([I)V\n" +
 			"  // Stack: 2, Locals: 2\n" +
 			"  X(int[] j);\n" +
 			"     0  aload_0 [this]\n" +
-			"     1  invokespecial java.lang.Record() [12]\n" +
+			"     1  invokespecial java.lang.Record() [50]\n" +
 			"     4  aload_0 [this]\n" +
 			"     5  aload_1 [j]\n" +
-			"     6  putfield X.j : int[] [15]\n" +
+			"     6  putfield X.j : int[] [31]\n" +
 			"     9  return\n" +
 			"      Line numbers:\n" +
-			"        [pc: 0, line: 2]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 10] local: this index: 0 type: X\n" +
-			"        [pc: 0, pc: 10] local: j index: 1 type: int[]\n" +
+			"        [pc: 0, line: 1]\n" +
 			"      Method Parameters:\n" +
 			"        j\n" +
 			"    RuntimeVisibleTypeAnnotations: \n" +
@@ -8536,11 +8514,11 @@ public void testBug571905_01() throws Exception {
 			"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" +
 			"        method parameter index = 0\n" +
 			"      )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput = // accessor
 			"  public int[] j();\n" +
 			"    0  aload_0 [this]\n" +
-			"    1  getfield X.j : int[] [15]\n" +
+			"    1  getfield X.j : int[] [31]\n" +
 			"    4  areturn\n" +
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 2]\n" +
@@ -8548,7 +8526,7 @@ public void testBug571905_01() throws Exception {
 			"      #8 @MyAnnot(\n" +
 			"        target type = 0x14 METHOD_RETURN\n" +
 			"      )\n" ;
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug571905_02() throws Exception {
 	runConformTest(
@@ -8567,20 +8545,17 @@ public void testBug571905_02() throws Exception {
 	 "helo");
 	String expectedOutput = // constructor
 			"  \n" +
-			"  // Method descriptor #10 ([I)V\n" +
+			"  // Method descriptor #49 ([I)V\n" +
 			"  // Stack: 2, Locals: 2\n" +
 			"  X(int... j);\n" +
 			"     0  aload_0 [this]\n" +
-			"     1  invokespecial java.lang.Record() [12]\n" +
+			"     1  invokespecial java.lang.Record() [50]\n" +
 			"     4  aload_0 [this]\n" +
 			"     5  aload_1 [j]\n" +
-			"     6  putfield X.j : int[] [15]\n" +
+			"     6  putfield X.j : int[] [31]\n" +
 			"     9  return\n" +
 			"      Line numbers:\n" +
-			"        [pc: 0, line: 2]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 10] local: this index: 0 type: X\n" +
-			"        [pc: 0, pc: 10] local: j index: 1 type: int[]\n" +
+			"        [pc: 0, line: 1]\n" +
 			"      Method Parameters:\n" +
 			"        j\n" +
 			"    RuntimeVisibleTypeAnnotations: \n" +
@@ -8588,11 +8563,11 @@ public void testBug571905_02() throws Exception {
 			"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" +
 			"        method parameter index = 0\n" +
 			"      )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput = // accessor
 			"  public int[] j();\n" +
 			"    0  aload_0 [this]\n" +
-			"    1  getfield X.j : int[] [15]\n" +
+			"    1  getfield X.j : int[] [31]\n" +
 			"    4  areturn\n" +
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 2]\n" +
@@ -8600,7 +8575,7 @@ public void testBug571905_02() throws Exception {
 			"      #8 @MyAnnot(\n" +
 			"        target type = 0x14 METHOD_RETURN\n" +
 			"      )\n" ;
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug572204_001() {
 	runNegativeTest(
@@ -8736,34 +8711,31 @@ public void testBug572204_007() throws Exception {
 			"  // Stack: 2, Locals: 2\n" +
 			"  R(java.lang.String... s);\n" +
 			"     0  aload_0 [this]\n" +
-			"     1  invokespecial java.lang.Record() [12]\n" +
+			"     1  invokespecial java.lang.Record() [48]\n" +
 			"     4  aload_0 [this]\n" +
 			"     5  aload_1 [s]\n" +
-			"     6  putfield R.s : java.lang.String[] [15]\n" +
+			"     6  putfield R.s : java.lang.String[] [28]\n" +
 			"     9  return\n" +
 			"      Line numbers:\n" +
-			"        [pc: 0, line: 5]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 10] local: this index: 0 type: R\n" +
-			"        [pc: 0, pc: 10] local: s index: 1 type: java.lang.String[]\n" +
+			"        [pc: 0, line: 1]\n" +
 			"      Method Parameters:\n" +
 			"        s\n" +
 			"    RuntimeVisibleParameterAnnotations: \n" +
 			"      Number of annotations for parameter 0: 1\n" +
-			"        #10 @I(\n" +
+			"        #47 @I(\n" +
 			"        )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput = // accessor
 			"  \n" +
-			"  // Method descriptor #38 ()[Ljava/lang/String;\n" +
+			"  // Method descriptor #27 ()[Ljava/lang/String;\n" +
 	 		"  // Stack: 1, Locals: 1\n" +
 			"  public java.lang.String[] s();\n" +
 			"    0  aload_0 [this]\n" +
-			"    1  getfield R.s : java.lang.String[] [15]\n" +
+			"    1  getfield R.s : java.lang.String[] [28]\n" +
 			"    4  areturn\n" +
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 5]\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug572934_001() {
 	Map<String, String> options = getCompilerOptions();
@@ -8866,16 +8838,16 @@ public void testBug573195_001() throws Exception {
 				},
 				"1");
 	String expectedOutput = // constructor
-			"  // Method descriptor #8 (I)V\n" +
+			"  // Method descriptor #12 (I)V\n" +
 			"  // Stack: 2, Locals: 2\n" +
 			"  protected X$R(int i);\n" +
 			"     0  aload_0 [this]\n" +
-			"     1  invokespecial java.lang.Record() [10]\n" +
+			"     1  invokespecial java.lang.Record() [36]\n" +
 			"     4  aload_0 [this]\n" +
 			"     5  iload_1 [i]\n" +
-			"     6  putfield X$R.i : int [13]\n" +
+			"     6  putfield X$R.i : int [20]\n" +
 			"     9  return\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 
 public void testBug574284_001() throws Exception {
@@ -8900,19 +8872,19 @@ public void testBug574284_001() throws Exception {
 			},
 		"0");
 	String expectedOutput = // constructor
-			"  // Method descriptor #10 (Z[I)V\n" +
+			"  // Method descriptor #14 (Z[I)V\n" +
 			"  // Stack: 2, Locals: 3\n" +
 			"  X$Rec(boolean isHidden, int... indexes);\n" +
 			"     0  aload_0 [this]\n" +
-			"     1  invokespecial java.lang.Record() [12]\n" +
+			"     1  invokespecial java.lang.Record() [41]\n" +
 			"     4  aload_0 [this]\n" +
 			"     5  iload_1 [isHidden]\n" +
-			"     6  putfield X$Rec.isHidden : boolean [15]\n" +
+			"     6  putfield X$Rec.isHidden : boolean [21]\n" +
 			"     9  aload_0 [this]\n" +
 			"    10  aload_2 [indexes]\n" +
-			"    11  putfield X$Rec.indexes : int[] [17]\n" +
+			"    11  putfield X$Rec.indexes : int[] [24]\n" +
 			"    14  return\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X$Rec.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "X$Rec.class", ClassFileBytesDisassembler.SYSTEM);
 
 }
 public void testBug574284_002() {
@@ -8996,7 +8968,7 @@ public void testBug577251_001() {
 		"2. ERROR in X.java (at line 3)\n" +
 		"	Entry(int value, Entry entry) { // Entry is a raw type here\n" +
 		"	                 ^^^^^\n" +
-		"Erasure incompatibility in argument X.Entry of canonical constructor in record\n" +
+		"Type or arity incompatibility in argument X.Entry of canonical constructor in record class\n" +
 		"----------\n");
 }
 
@@ -9050,17 +9022,17 @@ public void testIssue365_001() throws Exception {
 			},
 		"0");
 	String expectedOutput = // constructor
-			"  // Method descriptor #10 (Ljava/util/List;)V\n" +
+			"  // Method descriptor #20 (Ljava/util/List;)V\n" +
 			"  // Signature: (Ljava/util/List<Ljava/lang/String;>;)V\n" +
 			"  // Stack: 2, Locals: 2\n" +
 			"  public A(java.util.List names);\n" +
 			"     0  aload_0 [this]\n" +
-			"     1  invokespecial java.lang.Record() [13]\n" +
+			"     1  invokespecial java.lang.Record() [64]\n" +
 			"     4  aload_0 [this]\n" +
 			"     5  aload_1 [names]\n" +
-			"     6  putfield A.names : java.util.List [16]\n" +
+			"     6  putfield A.names : java.util.List [46]\n" +
 			"     9  return\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "A.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "A.class", ClassFileBytesDisassembler.SYSTEM);
 
 }
 
@@ -9115,7 +9087,7 @@ public void testRecordConstructorWithExceptionGh487() throws Exception {
 			     8  invokespecial java.lang.RuntimeException() [15]
 			    11  athrow
 			""";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1092
@@ -9168,27 +9140,22 @@ public void testGH1092() throws Exception {
 			"        location = [TYPE_ARGUMENT(0)]\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Record.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Record.class", ClassFileBytesDisassembler.SYSTEM);
 
 	// verify annotations on constructor
 	expectedOutput =
-			"  // Method descriptor #12 (Ljava/util/List;)V\n" +
+			"  // Method descriptor #34 (Ljava/util/List;)V\n" +
 			"  // Signature: (Ljava/util/List<Ljava/lang/String;>;)V\n" +
 			"  // Stack: 2, Locals: 2\n" +
 			"  Record(java.util.List list);\n" +
 			"     0  aload_0 [this]\n" +
-			"     1  invokespecial java.lang.Record() [15]\n" +
+			"     1  invokespecial java.lang.Record() [36]\n" +
 			"     4  aload_0 [this]\n" +
 			"     5  aload_1 [list]\n" +
-			"     6  putfield Record.list : java.util.List [18]\n" +
+			"     6  putfield Record.list : java.util.List [14]\n" +
 			"     9  return\n" +
 			"      Line numbers:\n" +
-			"        [pc: 0, line: 11]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 10] local: this index: 0 type: Record\n" +
-			"        [pc: 0, pc: 10] local: list index: 1 type: java.util.List\n" +
-			"      Local variable type table:\n" +
-			"        [pc: 0, pc: 10] local: list index: 1 type: java.util.List<java.lang.String>\n" +
+			"        [pc: 0, line: 1]\n" +
 			"      Method Parameters:\n" +
 			"        list\n" +
 			"    RuntimeVisibleTypeAnnotations: \n" +
@@ -9201,17 +9168,17 @@ public void testGH1092() throws Exception {
 			"        method parameter index = 0\n" +
 			"        location = [TYPE_ARGUMENT(0)]\n" +
 			"      )\n" +
-			"  \n" ;
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Record.class", ClassFileBytesDisassembler.SYSTEM);
+			"\n" ;
+	verifyClassFile(expectedOutput, "Record.class", ClassFileBytesDisassembler.SYSTEM);
 
 	// verify annotations on accessor
 	expectedOutput =
-			"  // Method descriptor #26 ()Ljava/util/List;\n" +
+			"  // Method descriptor #11 ()Ljava/util/List;\n" +
 			"  // Signature: ()Ljava/util/List<Ljava/lang/String;>;\n" +
 			"  // Stack: 1, Locals: 1\n" +
 			"  public java.util.List list();\n" +
 			"    0  aload_0 [this]\n" +
-			"    1  getfield Record.list : java.util.List [18]\n" +
+			"    1  getfield Record.list : java.util.List [14]\n" +
 			"    4  areturn\n" +
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 13]\n" +
@@ -9224,7 +9191,7 @@ public void testGH1092() throws Exception {
 			"        location = [TYPE_ARGUMENT(0)]\n" +
 			"      )\n" +
 			"  \n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Record.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Record.class", ClassFileBytesDisassembler.SYSTEM);
 
 	// verify annotations on record component
 	expectedOutput =
@@ -9239,7 +9206,7 @@ public void testGH1092() throws Exception {
 			"      target type = 0x13 FIELD\n" +
 			"      location = [TYPE_ARGUMENT(0)]\n" +
 			"    )\n";
-	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Record.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyClassFile(expectedOutput, "Record.class", ClassFileBytesDisassembler.SYSTEM);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=576719
 // Useless warning in compact constructor of a record
@@ -9312,7 +9279,7 @@ public void testIssue1218_001() {
 			"2. ERROR in X.java (at line 2)\n" +
 			"	record R(T x);\n" +
 			"	            ^\n" +
-			"Syntax error, insert \"RecordBody\" to complete ClassBodyDeclarations\n" +
+			"Syntax error, insert \"ClassBody\" to complete ClassBodyDeclarations\n" +
 			"----------\n");
 }
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -9591,6 +9558,65 @@ public void testGH1939() {
 			},
 		"OK!");
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3745
+// [Records] ClassCastException when saving a file with a record syntax error
+public void testIssue3745() {
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+				    public static void main(String[] args) {}
+				    record R(int x,) {}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	record R(int x,) {}\n" +
+			"	              ^\n" +
+			"Syntax error on token \",\", SingleVariableDeclarator expected after this token\n" +
+			"----------\n");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3745
+// Records] ClassCastException when saving a file with a record syntax error
+public void testIssue3745_full() {
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				package test;
+
+				public class Test {
+
+				    private static final PathReplacement[] REPLACEMENTS = {
+				            new PathReplacement("", ""),
+				    };
+
+				    public static void main(String[] args) {
+
+				    }
+
+				    private record PathReplacement(String absolutePathPrefix, String bazelPath) {}
+
+				    private record BuildProperties(
+				            int resourceDirsToSkip,
+				    ) {}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	public class Test {\n" +
+			"	             ^^^^\n" +
+			"The public type Test must be defined in its own file\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 16)\n" +
+			"	int resourceDirsToSkip,\n" +
+			"	                      ^\n" +
+			"Syntax error on token \",\", SingleVariableDeclarator expected after this token\n" +
+			"----------\n");
+}
 public void testBug3504_1() {
 	runNegativeTest(
 			new String[] {
@@ -9615,5 +9641,1304 @@ public void testBug3504_1() {
 			"	           ^\n" +
 			"Illegal modifier for the variable i; only final is permitted\n" +
 			"----------\n");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/pull/3675
+public void testPR3675() {
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+					class X {
+					       record Y() {}
+					       X {}
+					}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	X {}\n" +
+			"	^\n" +
+			"A compact constructor is allowed only in record classes\n" +
+			"----------\n");
+}
+
+public void testPR3675_2() {
+	runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+					public record X() {
+					       class Y {}
+					       X {}
+					}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	X {}\n" +
+			"	^\n" +
+			"Cannot reduce the visibility of a canonical constructor X from that of the record\n" +
+			"----------\n");
+}
+
+public void testGH3891() {
+	runNegativeTest(new String[] {
+		"Test.java",
+		"""
+		public class Test {
+			{
+				super();
+			}
+		}
+		"""
+		},
+		"""
+		----------
+		1. ERROR in Test.java (at line 3)
+			super();
+			^^^^^^^^
+		Constructor call must be the first statement in a constructor
+		----------
+		""");
+}
+public void testGH3891_preview() {
+	if (this.complianceLevel < ClassFileConstants.JDK25) return;
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+	runner.testFiles = new String[] {
+		"Test.java",
+		"""
+		public class Test {
+			{
+				super();
+			}
+		}
+		"""
+		};
+	runner.expectedCompilerLog =
+		"""
+		----------
+		1. ERROR in Test.java (at line 3)
+			super();
+			^^^^^^^^
+		Constructor call must be the first statement in a constructor
+		----------
+		""";
+	runner.runNegativeTest();
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3904
+// Unused parameters warning reported for record components
+public void testIssue3904() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.ERROR);
+	this.runNegativeTest(
+	new String[] {
+			"X.java",
+			"class X {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Pair p = new Pair(\"4\", \"2\");\n" +
+			"		System.out.println(p.fTag() + p.fContent());\n" +
+			"	}\n" +
+			"	public record Pair(String fTag, String fContent) {}\n" + // should NOT warn on implicit constructor
+			"   public void foo(int unused) {\n" + // should warn on unused parameter of non-constructor
+			"   }\n" +
+			"   public record Person(String name, int age) {\n" +
+			"       public Person(String name, int age) {\n" + // Should warn here
+			"           this.name = null; this.age = 0;\n" +
+			"       }\n" +
+			"   }\n" +
+			"   public record Point (int x, int y) {\n" +
+			"       public Point {}\n" + // no warning here
+			"   }\n"+
+			"\n" +
+			"}\n",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	public void foo(int unused) {\n" +
+		"	                    ^^^^^^\n" +
+		"The value of the parameter unused is not used\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 10)\n" +
+		"	public Person(String name, int age) {\n" +
+		"	                     ^^^^\n" +
+		"The value of the parameter name is not used\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 10)\n" +
+		"	public Person(String name, int age) {\n" +
+		"	                               ^^^\n" +
+		"The value of the parameter age is not used\n" +
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
+public void testAnnotationsOnConstructor() {
+	runConformTest(
+			new String[] {
+					"X.java",
+					"""
+					import java.lang.annotation.*;
+					import java.lang.reflect.*;
+
+					@Retention(RetentionPolicy.RUNTIME)
+					@Target(ElementType.PARAMETER)
+					@interface ParameterAnnot {
+					}
+
+					public record X(@ParameterAnnot int x) {
+
+						public static void main(String[] args) {
+							try {
+								Class<?> c = X.class;
+								Constructor<?> constructor = c.getConstructor(int.class);
+								Annotation[][] paramAnnotations = constructor.getParameterAnnotations();
+								Parameter[] parameters = constructor.getParameters();
+
+								for (int i = 0; i < parameters.length; i++) {
+									System.out.print("Parameter " + parameters[i].getName() + ": ");
+									if (paramAnnotations[i] == null || paramAnnotations[i].length == 0) {
+										System.out.println(" No Annotations!");
+									} else {
+										for (Annotation annotation : paramAnnotations[i]) {
+											if (annotation instanceof ParameterAnnot) {
+												System.out.println("Found Parameter annotation");
+											}
+										}
+									}
+								}
+
+							} catch (NoSuchMethodException e) {
+								e.printStackTrace();
+							}
+						}
+
+					}
+					"""
+			},
+		"Parameter x: Found Parameter annotation");
+}
+public void testAnnotationsOnConstructor_2() {
+	runConformTest(
+			new String[] {
+					"X.java",
+					"""
+					import java.lang.annotation.*;
+					import java.lang.reflect.*;
+
+					@Retention(RetentionPolicy.RUNTIME)
+					@Target(ElementType.PARAMETER)
+					@interface ParameterAnnot {
+					}
+
+					public record X(@ParameterAnnot int x) {
+
+					    public X {
+					    }
+
+						public static void main(String[] args) {
+							try {
+								Class<?> c = X.class;
+								Constructor<?> constructor = c.getConstructor(int.class);
+								Annotation[][] paramAnnotations = constructor.getParameterAnnotations();
+								Parameter[] parameters = constructor.getParameters();
+
+								for (int i = 0; i < parameters.length; i++) {
+									System.out.print("Parameter " + parameters[i].getName() + ": ");
+									if (paramAnnotations[i] == null || paramAnnotations[i].length == 0) {
+										System.out.println(" No Annotations!");
+									} else {
+										for (Annotation annotation : paramAnnotations[i]) {
+											if (annotation instanceof ParameterAnnot) {
+												System.out.println("Found Parameter annotation");
+											}
+										}
+									}
+								}
+
+							} catch (NoSuchMethodException e) {
+								e.printStackTrace();
+							}
+						}
+
+					}
+					"""
+			},
+		"Parameter x: Found Parameter annotation");
+}
+public void testAnnotationsOnConstructor_3() {
+	runConformTest(
+			new String[] {
+					"X.java",
+					"""
+					import java.lang.annotation.*;
+					import java.lang.reflect.*;
+
+					@Retention(RetentionPolicy.RUNTIME)
+					@Target(ElementType.PARAMETER)
+					@interface ParameterAnnot {
+					}
+
+					public record X(@ParameterAnnot int x) {
+
+					    public X (int x) {
+					    	this.x = x;
+					    }
+
+						public static void main(String[] args) {
+							try {
+								Class<?> c = X.class;
+								Constructor<?> constructor = c.getConstructor(int.class);
+								Annotation[][] paramAnnotations = constructor.getParameterAnnotations();
+								Parameter[] parameters = constructor.getParameters();
+
+								for (int i = 0; i < parameters.length; i++) {
+									System.out.print("Parameter " + parameters[i].getName() + ": ");
+									if (paramAnnotations[i] == null || paramAnnotations[i].length == 0) {
+										System.out.println(" No Annotations!");
+									} else {
+										for (Annotation annotation : paramAnnotations[i]) {
+											if (annotation instanceof ParameterAnnot) {
+												System.out.println("Found Parameter annotation");
+											}
+										}
+									}
+								}
+
+							} catch (NoSuchMethodException e) {
+								e.printStackTrace();
+							}
+						}
+
+					}
+					"""
+			},
+		"Parameter x:  No Annotations!");
+}
+public void testAnnotationsOnConstructor_4() {
+	runConformTest(
+			new String[] {
+					"X.java",
+					"""
+					import java.lang.annotation.*;
+					import java.lang.reflect.*;
+
+					@Retention(RetentionPolicy.RUNTIME)
+					@Target(ElementType.PARAMETER)
+					@interface ParameterAnnot {
+					}
+
+					public record X(@ParameterAnnot int x) {
+
+					    public X (@ParameterAnnot int x) {
+					    	this.x = x;
+					    }
+
+						public static void main(String[] args) {
+							try {
+								Class<?> c = X.class;
+								Constructor<?> constructor = c.getConstructor(int.class);
+								Annotation[][] paramAnnotations = constructor.getParameterAnnotations();
+								Parameter[] parameters = constructor.getParameters();
+
+								for (int i = 0; i < parameters.length; i++) {
+									System.out.print("Parameter " + parameters[i].getName() + ": ");
+									if (paramAnnotations[i] == null || paramAnnotations[i].length == 0) {
+										System.out.println(" No Annotations!");
+									} else {
+										for (Annotation annotation : paramAnnotations[i]) {
+											if (annotation instanceof ParameterAnnot) {
+												System.out.println("Found Parameter annotation");
+											}
+										}
+									}
+								}
+
+							} catch (NoSuchMethodException e) {
+								e.printStackTrace();
+							}
+						}
+
+					}
+					"""
+			},
+		"Parameter x: Found Parameter annotation");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3664
+// [Records] ECJ diagnostics are totally off-key when a records declares multiple compact constructors
+public void testIssue3664() {
+	this.runNegativeTest(
+	new String[] {
+			"X.java",
+			"""
+			record R(int x) {
+
+				R {
+
+				}
+
+				R {
+
+				}
+
+			}
+			""",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	R {\n" +
+		"	^\n" +
+		"Duplicate method R(int) in type R\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 7)\n" +
+		"	R {\n" +
+		"	^\n" +
+		"Duplicate method R(int) in type R\n" +
+		"----------\n");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3662
+// [Records] ECJ issues errors about methods generated by it
+public void testIssue3662() {
+	this.runNegativeTest(
+	new String[] {
+			"Y.java",
+			"""
+			public protected  record Y() {
+
+			}
+			""",
+		},
+		"----------\n" +
+		"1. ERROR in Y.java (at line 1)\n" +
+		"	public protected  record Y() {\n" +
+		"	                         ^\n" +
+		"Illegal modifier for the record Y; only public, final and strictfp are permitted\n" +
+		"----------\n");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3927
+// I-Build failure with PR https://github.com/eclipse-jdt/eclipse.jdt.core/pull/3896 integrated in
+public void testIssue3927() {
+	runConformTest(
+			new String[] {
+					"Test.java",
+					"""
+					import java.util.Arrays;
+					import java.util.List;
+
+					import snippet.*;
+
+					public class Test {
+						List<ElementAtZoom<ImageData>> loadFromByteStream(int fileZoom, int targetZoom) {
+							return Arrays.stream(loadFromByteStream()).map(d -> new ElementAtZoom<>(d, fileZoom)).toList();
+						}
+						ImageData[] loadFromByteStream() {
+							return null;
+						}
+						public static void main(String [] args) {
+							System.out.println("Ok!");
+						}
+					}
+					""",
+					"ElementAtZoom.java",
+					"""
+					package snippet;
+
+					public record ElementAtZoom<T>(T element, int zoom) {
+						public ElementAtZoom {
+						}
+					}
+					""",
+					"ImageData.java",
+					"""
+					package snippet;
+					public interface ImageData {
+					}
+					"""
+			},
+		"Ok!");
+}
+public void testIssue3927_2() {
+	runConformTest(
+			new String[] {
+					"Test.java",
+					"""
+					import java.util.Arrays;
+					import java.util.List;
+
+					import snippet.*;
+
+					public class Test {
+						List<ElementAtZoom<ImageData>> loadFromByteStream(int fileZoom, int targetZoom) {
+							return Arrays.stream(loadFromByteStream()).map(d -> new ElementAtZoom<>(d, fileZoom)).toList();
+						}
+						ImageData[] loadFromByteStream() {
+							return null;
+						}
+						public static void main(String [] args) {
+							System.out.println("Ok!");
+						}
+					}
+					""",
+					"ElementAtZoom.java",
+					"""
+					package snippet;
+
+					public record ElementAtZoom<T>(T element, int zoom) {
+					}
+					""",
+					"ImageData.java",
+					"""
+					package snippet;
+					public interface ImageData {
+					}
+					"""
+			},
+		"Ok!");
+}
+public void testIssue3927_3() {
+	runNegativeTest(
+			new String[] {
+					"Test.java",
+					"""
+					import java.util.Arrays;
+					import java.util.List;
+
+					import snippet.*;
+
+					public class Test {
+						List<ElementAtZoom<ImageData>> loadFromByteStream(int fileZoom, int targetZoom) {
+							return Arrays.stream(loadFromByteStream()).map(d -> new ElementAtZoom<>(d, "wrong-argument-type")).toList();
+						}
+						ImageData[] loadFromByteStream() {
+							return null;
+						}
+						public static void main(String [] args) {
+							System.out.println("Ok!");
+						}
+					}
+					""",
+					"ElementAtZoom.java",
+					"""
+					package snippet;
+
+					public record ElementAtZoom<T>(T element, int zoom) {
+					}
+					""",
+					"ImageData.java",
+					"""
+					package snippet;
+					public interface ImageData {
+					}
+					"""
+			},
+			"----------\n" +
+			"1. ERROR in Test.java (at line 8)\n" +
+			"	return Arrays.stream(loadFromByteStream()).map(d -> new ElementAtZoom<>(d, \"wrong-argument-type\")).toList();\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type mismatch: cannot convert from List<Object> to List<ElementAtZoom<ImageData>>\n" +
+			"----------\n" +
+			"2. ERROR in Test.java (at line 8)\n" +
+			"	return Arrays.stream(loadFromByteStream()).map(d -> new ElementAtZoom<>(d, \"wrong-argument-type\")).toList();\n" +
+			"	                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Cannot infer type arguments for ElementAtZoom<>\n" +
+			"----------\n");
+}
+public void testSafeVarargs() {
+	runNegativeTest(
+			new String[] {
+					"X.java",
+					"""
+					public record X (@SafeVarargs int ... x) {
+					}
+					"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\r\n" +
+			"	public record X (@SafeVarargs int ... x) {\r\n" +
+			"	                                      ^\n" +
+			"@SafeVarargs annotation cannot be applied to record component without explicit accessor method x\n" +
+			"----------\n");
+	runConformTest(
+			new String[] {
+					"X.java",
+					"""
+					public record X (@SafeVarargs int ... x) {
+					    public int [] x() {
+					    	return this.x;
+					    }
+					    public static void main(String [] args) {
+					    	System.out.println("Ok!");
+				    	}
+					}
+					"""
+			},
+			"Ok!");
+
+}
+public void testUnderscoreName() {
+	if (this.complianceLevel < ClassFileConstants.JDK21)
+		return;
+
+	runNegativeTest(
+			new String[] {
+					"X.java",
+					"""
+					public record X (int _) {
+					}
+					"""
+			},
+			this.complianceLevel < ClassFileConstants.JDK22 ?
+					"----------\n" +
+					"1. ERROR in X.java (at line 1)\n" +
+					"	public record X (int _) {\n" +
+					"	                     ^\n" +
+					"'_' is a keyword from source level 9 onwards, cannot be used as identifier\n" +
+					"----------\n" :
+
+						"----------\n" +
+						"1. ERROR in X.java (at line 1)\n" +
+						"	public record X (int _) {\n" +
+						"	                     ^\n" +
+						"As of release 22, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters\n" +
+						"----------\n");
+}
+public void testCompactConstuctorTypeAnnotations() {
+	runConformTest(
+			new String[] {
+					"X.java",
+					"""
+					import java.lang.annotation.*;
+					import java.lang.reflect.*;
+
+					@Target(ElementType.TYPE_USE)
+					@Retention(RetentionPolicy.RUNTIME)
+					@interface MyTypeAnno {
+					    String value();
+					}
+
+					public record X(@MyTypeAnno("constructor param") int x) {
+
+					    // Constructor with a type annotation on its parameter
+					    public X {
+					        // no-op
+					    }
+
+					    public static void main(String[] args) throws Exception {
+					        // Get the Constructor object for X(int)
+					        Constructor<X> constructor = X.class.getConstructor(int.class);
+
+					        // Get annotated types of the parameters
+					        AnnotatedType[] annotatedParams = constructor.getAnnotatedParameterTypes();
+
+					        // Print each annotation on each parameter
+					        for (int i = 0; i < annotatedParams.length; i++) {
+					            System.out.println("Constructor parameter " + i + " annotations:");
+					            for (Annotation annotation : annotatedParams[i].getAnnotations()) {
+					                System.out.println("  " + annotation);
+					            }
+					        }
+					    }
+					}
+					"""
+			},
+			"Constructor parameter 0 annotations:\n" +
+					"  @MyTypeAnno(\"constructor param\")"
+);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3951
+// [Records] Generic signature is not preserved for compact constructors by PR #3928
+public void testIssue3951() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"""
+			import java.lang.annotation.Annotation;
+			import java.util.List;
+
+			public record X (List<Class<? extends Annotation>> classes) {
+				public X {
+
+				}
+
+				public static void main(String [] args) {
+					System.out.println("Ok!");
+				}
+			}
+			"""
+		},
+	 "Ok!");
+	String expectedOutput =
+			"  // Method descriptor #10 (Ljava/util/List;)V\n" +
+			"  // Signature: (Ljava/util/List<Ljava/lang/Class<+Ljava/lang/annotation/Annotation;>;>;)V\n" +
+			"  // Stack: 2, Locals: 2\n" +
+			"  public X(java.util.List classes);\n" +
+			"     0  aload_0 [this]\n" +
+			"     1  invokespecial java.lang.Record() [13]\n" +
+			"     4  aload_0 [this]\n" +
+			"     5  aload_1 [classes]\n" +
+			"     6  putfield X.classes : java.util.List [16]\n" +
+			"     9  return\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 5]\n" +
+			"        [pc: 4, line: 7]\n" +
+			"      Local variable table:\n" +
+			"        [pc: 0, pc: 10] local: this index: 0 type: X\n" +
+			"        [pc: 0, pc: 10] local: classes index: 1 type: java.util.List\n" +
+			"      Local variable type table:\n" +
+			"        [pc: 0, pc: 10] local: classes index: 1 type: java.util.List<java.lang.Class<? extends java.lang.annotation.Annotation>>\n" +
+			"      Method Parameters:\n" +
+			"        mandated classes\n";
+	verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3957
+// [Records] Missing @Override annotation on component accessors not complained about by ECJ
+public void testIssue3957() {
+	Map<String, String> customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
+			CompilerOptions.ERROR);
+
+	this.runNegativeTest(
+			true,
+    		new String[] {
+					"X.java",
+					"""
+					public record X(int x) {
+					    public int x() {
+					        return this.x;
+				        }
+					}
+					""",
+	            },
+	null, customOptions,
+	"----------\n" +
+	"1. ERROR in X.java (at line 2)\n" +
+	"	public int x() {\n" +
+	"	           ^^^\n" +
+	"The component accessor method x() of record class X should be tagged with @Override\n" +
+	"----------\n",
+	JavacTestOptions.SKIP);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3663
+// [Records] ECJ compiles arity mismatched canonical constructor
+public void testIssue3663() {
+	this.runNegativeTest(
+ 		new String[] {
+					"X.java",
+					"""
+					record R(int ... x) {
+
+						R(int [] x) {
+							this.x = x;
+						}
+
+					}
+					""",
+	            },
+
+ 		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	R(int [] x) {\n" +
+		"	  ^^^^^^\n" +
+		"Type or arity incompatibility in argument int[] of canonical constructor in record class\n" +
+		"----------\n");
+
+	this.runNegativeTest(
+	 		new String[] {
+						"X.java",
+						"""
+						record R(int [] x) {
+
+							R(int ... x) {
+								this.x = x;
+							}
+
+						}
+						""",
+		            },
+
+	 		"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	R(int ... x) {\n" +
+			"	  ^^^^^^^\n" +
+			"Type or arity incompatibility in argument int[] of canonical constructor in record class\n" +
+			"----------\n");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4015
+// [Records] Incorrect error "Cannot instantiate local class 'ARecord' in a static context"
+public void testIssue4015() {
+	this.runConformTest(
+		new String[] {
+					"X.java",
+					"""
+					import java.util.function.Supplier;
+
+					public class X {
+
+						public String method() {
+
+							record ARecord() {
+								public static ARecord of() {
+									return new ARecord();
+								}
+							}
+
+							ARecord ar = ARecord.of();
+							return ar.toString();
+						}
+
+						public static Supplier<Object> test() {
+							class A {}
+							return () -> new A();
+						}
+
+					    public static void main(String [] args) {
+					        System.out.println(new X().method());
+					    }
+					}
+					""",
+	            },
+
+		"ARecord[]");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4015
+// [Records] Incorrect error "Cannot instantiate local class 'ARecord' in a static context"
+public void testIssue4015_2() {
+	// test again with static enclosing method
+	this.runConformTest(
+			new String[] {
+						"X.java",
+						"""
+						import java.util.function.Supplier;
+
+						public class X {
+
+							public static String staticMethod() {
+
+								record ARecord() {
+									public static ARecord of() {
+										return new ARecord();
+									}
+								}
+
+								ARecord ar = ARecord.of();
+								return ar.toString();
+							}
+
+							public static Supplier<Object> test() {
+								class A {}
+								return () -> new A();
+							}
+
+						    public static void main(String [] args) {
+						        System.out.println(staticMethod());
+						    }
+						}
+						""",
+		            },
+
+			"ARecord[]");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4015
+// [Records] Incorrect error "Cannot instantiate local class 'ARecord' in a static context"
+public void testIssue4015_3() {
+	this.runConformTest(
+			new String[] {
+						"X.java",
+						"""
+						import java.util.function.Supplier;
+
+						public class X {
+
+							interface I {}
+
+							public String method() {
+
+								record ARecord() implements I {
+									public static ARecord of() {
+										Supplier<I> si = ARecord::new;
+										return (ARecord) si.get();
+									}
+								}
+								return ARecord.of().toString();
+							}
+
+							public static void main(String [] args) {
+						        System.out.println(new X().method());
+						    }
+						}
+						""",
+		            },
+
+			"ARecord[]");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4015
+// [Records] Incorrect error "Cannot instantiate local class 'ARecord' in a static context"
+public void testIssue4015_4() {
+	// test again with static enclosing method
+	this.runConformTest(
+		new String[] {
+					"X.java",
+					"""
+					import java.util.function.Supplier;
+
+					public class X {
+
+						interface I {}
+
+						public static String staticMethod() {
+
+							record ARecord() implements I {
+								public static ARecord of() {
+									Supplier<I> si = ARecord::new;
+									return (ARecord) si.get();
+								}
+							}
+							return ARecord.of().toString();
+						}
+
+						public static void main(String [] args) {
+					        System.out.println(staticMethod());
+					    }
+					}
+					""",
+	            },
+
+		"ARecord[]");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4025
+// [Records] Record component by name equals with an explicit accessor leads to ClassFormatError
+public void testIssue4025() {
+	this.runConformTest(
+		new String[] {
+					"X.java",
+					"""
+					public record X(boolean equals)  {
+					    public boolean equals() {
+					        return equals;
+					    }
+
+					    public static void main(String argv[]) {
+					        System.out.println("Ok!");
+					    }
+					}
+					""",
+	            },
+
+		"Ok!");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4094
+// Error on Eclipse 4.36 when compiling Record with field usage
+public void testIssue4094() {
+	this.runConformTest(
+		new String[] {
+					"X.java",
+					"""
+					public class X {
+					    public static void main(String [] args) {
+					        System.out.println(ClassB.B);
+					    }
+					}
+					""",
+					"ClassB.java",
+					"""
+					import java.util.List;
+					import java.util.function.Predicate;
+
+
+					public class ClassB {
+
+					  private final Predicate<RecordA> predicate;
+
+					  public static final ClassB B = new ClassB(recordA -> recordA.test.isEmpty());
+
+					  public ClassB(Predicate<RecordA> predicate) {
+					    this.predicate = predicate;
+					  }
+
+					  public String toString() {
+					  	  return "ClassB instance";
+					  }
+
+					  record RecordA(List<Object> test, Integer i) {
+					  }
+					}
+					"""
+	            },
+
+		"ClassB instance");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4106
+// @Override-annotation on records not correctly handled by Eclipse 4.36
+public void testIssue4106() {
+	Map<String, String> customOptions = getCompilerOptions();
+	customOptions.put(
+			CompilerOptions.OPTION_ReportMissingOverrideAnnotation,
+			CompilerOptions.ERROR);
+
+	this.runNegativeTest(
+			true,
+ 		new String[] {
+					"X.java",
+					"""
+					public record X(String withoutOverride, String withOverride) {
+
+					  public String withoutOverride() {
+					    return withoutOverride;
+					  }
+
+					  @Override
+					  public String withOverride() {
+					    return withOverride;
+					  }
+					}
+					""",
+	            },
+	null, customOptions,
+	"----------\n" +
+	"1. ERROR in X.java (at line 3)\n" +
+	"	public String withoutOverride() {\n" +
+	"	              ^^^^^^^^^^^^^^^^^\n" +
+	"The component accessor method withoutOverride() of record class X should be tagged with @Override\n" +
+	"----------\n",
+	JavacTestOptions.SKIP);
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4118
+// Record with compact ctor - Internal compiler error: java.lang.RuntimeException: Internal Error compiling
+public void testIssue4118() {
+	this.runConformTest(
+		new String[] {
+					"RecordCompactWithReader.java",
+					"""
+					import java.io.Reader;
+					import java.time.Instant;
+					import java.util.Objects;
+
+					public record RecordCompactWithReader(Instant modified, Reader reader) {
+					    public RecordCompactWithReader {
+					        Objects.requireNonNull(modified);
+					        Objects.requireNonNull(reader);
+					    }
+					    public static void main(String [] args) {
+					    	System.out.println("OK!");
+					    }
+					}
+					""",
+	            },
+		"OK!"
+		);
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4070
+// Resource closure analysis triggers NPE with compact constructors
+public void testIssue4070() {
+	this.runConformTest(
+		new String[] {
+					"Config.java",
+					"""
+					import java.net.URI;
+					import java.net.http.HttpClient;
+					import java.util.Objects;
+
+					public record Config(HttpClient httpClient, URI base, String defaultContentType) {
+
+						  @SuppressWarnings("resource")
+						  public Config {
+						    Objects.requireNonNull(httpClient, "httpClient");
+						  }
+
+						  public static void main(String [] args) {
+					    	System.out.println("OK!");
+					    }
+					}
+					""",
+	            },
+		"OK!"
+		);
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4146
+// Unable to build Record
+public void testIssue4146() {
+	this.runNegativeTest(
+		new String[] {
+					"Segment.java",
+					"""
+					package repro;
+
+					import com.fasterxml.jackson.annotation.JsonInclude;
+					import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+
+					public record Segment(@JacksonXmlProperty(isAttribute = true) String id,
+					                      String source,
+					                      @JsonInclude(JsonInclude.Include.NON_NULL) String target) {
+
+					}
+					""",
+	            },
+		"----------\n" +
+		"1. ERROR in Segment.java (at line 3)\r\n" +
+		"	import com.fasterxml.jackson.annotation.JsonInclude;\r\n" +
+		"	       ^^^^^^^^^^^^^\n" +
+		"The import com.fasterxml cannot be resolved\n" +
+		"----------\n" +
+		"2. ERROR in Segment.java (at line 4)\r\n" +
+		"	import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;\r\n" +
+		"	       ^^^^^^^^^^^^^\n" +
+		"The import com.fasterxml cannot be resolved\n" +
+		"----------\n" +
+		"3. ERROR in Segment.java (at line 6)\r\n" +
+		"	public record Segment(@JacksonXmlProperty(isAttribute = true) String id,\r\n" +
+		"	                       ^^^^^^^^^^^^^^^^^^\n" +
+		"JacksonXmlProperty cannot be resolved to a type\n" +
+		"----------\n" +
+		"4. ERROR in Segment.java (at line 8)\r\n" +
+		"	@JsonInclude(JsonInclude.Include.NON_NULL) String target) {\r\n" +
+		"	 ^^^^^^^^^^^\n" +
+		"JsonInclude cannot be resolved to a type\n" +
+		"----------\n" +
+		"5. ERROR in Segment.java (at line 8)\r\n" +
+		"	@JsonInclude(JsonInclude.Include.NON_NULL) String target) {\r\n" +
+		"	             ^^^^^^^^^^^\n" +
+		"JsonInclude cannot be resolved to a variable\n" +
+		"----------\n");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4146
+// Unable to build Record
+public void testIssue4146_2() {
+	this.runNegativeTest(
+		new String[] {
+					"Segment.java",
+					"""
+					package repro;
+
+					import com.fasterxml.jackson.annotation.JsonInclude;
+					import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+
+					public record Segment(@JacksonXmlProperty(isAttribute = true) String id,
+					                      @JsonInclude(JsonInclude.Include.NON_NULL) String target,
+					                      String source) {
+
+					}
+					""",
+	            },
+		"----------\n" +
+		"1. ERROR in Segment.java (at line 3)\n" +
+		"	import com.fasterxml.jackson.annotation.JsonInclude;\n" +
+		"	       ^^^^^^^^^^^^^\n" +
+		"The import com.fasterxml cannot be resolved\n" +
+		"----------\n" +
+		"2. ERROR in Segment.java (at line 4)\n" +
+		"	import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;\n" +
+		"	       ^^^^^^^^^^^^^\n" +
+		"The import com.fasterxml cannot be resolved\n" +
+		"----------\n" +
+		"3. ERROR in Segment.java (at line 6)\n" +
+		"	public record Segment(@JacksonXmlProperty(isAttribute = true) String id,\n" +
+		"	                       ^^^^^^^^^^^^^^^^^^\n" +
+		"JacksonXmlProperty cannot be resolved to a type\n" +
+		"----------\n" +
+		"4. ERROR in Segment.java (at line 7)\n" +
+		"	@JsonInclude(JsonInclude.Include.NON_NULL) String target,\n" +
+		"	 ^^^^^^^^^^^\n" +
+		"JsonInclude cannot be resolved to a type\n" +
+		"----------\n" +
+		"5. ERROR in Segment.java (at line 7)\n" +
+		"	@JsonInclude(JsonInclude.Include.NON_NULL) String target,\n" +
+		"	             ^^^^^^^^^^^\n" +
+		"JsonInclude cannot be resolved to a variable\n" +
+		"----------\n");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4146
+// Unable to build Record
+public void testIssue4146_3() throws Exception {
+	this.runConformTest(
+		new String[] {
+					"Segment.java",
+					"""
+					import jackson.stuff.JacksonXmlProperty;
+					import jackson.stuff.JsonInclude;
+
+					public record Segment(@JacksonXmlProperty(isAttribute = true) String id,
+					                      String source,
+					                      @JsonInclude(JsonInclude.Include.NON_NULL) String target) {
+
+						public static void main(String [] args) {
+							System.out.println("OK!");
+						}
+					}
+					""",
+					"jackson/stuff/JacksonXmlProperty.java",
+					"""
+					package jackson.stuff;
+					import java.lang.annotation.ElementType;
+					import java.lang.annotation.Retention;
+					import java.lang.annotation.RetentionPolicy;
+					import java.lang.annotation.Target;
+
+					@Target({ElementType.ANNOTATION_TYPE, ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
+					@Retention(RetentionPolicy.RUNTIME)
+					public @interface JacksonXmlProperty {
+					    boolean isAttribute() default false;
+					}
+					""",
+					"jackson/stuff/JsonInclude.java",
+					"""
+					package jackson.stuff;
+
+					import java.lang.annotation.ElementType;
+					import java.lang.annotation.Target;
+
+					@Target({ElementType.METHOD, ElementType.FIELD, ElementType.TYPE, ElementType.PARAMETER})
+					@JacksonAnnotation
+					public @interface JsonInclude {
+					    public enum Include {
+					    	ALWAYS,
+					        NON_NULL;
+					    }
+					    public Include value() default Include.ALWAYS;
+					}
+					""",
+					"jackson/stuff/JacksonAnnotation.java",
+					"""
+					package jackson.stuff;
+
+					import java.lang.annotation.ElementType;
+					import java.lang.annotation.Retention;
+					import java.lang.annotation.RetentionPolicy;
+					import java.lang.annotation.Target;
+
+					@Target({ElementType.ANNOTATION_TYPE})
+					@Retention(RetentionPolicy.RUNTIME)
+					public @interface JacksonAnnotation {
+
+					}
+					"""
+	            },
+				"OK!");
+
+	String expectedOutput =
+					"  // Field descriptor #6 Ljava/lang/String;\n" +
+					"  private final java.lang.String id;\n" +
+					"    RuntimeVisibleAnnotations: \n" +
+					"      #8 @jackson.stuff.JacksonXmlProperty(\n" +
+					"        #9 isAttribute=true (constant type)\n" +
+					"      )\n" +
+					"  \n" +
+					"  // Field descriptor #6 Ljava/lang/String;\n" +
+					"  private final java.lang.String source;\n" +
+					"  \n" +
+					"  // Field descriptor #6 Ljava/lang/String;\n" +
+					"  private final java.lang.String target;\n" +
+					"    RuntimeInvisibleAnnotations: \n" +
+					"      #14 @jackson.stuff.JsonInclude(\n" +
+					"        #15 value=jackson.stuff.JsonInclude.Include.NON_NULL(enum type #16.#17)\n" +
+					"      )\n";
+	verifyClassFile(expectedOutput, "Segment.class", ClassFileBytesDisassembler.SYSTEM);
+
+	expectedOutput =
+			"  // Method descriptor #39 ()Ljava/lang/String;\n" +
+			"  // Stack: 1, Locals: 1\n" +
+			"  public java.lang.String id();\n" +
+			"    0  aload_0 [this]\n" +
+			"    1  getfield Segment.id : java.lang.String [40]\n" +
+			"    4  areturn\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 4]\n" +
+			"    RuntimeVisibleAnnotations: \n" +
+			"      #8 @jackson.stuff.JacksonXmlProperty(\n" +
+			"        #9 isAttribute=true (constant type)\n" +
+			"      )\n" +
+			"  \n" +
+			"  // Method descriptor #39 ()Ljava/lang/String;\n" +
+			"  // Stack: 1, Locals: 1\n" +
+			"  public java.lang.String source();\n" +
+			"    0  aload_0 [this]\n" +
+			"    1  getfield Segment.source : java.lang.String [42]\n" +
+			"    4  areturn\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 5]\n" +
+			"  \n" +
+			"  // Method descriptor #39 ()Ljava/lang/String;\n" +
+			"  // Stack: 1, Locals: 1\n" +
+			"  public java.lang.String target();\n" +
+			"    0  aload_0 [this]\n" +
+			"    1  getfield Segment.target : java.lang.String [44]\n" +
+			"    4  areturn\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 6]\n" +
+			"    RuntimeInvisibleAnnotations: \n" +
+			"      #14 @jackson.stuff.JsonInclude(\n" +
+			"        #15 value=jackson.stuff.JsonInclude.Include.NON_NULL(enum type #16.#17)\n" +
+			"      )\n" +
+			"  \n";
+	verifyClassFile(expectedOutput, "Segment.class", ClassFileBytesDisassembler.SYSTEM);
+
+	expectedOutput =
+			"  // Method descriptor #61 (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V\n" +
+			"  // Stack: 2, Locals: 4\n" +
+			"  public Segment(java.lang.String id, java.lang.String source, java.lang.String target);\n" +
+			"     0  aload_0 [this]\n" +
+			"     1  invokespecial java.lang.Record() [64]\n" +
+			"     4  aload_0 [this]\n" +
+			"     5  aload_1 [id]\n" +
+			"     6  putfield Segment.id : java.lang.String [40]\n" +
+			"     9  aload_0 [this]\n" +
+			"    10  aload_2 [source]\n" +
+			"    11  putfield Segment.source : java.lang.String [42]\n" +
+			"    14  aload_0 [this]\n" +
+			"    15  aload_3 [target]\n" +
+			"    16  putfield Segment.target : java.lang.String [44]\n" +
+			"    19  return\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 1]\n" +
+			"      Method Parameters:\n" +
+			"        id\n" +
+			"        source\n" +
+			"        target\n" +
+			"    RuntimeVisibleParameterAnnotations: \n" +
+			"      Number of annotations for parameter 0: 1\n" +
+			"        #8 @jackson.stuff.JacksonXmlProperty(\n" +
+			"          #9 isAttribute=true (constant type)\n" +
+			"        )\n" +
+			"      Number of annotations for parameter 1: 0\n" +
+			"      Number of annotations for parameter 2: 0\n" +
+			"    RuntimeInvisibleParameterAnnotations: \n" +
+			"      Number of annotations for parameter 0: 0\n" +
+			"      Number of annotations for parameter 1: 0\n" +
+			"      Number of annotations for parameter 2: 1\n" +
+			"        #14 @jackson.stuff.JsonInclude(\n" +
+			"          #15 value=jackson.stuff.JsonInclude.Include.NON_NULL(enum type #16.#17)\n" +
+			"        )\n" +
+			"\n";
+	verifyClassFile(expectedOutput, "Segment.class", ClassFileBytesDisassembler.SYSTEM);
+
+}
+public void testIssue4290() throws Exception {
+	this.runConformTest(
+		new String[] {
+					"X.java",
+					"""
+					public class X {
+					    public Object a() {
+					        return new Object() {
+					            static record A(Object  a, Object b) {}
+					        };
+					    }
+					    public static void main(String[] args) {
+							System.out.println("OK");
+						}
+					}
+					""",
+	            },
+				"OK");
+
 }
 }

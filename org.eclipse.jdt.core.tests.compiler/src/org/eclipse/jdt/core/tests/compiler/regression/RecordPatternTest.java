@@ -2013,8 +2013,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n" +
 				"1. ERROR in X.java (at line 10)\n" +
 				"	if (p instanceof R<>(String a)) {\n" +
-				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Incompatible conditional operand types R<capture#1-of ? extends I> and R\n" +
+				"	                 ^\n" +
+				"Incorrect number of arguments for type R<T>; it cannot be parameterized with arguments <>\n" +
 				"----------\n");
 	}
 	public void testIssue900_1() {
@@ -4920,5 +4920,83 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"""
 			},
 			"012012345678");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4065
+	// [Null][Record] Invalid "dead code" warning for record pattern with null-guard on component
+	public void testIssue4065() {
+		runConformTest(new String[] {
+				"InvalidDeadCodeWarning.java",
+				"""
+				public class InvalidDeadCodeWarning {
+
+				    public static void main(String[] args) {
+				        try {
+				            new InvalidDeadCodeWarning(new MyRecord(null));
+				        } catch (IllegalArgumentException e) {
+				            System.out.println(e);
+				        }
+
+				        try {
+				            new InvalidDeadCodeWarning(new MyRecord("  "));
+				        } catch (IllegalArgumentException e) {
+				            System.out.println(e);
+				        }
+
+				        try {
+				            new InvalidDeadCodeWarning(null);
+				        } catch (IllegalArgumentException e) {
+				            System.out.println(e);
+				        }
+				    }
+
+
+				    record MyRecord(String value) {
+				    }
+
+				    final MyRecord myRecord;
+
+				    InvalidDeadCodeWarning(MyRecord myRecord) {
+				        this.myRecord = switch (myRecord) {
+				            case MyRecord(var value) when value == null -> throw new IllegalArgumentException("myRecord contained null value"); // "Dead code" warning
+				            case MyRecord(var value) when value.isBlank() -> throw new IllegalArgumentException("myRecord contained blank value '" + value + "'");
+				            case null -> throw new IllegalArgumentException("myRecord was null");
+				            default -> myRecord;
+				        };
+				    }
+				}
+				"""
+			},
+			"java.lang.IllegalArgumentException: myRecord contained null value\n" +
+			"java.lang.IllegalArgumentException: myRecord contained blank value '  '\n" +
+			"java.lang.IllegalArgumentException: myRecord was null");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4163
+	// [LVTI/var] ECJ accepts illegal array dimensions on type pattern declarations with var type
+	public void testIssue4163() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				record R (String s) {
+
+				}
+
+				public class X  {
+					public static void main(String[] args) {
+						Object o = new R("Hello");
+						if (o instanceof R(var [][][] s)) {  // you can use any number of [] pairs actually!
+							System.out.println("R");
+						}
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	if (o instanceof R(var [][][] s)) {  // you can use any number of [] pairs actually!\n" +
+			"	                   ^^^^^^^^^^\n" +
+			"'var' is not allowed as an element type of an array\n" +
+			"----------\n");
 	}
 }

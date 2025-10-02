@@ -376,16 +376,6 @@ public abstract class Annotation extends Expression {
 					}
 				}
 				break;
-			case TypeIds.T_JdkInternalPreviewFeature :
-				tagBits |= TagBits.AnnotationPreviewFeature;
-				for (MemberValuePair memberValuePair : memberValuePairs()) {
-					if (CharOperation.equals(memberValuePair.name, TypeConstants.ESSENTIAL_API)) {
-						if (memberValuePair.value instanceof TrueLiteral) {
-							tagBits |= TagBits.EssentialAPI;
-						}
-					}
-				}
-				break;
 			// marker annotations
 			case TypeIds.T_JavaLangDeprecated :
 				tagBits |= TagBits.AnnotationDeprecated;
@@ -532,6 +522,11 @@ public abstract class Annotation extends Expression {
 					if (CharOperation.equals(name, TypeConstants.DEFAULT_LOCATION__ARRAY_CONTENTS))
 						return Binding.DefaultLocationArrayContents;
 					break;
+				case 16 :
+					if (CharOperation.equals(name, TypeConstants.DEFAULT_LOCATION__RECORD_COMPONENT))
+						return Binding.DefaultLocationRecordComponent;
+					break;
+
 			}
 		}
 		return 0;
@@ -574,6 +569,10 @@ public abstract class Annotation extends Expression {
 				case 9:
 					if (CharOperation.equals(name, TypeConstants.UPPER_PARAMETER))
 						return Binding.DefaultLocationParameter;
+					break;
+				case 16 :
+					if (CharOperation.equals(name, TypeConstants.UPPER_RECORD_COMPONENT))
+						return Binding.DefaultLocationRecordComponent;
 					break;
 			}
 		}
@@ -966,7 +965,19 @@ public abstract class Annotation extends Expression {
 		int defaultNullness = (int)(tagBits & Binding.NullnessDefaultMASK);
 		tagBits &= ~Binding.NullnessDefaultMASK;
 		CompilerOptions compilerOptions = scope.compilerOptions();
-		if ((tagBits & TagBits.AnnotationDeprecated) != 0 && compilerOptions.complianceLevel >= ClassFileConstants.JDK9 && !compilerOptions.storeAnnotations) {
+		/* In cases like this, the this.recipient is null
+		 * public @interface MyAnnot {
+		 *   Deprecated annot() default @Deprecated();
+		 * }
+		 * and difficult to distinguish between the above and
+		 * @Deprecated
+		 * Deprecated annot();
+		 *
+		 */
+		if (this.recipient != null
+				&& (tagBits & TagBits.AnnotationDeprecated) != 0
+				&& compilerOptions.complianceLevel >= ClassFileConstants.JDK9
+				&& !compilerOptions.storeAnnotations) {
 			this.recipient.setAnnotations(new AnnotationBinding[] {this.compilerAnnotation}, true); // force storing enhanced deprecation
 		}
 
@@ -1020,8 +1031,7 @@ public abstract class Annotation extends Expression {
 							sourceMethod.tagBits &= ~TagBits.AnnotationNullMASK; // avoid secondary problems
 						}
 						if (nullBits != 0 && sourceMethod.isConstructor()) {
-							if (compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8)
-								scope.problemReporter().nullAnnotationUnsupportedLocation(this);
+							scope.problemReporter().nullAnnotationUnsupportedLocation(this);
 							// for declaration annotations the inapplicability will be reported below
 							sourceMethod.tagBits &= ~TagBits.AnnotationNullMASK;
 						}
@@ -1090,7 +1100,7 @@ public abstract class Annotation extends Expression {
 							variable.tagBits &= ~TagBits.AnnotationNullMASK; // avoid secondary problems
 						}
 						if ((tagBits & TagBits.AnnotationSuppressWarnings) != 0) {
-							LocalDeclaration localDeclaration = variable.declaration;
+							AbstractVariableDeclaration localDeclaration = variable.declaration;
 							recordSuppressWarnings(scope, localDeclaration.declarationSourceStart, localDeclaration.declarationSourceEnd, compilerOptions.suppressWarnings);
 						}
 						// note: defaultNullness for local declarations has been already been handled earlier by handleNonNullByDefault()
@@ -1162,19 +1172,10 @@ public abstract class Annotation extends Expression {
 			case Binding.PACKAGE :
 				if ((metaTagBits & TagBits.AnnotationForPackage) != 0)
 					return AnnotationTargetAllowed.YES;
-				else if (scope.compilerOptions().sourceLevel <= ClassFileConstants.JDK1_6) {
-					SourceTypeBinding sourceType = (SourceTypeBinding) recipient;
-					if (CharOperation.equals(sourceType.sourceName, TypeConstants.PACKAGE_INFO_NAME))
-						return AnnotationTargetAllowed.YES;
-				}
 				break;
 			case Binding.TYPE_USE :
 				if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
 					// jsr 308
-					return AnnotationTargetAllowed.YES;
-				}
-				if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8) {
-					// already reported as syntax error; don't report secondary problems
 					return AnnotationTargetAllowed.YES;
 				}
 				break;
@@ -1228,8 +1229,7 @@ public abstract class Annotation extends Expression {
 				}
 				break;
 			case Binding.RECORD_COMPONENT :
-				/* JLS 14 9.7.4 Record Preview
-				 * It is a compile-time error if an annotation of type T is syntactically a modifier for:
+				/* It is a compile-time error if an annotation of type T is syntactically a modifier for:
 				 * ...
 				 * a record component but T is not applicable to record component declarations, field declarations,
 				 * method declarations, or type contexts.
@@ -1237,7 +1237,7 @@ public abstract class Annotation extends Expression {
 				long recordComponentMask = TagBits.AnnotationForRecordComponent |
 				TagBits.AnnotationForField |
 				TagBits.AnnotationForMethod |
-				TagBits.AnnotationForParameter | // See JLS 14 8.10.4 Records Preview - TODO revisit in J15
+				TagBits.AnnotationForParameter |
 				TagBits.AnnotationForTypeUse;
 				return (metaTagBits & recordComponentMask) != 0 ? AnnotationTargetAllowed.YES :
 					AnnotationTargetAllowed.NO;
@@ -1256,7 +1256,7 @@ public abstract class Annotation extends Expression {
 				} else if ((annotationType.tagBits & TagBits.AnnotationForLocalVariable) != 0) {
 					return AnnotationTargetAllowed.YES;
 				} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
-					if (localVariableBinding.declaration.isTypeNameVar(scope)) {
+					if (localVariableBinding.declaration.isVarTyped(scope)) {
 						return AnnotationTargetAllowed.NO;
 					} else if (isTypeUseCompatible(localVariableBinding.declaration.type, scope)) {
 						return AnnotationTargetAllowed.YES;
@@ -1300,23 +1300,6 @@ public abstract class Annotation extends Expression {
 			   contexts and in no type contexts.
 			*/
 			return kind == Binding.TYPE_USE ?  AnnotationTargetAllowed.NO_DUE_TO_LACKING_TARGET : AnnotationTargetAllowed.YES;
-		}
-
-		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391201
-		if ((metaTagBits & TagBits.AnnotationForDeclarationMASK) == 0
-				&& (metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
-			if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8) {
-				switch (kind) {
-					case Binding.PACKAGE :
-					case Binding.TYPE :
-					case Binding.GENERIC_TYPE :
-					case Binding.METHOD :
-					case Binding.FIELD :
-					case Binding.LOCAL :
-					case Binding.RECORD_COMPONENT :
-						scope.problemReporter().invalidUsageOfTypeAnnotations(annotation);
-				}
-			}
 		}
 		return isAnnotationTargetAllowed(annotation.recipient, scope, annotationType, kind, metaTagBits);
 	}
@@ -1384,8 +1367,6 @@ public abstract class Annotation extends Expression {
 	// Complain if an attempt to annotate the enclosing type of a static member type is being made.
 	public static void isTypeUseCompatible(TypeReference reference, Scope scope, Annotation[] annotations) {
 		if (annotations == null || reference == null || reference.getAnnotatableLevels() == 1)
-			return;
-		if (scope.environment().globalOptions.sourceLevel < ClassFileConstants.JDK1_8)
 			return;
 
 		TypeBinding resolvedType = reference.resolvedType == null ? null : reference.resolvedType.leafComponentType();

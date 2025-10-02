@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -70,8 +70,6 @@ public abstract class Binding {
 	public static final ElementValuePair[] NO_ELEMENT_VALUE_PAIRS = new ElementValuePair[0];
 	public static final char[][] NO_PARAMETER_NAMES = new char[0][];
 	public static final RecordComponentBinding[] NO_COMPONENTS = new RecordComponentBinding[0];
-
-	public static final RecordComponentBinding[] UNINITIALIZED_COMPONENTS = new RecordComponentBinding[0];
 	public static final FieldBinding[] UNINITIALIZED_FIELDS = new FieldBinding[0];
 	public static final MethodBinding[] UNINITIALIZED_METHODS = new MethodBinding[0];
 	public static final ReferenceBinding[] UNINITIALIZED_REFERENCE_TYPES = new ReferenceBinding[0];
@@ -116,13 +114,21 @@ public abstract class Binding {
 	 * Bit in defaultNullness bit vectors, representing the enum constant DefaultLocation#ARRAY_CONTENTS
 	 */
 	public static final int DefaultLocationArrayContents = ASTNode.Bit10;
+	/**
+	 * Bit in defaultNullness bit vectors, representing the enum constant DefaultLocation#RECORD_COMPONENT
+	 */
+	public static final int DefaultLocationRecordComponent = ASTNode.Bit11;
 
-	public static final int DefaultLocationsForTrueValue = DefaultLocationParameter | DefaultLocationReturnType | DefaultLocationField;
+	public static final int DefaultLocationsForTrueValue = DefaultLocationParameter | DefaultLocationReturnType | DefaultLocationField | DefaultLocationRecordComponent;
 
 	public static final int NullnessDefaultMASK =
 			NULL_UNSPECIFIED_BY_DEFAULT | // included to terminate search up the parent chain
 			DefaultLocationParameter | DefaultLocationReturnType | DefaultLocationField |
-			DefaultLocationTypeArgument | DefaultLocationTypeParameter | DefaultLocationTypeBound | DefaultLocationArrayContents;
+			DefaultLocationTypeArgument | DefaultLocationTypeParameter | DefaultLocationTypeBound | DefaultLocationArrayContents | DefaultLocationRecordComponent;
+
+
+	public long tagBits = 0; // See values in the interface TagBits
+	public int extendedTagBits; // See values in the interface ExtendedTagBits
 
 	/*
 	* Answer the receiver's binding type from Binding.BindingID.

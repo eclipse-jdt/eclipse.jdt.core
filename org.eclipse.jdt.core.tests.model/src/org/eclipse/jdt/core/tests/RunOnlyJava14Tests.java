@@ -21,7 +21,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
-import org.eclipse.jdt.core.tests.model.CompletionTests14;
+import org.eclipse.jdt.core.tests.model.CompletionTests16;
 import org.eclipse.jdt.core.tests.model.JavaSearchBugs14SwitchExpressionTests;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -32,7 +32,7 @@ public class RunOnlyJava14Tests extends TestCase {
 	}
 	public static Class[] getAllTestClasses() {
 		return new Class[] {
-				JavaSearchBugs14SwitchExpressionTests.class, CompletionTests14.class
+				JavaSearchBugs14SwitchExpressionTests.class, CompletionTests16.class
 		};
 	}
 

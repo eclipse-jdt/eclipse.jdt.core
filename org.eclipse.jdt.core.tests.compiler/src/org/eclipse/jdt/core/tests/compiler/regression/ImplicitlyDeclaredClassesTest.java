@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023, 2024 Red Hat, Inc. and others.
+ * Copyright (c) 2023, 2025 Red Hat, Inc. and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,9 +11,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.IOException;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
@@ -30,8 +33,8 @@ import org.junit.Test;
 
 public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	public static boolean optimizeStringLiterals = false;
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 23");
-	private static final String[] VMARGS = new String[] {"--enable-preview"};
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("-source 25");
+	private static final String[] VMARGS = new String[] {};
 
 	static {
 //		TESTS_NAMES = new String[] {"testImplicitType001"};
@@ -45,7 +48,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	protected void setUp() throws Exception {
 		this.runJavacOptIn = true;
 		super.setUp();
-	}
+ 	}
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
@@ -58,37 +61,33 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	}
 
 	public static junit.framework.Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_23);
+		return buildMinimalComplianceTestSuite(testClass(), F_25);
 	}
 	@Override
 	protected Map<String, String> getCompilerOptions() {
-		return getCompilerOptions(true);
+		return getCompilerOptions(false);
 	}
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean previewFlag) {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_23);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_23);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_23);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_25);
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_25);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_25);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, previewFlag ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return defaultOptions;
 	}
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput) {
-		if(!isJRE23Plus)
-			return;
-		runConformTest(testFiles, expectedOutput, null, VMARGS, new JavacTestOptions("-source 23 --enable-preview"));
+		runConformTest(testFiles, expectedOutput, null, VMARGS, new JavacTestOptions("-source 25"));
 	}
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
-		if(!isJRE23Plus)
-			return;
 		runConformTest(testFiles, expectedOutput, customOptions, VMARGS, JAVAC_OPTIONS);
 	}
 	@Override
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
-		Map<String, String> customOptions = getCompilerOptions(true);
+		Map<String, String> customOptions = getCompilerOptions(false);
 		Runner runner = new Runner();
 		runner.testFiles = testFiles;
 		runner.expectedCompilerLog = expectedCompilerLog;
@@ -98,7 +97,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 		runner.runNegativeTest();
 	}
 	private CompilationUnitDeclaration parse(String source, String testName) {
-		this.complianceLevel = ClassFileConstants.JDK23;
+		this.complianceLevel = ClassFileConstants.JDK25;
 		/* using regular parser in DIET mode */
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.enablePreviewFeatures = true;
@@ -259,7 +258,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 	}
 	// Test implicit type with a valid candidate main method (public but no static, and String[] argument)
 	@Test
-	public void testImplicitType006() {
+	public void testImplicitType006() throws IOException, ClassFormatException {
 		try {
 			runConformTest(
 					new String[] {"X.java",
@@ -268,6 +267,7 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 							System.out.println("Hello");
 						}"""},
 					"Hello");
+			verifyClassFile("version 25 : 69.", "X.class", ClassFileBytesDisassembler.SYSTEM);
 		} finally {
 		}
 	}
@@ -353,8 +353,20 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 				"Zork cannot be resolved to a type\n" +
 				"----------\n");
 	}
-	public void testGH3137a() {
+	public void testGH3137a1() {
 		runConformTest(new String[] {
+				"X.java",
+				"""
+				public static void main(String[] args) {
+					IO.println("Hello1");
+					IO.println("Hello2");
+				}"""
+		},
+		"Hello1\n" +
+		"Hello2");
+	}
+	public void testGH3137a2() {
+		runNegativeTest(new String[] {
 				"X.java",
 				"""
 				public static void main(String[] args) {
@@ -362,20 +374,62 @@ public class ImplicitlyDeclaredClassesTest extends AbstractRegressionTest9 {
 					println("Hello2");
 				}"""
 		},
-		"Hello1\n" +
-		"Hello2");
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	println(\"Hello1\");\n" +
+		"	^^^^^^^\n" +
+		"The method println(String) is undefined for the type X\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 3)\n" +
+		"	println(\"Hello2\");\n" +
+		"	^^^^^^^\n" +
+		"The method println(String) is undefined for the type X\n" +
+		"----------\n");
 	}
-	public void testGH3137b() {
+	public void testGH3137b1() {
 		runConformTest(new String[] {
 				"X.java",
 				"""
 				public static void main(String[] args) {
-					String str = readln("Enter:");
-					println(str);
+					String str = IO.readln("Enter:");
+					IO.println(str);
 				}
 				"""
 		},
 		"Enter:",
+		null,
+		VMARGS,
+		JavacTestOptions.SKIP);
+	}
+	public void testGH3137b2() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public static void main(String[] args) {
+					String str = readln("Enter:");
+					IO.println(str);
+				}
+				"""
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	String str = readln(\"Enter:\");\n" +
+		"	             ^^^^^^\n" +
+		"The method readln(String) is undefined for the type X\n" +
+		"----------\n");
+	}
+	public void testGH3714() {
+		runConformTest(new String[] {
+				"Main.java",
+				"""
+				import static java.lang.IO.*;
+				public class Main {
+					public static void main(String[] args) {
+						println("Hello");
+					}
+				}"""
+		},
+		"Hello",
 		null,
 		VMARGS,
 		JavacTestOptions.SKIP);

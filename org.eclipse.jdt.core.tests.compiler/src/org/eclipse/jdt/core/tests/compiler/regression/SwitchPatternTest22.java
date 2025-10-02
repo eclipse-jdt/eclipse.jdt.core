@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2024 IBM Corporation and others.
+ * Copyright (c) 2024, 2025 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 import junit.framework.Test;
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
@@ -405,7 +406,7 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 			"----------\n");
 	}
 	public void testInternalDomination_this() throws Exception {
-		runConformTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"""
@@ -423,8 +424,17 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 				}
 				"""
 			},
-			"Integer\n"
-			+ "Object");
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\r\n" +
+			"	case Object _, Integer _, X _ when o != null : System.out.println(\"Integer\");\r\n" +
+			"	               ^^^^^^^^^\n" +
+			"This case label is dominated by one of the preceding case labels\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\r\n" +
+			"	case Object _, Integer _, X _ when o != null : System.out.println(\"Integer\");\r\n" +
+			"	                          ^^^\n" +
+			"This case label is dominated by one of the preceding case labels\n" +
+			"----------\n");
 	}
 	public void testInternalDomination_2() throws Exception {
 		runNegativeTest(
@@ -646,7 +656,8 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 	}
 	// javac jdk21 allows components to be named, but they can't be referenced.
 	public void testNaming() throws Exception {
-		runNegativeTest(
+		Runner runner = new Runner();
+		runner.testFiles =
 			new String[] {
 				"X.java",
 				"""
@@ -663,13 +674,16 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 				  }
 				}
 				"""
-			},
+			};
+		runner.expectedCompilerLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 5)\n" +
 			"	case Integer _, Point(int x, int _), String _  : System.out.println(\"Integer\");\n" +
 			"	                          ^\n" +
 			"Named pattern variables are not allowed here\n" +
-			"----------\n");
+			"----------\n";
+		runner.javacTestOptions = JavacHasABug.JavacBug8348928;
+		runner.runNegativeTest();
 	}
 	public void testGuard_0() {
 		this.runConformTest(
@@ -1084,5 +1098,112 @@ public class SwitchPatternTest22 extends AbstractBatchCompilerTest {
 						"""
 				},
 			"First guard\nSecond guard\nDefault");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4038
+	// [Record patterns] Verify error with record patterns
+	public void testIssue4038() {
+		runConformTest(new String[] {
+				"Problem.java",
+				"""
+				public class Problem {
+
+				    record R(Object o)  {}
+
+				    static void execute(R stmt) {
+				        switch (stmt) {
+				            case R(var _) -> {
+				                while (cond(null)) {
+				                    execute(null);
+				                }
+				            }
+				        }
+				    }
+
+				    static boolean cond(Object object) {
+				        return true;
+				    }
+
+				    public static void main(String[] args) {
+				    	System.out.println("012012345678");
+				    }
+				}
+				"""
+			},
+			"012012345678");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4038
+	// [Record patterns] Verify error with record patterns
+	public void testIssue4038_2() {
+		runConformTest(new String[] {
+				"Problem.java",
+				"""
+				public class Problem {
+
+				    record R(Object o)  {}
+
+				    static void execute(R stmt) {
+				        switch (stmt) {
+				            case R(Object _) -> {
+				                while (cond(null)) {
+				                    execute(null);
+				                }
+				            }
+				        }
+				    }
+
+				    static boolean cond(Object object) {
+				        return true;
+				    }
+
+				    public static void main(String[] args) {
+				    	System.out.println("012012345678");
+				    }
+				}
+				"""
+			},
+			"012012345678");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4038
+	// [Record patterns] Verify error with record patterns
+	public void testIssue4038_3() {
+		runConformTest(new String[] {
+				"Problem.java",
+				"""
+				public class Problem {
+
+				    record R(Object o)  {}
+
+				    static int execute(R stmt) {
+				    	int retVal = -1;
+				        switch (stmt) {
+				            case R(String _) -> {
+				            	try {
+					                while (cond(null)) {
+					                    execute(null);
+					                }
+				                } catch(NullPointerException npe) {
+				                    retVal = 654321;
+			                    }
+			                    return retVal;
+				            }
+				            default -> { return 123456; }
+				        }
+				    }
+
+				    static boolean cond(Object object) {
+				        return true;
+				    }
+
+				    public static void main(String[] args) {
+				    	System.out.println(execute(new R("Hello")));
+				    	System.out.println(execute(new R(new Problem())));
+				    }
+				}
+				"""
+			},
+			"654321\n123456");
 	}
 }

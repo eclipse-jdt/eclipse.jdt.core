@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameLBRACE;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -20,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredType;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -392,7 +395,7 @@ protected void consumeConstructorHeader() {
 			this.scanner.currentPosition - 1);
 }
 @Override
-protected void consumeConstructorHeaderName() {
+protected void consumeConstructorHeaderName(boolean isCompact) {
 	// ConstructorHeaderName ::=  Modifiersopt 'Identifier' '('
 	ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationUnit.compilationResult);
 
@@ -670,7 +673,7 @@ protected void consumeMethodHeaderNameWithTypeParameters(boolean isAnnotationMet
 			}
 			this.lastCheckPoint = md.bodyStart;
 			this.currentElement = this.currentElement.add(md, 0);
-			this.lastIgnoredToken = -1;
+			this.lastIgnoredToken = TerminalToken.TokenNameInvalid;
 		} else {
 			this.lastCheckPoint = md.sourceStart;
 			this.restartRecovery = true;
@@ -719,7 +722,7 @@ protected void consumeFieldDeclaration() {
 	}
 }
 @Override
-protected void consumeFormalParameter(boolean isVarArgs) {
+protected void consumeSingleVariableDeclarator(boolean isVarArgs) {
 	// FormalParameter ::= Type VariableDeclaratorId ==> false
 	// FormalParameter ::= Modifiers Type VariableDeclaratorId ==> true
 	/*
@@ -731,6 +734,10 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 	identifierStack :
 	intStack :
 	*/
+	if (this.parsingRecordComponents) {
+		super.consumeSingleVariableDeclarator(isVarArgs);
+		return;
+	}
 	NameReference qualifyingNameReference = null;
     boolean isReceiver = this.intStack[this.intPtr--] == 0;
     if (isReceiver) {
@@ -1128,11 +1135,7 @@ protected void consumeModifiers() {
 @Override
 protected void consumePackageComment() {
 	// get possible comment for syntax since 1.5
-	if(this.options.sourceLevel >= ClassFileConstants.JDK1_5) {
-		checkComment();
-	} else {
-		pushOnIntArrayStack(getJavaDocPositions());
-	}
+	checkComment();
 	resetModifiers();
 }
 /*

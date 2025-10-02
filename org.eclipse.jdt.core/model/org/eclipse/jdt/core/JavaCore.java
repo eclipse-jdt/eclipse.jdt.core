@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -3283,13 +3283,31 @@ public final class JavaCore extends Plugin {
 	public static final String VERSION_23 = "23"; //$NON-NLS-1$
 	/**
 	 * Configurable option value: {@value}.
+	 * @since 3.42
+	 * @category OptionValue
+	 */
+	public static final String VERSION_24 = "24"; //$NON-NLS-1$
+	/**
+	 * Configurable option value: {@value}.
+	 * @since 3.43
+	 * @category OptionValue
+	 */
+	public static final String VERSION_25 = "25"; //$NON-NLS-1$
+	/**
+	 * Configurable option value: {@value}.
+	 * @since 3.44
+	 * @category OptionValue
+	 */
+	public static final String VERSION_26 = "26"; //$NON-NLS-1$
+	/**
+	 * Configurable option value: {@value}.
 	 * @since 3.4
 	 * @category OptionValue
 	 */
 	public static final String VERSION_CLDC_1_1 = "cldc1.1"; //$NON-NLS-1$
 	private static final List<String> allVersions = Collections.unmodifiableList(Arrays.asList(VERSION_CLDC_1_1, VERSION_1_1, VERSION_1_2, VERSION_1_3, VERSION_1_4, VERSION_1_5,
 			VERSION_1_6, VERSION_1_7, VERSION_1_8, VERSION_9, VERSION_10, VERSION_11, VERSION_12, VERSION_13, VERSION_14, VERSION_15, VERSION_16, VERSION_17, VERSION_18,
-			VERSION_19, VERSION_20, VERSION_21, VERSION_22, VERSION_23));
+			VERSION_19, VERSION_20, VERSION_21, VERSION_22, VERSION_23, VERSION_24, VERSION_25));
 
 	/**
 	 * Unordered set of all Java source versions <b>not supported</b> by compiler anymore.
@@ -6500,9 +6518,22 @@ public final class JavaCore extends Plugin {
 	 * @param allSystemRoots all physically available system modules, represented by their package fragment roots
 	 * @return the list of names of default root modules
 	 * @since 3.14
+	 * @deprecated This method cannot distinguish strategies for old (9/10) vs new (11+) JDK versions. Please use {@link #defaultRootModules(Iterable, String)}
 	 */
+	@Deprecated
 	public static List<String> defaultRootModules(Iterable<IPackageFragmentRoot> allSystemRoots) {
 		return JavaProject.defaultRootModules(allSystemRoots);
+	}
+
+	/**
+	 * Filter the given set of system roots by the rules for root modules from JEP 261.
+	 * @param allSystemRoots all physically available system modules, represented by their package fragment roots
+	 * @param release JDK version to select strategies before / after resolution of https://bugs.openjdk.org/browse/JDK-8205169
+	 * @return the list of names of default root modules
+	 * @since 3.41
+	 */
+	public static List<String> defaultRootModules(Iterable<IPackageFragmentRoot> allSystemRoots, String release) {
+		return JavaProject.defaultRootModules(allSystemRoots, release);
 	}
 
 	/**

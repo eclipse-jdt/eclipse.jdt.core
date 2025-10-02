@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2022 GK Software AG, and others.
+ * Copyright (c) 2013, 2025 GK Software AG, and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -161,7 +161,7 @@ public class InferenceContext18 {
 	private boolean isInexactVarargsInference = false;
 	boolean prematureOverloadResolution = false;
 	// during reduction we ignore missing types but record that fact here:
-	boolean hasIgnoredMissingType;
+	TypeBinding missingType;
 
 	public static boolean isSameSite(InvocationSite site1, InvocationSite site2) {
 		if (site1 == site2)
@@ -734,7 +734,7 @@ public class InferenceContext18 {
 
 
 	protected int getInferenceKind(MethodBinding nonGenericMethod, TypeBinding[] argumentTypes) {
-		switch (this.scope.parameterCompatibilityLevel(nonGenericMethod, argumentTypes)) {
+		switch (this.scope.parameterCompatibilityLevel(nonGenericMethod, argumentTypes, this.currentInvocation)) {
 			case Scope.AUTOBOX_COMPATIBLE:
 			case Scope.COMPATIBLE_IGNORING_MISSING_TYPE: // if in doubt the method with missing types should be accepted to signal its relevance for resolution
 				return CHECK_LOOSE;
@@ -1014,39 +1014,48 @@ public class InferenceContext18 {
 	 * @throws InferenceFailureException a compile error has been detected during inference
 	 */
 	public /*@Nullable*/ BoundSet solve(boolean inferringApplicability) throws InferenceFailureException {
-		return solve(inferringApplicability, false);
+		return solve(inferringApplicability, (ASTNode) this.currentInvocation);
 	}
 	/**
 	 * Try to solve the inference problem defined by constraints and bounds previously registered.
-	 * @param isRecordPatternTypeInference see 18_5_5_item_5 for Record Type Inference
+	 * @param inferringApplicability toggles between 18.5.1 and 18.5.2
+	 * @param location the current invocation (18.5.1 - 18.5.5) or record pattern (18.5.5, see item 5)
 	 * @return a bound set representing the solution, or null if inference failed
 	 * @throws InferenceFailureException a compile error has been detected during inference
 	 */
-	private /*@Nullable*/ BoundSet solve(boolean inferringApplicability, boolean isRecordPatternTypeInference) throws InferenceFailureException {
+	private /*@Nullable*/ BoundSet solve(boolean inferringApplicability, ASTNode location)
+			throws InferenceFailureException
+	{
+		CapturingContext.enter(location.sourceStart(), location.sourceEnd(), this.scope);
+		boolean isRecordPatternTypeInference = location instanceof RecordPattern;
 
-		if (!reduce())
-			return null;
-		if (!this.currentBounds.incorporate(this))
-			return null;
-		if (inferringApplicability)
-			this.b2 = this.currentBounds.copy(); // Preserve the result after reduction, without effects of resolve() for later use in invocation type inference.
+		try {
+			if (!reduce())
+				return null;
+			if (!this.currentBounds.incorporate(this))
+				return null;
+			if (inferringApplicability)
+				this.b2 = this.currentBounds.copy(); // Preserve the result after reduction, without effects of resolve() for later use in invocation type inference.
 
-		BoundSet solution = resolve(this.inferenceVariables, isRecordPatternTypeInference);
+			BoundSet solution = resolve(this.inferenceVariables, isRecordPatternTypeInference);
 
-		/* If inferring applicability make a final pass over the initial constraints preserved as final constraints to make sure they hold true at a macroscopic level.
-		   See https://bugs.eclipse.org/bugs/show_bug.cgi?id=426537#c55 onwards.
-		*/
-		if (inferringApplicability && solution != null && this.finalConstraints != null) {
-			for (ConstraintExpressionFormula constraint: this.finalConstraints) {
-				if (constraint.left.isPolyExpression())
-					continue; // avoid redundant re-inference, inner poly's own constraints get validated in its own context & poly invocation type inference proved compatibility against target.
-				constraint.applySubstitution(solution, this.inferenceVariables);
-				if (!this.currentBounds.reduceOneConstraint(this, constraint)) {
-					return null;
+			/* If inferring applicability make a final pass over the initial constraints preserved as final constraints to make sure they hold true at a macroscopic level.
+			   See https://bugs.eclipse.org/bugs/show_bug.cgi?id=426537#c55 onwards.
+			*/
+			if (inferringApplicability && solution != null && this.finalConstraints != null) {
+				for (ConstraintExpressionFormula constraint: this.finalConstraints) {
+					if (constraint.left.isPolyExpression())
+						continue; // avoid redundant re-inference, inner poly's own constraints get validated in its own context & poly invocation type inference proved compatibility against target.
+					constraint.applySubstitution(solution, this.inferenceVariables);
+					if (!this.currentBounds.reduceOneConstraint(this, constraint)) {
+						return null;
+					}
 				}
 			}
+			return solution;
+		} finally {
+			CapturingContext.leave();
 		}
-		return solution;
 	}
 
 	public /*@Nullable*/ BoundSet solve() throws InferenceFailureException {
@@ -1399,19 +1408,15 @@ public class InferenceContext18 {
 	}
 
 	private ConstraintFormula pickFromCycle(Set<ConstraintFormula> c) {
-		// Detail from 18.5.2 bullet 6.1
-
 		// Note on performance: this implementation could quite possibly be optimized a lot.
 		// However, we only *very rarely* reach here,
 		// so nobody should really be affected by the performance penalty paid here.
 
-		// Note on spec conformance: the spec seems to require _all_ criteria (i)-(iv) to be fulfilled
-		// with the sole exception of (iii), which should only be used, if _any_ constraints matching (i) & (ii)
-		// also fulfill this condition.
-		// Experiments, however, show that strict application of the above is prone to failing to pick any constraint,
-		// causing non-termination of the algorithm.
-		// Since that is not acceptable, I'm *interpreting* the spec to request a search for a constraint
-		// that "best matches" the given conditions.
+		// from JLS 18.5.2.2 bullet 3.1 para 2:
+		//
+		// If this subset is empty, then there is a cycle (or cycles) in the graph of dependencies between constraints.
+		// In this case, the constraints in C that participate in a dependency cycle (or cycles) and
+		// do not depend on any constraints outside of the cycle (or cycles) are considered.
 
 		// collect all constraints participating in a cycle
 		HashMap<ConstraintFormula,Set<ConstraintFormula>> dependencies = new HashMap<>();
@@ -1439,10 +1444,10 @@ public class InferenceContext18 {
 		outside.removeAll(cycles);
 
 		Set<ConstraintFormula> candidatesII = new LinkedHashSet<>();
-		// (i): participates in a cycle:
+		// participates in a cycle:
 		candidates: for (ConstraintFormula candidate : cycles) {
 			Collection<InferenceVariable> infVars = candidate.inputVariables(this);
-			// (ii) does not depend on any constraints outside the cycle
+			// does not depend on any constraints outside the cycle
 			for (ConstraintFormula out : outside) {
 				if (dependsOn(infVars, out.outputVariables(this)))
 					continue candidates;
@@ -1452,62 +1457,39 @@ public class InferenceContext18 {
 		if (candidatesII.isEmpty())
 			candidatesII = c; // not spec'ed but needed to avoid returning null below, witness: java.util.stream.Collectors
 
-		// tentatively: (iii)  has the form ⟨Expression → T⟩
-		Set<ConstraintFormula> candidatesIII = new LinkedHashSet<>();
+		// JLS cntd:
+		// A single constraint is selected from these considered constraints, as follows:
+		// * If any of the considered constraints have the form ‹Expression → T›, then
+		//   the selected constraint is the considered constraint of this form that contains the expression
+		//   to the left (§3.5) of the expression of every other considered constraint of this form.
+		int minStart = Integer.MAX_VALUE;
+		ConstraintFormula leftMost = null;
 		for (ConstraintFormula candidate : candidatesII) {
-			if (candidate instanceof ConstraintExpressionFormula)
-				candidatesIII.add(candidate);
+			if (candidate instanceof ConstraintExpressionFormula cef && cef.left.sourceStart < minStart) {
+				minStart = cef.left.sourceStart;
+				leftMost = cef;
+			}
 		}
-		if (candidatesIII.isEmpty()) {
-			candidatesIII = candidatesII; // no constraint fulfills (iii) -> ignore this condition
-		} else { // candidatesIII contains all relevant constraints ⟨Expression → T⟩
-			// (iv) contains an expression that appears to the left of the expression
-			// 		of every other constraint satisfying the previous three requirements
+		if (leftMost != null)
+			return leftMost;
 
-			// collect containment info regarding all expressions in candidate constraints:
-			// (a) find minimal enclosing expressions:
-			Map<ConstraintExpressionFormula,ConstraintExpressionFormula> expressionContainedBy = new LinkedHashMap<>();
-			for (ConstraintFormula one : candidatesIII) {
-				ConstraintExpressionFormula oneCEF = (ConstraintExpressionFormula) one;
-				Expression exprOne = oneCEF.left;
-				for (ConstraintFormula two : candidatesIII) {
-					if (one == two) continue;
-					ConstraintExpressionFormula twoCEF = (ConstraintExpressionFormula) two;
-					Expression exprTwo = twoCEF.left;
-					if (doesExpressionContain(exprOne, exprTwo)) {
-						ConstraintExpressionFormula previous = expressionContainedBy.get(two);
-						if (previous == null || doesExpressionContain(previous.left, exprOne)) // only if improving
-							expressionContainedBy.put(twoCEF, oneCEF);
-					}
-				}
+		// JLS cntd:
+		// * If no considered constraint has the form ‹Expression → T›, then the selected constraint is the considered
+		//   constraint that contains the expression to the left of the expression of every other considered constraint.
+		for (ConstraintFormula candidate : candidatesII) {
+			// note: ConstraintExpressionFormula is the only shape left, which contains an expression
+			if (candidate instanceof ConstraintExceptionFormula cef && cef.left.sourceStart < minStart) {
+				minStart = cef.left.sourceStart;
+				leftMost = cef;
 			}
-			// (b) build the tree from the above
-			Map<ConstraintExpressionFormula,Set<ConstraintExpressionFormula>> containmentForest = new LinkedHashMap<>();
-			for (Map.Entry<ConstraintExpressionFormula, ConstraintExpressionFormula> parentRelation : expressionContainedBy.entrySet()) {
-				ConstraintExpressionFormula parent = parentRelation.getValue();
-				Set<ConstraintExpressionFormula> children = containmentForest.get(parent);
-				if (children == null)
-					containmentForest.put(parent, children = new LinkedHashSet<>());
-				children.add(parentRelation.getKey());
-			}
-
-			// approximate the spec by searching the largest containment tree:
-			int bestRank = -1;
-			ConstraintExpressionFormula candidate = null;
-			for (ConstraintExpressionFormula parent : containmentForest.keySet()) {
-				int rank = rankNode(parent, expressionContainedBy, containmentForest);
-				if (rank > bestRank) {
-					bestRank = rank;
-					candidate = parent;
-				}
-			}
-			if (candidate != null)
-				return candidate;
 		}
+		if (leftMost != null)
+			return leftMost;
 
-		if (candidatesIII.isEmpty())
+		// not spec'ed: random pick
+		if (candidatesII.isEmpty())
 			throw new IllegalStateException("cannot pick constraint from cyclic set"); //$NON-NLS-1$
-		return candidatesIII.iterator().next();
+		return candidatesII.iterator().next();
 	}
 
 	/**
@@ -1543,35 +1525,6 @@ public class InferenceContext18 {
 			}
 		}
 		return false;
-	}
-
-	/** Does exprOne lexically contain exprTwo? */
-	private boolean doesExpressionContain(Expression exprOne, Expression exprTwo) {
-		if (exprTwo.sourceStart > exprOne.sourceStart) {
-			return exprTwo.sourceEnd <= exprOne.sourceEnd;
-		} else if (exprTwo.sourceStart == exprOne.sourceStart) {
-			return exprTwo.sourceEnd < exprOne.sourceEnd;
-		}
-		return false;
-	}
-
-	/** non-roots answer -1, roots answer the size of the spanned tree */
-	private int rankNode(ConstraintExpressionFormula parent,
-			Map<ConstraintExpressionFormula,ConstraintExpressionFormula> expressionContainedBy,
-			Map<ConstraintExpressionFormula, Set<ConstraintExpressionFormula>> containmentForest)
-	{
-		if (expressionContainedBy.get(parent) != null)
-			return -1; // not a root
-		Set<ConstraintExpressionFormula> children = containmentForest.get(parent);
-		if (children == null)
-			return 1; // unconnected node or leaf
-		int sum = 1;
-		for (ConstraintExpressionFormula child : children) {
-			int cRank = rankNode(child, expressionContainedBy, containmentForest);
-			if (cRank > 0)
-				sum += cRank;
-		}
-		return sum;
 	}
 
 	private Set<ConstraintFormula> findBottomSet(Set<ConstraintFormula> constraints,
@@ -1986,7 +1939,7 @@ public class InferenceContext18 {
 		 */
 		BoundSet solution = null;
 		try {
-			solution = solve(false, true /* isRecordPatternTypeInference */);
+			solution = solve(false, recordPattern);
 		} catch (InferenceFailureException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

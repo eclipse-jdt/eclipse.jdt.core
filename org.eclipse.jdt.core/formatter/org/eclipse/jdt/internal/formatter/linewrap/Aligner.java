@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2024 Mateusz Matela and others.
+ * Copyright (c) 2014, 2025 Mateusz Matela and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,11 +16,12 @@
 package org.eclipse.jdt.internal.formatter.linewrap;
 
 import static java.util.stream.Collectors.toList;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameARROW;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_BLOCK;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_LINE;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameEQUAL;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameIdentifier;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameARROW;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_BLOCK;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_LINE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameEQUAL;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameIdentifier;
+import static org.eclipse.jdt.internal.formatter.TokenManager.ANY;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -122,7 +123,7 @@ public class Aligner {
 	}
 
 	private boolean areKeptOnOneLine(List<? extends ASTNode> nodes) {
-		return nodes.stream().allMatch(n -> this.tm.firstTokenIn(n, -1).getLineBreaksBefore() == 0);
+		return nodes.stream().allMatch(n -> this.tm.firstTokenIn(n, ANY).getLineBreaksBefore() == 0);
 	}
 
 	private void alignDeclarations(List<Statement> statements) {
@@ -147,7 +148,7 @@ public class Aligner {
 
 		AlignIndexFinder<ExpressionStatement> assignFinder = es -> {
 			Assignment a = (Assignment) es.getExpression();
-			int operatorIndex = this.tm.firstIndexBefore(a.getRightHandSide(), -1);
+			int operatorIndex = this.tm.firstIndexBefore(a.getRightHandSide(), ANY);
 			while (this.tm.get(operatorIndex).isComment())
 				operatorIndex--;
 			return Optional.of(operatorIndex);
@@ -208,8 +209,8 @@ public class Aligner {
 		if (previousNode == null)
 			return true;
 		int totalLineBreaks = 0;
-		int from = this.tm.lastIndexIn(previousNode, -1);
-		int to = this.tm.firstIndexIn(node, -1);
+		int from = this.tm.lastIndexIn(previousNode, ANY);
+		int to = this.tm.firstIndexIn(node, ANY);
 		Token previousToken = this.tm.get(from);
 		for (int i = from + 1; i <= to; i++) {
 			Token token = this.tm.get(i);
@@ -245,7 +246,7 @@ public class Aligner {
 			int maxCommentAlign = 0;
 			for (ASTNode node : alignGroup) {
 				int firstIndexInLine = findFirstTokenInLine(node);
-				int lastIndex = this.tm.lastIndexIn(node, -1) + 1;
+				int lastIndex = this.tm.lastIndexIn(node, ANY) + 1;
 				maxCommentAlign = Math.max(maxCommentAlign,
 						positionCounter.findMaxPosition(firstIndexInLine, lastIndex));
 			}
@@ -253,7 +254,7 @@ public class Aligner {
 
 			for (ASTNode node : alignGroup) {
 				int firstIndexInLine = findFirstTokenInLine(node);
-				int lastIndex = this.tm.lastIndexIn(node, -1);
+				int lastIndex = this.tm.lastIndexIn(node, ANY);
 				lastIndex = Math.min(lastIndex, this.tm.size() - 2);
 				for (int i = firstIndexInLine; i <= lastIndex; i++) {
 					Token token = this.tm.get(i);
@@ -276,15 +277,15 @@ public class Aligner {
 
 	private int findFirstTokenInLine(ASTNode node) {
 		if (node instanceof FieldDeclaration) {
-			int typeIndex = this.tm.firstIndexIn(((FieldDeclaration) node).getType(), -1);
+			int typeIndex = this.tm.firstIndexIn(((FieldDeclaration) node).getType(), ANY);
 			return this.tm.findFirstTokenInLine(typeIndex);
 		}
 		if (node instanceof VariableDeclarationStatement) {
-			int typeIndex = this.tm.firstIndexIn(((VariableDeclarationStatement) node).getType(), -1);
+			int typeIndex = this.tm.firstIndexIn(((VariableDeclarationStatement) node).getType(), ANY);
 			return this.tm.findFirstTokenInLine(typeIndex);
 		}
 		if (node instanceof ExpressionStatement) {
-			return this.tm.firstIndexIn(node, -1);
+			return this.tm.firstIndexIn(node, ANY);
 		}
 		throw new IllegalArgumentException(node.getClass().getName());
 	}

@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -52,6 +54,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.URIUtil;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -1013,7 +1016,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		if (!(target instanceof IFile || target instanceof File))
 			return null;
 
-		List calledFileNames = null;
+		List<String> calledFileNames = null;
 		try {
 			char[] manifestContents = getManifestContents(jarPath);
 			if (manifestContents == null)
@@ -1780,8 +1783,14 @@ public class ClasspathEntry implements IClasspathEntry {
 			if (IClasspathAttribute.INDEX_LOCATION_ATTRIBUTE_NAME.equals(attrib.getName())) {
 				String value = attrib.getValue();
 				try {
-					return new URL(value);
-				} catch (MalformedURLException e) {
+					if (value.indexOf('\\') != -1) {
+						// normalize the path with '/' as URI has a problem with the format file:///c:\\abc\\etc
+						value = value.replace('\\', '/');
+					}
+					URI uri = URIUtil.fromString(value);
+					return uri.toURL();
+				} catch (MalformedURLException | URISyntaxException e) {
+					Util.log(e);
 					return null;
 				}
 			}
@@ -2539,11 +2548,9 @@ public class ClasspathEntry implements IClasspathEntry {
 		try {
 			manager.verifyArchiveContent(path);
 		} catch (CoreException e) {
-			if (e.getStatus().getMessage() == Messages.status_IOException) {
-				return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(
-						Messages.classpath_archiveReadError,
-						new String[] {entryPathMsg, project.getElementName()}));
-			}
+			return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(
+					Messages.classpath_archiveReadError,
+					new String[] {entryPathMsg, project.getElementName()}));
 		}
 		return JavaModelStatus.VERIFIED_OK;
 	}

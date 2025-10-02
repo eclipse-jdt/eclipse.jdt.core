@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2024 IBM Corporation and others.
+ * Copyright (c) 2020, 2025 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,12 +18,12 @@ import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class SealedTypesTests extends AbstractRegressionTest9 {
@@ -31,7 +31,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug564498_6"};
+//		TESTS_NAMES = new String[] { "testBug566846_001"};
 	}
 
 	public static Class<?> testClass() {
@@ -106,22 +106,6 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		runner.expectedOutputString = expectedOutput;
 		runner.customOptions = getCompilerOptions();
 		runner.runWarningTest();
-	}
-
-	private static void verifyClassFile(String expectedOutput, String classFileName, int mode)
-			throws IOException, ClassFormatException {
-		File f = new File(OUTPUT_DIR + File.separator + classFileName);
-		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
-		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String result = disassembler.disassemble(classFileBytes, "\n", mode);
-		int index = result.indexOf(expectedOutput);
-		if (index == -1 || expectedOutput.length() == 0) {
-			System.out.println(Util.displayString(result, 3));
-			System.out.println("...");
-		}
-		if (index == -1) {
-			assertEquals("Wrong contents", expectedOutput, result);
-		}
 	}
 
 	public void testBug563430_001() {
@@ -1106,26 +1090,10 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"	^^^^^^^^^^^\n" +
 			"Syntax error on token(s), misplaced construct(s)\n" +
 			"----------\n" +
-			"2. ERROR in p1\\X.java (at line 1)\n" +
-			"	package p1;\n" +
-			"public  non-sealed @interface X {\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Syntax error on token(s), misplaced construct(s)\n" +
-			"----------\n" +
-			"3. ERROR in p1\\X.java (at line 2)\n" +
+			"2. ERROR in p1\\X.java (at line 2)\n" +
 			"	public  non-sealed @interface X {\n" +
-			"	            ^^^^^^\n" +
-			"Syntax error, insert \"Identifier (\" to complete MethodHeaderName\n" +
-			"----------\n" +
-			"4. ERROR in p1\\X.java (at line 2)\n" +
-			"	public  non-sealed @interface X {\n" +
-			"	            ^^^^^^\n" +
-			"Syntax error, insert \")\" to complete MethodDeclaration\n" +
-			"----------\n" +
-			"5. ERROR in p1\\X.java (at line 2)\n" +
-			"	public  non-sealed @interface X {\n" +
-			"	            ^^^^^^\n" +
-			"Syntax error, insert \";\" to complete RecordBodyDeclarations\n" +
+			"	        ^^^^^^^^^^\n" +
+			"Syntax error on tokens, delete these tokens\n" +
 			"----------\n");
 	}
 	public void testBug563806_035() {
@@ -2713,11 +2681,6 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 1)\n" +
 			"	record X(permits p) {\n" +
-			"	^\n" +
-			"permits cannot be resolved to a type\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
-			"	record X(permits p) {\n" +
 			"	         ^^^^^^^\n" +
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
@@ -2731,11 +2694,6 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"----------\n" +
 			"1. ERROR in X.java (at line 1)\n" +
-			"	record X(permits p) {\n" +
-			"	^\n" +
-			"permits cannot be resolved to a type\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
 			"	record X(permits p) {\n" +
 			"	         ^^^^^^^\n" +
 			"\'permits\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
@@ -4215,11 +4173,6 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 1)\n" +
 			"	record X(sealed p) {\n" +
-			"	^\n" +
-			"sealed cannot be resolved to a type\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
-			"	record X(sealed p) {\n" +
 			"	         ^^^^^^\n" +
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
 			"----------\n");
@@ -4234,11 +4187,6 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"----------\n" +
 			"1. ERROR in X.java (at line 1)\n" +
-			"	record X(sealed p) {\n" +
-			"	^\n" +
-			"sealed cannot be resolved to a type\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
 			"	record X(sealed p) {\n" +
 			"	         ^^^^^^\n" +
 			"\'sealed\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 17\n" +
@@ -4945,7 +4893,9 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		);
 	}
 
+	@SuppressWarnings({ "rawtypes" })
 	public void testBug566980_002() {
+		Map options = getCompilerOptions();
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -4960,7 +4910,51 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			"Syntax error on token \"void\", delete this token\n" +
 			"----------\n",
 			null,
-			true
+			true,
+			options
+		);
+	}
+	@SuppressWarnings({ "rawtypes" })
+	public void testBug566846_001() {
+		Map options = getCompilerOptions();
+		String error = 	this.complianceLevel >= ClassFileConstants.JDK25 ?
+				"----------\n" +
+				"1. ERROR in X.java (at line 1)\n" +
+				"	record X;\n" +
+				"	^^^^^^\n" +
+				"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 1)\n" +
+				"	record X;\n" +
+				"	^\n" +
+				"Implicitly declared class must have a candidate main method\n" +
+				"----------\n" :
+					"----------\n" +
+					"1. ERROR in X.java (at line 1)\n" +
+					"	record X;\n" +
+					"	^\n" +
+					"The Java feature \'Compact Source Files and Instance Main Methods\' is only available with source level 25 and above\n" +
+					"----------\n" +
+					"2. ERROR in X.java (at line 1)\n" +
+					"	record X;\n" +
+					"	^^^^^^\n" +
+					"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
+					"----------\n" +
+					"3. ERROR in X.java (at line 1)\n" +
+					"	record X;\n" +
+					"	^\n" +
+					"Implicitly declared class must have a candidate main method\n" +
+					"----------\n";
+
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"record X;\n",
+			},
+			error,
+			null,
+			true,
+			options
 		);
 	}
 	public void testBug568428_001() {
@@ -5112,7 +5106,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 			},
 			"true");
 		String expectedOutput = "final enum Y$E$1 {\n";
-		SealedTypesTests.verifyClassFile(expectedOutput, "Y$E$1.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "Y$E$1.class", ClassFileBytesDisassembler.SYSTEM);
 		expectedOutput =
 				"  Inner classes:\n" +
 				"    [inner class info: #3 Y$E, outer class info: #20 Y\n" +
@@ -5120,7 +5114,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"    [inner class info: #1 Y$E$1, outer class info: #0\n" +
 				"     inner name: #0, accessflags: 16400 final]\n" +
 				"  Enclosing Method: #3  #0 Y$E\n";
-		SealedTypesTests.verifyClassFile(expectedOutput, "Y$E$1.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile(expectedOutput, "Y$E$1.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug568854_001() {
 		this.runNegativeTest(

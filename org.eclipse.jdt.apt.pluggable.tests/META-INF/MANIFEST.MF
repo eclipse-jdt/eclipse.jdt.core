@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.jdt.apt.pluggable.tests;singleton:=true
-Bundle-Version: 3.6.700.qualifier
+Bundle-Version: 3.6.800.qualifier
 Bundle-Activator: org.eclipse.jdt.apt.pluggable.tests.Apt6TestsPlugin
 Bundle-Localization: plugin
 Require-Bundle: org.junit,
@@ -17,6 +17,6 @@ Require-Bundle: org.junit,
  org.eclipse.ui.ide
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: %providerName
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Eclipse-BundleShape: dir
 Automatic-Module-Name: org.eclipse.jdt.apt.pluggable.tests

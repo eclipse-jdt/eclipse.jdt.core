@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.impl;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -44,7 +46,7 @@ public abstract class AssistParser extends Parser {
 	int[] blockStarts = new int[30];
 
 	// the previous token read by the scanner
-	protected int previousToken;
+	protected TerminalToken previousToken = TokenNameNotAToken;
 
 	// the index in the identifier stack of the previous identifier
 	protected int previousIdentifierPtr;
@@ -102,7 +104,7 @@ public abstract class AssistParser extends Parser {
 	static class ResumeState {
 		AssistParser parser;
 		int scannerCurrentPosition;
-		int currentToken;
+		TerminalToken currentToken;
 	}
 
 	ResumeState lastResumeState;
@@ -110,7 +112,7 @@ public abstract class AssistParser extends Parser {
 
 	public int cursorLocation = Integer.MAX_VALUE;
 
-	protected static final int[] RECOVERY_TOKENS = { TokenNameSEMICOLON, TokenNameRPAREN, TokenNameRBRACE, TokenNameRBRACKET, TokenNameCOLON};
+	protected static final TerminalToken[] RECOVERY_TOKENS = { TokenNameSEMICOLON, TokenNameRPAREN, TokenNameRBRACE, TokenNameRBRACKET, TokenNameCOLON};
 
 
 public AssistParser(ProblemReporter problemReporter) {
@@ -370,7 +372,7 @@ public RecoveredElement buildInitialRecoveryState(){
 		 if (isIndirectlyInsideLambdaExpression())
 			 this.ignoreNextClosingBrace = true;
 		 else
-			 this.currentToken = 0; // closing brace has already been taken care of
+			 this.currentToken = TokenNameNotAToken; // closing brace has already been taken care of
 	}
 
 	/* might need some extra block (after the last reduced node) */
@@ -860,7 +862,7 @@ protected void consumeModuleHeader() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = typeDecl.bodyStart;
 		this.currentElement = this.currentElement.add(typeDecl, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 	}
 }
 
@@ -898,7 +900,7 @@ protected void consumeOpenBlock() {
 						stackLength);
 			}
 			this.stack[this.stateStackTop++] = this.unstackedAct; // transition to Block ::= OpenBlock  .LBRACE BlockStatementsopt RBRACE
-			this.stack[this.stateStackTop] = tAction(this.unstackedAct, this.currentToken); // transition to Block ::= OpenBlock LBRACE  .BlockStatementsopt RBRACE
+			this.stack[this.stateStackTop] = tAction(this.unstackedAct, this.currentToken.tokenNumber()); // transition to Block ::= OpenBlock LBRACE  .BlockStatementsopt RBRACE
 			commit();
 			this.stateStackTop -= 2;
 		}
@@ -1088,7 +1090,7 @@ protected void consumeSingleModifierImportDeclarationName(int modifier) {
 	if (this.currentElement != null){
 		this.lastCheckPoint = reference.declarationSourceEnd+1;
 		this.currentElement = this.currentElement.add(reference, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
@@ -1147,7 +1149,7 @@ protected void consumeSingleTargetModuleName() {
 		// TODO
 		this.lastCheckPoint = reference.sourceEnd+1;
 		this.currentElement = ((RecoveredExportsStatement) this.currentElement).add(reference, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		//this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 
@@ -1188,7 +1190,7 @@ protected void consumeSingleRequiresModuleName() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = req.declarationSourceEnd + 1;
 		this.currentElement = this.currentElement.add(req, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 	}
 
 }
@@ -1241,7 +1243,7 @@ protected void consumeSingleTypeImportDeclarationName() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = reference.declarationSourceEnd+1;
 		this.currentElement = this.currentElement.add(reference, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
@@ -1296,7 +1298,7 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = reference.declarationSourceEnd+1;
 		this.currentElement = this.currentElement.add(reference, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
@@ -1310,7 +1312,7 @@ protected void consumeStaticOnly() {
 	super.consumeStaticOnly();
 	pushOnElementStack(K_METHOD_DELIMITER);
 }
-private void adjustBracket(int token) {
+private void adjustBracket(TerminalToken token) {
 	switch (token) {
 		case TokenNameLPAREN :
 		case TokenNameLBRACE:
@@ -1322,10 +1324,12 @@ private void adjustBracket(int token) {
 		case TokenNameRPAREN:
 			this.bracketDepth--;
 			break;
+		default:
+			break;
 	}
 }
 @Override
-protected void consumeToken(int token) {
+protected void consumeToken(TerminalToken token) {
 	super.consumeToken(token);
 
 	if(this.isFirst) {
@@ -1357,6 +1361,8 @@ protected void consumeToken(int token) {
 							this.pushOnElementStack(K_SELECTOR, this.identifierPtr);
 						}
 						break;
+					default:
+						break;
 				}
 				break;
 			case TokenNameLBRACE:
@@ -1367,6 +1373,8 @@ protected void consumeToken(int token) {
 					}
 				}
 				break;
+			default:
+				break;
 		}
 	} else if (isInsideModuleInfo()) {
 		adjustBracket(token);
@@ -1376,6 +1384,8 @@ protected void consumeToken(int token) {
 				if(topKnownElementKind(ASSIST_PARSER) == K_TYPE_DELIMITER) {
 					popElement(K_TYPE_DELIMITER);
 				}
+				break;
+			default:
 				break;
 		}
 	}
@@ -1435,7 +1445,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 	if (this.currentElement != null){
 		this.lastCheckPoint = reference.declarationSourceEnd+1;
 		this.currentElement = this.currentElement.add(reference, 0);
-		this.lastIgnoredToken = -1;
+		this.lastIgnoredToken = TokenNameInvalid;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
@@ -1474,13 +1484,13 @@ protected void flushElementStack() {
  * Build specific type reference nodes in case the cursor is located inside the type reference
  */
 @Override
-protected TypeReference getTypeReference(int dim) {
+protected TypeReference constructTypeReference(int dim) {
 
 	int index;
 
 	/* no need to take action if not inside completed identifiers */
 	if ((index = indexOfAssistIdentifier(true)) < 0) {
-		return super.getTypeReference(dim);
+		return super.constructTypeReference(dim);
 	}
 	int length = this.identifierLengthStack[this.identifierLengthPtr];
 	TypeReference reference;
@@ -2319,7 +2329,7 @@ protected void shouldStackAssistNode() {
 	// Not relevant here.
 }
 
-protected int getNextToken() {
+protected TerminalToken getNextToken() {
 	try {
 		return this.scanner.getNextToken();
 	} catch (InvalidInputException e) {
@@ -2331,7 +2341,7 @@ protected abstract AssistParser createSnapShotParser();
 
 // We get here on real syntax error or syntax error triggered by fake EOF at completion site, never due to triggered recovery.
 protected int fallBackToSpringForward(Statement unused) {
-	int nextToken;
+	TerminalToken nextToken;
 	int automatonState = automatonState();
 
 	// If triggered fake EOF at completion site, see if the real next token would have passed muster.
@@ -2363,7 +2373,7 @@ protected int fallBackToSpringForward(Statement unused) {
 			ignoreNextClosingBrace(); // having ungotten it, recoveryTokenCheck will see this again.
 	}
 	// OK, next token is no good to resume "in place", attempt some local repair.
-	for (int token : RECOVERY_TOKENS) {
+	for (TerminalToken token : RECOVERY_TOKENS) {
 		if (automatonWillShift(token, automatonState)) {
 			this.currentToken = token;
 			return RESUME;

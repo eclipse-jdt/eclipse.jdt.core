@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 
 /**
  * AST node for a Javadoc-style doc comment.
@@ -273,11 +273,11 @@ public class Javadoc extends Comment {
 		scanner.resetTo(0, source.length);
 		scanner.setSource(source);
 		try {
-			int token;
+			TerminalToken token;
 			boolean onlyOneComment = false;
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				switch(token) {
-					case TerminalTokens.TokenNameCOMMENT_JAVADOC :
+					case TokenNameCOMMENT_JAVADOC :
 						if (onlyOneComment) {
 							throw new IllegalArgumentException();
 						}

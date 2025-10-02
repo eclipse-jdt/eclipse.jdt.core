@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
+    <resource path="dom/org/eclipse/jdt/core/dom/AST.java" type="org.eclipse.jdt.core.dom.AST">
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.AST"/>
+                <message_argument value="JLS_Latest"/>
+                <message_argument value="24"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/AbstractTagElement.java" type="org.eclipse.jdt.core.dom.AbstractTagElement">
         <filter id="576725006">
             <message_arguments>
@@ -235,6 +244,22 @@
             <message_arguments>
                 <message_argument value="IBytecodeVisitor"/>
                 <message_argument value="ByteCodeVisitorAdapter"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="search/org/eclipse/jdt/core/search/IJavaSearchDelegate.java" type="org.eclipse.jdt.core.search.IJavaSearchDelegate">
+        <filter id="643846161">
+            <message_arguments>
+                <message_argument value="MatchLocator"/>
+                <message_argument value="IJavaSearchDelegate"/>
+                <message_argument value="locateMatches(MatchLocator, IJavaProject, PossibleMatch[], int, int)"/>
+            </message_arguments>
+        </filter>
+        <filter id="643846161">
+            <message_arguments>
+                <message_argument value="PossibleMatch"/>
+                <message_argument value="IJavaSearchDelegate"/>
+                <message_argument value="locateMatches(MatchLocator, IJavaProject, PossibleMatch[], int, int)"/>
             </message_arguments>
         </filter>
     </resource>

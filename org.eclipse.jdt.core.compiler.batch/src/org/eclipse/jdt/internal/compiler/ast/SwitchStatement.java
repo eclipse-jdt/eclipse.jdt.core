@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -552,12 +552,18 @@ public class SwitchStatement extends Expression {
 				this.expression.computeConversion(upperScope, expressionType, expressionType);
 				checkType: {
 					if (expressionType.isBaseType()) {
-						if (JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(compilerOptions))
-							this.isPrimitiveSwitch = true;
+						if (expressionType.id == TypeIds.T_void) {
+							upperScope.problemReporter().illegalVoidExpression(this.expression);
+							break checkType;
+						}
 						if (this.expression.isConstantValueOfTypeAssignableToType(expressionType, TypeBinding.INT))
 							break checkType;
 						if (expressionType.isCompatibleWith(TypeBinding.INT))
 							break checkType;
+						if (JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(compilerOptions)) {
+							upperScope.problemReporter().previewFeatureUsed(this.expression.sourceStart, this.expression.sourceEnd);
+							this.isPrimitiveSwitch = true;
+						}
 					}
 					if (expressionType.id == TypeIds.T_JavaLangString || expressionType.isEnum() || upperScope.isBoxingCompatibleWith(expressionType, TypeBinding.INT))
 						break checkType;
@@ -581,11 +587,17 @@ public class SwitchStatement extends Expression {
 			if (this.statements != null) {
 				preprocess(); // make a pass over the switch block and allocate vectors.
 				LocalVariableBinding[] patternVariables = NO_VARIABLES;
+				boolean trueSeen = false, falseSeen = false;
 				for (final Statement statement : this.statements) {
 					if (statement instanceof CaseStatement caseStatement) {
 						caseStatement.swich = this;
 						caseStatement.resolve(this.scope);
 						patternVariables = caseStatement.bindingsWhenTrue();
+						Boolean booleanConstant = caseStatement.getBooleanConstantValue();
+						if (booleanConstant == Boolean.TRUE)
+							trueSeen = true;
+						else if (booleanConstant == Boolean.FALSE)
+							falseSeen = true;
 					} else {
 						statement.resolveWithBindings(patternVariables, this.scope);
 						patternVariables = LocalVariableBinding.merge(patternVariables, statement.bindingsWhenComplete());
@@ -593,7 +605,7 @@ public class SwitchStatement extends Expression {
 				}
 				if (expressionType != null
 						&& (expressionType.id == TypeIds.T_boolean || expressionType.id == TypeIds.T_JavaLangBoolean)
-						&& this.defaultCase != null  && isExhaustive()) {
+						&& this.defaultCase != null  && trueSeen && falseSeen) {
 					upperScope.problemReporter().caseDefaultPlusTrueAndFalse(this);
 				}
 				if (this.labelExpressions.length != this.labelExpressionIndex)
@@ -1071,6 +1083,8 @@ public class SwitchStatement extends Expression {
 	@Override
 	public boolean doesNotCompleteNormally() {
 		if (this.statements == null || this.statements.length == 0)
+			return false;
+		if (!isExhaustive() && this.defaultCase == null) // selector not covered by cases - will escape.
 			return false;
 		for (Statement statement : this.statements) {
 			if (statement.breaksOut(null))

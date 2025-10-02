@@ -381,9 +381,10 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 }
 
 @Override
-protected void consumeFormalParameter(boolean isVarArgs) {
-	super.consumeFormalParameter(isVarArgs);
-	this.patternLocator.match((LocalDeclaration) this.astStack[this.astPtr], this.nodeSet);
+protected void consumeSingleVariableDeclarator(boolean isVarArgs) {
+	super.consumeSingleVariableDeclarator(isVarArgs);
+	if (!this.parsingRecordComponents)
+		this.patternLocator.match((LocalDeclaration) this.astStack[this.astPtr], this.nodeSet);
 }
 
 @Override
@@ -970,8 +971,8 @@ protected TypeReference augmentTypeWithAdditionalDimensions(TypeReference typeRe
 	return result;
 }
 @Override
-protected TypeReference getTypeReference(int dim) {
-	TypeReference typeRef = super.getTypeReference(dim);
+protected TypeReference constructTypeReference(int dim) {
+	TypeReference typeRef = super.constructTypeReference(dim);
 	if (this.patternFineGrain == 0) {
 		this.patternLocator.match(typeRef, this.nodeSet); // NB: Don't check container since type reference can happen anywhere
 	}

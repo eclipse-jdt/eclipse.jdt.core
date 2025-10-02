@@ -29,7 +29,6 @@ import org.eclipse.jdt.internal.codeassist.complete.CompletionNodeDetector;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionParser;
 import org.eclipse.jdt.internal.codeassist.impl.AssistCompilationUnit;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
@@ -235,7 +234,7 @@ public class InternalExtendedCompletionContext {
 	}
 
 	private JavaElement getJavaElement(LocalVariableBinding binding) {
-		LocalDeclaration local = binding.declaration;
+		AbstractVariableDeclaration local = binding.declaration;
 
 		JavaElement parent = null;
 		ReferenceContext referenceContext = binding.declaringScope.isLambdaSubscope() ? binding.declaringScope.namedMethodScope().referenceContext() : binding.declaringScope.referenceContext();
@@ -251,6 +250,13 @@ public class InternalExtendedCompletionContext {
 		}
 		if (parent == null) return null;
 
+		String typeSig;
+ 		if (local.type == null || local.type.isTypeNameVar(binding.declaringScope)) {
+ 			typeSig = Signature.createTypeSignature(binding.type.signableName(), true);
+ 		} else {
+ 			typeSig = Util.typeSignature(local.type);
+ 		}
+
 		return new LocalVariable(
 				parent,
 				DeduplicationUtil.toString(local.name),
@@ -258,7 +264,7 @@ public class InternalExtendedCompletionContext {
 				local.declarationSourceEnd,
 				local.sourceStart,
 				local.sourceEnd,
-				local.type == null ? Signature.createTypeSignature(binding.type.signableName(), true) : Util.typeSignature(local.type),
+				typeSig,
 				binding.declaration.annotations,
 				local.modifiers,
 				local.getKind() == AbstractVariableDeclaration.PARAMETER);
@@ -739,24 +745,28 @@ public class InternalExtendedCompletionContext {
 						if (local.isSecret())
 							continue next;
 						// If the local variable declaration's initialization statement itself has the completion,
-						// then don't propose the local variable
+						// then don't propose the local variable. However for var typed locals, we have left in the
+						// initializers in place so as to be able to able to infer the elided type
+						// (see org.eclipse.jdt.internal.codeassist.complete.CompletionParser.consumeExitVariableWithInitialization())
+						// Do not just on account of the initialization not being nulled out, conclude that completion is happening
+						// inside the initialized and excluded the declared variable. Use co-ordinates to be sure.
 						if (local.declaration.initialization != null) {
-							/*(use this if-else block if it is found that local.declaration.initialization != null is not sufficient to
-							  guarantee that proposal is being asked inside a local variable declaration's initializer)
-							 if(local.declaration.initialization.sourceEnd > 0) {
-								if (this.assistNode.sourceEnd <= local.declaration.initialization.sourceEnd
-										&& this.assistNode.sourceStart >= local.declaration.initialization.sourceStart) {
-									continue next;
+							if (local.declaration.type instanceof SingleTypeReference singleTypeReference && CharOperation.equals(singleTypeReference.token, TypeConstants.VAR)) {
+								if (local.declaration.initialization.sourceEnd > 0) {
+									if (this.assistNode.sourceEnd <= local.declaration.initialization.sourceEnd
+											&& this.assistNode.sourceStart >= local.declaration.initialization.sourceStart) {
+										continue next;
+									}
+								} else {
+									CompletionNodeDetector detector = new CompletionNodeDetector(this.assistNode,
+											local.declaration.initialization);
+									if (detector.containsCompletionNode()) {
+										continue next;
+									}
 								}
 							} else {
-								CompletionNodeDetector detector = new CompletionNodeDetector(
-										this.assistNode,
-										local.declaration.initialization);
-								if (detector.containsCompletionNode()) {
-									continue next;
-								}
-							}*/
-							continue next;
+								continue next;
+							}
 						}
 						for (int f = 0; f < localsFound.size; f++) {
 							LocalVariableBinding otherLocal =
@@ -877,8 +887,6 @@ public class InternalExtendedCompletionContext {
 	public boolean canUseDiamond(String[] parameterTypes, char[] fullyQualifiedTypeName) {
 		TypeBinding guessedType = null;
 		char[][] cn = CharOperation.splitOn('.', fullyQualifiedTypeName);
-		Scope scope = this.assistScope;
-		if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_7) return false;
 		// If no LHS or return type expected, then we can safely use diamond
 		char[][] expectedTypekeys= this.completionContext.getExpectedTypesKeys();
 		if (expectedTypekeys == null || expectedTypekeys.length == 0)
@@ -891,6 +899,7 @@ public class InternalExtendedCompletionContext {
 		} else {
 			ref = new QualifiedTypeReference(cn,new long[cn.length]);
 		}
+		Scope scope = this.assistScope;
 		switch (scope.kind) {
 			case Scope.METHOD_SCOPE :
 			case Scope.BLOCK_SCOPE :
@@ -916,9 +925,6 @@ public class InternalExtendedCompletionContext {
 	}
 
 	public boolean canUseDiamond(String[] parameterTypes, char[][] typeVariables) {
-		Scope scope = this.assistScope;
-		if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_7)
-			return false;
 		// If no LHS or return type expected, then we can safely use diamond
 		char[][] expectedTypekeys = this.completionContext.getExpectedTypesKeys();
 		if (expectedTypekeys == null || expectedTypekeys.length == 0)

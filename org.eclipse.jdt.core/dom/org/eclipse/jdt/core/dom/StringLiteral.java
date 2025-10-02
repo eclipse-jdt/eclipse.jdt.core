@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
@@ -167,9 +167,9 @@ public class StringLiteral extends Expression {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length);
 		try {
-			int tokenType = scanner.getNextToken();
+			TerminalToken tokenType = scanner.getNextToken();
 			switch(tokenType) {
-				case TerminalTokens.TokenNameStringLiteral:
+				case TokenNameStringLiteral:
 					break;
 				default:
 					throw new IllegalArgumentException("Invalid string literal : >" + token + "<"); //$NON-NLS-1$//$NON-NLS-2$
@@ -232,9 +232,9 @@ public class StringLiteral extends Expression {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length);
 		try {
-			int tokenType = scanner.getNextToken();
+			TerminalToken tokenType = scanner.getNextToken();
 			switch(tokenType) {
-				case TerminalTokens.TokenNameStringLiteral:
+				case TokenNameStringLiteral:
 					return scanner.getCurrentStringLiteral();
 				default:
 					throw new IllegalArgumentException("tokenType: " + tokenType); //$NON-NLS-1$

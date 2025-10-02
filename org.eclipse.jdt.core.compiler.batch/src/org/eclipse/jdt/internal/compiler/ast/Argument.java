@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -77,44 +77,17 @@ public class Argument extends LocalDeclaration {
 				}
 			}
 		}
-		if ((this.binding.tagBits & TagBits.AnnotationResolved) == 0) {
+		if ((this.binding.extendedTagBits & ExtendedTagBits.AnnotationResolved) == 0) {
 			Annotation[] annots = this.annotations;
-			long sourceLevel = scope.compilerOptions().sourceLevel;
-			if (sourceLevel >= ClassFileConstants.JDK14 && annots == null) {
-				annots = getCorrespondingRecordComponentAnnotationsIfApplicable(scope.referenceMethod());
-				annots = ASTNode.copyRecordComponentAnnotations(scope,
-							this.binding, annots);
-			}
 			if (annots != null)
 				resolveAnnotations(scope, annots, this.binding, true);
-			if (sourceLevel >= ClassFileConstants.JDK1_8) {
-				Annotation.isTypeUseCompatible(this.type, scope, annots);
-				scope.validateNullAnnotation(this.binding.tagBits, this.type, annots);
-			}
+			Annotation.isTypeUseCompatible(this.type, scope, annots);
+			scope.validateNullAnnotation(this.binding.tagBits, this.type, annots);
 		}
 		this.binding.declaration = this;
 		return this.binding.type; // might have been updated during resolveAnnotations (for typeAnnotations)
 	}
 
-	private Annotation[] getCorrespondingRecordComponentAnnotationsIfApplicable(AbstractMethodDeclaration methodDecl) {
-		if (methodDecl != null && methodDecl.isConstructor() &&
-				((methodDecl.bits & (ASTNode.IsCanonicalConstructor )) != 0 &&
-				((methodDecl.bits & (ASTNode.IsImplicit)) != 0))) {
-			MethodBinding methodBinding = methodDecl.binding;
-			ReferenceBinding referenceBinding = methodBinding== null ? null : methodBinding.declaringClass;
-			if (referenceBinding instanceof SourceTypeBinding) {
-				SourceTypeBinding sourceTypeBinding = (SourceTypeBinding) referenceBinding;
-				assert (sourceTypeBinding.isRecord()); // CHECK: Is this really necessary?
-				sourceTypeBinding.components();
-				RecordComponentBinding recordComponentBinding = sourceTypeBinding.getRecordComponent(this.name);
-				if (recordComponentBinding != null) {
-					RecordComponent recordComponent = recordComponentBinding.sourceRecordComponent();
-					return recordComponent.annotations;
-				}
-			}
-		}
-		return null;
-	}
 	public TypeBinding bind(MethodScope scope, TypeBinding typeBinding, boolean used) {
 		if (this.isUnnamed(scope) && !scope.isLambdaScope()) {
 			scope.problemReporter().illegalUseOfUnderscoreAsAnIdentifier(this.sourceStart, this.sourceEnd, scope.compilerOptions().sourceLevel > ClassFileConstants.JDK1_8, true);
@@ -130,7 +103,7 @@ public class Argument extends LocalDeclaration {
 				if (!this.isUnnamed(scope)) {
 					if ((this.bits & ASTNode.ShadowsOuterLocal) != 0 && scope.isLambdaSubscope()) {
 						scope.problemReporter().lambdaRedeclaresArgument(this);
-					} else if (scope.referenceContext instanceof CompactConstructorDeclaration) {
+					} else if (scope.referenceContext instanceof ConstructorDeclaration cd && cd.isCompactConstructor()) {
 						// skip error reporting - hidden params - already reported in record components
 					} else {
 						scope.problemReporter().redefineArgument(this);
@@ -170,6 +143,7 @@ public class Argument extends LocalDeclaration {
 		return true;
 	}
 
+	@Override
 	public boolean isVarArgs() {
 		return this.type != null &&  (this.type.bits & IsVarArgs) != 0;
 	}

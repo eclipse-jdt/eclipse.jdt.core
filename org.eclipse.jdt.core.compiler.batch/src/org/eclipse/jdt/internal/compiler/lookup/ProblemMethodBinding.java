@@ -16,11 +16,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.List;
+
 public class ProblemMethodBinding extends MethodBinding {
 
 	private final int problemReason;
 	public MethodBinding closestMatch; // TODO (philippe) should rename into #alternateMatch
 	public InferenceContext18 inferenceContext; // inference context may help to coordinate error reporting
+	public TypeBinding missingType;
 
 public ProblemMethodBinding(char[] selector, TypeBinding[] args, int problemReason) {
 	this.selector = selector;
@@ -75,10 +78,6 @@ public MethodBinding shallowOriginal() {
 	return this.closestMatch == null ? this : this.closestMatch.shallowOriginal();
 }
 @Override
-public MethodBinding tiebreakMethod() {
-	return this.closestMatch == null ? this : this.closestMatch.tiebreakMethod();
-}
-@Override
 public boolean hasSubstitutedParameters() {
 	if (this.closestMatch != null)
 		return this.closestMatch.hasSubstitutedParameters();
@@ -95,5 +94,11 @@ public boolean isParameterizedGeneric() {
 @Override
 public final int problemId() {
 	return this.problemReason;
+}
+@Override
+public List<TypeBinding> collectMissingTypes(List<TypeBinding> missingTypes, boolean considerReturnType) {
+	if (this.closestMatch != null)
+		return this.closestMatch.collectMissingTypes(missingTypes, considerReturnType);
+	return super.collectMissingTypes(missingTypes, considerReturnType);
 }
 }

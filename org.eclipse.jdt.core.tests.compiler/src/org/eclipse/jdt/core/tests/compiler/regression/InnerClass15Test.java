@@ -492,8 +492,6 @@ public void testBug520874b() {
 			"----------\n");
 }
 public void testBug520874c() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return; // Limit the new tests to newer levels
 	this.runNegativeTest(new String[] {
 			"cycle/X.java",
 			"package cycle;\n" +
@@ -524,8 +522,6 @@ public void testBug520874c() {
 			"----------\n");
 }
 public void testBug520874d() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return; // Limit the new tests to newer levels
 	this.runNegativeTest(new String[] {
 			"cycle/X.java",
 			"package cycle;\n" +
@@ -556,8 +552,6 @@ public void testBug520874d() {
 			"----------\n");
 }
 public void testBug520874e() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return; // Limit the new tests to newer levels
 	this.runNegativeTest(new String[] {
 			"cycle/X.java",
 			"package cycle;\n" +
@@ -587,8 +581,6 @@ public void testBug520874e() {
 			"----------\n");
 }
 public void testBug520874f() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return; // Limit the new tests to newer levels
 	this.runNegativeTest(new String[] {
 			"cycle/X.java",
 			"package cycle;\n" +
@@ -618,8 +610,6 @@ public void testBug520874f() {
 			"----------\n");
 }
 public void testBug520874g() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return; // Limit the new tests to newer levels
 	this.runNegativeTest(new String[] {
 			"cycle/X.java",
 			"package cycle;\n" +
@@ -649,8 +639,6 @@ public void testBug520874g() {
 			"----------\n");
 }
 public void testBug520874h() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return; // Limit the new tests to newer levels
 	this.runNegativeTest(new String[] {
 			"cycle/X.java",
 			"package cycle;\n" +
@@ -680,8 +668,6 @@ public void testBug520874h() {
 			"----------\n");
 }
 public void testBug520874i() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8)
-		return; // Limit the new tests to newer levels
 	this.runNegativeTest(new String[] {
 			"cycle/X.java",
 			"package cycle;\n" +
@@ -738,7 +724,6 @@ public void testBug526681() {
 		"----------\n");
 }
 public void testBug527731() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // uses diamond, 1.7-inference fails, only 1.8 is good
 	runConformTest(
 		new String[] {
 			"OuterClass.java",
@@ -758,6 +743,89 @@ public void testBug527731() {
 			"}\n"
 		});
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3842
+// ECJ allows (unreachable) inner classes to access non effectively final outer locals
+public void testIssue3842() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+			class Flags {
+				static final boolean DEBUG = false;
+			}
+
+			public class X {
+				public static void main(String[] args) {
+					X x = new X();
+					x = new X();
+					if (Flags.DEBUG) {
+						new Object() {
+							private void foo() {
+								System.out.println(x);
+							}
+						};
+					}
+				}
+			}
+			"""
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 8)\n" +
+		"	x = new X();\n" +
+		"	^\n" +
+		"Local variable x is required to be final or effectively final based on its usage\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 11)\n" +
+		"	private void foo() {\n" +
+		"	             ^^^^^\n" +
+		"The method foo() from the type new Object(){} is never used locally\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 12)\n" +
+		"	System.out.println(x);\n" +
+		"	                   ^\n" +
+		"Local variable x defined in an enclosing scope must be final or effectively final\n" +
+		"----------\n");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3842
+// ECJ allows (unreachable) inner classes to access non effectively final outer locals
+public void testIssue3842_2() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+			class Flags {
+				static final boolean DEBUG = false;
+			}
+
+			public class X {
+				public static void main(String[] args) {
+					X x = new X();
+					if (Flags.DEBUG) {
+						new Object() {
+							private void foo() {
+								System.out.println(x);
+							}
+						};
+					}
+					x = new X();
+				}
+			}
+			"""
+		},
+		"----------\n" +
+		"1. WARNING in X.java (at line 10)\n" +
+		"	private void foo() {\n" +
+		"	             ^^^^^\n" +
+		"The method foo() from the type new Object(){} is never used locally\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 15)\n" +
+		"	x = new X();\n" +
+		"	^\n" +
+		"Local variable x is required to be final or effectively final based on its usage\n" +
+		"----------\n");
+}
+
 public static Class<InnerClass15Test> testClass() {
 	return InnerClass15Test.class;
 }

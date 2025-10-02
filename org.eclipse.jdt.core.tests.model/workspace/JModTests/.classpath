@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+    <classpathentry kind="var" path="JCL_17_LIB" sourcepath="JCL_17_SRC" rootpath="JCL_SRCROOT"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="jmods/mod.a.jmod">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

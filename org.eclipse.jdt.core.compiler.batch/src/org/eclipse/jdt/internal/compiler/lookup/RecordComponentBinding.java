@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 IBM Corporation and others.
+ * Copyright (c) 2020, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,14 +15,16 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class RecordComponentBinding extends VariableBinding {
 
 	public ReferenceBinding declaringRecord;
-	public BlockScope declaringScope; // back-pointer to its declaring scope
+
+	// When applying @NNBD to this component, let's remember the explicit type before applying the default.
+	TypeBinding explicitType;
 
 	public RecordComponentBinding(ReferenceBinding declaringRecord, RecordComponent declaration, TypeBinding type, int modifiers) {
 		super(declaration.name, type, modifiers,  null);
@@ -82,11 +84,11 @@ public class RecordComponentBinding extends VariableBinding {
 	@Override
 	public long getAnnotationTagBits() {
 		RecordComponentBinding originalRecordComponentBinding = original();
-		if ((originalRecordComponentBinding.tagBits & TagBits.AnnotationResolved) == 0 &&
+		if ((originalRecordComponentBinding.extendedTagBits & ExtendedTagBits.AnnotationResolved) == 0 &&
 				originalRecordComponentBinding.declaringRecord instanceof SourceTypeBinding) {
 			ClassScope scope = ((SourceTypeBinding) originalRecordComponentBinding.declaringRecord).scope;
 			if (scope == null) {// should not be true - but safety net
-				this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+				this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 				return 0;
 			}
 			TypeDeclaration typeDecl = scope.referenceContext;
@@ -98,14 +100,17 @@ public class RecordComponentBinding extends VariableBinding {
 		return originalRecordComponentBinding.tagBits;
 	}
 
-	public final boolean isDeprecated() {
-		return (this.modifiers & ClassFileConstants.AccDeprecated) != 0;
+	@Override
+	public void fillInDefaultNonNullness(AbstractVariableDeclaration sourceField, Scope scope) {
+		this.explicitType = this.type;
+		super.fillInDefaultNonNullness(sourceField, scope);
 	}
 
-	// TODO: check
-	public final boolean isPublic() {
-		return (this.modifiers & ClassFileConstants.AccPublic) != 0;
+	@Override
+	public ReferenceBinding getDeclaringClass() {
+		return this.declaringRecord;
 	}
+
 	/**
 	 * Returns the original RecordComponent (as opposed to parameterized instances)
 	 */
@@ -119,14 +124,10 @@ public class RecordComponentBinding extends VariableBinding {
 	}
 
 	public RecordComponent sourceRecordComponent() {
-		if (!(this.declaringRecord instanceof SourceTypeBinding))
-			return null;
-		SourceTypeBinding sourceType = (SourceTypeBinding) this.declaringRecord;
-		RecordComponent[] recordComponents = sourceType.scope.referenceContext.recordComponents;
-		if (recordComponents != null) {
-			for (int i = recordComponents.length; --i >= 0;)
-				if (this == recordComponents[i].binding)
-					return recordComponents[i];
+		if (this.declaringRecord instanceof SourceTypeBinding sourceType) {
+			for (RecordComponent component : sourceType.scope.referenceContext.recordComponents)
+				if (this == component.binding)
+					return component;
 		}
 		return null;
 	}

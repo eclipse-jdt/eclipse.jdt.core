@@ -1211,7 +1211,7 @@ public class DefaultCodeFormatterConstants {
 	/**
 	 * <pre>
 	 * FORMATTER / Option to position parentheses in method declarations
-	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_method_declaration"
+	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_method_delcaration"
 	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPTY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
 	 *     - default:           COMMON_LINES
 	 * </pre>
@@ -1294,10 +1294,14 @@ public class DefaultCodeFormatterConstants {
 	/**
 	 * <pre>
 	 * FORMATTER / Option to position parentheses in 'for' statements
-	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_for_statement"
+	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_for_statment"
 	 *     - possible values:   { COMMON_LINES,  SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
 	 *     - default:           COMMON_LINES
 	 * </pre>
+	 *
+	 * Note that there is a typo ({@code statment} vs. {@code statement})
+	 * in the option name. It has to remain, as fixing it would be a breaking
+	 * change.
 	 * @see #COMMON_LINES
 	 * @see #SEPARATE_LINES_IF_WRAPPED
 	 * @see #SEPARATE_LINES
@@ -1509,6 +1513,19 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.3
 	 */
 	public final static String FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT = "org.eclipse.jdt.core.formatter.comment.format_javadoc_comments"; //$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to control whether markdown comments are formatted
+	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.format_markdown_comments"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.44
+	 */
+	public final static String FORMATTER_COMMENT_FORMAT_MARKDOWN_COMMENT = "org.eclipse.jdt.core.formatter.comment.format_markdown_comments"; //$NON-NLS-1$
 
 	/**
 	 * <pre>

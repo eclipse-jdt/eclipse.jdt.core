@@ -500,6 +500,36 @@ public final class AST {
 	 */
 	public static final int JLS23 = 23;
 	/**
+	 * Constant for indicating the AST API that handles JLS24.
+	 * <p>
+	 * This API is capable of handling all constructs in the
+	 * Java language as described in the Java Language
+	 * Specification, Java SE 24 Edition (JLS24).
+	 * JLS24 is a superset of all earlier versions of the
+	 * Java language, and the JLS24 API can be used to manipulate
+	 * programs written in all versions of the Java language
+	 * up to and including Java SE 24(aka JDK 24).
+	 * </p>
+	 *
+	 * @since 3.42
+	 */
+	public static final int JLS24 = 24;
+	/**
+	 * Constant for indicating the AST API that handles JLS25.
+	 * <p>
+	 * This API is capable of handling all constructs in the
+	 * Java language as described in the Java Language
+	 * Specification, Java SE 25 Edition (JLS25).
+	 * JLS25 is a superset of all earlier versions of the
+	 * Java language, and the JLS25 API can be used to manipulate
+	 * programs written in all versions of the Java language
+	 * up to and including Java SE 25(aka JDK 25).
+	 * </p>
+	 *
+	 * @since 3.44
+	 */
+	public static final int JLS25 = 25;
+	/**
 	 * Internal synonym for {@link #JLS15}. Use to alleviate
 	 * deprecation warnings once JLS15 is deprecated
 	 */
@@ -545,10 +575,20 @@ public final class AST {
 	 */
 	static final int JLS23_INTERNAL = JLS23;
 	/**
+	 * Internal synonym for {@link #JLS24}. Use to alleviate
+	 * deprecation warnings once JLS24 is deprecated
+	 */
+	static final int JLS24_INTERNAL = JLS24;
+	/**
+	 * Internal synonym for {@link #JLS25}. Use to alleviate
+	 * deprecation warnings once JLS25 is deprecated
+	 */
+	static final int JLS25_INTERNAL = JLS25;
+	/**
 	 * Internal property for latest supported JLS level
 	 * This provides the latest JLS level.
 	 */
-	private static final int JLS_INTERNAL_Latest = JLS23;
+	private static final int JLS_INTERNAL_Latest = JLS25;
 
 	/**
 	 * @since 3.26
@@ -557,6 +597,17 @@ public final class AST {
 	 */
 	@Deprecated
 	public static final int JLS_Latest = JLS_INTERNAL_Latest;
+
+	private static final List<Integer> ALL_VERSIONS = List.of(JLS2, JLS3, JLS4, JLS8, JLS9, JLS10, JLS11, JLS12, JLS13, JLS14, JLS15, JLS16, JLS17, JLS18, JLS19, JLS20, JLS21, JLS22, JLS23, JLS24, JLS25);
+	private static final List<Integer> UNSUPPORTED_VERSIONS = List.of(JLS2, JLS3, JLS4);
+	private static final List<Integer> SUPPORTED_VERSIONS;
+	static {
+		List<Integer> temp = new ArrayList<>();
+		temp.addAll(ALL_VERSIONS);
+		temp.removeAll(UNSUPPORTED_VERSIONS);
+		SUPPORTED_VERSIONS = Collections.unmodifiableList(temp);
+	}
+
 
 	/*
 	 * Must not collide with a value for ICompilationUnit constants
@@ -631,7 +682,7 @@ public final class AST {
 		long sourceLevel = CompilerOptions.versionToJdkLevel(sourceModeSetting);
 		if (sourceLevel == 0) {
 			// unknown sourceModeSetting
-			sourceLevel = ClassFileConstants.JDK1_3;
+			sourceLevel = CompilerOptions.getFirstSupportedJdkLevel();
 		}
 		ast.scanner.sourceLevel = sourceLevel;
 		String compliance = (String) options.get(JavaCore.COMPILER_COMPLIANCE);
@@ -668,7 +719,7 @@ public final class AST {
      * (AST) following the specified set of API rules.
      * <p>
      * Clients should use this method specifying {@link #getJLSLatest} as the
-     * AST level in all cases, even when dealing with source of earlier JDK versions like 1.3 or 1.4.
+     * AST level in all cases, even when dealing with source of earlier JDK versions.
      * </p>
      *
  	 * @param level the API level; one of the <code>JLS*</code> level constants
@@ -691,7 +742,7 @@ public final class AST {
      * (AST) following the specified set of API rules.
      * <p>
      * Clients should use this method specifying {@link #getJLSLatest} as the
-     * AST level in all cases, even when dealing with source of earlier JDK versions like 1.3 or 1.4.
+     * AST level in all cases, even when dealing with source of earlier JDK versions.
      * </p>
      *
  	 * @param level the API level; one of the <code>JLS*</code> level constants or {@link AST#getJLSLatest}
@@ -712,11 +763,9 @@ public final class AST {
 	 * Following option keys are significant:
 	 * <ul>
 	 * <li><code>"org.eclipse.jdt.core.compiler.source"</code>
-	 *    indicates the api level and source compatibility mode (as per <code>JavaCore</code>) - defaults to 1.3
+	 *    indicates the api level and source compatibility mode (as per <code>JavaCore</code>) - defaults to 1.8
 	 *    <ul>
 	 *    	<li>
-	 *    	<code>"1.3"</code> means the source code is as per JDK 1.3 and api level {@link #JLS3}.</li>
-	 *    	<li><code>"1.4", "1.5", "1.6", "1.7" "1.8"</code> implies the respective source JDK levels 1.4, 1.5, 1.6, 1.7 and api level {@link #JLS4}.</li>
 	 *    	<li><code>"1.8"</code> implies the respective source JDK level 1.8 and api level {@link #JLS8}.</li>
 	 *    	<li><code>"9", "10", "11" up to "23"</code> implies the respective JDK levels 9, 10, 11 up to 23
 	 *     	and api levels {@link #JLS9}, {@link #JLS10}, {@link #JLS11} up to {@link #JLS23}.</li>
@@ -1120,36 +1169,10 @@ public final class AST {
 	 */
 	private AST(int level, boolean previewEnabled) {
 		this.previewEnabled = previewEnabled;
+		if (ALL_VERSIONS.contains(level) && !SUPPORTED_VERSIONS.contains(level)) {
+			level = SUPPORTED_VERSIONS.get(0);
+		}
 		switch(level) {
-			case JLS2_INTERNAL :
-			case JLS3_INTERNAL :
-				this.apiLevel = level;
-				// initialize a scanner
-				this.scanner = new Scanner(
-						true /*comment*/,
-						true /*whitespace*/,
-						false /*nls*/,
-						ClassFileConstants.JDK1_3 /*sourceLevel*/,
-						ClassFileConstants.JDK1_5 /*complianceLevel*/,
-						null/*taskTag*/,
-						null/*taskPriorities*/,
-						true/*taskCaseSensitive*/,
-						false/*isPreviewEnabled*/);
-				break;
-			case JLS4_INTERNAL :
-				this.apiLevel = level;
-				// initialize a scanner
-				this.scanner = new Scanner(
-						true /*comment*/,
-						true /*whitespace*/,
-						false /*nls*/,
-						ClassFileConstants.JDK1_7 /*sourceLevel*/,
-						ClassFileConstants.JDK1_7 /*complianceLevel*/,
-						null/*taskTag*/,
-						null/*taskPriorities*/,
-						true/*taskCaseSensitive*/,
-						false/*isPreviewEnabled*/);
-				break;
 			case JLS8_INTERNAL :
 				this.apiLevel = level;
 				// initialize a scanner
@@ -1193,7 +1216,7 @@ public final class AST {
 						false/*isPreviewEnabled*/);
 				break;
 			default:
-				if (level < JLS2_INTERNAL && level > JLS_Latest) {
+				if (!ALL_VERSIONS.contains(level)) {
 					throw new IllegalArgumentException("Unsupported JLS level : " + level); //$NON-NLS-1$
 				}
 				this.apiLevel = level;
@@ -1220,11 +1243,9 @@ public final class AST {
 	 * Following option keys are significant:
 	 * <ul>
 	 * <li><code>"org.eclipse.jdt.core.compiler.source"</code>
-	 *    indicates the api level and source compatibility mode (as per <code>JavaCore</code>) - defaults to 1.3
+	 *    indicates the api level and source compatibility mode (as per <code>JavaCore</code>) - defaults to 1.8
 	 *    <ul>
 	 *    	<li>
-	 *    	<code>"1.3"</code> means the source code is as per JDK 1.3 and api level {@link #JLS3}.</li>
-	 *    	<li><code>"1.4", "1.5", "1.6", "1.7"</code> implies the respective source JDK levels 1.4, 1.5, 1.6, 1.7 and api level {@link #JLS4}.</li>
 	 *    	<li><code>"1.8"</code> implies the respective source JDK level 1.8 and api level {@link #JLS8}.</li>
 	 *    	<li><code>"9", "10", "11" up to "23"</code> implies the respective JDK levels 9, 10, 11 up to 23
 	 *     	and api levels {@link #JLS9}, {@link #JLS10}, {@link #JLS11} up to {@link #JLS23}.</li>
@@ -1245,22 +1266,8 @@ public final class AST {
 		this(apiLevelMap.get(options.get(JavaCore.COMPILER_SOURCE)),
 				JavaCore.ENABLED.equals(options.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)));
 
-		long sourceLevel;
-		long complianceLevel;
-		switch(this.apiLevel) {
-			case JLS2_INTERNAL :
-			case JLS3_INTERNAL :
-				sourceLevel = ClassFileConstants.JDK1_3;
-				complianceLevel = ClassFileConstants.JDK1_5;
-				break;
-			case JLS4_INTERNAL :
-				sourceLevel = ClassFileConstants.JDK1_7;
-				complianceLevel = ClassFileConstants.JDK1_7;
-				break;
-			default :
-				sourceLevel = AST.jdkLevelMap.get(options.get(JavaCore.COMPILER_SOURCE));
-				complianceLevel = sourceLevel;
-		}
+		long sourceLevel = AST.jdkLevelMap.get(options.get(JavaCore.COMPILER_SOURCE));
+		long complianceLevel = sourceLevel;
 		this.scanner = new Scanner(
 			true /*comment*/,
 			true /*whitespace*/,
@@ -1275,14 +1282,14 @@ public final class AST {
 
 	private static Map<String, Long> getLevelMapTable() {
         Map<String, Long> t = new HashMap<>();
-        t.put(null, ClassFileConstants.JDK1_2);
-        t.put(JavaCore.VERSION_1_2, ClassFileConstants.JDK1_2);
-        t.put(JavaCore.VERSION_1_3, ClassFileConstants.JDK1_3);
-        t.put(JavaCore.VERSION_1_4, ClassFileConstants.JDK1_4);
-        t.put(JavaCore.VERSION_1_5, ClassFileConstants.JDK1_5);
-        t.put(JavaCore.VERSION_1_6, ClassFileConstants.JDK1_6);
-        t.put(JavaCore.VERSION_1_7, ClassFileConstants.JDK1_7);
-        t.put(JavaCore.VERSION_1_8, ClassFileConstants.JDK1_8);
+        t.put(null, CompilerOptions.getFirstSupportedJdkLevel());
+        t.put(JavaCore.VERSION_1_2, CompilerOptions.getFirstSupportedJdkLevel());
+        t.put(JavaCore.VERSION_1_3, CompilerOptions.getFirstSupportedJdkLevel());
+        t.put(JavaCore.VERSION_1_4, CompilerOptions.getFirstSupportedJdkLevel());
+        t.put(JavaCore.VERSION_1_5, CompilerOptions.getFirstSupportedJdkLevel());
+        t.put(JavaCore.VERSION_1_6, CompilerOptions.getFirstSupportedJdkLevel());
+        t.put(JavaCore.VERSION_1_7, CompilerOptions.getFirstSupportedJdkLevel());
+        t.put(JavaCore.VERSION_1_8, CompilerOptions.getFirstSupportedJdkLevel());
         t.put(JavaCore.VERSION_9, ClassFileConstants.JDK9);
         t.put(JavaCore.VERSION_10, ClassFileConstants.JDK10);
         t.put(JavaCore.VERSION_11, ClassFileConstants.JDK11);
@@ -1298,17 +1305,19 @@ public final class AST {
         t.put(JavaCore.VERSION_21, ClassFileConstants.JDK21);
         t.put(JavaCore.VERSION_22, ClassFileConstants.JDK22);
         t.put(JavaCore.VERSION_23, ClassFileConstants.JDK23);
+        t.put(JavaCore.VERSION_24, ClassFileConstants.JDK24);
+        t.put(JavaCore.VERSION_25, ClassFileConstants.JDK25);
         return Collections.unmodifiableMap(t);
 	}
 	private static Map<String, Integer> getApiLevelMapTable() {
         Map<String, Integer> t = new HashMap<>();
-        t.put(null, JLS2_INTERNAL);
-        t.put(JavaCore.VERSION_1_2, JLS2_INTERNAL);
-        t.put(JavaCore.VERSION_1_3, JLS3_INTERNAL);
-        t.put(JavaCore.VERSION_1_4, JLS4_INTERNAL);
-        t.put(JavaCore.VERSION_1_5, JLS4_INTERNAL);
-        t.put(JavaCore.VERSION_1_6, JLS4_INTERNAL);
-        t.put(JavaCore.VERSION_1_7, JLS4_INTERNAL);
+        t.put(null, JLS8_INTERNAL);
+        t.put(JavaCore.VERSION_1_2, JLS8_INTERNAL);
+        t.put(JavaCore.VERSION_1_3, JLS8_INTERNAL);
+        t.put(JavaCore.VERSION_1_4, JLS8_INTERNAL);
+        t.put(JavaCore.VERSION_1_5, JLS8_INTERNAL);
+        t.put(JavaCore.VERSION_1_6, JLS8_INTERNAL);
+        t.put(JavaCore.VERSION_1_7, JLS8_INTERNAL);
         t.put(JavaCore.VERSION_1_8, JLS8_INTERNAL);
         t.put(JavaCore.VERSION_9, JLS9_INTERNAL);
         t.put(JavaCore.VERSION_10, JLS10_INTERNAL);
@@ -1325,6 +1334,8 @@ public final class AST {
         t.put(JavaCore.VERSION_21, JLS21_INTERNAL);
         t.put(JavaCore.VERSION_22, JLS22_INTERNAL);
         t.put(JavaCore.VERSION_23, JLS23_INTERNAL);
+        t.put(JavaCore.VERSION_24, JLS24_INTERNAL);
+        t.put(JavaCore.VERSION_25, JLS25_INTERNAL);
         return Collections.unmodifiableMap(t);
 	}
 	/**
@@ -1710,10 +1721,6 @@ public final class AST {
 	 */
 	public ArrayType newArrayType(Type elementType, int dimensions) {
 		if (elementType == null) {
-			throw new IllegalArgumentException();
-		}
-		if (dimensions < 0 || dimensions > 255) {
-			// max as per Java VM spec
 			throw new IllegalArgumentException();
 		}
 		ArrayType result;
@@ -4019,4 +4026,39 @@ public final class AST {
 	public static int getJLSLatest() {
 		return JLS_INTERNAL_Latest;
 	}
+
+	/**
+	 * Returns all {@link AST}{@code #JLS*} levels in the order of their
+	 * introduction. For e.g., {@link AST#JLS8} appears before {@link AST#JLS10}
+	 *
+	 * @return all available versions
+	 * @since 3.41
+	 */
+	public static List<Integer> getAllVersions() {
+		return ALL_VERSIONS;
+	}
+
+	/**
+	 * Returns all {@link AST}{@code #JLS*} levels fully supported by JDT in the order of their
+	 * introduction. For e.g., {@link AST#JLS8} appears before {@link AST#JLS10}
+	 *
+	 * @return all available versions
+	 * @since 3.41
+	 */
+	public static List<Integer> getAllSupportedVersions() {
+		return SUPPORTED_VERSIONS;
+	}
+
+	/**
+	 * Not all known JLS versions are fully supported by JDT. This method answers if the given Java source
+	 * version is fully supported.
+	 *
+	 * @return {@code true} if the given string represents Java language standard version is fully supported
+	 * @see #getAllSupportedVersions()
+	 * @since 3.41
+	 */
+	public static boolean isSupportedVersion(int version) {
+		return SUPPORTED_VERSIONS.contains(version);
+	}
+
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2022 Mateusz Matela and others.
+ * Copyright (c) 2018, 2025 Mateusz Matela and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,9 +14,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameLBRACE;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRBRACE;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamewhile;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameLBRACE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameRBRACE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNamewhile;
+import static org.eclipse.jdt.internal.formatter.TokenManager.ANY;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -144,7 +145,7 @@ public class OneLineEnforcer extends ASTVisitor {
 			int openBraceIndex = this.tm.firstIndexIn(node, TokenNameLBRACE);
 			int closeBraceIndex = this.tm.lastIndexIn(node, TokenNameRBRACE);
 			Token whileToken = this.tm.firstTokenAfter(node, TokenNamewhile);
-			int lastIndex = whileToken.getLineBreaksBefore() == 0 ? this.tm.lastIndexIn(parent, -1) : closeBraceIndex;
+			int lastIndex = whileToken.getLineBreaksBefore() == 0 ? this.tm.lastIndexIn(parent, ANY) : closeBraceIndex;
 			tryKeepOnOneLine(openBraceIndex, closeBraceIndex, lastIndex, statements, oneLineOption);
 			return;
 		} else if (isSwitchCaseWithArrow(node)) {
@@ -192,7 +193,7 @@ public class OneLineEnforcer extends ASTVisitor {
 				&& this.tm.countLineBreaksBetween(this.tm.get(openBraceIndex), this.tm.get(lastIndex)) > 0)
 			return;
 
-		Set<Integer> breakIndexes = items.stream().map(n -> this.tm.firstIndexIn(n, -1)).collect(Collectors.toSet());
+		Set<Integer> breakIndexes = items.stream().map(n -> this.tm.firstIndexIn(n, ANY)).collect(Collectors.toSet());
 		breakIndexes.add(openBraceIndex + 1);
 		breakIndexes.add(closeBraceIndex);
 		Token prev = this.tm.get(openBraceIndex);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -210,6 +210,11 @@ public abstract boolean isDefinitelyUnknown(LocalVariableBinding local);
  * Here even recording of 'UNKNOWN' is considered as null info.
  */
 public abstract boolean hasNullInfoFor(LocalVariableBinding local);
+
+	/**
+	 * Check if this flow info has any relevant inits.
+	 */
+	public abstract boolean hasInits();
 
 	/**
 	 * Check status of potential assignment for a field.

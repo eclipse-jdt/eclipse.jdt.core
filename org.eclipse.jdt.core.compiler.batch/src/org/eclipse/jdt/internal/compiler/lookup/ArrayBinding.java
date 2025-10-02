@@ -39,7 +39,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 
-public final class ArrayBinding extends TypeBinding {
+public final class ArrayBinding extends TypeBinding implements HotSwappable {
 	// creation and initialization of the length field
 	// the declaringClass of this field is intentionally set to null so it can be distinguished.
 	public static final FieldBinding ArrayLength = new FieldBinding(TypeConstants.LENGTH, TypeBinding.INT, ClassFileConstants.AccPublic | ClassFileConstants.AccFinal, null, Constant.NotAConstant);
@@ -557,7 +557,7 @@ public MethodBinding getCloneMethod(final MethodBinding originalMethod) {
 	method.parameters = originalMethod.parameters;
 	method.thrownExceptions = Binding.NO_EXCEPTIONS;
 	method.tagBits = originalMethod.tagBits;
-	method.returnType = this.environment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_5 ? this : originalMethod.returnType;
+	method.returnType = this;
 	if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
 		if (this.environment.usesNullTypeAnnotations())
 			method.returnType = this.environment.createNonNullAnnotatedType(method.returnType);

@@ -132,7 +132,7 @@ public String toString() {
 
 @Override
 public char[] getModuleName() {
-	IModule mod = this.sourceLocation.module();
+	IModule mod = this.sourceLocation.getModule();
 	return mod == null ? null : mod.name();
 }
 }

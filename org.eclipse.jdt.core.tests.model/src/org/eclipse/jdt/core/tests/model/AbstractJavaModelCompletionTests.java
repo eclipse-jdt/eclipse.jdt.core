@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -37,6 +37,7 @@ public abstract class AbstractJavaModelCompletionTests extends AbstractJavaModel
 	public static List COMPLETION_SUITES = null;
 	protected static IJavaProject COMPLETION_PROJECT;
 	protected static class CompletionResult {
+		public String proposalDisplays;
 		public String proposals;
 		public String context;
 		public int cursorLocation;
@@ -108,6 +109,7 @@ protected CompletionResult complete(String path, String source, boolean showPosi
 
 	CompletionResult result =  new CompletionResult();
 	result.proposals = requestor.getResults();
+	result.proposalDisplays = requestor.getDisplayResults();
 	result.context = requestor.getContext();
 	result.cursorLocation = cursorLocation;
 	result.tokenStart = tokenStart;
@@ -149,6 +151,7 @@ protected CompletionResult contextComplete0(
 
 	CompletionResult result =  new CompletionResult();
 	result.proposals = requestor.getResults();
+	result.proposalDisplays = requestor.getDisplayResults();
 	result.context = requestor.getContext();
 	result.cursorLocation = cursorLocation;
 	return result;
@@ -164,6 +167,7 @@ protected CompletionResult snippetContextComplete(
 
 	CompletionResult result =  new CompletionResult();
 	result.proposals = requestor.getResults();
+	result.proposalDisplays = requestor.getDisplayResults();
 	result.context = requestor.getContext();
 	result.cursorLocation = cursorLocation;
 	return result;

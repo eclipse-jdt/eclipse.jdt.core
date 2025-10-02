@@ -33,7 +33,7 @@ public interface IMarkdownCommentHelper {
 
 	void recordText();
 
-	boolean isInCodeBlock();
+	boolean isInCode();
 
 	/** Retrieve the start of the current text, possibly including significant leading whitespace. */
 	int getTextStart(int textStart);
@@ -76,7 +76,7 @@ class NullMarkdownHelper implements IMarkdownCommentHelper {
 		// nop
 	}
 	@Override
-	public boolean isInCodeBlock() {
+	public boolean isInCode() {
 		return false;
 	}
 	@Override
@@ -105,6 +105,7 @@ class MarkdownCommentHelper implements IMarkdownCommentHelper {
 	int fenceLength;
 	boolean isBlankLine = true;
 	boolean previousIsBlankLine = true;
+	boolean inInlineCode = false;
 
 	public MarkdownCommentHelper(int lineStart, int commonIndent) {
 		this.markdownLineStart = lineStart;
@@ -127,8 +128,11 @@ class MarkdownCommentHelper implements IMarkdownCommentHelper {
 			return;
 		}
 		if (this.fenceCharCount == 0) {
-			if (lineStarted)
+			if (lineStarted) {
+				if (next == '`')
+					this.inInlineCode ^= true;
 				return;
+			}
 			this.fenceChar = next;
 			this.fenceCharCount = 1;
 			return;
@@ -163,8 +167,8 @@ class MarkdownCommentHelper implements IMarkdownCommentHelper {
 	}
 
 	@Override
-	public boolean isInCodeBlock() {
-		return this.insideIndentedCodeBlock || this.insideFencedCodeBlock;
+	public boolean isInCode() {
+		return this.insideIndentedCodeBlock || this.insideFencedCodeBlock || this.inInlineCode;
 	}
 
 	@Override

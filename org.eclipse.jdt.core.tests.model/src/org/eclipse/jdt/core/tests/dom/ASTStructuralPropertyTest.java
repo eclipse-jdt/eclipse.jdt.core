@@ -41,9 +41,6 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 		Method[] methods = c.getMethods();
 		for (int i = 0, max = methods.length; i < max; i++) {
 			if (methods[i].getName().startsWith("test")) { //$NON-NLS-1$
-				suite.addTest(new ASTStructuralPropertyTest(methods[i].getName(), AST.JLS2));
-				suite.addTest(new ASTStructuralPropertyTest(methods[i].getName(), AST.JLS3));
-				suite.addTest(new ASTStructuralPropertyTest(methods[i].getName(), AST.JLS4));
 				suite.addTest(new ASTStructuralPropertyTest(methods[i].getName(), AST.JLS8));
 			}
 		}

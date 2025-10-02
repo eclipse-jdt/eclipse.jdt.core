@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2024 IBM Corporation and others.
+ * Copyright (c) 2011, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -32,12 +32,13 @@ import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.Jav
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class NegativeLambdaExpressionsTest extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "test401610i"};
+//	TESTS_NAMES = new String[] { "testIssue3956"};
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -1785,10 +1786,10 @@ public void test047() {
 					"}" ,
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 10)\n" +
-				"	System.out.println(var); // Error: var is not effectively final\n" +
-				"	                   ^^^\n" +
-				"Local variable var defined in an enclosing scope must be final or effectively final\n" +
+				"1. ERROR in X.java (at line 13)\n" +
+				"	var=2;\n" +
+				"	^^^\n" +
+				"Local variable var is required to be final or effectively final based on its usage\n" +
 				"----------\n"
 				);
 }
@@ -1812,10 +1813,10 @@ public void test048() {
 					"}" ,
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 8)\n" +
-				"	System.out.println(var); // Error: var is not effectively final\n" +
-				"	                   ^^^\n" +
-				"Local variable var defined in an enclosing scope must be final or effectively final\n" +
+				"1. ERROR in X.java (at line 10)\n" +
+				"	var=2;\n" +
+				"	^^^\n" +
+				"Local variable var is required to be final or effectively final based on its usage\n" +
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
@@ -1908,7 +1909,12 @@ public void test052() {
 					"}\n" ,
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 10)\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	s2 = \"Nice!\";\n" +
+				"	^^\n" +
+				"Local variable s2 is required to be final or effectively final based on its usage\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 10)\n" +
 				"	System.out.println(s2); // Error: var is not effectively final\n" +
 				"	                   ^^\n" +
 				"Local variable s2 defined in an enclosing scope must be final or effectively final\n" +
@@ -1990,7 +1996,7 @@ public void test055() {
 				"1. ERROR in X.java (at line 7)\n" +
 				"	x = 10;\n" +
 				"	^\n" +
-				"The final local variable x cannot be assigned. It must be blank and not using a compound assignment\n" +
+				"Local variable x defined in an enclosing scope must be final or effectively final\n" +
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
@@ -2014,7 +2020,7 @@ public void test056() {
 				"1. ERROR in X.java (at line 7)\n" +
 				"	{ x = 10; }\n" +
 				"	  ^\n" +
-				"The final local variable x cannot be assigned, since it is defined in an enclosing type\n" +
+				"Local variable x defined in an enclosing scope must be final or effectively final\n" +
 				"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382721, [1.8][compiler] Effectively final variables needs special treatment
@@ -2318,7 +2324,17 @@ public void test067() {
 				"	             ^\n" +
 				"The parameter p is hiding a field from type X\n" +
 				"----------\n" +
-				"2. ERROR in X.java (at line 11)\n" +
+				"2. ERROR in X.java (at line 9)\n" +
+				"	x = new X();\n" +
+				"	^\n" +
+				"Local variable x is required to be final or effectively final based on its usage\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 11)\n" +
+				"	x.p = i++;\n" +
+				"	^\n" +
+				"Local variable x defined in an enclosing scope must be final or effectively final\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 11)\n" +
 				"	x.p = i++;\n" +
 				"	      ^\n" +
 				"Local variable i defined in an enclosing scope must be final or effectively final\n" +
@@ -2351,7 +2367,12 @@ public void test068() {
 				"	             ^\n" +
 				"The parameter p is hiding a field from type X\n" +
 				"----------\n" +
-				"2. ERROR in X.java (at line 11)\n" +
+				"2. ERROR in X.java (at line 9)\n" +
+				"	x = new X();\n" +
+				"	^\n" +
+				"Local variable x is required to be final or effectively final based on its usage\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 11)\n" +
 				"	x.p = i;\n" +
 				"	^\n" +
 				"Local variable x defined in an enclosing scope must be final or effectively final\n" +
@@ -4995,6 +5016,40 @@ this.runNegativeTest(
 				"The type of foo() from the type X is Zork, this is incompatible with the descriptor\'s return type: int[]\n" +
 				"----------\n");
 }
+// reference to missing type occurs during type inference involving a reference expression:
+public void testGH3501() {
+	runNegativeTest(new String[] {
+			"X.java",
+			"""
+			interface I<T> { void doit(T t); }
+			public class X {
+				void foo(Zork z) { }
+				<U> void acceptI(I<U> i) { }
+				void test() {
+					acceptI(this::foo);
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 3)
+			void foo(Zork z) { }
+			         ^^^^
+		Zork cannot be resolved to a type
+		----------
+		2. ERROR in X.java (at line 6)
+			acceptI(this::foo);
+			^^^^^^^
+		Inference for this invocation of method acceptI(I<U>) from the type X refers to the missing type Zork
+		----------
+		3. ERROR in X.java (at line 6)
+			acceptI(this::foo);
+			        ^^^^^^^^^
+		The type X does not define foo(U) that is applicable here
+		----------
+		""");
+}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
 public void test401610() {
 this.runConformTest(
@@ -6520,42 +6575,74 @@ public void test406614() {
 				"	}\n" +
 				"}\n"
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 9)\n" +
-			"	this(() -> this.f);\n" +
-			"	^^^^^^^^^^^^^^^^^^^\n" +
-			"The constructor X(() -> {}) is undefined\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 9)\n" +
-			"	this(() -> this.f);\n" +
-			"	           ^^^^\n" +
-			"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 12)\n" +
-			"	this(() -> this.g());\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^\n" +
-			"The constructor X(() -> {}) is undefined\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 12)\n" +
-			"	this(() -> this.g());\n" +
-			"	           ^^^^\n" +
-			"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 15)\n" +
-			"	this(() -> f);\n" +
-			"	^^^^^^^^^^^^^^\n" +
-			"The constructor X(() -> {}) is undefined\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 15)\n" +
-			"	this(() -> f);\n" +
-			"	           ^\n" +
-			"Cannot refer to an instance field f while explicitly invoking a constructor\n" +
-			"----------\n" +
-			"7. ERROR in X.java (at line 18)\n" +
-			"	this(() -> g());\n" +
-			"	           ^\n" +
-			"Cannot refer to an instance method while explicitly invoking a constructor\n" +
-			"----------\n");
+			(!JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)
+			?
+				"----------\n" +
+				"1. ERROR in X.java (at line 9)\n" +
+				"	this(() -> this.f);\n" +
+				"	^^^^^^^^^^^^^^^^^^^\n" +
+				"The constructor X(() -> {}) is undefined\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 9)\n" +
+				"	this(() -> this.f);\n" +
+				"	           ^^^^\n" +
+				"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 12)\n" +
+				"	this(() -> this.g());\n" +
+				"	^^^^^^^^^^^^^^^^^^^^^\n" +
+				"The constructor X(() -> {}) is undefined\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 12)\n" +
+				"	this(() -> this.g());\n" +
+				"	           ^^^^\n" +
+				"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 15)\n" +
+				"	this(() -> f);\n" +
+				"	^^^^^^^^^^^^^^\n" +
+				"The constructor X(() -> {}) is undefined\n" +
+				"----------\n" +
+				"6. ERROR in X.java (at line 15)\n" +
+				"	this(() -> f);\n" +
+				"	           ^\n" +
+				"Cannot refer to an instance field f while explicitly invoking a constructor\n" +
+				"----------\n" +
+				"7. ERROR in X.java (at line 18)\n" +
+				"	this(() -> g());\n" +
+				"	           ^\n" +
+				"Cannot refer to an instance method while explicitly invoking a constructor\n" +
+				"----------\n"
+			:
+				"""
+				----------
+				1. ERROR in X.java (at line 9)
+					this(() -> this.f);
+					           ^^^^^^
+				Cannot read field f in an early construction context
+				----------
+				2. ERROR in X.java (at line 12)
+					this(() -> this.g());
+					^^^^^^^^^^^^^^^^^^^^^
+				The constructor X(() -> {}) is undefined
+				----------
+				3. ERROR in X.java (at line 12)
+					this(() -> this.g());
+					           ^^^^
+				Cannot use 'this' in an early construction context
+				----------
+				4. ERROR in X.java (at line 15)
+					this(() -> f);
+					           ^
+				Cannot read field f in an early construction context
+				----------
+				5. ERROR in X.java (at line 18)
+					this(() -> g());
+					           ^
+				Cannot refer to an instance method while explicitly invoking a constructor
+				----------
+				"""
+			));
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial
 public void test406588() {
@@ -6584,9 +6671,9 @@ public void test406588() {
 				"}\n"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 10)\n" + 
-			"	this(Z::new);\n" + 
-			"	     ^^^^^^\n" + 
+			"1. ERROR in X.java (at line 10)\n" +
+			"	this(Z::new);\n" +
+			"	     ^^^^^^\n" +
 			"No enclosing instance of type X.Y is available due to some intermediate constructor invocation\n" +
 			"----------\n");
 }
@@ -6720,6 +6807,54 @@ public void test406773() {
 			compilerOptions /* custom options */
 		);
 }
+public void test406773_positive() {
+	// demonstrate that access to 'local' works in ctors for Y and Z
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"interface I {\n" +
+				"	X makeX(int x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	void foo() {\n" +
+				"		int local = 10;\n" +
+				"		class Y extends X {\n" +
+				"			class Z extends X {\n" +
+				"				void f() {\n" +
+				"					I i = X::new;\n" +
+				"					i.makeX(123456);\n" +
+				"					i = Y::new;\n" +
+				"					i.makeX(987654);\n" +
+				"					i = Z::new;\n" +
+				"					i.makeX(456789);\n" +
+				"				}\n" +
+				"				private Z(int z) {\n" +
+				"					System.out.print(local);\n" +
+				"				}\n" +
+				"				Z() {}\n" +
+				"			}\n" +
+				"			private Y(int y) {\n" +
+				"				System.out.print(local);\n" +
+				"			}\n" +
+				"			private Y() {\n" +
+				"			}\n" +
+				"		}\n" +
+				"		new Y().new Z().f();\n" +
+				"	}\n" +
+				"	private X(int x) {\n" +
+				"		System.out.print(\"X\");\n" +
+				"	}\n" +
+				"	X() {\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new X().foo();\n" +
+				"	}\n" +
+				"}\n"
+		},
+		"X1010"
+	);
+}
+
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=406859,  [1.8][compiler] Bad hint that method could be declared static
 public void test406859a() {
 		Map compilerOptions = getCompilerOptions();
@@ -7243,10 +7378,10 @@ public void test404657_final() {
 					""
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	executeLater(() -> System.out.println(n)); // Error: n is not effectively final\n" +
-			"	                                      ^\n" +
-			"Local variable n defined in an enclosing scope must be final or effectively final\n" +
+			"1. ERROR in X.java (at line 10)\n" +
+			"	n = 23;\n" +
+			"	^\n" +
+			"Local variable n is required to be final or effectively final based on its usage\n" +
 			"----------\n"
 		);
 }
@@ -7270,10 +7405,10 @@ public void test404657_loop() {
 					""
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	executeLater(() -> System.out.println(n)); // Error: n is not effectively final\n" +
-			"	                                      ^\n" +
-			"Local variable n defined in an enclosing scope must be final or effectively final\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	n = i;\n" +
+			"	^\n" +
+			"Local variable n is required to be final or effectively final based on its usage\n" +
 			"----------\n"
 		);
 }
@@ -9615,7 +9750,8 @@ public void test433588a() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=433735, [1.8] Discrepancy with javac when dealing with local classes in lambda expressions
 public void test433735() {
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			"X.java",
 			"import java.util.function.Supplier;\n" +
@@ -9642,17 +9778,24 @@ public void test433735() {
 			"		new X();\n" +
 			"	}\n" +
 			"}\n"
-		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	super( () -> {\n" +
-		"	       ^^^^^\n" +
-		"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" +
-		"----------\n");
+			};
+	if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)) {
+		runner.runConformTest();
+	} else {
+		runner.expectedCompilerLog =
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	super( () -> {\n" +
+			"	       ^^^^^\n" +
+			"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" +
+			"----------\n";
+		runner.runNegativeTest();
+	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432531 [1.8] VerifyError with anonymous subclass inside of lambda expression in the superclass constructor call
 public void test432531a() {
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			"Y.java",
 			"import java.util.function.Supplier;\n" +
@@ -9674,13 +9817,19 @@ public void test432531a() {
 			"		new Y();\n" +
 			"	}\n" +
 			"}"
-	},
-	"----------\n" +
-	"1. ERROR in Y.java (at line 7)\n" +
-	"	super( () -> {\n" +
-	"	       ^^^^^\n" +
-	"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" +
-	"----------\n");
+		};
+	if (!JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)) {
+		runner.expectedCompilerLog =
+			"----------\n" +
+			"1. ERROR in Y.java (at line 7)\n" +
+			"	super( () -> {\n" +
+			"	       ^^^^^\n" +
+			"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" +
+			"----------\n";
+		runner.runNegativeTest();
+	} else {
+		runner.runConformTest();
+	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432605, [1.8] Incorrect error "The type ArrayList<T> does not define add(ArrayList<T>, Object) that is applicable here"
 public void _test432605() {
@@ -10272,6 +10421,329 @@ public void testIssue810() {
 				"	^^^^\n" +
 				"Zork cannot be resolved to a type\n" +
 				"----------\n");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3792
+// Silent Acceptance of Non-Final Variable in Unreachable Lambda Expression
+public void testIssue3792() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+				    public static void main(String[] strArr) {
+				        for (int i = 1; i < 10; i++) {
+				        	if (true) {
+				                Runnable r = () -> {
+				                    System.out.println(i);
+				                };
+				            };
+				            if (false) {
+				                Runnable r = () -> {
+				                    System.out.println(i);
+				                };
+				            };
+				        }
+				    }
+				}
+				"""
+				},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	for (int i = 1; i < 10; i++) {\n" +
+			"	                        ^\n" +
+			"Local variable i is required to be final or effectively final based on its usage\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 9)\n" +
+			"	if (false) {\n" +
+			"                Runnable r = () -> {\n" +
+			"                    System.out.println(i);\n" +
+			"                };\n" +
+			"            };\n" +
+			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Dead code\n" +
+			"----------\n");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3792
+// Silent Acceptance of Non-Final Variable in Unreachable Lambda Expression
+public void testIssue3792_full() {
+	this.runNegativeTest(
+			new String[] {
+				"Test.java",
+				"""
+				class Flags { static final boolean DEBUG = false; }
+
+				public class Test {
+
+				    public static void func(Object o) {
+				        System.out.println(o.hashCode());
+				    }
+
+				    public static void main(String[] strArr) {
+
+				        Object o = new Object();
+				        for (int i = 1; i < 10; i++) {
+
+				            o = new Object();
+				            if (Flags.DEBUG) {  //Identified as dead code in ecj
+				                Thread virtualThread = Thread.startVirtualThread(() -> {
+				                try {
+				                    java.lang.reflect.Method method = Test.class.getMethod("func", Object.class);
+				                    method.invoke(Object.class, o);
+				                } catch (Exception e) {
+				                    e.printStackTrace();
+				                }
+				                });
+				                try {
+				                    virtualThread.join();
+				                } catch (InterruptedException e) {
+				                    e.printStackTrace();
+				                }
+				            }
+
+				        }
+				    }
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in Test.java (at line 14)\n" +
+			"	o = new Object();\n" +
+			"	^\n" +
+			"Local variable o is required to be final or effectively final based on its usage\n" +
+			"----------\n" +
+			"2. ERROR in Test.java (at line 19)\n" +
+			"	method.invoke(Object.class, o);\n" +
+			"	                            ^\n" +
+			"Local variable o defined in an enclosing scope must be final or effectively final\n" +
+			"----------\n");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3956
+// NPE in TypeBinding.getSingleAbstractMethod()
+public void testIssue3956() {
+	this.runNegativeTest(
+			new String[] {
+				"TestMe.java",
+				"""
+				import java.util.concurrent.CompletableFuture;
+
+				public class TestMe {
+					public  String id;
+					private CompletableFuture<Action> active;
+
+					public void test() {
+						CompletableFuture<Void> future;
+						if (id == null) {
+							future = active.thenAcceptAsync(recording -> {
+								recording.stop().run();
+								recording.process();
+							});
+						} else {
+							future = active.thenComposeAsync(recording -> {
+								recording.stop().run();
+				// This code (should) have compile errors but instead triggers ClassCastException
+
+								return update().handleAsync(() -> recording.process());
+
+				// Deleting the line and using this code would work
+				//				return update().handleAsync((a, b) -> {
+				//					recording.process();
+				//					return null;
+				//				});
+							});
+						}
+					}
+
+					public synchronized CompletableFuture<?> update() {
+						return null;
+					}
+
+					private static final class Action {
+
+						public Runnable stop() {
+							return () -> {
+							};
+						}
+
+						public void process() {
+
+						}
+
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in TestMe.java (at line 15)\n" +
+			"	future = active.thenComposeAsync(recording -> {\n" +
+			"				recording.stop().run();\n" +
+			"// This code (should) have compile errors but instead triggers ClassCastException\n" +
+			"\n" +
+			"				return update().handleAsync(() -> recording.process());\n" +
+			"\n" +
+			"// Deleting the line and using this code would work\n" +
+			"//				return update().handleAsync((a, b) -> {\n" +
+			"//					recording.process();\n" +
+			"//					return null;\n" +
+			"//				});\n" +
+			"			});\n" +
+			"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type mismatch: cannot convert from CompletableFuture<Object> to CompletableFuture<Void>\n" +
+			"----------\n" +
+			"2. ERROR in TestMe.java (at line 19)\n" +
+			"	return update().handleAsync(() -> recording.process());\n" +
+			"	                ^^^^^^^^^^^\n" +
+			"The method handleAsync(BiFunction<? super capture#1-of ?,Throwable,? extends U>) in the type CompletableFuture<capture#1-of ?> is not applicable for the arguments (() -> {})\n" +
+			"----------\n" +
+			"3. ERROR in TestMe.java (at line 19)\n" +
+			"	return update().handleAsync(() -> recording.process());\n" +
+			"	                            ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Lambda expression's signature does not match the signature of the functional interface method apply(? super capture#1-of ?, Throwable)\n" +
+			"----------\n" +
+			"4. ERROR in TestMe.java (at line 19)\n" +
+			"	return update().handleAsync(() -> recording.process());\n" +
+			"	                                  ^^^^^^^^^^^^^^^^^^^\n" +
+			"Cannot return a void result\n" +
+			"----------\n");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=568332
+//  Internal compiler error: NPE in QualifiedNameReference.optimizedBooleanConstant(QualifiedNameReference.java:931) because "this.binding" is null
+public void testBug568332() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+				    int x;
+				    interface II {
+				        void f(int i);
+				    }
+
+				    void g(final II ii) {}
+
+				    void h(X c) {
+				         g(v -> {
+				               for(int u = 0; c.x; u++) {}
+				         });
+				    }
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 11)\n" +
+			"	for(int u = 0; c.x; u++) {}\n" +
+			"	               ^^^\n" +
+			"Type mismatch: cannot convert from int to boolean\n" +
+			"----------\n");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4202
+// java.lang.NullPointerException: Cannot invoke "org.eclipse.jdt.internal.compiler.lookup.TypeBinding.isLocalType()" because "originalType" is null
+public void testIssue4202() {
+this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+			import java.util.function.Function;
+
+			public class X  {
+				void foo(Function<String, String> f) {}
+				private void doChooseImports() {
+					foo(() -> {
+
+						MultiElementListSelectionDialog dialog= new Object() {
+							@Override
+							protected void handleSelectionChanged() {
+								super.handleSelectionChanged();
+								// show choices in editor
+								doListSelectionChanged(getCurrentPage(), ranges, editor);
+							}
+						};
+						fIsQueryShowing= false;
+						return result;
+					});
+				}
+
+				private void doListSelectionChanged() {
+					// blah
+				}
+			}
+			"""
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	foo(() -> {\n" +
+		"	^^^\n" +
+		"The method foo(Function<String,String>) in the type X is not applicable for the arguments (() -> {})\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 6)\n" +
+		"	foo(() -> {\n" +
+		"	    ^^^^^\n" +
+		"Lambda expression's signature does not match the signature of the functional interface method apply(String)\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 8)\n" +
+		"	MultiElementListSelectionDialog dialog= new Object() {\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"MultiElementListSelectionDialog cannot be resolved to a type\n" +
+		"----------\n" +
+		"4. ERROR in X.java (at line 10)\n" +
+		"	protected void handleSelectionChanged() {\n" +
+		"	               ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"The method handleSelectionChanged() of type new Object(){} must override or implement a supertype method\n" +
+		"----------\n" +
+		"5. ERROR in X.java (at line 11)\n" +
+		"	super.handleSelectionChanged();\n" +
+		"	      ^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"The method handleSelectionChanged() is undefined for the type Object\n" +
+		"----------\n" +
+		"6. ERROR in X.java (at line 13)\n" +
+		"	doListSelectionChanged(getCurrentPage(), ranges, editor);\n" +
+		"	                       ^^^^^^^^^^^^^^\n" +
+		"The method getCurrentPage() is undefined for the type new Object(){}\n" +
+		"----------\n" +
+		"7. ERROR in X.java (at line 13)\n" +
+		"	doListSelectionChanged(getCurrentPage(), ranges, editor);\n" +
+		"	                                         ^^^^^^\n" +
+		"ranges cannot be resolved to a variable\n" +
+		"----------\n" +
+		"8. ERROR in X.java (at line 13)\n" +
+		"	doListSelectionChanged(getCurrentPage(), ranges, editor);\n" +
+		"	                                                 ^^^^^^\n" +
+		"editor cannot be resolved to a variable\n" +
+		"----------\n" +
+		"9. ERROR in X.java (at line 16)\n" +
+		"	fIsQueryShowing= false;\n" +
+		"	^^^^^^^^^^^^^^^\n" +
+		"fIsQueryShowing cannot be resolved to a variable\n" +
+		"----------\n" +
+		"10. ERROR in X.java (at line 17)\n" +
+		"	return result;\n" +
+		"	       ^^^^^^\n" +
+		"result cannot be resolved to a variable\n" +
+		"----------\n");
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4227
+// ECJ fails to complain about misapplication of @FunctionalInterface annotation on annotation types
+public void testIssue4227() {
+this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+			@FunctionalInterface
+			@interface X {
+			}
+			"""
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 2)\n" +
+		"	@interface X {\n" +
+		"	           ^\n" +
+		"Invalid '@FunctionalInterface' annotation; X is not a functional interface\n" +
+		"----------\n");
 }
 
 public static Class testClass() {

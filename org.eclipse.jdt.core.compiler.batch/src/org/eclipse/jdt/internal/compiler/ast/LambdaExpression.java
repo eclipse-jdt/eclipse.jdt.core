@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2024 IBM Corporation and others.
+ * Copyright (c) 2012, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -78,7 +78,7 @@ import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 import org.eclipse.jdt.internal.compiler.problem.AbortType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
-public class LambdaExpression extends FunctionalExpression implements IPolyExpression, ReferenceContext, ProblemSeverities {
+public class LambdaExpression extends FunctionalExpression implements IPolyExpression, ReferenceContext, ProblemSeverities, TypeOrLambda {
 	public Argument [] arguments;
 	private TypeBinding [] argumentTypes;
 	public int arrowPosition;
@@ -105,7 +105,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	protected Expression [] resultExpressions = NO_EXPRESSIONS;
 	public InferenceContext18 inferenceContext; // when performing tentative resolve keep a back reference to the driving context
 	private Map<Integer/*sourceStart*/, LocalTypeBinding> localTypes; // support look-up of a local type from this lambda copy
-	public boolean argumentsTypeVar = false;
+	public boolean hasVarTypedArguments = false;
 	int firstLocalLocal; // analysis index of first local variable (if any) post parameter(s) in the lambda; ("local local" as opposed to "outer local")
 
 	private List<ClassScope> scopesInEarlyConstruction;
@@ -124,6 +124,14 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 
 	public void setArguments(Argument [] arguments) {
 		this.arguments = arguments != null ? arguments : ASTNode.NO_ARGUMENTS;
+		for (Argument argument : this.arguments) {
+			if (argument.hasElidedType())
+				this.bits |= ArgumentsTypeElided;
+			else if (argument.type instanceof SingleTypeReference str &&  CharOperation.equals(str.token, TypeConstants.VAR)) {
+				this.bits |= ArgumentsTypeElided;
+				this.hasVarTypedArguments = true;
+			}
+		}
 		this.argumentTypes = new TypeBinding[arguments != null ? arguments.length : 0];
 	}
 
@@ -248,9 +256,20 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			if (this.original == this)
 				this.ordinal = recordFunctionalType(blockScope);
 
-			if (!argumentsTypeElided) {
-				for (int i = 0; i < argumentsLength; i++)
-					this.argumentTypes[i] = this.arguments[i].type.resolveType(blockScope, true /* check bounds*/);
+			boolean lvtiAllowed = blockScope.compilerOptions().sourceLevel >= ClassFileConstants.JDK11;
+			boolean argumentIsVarTyped = false, priorArgumentIsVarTyped = false;
+			for (int i = 0; i < argumentsLength; i++, priorArgumentIsVarTyped = argumentIsVarTyped) {
+				final Argument argument = this.arguments[i];
+				if (argument.hasElidedType())
+					continue;
+				argumentIsVarTyped = argument.type instanceof SingleTypeReference singleTypeRef && CharOperation.equals(singleTypeRef.token, TypeConstants.VAR);
+				if (i > 0 && argumentIsVarTyped != priorArgumentIsVarTyped) {
+					blockScope.problemReporter().varCannotBeMixedWithNonVarParams(argumentIsVarTyped ? argument : this.arguments[i - 1]);
+					return this.resolvedType = null; // structurally FUBAR, bail out ...
+				}
+				if (lvtiAllowed && argumentIsVarTyped)
+					continue;
+				this.argumentTypes[i] = argument.type.resolveType(blockScope, true /* check bounds*/);
 			}
 			if (this.expectedType == null && this.expressionContext == INVOCATION_CONTEXT) {
 				return new PolyTypeBinding(this);
@@ -396,7 +415,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				}
 			}
 		}
-		if (this.argumentsTypeVar) {
+		if (this.hasVarTypedArguments) {
 			for (int i = 0; i < argumentsLength; ++i) {
 				this.arguments[i].type.resolvedType = expectedParameterTypes[i];
 			}
@@ -530,7 +549,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 
 	@Override
 	public boolean argumentsTypeElided() {
-		return (this.arguments.length > 0 && this.arguments[0].hasElidedType()) || this.argumentsTypeVar;
+		return (this.bits & ArgumentsTypeElided) != 0;
 	}
 
 	private void analyzeExceptions() {
@@ -554,6 +573,8 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 
 		if (this.ignoreFurtherInvestigation)
 			return flowInfo;
+
+		addSyntheticArgumentsBeyondEarlyConstructionContext(false, this.enclosingScope);
 
 		FlowInfo lambdaInfo = flowInfo.copy(); // what happens in vegas, stays in vegas ...
 		ExceptionHandlingFlowContext methodContext =
@@ -885,7 +906,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 
 		// copy here is potentially compatible with the target type and has its shape fully computed: i.e value/void compatibility is determined and result expressions have been gathered.
 		targetType = findGroundTargetType(this.enclosingScope, targetType, targetType, argumentsTypeElided());
-		MethodBinding sam = targetType.getSingleAbstractMethod(this.enclosingScope, true);
+		MethodBinding sam = targetType == null ? null : targetType.getSingleAbstractMethod(this.enclosingScope, true);
 		if (sam == null || sam.problemId() == ProblemReasons.NoSuchSingleAbstractMethod) {
 			return CompatibilityResult.INCOMPATIBLE;
 		}
@@ -1257,7 +1278,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		}
 		codeStream.pushPatternAccessTrapScope(this.scope);
 		if (this.scopesInEarlyConstruction != null) {
-			// JEP 482: restore early construction context info into scopes:
+			// JEP 513: restore early construction context info into scopes:
 			for (ClassScope classScope : this.scopesInEarlyConstruction)
 				classScope.insideEarlyConstructionContext = true;
 		}
@@ -1310,7 +1331,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				return;
 		}
 		System.arraycopy(this.outerLocalVariables, 0, this.outerLocalVariables = new SyntheticArgumentBinding[newSlot + 1], 0, newSlot);
-		this.outerLocalVariables[newSlot] = syntheticLocal = new SyntheticArgumentBinding(actualOuterLocalVariable);
+		this.outerLocalVariables[newSlot] = syntheticLocal = new SyntheticArgumentBinding(actualOuterLocalVariable, this.scope);
 		syntheticLocal.resolvedPosition = this.outerLocalVariablesSlotSize; // may need adjusting later if we need to generate an instance method for the lambda.
 		syntheticLocal.declaringScope = this.scope;
 		int parameterCount = this.binding.parameters.length;
@@ -1343,6 +1364,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		this.outerLocalVariables[newSlot] = syntheticLocal = new SyntheticArgumentBinding(enclosingType);
 		syntheticLocal.resolvedPosition = this.outerLocalVariablesSlotSize; // may need adjusting later if we need to generate an instance method for the lambda.
 		syntheticLocal.declaringScope = this.scope;
+		syntheticLocal.actualOuterLocalVariable = getActualOuterLocalFromEnclosingScope(enclosingType);
 		int parameterCount = this.binding.parameters.length;
 		TypeBinding [] newParameters = new TypeBinding[parameterCount + 1];
 		newParameters[newSlot] = enclosingType;
@@ -1362,6 +1384,23 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		}
 		return syntheticLocal;
 	}
+
+	@Override
+	public void ensureSyntheticOuterAccess(SourceTypeBinding targetEnclosing) {
+		this.mapSyntheticEnclosingTypes.computeIfAbsent(targetEnclosing, this::addSyntheticArgument);
+	}
+
+	private SyntheticArgumentBinding getActualOuterLocalFromEnclosingScope(ReferenceBinding enclosingType) {
+		// check if access to enclosingType actually relates to a synthetic argument of an outer constructor:
+		MethodScope currentMethodScope = this.scope.enclosingMethodScope();
+		if (currentMethodScope != null && currentMethodScope.isInsideInitializerOrConstructor()) {
+			// use synthetic constructor arguments if possible
+			if (currentMethodScope.enclosingSourceType() instanceof NestedTypeBinding nested)
+				return nested.getSyntheticArgument(enclosingType, true, currentMethodScope.isConstructorCall);
+		}
+		return null;
+	}
+
 	public SyntheticArgumentBinding getSyntheticArgument(LocalVariableBinding actualOuterLocalVariable) {
 		for (int i = 0, length = this.outerLocalVariables == null ? 0 : this.outerLocalVariables.length; i < length; i++)
 			if (this.outerLocalVariables[i].actualOuterLocalVariable == actualOuterLocalVariable)
@@ -1485,7 +1524,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 
 		@Override
 		public TypeBinding substitute(Substitution substitution, TypeBinding originalType) {
-			if (originalType.isLocalType()) {
+			if (originalType != null && originalType.isLocalType()) {
 				LocalTypeBinding orgLocal = (LocalTypeBinding) originalType.original();
 				MethodScope lambdaScope2 = orgLocal.scope.enclosingLambdaScope();
 				if (lambdaScope2 != null) {

@@ -26,12 +26,12 @@ import org.eclipse.jdt.internal.compiler.apt.model.ModuleElementImpl;
 import org.eclipse.jdt.internal.compiler.apt.model.TypeElementImpl;
 import org.eclipse.jdt.internal.compiler.apt.model.VariableElementImpl;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
@@ -135,7 +135,7 @@ public class BaseMessagerImpl {
 						}
 					} else if (binding instanceof AptSourceLocalVariableBinding){
 						AptSourceLocalVariableBinding parameterBinding = (AptSourceLocalVariableBinding) binding;
-						LocalDeclaration parameterDeclaration = parameterBinding.declaration;
+						AbstractVariableDeclaration parameterDeclaration = parameterBinding.declaration;
 						if (parameterDeclaration != null) {
 							MethodBinding methodBinding = parameterBinding.methodBinding;
 							if (methodBinding != null) {

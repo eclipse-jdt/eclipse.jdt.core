@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.complete;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.*;
+
 /*
  * Scanner aware of a cursor location so as to discard trailing portions of identifiers
  * containing the cursor location.
@@ -25,9 +27,9 @@ package org.eclipse.jdt.internal.codeassist.complete;
  */
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 
 public class CompletionScanner extends Scanner {
 
@@ -124,7 +126,7 @@ public char[] getCurrentTokenSourceString() {
 	return super.getCurrentTokenSourceString();
 }
 @Override
-protected int getNextToken0() throws InvalidInputException {
+protected TerminalToken getNextToken0() throws InvalidInputException {
 
 	this.wasAcr = false;
 	this.unicodeCharSize = 0;
@@ -443,7 +445,7 @@ protected int getNextToken0() throws InvalidInputException {
 					throw invalidCharacter();
 				case '"' :
 					try {
-						int ret = scanForStringLiteral();
+						TerminalToken ret = scanForStringLiteral();
 						return ret;
 					} catch(InvalidInputException e){
 						if (Scanner.INVALID_CHAR_IN_STRING.equals(e.getMessage())) {
@@ -497,35 +499,7 @@ protected int getNextToken0() throws InvalidInputException {
 								boolean isUnicode = false;
 								while (true) {
 									this.lastCommentLinePosition = this.currentPosition;
-									//get the next char
 									isUnicode = false;
-									if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
-										&& (this.source[this.currentPosition] == 'u')) {
-										isUnicode = true;
-										//-------------unicode traitement ------------
-										int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
-										this.currentPosition++;
-										while (this.source[this.currentPosition] == 'u') {
-											this.currentPosition++;
-										}
-										if ((c1 = ScannerHelper.getHexadecimalValue(this.source[this.currentPosition++])) > 15
-											|| c1 < 0
-											|| (c2 = ScannerHelper.getHexadecimalValue(this.source[this.currentPosition++])) > 15
-											|| c2 < 0
-											|| (c3 = ScannerHelper.getHexadecimalValue(this.source[this.currentPosition++])) > 15
-											|| c3 < 0
-											|| (c4 = ScannerHelper.getHexadecimalValue(this.source[this.currentPosition++])) > 15
-											|| c4 < 0) {
-											throw invalidUnicodeEscape();
-										} else {
-											this.currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
-										}
-									}
-									//handle the \\u case manually into comment
-									if (this.currentCharacter == '\\') {
-										if (this.source[this.currentPosition] == '\\')
-											this.currentPosition++;
-									} //jump over the \\
 									/*
 									 * We need to completely consume the line break
 									 */
@@ -569,6 +543,34 @@ protected int getNextToken0() throws InvalidInputException {
 											break;
 										}
 									}
+									if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+										&& (this.source[this.currentPosition] == 'u')) {
+										isUnicode = true;
+										//-------------unicode traitement ------------
+										int c1 = 0, c2 = 0, c3 = 0, c4 = 0;
+										this.currentPosition++;
+										while (this.source[this.currentPosition] == 'u') {
+											this.currentPosition++;
+										}
+										if ((c1 = ScannerHelper.getHexadecimalValue(this.source[this.currentPosition++])) > 15
+											|| c1 < 0
+											|| (c2 = ScannerHelper.getHexadecimalValue(this.source[this.currentPosition++])) > 15
+											|| c2 < 0
+											|| (c3 = ScannerHelper.getHexadecimalValue(this.source[this.currentPosition++])) > 15
+											|| c3 < 0
+											|| (c4 = ScannerHelper.getHexadecimalValue(this.source[this.currentPosition++])) > 15
+											|| c4 < 0) {
+											throw invalidUnicodeEscape();
+										} else {
+											this.currentCharacter = (char) (((c1 * 16 + c2) * 16 + c3) * 16 + c4);
+										}
+									}
+									//handle the \\u case manually into comment
+									if (this.currentCharacter == '\\') {
+										if (this.source[this.currentPosition] == '\\')
+											this.currentPosition++;
+									} //jump over the \\
+
 								}
 
 								recordComment(test == 0 ? TokenNameCOMMENT_LINE : TokenNameCOMMENT_MARKDOWN);
@@ -690,7 +692,7 @@ protected int getNextToken0() throws InvalidInputException {
 											this.currentPosition++;
 									} //jump over the \\
 								}
-								int token = isJavadoc ? TokenNameCOMMENT_JAVADOC : TokenNameCOMMENT_BLOCK;
+								TerminalToken token = isJavadoc ? TokenNameCOMMENT_JAVADOC : TokenNameCOMMENT_BLOCK;
 								recordComment(token);
 								this.commentTagStarts[this.commentPtr] = firstTag;
 								if (!isJavadoc && this.startPosition <= this.cursorLocation && this.cursorLocation < this.currentPosition-1){
@@ -734,9 +736,6 @@ protected int getNextToken0() throws InvalidInputException {
 					}
 					boolean isJavaIdStart;
 					if (c >= HIGH_SURROGATE_MIN_VALUE && c <= HIGH_SURROGATE_MAX_VALUE) {
-						if (this.complianceLevel < ClassFileConstants.JDK1_5) {
-							throw invalidUnicodeEscape();
-						}
 						// Unicode 4 detection
 						char low = (char) getNextChar();
 						if (low < LOW_SURROGATE_MIN_VALUE || low > LOW_SURROGATE_MAX_VALUE) {
@@ -746,9 +745,6 @@ protected int getNextToken0() throws InvalidInputException {
 						isJavaIdStart = ScannerHelper.isJavaIdentifierStart(this.complianceLevel, c, low);
 					}
 					else if (c >= LOW_SURROGATE_MIN_VALUE && c <= LOW_SURROGATE_MAX_VALUE) {
-						if (this.complianceLevel < ClassFileConstants.JDK1_5) {
-							throw invalidUnicodeEscape();
-						}
 						throw invalidHighSurrogate();
 					} else {
 						// optimized case already checked
@@ -781,8 +777,8 @@ protected int getNextToken0() throws InvalidInputException {
 	return TokenNameEOF;
 }
 @Override
-protected int getNextNotFakedToken() throws InvalidInputException {
-	int token;
+protected TerminalToken getNextNotFakedToken() throws InvalidInputException {
+	TerminalToken token;
 	boolean fromUnget = false;
 	if (this.nextToken != TokenNameNotAToken) {
 		token = this.nextToken;
@@ -794,7 +790,7 @@ protected int getNextNotFakedToken() throws InvalidInputException {
 	if (this.currentPosition == this.startPosition) {
 		if (!fromUnget)
 			this.currentPosition++; // on fake completion identifier
-		return -1;
+		return TokenNameInvalid;
 	}
 	return token;
 }
@@ -808,6 +804,14 @@ public final void getNextUnicodeChar() throws InvalidInputException {
 	if (temp < this.cursorLocation && this.cursorLocation < this.currentPosition-1){
 		throw new InvalidCursorLocation(InvalidCursorLocation.NO_COMPLETION_INSIDE_UNICODE);
 	}
+}
+@Override
+protected final boolean atTextBlockDelimiter(boolean checkingEnd) {
+	int savedUnicodeCharSize = this.unicodeCharSize;
+	boolean atTextBlockDelimiter = super.atTextBlockDelimiter(checkingEnd);
+	if (!atTextBlockDelimiter)
+		this.unicodeCharSize = savedUnicodeCharSize;
+	return atTextBlockDelimiter;
 }
 @Override
 protected boolean isFirstTag() {
@@ -831,9 +835,9 @@ public final void jumpOverBlock() {
 // * we pretend we read an identifier.
 // */
 @Override
-public int scanIdentifierOrKeyword() {
+public TerminalToken scanIdentifierOrKeyword() {
 
-	int id = super.scanIdentifierOrKeyword();
+	TerminalToken id = super.scanIdentifierOrKeyword();
 
 	if (this.startPosition <= this.cursorLocation+1
 			&& this.cursorLocation < this.currentPosition){
@@ -852,9 +856,9 @@ public int scanIdentifierOrKeyword() {
 }
 
 @Override
-public int scanNumber(boolean dotPrefix) throws InvalidInputException {
+public TerminalToken scanNumber(boolean dotPrefix) throws InvalidInputException {
 
-	int token = super.scanNumber(dotPrefix);
+	TerminalToken token = super.scanNumber(dotPrefix);
 
 	// consider completion just before a number to be ok, will insert before it
 	if (this.startPosition <= this.cursorLocation && this.cursorLocation < this.currentPosition){

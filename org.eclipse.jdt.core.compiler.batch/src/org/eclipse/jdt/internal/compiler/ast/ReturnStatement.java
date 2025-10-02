@@ -103,7 +103,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		if (flowInfo.reachMode() == FlowInfo.REACHABLE) {
 			CompilerOptions compilerOptions = currentScope.compilerOptions();
 			if (compilerOptions.isAnnotationBasedNullAnalysisEnabled)
-				checkAgainstNullAnnotation(currentScope, flowContext, flowInfo, this.expression);
+				checkAgainstNullAnnotation(currentScope, flowContext, flowInfo, this.expression, false);
 			if (compilerOptions.analyseResourceLeaks) {
 				long owningTagBits = methodScope.referenceMethodBinding().tagBits & TagBits.AnnotationOwningMASK;
 				flowInfo = anylizeCloseableReturnExpression(this.expression, currentScope, owningTagBits, flowContext, flowInfo);
@@ -328,7 +328,7 @@ public void resolve(BlockScope scope) {
 	TypeBinding expressionType;
 
 	if (methodBinding != null && methodBinding.isCompactConstructor())
-		scope.problemReporter().recordCompactConstructorHasReturnStatement(this);
+		scope.problemReporter().compactConstructorHasReturnStatement(this);
 
 	if (lambda == null && scope.isInsideEarlyConstructionContext(null, false))
 		scope.problemReporter().errorReturnInEarlyConstructionContext(this);

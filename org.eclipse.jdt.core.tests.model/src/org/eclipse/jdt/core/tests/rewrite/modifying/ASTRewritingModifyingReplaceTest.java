@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -248,7 +248,7 @@ public class ASTRewritingModifyingReplaceTest extends ASTRewritingModifyingTest 
 
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createCU(cu, false, getJLS3());
+		CompilationUnit astRoot= createCU(cu, false);
 
 		astRoot.recordModifications();
 
@@ -280,7 +280,7 @@ public class ASTRewritingModifyingReplaceTest extends ASTRewritingModifyingTest 
 
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createCU(cu, false, getJLS3());
+		CompilationUnit astRoot= createCU(cu, false);
 
 		astRoot.recordModifications();
 
@@ -312,7 +312,7 @@ public class ASTRewritingModifyingReplaceTest extends ASTRewritingModifyingTest 
 
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createCU(cu, false, getJLS3());
+		CompilationUnit astRoot= createCU(cu, false);
 
 		astRoot.recordModifications();
 
@@ -344,7 +344,7 @@ public class ASTRewritingModifyingReplaceTest extends ASTRewritingModifyingTest 
 
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createCU(cu, false, getJLS3());
+		CompilationUnit astRoot= createCU(cu, false);
 
 		astRoot.recordModifications();
 
@@ -377,7 +377,7 @@ public class ASTRewritingModifyingReplaceTest extends ASTRewritingModifyingTest 
 
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createCU(cu, false, getJLS3());
+		CompilationUnit astRoot= createCU(cu, false);
 
 		astRoot.recordModifications();
 
@@ -410,7 +410,7 @@ public class ASTRewritingModifyingReplaceTest extends ASTRewritingModifyingTest 
 
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createCU(cu, false, getJLS3());
+		CompilationUnit astRoot= createCU(cu, false);
 
 		astRoot.recordModifications();
 
@@ -443,7 +443,7 @@ public class ASTRewritingModifyingReplaceTest extends ASTRewritingModifyingTest 
 
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
 
-		CompilationUnit astRoot= createCU(cu, false, getJLS3());
+		CompilationUnit astRoot= createCU(cu, false);
 
 		astRoot.recordModifications();
 

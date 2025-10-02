@@ -631,6 +631,7 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 	 * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/790
 	 */
 	public void testAIOOBEForRecordClassGh790() throws Exception {
+		if (isJRE25) return; // FIXME see https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3976
 		String testProjectName = "gh790AIOOBEForRecordClass";
 		try {
 			IJavaProject project = createJava16Project(testProjectName, new String[] {"src"});
@@ -749,6 +750,37 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 		}
 	}
 
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3394
+	// [Record][Search] Search for references to a local record draws a blank
+	public void testIssue3394() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/JavaSearchBugs/src/X.java",
+				"""
+				public class X {
+
+					public static void main(String[] args) {
+
+						record Point(int x, int y) {
+
+						}
+
+						new Point(0, 0);
+					}
+
+				}
+				""");
+
+		String str = this.workingCopies[0].getSource();
+		String selection = "Point";
+		int start = str.indexOf(selection);
+		int length = selection.length();
+
+		IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+		IType type = (IType) elements[0];
+		search(type, REFERENCES, EXACT_RULE);
+		assertSearchResults("src/X.java void X.main(String[]) [Point] EXACT_MATCH");
+}
 }
 
 

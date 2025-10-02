@@ -15,14 +15,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
 import java.util.stream.Stream;
 import org.eclipse.core.runtime.ILog;
-import org.eclipse.jdt.core.Flags;
-import org.eclipse.jdt.core.IAnnotation;
-import org.eclipse.jdt.core.IImportDeclaration;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.ILocalVariable;
-import org.eclipse.jdt.core.IMemberValuePair;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.dom.*;
@@ -37,7 +30,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.core.ModuleDescriptionInfo.ModuleReferenceInfo;
 import org.eclipse.jdt.internal.core.ModuleDescriptionInfo.PackageExportInfo;
 import org.eclipse.jdt.internal.core.ModuleDescriptionInfo.ServiceInfo;
@@ -771,7 +764,11 @@ public class DOMToModelPopulator extends ASTVisitor {
 			return new SimpleEntry<>(null, IMemberValuePair.K_UNKNOWN);
 		}
 		if (dom instanceof StringLiteral stringValue) {
-			return new SimpleEntry<>(stringValue.getLiteralValue(), IMemberValuePair.K_STRING);
+			try {
+				return new SimpleEntry<>(stringValue.getLiteralValue(), IMemberValuePair.K_STRING);
+			} catch (IllegalArgumentException e) {
+				// lombok oddity, let's ignore
+			}
 		}
 		if (dom instanceof BooleanLiteral booleanValue) {
 			return new SimpleEntry<>(booleanValue.booleanValue(), IMemberValuePair.K_BOOLEAN);
@@ -842,18 +839,18 @@ public class DOMToModelPopulator extends ASTVisitor {
 		Scanner scanner = new Scanner();
 		scanner.setSource(token.toCharArray());
 		try {
-			int tokenType = scanner.getNextToken();
+			TerminalToken tokenType = scanner.getNextToken();
 			return switch(tokenType) {
-				case TerminalTokens.TokenNameDoubleLiteral -> IMemberValuePair.K_DOUBLE;
-				case TerminalTokens.TokenNameIntegerLiteral -> IMemberValuePair.K_INT;
-				case TerminalTokens.TokenNameFloatingPointLiteral -> IMemberValuePair.K_FLOAT;
-				case TerminalTokens.TokenNameLongLiteral -> IMemberValuePair.K_LONG;
-				case TerminalTokens.TokenNameMINUS ->
+				case TokenNameDoubleLiteral -> IMemberValuePair.K_DOUBLE;
+				case TokenNameIntegerLiteral -> IMemberValuePair.K_INT;
+				case TokenNameFloatingPointLiteral -> IMemberValuePair.K_FLOAT;
+				case TokenNameLongLiteral -> IMemberValuePair.K_LONG;
+				case TokenNameMINUS ->
 					switch (scanner.getNextToken()) {
-						case TerminalTokens.TokenNameDoubleLiteral -> IMemberValuePair.K_DOUBLE;
-						case TerminalTokens.TokenNameIntegerLiteral -> IMemberValuePair.K_INT;
-						case TerminalTokens.TokenNameFloatingPointLiteral -> IMemberValuePair.K_FLOAT;
-						case TerminalTokens.TokenNameLongLiteral -> IMemberValuePair.K_LONG;
+						case TokenNameDoubleLiteral -> IMemberValuePair.K_DOUBLE;
+						case TokenNameIntegerLiteral -> IMemberValuePair.K_INT;
+						case TokenNameFloatingPointLiteral -> IMemberValuePair.K_FLOAT;
+						case TokenNameLongLiteral -> IMemberValuePair.K_LONG;
 						default -> throw new IllegalArgumentException("Invalid number literal : >" + token + "<"); //$NON-NLS-1$//$NON-NLS-2$
 					};
 				default -> throw new IllegalArgumentException("Invalid number literal : >" + token + "<"); //$NON-NLS-1$//$NON-NLS-2$
@@ -888,6 +885,33 @@ public class DOMToModelPopulator extends ASTVisitor {
 
 	public static LocalVariable toLocalVariable(SingleVariableDeclaration parameter, JavaElement parent) {
 		return toLocalVariable(parameter, parent, parameter.getParent() instanceof MethodDeclaration);
+	}
+
+	public static LocalVariable toLocalVariable(VariableDeclarationFragment fragment, JavaElement parent) {
+		if (fragment.getParent() instanceof VariableDeclarationStatement variableDeclaration) {
+			return new LocalVariable(parent,
+				fragment.getName().getIdentifier(),
+				variableDeclaration.getStartPosition(),
+				variableDeclaration.getStartPosition() + variableDeclaration.getLength() - 1,
+				fragment.getName().getStartPosition(),
+				fragment.getName().getStartPosition() + fragment.getName().getLength() - 1,
+				Util.getSignature(variableDeclaration.getType()),
+				null, // I don't think we need this, also it's the ECJ's annotation node
+				toModelFlags(variableDeclaration.getModifiers(), false),
+				false);
+		} else if (fragment.getParent() instanceof VariableDeclarationExpression variableDeclaration) {
+			return new LocalVariable(parent,
+					fragment.getName().getIdentifier(),
+					variableDeclaration.getStartPosition(),
+					variableDeclaration.getStartPosition() + variableDeclaration.getLength() - 1,
+					fragment.getName().getStartPosition(),
+					fragment.getName().getStartPosition() + fragment.getName().getLength() - 1,
+					Util.getSignature(variableDeclaration.getType()),
+					null, // I don't think we need this, also it's the ECJ's annotation node
+					toModelFlags(variableDeclaration.getModifiers(), false),
+					false);
+		}
+		return null;
 	}
 
 	private static LocalVariable toLocalVariable(SingleVariableDeclaration parameter, JavaElement parent, boolean isParameter) {
@@ -1035,7 +1059,11 @@ public class DOMToModelPopulator extends ASTVisitor {
 
 		this.unitInfo.setModule(newElement);
 		try {
-			this.root.getJavaProject().setModuleDescription(newElement);
+			if (this.root.getPackageFragmentRoot().getResolvedClasspathEntry().getEntryKind() == IClasspathEntry.CPE_SOURCE
+				&& this.root.getParent() instanceof IPackageFragment packageFragment
+				&& packageFragment.getElementName().isEmpty()) {
+				this.root.getJavaProject().setModuleDescription(newElement);
+			}
 		} catch (JavaModelException e) {
 			ILog.get().error(e.getMessage(), e);
 		}
@@ -1183,10 +1211,12 @@ public class DOMToModelPopulator extends ASTVisitor {
 	private static int getStartConsideringLeadingComments(ASTNode node) {
 		int start = node.getStartPosition();
 		var unit = domUnit(node);
-		int index = unit.firstLeadingCommentIndex(node);
-		if (index >= 0 && index <= unit.getCommentList().size()) {
-			Comment comment = (Comment)unit.getCommentList().get(index);
-			start = comment.getStartPosition();
+		if (unit != null) {
+			int index = unit.firstLeadingCommentIndex(node);
+			if (index >= 0 && index <= unit.getCommentList().size()) {
+				Comment comment = (Comment)unit.getCommentList().get(index);
+				start = comment.getStartPosition();
+			}
 		}
 		return start;
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameEOF;
+
 import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
@@ -22,7 +24,7 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 
 @SuppressWarnings({ "rawtypes" })
 public class ScannerTest extends AbstractRegressionTest {
@@ -544,16 +546,16 @@ public class ScannerTest extends AbstractRegressionTest {
 		char[] source = ("class Test {\n" +
 				"  char  C = \"\\u005Cn\";\n" +
 				"}").toCharArray();
-		Scanner scanner = new Scanner(false, false, false, ClassFileConstants.JDK1_4, null, null, false);
+		Scanner scanner = new Scanner(false, false, false, ClassFileConstants.JDK1_8, null, null, false);
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
-			int token;
+			TerminalToken token;
 			StringBuilder buffer = new StringBuilder();
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				try {
 					switch(token) {
-						case TerminalTokens.TokenNameEOF :
+						case TerminalToken.TokenNameEOF :
 							break;
 						default :
 							buffer.append(scanner.getCurrentTokenSource());
@@ -573,19 +575,19 @@ public class ScannerTest extends AbstractRegressionTest {
 		char[] source = ("class Test {\n" +
 				"  char  C = \'\\u005Cn\';\n" +
 				"}").toCharArray();
-		Scanner scanner = new Scanner(false, false, false, ClassFileConstants.JDK1_4, null, null, false);
+		Scanner scanner = new Scanner(false, false, false, ClassFileConstants.JDK1_8, null, null, false);
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
-			int token;
+			TerminalToken token;
 			StringBuilder buffer = new StringBuilder();
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				try {
 					switch(token) {
-						case TerminalTokens.TokenNameStringLiteral :
+						case TerminalToken.TokenNameStringLiteral :
 							buffer.append(new String(scanner.getCurrentTokenSourceString()));
 							break;
-						case TerminalTokens.TokenNameEOF :
+						case TerminalToken.TokenNameEOF :
 							break;
 						default :
 							buffer.append(scanner.getCurrentTokenSource());
@@ -605,16 +607,16 @@ public class ScannerTest extends AbstractRegressionTest {
 		char[] source = ("class Test {\n" +
 				"  char  C = \"\\n\";\n" +
 				"}").toCharArray();
-		Scanner scanner = new Scanner(false, false, false, ClassFileConstants.JDK1_4, null, null, false);
+		Scanner scanner = new Scanner(false, false, false, ClassFileConstants.JDK1_8, null, null, false);
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
-			int token;
+			TerminalToken token;
 			StringBuilder buffer = new StringBuilder();
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				try {
 					switch(token) {
-						case TerminalTokens.TokenNameEOF :
+						case TerminalToken.TokenNameEOF :
 							break;
 						default :
 							buffer.append(scanner.getCurrentTokenSource());
@@ -1164,31 +1166,7 @@ public class ScannerTest extends AbstractRegressionTest {
 			assertTrue(false);
 		}
 	}
-	/*
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=340513
-	 */
-	public void test056() {
-		IScanner scanner = ToolFactory.createScanner(false, false, false, JavaCore.VERSION_1_6, JavaCore.VERSION_1_6);
-		char[] source =
-				("class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		String \u20B9 = \"Rupee symbol\";\n" +
-				"		System.out.println(\u20B9);\n" +
-				"	}\n" +
-				"}").toCharArray();
-		scanner.setSource(source);
-		scanner.resetTo(0, source.length - 1);
-		try {
-			int token;
-			boolean foundError = false;
-			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
-				foundError |= token == ITerminalSymbols.TokenNameERROR;
-			}
-			assertTrue("Did not find error token", foundError);
-		} catch (InvalidInputException e) {
-			assertTrue(false);
-		}
-	}
+
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=340513
 	 */
@@ -1220,26 +1198,17 @@ public class ScannerTest extends AbstractRegressionTest {
 				"		int a\\u1369b;\n" +
 				"	}\n" +
 				"}";
-		if (this.complianceLevel <= ClassFileConstants.JDK1_6) {
-			this.runConformTest(
-				new String[] {
-					"X.java",
-					source
-				},
-				"");
-		} else {
-			this.runNegativeTest(
-				new String[] {
-					"X.java",
-					source
-				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
-				"	int a\\u1369b;\n" +
-				"	     ^^^^^^\n" +
-				"Syntax error on token \"Invalid Character\", = expected\n" +
-				"----------\n");
-		}
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				source
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	int a\\u1369b;\n" +
+			"	     ^^^^^^\n" +
+			"Syntax error on token \"Invalid Character\", = expected\n" +
+			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=352553
 	public void test059() {
@@ -1249,26 +1218,12 @@ public class ScannerTest extends AbstractRegressionTest {
 				"		int a\\u200B;\n" +
 				"	}\n" +
 				"}";
-		if (this.complianceLevel > ClassFileConstants.JDK1_6) {
-			this.runConformTest(
-				new String[] {
-					"X.java",
-					source
-				},
-				"");
-		} else {
-			this.runNegativeTest(
-				new String[] {
-					"X.java",
-					source
-				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
-				"	int a\\u200B;\n" +
-				"	     ^^^^^^\n" +
-				"Syntax error on token \"Invalid Character\", delete this token\n" +
-				"----------\n");
-		}
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				source
+			},
+			"");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=352553
 	public void test060() {
@@ -1360,24 +1315,22 @@ public class ScannerTest extends AbstractRegressionTest {
 				"		System.out.println(Character.isJavaIdentifierPart('\\u205f')); // false\n" +
 				"	}\n" +
 				"}";
-		if (this.complianceLevel > ClassFileConstants.JDK1_5) {
-			this.runNegativeTest(
-				new String[] {
-					"X.java",
-					source
-				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 2)\n" +
-				"	Hello\\u205fworld;\n" +
-				"	     ^^^^^^\n" +
-				"Syntax error on token \"Invalid Character\", , expected\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 4)\n" +
-				"	System.out.println(Hello\\u205fworld);\n" +
-				"	                        ^^^^^^\n" +
-				"Syntax error on token \"Invalid Character\", invalid AssignmentOperator\n" +
-				"----------\n");
-		}
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				source
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	Hello\\u205fworld;\n" +
+			"	     ^^^^^^\n" +
+			"Syntax error on token \"Invalid Character\", , expected\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	System.out.println(Hello\\u205fworld);\n" +
+			"	                        ^^^^^^\n" +
+			"Syntax error on token \"Invalid Character\", invalid AssignmentOperator\n" +
+			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=458795
 	public void test065() {
@@ -1385,70 +1338,62 @@ public class ScannerTest extends AbstractRegressionTest {
 				"public class X {\n" +
 				"	double d = 0XP00;\n" +
 				"}";
-		if (this.complianceLevel > ClassFileConstants.JDK1_4) {
-			this.runNegativeTest(
-					new String[] {
-							"X.java",
-							source
-					},
-					"----------\n" +
-							"1. ERROR in X.java (at line 2)\n" +
-							"	double d = 0XP00;\n" +
-							"	           ^^^\n" +
-							"Invalid hex literal number\n" +
-					"----------\n");
-		}
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						source
+				},
+				"----------\n" +
+						"1. ERROR in X.java (at line 2)\n" +
+						"	double d = 0XP00;\n" +
+						"	           ^^^\n" +
+						"Invalid hex literal number\n" +
+				"----------\n");
 	}
 	public void test066() {
 		String source =
 				"public class X {\n" +
 				"	double d = 0X.p02d;\n" +
 				"}";
-		if (this.complianceLevel > ClassFileConstants.JDK1_4) {
-			this.runNegativeTest(
-					new String[] {
-							"X.java",
-							source
-					},
-					"----------\n" +
-							"1. ERROR in X.java (at line 2)\n" +
-							"	double d = 0X.p02d;\n" +
-							"	           ^^^\n" +
-							"Invalid hex literal number\n" +
-					"----------\n");
-		}
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						source
+				},
+				"----------\n" +
+						"1. ERROR in X.java (at line 2)\n" +
+						"	double d = 0X.p02d;\n" +
+						"	           ^^^\n" +
+						"Invalid hex literal number\n" +
+				"----------\n");
 	}
 	public void test067() {
 		String source =
 				"public class X {\n" +
 				"	float f = 0Xp02f;\n" +
 				"}";
-		if (this.complianceLevel > ClassFileConstants.JDK1_4) {
-			this.runNegativeTest(
-					new String[] {
-							"X.java",
-							source
-					},
-					"----------\n" +
-					"1. ERROR in X.java (at line 2)\n" +
-					"	float f = 0Xp02f;\n" +
-					"	          ^^^\n" +
-					"Invalid hex literal number\n" +
-					"----------\n");
-		}
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						source
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 2)\n" +
+				"	float f = 0Xp02f;\n" +
+				"	          ^^^\n" +
+				"Invalid hex literal number\n" +
+				"----------\n");
 	}
 	public void test068() {
 		String source =
 				"public class X {\n" +
 				"	float f = 0X0p02f;\n" +
 				"}";
-		if (this.complianceLevel > ClassFileConstants.JDK1_4) {
-			this.runConformTest(
-					new String[] {
-							"X.java",
-							source
-					});
-		}
+		this.runConformTest(
+				new String[] {
+						"X.java",
+						source
+				});
 	}
 	public void testBug531716_001_since_13() {
 		char[] source = ("class X {\n" +
@@ -1458,17 +1403,17 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
-			int token;
+			TerminalToken token;
 			StringBuilder buffer = new StringBuilder();
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				try {
 					switch(token) {
-						case TerminalTokens.TokenNameTextBlock :
+						case TerminalToken.TokenNameTextBlock :
 							buffer.append( new String(scanner.getCurrentTextBlock()));
 							break;
-						case TerminalTokens.TokenNameStringLiteral :
+						case TerminalToken.TokenNameStringLiteral :
 							break;
-						case TerminalTokens.TokenNameEOF :
+						case TerminalToken.TokenNameEOF :
 							break;
 						default :
 							break;
@@ -1491,17 +1436,17 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
-			int token;
+			TerminalToken token;
 			StringBuilder buffer = new StringBuilder();
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
 				try {
 					switch(token) {
-						case TerminalTokens.TokenNameTextBlock :
+						case TerminalToken.TokenNameTextBlock :
 							buffer.append( new String(scanner.getCurrentTextBlock()));
 							break;
-						case TerminalTokens.TokenNameStringLiteral :
+						case TerminalToken.TokenNameStringLiteral :
 							break;
-						case TerminalTokens.TokenNameEOF :
+						case TerminalToken.TokenNameEOF :
 							break;
 						default :
 							break;
@@ -1550,8 +1495,8 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
-			int token = scanner.getNextToken();
-			assertEquals(TerminalTokens.TokenNameStringLiteral, token);
+			TerminalToken token = scanner.getNextToken();
+			assertEquals(TerminalToken.TokenNameStringLiteral, token);
 			assertEquals("Unexpected string literal content", "Hello world", scanner.getCurrentStringLiteral());
 		} catch (InvalidInputException e) {
 			fail("Should have accepted \\s");
@@ -1568,17 +1513,17 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
-			int token;
+			TerminalToken token;
 			StringBuilder buffer = new StringBuilder();
-			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+			while ((token = scanner.getNextToken()) != TokenNameEOF) {
 				try {
 					switch(token) {
-						case TerminalTokens.TokenNameTextBlock :
+						case TokenNameTextBlock :
 							buffer.append( new String(scanner.getCurrentTextBlock()));
 							break;
-						case TerminalTokens.TokenNameStringLiteral :
+						case TokenNameStringLiteral :
 							break;
-						case TerminalTokens.TokenNameEOF :
+						case TokenNameEOF :
 							break;
 						default :
 							break;
@@ -1589,6 +1534,42 @@ public class ScannerTest extends AbstractRegressionTest {
 			}
 			assertEquals("Wrong contents", "This is the new String", String.valueOf(buffer));
 			assertEquals("Missing line end for continuation", 44, scanner.lineEnds[2]);
+		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+	}
+
+	public void testIssue3666_001_since_14() {
+		char[] source = ("class X {\n" +
+				"  String  s = \"\"\"\nThis is the new String\\\n\"\"\";\n" +
+				"}").toCharArray();
+		Scanner scanner = new Scanner(false, false, false, ClassFileConstants.MAJOR_LATEST_VERSION, null, null, false);
+		scanner.previewEnabled = true;
+		scanner.recordLineSeparator = true;
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		try {
+			TerminalToken token;
+			StringBuilder buffer = new StringBuilder();
+			while ((token = scanner.getNextToken()) != TerminalToken.TokenNameEOF) {
+				try {
+					switch(token) {
+						case TerminalToken.TokenNameTextBlock :
+							buffer.append( new String(scanner.getCurrentTextBlock()));
+							break;
+						case TerminalToken.TokenNameStringLiteral :
+							break;
+						case TerminalToken.TokenNameEOF :
+							break;
+						default :
+							break;
+					}
+				} catch (ArrayIndexOutOfBoundsException e) {
+					e.printStackTrace();
+				}
+			}
+			assertEquals("Wrong contents", "This is the new String", String.valueOf(buffer));
+			assertEquals("Missing line end for continuation", 51, scanner.lineEnds[2]);
 		} catch (InvalidInputException e) {
 			assertTrue(false);
 		}
@@ -1851,20 +1832,20 @@ public class ScannerTest extends AbstractRegressionTest {
 	public void testTerminalTokensAPIs() {
 		char [][] ids = { "when".toCharArray(), "record".toCharArray(), "sealed".toCharArray(),
 				"permits".toCharArray(), "yield".toCharArray()};
-		int [] reskw = { TerminalTokens.TokenNameRestrictedIdentifierWhen,
-							TerminalTokens.TokenNameRestrictedIdentifierrecord,
-							TerminalTokens.TokenNameRestrictedIdentifiersealed,
-							TerminalTokens.TokenNameRestrictedIdentifierpermits,
-							TerminalTokens.TokenNameRestrictedIdentifierYield,};
+		TerminalToken [] reskw = { TerminalToken.TokenNameRestrictedIdentifierWhen,
+							TerminalToken.TokenNameRestrictedIdentifierrecord,
+							TerminalToken.TokenNameRestrictedIdentifiersealed,
+							TerminalToken.TokenNameRestrictedIdentifierpermits,
+							TerminalToken.TokenNameRestrictedIdentifierYield,};
 		int i = -1;
 		for (char [] id : ids) {
 			i++;
-			int t = TerminalTokens.getRestrictedKeyword(id);
-			assertTrue(t != TerminalTokens.TokenNameNotAToken);
-			assertTrue(TerminalTokens.isRestrictedKeyword(t));
+			TerminalToken t = TerminalToken.getRestrictedKeyword(id);
+			assertTrue(t != TerminalToken.TokenNameNotAToken);
+			assertTrue(TerminalToken.isRestrictedKeyword(t));
 			assertTrue(t == reskw[i]);
 		}
-		assertTrue(TerminalTokens.getRestrictedKeyword("When".toCharArray()) == TerminalTokens.TokenNameNotAToken);
-		assertTrue(TerminalTokens.getRestrictedKeyword("blah".toCharArray()) == TerminalTokens.TokenNameNotAToken);
+		assertTrue(TerminalToken.getRestrictedKeyword("When".toCharArray()) == TerminalToken.TokenNameNotAToken);
+		assertTrue(TerminalToken.getRestrictedKeyword("blah".toCharArray()) == TerminalToken.TokenNameNotAToken);
 	}
 }

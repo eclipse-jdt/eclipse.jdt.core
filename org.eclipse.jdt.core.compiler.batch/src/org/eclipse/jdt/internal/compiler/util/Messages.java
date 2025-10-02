@@ -79,6 +79,7 @@ public final class Messages {
 		// Do not instantiate
 	}
 
+	public static String apt_processing;
 	public static String compilation_unresolvedProblem;
 	public static String compilation_unresolvedProblems;
 	public static String compilation_request;
@@ -125,7 +126,7 @@ public final class Messages {
 	public static String pattern_matching_switch;
 	public static String record_patterns;
 	public static String unnamed_patterns_and_vars;
-	public static String implicit_classes_and_instance_main_methods;
+	public static String compact_source_and_instance_main_methods;
 	public static String flexible_constructor_bodies;
 	public static String primitives_in_patterns;
 	public static String module_imports;

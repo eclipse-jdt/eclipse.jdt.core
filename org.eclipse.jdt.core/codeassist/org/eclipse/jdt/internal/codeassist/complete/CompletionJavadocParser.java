@@ -20,10 +20,11 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.JavadocParser;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 
 /**
  * Parser specialized for decoding javadoc comments which includes cursor location for code completion.
@@ -69,7 +70,7 @@ public class CompletionJavadocParser extends JavadocParser {
 
 	public CompletionJavadocParser(CompletionParser sourceParser) {
 		super(sourceParser);
-		this.scanner = new CompletionScanner(ClassFileConstants.JDK1_3);
+		this.scanner = new CompletionScanner(CompilerOptions.getFirstSupportedJdkLevel());
 		this.kind = COMPLETION_PARSER | TEXT_PARSE;
 		initLevelTags();
 		setSourceComplianceLevel();
@@ -210,7 +211,7 @@ public class CompletionJavadocParser extends JavadocParser {
 	 * Create type reference. If it includes completion location, create and store completion node.
 	 */
 	@Override
-	protected Object createTypeReference(int primitiveToken, boolean canBeModule) {
+	protected Object createTypeReference(TerminalToken primitiveToken, boolean canBeModule) {
 		// Need to create type ref in case it was needed by members
 		int nbIdentifiers = this.identifierLengthStack[this.identifierLengthPtr];
 		int startPtr = this.identifierPtr - (nbIdentifiers-1);
@@ -265,7 +266,7 @@ public class CompletionJavadocParser extends JavadocParser {
 	}
 
 	@Override
-	protected Object createModuleTypeReference(int primitiveToken, int moduleRefTokenCount) {
+	protected Object createModuleTypeReference(TerminalToken primitiveToken, int moduleRefTokenCount) {
 
 		// Need to create type ref in case it was needed by members
 		int nbIdentifiers = this.identifierLengthStack[this.identifierLengthPtr];
@@ -475,7 +476,7 @@ public class CompletionJavadocParser extends JavadocParser {
 						break nextArg;
 				}
 				if (typeRef == null) {
-					if (firstArg && getCurrentTokenType() == TerminalTokens.TokenNameRPAREN) {
+					if (firstArg && getCurrentTokenType() == TerminalToken.TokenNameRPAREN) {
 						this.lineStarted = true;
 						return createMethodReference(receiver, null);
 					}
@@ -508,18 +509,18 @@ public class CompletionJavadocParser extends JavadocParser {
 				// Read possible additional type info
 				dim = 0;
 				isVarargs = false;
-				if (readToken() == TerminalTokens.TokenNameLBRACKET) {
+				if (readToken() == TerminalToken.TokenNameLBRACKET) {
 					// array declaration
 					int dimStart = this.scanner.getCurrentTokenStartPosition();
-					while (readToken() == TerminalTokens.TokenNameLBRACKET) {
+					while (readToken() == TerminalToken.TokenNameLBRACKET) {
 						consumeToken();
-						if (readToken() != TerminalTokens.TokenNameRBRACKET) {
+						if (readToken() != TerminalToken.TokenNameRBRACKET) {
 							break nextArg;
 						}
 						consumeToken();
 						dimPositions[dim++] = (((long) dimStart) << 32) + this.scanner.getCurrentTokenEndPosition();
 					}
-				} else if (readToken() == TerminalTokens.TokenNameELLIPSIS) {
+				} else if (readToken() == TerminalToken.TokenNameELLIPSIS) {
 					// ellipsis declaration
 					int dimStart = this.scanner.getCurrentTokenStartPosition();
 					dimPositions[dim++] = (((long) dimStart) << 32) + this.scanner.getCurrentTokenEndPosition();
@@ -529,7 +530,7 @@ public class CompletionJavadocParser extends JavadocParser {
 
 				// Read argument name
 				argNamePos = -1;
-				if (readToken() == TerminalTokens.TokenNameIdentifier) {
+				if (readToken() == TerminalToken.TokenNameIdentifier) {
 					consumeToken();
 					if (firstArg) { // verify position
 						if (iToken != 1)
@@ -559,16 +560,16 @@ public class CompletionJavadocParser extends JavadocParser {
 				}
 
 				// Read separator or end arguments declaration
-				int token = readToken();
+				TerminalToken token = readToken();
 				name = argName == null ? CharOperation.NO_CHAR : argName;
-				if (token == TerminalTokens.TokenNameCOMMA) {
+				if (token == TerminalToken.TokenNameCOMMA) {
 					// Create new argument
 					Object argument = createArgumentReference(name, dim, isVarargs, typeRef, dimPositions, argNamePos);
 					if (this.abort) return null; // May be aborted by specialized parser
 					arguments.add(argument);
 					consumeToken();
 					iToken++;
-				} else if (token == TerminalTokens.TokenNameRPAREN) {
+				} else if (token == TerminalToken.TokenNameRPAREN) {
 					// Create new argument
 					Object argument = createArgumentReference(name, dim, isVarargs, typeRef, dimPositions, argNamePos);
 					if (this.abort) return null; // May be aborted by specialized parser
@@ -776,11 +777,11 @@ public class CompletionJavadocParser extends JavadocParser {
 				this.pushText = true;
 
 				// Get reference tokens
-				int previousToken = TerminalTokens.TokenNameWHITESPACE;
+				TerminalToken previousToken = TerminalToken.TokenNameWHITESPACE;
 				while (!this.scanner.atEnd() && this.completionNode == null && !this.abort) {
-					int token = readTokenSafely();
+					TerminalToken token = readTokenSafely();
 					switch (token) {
-						case TerminalTokens.TokenNameStringLiteral :
+						case TokenNameStringLiteral :
 							int strStart = 0, strEnd = 0;
 							if ((strStart=this.scanner.getCurrentTokenStartPosition()+1) <= this.cursorLocation &&
 								this.cursorLocation <= (strEnd=this.scanner.getCurrentTokenEndPosition()-1))
@@ -789,7 +790,7 @@ public class CompletionJavadocParser extends JavadocParser {
 							}
 							consumeToken();
 							break;
-						case TerminalTokens.TokenNameERROR :
+						case TokenNameERROR :
 							consumeToken();
 							if (this.scanner.currentCharacter == '#') { // @see ...#member
 								Object member = null;
@@ -820,7 +821,7 @@ public class CompletionJavadocParser extends JavadocParser {
 								}
 							}
 							break;
-						case TerminalTokens.TokenNameIdentifier :
+						case TokenNameIdentifier :
 							try {
 								this.scanner.tokenizeWhiteSpace = false;
 								typeRef = parseQualifiedName(true);
@@ -836,12 +837,12 @@ public class CompletionJavadocParser extends JavadocParser {
 							finally {
 								this.scanner.tokenizeWhiteSpace = true;
 							}
-							if (previousToken != TerminalTokens.TokenNameWHITESPACE) {
+							if (previousToken != TerminalToken.TokenNameWHITESPACE) {
 								typeRef = null;
 								this.completionNode = null;
 							}
 							break;
-						case TerminalTokens.TokenNameAT:
+						case TokenNameAT:
 							consumeToken();
 							try {
 								this.scanner.tokenizeWhiteSpace = false;
@@ -932,9 +933,9 @@ public class CompletionJavadocParser extends JavadocParser {
 	}
 
 	@Override
-	protected int readToken() throws InvalidInputException {
-		int token = super.readToken();
-		if (token == TerminalTokens.TokenNameIdentifier && this.scanner.currentPosition == this.scanner.startPosition) {
+	protected TerminalToken readToken() throws InvalidInputException {
+		TerminalToken token = super.readToken();
+		if (token == TerminalToken.TokenNameIdentifier && this.scanner.currentPosition == this.scanner.startPosition) {
 			// Scanner is looping on empty token => read it...
 			this.scanner.getCurrentIdentifierSource();
 		}
@@ -945,7 +946,7 @@ public class CompletionJavadocParser extends JavadocParser {
 	 * Recover syntax on invalid qualified name.
 	 */
 	@Override
-	protected Object syntaxRecoverQualifiedName(int primitiveToken) throws InvalidInputException {
+	protected Object syntaxRecoverQualifiedName(TerminalToken primitiveToken) throws InvalidInputException {
 		if (this.cursorLocation == ((int)this.identifierPositionStack[this.identifierPtr])) {
 			// special case of completion just before the dot.
 			return createTypeReference(primitiveToken);

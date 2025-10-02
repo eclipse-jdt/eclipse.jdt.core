@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -52,7 +52,7 @@ public SyntheticArgumentBinding addSyntheticArgument(LocalVariableBinding actual
 	SyntheticArgumentBinding synthLocal = null;
 
 	if (this.outerLocalVariables == null) {
-		synthLocal = new SyntheticArgumentBinding(actualOuterLocalVariable);
+		synthLocal = new SyntheticArgumentBinding(actualOuterLocalVariable, this.scope);
 		this.outerLocalVariables = new SyntheticArgumentBinding[] {synthLocal};
 	} else {
 		int size = this.outerLocalVariables.length;
@@ -65,7 +65,7 @@ public SyntheticArgumentBinding addSyntheticArgument(LocalVariableBinding actual
 		}
 		SyntheticArgumentBinding[] synthLocals = new SyntheticArgumentBinding[size + 1];
 		System.arraycopy(this.outerLocalVariables, 0, synthLocals, 0, newArgIndex);
-		synthLocals[newArgIndex] = synthLocal = new SyntheticArgumentBinding(actualOuterLocalVariable);
+		synthLocals[newArgIndex] = synthLocal = new SyntheticArgumentBinding(actualOuterLocalVariable, this.scope);
 		System.arraycopy(this.outerLocalVariables, newArgIndex, synthLocals, newArgIndex + 1, size - newArgIndex);
 		this.outerLocalVariables = synthLocals;
 	}

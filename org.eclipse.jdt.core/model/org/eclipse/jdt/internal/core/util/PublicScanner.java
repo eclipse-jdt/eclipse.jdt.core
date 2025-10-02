@@ -17,7 +17,7 @@ import org.eclipse.jdt.core.compiler.IScanner;
 import org.eclipse.jdt.core.compiler.ITerminalSymbols;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 
 /**
  * This class acts as a facade to the internal Scanner implementation and delegates
@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  * <p>
  * <b>Note for maintainers</b>
  * No additional logic should be added here except adopting NON-API constants
- * returned by {@link #getNextToken()} from {@link TerminalTokens} to {@link ITerminalSymbols}.
+ * returned by {@link #getNextToken()} from {@link TerminalToken} to {@link ITerminalSymbols}.
  */
 public class PublicScanner implements IScanner, ITerminalSymbols {
 
@@ -114,161 +114,162 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 
 	@Override
 	public int getNextToken() throws InvalidInputException {
-		int nextToken = this.delegate.getNextToken();
+		TerminalToken nextToken = this.delegate.getNextToken();
 		int symbol  = translateTokenToTerminalSymbol(nextToken);
 		return symbol;
 	}
 
 	/**
-	 * Translates internal generated constants from {@link TerminalTokens} to public constants defined in
+	 * Translates internal generated constants from {@link TerminalToken} to public constants defined in
 	 * {@link ITerminalSymbols}.
 	 * <p>
 	 * There is PublicScannerTest that validates the translation and can generate switch body for this method
 	 * on changes in Scanner / TerminalTokens.
 	 * <p>
-	 * Note for maintainers: new tokens from {@link TerminalTokens} should be added to {@link ITerminalSymbols} with
+	 * Note for maintainers: new tokens from {@link TerminalToken} should be added to {@link ITerminalSymbols} with
 	 * <b>adopted</b> numerical values (they differ in each interface).
 	 */
 	@Deprecated // uses deprecated TerminalTokensIdentifier
-	private int translateTokenToTerminalSymbol(int nextToken) throws InvalidInputException {
-		switch (nextToken) {
-			case TerminalTokens.TokenNameAND : nextToken = ITerminalSymbols.TokenNameAND; break;
-			case TerminalTokens.TokenNameAND_AND : nextToken = ITerminalSymbols.TokenNameAND_AND; break;
-			case TerminalTokens.TokenNameAND_EQUAL : nextToken = ITerminalSymbols.TokenNameAND_EQUAL; break;
-			case TerminalTokens.TokenNameARROW : nextToken = ITerminalSymbols.TokenNameARROW; break;
-			case TerminalTokens.TokenNameAT : nextToken = ITerminalSymbols.TokenNameAT; break;
-			case TerminalTokens.TokenNameAT308 : nextToken = ITerminalSymbols.TokenNameAT; break;
-			case TerminalTokens.TokenNameAT308DOTDOTDOT : nextToken = ITerminalSymbols.TokenNameAT; break;
-			case TerminalTokens.TokenNameBeginCasePattern : nextToken = getNextToken(); break;
-			case TerminalTokens.TokenNameCaseArrow : nextToken = ITerminalSymbols.TokenNameARROW; break;
-			case TerminalTokens.TokenNameBeginIntersectionCast : nextToken = getNextToken(); break;
-			case TerminalTokens.TokenNameBeginLambda : nextToken = getNextToken(); break;
-			case TerminalTokens.TokenNameBeginTypeArguments : nextToken = getNextToken(); break;
-			case TerminalTokens.TokenNameCOLON : nextToken = ITerminalSymbols.TokenNameCOLON; break;
-			case TerminalTokens.TokenNameCOLON_COLON : nextToken = ITerminalSymbols.TokenNameCOLON_COLON; break;
-			case TerminalTokens.TokenNameCOMMA : nextToken = ITerminalSymbols.TokenNameCOMMA; break;
-			case TerminalTokens.TokenNameCOMMENT_BLOCK : nextToken = ITerminalSymbols.TokenNameCOMMENT_BLOCK; break;
-			case TerminalTokens.TokenNameCOMMENT_JAVADOC : nextToken = ITerminalSymbols.TokenNameCOMMENT_JAVADOC; break;
-			case TerminalTokens.TokenNameCOMMENT_MARKDOWN : nextToken = ITerminalSymbols.TokenNameCOMMENT_MARKDOWN; break;
-			case TerminalTokens.TokenNameCOMMENT_LINE : nextToken = ITerminalSymbols.TokenNameCOMMENT_LINE; break;
-			case TerminalTokens.TokenNameCharacterLiteral : nextToken = ITerminalSymbols.TokenNameCharacterLiteral; break;
-			case TerminalTokens.TokenNameDIVIDE : nextToken = ITerminalSymbols.TokenNameDIVIDE; break;
-			case TerminalTokens.TokenNameDIVIDE_EQUAL : nextToken = ITerminalSymbols.TokenNameDIVIDE_EQUAL; break;
-			case TerminalTokens.TokenNameDOT : nextToken = ITerminalSymbols.TokenNameDOT; break;
-			case TerminalTokens.TokenNameDoubleLiteral : nextToken = ITerminalSymbols.TokenNameDoubleLiteral; break;
-			case TerminalTokens.TokenNameELLIPSIS : nextToken = ITerminalSymbols.TokenNameELLIPSIS; break;
-			case TerminalTokens.TokenNameEOF : nextToken = ITerminalSymbols.TokenNameEOF; break;
-			case TerminalTokens.TokenNameEQUAL : nextToken = ITerminalSymbols.TokenNameEQUAL; break;
-			case TerminalTokens.TokenNameEQUAL_EQUAL : nextToken = ITerminalSymbols.TokenNameEQUAL_EQUAL; break;
-			case TerminalTokens.TokenNameERROR : nextToken = ITerminalSymbols.TokenNameERROR; break;
-			case TerminalTokens.TokenNameElidedSemicolonAndRightBrace : nextToken = getNextToken(); break;
-			case TerminalTokens.TokenNameFloatingPointLiteral : nextToken = ITerminalSymbols.TokenNameFloatingPointLiteral; break;
-			case TerminalTokens.TokenNameGREATER : nextToken = ITerminalSymbols.TokenNameGREATER; break;
-			case TerminalTokens.TokenNameGREATER_EQUAL : nextToken = ITerminalSymbols.TokenNameGREATER_EQUAL; break;
-			case TerminalTokens.TokenNameIdentifier : nextToken = ITerminalSymbols.TokenNameIdentifier; break;
-			case TerminalTokens.TokenNameIntegerLiteral : nextToken = ITerminalSymbols.TokenNameIntegerLiteral; break;
-			case TerminalTokens.TokenNameLBRACE : nextToken = ITerminalSymbols.TokenNameLBRACE; break;
-			case TerminalTokens.TokenNameLBRACKET : nextToken = ITerminalSymbols.TokenNameLBRACKET; break;
-			case TerminalTokens.TokenNameLEFT_SHIFT : nextToken = ITerminalSymbols.TokenNameLEFT_SHIFT; break;
-			case TerminalTokens.TokenNameLEFT_SHIFT_EQUAL : nextToken = ITerminalSymbols.TokenNameLEFT_SHIFT_EQUAL; break;
-			case TerminalTokens.TokenNameLESS : nextToken = ITerminalSymbols.TokenNameLESS; break;
-			case TerminalTokens.TokenNameLESS_EQUAL : nextToken = ITerminalSymbols.TokenNameLESS_EQUAL; break;
-			case TerminalTokens.TokenNameLPAREN : nextToken = ITerminalSymbols.TokenNameLPAREN; break;
-			case TerminalTokens.TokenNameLongLiteral : nextToken = ITerminalSymbols.TokenNameLongLiteral; break;
-			case TerminalTokens.TokenNameMINUS : nextToken = ITerminalSymbols.TokenNameMINUS; break;
-			case TerminalTokens.TokenNameMINUS_EQUAL : nextToken = ITerminalSymbols.TokenNameMINUS_EQUAL; break;
-			case TerminalTokens.TokenNameMINUS_MINUS : nextToken = ITerminalSymbols.TokenNameMINUS_MINUS; break;
-			case TerminalTokens.TokenNameMULTIPLY : nextToken = ITerminalSymbols.TokenNameMULTIPLY; break;
-			case TerminalTokens.TokenNameMULTIPLY_EQUAL : nextToken = ITerminalSymbols.TokenNameMULTIPLY_EQUAL; break;
-			case TerminalTokens.TokenNameNOT : nextToken = ITerminalSymbols.TokenNameNOT; break;
-			case TerminalTokens.TokenNameNOT_EQUAL : nextToken = ITerminalSymbols.TokenNameNOT_EQUAL; break;
-			case TerminalTokens.TokenNameNotAToken : nextToken = ITerminalSymbols.TokenNameNotAToken; break;
-			case TerminalTokens.TokenNameOR : nextToken = ITerminalSymbols.TokenNameOR; break;
-			case TerminalTokens.TokenNameOR_EQUAL : nextToken = ITerminalSymbols.TokenNameOR_EQUAL; break;
-			case TerminalTokens.TokenNameOR_OR : nextToken = ITerminalSymbols.TokenNameOR_OR; break;
-			case TerminalTokens.TokenNamePLUS : nextToken = ITerminalSymbols.TokenNamePLUS; break;
-			case TerminalTokens.TokenNamePLUS_EQUAL : nextToken = ITerminalSymbols.TokenNamePLUS_EQUAL; break;
-			case TerminalTokens.TokenNamePLUS_PLUS : nextToken = ITerminalSymbols.TokenNamePLUS_PLUS; break;
-			case TerminalTokens.TokenNameQUESTION : nextToken = ITerminalSymbols.TokenNameQUESTION; break;
-			case TerminalTokens.TokenNameRBRACE : nextToken = ITerminalSymbols.TokenNameRBRACE; break;
-			case TerminalTokens.TokenNameRBRACKET : nextToken = ITerminalSymbols.TokenNameRBRACKET; break;
-			case TerminalTokens.TokenNameREMAINDER : nextToken = ITerminalSymbols.TokenNameREMAINDER; break;
-			case TerminalTokens.TokenNameREMAINDER_EQUAL : nextToken = ITerminalSymbols.TokenNameREMAINDER_EQUAL; break;
-			case TerminalTokens.TokenNameRIGHT_SHIFT : nextToken = ITerminalSymbols.TokenNameRIGHT_SHIFT; break;
-			case TerminalTokens.TokenNameRIGHT_SHIFT_EQUAL : nextToken = ITerminalSymbols.TokenNameRIGHT_SHIFT_EQUAL; break;
-			case TerminalTokens.TokenNameRPAREN : nextToken = ITerminalSymbols.TokenNameRPAREN; break;
-			case TerminalTokens.TokenNameRestrictedIdentifierYield : nextToken = ITerminalSymbols.TokenNameRestrictedIdentifierYield; break;
-			case TerminalTokens.TokenNameRestrictedIdentifierpermits : nextToken = ITerminalSymbols.TokenNameRestrictedIdentifierpermits; break;
-			case TerminalTokens.TokenNameRestrictedIdentifierrecord : nextToken = ITerminalSymbols.TokenNameRestrictedIdentifierrecord; break;
-			case TerminalTokens.TokenNameRestrictedIdentifiersealed : nextToken = ITerminalSymbols.TokenNameRestrictedIdentifiersealed; break;
-			case TerminalTokens.TokenNameSEMICOLON : nextToken = ITerminalSymbols.TokenNameSEMICOLON; break;
-			case TerminalTokens.TokenNameSingleQuoteStringLiteral : nextToken = ITerminalSymbols.TokenNameSingleQuoteStringLiteral; break;
-			case TerminalTokens.TokenNameStringLiteral : nextToken = ITerminalSymbols.TokenNameStringLiteral; break;
-			case TerminalTokens.TokenNameTWIDDLE : nextToken = ITerminalSymbols.TokenNameTWIDDLE; break;
-			case TerminalTokens.TokenNameTextBlock : nextToken = ITerminalSymbols.TokenNameTextBlock; break;
-			case TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT : nextToken = ITerminalSymbols.TokenNameUNSIGNED_RIGHT_SHIFT; break;
-			case TerminalTokens.TokenNameUNSIGNED_RIGHT_SHIFT_EQUAL : nextToken = ITerminalSymbols.TokenNameUNSIGNED_RIGHT_SHIFT_EQUAL; break;
-			case TerminalTokens.TokenNameWHITESPACE : nextToken = ITerminalSymbols.TokenNameWHITESPACE; break;
-			case TerminalTokens.TokenNameXOR : nextToken = ITerminalSymbols.TokenNameXOR; break;
-			case TerminalTokens.TokenNameXOR_EQUAL : nextToken = ITerminalSymbols.TokenNameXOR_EQUAL; break;
-			case TerminalTokens.TokenNameabstract : nextToken = ITerminalSymbols.TokenNameabstract; break;
-			case TerminalTokens.TokenNameassert : nextToken = ITerminalSymbols.TokenNameassert; break;
-			case TerminalTokens.TokenNameboolean : nextToken = ITerminalSymbols.TokenNameboolean; break;
-			case TerminalTokens.TokenNamebreak : nextToken = ITerminalSymbols.TokenNamebreak; break;
-			case TerminalTokens.TokenNamebyte : nextToken = ITerminalSymbols.TokenNamebyte; break;
-			case TerminalTokens.TokenNamecase : nextToken = ITerminalSymbols.TokenNamecase; break;
-			case TerminalTokens.TokenNamecatch : nextToken = ITerminalSymbols.TokenNamecatch; break;
-			case TerminalTokens.TokenNamechar : nextToken = ITerminalSymbols.TokenNamechar; break;
-			case TerminalTokens.TokenNameclass : nextToken = ITerminalSymbols.TokenNameclass; break;
-			case TerminalTokens.TokenNameconst : nextToken = ITerminalSymbols.TokenNameconst; break;
-			case TerminalTokens.TokenNamecontinue : nextToken = ITerminalSymbols.TokenNamecontinue; break;
-			case TerminalTokens.TokenNamedefault : nextToken = ITerminalSymbols.TokenNamedefault; break;
-			case TerminalTokens.TokenNamedo : nextToken = ITerminalSymbols.TokenNamedo; break;
-			case TerminalTokens.TokenNamedouble : nextToken = ITerminalSymbols.TokenNamedouble; break;
-			case TerminalTokens.TokenNameelse : nextToken = ITerminalSymbols.TokenNameelse; break;
-			case TerminalTokens.TokenNameenum : nextToken = ITerminalSymbols.TokenNameenum; break;
-			case TerminalTokens.TokenNameextends : nextToken = ITerminalSymbols.TokenNameextends; break;
-			case TerminalTokens.TokenNamefalse : nextToken = ITerminalSymbols.TokenNamefalse; break;
-			case TerminalTokens.TokenNamefinal : nextToken = ITerminalSymbols.TokenNamefinal; break;
-			case TerminalTokens.TokenNamefinally : nextToken = ITerminalSymbols.TokenNamefinally; break;
-			case TerminalTokens.TokenNamefloat : nextToken = ITerminalSymbols.TokenNamefloat; break;
-			case TerminalTokens.TokenNamefor : nextToken = ITerminalSymbols.TokenNamefor; break;
-			case TerminalTokens.TokenNamegoto : nextToken = ITerminalSymbols.TokenNamegoto; break;
-			case TerminalTokens.TokenNameif : nextToken = ITerminalSymbols.TokenNameif; break;
-			case TerminalTokens.TokenNameimplements : nextToken = ITerminalSymbols.TokenNameimplements; break;
-			case TerminalTokens.TokenNameimport : nextToken = ITerminalSymbols.TokenNameimport; break;
-			case TerminalTokens.TokenNameinstanceof : nextToken = ITerminalSymbols.TokenNameinstanceof; break;
-			case TerminalTokens.TokenNameint : nextToken = ITerminalSymbols.TokenNameint; break;
-			case TerminalTokens.TokenNameinterface : nextToken = ITerminalSymbols.TokenNameinterface; break;
-			case TerminalTokens.TokenNamelong : nextToken = ITerminalSymbols.TokenNamelong; break;
-			case TerminalTokens.TokenNamenative : nextToken = ITerminalSymbols.TokenNamenative; break;
-			case TerminalTokens.TokenNamenew : nextToken = ITerminalSymbols.TokenNamenew; break;
-			case TerminalTokens.TokenNamenon_sealed : nextToken = ITerminalSymbols.TokenNamenon_sealed; break;
-			case TerminalTokens.TokenNamenull : nextToken = ITerminalSymbols.TokenNamenull; break;
-			case TerminalTokens.TokenNamepackage : nextToken = ITerminalSymbols.TokenNamepackage; break;
-			case TerminalTokens.TokenNameprivate : nextToken = ITerminalSymbols.TokenNameprivate; break;
-			case TerminalTokens.TokenNameprotected : nextToken = ITerminalSymbols.TokenNameprotected; break;
-			case TerminalTokens.TokenNamepublic : nextToken = ITerminalSymbols.TokenNamepublic; break;
-			case TerminalTokens.TokenNamereturn : nextToken = ITerminalSymbols.TokenNamereturn; break;
-			case TerminalTokens.TokenNameshort : nextToken = ITerminalSymbols.TokenNameshort; break;
-			case TerminalTokens.TokenNamestatic : nextToken = ITerminalSymbols.TokenNamestatic; break;
-			case TerminalTokens.TokenNamestrictfp : nextToken = ITerminalSymbols.TokenNamestrictfp; break;
-			case TerminalTokens.TokenNamesuper : nextToken = ITerminalSymbols.TokenNamesuper; break;
-			case TerminalTokens.TokenNameswitch : nextToken = ITerminalSymbols.TokenNameswitch; break;
-			case TerminalTokens.TokenNamesynchronized : nextToken = ITerminalSymbols.TokenNamesynchronized; break;
-			case TerminalTokens.TokenNamethis : nextToken = ITerminalSymbols.TokenNamethis; break;
-			case TerminalTokens.TokenNamethrow : nextToken = ITerminalSymbols.TokenNamethrow; break;
-			case TerminalTokens.TokenNamethrows : nextToken = ITerminalSymbols.TokenNamethrows; break;
-			case TerminalTokens.TokenNametransient : nextToken = ITerminalSymbols.TokenNametransient; break;
-			case TerminalTokens.TokenNametrue : nextToken = ITerminalSymbols.TokenNametrue; break;
-			case TerminalTokens.TokenNametry : nextToken = ITerminalSymbols.TokenNametry; break;
-			case TerminalTokens.TokenNamevoid : nextToken = ITerminalSymbols.TokenNamevoid; break;
-			case TerminalTokens.TokenNamevolatile : nextToken = ITerminalSymbols.TokenNamevolatile; break;
-			case TerminalTokens.TokenNamewhile : nextToken = ITerminalSymbols.TokenNamewhile; break;
-			case TerminalTokens.TokenNameRestrictedIdentifierWhen : nextToken = ITerminalSymbols.TokenNameRestrictedIdentifierWhen; break;
-			case TerminalTokens.TokenNameUNDERSCORE : nextToken = ITerminalSymbols.TokenNameUNDERSCORE; break;
+	private int translateTokenToTerminalSymbol(TerminalToken nextTokenEnum) throws InvalidInputException {
+		int nextToken = nextTokenEnum.tokenNumber();
+		switch (nextTokenEnum) {
+			case TokenNameAND : nextToken = ITerminalSymbols.TokenNameAND; break;
+			case TokenNameAND_AND : nextToken = ITerminalSymbols.TokenNameAND_AND; break;
+			case TokenNameAND_EQUAL : nextToken = ITerminalSymbols.TokenNameAND_EQUAL; break;
+			case TokenNameARROW : nextToken = ITerminalSymbols.TokenNameARROW; break;
+			case TokenNameAT : nextToken = ITerminalSymbols.TokenNameAT; break;
+			case TokenNameAT308 : nextToken = ITerminalSymbols.TokenNameAT; break;
+			case TokenNameAT308DOTDOTDOT : nextToken = ITerminalSymbols.TokenNameAT; break;
+			case TokenNameBeginCasePattern : nextToken = getNextToken(); break;
+			case TokenNameCaseArrow : nextToken = ITerminalSymbols.TokenNameARROW; break;
+			case TokenNameBeginIntersectionCast : nextToken = getNextToken(); break;
+			case TokenNameBeginLambda : nextToken = getNextToken(); break;
+			case TokenNameBeginTypeArguments : nextToken = getNextToken(); break;
+			case TokenNameCOLON : nextToken = ITerminalSymbols.TokenNameCOLON; break;
+			case TokenNameCOLON_COLON : nextToken = ITerminalSymbols.TokenNameCOLON_COLON; break;
+			case TokenNameCOMMA : nextToken = ITerminalSymbols.TokenNameCOMMA; break;
+			case TokenNameCOMMENT_BLOCK : nextToken = ITerminalSymbols.TokenNameCOMMENT_BLOCK; break;
+			case TokenNameCOMMENT_JAVADOC : nextToken = ITerminalSymbols.TokenNameCOMMENT_JAVADOC; break;
+			case TokenNameCOMMENT_MARKDOWN : nextToken = ITerminalSymbols.TokenNameCOMMENT_MARKDOWN; break;
+			case TokenNameCOMMENT_LINE : nextToken = ITerminalSymbols.TokenNameCOMMENT_LINE; break;
+			case TokenNameCharacterLiteral : nextToken = ITerminalSymbols.TokenNameCharacterLiteral; break;
+			case TokenNameDIVIDE : nextToken = ITerminalSymbols.TokenNameDIVIDE; break;
+			case TokenNameDIVIDE_EQUAL : nextToken = ITerminalSymbols.TokenNameDIVIDE_EQUAL; break;
+			case TokenNameDOT : nextToken = ITerminalSymbols.TokenNameDOT; break;
+			case TokenNameDoubleLiteral : nextToken = ITerminalSymbols.TokenNameDoubleLiteral; break;
+			case TokenNameELLIPSIS : nextToken = ITerminalSymbols.TokenNameELLIPSIS; break;
+			case TokenNameEOF : nextToken = ITerminalSymbols.TokenNameEOF; break;
+			case TokenNameEQUAL : nextToken = ITerminalSymbols.TokenNameEQUAL; break;
+			case TokenNameEQUAL_EQUAL : nextToken = ITerminalSymbols.TokenNameEQUAL_EQUAL; break;
+			case TokenNameERROR : nextToken = ITerminalSymbols.TokenNameERROR; break;
+			case TokenNameElidedSemicolonAndRightBrace : nextToken = getNextToken(); break;
+			case TokenNameFloatingPointLiteral : nextToken = ITerminalSymbols.TokenNameFloatingPointLiteral; break;
+			case TokenNameGREATER : nextToken = ITerminalSymbols.TokenNameGREATER; break;
+			case TokenNameGREATER_EQUAL : nextToken = ITerminalSymbols.TokenNameGREATER_EQUAL; break;
+			case TokenNameIdentifier : nextToken = ITerminalSymbols.TokenNameIdentifier; break;
+			case TokenNameIntegerLiteral : nextToken = ITerminalSymbols.TokenNameIntegerLiteral; break;
+			case TokenNameLBRACE : nextToken = ITerminalSymbols.TokenNameLBRACE; break;
+			case TokenNameLBRACKET : nextToken = ITerminalSymbols.TokenNameLBRACKET; break;
+			case TokenNameLEFT_SHIFT : nextToken = ITerminalSymbols.TokenNameLEFT_SHIFT; break;
+			case TokenNameLEFT_SHIFT_EQUAL : nextToken = ITerminalSymbols.TokenNameLEFT_SHIFT_EQUAL; break;
+			case TokenNameLESS : nextToken = ITerminalSymbols.TokenNameLESS; break;
+			case TokenNameLESS_EQUAL : nextToken = ITerminalSymbols.TokenNameLESS_EQUAL; break;
+			case TokenNameLPAREN : nextToken = ITerminalSymbols.TokenNameLPAREN; break;
+			case TokenNameLongLiteral : nextToken = ITerminalSymbols.TokenNameLongLiteral; break;
+			case TokenNameMINUS : nextToken = ITerminalSymbols.TokenNameMINUS; break;
+			case TokenNameMINUS_EQUAL : nextToken = ITerminalSymbols.TokenNameMINUS_EQUAL; break;
+			case TokenNameMINUS_MINUS : nextToken = ITerminalSymbols.TokenNameMINUS_MINUS; break;
+			case TokenNameMULTIPLY : nextToken = ITerminalSymbols.TokenNameMULTIPLY; break;
+			case TokenNameMULTIPLY_EQUAL : nextToken = ITerminalSymbols.TokenNameMULTIPLY_EQUAL; break;
+			case TokenNameNOT : nextToken = ITerminalSymbols.TokenNameNOT; break;
+			case TokenNameNOT_EQUAL : nextToken = ITerminalSymbols.TokenNameNOT_EQUAL; break;
+			case TokenNameNotAToken : nextToken = ITerminalSymbols.TokenNameNotAToken; break;
+			case TokenNameOR : nextToken = ITerminalSymbols.TokenNameOR; break;
+			case TokenNameOR_EQUAL : nextToken = ITerminalSymbols.TokenNameOR_EQUAL; break;
+			case TokenNameOR_OR : nextToken = ITerminalSymbols.TokenNameOR_OR; break;
+			case TokenNamePLUS : nextToken = ITerminalSymbols.TokenNamePLUS; break;
+			case TokenNamePLUS_EQUAL : nextToken = ITerminalSymbols.TokenNamePLUS_EQUAL; break;
+			case TokenNamePLUS_PLUS : nextToken = ITerminalSymbols.TokenNamePLUS_PLUS; break;
+			case TokenNameQUESTION : nextToken = ITerminalSymbols.TokenNameQUESTION; break;
+			case TokenNameRBRACE : nextToken = ITerminalSymbols.TokenNameRBRACE; break;
+			case TokenNameRBRACKET : nextToken = ITerminalSymbols.TokenNameRBRACKET; break;
+			case TokenNameREMAINDER : nextToken = ITerminalSymbols.TokenNameREMAINDER; break;
+			case TokenNameREMAINDER_EQUAL : nextToken = ITerminalSymbols.TokenNameREMAINDER_EQUAL; break;
+			case TokenNameRIGHT_SHIFT : nextToken = ITerminalSymbols.TokenNameRIGHT_SHIFT; break;
+			case TokenNameRIGHT_SHIFT_EQUAL : nextToken = ITerminalSymbols.TokenNameRIGHT_SHIFT_EQUAL; break;
+			case TokenNameRPAREN : nextToken = ITerminalSymbols.TokenNameRPAREN; break;
+			case TokenNameRestrictedIdentifierYield : nextToken = ITerminalSymbols.TokenNameRestrictedIdentifierYield; break;
+			case TokenNameRestrictedIdentifierpermits : nextToken = ITerminalSymbols.TokenNameRestrictedIdentifierpermits; break;
+			case TokenNameRestrictedIdentifierrecord : nextToken = ITerminalSymbols.TokenNameRestrictedIdentifierrecord; break;
+			case TokenNameRestrictedIdentifiersealed : nextToken = ITerminalSymbols.TokenNameRestrictedIdentifiersealed; break;
+			case TokenNameSEMICOLON : nextToken = ITerminalSymbols.TokenNameSEMICOLON; break;
+			case TokenNameSingleQuoteStringLiteral : nextToken = ITerminalSymbols.TokenNameSingleQuoteStringLiteral; break;
+			case TokenNameStringLiteral : nextToken = ITerminalSymbols.TokenNameStringLiteral; break;
+			case TokenNameTWIDDLE : nextToken = ITerminalSymbols.TokenNameTWIDDLE; break;
+			case TokenNameTextBlock : nextToken = ITerminalSymbols.TokenNameTextBlock; break;
+			case TokenNameUNSIGNED_RIGHT_SHIFT : nextToken = ITerminalSymbols.TokenNameUNSIGNED_RIGHT_SHIFT; break;
+			case TokenNameUNSIGNED_RIGHT_SHIFT_EQUAL : nextToken = ITerminalSymbols.TokenNameUNSIGNED_RIGHT_SHIFT_EQUAL; break;
+			case TokenNameWHITESPACE : nextToken = ITerminalSymbols.TokenNameWHITESPACE; break;
+			case TokenNameXOR : nextToken = ITerminalSymbols.TokenNameXOR; break;
+			case TokenNameXOR_EQUAL : nextToken = ITerminalSymbols.TokenNameXOR_EQUAL; break;
+			case TokenNameabstract : nextToken = ITerminalSymbols.TokenNameabstract; break;
+			case TokenNameassert : nextToken = ITerminalSymbols.TokenNameassert; break;
+			case TokenNameboolean : nextToken = ITerminalSymbols.TokenNameboolean; break;
+			case TokenNamebreak : nextToken = ITerminalSymbols.TokenNamebreak; break;
+			case TokenNamebyte : nextToken = ITerminalSymbols.TokenNamebyte; break;
+			case TokenNamecase : nextToken = ITerminalSymbols.TokenNamecase; break;
+			case TokenNamecatch : nextToken = ITerminalSymbols.TokenNamecatch; break;
+			case TokenNamechar : nextToken = ITerminalSymbols.TokenNamechar; break;
+			case TokenNameclass : nextToken = ITerminalSymbols.TokenNameclass; break;
+			case TokenNameconst : nextToken = ITerminalSymbols.TokenNameconst; break;
+			case TokenNamecontinue : nextToken = ITerminalSymbols.TokenNamecontinue; break;
+			case TokenNamedefault : nextToken = ITerminalSymbols.TokenNamedefault; break;
+			case TokenNamedo : nextToken = ITerminalSymbols.TokenNamedo; break;
+			case TokenNamedouble : nextToken = ITerminalSymbols.TokenNamedouble; break;
+			case TokenNameelse : nextToken = ITerminalSymbols.TokenNameelse; break;
+			case TokenNameenum : nextToken = ITerminalSymbols.TokenNameenum; break;
+			case TokenNameextends : nextToken = ITerminalSymbols.TokenNameextends; break;
+			case TokenNamefalse : nextToken = ITerminalSymbols.TokenNamefalse; break;
+			case TokenNamefinal : nextToken = ITerminalSymbols.TokenNamefinal; break;
+			case TokenNamefinally : nextToken = ITerminalSymbols.TokenNamefinally; break;
+			case TokenNamefloat : nextToken = ITerminalSymbols.TokenNamefloat; break;
+			case TokenNamefor : nextToken = ITerminalSymbols.TokenNamefor; break;
+			case TokenNamegoto : nextToken = ITerminalSymbols.TokenNamegoto; break;
+			case TokenNameif : nextToken = ITerminalSymbols.TokenNameif; break;
+			case TokenNameimplements : nextToken = ITerminalSymbols.TokenNameimplements; break;
+			case TokenNameimport : nextToken = ITerminalSymbols.TokenNameimport; break;
+			case TokenNameinstanceof : nextToken = ITerminalSymbols.TokenNameinstanceof; break;
+			case TokenNameint : nextToken = ITerminalSymbols.TokenNameint; break;
+			case TokenNameinterface : nextToken = ITerminalSymbols.TokenNameinterface; break;
+			case TokenNamelong : nextToken = ITerminalSymbols.TokenNamelong; break;
+			case TokenNamenative : nextToken = ITerminalSymbols.TokenNamenative; break;
+			case TokenNamenew : nextToken = ITerminalSymbols.TokenNamenew; break;
+			case TokenNamenon_sealed : nextToken = ITerminalSymbols.TokenNamenon_sealed; break;
+			case TokenNamenull : nextToken = ITerminalSymbols.TokenNamenull; break;
+			case TokenNamepackage : nextToken = ITerminalSymbols.TokenNamepackage; break;
+			case TokenNameprivate : nextToken = ITerminalSymbols.TokenNameprivate; break;
+			case TokenNameprotected : nextToken = ITerminalSymbols.TokenNameprotected; break;
+			case TokenNamepublic : nextToken = ITerminalSymbols.TokenNamepublic; break;
+			case TokenNamereturn : nextToken = ITerminalSymbols.TokenNamereturn; break;
+			case TokenNameshort : nextToken = ITerminalSymbols.TokenNameshort; break;
+			case TokenNamestatic : nextToken = ITerminalSymbols.TokenNamestatic; break;
+			case TokenNamestrictfp : nextToken = ITerminalSymbols.TokenNamestrictfp; break;
+			case TokenNamesuper : nextToken = ITerminalSymbols.TokenNamesuper; break;
+			case TokenNameswitch : nextToken = ITerminalSymbols.TokenNameswitch; break;
+			case TokenNamesynchronized : nextToken = ITerminalSymbols.TokenNamesynchronized; break;
+			case TokenNamethis : nextToken = ITerminalSymbols.TokenNamethis; break;
+			case TokenNamethrow : nextToken = ITerminalSymbols.TokenNamethrow; break;
+			case TokenNamethrows : nextToken = ITerminalSymbols.TokenNamethrows; break;
+			case TokenNametransient : nextToken = ITerminalSymbols.TokenNametransient; break;
+			case TokenNametrue : nextToken = ITerminalSymbols.TokenNametrue; break;
+			case TokenNametry : nextToken = ITerminalSymbols.TokenNametry; break;
+			case TokenNamevoid : nextToken = ITerminalSymbols.TokenNamevoid; break;
+			case TokenNamevolatile : nextToken = ITerminalSymbols.TokenNamevolatile; break;
+			case TokenNamewhile : nextToken = ITerminalSymbols.TokenNamewhile; break;
+			case TokenNameRestrictedIdentifierWhen : nextToken = ITerminalSymbols.TokenNameRestrictedIdentifierWhen; break;
+			case TokenNameUNDERSCORE : nextToken = ITerminalSymbols.TokenNameUNDERSCORE; break;
 			default:
-				throw Scanner.invalidToken(nextToken);
+				throw Scanner.invalidToken(nextTokenEnum);
 		}
 		return nextToken;
 	}

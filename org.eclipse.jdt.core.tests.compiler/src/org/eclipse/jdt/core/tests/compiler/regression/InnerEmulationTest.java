@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2024 IBM Corporation and others.
+ * Copyright (c) 2006, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class InnerEmulationTest extends AbstractRegressionTest {
@@ -37,6 +38,21 @@ static {
 public InnerEmulationTest(String name) {
 	super(name);
 }
+
+// ========= OPT-IN to run.javac mode: ===========
+@Override
+protected void setUp() throws Exception {
+	if (this.complianceLevel >= ClassFileConstants.JDK25)
+		this.runJavacOptIn = true;
+	super.setUp();
+}
+@Override
+protected void tearDown() throws Exception {
+	super.tearDown();
+	this.runJavacOptIn = false; // do it last, so super can still clean up
+}
+// =================================================
+
 @Override
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
@@ -133,7 +149,9 @@ public void test002() {
 		"1. ERROR in A.java (at line 10)\n" +
 		"	this(new C()); \n" +
 		"	     ^^^^^^^\n" +
-		"No enclosing instance of type A is available due to some intermediate constructor invocation\n" +
+		(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)
+		? "Cannot instantiate class A.C in an early construction context of class A\n"
+		: "No enclosing instance of type A is available due to some intermediate constructor invocation\n" )+
 		"----------\n"
 
 	);
@@ -147,7 +165,9 @@ public void test003() {
 			"1. ERROR in A.java (at line 8)\n" +
 			"	super(getRunnable(), new B().toString()); \n" +
 			"	                     ^^^^^^^\n" +
-			"No enclosing instance of type A is available due to some intermediate constructor invocation\n" +
+			(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)
+			? "Cannot instantiate class A.B in an early construction context of class A\n"
+			: "No enclosing instance of type A is available due to some intermediate constructor invocation\n") +
 			"----------\n"
 			:
 			"----------\n" +
@@ -1456,7 +1476,7 @@ public void test033() {
 			"----------\n" +
 			"1. ERROR in p1\\A2.java (at line 20)\n" +
 			"	(new D.E(null, null, null, new F(get()) {}) {}).execute();	\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"No enclosing instance of type D is accessible. Must qualify the allocation with an enclosing instance of type D (e.g. x.new A() where x is an instance of D).\n" +
 			"----------\n"
 			:
@@ -1468,7 +1488,7 @@ public void test033() {
 			"----------\n" +
 			"2. ERROR in p1\\A2.java (at line 20)\n" +
 			"	(new D.E(null, null, null, new F(get()) {}) {}).execute();	\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"No enclosing instance of type D is accessible. Must qualify the allocation with an enclosing instance of type D (e.g. x.new A() where x is an instance of D).\n" +
 			"----------\n";
 	this.runNegativeTest(
@@ -2264,7 +2284,7 @@ public void test056() {
 		"----------\n" +
 		"1. ERROR in p1\\X.java (at line 9)\n" +
 		"	new L1.LM1(){};	//ko\n" +
-		"	^^^^^^^^^^^^^^\n" +
+		"	^^^^^^^^^^^^\n" +
 		"No enclosing instance of type L1 is accessible. Must qualify the allocation with an enclosing instance of type L1 (e.g. x.new A() where x is an instance of L1).\n" +
 		"----------\n"
 	);
@@ -2989,68 +3009,6 @@ public void test075() {
  * implicit enclosing instances
  */
 public void test076() {
-	CompilerOptions options = new CompilerOptions(getCompilerOptions());
-	if (options.sourceLevel <= ClassFileConstants.JDK1_3) {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {	\n"+
-				"	X(Object o){	\n"+
-				"		class A { 	\n"+
-				"			private A() {	\n"+ // implicit enclosing instance in non-static context
-				"			}	\n"+
-				"		}	\n"+
-				"		class B extends X {	\n"+
-				"			B() {	\n"+
-				"				super(new A(){	\n"+
-				"				});	\n"+
-				"			}	\n"+
-				"		}	\n"+
-				"	}	\n"+
-				"} 	\n"
-			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 9)\n" +
-			"	super(new A(){	\n" +
-			"				});	\n" +
-			"	      ^^^^^^^^^^^^^^^\n" +
-			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 9)\n" +
-			"	super(new A(){	\n" +
-			"	          ^^^\n" +
-			"Access to enclosing constructor A() is emulated by a synthetic accessor method\n" +
-			"----------\n");
-		return;
-	}
-	if (options.sourceLevel <= ClassFileConstants.JDK1_4) {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {	\n"+
-				"	X(Object o){	\n"+
-				"		class A { 	\n"+
-				"			private A() {	\n"+ // implicit enclosing instance in non-static context
-				"			}	\n"+
-				"		}	\n"+
-				"		class B extends X {	\n"+
-				"			B() {	\n"+
-				"				super(new A(){	\n"+
-				"				});	\n"+
-				"			}	\n"+
-				"		}	\n"+
-				"	}	\n"+
-				"} 	\n"
-			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 9)\n" +
-			"	super(new A(){	\n" +
-			"				});	\n" +
-			"	      ^^^^^^^^^^^^^^^\n" +
-			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" +
-			"----------\n");
-		return;
-	}
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -3108,82 +3066,6 @@ public void test077() {
  * implicit enclosing instances
  */
 public void test078() {
-	CompilerOptions options = new CompilerOptions(getCompilerOptions());
-	if (options.sourceLevel <= ClassFileConstants.JDK1_3) {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {	\n"+
-				"	X(Object o){	\n"+
-				"		class A { 	\n"+
-				"			private A() {	\n"+ // implicit enclosing instance in non-static context
-				"			}	\n"+
-				"		}	\n"+
-				"		class B extends X {	\n"+
-				"			B() {	\n"+
-				"				super(new A(){	\n"+
-				"					void foo() { System.out.println(X.this);	} \n"+
-				"				});	\n"+
-				"			}	\n"+
-				"		}	\n"+
-				"	}	\n"+
-				"} 	\n"
-			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 9)\n" +
-			"	super(new A(){	\n" +
-			"					void foo() { System.out.println(X.this);	} \n" +
-			"				});	\n" +
-			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 9)\n" +
-			"	super(new A(){	\n" +
-			"	          ^^^\n" +
-			"Access to enclosing constructor A() is emulated by a synthetic accessor method\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 10)\n" +
-			"	void foo() { System.out.println(X.this);	} \n" +
-			"	                                ^^^^^^\n" +
-			"No enclosing instance of the type X is accessible in scope\n" +
-			"----------\n");
-		return;
-	}
-	if (options.sourceLevel <= ClassFileConstants.JDK1_4) {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {	\n"+
-				"	X(Object o){	\n"+
-				"		class A { 	\n"+
-				"			private A() {	\n"+ // implicit enclosing instance in non-static context
-				"			}	\n"+
-				"		}	\n"+
-				"		class B extends X {	\n"+
-				"			B() {	\n"+
-				"				super(new A(){	\n"+
-				"					void foo() { System.out.println(X.this);	} \n"+
-				"				});	\n"+
-				"			}	\n"+
-				"		}	\n"+
-				"	}	\n"+
-				"} 	\n"
-			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 9)\n" +
-			"	super(new A(){	\n" +
-			"					void foo() { System.out.println(X.this);	} \n" +
-			"				});	\n" +
-			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 10)\n" +
-			"	void foo() { System.out.println(X.this);	} \n" +
-			"	                                ^^^^^^\n" +
-			"No enclosing instance of the type X is accessible in scope\n" +
-			"----------\n");
-		return;
-	}
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -3349,39 +3231,6 @@ public void test084() {
 }
 
 public void test085() {
-	CompilerOptions options = new CompilerOptions(getCompilerOptions());
-	if (options.sourceLevel < ClassFileConstants.JDK1_5) {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {	\n"+
-				"	int m() {		\n"+
-				"		return 1;		\n"+
-				"	}		\n"+
-				"	class C extends B {		\n"+
-				"		C(int j){}		\n"+
-				"		C(){		\n"+
-				"			this(	\n"+
-				"				new B(){ 	\n"+
-				"					X x = X.this; 	\n"+
-				"					int m(){	\n"+
-				"						return 1;	\n"+
-				"					}	\n"+
-				"				}.m());	\n"+
-				"		}		\n"+
-				"	}		\n"+
-				"}		\n"+
-				"class B extends X {		\n"+
-				"}	\n"
-			},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	X x = X.this; 	\n" +
-		"	      ^^^^^^\n" +
-		"No enclosing instance of the type X is accessible in scope\n" +
-		"----------\n");
-		return;
-	}
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -3439,31 +3288,6 @@ public void test086() {
 }
 
 public void test087() {
-	CompilerOptions options = new CompilerOptions(getCompilerOptions());
-	if (options.complianceLevel <= ClassFileConstants.JDK1_4) {
-		this.runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {	\n"+
-				"	public static void main(String[] arguments) {	\n"+
-				"		new X().f();	\n"+
-				"	}	\n"+
-				"    void f () {	\n"+
-				"        class C {	\n"+
-				"        	C() {	\n"+
-				"        		System.out.println(\"[\"+X.this.getClass().getName()+\"]\");	\n"+
-				"        	}	\n"+
-				"        }	\n"+
-				"        class N extends X {	\n"+
-				"            { new C(); } // selects N.this, not O.this	\n"+
-				"        }	\n"+
-				"        new N();	\n"+
-				"    }	\n"+
-				"}	\n"
-			},
-			"[X$1$N]");
-		return;
-	}
 	this.runConformTest(
 		true,
 		new String[] {
@@ -3756,27 +3580,6 @@ public void test099() {
 		},
 		"SUCCESS");
 
-	CompilerOptions options = new CompilerOptions(getCompilerOptions());
-	if (options.complianceLevel <= ClassFileConstants.JDK1_4) {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X { \n" +
-				"    public static void main(String argv[]) { \n" +
-				"		Object a = new Y$1$Local();        // compile-time error \n" +
-				"    } \n" +
-				"} \n",
-			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	Object a = new Y$1$Local();        // compile-time error \n" +
-			"	               ^^^^^^^^^\n" +
-			"The nested type Y$1$Local cannot be referenced using its binary name\n" +
-			"----------\n",
-			null,
-			false);
-		return;
-	}
 	this.runNegativeTest(
 		false,
 		new String[] {
@@ -3795,7 +3598,9 @@ public void test099() {
 		"	               ^^^^^^^^\n" +
 		"The nested type Y$1Local cannot be referenced using its binary name\n" +
 		"----------\n",
-		JavacTestOptions.JavacHasABug.JavacBug4094180);
+		JavacTestOptions.SKIP);
+		// before 24 this was JavacHasABug.JavacBug4094180
+		// at 24+ javac is raising a wrong error: "an enclosing instance that contains Local is required"
 }
 
 /*
@@ -3926,34 +3731,14 @@ public void test107() {
 		"1. ERROR in X.java (at line 11)\n" +
 		"	super(B.this); \n" +
 		"	      ^^^^^^\n" +
-		"Cannot refer to \'this\' nor \'super\' while explicitly invoking a constructor\n" +
+		(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)
+		? "Cannot use 'B.this' in an early construction context\n"
+		: "Cannot refer to 'this' nor 'super' while explicitly invoking a constructor\n" )+
 		"----------\n");
 }
 
  // javac 1.4.2 incorrectly accepts it, jikes rejects it as we do
 public void test108() {
-	CompilerOptions options = new CompilerOptions(getCompilerOptions());
-	if (options.sourceLevel == ClassFileConstants.JDK1_4) {	 // 1.3 and 1.5 both accept it
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" +
-				"	{\n" +
-				"		class Local1 extends X {\n" +
-				"		}\n" +
-				"		class Local2 extends Local1 {\n" +
-				"		}\n" +
-				"	}\n" +
-				"}",
-			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
-			"	class Local2 extends Local1 {\n" +
-			"	      ^^^^^^\n" +
-			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" +
-			"----------\n");
-		return;
-	}
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -3971,37 +3756,6 @@ public void test108() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=44538
 public void test109() {
-	CompilerOptions options = new CompilerOptions(getCompilerOptions());
-	if (options.sourceLevel == ClassFileConstants.JDK1_4) {		 // 1.3 and 1.5 both accept it
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" +
-				"	public void bar() {\n" +
-				"		class C extends X {\n" +
-				"			public void foo() {\n" +
-				"				\n" +
-				"			}\n" +
-				"		}\n" +
-				"		X a= new X() {\n" +
-				"			public void foo() {\n" +
-				"				\n" +
-				"			}\n" +
-				"		};\n" +
-				"		class D extends C {\n" +
-				"			\n" +
-				"		};\n" +
-				"	}\n" +
-				"}"
-			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 13)\n" +
-			"	class D extends C {\n" +
-			"	      ^\n" +
-			"No enclosing instance of type X is available due to some intermediate constructor invocation\n" +
-			"----------\n");
-		return;
-	}
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4146,7 +3900,9 @@ public void test114() {
 		"1. ERROR in X.java (at line 9)\n" +
 		"	super(s);\n" +
 		"	      ^\n" +
-		"Cannot refer to an instance field s while explicitly invoking a constructor\n" +
+		(JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)
+		? "Cannot read field s in an early construction context\n"
+		: "Cannot refer to an instance field s while explicitly invoking a constructor\n") +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=58606
@@ -4282,62 +4038,6 @@ public void test118() {
 		"----------\n");
 }
 public void test119() {
-	CompilerOptions options = new CompilerOptions(getCompilerOptions());
-	if (options.sourceLevel < ClassFileConstants.JDK1_5) {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		new X().new M();\n" +
-				"	}\n" +
-				"	void foo(String s) { System.out.print(\"<foo:\"+s+\">\"); }\n" +
-				"	class M {\n" +
-				"		M(Runnable r) { r.run(); }\n" +
-				"		M() {\n" +
-				"			this(new Runnable() {\n" +
-				"				public void run() {\n" +
-				"					foo(\"0\");\n" +
-				"					new Object() {\n" +
-				"						void baz() {\n" +
-				"//							foo(\"1\");\n" +
-				"						}\n" +
-				"					};\n" +
-				"					class Local {\n" +
-				"						void baz() {\n" +
-				"//							foo(\"2\");\n" +
-				"						}\n" +
-				"					}				\n" +
-				"					new Local();\n" +
-				"				}\n" +
-				"			});\n" +
-				"			new Object() {\n" +
-				"				void baz() {\n" +
-				"					foo(\"3\");\n" +
-				"					bar(\"3\");\n" +
-				"				}\n" +
-				"			}.baz();\n" +
-				"		}\n" +
-				"		void bar(String s) { System.out.print(\"<bar:\"+s+\">\"); }\n" +
-				"		void baz() {\n" +
-				"			new Object() {\n" +
-				"				void baz() {\n" +
-				"					foo(\"4\");\n" +
-				"					bar(\"4\");\n" +
-				"				}\n" +
-				"			};\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n",
-			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 11)\n" +
-			"	foo(\"0\");\n" +
-			"	^^^^^^^^\n" +
-			"No enclosing instance of the type X is accessible in scope\n" +
-			"----------\n");
-		return;
-	}
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -4387,70 +4087,8 @@ public void test119() {
 		"<foo:0><foo:3><bar:3>");
 }
 public void test120() {
-	CompilerOptions options = new CompilerOptions(getCompilerOptions());
-	if (options.sourceLevel < ClassFileConstants.JDK1_5) {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" +
-				"	void foo() {}\n" +
-				"	class M {\n" +
-				"		M(Object o) {}\n" +
-				"		M() {\n" +
-				"			this(new Object() {\n" +
-				"				void baz() {\n" +
-				"					new Object() {\n" +
-				"						void baz() {\n" +
-				"							foo(); //0\n" +
-				"						}\n" +
-				"					};\n" +
-				"					class Local {\n" +
-				"						void baz() {\n" +
-				"							foo(); //1\n" +
-				"						}\n" +
-				"					}\n" +
-				"					new Local();\n" +
-				"					foo();//2\n" +
-				"				}\n" +
-				"			});\n" +
-				"			new Object() {\n" +
-				"				void baz() {\n" +
-				"					foo();//3\n" +
-				"					bar();\n" +
-				"				}\n" +
-				"			};\n" +
-				"		}\n" +
-				"		void bar() {}\n" +
-				"		void baz() {\n" +
-				"			new Object() {\n" +
-				"				void baz() {\n" +
-				"					foo();//4\n" +
-				"					bar();\n" +
-				"				}\n" +
-				"			};\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n",
-			},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	foo(); //0\n" +
-		"	^^^^^\n" +
-		"No enclosing instance of the type X is accessible in scope\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 15)\n" +
-		"	foo(); //1\n" +
-		"	^^^^^\n" +
-		"No enclosing instance of the type X is accessible in scope\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 19)\n" +
-		"	foo();//2\n" +
-		"	^^^^^\n" +
-		"No enclosing instance of the type X is accessible in scope\n" +
-		"----------\n");
-		return;
-	}
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -4487,13 +4125,19 @@ public void test120() {
 			"		}\n" +
 			"	}\n" +
 			"}\n",
-		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 10)\n" +
-		"	foo(); //1\n" +
-		"	^^^^^\n" +
-		"No enclosing instance of the type X is accessible in scope\n" +
-		"----------\n");
+		};
+	if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.complianceLevel, false)) {
+		runner.runConformTest();
+	} else {
+		runner.expectedCompilerLog =
+	 		"----------\n" +
+			"1. ERROR in X.java (at line 10)\n" +
+			"	foo(); //1\n" +
+			"	^^^^^\n" +
+			"No enclosing instance of the type X is accessible in scope\n" +
+			"----------\n";
+		runner.runNegativeTest();
+	}
 }
 public void test121() {
 	this.runConformTest(
@@ -4515,42 +4159,6 @@ public void test121() {
 		"");
 }
 public void _test122() {
-	CompilerOptions options = new CompilerOptions(getCompilerOptions());
-	if (options.sourceLevel < ClassFileConstants.JDK1_5) {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" +
-				"	public static void main(String[] args) {\n" +
-				"		new X().new M();\n" +
-				"	}\n" +
-				"	void foo(String s) { System.out.print(\"<foo:\"+s+\">\"); }\n" +
-				"	class M {\n" +
-				"		M(Runnable r) { r.run(); }\n" +
-				"		M() {\n" +
-				"			this(new Runnable() {\n" +
-				"				{\n" +
-				"					foo(\"0\");\n" +
-				"					bar(\"0\");\n" +
-				"				}\n" +
-				"				public void run() {\n" +
-				"				}\n" +
-				"			});\n" +
-				"		}\n" +
-				"		void bar(String s) { System.out.print(\"<bar:\"+s+\">\"); }\n" +
-				"	}\n" +
-				"}\n",
-			},
-			"----------\n" +
-			"cannot access foo(0)\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 12)\n" +
-			"	bar(\"0\");\n" +
-			"	^^^\n" +
-			"Cannot refer to an instance method while explicitly invoking a constructor\n" +
-			"----------\n");
-		return;
-	}
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -4745,108 +4353,9 @@ public void test125() throws Exception {
 			"}\n",
 		},
 		"SUCCESS");
-	// check private constructor outcome (if >= 1.4 modifier change, if 1.3 synthetic emulation)
-	CompilerOptions options = new CompilerOptions(getCompilerOptions());
-	String expectedOutput = options.complianceLevel <= ClassFileConstants.JDK1_3
-		? 	"class X$1$Local {\n" +
-			"  \n" +
-			"  // Field descriptor #6 LX;\n" +
-			"  final synthetic X this$0;\n" +
-			"  \n" +
-			"  // Field descriptor #9 Ljava/lang/String;\n" +
-			"  private final synthetic java.lang.String val$s;\n" +
-			"  \n" +
-			"  // Method descriptor #11 (LX;Ljava/lang/String;)V\n" +
-			"  // Stack: 2, Locals: 3\n" +
-			"  private X$1$Local(X arg0, java.lang.String arg1);\n" +
-			"     0  aload_0 [this]\n" +
-			"     1  invokespecial java.lang.Object() [13]\n" +
-			"     4  aload_0 [this]\n" +
-			"     5  aload_1 [arg0]\n" +
-			"     6  putfield X$1$Local.this$0 : X [16]\n" +
-			"     9  aload_0 [this]\n" +
-			"    10  aload_2 [arg1]\n" +
-			"    11  putfield X$1$Local.val$s : java.lang.String [18]\n" +
-			"    14  return\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 5]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 15] local: this index: 0 type: new X(){}.Local\n" +
-			"  \n" +
-			"  // Method descriptor #15 ()V\n" +
-			"  // Stack: 2, Locals: 1\n" +
-			"  void bar();\n" +
-			"     0  getstatic java.lang.System.out : java.io.PrintStream [25]\n" +
-			"     3  aload_0 [this]\n" +
-			"     4  getfield X$1$Local.val$s : java.lang.String [18]\n" +
-			"     7  invokevirtual java.io.PrintStream.println(java.lang.String) : void [31]\n" +
-			"    10  return\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 7]\n" +
-			"        [pc: 10, line: 8]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 11] local: this index: 0 type: new X(){}.Local\n" +
-			"  \n" +
-			"  // Method descriptor #37 (LX;Ljava/lang/String;LX$1$Local;)V\n" +
-			"  // Stack: 3, Locals: 4\n" +
-			"  synthetic X$1$Local(X arg0, java.lang.String arg1, new X(){}.Local arg2);\n" +
-			"    0  aload_0 [this]\n" +
-			"    1  aload_1 [arg0]\n" +
-			"    2  aload_2 [arg1]\n" +
-			"    3  invokespecial X$1$Local(X, java.lang.String) [38]\n" +
-			"    6  return\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 5]\n" +
-			"\n" +
-			"  Inner classes:\n" +
-			"    [inner class info: #1 X$1$Local, outer class info: #0\n" +
-			"     inner name: #43 Local, accessflags: 0 default]\n" +
-			"}"
-		: options.complianceLevel == ClassFileConstants.JDK1_4
-			?  	"class X$1$Local {\n" +
-			"  \n" +
-			"  // Field descriptor #6 LX;\n" +
-			"  final synthetic X this$0;\n" +
-			"  \n" +
-			"  // Field descriptor #9 Ljava/lang/String;\n" +
-			"  private final synthetic java.lang.String val$s;\n" +
-			"  \n" +
-			"  // Method descriptor #11 (LX;Ljava/lang/String;)V\n" +
-			"  // Stack: 2, Locals: 3\n" +
-			"  X$1$Local(X arg0, java.lang.String arg1);\n" +
-			"     0  aload_0 [this]\n" +
-			"     1  aload_1 [arg0]\n" +
-			"     2  putfield X$1$Local.this$0 : X [13]\n" +
-			"     5  aload_0 [this]\n" +
-			"     6  aload_2 [arg1]\n" +
-			"     7  putfield X$1$Local.val$s : java.lang.String [15]\n" +
-			"    10  aload_0 [this]\n" +
-			"    11  invokespecial java.lang.Object() [17]\n" +
-			"    14  return\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 5]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 15] local: this index: 0 type: new X(){}.Local\n" +
-			"  \n" +
-			"  // Method descriptor #19 ()V\n" +
-			"  // Stack: 2, Locals: 1\n" +
-			"  void bar();\n" +
-			"     0  getstatic java.lang.System.out : java.io.PrintStream [25]\n" +
-			"     3  aload_0 [this]\n" +
-			"     4  getfield X$1$Local.val$s : java.lang.String [15]\n" +
-			"     7  invokevirtual java.io.PrintStream.println(java.lang.String) : void [31]\n" +
-			"    10  return\n" +
-			"      Line numbers:\n" +
-			"        [pc: 0, line: 7]\n" +
-			"        [pc: 10, line: 8]\n" +
-			"      Local variable table:\n" +
-			"        [pc: 0, pc: 11] local: this index: 0 type: new X(){}.Local\n" +
-			"\n" +
-			"  Inner classes:\n" +
-			"    [inner class info: #1 X$1$Local, outer class info: #0\n" +
-			"     inner name: #40 Local, accessflags: 0 default]\n" +
-			"}"
-			:	"class X$1Local {\n" +
+
+	String expectedOutput =
+				"class X$1Local {\n" +
 				"  \n" +
 				"  // Field descriptor #6 LX;\n" +
 				"  final synthetic X this$0;\n" +
@@ -4894,7 +4403,7 @@ public void test125() throws Exception {
 				"\n" +
 				"Nest Host: #39 X\n" : "");
 
-	File f = new File(OUTPUT_DIR + File.separator + (options.complianceLevel >= ClassFileConstants.JDK1_5 ? "X$1Local.class" : "X$1$Local.class"));
+	File f = new File(OUTPUT_DIR + File.separator + "X$1Local.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
 	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
@@ -4908,29 +4417,6 @@ public void test125() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=130117
 public void test126() {
-	CompilerOptions options = new CompilerOptions(getCompilerOptions());
-	if (options.sourceLevel < ClassFileConstants.JDK1_5) {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public interface X {\n" +
-				"        private class Inner {}\n" +
-				"        private interface IInner {}\n" +
-				"}\n",
-			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
-			"	private class Inner {}\n" +
-			"	              ^^^^^\n" +
-			"The interface member type Inner can only be public\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	private interface IInner {}\n" +
-			"	                  ^^^^^^\n" +
-			"The interface member type IInner can only be public\n" +
-			"----------\n");
-		return;
-	}
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -5059,76 +4545,6 @@ public void test129() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=164497
 public void test130() {
-	CompilerOptions options = new CompilerOptions(getCompilerOptions());
-	if (options.sourceLevel <= ClassFileConstants.JDK1_3) {
-    	runConformTest(
-   			true /* flush output directory */,
-    		new String[] { /* test files */
-    			"X.java", //========================
-    			"public class X {\n" +
-    			"    public static void main(String[] args) {\n" +
-    			"    	new M().foo2();\n" +
-    			"    }\n" +
-    			"}\n"+
-    			"class M  {\n" +
-    			"	String name;\n" +
-    			"	\n" +
-    			"	M() {\n" +
-    			"		this.name = \"SUCCESS\";\n" +
-    			"	}\n" +
-    			"\n" +
-    			"	private class Y extends N {\n" +
-    			"		private Y() {\n" +
-    			"			super();\n" +
-    			"		}\n" +
-    			"		protected void foo(Z z) {\n" +
-    			"			z.bar(new A());\n" +
-    			"		}\n" +
-    			"	}\n" +
-    			"	\n" +
-    			"    public class A implements I {\n" +
-    			"    	public void configure() {\n" +
-    			"    		new B().foo();\n" +
-    			"    	}\n" +
-    			"    	public class B {\n" +
-    			"            public void foo() {\n" +
-    			"				try {\n" +
-    			"                System.out.println(M.this.name);\n" +
-    			"				} catch(NullPointerException e) {\n" +
-    			"					System.err.println(\"NPE THROWN\");\n" +
-    			"				}\n" +
-    			"            }\n" +
-    			"        }\n" +
-    			"    }\n" +
-    			"    \n" +
-    			"    public void foo2() {\n" +
-    			"    	new Y();\n" +
-    			"    }\n" +
-    			"}\n" +
-    			"class Z {\n" +
-    			"	void bar(I i) {\n" +
-    			"		i.configure();\n" +
-    			"	}\n" +
-    			"}\n" +
-    			"\n" +
-    			"interface I {\n" +
-    			"	void configure();\n" +
-    			"}\n" +
-    			"\n" +
-    			"class N {\n" +
-    			"	protected void foo(Z z) {\n" +
-    			"	}\n" +
-    			"	N() {\n" +
-    			"		this.foo(new Z());\n" +
-    			"	}\n" +
-    			"}\n"
-    		},
-			null /* do not check compiler log */,
-			"" /* expected output string */,
-			"NPE THROWN" /* expected error string */,
-			JavacTestOptions.DEFAULT /* default javac test options */);
-    	return;
-	}
 	this.runConformTest(
     		new String[] {
     			"X.java", //========================
@@ -5256,77 +4672,73 @@ public void test132() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=168331
 public void test133() {
-	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		this.runConformTest(
-			new String[] {
-				"X.java",	//===================
-				"public class X {\n" +
-				"  public static interface I {\n" +
-				"  }\n" +
-				"  public static interface IE extends I {\n" +
-				"  }\n" +
-				"  public static interface J {\n" +
-				"    I getI(int i);\n" +
-				"  }\n" +
-				"  public static interface JE extends J {\n" +
-				"    IE getI(int i);\n" +
-				"  }\n" +
-				"  public static class Y implements JE {\n" +
-				"    public IE getI(int i) {\n" +
-				"      return null;\n" +
-				"    }\n" +
-				"  }\n" +
-				"  private J j = new Y();\n" +
-				"  public void foo() {\n" +
-				"    j.getI(0);\n" +
-				"    System.out.println(\"SUCCESS\");\n" +
-				"  }\n" +
-				"  public static void main(String[] args) {\n" +
-				"    new X().foo();\n" +
-				"  }\n" +
-				"}", 		// =================
-			},
-			"SUCCESS");
-	}
+	this.runConformTest(
+		new String[] {
+			"X.java",	//===================
+			"public class X {\n" +
+			"  public static interface I {\n" +
+			"  }\n" +
+			"  public static interface IE extends I {\n" +
+			"  }\n" +
+			"  public static interface J {\n" +
+			"    I getI(int i);\n" +
+			"  }\n" +
+			"  public static interface JE extends J {\n" +
+			"    IE getI(int i);\n" +
+			"  }\n" +
+			"  public static class Y implements JE {\n" +
+			"    public IE getI(int i) {\n" +
+			"      return null;\n" +
+			"    }\n" +
+			"  }\n" +
+			"  private J j = new Y();\n" +
+			"  public void foo() {\n" +
+			"    j.getI(0);\n" +
+			"    System.out.println(\"SUCCESS\");\n" +
+			"  }\n" +
+			"  public static void main(String[] args) {\n" +
+			"    new X().foo();\n" +
+			"  }\n" +
+			"}", 		// =================
+		},
+		"SUCCESS");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=168331
 public void test134() {
-	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		this.runConformTest(
-			new String[] {
-				"X.java",	//===================
-				"public class X {\n" +
-				"  public interface I {\n" +
-				"    public String foo();\n" +
-				"  }\n" +
-				"  public interface J {\n" +
-				"    public I getI();\n" +
-				"  }\n" +
-				"  public static class XI implements I {\n" +
-				"    public String foo() {\n" +
-				"      return \"XI\";\n" +
-				"    }\n" +
-				"  }\n" +
-				"  public interface K extends J {\n" +
-				"    public XI getI();\n" +
-				"  }\n" +
-				"  public static abstract class XK implements K {\n" +
-				"    public XI getI() {\n" +
-				"      return new XI();\n" +
-				"    }\n" +
-				"  }\n" +
-				"  public static class Y extends XK {\n" +
-				"  }\n" +
-				"  public static void main(String[] args) {\n" +
-				"    K k = new Y();\n" +
-				"    System.out.println(k.getI().foo());\n" +
-				"    J j = k;\n" +
-				"    System.out.println(j.getI().foo());\n" +
-				"  }\n" +
-				"}", 		// =================
-			},
-			"XI\nXI");
-	}
+	this.runConformTest(
+		new String[] {
+			"X.java",	//===================
+			"public class X {\n" +
+			"  public interface I {\n" +
+			"    public String foo();\n" +
+			"  }\n" +
+			"  public interface J {\n" +
+			"    public I getI();\n" +
+			"  }\n" +
+			"  public static class XI implements I {\n" +
+			"    public String foo() {\n" +
+			"      return \"XI\";\n" +
+			"    }\n" +
+			"  }\n" +
+			"  public interface K extends J {\n" +
+			"    public XI getI();\n" +
+			"  }\n" +
+			"  public static abstract class XK implements K {\n" +
+			"    public XI getI() {\n" +
+			"      return new XI();\n" +
+			"    }\n" +
+			"  }\n" +
+			"  public static class Y extends XK {\n" +
+			"  }\n" +
+			"  public static void main(String[] args) {\n" +
+			"    K k = new Y();\n" +
+			"    System.out.println(k.getI().foo());\n" +
+			"    J j = k;\n" +
+			"    System.out.println(j.getI().foo());\n" +
+			"  }\n" +
+			"}", 		// =================
+		},
+		"XI\nXI");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152961
 public void test135() {
@@ -5621,12 +5033,6 @@ public void test142() throws Exception {
 		"  Inner classes:\n" +
 		"    [inner class info: #16 p/A$B, outer class info: #18 p/A\n" +
 		"     inner name: #31 B, accessflags: 1 public]\n";
-	if (new CompilerOptions(getCompilerOptions()).targetJDK == ClassFileConstants.JDK1_1) {
-		expectedOutput =
-			"  Inner classes:\n" +
-			"    [inner class info: #16 p/A$B, outer class info: #18 p/A\n" +
-			"     inner name: #27 B, accessflags: 1 public]\n";
-	}
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p1" + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
@@ -5644,13 +5050,11 @@ public void test143() throws Exception {
 		"	}\n" +
 		"}"
 	});
-	if (new CompilerOptions(getCompilerOptions()).targetJDK >= ClassFileConstants.JDK1_5) {
-		String expectedOutput =
-			"  Inner classes:\n" +
-			"    [inner class info: #16 A$B, outer class info: #21 A\n" +
-			"     inner name: #23 B, accessflags: 1 public]\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
-	}
+	String expectedOutput =
+		"  Inner classes:\n" +
+		"    [inner class info: #16 A$B, outer class info: #21 A\n" +
+		"     inner name: #23 B, accessflags: 1 public]\n";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
 public void test144() throws Exception {
@@ -5935,376 +5339,128 @@ public void test150() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=216683
 public void test151() {
-	long compliance = new CompilerOptions(getCompilerOptions()).complianceLevel;
-	if (compliance <= ClassFileConstants.JDK1_3) {
-		this.runNegativeTest(
-				new String[] {
-					"X.java",
-					"public class X {\n" +
-					"\n" +
-					"    public static interface Foo { }\n" +
-					"    public static interface Bar { }\n" +
-					"\n" +
-					"    private static class B2F extends X { }\n" +
-					"    private static class F2B extends X { }\n" +
-					"\n" +
-					"    public static abstract class Key {\n" +
-					"\n" +
-					"        public abstract Key flip();\n" +
-					"\n" +
-					"        private static class B2F extends Key {\n" +
-					"            private static B2F create() { return new B2F(); }\n" +
-					"            public Key flip() { return F2B.create(); }\n" +
-					"        }\n" +
-					"\n" +
-					"        private static class F2B extends Key {\n" +
-					"            private static F2B create() { return new F2B(); }\n" +
-					"            public Key flip() { return B2F.create(); }\n" +
-					"        }\n" +
-					"    }\n" +
-					"}", // =================
-				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 15)\n" +
-				"	public Key flip() { return F2B.create(); }\n" +
-				"	                           ^^^\n" +
-				"The type F2B is defined in an inherited type and an enclosing scope\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 20)\n" +
-				"	public Key flip() { return B2F.create(); }\n" +
-				"	                           ^^^\n" +
-				"The type B2F is defined in an inherited type and an enclosing scope\n" +
-				"----------\n");
-	} else if (compliance == ClassFileConstants.JDK1_4) {
-		this.runConformTest(
-				new String[] {
-					"X.java",
-					"public class X {\n" +
-					"\n" +
-					"    public static interface Foo { }\n" +
-					"    public static interface Bar { }\n" +
-					"\n" +
-					"    private static class B2F extends X { }\n" +
-					"    private static class F2B extends X { }\n" +
-					"\n" +
-					"    public static abstract class Key {\n" +
-					"\n" +
-					"        public abstract Key flip();\n" +
-					"\n" +
-					"        private static class B2F extends Key {\n" +
-					"            private static B2F create() { return new B2F(); }\n" +
-					"            public Key flip() { return F2B.create(); }\n" +
-					"        }\n" +
-					"\n" +
-					"        private static class F2B extends Key {\n" +
-					"            private static F2B create() { return new F2B(); }\n" +
-					"            public Key flip() { return B2F.create(); }\n" +
-					"        }\n" +
-					"    }\n" +
-					"}", // =================
-
-				},
-				"");
-	} else {
-		this.runConformTest(
-				new String[] {
-					"X.java",
-					"public class X<U, V> {\n" +
-					"\n" +
-					"    public static interface Foo { }\n" +
-					"    public static interface Bar { }\n" +
-					"\n" +
-					"    private static class B2F extends X<Bar, Foo> { }\n" +
-					"    private static class F2B extends X<Foo, Bar> { }\n" +
-					"\n" +
-					"    public static abstract class Key<S, T> {\n" +
-					"\n" +
-					"        public abstract Key<T, S> flip();\n" +
-					"\n" +
-					"        private static class B2F extends Key<Bar, Foo> {\n" +
-					"            private static B2F create() { return new B2F(); }\n" +
-					"            public Key<Foo, Bar> flip() { return F2B.create(); }\n" +
-					"        }\n" +
-					"\n" +
-					"        private static class F2B extends Key<Foo, Bar> {\n" +
-					"            private static F2B create() { return new F2B(); }\n" +
-					"            public Key<Bar, Foo> flip() { return B2F.create(); }\n" +
-					"        }\n" +
-					"    }\n" +
-					"}", // =================
-				},
-				"");
-	}
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<U, V> {\n" +
+				"\n" +
+				"    public static interface Foo { }\n" +
+				"    public static interface Bar { }\n" +
+				"\n" +
+				"    private static class B2F extends X<Bar, Foo> { }\n" +
+				"    private static class F2B extends X<Foo, Bar> { }\n" +
+				"\n" +
+				"    public static abstract class Key<S, T> {\n" +
+				"\n" +
+				"        public abstract Key<T, S> flip();\n" +
+				"\n" +
+				"        private static class B2F extends Key<Bar, Foo> {\n" +
+				"            private static B2F create() { return new B2F(); }\n" +
+				"            public Key<Foo, Bar> flip() { return F2B.create(); }\n" +
+				"        }\n" +
+				"\n" +
+				"        private static class F2B extends Key<Foo, Bar> {\n" +
+				"            private static F2B create() { return new F2B(); }\n" +
+				"            public Key<Bar, Foo> flip() { return B2F.create(); }\n" +
+				"        }\n" +
+				"    }\n" +
+				"}", // =================
+			},
+			"");
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=216683 - variation
 public void test152() {
-	long compliance = new CompilerOptions(getCompilerOptions()).complianceLevel;
-	if (compliance <= ClassFileConstants.JDK1_3) {
-		this.runNegativeTest(
-				new String[] {
-					"X.java",
-					"public class X {\n" +
-					"\n" +
-					"    public static interface Foo { }\n" +
-					"    public static interface Bar { }\n" +
-					"\n" +
-					"    public static class B2F extends X { }\n" +
-					"    public static class F2B extends X { }\n" +
-					"\n" +
-					"    public static abstract class Key {\n" +
-					"\n" +
-					"        public abstract Key flip();\n" +
-					"\n" +
-					"        public static class B2F extends Key {\n" +
-					"            private static B2F create() { return new B2F(); }\n" +
-					"            public Key flip() { return F2B.create(); }\n" +
-					"        }\n" +
-					"\n" +
-					"        public static class F2B extends Key {\n" +
-					"            private static F2B create() { return new F2B(); }\n" +
-					"            public Key flip() { return B2F.create(); }\n" +
-					"        }\n" +
-					"    }\n" +
-					"}", // =================
-				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 15)\n" +
-				"	public Key flip() { return F2B.create(); }\n" +
-				"	                           ^^^\n" +
-				"The type F2B is defined in an inherited type and an enclosing scope\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 20)\n" +
-				"	public Key flip() { return B2F.create(); }\n" +
-				"	                           ^^^\n" +
-				"The type B2F is defined in an inherited type and an enclosing scope\n" +
-				"----------\n");
-	} else if (compliance == ClassFileConstants.JDK1_4) {
-		this.runConformTest(
-				new String[] {
-					"X.java",
-					"public class X {\n" +
-					"\n" +
-					"    public static interface Foo { }\n" +
-					"    public static interface Bar { }\n" +
-					"\n" +
-					"    private static class B2F extends X { }\n" +
-					"    private static class F2B extends X { }\n" +
-					"\n" +
-					"    public static abstract class Key {\n" +
-					"\n" +
-					"        public abstract Key flip();\n" +
-					"\n" +
-					"        private static class B2F extends Key {\n" +
-					"            private static B2F create() { return new B2F(); }\n" +
-					"            public Key flip() { return F2B.create(); }\n" +
-					"        }\n" +
-					"\n" +
-					"        private static class F2B extends Key {\n" +
-					"            private static F2B create() { return new F2B(); }\n" +
-					"            public Key flip() { return B2F.create(); }\n" +
-					"        }\n" +
-					"    }\n" +
-					"}", // =================
-
-				},
-				"");
-	} else {
-		this.runConformTest(
-				new String[] {
-					"X.java",
-					"public class X<U, V> {\n" +
-					"\n" +
-					"    public static interface Foo { }\n" +
-					"    public static interface Bar { }\n" +
-					"\n" +
-					"    private static class B2F extends X<Bar, Foo> { }\n" +
-					"    private static class F2B extends X<Foo, Bar> { }\n" +
-					"\n" +
-					"    public static abstract class Key<S, T> {\n" +
-					"\n" +
-					"        public abstract Key<T, S> flip();\n" +
-					"\n" +
-					"        private static class B2F extends Key<Bar, Foo> {\n" +
-					"            private static B2F create() { return new B2F(); }\n" +
-					"            public Key<Foo, Bar> flip() { return F2B.create(); }\n" +
-					"        }\n" +
-					"\n" +
-					"        private static class F2B extends Key<Foo, Bar> {\n" +
-					"            private static F2B create() { return new F2B(); }\n" +
-					"            public Key<Bar, Foo> flip() { return B2F.create(); }\n" +
-					"        }\n" +
-					"    }\n" +
-					"}", // =================
-				},
-				"");
-	}
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X<U, V> {\n" +
+				"\n" +
+				"    public static interface Foo { }\n" +
+				"    public static interface Bar { }\n" +
+				"\n" +
+				"    private static class B2F extends X<Bar, Foo> { }\n" +
+				"    private static class F2B extends X<Foo, Bar> { }\n" +
+				"\n" +
+				"    public static abstract class Key<S, T> {\n" +
+				"\n" +
+				"        public abstract Key<T, S> flip();\n" +
+				"\n" +
+				"        private static class B2F extends Key<Bar, Foo> {\n" +
+				"            private static B2F create() { return new B2F(); }\n" +
+				"            public Key<Foo, Bar> flip() { return F2B.create(); }\n" +
+				"        }\n" +
+				"\n" +
+				"        private static class F2B extends Key<Foo, Bar> {\n" +
+				"            private static F2B create() { return new F2B(); }\n" +
+				"            public Key<Bar, Foo> flip() { return B2F.create(); }\n" +
+				"        }\n" +
+				"    }\n" +
+				"}", // =================
+			},
+			"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=201487
 public void _test153() {
-	long compliance = new CompilerOptions(getCompilerOptions()).complianceLevel;
-	if (compliance <= ClassFileConstants.JDK1_4) {
-		this.runNegativeTest(
-				new String[] {
-					"X.java",
-					"public class X {\n" +
-					"	public class Test3 {\n" +
-					"		protected void load() {\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public class Test2 {\n" +
-					"		public Test2(String string, Test3 test3) {\n" +
-					"		}\n" +
-					"	}\n" +
-					"	private String var1;\n" +
-					"private class Test5 {\n" +
-					"		private class Test4 extends Test2 {\n" +
-					"			public Test4() {\n" +
-					"				super(\"available\", new Test3() {\n" +
-					"					protected void load() {\n" +
-					"						System.out.println(X.this.var1.trim());\n" +
-					"						System.out.println(var1.trim());\n" +
-					"					}\n" +
-					"				});\n" +
-					"			}\n" +
-					"		}\n" +
-					"	}\n" +
-					"}", // =================
-				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 16)\n" +
-				"	System.out.println(X.this.var1.trim());\n" +
-				"	                   ^^^^^^\n" +
-				"No enclosing instance of the type X is accessible in scope\n" +
-				"----------\n" +
-				"2. WARNING in X.java (at line 16)\n" +
-				"	System.out.println(X.this.var1.trim());\n" +
-				"	                          ^^^^\n" +
-				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method\n" +
-				"----------\n" +
-				"3. WARNING in X.java (at line 17)\n" +
-				"	System.out.println(var1.trim());\n" +
-				"	                   ^^^^\n" +
-				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 17)\n" +
-				"	System.out.println(var1.trim());\n" +
-				"	                   ^^^^\n" +
-				"No enclosing instance of the type X is accessible in scope\n" +
-				"----------\n");
-	} else {
-		this.runConformTest(
-				new String[] {
-					"X.java",
-					"public class X {\n" +
-					"	public class Test3 {\n" +
-					"		protected void load() {\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public class Test2 {\n" +
-					"		public Test2(String string, Test3 test3) {\n" +
-					"		}\n" +
-					"	}\n" +
-					"	private String var1;\n" +
-					"private class Test5 {\n" +
-					"		private class Test4 extends Test2 {\n" +
-					"			public Test4() {\n" +
-					"				super(\"available\", new Test3() {\n" +
-					"					protected void load() {\n" +
-					"						System.out.println(X.this.var1.trim());\n" +
-					"						System.out.println(var1.trim());\n" +
-					"					}\n" +
-					"				});\n" +
-					"			}\n" +
-					"		}\n" +
-					"	}\n" +
-					"}", // =================
-				},
-				"");
-	}
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public class Test3 {\n" +
+				"		protected void load() {\n" +
+				"		}\n" +
+				"	}\n" +
+				"	public class Test2 {\n" +
+				"		public Test2(String string, Test3 test3) {\n" +
+				"		}\n" +
+				"	}\n" +
+				"	private String var1;\n" +
+				"private class Test5 {\n" +
+				"		private class Test4 extends Test2 {\n" +
+				"			public Test4() {\n" +
+				"				super(\"available\", new Test3() {\n" +
+				"					protected void load() {\n" +
+				"						System.out.println(X.this.var1.trim());\n" +
+				"						System.out.println(var1.trim());\n" +
+				"					}\n" +
+				"				});\n" +
+				"			}\n" +
+				"		}\n" +
+				"	}\n" +
+				"}", // =================
+			},
+			"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=201487 - variation
 public void test154() {
-	long compliance = new CompilerOptions(getCompilerOptions()).complianceLevel;
-	if (compliance <= ClassFileConstants.JDK1_4) {
-		this.runNegativeTest(
-				new String[] {
-					"X.java",
-					"public class X {\n" +
-					"	public class Test3 {\n" +
-					"		protected void load() {\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public class Test2 {\n" +
-					"		public Test2(String string, Test3 test3) {\n" +
-					"		}\n" +
-					"	}\n" +
-					"	private String var1;\n" +
-					"//	private class Test5 {\n" +
-					"		private class Test4 extends Test2 {\n" +
-					"			public Test4() {\n" +
-					"				super(\"available\", new Test3() {\n" +
-					"					protected void load() {\n" +
-					"						System.out.println(X.this.var1.trim());\n" +
-					"						System.out.println(var1.trim());\n" +
-					"					}\n" +
-					"				});\n" +
-					"			}\n" +
-					"		}\n" +
-					"//	}\n" +
-					"}", // =================
-				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 16)\n" +
-				"	System.out.println(X.this.var1.trim());\n" +
-				"	                   ^^^^^^\n" +
-				"No enclosing instance of the type X is accessible in scope\n" +
-				"----------\n" +
-				"2. WARNING in X.java (at line 16)\n" +
-				"	System.out.println(X.this.var1.trim());\n" +
-				"	                          ^^^^\n" +
-				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method\n" +
-				"----------\n" +
-				"3. WARNING in X.java (at line 17)\n" +
-				"	System.out.println(var1.trim());\n" +
-				"	                   ^^^^\n" +
-				"Read access to enclosing field X.var1 is emulated by a synthetic accessor method\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 17)\n" +
-				"	System.out.println(var1.trim());\n" +
-				"	                   ^^^^\n" +
-				"No enclosing instance of the type X is accessible in scope\n" +
-				"----------\n");
-	} else {
-		this.runConformTest(
-				new String[] {
-					"X.java",
-					"public class X {\n" +
-					"	public class Test3 {\n" +
-					"		protected void load() {\n" +
-					"		}\n" +
-					"	}\n" +
-					"	public class Test2 {\n" +
-					"		public Test2(String string, Test3 test3) {\n" +
-					"		}\n" +
-					"	}\n" +
-					"	private String var1;\n" +
-					"//	private class Test5 {\n" +
-					"		private class Test4 extends Test2 {\n" +
-					"			public Test4() {\n" +
-					"				super(\"available\", new Test3() {\n" +
-					"					protected void load() {\n" +
-					"						System.out.println(X.this.var1.trim());\n" +
-					"						System.out.println(var1.trim());\n" +
-					"					}\n" +
-					"				});\n" +
-					"			}\n" +
-					"		}\n" +
-					"//	}\n" +
-					"}", // =================
-				},
-				"");
-	}
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public class Test3 {\n" +
+				"		protected void load() {\n" +
+				"		}\n" +
+				"	}\n" +
+				"	public class Test2 {\n" +
+				"		public Test2(String string, Test3 test3) {\n" +
+				"		}\n" +
+				"	}\n" +
+				"	private String var1;\n" +
+				"//	private class Test5 {\n" +
+				"		private class Test4 extends Test2 {\n" +
+				"			public Test4() {\n" +
+				"				super(\"available\", new Test3() {\n" +
+				"					protected void load() {\n" +
+				"						System.out.println(X.this.var1.trim());\n" +
+				"						System.out.println(var1.trim());\n" +
+				"					}\n" +
+				"				});\n" +
+				"			}\n" +
+				"		}\n" +
+				"//	}\n" +
+				"}", // =================
+			},
+			"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=
 public void test155() throws Exception {
@@ -6871,30 +6027,138 @@ public void test172() throws Exception {
 		this.runNegativeTest(
 				files,
 				"----------\n" +
-				"1. WARNING in X.java (at line 8)\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	a(null);\n" +
+				"	^\n" +
+				"The method a() in the type X is not applicable for the arguments (null)\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 14)\n" +
 				"	a(null);\n" +
 				"	^^^^^^^\n" +
 				"Access to enclosing method a(String) from the type X is emulated by a synthetic accessor method\n" +
 				"----------\n" +
-				"2. WARNING in X.java (at line 9)\n" +
-				"	c(null);\n" +
-				"	^^^^^^^\n" +
-				"Access to enclosing method c(String) from the type X is emulated by a synthetic accessor method\n" +
-				"----------\n" +
-				"3. WARNING in X.java (at line 14)\n" +
-				"	a(null);\n" +
-				"	^^^^^^^\n" +
-				"Access to enclosing method a(String) from the type X is emulated by a synthetic accessor method\n" +
-				"----------\n" +
-				"4. WARNING in X.java (at line 15)\n" +
+				"3. WARNING in X.java (at line 15)\n" +
 				"	c(null);\n" +
 				"	^^^^^^^\n" +
 				"Access to enclosing method c(String) from the type X is emulated by a synthetic accessor method\n" +
 				"----------\n"
 				);
 	} else {
-		this.runConformTest(files, "");
+		this.runNegativeTest(files,
+				"----------\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	a(null);\n" +
+				"	^\n" +
+				"The method a() in the type X is not applicable for the arguments (null)\n" +
+				"----------\n");
 	}
+}
+public void test172b() throws Exception {
+	runNegativeTest(new String[] {
+			"X.java",
+			"""
+			class Y {
+				void a() { }
+				private static void a(String s) { }
+
+				public static class X extends Y {
+
+					void a(int x, int y) { }
+					private void c() { }
+					private static void c(String s) { }
+
+					static class M1 extends X {
+						public void x() {
+							a(null);
+							c(null);
+						}
+					}
+
+					static class M2 {
+						public void x() {
+							a(null);
+							c(null);
+						}
+					}
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 13)
+			a(null);
+			^
+		The method a(int, int) in the type Y.X is not applicable for the arguments (null)
+		----------
+		2. ERROR in X.java (at line 20)
+			a(null);
+			^
+		The method a(int, int) in the type Y.X is not applicable for the arguments (null)
+		----------
+		""");
+}
+public void test172c() throws Exception {
+	runNegativeTest(new String[] {
+			"Test.java",
+			"""
+			class Super {
+			    void f2(String s)       {}
+			    void f3(String s)       {}
+			    void f3(int i1, int i2) {}
+			}
+
+			class Test {
+			    void f1(int i) {}
+			    void f2(int i) {}
+			    void f3(int i) {}
+
+			    void m() {
+			        new Super() {
+			            {
+			                f1(0);  // OK, resolves to Test.f1(int)
+			                f2(0);  // compile-time error
+			                f3(0);  // compile-time error
+			            }
+			        };
+			    }
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in Test.java (at line 16)
+			f2(0);  // compile-time error
+			^^
+		The method f2(String) in the type Super is not applicable for the arguments (int)
+		----------
+		2. ERROR in Test.java (at line 17)
+			f3(0);  // compile-time error
+			^^
+		The method f3(int, int) in the type Super is not applicable for the arguments (int)
+		----------
+		""");
+}
+// regression from https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4081
+public void testGH4149() {
+	runConformTest(new String[] {
+			"ReproducerDiamondMethod.java",
+			"""
+			public class ReproducerDiamondMethod extends A implements B {
+				void callIt() {
+					init();
+				}
+			}
+
+			class A {
+				private void init() {};
+			}
+
+			interface B {
+				default void init() {};
+			}
+			"""
+	});
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=308245
 public void test173() throws Exception {
@@ -7091,18 +6355,7 @@ public void testbug373371() {
 		"    }\n" +
 		"}"
 	};
-	if (this.complianceLevel < ClassFileConstants.JDK1_4 || this.complianceLevel > ClassFileConstants.JDK1_6) {
-		this.runConformTest(sources);
-	} else {
-		this.runNegativeTest(
-			sources,
-			"----------\n" +
-			"1. ERROR in Outer.java (at line 4)\n" +
-			"	public SubInner() {\n" +
-			"	       ^^^^^^^^^^\n" +
-			"No enclosing instance of type Outer is available due to some intermediate constructor invocation\n" +
-			"----------\n");
-	}
+	this.runConformTest(sources);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=522061 EJC 4.8M1 does not compile a class that javac 1.8.0_112 compiles
 public void testbug522061() {
@@ -7131,23 +6384,7 @@ public void testbug522061() {
 		"	}\n" +
 		"}"
 	};
-	if (this.complianceLevel < ClassFileConstants.JDK1_4 || this.complianceLevel > ClassFileConstants.JDK1_6) {
-		this.runConformTest(sources);
-	} else {
-		this.runNegativeTest(
-			sources,
-			"----------\n" +
-			"1. WARNING in ztest\\Foo.java (at line 6)\n" +
-			"	return new FilteredFileTree() {\n" +
-			"	           ^^^^^^^^^^^^^^^^^^\n" +
-			"Access to enclosing constructor Foo.FilteredFileTree() is emulated by a synthetic accessor method\n" +
-			"----------\n" +
-			"2. ERROR in ztest\\Foo.java (at line 6)\n" +
-			"	return new FilteredFileTree() {\n" +
-			"	           ^^^^^^^^^^^^^^^^^^\n" +
-			"No enclosing instance of type Foo is available due to some intermediate constructor invocation\n" +
-			"----------\n");
-	}
+	this.runConformTest(sources);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=481793 Compilation error when trying to compile nested inner classes
 public void testbug481793() {
@@ -7159,18 +6396,7 @@ public void testbug481793() {
 		"	}\n" +
 		"}"
 	};
-	if (this.complianceLevel < ClassFileConstants.JDK1_4 || this.complianceLevel > ClassFileConstants.JDK1_6) {
-		this.runConformTest(sources);
-	} else {
-		this.runNegativeTest(
-			sources,
-			"----------\n" +
-			"1. ERROR in A.java (at line 3)\n" +
-			"	public class C extends B {}\n" +
-			"	             ^\n" +
-			"No enclosing instance of type A is available due to some intermediate constructor invocation\n" +
-			"----------\n");
-	}
+	this.runConformTest(sources);
 }
 public static Class testClass() {
 	return InnerEmulationTest.class;

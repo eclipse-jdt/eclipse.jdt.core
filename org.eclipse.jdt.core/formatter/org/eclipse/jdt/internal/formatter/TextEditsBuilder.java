@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2023 Mateusz Matela and others.
+ * Copyright (c) 2014, 2025 Mateusz Matela and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,17 +10,19 @@
  *
  * Contributors:
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
+ *     IBM Corporation - Markdown support
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_BLOCK;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_JAVADOC;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_LINE;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_MARKDOWN;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameNotAToken;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameStringLiteral;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameTextBlock;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameWHITESPACE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_BLOCK;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_JAVADOC;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_LINE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameCOMMENT_MARKDOWN;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameNotAToken;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameStringLiteral;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameTextBlock;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameWHITESPACE;
+import static org.eclipse.jdt.internal.formatter.TokenManager.ANY;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -88,16 +90,18 @@ public class TextEditsBuilder extends TokenTraverser {
 			int sourceStart = this.tm.get(0).originalStart;
 
 			if (start > sourceStart) {
-				Token token = this.tm.get(this.tm.findIndex(start, -1, false));
-				if ((token.tokenType == TokenNameCOMMENT_BLOCK || token.tokenType == TokenNameCOMMENT_JAVADOC)
+				Token token = this.tm.get(this.tm.findIndex(start, ANY, false));
+				if ((token.tokenType == TokenNameCOMMENT_BLOCK || token.tokenType == TokenNameCOMMENT_JAVADOC
+						|| token.tokenType == TokenNameCOMMENT_MARKDOWN)
 						&& start <= token.originalEnd) {
 					start = token.originalStart;
 				}
 			}
 
 			if (end > start && end > sourceStart) {
-				Token token = this.tm.get(this.tm.findIndex(end, -1, false));
-				if ((token.tokenType == TokenNameCOMMENT_BLOCK || token.tokenType == TokenNameCOMMENT_JAVADOC)
+				Token token = this.tm.get(this.tm.findIndex(end, ANY, false));
+				if ((token.tokenType == TokenNameCOMMENT_BLOCK || token.tokenType == TokenNameCOMMENT_JAVADOC
+						|| token.tokenType == TokenNameCOMMENT_MARKDOWN )
 						&& end < token.originalEnd) {
 					end = token.originalEnd;
 				}
@@ -120,12 +124,6 @@ public class TextEditsBuilder extends TokenTraverser {
 	protected boolean token(Token token, int index) {
 
 		bufferWhitespaceBefore(token, index);
-
-		if (token.tokenType == TokenNameCOMMENT_MARKDOWN) {
-			flushBuffer(token.originalStart);
-			this.counter = token.originalEnd + 1;
-			return true; // don't touch markdown format for now.
-		}
 
 		List<Token> structure = token.getInternalStructure();
 		if (token.tokenType == TokenNameCOMMENT_LINE) {
@@ -195,6 +193,7 @@ public class TextEditsBuilder extends TokenTraverser {
 		}
 
 		boolean isTextBlock = token != null && token.tokenType == TokenNameTextBlock;
+		boolean isMarkdown = token != null && token.tokenType == TokenNameCOMMENT_MARKDOWN;
 		this.parent.counter = this.counter;
 		this.parent.bufferLineSeparator(null, false);
 		if (!(isTextBlock && emptyLine && !this.options.indent_empty_lines))
@@ -205,30 +204,39 @@ public class TextEditsBuilder extends TokenTraverser {
 			return;
 		if (token != null && token.tokenType == TokenNameNotAToken)
 			return; // this is an unformatted block comment, don't force asterisk
-		if (getNext() == null && !emptyLine)
-			return; // this is the last token of block comment, asterisk is included
-
-		boolean asteriskFound = false;
+		if (getNext() == null && !emptyLine) {
+			if (isMarkdown) {
+				this.buffer.append("/// "); //$NON-NLS-1$
+			}
+			return;
+		}
+		boolean markerCharFound = false;
 		int searchLimit = token != null ? token.originalStart : this.sourceLimit;
+
+		char markerChar = isMarkdown ? '/' : '*';
 		for (int i = this.counter; i < searchLimit; i++) {
 			char c = this.source.charAt(i);
-			if (c == '*') {
-				this.buffer.append(' ');
+			if (c == markerChar) {
+				if (!isMarkdown)
+					this.buffer.append(' ');
 				flushBuffer(i);
-				while (i + 1 < this.sourceLimit && this.source.charAt(i + 1) == '*')
+				while (i + 1 < this.sourceLimit && this.source.charAt(i + 1) == markerChar)
 					i++;
 				this.counter = i + 1;
 				c = this.source.charAt(i + 1);
 				if ((c != '\r' && c != '\n') || !emptyLine)
 					this.buffer.append(' ');
-				asteriskFound = true;
+				markerCharFound = true;
 				break;
 			}
 			if (!ScannerHelper.isWhitespace(c))
 				break;
 		}
-		if (!asteriskFound)
-			this.buffer.append(" * "); //$NON-NLS-1$
+
+		if (!markerCharFound) {
+			this.buffer.append(isMarkdown ? "/// " : " * "); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+
 	}
 
 	private void bufferIndent(Token token, int index) {

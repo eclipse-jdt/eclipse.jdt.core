@@ -32,7 +32,7 @@ public class ASTConverter16Test extends ConverterTestSetup {
 	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(getJLS3(), false);
+		this.ast = AST.newAST(getJLSFirst(), false);
 	}
 
 	public ASTConverter16Test(String name) {

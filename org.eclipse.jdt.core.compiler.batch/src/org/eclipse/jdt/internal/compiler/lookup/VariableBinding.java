@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -18,6 +18,8 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 
@@ -28,7 +30,6 @@ public abstract class VariableBinding extends Binding {
 	public char[] name;
 	protected Constant constant;
 	public int id; // for flow-analysis (position in flowInfo bit vector)
-	public long tagBits;
 
 	public VariableBinding(char[] name, TypeBinding type, int modifiers, Constant constant) {
 		this.name = name;
@@ -55,6 +56,10 @@ public abstract class VariableBinding extends Binding {
 	@Override
 	public abstract AnnotationBinding[] getAnnotations();
 
+	public ReferenceBinding getDeclaringClass() {
+		return null;
+	}
+
 	public final boolean isBlankFinal(){
 		return (this.modifiers & ExtraCompilerModifiers.AccBlankFinal) != 0;
 	}
@@ -65,6 +70,12 @@ public abstract class VariableBinding extends Binding {
 	*/
 	public final boolean isFinal() {
 		return (this.modifiers & ClassFileConstants.AccFinal) != 0;
+	}
+
+	/* Answer true if the receiver is a static field
+	*/
+	public final boolean isStatic() {
+		return (this.modifiers & ClassFileConstants.AccStatic) != 0;
 	}
 
 	public final boolean isEffectivelyFinal() {
@@ -103,5 +114,44 @@ public abstract class VariableBinding extends Binding {
 		output.append(" "); //$NON-NLS-1$
 		output.append((this.name != null) ? new String(this.name) : "<no name>"); //$NON-NLS-1$
 		return output.toString();
+	}
+
+	public void clearEffectiveFinality(Scope scope, Expression node, boolean complain) {
+		return;
+	}
+
+	/* Answer true if the receiver has public visibility
+	*/
+	public final boolean isPublic() {
+		return (this.modifiers & ClassFileConstants.AccPublic) != 0;
+	}
+
+	/* Answer true if the receiver is deprecated
+	*/
+	public final boolean isDeprecated() {
+		return (this.modifiers & ClassFileConstants.AccDeprecated) != 0;
+	}
+
+	/** Applicable only for {@link FieldBinding} and {@link RecordComponentBinding}. */
+	public void fillInDefaultNonNullness(AbstractVariableDeclaration sourceField, Scope scope) {
+		assert sourceField.getKind() != AbstractVariableDeclaration.LOCAL_VARIABLE;
+		if (this.type == null || this.type.isBaseType())
+			return;
+		LookupEnvironment environment = scope.environment();
+		if (environment.usesNullTypeAnnotations()) {
+			if (!this.type.acceptsNonNullDefault())
+				return;
+			if ( (this.type.tagBits & TagBits.AnnotationNullMASK) == 0) {
+				this.type = environment.createNonNullAnnotatedType(this.type);
+			} else if ((this.type.tagBits & TagBits.AnnotationNonNull) != 0) {
+				scope.problemReporter().nullAnnotationIsRedundant(sourceField);
+			}
+		} else {
+			if ( (this.tagBits & TagBits.AnnotationNullMASK) == 0 ) {
+				this.tagBits |= TagBits.AnnotationNonNull;
+			} else if ((this.tagBits & TagBits.AnnotationNonNull) != 0) {
+				scope.problemReporter().nullAnnotationIsRedundant(sourceField);
+			}
+		}
 	}
 }

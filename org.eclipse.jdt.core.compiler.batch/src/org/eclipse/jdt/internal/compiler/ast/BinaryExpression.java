@@ -18,7 +18,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.List;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
@@ -1565,18 +1564,18 @@ public void generateOptimizedLogicalXor(BlockScope currentScope, CodeStream code
 	codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd);
 }
 @Override
-public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStream, int typeID, StringBuilder recipe, List<TypeBinding> argTypes) {
+public void buildStringForConcatenation(BlockScope blockScope, CodeStream codeStream, int typeID, StringBuilder recipe, List<TypeBinding> argTypes) {
 	if ((((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) == OperatorIds.PLUS)
 			&& ((this.bits & ASTNode.ReturnTypeIDMASK) == TypeIds.T_JavaLangString)) {
 			if (this.constant != Constant.NotAConstant) {
-				super.buildStringForConcatation(blockScope, codeStream, typeID, recipe, argTypes);
+				super.buildStringForConcatenation(blockScope, codeStream, typeID, recipe, argTypes);
 			} else {
-				this.left.buildStringForConcatation(blockScope, codeStream, this.left.implicitConversion & TypeIds.COMPILE_TYPE_MASK, recipe, argTypes);
-				this.right.buildStringForConcatation(blockScope, codeStream, this.right.implicitConversion & TypeIds.COMPILE_TYPE_MASK, recipe, argTypes);
+				this.left.buildStringForConcatenation(blockScope, codeStream, this.left.implicitConversion & TypeIds.COMPILE_TYPE_MASK, recipe, argTypes);
+				this.right.buildStringForConcatenation(blockScope, codeStream, this.right.implicitConversion & TypeIds.COMPILE_TYPE_MASK, recipe, argTypes);
 			}
-		} else {
-			super.buildStringForConcatation(blockScope, codeStream, typeID, recipe, argTypes);
-		}
+	} else {
+		super.buildStringForConcatenation(blockScope, codeStream, typeID, recipe, argTypes);
+	}
 }
 @Override
 public void generateOptimizedStringConcatenation(BlockScope blockScope, CodeStream codeStream, int typeID) {
@@ -1678,14 +1677,11 @@ void nonRecursiveResolveTypeUpwards(BlockScope scope) {
 	int rightTypeID = rightType.id;
 
 	// autoboxing support
-	boolean use15specifics = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
-	if (use15specifics) {
-		if (!leftType.isBaseType() && rightTypeID != TypeIds.T_JavaLangString && rightTypeID != TypeIds.T_null) {
-			leftTypeID = scope.environment().computeBoxingType(leftType).id;
-		}
-		if (!rightType.isBaseType() && leftTypeID != TypeIds.T_JavaLangString && leftTypeID != TypeIds.T_null) {
-			rightTypeID = scope.environment().computeBoxingType(rightType).id;
-		}
+	if (!leftType.isBaseType() && rightTypeID != TypeIds.T_JavaLangString && rightTypeID != TypeIds.T_null) {
+		leftTypeID = scope.environment().computeBoxingType(leftType).id;
+	}
+	if (!rightType.isBaseType() && leftTypeID != TypeIds.T_JavaLangString && leftTypeID != TypeIds.T_null) {
+		rightTypeID = scope.environment().computeBoxingType(rightType).id;
 	}
 	if (leftTypeID > 15
 		|| rightTypeID > 15) { // must convert String + Object || Object + String
@@ -1885,14 +1881,11 @@ public TypeBinding resolveType(BlockScope scope) {
 	int rightTypeID = rightType.id;
 
 	// autoboxing support
-	boolean use15specifics = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
-	if (use15specifics) {
-		if (!leftType.isBaseType() && rightTypeID != TypeIds.T_JavaLangString && rightTypeID != TypeIds.T_null) {
-			leftTypeID = scope.environment().computeBoxingType(leftType).id;
-		}
-		if (!rightType.isBaseType() && leftTypeID != TypeIds.T_JavaLangString && leftTypeID != TypeIds.T_null) {
-			rightTypeID = scope.environment().computeBoxingType(rightType).id;
-		}
+	if (!leftType.isBaseType() && rightTypeID != TypeIds.T_JavaLangString && rightTypeID != TypeIds.T_null) {
+		leftTypeID = scope.environment().computeBoxingType(leftType).id;
+	}
+	if (!rightType.isBaseType() && leftTypeID != TypeIds.T_JavaLangString && leftTypeID != TypeIds.T_null) {
+		rightTypeID = scope.environment().computeBoxingType(rightType).id;
 	}
 	if (leftTypeID > 15
 		|| rightTypeID > 15) { // must convert String + Object || Object + String

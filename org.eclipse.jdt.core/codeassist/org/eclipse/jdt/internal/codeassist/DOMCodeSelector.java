@@ -60,7 +60,7 @@ public class DOMCodeSelector {
 		if (offset + length > this.unit.getSource().length()) {
 			throw new JavaModelException(new IndexOutOfBoundsException(offset + length), IJavaModelStatusConstants.INDEX_OUT_OF_BOUNDS);
 		}
-		org.eclipse.jdt.core.dom.CompilationUnit currentAST = this.unit.getOrBuildAST(this.owner);
+		org.eclipse.jdt.core.dom.CompilationUnit currentAST = this.unit.getOrBuildAST(this.owner, this.unit.getBuffer().getLength() < 50000 ? -1 : offset);
 		if (currentAST == null) {
 			return new IJavaElement[0];
 		}
@@ -113,10 +113,7 @@ public class DOMCodeSelector {
 			} while (changed);
 		}
 		String trimmedText = rawText.trim();
-		NodeFinder finder = new NodeFinder(currentAST, offset, length);
-		final ASTNode node = finder.getCoveredNode() != null && finder.getCoveredNode().getStartPosition() > offset && finder.getCoveringNode().getStartPosition() + finder.getCoveringNode().getLength() > offset + length ?
-			finder.getCoveredNode() :
-			finder.getCoveringNode();
+		final ASTNode node = NodeFinder.perform(currentAST, offset, length);
 		if (node instanceof TagElement tagElement && TagElement.TAG_INHERITDOC.equals(tagElement.getTagName())) {
 			ASTNode javadocNode = node;
 			while (javadocNode != null && !(javadocNode instanceof Javadoc)) {
@@ -197,6 +194,10 @@ public class DOMCodeSelector {
 				return reorderedOverloadedMethods;
 			}
 			return new IJavaElement[] { importBinding.getJavaElement() };
+		} else if (node instanceof MethodDeclaration decl && offset > decl.getName().getStartPosition()) {
+			// most likely inside and empty `()`
+			// case for TypeHierarchyCommandTest.testTypeHierarchy()
+			return null;
 		} else if (findTypeDeclaration(node) == null) {
 			IBinding binding = resolveBinding(node);
 			if (binding != null && !binding.isRecovered()) {
@@ -286,6 +287,10 @@ public class DOMCodeSelector {
 					if (parent != null && bindingNode instanceof SingleVariableDeclaration variableDecl) {
 						return new IJavaElement[] { DOMToModelPopulator.toLocalVariable(variableDecl, (JavaElement)parent) };
 					}
+					if( parent != null && bindingNode instanceof VariableDeclarationFragment vdf) {
+						// Parent might be statement or expression
+						return new IJavaElement[] { DOMToModelPopulator.toLocalVariable(vdf, (JavaElement)parent) };
+					}
 				}
 			}
 		}
@@ -296,8 +301,10 @@ public class DOMCodeSelector {
 		int finalLength = length;
 		do {
 			newChildFound = false;
+			boolean isGeneratedByLombok = isGenerated(currentAST);
 			if (currentElement instanceof IParent parentElement) {
 				Optional<IJavaElement> candidate = Stream.of(parentElement.getChildren())
+					.filter(e -> (!isGeneratedByLombok || e.getElementName().equals(trimmedText)))
 					.filter(ISourceReference.class::isInstance)
 					.map(ISourceReference.class::cast)
 					.filter(sourceRef -> {
@@ -372,7 +379,7 @@ public class DOMCodeSelector {
 		return new IJavaElement[0];
 	}
 
-	static IBinding resolveBinding(ASTNode node) {
+	public static IBinding resolveBinding(ASTNode node) {
 		if (node instanceof MethodDeclaration decl) {
 			return decl.resolveBinding();
 		}
@@ -450,7 +457,7 @@ public class DOMCodeSelector {
 				}
 				IMethod methodModel = ((IMethod)methodBinding.getJavaElement());
 				boolean allowExtraParam = true;
-				if ((methodModel.getFlags() & Flags.AccStatic) != 0) {
+				if (methodModel != null && (methodModel.getFlags() & Flags.AccStatic) != 0) {
 					allowExtraParam = false;
 					if (methodRef.getExpression() instanceof ClassInstanceCreation) {
 						return null;
@@ -463,14 +470,20 @@ public class DOMCodeSelector {
 				while (type == null && cursor != null) {
 					if (cursor.getParent() instanceof VariableDeclarationFragment declFragment) {
 						type = declFragment.resolveBinding().getType();
-					}
-					else if (cursor.getParent() instanceof MethodInvocation methodInvocation) {
+					} else if (cursor.getParent() instanceof MethodInvocation methodInvocation) {
 						IMethodBinding methodInvocationBinding = methodInvocation.resolveMethodBinding();
-						int index = methodInvocation.arguments().indexOf(cursor);
-						type = methodInvocationBinding.getParameterTypes()[index];
+						if (methodInvocationBinding != null) {
+							int index = methodInvocation.arguments().indexOf(cursor);
+							type = methodInvocationBinding.getParameterTypes()[index];
+						} else {
+							cursor = null;
+						}
 					} else {
 						cursor = cursor.getParent();
 					}
+				}
+				if (type == null) {
+					return null;
 				}
 
 				IMethodBinding boundMethod = type.getDeclaredMethods()[0];
@@ -562,6 +575,9 @@ public class DOMCodeSelector {
 	}
 
 	private IJavaElement[] findTypeInIndex(String packageName, String simpleName) throws JavaModelException {
+		if (simpleName == null) {
+			return new IJavaElement[0];
+		}
 		List<IType> indexMatch = new ArrayList<>();
 		TypeNameMatchRequestor requestor = new TypeNameMatchRequestor() {
 			@Override
@@ -607,5 +623,31 @@ public class DOMCodeSelector {
 		int end = offset + 1;
 		while (end < source.length() && Character.isJavaIdentifierPart(source.charAt(end))) end++;
 		return source.substring(start, end);
+	}
+
+	/**
+	 * Checks if the node is generated
+	 *
+	 * @param node the AST node
+	 * @return true if the node is generated.
+	 */
+	public static boolean isGenerated(ASTNode node) {
+		if (node != null) {
+			boolean[] isGenerated = {false};
+			node.accept(new ASTVisitor() {
+
+				@Override
+				public void endVisit(MarkerAnnotation markerAnnotation) {
+					if (!isGenerated[0]) {
+						// check lombok only for now
+						isGenerated[0] = "lombok.Generated".equals(markerAnnotation.getTypeName().getFullyQualifiedName()); //$NON-NLS-1$
+						super.endVisit(markerAnnotation);
+					}
+				}
+
+			});
+			return isGenerated[0];
+		}
+		return false;
 	}
 }

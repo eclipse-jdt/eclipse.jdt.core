@@ -277,6 +277,12 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	public CompletionProposal[] getProposals() {
 		return this.proposals;
 	}
+
+	interface ProposalTextSupplier {
+		public char[] getProposalText(CompletionProposal p);
+	}
+	private static ProposalTextSupplier DEFAULT_PROPOSAL_TEXT_SUPPLIER =  (p) -> p.getCompletion();
+
 	/*
 	 * Get sorted results in ascending order
 	 */
@@ -285,11 +291,18 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		quickSort(this.proposals, 0, this.proposalsPtr);
 		return getResultsWithoutSorting();
 	}
-
+	public String getDisplayResults() {
+		if(this.proposalsPtr < 0) return "";
+		quickSort(this.proposals, 0, this.proposalsPtr);
+		return getResultsWithoutSorting((p) -> p.getDisplayString());
+	}
 	/*
 	 * Get sorted results in ascending order
 	 */
 	public String getReversedResults() {
+		return getReversedResults(null);
+	}
+	public String getReversedResults(ProposalTextSupplier supplier) {
 		if(this.proposalsPtr < 0) return "";
 		Arrays.sort(this.proposals, new Comparator() {
 			@Override
@@ -309,22 +322,28 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 				return name1.compareTo(name2);
 			}
 		});
-		return getResultsWithoutSorting();
+		return getResultsWithoutSorting(supplier);
 	}
 
 	/*
 	 * Get unsorted results (ie. same order as they were accepted by requestor)
 	 */
 	public String getResultsWithoutSorting() {
+		return getResultsWithoutSorting(null);
+	}
+	public String getResultsWithoutSorting(ProposalTextSupplier supplier) {
 		if(this.proposalsPtr < 0) return "";
-		StringBuilder buffer = printProposal(this.proposals[0]);
+		StringBuilder buffer = printProposal(this.proposals[0], supplier);
 		for(int i = 1; i <=this.proposalsPtr; i++) {
 			if(i > 0) buffer.append('\n');
-			buffer.append(printProposal(this.proposals[i]));
+			buffer.append(printProposal(this.proposals[i], supplier));
 		}
 		return buffer.toString();
 	}
 	public String[] getStringsResult() {
+		return getStringsResult(null);
+	}
+	public String[] getStringsResult(ProposalTextSupplier supplier) {
 		if(this.proposalsPtr < 0) {
 			return new String[0];
 		}
@@ -334,13 +353,22 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		}
 		return strings;
 	}
-
 	protected StringBuilder printProposal(CompletionProposal proposal) {
 		StringBuilder buffer = new StringBuilder();
-		return printProposal(proposal, 0, buffer);
+		return printProposal(proposal, null, 0, buffer);
+	}
+	protected StringBuilder printProposal(CompletionProposal proposal, ProposalTextSupplier supplier) {
+		StringBuilder buffer = new StringBuilder();
+		return printProposal(proposal, supplier, 0, buffer);
 	}
 
 	protected StringBuilder printProposal(CompletionProposal proposal, int tab, StringBuilder buffer) {
+		return printProposal(proposal, null, tab, buffer);
+	}
+	protected StringBuilder printProposal(CompletionProposal proposal, ProposalTextSupplier textSupplier, int tab, StringBuilder buffer) {
+		if (textSupplier == null) {
+			textSupplier = DEFAULT_PROPOSAL_TEXT_SUPPLIER;
+		}
 		for (int i = 0; i < tab; i++) {
 			buffer.append("   "); //$NON-NLS-1$
 		}
@@ -357,7 +385,7 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 				buffer.append("FIELD_REF_WITH_CASTED_RECEIVER"); //$NON-NLS-1$
 				break;
 			case CompletionProposal.KEYWORD :{
-				if(isRestrictedIdentifier(proposal.getCompletion()))
+				if(isRestrictedIdentifier(textSupplier.getProposalText(proposal)))
 						buffer.append("RESTRICTED_IDENTIFIER");
 					else
 						buffer.append("KEYWORD"); //$NON-NLS-1$
@@ -459,7 +487,7 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 
 		}
 		buffer.append("]{");
-		buffer.append(proposal.getCompletion() == null ? this.NULL_LITERAL : proposal.getCompletion());
+		buffer.append(textSupplier.getProposalText(proposal) == null ? this.NULL_LITERAL : textSupplier.getProposalText(proposal));
 		buffer.append(", ");
 		buffer.append(proposal.getDeclarationSignature() == null ? this.NULL_LITERAL : proposal.getDeclarationSignature());
 		buffer.append(", ");

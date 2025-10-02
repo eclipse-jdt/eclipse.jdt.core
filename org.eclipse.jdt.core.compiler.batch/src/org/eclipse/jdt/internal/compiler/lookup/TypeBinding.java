@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -59,8 +59,6 @@ import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 abstract public class TypeBinding extends Binding {
 
 	public int id = TypeIds.NoId;
-	public long tagBits = 0; // See values in the interface TagBits below
-	public int extendedTagBits = 0; // See values in the interface ExtendedTagBits
 
 	protected AnnotationBinding [] typeAnnotations = Binding.NO_ANNOTATIONS;
 
@@ -289,6 +287,10 @@ public int dimensions() {
 
 public int depth() {
 	return 0;
+}
+
+public int typeArgumentDepth() {
+	return 1;
 }
 
 /* Answer the receiver's enclosing method ... null if the receiver is not a local type.
@@ -1400,7 +1402,7 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 					TypeBinding match = upperBound.findSuperTypeOriginatingFrom(otherBound);
 					if (match != null && (match = match.leafComponentType()).isRawType()) {
 						return TypeBinding.equalsEquals(match, otherBound.leafComponentType()); // forbide: Collection <=  ? extends Collection<?>
-																												// forbide: Collection[] <=  ? extends Collection<?>[]
+																								// forbide: Collection[] <=  ? extends Collection<?>[]
 					}
 					return upperBound.isCompatibleWith(otherBound);
 
@@ -1555,7 +1557,7 @@ public boolean needsUncheckedConversion(TypeBinding targetType) {
 	if (TypeBinding.equalsEquals(this, targetType))
 		return false;
 	targetType = targetType.leafComponentType();
-	if (!(targetType instanceof ReferenceBinding))
+	if (!(targetType instanceof ParameterizedTypeBinding))
 		return false;
 
 	TypeBinding currentType = leafComponentType();
@@ -1684,11 +1686,6 @@ public char[] signature() {
 }
 
 public abstract char[] sourceName();
-
-public void swapUnresolved(UnresolvedReferenceBinding unresolvedType,
-		ReferenceBinding resolvedType, LookupEnvironment environment) {
-	// subclasses must override if they wrap another type binding
-}
 
 TypeBinding [] typeArguments () {
 	return null;

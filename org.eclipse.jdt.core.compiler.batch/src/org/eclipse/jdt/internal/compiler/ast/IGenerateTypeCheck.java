@@ -14,6 +14,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ast.Pattern.PrimitiveConversionRoute;
+import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -52,9 +53,36 @@ interface IGenerateTypeCheck {
 				TypeBinding boxType = scope.environment().computeBoxingType(expectedTypeRef.resolvedType);
 				codeStream.instance_of(expectedTypeRef, boxType);
 			}
-			case UNBOXING_CONVERSION,
-			UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION -> {
+			case UNBOXING_CONVERSION -> {
 				codeStream.instance_of(scope.getJavaLangObject());
+				setPatternIsTotalType();
+			}
+			case UNBOXING_AND_WIDENING_PRIMITIVE_CONVERSION -> {
+				codeStream.dup();
+				codeStream.instance_of(providedType);
+				BranchLabel iLabel = new BranchLabel(codeStream);
+				BranchLabel postCheck = new BranchLabel(codeStream);
+
+				codeStream.ifne(iLabel);
+				codeStream.pop();
+				codeStream.iconst_0();
+				codeStream.goto_(postCheck);
+
+				iLabel.place();
+				codeStream.checkcast(providedType);
+				TypeBinding unboxedType = scope.environment().computeBoxingType(providedType);
+				codeStream.generateUnboxingConversion(unboxedType.id);
+				int expectedTypeId = expectedTypeRef.resolvedType.id;
+				int unboxedProvidedTypeId = unboxedType.id;
+				if (BaseTypeBinding.isExactWidening(expectedTypeId, unboxedProvidedTypeId)) {
+					codeStream.pop();
+					codeStream.iconst_1();
+				} else {
+					codeStream.invokeExactConversionsSupport(BaseTypeBinding.getRightToLeft(expectedTypeId, unboxedProvidedTypeId));
+				}
+
+				codeStream.goto_(postCheck);
+				postCheck.place();
 				setPatternIsTotalType();
 			}
 			case NO_CONVERSION_ROUTE -> {

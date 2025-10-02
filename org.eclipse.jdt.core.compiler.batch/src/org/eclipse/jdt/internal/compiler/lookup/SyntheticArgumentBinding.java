@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -17,11 +17,11 @@ package org.eclipse.jdt.internal.compiler.lookup;
  * Specific local variable location used to:
  * - either provide emulation for outer local variables used from within innerclass constructs,
  * - or provide emulation to enclosing instances.
- * When it is mapping to an outer local variable, this actual outer local is accessible through
- * the public field #actualOuterLocalVariable.
+ * - or model compact constructor arguments
  *
- * Such a synthetic argument binding will be inserted in all constructors of local innertypes before
- * the user arguments.
+ * When it is mapping to an outer local variable, this actual outer local is accessible through
+ * the public field #actualOuterLocalVariable. Such a synthetic argument binding will be inserted
+ * in all constructors of local innertypes before the user arguments.
  */
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -38,19 +38,19 @@ public class SyntheticArgumentBinding extends LocalVariableBinding {
 	public LocalVariableBinding actualOuterLocalVariable;
 	// if the argument has a matching synthetic field
 	public FieldBinding matchingField;
+	public Scope accessingScope; // scope from where the synth arg can be accessed
 
-	public SyntheticArgumentBinding(LocalVariableBinding actualOuterLocalVariable) {
-
+	public SyntheticArgumentBinding(LocalVariableBinding actualOuterLocalVariable, Scope declaringScope) {
 		super(
 			CharOperation.concat(TypeConstants.SYNTHETIC_OUTER_LOCAL_PREFIX, actualOuterLocalVariable.name),
 			actualOuterLocalVariable.type,
 			ClassFileConstants.AccFinal,
 			true);
 		this.actualOuterLocalVariable = actualOuterLocalVariable;
+		this.accessingScope = declaringScope;
 	}
 
 	public SyntheticArgumentBinding(ReferenceBinding enclosingType) {
-
 		super(
 			CharOperation.concat(
 				TypeConstants.SYNTHETIC_ENCLOSING_INSTANCE_PREFIX,
@@ -58,5 +58,10 @@ public class SyntheticArgumentBinding extends LocalVariableBinding {
 			enclosingType,
 			ClassFileConstants.AccFinal,
 			true);
+	}
+
+	public SyntheticArgumentBinding(RecordComponentBinding rcb) {
+		super(rcb.name, rcb.type, rcb.modifiers, true);
+		this.declaration = rcb.sourceRecordComponent();
 	}
 }

@@ -41,12 +41,11 @@ import org.eclipse.jdt.internal.compiler.SourceElementRequestorAdapter;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.batch.Main;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -363,8 +362,8 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		File file = new File(fileName);
 		char[] content = Util.getFileCharContent(file, null);
 		CompilerOptions options = new CompilerOptions();
-		options.sourceLevel = ClassFileConstants.JDK1_4;
-		options.targetJDK = ClassFileConstants.JDK1_4;
+		options.sourceLevel = CompilerOptions.getFirstSupportedJdkLevel();
+		options.targetJDK = CompilerOptions.getFirstSupportedJdkLevel();
 		ProblemReporter problemReporter =
 				new ProblemReporter(
 					DefaultErrorHandlingPolicies.exitAfterAllProblems(),
@@ -482,19 +481,19 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		for (int i = 0; i < 2; i++) {
 			scanner.resetTo(0, content.length);
 			tokenize: while (true) {
-				int token = scanner.getNextToken();
+				TerminalToken token = scanner.getNextToken();
 				switch (kind) {
 					case 0: // first case: only read tokens
 						switch (token) {
-							case TerminalTokens.TokenNameEOF:
+							case TerminalToken.TokenNameEOF:
 								break tokenize;
 						}
 						break;
 					case 1: // second case: read tokens + get ids
 						switch (token) {
-							case TerminalTokens.TokenNameEOF:
+							case TerminalToken.TokenNameEOF:
 								break tokenize;
-							case TerminalTokens.TokenNameIdentifier:
+							case TerminalToken.TokenNameIdentifier:
 								scanner.getCurrentIdentifierSource();
 								break;
 						}
@@ -511,19 +510,19 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 			for (int j = 0; j < SCAN_REPEAT; j++) {
 				scanner.resetTo(0, content.length);
 				tokenize: while (true) {
-					int token = scanner.getNextToken();
+					TerminalToken token = scanner.getNextToken();
 					switch (kind) {
 						case 0: // first case: only read tokens
 							switch (token) {
-								case TerminalTokens.TokenNameEOF:
+								case TerminalToken.TokenNameEOF:
 									break tokenize;
 							}
 							break;
 						case 1: // second case: read tokens + get ids
 							switch (token) {
-								case TerminalTokens.TokenNameEOF:
+								case TerminalToken.TokenNameEOF:
 									break tokenize;
-								case TerminalTokens.TokenNameIdentifier:
+								case TerminalToken.TokenNameIdentifier:
 									char[] c = scanner.getCurrentIdentifierSource();
 									size += c.length;
 									break;

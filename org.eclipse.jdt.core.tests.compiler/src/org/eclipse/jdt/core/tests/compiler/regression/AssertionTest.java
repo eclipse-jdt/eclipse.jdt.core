@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,7 +14,6 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import junit.framework.Test;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 @SuppressWarnings({ "rawtypes" })
 public class AssertionTest extends AbstractRegressionTest {
@@ -36,6 +35,18 @@ public class AssertionTest extends AbstractRegressionTest {
 	public static Class testClass() {
 		return AssertionTest.class;
 	}
+	// ========= OPT-IN to run.javac mode: ===========
+	@Override
+	protected void setUp() throws Exception {
+		this.runJavacOptIn = true;
+		super.setUp();
+	}
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		this.runJavacOptIn = false; // do it last, so super can still clean up
+	}
+	// =================================================
 
 	public void test001() {
 		this.runNegativeTest(
@@ -623,8 +634,6 @@ public class AssertionTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	public void test023() {
-		if (this.complianceLevel < ClassFileConstants.JDK1_8)
-			return;
 		this.runConformTest(new String[] {"X.java",
 				"interface Foo {\n" +
 				"  default Object test(Object a) {\n" +
@@ -638,5 +647,85 @@ public class AssertionTest extends AbstractRegressionTest {
 				"		System.out.println(\"Hello\");\n" +
 				"	}\n" +
 				"}\n"}, "Hello");
+	}
+	public void testVoidAssertion() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					void v() {}
+					void m() {
+						assert v();
+					}
+					void n(boolean f) {
+						assert f : v();
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 4)
+				assert v();
+				       ^^^
+			Type mismatch: cannot convert from void to boolean
+			----------
+			2. ERROR in X.java (at line 7)
+				assert f : v();
+				           ^^^
+			This expression yields no value
+			----------
+			""");
+	}
+
+	public void testAssertionWithCustomException() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"X.java",
+			"""
+			public class X {
+				void m(boolean f) {
+					assert f : new IllegalArgumentException("f should be true");
+				}
+				public static void main(String... args) throws Throwable {
+					try {
+						new X().m(false);
+					} catch (AssertionError ae) {
+						try {
+							throw ae.getCause();
+						} catch (IllegalArgumentException iae) {
+							System.out.print(iae.getMessage());
+						}
+					}
+				}
+			}
+			"""};
+		runner.expectedOutputString = "f should be true";
+		runner.vmArguments = new String[] {"-ea"};
+		runner.runConformTest();
+	}
+
+	public void testVoidSynchronized() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				public class X {
+					void v() {}
+					void m() {
+						synchronized(v()) {
+							System.out.print(1);
+						}
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 4)
+				synchronized(v()) {
+				             ^^^
+			This expression yields no value
+			----------
+			""");
 	}
 }

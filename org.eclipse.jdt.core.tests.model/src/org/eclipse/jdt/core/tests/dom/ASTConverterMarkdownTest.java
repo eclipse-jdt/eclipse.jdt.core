@@ -1104,7 +1104,6 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 		this.currentProject.setOption(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, this.docCommentSupport);
 		this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_23);
 		this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_23);
-		this.currentProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		this.astLevel = AST.JLS23;
 	}
 	protected CompilationUnit verifyComments(String fileName, char[] source, Map options) {
@@ -1789,6 +1788,130 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			assertEquals("Should be two", 2, parameters.size());
 			assertEquals("Incorrect name", "Object[] obj", parameters.get(0).toString());
 			assertEquals("Incorrect name", "String[][][] str", parameters.get(1).toString());
+		}
+	}
+
+	public void testArrayReferenceInCode() throws JavaModelException {
+		String source= """
+				package markdown.gh3761;
+				/// In the following indented code block, `[i]` is program text,
+				/// and not a hyper link:
+				///
+				///     int i = 3;
+				///     int[] d = new int[i];
+				///
+				/// Likewise, in the following fenced code block, `[i]` is program text,
+				/// and not a hyper link:
+				///
+				/// ```
+				/// int i = 3;
+				/// int[] d = new int[i];
+				/// ```
+				public class ArrayInCode {
+				}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/gh3761/ArrayInCode.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			List unitComments = compilUnit.getCommentList();
+			assertEquals("Wrong number of comments", 1, unitComments.size());
+
+			Comment comment = (Comment) unitComments.get(0);
+			assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+			List<ASTNode> tagList = ((Javadoc) comment).tags();
+			assertEquals("Wrong number of tags", 1, tagList.size());
+			TagElement tag = (TagElement) tagList.get(0);
+			String[] lines = {
+					"In the following indented code block, `[i]` is program text,",
+					"and not a hyper link:",
+					"    int i = 3;",
+					"    int[] d = new int[i];",
+					"Likewise, in the following fenced code block, `[i]` is program text,",
+					"and not a hyper link:",
+					"```",
+					"int i = 3;",
+					"int[] d = new int[i];",
+					"```"
+			};
+			for (int i = 0; i < lines.length; i++) {
+				assertEquals("Line "+i, lines[i], tag.fragments().get(i).toString());
+			}
+		}
+	}
+
+	public void testIllegelTagElement_01() throws JavaModelException {
+		String source= """
+				///{@link #getValue()
+				///value}
+				class IllegelTagElement {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/gh3761/IllegelTagElement.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> te = javadoc.tags();
+			assertEquals("TagElement length is grater than one", 1, te.size());
+			List<TagElement> tes = (te.get(0)).fragments();
+			assertEquals("inner TagElement length is grater than one", 1, tes.size());
+			assertEquals("TagName", "@link", tes.get(0).getTagName());
+			List<?> fragments = tes.get(0).fragments();
+			assertEquals("fragments count does not match", 2, fragments.size());
+			assertTrue(fragments.get(0) instanceof MethodRef);
+			assertTrue(fragments.get(1) instanceof TextElement);
+			assertEquals("Incorrect text", "value", fragments.get(1).toString());
+			assertEquals("Incorrect name", "#getValue()", fragments.get(0).toString());
+		}
+	}
+
+	//this is a malfound test. Need to to analysis how it works
+	public void testIllegelTagElement_02() throws JavaModelException {
+		String source= """
+				///{@link #getValue()
+				///value{}}
+				class IllegelTagElement {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_23/src/markdown/gh3761/IllegelTagElement.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> te = javadoc.tags();
+			assertEquals("TagElement length is grater than one", 1, te.size());
+			List<TagElement> tes = (te.get(0)).fragments();
+//			assertEquals("fragments count does not match", 1, tes.size());
+			assertEquals("TagName", "@link", tes.get(0).getTagName());
+			List<?> fragments = tes.get(0).fragments();
+			assertTrue(fragments.get(0) instanceof MethodRef);
+			assertTrue(fragments.get(1) instanceof TextElement);
+			assertEquals("Incorrect text", "value", fragments.get(1).toString());
+			assertEquals("Incorrect name", "#getValue()", fragments.get(0).toString());
+			assertTrue(te.get(0).getLength() < tes.get(0).getLength());
+		}
+	}
+
+	public void testIllegelASTPosition4188() throws JavaModelException {
+		String source= """
+				/// <table>
+				///   <tr>
+				///     <th>[top][#topProp}</th>
+				///   </tr>
+				/// </table>
+				public class Table {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_24/src/markdown/gh3761/Table.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement tags = (TagElement) javadoc.tags().get(0);
+			assertEquals("Incorrect TagElement", 5, tags.fragments().size());
+			List<TextElement> fragments = tags.fragments();
+			assertEquals("Incorrect TagElement", 1, (fragments.get(3).getFlags() & ASTNode.MALFORMED));  //MALFOUND flag
 		}
 	}
 }

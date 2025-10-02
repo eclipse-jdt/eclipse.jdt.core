@@ -262,8 +262,8 @@ public void testGH2782() throws CoreException {
 		sortMarkers(markers);
 		assertMarkers("markers in p",
 				"""
-				Constructor call must be the first statement in a constructor
-				Syntax error on token "if", super expected""",
+				Syntax error on token "if", super expected
+				The Java feature 'Flexible Constructor Bodies' is only available with source level 25 and above""",
 				markers);
 
 		ICompilationUnit unit = getCompilationUnit("p/src/test/StringVar2.java");

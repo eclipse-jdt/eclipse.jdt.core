@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -19,9 +19,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
@@ -31,7 +35,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class SyntheticMethodBinding extends MethodBinding {
 
-	public FieldBinding targetReadField;		// read access to a field
+	public VariableBinding targetReadField;		// read access to a field
 	public FieldBinding targetWriteField;		// write access to a field
 	public MethodBinding targetMethod;			// method or constructor
 	public TypeBinding targetEnumType; 			// enum type
@@ -77,6 +81,7 @@ public class SyntheticMethodBinding extends MethodBinding {
     public static final int RecordOverrideHashCode = 20;
     public static final int RecordOverrideEquals = 21;
     public static final int RecordCanonicalConstructor = 22;
+    public final static int RecordComponentReadAccess = 23;
 
 	public int sourceStart = 0; // start position of the matching declaration
 	public int index; // used for sorting access methods in the class file
@@ -84,7 +89,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 
 	public SyntheticMethodBinding(FieldBinding targetField, boolean isReadAccess, boolean isSuperAccess, ReferenceBinding declaringClass) {
 		this.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic;
-		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 		SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
 		SyntheticMethodBinding[] knownAccessMethods = declaringSourceType.syntheticMethods();
 		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods[knownAccessMethods.length - 1].index + 1; //index may miss some numbers in between. get the highest index and assign next number.;
@@ -187,7 +192,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 
 	public SyntheticMethodBinding(FieldBinding targetField, ReferenceBinding declaringClass, TypeBinding enumBinding, char[] selector,  SwitchStatement switchStatement) {
 		this.modifiers = (declaringClass.isInterface() ? ClassFileConstants.AccPublic : ClassFileConstants.AccDefault) | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic;
-		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 		SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
 		SyntheticMethodBinding[] knownAccessMethods = declaringSourceType.syntheticMethods();
 		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods[knownAccessMethods.length - 1].index + 1; //index may miss some numbers in between. get the highest index and assign next number.;
@@ -268,7 +273,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	    // amongst other, clear the AccGenericSignature, so as to ensure no remains of original inherited persist (101794)
 	    // also use the modifiers from the target method, as opposed to inherited one (147690)
 	    this.modifiers = (targetMethod.modifiers | ClassFileConstants.AccBridge | ClassFileConstants.AccSynthetic) & ~(ClassFileConstants.AccSynchronized | ClassFileConstants.AccAbstract | ClassFileConstants.AccNative  | ClassFileConstants.AccFinal | ExtraCompilerModifiers.AccGenericSignature);
-		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 	    this.returnType = overridenMethodToBridge.returnType;
 	    this.parameters = overridenMethodToBridge.parameters;
 	    this.thrownExceptions = overridenMethodToBridge.thrownExceptions;
@@ -278,26 +283,39 @@ public class SyntheticMethodBinding extends MethodBinding {
 	}
 
 	/**
-	 * Construct enum special methods: values or valueOf methods
+	 * Construct enum special methods: values or valueOf (OR)
+	 *        records special methods: hashCode, equals, toString
 	 */
-	public SyntheticMethodBinding(SourceTypeBinding declaringEnum, char[] selector) {
-	    this.declaringClass = declaringEnum;
+	public SyntheticMethodBinding(SourceTypeBinding declaringClass, char[] selector) {
+	    this.declaringClass = declaringClass;
 	    this.selector = selector;
-	    this.modifiers = ClassFileConstants.AccPublic | ClassFileConstants.AccStatic;
-		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
-		LookupEnvironment environment = declaringEnum.scope.environment();
+	    this.modifiers = ClassFileConstants.AccPublic | (declaringClass.isEnum() ? ClassFileConstants.AccStatic : ClassFileConstants.AccFinal);
+	    this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
+		LookupEnvironment environment = declaringClass.scope.environment();
 	    this.thrownExceptions = Binding.NO_EXCEPTIONS;
 		if (selector == TypeConstants.VALUES) {
-		    this.returnType = environment.createArrayType(environment.convertToParameterizedType(declaringEnum), 1);
+		    this.returnType = environment.createArrayType(environment.convertToParameterizedType(declaringClass), 1);
 		    this.parameters = Binding.NO_PARAMETERS;
 		    this.purpose = SyntheticMethodBinding.EnumValues;
 		} else if (selector == TypeConstants.VALUEOF) {
-		    this.returnType = environment.convertToParameterizedType(declaringEnum);
-		    this.parameters = new TypeBinding[]{ declaringEnum.scope.getJavaLangString() };
+		    this.returnType = environment.convertToParameterizedType(declaringClass);
+		    this.parameters = new TypeBinding[]{ declaringClass.scope.getJavaLangString() };
 		    this.purpose = SyntheticMethodBinding.EnumValueOf;
+		} else if (selector == TypeConstants.TOSTRING) {
+			this.returnType = declaringClass.scope.getJavaLangString();
+		    this.parameters = Binding.NO_PARAMETERS;
+		    this.purpose = SyntheticMethodBinding.RecordOverrideToString;
+		} else if (selector == TypeConstants.HASHCODE) {
+			this.returnType = TypeBinding.INT;
+		    this.parameters = Binding.NO_PARAMETERS;
+		    this.purpose = SyntheticMethodBinding.RecordOverrideHashCode;
+		} else if (selector == TypeConstants.EQUALS) {
+			this.returnType = TypeBinding.BOOLEAN;
+		    this.parameters = new TypeBinding[] {declaringClass.scope.getJavaLangObject()};
+		    this.purpose = SyntheticMethodBinding.RecordOverrideEquals;
 		}
 		this.index = nextSmbIndex();
-		if (declaringEnum.isStrictfp()) {
+		if (declaringClass.isStrictfp()) {
 			this.modifiers |= ClassFileConstants.AccStrictfp;
 		}
 	}
@@ -315,7 +333,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.declaringClass = declaringClass;
 		this.selector = TypeConstants.DESERIALIZE_LAMBDA;
 		this.modifiers = ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic;
-		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 		this.thrownExceptions = Binding.NO_EXCEPTIONS;
 		this.returnType = declaringClass.scope.getJavaLangObject();
 	    this.parameters = new TypeBinding[]{declaringClass.scope.getJavaLangInvokeSerializedLambda()};
@@ -333,7 +351,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 		buffer.append(TypeConstants.SYNTHETIC_ENUM_CONSTANT_INITIALIZATION_METHOD_PREFIX).append(this.index);
 		this.selector = String.valueOf(buffer).toCharArray();
 		this.modifiers = ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic;
-		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 		this.purpose = SyntheticMethodBinding.TooManyEnumsConstants;
 		this.thrownExceptions = Binding.NO_EXCEPTIONS;
 		this.returnType = TypeBinding.VOID;
@@ -353,7 +371,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	    this.selector = overridenMethodToBridge.selector;
 	    // amongst other, clear the AccGenericSignature, so as to ensure no remains of original inherited persist (101794)
 	    this.modifiers = (overridenMethodToBridge.modifiers | ClassFileConstants.AccBridge | ClassFileConstants.AccSynthetic) & ~(ClassFileConstants.AccSynchronized | ClassFileConstants.AccAbstract | ClassFileConstants.AccNative  | ClassFileConstants.AccFinal | ExtraCompilerModifiers.AccGenericSignature);
-		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 	    this.returnType = overridenMethodToBridge.returnType;
 	    this.parameters = overridenMethodToBridge.parameters;
 	    this.thrownExceptions = overridenMethodToBridge.thrownExceptions;
@@ -366,7 +384,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	    this.declaringClass = declaringClass;
 	    this.selector = selector;
 	    this.modifiers = ClassFileConstants.AccSynthetic | ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic;
-		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 	    this.returnType = arrayType;
 	    LookupEnvironment environment = declaringClass.environment;
 		if (environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
@@ -387,7 +405,8 @@ public class SyntheticMethodBinding extends MethodBinding {
 	    this.declaringClass = declaringClass;
 	    this.selector = lambdaName;
 	    this.modifiers = lambda.binding.modifiers;
-		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved) | (lambda.binding.tagBits & TagBits.HasParameterAnnotations);
+	    this.tagBits |=  (lambda.binding.tagBits & TagBits.HasParameterAnnotations);
+		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 	    this.returnType = lambda.binding.returnType;
 	    this.parameters = lambda.binding.parameters;
         if (this.returnType.isNonDenotable() || Stream.of(this.parameters).anyMatch(TypeBinding::isNonDenotable)) {
@@ -406,7 +425,8 @@ public class SyntheticMethodBinding extends MethodBinding {
 	    this.declaringClass = declaringClass;
 	    this.selector = ref.binding.selector;
 	    this.modifiers = ref.binding.modifiers;
-		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved) | (ref.binding.tagBits & TagBits.HasParameterAnnotations);
+		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
+		this.tagBits |= (ref.binding.tagBits & TagBits.HasParameterAnnotations);
 	    this.returnType = ref.binding.returnType;
 	    this.parameters = ref.binding.parameters;
 	    this.thrownExceptions = ref.binding.thrownExceptions;
@@ -418,7 +438,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	    this.declaringClass = declaringClass;
 	    this.selector = selector;
 	    this.modifiers = ClassFileConstants.AccSynthetic | ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic;
-		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 	    this.returnType = publicConstructor.declaringClass;
 
 	    int realParametersLength = privateConstructor.parameters.length;
@@ -435,73 +455,89 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.index = nextSmbIndex();
 	}
 
-	public SyntheticMethodBinding(ReferenceBinding declaringClass, RecordComponentBinding[] rcb) {
-		SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
-		assert declaringSourceType.isRecord();
-		this.declaringClass = declaringSourceType;
+	public SyntheticMethodBinding(SourceTypeBinding declaringClass, RecordComponentBinding[] rcb) {
+		this.declaringClass = declaringClass;
 		this.modifiers = declaringClass.modifiers & (ClassFileConstants.AccPublic|ClassFileConstants.AccPrivate|ClassFileConstants.AccProtected);
 		if (this.declaringClass.isStrictfp())
 			this.modifiers |= ClassFileConstants.AccStrictfp;
-		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 		this.extendedTagBits |= ExtendedTagBits.IsCanonicalConstructor;
-		this.extendedTagBits |= ExtendedTagBits.isImplicit;
 		this.parameters = rcb.length == 0 ? Binding.NO_PARAMETERS : new TypeBinding[rcb.length];
-		for (int i = 0; i < rcb.length; i++) this.parameters[i] = TypeBinding.VOID; // placeholder
+		this.parameterNames = rcb.length == 0 ? Binding.NO_PARAMETER_NAMES : new char[rcb.length][];
+		AnnotationBinding[][] paramAnnotations = null;
+		LookupEnvironment env = declaringClass.environment;
+		boolean useFlowAnnotations = env.globalOptions.isAnnotationBasedNullAnalysisEnabled || env.globalOptions.isAnnotationBasedResourceAnalysisEnabled;
+		boolean usesNullTypeAnnotations = env.usesNullTypeAnnotations();
+		for (int i = 0, length = rcb.length; i < length; i++) {
+			this.parameters[i] = rcb[i].type;
+			if (this.parameters[i] != null && (this.parameters[i].tagBits & TagBits.HasMissingType) != 0)
+				this.tagBits |=  TagBits.HasMissingType;
+			this.parameterNames[i] = rcb[i].name;
+			TypeBinding leafType = rcb[i].type == null ? null : rcb[i].type.leafComponentType();
+			if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
+				this.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
+			if (useFlowAnnotations) {
+				AbstractMethodDeclaration.computeParamFlowBits(this, length, rcb[i].tagBits, i, usesNullTypeAnnotations);
+			}
+
+			List<AnnotationBinding> relevantAnnotationBindings = new ArrayList<>();
+			Annotation[] relevantAnnotations = ASTNode.getRelevantAnnotations(rcb[i].sourceRecordComponent().annotations, TagBits.AnnotationForParameter, relevantAnnotationBindings);
+			if (relevantAnnotations != null && relevantAnnotations.length > 0) {
+				if (paramAnnotations == null) {
+					paramAnnotations = new AnnotationBinding[length][];
+					for (int j=0; j<i; j++) {
+						paramAnnotations[j] = Binding.NO_ANNOTATIONS;
+					}
+				}
+				this.tagBits |= TagBits.HasParameterAnnotations;
+				paramAnnotations[i] = relevantAnnotationBindings.toArray(new AnnotationBinding[0]);
+			} else if (paramAnnotations != null) {
+				paramAnnotations[i] = Binding.NO_ANNOTATIONS;
+			}
+		}
+		if (paramAnnotations != null)
+			this.setParameterAnnotations(paramAnnotations);
+
+		if (rcb.length > 0) {
+			RecordComponent lastComponent = rcb[rcb.length-1].sourceRecordComponent();
+			if (lastComponent.isVarArgs()) {
+				this.modifiers |= ClassFileConstants.AccVarargs;
+				declaringClass.checkAndFlagHeapPollution(this, lastComponent);
+			}
+		}
 		this.selector = TypeConstants.INIT;
 		this.returnType = TypeBinding.VOID;
 		this.purpose = SyntheticMethodBinding.RecordCanonicalConstructor;
 		this.thrownExceptions = Binding.NO_EXCEPTIONS;
-		this.declaringClass = declaringSourceType;
 		this.index = nextSmbIndex();
 	}
-	public SyntheticMethodBinding(ReferenceBinding declaringClass, RecordComponentBinding rcb, int index) {
-		SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
-		assert declaringSourceType.isRecord();
-		this.declaringClass = declaringSourceType;
+
+	public SyntheticMethodBinding(SourceTypeBinding declaringClass, RecordComponentBinding rcb) {
+		this.declaringClass = declaringClass;
 		this.modifiers = ClassFileConstants.AccPublic;
-		// rcb not resolved fully yet - to be filled in later - see STB.components()
-//		if (rcb.type instanceof TypeVariableBinding ||
-//				rcb.type instanceof ParameterizedTypeBinding)
-//			this.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
+
+		TypeBinding leafType = rcb.type == null ? null : rcb.type.leafComponentType();
+		if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
+			this.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
+
 		if (this.declaringClass.isStrictfp())
 			this.modifiers |= ClassFileConstants.AccStrictfp;
-		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
+		this.tagBits |= rcb.tagBits & (TagBits.AnnotationNullMASK | TagBits.AnnotationOwningMASK);
 		this.parameters = Binding.NO_PARAMETERS;
-//		this.returnType = rcb.type; Not resolved yet - to be filled in later
+		this.returnType = rcb.type;
+		if (this.returnType != null && (this.returnType.tagBits & TagBits.HasMissingType) != 0)
+			this.tagBits |=  TagBits.HasMissingType;
 		this.selector = rcb.name;
 		this.recordComponentBinding = rcb;
-//		this.targetReadField = ??; // not fully resolved yet - to be filled in later
-		this.purpose = SyntheticMethodBinding.FieldReadAccess;
+		this.targetReadField = rcb;
+		this.purpose = SyntheticMethodBinding.RecordComponentReadAccess;
 		this.thrownExceptions = Binding.NO_EXCEPTIONS;
-		this.declaringClass = declaringSourceType;
 		this.index = nextSmbIndex();
 		this.sourceStart = rcb.sourceRecordComponent().sourceStart;
+		ASTNode.copyRecordComponentAnnotations(declaringClass.scope, this, rcb.sourceRecordComponent().annotations);
 	}
-	public SyntheticMethodBinding(ReferenceBinding declaringClass, char[] selector, int index) {
-		SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
-		assert declaringSourceType.isRecord();
-		this.declaringClass = declaringSourceType;
-		this.modifiers = ClassFileConstants.AccPublic | ClassFileConstants.AccFinal;
-		if (this.declaringClass.isStrictfp())
-				this.modifiers |= ClassFileConstants.AccStrictfp;
-		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
-	    this.selector = selector;
-	    this.thrownExceptions = Binding.NO_EXCEPTIONS;
-		if (selector == TypeConstants.TOSTRING) {
-			this.returnType = declaringSourceType.scope.getJavaLangString();
-		    this.parameters = Binding.NO_PARAMETERS;
-		    this.purpose = SyntheticMethodBinding.RecordOverrideToString;
-		} else if (selector == TypeConstants.HASHCODE) {
-			this.returnType = TypeBinding.INT;
-		    this.parameters = Binding.NO_PARAMETERS;
-		    this.purpose = SyntheticMethodBinding.RecordOverrideHashCode;
-		} else if (selector == TypeConstants.EQUALS) {
-			this.returnType = TypeBinding.BOOLEAN;
-		    this.parameters = new TypeBinding[] {declaringSourceType.scope.getJavaLangObject()};
-		    this.purpose = SyntheticMethodBinding.RecordOverrideEquals;
-		}
-		this.index = nextSmbIndex();
-	}
+
 	/**
 	 * An constructor accessor is a constructor with an extra argument (declaringClass), in case of
 	 * collision with an existing constructor, then add again an extra argument (declaringClass again).
@@ -510,7 +546,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 
 		this.targetMethod = accessedConstructor;
 		this.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccSynthetic;
-		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 		SourceTypeBinding sourceType = (SourceTypeBinding) accessedConstructor.declaringClass;
 		SyntheticMethodBinding[] knownSyntheticMethods = sourceType.syntheticMethods();   // returns synthetic methods sorted with index.
 		this.index = knownSyntheticMethods == null ? 0 : knownSyntheticMethods[knownSyntheticMethods.length - 1].index + 1; //index may miss some numbers in between. get the highest index and assign next number.
@@ -595,7 +631,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 			else
 				this.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic;
 		}
-		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+		this.extendedTagBits |= ExtendedTagBits.AllAnnotationsResolved;
 		SourceTypeBinding declaringSourceType = (SourceTypeBinding) receiverType;
 		SyntheticMethodBinding[] knownAccessMethods = declaringSourceType.syntheticMethods();
 		int methodId = knownAccessMethods == null ? 0 : knownAccessMethods[knownAccessMethods.length - 1].index + 1; //index may miss some numbers in between. get the highest index and assign next number.
@@ -680,6 +716,14 @@ public class SyntheticMethodBinding extends MethodBinding {
 			default:
 				return super.hasNonNullDefaultForParameter(srcMethod);
 		}
+	}
+
+	//pre: null annotation analysis is enabled
+	@Override
+	public boolean hasNonNullDefaultForReturnType(AbstractMethodDeclaration srcMethod) {
+		if (this.purpose == RecordComponentReadAccess)
+			return hasNonNullDefaultForType(this.returnType, Binding.DefaultLocationRecordComponent, srcMethod, srcMethod == null ? -1 : srcMethod.declarationSourceStart);
+		return super.hasNonNullDefaultForReturnType(srcMethod);
 	}
 
 	public void markNonNull(LookupEnvironment environment) {

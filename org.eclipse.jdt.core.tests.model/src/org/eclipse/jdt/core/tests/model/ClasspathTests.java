@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -90,7 +90,7 @@ public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	setupExternalJCL("jclMin");
 	setupExternalJCL("jclMin1.8");
-	setupExternalJCL("jclMin23");
+	setupExternalJCL("jclMin24");
 }
 
 void restoreAutobuild(IWorkspaceDescription preferences, boolean autoBuild) throws CoreException {
@@ -413,17 +413,19 @@ public void test232816f() throws Exception {
 	IJavaProject p = null;
 	try {
 		p = createJavaProject("P");
-		setUpProjectCompliance(p, CompilerOptions.getFirstSupportedJavaVersion(), true);
-		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.getFirstSupportedJavaVersion());
+		String firstVersion = CompilerOptions.getFirstSupportedJavaVersion();
+		String latestVersion = CompilerOptions.getLatestVersion();
+		setUpProjectCompliance(p, firstVersion, true);
+		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, firstVersion);
 		p.setOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, JavaCore.WARNING);
-
+		setUpJCLClasspathVariables(latestVersion, false);
 		JavaCore.setClasspathContainer(
 			new Path("container/default"),
 			new IJavaProject[]{ p },
 			new IClasspathContainer[] {
 				new TestContainer(new Path("container/default"),
 					new IClasspathEntry[]{
-						JavaCore.newLibraryEntry(getExternalJCLPath(CompilerOptions.getLatestVersion()), new Path("/P0/SBlah"), new Path("/P0"))})
+						JavaCore.newLibraryEntry(getExternalJCLPath(latestVersion), new Path("/P0/SBlah"), new Path("/P0"))})
 			},
 			null);
 
@@ -432,8 +434,8 @@ public void test232816f() throws Exception {
 		IJavaModelStatus status = JavaConventions.validateClasspathEntry(p, newClasspath, true);
 		assertStatus(
 			"should have complained about jdk level mismatch",
-			"Incompatible .class files version in required binaries. Project 'P' is targeting a " + CompilerOptions.getFirstSupportedJavaVersion()
-					+ " runtime, but is compiled against \'" + getExternalJCLPath("23").makeRelative() + "' (from the container 'container/default') which requires a 23 runtime",
+			"Incompatible .class files version in required binaries. Project 'P' is targeting a " + firstVersion
+					+ " runtime, but is compiled against \'" + getExternalJCLPath(latestVersion).makeRelative() + "' (from the container 'container/default') which requires a "+latestVersion+" runtime",
 			status);
 	} finally {
 		deleteProject("P");

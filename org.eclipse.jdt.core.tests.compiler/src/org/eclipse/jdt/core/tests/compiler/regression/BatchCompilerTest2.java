@@ -124,7 +124,7 @@ public void test003() {
 					"1 problem (1 error)\n",
 					true);
 }
-public void test004() throws Exception {
+public void test004_previewUnused() throws Exception {
 	this.runConformTest(
 			new String[] {
 					"X.java",
@@ -137,6 +137,29 @@ public void test004() throws Exception {
 					"		if (false) {\n" +
 					"			;\n" +
 					"		} else {\n" +
+					"		}\n" +
+					"	}\n" +
+					"}"
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+					+ " --enable-preview -" + CompilerOptions.getLatestVersion() + " ",
+					"",
+					"",
+					true);
+	String expectedOutput = ".0, super bit)";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+public void test004_previewUsed() throws Exception {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" +
+					")\n" +
+					"public class X {\n" +
+					"	public static void main(Object o) {\n" +
+					"		switch (o) {\n" +
+					"			case int i -> System.out.print(i);\n" +
+					"			default -> System.out.print(0);\n" +
 					"		}\n" +
 					"	}\n" +
 					"}"
@@ -147,31 +170,6 @@ public void test004() throws Exception {
 					"",
 					true);
 	String expectedOutput = ".65535, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
-}
-public void test005() throws Exception {
-	this.runConformTest(
-			new String[] {
-					"X.java",
-					"import java.util.List;\n" +
-					"\n" +
-					"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" +
-					")\n" +
-					"public class X {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		if (false) {\n" +
-					"			;\n" +
-					"		} else {\n" +
-					"		}\n" +
-					"	}\n" +
-					"}"
-			},
-			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-					+ " --enable-preview -" + CompilerOptions.getLatestVersion() + " ",
-					"",
-					"",
-					true);
-	String expectedOutput = "65535, super bit)";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 public void test006() throws Exception {

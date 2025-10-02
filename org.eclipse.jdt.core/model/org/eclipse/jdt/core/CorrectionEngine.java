@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameNotAToken;
+
 import java.util.Hashtable;
 import java.util.Map;
 import org.eclipse.core.resources.IMarker;
@@ -21,7 +23,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.parser.TerminalToken;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -259,13 +261,13 @@ public class CorrectionEngine {
 			scanner.setSource(source.toCharArray());
 
 			scanner.resetTo(this.correctionStart, this.correctionEnd);
-			int token = 0;
+			TerminalToken token = TokenNameNotAToken;
 			char[] argumentSource = CharOperation.NO_CHAR;
 
 			// search last segment position
 			while(true) {
 				token = scanner.getNextToken();
-				if (token == TerminalTokens.TokenNameEOF) return;
+				if (token == TerminalToken.TokenNameEOF) return;
 
 				char[] tokenSource = scanner.getCurrentTokenSource();
 

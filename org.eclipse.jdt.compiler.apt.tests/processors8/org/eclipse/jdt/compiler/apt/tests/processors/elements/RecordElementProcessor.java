@@ -17,8 +17,6 @@ package org.eclipse.jdt.compiler.apt.tests.processors.elements;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -80,34 +78,12 @@ public class RecordElementProcessor extends BaseElementProcessor {
 					super.reportSuccess();
 				}
 			} catch (AssertionFailedError e) {
-				super.reportError(getExceptionStackTrace(e));
+				super.reportError(e);
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}
 		}
 		return false;
-	}
-
-	private boolean invokeTestMethods(Map<String, String> options) throws Throwable {
-		Method testMethod = null;
-		Set<String> keys = options.keySet();
-		boolean testsFound = false;
-		for (String option : keys) {
-			if (option.startsWith("test")) {
-				try {
-					testMethod = this.getClass().getDeclaredMethod(option, new Class[0]);
-					if (testMethod != null) {
-						testsFound = true;
-						testMethod.invoke(this,  new Object[0]);
-					}
-				} catch (InvocationTargetException e) {
-					throw e.getCause();
-				} catch (Exception e) {
-					super.reportError(getExceptionStackTrace(e));
-				}
-			}
-		}
-		return testsFound;
 	}
 
 	public void testAll() throws AssertionFailedError, IOException {
@@ -590,6 +566,15 @@ public class RecordElementProcessor extends BaseElementProcessor {
 		VariableElement var = parameters.get(0);
 		assertEquals("component name incorrect", "i", var.getSimpleName().toString());
 		verifyAnnotations(var, new String[]{"@Marker4()"});
+		asType = var.asType();
+		verifyAnnotations(asType, new String[]{});
+
+		List<VariableElement> fieldsIn = ElementFilter.fieldsIn(enclosedElements);
+		assertEquals("incorrect method", 1, methodsIn.size());
+		VariableElement field = fieldsIn.get(0);
+		verifyAnnotations(field, new String[]{"@Marker4()"});
+		asType = field.asType();
+		verifyAnnotations(asType, new String[]{});
 	}
 	public void testRecordsConstructors() {
 		Set<? extends Element> elements = roundEnv.getRootElements();

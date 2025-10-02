@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2384,7 +2384,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 				"         Serializable o = ((Serializable & I & @Marker3 J) () -> {});\n" +
 				"    	  Serializable oo = (@Marker1 I & @Marker2 J & @Marker3 Serializable) obj;\n" +
 				"         Serializable ooo = (@Marker1 I & @Marker2 Serializable) obj;\n" +
-				"        return (@Marker1 I & @Marker2 Serializable) obj;\n" +
+				"         return (@Marker1 I & @Marker2 Serializable) obj;\n" +
 				"      }\n" +
 				"}\n" +
 				"interface I {\n" +

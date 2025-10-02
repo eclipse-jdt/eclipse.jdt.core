@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalToken.TokenNameNotAToken;
+
 import org.eclipse.jdt.internal.compiler.ast.*;
 
 public class RecoveredAnnotation extends RecoveredElement {
@@ -27,7 +29,7 @@ public class RecoveredAnnotation extends RecoveredElement {
 	public boolean hasPendingMemberValueName;
 	public int memberValuPairEqualEnd = -1;
 	public Annotation annotation;
-	public int errorToken;
+	public TerminalToken errorToken = TokenNameNotAToken;
 
 	public RecoveredAnnotation(int identifierPtr, int identifierLengthPtr, int sourceStart, RecoveredElement parent, int bracketBalance) {
 		super(parent, bracketBalance);
@@ -79,7 +81,7 @@ public class RecoveredAnnotation extends RecoveredElement {
 				int start = (int) (pos >>> 32);
 				int end = (int)pos;
 
-				if (this.errorToken == TerminalTokens.TokenNameDOT) {
+				if (this.errorToken == TerminalToken.TokenNameDOT) {
 					// do we need to consult identifierLengthStack to pull more than one name segment?
 					char[][] qname = new char[][] { memberValueName, RecoveryScanner.FAKE_IDENTIFIER };
 					singleValue = new QualifiedNameReference(qname, new long[] {pos,pos}, start, end);

@@ -44,6 +44,15 @@ public interface IModuleBinding extends IBinding {
 	public abstract IModuleBinding[] getRequiredModules();
 
 	/**
+	 * Returns all modules that are required with the modifier "transitive".
+	 * <p>The resulting bindings are in no particular order.</p>
+	 *
+	 * @return modules required with the modifier "transitive"
+	 * @since 3.44
+	 */
+	public abstract IModuleBinding[] getRequiredTransitiveModules();
+
+	/**
 	 * Returns all exported packages.
 	 * <p>The resulting bindings are in no particular order.</p>
 	 *

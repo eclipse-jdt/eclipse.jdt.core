@@ -25,6 +25,7 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.JavaFileManager;
+import org.eclipse.jdt.core.compiler.CompilationProgress;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.apt.model.ElementsImpl;
 import org.eclipse.jdt.internal.compiler.apt.model.Factory;
@@ -129,14 +130,7 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 	@Override
 	public SourceVersion getSourceVersion() {
 		final long sourceLevel = this._compiler.options.sourceLevel;
-		if (sourceLevel <= ClassFileConstants.JDK1_5) {
-			return SourceVersion.RELEASE_5;
-		}
-		if (sourceLevel == ClassFileConstants.JDK1_6) {
-			return SourceVersion.RELEASE_6;
-		} else if (sourceLevel == ClassFileConstants.JDK1_7) {
-			return SourceVersion.RELEASE_7;
-		} else if (sourceLevel == ClassFileConstants.JDK1_8) {
+		if (sourceLevel == ClassFileConstants.JDK1_8) {
 			return SourceVersion.RELEASE_8;
 		} else if (sourceLevel == ClassFileConstants.JDK9) {
 			return SourceVersion.RELEASE_9;
@@ -218,6 +212,10 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 
 	public JavaFileManager getFileManager() {
 		return null;
+	}
+
+	CompilationProgress getCompilationProgress() {
+		return this._compiler.progress;
 	}
 
 }

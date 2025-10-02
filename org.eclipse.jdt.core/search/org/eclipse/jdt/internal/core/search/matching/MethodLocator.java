@@ -57,7 +57,7 @@ public char[][][] allSuperDeclaringTypeNames;
 // See https://bugs.eclipse.org/bugs/show_bug.cgi?id=357547
 private char[][][] samePkgSuperDeclaringTypeNames;
 
-private MatchLocator matchLocator;
+protected MatchLocator matchLocator;
 //method declarations which parameters verification fail
 private Map<ASTNode, Boolean> methodDeclarationsWithInvalidParam = new HashMap<>();
 
@@ -721,7 +721,7 @@ protected void reportDeclaration(MethodBinding methodBinding, MatchLocator locat
 		if (methodDecl != null) {
 			// Create method handle from method declaration
 			String methodName = new String(methodBinding.selector);
-			Argument[] arguments = methodDecl.arguments;
+			AbstractVariableDeclaration[] arguments = methodDecl.arguments(true);
 			int length = arguments == null ? 0 : arguments.length;
 			String[] parameterTypes = new String[length];
 			for (int i = 0; i  < length; i++) {

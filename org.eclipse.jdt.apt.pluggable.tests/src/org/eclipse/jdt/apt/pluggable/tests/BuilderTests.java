@@ -29,6 +29,7 @@ import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Bug510118Pro
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.BugsProc;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.InheritedAnnoProc;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Issue565Processor;
+import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Issue4446Processor;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.TestFinalRoundProc;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.builder.Problem;
@@ -381,6 +382,19 @@ public class BuilderTests extends TestBase
 		expectingNoProblems();
 		assertTrue("Incorrect status received from annotation processor", Issue565Processor.status());
 	}
+
+    public void testIssue4446() throws Throwable {
+        ProcessorTestStatus.reset();
+        IJavaProject jproj = createJavaProject(_projectName);
+        disableJava5Factories(jproj);
+        IProject proj = jproj.getProject();
+        IdeTestUtils.copyResources(proj, "targets/issue4446", "src/targets/issue4446");
+
+        AptConfig.setEnabled(jproj, true);
+        fullBuild();
+        expectingNoProblems();
+        assertTrue("Incorrect status received from annotation processor", Issue4446Processor.status());
+    }
 
 	public void testBug341298() throws Throwable {
 		ProcessorTestStatus.reset();

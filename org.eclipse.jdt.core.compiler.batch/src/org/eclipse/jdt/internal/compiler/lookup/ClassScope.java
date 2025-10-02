@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -41,12 +41,12 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
-@SuppressWarnings({"rawtypes"})
 public class ClassScope extends Scope {
 
 	public TypeDeclaration referenceContext;
@@ -54,7 +54,7 @@ public class ClassScope extends Scope {
 	java.util.ArrayList<TypeReference> deferredBoundChecks;
 	public boolean resolvingPolyExpressionArguments = false;
 	/**
-	 * This is the primary flag for detection of early construction contexts (JEP 482).
+	 * This is the primary flag for detection of early construction contexts (JEP 513).
 	 * It is temporarily set on the scope of a class while processing statements of this class's
 	 * early construction context (during resolveType(), analyseCode() and generateCode())
 	 * <p>Main access is via {@link Scope#enterEarlyConstructionContext()}, {@link Scope#leaveEarlyConstructionContext()}
@@ -63,7 +63,7 @@ public class ClassScope extends Scope {
 	 * into {@code scopesInEarlyConstruction}, for use during generateCode(), which doesn't have the
 	 * context of the lambda declaration.
 	 * </p>
-	 * <p>All this is always active at compliance 23, see {@link JavaFeature#FLEXIBLE_CONSTRUCTOR_BODIES}
+	 * <p>All this is always active at compliance 23+, see {@link JavaFeature#FLEXIBLE_CONSTRUCTOR_BODIES}
 	 * for details on where enablement is actually checked.</p>
 	 */
 	public boolean insideEarlyConstructionContext = false;
@@ -74,7 +74,7 @@ public class ClassScope extends Scope {
 		this.deferredBoundChecks = null; // initialized if required
 	}
 
-	void buildAnonymousTypeBinding(SourceTypeBinding enclosingType, ReferenceBinding supertype) {
+	public void buildAnonymousTypeBinding(SourceTypeBinding enclosingType, ReferenceBinding supertype) {
 		LocalTypeBinding anonymousType = buildLocalType(enclosingType, enclosingType.fPackage);
 		anonymousType.modifiers |= ExtraCompilerModifiers.AccLocallyUsed; // tag all anonymous types as used locally
 		int inheritedBits = supertype.typeBits; // for anonymous class assume same properties as its super (as a closeable) ...
@@ -119,11 +119,9 @@ public class ClassScope extends Scope {
 					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
 					anonymousType.setSuperClass(getJavaLangObject());
 				} else if (supertype.erasure().id == TypeIds.T_JavaLangRecord) {
-					if (!(this.referenceContext.isRecord())) {
-						problemReporter().recordCannotExtendRecord(anonymousType, typeReference, supertype);
-						anonymousType.tagBits |= TagBits.HierarchyHasProblems;
-						anonymousType.setSuperClass(getJavaLangObject());
-					}
+					problemReporter().cannotExtendRecord(anonymousType, typeReference, supertype);
+					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
+					anonymousType.setSuperClass(getJavaLangObject());
 				} else if (supertype.isFinal()) {
 					problemReporter().anonymousClassCannotExtendFinalClass(typeReference, supertype);
 					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
@@ -141,81 +139,17 @@ public class ClassScope extends Scope {
 		}
 		anonymousType.tagBits |= TagBits.EndHierarchyCheck;
 		connectMemberTypes();
+		collateRecordComponents();
 		buildFieldsAndMethods();
 		anonymousType.faultInTypesForFieldsAndMethods();
 		anonymousType.verifyMethods(environment().methodVerifier());
 	}
 
-	void buildComponents() {
-		SourceTypeBinding sourceType = this.referenceContext.binding;
-		if (!sourceType.isRecord()) return;
-		if (sourceType.areComponentsInitialized()) return;
-		if (this.referenceContext.recordComponents == null) {
-			sourceType.setComponents(Binding.NO_COMPONENTS);
-			return;
-		}
-		// count the number of fields vs. initializers
-		RecordComponent[] recComps = this.referenceContext.recordComponents;
-		int size = recComps.length;
-		int count = size;
-
-		// iterate the field declarations to create the bindings, lose all duplicates
-		RecordComponentBinding[] componentBindings = new RecordComponentBinding[count];
-		HashtableOfObject knownComponentNames = new HashtableOfObject(count);
-		count = 0;
-		for (int i = 0; i < size; i++) {
-			RecordComponent recComp = recComps[i];
-			RecordComponentBinding compBinding = new RecordComponentBinding(sourceType, recComp, null,
-					recComp.modifiers | ExtraCompilerModifiers.AccUnresolved);
-			compBinding.id = count;
-			checkAndSetModifiersForComponents(compBinding, recComp);
-
-			if (knownComponentNames.containsKey(recComp.name)) {
-				RecordComponentBinding previousBinding = (RecordComponentBinding) knownComponentNames.get(recComp.name);
-				if (previousBinding != null) {
-					for (int f = 0; f < i; f++) {
-						RecordComponent previousComponent = recComps[f];
-						if (previousComponent.binding == previousBinding) {
-							// flag the duplicate component name error here.
-							problemReporter().recordDuplicateComponent(previousComponent);
-							break;
-						}
-					}
-				}
-				knownComponentNames.put(recComp.name, null); // ensure that the duplicate field is found & removed
-				problemReporter().recordDuplicateComponent(recComp);
-				recComp.binding = null;
-			} else {
-				knownComponentNames.put(recComp.name, compBinding);
-				// remember that we have seen a component with this name
-				componentBindings[count++] = compBinding;
-			}
-		}
-		// remove duplicate components
-		if (count != componentBindings.length)
-			System.arraycopy(componentBindings, 0, componentBindings = new RecordComponentBinding[count], 0, count);
-		sourceType.setComponents(componentBindings);
-		if (size > 0) {
-			sourceType.isVarArgs = recComps[size-1].isVarArgs();
-		}
-	}
-	private void checkAndSetModifiersForComponents(RecordComponentBinding compBinding, RecordComponent comp) {
-		int modifiers = compBinding.modifiers;
-		int realModifiers = modifiers & ExtraCompilerModifiers.AccJustFlag;
-		if (realModifiers  != 0 && comp != null){
-			problemReporter().recordComponentsCannotHaveModifiers(comp);
-		}
-	}
-
 	void buildFields() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		if (sourceType.areFieldsInitialized()) return;
-		if (this.referenceContext.fields == null) {
-			sourceType.setFields(Binding.NO_FIELDS);
-			return;
-		}
 		// count the number of fields vs. initializers
-		FieldDeclaration[] fields = this.referenceContext.fields;
+		FieldDeclaration[] fields = this.referenceContext.fields == null ? ASTNode.NO_FIELD_DECLARATIONS : this.referenceContext.fields;
 		int size = fields.length;
 		int count = 0;
 		for (int i = 0; i < size; i++) {
@@ -226,40 +160,66 @@ public class ClassScope extends Scope {
 			}
 		}
 
+		RecordComponent [] recordComponents = this.referenceContext.recordComponents;
+		count += recordComponents.length;
+
+		if (count == 0) {
+			sourceType.setFields(Binding.NO_FIELDS);
+			return;
+		}
 		// iterate the field declarations to create the bindings, lose all duplicates
 		FieldBinding[] fieldBindings = new FieldBinding[count];
 		HashtableOfObject knownFieldNames = new HashtableOfObject(count);
 		count = 0;
-		for (int i = 0; i < size; i++) {
-			FieldDeclaration field = fields[i];
-			if (field.getKind() == AbstractVariableDeclaration.INITIALIZER) {
+
+		AbstractVariableDeclaration variableDeclarations[] = this.referenceContext.protoFieldDeclarations();
+		int i = -1;
+		nextVariable:
+		for (AbstractVariableDeclaration variableDeclaration : variableDeclarations) {
+			FieldBinding fieldBinding;
+			++i;
+			if (variableDeclaration.getKind() == AbstractVariableDeclaration.INITIALIZER) {
 				// We used to report an error for initializers declared inside interfaces, but
 				// now this error reporting is moved into the parser itself. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=212713
-			} else {
-				FieldBinding fieldBinding = new FieldBinding(field, null, field.modifiers | ExtraCompilerModifiers.AccUnresolved, sourceType);
-				fieldBinding.id = count;
-				// field's type will be resolved when needed for top level types
+				continue;
+			}
+			// Create a field binding for the declared or derived field - its type will be patched up later while resolving for field
+			if (variableDeclaration instanceof FieldDeclaration field) {
+				fieldBinding = new FieldBinding(field, null, field.modifiers | ExtraCompilerModifiers.AccUnresolved, sourceType);
 				checkAndSetModifiersForField(fieldBinding, field);
-
-				if (knownFieldNames.containsKey(field.name)) {
-					FieldBinding previousBinding = (FieldBinding) knownFieldNames.get(field.name);
-					if (previousBinding != null) {
-						for (int f = 0; f < i; f++) {
-							FieldDeclaration previousField = fields[f];
-							if (previousField.binding == previousBinding) {
-								problemReporter().duplicateFieldInType(sourceType, previousField);
-								break;
-							}
+			} else if (variableDeclaration instanceof RecordComponent componentDeclaration) {
+				// prefer type from the binding as it holds the null annotations if any:
+				TypeBinding type = componentDeclaration.binding != null ? componentDeclaration.binding.type : variableDeclaration.type.resolvedType;
+				fieldBinding = new SyntheticFieldBinding(variableDeclaration.name, type,
+						ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal | ExtraCompilerModifiers.AccBlankFinal,
+						sourceType, Constant.NotAConstant);
+				if (componentDeclaration.binding != null)
+					fieldBinding.tagBits |= componentDeclaration.binding.tagBits & (TagBits.AnnotationNullMASK | TagBits.AnnotationOwningMASK);
+			} else {
+				throw new IllegalStateException("Fields can only be field or record component"); //$NON-NLS-1$
+			}
+			fieldBinding.id = count;
+			if (knownFieldNames.containsKey(variableDeclaration.name)) {
+				FieldBinding previousBinding = (FieldBinding) knownFieldNames.get(variableDeclaration.name);
+				if (previousBinding != null) {
+					for (int f = 0; f < i; f++) {
+						AbstractVariableDeclaration previousField = variableDeclarations[f];
+						if (CharOperation.equals(previousField.name,variableDeclaration.name)) {
+							if (previousField.getKind() == AbstractVariableDeclaration.RECORD_COMPONENT && variableDeclaration.getKind() == AbstractVariableDeclaration.RECORD_COMPONENT)
+								continue nextVariable; // already complained about duplicate components, don't also complain about fields
+							problemReporter().duplicateFieldInType(sourceType, previousField);
+							break;
 						}
 					}
-					knownFieldNames.put(field.name, null); // ensure that the duplicate field is found & removed
-					problemReporter().duplicateFieldInType(sourceType, field);
-					field.binding = null;
-				} else {
-					knownFieldNames.put(field.name, fieldBinding);
-					// remember that we have seen a field with this name
-					fieldBindings[count++] = fieldBinding;
 				}
+				knownFieldNames.put(variableDeclaration.name, null); // ensure that the duplicate field is found & removed
+				problemReporter().duplicateFieldInType(sourceType, variableDeclaration);
+				variableDeclaration.setBinding(null);
+			} else {
+				knownFieldNames.put(variableDeclaration.name, fieldBinding);
+				fieldBindings[count++] = fieldBinding;
+				if (variableDeclaration instanceof RecordComponent componentDecl && fieldBinding instanceof SyntheticFieldBinding)
+					sourceType.addSyntheticRecordState(componentDecl, fieldBinding);
 			}
 		}
 		// remove duplicate fields
@@ -270,7 +230,6 @@ public class ClassScope extends Scope {
 	}
 
 	void buildFieldsAndMethods() {
-		buildComponents();
 		buildFields();
 		buildMethods();
 
@@ -347,11 +306,10 @@ public class ClassScope extends Scope {
 
 		LocalTypeBinding localType = buildLocalType(enclosingType, enclosingType.fPackage);
 		connectTypeHierarchy();
-		if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
-			checkParameterizedTypeBounds();
-			checkParameterizedSuperTypeCollisions();
-		}
+		checkParameterizedTypeBounds();
+		checkParameterizedSuperTypeCollisions();
 		this.referenceContext.updateSupertypesWithAnnotations(Collections.emptyMap());
+		collateRecordComponents();
 		buildFieldsAndMethods();
 		localType.faultInTypesForFieldsAndMethods();
 
@@ -473,11 +431,6 @@ public class ClassScope extends Scope {
 			if (hasAbstractMethods)
 				problemReporter().abstractMethodInConcreteClass(sourceType);
 		}
-		if (sourceType.isRecord()) {
-			assert this.referenceContext.isRecord();
-			methodBindings = sourceType.checkAndAddSyntheticRecordMethods(methodBindings, count);
-			count = methodBindings.length;
-		}
 		if (count != methodBindings.length)
 			System.arraycopy(methodBindings, 0, methodBindings = new MethodBinding[count], 0, count);
 		sourceType.tagBits &= ~(TagBits.AreMethodsSorted|TagBits.AreMethodsComplete); // in case some static imports reached already into this type
@@ -570,7 +523,7 @@ public class ClassScope extends Scope {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		int modifiers = sourceType.modifiers;
 		CompilerOptions options = compilerOptions();
-		boolean is16Plus = compilerOptions().sourceLevel >= ClassFileConstants.JDK16;
+		boolean is16Plus = options.sourceLevel >= ClassFileConstants.JDK16;
 		boolean isSealedSupported = JavaFeature.SEALED_CLASSES.isSupported(options);
 		boolean hierarchySealed = (modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed)) != 0;
 
@@ -581,8 +534,7 @@ public class ClassScope extends Scope {
 				break;
 		}
 		if (sourceType.isRecord()) {
-			/* JLS 14 Records Sec 8.10 - A record declaration is implicitly final. */
-			modifiers |= ClassFileConstants.AccFinal;
+			modifiers |= ClassFileConstants.AccFinal; // A record declaration is implicitly final.
 		}
 		if ((modifiers & ExtraCompilerModifiers.AccAlternateModifierProblem) != 0)
 			problemReporter().duplicateModifierForType(sourceType);
@@ -603,8 +555,7 @@ public class ClassScope extends Scope {
 			} else if (sourceType.isInterface()) {
 				modifiers |= ClassFileConstants.AccStatic; // 8.5.1
 			} else if (sourceType.isRecord()) {
-				/* JLS 14 Records Sec 8.10 A nested record type is implicitly static */
-				modifiers |= ClassFileConstants.AccStatic;
+				modifiers |= ClassFileConstants.AccStatic; // A nested record type is implicitly static
 			}
 		} else if (sourceType.isLocalType()) {
 			if (sourceType.isEnum()) {
@@ -621,10 +572,6 @@ public class ClassScope extends Scope {
 				}
 				modifiers |= ClassFileConstants.AccStatic;
 			} else if (sourceType.isRecord()) {
-//				if (enclosingType != null && enclosingType.isLocalType()) {
-//					problemReporter().illegalLocalTypeDeclaration(this.referenceContext);
-//					return;
-//				}
 				if ((modifiers & ClassFileConstants.AccStatic) != 0) {
 					if (!(this.parent instanceof ClassScope))
 						problemReporter().recordIllegalStaticModifierForLocalClassOrInterface(sourceType);
@@ -744,7 +691,7 @@ public class ClassScope extends Scope {
 			/*
 			 * AccSynthetic must be set if the target is greater than 1.5. 1.5 VM don't support AccSynthetics flag.
 			 */
-			if (sourceType.sourceName == TypeConstants.PACKAGE_INFO_NAME && compilerOptions().targetJDK > ClassFileConstants.JDK1_5) {
+			if (sourceType.sourceName == TypeConstants.PACKAGE_INFO_NAME) {
 				modifiers |= ClassFileConstants.AccSynthetic;
 			}
 			modifiers |= ClassFileConstants.AccAbstract;
@@ -827,7 +774,7 @@ public class ClassScope extends Scope {
 				if (isSealedSupported && (modifiers & ClassFileConstants.AccFinal) == 0)
 					modifiers |= ExtraCompilerModifiers.AccSealed;
 			}
-		} else if (sourceType.isRecord()) {
+		} else if (sourceType.isRecord()) { // JLS 16 8.10
 			int UNEXPECTED_MODIFIERS = ExtraCompilerModifiers.AccNonSealed | ExtraCompilerModifiers.AccSealed;
 			if (isMemberType) {
 				final int EXPECTED_MODIFIERS = (ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStatic | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
@@ -842,23 +789,6 @@ public class ClassScope extends Scope {
 				if ((realModifiers & ~EXPECTED_MODIFIERS) != 0 || (modifiers & UNEXPECTED_MODIFIERS) != 0)
 					problemReporter().illegalModifierForRecord(sourceType);
 			}
-			// JLS 14 8.10 : It is a compile-time error if a record declaration has the modifier abstract.
-
-			/* Section 8.10 http://cr.openjdk.java.net/~gbierman/8222777/8222777-20190823/specs/records-jls.html#jls-8.10
-			 * It is a compile-time error if a record declaration has the modifier abstract.
-			 *
-			 * A record declaration is implicitly final. It is permitted for the declaration of a record type
-			 * to redundantly specify the final modifier.
-			 *
-			 * A nested record type is implicitly static. It is permitted for the declaration of a nested record
-			 * type to redundantly specify the static modifier.
-			 *
-			 * This implies that it is impossible to declare a record type in the body of an inner class (8.1.3),
-			 * because an inner class cannot have static members except for constant variables.
-			 *
-			 * It is a compile-time error if the same keyword appears more than once as a modifier for a record declaration,
-			 * or if a record declaration has more than one of the access modifiers public, protected, and private (6.6).
-			 */
 		} else {
 			// detect abnormal cases for classes
 			if (isMemberType) { // includes member types defined inside local types
@@ -1005,7 +935,7 @@ public class ClassScope extends Scope {
 		// check for parameterized interface collisions (when different parameterizations occur)
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		ReferenceBinding[] interfaces = sourceType.superInterfaces;
-		Map invocations = new HashMap(2);
+		Map<TypeBinding, Object> invocations = new HashMap<>(2);
 		ReferenceBinding itsSuperclass = sourceType.isInterface() ? null : sourceType.superclass;
 		nextInterface: for (int i = 0, length = interfaces.length; i < length; i++) {
 			ReferenceBinding one =  interfaces[i];
@@ -1164,8 +1094,10 @@ public class ClassScope extends Scope {
 			return true; // do not propagate Object's hierarchy problems down to every subtype
 		}
 		if (this.referenceContext.superclass == null) {
-			if (sourceType.isEnum() && compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) // do not connect if source < 1.5 as enum already got flagged as syntax error
+			if (sourceType.isEnum())
 				return connectEnumSuperclass();
+			if (sourceType.isRecord())
+				return connectRecordSuperclass();
 			sourceType.setSuperClass(getJavaLangObject());
 			return !detectHierarchyCycle(sourceType, sourceType.superclass, null);
 		}
@@ -1185,11 +1117,7 @@ public class ClassScope extends Scope {
 			} else if (superclass.erasure().id == TypeIds.T_JavaLangEnum) {
 				problemReporter().cannotExtendEnum(sourceType, superclassRef, superclass);
 			} else if (superclass.erasure().id == TypeIds.T_JavaLangRecord) {
-				if (!(this.referenceContext.isRecord())) {
-					problemReporter().recordCannotExtendRecord(sourceType, superclassRef, superclass);
-				} else {
-					return connectRecordSuperclass();
-				}
+				problemReporter().cannotExtendRecord(sourceType, superclassRef, superclass);
 			} else if (superclass.isSealed() && sourceType.isLocalType()) {
 				sourceType.setSuperClass(superclass);
 				problemReporter().localTypeMayNotBePermittedType(sourceType, superclassRef, superclass);
@@ -1211,7 +1139,7 @@ public class ClassScope extends Scope {
 			}
 		}
 		sourceType.tagBits |= TagBits.HierarchyHasProblems;
-		sourceType.setSuperClass(sourceType.isRecord() ? getJavaLangRecord() : getJavaLangObject());
+		sourceType.setSuperClass(getJavaLangObject());
 		if ((sourceType.superclass.tagBits & TagBits.BeginHierarchyCheck) == 0)
 			detectHierarchyCycle(sourceType, sourceType.superclass, null);
 		return false; // reported some error against the source type
@@ -1289,27 +1217,6 @@ public class ClassScope extends Scope {
 						continue nextPermittedType;
 					}
 
-					if (sourceType.isClass()) {
-						ReferenceBinding superClass = permittedType.superclass();
-						superClass = superClass == null ? null : superClass.actualType();
-						if (!TypeBinding.equalsEquals(sourceType, superClass))
-							problemReporter().sealedClassNotDirectSuperClassOf(permittedType, permittedTypeRef, sourceType);
-					} else if (sourceType.isInterface()) {
-						ReferenceBinding[] superInterfaces = permittedType.superInterfaces();
-						boolean hierarchyOK = false;
-						if (superInterfaces != null) {
-							for (ReferenceBinding superInterface : superInterfaces) {
-								superInterface = superInterface == null ? null : superInterface.actualType();
-								if (TypeBinding.equalsEquals(sourceType, superInterface)) {
-									hierarchyOK = true;
-									break;
-								}
-							}
-							if (!hierarchyOK)
-								problemReporter().sealedInterfaceNotDirectSuperInterfaceOf(permittedType, permittedTypeRef, sourceType);
-						}
-					}
-
 					checkSealingProximity(permittedType, permittedTypeRef, sourceType);
 
 					for (int j = 0; j < i; j++) {
@@ -1374,7 +1281,7 @@ public class ClassScope extends Scope {
 		try {
 			sourceType.setSuperInterfaces(Binding.NO_SUPERINTERFACES);
 			if (this.referenceContext.superInterfaces == null) {
-				if (sourceType.isAnnotationType() && compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) { // do not connect if source < 1.5 as annotation already got flagged as syntax error) {
+				if (sourceType.isAnnotationType()) {
 					ReferenceBinding annotationType = getJavaLangAnnotationAnnotation();
 					boolean foundCycle = detectHierarchyCycle(sourceType, annotationType, null);
 					sourceType.setSuperInterfaces(new ReferenceBinding[] { annotationType });
@@ -1454,6 +1361,43 @@ public class ClassScope extends Scope {
 			}
 		}
 		return noProblems;
+	}
+
+	void collateRecordComponents() {
+		SourceTypeBinding sourceType = this.referenceContext.binding;
+		if (sourceType.components() == null) {
+			sourceType.setComponents(Binding.NO_COMPONENTS);
+			RecordComponent[] components = this.referenceContext.recordComponents;
+			int length = components.length;
+			RecordComponentBinding[] rcbs = length == 0 ? Binding.NO_COMPONENTS : new RecordComponentBinding[length];
+			HashMap<String, RecordComponentBinding> knownComponents = new HashMap<>(length);
+			int count = 0;
+			for (RecordComponent component : components) {
+				RecordComponentBinding rcb = new RecordComponentBinding(sourceType, component, null, component.modifiers | ExtraCompilerModifiers.AccUnresolved);
+				rcb.id = count;
+				String name = new String(component.name);
+				if (knownComponents.containsKey(name)) {
+					RecordComponentBinding clash =  knownComponents.get(name);
+					if (clash != null)
+						problemReporter().duplicateRecordComponent(clash.sourceRecordComponent());
+					knownComponents.put(name, null); // ensure that the duplicate field is found & removed
+					problemReporter().duplicateRecordComponent(component);
+					component.binding = null;
+				} else {
+					knownComponents.put(name, rcb);
+					if (sourceType.resolveTypeFor(rcb) != null)
+						rcbs[count++] = rcb;
+				}
+			}
+			if (count != rcbs.length) // remove duplicate or broken components
+				System.arraycopy(rcbs, 0, rcbs = count == 0 ? Binding.NO_COMPONENTS : new RecordComponentBinding[count], 0, count);
+			sourceType.setComponents(rcbs);
+		}
+		ReferenceBinding[] memberTypes = sourceType.memberTypes;
+		if (memberTypes != null) {
+			for (ReferenceBinding memberType : memberTypes)
+				((SourceTypeBinding) memberType).scope.collateRecordComponents();
+		}
 	}
 
 	void connectTypeHierarchy() {

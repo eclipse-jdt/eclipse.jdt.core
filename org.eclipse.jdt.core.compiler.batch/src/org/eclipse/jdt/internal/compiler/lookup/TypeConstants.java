@@ -119,8 +119,9 @@ public interface TypeConstants {
     char[] UPPER_MODULE = "MODULE".toCharArray(); //$NON-NLS-1$
     char[] UPPER_RECORD_COMPONENT = "RECORD_COMPONENT".toCharArray(); //$NON-NLS-1$
     char[] YIELD = "yield".toCharArray(); //$NON-NLS-1$
-    // Duplicated since java.lang.invoke.StringConcatFactory.TAG_ARG isn't public
-    char[] STRING_CONCAT_MARKER_1 = new char[] {'\u0001'};
+    // Duplicated since java.lang.invoke.StringConcatFactory.TAG_{ARG|CONST} isn't public
+    char STRING_CONCAT_FACTORY_TAG_ARG = '\u0001';
+    char STRING_CONCAT_FACTORY_TAG_CONST = '\u0002';
 
     // JEP 286
 	char[] VAR = "var".toCharArray(); //$NON-NLS-1$
@@ -204,7 +205,6 @@ public interface TypeConstants {
 	char[][] JAVA_LANG_DEPRECATED = {JAVA, LANG, "Deprecated".toCharArray()}; //$NON-NLS-1$
 	char[] FOR_REMOVAL = "forRemoval".toCharArray(); //$NON-NLS-1$
 	char[] SINCE = "since".toCharArray(); //$NON-NLS-1$
-	char[] ESSENTIAL_API = "essentialAPI".toCharArray(); //$NON-NLS-1$
 	char[][] JAVA_LANG_ANNOTATION_DOCUMENTED = {JAVA, LANG, ANNOTATION, "Documented".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_ANNOTATION_INHERITED = {JAVA, LANG, ANNOTATION, "Inherited".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_ANNOTATION_REPEATABLE = {JAVA, LANG, ANNOTATION, "Repeatable".toCharArray()}; //$NON-NLS-1$
@@ -568,6 +568,7 @@ public interface TypeConstants {
 	char[] DEFAULT_LOCATION__TYPE_PARAMETER = "TYPE_PARAMETER".toCharArray(); //$NON-NLS-1$
 	char[] DEFAULT_LOCATION__TYPE_BOUND = "TYPE_BOUND".toCharArray(); //$NON-NLS-1$
 	char[] DEFAULT_LOCATION__ARRAY_CONTENTS = "ARRAY_CONTENTS".toCharArray(); //$NON-NLS-1$
+	char[] DEFAULT_LOCATION__RECORD_COMPONENT = "RECORD_COMPONENT".toCharArray(); //$NON-NLS-1$
 
 
 	// synthetic package-info name

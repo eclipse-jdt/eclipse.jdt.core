@@ -15,8 +15,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import org.eclipse.jdt.core.Signature;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 
+/**
+ * Visits an AST to feed the index. Similar to {@link SourceIndexerRequestor} but using
+ * DOM instead of ECJ parser.
+ */
 class DOMToIndexVisitor extends ASTVisitor {
 
 	private SourceIndexer sourceIndexer;
@@ -35,7 +41,7 @@ class DOMToIndexVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(PackageDeclaration packageDeclaration) {
-		this.packageName = packageDeclaration.getName().toString().toCharArray();
+		this.packageName = packageDeclaration.getName().getFullyQualifiedName().toCharArray();
 		return false;
 	}
 
@@ -50,13 +56,13 @@ class DOMToIndexVisitor extends ASTVisitor {
 				.map(String::toCharArray)
 				.toArray(char[][]::new);
 		if (type.isInterface()) {
-			this.sourceIndexer.addInterfaceDeclaration(type.getModifiers(), this.packageName, simpleName(type.getName()), enclosing, ((List<Type>)type.superInterfaceTypes()).stream().map(this::name).toArray(char[][]::new), parameterTypeSignatures, isSecondary(type));
+			this.sourceIndexer.addInterfaceDeclaration(type.getModifiers() | maybeDeprecated(type), this.packageName, simpleName(type.getName()), enclosing, ((List<Type>)type.superInterfaceTypes()).stream().map(this::name).toArray(char[][]::new), parameterTypeSignatures, isSecondary(type));
 		} else {
-			this.sourceIndexer.addClassDeclaration(type.getModifiers(), this.packageName, simpleName(type.getName()), enclosing, type.getSuperclassType() == null ? null : name(type.getSuperclassType()),
+			this.sourceIndexer.addClassDeclaration(type.getModifiers() | maybeDeprecated(type), this.packageName, simpleName(type.getName()), enclosing, type.getSuperclassType() == null ? null : name(type.getSuperclassType()),
 				((List<Type>)type.superInterfaceTypes()).stream().map(this::name).toArray(char[][]::new), parameterTypeSignatures, isSecondary(type));
 			if (type.bodyDeclarations().stream().noneMatch(member -> member instanceof MethodDeclaration method && method.isConstructor())) {
 				this.sourceIndexer.addDefaultConstructorDeclaration(type.getName().getIdentifier().toCharArray(),
-						this.packageName, type.getModifiers(), 0);
+						this.packageName, type.getModifiers() | maybeDeprecated(type), 0);
 			}
 			if (type.getSuperclassType() != null) {
 				this.sourceIndexer.addConstructorReference(name(type.getSuperclassType()), 0);
@@ -74,7 +80,7 @@ class DOMToIndexVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(EnumDeclaration type) {
 		char[][] enclosing = this.enclosingTypes.stream().map(AbstractTypeDeclaration::getName).map(SimpleName::getIdentifier).map(String::toCharArray).toArray(char[][]::new);
-		this.sourceIndexer.addEnumDeclaration(type.getModifiers(), this.packageName, type.getName().getIdentifier().toCharArray(), enclosing, Enum.class.getName().toCharArray(), ((List<Type>)type.superInterfaceTypes()).stream().map(this::name).toArray(char[][]::new), isSecondary(type));
+		this.sourceIndexer.addEnumDeclaration(type.getModifiers() | maybeDeprecated(type), this.packageName, type.getName().getIdentifier().toCharArray(), enclosing, Enum.class.getName().toCharArray(), ((List<Type>)type.superInterfaceTypes()).stream().map(this::name).toArray(char[][]::new), isSecondary(type));
 		this.enclosingTypes.add(type);
 		return true;
 	}
@@ -92,7 +98,7 @@ class DOMToIndexVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(AnnotationTypeDeclaration type) {
 		char[][] enclosing = this.enclosingTypes.stream().map(AbstractTypeDeclaration::getName).map(SimpleName::getIdentifier).map(String::toCharArray).toArray(char[][]::new);
-		this.sourceIndexer.addAnnotationTypeDeclaration(type.getModifiers(), this.packageName, type.getName().getIdentifier().toCharArray(), enclosing, isSecondary(type));
+		this.sourceIndexer.addAnnotationTypeDeclaration(type.getModifiers() | maybeDeprecated(type), this.packageName, type.getName().getIdentifier().toCharArray(), enclosing, isSecondary(type));
 		this.enclosingTypes.add(type);
 		return true;
 	}
@@ -108,11 +114,17 @@ class DOMToIndexVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(RecordDeclaration recordDecl) {
+		this.enclosingTypes.add(recordDecl);
 		// copied processing of TypeDeclaration
-		this.sourceIndexer.addClassDeclaration(recordDecl.getModifiers(), this.packageName, recordDecl.getName().getIdentifier().toCharArray(), null, null,
+		this.sourceIndexer.addClassDeclaration(recordDecl.getModifiers() | maybeDeprecated(recordDecl), this.packageName, recordDecl.getName().getIdentifier().toCharArray(), null, null,
 				((List<Type>)recordDecl.superInterfaceTypes()).stream().map(this::name).toArray(char[][]::new), null, false);
 		return true;
 	}
+	@Override
+	public void endVisit(RecordDeclaration type) {
+		this.enclosingTypes.remove(type);
+	}
+
 
 	@Override
 	public boolean visit(MethodDeclaration method) {
@@ -121,11 +133,13 @@ class DOMToIndexVisitor extends ASTVisitor {
 			.filter(SingleVariableDeclaration.class::isInstance)
 			.map(SingleVariableDeclaration.class::cast)
 			.map(SingleVariableDeclaration::getType)
-			.map(this::name)
+			.map(Type::toString)
+			.map(String::toCharArray)
 			.toArray(char[][]::new);
-		char[] returnType = name(method.getReturnType2());
+		char[] returnType = method.getReturnType2() == null ? null : method.getReturnType2().toString().toCharArray();
 		char[][] exceptionTypes = ((List<Type>)method.thrownExceptionTypes()).stream()
-			.map(this::name)
+			.map(Type::toString)
+			.map(String::toCharArray)
 			.toArray(char[][]::new);
 		char[][] parameterNames = ((List<VariableDeclaration>)method.parameters()).stream()
 				.map(VariableDeclaration::getName)
@@ -134,23 +148,25 @@ class DOMToIndexVisitor extends ASTVisitor {
 				.toArray(char[][]::new);
 		if (!method.isConstructor()) {
 			this.sourceIndexer.addMethodDeclaration(methodName, parameterTypes, returnType, exceptionTypes);
-			this.sourceIndexer.addMethodDeclaration(this.enclosingTypes.get(this.enclosingTypes.size() - 1).getName().getIdentifier().toCharArray(),
-				null /* TODO: fully qualified name of enclosing type? */,
-				methodName,
-				parameterTypes.length,
-				null,
-				parameterTypes,
-				parameterNames,
-				returnType,
-				method.getModifiers(),
-				this.packageName,
-				0 /* TODO What to put here? */,
-				exceptionTypes,
-				0 /* TODO ExtraFlags.IsLocalType ? */);
+			if (!this.enclosingTypes.isEmpty()) {
+				this.sourceIndexer.addMethodDeclaration(this.enclosingTypes.get(this.enclosingTypes.size() - 1).getName().getIdentifier().toCharArray(),
+					null /* TODO: fully qualified name of enclosing type? */,
+					methodName,
+					parameterTypes.length,
+					null,
+					parameterTypes,
+					parameterNames,
+					returnType,
+					method.getModifiers() | maybeDeprecated(method),
+					this.packageName,
+					0 /* TODO What to put here? */,
+					exceptionTypes,
+					0 /* TODO ExtraFlags.IsLocalType ? */);
+			}
 		} else {
-			this.sourceIndexer.addConstructorDeclaration(method.getName().toString().toCharArray(),
+			this.sourceIndexer.addConstructorDeclaration(method.getName().getFullyQualifiedName().toCharArray(),
 					method.parameters().size(),
-					null, parameterTypes, parameterNames, method.getModifiers(), this.packageName, currentType().getModifiers(), exceptionTypes, 0);
+					null, parameterTypes, parameterNames, method.getModifiers() | maybeDeprecated(method), this.packageName, currentType().getModifiers(), exceptionTypes, 0);
 		}
 		return true;
 	}
@@ -159,15 +175,17 @@ class DOMToIndexVisitor extends ASTVisitor {
 	public boolean visit(ImportDeclaration node) {
 		if (node.isStatic() && !node.isOnDemand()) {
 			this.sourceIndexer.addMethodReference(simpleName(node.getName()), 0);
-		} else if (!node.isOnDemand()) {
-			this.sourceIndexer.addTypeReference(node.getName().toString().toCharArray());
+		} else if (Modifier.isModule(node.getModifiers())) {
+			this.sourceIndexer.addModuleReference(node.getName().getFullyQualifiedName().toCharArray());
+		} if (!node.isOnDemand()) {
+			this.sourceIndexer.addTypeReference(node.getName().getFullyQualifiedName().toCharArray());
 		}
 		return true;
 	}
 
 	@Override
 	public boolean visit(FieldDeclaration field) {
-		char[] typeName = name(field.getType());
+		char[] typeName = field.getType() == null ? null : field.getType().toString().toCharArray();
 		for (VariableDeclarationFragment fragment: (List<VariableDeclarationFragment>)field.fragments()) {
 			this.sourceIndexer.addFieldDeclaration(typeName, fragment.getName().getIdentifier().toCharArray());
 		}
@@ -290,6 +308,22 @@ class DOMToIndexVisitor extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(NormalAnnotation annotation) {
+		this.sourceIndexer.addAnnotationTypeReference(simpleName(annotation.getTypeName()));
+		return true;
+	}
+	@Override
+	public boolean visit(MarkerAnnotation annotation) {
+		this.sourceIndexer.addAnnotationTypeReference(simpleName(annotation.getTypeName()));
+		return true;
+	}
+	@Override
+	public boolean visit(SingleMemberAnnotation annotation) {
+		this.sourceIndexer.addAnnotationTypeReference(simpleName(annotation.getTypeName()));
+		return true;
+	}
+
+	@Override
 	public boolean visit(SimpleType type) {
 		this.sourceIndexer.addTypeReference(name(type));
 		return true;
@@ -305,11 +339,8 @@ class DOMToIndexVisitor extends ASTVisitor {
 		return true;
 	}
 	// TODO (cf SourceIndexer and SourceIndexerRequestor)
-	// * Module: addModuleDeclaration/addModuleReference/addModuleExportedPackages
 	// * Lambda: addIndexEntry/addClassDeclaration
 	// * FieldReference
-	// * Deprecated
-	// * Javadoc
 
 	@Override
 	public boolean visit(MethodRef methodRef) {
@@ -328,7 +359,16 @@ class DOMToIndexVisitor extends ASTVisitor {
 	public boolean visit(LambdaExpression node) {
 		var binding = node.resolveMethodBinding();
 		if (binding != null) {
-			this.sourceIndexer.addMethodReference(binding.getName().toCharArray(), binding.getParameterTypes().length);
+			this.sourceIndexer.addIndexEntry(IIndexConstants.METHOD_DECL, MethodPattern.createIndexKey(binding.getName().toCharArray(), binding.getParameterTypes().length));
+
+			this.sourceIndexer.addClassDeclaration(0,  // most entries are blank, that is fine, since lambda type/method cannot be searched.
+					CharOperation.NO_CHAR,
+					IIndexConstants.ONE_ZERO,
+					IIndexConstants.ONE_ZERO_CHAR,
+					CharOperation.NO_CHAR,
+					new char[][] { binding.getDeclaringClass().getQualifiedName().toCharArray() },
+					CharOperation.NO_CHAR_CHAR,
+					true);
 		}
 		return true;
 	}
@@ -341,5 +381,71 @@ class DOMToIndexVisitor extends ASTVisitor {
 			return simpleName(qualified.getName());
 		}
 		return null;
+	}
+
+	@Override
+	public boolean visit(ModuleDeclaration node) {
+		this.sourceIndexer.addModuleDeclaration(node.getName().getFullyQualifiedName().toCharArray());
+		return true;
+	}
+
+	@Override
+	public boolean visit(RequiresDirective node) {
+		this.sourceIndexer.addModuleReference(node.getName().getFullyQualifiedName().toCharArray());
+		return true;
+	}
+	@Override
+	public boolean visit(ExportsDirective node) {
+		this.sourceIndexer.addModuleExportedPackages(node.getName().getFullyQualifiedName().toCharArray());
+		for (Name moduleName : (List<Name>)node.modules()) {
+			this.sourceIndexer.addModuleReference(moduleName.getFullyQualifiedName().toCharArray());
+		}
+		return true;
+	}
+	@Override
+	public boolean visit(ProvidesDirective node) {
+		this.sourceIndexer.addTypeReference(node.getName().getFullyQualifiedName().toCharArray());
+		for (var n : (List<Name>)node.implementations()) {
+			this.sourceIndexer.addTypeReference(n.getFullyQualifiedName().toCharArray());
+		}
+		return true;
+	}
+	@Override
+	public boolean visit(UsesDirective node) {
+		this.sourceIndexer.addTypeReference(node.getName().toString().toCharArray());
+		return true;
+	}
+	@Override
+	public boolean visit(OpensDirective node) {
+		this.sourceIndexer.addModuleExportedPackages(node.getName().getFullyQualifiedName().toCharArray());
+		for (Name moduleName : (List<Name>)node.modules()) {
+			this.sourceIndexer.addModuleReference(moduleName.getFullyQualifiedName().toCharArray());
+		}
+		return true;
+	}
+
+	private int maybeDeprecated(BodyDeclaration declaration) {
+		return hasDeprecated(declaration.modifiers()) || hasDeprecated(declaration.getJavadoc()) ? org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants.AccDeprecated : 0;
+	}
+	private boolean hasDeprecated(List<?> modifiers) {
+		if (modifiers == null) {
+			return false;
+		}
+		return modifiers.stream()
+				.filter(Annotation.class::isInstance)
+				.map(Annotation.class::cast)
+				.map(Annotation::getTypeName)
+				.map(Name::getFullyQualifiedName)
+				.anyMatch(Deprecated.class.getSimpleName()::equals);
+	}
+	private boolean hasDeprecated(Javadoc javadoc) {
+		if (javadoc == null) {
+			return false;
+		}
+		return ((List<?>)javadoc.tags()).stream()
+				.filter(TagElement.class::isInstance)
+				.map(TagElement.class::cast)
+				.map(TagElement::getTagName)
+				.anyMatch(TagElement.TAG_DEPRECATED::equals);
 	}
 }

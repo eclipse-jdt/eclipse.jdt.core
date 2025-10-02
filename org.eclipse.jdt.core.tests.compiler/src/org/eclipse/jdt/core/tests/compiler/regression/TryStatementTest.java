@@ -1171,10 +1171,9 @@ public void test032() {
 			"    new RuntimeException(),                // 32\n" +
 			"    new SecurityException(),               // 33\n" +
 			"    new StringIndexOutOfBoundsException(), // 34\n" +
-			"    new ThreadDeath(),                     // 35\n" +
-			"    new UnknownError(),                    // 36\n" +
-			"    new UnsatisfiedLinkError(),            // 37\n" +
-			"    new VerifyError(),                     // 38\n" +
+			"    new UnknownError(),                    // 35\n" +
+			"    new UnsatisfiedLinkError(),            // 36\n" +
+			"    new VerifyError(),                     // 37\n" +
 			"  };\n" +
 			"\n" +
 			"  private static void check_except(int i)\n" +
@@ -1319,29 +1318,23 @@ public void test032() {
 			"                                                                            \n" +
 			"check_except(34);\n" +
 			"                                                                          } \n" +
-			"catch (ThreadDeath e35) {\n" +
-			"                                                                            try \n" +
-			"{\n" +
+			"catch (UnknownError e35) {\n" +
 			"                                                                              \n" +
+			"try {\n" +
+			"                                                                                \n" +
 			"check_except(35);\n" +
-			"                                                                            } \n" +
-			"catch (UnknownError e36) {\n" +
-			"                                                                              \n" +
-			"try {\n" +
-			"                                                                                \n" +
-			"check_except(36);\n" +
 			"                                                                              } \n" +
-			"catch (UnsatisfiedLinkError e37) {\n" +
+			"catch (UnsatisfiedLinkError e36) {\n" +
 			"                                                                                \n" +
 			"try {\n" +
 			"                                                                                \n" +
-			"  check_except(37);\n" +
+			"  check_except(36);\n" +
 			"                                                                                \n" +
-			"} catch (VerifyError e38) {\n" +
+			"} catch (VerifyError e37) {\n" +
 			"                                                                                \n" +
 			"  ++except_count;\n" +
 			"                                                                                \n" +
-			"}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}\n" +
+			"}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}\n" +
 			"    System.out.print(test_result & (except_count == all_except.length));\n" +
 			"  }\n" +
 			"}",

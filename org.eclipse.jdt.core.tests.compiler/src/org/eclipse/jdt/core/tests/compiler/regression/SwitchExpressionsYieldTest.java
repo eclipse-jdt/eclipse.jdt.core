@@ -7674,19 +7674,12 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				}
 				"""
 				},
-				this.complianceLevel < ClassFileConstants.JDK21 ?
-				"----------\n"
-				+ "1. ERROR in X.java (at line 7)\n"
-				+ "	switch (foo()) {\n"
-				+ "	        ^^^^^\n"
-				+ "Cannot switch on a value of type void. Only convertible int values, strings or enum variables are permitted\n"
-				+ "----------\n" :
-						"----------\n"
-						+ "1. ERROR in X.java (at line 8)\n"
-						+ "	case 1.0 -> System.out.println(d);\n"
-						+ "	     ^^^\n"
-						+ "Case constant of type double is incompatible with switch selector type void\n"
-						+ "----------\n");
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	switch (foo()) {\n" +
+				"	        ^^^^^\n" +
+				"This expression yields no value\n" +
+				"----------\n");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2382
 	// VerifyError in switch expression on double
@@ -7793,7 +7786,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				+ "1. ERROR in X.java (at line 7)\n"
 				+ "	switch (foo()) {\n"
 				+ "	        ^^^^^\n"
-				+ "Cannot switch on a value of type void. Only convertible int values, strings or enum variables are permitted\n"
+				+ "This expression yields no value\n"
 				+ "----------\n"
 				+ "2. ERROR in X.java (at line 8)\n"
 				+ "	case null -> System.out.println(d);\n"
@@ -7804,12 +7797,12 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"1. ERROR in X.java (at line 7)\n" +
 						"	switch (foo()) {\n" +
 						"	        ^^^^^\n" +
-						"An enhanced switch statement should be exhaustive; a default label expected\n" +
+						"This expression yields no value\n" +
 						"----------\n" +
-						"2. ERROR in X.java (at line 8)\n" +
-						"	case null -> System.out.println(d);\n" +
-						"	     ^^^^\n" +
-						"Case constant of type null is incompatible with switch selector type void\n" +
+						"2. ERROR in X.java (at line 7)\n" +
+						"	switch (foo()) {\n" +
+						"	        ^^^^^\n" +
+						"An enhanced switch statement should be exhaustive; a default label expected\n" +
 						"----------\n");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2387
@@ -8398,5 +8391,233 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"""
 				},
 				"a = -2 b = -1 c = -3");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3554
+	// [Switch Expressions] ArrayIndexOutOfBoundsException in Scope.leastContainingInvocation for sealed class and switch
+	public void testIssue3554() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					sealed interface Index {
+
+						enum TimeIndex implements Index {
+							SECONDS;
+						}
+					}
+
+					public class AbstractLine<S extends Index> {}
+
+					public class AbstractTimeLine extends AbstractLine<X.Index.TimeIndex> {}
+
+					@SuppressWarnings("unchecked")
+					public static <S extends Index> AbstractLine<S> create(int id, S index, int owner) {
+						return (AbstractLine<S>) switch (index) {
+							case X.Index.TimeIndex tindex when tindex == X.Index.TimeIndex.SECONDS -> new AbstractTimeLine();
+							default -> new AbstractLine<>(state().newId(), index, owner);
+						};
+					}
+				}
+				"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 18)\n" +
+				"	default -> new AbstractLine<>(state().newId(), index, owner);\n" +
+				"	                              ^^^^^\n" +
+				"The method state() is undefined for the type X\n" +
+				"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3920
+	// Java 24 switch expression and type inference generates wrong/unsecure bytecode
+	public void testIssue3920() {
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				import java.util.List;
+				import java.util.stream.Collectors;
+
+				public class X {
+					public static void main(String[] args) {
+						var l = List.of("A","B");
+						int i = 12;
+						var t = switch(i) {
+						case 1 -> l.stream().collect(Collectors.joining(" "));
+						default -> "Fixed!";
+						};
+						System.out.println(t);
+					}
+				}
+				"""
+				},
+				"Fixed!");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4113
+	// ECJ Internal Error when compiling
+	public void testIssue4113() {
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+				    public static void main(String[] args) {
+				        try {
+				            int length = ((Object[]) null).length;
+			            } catch (NullPointerException npe) {
+			                System.out.println("NPE!");
+			            }
+				    }
+				}
+				"""
+				},
+				"NPE!");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4165
+	// [LVTI][Switch Expressions] ECJ crashes with NPE compiling faulty program
+	public void testIssue4165() {
+		this.runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						interface I {
+						    int foo(int x);
+						}
+
+						public class X {
+
+						    static int foo(int x) {
+						        return x;
+						    }
+
+							public static void main(String [] args) {
+
+								for (int integer : new Integer[] { 0, 1 }) {
+									I b = switch (integer) {
+										case 0 -> X::foo;
+										default ->  (int i) -> 42;
+									};
+									System.out.println(b.foo(100));
+								}
+							}
+						}
+						"""
+				},
+				"100\n42");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4165
+	// [LVTI][Switch Expressions] ECJ crashes with NPE compiling faulty program
+	public void testIssue4165_2() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						interface I {
+						    int foo(int x);
+						}
+
+						public class X {
+
+						    static int foo(int x) {
+						        return x;
+						    }
+
+							public static void main(String [] args) {
+
+								for (int integer : new Integer[] { 0, 1 }) {
+									var b = switch (integer) {
+										case 0 -> X::foo;
+										default ->  (int i) -> 42;
+									};
+									System.out.println(b.foo(100));
+								}
+							}
+						}
+						"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 15)\r\n" +
+				"	case 0 -> X::foo;\r\n" +
+				"	          ^^^^^^\n" +
+				"The target type of this expression must be a functional interface\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 16)\r\n" +
+				"	default ->  (int i) -> 42;\r\n" +
+				"	            ^^^^^^^^^^^^^\n" +
+				"The target type of this expression must be a functional interface\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 18)\r\n" +
+				"	System.out.println(b.foo(100));\r\n" +
+				"	                     ^^^\n" +
+				"The method foo(int) is undefined for the type Object\n" +
+				"----------\n");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4397
+	// [Switch expression] Compiling causes an ArrayIndexOutOfBoundsException
+	public void testIssue4397() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						import java.math.BigDecimal;
+						import java.math.RoundingMode;
+
+						enum MyEnum {
+
+							A, B, C, D, E;
+
+						}
+						public class X {
+
+							private static final BigDecimal ZERO = new BigDecimal("0");
+							private static final BigDecimal UNUSED = new BigDecimal("10");
+
+							public static BigDecimal method(BigDecimal value, MyEnum myEnum, BigDecimal otherValue) {
+
+								BigDecimal result = switch (myEnum) {
+									case null -> null;
+									case A -> method(otherValue, myEnum, null);
+									case B -> value.setScale(0, RoundingMode.UP);
+									case C -> value.setScale(0, RoundingMode.UP);
+									case D -> value.setScale(0, RoundingMode.UP);
+									case E -> value.setScale(0, RoundingMode.UP);
+								};
+
+								if (otherValue != null && result != null && result.compareTo(otherValue) > 0) {
+									BigDecimal roundedMaximumPrice = method(otherValue, myEnum, null);
+									if (roundedMaximumPrice.compareTo(otherValue) > 0) {
+										throw new RuntimeException("");
+									}
+									return null;
+								}
+								return null;
+							}
+
+							private static BigDecimal unusedMethod1(BigDecimal value, BigDecimal otherValue) {
+								BigDecimal a = value.multiply(value);
+								BigDecimal b = a.setScale(0, RoundingMode.DOWN);
+								return BigDecimal.ONE;
+							}
+
+							private static BigDecimal unusedMethod2(BigDecimal value, BigDecimal otherValue) {
+								BigDecimal a = value.multiply(ZERO);
+								BigDecimal b = a.setScale(0, RoundingMode.DOWN);
+								return unusedMethod1(value, otherValue);
+							}
+						}
+						"""
+				},
+				"");
 	}
 }

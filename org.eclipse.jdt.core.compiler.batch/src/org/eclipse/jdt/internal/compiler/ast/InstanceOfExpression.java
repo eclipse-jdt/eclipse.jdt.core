@@ -314,7 +314,7 @@ private void checkForPrimitives(BlockScope scope, TypeBinding checkedType, TypeB
 				|| !checkCastTypesCompatibility(scope, checkedType, expressionType, null, true);
 	if (!needToCheck)
 		return;
-	PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(checkedType, expressionType, scope);
+	PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(checkedType, expressionType, scope, this);
 	this.testContextRecord = new TestContextRecord(checkedType, expressionType, route);
 
 	if (route == PrimitiveConversionRoute.WIDENING_PRIMITIVE_CONVERSION
@@ -334,7 +334,7 @@ private void checkForPrimitives(BlockScope scope, TypeBinding checkedType, TypeB
 private void checkRefForPrimitivesAndAddSecretVariable(BlockScope scope, TypeBinding checkedType, TypeBinding expressionType) {
 	if (!JavaFeature.PRIMITIVES_IN_PATTERNS.isSupported(scope.compilerOptions()))
 		return;
-	PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(checkedType, expressionType, scope);
+	PrimitiveConversionRoute route = Pattern.findPrimitiveConversionRoute(checkedType, expressionType, scope, this);
 	this.testContextRecord = new TestContextRecord(checkedType, expressionType, route);
 }
 

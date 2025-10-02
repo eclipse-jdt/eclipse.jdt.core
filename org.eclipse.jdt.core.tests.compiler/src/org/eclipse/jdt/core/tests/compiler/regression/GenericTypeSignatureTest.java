@@ -31,7 +31,6 @@ import org.eclipse.jdt.core.util.ILocalVariableTypeTableAttribute;
 import org.eclipse.jdt.core.util.ILocalVariableTypeTableEntry;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.core.util.ISignatureAttribute;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
@@ -157,7 +156,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 					cmdLineAsString = cmdLine.toString();
 				}
 				// Launch process
-				process = Runtime.getRuntime().exec(cmdLineAsString, null, GenericTypeSignatureTest.this.dirPath.toFile());
+				process = Runtime.getRuntime().exec(cmdLineAsString.split("\\s"), null, GenericTypeSignatureTest.this.dirPath.toFile());
 	            // Log errors
 	            Logger errorLogger = new Logger(process.getErrorStream(), "ERROR");
 
@@ -173,10 +172,10 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 					System.out.println(testName+": javac has found error(s)!");
 				}
 			} catch (IOException ioe) {
-				System.out.println(testName+": Not possible to launch Sun javac compilation!");
+				System.out.println(testName+": Not possible to launch OpenJDK javac compilation!");
 			} catch (InterruptedException e1) {
 				if (process != null) process.destroy();
-				System.out.println(testName+": Sun javac compilation was aborted!");
+				System.out.println(testName+": OpenJDK javac compilation was aborted!");
 			}
 		} catch (Exception e) {
 			// fails silently...
@@ -1324,9 +1323,6 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	}
 
 	public void testGenericVarargsMethodReferenceLambdasHaveNoSignature() {
-		// uses lambdas
-		if (this.complianceLevel < ClassFileConstants.JDK1_8)
-			return;
 		final String[] testsSource = new String[] {
 				"X.java",
 				"import java.util.Optional;\n" +

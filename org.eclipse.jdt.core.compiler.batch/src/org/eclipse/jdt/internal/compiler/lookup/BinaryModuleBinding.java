@@ -63,7 +63,8 @@ public class BinaryModuleBinding extends ModuleBinding {
 		PlainPackageBinding getDeclaredPackage(char[] flatName) {
 			if (!this.hasScannedPackages) {
 				for (char[] packageName : (((IModuleAwareNameEnvironment)this.environment.nameEnvironment).listPackages(nameForCUCheck()))) {
-					getOrCreateDeclaredPackage(CharOperation.splitOn('.', packageName));
+					if (packageName.length > 0) // skip unnamed package from auto module (would be illegal when seen through the module)
+						getOrCreateDeclaredPackage(CharOperation.splitOn('.', packageName));
 				}
 				this.hasScannedPackages = true;
 			}

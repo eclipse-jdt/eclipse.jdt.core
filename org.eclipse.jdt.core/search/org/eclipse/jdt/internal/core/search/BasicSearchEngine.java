@@ -39,7 +39,7 @@ import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ExtraFlags;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.Argument;
+import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
@@ -60,6 +60,8 @@ import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.SourceMethod;
+import org.eclipse.jdt.internal.core.SourceMethodElementInfo;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.matching.*;
@@ -802,12 +804,19 @@ public class BasicSearchEngine {
 
 								int extraFlags = ExtraFlags.getExtraFlags(type);
 
-								boolean hasConstructor = false;
+								boolean needDefaultConstructor = !type.isRecord();
+								boolean needCanonicalConstructor = type.isRecord();
 
 								IMethod[] methods = type.getMethods();
 								for (IMethod method : methods) {
 									if (method.isConstructor()) {
-										hasConstructor = true;
+										needDefaultConstructor = false;
+										if (needCanonicalConstructor) {
+											if (method instanceof SourceMethod sourceMethod && sourceMethod.getElementInfo() instanceof SourceMethodElementInfo info) {
+												if (info.isCanonicalConstructor()) // not totally reliable, see https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4222
+													needCanonicalConstructor = false;
+											}
+										}
 
 										String[] stringParameterNames = method.getParameterNames();
 										String[] stringParameterTypes = method.getParameterTypes();
@@ -834,7 +843,7 @@ public class BasicSearchEngine {
 									}
 								}
 
-								if (!hasConstructor) {
+								if (needDefaultConstructor) {
 									nameRequestor.acceptConstructor(
 											Flags.AccPublic,
 											simpleName,
@@ -842,6 +851,28 @@ public class BasicSearchEngine {
 											null, // signature is not used for source type
 											CharOperation.NO_CHAR_CHAR,
 											CharOperation.NO_CHAR_CHAR,
+											type.getFlags(),
+											packageDeclaration,
+											extraFlags,
+											path,
+											null);
+								} else if (needCanonicalConstructor) {
+									IField[] components = type.getRecordComponents();
+									int length = components == null ? 0 : components.length;
+
+									char[][] parameterNames = new char[length][];
+									char[][] parameterTypes = new char[length][];
+									for (int l = 0; l < length; l++) {
+										parameterNames[l] = components[l].getElementName().toCharArray();
+										parameterTypes[l] = Signature.toCharArray(Signature.getTypeErasure(components[l].getTypeSignature()).toCharArray());
+									}
+									nameRequestor.acceptConstructor(
+											Flags.AccPublic,
+											simpleName,
+											length,
+											null, // signature is not used for source type
+											parameterTypes,
+											parameterNames,
 											type.getFlags(),
 											packageDeclaration,
 											extraFlags,
@@ -909,12 +940,12 @@ public class BasicSearchEngine {
 								public boolean visit(ConstructorDeclaration constructorDeclaration, ClassScope classScope) {
 									TypeDeclaration typeDeclaration = this.declaringTypes[this.declaringTypesPtr];
 									if (match(NoSuffix, packageName, pkgMatchRule, typeName, validatedTypeMatchRule, 0/*no kind*/, packageDeclaration, typeDeclaration.name)) {
-										Argument[] arguments = constructorDeclaration.arguments;
+										AbstractVariableDeclaration[] arguments = constructorDeclaration.arguments(true);
 										int length = arguments == null ? 0 : arguments.length;
 										char[][] parameterNames = new char[length][];
 										char[][] parameterTypes = new char[length][];
 										for (int l = 0; l < length; l++) {
-											Argument argument = arguments[l];
+											AbstractVariableDeclaration argument = arguments[l];
 											parameterNames[l] = argument.name;
 											if (argument.type instanceof SingleTypeReference) {
 												parameterTypes[l] = ((SingleTypeReference)argument.type).token;
@@ -1530,7 +1561,7 @@ public class BasicSearchEngine {
 			final IType type,
 			final IRestrictedAccessMethodRequestor nameRequestor) {
 
-		Argument[] arguments = methodDeclaration.arguments;
+		AbstractVariableDeclaration[] arguments = methodDeclaration.arguments(true);
 		int argsLength = 0;
 		char[][] parameterTypes = CharOperation.NO_CHAR_CHAR;
 		char[][] parameterNames = CharOperation.NO_CHAR_CHAR;
@@ -1540,7 +1571,7 @@ public class BasicSearchEngine {
 			parameterNames = new char[argsLength][];
 		}
 		for (int i = 0; i < argsLength; ++i) {
-			Argument argument = arguments[i];
+			AbstractVariableDeclaration argument = arguments[i];
 			parameterNames[i] = argument.name;
 			parameterTypes[i] = CharOperation.concatWith(argument.type.getTypeName(), '.');
 		}

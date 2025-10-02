@@ -10,3 +10,6 @@ https://github.com/eclipse-jdt/eclipse.jdt.core/pull/2362
 https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/issues/2163
 https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2669
 https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2672
+https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3671
+https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3665
+https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3665

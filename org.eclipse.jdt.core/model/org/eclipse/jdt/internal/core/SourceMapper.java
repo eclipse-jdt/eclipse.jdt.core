@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -47,6 +47,7 @@ import org.eclipse.jdt.internal.codeassist.impl.Keywords;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
@@ -70,7 +71,6 @@ import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
  *
  * @see org.eclipse.jdt.internal.core.JarPackageFragment
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class SourceMapper
 	extends ReferenceInfoAdapter
 	implements ISourceElementRequestor, SuffixConstants {
@@ -164,7 +164,7 @@ public class SourceMapper
 	 * Table that maps a binary method to its parameter names.
 	 * Keys are the method handles, entries are <code>char[][]</code>.
 	 */
-	protected HashMap parameterNames;
+	protected HashMap<IMethod, char[][]> parameterNames;
 
 	/**
 	 * Table that maps a binary element to its <code>SourceRange</code>s.
@@ -172,23 +172,23 @@ public class SourceMapper
 	 * is a two element array; the first being source range, the second
 	 * being name range.
 	 */
-	protected HashMap sourceRanges;
+	protected HashMap<IJavaElement, SourceRange[]> sourceRanges;
 
 	/*
 	 * A map from IJavaElement to String[]
 	 */
-	protected HashMap categories;
+	protected HashMap<IJavaElement, String[]> categories;
 
 	/**
 	 * Table that contains all source ranges for local variables.
 	 * Keys are the special local variable elements, entries are <code>char[][]</code>.
 	 */
-	protected HashMap parametersRanges;
+	protected HashMap<LocalVariableElementKey, SourceRange[]> parametersRanges;
 
 	/**
 	 * Set that contains all final local variables.
 	 */
-	protected HashSet finalParameters;
+	protected HashSet<LocalVariableElementKey> finalParameters;
 
 	/**
 	 * The unknown source range {-1, 0}
@@ -228,8 +228,8 @@ public class SourceMapper
 	/**
 	 * imports references (keyed by binaryTypeOrModule)
 	 */
-	private HashMap importsTable;
-	private HashMap importsCounterTable;
+	private HashMap<Member, char[][]> importsTable;
+	private HashMap<NamedMember, Integer> importsCounterTable;
 
 	/**
 	 * Enclosing type information
@@ -246,19 +246,22 @@ public class SourceMapper
 	SourceRange moduleNameRange;
 	int moduleDeclarationStart;
 	int moduleModifiers;
-
+	int[] anonymousCountStack = new int[3];
+	int[] elementKindStack;
+	int elementKindPtr;
+	int anonymousCountPtr = -1;
+	private HashMap<String, Integer> localTypeCounter;
 	/**
 	 *  Anonymous counter in case we want to map the source of an anonymous class.
 	 */
 	int anonymousCounter;
-	int anonymousClassName;
 
 	String encoding;
 	String defaultEncoding;
 	/**
 	 *Options to be used
 	 */
-	Map options;
+	Map<String, String> options;
 
 	/**
 	 * Use to handle root paths inference
@@ -269,14 +272,14 @@ public class SourceMapper
 		this.areRootPathsComputed = false;
 	}
 
-	public SourceMapper(IPath sourcePath, String rootPath, Map options) {
+	public SourceMapper(IPath sourcePath, String rootPath, Map<String, String> options) {
 		this(sourcePath, rootPath, options, null);
 	}
 	/**
 	 * Creates a <code>SourceMapper</code> that locates source in the zip file
 	 * at the given location in the specified package fragment root.
 	 */
-	public SourceMapper(IPath sourcePath, String rootPath, Map options, String encoding) {
+	public SourceMapper(IPath sourcePath, String rootPath, Map<String, String> options, String encoding) {
 		this.areRootPathsComputed = false;
 		this.options = options;
 		this.encoding = encoding;
@@ -287,15 +290,15 @@ public class SourceMapper
 		}
 		if (rootPath != null) {
 			this.rootPath = rootPath;
-			this.rootPaths = new ArrayList();
+			this.rootPaths = new ArrayList<>();
 			this.rootPaths.add(rootPath);
 		}
 		this.sourcePath = sourcePath;
-		this.sourceRanges = new HashMap();
-		this.parametersRanges = new HashMap();
-		this.parameterNames = new HashMap();
-		this.importsTable = new HashMap();
-		this.importsCounterTable = new HashMap();
+		this.sourceRanges = new HashMap<>();
+		this.parametersRanges = new HashMap<>();
+		this.parameterNames = new HashMap<>();
+		this.importsTable = new HashMap<>();
+		this.importsCounterTable = new HashMap<>();
 	}
 
 	/**
@@ -310,13 +313,13 @@ public class SourceMapper
 			char[][] tokens,
 			boolean onDemand,
 			int modifiers) {
-		char[][] imports = (char[][]) this.importsTable.get(this.binaryTypeOrModule);
+		char[][] imports = this.importsTable.get(this.binaryTypeOrModule);
 		int importsCounter;
 		if (imports == null) {
 			imports = new char[5][];
 			importsCounter = 0;
 		} else {
-			importsCounter = ((Integer) this.importsCounterTable.get(this.binaryTypeOrModule)).intValue();
+			importsCounter = this.importsCounterTable.get(this.binaryTypeOrModule).intValue();
 		}
 		if (imports.length == importsCounter) {
 			System.arraycopy(
@@ -368,7 +371,7 @@ public class SourceMapper
 	private void addCategories(IJavaElement element, char[][] elementCategories) {
 		if (elementCategories == null) return;
 		if (this.categories == null)
-			this.categories = new HashMap();
+			this.categories = new HashMap<>();
 		this.categories.put(element, CharOperation.toStrings(elementCategories));
 	}
 
@@ -468,14 +471,14 @@ public class SourceMapper
 
 	static class JrtPackageNamesAdderVisitor implements JRTUtil.JrtFileVisitor<java.nio.file.Path> {
 
-		public final HashSet firstLevelPackageNames;
+		public final HashSet<String> firstLevelPackageNames;
 		final IPackageFragmentRoot root;
 		public String sourceLevel = null;
 		public String complianceLevel = null;
 		public boolean containsADefaultPackage;
 		public boolean containsJavaSource;
 
-		JrtPackageNamesAdderVisitor(HashSet firstLevelPackageNames, String sourceLevel, String complianceLevel,
+		JrtPackageNamesAdderVisitor(HashSet<String> firstLevelPackageNames, String sourceLevel, String complianceLevel,
 				boolean containsADefaultPackage, boolean containsJavaSource, IPackageFragmentRoot root) {
 			this.firstLevelPackageNames = firstLevelPackageNames;
 			this.root = root;
@@ -528,13 +531,13 @@ public class SourceMapper
 		}
 		IPackageFragmentRoot root = (IPackageFragmentRoot) typeOrModule.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 		IPath pkgFragmentRootPath = root.getPath();
-		final HashSet tempRoots = new HashSet();
+		final HashSet<IPath> tempRoots = new HashSet<>();
 		long time = 0;
 		if (VERBOSE) {
 			trace("compute all root paths for " + root.getElementName()); //$NON-NLS-1$
 			time = System.currentTimeMillis();
 		}
-		final HashSet firstLevelPackageNames = new HashSet();
+		final HashSet<String> firstLevelPackageNames = new HashSet<>();
 		boolean containsADefaultPackage = false;
 		boolean containsJavaSource = !pkgFragmentRootPath.equals(this.sourcePath); // used to optimize zip file reading only if source path and root path are equals, otherwise assume that attachment contains Java source
 
@@ -560,8 +563,8 @@ public class SourceMapper
 			ZipFile zip = null;
 			try {
 				zip = manager.getZipFile(pkgFragmentRootPath);
-				for (Enumeration entries = zip.entries(); entries.hasMoreElements(); ) {
-					ZipEntry entry = (ZipEntry) entries.nextElement();
+				for (Enumeration<? extends ZipEntry> entries = zip.entries(); entries.hasMoreElements(); ) {
+					ZipEntry entry = entries.nextElement();
 					String entryName = entry.getName();
 					if (!entry.isDirectory()) {
 						if (Util.isClassFileName(entryName)) {
@@ -634,8 +637,8 @@ public class SourceMapper
 				ZipFile zip = null;
 				try {
 					zip = manager.getZipFile(this.sourcePath);
-					for (Enumeration entries = zip.entries(); entries.hasMoreElements(); ) {
-						ZipEntry entry = (ZipEntry) entries.nextElement();
+					for (Enumeration<? extends ZipEntry> entries = zip.entries(); entries.hasMoreElements(); ) {
+						ZipEntry entry = entries.nextElement();
 						String entryName;
 						if (!entry.isDirectory() && org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(entryName = entry.getName())) {
 							IPath path = new Path(entryName);
@@ -669,17 +672,15 @@ public class SourceMapper
 			}
 			this.rootPaths.clear();
 		} else {
-			this.rootPaths = new ArrayList(size);
+			this.rootPaths = new ArrayList<>(size);
 		}
 		size = tempRoots.size();
 		if (size > 0) {
-			ArrayList sortedRoots = new ArrayList(tempRoots);
+			ArrayList<IPath> sortedRoots = new ArrayList<>(tempRoots);
 			if (size > 1) {
-				Collections.sort(sortedRoots, new Comparator() {
+				Collections.sort(sortedRoots, new Comparator<>() {
 					@Override
-					public int compare(Object o1, Object o2) {
-						IPath path1 = (IPath) o1;
-						IPath path2 = (IPath) o2;
+					public int compare(IPath path1, IPath path2) {
 						return path1.segmentCount() - path2.segmentCount();
 					}
 				});
@@ -701,7 +702,7 @@ public class SourceMapper
 		}
 	}
 
-	private void computeRootPath(IContainer container, HashSet firstLevelPackageNames, boolean hasDefaultPackage, Set set, int sourcePathSegmentCount) {
+	private void computeRootPath(IContainer container, HashSet<String> firstLevelPackageNames, boolean hasDefaultPackage, Set<IPath> set, int sourcePathSegmentCount) {
 		try {
 			IResource[] resources = container.members();
 			for (int i = 0, max = resources.length; i < max; i++) {
@@ -741,12 +742,27 @@ public class SourceMapper
 		}
 	}
 
+	public void pushElementKind(int kind) {
+		if (this.elementKindPtr == this.elementKindStack.length) {
+			System.arraycopy(this.elementKindStack, 0, this.elementKindStack = new int[this.elementKindPtr * 2], 0,
+					this.elementKindPtr);
+		}
+		this.elementKindStack[this.elementKindPtr++] = kind;
+	}
+
+	public void popElementKind() {
+		this.elementKindPtr--;
+		if (this.elementKindPtr < 0) {
+			this.elementKindPtr = 0;
+		}
+	}
+
 	/**
 	 * @see ISourceElementRequestor
 	 */
 	@Override
 	public void enterType(TypeInfo typeInfo) {
-
+		pushElementKind(IJavaElement.TYPE);
 		this.typeDepth++;
 		if (this.typeDepth == this.types.length) { // need to grow
 			System.arraycopy(
@@ -805,15 +821,18 @@ public class SourceMapper
 				this.typeDepth);
 		}
 		if (typeInfo.name.length == 0) {
-			this.anonymousCounter++;
-			if (this.anonymousCounter == this.anonymousClassName) {
-				this.types[this.typeDepth] = getType(this.binaryTypeOrModule.getElementName());
-			} else {
-				this.types[this.typeDepth] = getType(DeduplicationUtil.toString(typeInfo.name));
-			}
+			this.anonymousCountStack[this.anonymousCountPtr] = this.anonymousCountStack[this.anonymousCountPtr] + 1;
+			this.anonymousCounter = this.anonymousCountStack[this.anonymousCountPtr];
 		} else {
-			this.types[this.typeDepth] = getType(DeduplicationUtil.toString(typeInfo.name));
+			int stackLength = this.anonymousCountStack.length;
+			if (stackLength <= ++this.anonymousCountPtr) {
+				System.arraycopy(
+					this.anonymousCountStack, 0,
+					this.anonymousCountStack = new int[stackLength + 1], 0,
+					stackLength);
+			}
 		}
+		this.types[this.typeDepth] = getType(typeInfo);
 		this.typeNameRanges[this.typeDepth] =
 			new SourceRange(typeInfo.nameSourceStart, typeInfo.nameSourceEnd - typeInfo.nameSourceStart + 1);
 		this.typeDeclarationStarts[this.typeDepth] = typeInfo.declarationStart;
@@ -844,6 +863,7 @@ public class SourceMapper
 
 	@Override
 	public void enterModule(ModuleInfo moduleInfo) {
+		pushElementKind(IJavaElement.JAVA_MODULE);
 		this.moduleNameRange =
 			new SourceRange(moduleInfo.nameSourceStart, moduleInfo.nameSourceEnd - moduleInfo.nameSourceStart + 1);
 		this.moduleDeclarationStart = moduleInfo.declarationStart;
@@ -866,6 +886,7 @@ public class SourceMapper
 				this.moduleDeclarationStart,
 				declarationEnd - this.moduleDeclarationStart + 1),
 			this.moduleNameRange);
+		popElementKind();
 	}
 
 	/**
@@ -881,6 +902,7 @@ public class SourceMapper
 	 */
 	@Override
 	public void enterConstructor(MethodInfo methodInfo) {
+		pushElementKind(IJavaElement.METHOD);
 		enterAbstractMethod(methodInfo);
 	}
 
@@ -889,6 +911,7 @@ public class SourceMapper
 	 */
 	@Override
 	public void enterField(FieldInfo fieldInfo) {
+		pushElementKind(IJavaElement.FIELD);
 		if (this.typeDepth >= 0) {
 			this.memberDeclarationStart[this.typeDepth] = fieldInfo.declarationStart;
 			this.memberNameRange[this.typeDepth] =
@@ -918,6 +941,7 @@ public class SourceMapper
 	 */
 	@Override
 	public void enterMethod(MethodInfo methodInfo) {
+		pushElementKind(IJavaElement.METHOD);
 		enterAbstractMethod(methodInfo);
 	}
 	private void enterAbstractMethod(MethodInfo methodInfo) {
@@ -992,7 +1016,7 @@ public class SourceMapper
 						allRanges);
 					if (parameterInfo.modifiers != 0) {
 						if (this.finalParameters == null) {
-							this.finalParameters = new HashSet();
+							this.finalParameters = new HashSet<>();
 						}
 						this.finalParameters.add(key);
 					}
@@ -1017,8 +1041,13 @@ public class SourceMapper
 					this.typeDeclarationStarts[this.typeDepth],
 					declarationEnd - this.typeDeclarationStarts[this.typeDepth] + 1),
 				this.typeNameRanges[this.typeDepth]);
+			if (currentType.getElementName().length() > 0) {
+				this.anonymousCountStack[this.anonymousCountPtr] = 0; // no leftover, cleanup.
+				this.anonymousCountPtr--;
+			}
 			this.typeDepth--;
 		}
+		popElementKind();
 	}
 
 	/**
@@ -1035,6 +1064,7 @@ public class SourceMapper
 	@Override
 	public void exitConstructor(int declarationEnd) {
 		exitAbstractMethod(declarationEnd);
+		popElementKind();
 	}
 
 	/**
@@ -1051,6 +1081,7 @@ public class SourceMapper
 					declarationEnd - this.memberDeclarationStart[this.typeDepth] + 1),
 				this.memberNameRange[this.typeDepth]);
 		}
+		popElementKind();
 	}
 
 	/**
@@ -1067,6 +1098,7 @@ public class SourceMapper
 	@Override
 	public void exitMethod(int declarationEnd, Expression defaultValue) {
 		exitAbstractMethod(declarationEnd);
+		popElementKind();
 	}
 	private void exitAbstractMethod(int declarationEnd) {
 		if (this.typeDepth >= 0) {
@@ -1087,7 +1119,14 @@ public class SourceMapper
 				this.methodParameterNames[this.typeDepth]);
 		}
 	}
-
+	@Override
+	public void enterBlock(int sourceStart) {
+		pushElementKind(IJavaElement.METHOD);
+	}
+	@Override
+	public void exitBlock(int sourceEnd) {
+		popElementKind();
+	}
 	/**
 	 * Locates and returns source code for the given (binary) type, in this
 	 * SourceMapper's ZIP file, or returns <code>null</code> if source
@@ -1285,14 +1324,14 @@ public class SourceMapper
 				break;
 			case IJavaElement.LOCAL_VARIABLE :
 				LocalVariableElementKey key = new LocalVariableElementKey(element.getParent(), element.getElementName());
-				SourceRange[] ranges = (SourceRange[]) this.parametersRanges.get(key);
+				SourceRange[] ranges = this.parametersRanges.get(key);
 				if (ranges == null) {
 					return UNKNOWN_RANGE;
 				} else {
 					return ranges[1];
 				}
 		}
-		SourceRange[] ranges = (SourceRange[]) this.sourceRanges.get(element);
+		SourceRange[] ranges = this.sourceRanges.get(element);
 		if (ranges == null) {
 			return UNKNOWN_RANGE;
 		} else {
@@ -1313,7 +1352,7 @@ public class SourceMapper
 				method = (IMethod) el[0];
 			}
 		}
-		char[][] parameters = (char[][]) this.parameterNames.get(method);
+		char[][] parameters = this.parameterNames.get(method);
 		if (parameters == null) {
 			return null;
 		} else {
@@ -1354,43 +1393,76 @@ public class SourceMapper
 				break;
 			case IJavaElement.LOCAL_VARIABLE :
 				LocalVariableElementKey key = new LocalVariableElementKey(element.getParent(), element.getElementName());
-				SourceRange[] ranges = (SourceRange[]) this.parametersRanges.get(key);
+				SourceRange[] ranges = this.parametersRanges.get(key);
 				if (ranges == null) {
 					return UNKNOWN_RANGE;
 				} else {
 					return ranges[0];
 				}
 		}
-		SourceRange[] ranges = (SourceRange[]) this.sourceRanges.get(element);
+		SourceRange[] ranges = this.sourceRanges.get(element);
 		if (ranges == null) {
 			return UNKNOWN_RANGE;
 		} else {
 			return ranges[0];
 		}
 	}
-
+	private PackageFragment getPackageFromTopElement() {
+		IType type = (IType) this.binaryTypeOrModule;
+		IJavaElement classFile = type.getParent();
+		PackageFragment pkg = (PackageFragment) classFile.getParent();
+		return pkg;
+	}
+	private int getLocalTypeCount(String nameKey) {
+		if (this.localTypeCounter == null) {
+			this.localTypeCounter = new HashMap<>();
+		}
+		Integer count = this.localTypeCounter.get(nameKey);
+		count = count == null ? 1 : count+1;
+		this.localTypeCounter.put(nameKey, count);
+		return count;
+	}
 	/**
-	 * Returns the type with the given <code>typeName</code>.  Returns inner classes
-	 * as well.
+	 * Returns the type with the given <code>typeName</code>. Returns inner classes
+	 * as well. Note, in certain case when the supplied type is not the topmost of the given
+	 * Compilation unit in source form, we will construct the qualified name of the type for the
+	 * local and anonymous type. The nomenclature for the constructed type name mimics the class
+	 * generation as much as possible.
+	 *
+	 * @see org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope#computeConstantPoolName(org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding)
 	 */
-	protected IType getType(String typeName) {
+	protected IType getType(TypeInfo typeInfo) {
 		if (!(this.binaryTypeOrModule instanceof IType))
 			return null;
-		IType type = (IType) this.binaryTypeOrModule;
-		if (typeName.length() == 0) {
-			IJavaElement classFile = type.getParent();
-			String classFileName = classFile.getElementName();
-			StringBuilder newClassFileName = new StringBuilder();
-			int lastDollar = classFileName.lastIndexOf('$');
-			for (int i = 0; i <= lastDollar; i++)
-				newClassFileName.append(classFileName.charAt(i));
-			newClassFileName.append(Integer.toString(this.anonymousCounter));
-			PackageFragment pkg = (PackageFragment) classFile.getParent();
-			return new BinaryType(new ClassFile(pkg, DeduplicationUtil.intern(newClassFileName.toString())), typeName);
-		} else if (type.getElementName().equals(typeName))
-			return type;
-		else
-			return ((this.typeDepth <= 1) ? type : this.types[this.typeDepth - 1]).getType(typeName);
+		IType type = this.typeDepth == 0 ? null : this.types[this.typeDepth - 1];
+		StringBuilder builder= new StringBuilder();
+		if (type != null) {
+			 // Gets us the .class file name with extension
+			builder.append(type.getParent().getElementName());
+			int dotClass = builder.lastIndexOf("."); //$NON-NLS-1$
+			 // get rid of the extension
+			builder.delete(dotClass, builder.length());
+			if ((typeInfo.node.bits & ASTNode.IsAnonymousType) != 0) {
+				builder.append('$').append(this.anonymousCounter);
+			} else {
+				builder.append('$').append(typeInfo.name);
+				// Rewrite to include counter if found to be a local type
+				if (this.elementKindPtr > 1 &&
+						this.elementKindStack[this.elementKindPtr - 2] == IJavaElement.METHOD) {
+					int count = getLocalTypeCount(builder.toString());
+					builder.insert(builder.lastIndexOf("$") + 1, count); //$NON-NLS-1$
+				}
+			}
+		} else {
+			builder.append(typeInfo.name);
+		}
+		String classFileName = builder.toString();
+		if (classFileName.equals(this.binaryTypeOrModule.getElementName())) {
+			return (IType) this.binaryTypeOrModule;
+		}
+		PackageFragment pkg = getPackageFromTopElement();
+		String typeName = DeduplicationUtil.toString(typeInfo.name);
+		return new BinaryType(new ClassFile(pkg, DeduplicationUtil.intern(classFileName.toString())), typeName);
 	}
 
 	/**
@@ -1519,6 +1591,7 @@ public class SourceMapper
 	 * If a non-null java element is passed, finds the name range for the
 	 * given java element without storing it.
 	 */
+	@SuppressWarnings("unchecked")
 	public synchronized ISourceRange mapSource(
 		NamedMember typeOrModule,
 		char[] contents,
@@ -1534,6 +1607,7 @@ public class SourceMapper
 		this.importsCounterTable.remove(this.binaryTypeOrModule);
 		this.searchedElement = elementToFind;
 		this.types = new IType[1];
+		this.elementKindStack = new int[1];
 		this.typeDeclarationStarts = new int[1];
 		this.typeNameRanges = new SourceRange[1];
 		this.typeModifiers = new int[1];
@@ -1545,15 +1619,14 @@ public class SourceMapper
 		this.methodParameterNames = new char[1][][];
 		this.anonymousCounter = 0;
 
-		HashMap oldSourceRanges = null;
+		HashMap<IJavaElement, SourceRange[]> oldSourceRanges = null;
 		if (elementToFind != null) {
-			oldSourceRanges = (HashMap) this.sourceRanges.clone();
+			oldSourceRanges = (HashMap<IJavaElement, SourceRange[]>) this.sourceRanges.clone();
 		}
 		try {
 			IProblemFactory factory = new DefaultProblemFactory();
 			SourceElementParser parser = null;
 			boolean doFullParse = false;
-			this.anonymousClassName = 0;
 			String sourceFileName;
 			if (this.binaryTypeOrModule instanceof BinaryType) {
 				if (info == null) {
@@ -1564,18 +1637,7 @@ public class SourceMapper
 					}
 				}
 				sourceFileName = ((BinaryType) this.binaryTypeOrModule).sourceFileName(info);
-				boolean isAnonymousClass = info.isAnonymous();
-
 				char[] fullName = info.getName();
-				if (isAnonymousClass) {
-					String eltName = this.binaryTypeOrModule.getParent().getElementName();
-					eltName = eltName.substring(eltName.lastIndexOf('$') + 1, eltName.length());
-					try {
-						this.anonymousClassName = Integer.parseInt(eltName);
-					} catch(NumberFormatException e) {
-						// ignore
-					}
-				}
 				doFullParse = hasToRetrieveSourceRangesForLocalClass(fullName);
 			} else {
 				sourceFileName = TypeConstants.MODULE_INFO_CLASS_NAME_STRING;
@@ -1650,9 +1712,9 @@ public class SourceMapper
 	 * Return a char[][] array containing the imports of the attached source for the binary type
 	 */
 	public char[][] getImports(Member typeOrModule) {
-		char[][] imports = (char[][]) this.importsTable.get(typeOrModule);
+		char[][] imports = this.importsTable.get(typeOrModule);
 		if (imports != null) {
-			int importsCounter = ((Integer) this.importsCounterTable.get(typeOrModule)).intValue();
+			int importsCounter = this.importsCounterTable.get(typeOrModule).intValue();
 			if (imports.length != importsCounter) {
 				System.arraycopy(
 					imports,

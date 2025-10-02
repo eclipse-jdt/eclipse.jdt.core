@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -265,9 +265,30 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		return (this.binding.isVarargs() ||
 				(isConstructorReference() && (this.receiverType.syntheticOuterLocalVariables() != null || this.shouldCaptureInstance)) ||
 				this.requiresBridges() || // bridges.
+				descriptorEncodesIntersectionType() ||
 				!isDirectCodeGenPossible());
 		// To fix: We should opt for direct code generation wherever possible.
 	}
+
+	private boolean descriptorEncodesIntersectionType() {
+		if (this.descriptor == null || this.descriptor.parameters == null || this.descriptor.parameters.length == 0)
+			return false;
+		for (TypeBinding parameter : this.descriptor.parameters) {
+			if (isIntersectionType(parameter))
+				return true;
+		}
+		return false;
+	}
+
+	private boolean isIntersectionType(TypeBinding parameter) {
+		if (parameter.isIntersectionType() || parameter.isIntersectionType18())
+			return true;
+		if (parameter instanceof TypeVariableBinding tvb) {
+			return isIntersectionType(tvb.upperBound());
+		}
+		return false;
+	}
+
 	private boolean isDirectCodeGenPossible() {
 		if (this.binding != null) {
 			if (isMethodReference() && this.syntheticAccessor == null) {
@@ -499,8 +520,10 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 			TypeBinding type = this.receiverType.leafComponentType();
 			if (type.isNestedType() &&
 				type instanceof ReferenceBinding && !((ReferenceBinding)type).isStatic()) {
-				currentScope.tagAsAccessingEnclosingInstanceStateOf((ReferenceBinding)type, false);
-				this.shouldCaptureInstance = true;
+				if (!type.isLocalType()) {
+					currentScope.tagAsAccessingEnclosingInstanceStateOf((ReferenceBinding)type, false);
+					this.shouldCaptureInstance = true;
+				}
 				ReferenceBinding allocatedTypeErasure = (ReferenceBinding) type.erasure();
 				if (allocatedTypeErasure.isLocalType()) {
 					((LocalTypeBinding) allocatedTypeErasure).addInnerEmulationDependent(currentScope, false);
@@ -575,7 +598,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
     		this.lhs.computeConversion(scope, lhsType, lhsType);
     		if (this.typeArguments != null) {
     			int length = this.typeArguments.length;
-    			this.typeArgumentsHaveErrors = compilerOptions.sourceLevel < ClassFileConstants.JDK1_5;
+    			this.typeArgumentsHaveErrors = false;
     			this.resolvedTypeArguments = new TypeBinding[length];
     			for (int i = 0; i < length; i++) {
     				TypeReference typeReference = this.typeArguments[i];
@@ -714,6 +737,12 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
         if (isMethodReference) {
         	someMethod = scope.getMethod(this.receiverType, this.selector, descriptorParameters, this);
         } else {
+        	if (this.receiverType instanceof LocalTypeBinding local && !local.isRecord()) { // local records are implicitly static and don't have enclosing instance
+        		MethodScope enclosingMethodScope = local.scope.enclosingMethodScope();
+        		if (enclosingMethodScope != null && !enclosingMethodScope.isStatic && scope.isInStaticContext()) {
+        			scope.problemReporter().allocationInStaticContext(this, local);
+        		}
+        	}
         	if (argumentsTypeElided() && this.receiverType.isRawType()) {
         		boolean[] inferredReturnType = new boolean[1];
 	        	someMethod = AllocationExpression.inferDiamondConstructor(scope, this, this.receiverType, this.descriptor.parameters, inferredReturnType);

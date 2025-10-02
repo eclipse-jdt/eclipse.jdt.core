@@ -85,6 +85,33 @@ void runTest(
 		boolean shouldCompileOK,
 		String[] sourceFiles,
 		StandardJavaFileManager standardJavaFileManager,
+		String source,
+		List<String> options,
+		String[] compileFileNames,
+		String expectedOutOutputString,
+		String expectedErrOutputString,
+		boolean shouldFlushOutputDirectory,
+		String[] classFileNames) {
+	List<String> opt = options == null ? new ArrayList<>() : new ArrayList<>(options);
+	opt.add("-source");
+	opt.add(source);
+	super.runTest(
+		shouldCompileOK,
+		sourceFiles,
+		new CompilerInvocationTestsArguments(standardJavaFileManager, opt, compileFileNames),
+		expectedOutOutputString,
+		expectedErrOutputString,
+		shouldFlushOutputDirectory,
+		null /* progress */);
+	// TODO maxime introduce stderr comparison based upon specific diagnostic listener
+	if (classFileNames != null) {
+		checkClassFiles(classFileNames);
+	}
+}
+void runTest(
+		boolean shouldCompileOK,
+		String[] sourceFiles,
+		StandardJavaFileManager standardJavaFileManager,
 		List<String> options,
 		String[] compileFileNames,
 		String expectedOutOutputString,
@@ -559,7 +586,7 @@ public void test009_options_consumption() throws IOException {
 	StandardJavaFileManager ecjStandardJavaFileManager =
 		COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */);
 	for (String option: CompilerToolTests.ONE_ARG_OPTIONS) {
-		if (isOnJRE9() && (option.equals("-extdirs") || option.equals("-endorseddirs")))
+		if (isOnJRE9() && option.equals("-endorseddirs"))
 				continue;
 		if (ecjStandardJavaFileManager.isSupportedOption(option) != -1) { // some options that the compiler support could well not be supported by the file manager
 			Iterator<String> remaining = remainingAsList.iterator();
@@ -1081,5 +1108,51 @@ public void test024_bug577550_test_empty_classes_argument() {
 			ecjStandardJavaFileManager
 					.getJavaFileObjectsFromFiles(Arrays.asList(new File(OUTPUT_DIR + File.separator + "X.java"))))
 			.call());
+}
+public void test025_extdirs_1() {
+	runTest(
+		true /* shouldCompileOK */,
+		new String [] { /* sourceFiles */
+			"X.java",
+			"public class X {}",
+		},
+		null /* standardJavaFileManager */,
+		"1.8",
+		Arrays.asList("-d", OUTPUT_DIR, "-extdirs", LIB_DIR) /* options */,
+		new String[] { /* compileFileNames */
+			"X.java"
+		},
+		"" /* expectedOutOutputString */,
+		"" /* expectedErrOutputString */,
+		true /* shouldFlushOutputDirectory */,
+		new String[] { /* classFileNames */
+			"X.class"
+		});
+}
+public void test025_extdirs_2() {
+	String trace = null;
+	try {
+		runTest(
+			true /* shouldCompileOK */,
+			new String [] { /* sourceFiles */
+				"X.java",
+				"public class X {}",
+			},
+			null /* standardJavaFileManager */,
+			"9",
+			Arrays.asList("-d", OUTPUT_DIR, "-extdirs", LIB_DIR) /* options */,
+			new String[] { /* compileFileNames */
+				"X.java"
+			},
+			"" /* expectedOutOutputString */,
+			"" /* expectedErrOutputString */,
+			true /* shouldFlushOutputDirectory */,
+			new String[] { /* classFileNames */
+				"X.class"
+			});
+	} catch(IllegalArgumentException iae) {
+		trace = iae.getMessage();
+	}
+	assertEquals("IAE not thrown", "option -extdirs not supported at compliance level 9 and above", trace);
 }
 }

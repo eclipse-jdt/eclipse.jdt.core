@@ -42,7 +42,7 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 
 	protected static final String JAVAX_INJECT_NAME = "javax/inject/Inject.java";
 	protected static final String JAVAX_INJECT_CONTENT =
-		"package jakarta.inject;\n" +
+		"package javax.inject;\n" +
 		"import static java.lang.annotation.ElementType.*;\n" +
 		"import java.lang.annotation.Retention;\n" +
 		"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" +

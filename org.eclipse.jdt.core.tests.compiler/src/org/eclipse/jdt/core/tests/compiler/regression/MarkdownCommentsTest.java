@@ -20,8 +20,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class MarkdownCommentsTest extends JavadocTest {
 
-	private static final JavacTestOptions JAVAC_TEST_OPTIONS = new JavacTestOptions("--enable-preview -source 23 -Xlint:-preview -Xdoclint");
-	private static final String[] VMARGS = new String[] {"--enable-preview"};
+	private static final JavacTestOptions JAVAC_TEST_OPTIONS = new JavacTestOptions(" -source 23 -Xdoclint");
+	private static final String[] VMARGS = new String[] {};
 
 	String docCommentSupport;
 	String reportInvalidJavadoc;
@@ -51,7 +51,6 @@ public class MarkdownCommentsTest extends JavadocTest {
 	@Override
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_DocCommentSupport, this.docCommentSupport);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, this.reportInvalidJavadoc);
 		options.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.ERROR);
@@ -349,7 +348,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 					"""
 					public class X {
 						/// Some text here without the necessary tags for main method
-						/// @param arguments
+						/// @param arguments\s 
 
 						// This line will be ignored and the previous block will be considered as the Javadoc
 						public static void main(String[] arguments) {
@@ -359,7 +358,7 @@ public class MarkdownCommentsTest extends JavadocTest {
 					""", },
 					"----------\n" +
 					"1. WARNING in X.java (at line 3)\n" +
-					"	/// @param arguments\n" +
+					"	/// @param arguments \n" +
 					"	           ^^^^^^^^^\n" +
 					"Javadoc: Description expected after this reference\n" +
 					"----------\n");

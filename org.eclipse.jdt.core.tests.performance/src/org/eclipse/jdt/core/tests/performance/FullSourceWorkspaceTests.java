@@ -22,7 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.DateFormat;
@@ -419,7 +419,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		File tempFile = new File(tmpRoot, nameInProject);
 		if (!tempFile.isFile() || tempFile.length() != size) {
 			String githubUrl = GITHUB_TESTS_BINARIES + nameInProject;
-			try(BufferedInputStream bin = new BufferedInputStream(new URL(githubUrl).openStream())){
+			try(BufferedInputStream bin = new BufferedInputStream(URI.create(githubUrl).toURL().openStream())){
 				Files.copy(bin, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 			}
 		}
