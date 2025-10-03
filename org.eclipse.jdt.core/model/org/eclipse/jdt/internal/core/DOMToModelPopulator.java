@@ -1284,7 +1284,7 @@ public class DOMToModelPopulator extends ASTVisitor {
 
 	private static String typeName(Type type) {
 		if (type == null) {
-			return "";
+			return ""; //$NON-NLS-1$
 		}
 		if (type instanceof PrimitiveType primitive) {
 			return primitive.getPrimitiveTypeCode().toString();
