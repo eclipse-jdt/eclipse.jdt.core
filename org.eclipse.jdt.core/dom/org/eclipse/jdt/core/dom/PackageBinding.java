@@ -32,6 +32,8 @@ import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.NameLookup;
@@ -273,6 +275,8 @@ class PackageBinding implements IPackageBinding {
 			return null;
 		if (foundBinding.isValidBinding() && foundBinding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding) {
 			return this.resolver.getTypeBinding(typeBinding);
+		} else if (foundBinding instanceof ProblemReferenceBinding problemBinding && problemBinding.problemId() == ProblemReasons.InternalNameProvided && problemBinding.closestMatch().isValidBinding()) {
+			return this.resolver.getTypeBinding(problemBinding.closestMatch());
 		}
 		return null;
 	}

@@ -69,9 +69,18 @@ public interface IPackageBinding extends IBinding {
 	 * <p>
 	 * For top-level classes and interfaces, the name here is just the simple
 	 * name of the class or interface. For nested classes and interfaces, the
-	 * name is the VM class name (in other words, a name like
-	 * <code>"Outer$Inner"</code> as used to name the class file; see
-	 * <code>ITypeBinding.getName</code>).
+	 * name is the class name followed by $ then the class name again followed by $
+	 * followed by inner classes in the hierarchy separated by $.
+	 * For example, for the following class:
+	 * <pre><code>
+	 *    public class Outer {
+	 *        public static class Inner {
+	 *             public static class Inner2 {}
+	 *        }
+	 *    }
+	 * </code></pre> the first inner class is referenced by:
+	 * <code>"Outer$Outer$Inner"</code> and it's inner class can be accessed via
+	 * <code>"Outer$Outer$Inner$Inner2"</code>.
 	 * </p>
 	 *
 	 * @param name the name of a class or interface
