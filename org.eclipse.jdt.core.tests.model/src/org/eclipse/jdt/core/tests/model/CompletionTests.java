@@ -26244,7 +26244,7 @@ public void testGH2620_1() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED;
 	assertResults(
-		"test[METHOD_REF]{test, LGH2620$Test;, ()V, null, null, test, null, [157, 161], "+relevance+"}",
+		"test[METHOD_REF]{test(), LGH2620$Test;, ()V, null, null, test, null, [157, 164], "+relevance+"}",
 		requestor.getResults()
 	);
 }
@@ -26301,7 +26301,41 @@ public void testGH2620_1b() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_NON_RESTRICTED;
 	assertResults(
-		"test[METHOD_REF]{test, LGH2620$Test;, (I)V, null, null, test, (i), [170, 174], "+relevance+"}",
+		"test[METHOD_REF]{test(), LGH2620$Test;, (I)V, null, null, test, (i), [170, 177], "+relevance+"}",
+		requestor.getResults()
+	);
+}
+public void testGH2620_1c() throws JavaModelException {
+	// to observe argument preservation
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH2620.java", """
+			public class GH2620 {
+				public static void main (String[] args) {
+					Test local;
+					int j = 1;
+					if (true) { // the if-statement is crucial for this test.
+						/*x*/local.ref.test(1);
+					}
+				}
+				public static class Test {
+					public Test ref;
+					public static void test(int i) {}
+					public static void test2() {}
+				}
+			}
+			""");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/*x*/local.ref.test";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	// argument preservation can be observed by the replacement range which should only cover the method name:
+	assertResults(
+		"""
+		test2[METHOD_REF]{test2, LGH2620$Test;, ()V, null, null, test2, null, [170, 174], 49}
+		test[METHOD_REF]{test, LGH2620$Test;, (I)V, null, null, test, (i), [170, 174], 53}
+		""".strip()
+		,
 		requestor.getResults()
 	);
 }
