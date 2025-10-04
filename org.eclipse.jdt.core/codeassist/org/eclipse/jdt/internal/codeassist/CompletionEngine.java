@@ -3268,13 +3268,16 @@ public final class CompletionEngine
 		if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
 			CompletionOnMessageSendName messageSend = (CompletionOnMessageSendName) astNode;
 
-			// we take the cursor location into consideration
-			if (messageSend.cursorIsToTheLeftOfTheLParen) {
-				setSourceAndTokenRange(messageSend.sourceStart, messageSend.sourceEnd);
-			} else {
-				setTokenRange(messageSend.sourceStart, messageSend.sourceEnd);
-				if (messageSend.statementEnd > messageSend.sourceStart)
+			setTokenRange(messageSend.sourceStart, messageSend.sourceEnd);
+
+			if (messageSend.statementEnd > messageSend.sourceStart) {
+				// we ensure any existing arguments are preserved
+				boolean existingMethodCallHasBeenProvidedArguments = (messageSend.arguments != null);
+				if (existingMethodCallHasBeenProvidedArguments) {
+					setSourceRange(messageSend.sourceStart, messageSend.sourceEnd);
+				} else {
 					setSourceRange(messageSend.sourceStart, messageSend.statementEnd);
+				}
 			}
 
 			this.completionToken = messageSend.selector;

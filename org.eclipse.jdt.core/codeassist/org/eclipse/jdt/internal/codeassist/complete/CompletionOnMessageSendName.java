@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2025 IBM Corporation and others.
+ * Copyright (c) 2006, 2013 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -27,7 +27,6 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public class CompletionOnMessageSendName extends MessageSend implements CompletionNode {
 
 	public boolean nextIsCast;
-	public boolean cursorIsToTheLeftOfTheLParen;
 
 	public CompletionOnMessageSendName(char[] selector, int start, int end, boolean nextIsCast) {
 		super();
