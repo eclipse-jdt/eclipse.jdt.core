@@ -20,19 +20,19 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.parser.Scanner;
 
 public class SelectionOnReferenceExpressionName extends ReferenceExpression {
-
-	public SelectionOnReferenceExpressionName(Scanner scanner) {
-		super(scanner);
-	}
 
 	@Override
 	public StringBuilder printExpression(int indent, StringBuilder output) {
 		output.append("<SelectionOnReferenceExpressionName:"); //$NON-NLS-1$
 		super.printExpression(indent, output);
 		return output.append('>');
+	}
+
+	@Override
+	public char[] toCharArray() {
+		return super.printExpression(0, new StringBuilder(30)).toString().toCharArray();
 	}
 
 	// See SelectionScanner#scanIdentifierOrKeyword

@@ -8314,8 +8314,12 @@ protected void consumeLambdaExpression() {
    copy by LE.copy() or RE.copy where feasible.
 */
 private void stashTextualRepresentation(FunctionalExpression fnExp) {
-	int length = fnExp.sourceEnd - fnExp.sourceStart + 1;
-	System.arraycopy(this.scanner.getSource(), fnExp.sourceStart, fnExp.text = new char [length], 0, length);
+	if (fnExp instanceof ReferenceExpression rExp) { // textual and AST forms are reconstructible from each other
+		fnExp.text = rExp.toCharArray();
+	} else { // textual form not reconstructible from AST due to extraneous text (see `LambdaExpression.printExpression(int, StringBuilder, boolean)`)
+		int length = fnExp.sourceEnd - fnExp.sourceStart + 1;
+		System.arraycopy(this.scanner.getSource(), fnExp.sourceStart, fnExp.text = new char [length], 0, length);
+	}
 }
 
 protected Argument typeElidedArgument() {
@@ -8408,7 +8412,7 @@ protected void consumeEmptyTypeArguments() {
 }
 
 public ReferenceExpression newReferenceExpression() {
-	return new ReferenceExpression(this.scanner);
+	return new ReferenceExpression();
 }
 
 protected void consumeReferenceExpressionTypeForm(boolean isPrimitive) { // actually Name or Type form.

@@ -19,13 +19,8 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.parser.Scanner;
 
 public class CompletionOnReferenceExpressionName extends ReferenceExpression implements CompletionNode {
-
-	public CompletionOnReferenceExpressionName(Scanner scanner) {
-		super(scanner);
-	}
 
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {
@@ -60,19 +55,12 @@ public class CompletionOnReferenceExpressionName extends ReferenceExpression imp
 	@Override
 	public StringBuilder printExpression(int tab, StringBuilder output) {
 		output.append("<CompletionOnReferenceExpressionName:"); //$NON-NLS-1$
-		this.lhs.print(0, output);
-		output.append("::"); //$NON-NLS-1$
-		if (this.typeArguments != null) {
-			output.append('<');
-			int max = this.typeArguments.length - 1;
-			for (int j = 0; j < max; j++) {
-				this.typeArguments[j].print(0, output);
-				output.append(", ");//$NON-NLS-1$
-			}
-			this.typeArguments[max].print(0, output);
-			output.append('>');
-		}
-		output.append(this.selector);
+		super.printExpression(tab, output);
 		return output.append('>');
+	}
+
+	@Override
+	public char[] toCharArray() {
+		return super.printExpression(0, new StringBuilder(30)).toString().toCharArray();
 	}
 }

@@ -65,10 +65,8 @@ import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
-import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
-import org.eclipse.jdt.internal.compiler.parser.Scanner;
 
 public class ReferenceExpression extends FunctionalExpression implements IPolyExpression, InvocationSite {
 	// secret variable name
@@ -98,14 +96,8 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	private HashMap<TypeBinding, ReferenceExpression> copiesPerTargetType;
 	private HashMap<ParameterizedGenericMethodBinding, InferenceContext18> inferenceContexts;
 
-	// the scanner used when creating this expression, may be a RecoveryScanner (with proper RecoveryScannerData),
-	// need to keep it so copy() can parse in the same mode (normal/recovery):
-	private Scanner scanner;
-
-	public ReferenceExpression(Scanner scanner) {
-		super();
+	public ReferenceExpression() {
 		this.original = this;
-		this.scanner = scanner;
 	}
 
 	public void initialize(CompilationResult result, Expression expression, TypeReference [] optionalTypeArguments, char [] identifierOrNew, int sourceEndPosition) {
@@ -122,10 +114,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	 */
 	private ReferenceExpression copy() {
 		final Parser parser = new Parser(this.enclosingScope.problemReporter(), false);
-		char [] source = new char [this.sourceEnd+1];
-		System.arraycopy(this.text, 0, source, this.sourceStart, this.sourceEnd - this.sourceStart + 1);
-		parser.scanner = this.scanner;
-		ReferenceExpression copy =  (ReferenceExpression) parser.parseReferenceExpression(source, this.sourceStart, this.sourceEnd - this.sourceStart + 1,
+		ReferenceExpression copy =  (ReferenceExpression) parser.parseReferenceExpression(this.text, 0, this.text.length,
 										this.enclosingScope.referenceCompilationUnit(), false /* record line separators */);
 		copy.original = this;
 		copy.sourceStart = this.sourceStart;
@@ -438,15 +427,9 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 
 	@Override
 	public void cleanUp() {
-		// no more rescanning needed beyond this point, so free the memory:
-		if (this.copiesPerTargetType != null) {
-			for (ReferenceExpression copy : this.copiesPerTargetType.values())
-				copy.scanner = null;
-		}
 		if (this.original != null && this.original != this) {
 			this.original.cleanUp();
 		}
-		this.scanner = null;
 		this.receiverVariable = null;
 	}
 
@@ -971,24 +954,12 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		return result;
 	}
 
-	private boolean contextHasSyntaxError() {
-		ReferenceContext referenceContext = this.enclosingScope.referenceContext();
-		if (referenceContext instanceof AbstractMethodDeclaration) {
-			if ((((AbstractMethodDeclaration) referenceContext).bits & ASTNode.HasSyntaxErrors) != 0)
-				return true;
-		}
-		return false;
-	}
-
 	// Cache resolved copies against various target types, so repeat overload resolution and possibly type inference could be avoided.
 	private ReferenceExpression cachedResolvedCopy(TypeBinding targetType) {
 
 		ReferenceExpression copy = this.copiesPerTargetType != null ? this.copiesPerTargetType.get(targetType) : null;
 		if (copy != null)
 			return copy;
-
-		if (contextHasSyntaxError())
-			return null;
 
 		IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
 		try {
@@ -1126,6 +1097,10 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 			output.append(this.selector);
 
 		return output;
+	}
+
+	public char[] toCharArray() {
+		return toString().toCharArray();
 	}
 
 	@Override
@@ -1276,9 +1251,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	@Override
 	public boolean isCompatibleWith(TypeBinding targetType, Scope scope) {
 		ReferenceExpression copy = cachedResolvedCopy(targetType);
-		if (copy == null) {
-			return contextHasSyntaxError(); // in case of syntax error avoid secondary errors
-		} else if (copy.resolvedType != null && copy.resolvedType.isValidBinding() && copy.binding != null && copy.binding.isValidBinding()) {
+		if (copy != null && copy.resolvedType != null && copy.resolvedType.isValidBinding() && copy.binding != null && copy.binding.isValidBinding()) {
 			return true;
 		} else {
 			boolean notPertinentToApplicability = targetType instanceof ParameterizedTypeBinding && !isPertinentToApplicability(targetType, null); // not mentioned in JLS (see prior art in LE.internalIsCompatibleWith()

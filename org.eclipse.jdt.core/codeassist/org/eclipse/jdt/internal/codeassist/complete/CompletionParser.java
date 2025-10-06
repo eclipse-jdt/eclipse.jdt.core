@@ -5796,7 +5796,7 @@ public ReferenceExpression newReferenceExpression() {
 	if (selector != assistIdentifier()){
 		return super.newReferenceExpression();
 	}
-	ReferenceExpression referenceExpression = new CompletionOnReferenceExpressionName(this.scanner);
+	ReferenceExpression referenceExpression = new CompletionOnReferenceExpressionName();
 	this.assistNode = referenceExpression;
 	return referenceExpression;
 }
