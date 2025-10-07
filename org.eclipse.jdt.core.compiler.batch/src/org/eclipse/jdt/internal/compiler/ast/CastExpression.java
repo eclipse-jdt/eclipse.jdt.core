@@ -182,16 +182,18 @@ public static void checkNeedForArgumentCasts(BlockScope scope, Expression receiv
 	TypeBinding[] rawArgumentTypes = argumentTypes;
 	for (int i = 0; i < length; i++) {
 		Expression argument = arguments[i];
-		if (argument instanceof CastExpression) {
+		if (argument instanceof CastExpression castExpression) {
 			// narrowing conversion on base type may change value, thus necessary
 			if ((argument.bits & ASTNode.UnnecessaryCast) == 0 && argument.resolvedType.isBaseType()) {
 				continue;
 			}
-			TypeBinding castedExpressionType = ((CastExpression)argument).expression.resolvedType;
+			if (castExpression.expression instanceof MessageSend messageSend && messageSend.binding instanceof ParameterizedGenericMethodBinding)
+				return; // removing the cast makes the message send feature in invocation context thereby making it a poly-expression. Don't touch it.
+			TypeBinding castedExpressionType = castExpression.expression.resolvedType;
 			if (castedExpressionType == null) return; // cannot do better
 			// obvious identity cast
 			if (TypeBinding.equalsEquals(castedExpressionType, argumentTypes[i])) {
-				scope.problemReporter().unnecessaryCast((CastExpression)argument);
+				scope.problemReporter().unnecessaryCast(castExpression);
 			} else if (castedExpressionType == TypeBinding.NULL){
 				continue; // tolerate null argument cast
 			} else if ((argument.implicitConversion & TypeIds.BOXING) != 0) {
