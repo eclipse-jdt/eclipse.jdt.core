@@ -181,7 +181,6 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			boolean isDomParser = (this.kind & DOM_PARSER) != 0;
 			boolean isFormatterParser = (this.kind & FORMATTER_COMMENT_PARSER) != 0;
 			int lastStarPosition = -1;
-			boolean isTagElementClose = false;
 
 			// Init scanner position
 			this.markdown = this.source[this.javadocStart + 1] == '/';
@@ -348,10 +347,37 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						this.lineStarted = false;
 						lineHasStar = false;
 						// Fix bug 51650
-						this.textStart = -1;
+						// Only reset textStart if not in an unclosed markdown inline tag
+						if (!(this.markdown && this.inlineTagStarted)) {
+							this.textStart = -1;
+						}
 						this.markdownHelper.resetAtLineEnd();
-						if (this.inlineTagStarted && this.markdown) {
-							isTagElementClose = true;
+						if (this.markdown && this.inlineTagStarted && this.index < this.javadocEnd - 2) {
+							// Special handling for markdown comments with unclosed inline tags
+							if (this.source[this.index] == '\r') this.index++;
+							if (this.source[this.index] == '\n') this.index++;
+
+							// Skip any whitespace before the /// sequence
+							while (this.index < this.javadocEnd && ScannerHelper.isWhitespace(this.source[this.index])) {
+						        this.index++;
+						    }
+
+							// Skip exact '///' sequence if present
+							if (this.index + 2 < this.javadocEnd &&
+									this.source[this.index] == '/' &&
+									this.source[this.index + 1] == '/' &&
+									this.source[this.index + 2] == '/') {
+								this.index += 3;
+							}
+
+							// Skip additional whitespace after ///
+							while (this.index < this.javadocEnd && ScannerHelper.isWhitespace(this.source[this.index])) {
+								this.index++;
+							}
+							// Preserve textStart position for continued tag content
+							if (this.textStart == -1) {
+								this.textStart = this.index;
+							}
 						}
 						break;
 					case '}' :
@@ -375,11 +401,16 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								}
 								refreshInlineTagPosition(previousPosition);
 							}
-							if (!isFormatterParser && !treatAsText && (!this.inlineReturn || this.inlineReturnOpenBraces <= 0))
-								this.textStart = this.index;
-							if ((!isTagElementClose && this.markdown) || !this.markdown) {  //The comment parser should create a TagElement only if the previous one is closed - markdown.
-								setInlineTagStarted(false);
+							if (!isFormatterParser && !treatAsText && (!this.inlineReturn || this.inlineReturnOpenBraces <= 0)) {
+								// Reset textStart only if there's content after the tag
+								if (this.index < this.javadocEnd) {
+									char next = this.source[this.index];
+									if (!(this.markdown && (next == '\r' || next == '\n'))) {
+										this.textStart = this.index;
+									}
+								}
 							}
+							setInlineTagStarted(false);
 							if (this.inlineReturn) {
 								if (this.inlineReturnOpenBraces > 0) {
 									--this.inlineReturnOpenBraces;
@@ -404,30 +435,39 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345: count opening braces when ignoring tags
 						if (considerTagAsPlainText) {
 							openingBraces++;
-						} else if (this.inlineTagStarted) {
-							if (this.tagValue == TAG_RETURN_VALUE) {
-								this.inlineReturn= true;
-							}
-							if (this.inlineReturn && peekChar() != '@') {
-								++this.inlineReturnOpenBraces;
-								doNotResetInlineTagStart= true;
+						} else {
+							if (this.markdown) {
+								if (this.inlineTagStarted && this.tagValue == TAG_RETURN_VALUE) {
+									this.inlineReturn= true;
+									this.inlineReturnOpenBraces++;
+								}
 							} else {
-								if (this.lineStarted && this.textStart != -1 && this.textStart < textEndPosition) {
-									pushText(this.textStart, textEndPosition);
+								if (this.inlineTagStarted) {
+									if (this.tagValue == TAG_RETURN_VALUE) {
+										this.inlineReturn= true;
+									}
+									if (this.inlineReturn && peekChar() != '@') {
+										++this.inlineReturnOpenBraces;
+										doNotResetInlineTagStart= true;
+									} else {
+										if (this.lineStarted && this.textStart != -1 && this.textStart < textEndPosition) {
+											pushText(this.textStart, textEndPosition);
+										}
+										setInlineTagStarted(false);
+										// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53279
+										// Cannot have opening brace in inline comment
+										if (this.reportProblems && !this.inlineReturn) {
+											int end = previousPosition<invalidInlineTagLineEnd ? previousPosition : invalidInlineTagLineEnd;
+											this.sourceParser.problemReporter().javadocUnterminatedInlineTag(this.inlineTagStart, end);
+										}
+										refreshInlineTagPosition(textEndPosition);
+										textEndPosition = this.index;
+									}
+								} else if (peekChar() != '@') {
+									if (this.textStart == -1) this.textStart = previousPosition;
+									textEndPosition = this.index;
 								}
-								setInlineTagStarted(false);
-								// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53279
-								// Cannot have opening brace in inline comment
-								if (this.reportProblems && !this.inlineReturn) {
-									int end = previousPosition<invalidInlineTagLineEnd ? previousPosition : invalidInlineTagLineEnd;
-									this.sourceParser.problemReporter().javadocUnterminatedInlineTag(this.inlineTagStart, end);
-								}
-								refreshInlineTagPosition(textEndPosition);
-								textEndPosition = this.index;
 							}
-						} else if (peekChar() != '@') {
-							if (this.textStart == -1) this.textStart = previousPosition;
-							textEndPosition = this.index;
 						}
 						if (!this.lineStarted && !this.inlineReturn) {
 							this.textStart = previousPosition;
