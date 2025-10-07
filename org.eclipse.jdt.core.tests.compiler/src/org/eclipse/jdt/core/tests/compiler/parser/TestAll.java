@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *      Jesper Steen Møller <jesper@selskabet.org> - Contributions for
@@ -18,6 +22,7 @@ package org.eclipse.jdt.core.tests.compiler.parser;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.jdt.core.tests.compiler.regression.JEP286ReservedWordTest;
@@ -81,207 +86,48 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 
 	TestSuite all = new TestSuite(TestAll.class.getName());
 	int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_8) != 0) {
-		ArrayList tests_1_8 = (ArrayList)testClasses.clone();
-		tests_1_8.addAll(TEST_CLASSES_1_5);
-		addJava1_8Tests(tests_1_8);
-		TestCase.resetForgottenFilters(tests_1_8);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK1_8, tests_1_8));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_9) != 0) {
-		ArrayList tests_9 = (ArrayList)testClasses.clone();
-		tests_9.addAll(TEST_CLASSES_1_5);
-		addJava9Tests(tests_9);
-		// Reset forgotten subsets tests
-		TestCase.TESTS_PREFIX = null;
-		TestCase.TESTS_NAMES = null;
-		TestCase.TESTS_NUMBERS= null;
-		TestCase.TESTS_RANGE = null;
-		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK9, tests_9));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_10) != 0) {
-		ArrayList tests_10 = (ArrayList)testClasses.clone();
-		tests_10.addAll(TEST_CLASSES_1_5);
-		addJava10Tests(tests_10);
-		// Reset forgotten subsets tests
-		TestCase.TESTS_PREFIX = null;
-		TestCase.TESTS_NAMES = null;
-		TestCase.TESTS_NUMBERS= null;
-		TestCase.TESTS_RANGE = null;
-		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK10, tests_10));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_11) != 0) {
-		ArrayList tests_11 = (ArrayList)testClasses.clone();
-		tests_11.addAll(TEST_CLASSES_1_5);
-		addJava10Tests(tests_11);
-		// Reset forgotten subsets tests
-		TestCase.TESTS_PREFIX = null;
-		TestCase.TESTS_NAMES = null;
-		TestCase.TESTS_NUMBERS= null;
-		TestCase.TESTS_RANGE = null;
-		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_11), tests_11));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_12) != 0) {
-		ArrayList tests_12 = (ArrayList)testClasses.clone();
-		tests_12.addAll(TEST_CLASSES_1_5);
-		addJava12Tests(tests_12);
-		// Reset forgotten subsets tests
-		TestCase.TESTS_PREFIX = null;
-		TestCase.TESTS_NAMES = null;
-		TestCase.TESTS_NUMBERS= null;
-		TestCase.TESTS_RANGE = null;
-		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_12), tests_12));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_13) != 0) {
-		ArrayList tests_13 = (ArrayList)testClasses.clone();
-		tests_13.addAll(TEST_CLASSES_1_5);
-		addJava12Tests(tests_13);
 
-		//TODO:To add SwitchExpressionYieldTests here as well as master
-		// Reset forgotten subsets tests
-		TestCase.TESTS_PREFIX = null;
-		TestCase.TESTS_NAMES = null;
-		TestCase.TESTS_NUMBERS= null;
-		TestCase.TESTS_RANGE = null;
-		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_13), tests_13));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_14) != 0) {
-		ArrayList tests_14 = (ArrayList)testClasses.clone();
-		tests_14.addAll(TEST_CLASSES_1_5);
-		addJava12Tests(tests_14);
-		addJava14Tests(tests_14);
-		// Reset forgotten subsets tests
-		TestCase.TESTS_PREFIX = null;
-		TestCase.TESTS_NAMES = null;
-		TestCase.TESTS_NUMBERS= null;
-		TestCase.TESTS_RANGE = null;
-		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_14), tests_14));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_15) != 0) {
-		ArrayList tests_15 = (ArrayList)testClasses.clone();
-		tests_15.addAll(TEST_CLASSES_1_5);
-		addJava12Tests(tests_15);
-		// Reset forgotten subsets tests
-		TestCase.TESTS_PREFIX = null;
-		TestCase.TESTS_NAMES = null;
-		TestCase.TESTS_NUMBERS= null;
-		TestCase.TESTS_RANGE = null;
-		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_15), tests_15));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_16) != 0) {
-		ArrayList tests_16 = (ArrayList)testClasses.clone();
-		tests_16.addAll(TEST_CLASSES_1_5);
-		addJava16Tests(tests_16);
-		// Reset forgotten subsets tests
-		TestCase.TESTS_PREFIX = null;
-		TestCase.TESTS_NAMES = null;
-		TestCase.TESTS_NUMBERS= null;
-		TestCase.TESTS_RANGE = null;
-		TestCase.RUN_ONLY_ID = null;
+	record TestsAddition(long complianceTestLevel, long jdkVersion, Consumer<ArrayList> action) {}
+	List<TestsAddition> testAdditionsList = new ArrayList<>();
 
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_16), tests_16));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_17) != 0) {
-		ArrayList tests_17 = (ArrayList)testClasses.clone();
-		tests_17.addAll(TEST_CLASSES_1_5);
-		addJava16Tests(tests_17);
-		// Reset forgotten subsets tests
-		TestCase.TESTS_PREFIX = null;
-		TestCase.TESTS_NAMES = null;
-		TestCase.TESTS_NUMBERS= null;
-		TestCase.TESTS_RANGE = null;
-		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_17), tests_17));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_18) != 0) {
-		ArrayList tests_18 = (ArrayList)testClasses.clone();
-		tests_18.addAll(TEST_CLASSES_1_5);
-		addJava16Tests(tests_18);
-		// Reset forgotten subsets tests
-		TestCase.TESTS_PREFIX = null;
-		TestCase.TESTS_NAMES = null;
-		TestCase.TESTS_NUMBERS= null;
-		TestCase.TESTS_RANGE = null;
-		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_18), tests_18));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_19) != 0) {
-		ArrayList tests_19 = (ArrayList)testClasses.clone();
-		tests_19.addAll(TEST_CLASSES_1_5);
-		addJava16Tests(tests_19);
-		// Reset forgotten subsets tests
-		TestCase.TESTS_PREFIX = null;
-		TestCase.TESTS_NAMES = null;
-		TestCase.TESTS_NUMBERS= null;
-		TestCase.TESTS_RANGE = null;
-		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_19), tests_19));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_21) != 0) {
-		ArrayList tests_21 = (ArrayList)testClasses.clone();
-		tests_21.addAll(TEST_CLASSES_1_5);
-		addJava16Tests(tests_21);
-		// Reset forgotten subsets tests
-		TestCase.TESTS_PREFIX = null;
-		TestCase.TESTS_NAMES = null;
-		TestCase.TESTS_NUMBERS= null;
-		TestCase.TESTS_RANGE = null;
-		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_21), tests_21));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_22) != 0) {
-		ArrayList tests_22 = (ArrayList)testClasses.clone();
-		tests_22.addAll(TEST_CLASSES_1_5);
-		addJava16Tests(tests_22);
-		// Reset forgotten subsets tests
-		TestCase.TESTS_PREFIX = null;
-		TestCase.TESTS_NAMES = null;
-		TestCase.TESTS_NUMBERS= null;
-		TestCase.TESTS_RANGE = null;
-		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_22), tests_22));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_23) != 0) {
-		ArrayList tests_23 = (ArrayList)testClasses.clone();
-		tests_23.addAll(TEST_CLASSES_1_5);
-		addJava16Tests(tests_23);
-		TestCase.TESTS_PREFIX = null;
-		TestCase.TESTS_NAMES = null;
-		TestCase.TESTS_NUMBERS= null;
-		TestCase.TESTS_RANGE = null;
-		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_23), tests_23));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_24) != 0) {
-		ArrayList tests_24 = (ArrayList)testClasses.clone();
-		tests_24.addAll(TEST_CLASSES_1_5);
-		addJava16Tests(tests_24);
-		TestCase.TESTS_PREFIX = null;
-		TestCase.TESTS_NAMES = null;
-		TestCase.TESTS_NUMBERS= null;
-		TestCase.TESTS_RANGE = null;
-		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_24), tests_24));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_25) != 0) {
-		ArrayList tests_25 = (ArrayList)testClasses.clone();
-		tests_25.addAll(TEST_CLASSES_1_5);
-		addJava16Tests(tests_25);
-		TestCase.TESTS_PREFIX = null;
-		TestCase.TESTS_NAMES = null;
-		TestCase.TESTS_NUMBERS= null;
-		TestCase.TESTS_RANGE = null;
-		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_25), tests_25));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_1_8, ClassFileConstants.JDK1_8, (list) -> {addJava1_8Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_9, ClassFileConstants.JDK9, (list) -> {addJava9Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_10, ClassFileConstants.JDK10, (list) -> {addJava10Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_11, ClassFileConstants.JDK11, (list) -> {addJava10Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_12, ClassFileConstants.JDK12, (list) -> {addJava12Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_13, ClassFileConstants.JDK13, (list) -> {addJava12Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_14, ClassFileConstants.JDK14, (list) -> {addJava12Tests(list);addJava14Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_15, ClassFileConstants.JDK15, (list) -> {addJava12Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_16, ClassFileConstants.JDK16, (list) -> {addJava16Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_17, ClassFileConstants.JDK17, (list) -> {addJava16Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_18, ClassFileConstants.JDK18, (list) -> {addJava16Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_19, ClassFileConstants.JDK19, (list) -> {addJava16Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_21, ClassFileConstants.JDK21, (list) -> {addJava16Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_22, ClassFileConstants.JDK22, (list) -> {addJava16Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_23, ClassFileConstants.JDK23, (list) -> {addJava16Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_24, ClassFileConstants.JDK24, (list) -> {addJava16Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_25, ClassFileConstants.JDK25, (list) -> {addJava16Tests(list);}));
+	testAdditionsList.add(new TestsAddition(AbstractCompilerTest.F_26, ClassFileConstants.JDK26, (list) -> {addJava16Tests(list);}));
+
+	for (TestsAddition testVersionMap : testAdditionsList) {
+		if ((possibleComplianceLevels & testVersionMap.complianceTestLevel) != 0) {
+			ArrayList tests_1_8 = (ArrayList)testClasses.clone();
+			tests_1_8.addAll(TEST_CLASSES_1_5);
+			testVersionMap.action.accept(tests_1_8);
+			resetForgottenFilters();
+			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(testVersionMap.jdkVersion, tests_1_8));
+		}
 	}
 	return all;
+}
+
+private static void resetForgottenFilters() {
+	// Reset forgotten subsets tests
+	TestCase.TESTS_PREFIX = null;
+	TestCase.TESTS_NAMES = null;
+	TestCase.TESTS_NUMBERS= null;
+	TestCase.TESTS_RANGE = null;
+	TestCase.RUN_ONLY_ID = null;
 }
 
 private static void addJava16Tests(ArrayList tests_16) {

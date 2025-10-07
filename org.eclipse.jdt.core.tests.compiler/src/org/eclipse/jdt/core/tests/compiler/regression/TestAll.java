@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -24,6 +28,8 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.eclipse.jdt.core.tests.compiler.util.HashtableOfObjectTest;
@@ -250,17 +256,41 @@ public static Test suite() {
 	 since_22.add(UseOfUnderscoreJava22Test.class);
 	 since_22.add(SwitchPatternTest22.class);
 
-	ArrayList since_23 = new ArrayList();
+	 ArrayList since_23 = new ArrayList();
 	 since_23.add(MarkdownCommentsTest.class);
 
-	ArrayList since_25 = new ArrayList();
+	 ArrayList since_25 = new ArrayList();
 	 since_25.add(ModuleImportTests.class);
 	 since_25.add(SuperAfterStatementsTest.class);
 	 since_25.add(ImplicitlyDeclaredClassesTest.class);
 	 since_25.add(PrimitiveInPatternsTest.class);
 	 since_25.add(PrimitiveInPatternsTestSH.class);
-	 since_25.add(PreviewFlagTest.class);
 
+	 ArrayList since_26 = new ArrayList();
+	 since_26.add(PreviewFlagTest.class);
+
+	record TestsAddition(ArrayList newTests, long testLevel, long jdkVersion) {}
+
+	List<TestsAddition> testAdditionsList = new ArrayList<>();
+	Collections.addAll(testAdditionsList, new TestsAddition[] {
+			 new TestsAddition(since_10, AbstractCompilerTest.F_10, ClassFileConstants.JDK10),
+			 new TestsAddition(since_11, AbstractCompilerTest.F_11, ClassFileConstants.JDK11),
+			 new TestsAddition(since_12, AbstractCompilerTest.F_12, ClassFileConstants.JDK12),
+			 new TestsAddition(since_13, AbstractCompilerTest.F_13, ClassFileConstants.JDK13),
+			 new TestsAddition(since_14, AbstractCompilerTest.F_14, ClassFileConstants.JDK14),
+			 new TestsAddition(since_15, AbstractCompilerTest.F_15, ClassFileConstants.JDK15),
+			 new TestsAddition(since_16, AbstractCompilerTest.F_16, ClassFileConstants.JDK16),
+			 new TestsAddition(since_17, AbstractCompilerTest.F_17, ClassFileConstants.JDK17),
+			 new TestsAddition(since_18, AbstractCompilerTest.F_18, ClassFileConstants.JDK18),
+			 new TestsAddition(new ArrayList(), AbstractCompilerTest.F_19, ClassFileConstants.JDK19),
+			 new TestsAddition(new ArrayList(), AbstractCompilerTest.F_20, ClassFileConstants.JDK20),
+			 new TestsAddition(since_21, AbstractCompilerTest.F_21, ClassFileConstants.JDK21),
+			 new TestsAddition(since_22, AbstractCompilerTest.F_22, ClassFileConstants.JDK22),
+			 new TestsAddition(since_23, AbstractCompilerTest.F_23, ClassFileConstants.JDK23),
+			 new TestsAddition(new ArrayList(), AbstractCompilerTest.F_24, ClassFileConstants.JDK24),
+			 new TestsAddition(since_25, AbstractCompilerTest.F_25, ClassFileConstants.JDK25),
+			 new TestsAddition(since_26, AbstractCompilerTest.F_26, ClassFileConstants.JDK26),
+	});
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
 	all.addTest(new TestSuite(StandAloneASTParserTest.class));
@@ -268,6 +298,8 @@ public static Test suite() {
 	all.addTest(new TestSuite(JrtUtilTest.class));
 	int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
 
+	// The tests for older compliances are only run at F_1_8
+	// So, first run them before the cumulative/iterative addition takes over
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_8) != 0) {
 		ArrayList tests_1_8 = (ArrayList)standardTests.clone();
 		tests_1_8.add(Compliance_1_3.class);
@@ -284,327 +316,25 @@ public static Test suite() {
 		TestCase.resetForgottenFilters(tests_1_8);
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK1_8, tests_1_8));
 	}
+	ArrayList cumulative_tests = (ArrayList)standardTests.clone();
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_9) != 0) {
-		ArrayList tests_9 = (ArrayList)standardTests.clone();
-		tests_9.addAll(since_1_4);
-		tests_9.addAll(since_1_5);
-		tests_9.addAll(since_1_6);
-		tests_9.addAll(since_1_7);
-		tests_9.addAll(since_1_8);
-		tests_9.addAll(since_9);
-		// Reset forgotten subsets tests
-		TestCase.TESTS_PREFIX = null;
-		TestCase.TESTS_NAMES = null;
-		TestCase.TESTS_NUMBERS= null;
-		TestCase.TESTS_RANGE = null;
-		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK9, tests_9));
+		cumulative_tests.addAll(since_1_4);
+		cumulative_tests.addAll(since_1_5);
+		cumulative_tests.addAll(since_1_6);
+		cumulative_tests.addAll(since_1_7);
+		cumulative_tests.addAll(since_1_8);
+		cumulative_tests.addAll(since_9);
+		TestCase.resetForgottenFilters(cumulative_tests);
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK9, cumulative_tests));
 	}
 
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_10) != 0) {
-		ArrayList tests_10 = (ArrayList)standardTests.clone();
-		tests_10.addAll(since_1_4);
-		tests_10.addAll(since_1_5);
-		tests_10.addAll(since_1_6);
-		tests_10.addAll(since_1_7);
-		tests_10.addAll(since_1_8);
-		tests_10.addAll(since_9);
-		tests_10.addAll(since_10);
-		TestCase.resetForgottenFilters(tests_10);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK10, tests_10));
+	for (TestsAddition testList : testAdditionsList) {
+		if ((possibleComplianceLevels & testList.testLevel) != 0) {
+			cumulative_tests.addAll(testList.newTests);
+			TestCase.resetForgottenFilters(cumulative_tests);
+			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(testList.jdkVersion, cumulative_tests));
+		}
 	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_11) != 0) {
-		ArrayList tests_11 = (ArrayList)standardTests.clone();
-		tests_11.addAll(since_1_4);
-		tests_11.addAll(since_1_5);
-		tests_11.addAll(since_1_6);
-		tests_11.addAll(since_1_7);
-		tests_11.addAll(since_1_8);
-		tests_11.addAll(since_9);
-		tests_11.addAll(since_10);
-		tests_11.addAll(since_11);
-		TestCase.resetForgottenFilters(tests_11);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_11), tests_11));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_12) != 0) {
-		ArrayList tests_12 = (ArrayList)standardTests.clone();
-		tests_12.addAll(since_1_4);
-		tests_12.addAll(since_1_5);
-		tests_12.addAll(since_1_6);
-		tests_12.addAll(since_1_7);
-		tests_12.addAll(since_1_8);
-		tests_12.addAll(since_9);
-		tests_12.addAll(since_10);
-		tests_12.addAll(since_11);
-		tests_12.addAll(since_12);
-		TestCase.resetForgottenFilters(tests_12);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_12), tests_12));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_13) != 0) {
-		ArrayList tests_13 = (ArrayList)standardTests.clone();
-		tests_13.addAll(since_1_4);
-		tests_13.addAll(since_1_5);
-		tests_13.addAll(since_1_6);
-		tests_13.addAll(since_1_7);
-		tests_13.addAll(since_1_8);
-		tests_13.addAll(since_9);
-		tests_13.addAll(since_10);
-		tests_13.addAll(since_11);
-		tests_13.addAll(since_12);
-		tests_13.addAll(since_13);
-		TestCase.resetForgottenFilters(tests_13);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_13), tests_13));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_14) != 0) {
-		ArrayList tests_14 = (ArrayList)standardTests.clone();
-		tests_14.addAll(since_1_4);
-		tests_14.addAll(since_1_5);
-		tests_14.addAll(since_1_6);
-		tests_14.addAll(since_1_7);
-		tests_14.addAll(since_1_8);
-		tests_14.addAll(since_9);
-		tests_14.addAll(since_10);
-		tests_14.addAll(since_11);
-		tests_14.addAll(since_12);
-		tests_14.addAll(since_13);
-		tests_14.addAll(since_14);
-		TestCase.resetForgottenFilters(tests_14);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_14), tests_14));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_15) != 0) {
-		ArrayList tests_15 = (ArrayList)standardTests.clone();
-		tests_15.addAll(since_1_4);
-		tests_15.addAll(since_1_5);
-		tests_15.addAll(since_1_6);
-		tests_15.addAll(since_1_7);
-		tests_15.addAll(since_1_8);
-		tests_15.addAll(since_9);
-		tests_15.addAll(since_10);
-		tests_15.addAll(since_11);
-		tests_15.addAll(since_12);
-		tests_15.addAll(since_13);
-		tests_15.addAll(since_14);
-		tests_15.addAll(since_15);
-		TestCase.resetForgottenFilters(tests_15);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_15), tests_15));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_16) != 0) {
-		ArrayList tests_16 = (ArrayList)standardTests.clone();
-		tests_16.addAll(since_1_4);
-		tests_16.addAll(since_1_5);
-		tests_16.addAll(since_1_6);
-		tests_16.addAll(since_1_7);
-		tests_16.addAll(since_1_8);
-		tests_16.addAll(since_9);
-		tests_16.addAll(since_10);
-		tests_16.addAll(since_11);
-		tests_16.addAll(since_12);
-		tests_16.addAll(since_13);
-		tests_16.addAll(since_14);
-		tests_16.addAll(since_15);
-		tests_16.addAll(since_16);
-		TestCase.resetForgottenFilters(tests_16);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_16), tests_16));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_17) != 0) {
-		ArrayList tests_17 = (ArrayList)standardTests.clone();
-		tests_17.addAll(since_1_4);
-		tests_17.addAll(since_1_5);
-		tests_17.addAll(since_1_6);
-		tests_17.addAll(since_1_7);
-		tests_17.addAll(since_1_8);
-		tests_17.addAll(since_9);
-		tests_17.addAll(since_10);
-		tests_17.addAll(since_11);
-		tests_17.addAll(since_12);
-		tests_17.addAll(since_13);
-		tests_17.addAll(since_14);
-		tests_17.addAll(since_15);
-		tests_17.addAll(since_16);
-		tests_17.addAll(since_17);
-		TestCase.resetForgottenFilters(tests_17);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_17), tests_17));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_18) != 0) {
-		ArrayList tests_18 = (ArrayList)standardTests.clone();
-		tests_18.addAll(since_1_4);
-		tests_18.addAll(since_1_5);
-		tests_18.addAll(since_1_6);
-		tests_18.addAll(since_1_7);
-		tests_18.addAll(since_1_8);
-		tests_18.addAll(since_9);
-		tests_18.addAll(since_10);
-		tests_18.addAll(since_11);
-		tests_18.addAll(since_12);
-		tests_18.addAll(since_13);
-		tests_18.addAll(since_14);
-		tests_18.addAll(since_15);
-		tests_18.addAll(since_16);
-		tests_18.addAll(since_17);
-		tests_18.addAll(since_18);
-		TestCase.resetForgottenFilters(tests_18);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_18), tests_18));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_19) != 0) {
-		ArrayList tests_19 = (ArrayList)standardTests.clone();
-		tests_19.addAll(since_1_4);
-		tests_19.addAll(since_1_5);
-		tests_19.addAll(since_1_6);
-		tests_19.addAll(since_1_7);
-		tests_19.addAll(since_1_8);
-		tests_19.addAll(since_9);
-		tests_19.addAll(since_10);
-		tests_19.addAll(since_11);
-		tests_19.addAll(since_12);
-		tests_19.addAll(since_13);
-		tests_19.addAll(since_14);
-		tests_19.addAll(since_15);
-		tests_19.addAll(since_16);
-		tests_19.addAll(since_17);
-		tests_19.addAll(since_18);
-		TestCase.resetForgottenFilters(tests_19);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_19), tests_19));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_20) != 0) {
-		ArrayList tests_20 = (ArrayList)standardTests.clone();
-		tests_20.addAll(since_1_4);
-		tests_20.addAll(since_1_5);
-		tests_20.addAll(since_1_6);
-		tests_20.addAll(since_1_7);
-		tests_20.addAll(since_1_8);
-		tests_20.addAll(since_9);
-		tests_20.addAll(since_10);
-		tests_20.addAll(since_11);
-		tests_20.addAll(since_12);
-		tests_20.addAll(since_13);
-		tests_20.addAll(since_14);
-		tests_20.addAll(since_15);
-		tests_20.addAll(since_16);
-		tests_20.addAll(since_17);
-		tests_20.addAll(since_18);
-		TestCase.resetForgottenFilters(tests_20);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_20), tests_20));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_21) != 0) {
-		ArrayList tests_21 = (ArrayList)standardTests.clone();
-		tests_21.addAll(since_1_4);
-		tests_21.addAll(since_1_5);
-		tests_21.addAll(since_1_6);
-		tests_21.addAll(since_1_7);
-		tests_21.addAll(since_1_8);
-		tests_21.addAll(since_9);
-		tests_21.addAll(since_10);
-		tests_21.addAll(since_11);
-		tests_21.addAll(since_12);
-		tests_21.addAll(since_13);
-		tests_21.addAll(since_14);
-		tests_21.addAll(since_15);
-		tests_21.addAll(since_16);
-		tests_21.addAll(since_17);
-		tests_21.addAll(since_18);
-		tests_21.addAll(since_21);
-		TestCase.resetForgottenFilters(tests_21);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
-				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_21), tests_21));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_22) != 0) {
-		ArrayList tests_22 = (ArrayList)standardTests.clone();
-		tests_22.addAll(since_1_4);
-		tests_22.addAll(since_1_5);
-		tests_22.addAll(since_1_6);
-		tests_22.addAll(since_1_7);
-		tests_22.addAll(since_1_8);
-		tests_22.addAll(since_9);
-		tests_22.addAll(since_10);
-		tests_22.addAll(since_11);
-		tests_22.addAll(since_12);
-		tests_22.addAll(since_13);
-		tests_22.addAll(since_14);
-		tests_22.addAll(since_15);
-		tests_22.addAll(since_16);
-		tests_22.addAll(since_17);
-		tests_22.addAll(since_18);
-		tests_22.addAll(since_21);
-		tests_22.addAll(since_22);
-		TestCase.resetForgottenFilters(tests_22);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
-				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_22), tests_22));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_23) != 0) {
-		ArrayList tests_23 = (ArrayList)standardTests.clone();
-		tests_23.addAll(since_1_4);
-		tests_23.addAll(since_1_5);
-		tests_23.addAll(since_1_6);
-		tests_23.addAll(since_1_7);
-		tests_23.addAll(since_1_8);
-		tests_23.addAll(since_9);
-		tests_23.addAll(since_10);
-		tests_23.addAll(since_11);
-		tests_23.addAll(since_12);
-		tests_23.addAll(since_13);
-		tests_23.addAll(since_14);
-		tests_23.addAll(since_15);
-		tests_23.addAll(since_16);
-		tests_23.addAll(since_17);
-		tests_23.addAll(since_18);
-		tests_23.addAll(since_21);
-		tests_23.addAll(since_22);
-		tests_23.addAll(since_23);
-		TestCase.resetForgottenFilters(tests_23);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
-				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_23), tests_23));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_24) != 0) {
-		ArrayList tests_24 = (ArrayList)standardTests.clone();
-		tests_24.addAll(since_1_4);
-		tests_24.addAll(since_1_5);
-		tests_24.addAll(since_1_6);
-		tests_24.addAll(since_1_7);
-		tests_24.addAll(since_1_8);
-		tests_24.addAll(since_9);
-		tests_24.addAll(since_10);
-		tests_24.addAll(since_11);
-		tests_24.addAll(since_12);
-		tests_24.addAll(since_13);
-		tests_24.addAll(since_14);
-		tests_24.addAll(since_15);
-		tests_24.addAll(since_16);
-		tests_24.addAll(since_17);
-		tests_24.addAll(since_18);
-		tests_24.addAll(since_21);
-		tests_24.addAll(since_22);
-		tests_24.addAll(since_23);
-		TestCase.resetForgottenFilters(tests_24);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
-				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_24), tests_24));
-	}
-
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_25) != 0) {
-		ArrayList tests_25 = (ArrayList)standardTests.clone();
-		tests_25.addAll(since_1_4);
-		tests_25.addAll(since_1_5);
-		tests_25.addAll(since_1_6);
-		tests_25.addAll(since_1_7);
-		tests_25.addAll(since_1_8);
-		tests_25.addAll(since_9);
-		tests_25.addAll(since_10);
-		tests_25.addAll(since_11);
-		tests_25.addAll(since_12);
-		tests_25.addAll(since_13);
-		tests_25.addAll(since_14);
-		tests_25.addAll(since_15);
-		tests_25.addAll(since_16);
-		tests_25.addAll(since_17);
-		tests_25.addAll(since_18);
-		tests_25.addAll(since_21);
-		tests_25.addAll(since_22);
-		tests_25.addAll(since_23);
-		tests_25.addAll(since_25);
-		TestCase.resetForgottenFilters(tests_25);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
-				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_25), tests_25));
-	}
-
 
 	all.addTest(new TestSuite(Jsr14Test.class));
 	return all;

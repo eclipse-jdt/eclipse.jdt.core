@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -26,7 +30,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @PreviewTest
 public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 25 -Xlint:-preview");
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 26 -Xlint:-preview");
 	private static final String[] VMARGS = new String[] {"--enable-preview"};
 
 	private static final String[] PRIMITIVES = { "boolean", "byte", "char", "short", "int", "long", "float", "double" };
@@ -82,7 +86,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		return PrimitiveInPatternsTestSH.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_25);
+		return buildMinimalComplianceTestSuite(testClass(), F_26);
 	}
 	public PrimitiveInPatternsTestSH(String testName) {
 		super(testName);
@@ -104,9 +108,9 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_25);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_25);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_25);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_26);
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_26);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_26);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, preview ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
 		return defaultOptions;
