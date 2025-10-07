@@ -929,15 +929,6 @@ private VariableBinding resolveTypeFor(VariableBinding variable) {
 	if ((variable.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0)
 		return variable;
 
-	if ((variable.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
-		variable.modifiers |= ClassFileConstants.AccDeprecated;
-	if (isViewedAsDeprecated() && !variable.isDeprecated()) {
-		variable.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
-		variable.tagBits |= this.tagBits & TagBits.AnnotationTerminallyDeprecated;
-	}
-	if (hasRestrictedAccess())
-		variable.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
-
 	MethodScope initializationScope = variable.isStatic()
 		? this.scope.referenceContext.staticInitializerScope
 		: this.scope.referenceContext.initializerScope;
@@ -973,6 +964,15 @@ private VariableBinding resolveTypeFor(VariableBinding variable) {
 		if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0) {
 			variable.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 		}
+
+		if ((variable.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
+			variable.modifiers |= ClassFileConstants.AccDeprecated;
+		if (isViewedAsDeprecated() && !variable.isDeprecated()) {
+			variable.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
+			variable.tagBits |= this.tagBits & TagBits.AnnotationTerminallyDeprecated;
+		}
+		if (hasRestrictedAccess())
+			variable.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 
 		Annotation [] annotations = variableDeclaration.annotations;
 
