@@ -67,10 +67,9 @@ public interface IPackageBinding extends IBinding {
 	 * Finds and returns the binding for the class or interface with the given
 	 * name declared in this package.
 	 * <p>
-	 * For top-level classes and interfaces, the name here is just the simple
-	 * name of the class or interface. For nested classes and interfaces, the
-	 * name is the class name followed by $ then the class name again followed by $
-	 * followed by inner classes in the hierarchy separated by $.
+	 * For top-level classes and interfaces, the name is just the simple
+	 * name of the class or interface. For member classes and interfaces, the
+	 * name is prefixed by its outer class(es) with a dot separator.
 	 * For example, for the following class:
 	 * <pre><code>
 	 *    public class Outer {
@@ -78,15 +77,15 @@ public interface IPackageBinding extends IBinding {
 	 *             public static class Inner2 {}
 	 *        }
 	 *    }
-	 * </code></pre> the first inner class is referenced by:
-	 * <code>"Outer$Outer$Inner"</code> and it's inner class can be accessed via
-	 * <code>"Outer$Outer$Inner$Inner2"</code>.
+	 * </code></pre> the first inner class is referenced via:
+	 * <code>"Outer.Inner"</code> and it's inner class can be accessed via
+	 * <code>"Outer.Inner.Inner2"</code>.
 	 * </p>
 	 *
 	 * @param name the name of a class or interface
 	 * @return the type binding for the class or interface with the
 	 *   given name declared in this package, or <code>null</code>
-	 *   if there is no such type
+	 *   if no such valid type can be found
 	 * @since 3.44
 	 */
 	public ITypeBinding findTypeBinding(String name);
