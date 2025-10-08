@@ -269,16 +269,16 @@ class PackageBinding implements IPackageBinding {
 	public ITypeBinding findTypeBinding(String nameString) {
 		String[] segments = nameString.split("[.]"); //$NON-NLS-1$
 		int i = 0;
-		org.eclipse.jdt.internal.compiler.lookup.PackageBinding binding = this.binding;
+		org.eclipse.jdt.internal.compiler.lookup.PackageBinding pkgBinding = this.binding;
 		Binding foundBinding = null;
 		while (i < segments.length) {
 			char[] segName = segments[i++].toCharArray();
-			foundBinding = binding.getTypeOrPackage(segName, this.binding.enclosingModule, false);
+			foundBinding = pkgBinding.getTypeOrPackage(segName, this.binding.enclosingModule, false);
 			if (foundBinding == null || !foundBinding.isValidBinding()
 					|| !(foundBinding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding foundPackageBinding)) {
 				break;
 			} else {
-				binding = foundPackageBinding;
+				pkgBinding = foundPackageBinding;
 			}
 		}
 		if (foundBinding != null && foundBinding.isValidBinding()
