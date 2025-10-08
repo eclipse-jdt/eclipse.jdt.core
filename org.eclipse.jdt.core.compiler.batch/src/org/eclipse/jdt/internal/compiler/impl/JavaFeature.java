@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -103,7 +107,7 @@ public enum JavaFeature {
 			Messages.bind(Messages.flexible_constructor_bodies),
 			new char[][] {},
 			false),
-	PRIMITIVES_IN_PATTERNS(ClassFileConstants.JDK25,
+	PRIMITIVES_IN_PATTERNS(ClassFileConstants.JDK26,
 			Messages.bind(Messages.primitives_in_patterns),
 			new char[][] {},
 			true),

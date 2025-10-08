@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -530,6 +534,21 @@ public final class AST {
 	 */
 	public static final int JLS25 = 25;
 	/**
+	 * Constant for indicating the AST API that handles JLS26.
+	 * <p>
+	 * This API is capable of handling all constructs in the
+	 * Java language as described in the Java Language
+	 * Specification, Java SE 26 Edition (JLS26).
+	 * JLS26 is a superset of all earlier versions of the
+	 * Java language, and the JLS26 API can be used to manipulate
+	 * programs written in all versions of the Java language
+	 * up to and including Java SE 26(aka JDK 26).
+	 * </p>
+	 *
+	 * @since 3.44 BETA_JAVA26
+	 */
+	public static final int JLS26 = 26;
+	/**
 	 * Internal synonym for {@link #JLS15}. Use to alleviate
 	 * deprecation warnings once JLS15 is deprecated
 	 */
@@ -585,10 +604,15 @@ public final class AST {
 	 */
 	static final int JLS25_INTERNAL = JLS25;
 	/**
+	 * Internal synonym for {@link #JLS26}. Use to alleviate
+	 * deprecation warnings once JLS26 is deprecated
+	 */
+	static final int JLS26_INTERNAL = JLS26;
+	/**
 	 * Internal property for latest supported JLS level
 	 * This provides the latest JLS level.
 	 */
-	private static final int JLS_INTERNAL_Latest = JLS25;
+	private static final int JLS_INTERNAL_Latest = JLS26;
 
 	/**
 	 * @since 3.26
@@ -598,7 +622,7 @@ public final class AST {
 	@Deprecated
 	public static final int JLS_Latest = JLS_INTERNAL_Latest;
 
-	private static final List<Integer> ALL_VERSIONS = List.of(JLS2, JLS3, JLS4, JLS8, JLS9, JLS10, JLS11, JLS12, JLS13, JLS14, JLS15, JLS16, JLS17, JLS18, JLS19, JLS20, JLS21, JLS22, JLS23, JLS24, JLS25);
+	private static final List<Integer> ALL_VERSIONS = List.of(JLS2, JLS3, JLS4, JLS8, JLS9, JLS10, JLS11, JLS12, JLS13, JLS14, JLS15, JLS16, JLS17, JLS18, JLS19, JLS20, JLS21, JLS22, JLS23, JLS24, JLS25,JLS26);
 	private static final List<Integer> UNSUPPORTED_VERSIONS = List.of(JLS2, JLS3, JLS4);
 	private static final List<Integer> SUPPORTED_VERSIONS;
 	static {
@@ -1307,6 +1331,7 @@ public final class AST {
         t.put(JavaCore.VERSION_23, ClassFileConstants.JDK23);
         t.put(JavaCore.VERSION_24, ClassFileConstants.JDK24);
         t.put(JavaCore.VERSION_25, ClassFileConstants.JDK25);
+        t.put(JavaCore.VERSION_26, ClassFileConstants.JDK26);
         return Collections.unmodifiableMap(t);
 	}
 	private static Map<String, Integer> getApiLevelMapTable() {
@@ -1336,6 +1361,7 @@ public final class AST {
         t.put(JavaCore.VERSION_23, JLS23_INTERNAL);
         t.put(JavaCore.VERSION_24, JLS24_INTERNAL);
         t.put(JavaCore.VERSION_25, JLS25_INTERNAL);
+        t.put(JavaCore.VERSION_26, JLS2_INTERNAL);
         return Collections.unmodifiableMap(t);
 	}
 	/**
