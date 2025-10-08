@@ -1709,8 +1709,8 @@ public class ASTConverter9Test extends ConverterTestSetup {
 
 			List<IPackageBinding> packageBindings= ImportRewrite.getPackageBindingsForModule(moduleBinding, project1);
 			assertTrue("Number of package bindings not 1 or not pack22", packageBindings.size() == 1 && packageBindings.get(0).getName().equals("pack22"));
-//			ITypeBinding listType= packageBindings.get(0).findTypeBinding("List");
-//			assertTrue("List type binding should be null", listType == null);
+			ITypeBinding listType= packageBindings.get(0).findTypeBinding("List");
+			assertTrue("List type binding should be null", listType == null);
 			ITypeBinding i22= packageBindings.get(0).findTypeBinding("I22");
 			assertTrue("I22 type not found", i22 != null && i22.getName().equals("I22"));
 			ITypeBinding class22Inner= packageBindings.get(0).findTypeBinding("Class22.Class22Inner");
