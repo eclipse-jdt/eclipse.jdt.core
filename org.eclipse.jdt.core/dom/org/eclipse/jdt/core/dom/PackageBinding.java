@@ -32,8 +32,6 @@ import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.NameLookup;
@@ -269,14 +267,37 @@ class PackageBinding implements IPackageBinding {
 
 	@Override
 	public ITypeBinding findTypeBinding(String nameString) {
-		char[] typeName= nameString.toCharArray();
-		Binding foundBinding = this.binding.getTypeOrPackage(typeName, this.binding.enclosingModule, false);
-		if (foundBinding == null)
-			return null;
-		if (foundBinding.isValidBinding() && foundBinding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding) {
+		String[] segments = nameString.split("[.]"); //$NON-NLS-1$
+		int i = 0;
+		org.eclipse.jdt.internal.compiler.lookup.PackageBinding binding = this.binding;
+		Binding foundBinding = null;
+		while (i < segments.length) {
+			char[] segName = segments[i++].toCharArray();
+			foundBinding = binding.getTypeOrPackage(segName, this.binding.enclosingModule, false);
+			if (foundBinding == null || !foundBinding.isValidBinding()
+					|| !(foundBinding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding foundPackageBinding)) {
+				break;
+			} else {
+				binding = foundPackageBinding;
+			}
+		}
+		if (foundBinding != null && foundBinding.isValidBinding()
+				&& (foundBinding instanceof org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding refBinding)) {
+			org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding referenceBinding = refBinding;
+			while (i < segments.length) {
+				char[] segName = segments[i++].toCharArray();
+				foundBinding = referenceBinding.getMemberType(segName);
+				if (foundBinding == null || !foundBinding.isValidBinding()
+						|| !(foundBinding instanceof org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding foundRefBinding)) {
+					break;
+				} else {
+					referenceBinding = foundRefBinding;
+				}
+			}
+		}
+		if (foundBinding != null && foundBinding.isValidBinding()
+				&& foundBinding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding) {
 			return this.resolver.getTypeBinding(typeBinding);
-		} else if (foundBinding instanceof ProblemReferenceBinding problemBinding && problemBinding.problemId() == ProblemReasons.InternalNameProvided && problemBinding.closestMatch().isValidBinding()) {
-			return this.resolver.getTypeBinding(problemBinding.closestMatch());
 		}
 		return null;
 	}
