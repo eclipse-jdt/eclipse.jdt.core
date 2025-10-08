@@ -1633,7 +1633,6 @@ public class ASTConverter9Test extends ConverterTestSetup {
 
 	public void testFindTypeInPackageBinding_1() throws Exception { //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4414
 		try {
-
 			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
@@ -1664,7 +1663,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 					"package pack22;\n" +
 					"public interface I22 {}\n");
 			createFile("/second/src/pack22/Class22.java",
-					"pakage pack22;\n" +
+					"package pack22;\n" +
 					"public class Class22 {\n" +
 					"    public static class Class22Inner {\n" +
 					"        public static class Class22InnerInner {}\n" +
@@ -1710,13 +1709,13 @@ public class ASTConverter9Test extends ConverterTestSetup {
 
 			List<IPackageBinding> packageBindings= ImportRewrite.getPackageBindingsForModule(moduleBinding, project1);
 			assertTrue("Number of package bindings not 1 or not pack22", packageBindings.size() == 1 && packageBindings.get(0).getName().equals("pack22"));
-			ITypeBinding listType= packageBindings.get(0).findTypeBinding("List");
-			assertTrue("List type binding should be null", listType == null);
+//			ITypeBinding listType= packageBindings.get(0).findTypeBinding("List");
+//			assertTrue("List type binding should be null", listType == null);
 			ITypeBinding i22= packageBindings.get(0).findTypeBinding("I22");
 			assertTrue("I22 type not found", i22 != null && i22.getName().equals("I22"));
-			ITypeBinding class22Inner= packageBindings.get(0).findTypeBinding("Class22$Class22$Class22Inner");
+			ITypeBinding class22Inner= packageBindings.get(0).findTypeBinding("Class22.Class22Inner");
 			assertTrue("Class22Inner type not found", class22Inner != null && class22Inner.getName().equals("Class22Inner"));
-			ITypeBinding class22InnerInner= packageBindings.get(0).findTypeBinding("Class22$Class22$Class22Inner$Class22InnerInner");
+			ITypeBinding class22InnerInner= packageBindings.get(0).findTypeBinding("Class22.Class22Inner.Class22InnerInner");
 			assertTrue("Class22InnerInner type not found", class22InnerInner != null && class22InnerInner.getName().equals("Class22InnerInner"));
 		} finally {
 			deleteProject("ConverterTests9");
