@@ -937,6 +937,7 @@ private VariableBinding resolveTypeFor(VariableBinding variable) {
 		if (variable instanceof FieldBinding field)
 			initializationScope.initializedField = field;
 		AbstractVariableDeclaration variableDeclaration = variable instanceof FieldBinding field ? field.sourceField() : ((RecordComponentBinding) variable).sourceRecordComponent();
+		ASTNode.resolveNullDefaultAnnotations(initializationScope, variableDeclaration.annotations, variable);
 		TypeBinding variableType =
 			variableDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT
 				? initializationScope.environment().convertToRawType(this, false /*do not force conversion of enclosing types*/) // enum constant is implicitly of declaring enum type
