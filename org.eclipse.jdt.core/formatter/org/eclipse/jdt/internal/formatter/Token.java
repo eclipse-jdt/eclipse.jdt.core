@@ -107,6 +107,8 @@ public class Token {
 
 	private List<Token> internalStructure;
 
+	private boolean isSnippetForMarkdown = false;
+
 	public Token(int sourceStart, int sourceEnd, TerminalToken tokenType) {
 		assert sourceStart <= sourceEnd;
 		this.originalStart = sourceStart;
@@ -352,5 +354,13 @@ public class Token {
 //		if (source != null)  // see comment above
 //			return toString(source);
 		return "[" + this.originalStart + "-" + this.originalEnd + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
+
+	public boolean isSnippetForMarkdown() {
+		return this.isSnippetForMarkdown;
+	}
+
+	public void setSnippetForMarkdown(boolean isSnippetForMarkdown) {
+		this.isSnippetForMarkdown = isSnippetForMarkdown;
 	}
 }
