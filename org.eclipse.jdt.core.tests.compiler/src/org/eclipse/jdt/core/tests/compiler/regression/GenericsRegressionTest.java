@@ -6974,5 +6974,28 @@ public void testGH4254() {
 		}
 	);
 }
+
+public void testGH4314() {
+    runConformTest(new String[] {
+            "Test.java",
+            """
+            import java.util.function.Function;
+
+            public class Test {
+
+                public static void main(String[] args) {
+                    m(
+                            i -> new A<>(i),
+                            b -> b.intValue());
+                }
+
+                private static <T, R> void m(Function<Integer, A<T>> f1, Function<T, R> f2) {}
+                private static class A<T> {
+                    public A(T t) {}
+                }
+            }
+            """
+    });
+}
 }
 

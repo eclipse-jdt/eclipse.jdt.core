@@ -1074,7 +1074,7 @@ public class InferenceContext18 {
 	/**
 	 * JLS 18.2. reduce all initial constraints
 	 */
-	private boolean reduce() throws InferenceFailureException {
+	public boolean reduce() throws InferenceFailureException {
 		// Caution: This can be reentered recursively even as an earlier call is munching through the constraints !
 		for (int i = 0; this.initialConstraints != null && i < this.initialConstraints.length; i++) {
 			final ConstraintFormula currentConstraint = this.initialConstraints[i];
