@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Stephan Herrmann - Initial API and implementation
  *******************************************************************************/
@@ -36,8 +40,6 @@ public class ModuleImportASTConverterTest extends ConverterTestSetup {
 		this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_25);
 		this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_25);
 		this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_25);
-		this.currentProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-		this.currentProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 	}
 
 	public ModuleImportASTConverterTest(String name) {

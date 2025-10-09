@@ -142,7 +142,7 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 			},
 			"world");
 		String expectedOutput =
-				"version 25 : 69."
+				"version 26 : 70."
 				;
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}

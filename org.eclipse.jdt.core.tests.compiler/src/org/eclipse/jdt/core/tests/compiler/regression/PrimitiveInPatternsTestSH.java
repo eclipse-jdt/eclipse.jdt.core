@@ -181,7 +181,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 	void checkPreviewFlag(String[] testFiles) {
 		String className = testFiles[0].replace(".java", ".class");
 		try {
-			verifyClassFile("version 25 : 69.65535", className, ClassFileBytesDisassembler.SYSTEM);
+			verifyClassFile("version 26 : 70.65535", className, ClassFileBytesDisassembler.SYSTEM);
 		} catch (IOException|ClassFormatException e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -249,7 +249,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 		classX.append(calls);
 		classX.append("}}\n");
 		runConformTest(new String[] { "X.java", classX.toString() }, MAX_VALUES_STRING);
-		verifyClassFile("version 25 : 69.65535", "X.class", ClassFileBytesDisassembler.SYSTEM);
+		verifyClassFile("version 26 : 70.65535", "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testIdentityPattern() {
 		StringBuilder methods = new StringBuilder();
@@ -2839,7 +2839,7 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 //		runner.vmArguments = VMARGS; not passing --enable-preview to java
 		runner.expectedErrorString =
 				"""
-				java.lang.UnsupportedClassVersionError: Preview features are not enabled for Test (class file version 69.65535). Try running with '--enable-preview'
+				java.lang.UnsupportedClassVersionError: Preview features are not enabled for Test (class file version 70.65535). Try running with '--enable-preview'
 				""";
 		runner.runConformTest();
 	}
