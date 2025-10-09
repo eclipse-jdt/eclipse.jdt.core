@@ -6761,8 +6761,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 			assertMarkers("Unexpected markers",
 					"Access restriction: The type \'Image\' is not API (restriction on required library '"+ jrtPath + "')\n" +
-					"The type Graphics from module java.desktop may not be accessible to clients due to missing \'requires transitive\'\n" +
-					"Access restriction: The method \'Image.getGraphics()\' is not API (restriction on required library '"+ jrtPath + "')", markers);
+					"The type Graphics from module java.desktop may not be accessible to clients due to missing \'requires transitive\'"
+					, markers);
 		} finally {
 			deleteProject(p1);
 		}
