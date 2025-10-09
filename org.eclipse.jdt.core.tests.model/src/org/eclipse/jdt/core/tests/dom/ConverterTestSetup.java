@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
@@ -249,6 +253,14 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 				JavaCore.setClasspathVariables(
 						new String[] {"CONVERTER_JCL_25_LIB", "CONVERTER_JCL_25_SRC", "CONVERTER_JCL_25_SRCROOT"},
 						new IPath[] {getConverterJCLPath("25"), getConverterJCLSourcePath("25"), getConverterJCLRootSourcePath()},
+						null);
+			}
+		}  else if ("26".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("CONVERTER_JCL_26_LIB") == null) {
+				setupExternalJCL("jclMin26");
+				JavaCore.setClasspathVariables(
+						new String[] {"CONVERTER_JCL_26_LIB", "CONVERTER_JCL_26_SRC", "CONVERTER_JCL_26_SRCROOT"},
+						new IPath[] {getConverterJCLPath("26"), getConverterJCLSourcePath("26"), getConverterJCLRootSourcePath()},
 						null);
 			}
 		}

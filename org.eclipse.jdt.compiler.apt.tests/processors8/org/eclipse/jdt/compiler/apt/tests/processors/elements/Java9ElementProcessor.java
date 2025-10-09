@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -61,6 +65,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 	boolean reportSuccessAlready = true;
 	RoundEnvironment roundEnv = null;
 	Messager _messager = null;
+	boolean isJre26;
 	boolean isJre23;
 	boolean isJre20;
 	boolean isJre19;
@@ -99,8 +104,11 @@ public class Java9ElementProcessor extends BaseProcessor {
 								if (current >= ClassFileConstants.MAJOR_VERSION_20) {
 									this.isJre20 = true;
 									if (current >= ClassFileConstants.MAJOR_VERSION_23) {
-	                                    this.isJre23 = true;
-	                                }
+										this.isJre23 = true;
+										if (current >= ClassFileConstants.MAJOR_VERSION_26) {
+											this.isJre26 = true;
+										}
+									}
 								}
 							}
 						}
@@ -507,7 +515,8 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertNotNull("java.base module null", base);
 		List<? extends Directive> directives = base.getDirectives();
 		List<Directive> filterDirective = filterDirective(directives, DirectiveKind.USES);
-		int modCount =  (this.isJre11 || this.isJre12) ? 33 : (this.isJre18 ? (this.isJre20 ? (this.isJre23 ? 35 : 36) : 35) : 34);
+		int modCount = (this.isJre26 ? 34 : 
+			(this.isJre11 || this.isJre12) ? 33 : (this.isJre18 ? (this.isJre20 ? (this.isJre23 ? 35 : 36) : 35) : 34));
 		assertEquals("incorrect no of uses", modCount, filterDirective.size());
 	}
 	/*

@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -38,7 +42,7 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 		return PreviewFlagTest.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_25);
+		return buildMinimalComplianceTestSuite(testClass(), F_26);
 	}
 	public PreviewFlagTest(String testName) {
 		super(testName);
@@ -60,9 +64,9 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_25);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_25);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_25);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_26);
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_26);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_26);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, preview ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
 		return defaultOptions;
@@ -138,7 +142,7 @@ public class PreviewFlagTest extends AbstractRegressionTest9 {
 			},
 			"world");
 		String expectedOutput =
-				"version 25 : 69."
+				"version 26 : 70."
 				;
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}

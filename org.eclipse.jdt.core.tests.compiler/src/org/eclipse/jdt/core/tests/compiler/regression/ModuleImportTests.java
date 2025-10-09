@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
  *******************************************************************************/
@@ -188,7 +192,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					"""
 	        },
-			" -25 --enable-preview \"" + getSourceDir() +  File.separator + "module-info.java\" "
+			" -25 \"" + getSourceDir() +  File.separator + "module-info.java\" "
 	        + "\"" + getSourceDir() +  File.separator + "p/X.java\"",
 	        "",
 	        """
@@ -275,7 +279,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -25 --enable-preview ");
+		commandLine.append(" -25 ");
 
 		runNegativeModuleTest(
 				files,
@@ -556,7 +560,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -25 --enable-preview ");
+		commandLine.append(" -25 ");
 		commandLine.append(" --module-source-path \"").append(srcDir).append("\"");
 		commandLine.append(" -d \"").append(OUTPUT_DIR).append(File.separatorChar).append("bin").append("\"");
 
@@ -616,7 +620,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -25 --enable-preview");
+		commandLine.append(" -25");
 		commandLine.append(" --module-source-path ").append(srcDir);
 		commandLine.append(" -d ").append(OUTPUT_DIR+File.separator+"bin");
 
@@ -675,7 +679,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					}
 					""");
 		StringBuilder commandLine = new StringBuilder();
-		commandLine.append(" -25 --enable-preview");
+		commandLine.append(" -25");
 		commandLine.append(" --module-source-path ").append(srcDir);
 
 		runConformModuleTest(
@@ -766,7 +770,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 					import module.Z;
 					public class X extends Z {}
 					""");
-		StringBuilder commandLine = new StringBuilder(" -25 --enable-preview");
+		StringBuilder commandLine = new StringBuilder(" -25");
 		runConformModuleTest(files, commandLine, "", "");
 	}
 
@@ -785,7 +789,7 @@ public class ModuleImportTests extends AbstractModuleCompilationTest {
 						uses Z;
 					}
 					""");
-		StringBuilder commandLine = new StringBuilder(" -25 --enable-preview");
+		StringBuilder commandLine = new StringBuilder(" -25");
 		runConformModuleTest(files, commandLine, "", "");
 	}
 

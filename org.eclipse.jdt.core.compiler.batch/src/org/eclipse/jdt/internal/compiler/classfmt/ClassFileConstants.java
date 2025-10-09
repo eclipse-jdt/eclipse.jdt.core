@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
@@ -145,7 +149,7 @@ public interface ClassFileConstants {
 	int MAJOR_VERSION_26 = 70;
 
 	int MAJOR_VERSION_0 = 44;
-	int MAJOR_LATEST_VERSION = MAJOR_VERSION_25;
+	int MAJOR_LATEST_VERSION = MAJOR_VERSION_26;
 
 	int MINOR_VERSION_0 = 0;
 	int MINOR_VERSION_1 = 1;
