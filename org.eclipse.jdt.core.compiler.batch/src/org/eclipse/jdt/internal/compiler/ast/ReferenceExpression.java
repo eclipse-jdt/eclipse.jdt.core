@@ -169,7 +169,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 
 		int argc = this.descriptor.parameters.length;
 
-		LambdaExpression implicitLambda = new LambdaExpression(this.compilationResult, false, (this.binding.modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0);
+		LambdaExpression implicitLambda = new LambdaExpression(this.compilationResult, false);
 		Argument [] arguments = new Argument[argc];
 		for (int i = 0; i < argc; i++)
 			arguments[i] = new Argument(CharOperation.append(ImplicitArgName, Integer.toString(i).toCharArray()), 0, null, 0, true);
