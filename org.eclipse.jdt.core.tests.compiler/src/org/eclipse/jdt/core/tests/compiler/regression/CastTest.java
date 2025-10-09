@@ -3440,7 +3440,38 @@ public void testGH2470_overload() {
 	runner.expectedOutputString = "CharSequence.String.";
 	runner.runConformTest();
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4375
+// JDT generates invalid "Unnecessary cast" warning on ambiguous reference
+public void testIssue4375() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"Test.java",
+			"""
+			import java.util.Collection;
+			import java.util.Collections;
+			import java.util.Set;
 
+			public interface Test {
+				default void findObject() {
+					findObjectExcluding((Collections.emptySet()));
+					findObjectExcluding(((Set<?>) Collections.emptySet()));
+				}
+
+				void findObjectExcluding(Collection<String> col);
+
+				void findObjectExcluding(Set<?> col);
+			}
+			"""
+		};
+	runner.expectedCompilerLog =
+			"----------\n" +
+			"1. ERROR in Test.java (at line 7)\n" +
+			"	findObjectExcluding((Collections.emptySet()));\n" +
+			"	^^^^^^^^^^^^^^^^^^^\n" +
+			"The method findObjectExcluding(Collection<String>) is ambiguous for the type Test\n" +
+			"----------\n";
+	runner.runNegativeTest();
+}
 public static Class testClass() {
 	return CastTest.class;
 }
