@@ -5443,4 +5443,74 @@ public void testSVDStartPositionIssue_2() throws JavaModelException {
 	assertEquals("Single Variable Declaration startPosition is not correct", svd.getStartPosition(), contents.indexOf("/** abc*/ RuntimeException"));
 }
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4458
+// ArrayIndexOutOfBoundsException in PolyTypeBinding
+@SuppressWarnings("deprecation")
+public void testIssue4458() throws JavaModelException {
+	String contents =
+			"""
+			import java.util.function.Function;
+			import java.lang.Exception;
+			import java.util.stream.Stream;
+
+			public class X {
+				public interface ThrowingRunnable {
+					void run() throws Exception;
+				}
+
+				public static Runnable encode(ThrowingRunnable throwing) {
+					return () -> {
+						try {
+							throwing.run();
+						} catch (Exception e) {
+							throw new RuntimeException(e);
+						}
+					};
+				}
+
+				public interface ThrowingFunction<T, R> {
+					R apply(T t) throws Exception;
+				}
+
+				public static <T,R> Function<T, R> encode(ThrowingFunction<T,R> throwing) {
+					return t -> {
+						try {
+							return throwing.apply(t);
+						} catch (Exception e) {
+							throw new RuntimeException(e);
+						}
+					};
+				}
+
+				public void artifactRefs(String... suites)
+						throws InterruptedException {
+					Stream<Exception> elements = Stream.empty();
+
+					elements
+						.map(encode(  Exception::getMessage)) // a call to overloaded method
+						.forEach(context -> {
+							();  // Syntax error
+					});
+				}
+
+			}
+			""";
+	this.workingCopy = getWorkingCopy("/Converter18/src/test432051/X.java", contents, true/*computeProblems*/);
+	IJavaProject javaProject = this.workingCopy.getJavaProject();
+	class BindingRequestor extends ASTRequestor {
+		ITypeBinding _result = null;
+		public void acceptBinding(String bindingKey, IBinding binding) {
+			if (this._result == null && binding != null && binding.getKind() == IBinding.TYPE)
+				this._result = (ITypeBinding) binding;
+		}
+	}
+	final BindingRequestor requestor = new BindingRequestor();
+	final ASTParser parser = ASTParser.newParser(AST.JLS8);
+	parser.setResolveBindings(true);
+	parser.setProject(javaProject);
+	parser.setBindingsRecovery(true);
+	parser.setStatementsRecovery(true);
+	parser.createASTs(new ICompilationUnit[] {this.workingCopy}, new String[0], requestor, null);
+}
+
 }
