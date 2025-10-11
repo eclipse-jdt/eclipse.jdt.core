@@ -7392,4 +7392,36 @@ public void testGH3328_2() {
 			"""
 		});
 }
+public void testGH4486() {
+	Map<String, String> compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	runLeakTest(new String[] {
+			"p1/p2/p3/TryWithResources.java",
+			"""
+			package p1.p2.p3;
+
+			import java.io.ByteArrayOutputStream;
+			import java.io.IOException;
+			import java.util.Properties;
+
+			public class TryWithResources {
+			  private static final class BOS
+			    extends ByteArrayOutputStream {
+			    BOS(final int size) {
+			      super(size);
+			    }
+			  }
+
+			  public void exectute() throws IOException {
+			    final Properties p = new Properties();
+			    final BOS bos = new BOS(8192);
+			    p.store(bos, null);
+			    bos.writeTo(System.out);
+			  }
+			}
+			"""
+	},
+	"",
+	compilerOptions);
+}
 }
