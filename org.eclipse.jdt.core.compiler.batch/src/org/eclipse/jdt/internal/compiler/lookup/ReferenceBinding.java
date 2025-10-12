@@ -2227,14 +2227,16 @@ protected int applyCloseableClassWhitelists(CompilerOptions options) {
 					}
 				}
 			}
-			for (int i=0; i<3; i++) {
-				if (!CharOperation.equals(this.compoundName[i], TypeConstants.ONE_UTIL_STREAMEX[i])) {
-					return 0;
+			streamex: {
+				for (int i=0; i<3; i++) {
+					if (!CharOperation.equals(this.compoundName[i], TypeConstants.ONE_UTIL_STREAMEX[i])) {
+						break streamex;
+					}
 				}
-			}
-			for (char[] streamName : TypeConstants.RESOURCE_FREE_CLOSEABLE_STREAMEX) {
-				if (CharOperation.equals(this.compoundName[3], streamName)) {
-					return TypeIds.BitResourceFreeCloseable;
+				for (char[] streamName : TypeConstants.RESOURCE_FREE_CLOSEABLE_STREAMEX) {
+					if (CharOperation.equals(this.compoundName[3], streamName)) {
+						return TypeIds.BitResourceFreeCloseable;
+					}
 				}
 			}
 			break;
