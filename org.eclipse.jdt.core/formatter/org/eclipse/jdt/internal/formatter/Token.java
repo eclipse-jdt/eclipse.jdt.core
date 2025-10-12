@@ -135,6 +135,7 @@ public class Token {
 		this.wrapPolicy = tokenToCopy.wrapPolicy;
 		this.nlsTagToken = tokenToCopy.nlsTagToken;
 		this.internalStructure = tokenToCopy.internalStructure;
+		this.isSnippetForMarkdown = tokenToCopy.isSnippetForMarkdown;
 	}
 
 	public static Token fromCurrent(Scanner scanner, TerminalToken currentToken) {
@@ -321,6 +322,14 @@ public class Token {
 		return this.internalStructure;
 	}
 
+	public boolean isSnippetForMarkdown() {
+		return this.isSnippetForMarkdown;
+	}
+
+	public void setSnippetForMarkdown(boolean isSnippetForMarkdown) {
+		this.isSnippetForMarkdown = isSnippetForMarkdown;
+	}
+
 	public boolean isComment() {
 		switch (this.tokenType) {
 			case TokenNameCOMMENT_BLOCK:
@@ -354,13 +363,5 @@ public class Token {
 //		if (source != null)  // see comment above
 //			return toString(source);
 		return "[" + this.originalStart + "-" + this.originalEnd + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	}
-
-	public boolean isSnippetForMarkdown() {
-		return this.isSnippetForMarkdown;
-	}
-
-	public void setSnippetForMarkdown(boolean isSnippetForMarkdown) {
-		this.isSnippetForMarkdown = isSnippetForMarkdown;
 	}
 }
