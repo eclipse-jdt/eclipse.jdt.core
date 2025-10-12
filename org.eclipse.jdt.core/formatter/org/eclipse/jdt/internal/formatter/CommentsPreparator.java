@@ -102,7 +102,7 @@ public class CommentsPreparator extends ASTVisitor {
 	private final static Pattern MARKDOWN_LIST_PATTERN = Pattern.compile("(?<!\\S)(?:[-+*]|\\d+\\.)([ \\t]+)"); //$NON-NLS-1$
 	private final static Pattern MARKDOWN_HEADINGS_PATTERN_1 = Pattern.compile("(?:(?<=^)|(?<=///[ \\t]*))(#{1,6})([ \\t]+)([^#\\n]+)", Pattern.MULTILINE); //$NON-NLS-1$
 	private final static Pattern MARKDOWN_HEADINGS_PATTERN_2 = Pattern.compile("(?:^|(?<=///[ \\t]+))[ \\t]*([=-])\\1*[ \\t]*(?=\\n|$)", Pattern.MULTILINE); //$NON-NLS-1$
-	private final static Pattern MARKDOWN_CODE_SNIPPET_PATTERN = Pattern.compile("[ \\t]*(?:///[ \\t]*)?```[ \\t]*(?:\\R)?"); //$NON-NLS-1$
+	private final static Pattern MARKDOWN_CODE_SNIPPET_PATTERN = Pattern.compile("[ \\t]*(?:///[ \\t]*)?`+[ \\t]*(?:\\R)?"); //$NON-NLS-1$
 	private final static Pattern MARKDOWN_TABLE_PATTERN = Pattern.compile("(?m)(?s)(?:\\s*///\\s*)?\\|[^\\r\\n]*?\\|[ \\t]*(?:\\r?\\n|$)(?:\\s*///\\s*)?\\|(?:\\s*[:-]+\\s*\\|)+[ \\t]*(?:\\r?\\n|$)(?:(?:\\s*///\\s*)?\\|[^\\r\\n]*?\\|[ \\t]*(?:\\r?\\n|$))+");  //$NON-NLS-1$
 
 	// Param tags list copied from IJavaDocTagConstants in legacy formatter for compatibility.
@@ -874,21 +874,26 @@ public class CommentsPreparator extends ASTVisitor {
 
 		matcher = MARKDOWN_CODE_SNIPPET_PATTERN.matcher(text); // Check for MarkDown snippet with styles '``` & ```'
 		while (matcher.find()) {
-			int startPos = matcher.end() + node.getStartPosition();
+			int startPos = matcher.start() + node.getStartPosition();
 			int tokenIndex = this.ctm.findIndex(startPos, ANY, true);
+			Token openingToken = this.ctm.get(tokenIndex);
+			String openingSnippet = this.ctm.toString(openingToken);
 			if (matcher.find()) {
 				int endPos = matcher.start() + node.getStartPosition();
-				Token openingToken = this.ctm.get(tokenIndex > 2 ? tokenIndex - 1 : tokenIndex);
-				openingToken.breakBefore();
-				openingToken.breakAfter();
 				int tokenIndexLast = this.ctm.findIndex(endPos, ANY, true);
-				if (this.ctm.size() - 1 != tokenIndexLast) {
-					Token closingToken = this.ctm.get(tokenIndexLast);
-					closingToken.putLineBreaksAfter(2);
-				}
-				if (this.options.comment_format_source) {
-					this.snippetForMarkdown = true;
-					formatCode(tokenIndex - 1, tokenIndexLast, true);
+				Token closingToken = this.ctm.get(tokenIndexLast);
+				String closingSnippet = this.ctm.toString(closingToken);
+				if (openingSnippet.equals(closingSnippet)) {
+					if (tokenIndex > 1)
+						openingToken.breakBefore();
+					openingToken.breakAfter();
+					if (this.ctm.size() - 1 != tokenIndexLast) {
+						closingToken.putLineBreaksAfter(2);
+					}
+					if (this.options.comment_format_source) {
+						this.snippetForMarkdown = true;
+						formatCode(tokenIndex, tokenIndexLast, true);
+					}
 				}
 			}
 		}

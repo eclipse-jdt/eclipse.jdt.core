@@ -16680,37 +16680,35 @@ public void testIssue2977() {
 		String input = """
 				/// ```
 				/// public class HelloWorld {
-				/// 	public static void main(String...   args) {
-				/// 		System.out.println("Hello World!");// the traditional example
+				/// 	public static void main(String   args) { System.out.println("Hello World!");// the traditional example
 				/// 	}
 				/// }
 				/// ```
 				///
-				/// ```
-				/// public class HelloWorld2 {public static void main(String...args) {
-				/// 		System.out.println("ssdd World!");// the traditional example
+				/// ````````````
+				/// public class HelloWorld2 {public static void main(String args) { System.out.println("ssdd World!");// the traditional example
 				/// 	}
 				/// }
-				/// ```
+				/// ````````````
 				class Test3 {
 				}
 				""";
 		String expected = """
 				/// ```
 				/// public class HelloWorld {
-				/// 	public static void main(String...args) {
+				/// 	public static void main(String args) {
 				/// 		System.out.println("Hello World!");// the traditional example
 				/// 	}
 				/// }
 				/// ```
 				///
-				/// ```
+				/// ````````````
 				/// public class HelloWorld2 {
-				/// 	public static void main(String...args) {
+				/// 	public static void main(String args) {
 				/// 		System.out.println("ssdd World!");// the traditional example
 				/// 	}
 				/// }
-				/// ```
+				/// ````````````
 				class Test3 {
 				}
 				""";
