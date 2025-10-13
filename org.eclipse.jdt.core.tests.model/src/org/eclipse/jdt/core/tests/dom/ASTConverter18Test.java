@@ -4866,7 +4866,7 @@ public void testBug447062() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
  */
-public void _2551_testBug425601_001() throws JavaModelException {
+public void testBug425601_001() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/testBug425601_001/Outer.java",
 			true/* resolve */);
 	String contents = "package testBug425601_001;\n" +
@@ -4882,7 +4882,7 @@ public void _2551_testBug425601_001() throws JavaModelException {
 			"    Outer<String> o;\n"+
 			"    Middle<String> m; // Middle should be deprecated - Middle Case one\n"+
 			"    Outer<String>.Middle<String> m2; // Middle should be deprecated - Middle Case Two \n"+
-			"    @SuppressWarnings(\"rawtypes\")"+
+			"\n"+
 			"    Outer.Middle m3; \n"+
 			"    Middle<String>.Inner<Object> i; // Inner should be deprecated - Inner Case One\n"+
 			"}\n"+
@@ -4909,7 +4909,7 @@ public void _2551_testBug425601_001() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
  */
-public void _2551_testBug425601_002() throws JavaModelException {
+public void testBug425601_002() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/testBug425601_002/Outer.java",
 			true/* resolve */);
 	String contents = "package testBug425601_002;\n" +
@@ -4925,7 +4925,7 @@ public void _2551_testBug425601_002() throws JavaModelException {
 			"    Outer<String> o;\n"+
 			"    Middle<String> m; // Middle should be deprecated - Middle Case one\n"+
 			"    Outer<String>.Middle<String> m2; // Middle should be deprecated - Middle Case Two \n"+
-			"    @SuppressWarnings(\"rawtypes\")"+
+			"\n"+
 			"    Outer.Middle m3; \n"+
 			"    Middle<String>.Inner<Object> i; // Inner should be deprecated - Inner Case One\n"+
 			"}\n"+
