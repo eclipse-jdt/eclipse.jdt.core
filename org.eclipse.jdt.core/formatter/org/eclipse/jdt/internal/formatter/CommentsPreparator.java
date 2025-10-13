@@ -892,7 +892,9 @@ public class CommentsPreparator extends ASTVisitor {
 					}
 					if (this.options.comment_format_source) {
 						this.snippetForMarkdown = true;
-						formatCode(tokenIndex, tokenIndexLast, true);
+						if (!formatCode(tokenIndex, tokenIndexLast, true)) {
+							disableFormattingExclusively(tokenIndex, tokenIndexLast + 1);
+						}
 					}
 				}
 			}

@@ -16664,8 +16664,8 @@ public void testIssue2977() {
 				/// Markdown Snippet
 				/// ```
 				/// public class HelloWorld2 {
-				/// 	public static void main(String... args) {
-				/// 		System.out.println("Hello World!"); // the traditional example
+				/// 	public static void main(String...args) {
+				/// 		System.out.println("Hello World!");// the traditional example
 				/// 	}
 				/// }
 				/// ```
@@ -16710,6 +16710,26 @@ public void testIssue2977() {
 				/// }
 				/// ````````````
 				class Test3 {
+				}
+				""";
+		formatSource(input, expected);
+	}
+	public void testMarkdownMultiSnippetCommentsWithoutCode() throws JavaModelException {
+		setComplianceLevel(CompilerOptions.VERSION_23);
+		String input = """
+				/// ``
+				/// This is a random sentence
+				/// inside snippet
+				/// ``
+				class Test20i {
+				}
+				""";
+		String expected = """
+				/// ``
+				/// This is a random sentence
+				/// inside snippet
+				/// ``
+				class Test20i {
 				}
 				""";
 		formatSource(input, expected);
