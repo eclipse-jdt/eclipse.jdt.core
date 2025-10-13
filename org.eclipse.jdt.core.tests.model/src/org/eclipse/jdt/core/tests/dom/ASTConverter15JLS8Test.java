@@ -7144,7 +7144,7 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=147875
 	 */
-	public void _2551_test0221() throws JavaModelException {
+	public void test0221() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
     		"import p1.p2.MyEnum;\n" +
