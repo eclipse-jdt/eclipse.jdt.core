@@ -243,16 +243,6 @@ public final boolean canBeSeenByForCodeSnippet(ReferenceBinding referenceBinding
 	return receiverType.fPackage == referenceBinding.fPackage;
 }
 // Internal use only
-@Override
-public MethodBinding findExactMethod(ReferenceBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
-	MethodBinding exactMethod = receiverType.getExactMethod(selector, argumentTypes, null);
-	if (exactMethod != null){
-		if (receiverType.isInterface() || canBeSeenByForCodeSnippet(exactMethod, receiverType, invocationSite, this))
-			return exactMethod;
-	}
-	return null;
-}
-// Internal use only
 
 /*	Answer the field binding that corresponds to fieldName.
 	Start the lookup at the receiverType.
@@ -590,10 +580,8 @@ public FieldBinding getFieldForCodeSnippet(TypeBinding receiverType, char[] fiel
 */
 
 public MethodBinding getImplicitMethod(ReferenceBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
-	// retrieve an exact visible match (if possible)
-	MethodBinding methodBinding = findExactMethod(receiverType, selector, argumentTypes, invocationSite);
-	if (methodBinding == null)
-		methodBinding = findMethod(receiverType, selector, argumentTypes, invocationSite, false);
+
+	MethodBinding methodBinding = findMethod(receiverType, selector, argumentTypes, invocationSite, false);
 	if (methodBinding != null) { // skip it if we did not find anything
 		if (methodBinding.isValidBinding())
 		    if (!canBeSeenByForCodeSnippet(methodBinding, receiverType, invocationSite, this))

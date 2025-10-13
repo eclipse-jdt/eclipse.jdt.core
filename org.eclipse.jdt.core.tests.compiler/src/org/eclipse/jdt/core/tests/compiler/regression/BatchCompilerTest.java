@@ -8140,6 +8140,15 @@ public void test230_sourcepath_vs_classpath() throws IOException, InterruptedExc
 		"[reading    java/lang/System.class]\n" +
 		"[reading    java/io/PrintStream.class]\n" +
 		"[reading    X.class]\n" +
+		"[reading    java/io/FilterOutputStream.class]\n" +
+		"[reading    java/io/OutputStream.class]\n" +
+		"[reading    java/io/Flushable.class]\n" +
+		"[reading    java/io/Closeable.class]\n" +
+		"[reading    java/lang/AutoCloseable.class]\n" +
+		"[reading    java/lang/Integer.class]\n" +
+		"[reading    java/lang/Number.class]\n" +
+		"[reading    java/io/Serializable.class]\n" +
+		"[reading    java/lang/Appendable.class]\n" +
 		"[writing    Y.class - #1]\n" +
 		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" +
 		"[1 unit compiled]\n" +
@@ -8169,6 +8178,15 @@ public void test230_sourcepath_vs_classpath() throws IOException, InterruptedExc
 			"[reading    java/lang/System.class]\n" +
 			"[reading    java/io/PrintStream.class]\n" +
 			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java - #2/2]\n" +
+			"[reading    java/io/FilterOutputStream.class]\n" +
+			"[reading    java/io/OutputStream.class]\n" +
+			"[reading    java/io/Flushable.class]\n" +
+			"[reading    java/io/Closeable.class]\n" +
+			"[reading    java/lang/AutoCloseable.class]\n" +
+			"[reading    java/lang/Integer.class]\n" +
+			"[reading    java/lang/Number.class]\n" +
+			"[reading    java/io/Serializable.class]\n" +
+			"[reading    java/lang/Appendable.class]\n" +
 			"[writing    Y.class - #1]\n" +
 			"[completed  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/2]\n" +
 			"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java - #2/2]\n" +

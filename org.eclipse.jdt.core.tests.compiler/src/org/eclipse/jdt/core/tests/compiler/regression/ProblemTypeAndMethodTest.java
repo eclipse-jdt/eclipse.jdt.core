@@ -8870,6 +8870,11 @@ public void testMissingClassNeededForOverloadResolution_varargs1b() {
 				  ^
 			The method m(A1...) from the type B refers to the missing type A1
 			----------
+			8. ERROR in p2\\C.java (at line 12)
+				b.m(new String[0]);	// exact match
+				  ^
+			The method m(A1...) from the type B refers to the missing type A1
+			----------
 			""";
 	runner.runNegativeTest();
 }

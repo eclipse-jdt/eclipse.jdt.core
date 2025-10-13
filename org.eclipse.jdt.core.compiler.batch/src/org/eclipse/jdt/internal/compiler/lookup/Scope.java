@@ -1286,53 +1286,6 @@ public abstract class Scope {
 	}
 
 	// Internal use only
-	public MethodBinding findExactMethod(ReferenceBinding receiverType, char[] selector, TypeBinding[] argumentTypes, InvocationSite invocationSite) {
-		CompilationUnitScope unitScope = compilationUnitScope();
-		unitScope.recordTypeReferences(argumentTypes);
-		MethodBinding exactMethod = receiverType.getExactMethod(selector, argumentTypes, unitScope);
-		if (exactMethod != null && exactMethod.typeVariables == Binding.NO_TYPE_VARIABLES && !exactMethod.isBridge()) {
-			// in >= 1.5 mode, ensure the exactMatch did not match raw types
-			for (int i = argumentTypes.length; --i >= 0;) {
-				// workaround for bug 464229: The type * cannot be resolved. It is indirectly referenced from required .class files
-				TypeBinding t = argumentTypes[i].leafComponentType();
-				if (! (t instanceof ReferenceBinding))
-					continue;
-				ReferenceBinding r = (ReferenceBinding)t;
-				if (r.isHierarchyConnected()) {
-					if (isSubtypeOfRawType(r))
-						return null;
-				} else if (r.isRawType()) {
-					return null;
-				}
-				//TODO: should also check if any supertype of r is raw, but can't do this without resolving the whole hierarchy
-			}
-			// must find both methods for this case: <S extends A> void foo() {}  and  <N extends B> N foo() { return null; }
-			// or find an inherited method when the exact match is to a bridge method
-			unitScope.recordTypeReferences(exactMethod.thrownExceptions);
-			if (exactMethod.isAbstract() && exactMethod.thrownExceptions != Binding.NO_EXCEPTIONS)
-				return null; // may need to merge exceptions with interface method
-			// special treatment for Object.getClass() in 1.5 mode (substitute parameterized return type)
-			if (exactMethod.canBeSeenBy(receiverType, invocationSite, this)) {
-				if (argumentTypes == Binding.NO_PARAMETERS
-				    && CharOperation.equals(selector, TypeConstants.GETCLASS)
-				    && exactMethod.returnType.isParameterizedType()/*1.5*/) {
-						return environment().createGetClassMethod(receiverType, exactMethod, this);
-			    }
-				// targeting a generic method could find an exact match with variable return type
-				if (invocationSite.genericTypeArguments() != null) {
-					// computeCompatibleMethod(..) will return a PolymorphicMethodBinding if needed
-					exactMethod = computeCompatibleMethod(exactMethod, argumentTypes, invocationSite);
-				} else if (exactMethod.hasPolymorphicSignature(this)) {
-					// generate polymorphic method and set polymorphic tagbits as well
-					exactMethod.tagBits |= TagBits.AnnotationPolymorphicSignature;
-					return this.environment().createPolymorphicMethod(exactMethod, argumentTypes, this);
-				}
-				return exactMethod;
-			}
-		}
-		return null;
-	}
-	// Internal use only
 	/*	Answer the field binding that corresponds to fieldName.
 		Start the lookup at the receiverType.
 		InvocationSite implements
@@ -2588,11 +2541,8 @@ public abstract class Scope {
 					ClassScope classScope = (ClassScope) scope;
 					ReferenceBinding receiverType = classScope.enclosingReceiverType();
 					if (!insideTypeAnnotation) {
-						// retrieve an exact visible match (if possible)
 						// compilationUnitScope().recordTypeReference(receiverType);   not needed since receiver is the source type
-						MethodBinding methodBinding = classScope.findExactMethod(receiverType, selector, argumentTypes, invocationSite);
-						if (methodBinding == null)
-							methodBinding = classScope.findMethod(receiverType, selector, argumentTypes, invocationSite, false);
+						MethodBinding methodBinding = classScope.findMethod(receiverType, selector, argumentTypes, invocationSite, false);
 						if (methodBinding != null) { // skip it if we did not find anything
 							 if (methodBinding.isValidBinding()) {
 							 	if (lacksRequiredInstanceScope(methodBinding, insideConstructorCall, insideStaticContext)) {
@@ -3064,12 +3014,7 @@ public abstract class Scope {
 			if (!currentType.canBeSeenBy(this))
 				return new ProblemMethodBinding(selector, argumentTypes, ProblemReasons.ReceiverTypeNotVisible);
 
-			// retrieve an exact visible match (if possible)
-			MethodBinding methodBinding = findExactMethod(currentType, selector, argumentTypes, invocationSite);
-			if (methodBinding != null && methodBinding.isValidBinding())
-				return methodBinding;
-
-			methodBinding = findMethod(currentType, selector, argumentTypes, invocationSite, false);
+			MethodBinding methodBinding = findMethod(currentType, selector, argumentTypes, invocationSite, false);
 			if (methodBinding == null)
 				return new ProblemMethodBinding(selector, argumentTypes, ProblemReasons.NotFound);
 			if (!methodBinding.isValidBinding())
