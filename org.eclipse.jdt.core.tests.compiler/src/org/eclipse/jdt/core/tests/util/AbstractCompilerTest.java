@@ -56,7 +56,7 @@ public class AbstractCompilerTest extends TestCase {
 	public static final int F_23  = 0x100000;
 	public static final int F_24  = 0x200000;
 	public static final int F_25  = 0x400000;
-	public static final int F_26  = 0x400000;
+	public static final int F_26  = 0x800000;
 	/** Should be adopted if {@link CompilerOptions#getFirstSupportedJdkLevel()} changes */
 	public static final int FIRST_SUPPORTED_JAVA_VERSION = F_1_8;
 
