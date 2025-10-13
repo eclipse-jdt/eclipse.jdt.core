@@ -286,8 +286,15 @@ public TypeBinding resolveType(BlockScope scope) {
 						return null;
 					}
 				}
-				scope.problemReporter().invalidMethod(this, this.binding, scope);
-				return null;
+				if (privateBinding instanceof ProblemMethodBinding problemMethod && problemMethod.problemId() == ProblemReasons.NotVisible) {
+					MethodBinding resolvedMethod = problemMethod.closestMatch;
+					if (this.delegateThis.type.isInterface() || localScope.canBeSeenByForCodeSnippet(resolvedMethod, this.delegateThis.type,  this, localScope))
+						this.binding = resolvedMethod;
+				}
+				if (!this.binding.isValidBinding()) {
+					scope.problemReporter().invalidMethod(this, this.binding, scope);
+					return null;
+				}
 			} else {
 				this.binding = privateBinding;
 			}
