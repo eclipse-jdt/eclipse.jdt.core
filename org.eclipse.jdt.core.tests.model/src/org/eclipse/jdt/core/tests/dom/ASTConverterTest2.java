@@ -5150,7 +5150,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 * when the AST is computed using ICompilationUnit#reconcile(...)
 	 * (regression test for bug 83210 Unidentical ITypeBindings for same type from same AST from reconcile)
 	 */
-	public void _2551_test0570() throws CoreException {
+	public void test0570() throws CoreException {
 		ICompilationUnit workingCopy = null;
 		try {
 			workingCopy = getWorkingCopy("/Converter/src/X.java", true);
@@ -5166,8 +5166,9 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			FieldDeclaration fieldDeclaration = typeDeclaration.getFields()[0];
 			Type type = fieldDeclaration.getType();
 			IBinding importBinding = importDeclaration.resolveBinding();
-			IBinding typeBinding = type.resolveBinding();
-			assertEquals(importBinding.toString(), typeBinding.toString());
+			ITypeBinding typeBinding = type.resolveBinding();
+			assertTrue(typeBinding.isRawType());
+			assertEquals(importBinding.toString(), (typeBinding).getErasure().toString());
 		} finally {
 			if (workingCopy != null)
 				workingCopy.discardWorkingCopy();
