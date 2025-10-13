@@ -16664,8 +16664,8 @@ public void testIssue2977() {
 				/// Markdown Snippet
 				/// ```
 				/// public class HelloWorld2 {
-				/// 	public static void main(String...args) {
-				/// 		System.out.println("Hello World!");// the traditional example
+				/// 	public static void main(String... args) {
+				/// 		System.out.println("Hello World!"); // the traditional example
 				/// 	}
 				/// }
 				/// ```

@@ -1381,7 +1381,7 @@ public class CommentsPreparator extends ASTVisitor {
 		}
 		boolean isMarkdown = commentToken.tokenType == TokenNameCOMMENT_MARKDOWN;
 		boolean isJavadoc = commentToken.tokenType == TokenNameCOMMENT_JAVADOC;
-		Arrays.fill(this.allowSubstituteWrapping, 0, commentToken.countChars(), !isJavadoc);
+		Arrays.fill(this.allowSubstituteWrapping, 0, commentToken.countChars(), isMarkdown ? !isMarkdown : !isJavadoc);
 
 		final boolean cleanBlankLines = isJavadoc ? this.options.comment_clear_blank_lines_in_javadoc_comment
 				: this.options.comment_clear_blank_lines_in_block_comment;
