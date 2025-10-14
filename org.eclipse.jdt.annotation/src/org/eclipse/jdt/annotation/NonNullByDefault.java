@@ -47,7 +47,7 @@ import java.lang.annotation.RetentionPolicy;
  * <dt>Canceling a default</dt>
  * <dd>In particular, specifying an empty value (<code>{}</code>) for the {@link #value}
  * attribute has the effect of canceling any null defaults that might be defined for any
- * enclosing scope.</dd>
+ * enclosing scope. The exact syntax is <code>@NonNullByDefault({})</code>.</dd>
  * </dl>
  * <p>
  * Note that for applying an annotation to a package, a file by the name
