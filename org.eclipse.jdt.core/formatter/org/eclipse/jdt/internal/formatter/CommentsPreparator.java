@@ -906,55 +906,7 @@ public class CommentsPreparator extends ASTVisitor {
 			int tokenIndex = tokenStartingAt(startPos);
 			int endPos = matcher.end() + node.getStartPosition();
 			int tokenIndexLast = tokenStartingAt(endPos);
-			Token endToken = this.ctm.get(tokenIndexLast);
-			this.snippetForMarkdown = false;
-			boolean firstRow = false;
-			boolean firstRowSecondCol = false;
-			int currentColumnLen = -1;
-			int alignDistance = 0;
-			int rowCount = 0;
-			for (int i = tokenIndex; i < tokenIndexLast; i++) {
-				Token currentToken = this.ctm.get(i);
-				if (this.ctm.getSource().charAt(currentToken.originalStart) == '\n') {
-					continue;
-				}
-				if (this.ctm.toString(currentToken).equals("|")) { //$NON-NLS-1$
-					if (currentColumnLen < 0) {
-						currentToken.spaceAfter();
-						currentToken.spaceBefore();
-					} else {
-						if (firstRow) {
-							firstRowSecondCol = true;
-							firstRow = false;
-						} else if (firstRowSecondCol) {
-							Token prev = this.ctm.get(i - 1);
-							int previousLen = this.ctm.toString(prev).length();
-							int previousAlign = prev.getIndent();
-							if (prev.isSpaceBefore()) {
-								previousAlign++;
-							}
-							alignDistance += currentColumnLen - previousLen + previousAlign + rowCount + 2;
-							rowCount++;
-							currentToken.setAlign(alignDistance);
-						}
-					}
-					if (this.ctm.getSource().charAt(currentToken.originalStart + 1) == '\n'
-							&& currentToken != endToken) {
-						currentToken.breakAfter();
-						alignDistance = 0;
-						firstRowSecondCol = false;
-						firstRow = true;
-						rowCount = 0;
-					}
-				} else if (this.ctm.toString(currentToken).startsWith("|--") //$NON-NLS-1$
-						&& this.ctm.toString(currentToken).endsWith("--|")) { //$NON-NLS-1$
-					String column = this.ctm.toString(currentToken);
-					currentColumnLen = column.indexOf("-|"); //$NON-NLS-1$
-					currentToken.breakBefore();
-					currentToken.breakAfter();
-					firstRow = true;
-				}
-			}
+			disableFormattingExclusively(tokenIndex, tokenIndexLast);
 		}
 
 	}
