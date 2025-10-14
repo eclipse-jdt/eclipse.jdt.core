@@ -7424,4 +7424,38 @@ public void testGH4486() {
 	"",
 	compilerOptions);
 }
+public void testGH4511() {
+	Map<String, String> compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runLeakTest(new String[] {
+			"Main.java",
+			"""
+			import java.io.BufferedReader;
+			import java.io.BufferedWriter;
+			import java.io.FileReader;
+			import java.io.FileWriter;
+			import java.io.IOException;
+			import java.io.PrintWriter;
+
+			public class Main {
+
+				void foo() throws IOException{
+					BufferedReader in = new BufferedReader(new FileReader("garbage.in"));
+					PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("garbage.out")));
+					int N = Integer.parseInt(in.readLine());
+					System.out.println("N = "+N);
+					int i = 0;
+					for (i = 0; i < N; i++) {
+						System.out.println(i);
+					}
+					System.out.println("i = "+i);
+					in.close();
+					out.close();
+				}
+			}
+			"""
+	},
+	"",
+	compilerOptions);
+}
 }
