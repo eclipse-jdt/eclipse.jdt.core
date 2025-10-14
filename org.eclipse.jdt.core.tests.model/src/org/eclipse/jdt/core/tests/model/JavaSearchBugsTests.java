@@ -15260,13 +15260,13 @@ public void testBug547095_type_pattern_search_non_modular() throws Exception {
 	}
 }
 
-public void _2551_testBug573486_showReferences_inMethodsAndFields_whenNoSource() throws CoreException, IOException {
+public void testBug573486_showReferences_inMethodsAndFields_whenNoSource() throws CoreException, IOException {
 	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/search_lib_no_source.jar", false);
 	try {
 		IType type = getClassFile("JavaSearchBugs", "lib/search_lib_no_source.jar", "java.util", "Observable.class").getType();
 		search(type, REFERENCES);
 		assertSearchResults(
-			"lib/search_lib_no_source.jar java.util.List<java.util.Observable> search.ReferenceSubject.methodRef() [No source] POTENTIAL_MATCH\n"
+			"lib/search_lib_no_source.jar java.util.ArrayList<java.util.Observable> search.ReferenceSubject.methodRef() [No source] POTENTIAL_MATCH\n"
 			+ "lib/search_lib_no_source.jar void search.ReferenceSubject.methodRefParam1(java.util.Observable) [No source] POTENTIAL_MATCH\n"
 			+ "lib/search_lib_no_source.jar void search.ReferenceSubject.methodRefParam2(java.util.Observable, java.util.Observable) [No source] POTENTIAL_MATCH\n"
 			+ "lib/search_lib_no_source.jar T search.ReferenceSubject.methodRefTP() [No source] POTENTIAL_MATCH\n"
