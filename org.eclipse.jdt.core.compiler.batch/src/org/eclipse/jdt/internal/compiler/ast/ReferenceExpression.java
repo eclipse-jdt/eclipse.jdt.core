@@ -744,8 +744,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
         		}
         	}
         	if (argumentsTypeElided() && this.receiverType.isRawType()) {
-        		boolean[] inferredReturnType = new boolean[1];
-	        	someMethod = AllocationExpression.inferDiamondConstructor(scope, this, this.receiverType, this.descriptor.parameters, inferredReturnType);
+	        	someMethod = AllocationExpression.inferDiamondConstructor(scope, this, this.receiverType, this.descriptor.parameters);
         	}
         	if (someMethod == null)
         		someMethod = scope.getConstructor((ReferenceBinding) this.receiverType, descriptorParameters, this);
