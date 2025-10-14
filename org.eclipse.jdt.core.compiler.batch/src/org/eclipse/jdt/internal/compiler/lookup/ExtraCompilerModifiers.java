@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
@@ -36,6 +40,7 @@ public interface ExtraCompilerModifiers { // modifier constant
 	final int AccRestrictedAccess = ASTNode.Bit19;
 	final int AccFromClassFile = ASTNode.Bit20;
 	final int AccDefaultAbstract = ASTNode.Bit20;
+	final int AccValue = ASTNode.Bit20; // class that is a value class (ref ACC_IDENTITY of JVM)
 	// bit21 - use by ClassFileConstants.AccDeprecated
 	final int AccDeprecatedImplicitly = ASTNode.Bit22; // record whether deprecated itself or contained by a deprecated type
 	final int AccAlternateModifierProblem = ASTNode.Bit23;

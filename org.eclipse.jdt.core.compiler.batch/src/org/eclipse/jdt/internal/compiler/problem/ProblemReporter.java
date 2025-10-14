@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
@@ -138,6 +142,8 @@ public class ProblemReporter extends ProblemHandler {
 	private static String RESTRICTED_IDENTIFIER_PERMITS = "RestrictedIdentifierpermits"; //$NON-NLS-1$
 	private static String PERMITS = "permits"; //$NON-NLS-1$
 	private static String PREVIEW_KEYWORD_NON_SEALED = "non-sealed"; //$NON-NLS-1$
+	private static String VALUE = "value"; //$NON-NLS-1$
+	private static String RESTRICTED_IDENTIFIER_VALUE = "value"; //$NON-NLS-1$
 
 	private static Map<String, String> permittedRestrictedKeyWordMap;
 
@@ -147,6 +153,7 @@ public class ProblemReporter extends ProblemHandler {
 		permittedRestrictedKeyWordMap.put(SEALED, RESTRICTED_IDENTIFIER_SEALED);
 		permittedRestrictedKeyWordMap.put(PERMITS, RESTRICTED_IDENTIFIER_PERMITS);
 		permittedRestrictedKeyWordMap.put(PREVIEW_KEYWORD_NON_SEALED, PREVIEW_KEYWORD_NON_SEALED);
+		permittedRestrictedKeyWordMap.put(VALUE, RESTRICTED_IDENTIFIER_VALUE);
 	}
 
 public ProblemReporter(IErrorHandlingPolicy policy, CompilerOptions options, IProblemFactory problemFactory) {
@@ -8357,6 +8364,8 @@ private String replaceIfSynthetic(String token) {
 		return SEALED;
 	if (token.equals(RESTRICTED_IDENTIFIER_PERMITS))
 		return PERMITS;
+	if (token.equals(RESTRICTED_IDENTIFIER_VALUE))
+		return VALUE;
 	return token;
 }
 public void task(String tag, String message, String priority, int start, int end){
