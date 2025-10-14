@@ -1237,7 +1237,7 @@ public boolean isPolyExpression(MethodBinding resolutionCandidate) {
 	if (resolutionCandidate != null) {
 		if (resolutionCandidate instanceof ParameterizedGenericMethodBinding) {
 			ParameterizedGenericMethodBinding pgmb = (ParameterizedGenericMethodBinding) resolutionCandidate;
-			if (pgmb.inferredReturnType)
+			if (pgmb.wasInferred)
 				return true; // if already determined
 		}
 		if (resolutionCandidate.returnType != null) {

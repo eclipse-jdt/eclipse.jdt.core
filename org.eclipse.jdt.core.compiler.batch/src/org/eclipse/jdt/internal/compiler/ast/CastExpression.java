@@ -716,11 +716,10 @@ public void setExpectedType(TypeBinding expectedType) {
 private boolean isIndirectlyUsed() {
 	if (this.expression instanceof MessageSend) {
 		MethodBinding method = ((MessageSend)this.expression).binding;
-		if (method instanceof ParameterizedGenericMethodBinding
-					&& ((ParameterizedGenericMethodBinding)method).inferredReturnType) {
+		if (method instanceof ParameterizedGenericMethodBinding pgmb && pgmb.wasInferred) {
 			if (this.expectedType == null)
 				return true;
-			if (TypeBinding.notEquals(this.resolvedType, this.expectedType))
+			if (!method.original().returnType.isCompatibleWith(this.expectedType))
 				return true;
 		}
 	}
