@@ -885,7 +885,7 @@ protected abstract void processAnnotationResults(CompilationParticipantResult[] 
 protected void processAnnotations(CompilationParticipantResult[] results) {
 	boolean hasAnnotationProcessor = false;
 	for (int i = 0, l = this.javaBuilder.participants.length; !hasAnnotationProcessor && i < l; i++)
-		hasAnnotationProcessor = this.javaBuilder.participants[i].isAnnotationProcessor();
+		hasAnnotationProcessor |= requiresProcessAnnotation(this.javaBuilder.participants[i]);
 	if (!hasAnnotationProcessor) return;
 
 	boolean foundAnnotations = this.filesWithAnnotations != null && this.filesWithAnnotations.size() > 0;
@@ -893,14 +893,32 @@ protected void processAnnotations(CompilationParticipantResult[] results) {
 		results[i].reset(foundAnnotations ? this.filesWithAnnotations.get(results[i].sourceFile) : null);
 	}
 
-	boolean isEcjUsed = Compiler.class.equals(this.compiler.getClass());
-	if (isEcjUsed) {
-		// even if no files have annotations, must still tell every annotation processor in case the file used to have them
-		for (CompilationParticipant participant : this.javaBuilder.participants)
-			if (participant.isAnnotationProcessor())
-				participant.processAnnotations(results);
-	}
+	// even if no files have annotations, must still tell every annotation processor in case the file used to have them
+	for (CompilationParticipant participant : this.javaBuilder.participants)
+		if (requiresProcessAnnotation(participant))
+			participant.processAnnotations(results);
 	processAnnotationResults(results);
+}
+
+private boolean requiresProcessAnnotation(CompilationParticipant participant) {
+	if (!participant.isAnnotationProcessor()) {
+		return false;
+	}
+	boolean isEcjUsed = Compiler.class.equals(this.compiler.getClass());
+	if (isEcjUsed) { // ECJ doesn't honor the annotations settings
+		// so force specific processing
+		return true;
+	}
+	var processorPaths = participant.getAnnotationProcessorPaths(this.javaBuilder.javaProject, this.compilationGroup == CompilationGroup.TEST);
+	if (processorPaths == null || processorPaths.length == 0) {
+		// the participant is processing annotation but doesn't
+		// provide a compiler-level annotation processor, so we
+		// force specific processing
+		return true;
+	}
+	// The annotation processors were passed to compiler and most likely used
+	// no need for specific handling
+	return false;
 }
 
 protected void recordParticipantResult(CompilationParticipantResult result) {
