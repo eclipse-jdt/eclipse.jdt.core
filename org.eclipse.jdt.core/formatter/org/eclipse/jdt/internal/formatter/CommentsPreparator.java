@@ -883,7 +883,7 @@ public class CommentsPreparator extends ASTVisitor {
 				int tokenIndexLast = this.ctm.findIndex(endPos, ANY, true);
 				Token closingToken = this.ctm.get(tokenIndexLast);
 				String closingSnippet = this.ctm.toString(closingToken);
-				if (openingSnippet.equals(closingSnippet)) {
+				if (checkBackTickCount(openingSnippet, closingSnippet)) {
 					if (tokenIndex > 1)
 						openingToken.breakBefore();
 					openingToken.breakAfter();
@@ -958,6 +958,13 @@ public class CommentsPreparator extends ASTVisitor {
 		}
 
 	}
+
+	private boolean checkBackTickCount(String opening, String closing) {
+		long openCount = opening.chars().filter(ch -> ch == '`').count();
+		long closeCount = closing.chars().filter(ch -> ch == '`').count();
+		return openCount == closeCount;
+	}
+
 	private void handleHtml(TagElement node) {
 		if (!this.options.comment_format_html && !this.options.comment_format_source)
 			return;

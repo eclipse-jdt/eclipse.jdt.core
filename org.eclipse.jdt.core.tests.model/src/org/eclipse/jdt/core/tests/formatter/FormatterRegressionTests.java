@@ -16664,8 +16664,8 @@ public void testIssue2977() {
 				/// Markdown Snippet
 				/// ```
 				/// public class HelloWorld2 {
-				/// 	public static void main(String...args) {
-				/// 		System.out.println("Hello World!");// the traditional example
+				/// 	public static void main(String... args) {
+				/// 		System.out.println("Hello World!"); // the traditional example
 				/// 	}
 				/// }
 				/// ```
@@ -16730,6 +16730,29 @@ public void testIssue2977() {
 				/// inside snippet
 				/// ``
 				class Test20i {
+				}
+				""";
+		formatSource(input, expected);
+	}
+	public void testMarkdownSnippetIssue_4507() throws JavaModelException {
+		setComplianceLevel(CompilerOptions.VERSION_23);
+		String input = """
+				/// A markdown comment, with a codeblock.
+				/// ```java
+				/// void foo() {
+				///   System.out.println("Hello, World!"); // 2 spaces indented
+				/// }
+				/// ```
+				class Foo { }
+				""";
+		String expected = """
+				/// A markdown comment, with a codeblock.
+				/// ```java
+				/// void foo() {
+				/// 	System.out.println("Hello, World!"); // 2 spaces indented
+				/// }
+				/// ```
+				class Foo {
 				}
 				""";
 		formatSource(input, expected);
