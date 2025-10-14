@@ -1583,6 +1583,21 @@ public void testGH4346() {
 			"""
 	});
 }
+public void testGH4498() {
+	runConformTest(new String[] {
+			"AFactory.java",
+			"""
+			public abstract class AFactory<T> {
+
+			  public <U extends AFactory> U getProcess(Object object) {
+			    return getProcess(object.getClass()); // Type mismatch: cannot convert from AFactory<capture#2-of ?> to U
+			  }
+
+			  public abstract <U extends AFactory<?>> U getProcess(Class<?> classeObject);
+
+			}
+			"""});
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }

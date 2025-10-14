@@ -1307,7 +1307,7 @@ public class InferenceContext18 {
 			}
 		}
 		IntersectionTypeBinding18 intersection = (IntersectionTypeBinding18) this.environment.createIntersectionType18(refGlbs);
-		if (ReferenceBinding.isConsistentIntersection(intersection.intersectingTypes))
+		if (ReferenceBinding.isConsistentIntersection(intersection.intersectingTypes, InferenceContext18.SIMULATE_BUG_JDK_8026527))
 			return intersection;
 		return null;
 	}
