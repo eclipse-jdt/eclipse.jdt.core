@@ -2317,7 +2317,7 @@ public void evaluateNullAnnotations() {
 	PackageBinding pkg = getPackage();
 	boolean isInDefaultPkg = (pkg.compoundName == CharOperation.NO_CHAR_CHAR);
 	if (!isPackageInfo) {
-		boolean isInNullnessAnnotationPackage = this.scope.environment().isNullnessAnnotationPackage(pkg);
+		boolean isInNullnessAnnotationPackage = (pkg.extendedTagBits & ExtendedTagBits.IsNullAnnotationPackage) != 0;
 		if (pkg.getDefaultNullness() == NO_NULL_DEFAULT && !isInDefaultPkg && !isInNullnessAnnotationPackage && !(this instanceof NestedTypeBinding)) {
 			ReferenceBinding packageInfo = pkg.getType(TypeConstants.PACKAGE_INFO_NAME, this.module);
 			if (packageInfo == null) {

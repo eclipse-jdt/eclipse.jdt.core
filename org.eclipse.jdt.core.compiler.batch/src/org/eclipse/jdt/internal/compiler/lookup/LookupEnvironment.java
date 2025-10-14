@@ -126,10 +126,6 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	public boolean isProcessingAnnotations = false; // ROOT_ONLY
 	public boolean mayTolerateMissingType = false;
 
-	PackageBinding nullableAnnotationPackage;			// the package supposed to contain the Nullable annotation type
-	PackageBinding nonnullAnnotationPackage;			// the package supposed to contain the NonNull annotation type
-	PackageBinding nonnullByDefaultAnnotationPackage;	// the package supposed to contain the NonNullByDefault annotation type
-
 	AnnotationBinding nonNullAnnotation;
 	AnnotationBinding nullableAnnotation;
 
@@ -1627,6 +1623,11 @@ public char[][] getNonNullByDefaultAnnotationName() {
 	return this.globalOptions.nonNullByDefaultAnnotationName;
 }
 
+public char[][][] allNullAnnotationNames() {
+	// should we include names of secondary annotations?
+	return new char[][][] { getNullableAnnotationName(), getNonNullAnnotationName(), getNonNullByDefaultAnnotationName() };
+}
+
 public char[][] getOwningAnnotationName() {
 	return this.globalOptions.owningAnnotationName;
 }
@@ -1706,10 +1707,6 @@ public long checkForMissingAnalysisAnnotation(TypeBinding resolvedType) {
 }
 private boolean matchesSimpleName(char[] simpleName, char[][] qualifiedName) {
 	return CharOperation.equals(simpleName, qualifiedName[qualifiedName.length-1]);
-}
-
-public boolean isNullnessAnnotationPackage(PackageBinding pkg) {
-	return this.nonnullAnnotationPackage == pkg || this.nullableAnnotationPackage == pkg || this.nonnullByDefaultAnnotationPackage == pkg;
 }
 
 public boolean usesNullTypeAnnotations() {
