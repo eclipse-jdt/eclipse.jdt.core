@@ -67,6 +67,7 @@ public interface ClassFileConstants {
 	 * Other VM flags.
 	 */
 	int AccSuper = 0x0020;
+	int AccIdentity = 0x0020;
 
 	/**
 	 * Extra flags for types and members attributes (not from the JVMS, should have been defined in ExtraCompilerModifiers).
