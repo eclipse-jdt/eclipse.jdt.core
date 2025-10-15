@@ -1598,6 +1598,72 @@ public void testGH4498() {
 			}
 			"""});
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4503
+// [Mockito] Compilation error "Unhandled exception type Throwable"
+public void testIssue4503_differs_from_javac() {
+	runConformTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+
+				interface RetryCallback<T, E extends Throwable> {}
+
+				interface OngoingStubbing<T> {}
+
+			    public void test() {
+			        when(execute(any()));   // <------ Unhandled exception type Throwable
+			    }
+
+			    public static <T> T any() {
+			        return null;
+			    }
+
+			    public static final <T, E extends Throwable> T execute(RetryCallback<T, E> retryCallback) throws E {
+					return null;
+				}
+
+			    public static <T> OngoingStubbing<T> when(T methodCall) {
+			        return null;
+			    }
+			}
+			"""});
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4503
+// [Mockito] Compilation error "Unhandled exception type Throwable"
+public void testIssue4503_matches_with_javac() {
+	runNegativeTest(new String[] {
+			"X.java",
+			"""
+			public class X {
+
+				interface RetryCallback<T, E extends Throwable> {}
+
+				interface OngoingStubbing<T> {}
+
+			    public void test() {
+			        when(execute((RetryCallback<java.lang.Object,java.lang.Throwable>) null));   // <------ Unhandled exception type Throwable
+			    }
+
+			    public static <T> T any() {
+			        return null;
+			    }
+
+			    public static final <T, E extends Throwable> T execute(RetryCallback<T, E> retryCallback) throws E {
+					return null;
+				}
+
+			    public static <T> OngoingStubbing<T> when(T methodCall) {
+			        return null;
+			    }
+			}
+			"""},
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\r\n" +
+			"	when(execute((RetryCallback<java.lang.Object,java.lang.Throwable>) null));   // <------ Unhandled exception type Throwable\r\n" +
+			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Unhandled exception type Throwable\n" +
+			"----------\n");
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
