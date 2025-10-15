@@ -405,8 +405,12 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								// Reset textStart only if there's content after the tag
 								if (this.index < this.javadocEnd) {
 									char next = this.source[this.index];
-									if (!(this.markdown && (next == '\r' || next == '\n'))) {
+									if (!this.markdown || !(next == '\r' || next == '\n') || (previousChar == '@' && nextCharacter == '}')) {
 										this.textStart = this.index;
+									}
+								} else if (this.index == this.javadocEnd) {
+									if (!this.markdown || (previousChar == '@' && nextCharacter == '}')) {
+										this.textStart = -1;
 									}
 								}
 							}
