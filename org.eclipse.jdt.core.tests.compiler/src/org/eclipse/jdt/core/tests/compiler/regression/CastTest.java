@@ -3472,6 +3472,55 @@ public void testIssue4375() {
 			"----------\n";
 	runner.runNegativeTest();
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4101
+// False positive "Unnecessary cast" warning in Eclipse 2025-06
+public void testIssue4101() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"Test.java",
+			"""
+			public class Test {
+
+			    @FunctionalInterface
+			    interface Factory {
+			        Object get();
+			    }
+
+			    @FunctionalInterface
+			    interface ExtendedFactory<T> extends Factory {
+			        default Object get() {
+			            return getInstance(0);
+			        }
+
+			        T getInstance(int index);
+			    }
+
+			    public static void main(String[] args) {
+			        consume(() -> "test");
+			        consume(i -> "test-" + i);
+			    }
+
+			    private static <T> void consume(ExtendedFactory<T> factory) {
+			        consume(factory); // warning here
+			        consume((Factory) factory); // warning here
+			    }
+
+			    private static void consume(Factory factory) {
+			        System.out.println("Instance: " + factory.get());
+			        consume("Blah");
+			    }
+			}
+			"""
+		};
+	runner.expectedCompilerLog =
+			"----------\n" +
+			"1. ERROR in Test.java (at line 29)\n" +
+			"	consume(\"Blah\");\n" +
+			"	^^^^^^^\n" +
+			"The method consume(Test.ExtendedFactory<T>) in the type Test is not applicable for the arguments (String)\n" +
+			"----------\n";
+	runner.runNegativeTest();
+}
 public static Class testClass() {
 	return CastTest.class;
 }

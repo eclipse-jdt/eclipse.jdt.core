@@ -117,7 +117,7 @@ public class InferenceContext18 {
 	/** the invocation being inferred (for 18.5.1 and 18.5.2) */
 	InvocationSite currentInvocation;
 	/** arguments of #currentInvocation, if any */
-	Expression[] invocationArguments;
+	public Expression[] invocationArguments;
 
 	/** The inference variables for which as solution is sought. */
 	InferenceVariable[] inferenceVariables;

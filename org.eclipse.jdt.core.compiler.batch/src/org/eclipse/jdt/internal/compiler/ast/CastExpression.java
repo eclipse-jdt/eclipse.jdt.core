@@ -312,15 +312,23 @@ private static void checkAlternateBinding(BlockScope scope, Expression receiver,
 			@Override
 			public void setFieldIndex(int depth){ /* ignore */}
 			@Override
-			public int sourceStart() { return 0; }
+			public int sourceStart() { return invocationSite.sourceStart(); }
 			@Override
-			public int sourceEnd() { return 0; }
+			public int sourceEnd() { return invocationSite.sourceEnd(); }
 			@Override
 			public TypeBinding invocationTargetType() { return invocationSite.invocationTargetType(); }
 			@Override
 			public boolean receiverIsImplicitThis() { return invocationSite.receiverIsImplicitThis();}
 			@Override
-			public InferenceContext18 freshInferenceContext(Scope someScope) { return invocationSite.freshInferenceContext(someScope); }
+			public InferenceContext18 freshInferenceContext(Scope someScope) {
+				InferenceContext18 fic = invocationSite.freshInferenceContext(someScope);
+				int argc = arguments == null ? 0 : arguments.length;
+				Expression [] newArguments = new Expression[argc];
+				for (int i = 0; i < argc; i++)
+					newArguments[i] = arguments[i] instanceof CastExpression castExpression ? castExpression.expression : arguments[i];
+				fic.invocationArguments = newArguments;
+				return fic;
+			}
 			@Override
 			public ExpressionContext getExpressionContext() { return invocationSite.getExpressionContext(); }
 			@Override
