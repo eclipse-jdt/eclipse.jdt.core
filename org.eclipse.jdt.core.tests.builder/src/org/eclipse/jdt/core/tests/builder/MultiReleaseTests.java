@@ -276,6 +276,92 @@ public class MultiReleaseTests extends BuilderTests {
 		expectingNoProblems();
 	}
 
+	/**
+	 * Test multi-release compilation with different module-info.java per release.
+	 * This verifies that each source folder with a different release uses its own
+	 * module-info.java for compilation, not a shared module from the project.
+	 * See issue https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4268
+	 */
+	public void testMultiReleaseModuleInfoPerRelease() throws JavaModelException, IOException {
+		// Create modular project with Java 11 as base
+		IPath projectPath = createMRProject(CompilerOptions.VERSION_11);
+		IPath defaultSrc = env.getPackageFragmentRootPath(projectPath, DEFAULT_SRC_FOLDER);
+
+		// Base module-info requires no extra modules
+		env.addClass(defaultSrc, "", "module-info",
+				"""
+				module MRmodular {
+				}
+				"""
+		);
+
+		// Base Test.java - should have errors for both java.desktop and java.xml types
+		IPath classDefault = env.addClass(defaultSrc, "p", "Test",
+				"""
+				package p;
+				public class Test {
+					java.awt.Window w11;
+					org.w3c.dom.Element element11;
+				}
+				"""
+		);
+
+		// Java 17 source with module-info requiring java.desktop
+		IClasspathAttribute[] attributes17 = new IClasspathAttribute[] {
+				JavaCore.newClasspathAttribute(IClasspathAttribute.RELEASE, "17") };
+		IPath src17 = env.addPackageFragmentRoot(projectPath, "src17", attributes17);
+		env.addClass(src17, "", "module-info",
+				"""
+				module MRmodular {
+					requires java.desktop;
+				}
+				"""
+		);
+		IPath class17 = env.addClass(src17, "p", "Test",
+				"""
+				package p;
+				public class Test {
+					java.awt.Window w17;
+					org.w3c.dom.Element element17;
+				}
+				"""
+		);
+
+		// Java 21 source with module-info requiring java.xml
+		IClasspathAttribute[] attributes21 = new IClasspathAttribute[] {
+				JavaCore.newClasspathAttribute(IClasspathAttribute.RELEASE, "21") };
+		IPath src21 = env.addPackageFragmentRoot(projectPath, "src21", attributes21);
+		env.addClass(src21, "", "module-info",
+				"""
+				module MRmodular {
+					requires java.xml;
+				}
+				"""
+		);
+		IPath class21 = env.addClass(src21, "p", "Test",
+				"""
+				package p;
+				public class Test {
+					java.awt.Window w21;
+					org.w3c.dom.Element element21;
+				}
+				"""
+		);
+
+		fullBuild();
+		//As our default module descriptor does not import anything both should give an error
+		expectingSpecificProblemsFor(defaultSrc, new Problem[] { //
+				new Problem("", "The type java.awt.Window is not accessible", classDefault, 32, 47, 40, IMarker.SEVERITY_ERROR),
+				new Problem("", "The type org.w3c.dom.Element is not accessible", classDefault, 54, 73, 40, IMarker.SEVERITY_ERROR)
+		});
+		//java.desktop includes java.xml so no errors to expect here
+		expectingNoProblemsFor(src17);
+		//we only import java.xml so desktop should give an error!
+		expectingSpecificProblemsFor(src21, new Problem[] { //
+				new Problem("", "The type java.awt.Window is not accessible", class21, 32, 47, 40, IMarker.SEVERITY_ERROR),
+		});
+	}
+
 	private IPath whenSetupMRRpoject() throws JavaModelException {
 		return whenSetupMRRpoject(CompilerOptions.VERSION_1_8);
 	}
