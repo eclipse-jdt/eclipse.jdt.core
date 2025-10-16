@@ -154,7 +154,7 @@ private void computeClasspathLocations(
 			this.moduleUpdater.addReadUnnamedForNonEmptyClasspath(javaProject, classpathEntries);
 		}
 	}
-	IModuleDescription projectModule = javaProject.getModuleDescription();
+	IModuleDescription projectModule = javaProject.getModuleDescription(releaseTarget);
 
 	String patchedModuleName = ModuleEntryProcessor.pushPatchToFront(classpathEntries, javaProject);
 	IModule patchedModule = null;
@@ -402,6 +402,7 @@ private void computeClasspathLocations(
 			try {
 				AbstractModule sourceModule = (AbstractModule)projectModule;
 				IModule info = (IModule) sourceModule.getElementInfo();
+				// Add all source locations to the module path entry
 				final ClasspathLocation[] sourceLocations2;
 				if(sLocationsForTest.size() == 0) {
 					sourceLocations2 = this.sourceLocations;
