@@ -48364,15 +48364,20 @@ public void test1443() {
 			"----------\n" +
 			"5. WARNING in X.java (at line 10)\n" +
 			"	buz((List)a);\n" +
+			"	    ^^^^^^^\n" +
+			"Unnecessary cast from List<X.A> to List\n" +
+			"----------\n" +
+			"6. WARNING in X.java (at line 10)\n" +
+			"	buz((List)a);\n" +
 			"	     ^^^^\n" +
 			"List is a raw type. References to generic type List<E> should be parameterized\n" +
 			"----------\n" +
-			"6. ERROR in X.java (at line 13)\n" +
+			"7. ERROR in X.java (at line 13)\n" +
 			"	baz(a);\n" +
 			"	^^^\n" +
 			"The method baz(List<X.A<T>>) in the type X is not applicable for the arguments (List<X.A>)\n" +
 			"----------\n" +
-			"7. WARNING in X.java (at line 16)\n" +
+			"8. WARNING in X.java (at line 16)\n" +
 			"	<R extends C, T extends B<R>> void buz(List a) {}\n" +
 			"	                                       ^^^^\n" +
 			"List is a raw type. References to generic type List<E> should be parameterized\n" +
