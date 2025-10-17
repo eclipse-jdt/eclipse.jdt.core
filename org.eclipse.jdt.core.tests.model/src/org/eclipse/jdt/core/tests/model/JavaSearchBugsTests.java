@@ -15161,9 +15161,10 @@ public void testBug521240_001() throws CoreException {
 }
 
 /*
- * See https://github.com/eclipse-jdt/eclipse.jdt.core/pull/4341
+ * See problem report https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2575
+ * See also analysis in https://github.com/eclipse-jdt/eclipse.jdt.core/pull/4341
  */
-public void testBugGH4341() throws CoreException, IOException {
+public void testGH2575() throws CoreException, IOException {
 	String testProjectName = "BugGH4341";
 	try {
 		IJavaProject project = createJava9Project(testProjectName, new String[] {"src"});
