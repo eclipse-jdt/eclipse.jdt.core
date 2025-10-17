@@ -272,6 +272,9 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {
+		if (++this.resolves > 2)
+			throw new IllegalStateException("Seen one two many resolves!"); //$NON-NLS-1$
+
 		// added for code assist...cannot occur with 'normal' code
 		if (this.anonymousType == null && this.enclosingInstance == null) {
 			return super.resolveType(scope);
