@@ -1664,6 +1664,39 @@ public void testIssue4503_matches_with_javac() {
 			"Unhandled exception type Throwable\n" +
 			"----------\n");
 }
+public void testGH4533() {
+	runConformTest(new String[] {
+		"X.java",
+		"""
+		import java.util.function.Supplier;
+
+		public class X implements Foo {
+
+			private final Foo delegate;
+			private final Helper helper;
+
+			public X(Helper helper, Foo delegate) {
+				this.helper = helper;
+				this.delegate = delegate;
+			}
+
+			@Override
+			public <T> void setProperty(T value) {
+				helper.run(() -> delegate.setProperty(value));  // Problem detected during type inference: expression has no value
+			}
+		}
+
+		interface Foo {
+			public <T> void setProperty(T value);
+		}
+
+		interface Helper {
+			public void run(Runnable runnable); // comment out this to see a different error
+			public <R> R run(Supplier<R> supplier);
+		}
+		"""
+	});
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
