@@ -1749,7 +1749,7 @@ public class JavaProject
 	 * Internal findModule with instantiated name lookup
 	 */
 	IModuleDescription findModule(String moduleName, NameLookup lookup) throws JavaModelException {
-		NameLookup.Answer answer = lookup.findModule(moduleName.toCharArray());
+		NameLookup.Answer answer = lookup.findModule(moduleName.toCharArray(), NO_RELEASE);
 		if (answer != null)
 			return answer.module;
 		return null;
