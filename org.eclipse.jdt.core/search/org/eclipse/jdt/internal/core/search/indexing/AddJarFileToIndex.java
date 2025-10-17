@@ -137,13 +137,12 @@ class AddJarFileToIndex extends BinaryContainer {
 					try {
 						file = org.eclipse.jdt.internal.core.util.Util.toLocalFile(location, progressMonitor);
 					} catch (CoreException e) {
-						if (JobManager.VERBOSE) {
-							trace("-> failed to index " + location.getPath() + " because of the following exception:", e); //$NON-NLS-1$ //$NON-NLS-2$
-						}
+						org.eclipse.jdt.internal.core.util.Util.log(e,
+								"Failed to index " + location.getPath() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 					if (file == null) {
-						if (JobManager.VERBOSE)
-							trace("-> failed to index " + location.getPath() + " because the file could not be fetched"); //$NON-NLS-1$ //$NON-NLS-2$
+						org.eclipse.jdt.internal.core.util.Util.log(Status.warning(
+								"Failed to index " + location.getPath() + " because the file could not be fetched")); //$NON-NLS-1$ //$NON-NLS-2$
 						return false;
 					}
 					if (JavaModelManager.ZIP_ACCESS_VERBOSE)

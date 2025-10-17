@@ -896,9 +896,7 @@ public synchronized Index recreateIndex(IPath containerPath) {
 		return index;
 	} catch (IOException e) {
 		// The file could not be created. Possible reason: the project has been deleted.
-		if (VERBOSE) {
-			trace("-> failed to recreate index for path: "+containerPathString, e); //$NON-NLS-1$
-		}
+		Util.log(Status.warning("Failed to recreate index for path: " + containerPathString)); //$NON-NLS-1$
 		return null;
 	}
 }
@@ -1100,9 +1098,7 @@ public synchronized boolean resetIndex(IPath containerPath) {
 		return true;
 	} catch (IOException e) {
 		// The file could not be created. Possible reason: the project has been deleted.
-		if (VERBOSE) {
-			trace("-> failed to reset index for path: "+containerPathString, e); //$NON-NLS-1$
-		}
+		Util.log(Status.warning("Failed to reset index for path: " + containerPathString)); //$NON-NLS-1$
 		return false;
 	}
 }
@@ -1673,9 +1669,7 @@ void updateMetaIndex(String indexFileName, List<IndexQualifier> qualifications) 
 			trace("-> meta-index updated for " + indexFileName); //$NON-NLS-1$
 		}
 	} catch (IOException e) {
-		if (JobManager.VERBOSE) {
-			trace("-> failed to update meta index for index " + indexFileName + " because of the following exception:", e); //$NON-NLS-1$ //$NON-NLS-2$
-		}
+		Util.log(e, "Failed to update meta index for index " + indexFileName + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 	} finally {
 		if(monitor != null) {
 			monitor.exitWrite();
@@ -1757,10 +1751,7 @@ class MetaIndexUpdateRequest implements IJob {
 				if (cause != null) {
 					Util.log(e, "Failed to update meta index"); //$NON-NLS-1$
 				} else {
-					if (JobManager.VERBOSE) {
-						trace("-> failed to update meta index for index " + indexFile.getName() //$NON-NLS-1$
-								+ " because of the following exception:", e); //$NON-NLS-1$
-					}
+					Util.log(e, "Failed to update meta index for index " + indexFile.getName() + ": " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 		}
