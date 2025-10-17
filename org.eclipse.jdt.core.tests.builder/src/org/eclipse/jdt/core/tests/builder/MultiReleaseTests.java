@@ -317,7 +317,7 @@ public class MultiReleaseTests extends BuilderTests {
 				}
 				"""
 		);
-		IPath class17 = env.addClass(src17, "p", "Test",
+		env.addClass(src17, "p", "Test",
 				"""
 				package p;
 				public class Test {
