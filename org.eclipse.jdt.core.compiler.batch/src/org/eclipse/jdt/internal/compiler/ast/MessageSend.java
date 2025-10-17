@@ -71,6 +71,7 @@ import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.VANILLA_CO
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -1002,7 +1003,10 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 		// abstract private methods cannot occur nor abstract static............
 	}
-	if (isMethodUseDeprecated(this.binding, scope, true, this))
+	TypeBinding declared = this.binding.declaringClass.erasure();
+	TypeBinding actual = this.actualReceiverType.erasure();
+	boolean isExplicitUse = Objects.equals( declared, actual);
+	if (isMethodUseDeprecated(this.binding, scope, isExplicitUse, this))
 		scope.problemReporter().deprecatedMethod(this.binding, this);
 
 	TypeBinding returnType;
