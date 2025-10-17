@@ -15159,6 +15159,88 @@ public void testBug521240_001() throws CoreException {
 			"src/pack1/X.java void pack1.X.foo(Y) [foo] EXACT_MATCH"
 	);
 }
+
+/*
+ * See problem report https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2575
+ * See also analysis in https://github.com/eclipse-jdt/eclipse.jdt.core/pull/4341
+ */
+public void testGH2575() throws CoreException, IOException {
+	String testProjectName = "BugGH4341";
+	try {
+		IJavaProject project = createJava9Project(testProjectName, new String[] {"src"});
+
+		setUpProjectCompliance(project, "9", true);
+
+		 // Create a hierarchy of interfaces (D -> A -> B -> C) and an imports relation (C -> D).
+
+		String packageX = "/" + testProjectName + "/src/x";
+		createFolder(packageX);
+		createFile(packageX + "/A.java",
+				"""
+				package x;
+				public interface A extends B {}
+				""");
+
+		createFile(packageX + "/B.java",
+				"""
+				package x;
+				public interface B extends C {}
+				""");
+
+		createFile(packageX + "/C.java",
+				"""
+				package x;
+				import javax.annotation.processing.SupportedSourceVersion;
+				import javax.lang.model.SourceVersion;
+				import y.D;
+				/**
+				 * {@link D}
+				 */
+				@SupportedSourceVersion(SourceVersion.RELEASE_0)
+				public interface C {}
+				""");
+
+
+		String packageY = "/" + testProjectName + "/src/y";
+		createFolder(packageY);
+		createFile(packageY + "/D.java",
+				"""
+				package y;
+				import x.A;
+				public interface D extends A {}
+				""");
+
+
+		String packageZ = "/" + testProjectName + "/src/z";
+		createFolder(packageZ);
+		createFile(packageZ + "/Main.java",
+				"""
+				package z;
+				import x.A;
+				import y.D;
+
+				public class Main {
+					public void method1() {
+						D d = new D() {};
+						method2(d);
+					}
+
+					public void method2(A a) {}
+				}
+				""");
+
+
+		buildAndExpectNoProblems(project);
+
+		IType type = project.findType("z.Main");
+		IMethod method = type.getMethod("method2", new String[] { "QA;" });
+		search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+		assertSearchResults("src/z/Main.java void z.Main.method1() [method2(d)] EXACT_MATCH");
+	} finally {
+		deleteProject(testProjectName);
+	}
+}
+
 public void testBug547051_nonModular() throws Exception {
 	try {
 		IJavaProject project = createJavaProject("P");
