@@ -132,6 +132,13 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 						inferenceContext.inferenceKind = inferenceContext.getInferenceKind(previousMethod, argumentTypes);
 						boolean isDiamond = method.isConstructor() && this.left.isPolyExpression(method);
 						inferInvocationApplicability(inferenceContext, method, argumentTypes, isDiamond, inferenceContext.inferenceKind);
+						try {
+							CapturingContext.enter(invocation.sourceStart(), invocation.sourceEnd(), inferenceContext.scope);
+							if (!inferenceContext.reduce())
+								return FALSE;
+						} finally {
+							CapturingContext.leave();
+						}
 						// b2 has been lifted, inferring poly invocation type amounts to lifting b3.
 					}
 					if (!inferenceContext.computeB3(invocation, this.right, method))
