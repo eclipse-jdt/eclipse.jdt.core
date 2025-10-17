@@ -2034,4 +2034,84 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			assertEquals("Incorrect TagElement", 1, (fragments.get(3).getFlags() & ASTNode.MALFORMED));  //MALFOUND flag
 		}
 	}
+
+	public void testTagElementRetrieveIncorrectly_4497_01() throws JavaModelException {
+		String source= """
+				/// {@inheritDoc}
+				/// In addition, this methods calls [#wait()].
+				/// @param i the index
+				public class IncorrectTagElement {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/gh3761/IncorrectTagElement.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> te = javadoc.tags();
+			TagElement firstTag = te.get(0);
+			TagElement secondTag = te.get(1);
+			assertEquals("Incorrect Second TagElement", 2, secondTag.fragments().size());
+			assertEquals("Incorrect First TagElement", 4, firstTag.fragments().size());
+		}
+	}
+
+	public void testTagElementRetrieveIncorrectly_4497_02() throws JavaModelException {
+		String source= """
+				/// {@inheritDoc}}
+				/// In addition, this methods calls [#wait()].
+				/// @param i the index
+				public class IncorrectTagElement {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/gh3761/IncorrectTagElement.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> te = javadoc.tags();
+			TagElement firstTag = te.get(0);
+			TagElement secondTag = te.get(1);
+			assertEquals("Incorrect Second TagElement", 2, secondTag.fragments().size());
+			assertEquals("Incorrect First TagElement", 5, firstTag.fragments().size());
+		}
+	}
+
+	public void testTagElementRetrieveIncorrectly_4497_03() throws JavaModelException {
+		String source= """
+				/// {@inheritDoc}
+				/// {@link
+				///SomeClass}
+				public class IncorrectTagElement {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/gh3761/IncorrectTagElement.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> te = javadoc.tags();
+			TagElement tags = te.get(0);
+			assertEquals("Incorrect TagElements", 2, tags.fragments().size());
+		}
+	}
+
+	public void testTagElementRetrieveIncorrectly_4497_04() throws JavaModelException {
+		String source= """
+				/// {@inheritDoc} }
+				/// {@inheritDoc}}
+				/// Duplicate inheritDoc
+				public class IncorrectTagElement {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/gh3761/IncorrectTagElement.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> te = javadoc.tags();
+			TagElement tags = te.get(0);
+			assertEquals("Incorrect TagElements", 5, tags.fragments().size());
+		}
+	}
 }
