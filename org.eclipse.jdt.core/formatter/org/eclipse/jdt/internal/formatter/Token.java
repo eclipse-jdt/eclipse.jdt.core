@@ -107,6 +107,8 @@ public class Token {
 
 	private List<Token> internalStructure;
 
+	private boolean isSnippetForMarkdown = false;
+
 	public Token(int sourceStart, int sourceEnd, TerminalToken tokenType) {
 		assert sourceStart <= sourceEnd;
 		this.originalStart = sourceStart;
@@ -133,6 +135,7 @@ public class Token {
 		this.wrapPolicy = tokenToCopy.wrapPolicy;
 		this.nlsTagToken = tokenToCopy.nlsTagToken;
 		this.internalStructure = tokenToCopy.internalStructure;
+		this.isSnippetForMarkdown = tokenToCopy.isSnippetForMarkdown;
 	}
 
 	public static Token fromCurrent(Scanner scanner, TerminalToken currentToken) {
@@ -317,6 +320,14 @@ public class Token {
 
 	public List<Token> getInternalStructure() {
 		return this.internalStructure;
+	}
+
+	public boolean isSnippetForMarkdown() {
+		return this.isSnippetForMarkdown;
+	}
+
+	public void setSnippetForMarkdown(boolean isSnippetForMarkdown) {
+		this.isSnippetForMarkdown = isSnippetForMarkdown;
 	}
 
 	public boolean isComment() {

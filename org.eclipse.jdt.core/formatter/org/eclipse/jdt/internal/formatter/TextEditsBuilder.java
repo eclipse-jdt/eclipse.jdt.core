@@ -212,12 +212,11 @@ public class TextEditsBuilder extends TokenTraverser {
 		}
 		boolean markerCharFound = false;
 		int searchLimit = token != null ? token.originalStart : this.sourceLimit;
-
-		char markerChar = isMarkdown ? '/' : '*';
+		char markerChar = isMarkdown ? '/' : token.isSnippetForMarkdown() ? '/' : '*';
 		for (int i = this.counter; i < searchLimit; i++) {
 			char c = this.source.charAt(i);
 			if (c == markerChar) {
-				if (!isMarkdown)
+				if (!isMarkdown && !token.isSnippetForMarkdown())
 					this.buffer.append(' ');
 				flushBuffer(i);
 				while (i + 1 < this.sourceLimit && this.source.charAt(i + 1) == markerChar)
@@ -234,7 +233,7 @@ public class TextEditsBuilder extends TokenTraverser {
 		}
 
 		if (!markerCharFound) {
-			this.buffer.append(isMarkdown ? "/// " : " * "); //$NON-NLS-1$ //$NON-NLS-2$
+			this.buffer.append(isMarkdown ? "/// " : token.isSnippetForMarkdown() ? "/// " : " * "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
 
 	}
