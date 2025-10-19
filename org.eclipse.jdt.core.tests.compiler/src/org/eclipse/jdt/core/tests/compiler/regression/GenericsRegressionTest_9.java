@@ -1697,6 +1697,27 @@ public void testGH4533() {
 		"""
 	});
 }
+public void testGH4281() {
+	runConformTest(new String[] {
+		"InferenceTest.java",
+		"""
+		public class InferenceTest {
+
+			public static class A<I extends C<I, ?>> {}
+
+			public static class B<I extends C<I, ?>, J> {
+				public B(A<I> a) {}
+			}
+
+			public static class C<I extends C<I, J>, J> {}
+
+			public static void test(A<?> a) {
+				new B<>(a);
+			}
+		}
+		"""
+	});
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
