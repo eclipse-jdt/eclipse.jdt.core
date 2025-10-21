@@ -94,6 +94,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 
 		  suite.addTest(ASTRewritingTrackingTest.suite());
 		  suite.addTest(ASTRewritingJavadocTest.suite());
+		  suite.addTest(ASTRewritingJavadocMarkdownTest.suite());
 		  suite.addTest(ASTRewritingTypeAnnotationsTest.suite());
 		  suite.addTest(ASTRewritingTypeDeclTest.suite());
 		  suite.addTest(ASTRewritingGroupNodeTest.suite());
