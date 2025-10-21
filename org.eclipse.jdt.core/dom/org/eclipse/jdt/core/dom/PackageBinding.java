@@ -271,21 +271,13 @@ class PackageBinding implements IPackageBinding {
 		int i = 0;
 		org.eclipse.jdt.internal.compiler.lookup.PackageBinding pkgBinding = this.binding;
 		Binding foundBinding = null;
-		while (i < segments.length) {
-			char[] segName = segments[i++].toCharArray();
-			foundBinding = pkgBinding.getTypeOrPackage(segName, this.binding.enclosingModule, false);
-			if (foundBinding == null || !foundBinding.isValidBinding()
-					|| !(foundBinding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding foundPackageBinding)) {
-				break;
-			} else {
-				pkgBinding = foundPackageBinding;
-			}
-		}
+		char[] segName= segments[i++].toCharArray();
+		foundBinding = pkgBinding.getTypeOrPackage(segName, this.binding.enclosingModule, false);
 		if (foundBinding != null && foundBinding.isValidBinding()
 				&& (foundBinding instanceof org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding refBinding)) {
 			org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding referenceBinding = refBinding;
 			while (i < segments.length) {
-				char[] segName = segments[i++].toCharArray();
+				segName = segments[i++].toCharArray();
 				foundBinding = referenceBinding.getMemberType(segName);
 				if (foundBinding == null || !foundBinding.isValidBinding()
 						|| !(foundBinding instanceof org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding foundRefBinding)) {
