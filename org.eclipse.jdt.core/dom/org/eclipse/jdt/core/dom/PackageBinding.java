@@ -267,6 +267,9 @@ class PackageBinding implements IPackageBinding {
 
 	@Override
 	public ITypeBinding findTypeBinding(String nameString) {
+		if (nameString == null || nameString.isEmpty()) {
+			return null;
+		}
 		String[] segments = nameString.split("[.]"); //$NON-NLS-1$
 		int i = 0;
 		org.eclipse.jdt.internal.compiler.lookup.PackageBinding pkgBinding = this.binding;
