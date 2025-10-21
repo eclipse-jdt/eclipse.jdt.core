@@ -41,14 +41,6 @@ public class ASTRewritingJavadocMarkdownTest extends ASTRewritingTest {
 		setUpProjectAbove25();
 	}
 
-	private boolean checkAPILevel() {
-		if (this.apiLevel < 25) {
-			System.err.println("Test "+getName()+" requires a JRE 25");
-			return true;
-		}
-		return false;
-	}
-
 	public void testParamName_since_25() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		String str = """
