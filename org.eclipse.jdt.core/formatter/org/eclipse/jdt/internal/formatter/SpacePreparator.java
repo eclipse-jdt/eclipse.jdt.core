@@ -178,9 +178,6 @@ public class SpacePreparator extends ASTVisitor {
 
 		List<TypeParameter> typeParameters = node.typeParameters();
 		handleTypeParameters(typeParameters);
-
-		handleToken(node.getName(), TokenNameLBRACE,
-				this.options.insert_space_before_opening_brace_in_record_declaration, false);
 		List<Type> superInterfaces = node.superInterfaceTypes();
 		if (!superInterfaces.isEmpty()) {
 			handleTokenBefore(superInterfaces.get(0), TokenNameimplements, true, true);
@@ -188,7 +185,14 @@ public class SpacePreparator extends ASTVisitor {
 					this.options.insert_space_after_comma_in_superinterfaces);
 		}
 
+		List<? extends ASTNode> components = node.recordComponents();
 		handleRecordComponents(node.recordComponents(), node.getName(), typeParameters);
+		ASTNode nodeBeforeLParen = typeParameters.isEmpty() ? node.getName()
+				: typeParameters.get(typeParameters.size() - 1);
+		ASTNode nodeBeforeRParen = components.isEmpty() ? nodeBeforeLParen
+				: components.get(components.size() - 1);
+		handleTokenAfter(nodeBeforeRParen, TokenNameLBRACE,
+				this.options.insert_space_before_opening_brace_in_record_declaration, false);
 		return true;
 	}
 
