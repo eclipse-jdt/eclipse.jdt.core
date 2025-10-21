@@ -49,6 +49,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.INVOCATION_CONTEXT;
 
 import java.util.HashMap;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -973,8 +974,13 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	private boolean contextHasSyntaxError() {
 		ReferenceContext referenceContext = this.enclosingScope.referenceContext();
 		if (referenceContext instanceof AbstractMethodDeclaration) {
-			if ((((AbstractMethodDeclaration) referenceContext).bits & ASTNode.HasSyntaxErrors) != 0)
-				return true;
+			if ((((AbstractMethodDeclaration) referenceContext).bits & ASTNode.HasSyntaxErrors) != 0) {
+				CategorizedProblem[] syntaxErrors = this.enclosingScope.referenceCompilationUnit().compilationResult.getSyntaxErrors();
+				for (CategorizedProblem syntaxError : syntaxErrors) {
+					if (syntaxError.getSourceStart() >= this.sourceStart && syntaxError.getSourceEnd() <= this.sourceEnd)
+						return true;
+				}
+			}
 		}
 		return false;
 	}
