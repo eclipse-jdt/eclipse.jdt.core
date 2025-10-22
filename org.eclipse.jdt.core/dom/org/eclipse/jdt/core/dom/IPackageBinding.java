@@ -71,6 +71,7 @@ public interface IPackageBinding extends IBinding {
 	 * name of the class or interface. For member classes and interfaces, the
 	 * name is prefixed by its outer class(es) with a dot separator.
 	 * For example, for the following class:
+	 *</p>
 	 * <pre><code>
 	 *    public class Outer {
 	 *        public static class Inner {
@@ -80,7 +81,6 @@ public interface IPackageBinding extends IBinding {
 	 * </code></pre> the first inner class is referenced via:
 	 * <code>"Outer.Inner"</code> and it's inner class can be accessed via
 	 * <code>"Outer.Inner.Inner2"</code>.
-	 * </p>
 	 *
 	 * @param name the name of a class or interface
 	 * @return the type binding for the class or interface with the
