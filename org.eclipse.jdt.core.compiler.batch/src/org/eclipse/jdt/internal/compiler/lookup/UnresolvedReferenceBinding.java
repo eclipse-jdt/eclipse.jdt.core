@@ -125,7 +125,7 @@ ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericTo
 				environment.problemReporter.isClassPathCorrect(
 					this.compoundName,
 					environment.root.unitBeingCompleted,
-					environment.missingClassFileLocation,
+					environment,
 					false,
 					this.requestingType);
 			}
