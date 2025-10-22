@@ -504,7 +504,7 @@ public final class ImportRewrite {
 				ImportDeclaration curr= (ImportDeclaration) imports.get(i);
 				StringBuilder buf= new StringBuilder();
 				buf.append(curr.isStatic() ? STATIC_PREFIX : Modifier.isModule(curr.getModifiers()) ? MODULE_PREFIX : NORMAL_PREFIX).append(curr.getName().getFullyQualifiedName());
-				if (curr.isOnDemand()) {
+				if (curr.isOnDemand() && !Modifier.isModule(curr.getModifiers())) {
 					if (buf.length() > 1)
 						buf.append('.');
 					buf.append('*');
@@ -1417,6 +1417,21 @@ public final class ImportRewrite {
 	 */
 	public boolean removeImport(String qualifiedName) {
 		return removeEntry(NORMAL_PREFIX + qualifiedName);
+	}
+
+	/**
+	 * Records to remove a import. No remove is recorded if no such import exists or if such an import is recorded
+	 * to be added. In that case the record of the addition is discarded.
+	 * <p>
+	 * The content of the compilation unit itself is actually not modified
+	 * in any way by this method; rather, the rewriter just records that an import has been removed.
+	 * </p>
+	 * @param qualifiedName The import name to remove.
+	 * @return <code>true</code> is returned of an import of the given name could be found.
+	 * @since 3.44
+	 */
+	public boolean removeModuleImport(String qualifiedName) {
+		return removeEntry(MODULE_PREFIX + qualifiedName);
 	}
 
 	/**
