@@ -1914,4 +1914,24 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			assertEquals("Incorrect TagElement", 1, (fragments.get(3).getFlags() & ASTNode.MALFORMED));  //MALFOUND flag
 		}
 	}
+
+	public void testMarkdownURLs4531_01() throws JavaModelException {
+		String source = """
+				/// @see [Ex Si](ex.com)
+				public class Markdown() {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/gh3761/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement tags = (TagElement) javadoc.tags().get(0);
+			assertEquals("fragments count does not match", 2, tags.fragments().size());
+			TagElement tagElement = (TagElement) tags.fragments().get(1);
+			List<?> tagFragments = tagElement.fragments();
+			assertTrue(tagFragments.get(0) instanceof TextElement);
+			assertTrue(tagFragments.get(1) instanceof QualifiedName);
+		}
+	}
 }
