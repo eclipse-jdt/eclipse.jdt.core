@@ -26,6 +26,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -1393,6 +1394,89 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		return parseReference(false);
 	}
 
+	// Checks if current identifier is a URL scheme (http, https, ftp, etc.)
+	private boolean isURLScheme(char[] identifier) {
+	    return CharOperation.equals("http".toCharArray(), identifier) || //$NON-NLS-1$
+	           CharOperation.equals("https".toCharArray(), identifier) || //$NON-NLS-1$
+	           CharOperation.equals("ftp".toCharArray(), identifier) || //$NON-NLS-1$
+	           CharOperation.equals("file".toCharArray(), identifier); //$NON-NLS-1$
+	}
+
+	// Checks if the current position is followed by "://" URL pattern
+	private boolean isFollowedByURLPattern() {
+		int pos = this.scanner.currentPosition;
+		try {
+			if (pos + 2 >= this.source.length) return false;
+
+			return this.source[pos] == ':' &&
+		               this.source[pos + 1] == '/' &&
+		               this.source[pos + 2] == '/';
+		} catch(Exception e) {
+			return false;
+		}
+	}
+
+	// Parses a complete URL reference starting from current position
+	private Object parseURLReference() throws InvalidInputException {
+		StringBuilder urlBuilder = new StringBuilder();
+		int firstTokenStartPos = this.scanner.startPosition;
+		//start with the current identifier
+		if (this.currentTokenType == TerminalToken.TokenNameIdentifier) {
+			urlBuilder.append(this.scanner.getCurrentTokenSource());
+			consumeToken();
+		}
+
+		// Add :
+		TerminalToken token1 = readTokenSafely();
+		if (token1 == TerminalToken.TokenNameCOLON) {
+			urlBuilder.append(this.scanner.getCurrentTokenSource());
+			consumeToken();
+		}
+
+		int pos = this.scanner.getCurrentTokenEndPosition() + 1;
+		char c;
+		while (pos < this.source.length) {
+			c = (this.source[pos] == ')') ? this.source[pos] : readChar();
+
+			if (c == ':') continue;
+	        if (c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '*' || c == ')' || c == '(' || c == '[' || c == ']' ) {
+	            break;
+	        }
+	        urlBuilder.append(c);
+	        pos++;
+		}
+		char[] fullURL = urlBuilder.toString().toCharArray();
+		this.identifierPtr = 0;
+		this.identifierStack[this.identifierPtr] =  fullURL;
+		this.identifierPositionStack[this.identifierPtr] = (((long) firstTokenStartPos) << 32) + (pos - 1);
+		this.identifierLengthStack[this.identifierLengthPtr] = 1;
+		return createTypeReference(TokenNameInvalid, true);
+	}
+
+	// Ensure the markdown URL bracket syntax follows []() or [][]
+	private void checkMarkdownLinkSyntaxValid(int currStartPos) {
+		char secondBracket = this.source[currStartPos - 2];
+		char thirdBracket = this.source[currStartPos - 1];
+
+		char[] generatedURL = this.identifierStack[this.identifierPtr];
+		char fourthBracket = this.source[currStartPos + generatedURL.length];
+
+		String pattern = new String(new char[] {secondBracket, thirdBracket, fourthBracket});
+		//invalid bracket patterns
+		Set<String> invalidPatterns = Set.of(
+				")[)", //$NON-NLS-1$
+			    "](]", //$NON-NLS-1$
+			    ")[]", //$NON-NLS-1$
+			    "][)", //$NON-NLS-1$
+			    "([)", //$NON-NLS-1$
+			    "(][", //$NON-NLS-1$
+			    "[)(", //$NON-NLS-1$
+			    "(](" //$NON-NLS-1$
+		);
+		if (invalidPatterns.contains(pattern)) this.abort = true;
+
+	}
+
 	/*
 	 * Parse a reference in @see tag
 	 */
@@ -1488,6 +1572,18 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						break nextToken;
 					case TokenNameUNDERSCORE:
 					case TokenNameIdentifier :
+						char[] identifier = this.scanner.getCurrentIdentifierSource();
+						if (isURLScheme(identifier)) {
+							if (isFollowedByURLPattern()) {
+								if (typeRef == null) {
+									int currStartPos = this.scanner.startPosition;
+									typeRefStartPosition = this.scanner.getCurrentTokenStartPosition();
+									typeRef = parseURLReference();
+									checkMarkdownLinkSyntaxValid(currStartPos);
+									if (this.abort) return false;
+								}
+							}
+						}
 						if (typeRef == null) {
 							typeRefStartPosition = this.scanner.getCurrentTokenStartPosition();
 							typeRef = parseQualifiedName(true, allowModule);
@@ -3612,6 +3708,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		// Whitespace or inline tag closing brace
 		char ch = peekChar();
 		switch (ch) {
+			case ')':
 			case ']':
 				// TODO: Check if we need to exclude escaped ]
 				if (this.markdown)

@@ -573,7 +573,7 @@ public class JavadocParser extends AbstractCommentParser {
 					}
 					break;
 				case ']':
-					if (peekChar() == '[') {
+					if (peekChar() == '[' || peekChar() == '(') {
 						// We might want to store the description in case of DOM parser
 						// but the compiler does not need it
 						//int length = this.index - start - 1;
