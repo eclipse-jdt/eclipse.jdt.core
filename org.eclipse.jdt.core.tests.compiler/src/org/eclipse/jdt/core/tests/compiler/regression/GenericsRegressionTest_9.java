@@ -1781,6 +1781,43 @@ public void testGH1501() {
 		----------
 		""");
 }
+public void testGH4463() {
+	runConformTest(new String[] {
+		"A.java",
+		"""
+		interface A<T> {}
+		interface B<T> extends A<T> {}
+		interface C<T> extends A<T> {}
+
+		class BC1 implements B<String>, C<String> {}
+		class BC2 implements B<Integer>, C<Integer> {}
+
+		// Eclipse Compile error "The interface A cannot be implemented more than once with different arguments: A<?> and A<?>"
+		interface IHelperBC<T extends B<?> & C<?>> {}
+
+		class HelperBC1 implements IHelperBC<BC1> {}
+		class HelperBC2 implements IHelperBC<BC2> {}
+		"""
+	});
+}
+public void testGH4463b() {
+	runConformTest(new String[] {
+		"A.java",
+		"""
+		interface A<T> {}
+		interface B<T> extends A<T> {}
+		interface C<T> extends A<T> {}
+
+		class BC1 implements B<String>, C<String> {}
+		class BC2 implements B<Integer>, C<Integer> {}
+
+		// eclipse compile error "The interface A cannot be implemented more than once with different arguments: A<? super T> and A<? super T>"
+		interface IHelperBCSuper<T, BC extends B<? super T> & C<? super T>> {}
+		// eclipse compile error "The interface A cannot be implemented more than once with different arguments: A<? extends T> and A<? extends T>"
+		interface IHelperBCExtends<T, BC extends B<? extends T> & C<? extends T>> {}
+		"""
+	});
+}
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
