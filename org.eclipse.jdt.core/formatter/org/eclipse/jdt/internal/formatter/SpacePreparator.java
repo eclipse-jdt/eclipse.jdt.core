@@ -1083,6 +1083,15 @@ public class SpacePreparator extends ASTVisitor {
 
 	private void handleToken(ASTNode node, TerminalToken tokenType, boolean spaceBefore, boolean spaceAfter) {
 		if (spaceBefore || spaceAfter) {
+			if (tokenType == TokenNameLBRACE && node.getParent() instanceof RecordDeclaration record
+					&& !record.recordComponents().isEmpty()) {
+				List<? extends ASTNode> components = record.recordComponents();
+				ASTNode lastParamNode = components.get(components.size() - 1);
+				int orgLBrace = lastParamNode.getStartPosition() + lastParamNode.getLength();
+				Token token = this.tm.get(this.tm.findIndex(orgLBrace, tokenType, true));
+				handleToken(token, spaceBefore, spaceAfter);
+				return;
+			}
 			Token token = this.tm.get(this.tm.findIndex(node.getStartPosition(), tokenType, true));
 			// ^not the same as "firstTokenIn(node, tokenType)" - do not assert the token is inside the node
 			handleToken(token, spaceBefore, spaceAfter);

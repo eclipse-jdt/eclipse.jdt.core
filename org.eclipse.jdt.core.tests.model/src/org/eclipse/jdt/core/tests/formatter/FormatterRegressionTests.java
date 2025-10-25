@@ -16536,4 +16536,22 @@ public void testIssue2977() {
 				""";
 		formatSource(input, expected);
 	}
+
+	public void testRecordWithOpeningParanthesisInParam() throws JavaModelException {
+		setComplianceLevel(CompilerOptions.VERSION_16);
+		this.formatterPrefs.insert_space_before_opening_brace_in_record_declaration = true;
+		String input = """
+				public record X(String a, @SuppressWarnings({
+						"a", "b" }) String b){
+
+				}
+				""";
+		String expected = """
+				public record X(String a, @SuppressWarnings({
+						"a", "b" }) String b) {
+
+				}
+				""";
+		formatSource(input, expected);
+	}
 }
