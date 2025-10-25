@@ -62,7 +62,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public abstract class ASTNode implements TypeConstants, TypeIds {
+public abstract class ASTNode implements Location, TypeConstants, TypeIds {
 
 	public int sourceStart, sourceEnd;
 
@@ -1382,11 +1382,12 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public void acceptPotentiallyCompatibleMethods(MethodBinding [] methods) {
 		// Discard. Interested subclasses should override and grab these goodies.
 	}
-	// --- "default methods" for InvocationSite
 
+	@Override
 	public int sourceStart() {
 		return this.sourceStart;
 	}
+	@Override
 	public int sourceEnd() {
 		return this.sourceEnd;
 	}

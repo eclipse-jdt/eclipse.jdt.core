@@ -54,6 +54,7 @@ import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.ClassFilePool;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Location;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
@@ -117,7 +118,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	public HashtableOfModule knownModules;		// SHARED
 
 	public CompilationUnitDeclaration unitBeingCompleted = null; // only set while completing units -- ROOT_ONLY
-	public Object missingClassFileLocation = null; // only set when resolving certain references, to help locating problems
+	public Location missingClassFileLocation = null; // only set when resolving certain references, to help locating problems
 	private CompilationUnitDeclaration[] units = new CompilationUnitDeclaration[4]; // ROOT_ONLY
 	private MethodVerifier verifier;
 
@@ -1877,7 +1878,7 @@ public ReferenceBinding getResolvedType(char[][] compoundName, ModuleBinding mod
 	this.problemReporter.isClassPathCorrect(
 		compoundName,
 		scope == null ? this.root.unitBeingCompleted : scope.referenceCompilationUnit(),
-		this.missingClassFileLocation, implicitAnnotationUse, this.requestingType);
+		this, implicitAnnotationUse, this.requestingType);
 	return createMissingType(null, compoundName);
 }
 public ReferenceBinding getResolvedJavaBaseType(char[][] compoundName, Scope scope) {
@@ -1996,7 +1997,7 @@ private ReferenceBinding getTypeFromCompoundName(char[][] compoundName, boolean 
 			 * misconfiguration now that did not also exist in some equivalent form while producing the class files which encode
 			 * these missing types. So no need to bark again. Note that wasMissingType == true signals a type referenced in a .class
 			 * file which could not be found when the binary was produced. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=364450 */
-			this.problemReporter.isClassPathCorrect(compoundName, this.root.unitBeingCompleted, this.missingClassFileLocation, false, this.requestingType);
+			this.problemReporter.isClassPathCorrect(compoundName, this.root.unitBeingCompleted, this, false, this.requestingType);
 		}
 		// create a proxy for the missing BinaryType
 		binding = createMissingType(null, compoundName);
