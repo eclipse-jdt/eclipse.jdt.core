@@ -971,6 +971,94 @@ public void testJEP211_1() {
 			""";
 	runner.runWarningTest();
 }
+// Test for issue #4553 - calling deprecated method through inherited interface
+public void testInheritedInterfaceDeprecatedMethod() {
+	this.runNegativeTest(
+			new String[] {
+				"p1/BaseInterface.java",
+				"""
+					package p1;
+					public interface BaseInterface {
+						/** @deprecated */
+						void deprecatedMethod();
+					}
+					""",
+
+				"p2/DerivedInterface.java",
+				"""
+					package p2;
+					import p1.BaseInterface;
+					public interface DerivedInterface extends BaseInterface {
+					}
+					""",
+
+				"p3/Caller.java",
+				"""
+					package p3;
+					import p2.DerivedInterface;
+					public class Caller {
+						void test() {
+							((DerivedInterface)getIt()).deprecatedMethod();
+						}
+
+						public Object getIt() {
+							return null;
+						}
+					}
+					"""
+			},
+			"""
+			----------
+			1. WARNING in p3\\Caller.java (at line 5)
+				((DerivedInterface)getIt()).deprecatedMethod();
+				                            ^^^^^^^^^^^^^^^^
+			The method deprecatedMethod() from the type BaseInterface is deprecated
+			----------
+			"""
+		);
+}
+
+public void testInheritedInterfaceDeprecatedMethodWithSuppressWarnings() {
+	this.runNegativeTest(
+		new String[] {
+			"p1/BaseInterface.java",
+			"""
+				package p1;
+				public interface BaseInterface {
+					/** @deprecated */
+					void deprecatedMethod();
+				}
+				""",
+
+			"p2/DerivedInterface.java",
+			"""
+				package p2;
+				import p1.BaseInterface;
+				public interface DerivedInterface extends BaseInterface {
+				}
+				""",
+
+			"p3/Caller.java",
+			"""
+				package p3;
+				import p2.DerivedInterface;
+				public class Caller {
+
+					@SuppressWarnings("deprecation")
+					void test() {
+						((DerivedInterface)getIt()).deprecatedMethod();
+					}
+
+					public Object getIt() {
+						return null;
+					}
+				}
+				"""
+		},
+		"" //should not warn
+	);
+
+}
 public static Class testClass() {
 	return DeprecatedTest.class;
 }
