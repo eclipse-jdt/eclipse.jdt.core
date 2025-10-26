@@ -1002,10 +1002,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 		// abstract private methods cannot occur nor abstract static............
 	}
-	TypeBinding declared = this.binding.declaringClass.erasure();
-	TypeBinding actual = this.actualReceiverType.erasure();
-	boolean isExplicitUse = TypeBinding.equalsEquals( declared, actual);
-	if (isMethodUseDeprecated(this.binding, scope, isExplicitUse, this))
+	if (isMethodUseDeprecated(this.binding, scope, true, this))
 		scope.problemReporter().deprecatedMethod(this.binding, this);
 
 	TypeBinding returnType;
