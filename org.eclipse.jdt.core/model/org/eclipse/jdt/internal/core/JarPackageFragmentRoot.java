@@ -150,10 +150,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 				int length = version.length();
 				for (Enumeration<? extends ZipEntry> e= jar.entries(); e.hasMoreElements();) {
 					ZipEntry member= e.nextElement();
-					String name = member.getName();
-					if (name.contains("..")) { //$NON-NLS-1$
-						throw new IllegalArgumentException("Bad zip entry: "+name+" in "+jar.getName()); //$NON-NLS-1$ //$NON-NLS-2$
-					}
+					String name = Util.getEntryName(jar.getName(), member);
 					if (this.multiVersion && name.length() > (length + 2) && name.startsWith(version)) {
 						int end = name.indexOf('/', length);
 						if (end >= name.length()) continue;
@@ -194,6 +191,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 		((JarPackageFragmentRootInfo) info).overriddenClasses = overridden;
 		return true;
 	}
+
 	protected IJavaElement[] createChildren(final HashtableOfArrayToObject rawPackageInfo) {
 		IJavaElement[] children;
 		// loop through all of referenced packages, creating package fragments if necessary
