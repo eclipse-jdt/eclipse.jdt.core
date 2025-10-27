@@ -826,12 +826,6 @@ public char[] computeUniqueKey(boolean isLeaf) {
 private void checkAnnotationsInType() {
 	// check @Deprecated annotation
 	getAnnotationTagBits(); // marks as deprecated by side effect
-	ReferenceBinding enclosingType = enclosingType();
-	if (enclosingType != null && enclosingType.isViewedAsDeprecated() && !isDeprecated()) {
-		this.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
-		this.tagBits |= (enclosingType.tagBits & TagBits.AnnotationTerminallyDeprecated);
-	}
-
 	for (ReferenceBinding memberType : this.memberTypes)
 		((SourceTypeBinding) memberType).checkAnnotationsInType();
 }
@@ -968,10 +962,6 @@ private VariableBinding resolveTypeFor(VariableBinding variable) {
 
 		if ((variable.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
 			variable.modifiers |= ClassFileConstants.AccDeprecated;
-		if (isViewedAsDeprecated() && !variable.isDeprecated()) {
-			variable.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
-			variable.tagBits |= this.tagBits & TagBits.AnnotationTerminallyDeprecated;
-		}
 		if (hasRestrictedAccess())
 			variable.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 
@@ -2005,10 +1995,6 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 
 	if ((method.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
 		method.modifiers |= ClassFileConstants.AccDeprecated;
-	if (isViewedAsDeprecated() && !method.isDeprecated()) {
-		method.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
-		method.tagBits |= this.tagBits & TagBits.AnnotationTerminallyDeprecated;
-	}
 	if (hasRestrictedAccess())
 		method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 

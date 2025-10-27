@@ -3891,8 +3891,7 @@ public abstract class Scope {
 						if (context != null && context.isViewedAsDeprecated())
 							return true;
 					} else if (referenceContext instanceof LambdaExpression) {
-						MethodBinding context = ((LambdaExpression) referenceContext).binding;
-						if (context != null && context.isViewedAsDeprecated())
+						if (methodScope.parent.isInsideDeprecatedCode())
 							return true;
 					} else if (referenceContext instanceof ModuleDeclaration) {
 						ModuleBinding context = ((ModuleDeclaration) referenceContext).binding;

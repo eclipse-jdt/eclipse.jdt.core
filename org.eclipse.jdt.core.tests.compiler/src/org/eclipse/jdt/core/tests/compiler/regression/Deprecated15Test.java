@@ -149,16 +149,6 @@ public void test002() {
 		"	a.N1.N2.N3 m = null;\n" +
 		"	     ^^\n" +
 		"The type N1.N2 is deprecated\n" +
-		"----------\n" +
-		"2. ERROR in p\\M1.java (at line 4)\n" +
-		"	a.N1.N2.N3 m = null;\n" +
-		"	        ^^\n" +
-		"The type N1.N2.N3 is deprecated\n" +
-		"----------\n" +
-		"3. ERROR in p\\M1.java (at line 5)\n" +
-		"	m.foo();\n" +
-		"	  ^^^\n" +
-		"The method foo() from the type N1.N2.N3 is deprecated\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -232,10 +222,10 @@ public void test004() {
 }
 // Bug 354536 - compiling package-info.java still depends on the order of compilation units
 public void test005() {
-	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		true,
+	Runner runner = new Runner();
+	runner.customOptions = new HashMap();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
+	runner.testFiles =
 		new String[] {
 			"p1/X.java",
 			"package p1;\n" +
@@ -253,26 +243,9 @@ public void test005() {
 			"    void bar(p1.X.Inner a) {\n" +
 			"        a.foo();\n" +
 			"    }\n" +
-			"}\n",
-		},
-		null, customOptions,
-		"----------\n" +
-		"1. ERROR in p2\\C.java (at line 3)\n" +
-		"	void bar(p1.X.Inner a) {\n" +
-		"	            ^\n" +
-		"The type X is deprecated\n" +
-		"----------\n" +
-		"2. ERROR in p2\\C.java (at line 3)\n" +
-		"	void bar(p1.X.Inner a) {\n" +
-		"	              ^^^^^\n" +
-		"The type X.Inner is deprecated\n" +
-		"----------\n" +
-		"3. ERROR in p2\\C.java (at line 4)\n" +
-		"	a.foo();\n" +
-		"	  ^^^\n" +
-		"The method foo() from the type X.Inner is deprecated\n" +
-		"----------\n",
-		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+			"}\n"
+		};
+	runner.runConformTest();
 }
 // https://bugs.eclipse.org/384870 - [compiler] @Deprecated annotation not detected if preceded by other annotation
 public void test006() {

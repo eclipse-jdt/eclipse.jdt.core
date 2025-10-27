@@ -290,13 +290,6 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 							blockScope.enclosingSourceType());
 		this.binding.typeVariables = Binding.NO_TYPE_VARIABLES;
 
-		MethodScope enm = this.scope.namedMethodScope();
-		MethodBinding enmb = enm == null ? null : enm.referenceMethodBinding();
-		if (enmb != null && enmb.isViewedAsDeprecated()) {
-			this.binding.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
-			this.binding.tagBits |= enmb.tagBits & TagBits.AnnotationTerminallyDeprecated;
-		}
-
 		boolean argumentsHaveErrors = false;
 		if (haveDescriptor) {
 			int parametersLength = this.descriptor.parameters.length;
