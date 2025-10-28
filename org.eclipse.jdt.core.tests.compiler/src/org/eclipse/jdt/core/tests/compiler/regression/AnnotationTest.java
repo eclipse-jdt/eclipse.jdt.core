@@ -3656,6 +3656,12 @@ public class AnnotationTest extends AbstractComparableTest {
 				"	Zork z;\n" +
 				"}\n",
             },
+    		"----------\n" +
+			"1. INFO in X.java (at line 3)\n" +
+			"	void foo(){}\n" +
+			"	     ^^^^^\n" +
+			"The enclosing type X is deprecated, perhaps this member should be marked as deprecated, too?\n" +
+			"----------\n" +
 			"----------\n" +
 			"1. WARNING in Y.java (at line 1)\n" +
 			"	public class Y extends X {\n" +
@@ -3667,7 +3673,7 @@ public class AnnotationTest extends AbstractComparableTest {
 			"	     ^^^^^\n" +
 			"The method foo() of type Y should be tagged with @Override since it actually overrides a superclass method\n" +
 			"----------\n" +
-			"4. ERROR in Y.java (at line 3)\n" +
+			"3. ERROR in Y.java (at line 3)\n" +
 			"	Zork z;\n" +
 			"	^^^^\n" +
 			"Zork cannot be resolved to a type\n" +
@@ -3688,6 +3694,12 @@ public class AnnotationTest extends AbstractComparableTest {
 				"	Zork z;\n" +
 				"}\n",
             },
+    		"----------\n" +
+			"1. INFO in X.java (at line 3)\n" +
+			"	void foo(){}\n" +
+			"	     ^^^^^\n" +
+			"The enclosing type X is deprecated, perhaps this member should be marked as deprecated, too?\n" +
+			"----------\n" +
 			"----------\n" +
 			"1. WARNING in Y.java (at line 1)\n" +
 			"	public class Y extends X {\n" +
@@ -3888,7 +3900,7 @@ public class AnnotationTest extends AbstractComparableTest {
                 "X.java",
                 "@Deprecated\n" +
                 "public class X {\n" +
-                "   void foo(){}\n" +
+                "   @Deprecated void foo(){}\n" +
                 "}\n",
                 "Y.java",
                 "public class Y extends X {\n" +
@@ -4466,7 +4478,7 @@ public class AnnotationTest extends AbstractComparableTest {
                 "package p;\n" +
                 "@Deprecated\n" +
 				"public class OldStuff {\n" +
-				"	public void foo() {\n" +
+				"	@Deprecated public void foo() {\n" +
 				"	}	\n" +
 				"  Zork z;\n" +
 				"}\n",
@@ -4505,7 +4517,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	            "package p;\n" +
 	            "@Deprecated\n" +
 				"public class OldStuff {\n" +
-				"	public void foo() {\n" +
+				"	@Deprecated public void foo() {\n" +
 				"	}	\n" +
 				"  Zork z;\n" +
 				"}\n",
@@ -4562,6 +4574,12 @@ public void test142c() {
 		"	public class X extends p.OldStuff {\n" +
 		"	                         ^^^^^^^^\n" +
 		"The type OldStuff is deprecated\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. INFO in p\\OldStuff.java (at line 4)\n" +
+		"	public void foo() {\n" +
+		"	            ^^^^^\n" +
+		"The enclosing type OldStuff is deprecated, perhaps this member should be marked as deprecated, too?\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -4579,7 +4597,7 @@ public void test143() {
             "package p;\n" +
             "@Deprecated\n" +
 			"public class OldStuff {\n" +
-			"	public void foo() {\n" +
+			"	@Deprecated public void foo() {\n" +
 			"	}	\n" +
 			"  Zork z;\n" +
 			"}\n",
