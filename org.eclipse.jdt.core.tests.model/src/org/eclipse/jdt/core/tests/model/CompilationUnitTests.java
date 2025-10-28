@@ -498,6 +498,7 @@ public void testDeprecatedFlag09() throws JavaModelException {
 /*
  * Bug 337868 - [compiler][model] incomplete support for package-info.java when using SearchableEnvironment
  * Ensure that package level annotation is evaluated during AST creation.
+ * Edit https://github.com/eclipse-jdt/eclipse.jdt.core/pull/4564: package deprecation has no effect
  */
 public void testDeprecatedFlag10() throws CoreException {
 	try {
@@ -533,8 +534,7 @@ public void testDeprecatedFlag10() throws CoreException {
 		parser.setResolveBindings(true);
 		org.eclipse.jdt.core.dom.CompilationUnit cuAST = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
 		IProblem[] problems = cuAST.getProblems();
-		assertEquals("Should have 1 problem", 1, problems.length);
-		assertEquals("Should have a deprecation warning", "The type C is deprecated", problems[0].getMessage());
+		assertEquals("Should have no problem", 0, problems.length);
 	} finally {
 		deleteFile("/P/src/p/D.java");
 		deleteFolder("/P/src/p2");
@@ -546,6 +546,7 @@ public void testDeprecatedFlag10() throws CoreException {
  * Bug 337868 - [compiler][model] incomplete support for package-info.java when using SearchableEnvironment
  * Ensure that package level annotation is evaluated during AST creation.
  * a working copy for package-info exists and must be used.
+ * Edit https://github.com/eclipse-jdt/eclipse.jdt.core/pull/4564: package deprecation has no effect
  */
 public void testDeprecatedFlag11() throws CoreException {
 	try {
@@ -585,8 +586,7 @@ public void testDeprecatedFlag11() throws CoreException {
 		parser.setResolveBindings(true);
 		org.eclipse.jdt.core.dom.CompilationUnit cuAST = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
 		IProblem[] problems = cuAST.getProblems();
-		assertEquals("Should have 1 problem", 1, problems.length);
-		assertEquals("Should have a deprecation warning", "The type C is deprecated", problems[0].getMessage());
+		assertEquals("Should have no problem", 0, problems.length);
 	} finally {
 		deleteFile("/P/src/p/D.java");
 		deleteFolder("/P/src/p2");

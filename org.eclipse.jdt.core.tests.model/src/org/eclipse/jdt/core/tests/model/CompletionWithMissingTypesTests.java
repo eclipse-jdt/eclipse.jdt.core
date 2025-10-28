@@ -897,7 +897,8 @@ public void test0021() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 		assertResults(
-				"",
+				"bar[METHOD_REF]{bar(), Lmissing.MissingType$MissingMemberType;, ()V, bar, null, [82, 83], 61}\n" +
+				"   MissingType.MissingMemberType[TYPE_REF]{missing.MissingType.MissingMemberType, missing, Lmissing.MissingType$MissingMemberType;, null, null, [50, 67], 61}",
 				requestor.getResults());
 	} finally {
 		JavaCore.setOptions(this.oldOptions);
@@ -995,7 +996,8 @@ public void test0023() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 		assertResults(
-				"",
+				"bar[METHOD_REF]{bar(), Lmissing.MissingType$MissingMemberType$MissingMemberMemberType;, ()V, bar, null, [88, 89], 61}\n" +
+				"   MissingType.MissingMemberType.MissingMemberMemberType[TYPE_REF]{missing.MissingType.MissingMemberType.MissingMemberMemberType, missing, Lmissing.MissingType$MissingMemberType$MissingMemberMemberType;, null, null, [50, 73], 61}",
 				requestor.getResults());
 	} finally {
 		JavaCore.setOptions(this.oldOptions);

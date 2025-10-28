@@ -277,6 +277,75 @@ public void test006() {
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
+public void testGH4562() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+		"c/OldClass.java",
+		"""
+		package c;
+		@Deprecated
+		public class OldClass {
+		//  @Deprecated
+		    public void foo() {
+		    }
+		//  @Deprecated
+		    public void bar() {
+		    }
+		}
+		""",
+		"c/ExtendsOldClass.java",
+		"""
+		package c;
+		public class ExtendsOldClass extends OldClass {
+			@Override
+			public void foo() {
+				super.foo();
+			}
+			public void callingFoo() {
+				super.foo();
+			}
+			public void callingBar() {
+				bar();
+			}
+		}
+		""",
+		"c/UseOldClass.java",
+		"""
+		package c;
+		public class UseOldClass {
+			public void callingFoo() {
+				new ExtendsOldClass().foo();
+				new OldClass().foo();
+			}
+			public void callingBar() {
+				new ExtendsOldClass().bar();
+				new OldClass().bar();
+			}
+		}
+		"""
+	};
+	runner.expectedCompilerLog =
+		"""
+		----------
+		1. WARNING in c\\ExtendsOldClass.java (at line 2)
+			public class ExtendsOldClass extends OldClass {
+			                                     ^^^^^^^^
+		The type OldClass is deprecated
+		----------
+		----------
+		1. WARNING in c\\UseOldClass.java (at line 5)
+			new OldClass().foo();
+			    ^^^^^^^^
+		The type OldClass is deprecated
+		----------
+		2. WARNING in c\\UseOldClass.java (at line 9)
+			new OldClass().bar();
+			    ^^^^^^^^
+		The type OldClass is deprecated
+		----------
+		""";
+	runner.runWarningTest();
+}
 public static Class testClass() {
 	return Deprecated15Test.class;
 }

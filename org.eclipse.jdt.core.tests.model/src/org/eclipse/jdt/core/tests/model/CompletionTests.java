@@ -16236,7 +16236,8 @@ public void testDeprecationCheck15() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 		assertResults(
-				"",
+				"foo1[FIELD_REF]{foo1, Ldeprecation.ZZZType1;, I, foo1, null, 51}\n" +
+				"foo2[FIELD_REF]{foo2, Ldeprecation.ZZZType1;, I, foo2, null, 51}",
 				requestor.getResults());
 	} finally {
 		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
