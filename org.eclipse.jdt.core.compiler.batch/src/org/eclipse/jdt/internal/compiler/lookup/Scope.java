@@ -3847,6 +3847,15 @@ public abstract class Scope {
 		return false;
 	}
 
+	/* Answer true if this scope and the given type share a outermost enclosing type
+	 */
+	public final boolean isDefinedInSameEnclosingType(ReferenceBinding type) {
+		ClassScope outerMostClassScope = outerMostClassScope();
+		if (outerMostClassScope != null && outerMostClassScope.referenceContext != null)
+			return TypeBinding.equalsEquals(outerMostClassScope.referenceContext.binding, type.outermostEnclosingType());
+		return false;
+	}
+
 	/* Answer true if the scope is nested inside a given type declaration
 	*/
 	public final boolean isDefinedInType(ReferenceBinding type) {
@@ -3925,7 +3934,7 @@ public abstract class Scope {
 					}
 				}
 		}
-		if (this.parent != null)
+		if (this.parent != null && !(this.parent instanceof CompilationUnitScope))
 			return this.parent.isInsideDeprecatedCode();
 		return false;
 	}

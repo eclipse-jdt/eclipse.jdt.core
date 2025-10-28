@@ -388,6 +388,103 @@ public void testDeprecatedReferenceNestedInDeprecated() {
 			}
 		}
 		"""};
+}
+public void testGH4563_cu() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+		"X.java",
+		"""
+		class A {
+			@Deprecated void m() {}
+			@Deprecated public String f;
+			@Deprecated class Inner {}
+		}
+		public class X {
+			void test(A a) {
+				a.m();
+				a.f = "";
+				A.Inner o1 = a.new Inner();
+				Runnable r = () -> {
+					a.m();
+					a.f = "";
+					A.Inner o2 = a.new Inner();
+				};
+			}
+		}
+		"""
+	};
+	runner.expectedCompilerLog =
+		"""
+		----------
+		1. WARNING in X.java (at line 8)
+			a.m();
+			  ^
+		The method m() from the type A is deprecated
+		----------
+		2. WARNING in X.java (at line 9)
+			a.f = "";
+			  ^
+		The field A.f is deprecated
+		----------
+		3. WARNING in X.java (at line 10)
+			A.Inner o1 = a.new Inner();
+			  ^^^^^
+		The type A.Inner is deprecated
+		----------
+		4. WARNING in X.java (at line 10)
+			A.Inner o1 = a.new Inner();
+			                   ^^^^^
+		The type A.Inner is deprecated
+		----------
+		5. WARNING in X.java (at line 12)
+			a.m();
+			  ^
+		The method m() from the type A is deprecated
+		----------
+		6. WARNING in X.java (at line 13)
+			a.f = "";
+			  ^
+		The field A.f is deprecated
+		----------
+		7. WARNING in X.java (at line 14)
+			A.Inner o2 = a.new Inner();
+			  ^^^^^
+		The type A.Inner is deprecated
+		----------
+		8. WARNING in X.java (at line 14)
+			A.Inner o2 = a.new Inner();
+			                   ^^^^^
+		The type A.Inner is deprecated
+		----------
+		""";
+	runner.runWarningTest();
+}
+public void testGH4563_class() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+		"X.java",
+		"""
+		public class X {
+			class A {
+				@Deprecated void m() {}
+				@Deprecated public String f;
+				@Deprecated class Inner {}
+			}
+			class B {
+				void test(A a) {
+					a.m();
+					a.f = "";
+					A.Inner o1 = a. new Inner();
+					Runnable r = () -> {
+						a.m();
+						a.f = "";
+						A.Inner o2 = a.new Inner();
+					};
+				}
+			}
+		}
+		"""
+	};
 	runner.runConformTest();
 }
 public static Class testClass() {
