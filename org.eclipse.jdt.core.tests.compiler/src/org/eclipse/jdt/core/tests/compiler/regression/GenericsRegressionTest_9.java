@@ -1818,6 +1818,44 @@ public void testGH4463b() {
 		"""
 	});
 }
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4550
+// Static interface methods excluded from type variable membership
+public void testIssue4550() {
+	runNegativeTest(new String[] {
+			"Tester.java",
+			"""
+			public class Tester<T extends Thing> {
+			    public void test() {
+			        System.out.println("Testing: " + T.getStuff());  // Error is here
+			    }
+
+			    public static void main(String[] args) {
+			        Tester<OtherThing> tester = new Tester<>();
+			        tester.test();
+			    }
+
+			}
+
+			interface Thing {
+			    static String getStuff() {
+			        return "Stuff";
+			    }
+			}
+
+			class OtherThing implements Thing {
+			}
+			""",
+	    },
+		"----------\n" +
+		"1. ERROR in Tester.java (at line 3)\n" +
+		"	System.out.println(\"Testing: \" + T.getStuff());  // Error is here\n" +
+		"	                                   ^^^^^^^^\n" +
+		"The method getStuff() is undefined for the type T\n" +
+		"----------\n"
+		);
+}
+
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
