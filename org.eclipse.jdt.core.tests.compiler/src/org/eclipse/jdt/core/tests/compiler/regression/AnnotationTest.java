@@ -2788,6 +2788,11 @@ public class AnnotationTest extends AbstractComparableTest {
 		"	@Inherited\n" +
 		"	^^^^^^^^^^\n" +
 		"The annotation @Inherited is disallowed for this location\n" +
+		"----------\n" +
+		"2. WARNING in X.java (at line 8)\n" +
+		"	class B extends A {\n" +
+		"	                ^\n" +
+		"The type A is deprecated\n" +
 		"----------\n");
 	}
 	// check handling of empty array initializer (binary check)
