@@ -1809,6 +1809,11 @@ protected TerminalToken getNextToken0() throws InvalidInputException {
 						return TokenNameEOF;
 					//the atEnd may not be <currentPosition == source.length> if source is only some part of a real (external) stream
 					throw invalidEof();
+				case 'h':
+					if (isPotentialURL()) {
+						return scanURL();
+					}
+					break;
 				default :
 					char c = this.currentCharacter;
 					if (c < ScannerHelper.MAX_OBVIOUS) {
@@ -1854,6 +1859,72 @@ protected TerminalToken getNextToken0() throws InvalidInputException {
 		}
 	}
 	return TokenNameEOF;
+}
+
+private boolean isPotentialURL() {
+	int pos = this.currentPosition;
+	try {
+		if (this.source[pos] == 't' && this.source[pos + 1] == 't' && this.source[pos + 2] == 'p'
+				&& this.source[pos + 3] == ':' && this.source[pos + 4] == '/' && this.source[pos + 5] == '/') {
+			return true;
+		}
+		if (this.source[pos] == 't' && this.source[pos + 1] == 't' && this.source[pos + 2] == 'p' &&
+				this.source[pos +3] == 's' && this.source[pos + 3] == ':' &&
+				this.source[pos + 4] == '/' && this.source[pos + 5] == '/') {
+			return true;
+		}
+		return false;
+	} catch (IndexOutOfBoundsException e) {
+		return false;
+	}
+}
+private TerminalToken scanURL() throws InvalidInputException {
+	int start = this.currentPosition - 1;
+	int pos = this.currentPosition;
+	try {
+		if (getNextChar('t') && getNextChar('t') && getNextChar('p') &&
+				getNextChar(':') && getNextChar('/') && getNextChar('/')) {
+			scanURLRemainder();
+			return TokenNameURL;
+		}
+
+		this.currentPosition = pos;
+		if (getNextChar('t') && getNextChar('t') && getNextChar('p') && getNextChar('s') &&
+				getNextChar(':') && getNextChar('/') && getNextChar('/')) {
+			scanURLRemainder();
+			return TokenNameURL;
+		}
+
+		// not a url, reset and handle as regular identifier
+		this.currentPosition = start + 1;
+		return scanIdentifierOrKeyword();
+	} catch (IndexOutOfBoundsException e) {
+		this.currentPosition = start + 1;
+		return TokenNameIdentifier;
+	}
+}
+
+// Scans the remainder of a URL after the scheme (http:// or https://)
+private void scanURLRemainder() {
+	// Continue scanning URL characters until hit whitespace or delimiter
+	while (true) {
+		if (this.currentPosition >= this.eofPosition) break;
+		char c = this.source[this.currentPosition];
+		if (ScannerHelper.isJavaIdentifierPart(this.complianceLevel, c) ||
+	            c == '.' || c == '-' || c == '_' || c == '~' || c == ':' ||
+	            c == '/' || c == '?' || c == '#' || c == '[' || c == ']' ||
+	            c == '@' || c == '!' || c == '$' || c == '&' || c == '\'' ||
+	            /*c == '(' || c == ')' ||*/ c == '*' || c == '+' || c == ',' ||
+	            c == ';' || c == '=' || c == '%') {
+			if (this.withoutUnicodePtr != 0) {
+                this.currentCharacter = c;
+                unicodeStore();
+            }
+			this.currentPosition++;
+		} else {
+			break; // found a character not part of the URL
+		}
+	}
 }
 protected TerminalToken processSingleQuotes(boolean checkIfUnicode) throws InvalidInputException{
 	{
@@ -3267,7 +3338,27 @@ public TerminalToken scanIdentifierOrKeyword() {
 
 	return internalScanIdentifierOrKeyword(index, length, data);
 }
+
+private boolean isURLToken(char[] data, int index, int length) {
+	if (length < 7) return false;
+	if (index + 6 < data.length &&
+	        data[index] == 'h' && data[index + 1] == 't' && data[index + 2] == 't' &&
+	        data[index + 3] == 'p' && data[index + 4] == ':' && data[index + 5] == '/' &&
+	        data[index + 6] == '/') {
+	        return true; // HTTP
+	}
+	if (length >= 8 && index + 7 < data.length &&
+	        data[index] == 'h' && data[index + 1] == 't' && data[index + 2] == 't' &&
+	        data[index + 3] == 'p' && data[index + 4] == 's' && data[index + 5] == ':' &&
+	        data[index + 6] == '/' && data[index + 7] == '/') {
+	        return true; // HTTPS
+	}
+	return false;
+}
 private TerminalToken internalScanIdentifierOrKeyword(int index, int length, char[] data) {
+	if (isURLToken(data, index, length)) {
+        return TokenNameURL;
+    }
 	switch (data[index]) {
 		case 'a' :
 			switch(length) {
@@ -4548,6 +4639,8 @@ public String toStringAction(TerminalToken act) {
 			return "EOF"; //$NON-NLS-1$
 		case TokenNameWHITESPACE :
 			return "white_space(" + new String(getCurrentTokenSource()) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+		case TokenNameURL:
+			return "URL(" + new String(getCurrentTokenSource()) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 		default :
 			return "not-a-token"; //$NON-NLS-1$
 	}
@@ -4593,6 +4686,7 @@ public static boolean isLiteral(TerminalToken token) {
 		case TokenNameStringLiteral:
 		case TokenNameTextBlock:
 		case TokenNameCharacterLiteral:
+		case TokenNameURL:
 			return true;
 		default:
 			return false;
