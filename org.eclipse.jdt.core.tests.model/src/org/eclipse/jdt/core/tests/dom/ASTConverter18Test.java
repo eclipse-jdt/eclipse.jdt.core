@@ -4891,7 +4891,7 @@ public void testBug425601_001() throws JavaModelException {
 			"    Outer<String>.Middle<String> m;\n"+
 			"    Outer<String>.Middle<String>.Inner<Object> i;\n"+
 			"}\n";
-	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy, false/*don't report*/);
 	TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
 	FieldDeclaration[] fields = typedeclaration.getFields();
 	ITypeBinding binding = fields[0].getType().resolveBinding();
@@ -4934,7 +4934,7 @@ public void testBug425601_002() throws JavaModelException {
 			"    Outer<String>.Middle<String> m;\n"+
 			"    Outer<String>.Middle<String>.Inner<Object> i;\n"+
 			"}\n";
-	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy, false/*don't report*/);
 	TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
 	FieldDeclaration[] fields = typedeclaration.getFields();
 	ITypeBinding binding = fields[0].getType().resolveBinding();

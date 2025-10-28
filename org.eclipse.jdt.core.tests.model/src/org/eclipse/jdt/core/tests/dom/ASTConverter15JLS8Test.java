@@ -8482,7 +8482,20 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 				0);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
-		assertProblemsSize(unit, 0);
+		assertProblems("unexpected problems",
+				"""
+				1. WARNING in /Converter15/src/X.java (at line 5)
+					@Annot(id=4)
+					 ^^^^^
+				The type Annot is deprecated
+				----------
+				2. WARNING in /Converter15/src/X.java (at line 8)
+					@Annot(id=4) class Y {
+					 ^^^^^
+				The type Annot is deprecated
+				----------
+				""",
+				unit.getProblems(), contents.toCharArray());
 		node = getASTNode(unit, 1);
 		assertEquals("Not a type declaration unit", ASTNode.TYPE_DECLARATION, node.getNodeType());
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
