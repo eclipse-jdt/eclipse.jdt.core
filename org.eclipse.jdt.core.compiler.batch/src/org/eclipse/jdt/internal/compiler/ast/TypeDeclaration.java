@@ -1852,9 +1852,6 @@ public void updateSupertypesWithAnnotations(Map<ReferenceBinding,ReferenceBindin
 	if (this.binding == null)
 		return;
 	this.binding.getAnnotationTagBits();
-	if (this.binding instanceof MemberTypeBinding) {
-		((MemberTypeBinding) this.binding).updateDeprecationFromEnclosing();
-	}
 	Map<ReferenceBinding,ReferenceBinding> updates = new HashMap<>();
 	if (this.typeParameters != null) {
 		for (TypeParameter typeParameter : this.typeParameters) {

@@ -3890,10 +3890,6 @@ public abstract class Scope {
 						MethodBinding context = ((AbstractMethodDeclaration) referenceContext).binding;
 						if (context != null && context.isViewedAsDeprecated())
 							return true;
-					} else if (referenceContext instanceof LambdaExpression) {
-						MethodBinding context = ((LambdaExpression) referenceContext).binding;
-						if (context != null && context.isViewedAsDeprecated())
-							return true;
 					} else if (referenceContext instanceof ModuleDeclaration) {
 						ModuleBinding context = ((ModuleDeclaration) referenceContext).binding;
 						return context != null && context.isDeprecated();
@@ -3929,6 +3925,8 @@ public abstract class Scope {
 					}
 				}
 		}
+		if (this.parent != null)
+			return this.parent.isInsideDeprecatedCode();
 		return false;
 	}
 

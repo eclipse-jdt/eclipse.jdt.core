@@ -149,16 +149,6 @@ public void test002() {
 		"	a.N1.N2.N3 m = null;\n" +
 		"	     ^^\n" +
 		"The type N1.N2 is deprecated\n" +
-		"----------\n" +
-		"2. ERROR in p\\M1.java (at line 4)\n" +
-		"	a.N1.N2.N3 m = null;\n" +
-		"	        ^^\n" +
-		"The type N1.N2.N3 is deprecated\n" +
-		"----------\n" +
-		"3. ERROR in p\\M1.java (at line 5)\n" +
-		"	m.foo();\n" +
-		"	  ^^^\n" +
-		"The method foo() from the type N1.N2.N3 is deprecated\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -232,10 +222,10 @@ public void test004() {
 }
 // Bug 354536 - compiling package-info.java still depends on the order of compilation units
 public void test005() {
-	Map customOptions = new HashMap();
-	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		true,
+	Runner runner = new Runner();
+	runner.customOptions = new HashMap();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
+	runner.testFiles =
 		new String[] {
 			"p1/X.java",
 			"package p1;\n" +
@@ -253,26 +243,9 @@ public void test005() {
 			"    void bar(p1.X.Inner a) {\n" +
 			"        a.foo();\n" +
 			"    }\n" +
-			"}\n",
-		},
-		null, customOptions,
-		"----------\n" +
-		"1. ERROR in p2\\C.java (at line 3)\n" +
-		"	void bar(p1.X.Inner a) {\n" +
-		"	            ^\n" +
-		"The type X is deprecated\n" +
-		"----------\n" +
-		"2. ERROR in p2\\C.java (at line 3)\n" +
-		"	void bar(p1.X.Inner a) {\n" +
-		"	              ^^^^^\n" +
-		"The type X.Inner is deprecated\n" +
-		"----------\n" +
-		"3. ERROR in p2\\C.java (at line 4)\n" +
-		"	a.foo();\n" +
-		"	  ^^^\n" +
-		"The method foo() from the type X.Inner is deprecated\n" +
-		"----------\n",
-		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+			"}\n"
+		};
+	runner.runConformTest();
 }
 // https://bugs.eclipse.org/384870 - [compiler] @Deprecated annotation not detected if preceded by other annotation
 public void test006() {
@@ -303,6 +276,119 @@ public void test006() {
 		"The type E01 is deprecated\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+public void testGH4562() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+		"c/OldClass.java",
+		"""
+		package c;
+		@Deprecated
+		public class OldClass {
+		//  @Deprecated
+		    public void foo() {
+		    }
+		//  @Deprecated
+		    public void bar() {
+		    }
+		}
+		""",
+		"c/ExtendsOldClass.java",
+		"""
+		package c;
+		public class ExtendsOldClass extends OldClass {
+			@Override
+			public void foo() {
+				super.foo();
+			}
+			public void callingFoo() {
+				super.foo();
+			}
+			public void callingBar() {
+				bar();
+			}
+		}
+		""",
+		"c/UseOldClass.java",
+		"""
+		package c;
+		public class UseOldClass {
+			public void callingFoo() {
+				new ExtendsOldClass().foo();
+				new OldClass().foo();
+			}
+			public void callingBar() {
+				new ExtendsOldClass().bar();
+				new OldClass().bar();
+			}
+		}
+		"""
+	};
+	runner.expectedCompilerLog =
+		"""
+		----------
+		1. WARNING in c\\ExtendsOldClass.java (at line 2)
+			public class ExtendsOldClass extends OldClass {
+			                                     ^^^^^^^^
+		The type OldClass is deprecated
+		----------
+		----------
+		1. WARNING in c\\UseOldClass.java (at line 5)
+			new OldClass().foo();
+			    ^^^^^^^^
+		The type OldClass is deprecated
+		----------
+		2. WARNING in c\\UseOldClass.java (at line 9)
+			new OldClass().bar();
+			    ^^^^^^^^
+		The type OldClass is deprecated
+		----------
+		""";
+	runner.runWarningTest();
+}
+public void testDeprecatedReferenceNestedInDeprecated() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
+	runner.testFiles = new String[] {
+		"Old.java",
+		"""
+		public class Old {
+			@Deprecated void old() {}
+		}
+		""",
+		"X.java",
+		"""
+		public class X {
+			/** @deprecated */
+			void test1(final Old old) {
+				Runnable r = new Runnable() {
+					public void run() {
+						old.old();
+					}
+				};
+			}
+			/** @deprecated */
+			void test2(final Old old) {
+				Runnable r = () -> {
+					old.old();
+				};
+			}
+			@Deprecated
+			class Inner {
+				void test3(final Old old) {
+					Runnable r = () -> {
+						Runnable r2 = new Runnable() {
+							public void run() {
+								old.old();
+							}
+						};
+					};
+				}
+			}
+		}
+		"""};
+	runner.runConformTest();
 }
 public static Class testClass() {
 	return Deprecated15Test.class;

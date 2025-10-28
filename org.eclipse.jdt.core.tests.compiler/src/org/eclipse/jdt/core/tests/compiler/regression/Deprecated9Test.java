@@ -86,16 +86,6 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			"	a.N1.N2.N3 m = null;\n" +
 			"	     ^^\n" +
 			"The type N1.N2 has been deprecated since version 1.2 and marked for removal\n" +
-			"----------\n" +
-			"2. ERROR in p\\M1.java (at line 4)\n" +
-			"	a.N1.N2.N3 m = null;\n" +
-			"	        ^^\n" +
-			"The type N1.N2.N3 has been deprecated and marked for removal\n" +
-			"----------\n" +
-			"3. ERROR in p\\M1.java (at line 5)\n" +
-			"	m.foo();\n" +
-			"	  ^^^\n" +
-			"The method foo() from the type N1.N2.N3 has been deprecated and marked for removal\n" +
 			"----------\n",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
@@ -139,16 +129,6 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			"	a.N1.N2.N3 m = null;\n" +
 			"	     ^^\n" +
 			"The type N1.N2 has been deprecated since version 1.2 and marked for removal\n" +
-			"----------\n" +
-			"2. ERROR in p\\M1.java (at line 4)\n" +
-			"	a.N1.N2.N3 m = null;\n" +
-			"	        ^^\n" +
-			"The type N1.N2.N3 has been deprecated and marked for removal\n" +
-			"----------\n" +
-			"3. ERROR in p\\M1.java (at line 5)\n" +
-			"	m.foo();\n" +
-			"	  ^^^\n" +
-			"The method foo() from the type N1.N2.N3 has been deprecated and marked for removal\n" +
 			"----------\n";
 		runner.javacTestOptions =
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
@@ -193,11 +173,11 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 	}
 	// Bug 354536 - compiling package-info.java still depends on the order of compilation units
 	public void test005a() {
-		Map<String, String> customOptions = new HashMap<>();
-		customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
-		customOptions.put(CompilerOptions.OPTION_ReportTerminalDeprecation, CompilerOptions.ERROR);
-		this.runNegativeTest(
-			true,
+		Runner runner = new Runner();
+		runner.customOptions = new HashMap<>();
+		runner.customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
+		runner.customOptions.put(CompilerOptions.OPTION_ReportTerminalDeprecation, CompilerOptions.ERROR);
+		runner.testFiles =
 			new String[] {
 				"p1/X.java",
 				"package p1;\n" +
@@ -215,26 +195,9 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 				"    void bar(p1.X.Inner a) {\n" +
 				"        a.foo();\n" +
 				"    }\n" +
-				"}\n",
-			},
-			null, customOptions,
-			"----------\n" +
-			"1. ERROR in p2\\C.java (at line 3)\n" +
-			"	void bar(p1.X.Inner a) {\n" +
-			"	            ^\n" +
-			"The type X has been deprecated and marked for removal\n" +
-			"----------\n" +
-			"2. ERROR in p2\\C.java (at line 3)\n" +
-			"	void bar(p1.X.Inner a) {\n" +
-			"	              ^^^^^\n" +
-			"The type X.Inner has been deprecated and marked for removal\n" +
-			"----------\n" +
-			"3. ERROR in p2\\C.java (at line 4)\n" +
-			"	a.foo();\n" +
-			"	  ^^^\n" +
-			"The method foo() from the type X.Inner has been deprecated and marked for removal\n" +
-			"----------\n",
-			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+				"}\n"
+			};
+		runner.runConformTest();
 	}
 	public void test005b() {
 		Map<String, String> customOptions = new HashMap<>();
@@ -291,7 +254,12 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			};
 		runner.expectedCompilerLog =
 			"----------\n" +
-			"1. WARNING in p2\\C.java (at line 5)\n" +
+			"1. WARNING in p2\\C.java (at line 3)\n" +
+			"	@SuppressWarnings(\"deprecation\")\n" +
+			"	                  ^^^^^^^^^^^^^\n" +
+			"Unnecessary @SuppressWarnings(\"deprecation\")\n" +
+			"----------\n" +
+			"2. WARNING in p2\\C.java (at line 5)\n" +
 			"	a.foo();\n" +
 			"	  ^^^\n" +
 			"The method foo() from the type X.Inner has been deprecated and marked for removal\n" +
@@ -400,11 +368,6 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			};
 		runner.expectedCompilerLog =
 			"----------\n" +
-			"1. WARNING in test1\\E02.java (at line 4)\n" +
-			"	System.out.println(new E01.Old());\n" +
-			"	                       ^^^^^^^\n" +
-			"The constructor E01.Old() is deprecated since version 1.0\n" +
-			"----------\n" +
 			"2. WARNING in test1\\E02.java (at line 4)\n" +
 			"	System.out.println(new E01.Old());\n" +
 			"	                           ^^^\n" +
@@ -481,11 +444,6 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			};
 		runner.expectedCompilerLog =
 			"----------\n" +
-			"1. WARNING in test1\\E02.java (at line 4)\n" +
-			"	System.out.println(new E01.Old());\n" +
-			"	                       ^^^^^^^\n" +
-			"The constructor E01.Old() is deprecated since version 1.0\n" +
-			"----------\n" +
 			"2. WARNING in test1\\E02.java (at line 4)\n" +
 			"	System.out.println(new E01.Old());\n" +
 			"	                           ^^^\n" +
@@ -555,11 +513,6 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 				"}"
 			};
 		runner.expectedCompilerLog =
-			"----------\n" +
-			"1. ERROR in test1\\E02.java (at line 4)\n" +
-			"	System.out.println(new E01.Old());\n" +
-			"	                       ^^^^^^^\n" +
-			"The constructor E01.Old() has been deprecated since version 1.0 and marked for removal\n" +
 			"----------\n" +
 			"2. ERROR in test1\\E02.java (at line 4)\n" +
 			"	System.out.println(new E01.Old());\n" +

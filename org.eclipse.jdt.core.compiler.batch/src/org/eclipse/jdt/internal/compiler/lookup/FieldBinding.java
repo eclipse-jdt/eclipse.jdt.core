@@ -371,7 +371,7 @@ public final boolean isUsedOnlyInCompound() {
 */
 
 public final boolean isViewedAsDeprecated() {
-	return (this.modifiers & (ClassFileConstants.AccDeprecated | ExtraCompilerModifiers.AccDeprecatedImplicitly)) != 0;
+	return (this.modifiers & ClassFileConstants.AccDeprecated) != 0;
 }
 /* Answer true if the receiver is a volatile field
 */
