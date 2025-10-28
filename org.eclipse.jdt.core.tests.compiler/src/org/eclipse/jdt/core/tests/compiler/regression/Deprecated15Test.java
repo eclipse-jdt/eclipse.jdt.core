@@ -346,6 +346,50 @@ public void testGH4562() {
 		""";
 	runner.runWarningTest();
 }
+public void testDeprecatedReferenceNestedInDeprecated() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
+	runner.testFiles = new String[] {
+		"Old.java",
+		"""
+		public class Old {
+			@Deprecated void old() {}
+		}
+		""",
+		"X.java",
+		"""
+		public class X {
+			/** @deprecated */
+			void test1(final Old old) {
+				Runnable r = new Runnable() {
+					public void run() {
+						old.old();
+					}
+				};
+			}
+			/** @deprecated */
+			void test2(final Old old) {
+				Runnable r = () -> {
+					old.old();
+				};
+			}
+			@Deprecated
+			class Inner {
+				void test3(final Old old) {
+					Runnable r = () -> {
+						Runnable r2 = new Runnable() {
+							public void run() {
+								old.old();
+							}
+						};
+					};
+				}
+			}
+		}
+		"""};
+	runner.runConformTest();
+}
 public static Class testClass() {
 	return Deprecated15Test.class;
 }
