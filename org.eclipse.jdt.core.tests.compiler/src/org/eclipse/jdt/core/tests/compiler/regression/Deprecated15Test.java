@@ -19,6 +19,8 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.HashMap;
 import java.util.Map;
 import junit.framework.Test;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -149,6 +151,17 @@ public void test002() {
 		"	a.N1.N2.N3 m = null;\n" +
 		"	     ^^\n" +
 		"The type N1.N2 is deprecated\n" +
+		"----------\n" +
+		"----------\n" +
+		"1. INFO in a\\N1.java (at line 4)\n" +
+		"	public class N2 {    public void foo() {}    public class N3 {      public void foo() {}    }  }}\n" +
+		"	                                 ^^^^^\n" +
+		"The enclosing type N1.N2 is deprecated, perhaps this member should be marked as deprecated, too?\n" +
+		"----------\n" +
+		"2. INFO in a\\N1.java (at line 4)\n" +
+		"	public class N2 {    public void foo() {}    public class N3 {      public void foo() {}    }  }}\n" +
+		"	                                                          ^^\n" +
+		"The enclosing type N1.N2 is deprecated, perhaps this member should be marked as deprecated, too?\n" +
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -327,6 +340,17 @@ public void testGH4562() {
 	runner.expectedCompilerLog =
 		"""
 		----------
+		1. INFO in c\\OldClass.java (at line 5)
+			public void foo() {
+			            ^^^^^
+		The enclosing type OldClass is deprecated, perhaps this member should be marked as deprecated, too?
+		----------
+		2. INFO in c\\OldClass.java (at line 8)
+			public void bar() {
+			            ^^^^^
+		The enclosing type OldClass is deprecated, perhaps this member should be marked as deprecated, too?
+		----------
+		----------
 		1. WARNING in c\\ExtendsOldClass.java (at line 2)
 			public class ExtendsOldClass extends OldClass {
 			                                     ^^^^^^^^
@@ -482,6 +506,114 @@ public void testGH4563_class() {
 					};
 				}
 			}
+		}
+		"""
+	};
+	runner.runConformTest();
+}
+public void testMissingDeprecation() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+		"X.java",
+		"""
+		public @Deprecated class X {
+			public String f;
+			public void m() {}
+			public class Inner {}
+		}
+		@Deprecated class Y {
+			public Y() {}
+		}
+		@Deprecated @interface Ann {
+			String value();
+		}
+		"""
+	};
+	runner.expectedCompilerLog =
+		"""
+		----------
+		1. INFO in X.java (at line 2)
+			public String f;
+			              ^
+		The enclosing type X is deprecated, perhaps this member should be marked as deprecated, too?
+		----------
+		2. INFO in X.java (at line 3)
+			public void m() {}
+			            ^^^
+		The enclosing type X is deprecated, perhaps this member should be marked as deprecated, too?
+		----------
+		3. INFO in X.java (at line 4)
+			public class Inner {}
+			             ^^^^^
+		The enclosing type X is deprecated, perhaps this member should be marked as deprecated, too?
+		----------
+		4. INFO in X.java (at line 7)
+			public Y() {}
+			       ^^^
+		The enclosing type Y is deprecated, perhaps this member should be marked as deprecated, too?
+		----------
+		""";
+	runner.javacTestOptions = Excuse.EclipseHasSomeMoreWarnings;
+	runner.runWarningTest();
+}
+public void testMissingDeprecation_error() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(JavaCore.COMPILER_PB_MEMBER_OF_DEPRECATED_TYPE, JavaCore.ERROR);
+	runner.testFiles = new String[] {
+		"X.java",
+		"""
+		public @Deprecated class X {
+			public String f;
+			public void m() {}
+			public class Inner {}
+		}
+		@Deprecated class Y {
+			public Y() {}
+		}
+		"""
+	};
+	runner.expectedCompilerLog =
+		"""
+		----------
+		1. ERROR in X.java (at line 2)
+			public String f;
+			              ^
+		The enclosing type X is deprecated, perhaps this member should be marked as deprecated, too?
+		----------
+		2. ERROR in X.java (at line 3)
+			public void m() {}
+			            ^^^
+		The enclosing type X is deprecated, perhaps this member should be marked as deprecated, too?
+		----------
+		3. ERROR in X.java (at line 4)
+			public class Inner {}
+			             ^^^^^
+		The enclosing type X is deprecated, perhaps this member should be marked as deprecated, too?
+		----------
+		4. ERROR in X.java (at line 7)
+			public Y() {}
+			       ^^^
+		The enclosing type Y is deprecated, perhaps this member should be marked as deprecated, too?
+		----------
+		""";
+	runner.javacTestOptions = Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
+}
+public void testMissingDeprecation_ignore() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(JavaCore.COMPILER_PB_MEMBER_OF_DEPRECATED_TYPE, JavaCore.IGNORE);
+	runner.testFiles = new String[] {
+		"X.java",
+		"""
+		public @Deprecated class X {
+			public String f;
+			public void m() {}
+			public class Inner {}
+		}
+		@Deprecated class Y {
+			public Y() {}
 		}
 		"""
 	};

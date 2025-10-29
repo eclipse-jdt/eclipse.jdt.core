@@ -203,6 +203,9 @@ public static int getIrritant(int problemID) {
 		case IProblem.UsingTerminallyDeprecatedSinceVersionModule :
 			return CompilerOptions.UsingTerminallyDeprecatedAPI;
 
+		case IProblem.MemberOfDeprecatedTypeNotDeprecated :
+			return CompilerOptions.MemberOfDeprecatedType;
+
 		case IProblem.LocalVariableIsNeverUsed :
 			return CompilerOptions.UnusedLocalVariable;
 
@@ -705,6 +708,7 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.UnlikelyEqualsArgumentType:
 			case CompilerOptions.APILeak:
 			case CompilerOptions.UnstableAutoModuleName:
+			case CompilerOptions.MemberOfDeprecatedType:
 				return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
 
 			case CompilerOptions.OverriddenPackageDefaultMethod :
@@ -1983,6 +1987,13 @@ String deprecatedSinceValue(Supplier<AnnotationBinding[]> annotations) {
 		}
 	}
 	return null;
+}
+public void memberOfDeprecatedTypeNotDeprecated(ASTNode member, ReferenceBinding enclosingType) {
+	handle(IProblem.MemberOfDeprecatedTypeNotDeprecated,
+			new String[] { String.valueOf(enclosingType.readableName()) },
+			new String[] { String.valueOf(enclosingType.shortReadableName()) },
+			member.sourceStart,
+			member.sourceEnd);
 }
 public void disallowedTargetForAnnotation(Annotation annotation) {
 	this.handle(

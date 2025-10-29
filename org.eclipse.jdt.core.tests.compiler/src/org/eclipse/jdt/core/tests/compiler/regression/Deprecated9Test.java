@@ -86,6 +86,17 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			"	a.N1.N2.N3 m = null;\n" +
 			"	     ^^\n" +
 			"The type N1.N2 has been deprecated since version 1.2 and marked for removal\n" +
+			"----------\n" +
+			"----------\n" +
+			"1. INFO in a\\N1.java (at line 4)\n" +
+			"	public class N2 {    public void foo() {}    public class N3 {      public void foo() {}    }  }}\n" +
+			"	                                 ^^^^^\n" +
+			"The enclosing type N1.N2 is deprecated, perhaps this member should be marked as deprecated, too?\n" +
+			"----------\n" +
+			"2. INFO in a\\N1.java (at line 4)\n" +
+			"	public class N2 {    public void foo() {}    public class N3 {      public void foo() {}    }  }}\n" +
+			"	                                                          ^^\n" +
+			"The enclosing type N1.N2 is deprecated, perhaps this member should be marked as deprecated, too?\n" +
 			"----------\n",
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
