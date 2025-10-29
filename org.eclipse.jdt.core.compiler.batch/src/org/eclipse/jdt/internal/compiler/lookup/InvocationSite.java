@@ -33,6 +33,8 @@ public interface InvocationSite extends Location {
 	void setActualReceiverType(ReferenceBinding receiverType);
 	void setDepth(int depth);
 	void setFieldIndex(int depth);
+	default int nameSourceStart() { return sourceStart(); }
+	default int nameSourceEnd() { return sourceEnd(); }
 	TypeBinding invocationTargetType();
 	boolean receiverIsImplicitThis();
 	boolean checkingPotentialCompatibility();

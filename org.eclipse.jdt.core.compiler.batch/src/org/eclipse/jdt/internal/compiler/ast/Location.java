@@ -16,6 +16,4 @@ package org.eclipse.jdt.internal.compiler.ast;
 public interface Location {
 	int sourceEnd();
 	int sourceStart();
-	default int nameSourceStart() { return sourceStart(); }
-	default int nameSourceEnd() { return sourceEnd(); }
 }

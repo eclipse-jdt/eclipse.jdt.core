@@ -4973,7 +4973,7 @@ public void discouragedValueBasedTypeToSynchronize(Expression expression, TypeBi
 		expression.sourceEnd);
 }
 public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclaration compUnitDecl,
-					LookupEnvironment environment, boolean implicitAnnotationUse, ReferenceBinding referencingType)
+					Location location, boolean implicitAnnotationUse, ReferenceBinding referencingType)
 {
 	// ProblemReporter is not designed to be reentrant. Just in case, we discovered a build path problem while we are already
 	// in the midst of reporting some other problem, save and restore reference context thereby mimicking a stack.
@@ -4982,9 +4982,9 @@ public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclar
 	this.referenceContext = compUnitDecl;
 	String[] arguments = new String[] {CharOperation.toString(wellKnownTypeName)};
 	int start = 0, end = 0;
-	if (environment.missingClassFileLocation != null) {
-		start = environment.missingClassFileLocation.sourceStart();
-		end = environment.missingClassFileLocation.sourceEnd();
+	if (location != null) {
+		start = location.sourceStart();
+		end = location.sourceEnd();
 	}
 	try {
 		int pId = IProblem.IsClassPathCorrect;
