@@ -619,6 +619,111 @@ public void testMissingDeprecation_ignore() {
 	};
 	runner.runConformTest();
 }
+public void testAnnotationElement() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"X.java",
+			"""
+			@interface A1 {
+				@Deprecated int value() default 0;
+			}
+			@interface A2 {
+				@Deprecated int oldVal() default 0;
+				int newVal() default 0;
+			}
+			public class X {
+				@A1
+				public String f1;
+				@A1(1)
+				public void m1() {}
+				@A1(value=2)
+				public class Inner1 {}
+				@A2
+				public String f2;
+				@A2(oldVal=2)
+				public void m2() {}
+				@A2(newVal=4)
+				public class Inner2 {}
+			}
+			"""
+		};
+	runner.expectedCompilerLog =
+		"""
+		----------
+		1. WARNING in X.java (at line 11)
+			@A1(1)
+			    ^
+		The method value() from the type A1 is deprecated
+		----------
+		2. WARNING in X.java (at line 13)
+			@A1(value=2)
+			    ^^^^^
+		The method value() from the type A1 is deprecated
+		----------
+		3. WARNING in X.java (at line 17)
+			@A2(oldVal=2)
+			    ^^^^^^
+		The method oldVal() from the type A2 is deprecated
+		----------
+		""";
+	runner.runWarningTest();
+}
+public void testAnnotationElement_repeatable() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"X.java",
+			"""
+			@interface TC1 {
+				@Deprecated public T1[] value();
+			}
+			@java.lang.annotation.Repeatable(TC1.class)
+			@interface T1 {
+				public int value() default -1;
+			}
+			@interface TC2 {
+				public T2[] value();
+			}
+			@java.lang.annotation.Repeatable(TC2.class)
+			@interface T2 {
+				@Deprecated public int value() default -1;
+				public int alt() default 3;
+			}
+			public class X {
+				@T1(1) @T1(value=2) @T1
+				String f1;
+				@T1 @T1(3) @T1(value=4)
+				String f2;
+				@T2 @T2(5) @T2(value=6) @T2(alt=7)
+				String f3;
+			}
+			"""
+		};
+	runner.expectedCompilerLog =
+		"""
+		----------
+		1. WARNING in X.java (at line 17)
+			@T1(1) @T1(value=2) @T1
+			^^^^^^^^^^^^^^^^^^^^^^^
+		The method value() from the type TC1 is deprecated
+		----------
+		2. WARNING in X.java (at line 19)
+			@T1 @T1(3) @T1(value=4)
+			^^^^^^^^^^^^^^^^^^^^^^^
+		The method value() from the type TC1 is deprecated
+		----------
+		3. WARNING in X.java (at line 21)
+			@T2 @T2(5) @T2(value=6) @T2(alt=7)
+			        ^
+		The method value() from the type T2 is deprecated
+		----------
+		4. WARNING in X.java (at line 21)
+			@T2 @T2(5) @T2(value=6) @T2(alt=7)
+			               ^^^^^
+		The method value() from the type T2 is deprecated
+		----------
+		""";
+	runner.runWarningTest();
+}
 public static Class testClass() {
 	return Deprecated15Test.class;
 }
