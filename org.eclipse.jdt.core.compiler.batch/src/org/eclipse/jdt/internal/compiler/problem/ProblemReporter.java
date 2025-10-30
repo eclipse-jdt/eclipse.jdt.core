@@ -4984,7 +4984,7 @@ public void discouragedValueBasedTypeToSynchronize(Expression expression, TypeBi
 		expression.sourceEnd);
 }
 public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclaration compUnitDecl,
-					Object location, boolean implicitAnnotationUse, ReferenceBinding referencingType)
+					Location location, boolean implicitAnnotationUse, ReferenceBinding referencingType)
 {
 	// ProblemReporter is not designed to be reentrant. Just in case, we discovered a build path problem while we are already
 	// in the midst of reporting some other problem, save and restore reference context thereby mimicking a stack.
@@ -4994,15 +4994,8 @@ public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclar
 	String[] arguments = new String[] {CharOperation.toString(wellKnownTypeName)};
 	int start = 0, end = 0;
 	if (location != null) {
-		if (location instanceof InvocationSite) {
-			InvocationSite site = (InvocationSite) location;
-			start = site.sourceStart();
-			end = site.sourceEnd();
-		} else if (location instanceof ASTNode) {
-			ASTNode node = (ASTNode) location;
-			start = node.sourceStart();
-			end = node.sourceEnd();
-		}
+		start = location.sourceStart();
+		end = location.sourceEnd();
 	}
 	try {
 		int pId = IProblem.IsClassPathCorrect;

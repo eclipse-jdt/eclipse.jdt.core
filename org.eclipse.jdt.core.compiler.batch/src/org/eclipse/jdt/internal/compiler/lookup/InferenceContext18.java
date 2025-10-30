@@ -1014,7 +1014,7 @@ public class InferenceContext18 {
 	 * @throws InferenceFailureException a compile error has been detected during inference
 	 */
 	public /*@Nullable*/ BoundSet solve(boolean inferringApplicability) throws InferenceFailureException {
-		return solve(inferringApplicability, (ASTNode) this.currentInvocation);
+		return solve(inferringApplicability, this.currentInvocation);
 	}
 	/**
 	 * Try to solve the inference problem defined by constraints and bounds previously registered.
@@ -1023,8 +1023,7 @@ public class InferenceContext18 {
 	 * @return a bound set representing the solution, or null if inference failed
 	 * @throws InferenceFailureException a compile error has been detected during inference
 	 */
-	private /*@Nullable*/ BoundSet solve(boolean inferringApplicability, ASTNode location)
-			throws InferenceFailureException
+	private /*@Nullable*/ BoundSet solve(boolean inferringApplicability, Location location) throws InferenceFailureException
 	{
 		CapturingContext.enter(location.sourceStart(), location.sourceEnd(), this.scope);
 		boolean isRecordPatternTypeInference = location instanceof RecordPattern;
