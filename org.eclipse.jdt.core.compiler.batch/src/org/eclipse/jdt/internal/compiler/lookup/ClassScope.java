@@ -139,7 +139,7 @@ public class ClassScope extends Scope {
 		}
 		anonymousType.tagBits |= TagBits.EndHierarchyCheck;
 		connectMemberTypes();
-		collateRecordComponents();
+		buildComponents();
 		buildFieldsAndMethods();
 		anonymousType.faultInTypesForFieldsAndMethods();
 		anonymousType.verifyMethods(environment().methodVerifier());
@@ -309,7 +309,7 @@ public class ClassScope extends Scope {
 		checkParameterizedTypeBounds();
 		checkParameterizedSuperTypeCollisions();
 		this.referenceContext.updateSupertypesWithAnnotations(Collections.emptyMap());
-		collateRecordComponents();
+		buildComponents();
 		buildFieldsAndMethods();
 		localType.faultInTypesForFieldsAndMethods();
 
@@ -1348,13 +1348,14 @@ public class ClassScope extends Scope {
 		return noProblems;
 	}
 
-	void collateRecordComponents() {
+	void buildComponents() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
-		if (sourceType.components() == null) {
-			sourceType.setComponents(Binding.NO_COMPONENTS);
+		if (!sourceType.areComponentsInitialized()) {
 			RecordComponent[] components = this.referenceContext.recordComponents;
 			int length = components.length;
 			RecordComponentBinding[] rcbs = length == 0 ? Binding.NO_COMPONENTS : new RecordComponentBinding[length];
+			if (length != 0)
+				sourceType.tagBits |= TagBits.HasUnresolvedComponents;
 			HashMap<String, RecordComponentBinding> knownComponents = new HashMap<>(length);
 			int count = 0;
 			for (RecordComponent component : components) {
@@ -1370,18 +1371,17 @@ public class ClassScope extends Scope {
 					component.binding = null;
 				} else {
 					knownComponents.put(name, rcb);
-					if (sourceType.resolveTypeFor(rcb) != null)
-						rcbs[count++] = rcb;
+					rcbs[count++] = rcb;
 				}
 			}
 			if (count != rcbs.length) // remove duplicate or broken components
 				System.arraycopy(rcbs, 0, rcbs = count == 0 ? Binding.NO_COMPONENTS : new RecordComponentBinding[count], 0, count);
-			sourceType.setComponents(rcbs);
+			sourceType.components = rcbs;
 		}
 		ReferenceBinding[] memberTypes = sourceType.memberTypes;
 		if (memberTypes != null) {
 			for (ReferenceBinding memberType : memberTypes)
-				((SourceTypeBinding) memberType).scope.collateRecordComponents();
+				((SourceTypeBinding) memberType).scope.buildComponents();
 		}
 	}
 

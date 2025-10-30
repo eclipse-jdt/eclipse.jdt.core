@@ -407,9 +407,9 @@ void sealTypeHierarchy() {
 		sourceType.scope.connectPermittedTypes();
 	}
 }
-void collateRecordComponents() {
+void buildComponents() {
 	for (SourceTypeBinding sourceType : this.topLevelTypes) {
-		sourceType.scope.collateRecordComponents();
+		sourceType.scope.buildComponents();
 	}
 }
 void integrateAnnotationsInHierarchy() {
