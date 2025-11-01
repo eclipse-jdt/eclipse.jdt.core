@@ -258,6 +258,7 @@ public void place() { // Currently lacking wide support.
 //		return;
 //	}
 
+
 	//TODO how can position be set already ? cannot place more than once
 	if (this.position == Label.POS_NOT_SET) {
 		this.position = this.codeStream.position;
