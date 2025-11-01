@@ -733,13 +733,14 @@ class DocCommentParser extends AbstractCommentParser {
 						readChar();
 					}
 					break;
+				case ')':
 				case ']':
-					if (peekChar() == '[') {
+					if ((peekChar() == '[' ) || peekChar() == '(') {
 						tStart = start;
 						tEnd = this.index - 1;
 						currentChar = readChar();
 						start = this.index;
-					} else {
+					} else if (peekChar() != ']') {
 						int eofBkup = this.scanner.eofPosition;
 						this.scanner.eofPosition = this.index - 1;
 						this.scanner.resetTo(start, this.javadocEnd);

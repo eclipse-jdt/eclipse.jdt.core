@@ -1247,6 +1247,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			curToken= token;
 			switch (token) {
 				case TokenNameUNDERSCORE:
+				case TokenNameURL:
 				case TokenNameIdentifier :
 					if (((iToken & 1) != 0)) { // identifiers must be odd tokens
 						break nextToken;
@@ -1487,6 +1488,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						}
 						break nextToken;
 					case TokenNameUNDERSCORE:
+					case TokenNameURL:
 					case TokenNameIdentifier :
 						if (typeRef == null) {
 							typeRefStartPosition = this.scanner.getCurrentTokenStartPosition();
@@ -3612,6 +3614,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		// Whitespace or inline tag closing brace
 		char ch = peekChar();
 		switch (ch) {
+			case ')':
 			case ']':
 				// TODO: Check if we need to exclude escaped ]
 				if (this.markdown)
