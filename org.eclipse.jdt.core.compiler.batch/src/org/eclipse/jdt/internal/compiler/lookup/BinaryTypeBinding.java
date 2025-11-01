@@ -656,7 +656,6 @@ private void cachePartsFrom2(IBinaryType binaryType, boolean needFieldsAndMethod
 						if (CharOperation.equals(elementValuePair.name, TypeConstants.FOR_REMOVAL)) {
 							if (elementValuePair.value instanceof BooleanConstant && ((BooleanConstant) elementValuePair.value).booleanValue()) {
 								this.tagBits |= TagBits.AnnotationTerminallyDeprecated;
-								markImplicitTerminalDeprecation(this);
 							}
 						}
 					}
@@ -677,22 +676,6 @@ private void cachePartsFrom2(IBinaryType binaryType, boolean needFieldsAndMethod
 
 		this.environment.requestingType = previousRequester;
 	}
-}
-
-void markImplicitTerminalDeprecation(ReferenceBinding type) {
-	for (ReferenceBinding member : type.memberTypes()) {
-		member.tagBits |= TagBits.AnnotationTerminallyDeprecated;
-		markImplicitTerminalDeprecation(member);
-	}
-	MethodBinding[] methodsOfType = type.unResolvedMethods();
-	if (methodsOfType != null)
-		for (MethodBinding methodBinding : methodsOfType)
-			methodBinding.tagBits |= TagBits.AnnotationTerminallyDeprecated;
-
-	FieldBinding[] fieldsOfType = type.unResolvedFields();
-	if (fieldsOfType != null)
-		for (FieldBinding fieldBinding : fieldsOfType)
-			fieldBinding.tagBits |= TagBits.AnnotationTerminallyDeprecated;
 }
 
 /* When creating a method we need to pass in any default 'nullness' from a @NNBD immediately on this method. */

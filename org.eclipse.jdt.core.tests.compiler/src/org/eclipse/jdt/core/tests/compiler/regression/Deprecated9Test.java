@@ -1088,6 +1088,39 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 				""";
 		runner.runWarningTest();
 	}
+	public void testGH4580() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+				"p/Dep.java",
+				"""
+				package p;
+				@Deprecated(forRemoval=true)
+				public class Dep {
+					@Deprecated public static final String S= "";
+				}
+				"""
+			};
+		runner.runConformTest();
+		runner.shouldFlushOutputDirectory = false;
+		runner.customOptions = getCompilerOptions();
+		runner.customOptions.put(JavaCore.COMPILER_PB_DEPRECATION, JavaCore.ERROR);
+		runner.customOptions.put(JavaCore.COMPILER_PB_TERMINAL_DEPRECATION, JavaCore.ERROR);
+		runner.customOptions.put(JavaCore.COMPILER_PB_UNUSED_WARNING_TOKEN, JavaCore.ERROR);
+		runner.customOptions.put(JavaCore.COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS, JavaCore.ENABLED);
+		runner.testFiles = new String[] {
+				"p/DepSub.java",
+				"""
+				package p;
+
+				@SuppressWarnings({"removal", "deprecation"})
+				public class DepSub extends Dep {
+					@SuppressWarnings("hiding")
+					public static final String S = Dep.S;
+				}
+				"""
+			};
+		runner.runConformTest();
+	}
 	public static Class<?> testClass() {
 		return Deprecated9Test.class;
 	}
