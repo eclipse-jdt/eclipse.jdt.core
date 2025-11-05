@@ -54,6 +54,7 @@ import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.ClassFilePool;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.Location;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
@@ -117,18 +118,14 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	public HashtableOfModule knownModules;		// SHARED
 
 	public CompilationUnitDeclaration unitBeingCompleted = null; // only set while completing units -- ROOT_ONLY
-	public Object missingClassFileLocation = null; // only set when resolving certain references, to help locating problems
+	public Location missingClassFileLocation = null; // only set when resolving certain references, to help locating problems
 	private CompilationUnitDeclaration[] units = new CompilationUnitDeclaration[4]; // ROOT_ONLY
 	private MethodVerifier verifier;
 
 	private ArrayList<MissingTypeBinding> missingTypes;
-	Set<SourceTypeBinding> typesBeingConnected;	// SHARED
+	final Set<SourceTypeBinding> typesBeingConnected;	// SHARED
 	public boolean isProcessingAnnotations = false; // ROOT_ONLY
 	public boolean mayTolerateMissingType = false;
-
-	PackageBinding nullableAnnotationPackage;			// the package supposed to contain the Nullable annotation type
-	PackageBinding nonnullAnnotationPackage;			// the package supposed to contain the NonNull annotation type
-	PackageBinding nonnullByDefaultAnnotationPackage;	// the package supposed to contain the NonNullByDefault annotation type
 
 	AnnotationBinding nonNullAnnotation;
 	AnnotationBinding nullableAnnotation;
@@ -153,6 +150,26 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	public ReferenceBinding requestingType;
 
 	public String moduleVersion; 	// ROOT_ONLY
+
+	static class GlobalDataMemento {
+		Set<SourceTypeBinding> typesBeingConnected;
+		boolean mayTolerateMissingType = false;
+		GlobalDataMemento(Set<SourceTypeBinding> typesBeingConnected, boolean mayTolerateMissingType) {
+			this.typesBeingConnected = typesBeingConnected;
+			this.mayTolerateMissingType = mayTolerateMissingType;
+		}
+	}
+	GlobalDataMemento stashGlobalData() {
+		GlobalDataMemento memento = new GlobalDataMemento(new LinkedHashSet<>(this.typesBeingConnected), this.mayTolerateMissingType);
+		this.typesBeingConnected.clear();
+		this.mayTolerateMissingType = false;
+		return memento;
+	}
+	void restoreFrom(GlobalDataMemento memento) {
+		this.typesBeingConnected.clear();
+		this.typesBeingConnected.addAll(memento.typesBeingConnected);
+		this.mayTolerateMissingType = memento.mayTolerateMissingType;
+	}
 
 	static enum CompleteTypeBindingsSteps {
 		NONE,
@@ -298,32 +315,40 @@ public ReferenceBinding askForType(char[][] compoundName, /*@NonNull*/ModuleBind
 		if (answer == null) continue;
 
 		ModuleBinding answerModule = answer.moduleBinding != null ? answer.moduleBinding : this.UnNamedModule;
-
-		if (answer.isBinaryType()) {
-			// the type was found as a .class file
-			PackageBinding pkg = answerModule.environment.computePackageFrom(compoundName, false /* valid pkg */);
-			this.typeRequestor.accept(answer.getBinaryType(), pkg, answer.getAccessRestriction());
-			ReferenceBinding binding = pkg.getType0(compoundName[compoundName.length - 1]);
-			if (binding instanceof BinaryTypeBinding) {
-				((BinaryTypeBinding) binding).module = answerModule;
-				if (pkg.enclosingModule == null)
-					pkg.enclosingModule = answerModule;
+		GlobalDataMemento memento = null;
+		try {
+			if (answer.isBinaryType()) {
+				// the type was found as a .class file
+				PackageBinding pkg = answerModule.environment.computePackageFrom(compoundName, false /* valid pkg */);
+				memento = stashGlobalData();
+				this.typeRequestor.accept(answer.getBinaryType(), pkg, answer.getAccessRestriction());
+				ReferenceBinding binding = pkg.getType0(compoundName[compoundName.length - 1]);
+				if (binding instanceof BinaryTypeBinding) {
+					((BinaryTypeBinding) binding).module = answerModule;
+					if (pkg.enclosingModule == null)
+						pkg.enclosingModule = answerModule;
+				}
+			} else if (answer.isCompilationUnit()) {
+				// the type was found as a .java file, try to build it then search the cache
+				memento = stashGlobalData();
+				this.typeRequestor.accept(answer.getCompilationUnit(), answer.getAccessRestriction());
+			} else if (answer.isSourceType()) {
+				// the type was found as a source model
+				PackageBinding pkg = answerModule.environment.computePackageFrom(compoundName, false /* valid pkg */);
+				memento = stashGlobalData();
+				this.typeRequestor.accept(answer.getSourceTypes(), pkg, answer.getAccessRestriction());
+				ReferenceBinding binding = pkg.getType0(compoundName[compoundName.length - 1]);
+				if (binding instanceof SourceTypeBinding) {
+					((SourceTypeBinding) binding).module = answerModule;
+					if (pkg.enclosingModule == null)
+						pkg.enclosingModule = answerModule;
+				}
 			}
-		} else if (answer.isCompilationUnit()) {
-			// the type was found as a .java file, try to build it then search the cache
-			this.typeRequestor.accept(answer.getCompilationUnit(), answer.getAccessRestriction());
-		} else if (answer.isSourceType()) {
-			// the type was found as a source model
-			PackageBinding pkg = answerModule.environment.computePackageFrom(compoundName, false /* valid pkg */);
-			this.typeRequestor.accept(answer.getSourceTypes(), pkg, answer.getAccessRestriction());
-			ReferenceBinding binding = pkg.getType0(compoundName[compoundName.length - 1]);
-			if (binding instanceof SourceTypeBinding) {
-				((SourceTypeBinding) binding).module = answerModule;
-				if (pkg.enclosingModule == null)
-					pkg.enclosingModule = answerModule;
-			}
+			candidate = combine(candidate, answerModule.environment.getCachedType(compoundName), clientModule);
+		} finally {
+			if (memento != null)
+				restoreFrom(memento);
 		}
-		candidate = combine(candidate, answerModule.environment.getCachedType(compoundName), clientModule);
 	}
 	return candidate;
 }
@@ -366,40 +391,49 @@ ReferenceBinding askForType(PackageBinding packageBinding, char[] name, ModuleBi
 				continue; // this answer is not reachable via the packageBinding
 			answerPackage = answerPackage.getIncarnation(answerModule);
 		}
-		if (answer.isResolvedBinding()) {
-			candidate = combine(candidate, answer.getResolvedBinding(), clientModule);
-			continue;
-		} else if (answer.isBinaryType()) {
-			// the type was found as a .class file
-			this.typeRequestor.accept(answer.getBinaryType(), answerPackage, answer.getAccessRestriction());
-			ReferenceBinding binding = answerPackage.getType0(name);
-			if (binding instanceof BinaryTypeBinding) {
-				((BinaryTypeBinding) binding).module = answerModule;
+		GlobalDataMemento memento = null;
+		try {
+			if (answer.isResolvedBinding()) {
+				candidate = combine(candidate, answer.getResolvedBinding(), clientModule);
+				continue;
+			} else if (answer.isBinaryType()) {
+				// the type was found as a .class file
+				memento = stashGlobalData();
+				this.typeRequestor.accept(answer.getBinaryType(), answerPackage, answer.getAccessRestriction());
+				ReferenceBinding binding = answerPackage.getType0(name);
+				if (binding instanceof BinaryTypeBinding) {
+					((BinaryTypeBinding) binding).module = answerModule;
+				}
+			} else if (answer.isCompilationUnit()) {
+				// the type was found as a .java file, try to build it then search the cache
+				try {
+					memento = stashGlobalData();
+					this.typeRequestor.accept(answer.getCompilationUnit(), answer.getAccessRestriction());
+				} catch (AbortCompilation abort) {
+					if (CharOperation.equals(name, TypeConstants.PACKAGE_INFO_NAME))
+						return null; // silently, requestor may not be able to handle compilation units (HierarchyResolver)
+					throw abort;
+				}
+			} else if (answer.isSourceType()) {
+				// the type was found as a source model
+				memento = stashGlobalData();
+				this.typeRequestor.accept(answer.getSourceTypes(), answerPackage, answer.getAccessRestriction());
+				ReferenceBinding binding = answerPackage.getType0(name);
+				if (binding instanceof SourceTypeBinding) {
+					((SourceTypeBinding) binding).module = answerModule;
+				}
+				String externalAnnotationPath = answer.getExternalAnnotationPath();
+				if (externalAnnotationPath != null && this.globalOptions.isAnnotationBasedNullAnalysisEnabled && binding instanceof SourceTypeBinding) {
+					ExternalAnnotationSuperimposer.apply((SourceTypeBinding) binding, externalAnnotationPath);
+				}
+				candidate = combine(candidate, binding, clientModule);
+				continue;
 			}
-		} else if (answer.isCompilationUnit()) {
-			// the type was found as a .java file, try to build it then search the cache
-			try {
-				this.typeRequestor.accept(answer.getCompilationUnit(), answer.getAccessRestriction());
-			} catch (AbortCompilation abort) {
-				if (CharOperation.equals(name, TypeConstants.PACKAGE_INFO_NAME))
-					return null; // silently, requestor may not be able to handle compilation units (HierarchyResolver)
-				throw abort;
-			}
-		} else if (answer.isSourceType()) {
-			// the type was found as a source model
-			this.typeRequestor.accept(answer.getSourceTypes(), answerPackage, answer.getAccessRestriction());
-			ReferenceBinding binding = answerPackage.getType0(name);
-			if (binding instanceof SourceTypeBinding) {
-				((SourceTypeBinding) binding).module = answerModule;
-			}
-			String externalAnnotationPath = answer.getExternalAnnotationPath();
-			if (externalAnnotationPath != null && this.globalOptions.isAnnotationBasedNullAnalysisEnabled && binding instanceof SourceTypeBinding) {
-				ExternalAnnotationSuperimposer.apply((SourceTypeBinding) binding, externalAnnotationPath);
-			}
-			candidate = combine(candidate, binding, clientModule);
-			continue;
+			candidate = combine(candidate, answerPackage.getType0(name), clientModule);
+		} finally {
+			if (memento != null)
+				restoreFrom(memento);
 		}
-		candidate = combine(candidate, answerPackage.getType0(name), clientModule);
 	}
 	return candidate;
 }
@@ -1627,6 +1661,11 @@ public char[][] getNonNullByDefaultAnnotationName() {
 	return this.globalOptions.nonNullByDefaultAnnotationName;
 }
 
+public char[][][] allNullAnnotationNames() {
+	// should we include names of secondary annotations?
+	return new char[][][] { getNullableAnnotationName(), getNonNullAnnotationName(), getNonNullByDefaultAnnotationName() };
+}
+
 public char[][] getOwningAnnotationName() {
 	return this.globalOptions.owningAnnotationName;
 }
@@ -1706,10 +1745,6 @@ public long checkForMissingAnalysisAnnotation(TypeBinding resolvedType) {
 }
 private boolean matchesSimpleName(char[] simpleName, char[][] qualifiedName) {
 	return CharOperation.equals(simpleName, qualifiedName[qualifiedName.length-1]);
-}
-
-public boolean isNullnessAnnotationPackage(PackageBinding pkg) {
-	return this.nonnullAnnotationPackage == pkg || this.nullableAnnotationPackage == pkg || this.nonnullByDefaultAnnotationPackage == pkg;
 }
 
 public boolean usesNullTypeAnnotations() {
@@ -2355,7 +2390,7 @@ public void reset() {
 	this.uniquePolymorphicMethodBindings = new HashMap<>();
 	this.uniqueGetClassMethodBinding = null;
 	this.missingTypes = null;
-	this.typesBeingConnected = new LinkedHashSet<>();
+	this.typesBeingConnected.clear();
 
 	for (int i = this.units.length; --i >= 0;)
 		this.units[i] = null;

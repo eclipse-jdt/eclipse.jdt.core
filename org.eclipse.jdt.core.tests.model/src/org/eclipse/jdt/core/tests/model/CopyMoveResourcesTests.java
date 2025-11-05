@@ -1080,7 +1080,7 @@ public void testMoveCU12() throws CoreException {
  * Ensures that the Javadoc comment is not lost if moving a cu to the default package
  * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=247757 )
  */
-public void _2551_testMoveCU13() throws CoreException {
+public void testMoveCU13() throws CoreException {
 	createFolder("/P/src/p1");
 	createFile(
 		"/P/src/p1/X.java",
@@ -1098,7 +1098,30 @@ public void _2551_testMoveCU13() throws CoreException {
 	assertSourceEquals(
 		"Unexpected source",
 		"/** some Javadoc */\n" +
+		"\n" +
+		"public class X {\n" +
+		"}",
+		cuDest.getSource());
+}
+public void testMoveCU14() throws CoreException {
+	createFolder("/P/src/p1");
+	createFile(
+		"/P/src/p1/X.java",
 		"// some line comment\n" +
+		"/** some Javadoc */\n" +
+		"package p1;\n" +
+		"public class X {\n" +
+		"}"
+	);
+	ICompilationUnit cuSource = getCompilationUnit("/P/src/p1/X.java");
+	IPackageFragment pkgDest = getPackage("/P/src");
+	cuSource.move(pkgDest, null/*no sibling*/, null/*no rename*/, false/*don't replace*/, null/*no progress*/);
+
+	ICompilationUnit cuDest = getCompilationUnit("/P/src/X.java");
+	assertSourceEquals(
+		"Unexpected source",
+		"// some line comment\n" +
+		"/** some Javadoc */\n" +
 		"\n" +
 		"public class X {\n" +
 		"}",

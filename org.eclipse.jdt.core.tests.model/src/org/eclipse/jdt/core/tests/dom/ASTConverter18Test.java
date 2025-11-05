@@ -4866,7 +4866,7 @@ public void testBug447062() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
  */
-public void _2551_testBug425601_001() throws JavaModelException {
+public void testBug425601_001() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/testBug425601_001/Outer.java",
 			true/* resolve */);
 	String contents = "package testBug425601_001;\n" +
@@ -4882,7 +4882,7 @@ public void _2551_testBug425601_001() throws JavaModelException {
 			"    Outer<String> o;\n"+
 			"    Middle<String> m; // Middle should be deprecated - Middle Case one\n"+
 			"    Outer<String>.Middle<String> m2; // Middle should be deprecated - Middle Case Two \n"+
-			"    @SuppressWarnings(\"rawtypes\")"+
+			"\n"+
 			"    Outer.Middle m3; \n"+
 			"    Middle<String>.Inner<Object> i; // Inner should be deprecated - Inner Case One\n"+
 			"}\n"+
@@ -4891,7 +4891,7 @@ public void _2551_testBug425601_001() throws JavaModelException {
 			"    Outer<String>.Middle<String> m;\n"+
 			"    Outer<String>.Middle<String>.Inner<Object> i;\n"+
 			"}\n";
-	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy, false/*don't report*/);
 	TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
 	FieldDeclaration[] fields = typedeclaration.getFields();
 	ITypeBinding binding = fields[0].getType().resolveBinding();
@@ -4909,7 +4909,7 @@ public void _2551_testBug425601_001() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
  */
-public void _2551_testBug425601_002() throws JavaModelException {
+public void testBug425601_002() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/testBug425601_002/Outer.java",
 			true/* resolve */);
 	String contents = "package testBug425601_002;\n" +
@@ -4925,7 +4925,7 @@ public void _2551_testBug425601_002() throws JavaModelException {
 			"    Outer<String> o;\n"+
 			"    Middle<String> m; // Middle should be deprecated - Middle Case one\n"+
 			"    Outer<String>.Middle<String> m2; // Middle should be deprecated - Middle Case Two \n"+
-			"    @SuppressWarnings(\"rawtypes\")"+
+			"\n"+
 			"    Outer.Middle m3; \n"+
 			"    Middle<String>.Inner<Object> i; // Inner should be deprecated - Inner Case One\n"+
 			"}\n"+
@@ -4934,7 +4934,7 @@ public void _2551_testBug425601_002() throws JavaModelException {
 			"    Outer<String>.Middle<String> m;\n"+
 			"    Outer<String>.Middle<String>.Inner<Object> i;\n"+
 			"}\n";
-	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy, false/*don't report*/);
 	TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
 	FieldDeclaration[] fields = typedeclaration.getFields();
 	ITypeBinding binding = fields[0].getType().resolveBinding();
@@ -5441,6 +5441,76 @@ public void testSVDStartPositionIssue_2() throws JavaModelException {
 
 	assertEquals("Single Variable Declaration length is not correct", svd.getLength(), contents.substring(contents.indexOf("/** abc*/ RuntimeException e")).indexOf(')'));
 	assertEquals("Single Variable Declaration startPosition is not correct", svd.getStartPosition(), contents.indexOf("/** abc*/ RuntimeException"));
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4458
+// ArrayIndexOutOfBoundsException in PolyTypeBinding
+@SuppressWarnings("deprecation")
+public void testIssue4458() throws JavaModelException {
+	String contents =
+			"""
+			import java.util.function.Function;
+			import java.lang.Exception;
+			import java.util.stream.Stream;
+
+			public class X {
+				public interface ThrowingRunnable {
+					void run() throws Exception;
+				}
+
+				public static Runnable encode(ThrowingRunnable throwing) {
+					return () -> {
+						try {
+							throwing.run();
+						} catch (Exception e) {
+							throw new RuntimeException(e);
+						}
+					};
+				}
+
+				public interface ThrowingFunction<T, R> {
+					R apply(T t) throws Exception;
+				}
+
+				public static <T,R> Function<T, R> encode(ThrowingFunction<T,R> throwing) {
+					return t -> {
+						try {
+							return throwing.apply(t);
+						} catch (Exception e) {
+							throw new RuntimeException(e);
+						}
+					};
+				}
+
+				public void artifactRefs(String... suites)
+						throws InterruptedException {
+					Stream<Exception> elements = Stream.empty();
+
+					elements
+						.map(encode(  Exception::getMessage)) // a call to overloaded method
+						.forEach(context -> {
+							();  // Syntax error
+					});
+				}
+
+			}
+			""";
+	this.workingCopy = getWorkingCopy("/Converter18/src/test432051/X.java", contents, true/*computeProblems*/);
+	IJavaProject javaProject = this.workingCopy.getJavaProject();
+	class BindingRequestor extends ASTRequestor {
+		ITypeBinding _result = null;
+		public void acceptBinding(String bindingKey, IBinding binding) {
+			if (this._result == null && binding != null && binding.getKind() == IBinding.TYPE)
+				this._result = (ITypeBinding) binding;
+		}
+	}
+	final BindingRequestor requestor = new BindingRequestor();
+	final ASTParser parser = ASTParser.newParser(AST.JLS8);
+	parser.setResolveBindings(true);
+	parser.setProject(javaProject);
+	parser.setBindingsRecovery(true);
+	parser.setStatementsRecovery(true);
+	parser.createASTs(new ICompilationUnit[] {this.workingCopy}, new String[0], requestor, null);
 }
 
 }

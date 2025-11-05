@@ -227,6 +227,8 @@ public class CompilerOptions {
 	public static final String OPTION_UseStringConcatFactory = "org.eclipse.jdt.core.compiler.codegen.useStringConcatFactory"; //$NON-NLS-1$
 
 	public static final String OPTION_validateOperandStack = "org.eclipse.jdt.core.compiler.codegen.validateOperandStack"; //$NON-NLS-1$
+
+	public static final String OPTION_MemberOfDeprecatedTypeNotDeprecated = "org.eclipse.jdt.core.compiler.problem.memberOfDeprecatedTypeNotDeprecated"; //$NON-NLS-1$
 	/**
 	 * Possible values for configurable options
 	 */
@@ -407,6 +409,7 @@ public class CompilerOptions {
 	public static final int InsufficientResourceManagement = IrritantSet.GROUP3 | ASTNode.Bit1;
 	public static final int IncompatibleOwningContract = IrritantSet.GROUP3 | ASTNode.Bit2;
 	public static final int UnusedLambdaParameter = IrritantSet.GROUP3 | ASTNode.Bit3;
+	public static final int MemberOfDeprecatedType = IrritantSet.GROUP3 | ASTNode.Bit4;
 
 
 	// Severity level for handlers
@@ -703,6 +706,8 @@ public class CompilerOptions {
 			case UsingTerminallyDeprecatedAPI :
 			case (InvalidJavadoc | UsingTerminallyDeprecatedAPI) :
 				return OPTION_ReportTerminalDeprecation;
+			case MemberOfDeprecatedType :
+				return OPTION_MemberOfDeprecatedTypeNotDeprecated;
 			case MaskedCatchBlock  :
 				return OPTION_ReportHiddenCatchBlock;
 			case UnusedLocalVariable :
@@ -1358,6 +1363,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportTerminalDeprecation, getSeverityString(UsingTerminallyDeprecatedAPI));
 		optionsMap.put(OPTION_ReportDeprecationInDeprecatedCode, this.reportDeprecationInsideDeprecatedCode ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, this.reportDeprecationWhenOverridingDeprecatedMethod ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_MemberOfDeprecatedTypeNotDeprecated, getSeverityString(MemberOfDeprecatedType));
 		optionsMap.put(OPTION_ReportHiddenCatchBlock, getSeverityString(MaskedCatchBlock));
 		optionsMap.put(OPTION_ReportUnusedLocal, getSeverityString(UnusedLocalVariable));
 		optionsMap.put(OPTION_ReportUnusedLambdaParameter, getSeverityString(UnusedLambdaParameter));
@@ -1936,6 +1942,7 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportOverridingPackageDefaultMethod)) != null) updateSeverity(OverriddenPackageDefaultMethod, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportDeprecation)) != null) updateSeverity(UsingDeprecatedAPI, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportTerminalDeprecation)) != null) updateSeverity(UsingTerminallyDeprecatedAPI, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_MemberOfDeprecatedTypeNotDeprecated)) != null) updateSeverity(MemberOfDeprecatedType, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportHiddenCatchBlock)) != null) updateSeverity(MaskedCatchBlock, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedLocal)) != null) updateSeverity(UnusedLocalVariable, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedLambdaParameter)) != null) updateSeverity(UnusedLambdaParameter, optionValue);

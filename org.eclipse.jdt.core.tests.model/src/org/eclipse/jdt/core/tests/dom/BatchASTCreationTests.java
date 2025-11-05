@@ -1380,7 +1380,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	 * Ensures that a raw method binding can be created using its key in batch creation.
 	 * (regression test for bug 87749 different IMethodBindings of generic method have equal getKey())
 	 */
-	public void _2551_test063() throws CoreException {
+	public void test063() throws CoreException {
 		assertRequestedBindingFound(
 			new String[] {
 				"/P/p1/X.java",
@@ -1402,7 +1402,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				"class W<T> extends Z<T> {\n" +
 				"}",
 			},
-			"Lp1/X;.foo<T:Lp1/Y<-TT;>;>(Lp1/Z<TT;>;)V%<Lp1/X~Y<Lp1/X~Y;{0}-Lp1/X~Y<Lp1/X~Y;{0}-Lp1/X;:2TT;>;>;>"
+			"Lp1/X;.foo<T:Lp1/Y<-TT;>;>(Lp1/Z<TT;>;)V%<^{166#0};>"
 		);
 	}
 

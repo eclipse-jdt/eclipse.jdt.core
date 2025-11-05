@@ -10941,4 +10941,173 @@ public void testIssue4290() throws Exception {
 				"OK");
 
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4412
+// Internal Compile error problem since 2025-09 
+public void testIssue4412() throws Exception {
+	this.runConformTest(
+		new String[] {
+					"R.java",
+					"""
+					import java.util.Collection;
+					import java.util.stream.Collectors;
+
+					@interface A {
+
+					    Id use();
+
+					    public enum Id {
+					        CLASS;
+					    }
+					}
+
+					public record R<V>(String name, @A(use = A.Id.CLASS) V value) {
+
+					    @Override
+					    public String toString() {
+					        return String.format("[%s] %s",
+					                             name,
+					                             (value instanceof Collection<?> coll
+					                                     ? coll.stream().map(Object::toString).collect(Collectors.joining(", ", "[ ", " ]"))
+					                                     : value.toString()));
+					    }
+
+					    public static void main(String [] args) {
+					    	System.out.println("OK!");
+					    }
+					}
+					""",
+	            },
+				"OK!");
+
+}
+public void testDeprecation_type() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+		"X.java",
+		"""
+		@Deprecated record R(int i, boolean f) {}
+		public class X {
+			R test() {
+				return new R(1,false);
+			}
+		}
+		"""
+		};
+	runner.expectedCompilerLog =
+		"""
+		----------
+		1. WARNING in X.java (at line 3)
+			R test() {
+			^
+		The type R is deprecated
+		----------
+		2. WARNING in X.java (at line 4)
+			return new R(1,false);
+			           ^
+		The type R is deprecated
+		----------
+		""";
+	runner.runWarningTest();
+}
+public void testDeprecation_altCtor() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+		"X.java",
+		"""
+		record R(int i, boolean f) {
+			@Deprecated R(int i) {
+				this(i, i>0);
+			}
+			R {
+				i = Math.abs(i);
+			}
+		}
+		public class X {
+			R test(int in) {
+				return switch(in) {
+					case 0 -> new R(0);
+					case 1 -> new R(1, false);
+					default -> null;
+				};
+			}
+		}
+		"""
+		};
+	runner.expectedCompilerLog =
+		"""
+		----------
+		1. WARNING in X.java (at line 12)
+			case 0 -> new R(0);
+			              ^
+		The constructor R(int) is deprecated
+		----------
+		""";
+	runner.runWarningTest();
+}
+public void testDeprecation_compactCtor() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+		"X.java",
+		"""
+		record R(int i, boolean f) {
+			R(int i) {
+				this(i, i>0);
+			}
+			@Deprecated R {
+				i = Math.abs(i);
+			}
+		}
+		public class X {
+			R test(int in) {
+				return switch(in) {
+					case 0 -> new R(0);
+					case 1 -> new R(1, false);
+					default -> null;
+				};
+			}
+		}
+		"""
+		};
+	runner.expectedCompilerLog =
+		"""
+		----------
+		1. WARNING in X.java (at line 13)
+			case 1 -> new R(1, false);
+			              ^
+		The constructor R(int, boolean) is deprecated
+		----------
+		""";
+	runner.runWarningTest();
+}
+public void testDeprecation_accessor() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+		"X.java",
+		"""
+		record R(int i, boolean f) {
+			@Deprecated public int i() {
+				return this.i;
+			}
+		}
+		public class X {
+			int test1() {
+				return new R(1,false).i();
+			}
+			boolean test2() {
+				return new R(1,false).f();
+			}
+		}
+		"""
+		};
+	runner.expectedCompilerLog =
+		"""
+		----------
+		1. WARNING in X.java (at line 8)
+			return new R(1,false).i();
+			                      ^
+		The method i() from the type R is deprecated
+		----------
+		""";
+	runner.runWarningTest();
+}
 }

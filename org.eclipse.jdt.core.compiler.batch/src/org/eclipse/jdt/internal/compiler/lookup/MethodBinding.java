@@ -984,7 +984,7 @@ public boolean isPolymorphic() {
 /* Answer true if the receiver's declaring type is deprecated (or any of its enclosing types)
 */
 public final boolean isViewedAsDeprecated() {
-	return (this.modifiers & (ClassFileConstants.AccDeprecated | ExtraCompilerModifiers.AccDeprecatedImplicitly)) != 0;
+	return (this.modifiers & ClassFileConstants.AccDeprecated) != 0;
 }
 
 @Override

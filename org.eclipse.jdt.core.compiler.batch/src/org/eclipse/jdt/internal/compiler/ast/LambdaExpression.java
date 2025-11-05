@@ -88,7 +88,6 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	boolean voidCompatible = true;
 	boolean valueCompatible = false;
 	boolean returnsValue;
-	private final boolean requiresGenericSignature;
 	boolean returnsVoid;
 	public LambdaExpression original = this;
 	private boolean committed = false;
@@ -110,16 +109,11 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 
 	private List<ClassScope> scopesInEarlyConstruction;
 
-	public LambdaExpression(CompilationResult compilationResult, boolean assistNode, boolean requiresGenericSignature) {
+	public LambdaExpression(CompilationResult compilationResult, boolean assistNode) {
 		super(compilationResult);
 		this.assistNode = assistNode;
-		this.requiresGenericSignature = requiresGenericSignature;
 		setArguments(NO_ARGUMENTS);
 		setBody(NO_BODY);
-	}
-
-	public LambdaExpression(CompilationResult compilationResult, boolean assistNode) {
-		this(compilationResult, assistNode, false);
 	}
 
 	public void setArguments(Argument [] arguments) {
@@ -296,13 +290,6 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 							blockScope.enclosingSourceType());
 		this.binding.typeVariables = Binding.NO_TYPE_VARIABLES;
 
-		MethodScope enm = this.scope.namedMethodScope();
-		MethodBinding enmb = enm == null ? null : enm.referenceMethodBinding();
-		if (enmb != null && enmb.isViewedAsDeprecated()) {
-			this.binding.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
-			this.binding.tagBits |= enmb.tagBits & TagBits.AnnotationTerminallyDeprecated;
-		}
-
 		boolean argumentsHaveErrors = false;
 		if (haveDescriptor) {
 			int parametersLength = this.descriptor.parameters.length;
@@ -378,7 +365,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			}
 		}
 		boolean parametersHaveErrors = false;
-		boolean genericSignatureNeeded = this.requiresGenericSignature || blockScope.compilerOptions().generateGenericSignatureForLambdaExpressions;
+		boolean genericSignatureNeeded = blockScope.compilerOptions().generateGenericSignatureForLambdaExpressions;
 		TypeBinding[] expectedParameterTypes = new TypeBinding[argumentsLength];
 		for (int i = 0; i < argumentsLength; i++) {
 			Argument argument = this.arguments[i];
