@@ -1601,57 +1601,62 @@ public void test043() {
 			"}\n"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 17)\n" +
+			"1. ERROR in X.java (at line 14)\n" +
+			"	interface M extends I, L {}\n" +
+			"	          ^\n" +
+			"Name clash: The method foo(List<Integer>) of type L has the same erasure as foo(List<String>) of type I but does not override it\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 17)\n" +
 			"	interface P extends N, O {}\n" +
 			"	          ^\n" +
 			"Name clash: The method foo(List, Class<?>) of type O has the same erasure as foo(List<String>, Class) of type N but does not override it\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 20)\n" +
+			"3. ERROR in X.java (at line 20)\n" +
 			"	interface S extends Q, R {}\n" +
 			"	          ^\n" +
 			"The return types are incompatible for the inherited methods Q.foo(), R.foo()\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 23)\n" +
+			"4. ERROR in X.java (at line 23)\n" +
 			"	interface V<P, Q> extends T<P>, U<Q> {}\n" +
 			"	          ^\n" +
 			"Name clash: The method foo(P) of type U<P> has the same erasure as foo(P) of type T<P> but does not override it\n" +
 			"----------\n" +
-			"4. ERROR in X.java (at line 29)\n" +
+			"5. ERROR in X.java (at line 29)\n" +
 			"	B b              =    () -> {};\n" +
 			"	                      ^^^^^\n" +
 			"The target type of this expression must be a functional interface\n" +
 			"----------\n" +
-			"5. ERROR in X.java (at line 32)\n" +
+			"6. ERROR in X.java (at line 32)\n" +
 			"	E e              =    () -> {};\n" +
 			"	                      ^^^^^\n" +
 			"The target type of this expression must be a functional interface\n" +
 			"----------\n" +
-			"6. ERROR in X.java (at line 40)\n" +
+			"7. ERROR in X.java (at line 40)\n" +
 			"	M m              =    (p0) -> {};\n" +
 			"	                      ^^^^^^^\n" +
 			"The target type of this expression must be a functional interface\n" +
 			"----------\n" +
-			"7. ERROR in X.java (at line 43)\n" +
+			"8. ERROR in X.java (at line 43)\n" +
 			"	P p              =    (p0, q0) -> {};\n" +
 			"	                      ^^^^^^^^^^^\n" +
 			"The target type of this expression must be a functional interface\n" +
 			"----------\n" +
-			"8. ERROR in X.java (at line 46)\n" +
+			"9. ERROR in X.java (at line 46)\n" +
 			"	S s              =    () -> {};\n" +
 			"	                      ^^^^^\n" +
 			"The target type of this expression must be a functional interface\n" +
 			"----------\n" +
-			"9. ERROR in X.java (at line 49)\n" +
+			"10. ERROR in X.java (at line 49)\n" +
 			"	V<?,?> v         =    (p0) -> {};\n" +
 			"	                      ^^^^^^^\n" +
 			"The target type of this expression must be a functional interface\n" +
 			"----------\n" +
-			"10. ERROR in X.java (at line 50)\n" +
+			"11. ERROR in X.java (at line 50)\n" +
 			"	W<?,?> w         =    (p0) -> {};\n" +
 			"	                      ^^^^^^^\n" +
 			"The target type of this expression must be a functional interface\n" +
 			"----------\n" +
-			"11. ERROR in X.java (at line 51)\n" +
+			"12. ERROR in X.java (at line 51)\n" +
 			"	X x              =    (p0) -> {};\n" +
 			"	                      ^^^^^^^\n" +
 			"The target type of this expression must be a functional interface\n" +
@@ -10576,33 +10581,17 @@ public void testIssue3956() {
 				"""
 			},
 			"----------\n" +
-			"1. ERROR in TestMe.java (at line 15)\n" +
-			"	future = active.thenComposeAsync(recording -> {\n" +
-			"				recording.stop().run();\n" +
-			"// This code (should) have compile errors but instead triggers ClassCastException\n" +
-			"\n" +
-			"				return update().handleAsync(() -> recording.process());\n" +
-			"\n" +
-			"// Deleting the line and using this code would work\n" +
-			"//				return update().handleAsync((a, b) -> {\n" +
-			"//					recording.process();\n" +
-			"//					return null;\n" +
-			"//				});\n" +
-			"			});\n" +
-			"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type mismatch: cannot convert from CompletableFuture<Object> to CompletableFuture<Void>\n" +
-			"----------\n" +
-			"2. ERROR in TestMe.java (at line 19)\n" +
+			"1. ERROR in TestMe.java (at line 19)\n" +
 			"	return update().handleAsync(() -> recording.process());\n" +
 			"	                ^^^^^^^^^^^\n" +
 			"The method handleAsync(BiFunction<? super capture#1-of ?,Throwable,? extends U>) in the type CompletableFuture<capture#1-of ?> is not applicable for the arguments (() -> {})\n" +
 			"----------\n" +
-			"3. ERROR in TestMe.java (at line 19)\n" +
+			"2. ERROR in TestMe.java (at line 19)\n" +
 			"	return update().handleAsync(() -> recording.process());\n" +
 			"	                            ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Lambda expression's signature does not match the signature of the functional interface method apply(? super capture#1-of ?, Throwable)\n" +
 			"----------\n" +
-			"4. ERROR in TestMe.java (at line 19)\n" +
+			"3. ERROR in TestMe.java (at line 19)\n" +
 			"	return update().handleAsync(() -> recording.process());\n" +
 			"	                                  ^^^^^^^^^^^^^^^^^^^\n" +
 			"Cannot return a void result\n" +

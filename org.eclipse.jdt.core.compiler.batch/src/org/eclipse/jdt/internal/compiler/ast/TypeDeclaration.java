@@ -1261,8 +1261,8 @@ public void resolve() {
 		this.scope.problemReporter().validateRestrictedKeywords(this.name, this);
 		// resolve annotations and check @Deprecated annotation
 		long annotationTagBits = sourceType.getAnnotationTagBits();
-		if ((annotationTagBits & TagBits.AnnotationDeprecated) == 0
-				&& (sourceType.modifiers & ClassFileConstants.AccDeprecated) != 0) {
+		boolean isDeprecated = (annotationTagBits & TagBits.AnnotationDeprecated) != 0;
+		if (!isDeprecated && (sourceType.modifiers & ClassFileConstants.AccDeprecated) != 0) {
 			this.scope.problemReporter().missingDeprecatedAnnotationForType(this);
 		}
 		if ((annotationTagBits & TagBits.AnnotationFunctionalInterface) != 0) {
@@ -1395,6 +1395,8 @@ public void resolve() {
 					field.javadoc = this.javadoc;
 				}
 				field.resolve(field.isStatic() ? this.staticInitializerScope : this.initializerScope);
+				if (isDeprecated)
+					checkMemberOfDeprecated(sourceType, field.binding, field);
 			}
 		}
 		if (this.maxFieldCount < localMaxFieldCount) {
@@ -1457,7 +1459,13 @@ public void resolve() {
 		if (this.methods != null) {
 			for (AbstractMethodDeclaration method : this.methods) {
 				method.resolve(this.scope);
+				if (isDeprecated)
+					checkMemberOfDeprecated(sourceType, method.binding, method);
 			}
+		}
+		if (this.memberTypes != null && isDeprecated) {
+			for (TypeDeclaration member : this.memberTypes)
+				checkMemberOfDeprecated(sourceType, member.binding, member);
 		}
 		// Resolve javadoc
 		if (this.javadoc != null) {
@@ -1496,6 +1504,22 @@ public void resolve() {
 	} catch (AbortType e) {
 		this.ignoreFurtherInvestigation = true;
 		return;
+	}
+}
+
+private void checkMemberOfDeprecated(SourceTypeBinding declaringType, Binding memberBinding, ASTNode memberDeclaration) {
+	if (declaringType.isAnnotationType())
+		return; // don't suggest to deprecate annotation attributes
+
+	if (memberBinding instanceof MethodBinding method && method.isPrivate()) return;
+	else if (memberBinding instanceof FieldBinding field && field.isPrivate()) return;
+	else if (memberBinding instanceof ReferenceBinding type && type.isPrivate()) return;
+
+	if (memberBinding != null && memberBinding.isValidBinding() && (memberBinding.tagBits & TagBits.HasMissingType) == 0) {
+		if (memberDeclaration instanceof ConstructorDeclaration ctor && ctor.isDefaultConstructor())
+			return;
+		if ((memberBinding.tagBits & TagBits.AnnotationDeprecated) == 0)
+			this.scope.problemReporter().memberOfDeprecatedTypeNotDeprecated(memberDeclaration, declaringType);
 	}
 }
 
@@ -1852,9 +1876,6 @@ public void updateSupertypesWithAnnotations(Map<ReferenceBinding,ReferenceBindin
 	if (this.binding == null)
 		return;
 	this.binding.getAnnotationTagBits();
-	if (this.binding instanceof MemberTypeBinding) {
-		((MemberTypeBinding) this.binding).updateDeprecationFromEnclosing();
-	}
 	Map<ReferenceBinding,ReferenceBinding> updates = new HashMap<>();
 	if (this.typeParameters != null) {
 		for (TypeParameter typeParameter : this.typeParameters) {

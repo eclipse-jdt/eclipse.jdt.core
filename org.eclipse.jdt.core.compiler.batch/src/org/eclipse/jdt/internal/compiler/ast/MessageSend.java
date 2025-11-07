@@ -1002,7 +1002,10 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 		// abstract private methods cannot occur nor abstract static............
 	}
-	if (isMethodUseDeprecated(this.binding, scope, true, this))
+	TypeBinding declared = this.binding.declaringClass.erasure();
+	TypeBinding actual = this.actualReceiverType.erasure();
+	boolean isExplicitUse = TypeBinding.equalsEquals( declared, actual);
+	if (isMethodUseDeprecated(this.binding, scope, isExplicitUse, this))
 		scope.problemReporter().deprecatedMethod(this.binding, this);
 
 	TypeBinding returnType;
@@ -1235,12 +1238,11 @@ public boolean isPolyExpression(MethodBinding resolutionCandidate) {
 		throw new UnsupportedOperationException("Unresolved MessageSend can't be queried if it is a polyexpression"); //$NON-NLS-1$
 
 	if (resolutionCandidate != null) {
-		if (resolutionCandidate instanceof ParameterizedGenericMethodBinding) {
-			ParameterizedGenericMethodBinding pgmb = (ParameterizedGenericMethodBinding) resolutionCandidate;
-			if (pgmb.inferredReturnType)
-				return true; // if already determined
-		}
-		if (resolutionCandidate.returnType != null) {
+		if (resolutionCandidate.returnType != null && resolutionCandidate.returnType.id != TypeIds.T_void) {
+			if (resolutionCandidate instanceof ParameterizedGenericMethodBinding pgmb) {
+				if (pgmb.wasInferred)
+					return true; // if already determined
+			}
 			// resolution may have prematurely instantiated the generic method, we need the original, though:
 			MethodBinding candidateOriginal = resolutionCandidate.original();
 			return candidateOriginal.returnType.mentionsAny(candidateOriginal.typeVariables(), -1);

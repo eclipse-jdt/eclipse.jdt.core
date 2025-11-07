@@ -16236,7 +16236,8 @@ public void testDeprecationCheck15() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 		assertResults(
-				"",
+				"foo1[FIELD_REF]{foo1, Ldeprecation.ZZZType1;, I, foo1, null, 51}\n" +
+				"foo2[FIELD_REF]{foo2, Ldeprecation.ZZZType1;, I, foo2, null, 51}",
 				requestor.getResults());
 	} finally {
 		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
@@ -24982,11 +24983,12 @@ public void testBug385858d() throws JavaModelException {
 }
 // Bug 402574 - Autocomplete does not recognize all enum constants when constants override methods
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402574
-public void _2551_testBug402574() throws JavaModelException {
+public void testBug402574() throws JavaModelException {
 	try {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/test/ExampleEnumNoAutocomplete.java",
+		    "package test;\n" +
 		    "public enum ExampleEnumNoAutocomplete {\n" +
 			"    STUFF(\"a\", \"b\") {\n" +
 			"    @Override\n" +
@@ -25064,6 +25066,7 @@ public void _2551_testBug402574() throws JavaModelException {
 			"	}\n");
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Tester.java",
+			"package test;\n" +
 			"import java.util.EnumMap;\n" +
 			"import java.util.Map;\n" +
 			"public class Tester {\n" +

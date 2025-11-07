@@ -8597,11 +8597,6 @@ public void testGHIssue2096() {
     		"	^^^^^^^^^^^^^^^^\n" +
     		"The type AccessController has been deprecated since version 17 and marked for removal\n" +
     		"----------\n" +
-    		"2. WARNING in X.java (at line 7)\n" +
-    		"	AccessController.doPrivileged((PrivilegedExceptionAction<Boolean>)() ->\n" +
-    		"	                 ^^^^^^^^^^^^\n" +
-    		"The method doPrivileged(PrivilegedExceptionAction<Boolean>) from the type AccessController has been deprecated and marked for removal\n" +
-    		"----------\n" +
     		"3. ERROR in X.java (at line 7)\n" +
     		"	AccessController.doPrivileged((PrivilegedExceptionAction<Boolean>)() ->\n" +
     		"	                                                                  ^^^^^\n" +
@@ -8951,6 +8946,48 @@ public void testIssue4204() throws Exception {
 		String expectedPartialOutput = "static synthetic void access$0(X arg0, int arg1);";
 		verifyClassFile(expectedPartialOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4433
+// Java 25: java.lang.TypeNotPresentException: Type I not present
+public void testIssue4433() throws Exception {
+
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"""
+					import java.lang.reflect.Method;
+					import java.util.function.BinaryOperator;
+
+					public class X {
+
+					    public static class A<I> {}
+
+					    public static <I> A<I> a(A<I>... a) {
+					        return null;
+					    }
+
+					    public static <J> J b(BinaryOperator<J> bo) {
+					        return null;
+					    }
+
+					    public <I> void c() {
+					        A<I> d = b(X::a);
+					        System.out.println(d);
+					    }
+
+					    public static void main(String[] args) {
+
+					        Method[] methods = X.class.getDeclaredMethods();
+
+					        for (Method method : methods) {
+					        	if (method.getName().contains("lambda"))
+					        		System.out.println(method.getGenericReturnType());
+					        }
+					    }
+					}
+					""",
+			},
+			"class X$A");
 }
 public static Class testClass() {
 	return LambdaExpressionsTest.class;

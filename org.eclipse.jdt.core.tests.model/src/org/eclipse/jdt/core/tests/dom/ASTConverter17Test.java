@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -671,7 +671,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=350897
 	 */
-	public void _2551_test0018() throws JavaModelException {
+	public void test0018() throws JavaModelException {
 		String contents =
 			"public class X<T> {\n" +
 			"	T field1;\n" +
@@ -718,7 +718,60 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		}
 		InferredTypeFromExpectedVisitor visitor = new InferredTypeFromExpectedVisitor();
 		unit.accept(visitor);
-		assertEquals("Wrong contents", "falsefalsetruetrue", String.valueOf(visitor));
+		assertEquals("Wrong contents", "falsetruetruetrue", String.valueOf(visitor));
+	}
+	public void test0018_methods() throws JavaModelException {
+		String contents =
+			"public class X<T> {\n" +
+			"	T field1;\n" +
+			"	public X(T param){\n" +
+			"		field1 = param;\n" +
+			"	}\n" +
+			"	static <U> X<U> create(U param) {\n" +
+			"		return new X<>(param);\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void main(String[] args) {\n" +
+			"		X<Object> a = X.<Object>create(\"hello\");\n" +
+			"		X.testFunction(a.getField()); //prints 2\n" +
+			"		X<String> b = X.create(\"hello\");\n" +
+			"		X.testFunction(b.getField()); // prints 1\n" +
+			"\n" +
+			"		X<Object> c = X.create(null);\n" +
+			"		X.testFunction(c.getField()); // prints 2\n" +
+			"		X<String> d = X.create(null);\n" +
+			"		X.testFunction(d.getField()); // prints 1\n" +
+			"	}\n" +
+			"	public static void testFunction(String param){\n" +
+			"		// System.out.println(1 + \", String param: \" + param);\n" +
+			"	}\n" +
+			"	public static void testFunction(Object param){\n" +
+			"		System.out.println(2);\n" +
+			"	}\n" +
+			"	public T getField(){\n" +
+			"		return field1;\n" +
+			"	}\n" +
+			"}";
+		this.workingCopy = getWorkingCopy("/Converter17/src/X.java", true/*resolve*/);
+		this.workingCopy.getBuffer().setContents(contents);
+		ASTNode node = runConversion(this.workingCopy, true);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		assertProblemsSize(unit, 0);
+		class InferredTypeFromExpectedVisitor extends ASTVisitor {
+			StringBuilder buf = new StringBuilder();
+			public boolean visit(MethodInvocation invocation) {
+				if (invocation.getName().getIdentifier().equals("create"))
+					this.buf.append(invocation.isResolvedTypeInferredFromExpectedType());
+				return false;
+			}
+			public String toString() {
+				return String.valueOf(this.buf);
+			}
+		}
+		InferredTypeFromExpectedVisitor visitor = new InferredTypeFromExpectedVisitor();
+		unit.accept(visitor);
+		assertEquals("Wrong contents", "falsetruetruetrue", String.valueOf(visitor));
 	}
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=353093
@@ -772,7 +825,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399791
 	 */
-	public void _2551_test0021() throws JavaModelException {
+	public void test0021() throws JavaModelException {
 		String contents =
 				"public interface X {\n" +
 				"	static void foo(){}\n" +
@@ -786,17 +839,15 @@ public class ASTConverter17Test extends ConverterTestSetup {
 			node = (ASTNode) type.bodyDeclarations().get(0);
 			assertEquals("Not a method Declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 			MethodDeclaration method = (MethodDeclaration) node;
-			assertEquals("Method should be malformed", ASTNode.MALFORMED, (method.getFlags() & ASTNode.MALFORMED));
+			assertFalse("Method should NOT be malformed", ASTNode.MALFORMED == (method.getFlags() & ASTNode.MALFORMED));
 
 			method = (MethodDeclaration) type.bodyDeclarations().get(1);
-			assertEquals("Method should be malformed", ASTNode.MALFORMED, (method.getFlags() & ASTNode.MALFORMED));
+			assertFalse("Method should NOT be malformed", ASTNode.MALFORMED == (method.getFlags() & ASTNode.MALFORMED));
 	}
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=405934
-	 *
-	 * @deprecated as it uses deprecated methods
 	 */
-	public void _2551_test0022() throws JavaModelException {
+	public void test0022() throws JavaModelException {
 		String contents =
 				"public class X {\n" +
 				"	void foo() throws  @NonNull EOFException, java.io.@NonNull FileNotFoundException {}\n" +
@@ -809,9 +860,9 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		node = (ASTNode) type.bodyDeclarations().get(0);
 		assertEquals("Not a method Declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
 		MethodDeclaration method = (MethodDeclaration) node;
-		SimpleName exception1 = (SimpleName) method.thrownExceptions().get(0);
-		assertEquals("QualifiedName should be malformed", ASTNode.MALFORMED, (exception1.getFlags() & ASTNode.MALFORMED));
-		QualifiedName exception2 = (QualifiedName) method.thrownExceptions().get(1);
-		assertEquals("QualifiedName should be malformed", ASTNode.MALFORMED, (exception2.getFlags() & ASTNode.MALFORMED));
+		SimpleName exception1 = (SimpleName) ((SimpleType) method.thrownExceptionTypes().get(0)).getName();
+		assertFalse("QualifiedName should NOT be malformed", ASTNode.MALFORMED == (exception1.getFlags() & ASTNode.MALFORMED));
+		SimpleName exception2 = ((NameQualifiedType) method.thrownExceptionTypes().get(1)).getName();
+		assertFalse("QualifiedName should NOT be malformed", ASTNode.MALFORMED == (exception2.getFlags() & ASTNode.MALFORMED));
 	}
 }

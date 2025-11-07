@@ -826,12 +826,6 @@ public char[] computeUniqueKey(boolean isLeaf) {
 private void checkAnnotationsInType() {
 	// check @Deprecated annotation
 	getAnnotationTagBits(); // marks as deprecated by side effect
-	ReferenceBinding enclosingType = enclosingType();
-	if (enclosingType != null && enclosingType.isViewedAsDeprecated() && !isDeprecated()) {
-		this.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
-		this.tagBits |= (enclosingType.tagBits & TagBits.AnnotationTerminallyDeprecated);
-	}
-
 	for (ReferenceBinding memberType : this.memberTypes)
 		((SourceTypeBinding) memberType).checkAnnotationsInType();
 }
@@ -929,15 +923,6 @@ private VariableBinding resolveTypeFor(VariableBinding variable) {
 	if ((variable.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0)
 		return variable;
 
-	if ((variable.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
-		variable.modifiers |= ClassFileConstants.AccDeprecated;
-	if (isViewedAsDeprecated() && !variable.isDeprecated()) {
-		variable.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
-		variable.tagBits |= this.tagBits & TagBits.AnnotationTerminallyDeprecated;
-	}
-	if (hasRestrictedAccess())
-		variable.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
-
 	MethodScope initializationScope = variable.isStatic()
 		? this.scope.referenceContext.staticInitializerScope
 		: this.scope.referenceContext.initializerScope;
@@ -946,6 +931,7 @@ private VariableBinding resolveTypeFor(VariableBinding variable) {
 		if (variable instanceof FieldBinding field)
 			initializationScope.initializedField = field;
 		AbstractVariableDeclaration variableDeclaration = variable instanceof FieldBinding field ? field.sourceField() : ((RecordComponentBinding) variable).sourceRecordComponent();
+		ASTNode.resolveNullDefaultAnnotations(initializationScope, variableDeclaration.annotations, variable);
 		TypeBinding variableType =
 			variableDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT
 				? initializationScope.environment().convertToRawType(this, false /*do not force conversion of enclosing types*/) // enum constant is implicitly of declaring enum type
@@ -973,6 +959,11 @@ private VariableBinding resolveTypeFor(VariableBinding variable) {
 		if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0) {
 			variable.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 		}
+
+		if ((variable.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
+			variable.modifiers |= ClassFileConstants.AccDeprecated;
+		if (hasRestrictedAccess())
+			variable.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 
 		Annotation [] annotations = variableDeclaration.annotations;
 
@@ -2004,10 +1995,6 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 
 	if ((method.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
 		method.modifiers |= ClassFileConstants.AccDeprecated;
-	if (isViewedAsDeprecated() && !method.isDeprecated()) {
-		method.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
-		method.tagBits |= this.tagBits & TagBits.AnnotationTerminallyDeprecated;
-	}
 	if (hasRestrictedAccess())
 		method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 
@@ -2316,7 +2303,7 @@ public void evaluateNullAnnotations() {
 	PackageBinding pkg = getPackage();
 	boolean isInDefaultPkg = (pkg.compoundName == CharOperation.NO_CHAR_CHAR);
 	if (!isPackageInfo) {
-		boolean isInNullnessAnnotationPackage = this.scope.environment().isNullnessAnnotationPackage(pkg);
+		boolean isInNullnessAnnotationPackage = (pkg.extendedTagBits & ExtendedTagBits.IsNullAnnotationPackage) != 0;
 		if (pkg.getDefaultNullness() == NO_NULL_DEFAULT && !isInDefaultPkg && !isInNullnessAnnotationPackage && !(this instanceof NestedTypeBinding)) {
 			ReferenceBinding packageInfo = pkg.getType(TypeConstants.PACKAGE_INFO_NAME, this.module);
 			if (packageInfo == null) {

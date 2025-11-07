@@ -23,6 +23,7 @@ import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.apt.tests.annotations.readannotation.CodeExample;
 import org.eclipse.jdt.apt.tests.plugin.AptTestsPlugin;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 
 public class ReadAnnotationTests extends APTTestBase
 {
@@ -118,6 +119,7 @@ public class ReadAnnotationTests extends APTTestBase
 		// This should not be necessary, but see https://bugs.eclipse.org/bugs/show_bug.cgi?id=99638
 		IJavaProject jproj = getCurrentJavaProject();
 		jproj.setOption("org.eclipse.jdt.core.compiler.problem.deprecation", "ignore");
+		jproj.setOption(JavaCore.COMPILER_PB_MEMBER_OF_DEPRECATED_TYPE, JavaCore.IGNORE);
 		return jproj.getProject();
 	}
 

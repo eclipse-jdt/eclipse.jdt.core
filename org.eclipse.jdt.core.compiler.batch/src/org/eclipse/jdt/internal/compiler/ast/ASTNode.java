@@ -62,7 +62,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public abstract class ASTNode implements TypeConstants, TypeIds {
+public abstract class ASTNode implements Location, TypeConstants, TypeIds {
 
 	public int sourceStart, sourceEnd;
 
@@ -494,8 +494,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 		if (!field.isViewedAsDeprecated()) return false;
 
-		// inside same unit - no report
-		if (scope.isDefinedInSameUnit(field.declaringClass)) return false;
+		// inside same outermost enclosing type - no report
+		if (scope.isDefinedInSameEnclosingType(field.declaringClass.outermostEnclosingType())) return false;
 
 		// if context is deprecated, may avoid reporting
 		if (!scope.compilerOptions().reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
@@ -544,8 +544,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 		if (!method.isViewedAsDeprecated()) return false;
 
-		// inside same unit - no report
-		if (scope.isDefinedInSameUnit(method.declaringClass)) return false;
+		// inside same outermost enclosing type - no report
+		if (scope.isDefinedInSameEnclosingType(method.declaringClass.outermostEnclosingType())) return false;
 
 		// non explicit use and non explicitly deprecated - no report
 		if (!isExplicitUse &&
@@ -617,8 +617,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 		if (!refType.isViewedAsDeprecated()) return false;
 
-		// inside same unit - no report
-		if (scope.isDefinedInSameUnit(refType)) return false;
+		// inside same outermost enclosing type - no report
+		if (scope.isDefinedInSameEnclosingType(refType.outermostEnclosingType())) return false;
 
 		// if context is deprecated, may avoid reporting
 		if (!scope.compilerOptions().reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
@@ -1382,11 +1382,12 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public void acceptPotentiallyCompatibleMethods(MethodBinding [] methods) {
 		// Discard. Interested subclasses should override and grab these goodies.
 	}
-	// --- "default methods" for InvocationSite
 
+	@Override
 	public int sourceStart() {
 		return this.sourceStart;
 	}
+	@Override
 	public int sourceEnd() {
 		return this.sourceEnd;
 	}

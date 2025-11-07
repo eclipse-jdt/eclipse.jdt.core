@@ -4749,7 +4749,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88548
     @SuppressWarnings("deprecation")
-	public void _2551_test0151() throws CoreException {
+	public void test0151() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
 	   		"public enum X {\n" +
@@ -7159,7 +7159,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=147875
 	 */
-	public void _2551_test0221() throws JavaModelException {
+	public void test0221() throws JavaModelException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
     		"import p1.p2.MyEnum;\n" +
@@ -8272,7 +8272,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		expression = fragment.getInitializer();
 		assertEquals("Not a super method invocation", ASTNode.SUPER_METHOD_INVOCATION, expression.getNodeType());
 		methodInvocation = (SuperMethodInvocation) expression;
-		assertFalse("Wrong value", methodInvocation.isResolvedTypeInferredFromExpectedType());
+		assertTrue("Wrong value", methodInvocation.isResolvedTypeInferredFromExpectedType());
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=174436
@@ -8521,7 +8521,20 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				0);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
-		assertProblemsSize(unit, 0);
+		assertProblems("unexpected problems",
+				"""
+				1. WARNING in /Converter15/src/X.java (at line 5)
+					@Annot(id=4)
+					 ^^^^^
+				The type Annot is deprecated
+				----------
+				2. WARNING in /Converter15/src/X.java (at line 8)
+					@Annot(id=4) class Y {
+					 ^^^^^
+				The type Annot is deprecated
+				----------
+				""",
+				unit.getProblems(), contents.toCharArray());
 		node = getASTNode(unit, 1);
 		assertEquals("Not a type declaration unit", ASTNode.TYPE_DECLARATION, node.getNodeType());
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -8690,8 +8703,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
 				0);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
-		String expectedProblems = "";
-		assertProblemsSize(unit, 0, expectedProblems);
+		String expectedProblems = "The method annotationValue() from the type Annot is deprecated";
+		assertProblemsSize(unit, 1, expectedProblems);
 		node = getASTNode(unit, 3);
 		assertEquals("Not a type declaration unit", ASTNode.TYPE_DECLARATION, node.getNodeType());
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
@@ -10994,7 +11007,7 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		CompilationUnit unit= (CompilationUnit) buildAST(
 			contents,
 			this.workingCopy,
-			true,
+			false,
 			true,
 			true);
 		TypeDeclaration typeDeclaration = (TypeDeclaration) getASTNode(unit, 0);

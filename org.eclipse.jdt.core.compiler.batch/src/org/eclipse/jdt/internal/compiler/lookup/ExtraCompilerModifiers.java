@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -37,7 +37,7 @@ public interface ExtraCompilerModifiers { // modifier constant
 	final int AccFromClassFile = ASTNode.Bit20;
 	final int AccDefaultAbstract = ASTNode.Bit20;
 	// bit21 - use by ClassFileConstants.AccDeprecated
-	final int AccDeprecatedImplicitly = ASTNode.Bit22; // record whether deprecated itself or contained by a deprecated type
+	// bit22 was used for AccDeprecatedImplicitly
 	final int AccAlternateModifierProblem = ASTNode.Bit23;
 	final int AccSemicolonBody = ASTNode.Bit25;
 	final int AccRecord = ASTNode.Bit25;

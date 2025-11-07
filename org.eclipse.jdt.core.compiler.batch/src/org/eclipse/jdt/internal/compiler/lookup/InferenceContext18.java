@@ -117,7 +117,7 @@ public class InferenceContext18 {
 	/** the invocation being inferred (for 18.5.1 and 18.5.2) */
 	InvocationSite currentInvocation;
 	/** arguments of #currentInvocation, if any */
-	Expression[] invocationArguments;
+	public Expression[] invocationArguments;
 
 	/** The inference variables for which as solution is sought. */
 	InferenceVariable[] inferenceVariables;
@@ -1014,7 +1014,7 @@ public class InferenceContext18 {
 	 * @throws InferenceFailureException a compile error has been detected during inference
 	 */
 	public /*@Nullable*/ BoundSet solve(boolean inferringApplicability) throws InferenceFailureException {
-		return solve(inferringApplicability, (ASTNode) this.currentInvocation);
+		return solve(inferringApplicability, this.currentInvocation);
 	}
 	/**
 	 * Try to solve the inference problem defined by constraints and bounds previously registered.
@@ -1023,8 +1023,7 @@ public class InferenceContext18 {
 	 * @return a bound set representing the solution, or null if inference failed
 	 * @throws InferenceFailureException a compile error has been detected during inference
 	 */
-	private /*@Nullable*/ BoundSet solve(boolean inferringApplicability, ASTNode location)
-			throws InferenceFailureException
+	private /*@Nullable*/ BoundSet solve(boolean inferringApplicability, Location location) throws InferenceFailureException
 	{
 		CapturingContext.enter(location.sourceStart(), location.sourceEnd(), this.scope);
 		boolean isRecordPatternTypeInference = location instanceof RecordPattern;
@@ -1074,7 +1073,7 @@ public class InferenceContext18 {
 	/**
 	 * JLS 18.2. reduce all initial constraints
 	 */
-	private boolean reduce() throws InferenceFailureException {
+	public boolean reduce() throws InferenceFailureException {
 		// Caution: This can be reentered recursively even as an earlier call is munching through the constraints !
 		for (int i = 0; this.initialConstraints != null && i < this.initialConstraints.length; i++) {
 			final ConstraintFormula currentConstraint = this.initialConstraints[i];
@@ -1307,7 +1306,7 @@ public class InferenceContext18 {
 			}
 		}
 		IntersectionTypeBinding18 intersection = (IntersectionTypeBinding18) this.environment.createIntersectionType18(refGlbs);
-		if (ReferenceBinding.isConsistentIntersection(intersection.intersectingTypes))
+		if (ReferenceBinding.isConsistentIntersection(intersection.intersectingTypes, InferenceContext18.SIMULATE_BUG_JDK_8026527))
 			return intersection;
 		return null;
 	}
