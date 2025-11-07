@@ -1417,7 +1417,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	}
 
 	// Parses a complete URL reference starting from current position
-	private Object parseURLReference() throws InvalidInputException {
+	private Object parseURLReference(boolean httpFlag) throws InvalidInputException {
+		// httpFlag is used to check wheather URL contains http or not
 		StringBuilder urlBuilder = new StringBuilder();
 		int firstTokenStartPos = this.scanner.startPosition;
 		//start with the current identifier
@@ -1425,27 +1426,45 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			urlBuilder.append(this.scanner.getCurrentTokenSource());
 			consumeToken();
 		}
+		char[] fullURL;
+		int pos;
+		if (httpFlag) {
+			// Add :
+			TerminalToken token1 = readTokenSafely();
+			if (token1 == TerminalToken.TokenNameCOLON) {
+				urlBuilder.append(this.scanner.getCurrentTokenSource());
+				consumeToken();
+			}
 
-		// Add :
-		TerminalToken token1 = readTokenSafely();
-		if (token1 == TerminalToken.TokenNameCOLON) {
-			urlBuilder.append(this.scanner.getCurrentTokenSource());
-			consumeToken();
+			pos = this.scanner.getCurrentTokenEndPosition() + 1;
+			char c;
+			while (pos < this.source.length) {
+				c = (this.source[pos] == ')') ? this.source[pos] : readChar();
+
+				if (c == ':') continue;
+		        if (c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '*' || c == ')' || c == '(' || c == '[' || c == ']' ) {
+		            break;
+		        }
+		        urlBuilder.append(c);
+		        pos++;
+			}
+			fullURL = urlBuilder.toString().toCharArray();
+		} else {
+
+			//process the second token
+			TerminalToken token1 = readTokenSafely();
+			if (token1 == TerminalToken.TokenNameDOT) {
+				urlBuilder.append(this.scanner.getCurrentTokenSource());
+				consumeToken();
+			}
+
+			TerminalToken token2 = readTokenSafely();
+			if (token2 == TerminalToken.TokenNameIdentifier) {
+				urlBuilder.append(this.scanner.getCurrentTokenSource());
+			}
+			pos = this.scanner.getCurrentTokenEndPosition() + 1;
+			fullURL = urlBuilder.toString().toCharArray();
 		}
-
-		int pos = this.scanner.getCurrentTokenEndPosition() + 1;
-		char c;
-		while (pos < this.source.length) {
-			c = (this.source[pos] == ')') ? this.source[pos] : readChar();
-
-			if (c == ':') continue;
-	        if (c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '*' || c == ')' || c == '(' || c == '[' || c == ']' ) {
-	            break;
-	        }
-	        urlBuilder.append(c);
-	        pos++;
-		}
-		char[] fullURL = urlBuilder.toString().toCharArray();
 		this.identifierPtr = 0;
 		this.identifierStack[this.identifierPtr] =  fullURL;
 		this.identifierPositionStack[this.identifierPtr] = (((long) firstTokenStartPos) << 32) + (pos - 1);
@@ -1454,7 +1473,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	}
 
 	// Ensure the markdown URL bracket syntax follows []() or [][]
-	private void checkMarkdownLinkSyntaxValid(int currStartPos) {
+	private void checkMarkdownLinkSyntaxValid(int currStartPos, boolean httpFlag) {
+		// httpFlag is used to check wheather URL contains http or not
 		char secondBracket = this.source[currStartPos - 2];
 		char thirdBracket = this.source[currStartPos - 1];
 
@@ -1573,15 +1593,23 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					case TokenNameUNDERSCORE:
 					case TokenNameIdentifier :
 						char[] identifier = this.scanner.getCurrentIdentifierSource();
-						if (isURLScheme(identifier)) {
-							if (isFollowedByURLPattern()) {
-								if (typeRef == null) {
-									int currStartPos = this.scanner.startPosition;
-									typeRefStartPosition = this.scanner.getCurrentTokenStartPosition();
-									typeRef = parseURLReference();
-									checkMarkdownLinkSyntaxValid(currStartPos);
-									if (this.abort) return false;
+						if (this.source[this.scanner.getCurrentTokenStartPosition() - 1] == '(') {
+							if (isURLScheme(identifier)) {
+								if (isFollowedByURLPattern()) {
+									if (typeRef == null) {
+										int currStartPos = this.scanner.startPosition;
+										typeRefStartPosition = this.scanner.getCurrentTokenStartPosition();
+										typeRef = parseURLReference(true);
+										checkMarkdownLinkSyntaxValid(currStartPos, true);
+										if (this.abort) return false;
+									}
 								}
+							} else if (this.source[this.scanner.getCurrentTokenEndPosition() +1 ] == '.') { //$NON-NLS-1$
+								int currStartPos = this.scanner.startPosition;
+								typeRefStartPosition = this.scanner.getCurrentTokenStartPosition();
+								typeRef = parseURLReference(false);
+								checkMarkdownLinkSyntaxValid(currStartPos, true);
+								if (this.abort) return false;
 							}
 						}
 						if (typeRef == null) {

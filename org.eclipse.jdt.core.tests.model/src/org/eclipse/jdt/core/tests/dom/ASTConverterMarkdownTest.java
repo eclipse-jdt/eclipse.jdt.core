@@ -1931,7 +1931,7 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			TagElement tagElement = (TagElement) tags.fragments().get(1);
 			List<?> tagFragments = tagElement.fragments();
 			assertTrue(tagFragments.get(0) instanceof TextElement);
-			assertTrue(tagFragments.get(1) instanceof QualifiedName);
+			assertTrue(tagFragments.get(1) instanceof SimpleName);
 		}
 	}
 
@@ -1995,6 +1995,7 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 		}
 	}
 
+	// invalid syntax
 	public void testMarkdownURLs4531_05() throws JavaModelException {
 		String source = """
 				/// @see [Ex Si][http://ex.com]
@@ -2007,11 +2008,10 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
 			Javadoc javadoc = typedeclaration.getJavadoc();
 			TagElement tags = (TagElement) javadoc.tags().get(0);
-			assertEquals("fragments count does not match", 2, tags.fragments().size());
-			TagElement tagElement = (TagElement) tags.fragments().get(1);
-			List<?> tagFragments = tagElement.fragments();
-			assertTrue(tagFragments.get(0) instanceof TextElement);
-			assertTrue(tagFragments.get(1) instanceof SimpleName);
+			assertEquals("fragments count does not match", 3, tags.fragments().size());
+			assertTrue(tags.fragments().get(0) instanceof TextElement);
+			assertTrue(tags.fragments().get(1) instanceof TextElement);
+			assertTrue(tags.fragments().get(2) instanceof TextElement);
 		}
 	}
 
