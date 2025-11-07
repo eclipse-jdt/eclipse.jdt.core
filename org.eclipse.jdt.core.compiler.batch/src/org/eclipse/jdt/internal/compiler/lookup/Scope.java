@@ -3897,20 +3897,20 @@ public abstract class Scope {
 					ReferenceContext referenceContext = methodScope.referenceContext();
 					if (referenceContext instanceof AbstractMethodDeclaration) {
 						MethodBinding context = ((AbstractMethodDeclaration) referenceContext).binding;
-						if (context != null && context.isViewedAsDeprecated())
+						if (context != null && context.isDeprecated())
 							return true;
 					} else if (referenceContext instanceof ModuleDeclaration) {
 						ModuleBinding context = ((ModuleDeclaration) referenceContext).binding;
 						return context != null && context.isDeprecated();
 					}
-				} else if (methodScope.initializedField != null && methodScope.initializedField.isViewedAsDeprecated()) {
+				} else if (methodScope.initializedField != null && methodScope.initializedField.isDeprecated()) {
 					// inside field declaration ? check field modifier to see if deprecated
 					return true;
 				}
 				SourceTypeBinding declaringType = ((BlockScope)this).referenceType().binding;
 				if (declaringType != null) {
 					declaringType.initializeDeprecatedAnnotationTagBits(); // may not have been resolved until then
-					if (declaringType.isViewedAsDeprecated())
+					if (declaringType.isDeprecated())
 						return true;
 				}
 				break;
@@ -3918,7 +3918,7 @@ public abstract class Scope {
 				ReferenceBinding context = ((ClassScope)this).referenceType().binding;
 				if (context != null) {
 					context.initializeDeprecatedAnnotationTagBits(); // may not have been resolved until then
-					if (context.isViewedAsDeprecated())
+					if (context.isDeprecated())
 						return true;
 				}
 				break;
@@ -3929,7 +3929,7 @@ public abstract class Scope {
 					SourceTypeBinding type = unit.types[0].binding;
 					if (type != null) {
 						type.initializeDeprecatedAnnotationTagBits(); // may not have been resolved until then
-						if (type.isViewedAsDeprecated())
+						if (type.isDeprecated())
 							return true;
 					}
 				}

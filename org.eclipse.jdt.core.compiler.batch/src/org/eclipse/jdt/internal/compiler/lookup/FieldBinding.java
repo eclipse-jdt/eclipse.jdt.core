@@ -370,12 +370,6 @@ public final boolean isUsedOnlyInCompound() {
 /* Answer true if the receiver has protected visibility
 */
 
-public final boolean isViewedAsDeprecated() {
-	return (this.modifiers & ClassFileConstants.AccDeprecated) != 0;
-}
-/* Answer true if the receiver is a volatile field
-*/
-
 @Override
 public final boolean isVolatile() {
 	return (this.modifiers & ClassFileConstants.AccVolatile) != 0;

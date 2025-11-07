@@ -492,13 +492,16 @@ public abstract class ASTNode implements Location, TypeConstants, TypeIds {
 			}
 		}
 
-		if (!field.isViewedAsDeprecated()) return false;
+		if (!field.isDeprecated()) return false;
 
 		// inside same outermost enclosing type - no report
 		if (scope.isDefinedInSameEnclosingType(field.declaringClass.outermostEnclosingType())) return false;
 
-		// if context is deprecated, may avoid reporting
-		if (!scope.compilerOptions().reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
+		// if context is deprecated, may avoid reporting ordinary deprecation
+		if ((field.tagBits & TagBits.AnnotationTerminallyDeprecated) == 0
+				&& !scope.compilerOptions().reportDeprecationInsideDeprecatedCode
+				&& scope.isInsideDeprecatedCode())
+			return false;
 		return true;
 	}
 
@@ -542,19 +545,16 @@ public abstract class ASTNode implements Location, TypeConstants, TypeIds {
 			}
 		}
 
-		if (!method.isViewedAsDeprecated()) return false;
+		if (!method.isDeprecated()) return false;
 
 		// inside same outermost enclosing type - no report
 		if (scope.isDefinedInSameEnclosingType(method.declaringClass.outermostEnclosingType())) return false;
 
-		// non explicit use and non explicitly deprecated - no report
-		if (!isExplicitUse &&
-				(method.modifiers & ClassFileConstants.AccDeprecated) == 0) {
+		// if context is deprecated, may avoid reporting ordinary deprecation
+		if ((method.tagBits & TagBits.AnnotationTerminallyDeprecated) == 0
+				&& !scope.compilerOptions().reportDeprecationInsideDeprecatedCode
+				&& scope.isInsideDeprecatedCode())
 			return false;
-		}
-
-		// if context is deprecated, may avoid reporting
-		if (!scope.compilerOptions().reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
 		return true;
 	}
 
@@ -615,13 +615,16 @@ public abstract class ASTNode implements Location, TypeConstants, TypeIds {
 		// force annotations resolution before deciding whether the type may be deprecated
 		refType.initializeDeprecatedAnnotationTagBits();
 
-		if (!refType.isViewedAsDeprecated()) return false;
+		if (!refType.isDeprecated()) return false;
 
 		// inside same outermost enclosing type - no report
 		if (scope.isDefinedInSameEnclosingType(refType.outermostEnclosingType())) return false;
 
-		// if context is deprecated, may avoid reporting
-		if (!scope.compilerOptions().reportDeprecationInsideDeprecatedCode && scope.isInsideDeprecatedCode()) return false;
+		// if context is deprecated, may avoid reporting ordinary deprecation
+		if ((type.tagBits & TagBits.AnnotationTerminallyDeprecated) == 0
+				&& !scope.compilerOptions().reportDeprecationInsideDeprecatedCode
+				&& scope.isInsideDeprecatedCode())
+			return false;
 		return true;
 	}
 

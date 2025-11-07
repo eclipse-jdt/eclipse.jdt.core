@@ -1833,14 +1833,6 @@ public final boolean isUsed() {
 	return (this.modifiers & ExtraCompilerModifiers.AccLocallyUsed) != 0;
 }
 
-/**
- * Answer true if the receiver is deprecated (or any of its enclosing types)
- */
-public final boolean isViewedAsDeprecated() {
-	if ((this.modifiers & ClassFileConstants.AccDeprecated) != 0)
-		return true;
-	return false;
-}
 public boolean isImplicitType() {
 	return false;
 }

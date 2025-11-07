@@ -4252,6 +4252,7 @@ protected void runNegativeTest(
 				Util.flushDirectoryContent(JAVAC_OUTPUT_DIR);
 			}
 			printJavacResultsSummary();
+			javacUsePathOption(" -classpath ");
 		}
 	}
 	/**
