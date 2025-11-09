@@ -24,6 +24,7 @@
 
   <properties>
     <defaultSigning-excludeInnerJars>true</defaultSigning-excludeInnerJars>
+    <surefire.timeout>5400</surefire.timeout><!-- timeout in seconds -->
   </properties>
 
   <build>
