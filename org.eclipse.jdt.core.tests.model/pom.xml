@@ -25,7 +25,7 @@
   <properties>
     <defaultSigning-excludeInnerJars>true</defaultSigning-excludeInnerJars>
     <jitExclusion>-XX:CompileCommand=exclude,org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteAnalyzer::getExtendedRange</jitExclusion>
-
+    <surefire.timeout>1800</surefire.timeout><!-- timeout in seconds -->
   </properties>
 
   <build>
