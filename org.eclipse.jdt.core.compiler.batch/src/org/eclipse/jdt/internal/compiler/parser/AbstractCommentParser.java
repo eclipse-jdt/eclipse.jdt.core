@@ -1592,28 +1592,30 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						break nextToken;
 					case TokenNameUNDERSCORE:
 					case TokenNameIdentifier :
-						char[] identifier = this.scanner.getCurrentIdentifierSource();
-						int pos = this.scanner.getCurrentTokenStartPosition() - 1;
-						while (pos >= 0 && Character.isWhitespace(this.source[pos])) {
-						    pos--;
-						}
-						if (pos >= 0 && this.source[pos] == '(') {
-							if (isURLScheme(identifier)) {
-								if (isFollowedByURLPattern()) {
-									if (typeRef == null) {
-										int currStartPos = this.scanner.startPosition;
-										typeRefStartPosition = this.scanner.getCurrentTokenStartPosition();
-										typeRef = parseURLReference(true);
-										checkMarkdownLinkSyntaxValid(currStartPos, true);
-										if (this.abort) return false;
+						if (this.markdown) {
+							char[] identifier = this.scanner.getCurrentIdentifierSource();
+							int pos1 = this.scanner.getCurrentTokenStartPosition() - 1;
+							while (pos1 >= 0 && Character.isWhitespace(this.source[pos1])) {
+							    pos1--;
+							}
+							if (pos1 >= 0 && this.source[pos1] == '(') {
+								if (isURLScheme(identifier)) {
+									if (isFollowedByURLPattern()) {
+										if (typeRef == null) {
+											int currStartPos = this.scanner.startPosition;
+											typeRefStartPosition = this.scanner.getCurrentTokenStartPosition();
+											typeRef = parseURLReference(true);
+											checkMarkdownLinkSyntaxValid(currStartPos, true);
+											if (this.abort) return false;
+										}
 									}
+								} else if (this.source[this.scanner.getCurrentTokenEndPosition() +1 ] == '.') { //$NON-NLS-1$
+									int currStartPos = this.scanner.startPosition;
+									typeRefStartPosition = this.scanner.getCurrentTokenStartPosition();
+									typeRef = parseURLReference(false);
+									checkMarkdownLinkSyntaxValid(currStartPos, true);
+									if (this.abort) return false;
 								}
-							} else if (this.source[this.scanner.getCurrentTokenEndPosition() +1 ] == '.') { //$NON-NLS-1$
-								int currStartPos = this.scanner.startPosition;
-								typeRefStartPosition = this.scanner.getCurrentTokenStartPosition();
-								typeRef = parseURLReference(false);
-								checkMarkdownLinkSyntaxValid(currStartPos, true);
-								if (this.abort) return false;
 							}
 						}
 						if (typeRef == null) {
