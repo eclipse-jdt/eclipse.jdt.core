@@ -119,6 +119,10 @@ public enum JavaFeature {
 			Messages.bind(Messages.markdown_comments),
 			CharOperation.NO_CHAR_CHAR,
 			false),
+	VALUE_CLASSES_AND_OBJECTS(ClassFileConstants.JDK26,
+			Messages.bind(Messages.primitives_in_patterns),
+			new char[][] {TypeConstants.VALUE_RESTRICTED_KEYWORD},
+			true),
     ;
 
 	final long compliance;

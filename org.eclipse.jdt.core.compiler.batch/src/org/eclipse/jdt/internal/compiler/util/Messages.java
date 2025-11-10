@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -131,6 +135,7 @@ public final class Messages {
 	public static String primitives_in_patterns;
 	public static String module_imports;
 	public static String markdown_comments;
+	public static String value_classes_and_objects;
 
 	static {
 		initializeMessages(BUNDLE_NAME, Messages.class);
