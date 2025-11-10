@@ -1593,7 +1593,11 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					case TokenNameUNDERSCORE:
 					case TokenNameIdentifier :
 						char[] identifier = this.scanner.getCurrentIdentifierSource();
-						if (this.source[this.scanner.getCurrentTokenStartPosition() - 1] == '(') {
+						int pos = this.scanner.getCurrentTokenStartPosition() - 1;
+						while (pos >= 0 && Character.isWhitespace(this.source[pos])) {
+						    pos--;
+						}
+						if (pos >= 0 && this.source[pos] == '(') {
 							if (isURLScheme(identifier)) {
 								if (isFollowedByURLPattern()) {
 									if (typeRef == null) {
