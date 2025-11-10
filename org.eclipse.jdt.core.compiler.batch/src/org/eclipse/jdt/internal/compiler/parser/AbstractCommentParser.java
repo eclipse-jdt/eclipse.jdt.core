@@ -1609,7 +1609,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 											if (this.abort) return false;
 										}
 									}
-								} else if (this.source[this.scanner.getCurrentTokenEndPosition() +1 ] == '.') { //$NON-NLS-1$
+								} else if (this.source[this.scanner.getCurrentTokenEndPosition() +1 ] == '.') {
 									int currStartPos = this.scanner.startPosition;
 									typeRefStartPosition = this.scanner.getCurrentTokenStartPosition();
 									typeRef = parseURLReference(false);
