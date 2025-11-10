@@ -981,12 +981,6 @@ public boolean isParameterizedGeneric() {
 public boolean isPolymorphic() {
 	return false;
 }
-/* Answer true if the receiver's declaring type is deprecated (or any of its enclosing types)
-*/
-public final boolean isViewedAsDeprecated() {
-	return (this.modifiers & ClassFileConstants.AccDeprecated) != 0;
-}
-
 @Override
 public final int kind() {
 	return Binding.METHOD;
