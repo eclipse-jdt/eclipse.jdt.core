@@ -10942,7 +10942,7 @@ public void testIssue4290() throws Exception {
 
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4412
-// Internal Compile error problem since 2025-09 
+// Internal Compile error problem since 2025-09
 public void testIssue4412() throws Exception {
 	this.runConformTest(
 		new String[] {
@@ -11109,5 +11109,44 @@ public void testDeprecation_accessor() {
 		----------
 		""";
 	runner.runWarningTest();
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4551
+// ECJ fails on Record used within Enum in Annotation
+public void testIssue4551() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+					"X.java",
+					"""
+					public record X(
+					  @ExampleAnnotation(value = { ExampleEnum.VALUE })
+					  String string) {
+
+					  @Target(ElementType.FIELD)
+					  public @interface ExampleAnnotation {
+					  	ExampleEnum[] value();
+					  }
+					}
+
+					enum ExampleEnum {
+					  VALUE(new SecondExampleRecord());
+
+					  private ExampleEnum(SecondExampleRecord exampleRecord) { }
+					}
+
+					record SecondExampleRecord() {
+					}
+					""",
+	            },
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\r\n" +
+				"	@Target(ElementType.FIELD)\r\n" +
+				"	 ^^^^^^\n" +
+				"Target cannot be resolved to a type\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 5)\r\n" +
+				"	@Target(ElementType.FIELD)\r\n" +
+				"	        ^^^^^^^^^^^\n" +
+				"ElementType cannot be resolved to a variable\n" +
+				"----------\n");
 }
 }
