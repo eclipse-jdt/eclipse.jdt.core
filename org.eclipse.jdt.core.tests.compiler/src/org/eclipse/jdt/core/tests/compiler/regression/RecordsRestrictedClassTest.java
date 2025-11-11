@@ -11149,4 +11149,101 @@ public void testIssue4551() throws Exception {
 				"ElementType cannot be resolved to a variable\n" +
 				"----------\n");
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4551
+// ECJ fails on Record used within Enum in Annotation
+public void testIssue4551_2() throws Exception {
+	this.runConformTest(
+		new String[] {
+					"mypackage/Test.java",
+					"""
+					package mypackage;
+
+
+					import java.lang.annotation.Target;
+					import java.lang.reflect.Method;
+					import java.lang.reflect.Modifier;
+
+					import static java.lang.annotation.ElementType.*;
+					import java.lang.annotation.Retention;
+					import java.lang.annotation.RetentionPolicy;
+					import java.math.BigDecimal;
+
+					import static mypackage.Test.TOPIC;
+
+
+					public record Test(
+					        @Schema(requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+					        @JsonProperty("test") BigDecimal test
+
+					) {
+					        public static final String TOPIC = "test";
+
+					        public static void main(String[] args) {
+					        	Method[] methods = Test.class.getDeclaredMethods();
+
+					            for (Method method : methods) {
+					                // Get modifiers, return type, and name
+					                String modifiers = Modifier.toString(method.getModifiers());
+					                String returnType = method.getReturnType().getSimpleName();
+					                String name = method.getName();
+
+					                // Get parameter types
+					                Class<?>[] params = method.getParameterTypes();
+					                StringBuilder paramList = new StringBuilder();
+					                for (int i = 0; i < params.length; i++) {
+					                    if (i > 0) paramList.append(", ");
+					                    paramList.append(params[i].getSimpleName());
+					                }
+
+					                // Print it out
+					                System.out.printf("%s %s %s(%s)%n", modifiers, returnType, name, paramList);
+					            }
+							}
+					}
+
+
+					@Target({FIELD, METHOD, PARAMETER, TYPE, ANNOTATION_TYPE})
+					@Retention(RetentionPolicy.RUNTIME)
+					@interface Schema {
+						enum RequiredMode {
+						    AUTO,
+						    REQUIRED,
+						    NOT_REQUIRED;
+						}
+						static enum AccessMode {
+					        AUTO,
+					        READ_ONLY,
+					        WRITE_ONLY,
+					        READ_WRITE;
+					    }
+					    String name() default "";
+					    String title() default "";
+					    String description() default "";
+					    Class<?> implementation() default Void.class;
+					    AccessMode accessMode() default AccessMode.AUTO;
+					    RequiredMode requiredMode() default RequiredMode.AUTO;
+					    boolean hidden() default false;
+					    // … many more elements …
+					}
+
+					@Target({ANNOTATION_TYPE, FIELD, METHOD, PARAMETER})
+					@Retention(RetentionPolicy.RUNTIME)
+					@interface JsonProperty {
+					    String value() default "";
+					    boolean required() default false;
+					    int index() default -1;
+					    String defaultValue() default "";
+					   // Access access() default Access.AUTO;
+					    String namespace() default "";
+					    // …
+					}
+					""",
+	            },
+				"public static void main(String[])\n" +
+				"public final boolean equals(Object)\n" +
+				"public final String toString()\n" +
+				"public final int hashCode()\n" +
+				"public BigDecimal test()");
+
+}
 }
