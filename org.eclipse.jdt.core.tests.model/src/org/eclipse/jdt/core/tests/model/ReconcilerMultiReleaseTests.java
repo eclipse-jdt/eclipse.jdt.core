@@ -45,9 +45,8 @@ public class ReconcilerMultiReleaseTests extends ModifyingResourceTests {
 	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-
 		IJavaProject mrproject = createJavaProject("ReconcilerMR", new String[] { "src", "src9", "src21" },
-				new String[] { "JCL18_LIB" }, "bin");
+				new String[] { "JCL_21_LIB" }, "bin", "21", true);
 		createFolder("/ReconcilerMR/src/p");
 		createFolder("/ReconcilerMR/src9/p");
 		createFolder("/ReconcilerMR/src21/p");
@@ -112,6 +111,9 @@ public class ReconcilerMultiReleaseTests extends ModifyingResourceTests {
 		mrproject.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 		mrproject.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
 		mrproject.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.WARNING);
+		mrproject.setOption(JavaCore.COMPILER_COMPLIANCE, "1.8");
+		mrproject.setOption(JavaCore.COMPILER_SOURCE, "1.8");
+		mrproject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, "1.8");
 	}
 
 	@Override
@@ -136,6 +138,8 @@ public class ReconcilerMultiReleaseTests extends ModifyingResourceTests {
 					void m(B b) {
 						// Calling method m only available from Java 21+
 						b.m();
+						// Calling a JDK class should work
+						System.out.println("Running");
 					}
 				}
 			""";
