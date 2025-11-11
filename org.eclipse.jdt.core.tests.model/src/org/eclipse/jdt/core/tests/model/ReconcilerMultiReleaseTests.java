@@ -2,6 +2,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -45,9 +46,16 @@ public class ReconcilerMultiReleaseTests extends ModifyingResourceTests {
 	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-
+		//Because we use 1.8 compliance on the project, the JCL21 will not be setup automatically so we need to to it explicitly.
+		if (JavaCore.getClasspathVariable("JCL_21_LIB") == null) {
+			setupExternalJCL("jclMin21");
+			JavaCore.setClasspathVariables(
+				new String[] {"JCL_21_LIB", "JCL_21_SRC", "JCL_SRCROOT"},
+				new IPath[] {getExternalJCLPath("21"), getExternalJCLSourcePath("21"), getExternalJCLRootSourcePath()},
+				null);
+		}
 		IJavaProject mrproject = createJavaProject("ReconcilerMR", new String[] { "src", "src9", "src21" },
-				new String[] { "JCL18_LIB" }, "bin");
+				new String[] { "JCL_21_LIB" }, "bin");
 		createFolder("/ReconcilerMR/src/p");
 		createFolder("/ReconcilerMR/src9/p");
 		createFolder("/ReconcilerMR/src21/p");
@@ -112,6 +120,9 @@ public class ReconcilerMultiReleaseTests extends ModifyingResourceTests {
 		mrproject.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 		mrproject.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
 		mrproject.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.WARNING);
+		mrproject.setOption(JavaCore.COMPILER_COMPLIANCE, "1.8");
+		mrproject.setOption(JavaCore.COMPILER_SOURCE, "1.8");
+		mrproject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, "1.8");
 	}
 
 	@Override
@@ -136,6 +147,8 @@ public class ReconcilerMultiReleaseTests extends ModifyingResourceTests {
 					void m(B b) {
 						// Calling method m only available from Java 21+
 						b.m();
+						// Calling a JDK class should work
+						System.out.println("Running " + System.getProperty("java.version"));
 					}
 				}
 			""";
