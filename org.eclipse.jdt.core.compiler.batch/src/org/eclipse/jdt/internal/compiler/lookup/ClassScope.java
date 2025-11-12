@@ -596,8 +596,8 @@ public class ClassScope extends Scope {
 						}
 					}
 			    }
-			} else if (this.parent.referenceContext() instanceof TypeDeclaration) {
-				TypeDeclaration typeDecl = (TypeDeclaration) this.parent.referenceContext();
+			} else if (this.parent instanceof ClassScope classScope && classScope.referenceContext != null) {
+				TypeDeclaration typeDecl = classScope.referenceContext;
 				if (TypeDeclaration.kind(typeDecl.modifiers) == TypeDeclaration.INTERFACE_DECL) {
 					// Sec 8.1.3 applies for local types as well
 					modifiers |= ClassFileConstants.AccStatic;
