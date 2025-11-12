@@ -137,8 +137,8 @@ public class FormatterMarkdownCommentsTests extends FormatterCommentsTests {
 		String expected = """
 				/// ## Unordered Lists
 				/// + Item 1
-				/// * Item 2
-				///     - Subitem 2.1
+				///     * Item 2
+				///         - Subitem 2.1
 				/// + Subitem 2.2
 				///     * Item 3
 				class Mark {
@@ -167,6 +167,7 @@ public class FormatterMarkdownCommentsTests extends FormatterCommentsTests {
 				///     1. Subitem 2.1
 				///     2. Subitem 2.2
 				///         * Sub Sub
+				///\s
 				/// 3. Third item
 				class Mark {
 				}
@@ -604,6 +605,7 @@ public class FormatterMarkdownCommentsTests extends FormatterCommentsTests {
 					///     1) Subitem 2.1
 					///     2) Subitem 2.2 2) Subitem 2.2
 					///         * Sub Sub
+					///\s
 					/// 3) Third item
 					class Mark62 {
 					}
@@ -637,5 +639,35 @@ public class FormatterMarkdownCommentsTests extends FormatterCommentsTests {
 					""";
 		formatSource(input, expected);
 	}
+
+	public void testMarkdownListResetNestingOrderOnDIfferentTagInBetween() throws JavaModelException {
+		setComplianceLevel(CompilerOptions.VERSION_23);
+		String input = """
+					/// 1) Item 1
+					///     1) Sub Item 1
+					///    2) Sub Item 1
+					/// # OR
+					/// 1. Item 1
+					///     1) Sub Item 1
+					///      2) Sub Item 1
+					class Mark62 {
+					}
+					""";
+		String expected = """
+					/// 1) Item 1
+					///     1) Sub Item 1
+					///     2) Sub Item 1
+					/// # OR
+					/// 1. Item 1
+					///     1) Sub Item 1
+					///     2) Sub Item 1
+					class Mark62 {
+					}
+					""";
+		formatSource(input, expected);
+	}
+
+
+
 
 }

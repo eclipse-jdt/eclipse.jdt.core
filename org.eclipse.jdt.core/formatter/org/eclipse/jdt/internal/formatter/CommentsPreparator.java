@@ -93,7 +93,7 @@ public class CommentsPreparator extends ASTVisitor {
 		SNIPPET_MARKUP_TAG_PATTERN = Pattern.compile(markupTagNames + markupTagArgument + "*"); //$NON-NLS-1$
 	}
 
-	private final static Pattern MARKDOWN_LIST_PATTERN = Pattern.compile("(?m)(?<=^[ \\t]*)(?:[-+*]|\\d+[\\.)])([ \\t]+)"); //$NON-NLS-1$
+	private final static Pattern MARKDOWN_LIST_PATTERN = Pattern.compile("(?m)(?<=^[ \\t]*)(?:[-+*]|(\\d+)[.)])([ \\t]+)"); //$NON-NLS-1$
 	private final static Pattern MARKDOWN_HEADINGS_PATTERN_1 = Pattern.compile("(?:(?<=^)|(?<=///[ \\t]*))(#{1,6})([ \\t]+)([^\\r\\n]*)"); //$NON-NLS-1$
 	private final static Pattern MARKDOWN_HEADINGS_PATTERN_2 = Pattern.compile("(?:^|(?<=///[ \\t]+))[ \\t]*([=-])\\1*[ \\t]*(?=\\r?\\n|$)"); //$NON-NLS-1$
 	private final static Pattern MARKDOWN_FENCES_PATTERN = Pattern.compile("[ \\t]*(?:///[ \\t]*)?(?:`+|~+)[ \\t]*(?:\\R)?"); //$NON-NLS-1$
@@ -887,92 +887,82 @@ public class CommentsPreparator extends ASTVisitor {
 	}
 
 	private void handleMarkdownList(List<Object> fragments, int nodeStartPosition, String source) {
-		Matcher matcher;
 		Deque<Integer> indentPerLevel = new ArrayDeque<>();
 		boolean serialListOneFound = false;
-		char bulletCharPrev = 'p';
+		char bulletCharPrev = '0';
 		for (Object fragment : fragments) {
 			if (fragment instanceof TextElement textElement) {
 				String textContent = textElement.getText();
-				matcher = MARKDOWN_LIST_PATTERN.matcher(textContent);
-				if (matcher.find()) {
-					int matcherStart = matcher.start();
-					char bulletCharCurrent = textContent.charAt(matcher.start() + 1);
-					boolean isDigit =  Character.isDigit(textContent.charAt(matcherStart));
-					if (!serialListOneFound && isDigit) {
-						if (isSerialStartsWithOne(textContent)) {
-							serialListOneFound = true;
-						} else {
+				Matcher matcher = MARKDOWN_LIST_PATTERN.matcher(textContent);
+				if (!matcher.find()) {
+					serialListOneFound = false;
+					bulletCharPrev = '0';
+					indentPerLevel = new ArrayDeque<>();
+					continue;
+				}
+				int matcherStart = matcher.start();
+				char bulletCharCurrent = textContent.charAt(matcher.start() + 1);
+				boolean isDigit =  Character.isDigit(textContent.charAt(matcherStart));
+				if (!serialListOneFound && isDigit) {
+					String one = matcher.group(1);
+					if (one.equals("1")) { //$NON-NLS-1$
+						serialListOneFound = true;
+					} else {
+						continue;
+					}
+				}
+				int startPos = matcherStart + textElement.getStartPosition();
+				int bulletIndex = tokenStartingAt(startPos);
+				Token bulletToken = this.ctm.get(bulletIndex);
+				int slashPos = source.lastIndexOf('/', matcherStart) + nodeStartPosition;
+				int bulletIndent = this.ctm.getLength(slashPos + 1, bulletToken.originalStart - 1, 0);
+				if (bulletIndent > 1 && (bulletIndent % 2) != 0) {
+					bulletIndent--;
+				}
+				if (bulletIndex == 1 && bulletIndent == 0) {
+					bulletIndent = slashPos + 1;
+				}
+				if (bulletIndex != 1) {
+					bulletToken.breakBefore();
+				}
+
+				if (!indentPerLevel.isEmpty()) {
+					int previousLevel = indentPerLevel.getLast();
+					if (bulletIndent > previousLevel) {
+						if (isDigit) {
+							String one = matcher.group(1);
+							if (!one.equals("1")) { //$NON-NLS-1$
+								bulletToken.clearLineBreaksBefore();
+								continue;
+							}
+						}
+						int diff = bulletIndent - previousLevel;
+						if (diff < 2) {
+							bulletIndent = previousLevel;
+						} else if (diff >= 6) {
+							bulletToken.clearLineBreaksBefore();
 							continue;
 						}
+					} else if (isDigit && bulletCharCurrent != bulletCharPrev) {
+						bulletToken.putLineBreaksBefore(2);
 					}
-					int startPos = matcherStart + textElement.getStartPosition();
-					int bulletIndex = tokenStartingAt(startPos);
-					Token bulletToken = this.ctm.get(bulletIndex);
-					int slashPos = source.lastIndexOf('/', matcherStart) + nodeStartPosition;
-					int bulletIndent = this.ctm.getLength(slashPos + 1, bulletToken.originalStart - 1, 0);
-					if (bulletIndent > 1 && (bulletIndent % 2) != 0) {
-						bulletIndent--;
-					}
-					if (bulletIndex == 1 && bulletIndent == 0) {
-						bulletIndent = slashPos + 1;
-					}
-					if (bulletIndex != 1) {
-						bulletToken.breakBefore();
-					}
-
-					if (!indentPerLevel.isEmpty()) {
-						int previousLevel = indentPerLevel.getLast();
-						if (bulletIndent > previousLevel) {
-							if (isDigit && !isSerialStartsWithOne(textContent)) {
-								bulletToken.clearLineBreaksBefore();
-								continue;
-							}
-							int diff = bulletIndent - previousLevel;
-							if (diff < 4) {
-								bulletIndent = previousLevel;
-							} else if (diff >= 6) {
-								bulletToken.clearLineBreaksBefore();
-								continue;
-							}
-						} else if (isDigit && (bulletCharPrev == '.' || bulletCharPrev == ')')
-								&& (bulletCharCurrent == '.' || bulletCharCurrent == ')')
-								&& bulletCharPrev != bulletCharCurrent) {
-							bulletToken.putLineBreaksBefore(2);
-
-						}
-					}
-					while (!indentPerLevel.isEmpty() && bulletIndent < indentPerLevel.peekLast()) {
-						indentPerLevel.removeLast();
-					}
-
-					if (indentPerLevel.isEmpty() || bulletIndent > indentPerLevel.peekLast()) {
-						indentPerLevel.addLast(bulletIndent);
-					}
-
-					int currentLevel = indentPerLevel.size();
-					int indentToSet = 4 * (currentLevel - 1);
-					bulletToken.setIndent(indentToSet);
-					bulletToken.spaceAfter();
-					bulletCharPrev = bulletCharCurrent;
 				}
+				while (!indentPerLevel.isEmpty() && bulletIndent < indentPerLevel.peekLast()) {
+					indentPerLevel.removeLast();
+				}
+
+				if (indentPerLevel.isEmpty() || bulletIndent > indentPerLevel.peekLast()) {
+					indentPerLevel.addLast(bulletIndent);
+				}
+
+				int currentLevel = indentPerLevel.size();
+				int indentToSet = 4 * (currentLevel - 1);
+				bulletToken.setIndent(indentToSet);
+				bulletToken.spaceAfter();
+				bulletCharPrev = bulletCharCurrent;
 			}
 		}
 	}
-
-	private boolean isSerialStartsWithOne(String text) {
-		text = text.trim();
-		int firstSpace = text.indexOf(' ');
-		int stopIndex = text.substring(0, firstSpace).indexOf('.') == -1 ? text.indexOf(')') : text.indexOf('.');
-		if (stopIndex != -1) {
-			String serialNumber = text.substring(0, stopIndex);
-			if (serialNumber.equals("1")) { //$NON-NLS-1$
-				return true;
-			}
-		}
-		return false;
-	}
-
 	private void handleMarkdownTable(List<Object> fragments) {
 		int tableStartIndex = -1;
 		int tableLastIndex = -1;
