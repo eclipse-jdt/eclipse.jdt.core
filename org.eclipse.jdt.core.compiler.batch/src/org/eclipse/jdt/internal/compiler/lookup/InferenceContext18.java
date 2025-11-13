@@ -751,6 +751,11 @@ public class InferenceContext18 {
 	public ReferenceBinding inferFunctionalInterfaceParameterization(LambdaExpression lambda, BlockScope blockScope,
 			ParameterizedTypeBinding targetTypeWithWildCards)
 	{
+		/* TODO see 18.2.1:
+		 * If §18.5.3 is used to derive a functional interface type which is parameterized,
+		 * then the test that F<A'1, ..., A'm> is a subtype of F<A1, ..., Am> is not performed
+		 * (instead, it is asserted with a constraint formula below).
+		 */
 		TypeBinding[] q = createBoundsForFunctionalInterfaceParameterizationInference(targetTypeWithWildCards);
 		if (q == null || q.length != lambda.arguments().length) {
 			return null;
