@@ -64,13 +64,11 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
 import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 
 /*
 Not all fields defined by this type (& its subclasses) are initialized when it is created.
@@ -1519,18 +1517,6 @@ private boolean isCompatibleWith0(TypeBinding otherType, /*@Nullable*/ Scope cap
 				if ((otherLowerBound = otherCapture.lowerBound) != null) {
 					if (otherLowerBound.isArrayType()) return false;
 					return isCompatibleWith(otherLowerBound);
-				}
-			}
-			if (otherType instanceof InferenceVariable) {
-				// may interpret InferenceVariable as a joker, but only when within an outer lambda inference:
-				if (captureScope != null) {
-					MethodScope methodScope = captureScope.methodScope();
-					if (methodScope != null) {
-						ReferenceContext referenceContext = methodScope.referenceContext;
-						if (referenceContext instanceof LambdaExpression
-								&& ((LambdaExpression)referenceContext).inferenceContext != null)
-							return true;
-					}
 				}
 			}
 			//$FALL-THROUGH$
