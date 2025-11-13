@@ -108,7 +108,6 @@ public class MessageSend extends Expression implements IPolyExpression, Invocati
 	 // hold on to this context from invocation applicability inference until invocation type inference (per method candidate):
 	private Map<ParameterizedGenericMethodBinding, InferenceContext18> inferenceContexts;
 	private HashMap<TypeBinding, MethodBinding> solutionsPerTargetType;
-	private InferenceContext18 outerInferenceContext; // resolving within the context of an outer (lambda) inference?
 
 	private boolean receiverIsType;
 	protected boolean argsContainCast;
@@ -1117,11 +1116,6 @@ protected TypeBinding handleNullnessCodePatterns(BlockScope scope, TypeBinding r
 }
 
 protected TypeBinding findMethodBinding(BlockScope scope) {
-	ReferenceContext referenceContext = scope.methodScope().referenceContext;
-	if (referenceContext instanceof LambdaExpression) {
-		this.outerInferenceContext = ((LambdaExpression) referenceContext).inferenceContext;
-	}
-
 	if (this.expectedType != null && this.binding instanceof PolyParameterizedGenericMethodBinding) {
 		this.binding = this.solutionsPerTargetType.get(this.expectedType);
 	}
@@ -1338,7 +1332,6 @@ public void cleanUpInferenceContexts() {
 			value.cleanUp();
 	}
 	this.inferenceContexts = null;
-	this.outerInferenceContext = null;
 	this.solutionsPerTargetType = null;
 }
 @Override
@@ -1352,7 +1345,7 @@ public ExpressionContext getExpressionContext() {
 // -- Interface InvocationSite: --
 @Override
 public InferenceContext18 freshInferenceContext(Scope scope) {
-	return new InferenceContext18(scope, this.arguments, this, this.outerInferenceContext);
+	return new InferenceContext18(scope, this.arguments, this);
 }
 @Override
 public boolean isQualifiedSuper() {

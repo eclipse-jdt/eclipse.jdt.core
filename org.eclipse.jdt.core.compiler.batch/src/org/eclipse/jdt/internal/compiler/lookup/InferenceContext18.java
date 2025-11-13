@@ -194,13 +194,12 @@ public class InferenceContext18 {
 	}
 
 	/** Construct an inference context for an invocation (method/constructor). */
-	public InferenceContext18(Scope scope, Expression[] arguments, InvocationSite site, InferenceContext18 outerContext) {
+	public InferenceContext18(Scope scope, Expression[] arguments, InvocationSite site) {
 		this.scope = scope;
 		this.environment = scope.environment();
 		this.object = scope.getJavaLangObject();
 		this.invocationArguments = arguments;
 		this.currentInvocation = site;
-		this.outerContext = outerContext;
 		if (site instanceof Invocation)
 			scope.compilationUnitScope().registerInferredInvocation((Invocation) site);
 	}
@@ -671,7 +670,7 @@ public class InferenceContext18 {
 						t = ConstraintExpressionFormula.findGroundTargetType(this, skope, lambda, withWildCards);
 					}
 					MethodBinding functionType;
-					if (t != null && (functionType = t.getSingleAbstractMethod(skope, true)) != null && (lambda = lambda.resolveExpressionExpecting(t, this.scope, this)) != null) {
+					if (t != null && (functionType = t.getSingleAbstractMethod(skope, true)) != null && (lambda = lambda.resolveExpressionExpecting(t, this.scope)) != null) {
 						TypeBinding r = functionType.returnType;
 						Expression[] resultExpressions = lambda.resultExpressions();
 						for (int i = 0, length = resultExpressions == null ? 0 : resultExpressions.length; i < length; i++) {
@@ -1111,17 +1110,10 @@ public class InferenceContext18 {
 	public TypeBinding /*@Nullable*/[] getSolutions(TypeVariableBinding[] typeParameters, InvocationSite site, BoundSet boundSet) {
 		int len = typeParameters.length;
 		TypeBinding[] substitutions = new TypeBinding[len];
-		InferenceVariable[] outerVariables = null;
-		if (this.outerContext != null && this.outerContext.stepCompleted < TYPE_INFERRED)
-			outerVariables = this.outerContext.inferenceVariables;
 		for (int i = 0; i < typeParameters.length; i++) {
 			for (InferenceVariable variable : this.inferenceVariables) {
 				if (isSameSite(variable.site, site) && TypeBinding.equalsEquals(variable.typeParameter, typeParameters[i])) {
-					TypeBinding outerVar = null;
-					if (outerVariables != null && (outerVar = boundSet.getEquivalentOuterVariable(variable, outerVariables)) != null)
-						substitutions[i] = outerVar;
-					else
-						substitutions[i] = boundSet.getInstantiation(variable, this.environment);
+					substitutions[i] = boundSet.getInstantiation(variable, this.environment);
 					break;
 				}
 			}
