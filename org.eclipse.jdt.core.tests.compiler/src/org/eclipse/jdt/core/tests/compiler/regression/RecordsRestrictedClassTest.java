@@ -11246,4 +11246,368 @@ public void testIssue4551_2() throws Exception {
 				"public BigDecimal test()");
 
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4616
+// NPE because annotation.resolvedType is null
+public void testIssue4616() throws Exception {
+	this.runConformTest(
+		new String[] {
+					"test/Broken.java",
+					"""
+					package test;
+
+					import test.Schema.RequiredMode;
+
+					public record Broken(@Schema(description = "str", requiredMode = RequiredMode.REQUIRED) @JsonProperty("str")  Broken.UpsertEnvironmentDto environment) {
+						public record UpsertEnvironmentDto() {}
+						public static void main(String [] args) {
+						    System.out.println("OK!");
+						}
+					}
+
+					@interface JsonProperty {
+						String value();
+					}
+
+					@interface Schema {
+
+					    RequiredMode requiredMode();
+
+					    String description();
+
+					    enum RequiredMode {
+					        REQUIRED,
+					    }
+					}
+					""",
+	            },
+				"OK!");
+
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4616
+// NPE because annotation.resolvedType is null
+public void testIssue4616_fuller() throws Exception {
+	this.runConformTest(
+		new String[] {
+					"test/Broken.java",
+					"""
+					package test;
+
+					import test.Schema.RequiredMode;
+
+					import java.util.Map;
+
+					public record Broken(
+
+					        @Schema(description = "str", requiredMode = RequiredMode.NOT_REQUIRED) @JsonProperty("str")  String externalAccountId,
+
+					        @Schema(description = "str", requiredMode = RequiredMode.REQUIRED) @JsonProperty("str") String productId,
+
+					        @Schema(description = "str", requiredMode = RequiredMode.REQUIRED) @JsonProperty("str") Broken.UpsertEnvironmentDto environment,
+
+					        @Schema(description = \"\"\"
+					            str\"\"\", requiredMode = RequiredMode.NOT_REQUIRED) @JsonProperty("str") Map<String, String> metadata) {
+					    public record UpsertEnvironmentDto(
+
+					            @Schema(description = "str", requiredMode = RequiredMode.REQUIRED) @JsonProperty("str") String id,
+
+					            @Schema(description = "str", requiredMode = RequiredMode.REQUIRED) @JsonProperty("str") String url) {
+
+					    }
+					    public static void main(String [] args) {
+						    System.out.println("OK!");
+						}
+					}
+
+
+					@interface JsonProperty {
+						String value();
+					}
+
+					@interface Schema {
+
+					    RequiredMode requiredMode();
+
+					    String description();
+
+					    enum RequiredMode {
+					        REQUIRED,
+					        NOT_REQUIRED,
+					    }
+					}
+					""",
+	            },
+				"OK!");
+	String expectedOutput =
+					"  // Field descriptor #6 Ljava/lang/String;\n" +
+					"  private final java.lang.String externalAccountId;\n" +
+					"    RuntimeInvisibleAnnotations: \n" +
+					"      #8 @test.Schema(\n" +
+					"        #9 description=\"str\" (constant type)\n" +
+					"        #11 requiredMode=test.Schema.RequiredMode.NOT_REQUIRED(enum type #12.#13)\n" +
+					"      )\n" +
+					"      #14 @test.JsonProperty(\n" +
+					"        #15 value=\"str\" (constant type)\n" +
+					"      )\n" +
+					"  \n" +
+					"  // Field descriptor #6 Ljava/lang/String;\n" +
+					"  private final java.lang.String productId;\n" +
+					"    RuntimeInvisibleAnnotations: \n" +
+					"      #8 @test.Schema(\n" +
+					"        #9 description=\"str\" (constant type)\n" +
+					"        #11 requiredMode=test.Schema.RequiredMode.REQUIRED(enum type #12.#17)\n" +
+					"      )\n" +
+					"      #14 @test.JsonProperty(\n" +
+					"        #15 value=\"str\" (constant type)\n" +
+					"      )\n" +
+					"  \n" +
+					"  // Field descriptor #19 Ltest/Broken$UpsertEnvironmentDto;\n" +
+					"  private final test.Broken$UpsertEnvironmentDto environment;\n" +
+					"    RuntimeInvisibleAnnotations: \n" +
+					"      #8 @test.Schema(\n" +
+					"        #9 description=\"str\" (constant type)\n" +
+					"        #11 requiredMode=test.Schema.RequiredMode.REQUIRED(enum type #12.#17)\n" +
+					"      )\n" +
+					"      #14 @test.JsonProperty(\n" +
+					"        #15 value=\"str\" (constant type)\n" +
+					"      )\n" +
+					"  \n" +
+					"  // Field descriptor #21 Ljava/util/Map;\n" +
+					"  // Signature: Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;\n" +
+					"  private final java.util.Map metadata;\n" +
+					"    RuntimeInvisibleAnnotations: \n" +
+					"      #8 @test.Schema(\n" +
+					"        #9 description=\"str\" (constant type)\n" +
+					"        #11 requiredMode=test.Schema.RequiredMode.NOT_REQUIRED(enum type #12.#13)\n" +
+					"      )\n" +
+					"      #14 @test.JsonProperty(\n" +
+					"        #15 value=\"str\" (constant type)\n" +
+					"      )\n" +
+					"  \n" +
+					"  // Method descriptor #25 ([Ljava/lang/String;)V\n" +
+					"  // Stack: 2, Locals: 1\n" +
+					"  public static void main(java.lang.String[] args);\n" +
+					"    0  getstatic java.lang.System.out : java.io.PrintStream [27]\n" +
+					"    3  ldc <String \"OK!\"> [33]\n" +
+					"    5  invokevirtual java.io.PrintStream.println(java.lang.String) : void [35]\n" +
+					"    8  return\n" +
+					"      Line numbers:\n" +
+					"        [pc: 0, line: 25]\n" +
+					"        [pc: 8, line: 26]\n" +
+					"      Local variable table:\n" +
+					"        [pc: 0, pc: 9] local: args index: 0 type: java.lang.String[]\n" +
+					"  \n" +
+					"  // Method descriptor #45 ()Ljava/lang/String;\n" +
+					"  // Stack: 1, Locals: 1\n" +
+					"  public java.lang.String externalAccountId();\n" +
+					"    0  aload_0 [this]\n" +
+					"    1  getfield test.Broken.externalAccountId : java.lang.String [46]\n" +
+					"    4  areturn\n" +
+					"      Line numbers:\n" +
+					"        [pc: 0, line: 9]\n" +
+					"    RuntimeInvisibleAnnotations: \n" +
+					"      #8 @test.Schema(\n" +
+					"        #9 description=\"str\" (constant type)\n" +
+					"        #11 requiredMode=test.Schema.RequiredMode.NOT_REQUIRED(enum type #12.#13)\n" +
+					"      )\n" +
+					"      #14 @test.JsonProperty(\n" +
+					"        #15 value=\"str\" (constant type)\n" +
+					"      )\n" +
+					"  \n" +
+					"  // Method descriptor #45 ()Ljava/lang/String;\n" +
+					"  // Stack: 1, Locals: 1\n" +
+					"  public java.lang.String productId();\n" +
+					"    0  aload_0 [this]\n" +
+					"    1  getfield test.Broken.productId : java.lang.String [48]\n" +
+					"    4  areturn\n" +
+					"      Line numbers:\n" +
+					"        [pc: 0, line: 11]\n" +
+					"    RuntimeInvisibleAnnotations: \n" +
+					"      #8 @test.Schema(\n" +
+					"        #9 description=\"str\" (constant type)\n" +
+					"        #11 requiredMode=test.Schema.RequiredMode.REQUIRED(enum type #12.#17)\n" +
+					"      )\n" +
+					"      #14 @test.JsonProperty(\n" +
+					"        #15 value=\"str\" (constant type)\n" +
+					"      )\n" +
+					"  \n" +
+					"  // Method descriptor #50 ()Ltest/Broken$UpsertEnvironmentDto;\n" +
+					"  // Stack: 1, Locals: 1\n" +
+					"  public test.Broken.UpsertEnvironmentDto environment();\n" +
+					"    0  aload_0 [this]\n" +
+					"    1  getfield test.Broken.environment : test.Broken.UpsertEnvironmentDto [51]\n" +
+					"    4  areturn\n" +
+					"      Line numbers:\n" +
+					"        [pc: 0, line: 13]\n" +
+					"    RuntimeInvisibleAnnotations: \n" +
+					"      #8 @test.Schema(\n" +
+					"        #9 description=\"str\" (constant type)\n" +
+					"        #11 requiredMode=test.Schema.RequiredMode.REQUIRED(enum type #12.#17)\n" +
+					"      )\n" +
+					"      #14 @test.JsonProperty(\n" +
+					"        #15 value=\"str\" (constant type)\n" +
+					"      )\n" +
+					"  \n" +
+					"  // Method descriptor #53 ()Ljava/util/Map;\n" +
+					"  // Signature: ()Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;\n" +
+					"  // Stack: 1, Locals: 1\n" +
+					"  public java.util.Map metadata();\n" +
+					"    0  aload_0 [this]\n" +
+					"    1  getfield test.Broken.metadata : java.util.Map [55]\n" +
+					"    4  areturn\n" +
+					"      Line numbers:\n" +
+					"        [pc: 0, line: 16]\n" +
+					"    RuntimeInvisibleAnnotations: \n" +
+					"      #8 @test.Schema(\n" +
+					"        #9 description=\"str\" (constant type)\n" +
+					"        #11 requiredMode=test.Schema.RequiredMode.NOT_REQUIRED(enum type #12.#13)\n" +
+					"      )\n" +
+					"      #14 @test.JsonProperty(\n" +
+					"        #15 value=\"str\" (constant type)\n" +
+					"      )\n" +
+					"  \n" +
+					"  // Method descriptor #45 ()Ljava/lang/String;\n" +
+					"  // Stack: 2, Locals: 1\n" +
+					"  public final java.lang.String toString();\n" +
+					"    0  aload_0 [this]\n" +
+					"    1  invokedynamic 0 toString(test.Broken) : java.lang.String [58]\n" +
+					"    6  areturn\n" +
+					"      Line numbers:\n" +
+					"        [pc: 0, line: 1]\n" +
+					"  \n" +
+					"  // Method descriptor #62 ()I\n" +
+					"  // Stack: 2, Locals: 1\n" +
+					"  public final int hashCode();\n" +
+					"    0  aload_0 [this]\n" +
+					"    1  invokedynamic 0 hashCode(test.Broken) : int [63]\n" +
+					"    6  ireturn\n" +
+					"      Line numbers:\n" +
+					"        [pc: 0, line: 1]\n" +
+					"  \n" +
+					"  // Method descriptor #67 (Ljava/lang/Object;)Z\n" +
+					"  // Stack: 2, Locals: 2\n" +
+					"  public final boolean equals(java.lang.Object arg0);\n" +
+					"    0  aload_0 [this]\n" +
+					"    1  aload_1 [arg0]\n" +
+					"    2  invokedynamic 0 equals(test.Broken, java.lang.Object) : boolean [68]\n" +
+					"    7  ireturn\n" +
+					"      Line numbers:\n" +
+					"        [pc: 0, line: 1]\n" +
+					"  \n" +
+					"  // Method descriptor #72 (Ljava/lang/String;Ljava/lang/String;Ltest/Broken$UpsertEnvironmentDto;Ljava/util/Map;)V\n" +
+					"  // Signature: (Ljava/lang/String;Ljava/lang/String;Ltest/Broken$UpsertEnvironmentDto;Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;)V\n" +
+					"  // Stack: 2, Locals: 5\n" +
+					"  public Broken(java.lang.String externalAccountId, java.lang.String productId, test.Broken.UpsertEnvironmentDto environment, java.util.Map metadata);\n" +
+					"     0  aload_0 [this]\n" +
+					"     1  invokespecial java.lang.Record() [75]\n" +
+					"     4  aload_0 [this]\n" +
+					"     5  aload_1 [externalAccountId]\n" +
+					"     6  putfield test.Broken.externalAccountId : java.lang.String [46]\n" +
+					"     9  aload_0 [this]\n" +
+					"    10  aload_2 [productId]\n" +
+					"    11  putfield test.Broken.productId : java.lang.String [48]\n" +
+					"    14  aload_0 [this]\n" +
+					"    15  aload_3 [environment]\n" +
+					"    16  putfield test.Broken.environment : test.Broken.UpsertEnvironmentDto [51]\n" +
+					"    19  aload_0 [this]\n" +
+					"    20  aload 4 [metadata]\n" +
+					"    22  putfield test.Broken.metadata : java.util.Map [55]\n" +
+					"    25  return\n" +
+					"      Line numbers:\n" +
+					"        [pc: 0, line: 1]\n" +
+					"      Method Parameters:\n" +
+					"        externalAccountId\n" +
+					"        productId\n" +
+					"        environment\n" +
+					"        metadata\n" +
+					"    RuntimeInvisibleParameterAnnotations: \n" +
+					"      Number of annotations for parameter 0: 2\n" +
+					"        #8 @test.Schema(\n" +
+					"          #9 description=\"str\" (constant type)\n" +
+					"          #11 requiredMode=test.Schema.RequiredMode.NOT_REQUIRED(enum type #12.#13)\n" +
+					"        )\n" +
+					"        #14 @test.JsonProperty(\n" +
+					"          #15 value=\"str\" (constant type)\n" +
+					"        )\n" +
+					"      Number of annotations for parameter 1: 2\n" +
+					"        #8 @test.Schema(\n" +
+					"          #9 description=\"str\" (constant type)\n" +
+					"          #11 requiredMode=test.Schema.RequiredMode.REQUIRED(enum type #12.#17)\n" +
+					"        )\n" +
+					"        #14 @test.JsonProperty(\n" +
+					"          #15 value=\"str\" (constant type)\n" +
+					"        )\n" +
+					"      Number of annotations for parameter 2: 2\n" +
+					"        #8 @test.Schema(\n" +
+					"          #9 description=\"str\" (constant type)\n" +
+					"          #11 requiredMode=test.Schema.RequiredMode.REQUIRED(enum type #12.#17)\n" +
+					"        )\n" +
+					"        #14 @test.JsonProperty(\n" +
+					"          #15 value=\"str\" (constant type)\n" +
+					"        )\n" +
+					"      Number of annotations for parameter 3: 2\n" +
+					"        #8 @test.Schema(\n" +
+					"          #9 description=\"str\" (constant type)\n" +
+					"          #11 requiredMode=test.Schema.RequiredMode.NOT_REQUIRED(enum type #12.#13)\n" +
+					"        )\n" +
+					"        #14 @test.JsonProperty(\n" +
+					"          #15 value=\"str\" (constant type)\n" +
+					"        )\n" +
+					"\n" +
+					"  Inner classes:\n" +
+					"    [inner class info: #96 java/lang/invoke/MethodHandles$Lookup, outer class info: #98 java/lang/invoke/MethodHandles\n" +
+					"     inner name: #100 Lookup, accessflags: 25 public static final],\n" +
+					"    [inner class info: #101 test/Broken$UpsertEnvironmentDto, outer class info: #1 test/Broken\n" +
+					"     inner name: #103 UpsertEnvironmentDto, accessflags: 25 public static final],\n" +
+					"    [inner class info: #104 test/Schema$RequiredMode, outer class info: #106 test/Schema\n" +
+					"     inner name: #108 RequiredMode, accessflags: 16409 public static final]\n" +
+					"\n" +
+					"Nest Members:\n" +
+					"   #101 test/Broken$UpsertEnvironmentDto\n" +
+					"\n" +
+					"Record: #Record\n" +
+					"Components:\n" +
+					"  \n" +
+					"// Component descriptor #6 Ljava/lang/String;\n" +
+					"java.lang.String externalAccountId;\n" +
+					"  RuntimeInvisibleAnnotations: \n" +
+					"    #8 @test.Schema(\n" +
+					"      #9 description=\"str\" (constant type)\n" +
+					"      #11 requiredMode=test.Schema.RequiredMode.NOT_REQUIRED(enum type #12.#13)\n" +
+					"    )\n" +
+					"    #14 @test.JsonProperty(\n" +
+					"      #15 value=\"str\" (constant type)\n" +
+					"    )\n" +
+					"// Component descriptor #6 Ljava/lang/String;\n" +
+					"java.lang.String productId;\n" +
+					"  RuntimeInvisibleAnnotations: \n" +
+					"    #8 @test.Schema(\n" +
+					"      #9 description=\"str\" (constant type)\n" +
+					"      #11 requiredMode=test.Schema.RequiredMode.REQUIRED(enum type #12.#17)\n" +
+					"    )\n" +
+					"    #14 @test.JsonProperty(\n" +
+					"      #15 value=\"str\" (constant type)\n" +
+					"    )\n" +
+					"// Component descriptor #19 Ltest/Broken$UpsertEnvironmentDto;\n" +
+					"test.Broken$UpsertEnvironmentDto environment;\n" +
+					"  RuntimeInvisibleAnnotations: \n" +
+					"    #8 @test.Schema(\n" +
+					"      #9 description=\"str\" (constant type)\n" +
+					"      #11 requiredMode=test.Schema.RequiredMode.REQUIRED(enum type #12.#17)\n" +
+					"    )\n" +
+					"    #14 @test.JsonProperty(\n" +
+					"      #15 value=\"str\" (constant type)\n" +
+					"    )\n" +
+					"// Component descriptor #21 Ljava/util/Map;\n" +
+					"// Signature: Ljava/util/Map<Ljava/lang/String;Ljava/lang/String;>;\n" +
+					"java.util.Map metadata;\n" +
+					"  RuntimeInvisibleAnnotations: \n" +
+					"    #8 @test.Schema(\n" +
+					"      #9 description=\"str\" (constant type)\n" +
+					"      #11 requiredMode=test.Schema.RequiredMode.NOT_REQUIRED(enum type #12.#13)\n" +
+					"    )\n" +
+					"    #14 @test.JsonProperty(\n" +
+					"      #15 value=\"str\" (constant type)\n" +
+					"    )\n";
+	verifyClassFile(expectedOutput, "test/Broken.class", ClassFileBytesDisassembler.SYSTEM);
+}
 }

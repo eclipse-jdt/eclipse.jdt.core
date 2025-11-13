@@ -944,11 +944,6 @@ private VariableBinding resolveTypeFor(VariableBinding variable) {
 	if ((variable.modifiers & ExtraCompilerModifiers.AccUnresolved) == 0)
 		return variable;
 
-	if ((variable.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
-		variable.modifiers |= ClassFileConstants.AccDeprecated;
-	if (hasRestrictedAccess())
-		variable.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
-
 	MethodScope initializationScope = variable.isStatic()
 		? this.scope.referenceContext.staticInitializerScope
 		: this.scope.referenceContext.initializerScope;
@@ -957,6 +952,7 @@ private VariableBinding resolveTypeFor(VariableBinding variable) {
 		if (variable instanceof FieldBinding field)
 			initializationScope.initializedField = field;
 		AbstractVariableDeclaration variableDeclaration = variable instanceof FieldBinding field ? field.sourceField() : ((RecordComponentBinding) variable).sourceRecordComponent();
+		ASTNode.resolveNullDefaultAnnotations(initializationScope, variableDeclaration.annotations, variable);
 		TypeBinding variableType =
 			variableDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT
 				? initializationScope.environment().convertToRawType(this, false /*do not force conversion of enclosing types*/) // enum constant is implicitly of declaring enum type
@@ -984,6 +980,11 @@ private VariableBinding resolveTypeFor(VariableBinding variable) {
 		if (leafType instanceof ReferenceBinding && (((ReferenceBinding)leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0) {
 			variable.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 		}
+
+		if ((variable.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
+			variable.modifiers |= ClassFileConstants.AccDeprecated;
+		if (hasRestrictedAccess())
+			variable.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 
 		Annotation [] annotations = variableDeclaration.annotations;
 
