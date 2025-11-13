@@ -3466,4 +3466,29 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			assumeEquals(this.prefix+"Invalid content for text element ", "{@link BadLink} is just text}", textElement.getText());
 		}
 	}
+
+	public void testContentOfCodeParsedOutside4615() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.astLevel = AST.JLS25;
+		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/X.java",
+				"""
+					/**
+					* {@code public class Example { final int a = 1; } }
+					*/
+					public class Markdown {}
+				"""
+		);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+		verifyWorkingCopiesComments();
+		List unitComments = compilUnit.getCommentList();
+		assertEquals("Wrong number of comments", 1, unitComments.size());
+		Comment comment = (Comment) unitComments.get(0);
+		assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+		Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0);
+		assumeEquals(this.prefix+"Wrong number of tags", 1, docComment.tags().size());
+		//List<TagElement> tagElement = (List<TagElement>) docComment.tags().get(0);
+		TagElement tagElement = (TagElement) docComment.tags().get(0);
+		List<TagElement> listFrag = tagElement.fragments();
+		assumeEquals("wrong nuber of tags", 1, listFrag.size());
+	}
 }
