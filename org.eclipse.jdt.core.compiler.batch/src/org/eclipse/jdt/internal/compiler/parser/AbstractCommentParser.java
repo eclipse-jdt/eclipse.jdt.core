@@ -1393,6 +1393,46 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		return parseReference(false);
 	}
 
+	// Parses a complete URL reference starting from current position
+	private Object parseURLReference() throws InvalidInputException {
+		// httpFlag is used to check wheather URL contains http or not
+		StringBuilder urlBuilder = new StringBuilder();
+		int firstTokenStartPos = this.scanner.startPosition;
+		//start with the current identifier
+		if (this.currentTokenType == TerminalToken.TokenNameIdentifier) {
+			urlBuilder.append(this.scanner.getCurrentTokenSource());
+			consumeToken();
+		}
+		char[] fullURL;
+		int pos;
+
+		TerminalToken token1 = readTokenSafely();
+		if (token1 == TerminalToken.TokenNameCOLON) {
+			urlBuilder.append(this.scanner.getCurrentTokenSource());
+			consumeToken();
+		}
+
+		pos = this.scanner.getCurrentTokenEndPosition() + 1;
+		char c;
+		while (pos < this.source.length) {
+			c = (this.source[pos] == ')') ? this.source[pos] : readChar();
+
+			if (c == ':') continue;
+	        if (c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '*' || c == ')' || c == '(' || c == '[' || c == ']' ) {
+	            break;
+	        }
+	        urlBuilder.append(c);
+	        pos++;
+		}
+		fullURL = urlBuilder.toString().toCharArray();
+
+		this.identifierPtr = 0;
+		this.identifierStack[this.identifierPtr] =  fullURL;
+		this.identifierPositionStack[this.identifierPtr] = (((long) firstTokenStartPos) << 32) + (pos - 1);
+		this.identifierLengthStack[this.identifierLengthPtr] = 1;
+		return createTypeReference(TokenNameInvalid, true);
+	}
+
 	/*
 	 * Parse a reference in @see tag
 	 */
@@ -1488,6 +1528,19 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						break nextToken;
 					case TokenNameUNDERSCORE:
 					case TokenNameIdentifier :
+						if (this.markdown) {
+							int pos1 = this.scanner.getCurrentTokenStartPosition() - 1;
+							while (pos1 >= 0 && Character.isWhitespace(this.source[pos1])) {
+							    pos1--;
+							}
+							if (pos1 >= 0 && this.source[pos1] == '(') {
+								if (typeRef == null) {
+									typeRefStartPosition = this.scanner.getCurrentTokenStartPosition();
+									typeRef = parseURLReference();
+									if (this.abort) return false;
+								}
+							}
+						}
 						if (typeRef == null) {
 							typeRefStartPosition = this.scanner.getCurrentTokenStartPosition();
 							typeRef = parseQualifiedName(true, allowModule);
@@ -3612,6 +3665,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		// Whitespace or inline tag closing brace
 		char ch = peekChar();
 		switch (ch) {
+			case ')':
 			case ']':
 				// TODO: Check if we need to exclude escaped ]
 				if (this.markdown)
