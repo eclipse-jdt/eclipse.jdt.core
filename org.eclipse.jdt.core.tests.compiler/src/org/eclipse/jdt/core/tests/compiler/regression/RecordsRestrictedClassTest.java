@@ -11610,4 +11610,82 @@ public void testIssue4616_fuller() throws Exception {
 					"    )\n";
 	verifyClassFile(expectedOutput, "test/Broken.class", ClassFileBytesDisassembler.SYSTEM);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4622
+// Inconsistent classfile encountered on annotated generic types
+public void testIssue4622() throws Exception {
+	this.runConformTest(
+		new String[] {
+					"test/Record.java",
+					"""
+					package test;
+
+					import java.lang.annotation.Target;
+
+					public record Record(
+					        Patch<@ValidUrlTemplate(value = UrlValidationType.AA, message = "{}") String> labelUrl) {
+
+					        public static void main(String [] args) {
+						    	System.out.println("OK!");
+						}
+					}
+
+					class Patch<T> {
+					    public T field;
+					}
+
+					enum UrlValidationType {
+					    AA, BB
+					}
+
+					@Target(java.lang.annotation.ElementType.TYPE_USE)
+					@interface ValidUrlTemplate {
+					    UrlValidationType value();
+					    String message();
+					}
+					""",
+	            },
+				"OK!");
+	String expectedOutput =
+					"  // Field descriptor #6 Ltest/Patch;\n" +
+					"  // Signature: Ltest/Patch<Ljava/lang/String;>;\n" +
+					"  private final test.Patch labelUrl;\n" +
+					"    RuntimeInvisibleTypeAnnotations: \n" +
+					"      #10 @test.ValidUrlTemplate(\n" +
+					"        #11 value=test.UrlValidationType.AA(enum type #12.#13)\n" +
+					"        #14 message=\"{}\" (constant type)\n" +
+					"        target type = 0x13 FIELD\n" +
+					"        location = [TYPE_ARGUMENT(0)]\n" +
+					"      )\n" +
+					"  \n" +
+					"  // Method descriptor #17 ([Ljava/lang/String;)V\n" +
+					"  // Stack: 2, Locals: 1\n" +
+					"  public static void main(java.lang.String[] args);\n" +
+					"    0  getstatic java.lang.System.out : java.io.PrintStream [19]\n" +
+					"    3  ldc <String \"OK!\"> [25]\n" +
+					"    5  invokevirtual java.io.PrintStream.println(java.lang.String) : void [27]\n" +
+					"    8  return\n" +
+					"      Line numbers:\n" +
+					"        [pc: 0, line: 9]\n" +
+					"        [pc: 8, line: 10]\n" +
+					"      Local variable table:\n" +
+					"        [pc: 0, pc: 9] local: args index: 0 type: java.lang.String[]\n" +
+					"  \n" +
+					"  // Method descriptor #37 ()Ltest/Patch;\n" +
+					"  // Signature: ()Ltest/Patch<Ljava/lang/String;>;\n" +
+					"  // Stack: 1, Locals: 1\n" +
+					"  public test.Patch labelUrl();\n" +
+					"    0  aload_0 [this]\n" +
+					"    1  getfield test.Record.labelUrl : test.Patch [39]\n" +
+					"    4  areturn\n" +
+					"      Line numbers:\n" +
+					"        [pc: 0, line: 6]\n" +
+					"    RuntimeInvisibleTypeAnnotations: \n" +
+					"      #10 @test.ValidUrlTemplate(\n" +
+					"        #11 value=test.UrlValidationType.AA(enum type #12.#13)\n" +
+					"        #14 message=\"{}\" (constant type)\n" +
+					"        target type = 0x14 METHOD_RETURN\n" +
+					"        location = [TYPE_ARGUMENT(0)]\n" +
+					"      )";
+	verifyClassFile(expectedOutput, "test/Record.class", ClassFileBytesDisassembler.SYSTEM);
+}
 }

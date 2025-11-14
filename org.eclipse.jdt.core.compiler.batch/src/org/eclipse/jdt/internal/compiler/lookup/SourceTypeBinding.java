@@ -2474,7 +2474,7 @@ public RecordComponentBinding[] setComponents(RecordComponentBinding[] component
 
 	for (RecordComponentBinding component : components) {
 		for (FieldBinding field : this.fields) {
-			if (CharOperation.equals(field.name, component.name) && field.type == null) { // field got built before record component resolution
+			if (CharOperation.equals(field.name, component.name)) { // field got built before record component resolution
 				field.type = component.type;
 				field.modifiers |= component.modifiers & ExtraCompilerModifiers.AccGenericSignature;
 				field.tagBits |= component.tagBits & (TagBits.AnnotationNullMASK | TagBits.AnnotationOwningMASK);
