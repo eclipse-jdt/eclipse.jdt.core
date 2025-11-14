@@ -16536,4 +16536,55 @@ public void testIssue2977() {
 				""";
 		formatSource(input, expected);
 	}
+
+	public void testRecordWithOpeningParanthesisInParam() throws JavaModelException {
+		setComplianceLevel(CompilerOptions.VERSION_16);
+		this.formatterPrefs.insert_space_before_opening_brace_in_record_declaration = true;
+		String input = """
+				public record X(String a, @SuppressWarnings({
+						"a", "b" }) String b){
+
+				}
+				""";
+		String expected = """
+				public record X(String a, @SuppressWarnings({
+						"a", "b" }) String b) {
+
+				}
+				""";
+		formatSource(input, expected);
+	}
+	public void testRecordWithOpeningParanthesisInParamWithSuperInterfaces() throws JavaModelException {
+		setComplianceLevel(CompilerOptions.VERSION_16);
+		this.formatterPrefs.insert_space_before_opening_brace_in_record_declaration = true;
+		String input = """
+				public record X2(String a,
+				                 @SuppressWarnings({
+				                   "a", "b" }) String b)
+				                implements Runnable, AutoCloseable{
+
+				  @Override
+				  public void run() {
+				  }
+
+				  @Override
+				  public void close() {
+				  }
+				}
+				""";
+		String expected = """
+				public record X2(String a, @SuppressWarnings({
+						"a", "b" }) String b) implements Runnable, AutoCloseable {
+
+					@Override
+					public void run() {
+					}
+
+					@Override
+					public void close() {
+					}
+				}
+				""";
+		formatSource(input, expected);
+	}
 }
