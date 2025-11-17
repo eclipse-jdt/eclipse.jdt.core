@@ -1152,6 +1152,7 @@ private IBinaryMethod[] createMethods(IBinaryMethod[] iMethods, IBinaryType bina
 				if (hasRestrictedAccess)
 					method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 				methods1[i] = method;
+				method.order = i;
 			}
 			this.methods = methods1;
 			return iMethods;
@@ -1164,6 +1165,7 @@ private IBinaryMethod[] createMethods(IBinaryMethod[] iMethods, IBinaryType bina
 						method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 					mappedBinaryMethods[index] = iMethods[i];
 					methods1[index++] = method;
+					method.order = i;
 				}
 			}
 			this.methods = methods1;

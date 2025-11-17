@@ -77,9 +77,11 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 				case METHOD :
 					ExecutableElementImpl executableElementImpl = (ExecutableElementImpl) e;
 					Binding binding = executableElementImpl._binding;
-					if (binding instanceof MethodBinding) {
-						MethodBinding methodBinding = (MethodBinding) binding;
-						return methodBinding.sourceStart();
+					if(binding instanceof MethodBinding bmd) {
+						if (bmd.declaringClass.isBinaryBinding()) {
+							return bmd.order;
+						}
+						return bmd.sourceStart();
 					}
 					break;
 				case ENUM_CONSTANT :
