@@ -94,7 +94,6 @@ public class MethodBinding extends Binding {
 
 	/** Store parameter names from MethodParameters attribute (incl. applicable default). */
 	public char[][] parameterNames = Binding.NO_PARAMETER_NAMES;
-	public int order;
 
 protected MethodBinding() {
 	// for creating problem or synthetic method

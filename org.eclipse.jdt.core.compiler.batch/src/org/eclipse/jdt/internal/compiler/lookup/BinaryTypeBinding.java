@@ -51,6 +51,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -96,6 +97,7 @@ public class BinaryTypeBinding extends ReferenceBinding {
 	protected FieldBinding[] fields;
 	protected RecordComponentBinding[] components;
 	protected MethodBinding[] methods;
+	protected MethodBinding[] methodsInOriginalOrder;
 	protected ReferenceBinding[] memberTypes;
 	protected TypeVariableBinding[] typeVariables;
 	protected ModuleBinding module;
@@ -1152,7 +1154,6 @@ private IBinaryMethod[] createMethods(IBinaryMethod[] iMethods, IBinaryType bina
 				if (hasRestrictedAccess)
 					method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 				methods1[i] = method;
-				method.order = i;
 			}
 			this.methods = methods1;
 			return iMethods;
@@ -1165,7 +1166,6 @@ private IBinaryMethod[] createMethods(IBinaryMethod[] iMethods, IBinaryType bina
 						method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 					mappedBinaryMethods[index] = iMethods[i];
 					methods1[index++] = method;
-					method.order = i;
 				}
 			}
 			this.methods = methods1;
@@ -1762,6 +1762,19 @@ private ReferenceBinding[] maybeSortedMemberTypes() {
 	return this.memberTypes;
 }
 
+/**
+ * Returns the methods in the order they appear in the class file if available. In some case,
+ * for e.g., when annotation processing is enabled, the original order is preserved and available
+ * for clients. If the original order is not available, the regular sorted array is returned.
+ *
+ * @return the methods in the original order
+ */
+public MethodBinding[] methodsInOriginalOrder() {
+	if (this.methodsInOriginalOrder != null) {
+		return this.methodsInOriginalOrder;
+	}
+	return this.methods;
+}
 // NOTE: the return type, arg & exception types of each method of a binary type are resolved when needed
 @Override
 public MethodBinding[] methods() {
@@ -1776,8 +1789,12 @@ public MethodBinding[] methods() {
 	// lazily sort methods
 	if ((this.tagBits & TagBits.AreMethodsSorted) == 0) {
 		int length = this.methods.length;
-		if (length > 1)
+		if (length > 1) {
+			if (this.environment.globalOptions.processAnnotations) {
+				this.methodsInOriginalOrder = Arrays.copyOf(this.methods, this.methods.length);
+			}
 			ReferenceBinding.sortMethods(this.methods, 0, length);
+		}
 		this.tagBits |= TagBits.AreMethodsSorted;
 	}
 	for (int i = this.methods.length; --i >= 0;)
