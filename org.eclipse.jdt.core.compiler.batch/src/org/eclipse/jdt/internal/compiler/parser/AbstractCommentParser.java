@@ -470,8 +470,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 									}
 								}
 							}
-							break;
 						}
+						break;
 						//$FALL-THROUGH$
 					case '/':
 						if (this.markdown) {
