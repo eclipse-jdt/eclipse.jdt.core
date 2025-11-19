@@ -2950,4 +2950,22 @@ public void cleanUp() {
 	this.scope = null; // for types that are not registered in typeSystem.
 }
 
+@Override
+public boolean isJSpecifyNullMarked() {
+	long bits = this.tagBits & TypeIds.BitJSpecifyNullMarkAnnotations;
+	if (bits == TypeIds.BitJSpecifyNullMarkedAnnotation) {
+		return true;
+	} else if (bits == TypeIds.BitJSpecifyNullUnmarkedAnnotation) {
+		return false;
+	} else if (enclosingMethod() != null) {
+		return enclosingMethod().isJSpecifyNullMarked();
+	} else if (enclosingType() != null) {
+		return enclosingType().isJSpecifyNullMarked();
+	} else if ((this.tagBits & TypeIds.BitKotlinMetadataAnnotation) == TypeIds.BitKotlinMetadataAnnotation) {
+		return false;
+	} else {
+		return getPackage().isJSpecifyNullMarked();
+	}
+}
+
 }

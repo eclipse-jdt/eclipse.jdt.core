@@ -41,4 +41,10 @@ public interface ExtendedTagBits {
 	}
 
 	int IsNullAnnotationPackage = ASTNode.Bit1; // package
+
+	int JSpecifyBits = ASTNode.Bit9 | ASTNode.Bit10;
+	int IsJSpecifyUnspecified = 0;
+	int IsJSpecifyNoChange = ASTNode.Bit9;
+	int IsJSpecifyUnionNull = ASTNode.Bit10;
+	int IsJSpecifyMinusNull = ASTNode.Bit9 | ASTNode.Bit10;
 }

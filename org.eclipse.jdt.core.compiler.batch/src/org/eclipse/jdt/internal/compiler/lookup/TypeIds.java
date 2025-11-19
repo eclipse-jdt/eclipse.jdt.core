@@ -292,6 +292,18 @@ public interface TypeIds {
 
 	final int BitAnyOwningAnnotation = BitOwningAnnotation | BitNotOwningAnnotation;
 
+	final int BitJSpecifyNonNullAnnotation = 8192;
+
+	final int BitJSpecifyNullableAnnotation = 16384;
+
+	final int BitJSpecifyNullMarkedAnnotation = 32768;
+
+	final int BitJSpecifyNullUnmarkedAnnotation = 65536;
+
+	final int BitKotlinMetadataAnnotation = 131072;
+
+	final int BitJSpecifyNullMarkAnnotations = BitJSpecifyNullMarkedAnnotation | BitJSpecifyNullUnmarkedAnnotation;
+
 	/**
 	 * Set of type bits that should be inherited by any sub types.
 	 */

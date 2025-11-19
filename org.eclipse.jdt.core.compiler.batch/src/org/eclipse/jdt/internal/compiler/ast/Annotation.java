@@ -422,6 +422,16 @@ public abstract class Annotation extends Expression {
 				tagBits |= TagBits.AnnotationNonNull;
 			} else if (annotationType.hasNullBit(TypeIds.BitNonNullByDefaultAnnotation)) {
 				tagBits |= determineNonNullByDefaultTagBits(annotationType, valueAttribute);
+			} else if (annotationType.hasNullBit(TypeIds.BitJSpecifyNonNullAnnotation)) {
+				tagBits |= TypeIds.BitJSpecifyNonNullAnnotation;
+			} else if (annotationType.hasNullBit(TypeIds.BitJSpecifyNullableAnnotation)) {
+				tagBits |= TypeIds.BitJSpecifyNullableAnnotation;
+			} else if (annotationType.hasNullBit(TypeIds.BitJSpecifyNullMarkedAnnotation)) {
+				tagBits |= TypeIds.BitJSpecifyNullMarkedAnnotation;
+			} else if (annotationType.hasNullBit(TypeIds.BitJSpecifyNullUnmarkedAnnotation)) {
+				tagBits |= TypeIds.BitJSpecifyNullUnmarkedAnnotation;
+			} else if (annotationType.hasNullBit(TypeIds.BitKotlinMetadataAnnotation)) {
+				tagBits |= TypeIds.BitKotlinMetadataAnnotation;
 			}
 		}
 		if (compilerOptions.isAnnotationBasedResourceAnalysisEnabled) {
