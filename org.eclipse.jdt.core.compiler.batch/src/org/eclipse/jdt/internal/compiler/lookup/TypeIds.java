@@ -302,8 +302,6 @@ public interface TypeIds {
 
 	final int BitKotlinMetadataAnnotation = 131072;
 
-	final int BitJSpecifyNullMarkAnnotations = BitJSpecifyNullMarkedAnnotation | BitJSpecifyNullUnmarkedAnnotation;
-
 	/**
 	 * Set of type bits that should be inherited by any sub types.
 	 */

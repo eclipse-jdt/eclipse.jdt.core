@@ -476,10 +476,10 @@ public void addWrappingSplitPackageBinding(SplitPackageBinding splitPackageBindi
 
 @Override
 public boolean isJSpecifyNullMarked() {
-	long bits = this.tagBits & TypeIds.BitJSpecifyNullMarkAnnotations;
-	if (bits == TypeIds.BitJSpecifyNullMarkedAnnotation) {
+	long bits = this.extendedTagBits & ExtendedTagBits.JSpecifyNullMarkAnnotated;
+	if (bits == ExtendedTagBits.IsJSpecifyNullMarked) {
 		return true;
-	} else if (bits == TypeIds.BitJSpecifyNullUnmarkedAnnotation) {
+	} else if (bits == ExtendedTagBits.IsJSpecifyNullUnmarked) {
 		return false;
 	} else if (this.enclosingModule != null) {
 		return this.enclosingModule.isJSpecifyNullMarked();

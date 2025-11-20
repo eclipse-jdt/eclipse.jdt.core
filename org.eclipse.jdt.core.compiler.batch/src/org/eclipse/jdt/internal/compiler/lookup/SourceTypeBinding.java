@@ -2952,16 +2952,16 @@ public void cleanUp() {
 
 @Override
 public boolean isJSpecifyNullMarked() {
-	long bits = this.tagBits & TypeIds.BitJSpecifyNullMarkAnnotations;
-	if (bits == TypeIds.BitJSpecifyNullMarkedAnnotation) {
+	long bits = this.extendedTagBits & ExtendedTagBits.JSpecifyNullMarkAnnotated;
+	if (bits == ExtendedTagBits.IsJSpecifyNullMarked) {
 		return true;
-	} else if (bits == TypeIds.BitJSpecifyNullUnmarkedAnnotation) {
+	} else if (bits == ExtendedTagBits.IsJSpecifyNullUnmarked) {
 		return false;
 	} else if (enclosingMethod() != null) {
 		return enclosingMethod().isJSpecifyNullMarked();
 	} else if (enclosingType() != null) {
 		return enclosingType().isJSpecifyNullMarked();
-	} else if ((this.tagBits & TypeIds.BitKotlinMetadataAnnotation) == TypeIds.BitKotlinMetadataAnnotation) {
+	} else if ((this.extendedTagBits & ExtendedTagBits.IsKotlinMetadataAnnotated) == ExtendedTagBits.IsKotlinMetadataAnnotated) {
 		return false;
 	} else {
 		return getPackage().isJSpecifyNullMarked();

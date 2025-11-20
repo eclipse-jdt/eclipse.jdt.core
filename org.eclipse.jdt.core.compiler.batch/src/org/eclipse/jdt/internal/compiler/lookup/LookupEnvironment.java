@@ -1708,6 +1708,11 @@ int getAnalysisAnnotationBit(char[][] qualifiedTypeName) {
 			this.allAnalysisAnnotations.put(name, TypeIds.BitNonNullAnnotation);
 		for (String name : this.globalOptions.nonNullByDefaultAnnotationSecondaryNames)
 			this.allAnalysisAnnotations.put(name, TypeIds.BitNonNullByDefaultAnnotation);
+		this.allAnalysisAnnotations.put(CharOperation.toString(TypeConstants.ORG_JSPECIFY_ANNOTATIONS_NONNULL), TypeIds.BitJSpecifyNonNullAnnotation);
+		this.allAnalysisAnnotations.put(CharOperation.toString(TypeConstants.ORG_JSPECIFY_ANNOTATIONS_NULLABLE), TypeIds.BitJSpecifyNullableAnnotation);
+		this.allAnalysisAnnotations.put(CharOperation.toString(TypeConstants.ORG_JSPECIFY_ANNOTATIONS_NULLMARKED), TypeIds.BitJSpecifyNullMarkedAnnotation);
+		this.allAnalysisAnnotations.put(CharOperation.toString(TypeConstants.ORG_JSPECIFY_ANNOTATIONS_NULLUNMARKED), TypeIds.BitJSpecifyNullUnmarkedAnnotation);
+		this.allAnalysisAnnotations.put(CharOperation.toString(TypeConstants.KOTLIN_METADATA), TypeIds.BitKotlinMetadataAnnotation);
 	}
 	String qualifiedTypeString = CharOperation.toString(qualifiedTypeName);
 	Integer typeBit = this.allAnalysisAnnotations.get(qualifiedTypeString);

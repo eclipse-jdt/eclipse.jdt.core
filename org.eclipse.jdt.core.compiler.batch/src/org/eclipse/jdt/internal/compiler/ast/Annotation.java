@@ -332,6 +332,7 @@ public abstract class Annotation extends Expression {
 	 */
 	private long detectStandardAnnotation(Scope scope, ReferenceBinding annotationType, MemberValuePair valueAttribute) {
 		long tagBits = 0;
+		int extendedTagBits = 0;
 		switch (annotationType.id) {
 			// retention annotation
 			case TypeIds.T_JavaLangAnnotationRetention :
@@ -423,15 +424,15 @@ public abstract class Annotation extends Expression {
 			} else if (annotationType.hasNullBit(TypeIds.BitNonNullByDefaultAnnotation)) {
 				tagBits |= determineNonNullByDefaultTagBits(annotationType, valueAttribute);
 			} else if (annotationType.hasNullBit(TypeIds.BitJSpecifyNonNullAnnotation)) {
-				tagBits |= TypeIds.BitJSpecifyNonNullAnnotation;
+				extendedTagBits |= ExtendedTagBits.IsJSpecifyNonNull;
 			} else if (annotationType.hasNullBit(TypeIds.BitJSpecifyNullableAnnotation)) {
-				tagBits |= TypeIds.BitJSpecifyNullableAnnotation;
+				extendedTagBits |= ExtendedTagBits.IsJSpecifyNullable;
 			} else if (annotationType.hasNullBit(TypeIds.BitJSpecifyNullMarkedAnnotation)) {
-				tagBits |= TypeIds.BitJSpecifyNullMarkedAnnotation;
+				extendedTagBits |= ExtendedTagBits.IsJSpecifyNullMarked;
 			} else if (annotationType.hasNullBit(TypeIds.BitJSpecifyNullUnmarkedAnnotation)) {
-				tagBits |= TypeIds.BitJSpecifyNullUnmarkedAnnotation;
+				extendedTagBits |= ExtendedTagBits.IsJSpecifyNullUnmarked;
 			} else if (annotationType.hasNullBit(TypeIds.BitKotlinMetadataAnnotation)) {
-				tagBits |= TypeIds.BitKotlinMetadataAnnotation;
+				extendedTagBits |= ExtendedTagBits.IsKotlinMetadataAnnotated;
 			}
 		}
 		if (compilerOptions.isAnnotationBasedResourceAnalysisEnabled) {

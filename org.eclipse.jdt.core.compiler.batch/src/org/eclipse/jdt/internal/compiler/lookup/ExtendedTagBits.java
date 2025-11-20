@@ -47,4 +47,12 @@ public interface ExtendedTagBits {
 	int IsJSpecifyNoChange = ASTNode.Bit9;
 	int IsJSpecifyUnionNull = ASTNode.Bit10;
 	int IsJSpecifyMinusNull = ASTNode.Bit9 | ASTNode.Bit10;
+
+	int IsJSpecifyNonNull = ASTNode.Bit11;
+	int IsJSpecifyNullable = ASTNode.Bit12;
+
+	int JSpecifyNullMarkAnnotated = ASTNode.Bit13 | ASTNode.Bit14;
+	int IsJSpecifyNullMarked = ASTNode.Bit13;
+	int IsJSpecifyNullUnmarked = ASTNode.Bit14;
+	int IsKotlinMetadataAnnotated = ASTNode.Bit15;
 }
