@@ -2070,15 +2070,6 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 			}
 		}
 		methodBinding.defaultNullness = methodDefaultNullness;
-		if (jspecifyNullable && !jspecifyNonNull) {
-			methodBinding.extendedTagBits |= ExtendedTagBits.IsJSpecifyUnionNull;
-		} else if (jspecifyNonNull && !jspecifyNullable) {
-			methodBinding.extendedTagBits |= ExtendedTagBits.IsJSpecifyMinusNull;
-		} else if (methodBinding.isJSpecifyNullMarked()) {
-			methodBinding.extendedTagBits |= ExtendedTagBits.IsJSpecifyNoChange;
-		} else {
-			methodBinding.extendedTagBits |= ExtendedTagBits.IsJSpecifyUnspecified;
-		}
 	}
 
 	// parameters:

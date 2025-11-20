@@ -423,16 +423,6 @@ public abstract class Annotation extends Expression {
 				tagBits |= TagBits.AnnotationNonNull;
 			} else if (annotationType.hasNullBit(TypeIds.BitNonNullByDefaultAnnotation)) {
 				tagBits |= determineNonNullByDefaultTagBits(annotationType, valueAttribute);
-			} else if (annotationType.hasNullBit(TypeIds.BitJSpecifyNonNullAnnotation)) {
-				extendedTagBits |= ExtendedTagBits.IsJSpecifyNonNull;
-			} else if (annotationType.hasNullBit(TypeIds.BitJSpecifyNullableAnnotation)) {
-				extendedTagBits |= ExtendedTagBits.IsJSpecifyNullable;
-			} else if (annotationType.hasNullBit(TypeIds.BitJSpecifyNullMarkedAnnotation)) {
-				extendedTagBits |= ExtendedTagBits.IsJSpecifyNullMarked;
-			} else if (annotationType.hasNullBit(TypeIds.BitJSpecifyNullUnmarkedAnnotation)) {
-				extendedTagBits |= ExtendedTagBits.IsJSpecifyNullUnmarked;
-			} else if (annotationType.hasNullBit(TypeIds.BitKotlinMetadataAnnotation)) {
-				extendedTagBits |= ExtendedTagBits.IsKotlinMetadataAnnotated;
 			}
 		}
 		if (compilerOptions.isAnnotationBasedResourceAnalysisEnabled) {
@@ -975,6 +965,18 @@ public abstract class Annotation extends Expression {
 		long tagBits = detectStandardAnnotation(scope, annotationType, valueAttribute);
 		int defaultNullness = (int)(tagBits & Binding.NullnessDefaultMASK);
 		tagBits &= ~Binding.NullnessDefaultMASK;
+		int extendedTagBits = 0;
+		if (annotationType.hasNullBit(TypeIds.BitJSpecifyNonNullAnnotation)) {
+			extendedTagBits |= ExtendedTagBits.IsJSpecifyNonNull;
+		} else if (annotationType.hasNullBit(TypeIds.BitJSpecifyNullableAnnotation)) {
+			extendedTagBits |= ExtendedTagBits.IsJSpecifyNullable;
+		} else if (annotationType.hasNullBit(TypeIds.BitJSpecifyNullMarkedAnnotation)) {
+			extendedTagBits |= ExtendedTagBits.IsJSpecifyNullMarked;
+		} else if (annotationType.hasNullBit(TypeIds.BitJSpecifyNullUnmarkedAnnotation)) {
+			extendedTagBits |= ExtendedTagBits.IsJSpecifyNullUnmarked;
+		} else if (annotationType.hasNullBit(TypeIds.BitKotlinMetadataAnnotation)) {
+			extendedTagBits |= ExtendedTagBits.IsKotlinMetadataAnnotated;
+		}
 		CompilerOptions compilerOptions = scope.compilerOptions();
 		/* In cases like this, the this.recipient is null
 		 * public @interface MyAnnot {
@@ -1002,6 +1004,7 @@ public abstract class Annotation extends Expression {
 					case Binding.MODULE :
 						SourceModuleBinding module = (SourceModuleBinding) this.recipient;
 						module.tagBits |= tagBits;
+						module.extendedTagBits |= tagBits;
 						if ((tagBits & TagBits.AnnotationSuppressWarnings) != 0) {
 							ModuleDeclaration moduleDeclaration =  module.scope.referenceContext.moduleDeclaration;
 							recordSuppressWarnings(scope, 0, moduleDeclaration.declarationSourceEnd, compilerOptions.suppressWarnings);
@@ -1010,12 +1013,15 @@ public abstract class Annotation extends Expression {
 						break;
 					case Binding.PACKAGE :
 						((PackageBinding)this.recipient).tagBits |= tagBits;
+						((PackageBinding)this.recipient).extendedTagBits |= extendedTagBits;
 						break;
 					case Binding.TYPE :
 					case Binding.GENERIC_TYPE :
 						SourceTypeBinding sourceType = (SourceTypeBinding) this.recipient;
-						if ((tagBits & TagBits.AnnotationRepeatable) == 0 || sourceType.isAnnotationType()) // don't set AnnotationRepeatable on non-annotation types.
+						if ((tagBits & TagBits.AnnotationRepeatable) == 0 || sourceType.isAnnotationType()) { // don't set AnnotationRepeatable on non-annotation types.
 							sourceType.tagBits |= tagBits;
+							sourceType.extendedTagBits |= extendedTagBits;
+						}
 						if ((tagBits & TagBits.AnnotationSuppressWarnings) != 0) {
 							TypeDeclaration typeDeclaration =  sourceType.scope.referenceContext;
 							int start;
@@ -1031,6 +1037,7 @@ public abstract class Annotation extends Expression {
 					case Binding.METHOD :
 						MethodBinding sourceMethod = (MethodBinding) this.recipient;
 						sourceMethod.tagBits |= tagBits;
+						sourceMethod.extendedTagBits |= extendedTagBits;
 						if ((tagBits & TagBits.AnnotationSuppressWarnings) != 0) {
 							sourceType = (SourceTypeBinding) sourceMethod.declaringClass;
 							AbstractMethodDeclaration methodDeclaration = sourceType.scope.referenceContext.declarationOf(sourceMethod);
@@ -1051,6 +1058,7 @@ public abstract class Annotation extends Expression {
 					case Binding.RECORD_COMPONENT :
 						RecordComponentBinding sourceRecordComponent = (RecordComponentBinding) this.recipient;
 						sourceRecordComponent.tagBits |= tagBits;
+						sourceRecordComponent.extendedTagBits |= tagBits;
 						if ((tagBits & TagBits.AnnotationSuppressWarnings) != 0) {
 							RecordComponent recordComponent = sourceRecordComponent.sourceRecordComponent();
 							recordSuppressWarnings(scope, recordComponent.declarationSourceStart, recordComponent.declarationSourceEnd, compilerOptions.suppressWarnings);
@@ -1078,6 +1086,7 @@ public abstract class Annotation extends Expression {
 					case Binding.FIELD :
 						FieldBinding sourceField = (FieldBinding) this.recipient;
 						sourceField.tagBits |= tagBits;
+						sourceField.extendedTagBits |= extendedTagBits;
 						if ((tagBits & TagBits.AnnotationSuppressWarnings) != 0) {
 							sourceType = (SourceTypeBinding) sourceField.declaringClass;
 							FieldDeclaration fieldDeclaration = sourceType.scope.referenceContext.declarationOf(sourceField);
@@ -1106,6 +1115,7 @@ public abstract class Annotation extends Expression {
 					case Binding.LOCAL :
 						LocalVariableBinding variable = (LocalVariableBinding) this.recipient;
 						variable.tagBits |= tagBits;
+						variable.extendedTagBits |= extendedTagBits;
 						if ((variable.tagBits & TagBits.AnnotationNullMASK) == TagBits.AnnotationNullMASK) {
 							scope.problemReporter().contradictoryNullAnnotations(this);
 							variable.tagBits &= ~TagBits.AnnotationNullMASK; // avoid secondary problems
