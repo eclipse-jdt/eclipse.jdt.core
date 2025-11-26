@@ -128,12 +128,13 @@ public class RecordPattern extends Pattern {
 			}
 		}
 
+		RecordComponentBinding[] componentBindings = this.resolvedType.components();
 		LocalVariableBinding [] bindings = NO_VARIABLES;
 		for (int i = 0, l = this.patterns.length; i < l; ++i) {
 			Pattern p = this.patterns[i];
+			p.setOuterExpressionType(componentBindings[i].type);
 			p.resolveTypeWithBindings(bindings, scope);
 			bindings = LocalVariableBinding.merge(bindings, p.bindingsWhenTrue());
-			p.setOuterExpressionType(this.resolvedType.components()[i].type);
 		}
 
 		if (this.resolvedType == null || !this.resolvedType.isValidBinding()) {
