@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -342,6 +346,8 @@ static class JavacCompiler {
 			return JavaCore.VERSION_24;
 		} else if(rawVersion.startsWith("25")) {
 			return JavaCore.VERSION_25;
+		} else if(rawVersion.startsWith("26")) {
+			return JavaCore.VERSION_26;
 		} else {
 			throw new RuntimeException("unknown javac version: " + rawVersion);
 		}
@@ -589,6 +595,16 @@ static class JavacCompiler {
 		if (version == JavaCore.VERSION_25) {
 			switch(rawVersion) {
 				case "25-ea", "25-beta", "25":
+					return 0000;
+				case "25.0.1":
+					return 0100;
+				case "25.0.2":
+					return 0200;
+			}
+		}
+		if (version == JavaCore.VERSION_26) {
+			switch(rawVersion) {
+				case "26-ea", "26-beta", "26":
 					return 0000;
 			}
 		}
