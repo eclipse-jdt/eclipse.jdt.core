@@ -263,11 +263,11 @@ public static Test suite() {
 	 since_25.add(ModuleImportTests.class);
 	 since_25.add(SuperAfterStatementsTest.class);
 	 since_25.add(ImplicitlyDeclaredClassesTest.class);
-	 since_25.add(PrimitiveInPatternsTest.class);
-	 since_25.add(PrimitiveInPatternsTestSH.class);
 
 	 ArrayList since_26 = new ArrayList();
 	 since_26.add(PreviewFlagTest.class);
+	 since_26.add(PrimitiveInPatternsTest.class);
+	 since_26.add(PrimitiveInPatternsTestSH.class);
 
 	record TestsAddition(ArrayList newTests, long testLevel, long jdkVersion) {}
 
