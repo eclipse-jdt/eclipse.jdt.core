@@ -102,7 +102,6 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	private static final Block NO_BODY = new Block(0);
 	private HashMap<TypeBinding, LambdaExpression> copiesPerTargetType;
 	protected Expression [] resultExpressions = NO_EXPRESSIONS;
-	public InferenceContext18 inferenceContext; // when performing tentative resolve keep a back reference to the driving context
 	private Map<Integer/*sourceStart*/, LocalTypeBinding> localTypes; // support look-up of a local type from this lambda copy
 	public boolean hasVarTypedArguments = false;
 	int firstLocalLocal; // analysis index of first local variable (if any) post parameter(s) in the lambda; ("local local" as opposed to "outer local")
@@ -882,7 +881,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 
 		LambdaExpression copy = null;
 		try {
-			copy = cachedResolvedCopy(targetType, argumentsTypeElided(), false, null, skope); // if argument types are elided, we don't care for result expressions against *this* target, any valid target is OK.
+			copy = cachedResolvedCopy(targetType, argumentsTypeElided(), false, skope); // if argument types are elided, we don't care for result expressions against *this* target, any valid target is OK.
 		} catch (CopyFailureException cfe) {
 			if (this.assistNode)
 				return CompatibilityResult.COMPATIBLE; // can't type check result expressions, just say yes.
@@ -936,7 +935,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		private static final long serialVersionUID = 1L;
 	}
 
-	private LambdaExpression cachedResolvedCopy(TypeBinding targetType, boolean anyTargetOk, boolean requireExceptionAnalysis, InferenceContext18 context, Scope outerScope) {
+	private LambdaExpression cachedResolvedCopy(TypeBinding targetType, boolean anyTargetOk, boolean requireExceptionAnalysis, Scope outerScope) {
 		if (this.committed && outerScope instanceof BlockScope) {
 			this.enclosingScope = (BlockScope) outerScope;
 			// trust the result of any previous shape analysis:
@@ -981,7 +980,6 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 
 				copy.setExpressionContext(this.expressionContext);
 				copy.setExpectedType(targetType);
-				copy.inferenceContext = context;
 				TypeBinding type = copy.resolveType(this.enclosingScope, true);
 				if (type == null || !type.isValidBinding())
 					return null;
@@ -1009,10 +1007,10 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	 * @return a resolved copy of 'this' or null if significant errors where encountered
 	 */
 	@Override
-	public LambdaExpression resolveExpressionExpecting(TypeBinding targetType, Scope skope, InferenceContext18 context) {
+	public LambdaExpression resolveExpressionExpecting(TypeBinding targetType, Scope skope) {
 		LambdaExpression copy = null;
 		try {
-			copy = cachedResolvedCopy(targetType, false, true, context, null /* to be safe we signal: not yet committed */);
+			copy = cachedResolvedCopy(targetType, false, true, null /* to be safe we signal: not yet committed */);
 		} catch (CopyFailureException cfe) {
 			return null;
 		}
@@ -1065,7 +1063,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 
 		LambdaExpression copy;
 		try {
-			copy = cachedResolvedCopy(s, true /* any resolved copy is good */, false, null, null /*not yet committed*/); // we expect a cached copy - otherwise control won't reach here.
+			copy = cachedResolvedCopy(s, true /* any resolved copy is good */, false, null /*not yet committed*/); // we expect a cached copy - otherwise control won't reach here.
 		} catch (CopyFailureException cfe) {
 			if (this.assistNode)
 				return false;

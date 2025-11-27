@@ -4620,7 +4620,7 @@ public abstract class Scope {
 					} else {
 						expressions = ((ReferenceExpression)invocationSite).createPseudoExpressions(argumentTypes);
 					}
-					InferenceContext18 ic18 = new InferenceContext18(this, expressions, invocationSite, null);
+					InferenceContext18 ic18 = new InferenceContext18(this, expressions, invocationSite);
 					if (!ic18.isMoreSpecificThan(mbj, mbk, levelj == VARARGS_COMPATIBLE, levelk == VARARGS_COMPATIBLE)) {
 						continue nextJ;
 					}
