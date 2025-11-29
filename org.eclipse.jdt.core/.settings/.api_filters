@@ -3,17 +3,17 @@
     <resource path="META-INF/MANIFEST.MF">
         <filter id="931135546">
             <message_arguments>
-                <message_argument value="3.44.100"/>
-                <message_argument value="3.43.0"/>
+                <message_argument value="3.45.50"/>
+                <message_argument value="3.44.0"/>
             </message_arguments>
         </filter>
     </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/AST.java" type="org.eclipse.jdt.core.dom.AST">
-        <filter id="388194388">
+        <filter comment="Update for Java 26" id="388194388">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.dom.AST"/>
                 <message_argument value="JLS_Latest"/>
-                <message_argument value="24"/>
+                <message_argument value="25"/>
             </message_arguments>
         </filter>
     </resource>
