@@ -13,3 +13,4 @@ https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2672
 https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3671
 https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3665
 https://github.com/eclipse-jdt/eclipse.jdt.core/issues/3665
+https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1045
