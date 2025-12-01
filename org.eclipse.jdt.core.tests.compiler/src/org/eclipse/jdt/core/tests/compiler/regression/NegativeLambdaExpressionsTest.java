@@ -8228,13 +8228,13 @@ public void test425512cd() throws Exception {
 		"----------\n" +
 		"1. ERROR in X.java (at line 7)\n" +
 		"	I i = (int [] & I) (i) -> {};\n" +
-		"	       ^^^^^^\n" +
-		"Arrays are not allowed in intersection cast operator\n" +
+		"	       ^^^^^^^^^^^\n" +
+		"Syntax error on token(s), misplaced construct(s)\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 7)\n" +
 		"	I i = (int [] & I) (i) -> {};\n" +
-		"	                   ^^^^^^\n" +
-		"The target type of this expression must be a functional interface\n" +
+		"	                           ^\n" +
+		"Syntax error, insert \")\" to complete Expression\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425512, [1.8][compiler] Arrays should be allowed in intersection casts
@@ -8255,13 +8255,13 @@ public void test425512ce() throws Exception {
 		"----------\n" +
 		"1. ERROR in X.java (at line 7)\n" +
 		"	I i = (int [] & Serializable) (i) -> {};\n" +
-		"	       ^^^^^^\n" +
-		"Arrays are not allowed in intersection cast operator\n" +
+		"	       ^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Syntax error on token(s), misplaced construct(s)\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 7)\n" +
 		"	I i = (int [] & Serializable) (i) -> {};\n" +
-		"	                              ^^^^^^\n" +
-		"The target type of this expression must be a functional interface\n" +
+		"	                                      ^\n" +
+		"Syntax error, insert \")\" to complete Expression\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425621, [1.8][compiler] Missing error for raw type in constructor reference with explicit type arguments
@@ -8544,13 +8544,13 @@ public void test427207() {
 		"----------\n" +
 		"1. ERROR in X.java (at line 6)\n" +
 		"	I i = (I) ((args == null) ? ()->{} : ()-> {});\n" +
-		"	                            ^^^^\n" +
-		"The target type of this expression must be a functional interface\n" +
+		"	                                   ^\n" +
+		"Syntax error on token \":\", ( expected\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 6)\n" +
 		"	I i = (I) ((args == null) ? ()->{} : ()-> {});\n" +
-		"	                                     ^^^^\n" +
-		"The target type of this expression must be a functional interface\n" +
+		"	                                            ^\n" +
+		"Syntax error, insert \")\" to complete Expression\n" +
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425278, [1.8][compiler] Suspect error: The target type of this expression is not a well formed parameterized type due to bound(s) mismatch
