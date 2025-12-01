@@ -8,12 +8,4 @@
             </message_arguments>
         </filter>
     </resource>
-    <resource path="src/org/eclipse/jdt/core/compiler/IProblem.java" type="org.eclipse.jdt.core.compiler.IProblem">
-        <filter id="405864542">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="ModifierOnRequiresJavaBasePreview"/>
-            </message_arguments>
-        </filter>
-    </resource>
 </component>
