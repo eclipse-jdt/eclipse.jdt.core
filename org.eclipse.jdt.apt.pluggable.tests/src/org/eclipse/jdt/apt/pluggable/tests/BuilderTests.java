@@ -415,6 +415,25 @@ public class BuilderTests extends TestBase
 		fullBuild();
 		assertTrue("Processor should be able to compile with passed options", Bug341298Processor.success());
 	}
+	public void testGHIssue4640() throws Throwable {
+		ProcessorTestStatus.reset();
+		IJavaProject project = createJavaProject(_projectName);
+		IPath root = project.getProject().getFullPath().append("src");
+		env.addClass(root, "test341298", "Annotated",
+				"package test341298;\n" +
+				"@Annotation public class Annotated {}"
+		);
+		env.addClass(root, "test341298", "Annotation",
+				"package test341298;\n" +
+				"public @interface Annotation {}"
+		);
+		AptConfig.addProcessorOption(project, "classpath", "%classpath%");
+		AptConfig.addProcessorOption(project, "sourcepath", "%sourcepath%");
+		AptConfig.addProcessorOption(project, "phase", null);
+		AptConfig.setEnabled(project, true);
+		fullBuild();
+		assertTrue("Processor should be able to compile with passed options", Bug341298Processor.success());
+	}
 
 	public void testBug539663() throws Throwable {
 		if (!canRunJava9()) {
