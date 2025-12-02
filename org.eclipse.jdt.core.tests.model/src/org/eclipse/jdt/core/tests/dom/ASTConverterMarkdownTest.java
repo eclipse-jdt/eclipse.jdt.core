@@ -1914,4 +1914,21 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			assertEquals("Incorrect TagElement", 1, (fragments.get(3).getFlags() & ASTNode.MALFORMED));  //MALFOUND flag
 		}
 	}
+
+	public void testMarkdownSupportForBold4608() throws JavaModelException {
+		String source = """
+				/// Where is my **bold text**???
+				public class Markdown() {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/gh3761/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement tag = (TagElement) javadoc.tags().get(0);
+			TextElement textElement = (TextElement) tag.fragments().get(0);
+			assertEquals("Incorrect TextElement value", "Where is my **bold text**???", textElement.getText());
+		}
+	}
 }
