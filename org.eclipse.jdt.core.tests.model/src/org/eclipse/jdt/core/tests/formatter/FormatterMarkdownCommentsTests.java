@@ -748,9 +748,9 @@ public class FormatterMarkdownCommentsTests extends FormatterCommentsTests {
 		String input = """
 					/// Example: fake fenced inside indented
 					///
-					///     ```java
+					///     ```		java
 					///     int x = 10;
-					///     System.out.println(x);
+					///     System.out.println	(x);
 					///     ```
 					class TestFakeFences { }
 					""";
@@ -758,11 +758,40 @@ public class FormatterMarkdownCommentsTests extends FormatterCommentsTests {
 					/// Example: fake fenced
 					/// inside indented
 					///
-					///     ```java
+					///     ```		java
 					///     int x = 10;
 					///     System.out.println(x);
 					///     ```
 					class TestFakeFences {
+					}
+					""";
+		formatSource(input, expected);
+	}
+	public void testMarkdownInvalidCodeFences() throws JavaModelException {
+		setComplianceLevel(CompilerOptions.VERSION_23);
+		this.formatterPrefs.comment_line_length = 25;
+		String input = """
+					/// ```
+					/// public class HelloWorld3 {
+					/// 	public static void main(String args) {
+					/// 			System.out.println("ssdd World!");
+					/// 	}
+					/// }
+					///
+					/// New 	err
+					class Mark61 {
+					}
+					""";
+		String expected = """
+					/// ``` public class
+					/// HelloWorld3 { public
+					/// static void
+					/// main(String args) {
+					/// System.out.println("ssdd
+					/// World!"); } }
+					///
+					/// New err
+					class Mark61 {
 					}
 					""";
 		formatSource(input, expected);

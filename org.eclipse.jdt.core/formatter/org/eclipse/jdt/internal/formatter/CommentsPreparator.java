@@ -94,7 +94,7 @@ public class CommentsPreparator extends ASTVisitor {
 
 	private final static Pattern MARKDOWN_HEADINGS_PATTERN_1 = Pattern.compile("(?:(?<=^)|(?<=///[ \\t]*))(#{1,6})([ \\t]+)([^\\r\\n]*)"); //$NON-NLS-1$
 	private final static Pattern MARKDOWN_HEADINGS_PATTERN_2 = Pattern.compile("(?:^|(?<=///[ \\t]+))[ \\t]*([=-])\\1*[ \\t]*(?=\\r?\\n|$)"); //$NON-NLS-1$
-	private final static Pattern MARKDOWN_FENCES_PATTERN = Pattern.compile("[ \\t]*(?:///[ \\t]*)?(?:`+|~+)[ \\t]*(?:\\R)?"); //$NON-NLS-1$
+	private final static Pattern MARKDOWN_FENCES_PATTERN = Pattern.compile("[ \\t]*(?:///[ \\t]*)?([`~]+)[ \\t]*(.*)"); //$NON-NLS-1$
 	private final static Pattern MARKDOWN_TABLE_START = Pattern.compile("(?m)(?<=^[ \\t]*)\\|"); //$NON-NLS-1$
 	private final static Pattern MARKDOWN_TABLE_END = Pattern.compile("(?m)\\|(?!.*\\|)"); //$NON-NLS-1$
 
@@ -838,37 +838,34 @@ public class CommentsPreparator extends ASTVisitor {
 			int startPos = matcher.start() + node.getStartPosition();
 			int tokenIndex = this.ctm.findIndex(startPos, ANY, true);
 			Token openingToken = this.ctm.get(tokenIndex);
-			String openingFence = this.ctm.toString(openingToken);
 			int endPos = -1;
 			int tokenIndexLast = -1;
 			Token closingToken = null;
-			String closingSnippet = null;
-			boolean shouldDisable = true;
-
+			boolean shouldDisable = false;
+			String fenceCharsStart = matcher.group(1);
+		    String infoString = matcher.group(2);
+		    int fenceLengthStart = fenceCharsStart.length();
 			while (matcher.find()) {
+				shouldDisable = true;
 				endPos = matcher.start() + node.getStartPosition();
 				tokenIndexLast = this.ctm.findIndex(endPos, ANY, true);
 				closingToken = this.ctm.get(tokenIndexLast);
-				closingSnippet = this.ctm.toString(closingToken);
-
+				String fenceCharsEnd = matcher.group(1); // the fence itself
+			    int fenceLengthEnd = fenceCharsStart.length();
 				// Check if fences match
-				if (!openingFence.replaceAll("[^`~]", "").equals(closingSnippet)) //$NON-NLS-1$ //$NON-NLS-2$
+				if (!fenceCharsStart.equals(fenceCharsEnd))
 					continue;
 
-				long openCount = openingFence.chars().filter(ch -> ch == openingFence.charAt(0)).count();
-				long closeCount = closingSnippet.chars().filter(ch -> ch == openingFence.charAt(0)).count();
-
-				if (openCount == closeCount) {
+				if (fenceLengthStart == fenceLengthEnd) {
 					if (tokenIndex > 1)
 						openingToken.breakBefore();
 					openingToken.breakAfter();
 					if (this.ctm.size() - 1 != tokenIndexLast) {
 						closingToken.putLineBreaksAfter(1);
 					}
-					String languageMarker = openingFence.replaceAll("[`~]", ""); //$NON-NLS-1$ //$NON-NLS-2$
-					boolean canAssumeJava = languageMarker.toLowerCase().equals("java") || languageMarker.isEmpty(); //$NON-NLS-1$
+					boolean canAssumeJava = infoString.toLowerCase().equals("java") || infoString.isEmpty(); //$NON-NLS-1$
 
-					if (openCount >= 3 && canAssumeJava && this.options.comment_format_source) {
+					if (fenceLengthStart >= 3 && canAssumeJava && this.options.comment_format_source) {
 						this.snippetForMarkdown = true;
 						if (formatCode(tokenIndex, tokenIndexLast, true)) {
 							shouldDisable = false;
@@ -1691,7 +1688,7 @@ public class CommentsPreparator extends ASTVisitor {
 				}
 			}
 
-			while (position + startPos < lineStart) {
+			while (position + startPos < lineStart && position < posMapping.length) {
 				posMapping[position++] = sb.length() - 1;
 			}
 
