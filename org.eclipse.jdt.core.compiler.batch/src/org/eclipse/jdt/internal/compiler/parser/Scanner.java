@@ -1730,7 +1730,7 @@ protected TerminalToken getNextToken0() throws InvalidInputException {
 								}
 								isUnicode = false;
 								previous = this.currentPosition;
-								if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+								if ((this.currentPosition < this.eofPosition && (this.currentCharacter = this.source[this.currentPosition++]) == '\\')
 									&& (this.source[this.currentPosition] == 'u')) {
 									//-------------unicode traitement ------------
 									getNextUnicodeChar();
@@ -1746,8 +1746,8 @@ protected TerminalToken getNextToken0() throws InvalidInputException {
 								//loop as long as lines start with ///
 								int firstTag = 0;
 								while(true) {
-									if (this.currentPosition > this.eofPosition) {
-										throw unterminatedComment();
+									if (this.currentPosition == this.eofPosition) {
+										break;
 									}
 									if ((this.currentCharacter == '\r') || (this.currentCharacter == '\n')) {
 										if (this.recordLineSeparator) {
