@@ -151,6 +151,7 @@ public class Parser implements ParserBasicInformation, ConflictedParser, Operato
 		LAMBDA,
 	}
 
+
 	protected enum CaseLabelKind {
 		CASE_EXPRESSION,  // case null is subsumed by CASE_EXPRESSION
 		CASE_DEFAULT,
