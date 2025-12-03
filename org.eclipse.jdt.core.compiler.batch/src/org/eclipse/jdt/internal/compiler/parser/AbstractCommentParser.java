@@ -1398,6 +1398,40 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		return parseReference(false);
 	}
 
+	// Parses a complete URL reference starting from current position
+	protected boolean parseURLReference(int pos, boolean advanceEndPos) throws InvalidInputException {
+		char[]fullURL = null;
+		int firstTokenStartPos;
+		StringBuilder urlBuilder = new StringBuilder();
+		char c;
+		firstTokenStartPos = pos;
+		while (pos < this.source.length) {
+			c = this.source[pos];
+			if (c == '[') // invalid syntax for url
+				return false;
+			if (c == '(' || c == ' ') {
+				pos++;
+				continue;
+			}
+			if (c == '\n' || c == '\r' || c == ')') {
+	            break;
+	        }
+	        urlBuilder.append(c);
+	        pos++;
+		}
+		if (advanceEndPos)
+			this.index = pos;
+		fullURL = urlBuilder.toString().toCharArray();
+
+		this.identifierPtr = 0;
+		this.identifierStack[this.identifierPtr] =  fullURL;
+		this.identifierPositionStack[this.identifierPtr] = (((long) firstTokenStartPos) << 32) + (pos - 1);
+		this.identifierLengthStack[this.identifierLengthPtr] = 1;
+		Object typeRef = createTypeReference(TerminalToken.TokenNameInvalid, true);
+		pushSeeRef(typeRef);
+		return true;
+	}
+
 	/*
 	 * Parse a reference in @see tag
 	 */
@@ -3617,6 +3651,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		// Whitespace or inline tag closing brace
 		char ch = peekChar();
 		switch (ch) {
+			case ')':
 			case ']':
 				// TODO: Check if we need to exclude escaped ]
 				if (this.markdown)

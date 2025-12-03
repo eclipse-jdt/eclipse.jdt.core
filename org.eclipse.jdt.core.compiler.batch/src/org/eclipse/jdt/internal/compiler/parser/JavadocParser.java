@@ -581,6 +581,8 @@ public class JavadocParser extends AbstractCommentParser {
 						// move it past '['
 						currentChar = readChar();
 						start = this.index;
+					} else if (peekChar() == '(') {
+						valid = parseURLReference(this.index, true);
 					} else {
 						break loop;
 					}
@@ -602,7 +604,8 @@ public class JavadocParser extends AbstractCommentParser {
 		int eofBkup = this.scanner.eofPosition;
 		this.scanner.resetTo(start, Math.max(this.javadocEnd, this.index));
 		this.tagValue = TAG_LINK_VALUE;
-		valid = parseReference(true);
+		if (!valid)
+			valid = parseReference(true);
 		this.tagValue = NO_TAG_VALUE;
 		this.scanner.eofPosition = eofBkup;
 		this.markdownHelper.resetLineStart();
