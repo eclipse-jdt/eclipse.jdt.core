@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
-public class Java21ElementTests extends AbstractJavaModelTests {
+public class Java25ElementTests extends AbstractJavaModelTests {
 
 	private IJavaProject project;
 
@@ -34,24 +34,24 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 		this.project.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_25);
 		this.project.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_25);
 	}
-	public Java21ElementTests(String name) {
+	public Java25ElementTests(String name) {
 		super(name);
 	}
 
 	public static Test suite() {
-		return buildModelTestSuite(AbstractCompilerTest.F_25, Java21ElementTests.class);
+		return buildModelTestSuite(AbstractCompilerTest.F_25, Java25ElementTests.class);
 	}
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.project = createJavaProject("Java21Elements", new String[] { "src" },
-				new String[] { "JCL_21_LIB" }, "bin", "21");
+		this.project = createJavaProject("Java25Elements", new String[] { "src" },
+				new String[] { "JCL_25_LIB" }, "bin", "25");
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
-		deleteProject("Java21Elements");
+		deleteProject("Java25Elements");
 		super.tearDown();
 	}
 
@@ -63,9 +63,9 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 					}
 				}
 					""";
-		createFile("/Java21Elements/src/Test.java", fileContent);
+		createFile("/Java25Elements/src/Test.java", fileContent);
 
-		ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Test.java");
+		ICompilationUnit unit = getCompilationUnit("/Java25Elements/src/Test.java");
 		assertTrue(unit.getTypes()[0].getMethods()[0].isMainMethodCandidate());
 	}
 
@@ -77,9 +77,9 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 					}
 				}
 					""";
-		createFile("/Java21Elements/src/Test.java", fileContent);
+		createFile("/Java25Elements/src/Test.java", fileContent);
 
-		ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Test.java");
+		ICompilationUnit unit = getCompilationUnit("/Java25Elements/src/Test.java");
 		assertTrue(unit.getTypes()[0].getMethods()[0].isMainMethodCandidate());
 	}
 
@@ -91,9 +91,9 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 					}
 				}
 					""";
-		createFile("/Java21Elements/src/Test.java", fileContent);
+		createFile("/Java25Elements/src/Test.java", fileContent);
 
-		ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Test.java");
+		ICompilationUnit unit = getCompilationUnit("/Java25Elements/src/Test.java");
 		assertTrue(unit.getTypes()[0].getMethods()[0].isMainMethodCandidate());
 	}
 
@@ -105,9 +105,9 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 					}
 				}
 					""";
-		createFile("/Java21Elements/src/Test.java", fileContent);
+		createFile("/Java25Elements/src/Test.java", fileContent);
 
-		ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Test.java");
+		ICompilationUnit unit = getCompilationUnit("/Java25Elements/src/Test.java");
 		assertTrue(unit.getTypes()[0].getMethods()[0].isMainMethodCandidate());
 	}
 
@@ -119,9 +119,9 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 					}
 				}
 					""";
-		createFile("/Java21Elements/src/Test.java", fileContent);
+		createFile("/Java25Elements/src/Test.java", fileContent);
 
-		ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Test.java");
+		ICompilationUnit unit = getCompilationUnit("/Java25Elements/src/Test.java");
 		assertTrue(unit.getTypes()[0].getMethods()[0].isMainMethodCandidate());
 	}
 
@@ -133,9 +133,9 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 					}
 				}
 					""";
-		createFile("/Java21Elements/src/Test.java", fileContent);
+		createFile("/Java25Elements/src/Test.java", fileContent);
 
-		ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Test.java");
+		ICompilationUnit unit = getCompilationUnit("/Java25Elements/src/Test.java");
 		assertFalse(unit.getTypes()[0].getMethods()[0].isMainMethodCandidate());
 	}
 
@@ -147,9 +147,9 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 					}
 				}
 					""";
-		createFile("/Java21Elements/src/Test.java", fileContent);
+		createFile("/Java25Elements/src/Test.java", fileContent);
 
-		ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Test.java");
+		ICompilationUnit unit = getCompilationUnit("/Java25Elements/src/Test.java");
 		assertTrue(unit.getTypes()[0].getMethods()[0].isMainMethodCandidate());
 	}
 
@@ -161,9 +161,9 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 					}
 				}
 					""";
-		createFile("/Java21Elements/src/Test.java", fileContent);
+		createFile("/Java25Elements/src/Test.java", fileContent);
 
-		ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Test.java");
+		ICompilationUnit unit = getCompilationUnit("/Java25Elements/src/Test.java");
 		assertTrue(unit.getTypes()[0].getMethods()[0].isMainMethodCandidate());
 	}
 
@@ -175,9 +175,9 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 					}
 				}
 					""";
-		createFile("/Java21Elements/src/Test.java", fileContent);
+		createFile("/Java25Elements/src/Test.java", fileContent);
 
-		ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Test.java");
+		ICompilationUnit unit = getCompilationUnit("/Java25Elements/src/Test.java");
 		assertFalse(unit.getTypes()[0].getMethods()[0].isMainMethodCandidate());
 	}
 
@@ -189,9 +189,9 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 					}
 				}
 					""";
-		createFile("/Java21Elements/src/Test.java", fileContent);
+		createFile("/Java25Elements/src/Test.java", fileContent);
 
-		ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Test.java");
+		ICompilationUnit unit = getCompilationUnit("/Java25Elements/src/Test.java");
 		assertFalse(unit.getTypes()[0].getMethods()[0].isMainMethodCandidate());
 	}
 
@@ -203,9 +203,9 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 					}
 				}
 					""";
-		createFile("/Java21Elements/src/Test.java", fileContent);
+		createFile("/Java25Elements/src/Test.java", fileContent);
 
-		ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Test.java");
+		ICompilationUnit unit = getCompilationUnit("/Java25Elements/src/Test.java");
 		assertFalse(unit.getTypes()[0].getMethods()[0].isMainMethodCandidate());
 	}
 
@@ -217,9 +217,9 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 					}
 				}
 					""";
-		createFile("/Java21Elements/src/Test.java", fileContent);
+		createFile("/Java25Elements/src/Test.java", fileContent);
 
-		ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Test.java");
+		ICompilationUnit unit = getCompilationUnit("/Java25Elements/src/Test.java");
 		assertFalse(unit.getTypes()[0].getMethods()[0].isMainMethodCandidate());
 	}
 
@@ -233,9 +233,9 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 						}
 					}
 						""";
-			createFile("/Java21Elements/src/Test.java", fileContent);
+			createFile("/Java25Elements/src/Test.java", fileContent);
 
-			ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Test.java");
+			ICompilationUnit unit = getCompilationUnit("/Java25Elements/src/Test.java");
 			assertFalse(unit.getTypes()[0].getMethods()[0].isMainMethodCandidate());
 		} finally {
 			advanceProjectVersion();
@@ -252,9 +252,9 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 						}
 					}
 						""";
-			createFile("/Java21Elements/src/Test.java", fileContent);
+			createFile("/Java25Elements/src/Test.java", fileContent);
 
-			ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Test.java");
+			ICompilationUnit unit = getCompilationUnit("/Java25Elements/src/Test.java");
 			assertFalse(unit.getTypes()[0].getMethods()[0].isMainMethodCandidate());
 		} finally {
 			advanceProjectVersion();
@@ -271,9 +271,9 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 						}
 					}
 						""";
-			createFile("/Java21Elements/src/Test.java", fileContent);
+			createFile("/Java25Elements/src/Test.java", fileContent);
 
-			ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Test.java");
+			ICompilationUnit unit = getCompilationUnit("/Java25Elements/src/Test.java");
 			assertFalse(unit.getTypes()[0].getMethods()[0].isMainMethodCandidate());
 		} finally {
 			advanceProjectVersion();
@@ -290,9 +290,9 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 						}
 					}
 						""";
-			createFile("/Java21Elements/src/Test.java", fileContent);
+			createFile("/Java25Elements/src/Test.java", fileContent);
 
-			ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Test.java");
+			ICompilationUnit unit = getCompilationUnit("/Java25Elements/src/Test.java");
 			assertFalse(unit.getTypes()[0].getMethods()[0].isMainMethodCandidate());
 		} finally {
 			advanceProjectVersion();
@@ -309,9 +309,9 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 						}
 					}
 						""";
-			createFile("/Java21Elements/src/Test.java", fileContent);
+			createFile("/Java25Elements/src/Test.java", fileContent);
 
-			ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Test.java");
+			ICompilationUnit unit = getCompilationUnit("/Java25Elements/src/Test.java");
 			assertFalse(unit.getTypes()[0].getMethods()[0].isMainMethodCandidate());
 		} finally {
 			advanceProjectVersion();
@@ -328,9 +328,9 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 						}
 					}
 						""";
-			createFile("/Java21Elements/src/Test.java", fileContent);
+			createFile("/Java25Elements/src/Test.java", fileContent);
 
-			ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Test.java");
+			ICompilationUnit unit = getCompilationUnit("/Java25Elements/src/Test.java");
 			assertFalse(unit.getTypes()[0].getMethods()[0].isMainMethodCandidate());
 		} finally {
 			advanceProjectVersion();
@@ -347,9 +347,9 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 						}
 					}
 						""";
-			createFile("/Java21Elements/src/Test.java", fileContent);
+			createFile("/Java25Elements/src/Test.java", fileContent);
 
-			ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Test.java");
+			ICompilationUnit unit = getCompilationUnit("/Java25Elements/src/Test.java");
 			assertFalse(unit.getTypes()[0].getMethods()[0].isMainMethodCandidate());
 		} finally {
 			advanceProjectVersion();
@@ -364,9 +364,9 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 					}
 				}
 					""";
-		createFile("/Java21Elements/src/Test.java", fileContent);
+		createFile("/Java25Elements/src/Test.java", fileContent);
 
-		ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Test.java");
+		ICompilationUnit unit = getCompilationUnit("/Java25Elements/src/Test.java");
 		assertTrue(unit.getTypes()[0].getMethods()[0].isMainMethodCandidate());
 	}
 
@@ -378,9 +378,9 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 					}
 				}
 					""";
-		createFile("/Java21Elements/src/Test.java", fileContent);
+		createFile("/Java25Elements/src/Test.java", fileContent);
 
-		ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Test.java");
+		ICompilationUnit unit = getCompilationUnit("/Java25Elements/src/Test.java");
 		assertTrue(unit.getTypes()[0].getMethods()[0].isMainMethodCandidate());
 	}
 
@@ -392,9 +392,9 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 					}
 				}
 					""";
-		createFile("/Java21Elements/src/Test.java", fileContent);
+		createFile("/Java25Elements/src/Test.java", fileContent);
 
-		ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Test.java");
+		ICompilationUnit unit = getCompilationUnit("/Java25Elements/src/Test.java");
 		assertFalse(unit.getTypes()[0].getMethods()[0].isMainMethodCandidate());
 	}
 
@@ -404,17 +404,17 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 
 		this.project.open(null);
 
-		createFile("/Java21Elements/src/Top.java", "public sealed interface Top permits Middle {}\n");
-		createFile("/Java21Elements/src/Middle.java", "public sealed interface Middle extends Top permits Down {}\n");
-		createFile("/Java21Elements/src/Down.java", "public record Down(String foo) implements Middle {}\n");
-		createFile("/Java21Elements/src/String.java", "public class String {}\n");
+		createFile("/Java25Elements/src/Top.java", "public sealed interface Top permits Middle {}\n");
+		createFile("/Java25Elements/src/Middle.java", "public sealed interface Middle extends Top permits Down {}\n");
+		createFile("/Java25Elements/src/Down.java", "public record Down(String foo) implements Middle {}\n");
+		createFile("/Java25Elements/src/String.java", "public class String {}\n");
 
-		ICompilationUnit unit = getCompilationUnit("/Java21Elements/src/Down.java");
+		ICompilationUnit unit = getCompilationUnit("/Java25Elements/src/Down.java");
 		int start = unit.getWorkingCopy(null).getSource().lastIndexOf("String");
 		IJavaElement[] elements = unit.codeSelect(start, 6);
 		assertElementsEqual(
 				"Unexpected elements",
-				"String [in String.java [in <default> [in src [in Java21Elements]]]]",
+				"String [in String.java [in <default> [in src [in Java25Elements]]]]",
 				elements
 			);
 	}
