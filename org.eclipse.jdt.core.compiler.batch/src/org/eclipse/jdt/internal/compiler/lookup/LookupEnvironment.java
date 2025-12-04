@@ -125,6 +125,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	private ArrayList<MissingTypeBinding> missingTypes;
 	final Set<SourceTypeBinding> typesBeingConnected;	// SHARED
 	public boolean isProcessingAnnotations = false; // ROOT_ONLY
+	public boolean isResolvingSuperType = false; // ROOT_ONLY
 	public boolean mayTolerateMissingType = false;
 
 	AnnotationBinding nonNullAnnotation;
@@ -154,14 +155,19 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	static class GlobalDataMemento {
 		Set<SourceTypeBinding> typesBeingConnected;
 		boolean mayTolerateMissingType = false;
-		GlobalDataMemento(Set<SourceTypeBinding> typesBeingConnected, boolean mayTolerateMissingType) {
+		boolean isResolvingSuperType = false;
+		GlobalDataMemento(Set<SourceTypeBinding> typesBeingConnected, boolean mayTolerateMissingType, boolean isResolvingSuperType) {
 			this.typesBeingConnected = typesBeingConnected;
 			this.mayTolerateMissingType = mayTolerateMissingType;
+			this.isResolvingSuperType = isResolvingSuperType;
 		}
 	}
 	GlobalDataMemento stashGlobalData() {
-		GlobalDataMemento memento = new GlobalDataMemento(new LinkedHashSet<>(this.typesBeingConnected), this.mayTolerateMissingType);
-		this.typesBeingConnected.clear();
+		GlobalDataMemento memento = new GlobalDataMemento(new LinkedHashSet<>(this.typesBeingConnected),
+				this.mayTolerateMissingType, this.root.isResolvingSuperType);
+		if (!this.root.isResolvingSuperType)
+			this.typesBeingConnected.clear(); // lookup is not within the hierarchy of these types
+		this.root.isResolvingSuperType = false;
 		this.mayTolerateMissingType = false;
 		return memento;
 	}
@@ -169,6 +175,14 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 		this.typesBeingConnected.clear();
 		this.typesBeingConnected.addAll(memento.typesBeingConnected);
 		this.mayTolerateMissingType = memento.mayTolerateMissingType;
+		this.root.isResolvingSuperType = memento.isResolvingSuperType;
+	}
+
+	public boolean enterSuperTypeLookup(SourceTypeBinding sourceType) {
+		this.typesBeingConnected.add(sourceType);
+		boolean previous = this.root.isResolvingSuperType;
+		this.root.isResolvingSuperType = true;
+		return previous;
 	}
 
 	static enum CompleteTypeBindingsSteps {
