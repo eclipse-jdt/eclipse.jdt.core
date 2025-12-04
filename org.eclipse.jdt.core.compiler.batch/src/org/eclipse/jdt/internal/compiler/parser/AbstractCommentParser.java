@@ -365,6 +365,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								considerTagAsPlainText = false; // re-enable tag validation
 							}
 						}
+						boolean isLiteralOrCode = this.tagValue == TAG_LITERAL_VALUE || this.tagValue == TAG_CODE_VALUE;
 						if (this.inlineTagStarted) {
 							textEndPosition = this.index - 1;
 							boolean treatAsText= considerTagAsPlainText || (this.inlineReturn && this.inlineReturnOpenBraces > 0);
@@ -377,8 +378,12 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							}
 							if (!isFormatterParser && !treatAsText && (!this.inlineReturn || this.inlineReturnOpenBraces <= 0))
 								this.textStart = this.index;
-							if ((!isTagElementClose && this.markdown) || !this.markdown) {  //The comment parser should create a TagElement only if the previous one is closed - markdown.
+							if (!isTagElementClose && this.markdown) {  //The comment parser should create a TagElement only if the previous one is closed - markdown.
 								setInlineTagStarted(false);
+							} else if (!this.markdown) {
+								if (!(isLiteralOrCode && openingBraces != 0)) {
+							        setInlineTagStarted(false);
+							    }
 							}
 							if (this.inlineReturn) {
 								if (this.inlineReturnOpenBraces > 0) {
