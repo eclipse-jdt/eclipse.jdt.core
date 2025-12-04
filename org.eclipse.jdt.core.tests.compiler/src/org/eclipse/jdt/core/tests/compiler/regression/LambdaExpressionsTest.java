@@ -8989,6 +8989,30 @@ public void testIssue4433() throws Exception {
 			},
 			"class X$A");
 }
+public void testLambdaAsAssignmentRHS() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.function.Consumer;
+
+				public class X {
+					Consumer<Boolean> xx;
+					void foo() {
+						this.xx = (f) -> { System.out.println(f); };
+						this.xx.accept(true);
+						this.xx.accept(false);
+						this.xx.accept(true);
+					}
+					public static void main(String [] args) {
+                        new X().foo();
+                    }
+				}
+				""",
+			},
+			"true\nfalse\ntrue"
+			);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
