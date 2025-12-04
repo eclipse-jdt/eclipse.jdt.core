@@ -46,7 +46,7 @@ public class Java21ElementTests extends AbstractJavaModelTests {
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.project = createJavaProject("Java21Elements", new String[] { "src" },
-				new String[] { "JCL21_LIB" }, "bin", "25");
+				new String[] { "JCL_21_LIB" }, "bin", "21");
 	}
 
 	@Override
