@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2024 GK Software SE and others.
+ * Copyright (c) 2024, 2025 GK Software SE and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -137,8 +137,14 @@ class MarkdownCommentHelper implements IMarkdownCommentHelper {
 			this.fenceCharCount = 1;
 			return;
 		}
-		if (next != this.fenceChar || previous != next)
+		if (next != this.fenceChar)
 			return;
+		if (previous != next) {
+			if (this.insideFencedCodeBlock) {
+				this.fenceCharCount = 1;
+			}
+			return;
+		}
 		int required = this.insideFencedCodeBlock ? this.fenceLength : 3;
 		if (++this.fenceCharCount == required) {
 			this.insideFencedCodeBlock^=true;
