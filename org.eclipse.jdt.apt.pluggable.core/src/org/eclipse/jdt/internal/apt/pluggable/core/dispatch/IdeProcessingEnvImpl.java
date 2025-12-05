@@ -102,7 +102,7 @@ public abstract class IdeProcessingEnvImpl extends BaseProcessingEnvImpl {
 
 	private Function<Entry<String, String>, String> replacePlaceholdersUsing(Map<String, String> commandLineOptions) {
 		return option -> {
-			String variable, replacement, optionValue = option.getValue();
+			String variable, replacement, optionValue = option.getValue() == null ? "" : option.getValue();
 			Matcher placeholder = Pattern.compile("%([^%]+)%").matcher(optionValue);
 			if (placeholder.find() && (variable = placeholder.group(1)) != null
 					&& (replacement = commandLineOptions.get(variable)) != null) {

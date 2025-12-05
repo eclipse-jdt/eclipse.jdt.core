@@ -243,7 +243,7 @@ private static Class[] getAllTestClasses() {
 		JavaElement8Tests.class,
 
 		Java9ElementTests.class,
-		Java21ElementTests.class,
+		Java25ElementTests.class,
 
 		NullAnnotationModelTests9.class,
 
