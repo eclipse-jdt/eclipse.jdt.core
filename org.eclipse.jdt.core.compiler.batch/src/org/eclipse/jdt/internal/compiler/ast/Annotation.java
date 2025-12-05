@@ -1377,6 +1377,8 @@ public abstract class Annotation extends Expression {
 
 		nextAnnotation:
 			for (Annotation annotation : annotations) {
+				if (annotation.resolvedType == null) // barked elsewhere or still cooking and we come here due to re-entrancy
+					continue;
 				long metaTagBits = annotation.resolvedType.getAnnotationTagBits();
 				if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0 && (metaTagBits & TagBits.AnnotationForDeclarationMASK) == 0) {
 					ReferenceBinding currentType = (ReferenceBinding) resolvedType;

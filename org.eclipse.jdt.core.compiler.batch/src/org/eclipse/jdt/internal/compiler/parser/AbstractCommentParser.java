@@ -365,6 +365,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								considerTagAsPlainText = false; // re-enable tag validation
 							}
 						}
+						boolean isLiteralOrCode = this.tagValue == TAG_LITERAL_VALUE || this.tagValue == TAG_CODE_VALUE;
 						if (this.inlineTagStarted) {
 							textEndPosition = this.index - 1;
 							boolean treatAsText= considerTagAsPlainText || (this.inlineReturn && this.inlineReturnOpenBraces > 0);
@@ -377,8 +378,12 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							}
 							if (!isFormatterParser && !treatAsText && (!this.inlineReturn || this.inlineReturnOpenBraces <= 0))
 								this.textStart = this.index;
-							if ((!isTagElementClose && this.markdown) || !this.markdown) {  //The comment parser should create a TagElement only if the previous one is closed - markdown.
+							if (!isTagElementClose && this.markdown) {  //The comment parser should create a TagElement only if the previous one is closed - markdown.
 								setInlineTagStarted(false);
+							} else if (!this.markdown) {
+								if (!(isLiteralOrCode && openingBraces != 0)) {
+							        setInlineTagStarted(false);
+							    }
 							}
 							if (this.inlineReturn) {
 								if (this.inlineReturnOpenBraces > 0) {
@@ -470,8 +475,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 									}
 								}
 							}
-							break;
 						}
+						break;
 						//$FALL-THROUGH$
 					case '/':
 						if (this.markdown) {
@@ -1391,6 +1396,40 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 
 	protected boolean parseReference() throws InvalidInputException {
 		return parseReference(false);
+	}
+
+	// Parses a complete URL reference starting from current position
+	protected boolean parseURLReference(int pos, boolean advanceEndPos) throws InvalidInputException {
+		char[]fullURL = null;
+		int firstTokenStartPos;
+		StringBuilder urlBuilder = new StringBuilder();
+		char c;
+		firstTokenStartPos = pos;
+		while (pos < this.source.length) {
+			c = this.source[pos];
+			if (c == '[') // invalid syntax for url
+				return false;
+			if (c == '(' || c == ' ') {
+				pos++;
+				continue;
+			}
+			if (c == '\n' || c == '\r' || c == ')') {
+	            break;
+	        }
+	        urlBuilder.append(c);
+	        pos++;
+		}
+		if (advanceEndPos)
+			this.index = pos;
+		fullURL = urlBuilder.toString().toCharArray();
+
+		this.identifierPtr = 0;
+		this.identifierStack[this.identifierPtr] =  fullURL;
+		this.identifierPositionStack[this.identifierPtr] = (((long) firstTokenStartPos) << 32) + (pos - 1);
+		this.identifierLengthStack[this.identifierLengthPtr] = 1;
+		Object typeRef = createTypeReference(TerminalToken.TokenNameInvalid, true);
+		pushSeeRef(typeRef);
+		return true;
 	}
 
 	/*
@@ -3612,6 +3651,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		// Whitespace or inline tag closing brace
 		char ch = peekChar();
 		switch (ch) {
+			case ')':
 			case ']':
 				// TODO: Check if we need to exclude escaped ]
 				if (this.markdown)

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2024 IBM Corporation and others.
+ * Copyright (c) 2000, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -22,6 +22,10 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import junit.framework.Test;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -3732,6 +3736,51 @@ public void testBugGh269() throws Exception {
 	} finally {
 		deleteProject(testProjectName);
 	}
+}
+
+public void testHierarchyOfCircular() throws CoreException {
+	final String PROJECT_NAME = "CircularDependency";
+	try {
+		createJavaProject(PROJECT_NAME, new String[] { "src" },
+				new String[] { "JCL_21_LIB" }, "bin", "21");
+		IPackageFragmentRoot sourceFolder = getPackageFragmentRoot(PROJECT_NAME, "src");
+		IPackageFragment pack1 = sourceFolder.createPackageFragment("test1", false, null);
+		ICompilationUnit cuC= pack1.createCompilationUnit("C.java",
+	"""
+	package test1;
+	public class C extends B {}
+	""", false, null);
+		pack1.createCompilationUnit("B.java",
+			"""
+			package test1;
+			public class B extends A {}
+			""", false, null);
+		pack1.createCompilationUnit("A.java",
+			"""
+			package test1;
+			public class A extends C {}
+			""", false, null);
+
+		IType type = cuC.getType("C");
+
+		CompletableFuture<ITypeHierarchy> hierarchyFuture = CompletableFuture.supplyAsync(() -> {
+			try {
+				return type.newSupertypeHierarchy(new NullProgressMonitor());
+			} catch (JavaModelException e) {
+				throw new RuntimeException(e);
+			}
+		});
+
+		try {
+			// throws if the operation takes more than 5 seconds
+			hierarchyFuture.get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			fail("Timed out while attempting to build the type hierarchy");
+		}
+	} finally {
+		deleteProject(PROJECT_NAME);
+	}
+
 }
 
 }
