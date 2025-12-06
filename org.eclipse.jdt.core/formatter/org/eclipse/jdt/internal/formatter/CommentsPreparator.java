@@ -843,7 +843,7 @@ public class CommentsPreparator extends ASTVisitor {
 
 		List<ASTNode> fragments = node.fragments();
 		ArrayDeque<ASTNode> fragmentsDeque = new ArrayDeque<>(fragments);
-		handleMarkdownList(fragmentsDeque, 1, 0, null);
+		handleMarkdownList(fragmentsDeque, this.markdownLeadingSpaces, 0, null);
 		handleMarkdownTable(fragments);
 
 		matcher = MARKDOWN_FENCES_PATTERN.matcher(text); // Check for Markdown snippet with styles '``` & ```'
@@ -991,10 +991,10 @@ public class CommentsPreparator extends ASTVisitor {
 					firstTokenIndex++;
 					firstToken = this.ctm.get(firstTokenIndex);
 					fragmentIndent = this.ctm.getLength(indentBase, firstToken.originalStart - 1, 0);
-					indentDiff = fragmentIndent - srcIndent;
+					indentDiff = fragmentIndent - srcIndent - 1; // somehow indent threshold is 1 higher in lists
 				}
 
-				if (indentDiff > 4 && (firstToken.getLineBreaksBefore() > 1 || isListItem)) {
+				if (indentDiff >= 4 && (firstToken.getLineBreaksBefore() > 1 || isListItem)) {
 					codeBlockStartIndex = firstTokenIndex;
 					firstToken.setAlign(this.markdownLeadingSpaces + fragmentIndent - 1);
 				} else {
