@@ -2895,6 +2895,6 @@ void setSourceStart(int sourceStart);
 	int MissingTypeForInference = Internal + 2103;
 
 
-	/** @since 3.44 */
+	/** @since 3.45 */
 	int CyclicStructureNonNullByDefault = Internal + 2104;
 }
