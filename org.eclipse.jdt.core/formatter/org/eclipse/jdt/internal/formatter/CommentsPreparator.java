@@ -92,6 +92,7 @@ public class CommentsPreparator extends ASTVisitor {
 		SNIPPET_MARKUP_TAG_PATTERN = Pattern.compile(markupTagNames + markupTagArgument + "*"); //$NON-NLS-1$
 	}
 
+	private final static Pattern MARKDOWN_LEADING_SPACES_PATTERN = Pattern.compile("(?m)^[ \\t]*///( *)[^ ]"); //$NON-NLS-1$
 	private final static Pattern MARKDOWN_HEADINGS_PATTERN_1 = Pattern.compile("(?:(?<=^)|(?<=///[ \\t]*))(#{1,6})([ \\t]+)([^\\r\\n]*)"); //$NON-NLS-1$
 	private final static Pattern MARKDOWN_HEADINGS_PATTERN_2 = Pattern.compile("(?:^|(?<=///[ \\t]+))[ \\t]*([=-])\\1*[ \\t]*(?=\\r?\\n|$)"); //$NON-NLS-1$
 	private final static Pattern MARKDOWN_FENCES_PATTERN = Pattern.compile("[ \\t]*(?:///[ \\t]*)?([`~]+)[ \\t]*(.*)"); //$NON-NLS-1$
@@ -124,6 +125,7 @@ public class CommentsPreparator extends ASTVisitor {
 	private TokenManager ctm;
 	private List<Token> commentStructure;
 	private int commentIndent;
+	private int markdownLeadingSpaces;
 	/** Index: position within current comment; Value: whether wrapping on special characters is allowed */
 	private boolean[] allowSubstituteWrapping;
 
@@ -614,6 +616,7 @@ public class CommentsPreparator extends ASTVisitor {
 		this.commentStructure = commentToken.getInternalStructure();
 		this.commentIndent = this.tm.toIndent(commentToken.getIndent(), true);
 		this.ctm = new TokenManager(commentToken.getInternalStructure(), this.tm);
+		this.markdownLeadingSpaces = findMarkdownLeadingSpaces(commentToken);
 
 		handleJavadocTagAlignment(node);
 		handleJavadocBlankLines(node);
@@ -671,6 +674,16 @@ public class CommentsPreparator extends ASTVisitor {
 		} else if (TagElement.TAG_SEE.equals(tagName)) {
 			handleStringLiterals(this.tm.toString(node), node.getStartPosition());
 		}
+	}
+
+	private int findMarkdownLeadingSpaces(Token commentToken) {
+		if (commentToken.tokenType != TokenNameCOMMENT_MARKDOWN)
+			return 0;
+		int result = Integer.MAX_VALUE;
+		Matcher m = MARKDOWN_LEADING_SPACES_PATTERN.matcher(this.tm.toString(commentToken));
+		while (m.find())
+			result = Math.min(result, m.group(1).length());
+		return result == Integer.MAX_VALUE ? 0 : result;
 	}
 
 	private void handleJavadocTagAlignment(Javadoc node) {
@@ -886,10 +899,10 @@ public class CommentsPreparator extends ASTVisitor {
 			Character itemType) {
 		Character prevRecursionItemType = null;
 		while (!fragments.isEmpty()) {
-			if (handleMarkdownIndentedCodeBlock(fragments, srcIndent)) {
+			if (handleMarkdownIndentedCodeBlock(fragments, srcIndent, false)) {
 				continue;
 			}
-			ASTNode fragment = fragments.getFirst();
+			ASTNode fragment = fragments.peekFirst();
 			int firstTokenIndex = this.ctm.findIndex(fragment.getStartPosition(), ANY, true);
 			Token firstToken = this.ctm.get(firstTokenIndex);
 
@@ -907,13 +920,14 @@ public class CommentsPreparator extends ASTVisitor {
 			}
 
 			int slashPos = this.ctm.getSource().lastIndexOf('/', firstToken.originalStart);
-			int fragmentIndent = this.ctm.getLength(slashPos + 1, firstToken.originalStart - 1, 3);
+			int indentBase = slashPos + this.markdownLeadingSpaces + 1;
+			int fragmentIndent = this.ctm.getLength(indentBase, firstToken.originalStart - 1, 0);
 			int indentDiff = fragmentIndent - srcIndent;
 			if (thisItemType != null) {
-				int textIndent = this.ctm.getLength(slashPos + 1, this.ctm.get(firstTokenIndex + 1).originalStart - 1, 3);
+				int textIndent = this.ctm.getLength(indentBase, this.ctm.get(firstTokenIndex + 1).originalStart - 1, 0);
 				indentDiff = textIndent - srcIndent;
 				boolean isFirst = isBullet || (firstString.length() == 2 && firstString.charAt(0) == '1');
-				boolean isNextLevel = indentDiff > 1 && fragmentIndent >= srcIndent;
+				boolean isNextLevel = (indentDiff > 1 && fragmentIndent >= srcIndent) || itemType == null;
 				if (fragmentIndent - srcIndent >= 4) {
 					thisItemType = null;
 					indentDiff = fragmentIndent - srcIndent;
@@ -926,10 +940,12 @@ public class CommentsPreparator extends ASTVisitor {
 						thisItemType = null;
 						indentDiff = fragmentIndent - srcIndent;
 					}
-				} else if (thisItemType.equals(itemType)) {
-					srcIndent = textIndent;
-				} else if (!isNextLevel && isFirst) {
-					firstToken.putLineBreaksBefore(2);
+				} else {
+					if (thisItemType.equals(itemType)) {
+						srcIndent = textIndent;
+					} else if (isFirst) {
+						firstToken.putLineBreaksBefore(2);
+					}
 				}
 			}
 
@@ -937,22 +953,27 @@ public class CommentsPreparator extends ASTVisitor {
 				return thisItemType;
 			}
 
-			fragments.removeFirst();
-			if (itemType == null)
+			if (itemType == null) {
+				fragments.removeFirst();
 				continue;
+			}
 			int lastTokenIndex = this.ctm.findIndex(fragment.getStartPosition() + fragment.getLength() - 1, ANY, false);
 			for (int i = firstTokenIndex; i <= lastTokenIndex; i++)
-				this.ctm.get(i).setIndent(indentToSet);
+				this.ctm.get(i).setAlign(indentToSet);
 			if (thisItemType != null) {
 				if (firstTokenIndex > 1)
 					firstToken.breakBefore();
-				firstToken.setIndent(indentToSet - (isBullet ? 2 : 3));
+				firstToken.setAlign(indentToSet - (isBullet ? 2 : 3));
+				if (handleMarkdownIndentedCodeBlock(fragments, srcIndent, true)) {
+					continue;
+				}
 			}
+			fragments.removeFirst();
 		}
 		return null;
 	}
 
-	private boolean handleMarkdownIndentedCodeBlock(ArrayDeque<ASTNode> fragments, int srcIndent) {
+	private boolean handleMarkdownIndentedCodeBlock(ArrayDeque<ASTNode> fragments, int srcIndent, boolean isListItem) {
 		int codeBlockStartIndex = -1;
 		int codeBlockEndIndex = -1;
 		while (!fragments.isEmpty()) {
@@ -960,18 +981,27 @@ public class CommentsPreparator extends ASTVisitor {
 			int firstTokenIndex = this.ctm.findIndex(fragment.getStartPosition(), ANY, true);
 			Token firstToken = this.ctm.get(firstTokenIndex);
 			int slashPos = this.ctm.getSource().lastIndexOf('/', firstToken.originalStart);
-			int fragmentIndent = this.ctm.getLength(slashPos + 1, firstToken.originalStart - 1, 3);
+			int indentBase = slashPos + this.markdownLeadingSpaces + 1;
+			int fragmentIndent = this.ctm.getLength(indentBase, firstToken.originalStart - 1, 0);
 			int indentDiff = fragmentIndent - srcIndent;
 
 			if (codeBlockStartIndex == -1) {
-				if (indentDiff >= 4 && firstToken.getLineBreaksBefore() > 1) {
+				if (isListItem) {
+					srcIndent = this.ctm.getLength(indentBase, firstToken.originalEnd, 0);
+					firstTokenIndex++;
+					firstToken = this.ctm.get(firstTokenIndex);
+					fragmentIndent = this.ctm.getLength(indentBase, firstToken.originalStart - 1, 0);
+					indentDiff = fragmentIndent - srcIndent;
+				}
+
+				if (indentDiff > 4 && (firstToken.getLineBreaksBefore() > 1 || isListItem)) {
 					codeBlockStartIndex = firstTokenIndex;
-					firstToken.setIndent(fragmentIndent - 1);
+					firstToken.setAlign(this.markdownLeadingSpaces + fragmentIndent - 1);
 				} else {
 					return false;
 				}
 			}
-			if (indentDiff < 4 ) {
+			if (indentDiff < 4) {
 				firstToken.putLineBreaksBefore(2);
 				break;
 			}

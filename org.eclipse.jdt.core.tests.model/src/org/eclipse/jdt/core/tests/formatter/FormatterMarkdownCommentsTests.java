@@ -139,7 +139,7 @@ public class FormatterMarkdownCommentsTests extends FormatterCommentsTests {
 				/// + Item 1
 				///\s
 				/// * Item 2
-				///   - Subitem 2.1
+				///   -       Subitem 2.1
 				///\s
 				/// + Subitem 2.2
 				///   * Item 3
@@ -594,7 +594,7 @@ public class FormatterMarkdownCommentsTests extends FormatterCommentsTests {
 		setComplianceLevel(CompilerOptions.VERSION_23);
 		String input = """
 					/// ## Ordered Lists
-					/// 1) 	First item
+					/// 1) 	First  item
 					/// 2) Second item
 					///      1) 	Subitem 2.1
 					///     2) Subitem 2.2
@@ -606,7 +606,8 @@ public class FormatterMarkdownCommentsTests extends FormatterCommentsTests {
 					""";
 		String expected = """
 					/// ## Ordered Lists
-					/// 1) First item
+					/// 1)     First  item
+					///\s
 					/// 2) Second item
 					///    1) Subitem 2.1
 					///    2) Subitem 2.2 2) Subitem 2.2
