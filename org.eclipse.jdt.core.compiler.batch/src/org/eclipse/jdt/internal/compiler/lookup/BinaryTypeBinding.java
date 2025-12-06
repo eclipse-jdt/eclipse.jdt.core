@@ -69,6 +69,7 @@ import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 /*
@@ -2214,7 +2215,7 @@ static int getNonNullByDefaultValue(IBinaryAnnotation annotation, LookupEnvironm
 		if (annotationType == null) return 0;
 		if (annotationType.isUnresolvedType())
 			annotationType = ((UnresolvedReferenceBinding) annotationType).resolve(environment, false);
-		int nullness = evaluateTypeQualifierDefault(annotationType);
+		int nullness = evaluateTypeQualifierDefault(annotationType, environment.problemReporter);
 		if (nullness != 0)
 			return nullness;
 		MethodBinding[] annotationMethods = annotationType.methods();
@@ -2319,8 +2320,12 @@ private boolean scanMethodForOwningAnnotations(IBinaryMethod method, MethodBindi
 	return sawOwningParam;
 }
 
-public static int evaluateTypeQualifierDefault(ReferenceBinding annotationType) {
+public static int evaluateTypeQualifierDefault(ReferenceBinding annotationType, ProblemReporter reporter) {
 	for (AnnotationBinding annotationOnAnnotation : annotationType.getAnnotations()) {
+		if (annotationOnAnnotation == null) {
+			reporter.cyclicNonNullByDefault(annotationType);
+			continue;
+		}
 		if(CharOperation.equals(annotationOnAnnotation.getAnnotationType().compoundName[annotationOnAnnotation.type.compoundName.length-1], TYPE_QUALIFIER_DEFAULT)) {
 			ElementValuePair[] pairs2 = annotationOnAnnotation.getElementValuePairs();
 			if(pairs2 != null) {

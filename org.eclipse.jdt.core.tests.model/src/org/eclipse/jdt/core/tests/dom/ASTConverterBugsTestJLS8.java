@@ -20,6 +20,7 @@ import junit.framework.TestSuite;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFlattener;
@@ -1198,5 +1199,59 @@ public void testGH3064() throws CoreException {
 	} finally {
 		deleteProject("P");
 	}
+}
+public void testGH4668() throws Exception {
+	IJavaProject javaProject = createJavaProject("P", new String[] { "src" }, new String[] { "CONVERTER_JCL18_LIB" }, "bin", "25", true);
+	javaProject.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+	javaProject.setOption(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "VEB.NonNull");
+	javaProject.setOption(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "VEB.Nullable");
+	javaProject.setOption(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "VEB.NonNullByDefault");
+	createFolder("P/src/VEB");
+	String nnbdSource = """
+			package VEB;
+			import static java.lang.annotation.RetentionPolicy.RUNTIME;
+			import java.lang.annotation.Documented;
+			import java.lang.annotation.Retention;
+
+			@Documented
+			@Retention(RUNTIME)
+			public @interface NonNull { }
+			""";
+	createFile("/P/src/VEB/NonNull.java",
+			nnbdSource);
+	createFile("/P/src/VEB/NonNullByDefault.java", """
+			package VEB;
+			import static java.lang.annotation.RetentionPolicy.RUNTIME;
+			import java.lang.annotation.Documented;
+			import java.lang.annotation.Retention;
+
+			@Documented
+			@Retention(RUNTIME)
+			public @interface NonNullByDefault { }
+			""");
+	createFile("/P/src/VEB/Nullable.java", """
+			package VEB;
+			import static java.lang.annotation.RetentionPolicy.RUNTIME;
+			import java.lang.annotation.Documented;
+			import java.lang.annotation.Retention;
+
+			@Documented
+			@Retention(RUNTIME)
+			public @interface Nullable { }
+			""");
+	createFile("/P/src/VEB/package-info.java", """
+			@NonNullByDefault
+			package VEB;
+			""");
+	ICompilationUnit icu = getCompilationUnit("P/src/VEB/NonNullByDefault.java");
+	ASTParser parser = createASTParser();
+	parser.setResolveBindings(true);
+	parser.setStatementsRecovery(true);
+	parser.setBindingsRecovery(true);
+	parser.setSource(icu);
+	CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+	assertProblems("unexpected problems",
+			"", // problem is reported against package-info, not NonNullByDefault
+			cu.getProblems(), nnbdSource.toCharArray());
 }
 }

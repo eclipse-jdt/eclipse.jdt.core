@@ -12339,6 +12339,14 @@ public void dimensionsIllegalOnRecordPattern(int sourceStart, int sourceEnd) {
 			sourceStart,
 			sourceEnd);
 }
+public void cyclicNonNullByDefault(ReferenceBinding annotation) {
+	String[] arguments = { String.valueOf(annotation.readableName()) };
+	this.handle(IProblem.CyclicStructureNonNullByDefault,
+			arguments,
+			arguments,
+			ProblemSeverities.Warning | ProblemSeverities.InternalError,
+			0, 0);
+}
 public boolean scheduleProblemForContext(Runnable problemComputation) {
 	if (this.referenceContext != null) {
 		CompilationResult result = this.referenceContext.compilationResult();

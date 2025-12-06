@@ -19629,4 +19629,66 @@ public void testGH4011() {
 			""";
 	runner.runNegativeTest();
 }
+public void testGH4668a() throws Exception {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+	runner.customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "VEB.NonNull");
+	runner.customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "VEB.Nullable");
+	runner.customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "VEB.NonNullByDefault");
+	runner.testFiles = new String[] {
+			"VEB/NonNullByDefault.java", """
+			package VEB;
+			import static java.lang.annotation.RetentionPolicy.RUNTIME;
+			import java.lang.annotation.Documented;
+			import java.lang.annotation.Retention;
+
+			@Documented
+			@Retention(RUNTIME)
+			public @interface NonNullByDefault { }
+			class X extends Zork {}
+			""",
+			"VEB/NonNull.java",
+			"""
+			package VEB;
+			import static java.lang.annotation.RetentionPolicy.RUNTIME;
+			import java.lang.annotation.Documented;
+			import java.lang.annotation.Retention;
+
+			@Documented
+			@Retention(RUNTIME)
+			public @interface NonNull { }
+			""",
+			"VEB/Nullable.java", """
+			package VEB;
+			import static java.lang.annotation.RetentionPolicy.RUNTIME;
+			import java.lang.annotation.Documented;
+			import java.lang.annotation.Retention;
+
+			@Documented
+			@Retention(RUNTIME)
+			public @interface Nullable { }
+			""",
+			"VEB/package-info.java", """
+			@NonNullByDefault
+			package VEB;
+			"""
+	};
+	runner.expectedCompilerLog =
+			"""
+			----------
+			1. ERROR in VEB\\NonNullByDefault.java (at line 9)
+				class X extends Zork {}
+				                ^^^^
+			Zork cannot be resolved to a type
+			----------
+			----------
+			1. WARNING in VEB\\package-info.java (at line 1)
+				@NonNullByDefault
+				^
+			Cannot fully evaluate null annotations due to cyclic structure involving VEB.NonNullByDefault
+			----------
+			""";
+	runner.runNegativeTest();
+}
 }
