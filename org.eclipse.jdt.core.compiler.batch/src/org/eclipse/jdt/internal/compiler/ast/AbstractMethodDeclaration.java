@@ -675,6 +675,7 @@ public abstract class AbstractMethodDeclaration
 			this.receiver.qualifyingName = null;
 		}
 
+		resolvedReceiverType = this.scope.environment().getShallowUnannotatedType(resolvedReceiverType);
 		if (TypeBinding.notEquals(enclosingReceiver, resolvedReceiverType)) {
 			this.scope.problemReporter().illegalTypeForExplicitThis(this.receiver, enclosingReceiver);
 		}

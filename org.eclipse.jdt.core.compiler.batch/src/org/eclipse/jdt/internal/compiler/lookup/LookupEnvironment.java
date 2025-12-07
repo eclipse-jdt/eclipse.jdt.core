@@ -2451,6 +2451,19 @@ public void addResolutionListener(IQualifiedTypeResolutionListener resolutionLis
 public TypeBinding getUnannotatedType(TypeBinding typeBinding) {
 	return this.typeSystem.getUnannotatedType(typeBinding);
 }
+public TypeBinding getShallowUnannotatedType(TypeBinding typeBinding) {
+	if (typeBinding instanceof ReferenceBinding ref && ref.hasTypeAnnotations()) {
+		TypeBinding original = ref.original();
+		if (ref instanceof ParameterizedTypeBinding ptb && original instanceof ReferenceBinding originalRef) {
+			for (TypeBinding arg : ptb.arguments) {
+				if (arg.hasTypeAnnotations())
+					return createParameterizedType(originalRef, ptb.arguments, ptb.enclosingType);
+			}
+		}
+		return this.typeSystem.getUnannotatedType(typeBinding);
+	}
+	return typeBinding;
+}
 
 // Given a type, return all its variously annotated versions.
 public TypeBinding[] getAnnotatedTypes(TypeBinding type) {
