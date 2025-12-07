@@ -239,8 +239,6 @@ public abstract class FunctionalExpression extends Expression {
 		}
 
 		private void checkVisibility(ReferenceBinding referenceBinding) {
-			if (referenceBinding.isUnresolvedType())
-				referenceBinding = (ReferenceBinding) BinaryTypeBinding.resolveType(referenceBinding, this.scope.environment(), false);
 			if (!referenceBinding.canBeSeenBy(this.scope)) {
 				this.visible = false;
 				if (this.shouldChatter)

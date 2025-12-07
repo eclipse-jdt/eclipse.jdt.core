@@ -1209,6 +1209,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		this.tagBits &= ~TagBits.HasUnresolvedTypeVariables; // can be recursive so only want to call once
 		ReferenceBinding resolvedType = (ReferenceBinding) BinaryTypeBinding.resolveType(this.type, this.environment, false /* no raw conversion */); // still part of parameterized type ref
 		this.tagBits |= resolvedType.tagBits & TagBits.ContainsNestedTypeReferences;
+		if (this.enclosingType != null) {
+			BinaryTypeBinding.resolveType(this.enclosingType, this.environment, false);
+		}
 		if (this.arguments != null) {
 			int argLength = this.arguments.length;
 			if ((this.type.tagBits & TagBits.HasMissingType) == 0) {
