@@ -2454,7 +2454,7 @@ public TypeBinding getUnannotatedType(TypeBinding typeBinding) {
 public TypeBinding getShallowUnannotatedType(TypeBinding typeBinding) {
 	if (typeBinding instanceof ReferenceBinding ref && ref.hasTypeAnnotations()) {
 		TypeBinding original = ref.original();
-		if (ref instanceof ParameterizedTypeBinding ptb && original instanceof ReferenceBinding originalRef) {
+		if (ref instanceof ParameterizedTypeBinding ptb && ptb.arguments != null && original instanceof ReferenceBinding originalRef) {
 			for (TypeBinding arg : ptb.arguments) {
 				if (arg.hasTypeAnnotations())
 					return createParameterizedType(originalRef, ptb.arguments, ptb.enclosingType);
