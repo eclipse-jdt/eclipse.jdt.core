@@ -855,41 +855,37 @@ public class CommentsPreparator extends ASTVisitor {
 			int tokenIndexLast = -1;
 			Token closingToken = null;
 			boolean shouldDisable = false;
-			String fenceCharsStart = matcher.group(1);
-		    String infoString = matcher.group(2);
-		    int fenceLengthStart = fenceCharsStart.length();
+			String openingFenceChars = matcher.group(1).trim();
+			String infoString = matcher.group(2).trim();
+			int openingFenceLength = openingFenceChars.length();
+			boolean canAssumeJava = infoString.toLowerCase().equals("java") || infoString.isEmpty(); //$NON-NLS-1$
 			while (matcher.find()) {
 				shouldDisable = true;
 				endPos = matcher.start() + node.getStartPosition();
 				tokenIndexLast = this.ctm.findIndex(endPos, ANY, true);
 				closingToken = this.ctm.get(tokenIndexLast);
-				String fenceCharsEnd = matcher.group(1); // the fence itself
-			    int fenceLengthEnd = fenceCharsStart.length();
-				// Check if fences match
-				if (!fenceCharsStart.equals(fenceCharsEnd))
+				String closingFenceChars = matcher.group(1);
+				if (!openingFenceChars.equals(closingFenceChars))
 					continue;
 
-				if (fenceLengthStart == fenceLengthEnd) {
-					if (tokenIndex > 1)
-						openingToken.breakBefore();
-					openingToken.breakAfter();
-					if (this.ctm.size() - 1 != tokenIndexLast) {
-						closingToken.putLineBreaksAfter(1);
-					}
-					boolean canAssumeJava = infoString.toLowerCase().equals("java") || infoString.isEmpty(); //$NON-NLS-1$
-
-					if (fenceLengthStart >= 3 && canAssumeJava && this.options.comment_format_source) {
-						this.snippetForMarkdown = true;
-						if (formatCode(tokenIndex, tokenIndexLast, true)) {
-							shouldDisable = false;
-						}
-						this.snippetForMarkdown = false;
-					}
-					break;
+				if (tokenIndex > 1)
+					openingToken.breakBefore();
+				openingToken.breakAfter();
+				if (this.ctm.size() - 1 != tokenIndexLast) {
+					closingToken.breakAfter();
 				}
+
+				if (openingFenceLength >= 3 && canAssumeJava && this.options.comment_format_source) {
+					this.snippetForMarkdown = true;
+					if (formatCode(tokenIndex, tokenIndexLast, true)) {
+						shouldDisable = false;
+					}
+					this.snippetForMarkdown = false;
+				}
+				break;
 			}
 			if (shouldDisable) {
-				disableFormattingExclusively(tokenIndex, tokenIndexLast + 1);
+				disableFormatting(tokenIndex, tokenIndexLast, false);
 			}
 		}
 
