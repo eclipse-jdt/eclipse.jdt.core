@@ -1771,10 +1771,10 @@ private ReferenceBinding[] maybeSortedMemberTypes() {
  * @return the methods in the original order
  */
 public MethodBinding[] methodsInOriginalOrder() {
-	if (this.methodsInOriginalOrder != null) {
-		return this.methodsInOriginalOrder;
+	if ((this.tagBits & TagBits.AreMethodsComplete) == 0) {
+		methods();
 	}
-	return this.methods;
+	return this.methodsInOriginalOrder == null ? this.methods : this.methodsInOriginalOrder;
 }
 // NOTE: the return type, arg & exception types of each method of a binary type are resolved when needed
 @Override
