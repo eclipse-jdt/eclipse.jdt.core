@@ -768,9 +768,8 @@ public class FormatterMarkdownCommentsTests extends FormatterCommentsTests {
 					""";
 		formatSource(input, expected);
 	}
-	public void testMarkdownInvalidCodeFences() throws JavaModelException {
+	public void testMarkdownUnclosedCodeFences() throws JavaModelException {
 		setComplianceLevel(CompilerOptions.VERSION_23);
-		this.formatterPrefs.comment_line_length = 25;
 		String input = """
 					/// ```
 					/// public class HelloWorld3 {
@@ -778,20 +777,16 @@ public class FormatterMarkdownCommentsTests extends FormatterCommentsTests {
 					/// 			System.out.println("ssdd World!");
 					/// 	}
 					/// }
-					///
-					/// New 	err
 					class Mark61 {
 					}
 					""";
 		String expected = """
-					/// ``` public class
-					/// HelloWorld3 { public
-					/// static void
-					/// main(String args) {
-					/// System.out.println("ssdd
-					/// World!"); } }
-					///
-					/// New err
+					/// ```
+					/// public class HelloWorld3 {
+					/// 	public static void main(String args) {
+					/// 		System.out.println("ssdd World!");
+					/// 	}
+					/// }\s
 					class Mark61 {
 					}
 					""";

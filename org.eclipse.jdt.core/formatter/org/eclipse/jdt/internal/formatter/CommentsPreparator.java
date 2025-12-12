@@ -136,6 +136,7 @@ public class CommentsPreparator extends ASTVisitor {
 	private DefaultCodeFormatter preTagCodeFormatter;
 	private DefaultCodeFormatter snippetCodeFormatter;
 	private boolean snippetForMarkdown = false;
+	private boolean isUnclosedSnippet = false;
 
 	public CommentsPreparator(TokenManager tm, DefaultCodeFormatterOptions options, String sourceLevel) {
 		this.tm = tm;
@@ -886,6 +887,16 @@ public class CommentsPreparator extends ASTVisitor {
 			}
 			if (shouldDisable) {
 				disableFormatting(tokenIndex, tokenIndexLast, false);
+			} else if (closingToken == null) {
+				if (tokenIndex > 1)
+					openingToken.breakBefore();
+				openingToken.breakAfter();
+				tokenIndexLast = this.ctm.findIndex(startPos + node.getLength(), ANY, true);
+				this.snippetForMarkdown = true;
+				this.isUnclosedSnippet = true;
+				formatCode(tokenIndex, tokenIndexLast - 1, true);
+				this.snippetForMarkdown = false;
+				this.isUnclosedSnippet = false;
 			}
 		}
 
@@ -1613,7 +1624,7 @@ public class CommentsPreparator extends ASTVisitor {
 
 	private boolean formatCode(int openingIndex, int closingIndex, boolean snippetTag) {
 		int codeStartPosition = this.ctm.get(openingIndex).originalEnd + 1;
-		int codeEndPosition = this.ctm.get(closingIndex).originalStart - 1;
+		int codeEndPosition = this.isUnclosedSnippet ? this.ctm.get(closingIndex).originalStart + 1 : this.ctm.get(closingIndex).originalStart - 1;
 		StringBuilder codeBuilder = new StringBuilder(codeEndPosition - codeStartPosition + 1);
 		int[] positionMapping = new int[codeEndPosition - codeStartPosition + 1];
 		// ^ index: original source position (minus startPosition), value: position in code string
@@ -1636,11 +1647,12 @@ public class CommentsPreparator extends ASTVisitor {
 		// there are too few linebreaks at the start and end
 		Token start = formattedTokens.get(0);
 		start.putLineBreaksBefore(start.getLineBreaksBefore() + 1);
-		Token end = formattedTokens.get(formattedTokens.size() - 1);
-		end.putLineBreaksAfter(end.getLineBreaksAfter() + 1);
-		// and there may be too many line breaks before closing tag
-		this.ctm.get(closingIndex).clearLineBreaksBefore();
-
+		if(!this.isUnclosedSnippet) {
+			Token end = formattedTokens.get(formattedTokens.size() - 1);
+			end.putLineBreaksAfter(end.getLineBreaksAfter() + 1);
+			// and there may be too many line breaks before closing tag
+			this.ctm.get(closingIndex).clearLineBreaksBefore();
+		}
 		List<Token> tokensToReplace = this.commentStructure.subList(openingIndex + 1, closingIndex);
 		tokensToReplace.clear();
 		tokensToReplace.addAll(formattedTokens);
