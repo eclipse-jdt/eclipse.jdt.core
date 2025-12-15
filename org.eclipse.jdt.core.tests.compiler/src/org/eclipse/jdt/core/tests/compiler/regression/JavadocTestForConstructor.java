@@ -29,7 +29,9 @@ public class JavadocTestForConstructor extends JavadocTest {
 	public static Test suite() {
 		return buildAllCompliancesTestSuite(javadocTestClass());
 	}
-	static { // Use this static to initialize TESTS_NAMES (String[]) , TESTS_RANGE (int[2]), TESTS_NUMBERS (int[])
+	static {
+		// Use this static to initialize
+		TESTS_NAMES = new String[] { "testGH4692" };
 	}
 
 	@Override
@@ -958,5 +960,37 @@ public class JavadocTestForConstructor extends JavadocTest {
 					+ "	public X() {\n"
 					+ "	}\n"
 					+ "}\n" });
+	}
+	public void testGH4692_1() {
+		this.runNegativeTest(
+				new String[] {
+					"SuperClass.java",
+					"""
+					public class SuperClass {
+					    public SuperClass(){}
+					    public SuperClass(byte[] data){}
+					}
+					""",
+					"SubClass.java",
+					"""
+					public class SubClass extends SuperClass {
+						/**
+						 * @see SuperClass#SuperClass()
+						 */
+						public SubClass(int x) {
+						}
+						/**
+						 * @see SuperClass#SuperClass()
+						 */
+						public SubClass() {
+						}
+					}
+					"""},
+						"----------\n" +
+						"1. ERROR in SubClass.java (at line 5)\n" +
+						"	public SubClass(int x) {\n" +
+						"	                    ^\n" +
+						"Javadoc: Missing tag for parameter x\n" +
+						"----------\n");
 	}
 }

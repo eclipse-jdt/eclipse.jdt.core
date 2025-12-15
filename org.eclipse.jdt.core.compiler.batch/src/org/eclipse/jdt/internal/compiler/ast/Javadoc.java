@@ -357,6 +357,11 @@ public class Javadoc extends ASTNode {
 						ReferenceBinding allocType = (ReferenceBinding) allocationExpr.resolvedType.original();
 						ReferenceBinding superType = (ReferenceBinding) methDecl.binding.declaringClass.findSuperTypeOriginatingFrom(allocType);
 						if (superType != null && TypeBinding.notEquals(superType.original(), methDecl.binding.declaringClass)) {
+							int params = methDecl.binding.parameters.length;
+							int args = allocationExpr.arguments == null ? 0 : allocationExpr.arguments.length;
+							if (params != args) {
+								continue; // if the parameters don't match, can't be a super reference
+							}
 							MethodBinding superConstructor = methScope.getConstructor(superType, methDecl.binding.parameters, allocationExpr);
 							if (superConstructor.isValidBinding() && superConstructor.original() == allocationExpr.binding.original()) {
 								MethodBinding current = methDecl.binding;
