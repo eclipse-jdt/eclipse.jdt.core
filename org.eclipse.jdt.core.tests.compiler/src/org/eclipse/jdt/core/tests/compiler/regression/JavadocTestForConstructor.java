@@ -29,9 +29,7 @@ public class JavadocTestForConstructor extends JavadocTest {
 	public static Test suite() {
 		return buildAllCompliancesTestSuite(javadocTestClass());
 	}
-	static {
-		// Use this static to initialize
-		TESTS_NAMES = new String[] { "testGH4692" };
+	static { // Use this static to initialize TESTS_NAMES (String[]) , TESTS_RANGE (int[2]), TESTS_NUMBERS (int[])
 	}
 
 	@Override
