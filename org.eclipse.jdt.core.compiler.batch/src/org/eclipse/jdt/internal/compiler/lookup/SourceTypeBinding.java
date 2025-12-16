@@ -2932,7 +2932,7 @@ public boolean isNestmateOf(SourceTypeBinding other) {
 @Override
 public MethodBinding getRecordComponentAccessor(char[] name) {
 	if (this.isRecord()) {
-		for (MethodBinding m : this.methods) {
+		for (MethodBinding m : this.methods()) {
 			if (CharOperation.equals(m.selector, name)) {
 				if (m.parameters == null || m.parameters.length == 0)
 					return m;

@@ -32,6 +32,7 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.RecordComponentElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.tools.Diagnostic;
@@ -78,11 +79,27 @@ public class GenClassProc extends AbstractProcessor {
 			List<? extends Element> enclosedElements = _styleDecl.getEnclosedElements();
 			int size = enclosedElements.size();
 			if (size > 0) {
-				processGH4687();
+				processGH4687_1();
 				return true;
 			}
 			return false;
 		}
+		if (annotations.contains(_styleDecl)) {
+			Set<? extends Element> elementsAnnotatedWith = roundEnv.getElementsAnnotatedWith(_styleDecl);
+			TypeElement brokenRecord = null;
+			for (Element element : elementsAnnotatedWith) {
+				if (element instanceof TypeElement te && te.getSimpleName().toString().equals("BrokenRecord")) {
+					brokenRecord = te;
+					break;
+				}
+			}
+			if (brokenRecord == null) {
+				throw new IllegalArgumentException("TypeElement not found for targets.gh4687.Container.BrokenRecord");
+			}
+			processGH4687_2(brokenRecord);
+			return true;
+		}
+
 		// sanity check
 		if (!annotations.contains(_annoDecl)) {
 			throw new IllegalArgumentException("process() called on an unexpected set of annotations");
@@ -133,8 +150,44 @@ public class GenClassProc extends AbstractProcessor {
 		}
 		return true;
 	}
-	private void processGH4687() {
-		createSourceFile2(null, "foobar.ImmutableComp", "toString");
+	private void processGH4687_1() {
+		createSourceFile1(null, "foobar.ImmutableComp", "toString");
+	}
+	private void processGH4687_2(TypeElement brokenRecord) {
+		List<? extends RecordComponentElement> recordComponents = brokenRecord.getRecordComponents();
+		RecordComponentElement rce = null;
+		for (Element element : recordComponents) {
+			if (element instanceof RecordComponentElement) {
+				rce = (RecordComponentElement) element;
+				break;
+			}
+		}
+		if (rce == null) {
+			throw new IllegalArgumentException("RecordComponentElement not found");
+		}
+		ExecutableElement accessor = rce.getAccessor();
+		if (accessor == null) {
+			throw new IllegalArgumentException("Accessor not found");
+		}
+		createSourceFile2(null, "foobar.WorkingRecordBuilder", "toString");
+	}
+
+	private void createSourceFile1(Element parent, String clazz, String method) {
+		int lastDot = clazz.lastIndexOf('.');
+		if (lastDot <= 0 || clazz.length() == lastDot)
+			return;
+		try {
+			JavaFileObject jfo = _filer.createSourceFile(clazz, parent);
+			String source = """
+					package foobar;
+					public final class ImmutableComp {}
+					""";
+			try (Writer	w = jfo.openWriter(); PrintWriter pw = new PrintWriter(w)) {
+				pw.println(source.toString());
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	private void createSourceFile2(Element parent, String clazz, String method) {
 		int lastDot = clazz.lastIndexOf('.');
@@ -144,7 +197,7 @@ public class GenClassProc extends AbstractProcessor {
 			JavaFileObject jfo = _filer.createSourceFile(clazz, parent);
 			String source = """
 					package foobar;
-					public final class ImmutableComp {}
+					public final class WorkingRecordBuilder {}
 					""";
 			try (Writer	w = jfo.openWriter(); PrintWriter pw = new PrintWriter(w)) {
 				pw.println(source.toString());

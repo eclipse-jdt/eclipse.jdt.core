@@ -133,6 +133,15 @@ public class BatchDispatchTests extends TestCase {
 		// check that the gen-src and class files were generated
  		File genSrcFile = TestUtils.concatPath(BatchTestUtils.getGenFolderName(), "foobar", "ImmutableComp.java");
  		assertTrue("generated src file does not exist", genSrcFile.exists());
+
+		inputFile = BatchTestUtils.copyResource("targets/gh4687/Container.java", targetFolder);
+		assertNotNull("No input file", inputFile);
+
+		options = new ArrayList<>();
+		BatchTestUtils.compileOneClass(compiler, options, inputFile);
+		// check that the gen-src and class files were generated
+ 		genSrcFile = TestUtils.concatPath(BatchTestUtils.getGenFolderName(), "foobar", "WorkingRecordBuilder.java");
+ 		assertTrue("generated src file does not exist", genSrcFile.exists());
 	}
 	
 	/**

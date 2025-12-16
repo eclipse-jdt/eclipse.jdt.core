@@ -21,8 +21,11 @@ public @interface Value {
 
 		boolean builder() default true;
 	}
+	@Target(ElementType.TYPE)
 	@interface Style {
 		String[] get() default "get*";
 		String init() default "*";
 	}
+	@Target(ElementType.TYPE)
+	@interface Builder {}
 }
