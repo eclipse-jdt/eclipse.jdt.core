@@ -755,7 +755,7 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 			for (int i=0; i<this.methods.length; i++) {
 				AbstractMethodDeclaration method = this.methods[i];
 				if (method.isConstructor()) {
-					FlowInfo ctorInfo = flowInfo.copy();
+					FlowInfo ctorInfo = flowInfo.unconditionalFieldLessCopy();
 					ConstructorDeclaration constructor = (ConstructorDeclaration) method;
 					constructor.analyseCode(this.scope, initializerContext, ctorInfo, ctorInfo.reachMode(), AnalysisMode.PROLOGUE);
 					ctorInfo = constructor.getPrologueInfo();
