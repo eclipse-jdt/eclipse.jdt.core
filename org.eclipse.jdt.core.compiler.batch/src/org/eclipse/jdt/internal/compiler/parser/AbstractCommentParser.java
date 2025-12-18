@@ -375,7 +375,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 									pushText(this.textStart, textEndPosition);
 								}
 								refreshInlineTagPosition(previousPosition);
-							} else if ((this.source[this.index] == '\n' || this.source[this.index] == '\r') && previousChar == ' ') {
+							} else if ((this.source[this.index] == '\n' || this.source[this.index] == '\r') && !shouldAbortDueToJavadocTag(previousPosition) ) {
 								pushText(previousPosition, this.index); // Enables adding closing curly brackets to node elements in Javadoc when the TagElement spans multiple lines
 							}
 							if (!isFormatterParser && !treatAsText && (!this.inlineReturn || this.inlineReturnOpenBraces <= 0))
@@ -558,6 +558,35 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			validComment = false;
 		}
 		return validComment;
+	}
+
+	/**
+	 * Scans backwards from current position to find if `{ @` pattern exists
+	 * before a newline. Returns true immediately when pattern is found.
+	 */
+	protected boolean shouldAbortDueToJavadocTag(int currPos) {
+	    int pos = currPos - 1;
+	    if (this.source == null || pos < 0 || pos >= this.source.length) {
+	        return false;
+	    }
+
+	    while (pos >= 0) {
+	        char currentChar = this.source[pos];
+
+	        // If encounter a newline, stop scanning
+	        if (currentChar == '\n' || currentChar == '\r') {
+	        	pos--;
+	            break;
+	        }
+
+	        // Check for pattern
+	        if (currentChar == '@' && pos > 0 && this.source[pos - 1] == '{') {
+	            return true;
+	        }
+
+	        pos--;
+	    }
+	    return false;
 	}
 
 	protected void addFragmentToInlineReturn() {
