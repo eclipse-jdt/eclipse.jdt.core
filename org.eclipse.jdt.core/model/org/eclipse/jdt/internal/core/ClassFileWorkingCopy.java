@@ -17,14 +17,18 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IBuffer;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.IClassFileReader;
+import org.eclipse.jdt.internal.compiler.env.IDependent;
 import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.util.Disassembler;
@@ -79,6 +83,26 @@ public IPath getPath() {
 	return this.classFile.getPath();
 }
 
+@Override
+public char[] getFileName(){
+	char[] ret = null;
+	PackageFragmentRoot root = getPackageFragmentRoot();
+	if (root == null)
+		// working copy not in workspace
+		ret = new Path(getElementName()).toString().toCharArray();
+	else if (root.isArchive()) {
+		String clazzFileName = this.classFile.getElementName();
+		String parentPath = this.classFile.getParent().getPath().toString();
+		IPackageFragment enclosingPackage = (IPackageFragment)getAncestor(IJavaElement.PACKAGE_FRAGMENT);
+		String pack = enclosingPackage == null ? "" : enclosingPackage.getElementName(); //$NON-NLS-1$
+		String packReplaced = pack.length() > 0 ? pack.replaceAll("\\.", java.io.File.separator) + java.io.File.separator : ""; //$NON-NLS-1$ //$NON-NLS-2$
+		String goal = parentPath + IDependent.JAR_FILE_ENTRY_SEPARATOR + packReplaced + clazzFileName;
+		ret = goal.toCharArray();
+	} else {
+		ret = getParent().getPath().append(getElementName()).toString().toCharArray();
+	}
+	return ret;
+}
 @Override
 public JavaElement getPrimaryElement(boolean checkOwner) {
 	if (checkOwner && isPrimary()) return this;
