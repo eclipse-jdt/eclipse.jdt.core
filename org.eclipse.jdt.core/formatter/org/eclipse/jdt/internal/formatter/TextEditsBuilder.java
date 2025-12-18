@@ -192,8 +192,9 @@ public class TextEditsBuilder extends TokenTraverser {
 			return;
 		}
 
-		boolean isTextBlock = token != null && token.tokenType == TokenNameTextBlock;
-		boolean isMarkdown = token != null && token.tokenType == TokenNameCOMMENT_MARKDOWN;
+		Token parentToken = this.parent.tm.get(this.parentTokenIndex);
+		boolean isTextBlock = parentToken.tokenType == TokenNameTextBlock;
+		boolean isMarkdown = parentToken.tokenType == TokenNameCOMMENT_MARKDOWN;
 		this.parent.counter = this.counter;
 		this.parent.bufferLineSeparator(null, false);
 		if (!(isTextBlock && emptyLine && !this.options.indent_empty_lines))
@@ -418,7 +419,8 @@ public class TextEditsBuilder extends TokenTraverser {
 			text = adaptReplaceText(text, breaksToPreserve, true, regionEnd);
 			editEnd = regionEnd;
 		}
-		return new ReplaceEdit(editStart, editEnd - editStart, text);
+		int length = editEnd - editStart < 0 ? 0 : editEnd - editStart;
+		return new ReplaceEdit(editStart, length, text);
 	}
 
 	private boolean isOnlyWhitespace(String text) {
