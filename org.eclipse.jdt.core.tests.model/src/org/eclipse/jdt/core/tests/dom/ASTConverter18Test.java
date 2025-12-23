@@ -17,6 +17,7 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.BindingKey;
@@ -29,8 +30,16 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.core.ResolvedBinaryMethod;
+import org.eclipse.jdt.internal.core.dom.SourceRangeVerifier;
+import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
 
 @SuppressWarnings({"rawtypes"})
 public class ASTConverter18Test extends ConverterTestSetup {
@@ -5513,4 +5522,80 @@ public void testIssue4458() throws JavaModelException {
 	parser.createASTs(new ICompilationUnit[] {this.workingCopy}, new String[0], requestor, null);
 }
 
+public void testIssue4712() throws JavaModelException {
+	String contents =
+			"""
+			public class Test {
+				public String test() {
+					// comment; insert System.out.println
+					return "'test' called";
+				}
+			}
+			""";
+	this.workingCopy = getWorkingCopy("/Converter18/src/test432051/X.java", contents, true/*computeProblems*/);
+	CompilerOptions options = new CompilerOptions();
+	options.sourceLevel = ClassFileConstants.JDK25;
+	options.complianceLevel = ClassFileConstants.JDK25;
+	options.docCommentSupport = true;
+	CommentRecorderParser parser =
+			new CommentRecorderParser(
+				new ProblemReporter(
+					DefaultErrorHandlingPolicies.proceedWithAllProblems(),
+					options,
+					new DefaultProblemFactory(Locale.getDefault())),
+			false);
+	char[] sourceChars = this.workingCopy.getSource().toCharArray();
+	org.eclipse.jdt.internal.compiler.batch.CompilationUnit unit =
+	    new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(sourceChars, this.workingCopy.getElementName(), null);
+	CompilationResult compilationResult = new CompilationResult(unit, 0, 0, 10);
+	CompilationUnitDeclaration cud = parser.parse(unit, compilationResult);
+	org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDecl = cud.types[0];
+	char[][] tokens = { "System".toCharArray(), "out".toCharArray() };
+	long[] positions = { 0L, 0L };
+	org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference systemOut =
+	    new org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference(tokens, positions, 0, 0);
+	org.eclipse.jdt.internal.compiler.ast.MessageSend printlnCall =
+	    new org.eclipse.jdt.internal.compiler.ast.MessageSend();
+	printlnCall.receiver = systemOut;
+	printlnCall.selector = "println".toCharArray();
+	printlnCall.arguments = null;
+	printlnCall.sourceStart = typeDecl.sourceStart;
+	printlnCall.sourceEnd = typeDecl.sourceEnd;
+	printlnCall.nameSourcePosition = 0L;
+	org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration testMethod = null;
+	for (org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration method : typeDecl.methods) {
+		if (new String(method.selector).equals("test")) {
+			testMethod = method;
+			break;
+		}
+	}
+	org.eclipse.jdt.internal.compiler.ast.Statement[] stmts = new org.eclipse.jdt.internal.compiler.ast.Statement[2];
+	stmts[0] = printlnCall;
+	stmts[1] = testMethod.statements[0];
+	testMethod.statements = stmts;
+	int reconcileFlags = ICompilationUnit.ENABLE_STATEMENTS_RECOVERY
+			| ICompilationUnit.ENABLE_BINDINGS_RECOVERY
+			| ICompilationUnit.FORCE_PROBLEM_DETECTION;
+	boolean oldDebug = SourceRangeVerifier.DEBUG;
+	boolean oldDebugThrow = SourceRangeVerifier.DEBUG_THROW;
+	try {
+		SourceRangeVerifier.DEBUG = false;
+		SourceRangeVerifier.DEBUG_THROW = false;
+		long start = System.currentTimeMillis();
+		AST.convertCompilationUnit(
+				AST.getJLSLatest(),
+				cud,
+				options.getMap(),
+				false,
+				(org.eclipse.jdt.internal.core.CompilationUnit) this.workingCopy,
+				reconcileFlags,
+				null
+			);
+		// The convertCompilationUnit method would need to take less than one second to complete.
+		assertTrue((System.currentTimeMillis() - start) < 1000);
+	} finally {
+		SourceRangeVerifier.DEBUG = oldDebug;
+		SourceRangeVerifier.DEBUG_THROW = oldDebugThrow;
+	}
+}
 }
