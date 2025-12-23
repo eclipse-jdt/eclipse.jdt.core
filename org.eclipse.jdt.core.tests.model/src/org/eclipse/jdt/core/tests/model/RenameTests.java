@@ -908,4 +908,25 @@ public void testRenameWorkingCopy() throws JavaModelException {
 	}
 }
 
+public void testRenameWithSubtypeInLambda() throws CoreException {
+	this.createFile(
+		"/P/src/A.java",
+		"""
+		public abstract class A {
+			public A() {}
+			public void m() {}
+		}
+		""");
+	this.createFile(
+		"/P/src/B.java",
+		"""
+		public class B {
+			public void t() {
+				Runnable r = () -> new A() {};
+			}
+		}
+		""");
+	IMethod method = getCompilationUnit("/P/src/A.java").getType("A").getMethod("m", null);
+	renamePositive(method, "m1", false);
+}
 }
