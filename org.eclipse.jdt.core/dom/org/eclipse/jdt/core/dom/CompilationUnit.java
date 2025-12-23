@@ -751,8 +751,10 @@ public class CompilationUnit extends ASTNode {
 	 * @since 3.0
 	 */
 	void initCommentMapper(Scanner scanner) {
-		this.commentMapper = new DefaultCommentMapper(this.optionalCommentTable);
-		this.commentMapper.initialize(this, scanner);
+		if (this.optionalCommentTable != null && this.optionalCommentTable.length > 0) {
+			this.commentMapper = new DefaultCommentMapper(this.optionalCommentTable);
+			this.commentMapper.initialize(this, scanner);
+		}
 	}
 
 	@Override
