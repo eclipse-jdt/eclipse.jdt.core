@@ -3512,5 +3512,27 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"""
 		});
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4700
+	public void testIssue4700() {
+	    runConformTest(new String[] {
+        	"Test.java",
+        	"""
+        	public class Test {
+            	private final Object a;
+            	public Test() {
+            		a = new Object();
+            		class Test2 {
+            			private final Object b;
+            			public Test2() {
+            				System.out.println();
+            				super();
+            				b = new Object();
+            			}
+            		}
+            	}
+            }
+        	"""
+	    });
+	}
 }
 
