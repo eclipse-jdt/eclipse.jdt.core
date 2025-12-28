@@ -1664,6 +1664,39 @@ public void testIssue4503_matches_with_javac() {
 			"Unhandled exception type Throwable\n" +
 			"----------\n");
 }
+public void testGH4715() {
+	runConformTest(new String[] {
+		"TestMain.java",
+		"""
+		import java.util.Map;
+		import java.util.Map.Entry;
+		import java.util.Set;
+		import java.util.stream.Collectors;
+
+		public class TestMain {
+			public static void main(String[] args) {
+				final Map<String, Set<String>> pathToPIDMap = Map.ofEntries(
+						Map.entry("i1", Set.of("PID1")),
+						Map.entry("i1,i2", Set.of("PID2"))
+						);
+
+				final Map<Boolean, Map<String, Set<String>>> partitiionedPathToPIDSet = pathToPIDMap.entrySet().stream() // Error 3
+					.collect(Collectors.partitioningBy(entry -> {
+						final Set<String> pidSet = entry.getValue();
+						final boolean isSinglePIDSet = pidSet.size() == 1;
+						return isSinglePIDSet;
+					}, Collectors.mapping(entry -> {
+						final String path = entry.getKey();
+						final Set<String> pidSet = entry.getValue();
+
+						return Map.entry(path, pidSet);
+					}, Collectors.toMap(Entry::getKey, Entry::getValue)))); //Errors 1 and 2
+			}
+		}
+
+		"""
+	});
+}
 public void testGH4533() {
 	runConformTest(new String[] {
 		"X.java",
