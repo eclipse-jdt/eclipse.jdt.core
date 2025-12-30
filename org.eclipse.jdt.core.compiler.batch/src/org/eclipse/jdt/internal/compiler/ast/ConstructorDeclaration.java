@@ -561,7 +561,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 				if (!this.compilationResult.hasErrors() && (codeStream.stackDepth != 0 || codeStream.operandStack.size() != 0)) {
 					this.scope.problemReporter().operandStackSizeInappropriate(this);
 				}
-				if (lateConstructorCall == statement) {
+				if (lateConstructorCall == statement && lateConstructorCall.accessMode != ExplicitConstructorCall.This) {
 					// with JEP 492 (Flexible Constructor Bodies) involved field inits are generated only *after* the explicit constructor
 					generateFieldInitializations(declaringType, codeStream, initializerScope);
 				}
