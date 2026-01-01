@@ -498,7 +498,7 @@ private FlowInfo analyseNullAssertion(BlockScope currentScope, Expression argume
 		{
 			FieldBinding field = ((Reference)argument).lastFieldBinding();
 			if (field != null && (field.type.tagBits & TagBits.IsBaseType) == 0) {
-				flowContext.recordNullCheckedFieldReference((Reference) argument, 3); // survive this assert as a MessageSend and as a Statement
+				flowContext.recordNullCheckedFieldReference((Reference) argument, 3, FlowInfo.NON_NULL); // survive this assert as a MessageSend and as a Statement
 			}
 		}
 	}

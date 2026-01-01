@@ -62,11 +62,12 @@ public class FlowContext implements TypeConstants {
 	// array to store the provided and expected types from the potential error location (for display in error messages):
 	public TypeBinding[][] providedExpectedTypes = null;
 
-	// record field references known to be non-null
+	// record field references with known null status
 	//   this array will never shrink, only grow. reset happens by nulling expired entries
-	//   this array grows in lock step with timesToLiveForNullCheckInfo, which controls expiration
+	//   this array grows in lock step with timesToLiveForNullCheckInfo, which controls expiration, and nullCheckInfo
 	private Reference[] nullCheckedFieldReferences = null;
 	private int[] timesToLiveForNullCheckInfo = null;
+	private int[] nullCheckInfo = null; // either FlowInfo.NULL or FlowInfo.NON_NULL
 
 	public static final int DEFER_NULL_DIAGNOSTIC = 0x1;
 	public static final int PREEMPT_NULL_DIAGNOSTIC = 0x2;
@@ -121,6 +122,7 @@ public void copyNullCheckedFieldsFrom(FlowContext other) {
 	if (fieldReferences != null && fieldReferences.length > 0 && fieldReferences[0] != null) {
 		this.nullCheckedFieldReferences = other.nullCheckedFieldReferences;
 		this.timesToLiveForNullCheckInfo = other.timesToLiveForNullCheckInfo;
+		this.nullCheckInfo = other.nullCheckInfo;
 	}
 }
 
@@ -129,12 +131,14 @@ public void copyNullCheckedFieldsFrom(FlowContext other) {
  *
  * @param reference Can be a SingleNameReference, a FieldReference or a QualifiedNameReference resolving to a field
  * @param timeToLive control how many expire events are needed to expire this information
+ * @param info FlowInfo.NON_NULL or FlowInfo.NULL representing the nullness of the given field after a check
  */
-public void recordNullCheckedFieldReference(Reference reference, int timeToLive) {
+public void recordNullCheckedFieldReference(Reference reference, int timeToLive, int info) {
 	if (this.nullCheckedFieldReferences == null) {
 		// first entry:
 		this.nullCheckedFieldReferences = new Reference[] { reference, null };
 		this.timesToLiveForNullCheckInfo = new int[] { timeToLive, -1 };
+		this.nullCheckInfo = new int[] { info, 0 };
 	} else {
 		int len = this.nullCheckedFieldReferences.length;
 		// insert into first empty slot:
@@ -142,14 +146,17 @@ public void recordNullCheckedFieldReference(Reference reference, int timeToLive)
 			if (this.nullCheckedFieldReferences[i] == null) {
 				this.nullCheckedFieldReferences[i] = reference;
 				this.timesToLiveForNullCheckInfo[i] = timeToLive;
+				this.nullCheckInfo[i] = info;
 				return;
 			}
 		}
 		// grow arrays:
 		System.arraycopy(this.nullCheckedFieldReferences, 0, this.nullCheckedFieldReferences=new Reference[len+2], 0, len);
 		System.arraycopy(this.timesToLiveForNullCheckInfo, 0, this.timesToLiveForNullCheckInfo=new int[len+2], 0, len);
+		System.arraycopy(this.nullCheckInfo, 0, this.nullCheckInfo=new int[len+2], 0, len);
 		this.nullCheckedFieldReferences[len] = reference;
 		this.timesToLiveForNullCheckInfo[len] = timeToLive;
+		this.nullCheckInfo[len] = info;
 	}
 }
 
@@ -157,21 +164,43 @@ public FieldBinding[] nullCheckedFields() {
 	if (this.nullCheckedFieldReferences == null)
 		return Binding.NO_FIELDS;
 	int len = this.nullCheckedFieldReferences.length;
-	// insert into first empty slot:
 	int count = 0;
 	for (int i=0; i<len; i++) {
-		if (this.nullCheckedFieldReferences[i] != null)
+		if (this.nullCheckedFieldReferences[i] != null && this.nullCheckInfo[i] == FlowInfo.NON_NULL)
 			count++;
 	}
 	FieldBinding[] result = new FieldBinding[count];
 	count = 0;
 	for (int i=0; i<len; i++) {
-		if (this.nullCheckedFieldReferences[i] != null)
+		if (this.nullCheckedFieldReferences[i] != null && this.nullCheckInfo[i] == FlowInfo.NON_NULL)
 			result[count++] = this.nullCheckedFieldReferences[i].lastFieldBinding();
 	}
 	return result;
 }
 
+/**
+ * Answer all field references which are known to have nullness like 'info'.
+ * @param info either FlowInfo.NULL or FlowInfo.NON_NULL
+ * @return an array of selected field references or {@code null}
+ */
+public Reference[] nullFieldReferences(int info) {
+	if (this.nullCheckedFieldReferences == null)
+		return null;
+	int len = this.nullCheckedFieldReferences.length;
+	int count = 0;
+	for (int i=0; i<len; i++) {
+		if (this.nullCheckedFieldReferences[i] != null && this.nullCheckInfo[i] == info)
+			count++;
+	}
+	Reference[] result = new Reference[count];
+	count = 0;
+	for (int i=0; i<len; i++) {
+		if (this.nullCheckedFieldReferences[i] != null && this.nullCheckInfo[i] == info)
+			result[count++] = this.nullCheckedFieldReferences[i];
+	}
+	return result;
+
+}
 /** If a null checked field has been recorded recently, increase its time to live. */
 public void extendTimeToLiveForNullCheckedField(int t) {
 	if (this.timesToLiveForNullCheckInfo != null) {
@@ -185,7 +214,7 @@ public void extendTimeToLiveForNullCheckedField(int t) {
  * Forget any information about fields that were previously known to be non-null.
  *
  * Will only cause any effect if CompilerOptions.enableSyntacticNullAnalysisForFields
- * (implicitly by guards before calls to {@link #recordNullCheckedFieldReference(Reference, int)}).
+ * (implicitly by guards before calls to {@link #recordNullCheckedFieldReference(Reference, int, int)}).
  */
 public void expireNullCheckedFieldInfo() {
 	if (this.nullCheckedFieldReferences != null) {
@@ -199,7 +228,7 @@ public void expireNullCheckedFieldInfo() {
 /**
  * Is the given field reference equivalent to a reference that is freshly known to be non-null?
  * Can only return true if CompilerOptions.enableSyntacticNullAnalysisForFields
- * (implicitly by guards before calls to {@link #recordNullCheckedFieldReference(Reference, int)}).
+ * (implicitly by guards before calls to {@link #recordNullCheckedFieldReference(Reference, int, int)}).
  */
 public boolean isNullcheckedFieldAccess(Reference reference) {
 	if (this.nullCheckedFieldReferences == null)  // always null unless CompilerOptions.enableSyntacticNullAnalysisForFields
@@ -211,7 +240,7 @@ public boolean isNullcheckedFieldAccess(Reference reference) {
 			continue;
 		}
 		if (checked.isEquivalent(reference)) {
-			return true;
+			return this.nullCheckInfo[i] == FlowInfo.NON_NULL;
 		}
 	}
 	return false;

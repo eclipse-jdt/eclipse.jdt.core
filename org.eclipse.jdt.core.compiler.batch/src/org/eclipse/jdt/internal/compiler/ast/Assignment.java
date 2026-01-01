@@ -128,7 +128,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				int timeToLive = (this.bits & InsideExpressionStatement) != 0
 									? 2  // assignment is statement: make info survives the end of this statement
 									: 1; // assignment is expression: expire on next event.
-				flowContext.recordNullCheckedFieldReference((Reference) this.lhs, timeToLive);
+				flowContext.recordNullCheckedFieldReference((Reference) this.lhs, timeToLive, FlowInfo.NON_NULL);
 			}
 		}
 	}
