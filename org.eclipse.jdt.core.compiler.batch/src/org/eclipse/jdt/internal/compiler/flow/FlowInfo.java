@@ -680,6 +680,14 @@ abstract public UnconditionalFlowInfo unconditionalInitsWithoutSideEffect();
  */
 abstract public void resetAssignmentInfo(LocalVariableBinding local);
 
+public static int nullInverse(int status) {
+	return switch(status) {
+		case NULL -> NON_NULL;
+		case NON_NULL -> NULL;
+		default -> 0;
+	};
+}
+
 /**
  * Check whether 'tagBits' contains either {@link TagBits#AnnotationNonNull} or {@link TagBits#AnnotationNullable},
  * and answer the corresponding null status ({@link #NON_NULL} etc.).
