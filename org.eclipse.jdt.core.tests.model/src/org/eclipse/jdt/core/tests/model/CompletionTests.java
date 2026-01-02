@@ -25126,6 +25126,7 @@ public void testBug402812a() throws Exception {
 
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/Test.java",
+				"package test;\n" +
 				"interface Test { \n" +
 				"static void staticMethod() {}" +
 				"    default void defaultMethod() {" +
@@ -25165,6 +25166,7 @@ public void testBug402812b() throws Exception {
 
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/Test.java",
+				"package test;\n" +
 				"interface I { \n" +
 				"    static void staticMethod() {}" +
 				"    default void defaultMethod() {}" +
@@ -25210,6 +25212,7 @@ public void testBug402812c() throws Exception {
 
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/Test.java",
+				"package test;\n" +
 				"interface I { \n" +
 				"static void staticMethod() {}" +
 				"    default void defaultMethod() {" +
@@ -25256,6 +25259,7 @@ public void testBug402812d() throws Exception {
 
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/Test.java",
+				"package test;\n" +
 				"interface I { \n" +
 				"    static void staticMethod() {}" +
 				"    default void defaultMethod() {}" +
@@ -25341,6 +25345,7 @@ public void testBug406468a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/X.java",
+				"package test;\n" +
 				"interface I {\n" +
 				"	X [][][] copy (int x);\n" +
 				"}\n" +
@@ -25383,6 +25388,7 @@ public void testBug406468b() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/X.java",
+				"package test;\n" +
 				"interface I {\n" +
 				"	X<java.lang.String> copy ();\n" +
 				"}\n" +
@@ -25759,8 +25765,8 @@ public void testBug533740d() throws JavaModelException {
 public void testBug496354() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
-			"Completion/src/Foo.java",
-			"package test;\n" +
+			"Completion/src/test/Foo.java",
+			"package test;\n"+
 			"import java.io.IOException;\n" +
 			"import java.lang.annotation.ElementType;\n" +
 			"import java.lang.annotation.Target;\n" +
@@ -25793,7 +25799,7 @@ public void testBug496354() throws Exception {
 public void testBug573632() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
-			"Completion/src/Foo.java",
+			"Completion/src/test/Foo.java",
 			"package test;\n" +
 			"public class Foo {\n" +
 			"	Foo f;\n" +
@@ -25814,9 +25820,9 @@ public void testBug573632() throws Exception {
 	assertResults(
 			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
 			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
-			"f[FIELD_REF]{f, LFoo;, LFoo;, f, null, 60}\n" +
+			"f[FIELD_REF]{f, Ltest.Foo;, Ltest.Foo;, f, null, 60}\n" +
 			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
-			"foo[METHOD_REF]{foo(), LFoo;, ()V, foo, null, 60}\n" +
+			"foo[METHOD_REF]{foo(), Ltest.Foo;, ()V, foo, null, 60}\n" +
 			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, 60}\n" +
 			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
 			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
@@ -25831,7 +25837,7 @@ public void testBug573632a() throws Exception {
 	// variation: nested ifs
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
-			"Completion/src/Foo.java",
+			"Completion/src/test/Foo.java",
 			"package test;\n" +
 			"public class Foo {\n" +
 			"	Foo f;\n" +
@@ -25854,9 +25860,9 @@ public void testBug573632a() throws Exception {
 	assertResults(
 			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
 			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
-			"f[FIELD_REF]{f, LFoo;, LFoo;, f, null, 60}\n" +
+			"f[FIELD_REF]{f, Ltest.Foo;, Ltest.Foo;, f, null, 60}\n" +
 			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
-			"foo[METHOD_REF]{foo(), LFoo;, ()V, foo, null, 60}\n" +
+			"foo[METHOD_REF]{foo(), Ltest.Foo;, ()V, foo, null, 60}\n" +
 			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, 60}\n" +
 			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
 			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
@@ -25871,7 +25877,7 @@ public void testBug573632b() throws Exception {
 	// variation: for
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
-			"Completion/src/Foo.java",
+			"Completion/src/test/Foo.java",
 			"package test;\n" +
 			"public class Foo {\n" +
 			"	Foo f;\n" +
@@ -25892,9 +25898,9 @@ public void testBug573632b() throws Exception {
 	assertResults(
 			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
 			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
-			"f[FIELD_REF]{f, LFoo;, LFoo;, f, null, 60}\n" +
+			"f[FIELD_REF]{f, Ltest.Foo;, Ltest.Foo;, f, null, 60}\n" +
 			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
-			"foo[METHOD_REF]{foo(), LFoo;, ()V, foo, null, 60}\n" +
+			"foo[METHOD_REF]{foo(), Ltest.Foo;, ()V, foo, null, 60}\n" +
 			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, 60}\n" +
 			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
 			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
@@ -25909,7 +25915,7 @@ public void testBug573632c() throws Exception {
 	// variation: while
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
-			"Completion/src/Foo.java",
+			"Completion/src/test/Foo.java",
 			"package test;\n" +
 			"public class Foo {\n" +
 			"	Foo f;\n" +
@@ -25930,9 +25936,9 @@ public void testBug573632c() throws Exception {
 	assertResults(
 			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
 			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
-			"f[FIELD_REF]{f, LFoo;, LFoo;, f, null, 60}\n" +
+			"f[FIELD_REF]{f, Ltest.Foo;, Ltest.Foo;, f, null, 60}\n" +
 			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
-			"foo[METHOD_REF]{foo(), LFoo;, ()V, foo, null, 60}\n" +
+			"foo[METHOD_REF]{foo(), Ltest.Foo;, ()V, foo, null, 60}\n" +
 			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, 60}\n" +
 			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
 			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
