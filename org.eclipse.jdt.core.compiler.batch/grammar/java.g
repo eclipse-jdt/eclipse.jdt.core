@@ -1751,7 +1751,6 @@ PrimaryNoNewArray -> ArrayAccess
 --                   Start of rules for JSR 335
 -----------------------------------------------------------------------
 
-PrimaryNoNewArray -> LambdaExpression
 PrimaryNoNewArray -> ReferenceExpression
 /:$readableName Expression:/
 
@@ -2083,6 +2082,17 @@ CastExpression ::=  BeginIntersectionCast PushLPAREN CastNameAndBounds PushRPARE
 /.$putCase consumeCastExpressionLL1WithBounds(); $break ./
 CastExpression ::= PushLPAREN Name Dims AdditionalBoundsListOpt PushRPAREN InsideCastExpression UnaryExpressionNotPlusMinus
 /.$putCase consumeCastExpressionWithNameArray(); $break ./
+--------
+CastExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression Dimsopt AdditionalBoundsListOpt PushRPAREN InsideCastExpression LambdaExpression
+/.$putCase consumeCastExpressionWithGenericsArray(); $break ./
+CastExpression ::= PushLPAREN Name OnlyTypeArgumentsForCastExpression '.' ClassOrInterfaceType Dimsopt AdditionalBoundsListOpt PushRPAREN InsideCastExpressionWithQualifiedGenerics LambdaExpression
+/.$putCase consumeCastExpressionWithQualifiedGenericsArray(); $break ./
+CastExpression ::= PushLPAREN Name PushRPAREN InsideCastExpressionLL1 LambdaExpression
+/.$putCase consumeCastExpressionLL1(); $break ./
+CastExpression ::=  BeginIntersectionCast PushLPAREN CastNameAndBounds PushRPAREN InsideCastExpressionLL1WithBounds LambdaExpression
+/.$putCase consumeCastExpressionLL1WithBounds(); $break ./
+CastExpression ::= PushLPAREN Name Dims AdditionalBoundsListOpt PushRPAREN InsideCastExpression LambdaExpression
+/.$putCase consumeCastExpressionWithNameArray(); $break ./
 /:$readableName CastExpression:/
 
 AdditionalBoundsListOpt ::= $empty
@@ -2188,6 +2198,8 @@ ConditionalOrExpression ::= ConditionalOrExpression '||' ConditionalAndExpressio
 ConditionalExpression -> ConditionalOrExpression
 ConditionalExpression ::= ConditionalOrExpression '?' Expression ':' ConditionalExpression
 /.$putCase consumeConditionalExpression(OperatorIds.QUESTIONCOLON) ; $break ./
+ConditionalExpression ::= ConditionalOrExpression '?' Expression ':' LambdaExpression
+/.$putCase consumeConditionalExpression(OperatorIds.QUESTIONCOLON) ; $break ./
 /:$readableName Expression:/
 
 AssignmentExpression -> ConditionalExpression
@@ -2195,7 +2207,7 @@ AssignmentExpression -> Assignment
 /:$readableName Expression:/
 /:$recovery_template Identifier:/
 
-Assignment ::= PostfixExpression AssignmentOperator AssignmentExpression
+Assignment ::= PostfixExpression AssignmentOperator Expression
 /.$putCase consumeAssignment(); $break ./
 /:$readableName Assignment:/
 
@@ -2237,6 +2249,8 @@ AssignmentOperator ::= '|='
 -- For handling lambda expressions, we need to know when a full Expression
 -- has been reduced.
 Expression ::= AssignmentExpression
+/.$putCase consumeExpression(); $break ./
+Expression ::= LambdaExpression
 /.$putCase consumeExpression(); $break ./
 /:$readableName Expression:/
 /:$recovery_template Identifier:/
@@ -2843,6 +2857,7 @@ AssignmentExpression_NotName -> Assignment
 /:$readableName Expression:/
 
 Expression_NotName -> AssignmentExpression_NotName
+Expression_NotName -> LambdaExpression
 /:$readableName Expression:/
 -----------------------------------------------
 -- 1.5 features : end of generics
@@ -3119,3 +3134,4 @@ UNDERSCORE ::= '_'
 
 $end
 -- need a carriage return after the $end
+
