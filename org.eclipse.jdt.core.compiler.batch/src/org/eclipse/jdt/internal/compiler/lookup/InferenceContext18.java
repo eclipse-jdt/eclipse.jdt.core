@@ -1149,48 +1149,52 @@ public class InferenceContext18 {
 				final int numVars = variableSet.size();
 				if (numVars > 0) {
 					final InferenceVariable[] variables = variableSet.toArray(new InferenceVariable[numVars]);
-					variables: if (!isRecordPatternTypeInference && !tmpBoundSet.hasCaptureBound(variableSet)) {
+					variables: if (!tmpBoundSet.hasCaptureBound(variableSet)) {
 						// try to instantiate this set of variables in a fresh copy of the bound set:
 						BoundSet prevBoundSet = tmpBoundSet;
 						tmpBoundSet = tmpBoundSet.copy();
 						for (int j = 0; j < variables.length; j++) {
 							InferenceVariable variable = variables[j];
-							// try lower bounds:
-							TypeBinding[] lowerBounds = tmpBoundSet.lowerBounds(variable, true/*onlyProper*/);
-							if (lowerBounds != Binding.NO_TYPES) {
-								TypeBinding lub = this.scope.lowerUpperBound(lowerBounds);
-								if (lub == TypeBinding.VOID || lub == null)
-									return null;
-								tmpBoundSet.addBound(new TypeBound(variable, lub, ReductionResult.SAME), this.environment);
+							if (isRecordPatternTypeInference) {
+								tmpBoundSet.addBound(new TypeBound(variable, this.object, ReductionResult.SAME), this.environment);
 							} else {
-								TypeBinding[] upperBounds = tmpBoundSet.upperBounds(variable, true/*onlyProper*/);
-								// check exception bounds:
-								if (tmpBoundSet.inThrows.contains(variable.prototype()) && tmpBoundSet.hasOnlyTrivialExceptionBounds(variable, upperBounds)) {
-									TypeBinding runtimeException = this.scope.getType(TypeConstants.JAVA_LANG_RUNTIMEEXCEPTION, 3);
-									tmpBoundSet.addBound(new TypeBound(variable, runtimeException, ReductionResult.SAME), this.environment);
+								// try lower bounds:
+								TypeBinding[] lowerBounds = tmpBoundSet.lowerBounds(variable, true/*onlyProper*/);
+								if (lowerBounds != Binding.NO_TYPES) {
+									TypeBinding lub = this.scope.lowerUpperBound(lowerBounds);
+									if (lub == TypeBinding.VOID || lub == null)
+										return null;
+									tmpBoundSet.addBound(new TypeBound(variable, lub, ReductionResult.SAME), this.environment);
 								} else {
-									// try upper bounds:
-									TypeBinding glb = this.object;
-									if (upperBounds != Binding.NO_TYPES) {
-										if (upperBounds.length == 1) {
-											glb = upperBounds[0];
-										} else {
-											TypeBinding[] glbs = Scope.greaterLowerBound(upperBounds, this.scope, this.environment);
-											if (glbs == null) {
-												return null;
-											} else if (glbs.length == 1) {
-												glb = glbs[0];
+									TypeBinding[] upperBounds = tmpBoundSet.upperBounds(variable, true/*onlyProper*/);
+									// check exception bounds:
+									if (tmpBoundSet.inThrows.contains(variable.prototype()) && tmpBoundSet.hasOnlyTrivialExceptionBounds(variable, upperBounds)) {
+										TypeBinding runtimeException = this.scope.getType(TypeConstants.JAVA_LANG_RUNTIMEEXCEPTION, 3);
+										tmpBoundSet.addBound(new TypeBound(variable, runtimeException, ReductionResult.SAME), this.environment);
+									} else {
+										// try upper bounds:
+										TypeBinding glb = this.object;
+										if (upperBounds != Binding.NO_TYPES) {
+											if (upperBounds.length == 1) {
+												glb = upperBounds[0];
 											} else {
-												glb = intersectionFromGlb(glbs);
-												if (glb == null) {
-													// inconsistent intersection
-													tmpBoundSet = prevBoundSet; // clean up
-													break variables; // and start over
+												TypeBinding[] glbs = Scope.greaterLowerBound(upperBounds, this.scope, this.environment);
+												if (glbs == null) {
+													return null;
+												} else if (glbs.length == 1) {
+													glb = glbs[0];
+												} else {
+													glb = intersectionFromGlb(glbs);
+													if (glb == null) {
+														// inconsistent intersection
+														tmpBoundSet = prevBoundSet; // clean up
+														break variables; // and start over
+													}
 												}
 											}
 										}
+										tmpBoundSet.addBound(new TypeBound(variable, glb, ReductionResult.SAME), this.environment);
 									}
-									tmpBoundSet.addBound(new TypeBound(variable, glb, ReductionResult.SAME), this.environment);
 								}
 							}
 						}
