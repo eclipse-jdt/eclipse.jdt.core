@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2025 Mateusz Matela and others.
+ * Copyright (c) 2014, 2026 Mateusz Matela and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -51,7 +51,7 @@ public class TokenManager implements Iterable<Token> {
 
 	private final List<Token> tokens;
 	private final String source;
-	private final int tabSize;
+	private final int confTabSize;
 	private final int tabChar;
 	private final boolean wrapWithSpaces;
 
@@ -64,7 +64,7 @@ public class TokenManager implements Iterable<Token> {
 	public TokenManager(List<Token> tokens, String source, DefaultCodeFormatterOptions options) {
 		this.tokens = tokens;
 		this.source = source;
-		this.tabSize = options.tab_size;
+		this.confTabSize = options.tab_size;
 		this.tabChar = options.tab_char;
 		this.wrapWithSpaces = options.use_tabs_only_for_leading_indentations;
 		this.commentWrapper = new CommentWrapExecutor(this, options);
@@ -73,7 +73,7 @@ public class TokenManager implements Iterable<Token> {
 	public TokenManager(List<Token> tokens, TokenManager parent) {
 		this.tokens = tokens;
 		this.source = parent.source;
-		this.tabSize = parent.tabSize;
+		this.confTabSize = parent.confTabSize;
 		this.tabChar = parent.tabChar;
 		this.wrapWithSpaces = parent.wrapWithSpaces;
 		this.commentWrapper = parent.commentWrapper;
@@ -356,12 +356,16 @@ public class TokenManager implements Iterable<Token> {
 	 * @return length, considering tabs and escaping characters as HTML entities
 	 */
 	public int getLength(int originalStart, int originalEnd, int startPosition) {
+		return getLength(originalStart, originalEnd, startPosition, this.confTabSize);
+	}
+
+	public int getLength(int originalStart, int originalEnd, int startPosition, int tabSize) {
 		int position = startPosition;
 		for (int i = originalStart; i <= originalEnd; i++) {
 			switch (this.source.charAt(i)) {
 				case '\t':
-					if (this.tabSize > 0)
-						position += this.tabSize - position % this.tabSize;
+					if (tabSize > 0)
+						position += tabSize - position % tabSize;
 					break;
 				case '\r':
 				case '\n':
@@ -381,7 +385,7 @@ public class TokenManager implements Iterable<Token> {
 	 */
 	public int toIndent(int indent, boolean isWrapped) {
 		if (this.tabChar == DefaultCodeFormatterOptions.TAB && !(isWrapped && this.wrapWithSpaces)) {
-			int tab = this.tabSize;
+			int tab = this.confTabSize;
 			if (tab <= 0)
 				return 0;
 			indent = ((indent + tab - 1) / tab) * tab;
