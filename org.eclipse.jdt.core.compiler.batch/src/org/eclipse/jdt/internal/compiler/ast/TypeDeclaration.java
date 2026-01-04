@@ -264,7 +264,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 		manageEnclosingInstanceAccessIfNecessary(currentScope, flowInfo);
 		updateMaxFieldCount(); // propagate down the max field count
-		internalAnalyseCode(flowContext, flowInfo);
+		internalAnalyseCode(flowContext, flowInfo.unconditionalFieldLessCopy());
 	} catch (AbortType e) {
 		this.ignoreFurtherInvestigation = true;
 	}
@@ -300,7 +300,7 @@ public void analyseCode(ClassScope currentScope, FlowContext flowContext, FlowIn
 		}
 		manageEnclosingInstanceAccessIfNecessary(currentScope, flowInfo);
 		updateMaxFieldCount(); // propagate down the max field count
-		internalAnalyseCode(flowContext, flowInfo);
+		internalAnalyseCode(flowContext, flowInfo.unconditionalFieldLessCopy());
 	} catch (AbortType e) {
 		this.ignoreFurtherInvestigation = true;
 	}
@@ -744,8 +744,8 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 	InitializationFlowContext initializerContext = new InitializationFlowContext(parentContext, this, flowInfo, flowContext, this.initializerScope);
 	// no static initializer in local classes, thus no need to set parent:
 	InitializationFlowContext staticInitializerContext = new InitializationFlowContext(null, this, flowInfo, flowContext, this.staticInitializerScope);
-	FlowInfo nonStaticFieldInfo = flowInfo.unconditionalFieldLessCopy();	// discards info about fields of inclosing classes
-	FlowInfo staticFieldInfo = flowInfo.unconditionalFieldLessCopy();
+	FlowInfo nonStaticFieldInfo = flowInfo.copy();
+	FlowInfo staticFieldInfo = flowInfo.copy();
 
 	if (JavaFeature.FLEXIBLE_CONSTRUCTOR_BODIES.isSupported(this.scope.compilerOptions())) {
 		if (this.methods != null) {
@@ -755,7 +755,7 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 			for (int i=0; i<this.methods.length; i++) {
 				AbstractMethodDeclaration method = this.methods[i];
 				if (method.isConstructor()) {
-					FlowInfo ctorInfo = flowInfo.unconditionalFieldLessCopy();
+					FlowInfo ctorInfo = flowInfo.copy();
 					ConstructorDeclaration constructor = (ConstructorDeclaration) method;
 					constructor.analyseCode(this.scope, initializerContext, ctorInfo, ctorInfo.reachMode(), AnalysisMode.PROLOGUE);
 					ctorInfo = constructor.getPrologueInfo();
@@ -856,7 +856,7 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 		}
 	}
 	if (this.methods != null) {
-		UnconditionalFlowInfo outerInfo = flowInfo.unconditionalFieldLessCopy();
+		FlowInfo outerInfo = flowInfo.copy();
 		if (nonStaticFieldInfo instanceof UnconditionalDualFlowInfo udfi) {
 			nonStaticFieldInfo = udfi.getMainInits(); // drop info from prologues
 		} else if (nonStaticFieldInfo instanceof DualFlowInfo dfi) {
