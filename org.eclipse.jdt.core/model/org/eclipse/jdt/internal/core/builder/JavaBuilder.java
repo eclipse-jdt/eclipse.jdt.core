@@ -562,7 +562,7 @@ private boolean hasJdtCoreSettingsChange(Map<IProject, IResourceDelta> deltas) {
 	return resourceDelta.findMember(JDT_CORE_SETTINGS_PATH) != null;
 }
 
-private boolean hasClasspathChanged() {
+protected boolean hasClasspathChanged() {
 	return hasClasspathChanged(CompilationGroup.MAIN) || hasClasspathChanged(CompilationGroup.TEST);
 }
 
