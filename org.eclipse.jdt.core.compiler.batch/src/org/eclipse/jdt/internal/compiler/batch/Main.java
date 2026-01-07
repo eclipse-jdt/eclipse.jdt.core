@@ -3555,7 +3555,7 @@ protected ArrayList<FileSystem.Classpath> handleModuleSourcepath(String arg) {
 	}
 	return result;
 }
-private void handleSingleModuleCompilation() {
+protected void handleSingleModuleCompilation() {
 	if (this.filenames == null) {
 		return;
 	}

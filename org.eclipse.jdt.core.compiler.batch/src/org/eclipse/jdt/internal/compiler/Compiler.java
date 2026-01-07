@@ -357,7 +357,6 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			restoreAptProblems();
 			processCompiledUnits(0, lastRound);
 		} catch (AbortCompilation e) {
-			e.printStackTrace();
 			this.handleInternalException(e, null);
 		}
 		if (this.options.verbose) {

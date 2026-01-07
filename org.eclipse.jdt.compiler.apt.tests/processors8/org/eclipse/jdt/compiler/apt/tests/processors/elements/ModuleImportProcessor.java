@@ -29,6 +29,7 @@ import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.TypeElement;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
@@ -101,6 +102,7 @@ public class ModuleImportProcessor extends BaseProcessor {
 						testsFound = true;
 						testMethod.invoke(this,  new Object[0]);
 					}
+					super.reportSuccess();
 				} catch (InvocationTargetException e) {
 					throw e.getCause();
 				} catch (Exception e) {
@@ -112,37 +114,47 @@ public class ModuleImportProcessor extends BaseProcessor {
 	}
 
 	public void testAll() throws AssertionFailedError, IOException {
-		test001();
 	}
 
 	public void test001() throws IOException {
-		Set<? extends Element> rootElements = this.roundEnv.getRootElements();
-		Set<Element> rootModules = new TreeSet<>((o1, o2) -> o1.getSimpleName().toString().compareTo(o2.getSimpleName().toString()));
-		for (Element root : rootElements) {
-	            Element cur = root;
-	            LinkedHashSet<Element> stack = new LinkedHashSet<>();
-	            stack.add(root);
-
-	            for (; ; ) {
-	                Element parent = cur.getEnclosingElement();
-
-	                if (stack.contains(parent)) {
-	                    break;
-	                }
-
-	                stack.add(parent);
-	                if (parent != null) {
-	                    cur = parent;
-	                } else {
-	                    rootModules.add(cur);
-	                    break;
-	                }
-	            }
-	        }
+		Set<ModuleElement> rootModules = getRootModules();
 		assertEquals("Incorrect number of root modules", 3, rootModules.size());
 	}
 	public void test002() throws IOException {
+		Set<ModuleElement> rootModules = getRootModules();
+		assertEquals("Incorrect number of root modules", 1, rootModules.size());
 	}
+	public void test003() throws IOException {
+		Set<ModuleElement> rootModules = getRootModules();
+		assertEquals("Incorrect number of root modules", 1, rootModules.size());
+	}
+	private Set<ModuleElement> getRootModules() {
+		Set<? extends Element> rootElements = this.roundEnv.getRootElements();
+		Set<ModuleElement> rootModules = new TreeSet<>((o1, o2) -> o1.getQualifiedName().toString().compareTo(o2.getQualifiedName().toString()));
+		for (Element root : rootElements) {
+			Element cur = root;
+			LinkedHashSet<Element> stack = new LinkedHashSet<>();
+			stack.add(root);
+
+			for (;;) {
+				Element parent = cur.getEnclosingElement();
+
+				if (stack.contains(parent)) {
+					break;
+				}
+
+				stack.add(parent);
+				if (parent != null) {
+					cur = parent;
+				} else {
+					rootModules.add((ModuleElement) cur);
+					break;
+				}
+			}
+		}
+		return rootModules;
+	}
+
 	@Override
 	public void reportError(String msg) {
 		throw new AssertionFailedError(msg);

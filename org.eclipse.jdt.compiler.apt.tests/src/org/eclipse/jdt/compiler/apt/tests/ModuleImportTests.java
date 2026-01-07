@@ -33,7 +33,6 @@ import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
-import javax.tools.ToolProvider;
 import junit.framework.TestCase;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 
@@ -42,23 +41,23 @@ public class ModuleImportTests extends TestCase {
 
 	public void test001() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithBinary(compiler, MODULE_PROC, "24", "test001", null, "java24", false);
+		internalTest(compiler, MODULE_PROC, "24", "test001", null, "java24", true, false);
 	}
-	public void test001Javac() throws IOException {
-		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithBinary(compiler, MODULE_PROC, "24", "test001", null, "java24", false);
-	}
-	public void _test002() throws IOException {
+	public void test002() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithBinary(compiler, MODULE_PROC, "24", "test002", null, "java24", false);
+		internalTest(compiler, MODULE_PROC, "24", "test002", null, "java24_1", false, false);
 	}
-	public void _test002Javac() throws IOException {
-		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithBinary(compiler, MODULE_PROC, "24", "test002", null, "java24", false);
+	public void test003() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest(compiler, MODULE_PROC, "24", "test003", null, "java24_1", true, false);
+	}
+	public void test004() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest(compiler, MODULE_PROC, "24", "test002", null, "java24", false, true);
 	}
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected void internalTestWithBinary(JavaCompiler compiler, String processor, String compliance, String testMethod, String testClass, String resourceArea,
-				boolean processBinariesAgain) throws IOException {
+	protected void internalTest(JavaCompiler compiler, String processor, String compliance, String testMethod, String testClass, String resourceArea,
+				boolean setModuleSourcePath, boolean compilationFails) throws IOException {
 		if (!canRunJava24()) {
 			return;
 		}
@@ -86,13 +85,10 @@ public class ModuleImportTests extends TestCase {
 			@Override
 			public void report(Diagnostic d) {
 				if (d.getKind() == Diagnostic.Kind.ERROR) {
-					System.out.println("Compilation error: " + d.getMessage(Locale.getDefault()));
+					System.err.println("Compilation error: " + d.getMessage(Locale.getDefault()));
 				}
 			}
-		}, true, processBinariesAgain);
-		// If it succeeded, the processor will have set this property to "succeeded";
-		// if not, it will set it to an error value.
-		assertEquals("succeeded", System.getProperty(processor));
+		}, true, setModuleSourcePath, compilationFails);
 	}
 	public static void addModuleSourcePath(StandardJavaFileManager fileManager, String folder) throws IOException {
 		File moduleLoc = new File(folder);
@@ -112,7 +108,8 @@ public class ModuleImportTests extends TestCase {
 		fileManager.setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, singletonList);
 	}
 	public static void compileInModuleMode(JavaCompiler compiler, List<String> options, String processor,
-			File targetFolder, DiagnosticListener<? super JavaFileObject> listener, boolean multiModule, boolean processBinariesAgain) throws IOException {
+			File targetFolder, DiagnosticListener<? super JavaFileObject> listener, 
+			boolean multiModule, boolean setModuleSourcePath, boolean compilationFails) throws IOException {
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 		// create new list containing inputfile
 		List<File> files = new ArrayList<>();
@@ -130,7 +127,6 @@ public class ModuleImportTests extends TestCase {
 
 		List<String> copyOptions = new ArrayList<>();
 		copyOptions.addAll(options);
-		copyOptions.add("--enable-preview");
 		copyOptions.add("-processor");
 		copyOptions.add(processor);
 		copyOptions.add("-A" + processor);
@@ -139,16 +135,21 @@ public class ModuleImportTests extends TestCase {
 		copyOptions.add("-s");
 		copyOptions.add(BatchTestUtils._tmpGenFolderName);
 		addModuleProcessorPathToCompiler(manager);
-		addModuleSourcePath(manager, targetFolder.getAbsolutePath());
+		if (setModuleSourcePath)
+			addModuleSourcePath(manager, targetFolder.getAbsolutePath());
 		copyOptions.add("-XprintRounds");
 		CompilationTask task = compiler.getTask(printWriter, manager, listener, copyOptions, null, units);
 		Boolean result = task.call();
-
-		if (!result.booleanValue()) {
-			String errorOutput = stringWriter.getBuffer().toString();
-			System.err.println("Compilation failed: " + errorOutput);
-	 		junit.framework.TestCase.assertTrue("Compilation failed : " + errorOutput, false);
+		String errorOutput = stringWriter.getBuffer().toString();
+		if (!result.booleanValue() || errorOutput.length() > 0) {
+			if (!compilationFails) {
+				System.err.println("Compilation failed: " + errorOutput);
+				junit.framework.TestCase.assertTrue("Compilation failed : " + errorOutput, false);
+			}
 		} else {
+			if (compilationFails) {
+				junit.framework.TestCase.assertTrue("Compilation succeeded but was expected to fail", false);
+			}
 			junit.framework.TestCase.assertEquals("succeeded", System.getProperty(processor));
 		}
 	}
