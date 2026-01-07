@@ -4673,6 +4673,13 @@ public abstract class Scope {
 		if (receiverType != null)
 			receiverType = receiverType instanceof CaptureBinding ? receiverType : (ReferenceBinding) receiverType.erasure();
 
+		// within the boundaries of "chosen arbitrarily among the subset of the maximally specific methods that are preferred"
+		// put concrete methods first, default methods second:
+		Arrays.sort(moreSpecific, (m1, m2) -> {
+			int rank1 = m1 == null ? 3 : m1.isAbstract() ? 2 : m1.isDefaultMethod() ? 1 : 0;
+			int rank2 = m2 == null ? 3 : m2.isAbstract() ? 2 : m2.isDefaultMethod() ? 1 : 0;
+			return rank1 - rank2;
+		});
 		boolean hasConsideredNullContract = false;
 		// perform 1 or 2 attempts, the second being the safety net, in case considering null contracts may have prevented finding a solution.
 		for (int attempt = 0; attempt < 2; attempt++) {
