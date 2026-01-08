@@ -21,8 +21,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import javax.annotation.processing.Filer;
-import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -43,16 +41,11 @@ import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 public class ModuleImportProcessor extends BaseProcessor {
 	boolean reportSuccessAlready = true;
 	RoundEnvironment roundEnv = null;
-	Messager _messager = null;
-	Filer _filer = null;
-	boolean isBinaryMode = false;
 	String mode;
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
 		_elementUtils = processingEnv.getElementUtils();
-		_messager = processingEnv.getMessager();
-		_filer = processingEnv.getFiler();
 	}
 	// Always return false from this processor, because it supports "*".
 	// The return value does not signify success or failure!
@@ -69,12 +62,6 @@ public class ModuleImportProcessor extends BaseProcessor {
 			return false;
 		} else {
 			try {
-				if (options.containsKey("binary")) {
-					this.isBinaryMode = true;
-					this.mode = "binary";
-				} else {
-					this.mode = "source";
-				}
 				if (!invokeTestMethods(options)) {
 					testAll();
 				}
