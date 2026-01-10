@@ -3285,4 +3285,31 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 		runner.javacTestOptions = JavacHasABug.JavacBug8337980;
 		runner.runNegativeTest();
 	}
+	public void testGH1600() {
+		runConformTest(new String[] {"TestField.java",
+			"""
+			public class TestField extends CustomField {
+				@Override
+				public void setReadOnly(boolean readOnly) {
+					// Eclipse shows this compile error: Cannot directly invoke the abstract
+					// method setReadOnly(boolean) for the type HasValue
+					super.setReadOnly(readOnly);
+				}
+			}
+
+			abstract class CustomField extends AbstractField implements HasValue {}
+
+			abstract class AbstractField implements HasValueAndElement {}
+
+			interface HasValue {
+				void setReadOnly(boolean readOnly);
+			}
+
+			interface HasValueAndElement extends HasValue {
+				@Override
+				default void setReadOnly(boolean readOnly) {
+				}
+			}
+			"""});
+	}
 }
