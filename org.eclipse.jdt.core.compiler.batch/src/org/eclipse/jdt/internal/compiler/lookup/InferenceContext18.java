@@ -1224,7 +1224,7 @@ public class InferenceContext18 {
 						@Override
 						public TypeBinding substitute(TypeVariableBinding typeVariable) {
 							for (int j = 0; j < numVars; j++)
-								if (TypeBinding.equalsEquals(variables[j], typeVariable))
+								if (TypeBinding.equalsEquals(variables[j], typeVariable) && zs[j] != null)
 									return zs[j];
 							/* If we have an instantiation, lower it to the instantiation. We don't want downstream abstractions to be confused about multiple versions of bounds without
 							   and with instantiations propagated by incorporation. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=430686. There is no value whatsoever in continuing
@@ -1242,22 +1242,47 @@ public class InferenceContext18 {
 					for (int j = 0; j < numVars; j++) {
 						InferenceVariable variable = variables[j];
 						CaptureBinding18 zsj = zs[j];
-						// add lower bounds:
-						TypeBinding[] lowerBounds = tmpBoundSet.lowerBounds(variable, true/*onlyProper*/);
-						if (lowerBounds != Binding.NO_TYPES) {
-							TypeBinding lub = this.scope.lowerUpperBound(lowerBounds);
-							if (lub != TypeBinding.VOID && lub != null)
-								zsj.lowerBound = lub;
+						// NON-JLS: leverage existing same bounds if they become proper by substitution:
+						boolean typeboundCreated = false;
+						TypeBinding[] sameBounds = tmpBoundSet.sameBounds(variable);
+						if (sameBounds != Binding.NO_TYPES) {
+							int l = 0;
+							for (int k = 0; k < sameBounds.length; k++) {
+								TypeBinding subst = Scope.substitute(theta, sameBounds[k]);
+								if (subst.isProperType(true))
+									sameBounds[l++] = subst;
+							}
+							if (l > 0) {
+								if (l < sameBounds.length)
+									sameBounds = Arrays.copyOf(sameBounds, l);
+								sameBounds = Scope.greaterLowerBound(sameBounds, this.scope, this.environment);
+								if (sameBounds != null && sameBounds.length == 1) {
+									tmpBoundSet.addBound(new TypeBound(variable, sameBounds[0], ReductionResult.SAME), this.environment);
+									typeboundCreated = true;
+									zs[j] = null;
+								}
+							}
 						}
-						// add upper bounds:
-						TypeBinding[] upperBounds = tmpBoundSet.upperBounds(variable, false/*onlyProper*/);
-						if (upperBounds != Binding.NO_TYPES) {
-							for (int k = 0; k < upperBounds.length; k++)
-								upperBounds[k] = Scope.substitute(theta, upperBounds[k]);
-							if (!setUpperBounds(zsj, upperBounds))
-								continue; // at violation of well-formedness skip this candidate and proceed
-						} else {
-							zsj.setSuperClass(this.object);
+						//
+						if (!typeboundCreated) {
+							// if no same bounds found, proceed as specified in JLS:
+							// add lower bounds:
+							TypeBinding[] lowerBounds = tmpBoundSet.lowerBounds(variable, true/*onlyProper*/);
+							if (lowerBounds != Binding.NO_TYPES) {
+								TypeBinding lub = this.scope.lowerUpperBound(lowerBounds);
+								if (lub != TypeBinding.VOID && lub != null)
+									zsj.lowerBound = lub;
+							}
+							// add upper bounds:
+							TypeBinding[] upperBounds = tmpBoundSet.upperBounds(variable, false/*onlyProper*/);
+							if (upperBounds != Binding.NO_TYPES) {
+								for (int k = 0; k < upperBounds.length; k++)
+									upperBounds[k] = Scope.substitute(theta, upperBounds[k]);
+								if (!setUpperBounds(zsj, upperBounds))
+									continue; // at violation of well-formedness skip this candidate and proceed
+							} else {
+								zsj.setSuperClass(this.object);
+							}
 						}
 						if (tmpBoundSet == this.currentBounds)
 							tmpBoundSet = tmpBoundSet.copy();
@@ -1283,7 +1308,8 @@ public class InferenceContext18 {
 								}
 							}
 						}
-						tmpBoundSet.addBound(new TypeBound(variable, zsj, ReductionResult.SAME), this.environment);
+						if (!typeboundCreated)
+							tmpBoundSet.addBound(new TypeBound(variable, zsj, ReductionResult.SAME), this.environment);
 						toResolveSet.remove(variable);
 					}
 					if (tmpBoundSet.incorporate(this)) {
