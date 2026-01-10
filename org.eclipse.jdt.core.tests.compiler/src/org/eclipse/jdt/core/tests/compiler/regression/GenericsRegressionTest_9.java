@@ -1902,16 +1902,16 @@ public void testGH4635() {
 		    public static void main(String[] args) {
 		        String arg = "";
 
-//		        Stream<Obj<?>> stream11 = Stream.of(newObj());
-//		        Stream<Obj<?>> stream21 = Stream.of(newObj2(arg));
-//
-//		        Stream<Obj<?>> stream12 = Stream.of(newObj(), newObj());
-//		        Stream<Obj<?>> stream22 = Stream.of(newObj2(arg), newObj2(arg));
+		        Stream<Obj<?>> stream11 = Stream.of(newObj());
+		        Stream<Obj<?>> stream21 = Stream.of(newObj2(arg));
+
+		        Stream<Obj<?>> stream12 = Stream.of(newObj(), newObj());
+		        Stream<Obj<?>> stream22 = Stream.of(newObj2(arg), newObj2(arg));
 
 		        //Stream<Obj<?>> stream11f = Stream.of(newObj()).filter(Objects::nonNull); // javac & eclipse KO
 		        //Stream<Obj<?>> stream21f = Stream.of(newObj2(arg)).filter(Objects::nonNull); // javac & eclipse KO
 
-//		        Stream<Obj<?>> stream12f = Stream.of(newObj(), newObj()).filter(Objects::nonNull);
+		        Stream<Obj<?>> stream12f = Stream.of(newObj(), newObj()).filter(Objects::nonNull);
 		        Stream<Obj<?>> stream22f = Stream.of(newObj2(arg), newObj2(arg)).filter(Objects::nonNull); // javac OK, eclipse KO
 		    }
 
