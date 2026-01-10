@@ -634,6 +634,7 @@ class BoundSet {
 				} while (first != next && ++iteration <= 2);
 			}
 		}
+		Set<ParameterizedTypeBinding> capturesToRemove = new HashSet<>();
 		for (Entry<ParameterizedTypeBinding, ParameterizedTypeBinding> capt : this.captures.entrySet()) {
 			ParameterizedTypeBinding gAlpha = capt.getKey();
 			ParameterizedTypeBinding gA = capt.getValue();
@@ -693,7 +694,8 @@ class BoundSet {
 										System.arraycopy(otherBounds, 0, allBounds, 1, n-1);
 										bi = context.environment.createIntersectionType18(allBounds);
 									}
-									addTypeBoundsFromWildcardBound(context, theta, wildcardBinding.boundKind, t, r, bi);
+									if (addTypeBoundsFromWildcardBound(context, theta, wildcardBinding.boundKind, t, r, bi))
+										capturesToRemove.add(gAlpha);
 								}
 							}
 						}
@@ -704,33 +706,38 @@ class BoundSet {
 							while (it.hasNext()) {
 								TypeBound bound = it.next();
 								if (!(bound.right instanceof InferenceVariable)) {
-									if (wildcardBinding.boundKind == Wildcard.SUPER)
+									if (wildcardBinding.boundKind == Wildcard.SUPER) {
 										reduceOneConstraint(context, ConstraintTypeFormula.create(bound.right, t, ReductionResult.SUBTYPE));
-									else
+										capturesToRemove.add(gAlpha);
+									} else {
 										return false;
+									}
 								}
 							}
 						}
 					}
 				} else {
 					addBound(new TypeBound(alpha, ai, ReductionResult.SAME), context.environment);
+					capturesToRemove.add(gAlpha);
 				}
 			}
 		}
 		if (InferenceContext18.DEBUG) {
-			if (!this.captures.isEmpty()) {
-				for (Entry<ParameterizedTypeBinding, ParameterizedTypeBinding> entry : this.captures.entrySet()) {
-					System.out.println("Dropping capture bound " + //$NON-NLS-1$
-								String.valueOf(entry.getKey().shortReadableName()) +
-								"=capture("+String.valueOf(entry.getKey().shortReadableName())+")"); //$NON-NLS-1$ //$NON-NLS-2$
+			if (!capturesToRemove.isEmpty()) {
+				for (ParameterizedTypeBinding toRemove : capturesToRemove) {
+					System.out.println("Removing capture bound " + //$NON-NLS-1$
+							String.valueOf(toRemove.shortReadableName()) +
+							"=capture("+String.valueOf(this.captures.get(toRemove).shortReadableName())+")"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 		}
-		this.captures.clear();
+		capturesToRemove.stream().forEach(c -> this.captures.remove(c));
 		return true;
 	}
 
-	void addTypeBoundsFromWildcardBound(InferenceContext18 context, InferenceSubstitution theta, int boundKind, TypeBinding t,
+	// try to infer and reduce a new constraint based on details of a given capture bound
+	// return true iff a new constraint has been added indeed
+	boolean addTypeBoundsFromWildcardBound(InferenceContext18 context, InferenceSubstitution theta, int boundKind, TypeBinding t,
 			TypeBinding r, TypeBinding bi) throws InferenceFailureException {
 		ConstraintFormula formula = null;
 		if (boundKind == Wildcard.EXTENDS) {
@@ -741,8 +748,11 @@ class BoundSet {
 		} else {
 			formula = ConstraintTypeFormula.create(theta.substitute(theta, bi), r, ReductionResult.SUBTYPE);
 		}
-		if (formula != null)
+		if (formula != null) {
 			reduceOneConstraint(context, formula);
+			return true;
+		}
+		return false;
 	}
 
 	private ConstraintTypeFormula combineSameSame(TypeBound boundS, TypeBound boundT, Map<InferenceVariable,TypeBound> properTypesByInferenceVariable) {
