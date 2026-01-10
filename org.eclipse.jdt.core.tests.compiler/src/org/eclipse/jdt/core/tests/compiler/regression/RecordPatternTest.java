@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022, 2023 IBM Corporation and others.
+ * Copyright (c) 2022, 2025 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,7 +28,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testRecordTypeInfer_4643" };
+//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_001" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -5088,6 +5088,26 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"	                          ^^^^^^^^^^^^^^\n" +
 			"Record component with type Integer is not compatible with type String\n" +
 			"----------\n");
+	}
+	public void testRecordTypeInfer_1361_001() {
+		runConformTest(new String[] { "X.java",
+		"""
+		record Record<T>(T a) {}
+		public class X {
+			static void test(Object o) {
+				if (o instanceof Record(var x)) {
+					var v = new Record<>(x);
+					Record<Object> r = v;
+					System.out.println(true);
+				}
+			}
+			public static void main(String[] args) {
+				Record<Integer> r = new Record<>(10);
+				test(r);
+			}
+		}
+		""" },
+		"true");
 	}
 
 }
