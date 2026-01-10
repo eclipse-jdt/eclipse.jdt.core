@@ -430,10 +430,9 @@ public class InferenceContext18 {
 			if (!addConstraintsToC(this.invocationArguments, c, method, this.inferenceKind, invocationSite))
 				return null;
 			// 5. bullet: determine B4 from C
-			List<Set<InferenceVariable>> components;
 			while (!c.isEmpty()) {
 				Map<InferenceVariable,Set<InferenceVariable>> dependencies = collectDependencies(this.currentBounds, false, new boolean[1]);
-				components = new ArrayList<>(dependencies.values());
+				List<Set<InferenceVariable>> components = new ArrayList<>(dependencies.values());
 				// *
 				Set<ConstraintFormula> bottomSet = findBottomSet(c, allOutputVariables(c), components);
 				if (bottomSet.isEmpty()) {
@@ -466,6 +465,12 @@ public class InferenceContext18 {
 				// * reduce and incorporate
 					if (!this.currentBounds.reduceOneConstraint(this, constraint))
 						return null;
+				}
+				for (ConstraintFormula constraint : bottomSet) {
+					// https://bugs.openjdk.org/browse/JDK-8052325
+					if (constraint instanceof ConstraintExpressionFormula expressionFormula && expressionFormula.left instanceof LambdaExpression lambda && lambda.argumentsTypeElided()) {
+						addLambdaConstraintsToC(lambda, c, method, expressionFormula.right);
+					}
 				}
 			}
 			// 6. bullet: solve
@@ -652,6 +657,31 @@ public class InferenceContext18 {
 		return true;
 	}
 
+	private boolean addLambdaConstraintsToC(LambdaExpression lambda, Set<ConstraintFormula> c, MethodBinding method, TypeBinding substF)
+			throws InferenceFailureException
+	{
+		// https://bugs.openjdk.java.net/browse/JDK-8038747
+		BlockScope skope = lambda.enclosingScope;
+		if (substF.isFunctionalInterface(skope)) { // could be an inference variable.
+			ReferenceBinding t = (ReferenceBinding) substF;
+			ParameterizedTypeBinding withWildCards = InferenceContext18.parameterizedWithWildcard(t);
+			if (withWildCards != null) {
+				t = ConstraintExpressionFormula.findGroundTargetType(this, skope, lambda, withWildCards);
+			}
+			MethodBinding functionType;
+			if (t != null && (functionType = t.getSingleAbstractMethod(skope, true)) != null && (lambda = lambda.resolveExpressionExpecting(t, this.scope)) != null) {
+				TypeBinding r = functionType.returnType;
+				Expression[] resultExpressions = lambda.resultExpressions();
+				for (int i = 0, length = resultExpressions == null ? 0 : resultExpressions.length; i < length; i++) {
+					Expression resultExpression = resultExpressions[i];
+					if (!addConstraintsToC_OneExpr(resultExpression, c, r.original(), r, method))
+						return false;
+				}
+			}
+		}
+		return true;
+	}
+
 	private boolean addConstraintsToC_OneExpr(Expression expri, Set<ConstraintFormula> c, TypeBinding fsi, TypeBinding substF, MethodBinding method)
 			throws InferenceFailureException
 	{
@@ -666,27 +696,9 @@ public class InferenceContext18 {
 		}
 		if (expri instanceof FunctionalExpression) {
 			c.add(new ConstraintExceptionFormula((FunctionalExpression) expri, substF));
-			if (expri instanceof LambdaExpression) {
-				// https://bugs.openjdk.java.net/browse/JDK-8038747
-				LambdaExpression lambda = (LambdaExpression) expri;
-				BlockScope skope = lambda.enclosingScope;
-				if (substF.isFunctionalInterface(skope)) { // could be an inference variable.
-					ReferenceBinding t = (ReferenceBinding) substF;
-					ParameterizedTypeBinding withWildCards = InferenceContext18.parameterizedWithWildcard(t);
-					if (withWildCards != null) {
-						t = ConstraintExpressionFormula.findGroundTargetType(this, skope, lambda, withWildCards);
-					}
-					MethodBinding functionType;
-					if (t != null && (functionType = t.getSingleAbstractMethod(skope, true)) != null && (lambda = lambda.resolveExpressionExpecting(t, this.scope)) != null) {
-						TypeBinding r = functionType.returnType;
-						Expression[] resultExpressions = lambda.resultExpressions();
-						for (int i = 0, length = resultExpressions == null ? 0 : resultExpressions.length; i < length; i++) {
-							Expression resultExpression = resultExpressions[i];
-							if (!addConstraintsToC_OneExpr(resultExpression, c, r.original(), r, method))
-								return false;
-						}
-					}
-				}
+			// https://bugs.openjdk.org/browse/JDK-8052325
+			if (expri instanceof LambdaExpression lambda && !lambda.argumentsTypeElided()) {
+				addLambdaConstraintsToC(lambda, c, method, substF);
 			}
 		} else if (expri instanceof Invocation && expri.isPolyExpression()) {
 
@@ -716,7 +728,6 @@ public class InferenceContext18 {
 				if (!innerContext.computeB3(invocation, substF, shallowMethod))
 					return false;
 				if (innerContext.addConstraintsToC(arguments, c, innerMethod.genericMethod(), innerContext.inferenceKind, invocation)) {
-					this.currentBounds.addBounds(innerContext.currentBounds, this.environment, false);
 					return true;
 				}
 				return false;
