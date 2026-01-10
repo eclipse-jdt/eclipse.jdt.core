@@ -185,6 +185,84 @@ public class AnnotationProcessingCompilerToolTest extends AbstractBatchCompilerT
 			true /* shouldFlushOutputDirectory */ );
 		// @formatter:on
 	}
+
+	public void test_github2088() throws IOException {
+        // @formatter:off
+        runTest(
+            true /* shouldCompileOK */,
+            new String [] { /* sourceFiles */
+                "X.java", """
+                    package p1;
+                    import org.eclipse.jdt.apt.tests.external.annotations.batch.BatchGen;
+                    @BatchGen
+                    public class X {
+                    }
+                    """,
+                "Anno.java", """
+                    package p2;
+                    public @interface Anno {
+                        String v() default "";
+                    }
+                    """,
+                "Breaks.java", """
+                    package p3;
+                    import p2.Anno;
+                    import p1.gen.Class1;
+                    @Anno (v = Breaks.V)
+                    public class Breaks {
+                        public static final String V = "V";
+                        public Class1 c1;
+                    };
+                    """,
+                "Works1.java", """
+                    package p3;
+                    import p2.Anno;
+                    import p1.gen.Class1;
+                    @Anno // (v = Breaks.V)
+                    public class Works1 {
+                        public Class1 c1;
+                    };
+                    """,
+                "Works2.java", """
+                    package p3;
+                    import p2.Anno;
+                    // import p1.gen.Class1;
+                    @Anno(v = Breaks.V)
+                    public class Works2 {
+                        // public Class1 c1;
+                        public p1.gen.Class1 c1;
+                    };
+                    """,
+            },
+            null /* standardJavaFileManager */,
+            Arrays.asList(
+                    "-d", OUTPUT_DIR,
+                    "-source", "1.8",
+                    "-g", "-preserveAllLocals",
+                    "-cp",  OUTPUT_DIR  + File.pathSeparator + _extJar.getAbsolutePath() ,
+                    "-s", OUTPUT_DIR  +  File.separator + "src-gen",
+                    "-processorpath", _extJar.getAbsolutePath(),
+                    "-XprintProcessorInfo",
+                    // TODO: after fixing the issue, enable and update expected output of:
+                    // "-XprintRounds",
+                    "-proceedOnError"
+                    ) /* options */,
+            new String[] { /* compileFileNames */
+                "X.java",
+                "Anno.java",
+                "Breaks.java",
+                "Works1.java",
+                "Works2.java"
+            },
+            "Discovered processor service org.eclipse.jdt.apt.tests.external.annotations.batch.BatchGenProcessor\n" +
+            "  supporting [org.eclipse.jdt.apt.tests.external.annotations.batch.BatchGen]\n" + 
+            "  in jar:"  + Path.of(_extJar.getCanonicalPath()).toUri().toURL().toString() + "!/\n" + 
+            "Processor org.eclipse.jdt.apt.tests.external.annotations.batch.BatchGenProcessor matches [org.eclipse.jdt.apt.tests.external.annotations.batch.BatchGen] and returns true\n" + 
+            "Processor org.eclipse.jdt.apt.tests.external.annotations.batch.BatchGenProcessor matches [] and returns false\n",
+            "" /* expectedErrOutputString */,
+            true /* shouldFlushOutputDirectory */ );
+        // @formatter:on
+    }
 	
 	protected static class CompilerInvocationTestsArguments {
 		StandardJavaFileManager standardJavaFileManager;
