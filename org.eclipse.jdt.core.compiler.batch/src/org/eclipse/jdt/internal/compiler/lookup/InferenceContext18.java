@@ -1253,20 +1253,16 @@ public class InferenceContext18 {
 						if (tmpBoundSet == this.currentBounds)
 							tmpBoundSet = tmpBoundSet.copy();
 						Iterator<ParameterizedTypeBinding> captureKeys = tmpBoundSet.captures.keySet().iterator();
-						Set<ParameterizedTypeBinding> toRemove = new LinkedHashSet<>();
 						while (captureKeys.hasNext()) {
 							ParameterizedTypeBinding key = captureKeys.next();
 							int len = key.arguments.length;
 							for (int i = 0; i < len; i++) {
 								if (TypeBinding.equalsEquals(key.arguments[i], variable)) {
-									toRemove.add(key);
+									captureKeys.remove();
 									break;
 								}
 							}
 						}
-						captureKeys = toRemove.iterator();
-						while (captureKeys.hasNext())
-							tmpBoundSet.captures.remove(captureKeys.next());
 						tmpBoundSet.addBound(new TypeBound(variable, zsj, ReductionResult.SAME), this.environment);
 					}
 					if (tmpBoundSet.incorporate(this)) {
