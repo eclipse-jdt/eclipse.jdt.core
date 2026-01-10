@@ -21,6 +21,7 @@ import static java.util.stream.Collectors.toMap;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.util.Tuples.Pair;
@@ -1087,6 +1088,13 @@ class BoundSet {
 		// bounds where 'variable' appears at the RHS are not relevant because
 		// we're only interested in bounds with a proper type, but if 'variable'
 		// appears as RHS the bound is by construction an inference variable,too.
+	}
+
+	public TypeBinding[] sameBounds(InferenceVariable variable) {
+		ThreeSets three = this.boundsPerVariable.get(variable.prototype());
+		if (three == null || three.sameBounds == null)
+			return Binding.NO_TYPES;
+		return three.sameBounds.stream().map(b -> b.right).collect(Collectors.toList()).toArray(TypeBinding[]::new);
 	}
 
 	// debugging:
