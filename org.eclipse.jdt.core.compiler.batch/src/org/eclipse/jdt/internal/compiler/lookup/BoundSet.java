@@ -315,7 +315,7 @@ class BoundSet {
 	 * <dl>
 	 * <dt>captures<dd>IC18.resumeSuspendedInference() will reset these to avoid captures from nested
 	 * 	inference spilling blindly into the current inference.<br>
-	 *  {@link InferenceContext18#collectDependencies(BoundSet)} considers only "local" {@link #captures}.
+	 *  {@link InferenceContext18#collectDependencies(BoundSet, boolean, boolean[])} considers only "local" {@link #captures}.
 	 * <dt>allCaptures<dd>Still {@link #hasCaptureBound(Set)} and {@link #incorporate(InferenceContext18)} will
 	 * 	operate on {@link #allCaptures}.
 	 */
