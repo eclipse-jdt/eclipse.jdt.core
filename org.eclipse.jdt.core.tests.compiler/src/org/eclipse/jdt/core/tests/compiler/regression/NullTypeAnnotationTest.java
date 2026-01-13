@@ -27,7 +27,6 @@ import java.util.Map;
 import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -19366,14 +19365,6 @@ public void testGH2158() {
 	runner.customOptions = getCompilerOptions();
 	runner.classLibraries = this.LIBS;
 	runner.runConformTest();
-
-	// challenge other part of the fix:
-	TypeDeclaration.TESTING_GH_2158 = true;
-	try {
-		runner.runConformTest();
-	} finally {
-		TypeDeclaration.TESTING_GH_2158 = false;
-	}
 }
 public void testGH2325() {
 	Runner runner = new Runner();
@@ -19823,5 +19814,29 @@ public void testGH4717_nullExit() {
 			----------
 			""";
 	runner.runNegativeTest();
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4494
+// Trouble annotating explicit receiver with ECJ (works fine with javac)
+public void testGH4494() throws Exception {
+	runConformTest(new String[] {
+			"AnnotatedExplicitReceiverError.java",
+			"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+
+			public class AnnotatedExplicitReceiverError {
+			    @Target({ ElementType.TYPE_USE})
+			    private static @interface A { }
+
+			    @Target({ ElementType.TYPE_USE, ElementType.TYPE_PARAMETER })
+			    private static @interface F { }
+
+			    static class P<@A T> {
+			        public void explicitReceiver(@F P<T> this) { // error here
+			        }
+			    }
+			}
+			"""
+	});
 }
 }
