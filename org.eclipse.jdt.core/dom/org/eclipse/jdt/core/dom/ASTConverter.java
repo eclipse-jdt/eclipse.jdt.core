@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2425,7 +2425,11 @@ class ASTConverter {
 							ASTNode prev = fragments.get(0);
 							for (int i = 1; i < fragments.size(); i++) {
 								ASTNode cur = fragments.get(i);
-								if (cur.getStartPosition() <= prev.getStartPosition()) cur.setFlags(ASTNode.MALFORMED);
+								if (cur.getStartPosition() <= prev.getStartPosition())
+									cur.setFlags(ASTNode.MALFORMED);
+								else if ((cur.getStartPosition() + cur.getLength()) == (prev.getStartPosition()
+										+ prev.getLength()))
+									cur.setFlags(ASTNode.MALFORMED);
 								prev = cur;
 							}
 						}
