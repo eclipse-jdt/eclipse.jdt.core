@@ -11570,7 +11570,8 @@ public boolean atConflictScenario(TerminalToken token) {
 	return switch (token) {
 		case TokenNameLPAREN -> automatonWillShift(TokenNameBeginLambda, this.unstackedAct) || automatonWillShift(TokenNameBeginIntersectionCast, this.unstackedAct);
 		case TokenNameLESS -> automatonWillShift(TokenNameBeginTypeArguments, this.unstackedAct);
-		default -> automatonWillShift(token, this.unstackedAct);
+		case TokenNameAT -> automatonWillShift(token, this.unstackedAct);
+		default -> throw new IllegalArgumentException("unexpected token "+token); //$NON-NLS-1$
 	};
 }
 /*main loop of the automat

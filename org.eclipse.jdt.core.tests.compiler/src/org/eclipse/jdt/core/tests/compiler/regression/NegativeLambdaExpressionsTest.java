@@ -8518,7 +8518,7 @@ public void test426965() {
 		"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427207, - [1.8][bytecode] Runtime type problem: Instruction type does not match stack map
-public void test427207() { // here
+public void test427207() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
