@@ -206,7 +206,7 @@ public class SealedTypeElementProcessor extends BaseElementProcessor {
 		assertNotNull("type should not be null", topType);
 		enclosedElements = topType.getEnclosedElements();
 		assertEquals("incorrect no of enclosed elements", 3, enclosedElements.size());
-		
+
 		for (Element element : enclosedElements) {
 			if (!(element instanceof TypeElement))
 				continue;
@@ -296,7 +296,7 @@ public class SealedTypeElementProcessor extends BaseElementProcessor {
 	public void test005Src() {
 		if (this.isBinaryMode) return;
 		_test005();
-	}	
+	}
 	public void test005Binary() {
 		if (!this.isBinaryMode) return;
 		_test005();

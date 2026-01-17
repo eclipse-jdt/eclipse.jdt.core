@@ -11,20 +11,20 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="true" exportOutputFolder="false">
-        <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.processors.visitors"/>
+        <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.annotations"/>
+        <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.processors.base"/>
+        <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.processors.checkargs"/>
+        <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.processors.elements"/>
         <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.processors.elementutils"/>
         <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.processors.filer"/>
-        <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.processors.elements"/>
-        <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors8=/test=/true=/"/>
-        <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.processors.typemirror"/>
-        <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.processors.generics"/>
-        <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.processors.checkargs"/>
-        <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.processors.negative"/>
         <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.processors.genclass"/>
-        <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.processors.typeutils"/>
-        <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.processors.messager"/>
-        <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.processors.base"/>
+        <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.processors.generics"/>
         <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.processors.inherited"/>
-        <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.annotations"/>
+        <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.processors.messager"/>
+        <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.processors.negative"/>
+        <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.processors.typemirror"/>
+        <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.processors.typeutils"/>
+        <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors=/test=/true=/&lt;org.eclipse.jdt.compiler.apt.tests.processors.visitors"/>
+        <javaElement handleIdentifier="=org.eclipse.jdt.compiler.apt.tests/processors8=/test=/true=/"/>
     </selectedElements>
 </jardesc>

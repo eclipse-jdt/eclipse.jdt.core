@@ -68,7 +68,7 @@ public class Java9ModuleProcessor extends BaseProcessor {
 		}
 		return false;
 	}
-	
+
 	private boolean invokeTestMethods(Map<String, String> options) throws Throwable {
 		Method testMethod = null;
 		Set<String> keys = options.keySet();
@@ -94,22 +94,22 @@ public class Java9ModuleProcessor extends BaseProcessor {
 	public void testAll() throws AssertionFailedError {
 		testModuleAnnotationProcessing1();
 	}
-	
+
 	public void testModuleAnnotationProcessing1() {
 		assertEquals("incorrect no of annotations to be processed", 1, this.annotations.size()); // Includes the dummy java.lang.Deprecated
 		assertEquals("incorrect annotation type", "def.Module" , this.annotations.iterator().next().getQualifiedName().toString());
-		
+
 		Set<? extends Element> annotatedElements = this.roundEnv.getElementsAnnotatedWith(this.annotations.iterator().next());
 		assertEquals("incorrect no of annotated module elements", 1, annotatedElements.size());
-		
+
 		Element annotatedElement = annotatedElements.iterator().next();
 		assertEquals("Element should be a ModuleElement", ElementKind.MODULE, annotatedElement.getKind());
-		
+
 		ModuleElement moduleElement = (ModuleElement)annotatedElement;
 		assertEquals("incorrect qualified name", "mod.c", moduleElement.getQualifiedName().toString());
 		assertEquals("incorrect simple name", "c", moduleElement.getSimpleName().toString());
 	}
-	
+
 	@Override
 	public void reportError(String msg) {
 		throw new AssertionFailedError(msg);
@@ -125,7 +125,7 @@ public class Java9ModuleProcessor extends BaseProcessor {
 		}
 		return buf.toString();
 	}
-	
+
 	public void assertEquals(String message, Object expected, Object actual) {
         if (equalsRegardingNull(expected, actual)) {
             return;
@@ -133,14 +133,14 @@ public class Java9ModuleProcessor extends BaseProcessor {
         	reportError(message + ", expected " + expected.toString() + " but was " + actual.toString());
         }
     }
-	
+
 	static boolean equalsRegardingNull(Object expected, Object actual) {
         if (expected == null) {
             return actual == null;
         }
         return expected.equals(actual);
     }
-	
+
 	private static class AssertionFailedError extends Error {
 		private static final long serialVersionUID = 1L;
 

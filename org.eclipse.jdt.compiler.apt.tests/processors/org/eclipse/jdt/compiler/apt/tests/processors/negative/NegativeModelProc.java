@@ -40,6 +40,7 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.XMLComparer;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.XMLConverter;
 import org.w3c.dom.Document;
@@ -461,7 +462,7 @@ public class NegativeModelProc extends AbstractProcessor
 	private int _oneTest;
 
 	// Report failures on tests that are already known to be unsupported
-	private final boolean _reportFailingCases = true;
+	private boolean _reportFailingCases = true;
 
 	// If processor options don't include this processor's classname, don't run the proc at all.
 	private boolean _processorEnabled;
@@ -828,18 +829,21 @@ public class NegativeModelProc extends AbstractProcessor
 	 * Compare a set of elements to a reference model, and output error information if there is a
 	 * mismatch.
 	 *
+	 * @param rootElements
 	 * @param expected
 	 *            a string representation of the XML reference model, as it would be serialized by
 	 *            XMLConverter
 	 * @param name
 	 *            the name of the test, which is used for human-readable output
 	 * @return true if the actual and expected models were equivalent
+	 * @throws Exception
 	 */
 	private boolean checkModel(List<TypeElement> rootElements, String expected, String name) throws Exception {
 		Document actualModel = XMLConverter.convertModel(rootElements);
 
     	InputSource source = new InputSource(new StringReader(expected));
-        Document expectedModel = org.eclipse.core.internal.runtime.XmlProcessorFactory.createDocumentBuilderWithErrorOnDOCTYPE().parse(source);
+    	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        Document expectedModel = factory.newDocumentBuilder().parse(source);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         StringBuilder summary = new StringBuilder();

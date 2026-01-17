@@ -247,7 +247,7 @@ abstract class BaseElementProcessor extends BaseProcessor {
 					buf.append(",");
 					buf.append(iterator.next().getValue());
 				}
- 				
+
 			} else {
 				buf.append(value.getValue());
 			}

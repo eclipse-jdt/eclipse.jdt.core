@@ -41,7 +41,7 @@ import javax.tools.JavaFileObject;
 @SupportedAnnotationTypes({"org.eclipse.jdt.compiler.apt.tests.annotations.GenClass",
 							"org.eclipse.jdt.compiler.apt.tests.annotations.Value.Immutable",
 							"org.eclipse.jdt.compiler.apt.tests.annotations.Value.Style",
-							"org.eclipse.jdt.compiler.apt.tests.annotations.Generated",})		
+							"org.eclipse.jdt.compiler.apt.tests.annotations.Generated",})
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class GenClassProc extends AbstractProcessor {
 
@@ -74,7 +74,7 @@ public class GenClassProc extends AbstractProcessor {
 		if (annotations == null || annotations.isEmpty()) {
 			return true;
 		}
-		
+
 		if (annotations.contains(_immutableDecl)) {
 			List<? extends Element> enclosedElements = _styleDecl.getEnclosedElements();
 			int size = enclosedElements.size();

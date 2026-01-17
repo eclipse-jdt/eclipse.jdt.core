@@ -32,7 +32,7 @@ import javax.lang.model.element.TypeElement;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
 /**
- * A processor that explores the module import feature and related aspects. 
+ * A processor that explores the module import feature and related aspects.
  * To enable this processor, add
  * -Aorg.eclipse.jdt.compiler.apt.tests.processors.elements.ModuleImportProcessor to the command line.
  */
