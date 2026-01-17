@@ -696,11 +696,11 @@ public class SwitchStatement extends Expression {
 										caseInits.markAsDefinitelyNonNull(reference.localVariableBinding());
 									} else if (reference.lastFieldBinding() != null) {
 										if (this.scope.compilerOptions().enableSyntacticNullAnalysisForFields)
-											switchContext.recordNullCheckedFieldReference(reference, 2); // survive this case statement and into the next
+											switchContext.recordNullCheckedFieldReference(reference, 2, FlowInfo.NON_NULL); // survive this case statement and into the next
 									}
 								} else if (this.expression instanceof FieldReference) {
 									if (this.scope.compilerOptions().enableSyntacticNullAnalysisForFields)
-										switchContext.recordNullCheckedFieldReference((FieldReference) this.expression, 2); // survive this case statement and into the next
+										switchContext.recordNullCheckedFieldReference((FieldReference) this.expression, 2, FlowInfo.NON_NULL); // survive this case statement and into the next
 								}
 							}
 						}

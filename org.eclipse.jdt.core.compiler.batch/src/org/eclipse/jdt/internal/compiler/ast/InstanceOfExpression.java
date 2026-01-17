@@ -92,7 +92,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		if (currentScope.compilerOptions().enableSyntacticNullAnalysisForFields) {
 			FieldBinding field = ((Reference)this.expression).lastFieldBinding();
 			if (field != null && (field.type.tagBits & TagBits.IsBaseType) == 0) {
-				flowContext.recordNullCheckedFieldReference((Reference) this.expression, 1);
+				flowContext.recordNullCheckedFieldReference((Reference) this.expression, 1, FlowInfo.NON_NULL);
 			}
 		}
 	}

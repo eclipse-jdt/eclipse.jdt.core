@@ -451,12 +451,14 @@ class BoundSet {
 		return hasProperBound;
 	}
 
-	public void addBounds(BoundSet that, LookupEnvironment environment) {
+	public void addBounds(BoundSet that, LookupEnvironment environment, boolean includeCaptureBounds) {
 		if (that == null || environment == null)
 			return;
 		addBounds(that.flatten(), environment);
 		this.inThrows.addAll(that.inThrows);
-		this.captures.putAll(that.captures);
+		if (includeCaptureBounds) {
+			this.captures.putAll(that.captures);
+		}
 	}
 
 	public boolean isInstantiated(InferenceVariable inferenceVariable) {

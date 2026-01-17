@@ -7087,7 +7087,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		String expectedOutput =
-			"Syntax error on token \",\", invalid Expression";
+			"Syntax error on token \",\", invalid VariableInitializer";
 		assertProblemsSize(compilationUnit, 1, expectedOutput);
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
 		assertEquals("Not a compilation unit", ASTNode.FIELD_DECLARATION, node.getNodeType()); //$NON-NLS-1$
@@ -7106,7 +7106,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		String expectedOutput =
-			"Syntax error on token \",\", invalid Expression";
+			"Syntax error on token \",\", invalid VariableInitializer";
 		assertProblemsSize(compilationUnit, 1, expectedOutput);
 	}
 	/**
@@ -7532,7 +7532,7 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 				true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
-			assertProblemsSize(unit, 1, "Syntax error on token \"=\", Expression expected after this token");
+			assertProblemsSize(unit, 1, "Syntax error on token \"=\", VariableInitializer expected after this token");
 			node = getASTNode(unit, 0, 0, 0);
 			assertEquals("Not a vaviable declaration statement", ASTNode.VARIABLE_DECLARATION_STATEMENT, node.getNodeType());
 			VariableDeclarationStatement statement = (VariableDeclarationStatement) node;

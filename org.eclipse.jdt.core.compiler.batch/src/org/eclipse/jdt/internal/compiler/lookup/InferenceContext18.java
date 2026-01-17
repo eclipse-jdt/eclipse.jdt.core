@@ -491,11 +491,11 @@ public class InferenceContext18 {
 			BoundSet toPush = deferred ? this.currentBounds.copy() : this.currentBounds;
 			Runnable job = () -> {
 				if (outer.directlyAcceptingInnerBounds) {
-					outer.currentBounds.addBounds(toPush, this.environment);
+					outer.currentBounds.addBounds(toPush, this.environment, false);
 				} else if (outer.innerInbox == null) {
 					outer.innerInbox = deferred ? toPush : toPush.copy(); // copy now, unless already copied on behalf of 'deferred'
 				} else {
-					outer.innerInbox.addBounds(toPush, this.environment);
+					outer.innerInbox.addBounds(toPush, this.environment, false);
 				}
 			};
 			if (deferred) {
@@ -515,7 +515,7 @@ public class InferenceContext18 {
 	/** Not JLS: merge pending bounds of inner inference into current. */
 	private void mergeInnerBounds() {
 		if (this.innerInbox != null) {
-			this.currentBounds.addBounds(this.innerInbox, this.environment);
+			this.currentBounds.addBounds(this.innerInbox, this.environment, false);
 			this.innerInbox = null;
 		}
 	}
@@ -709,7 +709,7 @@ public class InferenceContext18 {
 				if (!innerContext.computeB3(invocation, substF, shallowMethod))
 					return false;
 				if (innerContext.addConstraintsToC(arguments, c, innerMethod.genericMethod(), innerContext.inferenceKind, invocation)) {
-					this.currentBounds.addBounds(innerContext.currentBounds, this.environment);
+					this.currentBounds.addBounds(innerContext.currentBounds, this.environment, false);
 					return true;
 				}
 				return false;
@@ -1587,7 +1587,7 @@ public class InferenceContext18 {
 	}
 
 	public void integrateInnerInferenceB2(InferenceContext18 innerCtx) {
-		this.currentBounds.addBounds(innerCtx.b2, this.environment);
+		this.currentBounds.addBounds(innerCtx.b2, this.environment, true);
 		this.inferenceVariables = innerCtx.inferenceVariables;
 		this.inferenceKind = innerCtx.inferenceKind;
 		if (!isSameSite(innerCtx.currentInvocation, this.currentInvocation))

@@ -733,53 +733,20 @@ class DocCommentParser extends AbstractCommentParser {
 						readChar();
 					}
 					break;
+				case ')':
+					if (peekChar() == '\n' || peekChar() == ' ') {
+						valid = parseMarkdownLinkTags(true, start, previousPosition, tStart, tEnd);
+						break loop;
+					}
+					break;
 				case ']':
-					if (peekChar() == '[') {
+					if ((peekChar() == '[' ) || peekChar() == '(') {
 						tStart = start;
 						tEnd = this.index - 1;
 						currentChar = readChar();
 						start = this.index;
-					} else {
-						int eofBkup = this.scanner.eofPosition;
-						this.scanner.eofPosition = this.index - 1;
-						this.scanner.resetTo(start, this.javadocEnd);
-						this.inlineTagStarted = true;
-						this.inlineTagStart = previousPosition;
-						this.tagValue = TAG_LINK_VALUE;
-						int indexBkup = this.index;
-						valid = parseReference(true);
-						this.index = indexBkup;
-						// This creates a two level structure. The @link tag is added to
-						// another tag element, which gets added to the astStack
-						// Both tag elements must get the same source range.
-						TagElement previousTag = (TagElement) this.astStack[this.astPtr];
-						int parentStart = previousTag.getStartPosition();
-						previousTag.setSourceRange(parentStart, this.index - parentStart);
-						List fragments = previousTag.fragments();
-						int size = fragments.size();
-						if (size == 0) {
-							// no existing fragment => just add the element
-							TagElement inlineTag = this.ast.newTagElement();
-							fragments.add(inlineTag);
-							previousTag = inlineTag;
-						} else {
-							// If last fragment is a tag, then use it as previous tag
-							ASTNode lastFragment = (ASTNode) fragments.get(size-1);
-							if (lastFragment.getNodeType() == ASTNode.TAG_ELEMENT) {
-								lastFragment.setSourceRange(lastFragment.getStartPosition(), this.index - previousPosition);
-								previousTag = (TagElement) lastFragment;
-							}
-						}
-						if (tEnd != -1) {
-							TextElement text = this.ast.newTextElement();
-							text.setText(new String( this.source, tStart, tEnd-tStart));
-							text.setSourceRange(tStart, tEnd-tStart);
-							previousTag.fragments().add(0, text);
-						}
-						this.tagValue = NO_TAG_VALUE;
-						this.inlineTagStarted = false;
-						this.inlineTagStart = -1;
-						this.scanner.eofPosition = eofBkup;
+					} else if (peekChar() != ']') {
+						valid = parseMarkdownLinkTags(false, start, previousPosition, tStart, tEnd);
 						break loop;
 					}
 					break;
@@ -792,6 +759,54 @@ class DocCommentParser extends AbstractCommentParser {
 			currentChar = readChar();
 		}
 		this.markdownHelper.resetLineStart();
+		return valid;
+	}
+
+	private boolean parseMarkdownLinkTags(boolean refFlag, int start, int previousPosition, int tStart, int tEnd ) throws InvalidInputException {
+		boolean valid = false;
+		int eofBkup = this.scanner.eofPosition;
+		this.scanner.eofPosition = this.index - 1;
+		this.scanner.resetTo(start, this.javadocEnd);
+		this.inlineTagStarted = true;
+		this.inlineTagStart = previousPosition;
+		this.tagValue = TAG_LINK_VALUE;
+		int indexBkup = this.index;
+		if (refFlag)
+			valid = parseURLReference(this.scanner.startPosition - 1, false);
+		else
+			valid = parseReference(true);
+		this.index = indexBkup;
+		// This creates a two level structure. The @link tag is added to
+		// another tag element, which gets added to the astStack
+		// Both tag elements must get the same source range.
+		TagElement previousTag = (TagElement) this.astStack[this.astPtr];
+		int parentStart = previousTag.getStartPosition();
+		previousTag.setSourceRange(parentStart, this.index - parentStart);
+		List fragments = previousTag.fragments();
+		int size = fragments.size();
+		if (size == 0) {
+			// no existing fragment => just add the element
+			TagElement inlineTag = this.ast.newTagElement();
+			fragments.add(inlineTag);
+			previousTag = inlineTag;
+		} else {
+			// If last fragment is a tag, then use it as previous tag
+			ASTNode lastFragment = (ASTNode) fragments.get(size-1);
+			if (lastFragment.getNodeType() == ASTNode.TAG_ELEMENT) {
+				lastFragment.setSourceRange(lastFragment.getStartPosition(), this.index - previousPosition);
+				previousTag = (TagElement) lastFragment;
+			}
+		}
+		if (tEnd != -1) {
+			TextElement text = this.ast.newTextElement();
+			text.setText(new String( this.source, tStart, tEnd-tStart));
+			text.setSourceRange(tStart, tEnd-tStart);
+			previousTag.fragments().add(0, text);
+		}
+		this.tagValue = NO_TAG_VALUE;
+		this.inlineTagStarted = false;
+		this.inlineTagStart = -1;
+		this.scanner.eofPosition = eofBkup;
 		return valid;
 	}
 

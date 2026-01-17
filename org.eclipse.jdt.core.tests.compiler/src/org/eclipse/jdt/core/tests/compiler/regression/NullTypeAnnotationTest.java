@@ -19629,4 +19629,187 @@ public void testGH4011() {
 			""";
 	runner.runNegativeTest();
 }
+public void testGH4668a() throws Exception {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+	runner.customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "VEB.NonNull");
+	runner.customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "VEB.Nullable");
+	runner.customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "VEB.NonNullByDefault");
+	runner.testFiles = new String[] {
+			"VEB/NonNullByDefault.java", """
+			package VEB;
+			import static java.lang.annotation.RetentionPolicy.RUNTIME;
+			import java.lang.annotation.Documented;
+			import java.lang.annotation.Retention;
+
+			@Documented
+			@Retention(RUNTIME)
+			public @interface NonNullByDefault { }
+			class X extends Zork {}
+			""",
+			"VEB/NonNull.java",
+			"""
+			package VEB;
+			import static java.lang.annotation.RetentionPolicy.RUNTIME;
+			import java.lang.annotation.Documented;
+			import java.lang.annotation.Retention;
+
+			@Documented
+			@Retention(RUNTIME)
+			public @interface NonNull { }
+			""",
+			"VEB/Nullable.java", """
+			package VEB;
+			import static java.lang.annotation.RetentionPolicy.RUNTIME;
+			import java.lang.annotation.Documented;
+			import java.lang.annotation.Retention;
+
+			@Documented
+			@Retention(RUNTIME)
+			public @interface Nullable { }
+			""",
+			"VEB/package-info.java", """
+			@NonNullByDefault
+			package VEB;
+			"""
+	};
+	runner.expectedCompilerLog =
+			"""
+			----------
+			1. ERROR in VEB\\NonNullByDefault.java (at line 9)
+				class X extends Zork {}
+				                ^^^^
+			Zork cannot be resolved to a type
+			----------
+			----------
+			1. WARNING in VEB\\package-info.java (at line 1)
+				@NonNullByDefault
+				^
+			Cannot fully evaluate null annotations due to cyclic structure involving VEB.NonNullByDefault
+			----------
+			""";
+	runner.runNegativeTest();
+}
+public void testGH4717_OR() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_SyntacticNullAnalysisForFields, CompilerOptions.ENABLED);
+	runner.classLibraries = this.LIBS;
+	runner.testFiles = new String[] {
+		"CheckingNullableField.java",
+		"""
+		import org.eclipse.jdt.annotation.NonNull;
+		import org.eclipse.jdt.annotation.Nullable;
+
+		public class CheckingNullableField {
+
+			// Change request ID - null if change not checked
+			protected @Nullable String changeRequestID;
+
+			public CheckingNullableField(@Nullable String aChangeRequestID) {
+				changeRequestID = aChangeRequestID;
+			}
+
+			public boolean verifyRequest1a(@NonNull String aRequestID) {
+				if ( (changeRequestID == null) || (changeRequestID.isEmpty()) ) {
+					changeRequestID.isEmpty(); // check is expired here
+					return true;
+				}
+				return aRequestID.equalsIgnoreCase(changeRequestID);
+			}
+
+			public boolean verifyRequest1b(@NonNull String aRequestID) {
+				if (!((changeRequestID == null) || changeRequestID.isEmpty())) {
+					return false;
+				}
+				return aRequestID.equalsIgnoreCase(changeRequestID);
+			}
+		}
+		"""
+	};
+	runner.expectedCompilerLog =
+			"""
+			----------
+			1. ERROR in CheckingNullableField.java (at line 15)
+				changeRequestID.isEmpty(); // check is expired here
+				^^^^^^^^^^^^^^^
+			Potential null pointer access: this expression has a '@Nullable' type
+			----------
+			""";
+	runner.runNegativeTest();
+}
+public void testGH4717_nullExit() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_SyntacticNullAnalysisForFields, CompilerOptions.ENABLED);
+	runner.customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryElse, CompilerOptions.IGNORE);
+	runner.classLibraries = this.LIBS;
+	runner.testFiles = new String[] {
+		"CheckingNullableField.java",
+		"""
+		import org.eclipse.jdt.annotation.NonNull;
+		import org.eclipse.jdt.annotation.Nullable;
+
+		public class CheckingNullableField {
+
+			// Change request ID - null if change not checked
+			protected @Nullable String changeRequestID;
+
+			public CheckingNullableField(@Nullable String aChangeRequestID) {
+				changeRequestID = aChangeRequestID;
+			}
+
+			public boolean verifyRequest2a(@NonNull String aRequestID) {
+				if (changeRequestID == null) {
+					return true;
+				}
+				if (changeRequestID.isEmpty()) {
+					return true;
+				}
+				return aRequestID.equalsIgnoreCase(changeRequestID);
+			}
+			public boolean verifyRequest2b(@NonNull String aRequestID) {
+				if (changeRequestID == null) {
+					return true;
+				}
+				expire();
+				if (changeRequestID.isEmpty()) { // check is expired here
+					return true;
+				}
+				return aRequestID.equalsIgnoreCase(changeRequestID);
+			}
+			public boolean verifyRequest2c(@NonNull String aRequestID) {
+				if (changeRequestID == null) {
+					return true;
+				} else {
+					if (changeRequestID.isEmpty()) {
+						return true;
+					}
+				}
+				if (changeRequestID.isEmpty()) { // check is expired here
+					return true;
+				}
+				return aRequestID.equalsIgnoreCase(changeRequestID);
+			}
+			void expire() {}
+		}
+		"""
+	};
+	runner.expectedCompilerLog =
+			"""
+			----------
+			1. ERROR in CheckingNullableField.java (at line 27)
+				if (changeRequestID.isEmpty()) { // check is expired here
+				    ^^^^^^^^^^^^^^^
+			Potential null pointer access: this expression has a '@Nullable' type
+			----------
+			2. ERROR in CheckingNullableField.java (at line 40)
+				if (changeRequestID.isEmpty()) { // check is expired here
+				    ^^^^^^^^^^^^^^^
+			Potential null pointer access: this expression has a '@Nullable' type
+			----------
+			""";
+	runner.runNegativeTest();
+}
 }

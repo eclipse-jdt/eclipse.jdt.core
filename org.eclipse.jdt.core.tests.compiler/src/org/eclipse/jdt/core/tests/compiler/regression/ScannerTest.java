@@ -1329,7 +1329,7 @@ public class ScannerTest extends AbstractRegressionTest {
 			"2. ERROR in X.java (at line 4)\n" +
 			"	System.out.println(Hello\\u205fworld);\n" +
 			"	                        ^^^^^^\n" +
-			"Syntax error on token \"Invalid Character\", invalid AssignmentOperator\n" +
+			"Syntax error on token \"Invalid Character\", -> expected\n" +
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=458795
@@ -1848,4 +1848,38 @@ public class ScannerTest extends AbstractRegressionTest {
 		assertTrue(TerminalToken.getRestrictedKeyword("When".toCharArray()) == TerminalToken.TokenNameNotAToken);
 		assertTrue(TerminalToken.getRestrictedKeyword("blah".toCharArray()) == TerminalToken.TokenNameNotAToken);
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4674
+	public void testIssue4674() {
+		IScanner scanner = ToolFactory.createScanner(true, true, true, "23", "23");
+		final char[] source = "/// @return a string".toCharArray();
+		scanner.setSource(source);
+		final StringBuilder buffer = new StringBuilder();
+		try {
+			int token;
+			boolean foundMarkdown = false;
+			boolean foundOther = false;
+			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
+				try {
+					switch(token) {
+						case ITerminalSymbols.TokenNameCOMMENT_MARKDOWN :
+							foundMarkdown = true;
+							break;
+						default :
+							foundOther = true;
+							buffer.append(scanner.getCurrentTokenSource());
+							break;
+					}
+				} catch (ArrayIndexOutOfBoundsException e) {
+					e.printStackTrace();
+				}
+			}
+			assertTrue("Should have found markdown comment", foundMarkdown);
+			assertTrue("Should have found EOF token", token == ITerminalSymbols.TokenNameEOF);
+			assertFalse("Should not have found other", foundOther);
+		} catch (InvalidInputException e) {
+			assertTrue("Should not have InvalidInputException", false);
+		}
+	}
+
 }

@@ -55,7 +55,7 @@ public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flow
 protected boolean checkNullableFieldDereference(Scope scope, FieldBinding field, long sourcePosition, FlowContext flowContext, int ttlForFieldCheck) {
 	if (field != null) {
 		if (ttlForFieldCheck > 0 && scope.compilerOptions().enableSyntacticNullAnalysisForFields)
-			flowContext.recordNullCheckedFieldReference(this, ttlForFieldCheck);
+			flowContext.recordNullCheckedFieldReference(this, ttlForFieldCheck, FlowInfo.NON_NULL);
 		// preference to type annotations if we have any
 		if ((field.type.tagBits & TagBits.AnnotationNullable) != 0) {
 			scope.problemReporter().dereferencingNullableExpression(sourcePosition, scope.environment());

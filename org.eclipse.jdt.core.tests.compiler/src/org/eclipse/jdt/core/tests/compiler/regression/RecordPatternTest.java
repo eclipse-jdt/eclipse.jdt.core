@@ -28,7 +28,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testRecPatExhaust018" };
+//		TESTS_NAMES = new String[] { "testRecordTypeInfer_4643" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -1708,12 +1708,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 4)\n" +
 				"	case Rectangle(int x, int y) r -> 1;\n" +
 				"	                           ^\n" +
-				"Syntax error, insert \":\" to complete SwitchLabel\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 4)\n" +
-				"	case Rectangle(int x, int y) r -> 1;\n" +
-				"	                                  ^\n" +
-				"Syntax error, insert \"AssignmentOperator Expression\" to complete Expression\n" +
+				"Syntax error on token \")\", -> expected after this token\n" +
 				"----------\n");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2004
@@ -5046,4 +5041,48 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"""
 		});
 	}
+	public void testRecordTypeInfer_4643_001() {
+		runConformTest(new String[] { "X.java", """
+			public class X {
+
+				private static void foo() {
+					record Box<T>(T t) {}
+
+					Box<Box<String>> bo = new Box<>(new Box<>("str"));
+					if (bo instanceof Box(Box(var sString))) {
+						System.out.println(sString.length());
+					}
+				}
+
+				public static void main(String[] args) {
+					foo();
+				}
+			}
+			""" }, "3");
+	}
+	public void testRecordTypeInfer_4643_002() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+					public class X {
+
+						private static void foo() {
+							  record Box<T>(T t) {}
+							  Box<Box<Integer>> bo = new Box<>(new Box<>(1));
+							  if (bo instanceof Box(Box(String sString))) {}
+							}
+						public static void main(String[] args) {
+							foo();
+						}
+					}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	if (bo instanceof Box(Box(String sString))) {}\n" +
+			"	                          ^^^^^^^^^^^^^^\n" +
+			"Record component with type Integer is not compatible with type String\n" +
+			"----------\n");
+	}
+
 }

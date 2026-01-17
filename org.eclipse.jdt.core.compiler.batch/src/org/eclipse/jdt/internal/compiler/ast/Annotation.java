@@ -421,7 +421,7 @@ public abstract class Annotation extends Expression {
 			} else if (annotationType.hasNullBit(TypeIds.BitNonNullAnnotation)) {
 				tagBits |= TagBits.AnnotationNonNull;
 			} else if (annotationType.hasNullBit(TypeIds.BitNonNullByDefaultAnnotation)) {
-				tagBits |= determineNonNullByDefaultTagBits(annotationType, valueAttribute);
+				tagBits |= determineNonNullByDefaultTagBits(annotationType, valueAttribute, scope);
 			}
 		}
 		if (compilerOptions.isAnnotationBasedResourceAnalysisEnabled) {
@@ -434,7 +434,7 @@ public abstract class Annotation extends Expression {
 		return tagBits;
 	}
 
-	private long determineNonNullByDefaultTagBits(ReferenceBinding annotationType, MemberValuePair valueAttribute) {
+	private long determineNonNullByDefaultTagBits(ReferenceBinding annotationType, MemberValuePair valueAttribute, Scope scope) {
 		long tagBits = 0;
 		Object value = null;
 		if (valueAttribute != null) {
@@ -454,7 +454,7 @@ public abstract class Annotation extends Expression {
 			// non-boolean value signals type annotations, evaluate from DefaultLocation[] to bitvector a la Binding#NullnessDefaultMASK:
 			tagBits |= nullLocationBitsFromAnnotationValue(value);
 		} else {
-			int result = BinaryTypeBinding.evaluateTypeQualifierDefault(annotationType);
+			int result = BinaryTypeBinding.evaluateTypeQualifierDefault(annotationType, scope.problemReporter());
 			if(result != 0) {
 				return result;
 			}
@@ -1159,7 +1159,7 @@ public abstract class Annotation extends Expression {
 			}
 		}
 		// recognize standard annotations ?
-		long tagBits = determineNonNullByDefaultTagBits(annotationType, valueAttribute);
+		long tagBits = determineNonNullByDefaultTagBits(annotationType, valueAttribute, scope);
 		return (int) (tagBits & Binding.NullnessDefaultMASK);
 	}
 
@@ -1377,6 +1377,8 @@ public abstract class Annotation extends Expression {
 
 		nextAnnotation:
 			for (Annotation annotation : annotations) {
+				if (annotation.resolvedType == null) // barked elsewhere or still cooking and we come here due to re-entrancy
+					continue;
 				long metaTagBits = annotation.resolvedType.getAnnotationTagBits();
 				if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0 && (metaTagBits & TagBits.AnnotationForDeclarationMASK) == 0) {
 					ReferenceBinding currentType = (ReferenceBinding) resolvedType;

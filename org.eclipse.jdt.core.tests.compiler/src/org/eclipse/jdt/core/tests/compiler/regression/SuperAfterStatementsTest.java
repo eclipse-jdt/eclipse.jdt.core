@@ -3512,5 +3512,110 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"""
 		});
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4696
+	public void testIssue4696a() {
+	    runConformTest(new String[] {
+	        "EcjBugRepro.java",
+	        """
+	        import java.util.HashMap;
+            import java.util.Map;
+
+            public class EcjBugRepro {
+
+                // 1. Field with implicit initializer
+                private final Map<String, String> data = new HashMap<>();
+
+                // Constructor 1: Uses Java 25 Pre-construction context + Chaining
+                public EcjBugRepro(int check) {
+                    if (check < 0) throw new IllegalArgumentException(); // Pre-construction statement
+                    this("delegated"); // Chaining
+                    // ERROR: ECJ seems to re-run 'data = new HashMap()' here, wiping the map
+                }
+
+                // Constructor 2: Standard
+                public EcjBugRepro(String val) {
+                    super();
+                    // Field init runs here (Correct)
+                    data.put("key", val);
+                    System.out.println("Constructor 2: Added item. Size: " + data.size());
+                }
+
+                public static void main(String[] args) {
+                    // Trigger via Constructor 1
+                    EcjBugRepro instance = new EcjBugRepro(1);
+
+                    if (instance.data.isEmpty()) {
+                        System.err.println("FAILURE: Map is empty! Field was re-initialized.");
+                    } else {
+                        System.out.println("Success: Map size is " + instance.data.size());
+                    }
+                }
+            }
+	        """
+	    },
+        "Constructor 2: Added item. Size: 1\n" +
+        "Success: Map size is 1");
+	}
+	public void testIssue4696b() {
+	    runConformTest(new String[] {
+	        "Problem.java",
+	        """
+  	        public class Problem {
+                private int counter = 0;
+
+                Problem(int counter) {
+                    this.counter = counter;
+                    System.out.println("counter=" + this.counter);
+                }
+
+                Problem(boolean b) {
+                    if (b) {
+                        System.out.println("constructor called");
+                    }
+                    this(1);
+                }
+
+                private Problem() {
+                    this(true);
+                }
+
+                public static void main(String[] args) {
+                	System.out.println(new Problem().counter);
+                }
+            }
+	        """
+	        },
+	        "constructor called\n" +
+	        "counter=1\n" +
+	        "1");
+	}
+	public void testIssue4720() {
+		runNegativeTest(new String[] {
+			"Test.java",
+			"""
+			public class Test {
+				private final Object o;
+
+				public Test() {
+					System.out.println();
+					super();
+				}
+			}
+			"""
+			},
+			"""
+			----------
+			1. WARNING in Test.java (at line 2)
+				private final Object o;
+				                     ^
+			The value of the field Test.o is not used
+			----------
+			2. ERROR in Test.java (at line 4)
+				public Test() {
+				       ^^^^^^
+			The blank final field o may not have been initialized
+			----------
+			""");
+	}
 }
 

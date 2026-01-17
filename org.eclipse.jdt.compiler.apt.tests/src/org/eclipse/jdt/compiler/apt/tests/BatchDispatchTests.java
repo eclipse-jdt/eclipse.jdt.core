@@ -121,6 +121,32 @@ public class BatchDispatchTests extends TestCase {
 	/**
 	 * Read annotation values and generate a class using Eclipse compiler
 	 */
+	public void testGhIssue4687WithEclipseCompiler() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "gh4687");
+		File inputFile = BatchTestUtils.copyResource("targets/gh4687/Comp.java", targetFolder);
+		assertNotNull("No input file", inputFile);
+
+		List<String> options = new ArrayList<>();
+		BatchTestUtils.compileOneClass(compiler, options, inputFile);
+
+		// check that the gen-src and class files were generated
+ 		File genSrcFile = TestUtils.concatPath(BatchTestUtils.getGenFolderName(), "foobar", "ImmutableComp.java");
+ 		assertTrue("generated src file does not exist", genSrcFile.exists());
+
+		inputFile = BatchTestUtils.copyResource("targets/gh4687/Container.java", targetFolder);
+		assertNotNull("No input file", inputFile);
+
+		options = new ArrayList<>();
+		BatchTestUtils.compileOneClass(compiler, options, inputFile);
+		// check that the gen-src and class files were generated
+ 		genSrcFile = TestUtils.concatPath(BatchTestUtils.getGenFolderName(), "foobar", "WorkingRecordBuilder.java");
+ 		assertTrue("generated src file does not exist", genSrcFile.exists());
+	}
+	
+	/**
+	 * Read annotation values and generate a class using Eclipse compiler
+	 */
 	public void testCompilerOneClassWithEclipseCompiler() throws IOException {
 		// Eclipse compiler
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();

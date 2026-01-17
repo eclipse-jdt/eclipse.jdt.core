@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1912,6 +1912,326 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			assertEquals("Incorrect TagElement", 5, tags.fragments().size());
 			List<TextElement> fragments = tags.fragments();
 			assertEquals("Incorrect TagElement", 1, (fragments.get(3).getFlags() & ASTNode.MALFORMED));  //MALFOUND flag
+		}
+	}
+
+	public void testMarkdownSupportForBold4608() throws JavaModelException {
+		String source = """
+				/// Where is my **bold text**???
+				public class Markdown() {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/gh3761/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement tag = (TagElement) javadoc.tags().get(0);
+			TextElement textElement = (TextElement) tag.fragments().get(0);
+			assertEquals("Incorrect TextElement value", "Where is my **bold text**???", textElement.getText());
+		}
+	}
+	public void testMarkdownURLs4531_01() throws JavaModelException {
+		String source = """
+				/// @see [Ex Si](ex.com)
+				public class Markdown() {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/gh3761/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement tags = (TagElement) javadoc.tags().get(0);
+			assertEquals("fragments count does not match", 2, tags.fragments().size());
+			TagElement tagElement = (TagElement) tags.fragments().get(1);
+			List<?> tagFragments = tagElement.fragments();
+			assertTrue(tagFragments.get(0) instanceof TextElement);
+			assertTrue(tagFragments.get(1) instanceof SimpleName);
+		}
+	}
+
+	public void testMarkdownURLs4531_02() throws JavaModelException {
+		String source = """
+				/// @see [Ex Si](http://ex.com)
+				public class Markdown() {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/gh3761/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement tags = (TagElement) javadoc.tags().get(0);
+			assertEquals("fragments count does not match", 2, tags.fragments().size());
+			TagElement tagElement = (TagElement) tags.fragments().get(1);
+			List<?> tagFragments = tagElement.fragments();
+			assertTrue(tagFragments.get(0) instanceof TextElement);
+			assertTrue(tagFragments.get(1) instanceof SimpleName);
+		}
+	}
+
+	public void testMarkdownURLs4531_03() throws JavaModelException {
+		String source = """
+				/// @see [Ex Si](https://ex.com/a)
+				public class Markdown() {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/gh3761/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement tags = (TagElement) javadoc.tags().get(0);
+			assertEquals("fragments count does not match", 2, tags.fragments().size());
+			TagElement tagElement = (TagElement) tags.fragments().get(1);
+			List<?> tagFragments = tagElement.fragments();
+			assertTrue(tagFragments.get(0) instanceof TextElement);
+			assertTrue(tagFragments.get(1) instanceof SimpleName);
+		}
+	}
+
+	public void testMarkdownURLs4531_04() throws JavaModelException {
+		String source = """
+				/// @see [Ex Si](https://www.ex.net/a)
+				public class Markdown() {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/gh3761/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement tags = (TagElement) javadoc.tags().get(0);
+			assertEquals("fragments count does not match", 2, tags.fragments().size());
+			TagElement tagElement = (TagElement) tags.fragments().get(1);
+			List<?> tagFragments = tagElement.fragments();
+			assertTrue(tagFragments.get(0) instanceof TextElement);
+			assertTrue(tagFragments.get(1) instanceof SimpleName);
+		}
+	}
+
+	// invalid syntax
+	public void testMarkdownURLs4531_05() throws JavaModelException {
+		String source = """
+				/// @see [Ex Si][http://ex.com]
+				public class Markdown() {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/gh3761/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement tags = (TagElement) javadoc.tags().get(0);
+			assertEquals("fragments count does not match", 3, tags.fragments().size());
+			assertTrue(tags.fragments().get(0) instanceof TextElement);
+			assertTrue(tags.fragments().get(1) instanceof TextElement);
+			assertTrue(tags.fragments().get(2) instanceof TextElement);
+		}
+	}
+
+	// [)[) - invalid condition
+	public void testMarkdownURLs4531_06() throws JavaModelException {
+		String source = """
+				/// @see [Ex Si)[http://ex.com)
+				public class Markdown() {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/gh3761/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			assertEquals("Tags count does not match", 1, javadoc.tags().size());
+			TagElement tags = (TagElement) javadoc.tags().get(0);
+			assertTrue(tags.fragments().get(0) instanceof TextElement);
+			assertTrue(tags.fragments().get(1) instanceof TextElement);
+		}
+	}
+
+	// (](] - invalid condition
+	public void testMarkdownURLs4531_07() throws JavaModelException {
+		String source = """
+				/// @see (Ex Si](http://ex.com]
+				public class Markdown() {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/gh3761/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement tags = (TagElement) javadoc.tags().get(0);
+			assertEquals("fragments count does not match", 1, tags.fragments().size());
+			assertTrue(tags.fragments().get(0) instanceof TextElement);
+		}
+	}
+
+	// ()[] - invalid condition
+	public void testMarkdownURLs4531_08() throws JavaModelException {
+		String source = """
+				/// @see (Ex Si)[http://ex.com]
+				public class Markdown() {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/gh3761/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement tags = (TagElement) javadoc.tags().get(0);
+			assertEquals("fragments count does not match", 2, tags.fragments().size());
+			assertTrue(tags.fragments().get(0) instanceof TextElement);
+			assertTrue(tags.fragments().get(1) instanceof TextElement);
+		}
+	}
+
+	public void testMarkdownURLs4531_09() throws JavaModelException {
+		String source = """
+				/// @see [Ex Si](                         http://ex.com)
+				public class Markdown() {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/gh3761/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement tags = (TagElement) javadoc.tags().get(0);
+			assertEquals("fragments count does not match", 2, tags.fragments().size());
+			assertTrue(tags.fragments().get(0) instanceof TextElement);
+			assertTrue(tags.fragments().get(1) instanceof TagElement);
+			TagElement fragTag = (TagElement) tags.fragments().get(1);
+			assertTrue(fragTag.fragments().get(0) instanceof TextElement);
+			assertTrue(fragTag.fragments().get(1) instanceof SimpleName);
+		}
+	}
+
+	public void testMarkdownURLs4531_10() throws JavaModelException {
+		String source = """
+				/// @see [Ex Si][java.lang.String]
+				public class Markdown() {}
+				""";
+
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/gh3761/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement tags = (TagElement) javadoc.tags().get(0);
+			assertEquals("fragments count does not match", 2, tags.fragments().size());
+			assertTrue(tags.fragments().get(0) instanceof TextElement);
+			assertTrue(tags.fragments().get(1) instanceof TagElement);
+			TagElement fragTag = (TagElement) tags.fragments().get(1);
+			assertTrue(fragTag.fragments().get(0) instanceof TextElement);
+			assertTrue(fragTag.fragments().get(1) instanceof QualifiedName);
+		}
+	}
+
+	public void testMarkdownURLs4531_11() throws JavaModelException {
+		String source = """
+				/// @see [Ex Si][               java.lang.String]
+				public class Markdown() {}
+				""";
+
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/gh3761/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement tags = (TagElement) javadoc.tags().get(0);
+			assertEquals("fragments count does not match", 2, tags.fragments().size());
+			assertTrue(tags.fragments().get(0) instanceof TextElement);
+			assertTrue(tags.fragments().get(1) instanceof TagElement);
+			TagElement fragTag = (TagElement) tags.fragments().get(1);
+			assertTrue(fragTag.fragments().get(0) instanceof TextElement);
+			assertTrue(fragTag.fragments().get(1) instanceof QualifiedName);
+		}
+	}
+
+	public void testMarkdownURLs4531_12() throws JavaModelException {
+		String source = """
+				/// @see [Ex Si](http://ex.com    ) [Ex Si](    https://www.ex.com)
+				public class Markdown() {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/gh3761/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			TagElement tags = (TagElement) javadoc.tags().get(0);
+			assertEquals("fragments count does not match", 4, tags.fragments().size());
+			assertTrue(tags.fragments().get(0) instanceof TextElement);
+			assertTrue(tags.fragments().get(1) instanceof TagElement);
+			TagElement tagFrag1 = (TagElement) tags.fragments().get(1);
+			SimpleName simplName1 = (SimpleName) tagFrag1.fragments().get(1);
+			assertEquals("SimpleName1 value not match", "http://ex.com", simplName1.getIdentifier());
+			assertTrue(tags.fragments().get(0) instanceof TextElement);
+			assertTrue(tags.fragments().get(1) instanceof TagElement);
+			TagElement tagFrag2 = (TagElement) tags.fragments().get(3);
+			SimpleName simplName2 = (SimpleName) tagFrag2.fragments().get(1);
+			assertEquals("SimpleName2 value not match", "https://www.ex.com", simplName2.getIdentifier());
+		}
+	}
+
+	public void testIncorrectParsingBacktick4609_01() throws JavaModelException {
+		String source = """
+				/// The following is some sample code which illustrates source formatting within markdown comments:
+				/// ``` public class Example { final int a = 1; final boolean b = true;} ```
+				/// Descriptions of parameters and return values are best appended at end of the markdown comment.
+				/// @param first  The first parameter. For an optimum result, this should be an odd number between 0 and 100.
+				/// @param second The second parameter.
+				/// @throws Exception when the foo operation cannot be performed for one reason or another.
+				/// @return The result of the foo operation, usually an even number within 0 and 1000.
+				public class Markdown{}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> tags = javadoc.tags();
+			assertEquals("Incorrect Tags", 5, tags.size());
+			assertEquals("incorrect first tagElement", ASTNode.TAG_ELEMENT, tags.get(0).getNodeType());
+			assertEquals("incorrect second tagElement", ASTNode.TAG_ELEMENT, tags.get(1).getNodeType());
+			assertEquals("incorrect Third tagElement", ASTNode.TAG_ELEMENT, tags.get(2).getNodeType());
+			assertEquals("incorrect Fourth tagElement", ASTNode.TAG_ELEMENT, tags.get(3).getNodeType());
+			assertEquals("incorrect Fifth tagElement", ASTNode.TAG_ELEMENT, tags.get(4).getNodeType());
+		}
+	}
+
+	// malfound test - single backtick should not be in single line
+	public void testIncorrectParsingBacktick4609_02() throws JavaModelException {
+		String source = """
+				/// The following is some sample code which illustrates source formatting within markdown comments:
+				/// ` public class Example {
+				/// 		 final int a = 1; final boolean b = true;
+				/// 	} `
+				/// Descriptions of parameters and return values are best appended at end of the markdown comment.
+				/// @param first  The first parameter. For an optimum result, this should be an odd number between 0 and 100.
+				/// @param second The second parameter.
+				/// @throws Exception when the foo operation cannot be performed for one reason or another.
+				/// @return The result of the foo operation, usually an even number within 0 and 1000.
+				public class Markdown{}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> tags = javadoc.tags();
+			assertEquals("Incorrect Tags", 5, tags.size());
+			assertEquals("incorrect first tagElement", ASTNode.TAG_ELEMENT, tags.get(0).getNodeType());
+			assertEquals("incorrect second tagElement", ASTNode.TAG_ELEMENT, tags.get(1).getNodeType());
+			assertEquals("incorrect Third tagElement", ASTNode.TAG_ELEMENT, tags.get(2).getNodeType());
+			assertEquals("incorrect Fourth tagElement", ASTNode.TAG_ELEMENT, tags.get(3).getNodeType());
+			assertEquals("incorrect Fifth tagElement", ASTNode.TAG_ELEMENT, tags.get(4).getNodeType());
 		}
 	}
 }

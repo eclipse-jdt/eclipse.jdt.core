@@ -28,14 +28,17 @@ public interface AnnotationTest{
     @Deprecated
     public int field1 = 1;
 
-    @RTVisibleAnno(anno=@SimpleAnnotation("field"), clazzes={})
+    @Deprecated
+	@RTVisibleAnno(anno=@SimpleAnnotation("field"), clazzes={})
      @RTInvisibleAnno("2")
      public int field2 = 2;
 
-    @RTInvisibleAnno("3")
+    @Deprecated
+	@RTInvisibleAnno("3")
     public int field3 = 3;
 
-    @SimpleAnnotation("4")
+    @Deprecated
+	@SimpleAnnotation("4")
     public int field4 = 4;
 
     @RTVisibleAnno(anno=@SimpleAnnotation("method0"), clazzes={})
@@ -46,26 +49,32 @@ public interface AnnotationTest{
     @Deprecated
      public int method1();
 
-    @RTVisibleAnno(anno=@SimpleAnnotation("method2"), clazzes={})
+    @Deprecated
+	@RTVisibleAnno(anno=@SimpleAnnotation("method2"), clazzes={})
      @RTInvisibleAnno("2")
     public int method2();
 
-   @RTInvisibleAnno("3")
+   @Deprecated
+@RTInvisibleAnno("3")
    public int method3();
 
-   @SimpleAnnotation("method4")
+   @Deprecated
+@SimpleAnnotation("method4")
    public int method4();
 
-   public int method5(int p0,
+   @Deprecated
+public int method5(int p0,
    				   @Deprecated
    				   int p1,
    				   @RTVisibleAnno(anno=@SimpleAnnotation("param2"), clazzes={})
    				   @RTInvisibleAnno("2")
    				   int p2);
 
-   public int method6(int p0, int p1, int p2);
+   @Deprecated
+public int method6(int p0, int p1, int p2);
 
-   @RTVisibleAnno(name = "I'm \"special\": \t\\\n",
+   @Deprecated
+@RTVisibleAnno(name = "I'm \"special\": \t\\\n",
 		          charValue = '\'',
 		          clazzes = {},
 		          anno = @SimpleAnnotation(""))

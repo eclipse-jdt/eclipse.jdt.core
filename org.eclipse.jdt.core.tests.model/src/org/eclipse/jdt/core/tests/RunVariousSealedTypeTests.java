@@ -63,7 +63,7 @@ public class RunVariousSealedTypeTests extends TestCase {
 				FormatterRegressionTests.class,
 				CompletionTests16_1.class,
 				CompletionTests17.class,
-				Java21ElementTests.class,
+				Java25ElementTests.class,
 				JavaSearchBugs15Tests.class,
 				JavaSearchBugs17Tests.class,
 				JavaSearchBugs19Tests.class,
