@@ -553,6 +553,7 @@ public class BuilderTests extends TestCase {
 			ParticipantBuildTests.class,
 			AnnotationDependencyTests.class,
 			Bug544921Test.class,
+			GH4747Test.class,
 			MultiReleaseTests.class
 		};
 		List<Class<?>> list = new ArrayList<>(Arrays.asList(classes));
