@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2023 BEA Systems, Inc.
+ * Copyright (c) 2008 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -62,7 +63,7 @@ public class XMLComparer implements IXMLNames {
 	 *
 	 * @since 3.4
 	 */
-	private static class DeclarationContents {
+	private class DeclarationContents {
 		Element annotations = null;
 		Element superclass = null;
 		Element interfaces = null;
@@ -139,6 +140,7 @@ public class XMLComparer implements IXMLNames {
 	 * this class to compare it to a known reference model.  The models
 	 * should match.
 	 * @return true if the models matched, i.e., if the test passed
+	 * @throws Exception
 	 */
 	public static boolean test() throws Exception {
 		final String XML_FRAMEWORK_TEST_MODEL =
@@ -161,7 +163,8 @@ public class XMLComparer implements IXMLNames {
 			"</model>\n";
 
 		// create "actual" model
-		Document actualModel = org.eclipse.core.internal.runtime.XmlProcessorFactory.createDocumentBuilderWithErrorOnDOCTYPE().newDocument();
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		Document actualModel = factory.newDocumentBuilder().newDocument();
 		Element modelNode = actualModel.createElement(MODEL_TAG);
 		// primary type
 		Element typeNode = actualModel.createElement(TYPE_ELEMENT_TAG);
@@ -199,7 +202,7 @@ public class XMLComparer implements IXMLNames {
 
 		// load reference model
     	InputSource source = new InputSource(new StringReader(XML_FRAMEWORK_TEST_MODEL));
-        Document expectedModel = org.eclipse.core.internal.runtime.XmlProcessorFactory.createDocumentBuilderWithErrorOnDOCTYPE().parse(source);
+        Document expectedModel = factory.newDocumentBuilder().parse(source);
 
         // compare actual and reference
         ByteArrayOutputStream out = new ByteArrayOutputStream();

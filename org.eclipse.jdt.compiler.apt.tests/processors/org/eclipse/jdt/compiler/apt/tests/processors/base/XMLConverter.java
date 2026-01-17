@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2023 BEA Systems, Inc.
+ * Copyright (c) 2008 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -28,6 +28,7 @@ import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementScanner6;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -62,7 +63,7 @@ public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNam
 		StringWriter s = new StringWriter();
 		DOMSource domSource = new DOMSource(model);
 		StreamResult streamResult = new StreamResult(s);
-		TransformerFactory tf = org.eclipse.core.internal.runtime.XmlProcessorFactory.createTransformerFactoryWithErrorOnDOCTYPE();
+		TransformerFactory tf = TransformerFactory.newInstance();
 		Transformer serializer;
 		try {
 			serializer = tf.newTransformer();
@@ -140,9 +141,11 @@ public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNam
 	 * Recursively convert a collection of language elements (declarations) into an XML representation.
 	 * @param declarations the collection of language elements to convert
 	 * @return an XML document whose root node is named &lt;model&gt;.
+	 * @throws ParserConfigurationException
 	 */
 	public static Document convertModel(Iterable<? extends javax.lang.model.element.Element> declarations) throws ParserConfigurationException {
-		Document model = org.eclipse.core.internal.runtime.XmlProcessorFactory.createDocumentBuilderWithErrorOnDOCTYPE().newDocument();
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		Document model = factory.newDocumentBuilder().newDocument();
 		org.w3c.dom.Element modelNode = model.createElement(MODEL_TAG);
 
 		XMLConverter converter = new XMLConverter(model);
@@ -308,6 +311,8 @@ public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNam
 
 	/**
 	 * Create a node representing a class declaration's superclass
+	 * @param tmSuper
+	 * @param target
 	 */
 	private void convertSuperclass(TypeElement e, Node target) {
 		TypeMirror tmSuper = e.getSuperclass();

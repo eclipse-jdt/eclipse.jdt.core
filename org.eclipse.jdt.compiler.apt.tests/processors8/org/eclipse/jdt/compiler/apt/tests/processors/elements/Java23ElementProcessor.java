@@ -139,7 +139,7 @@ public class Java23ElementProcessor extends BaseProcessor {
 		kind = _elementUtils.getDocCommentKind(method);
 		assertSame("Incorrect doc kind", DocCommentKind.END_OF_LINE, kind);
 		String docComment = _elementUtils.getDocComment(method);
-		assertEquals("Incorrect doc comment", 
+		assertEquals("Incorrect doc comment",
 				"\n/A markdown type comment on a method - line 1\n"
 				+ "//// A markdown type comment on a method - line 2\n"
 				+ "    A markdown type comment on a method - line 3\n", docComment);
@@ -177,34 +177,34 @@ public class Java23ElementProcessor extends BaseProcessor {
 		ExecutableElement foo4 = null;
 		for (Element element : enclosedElements) {
 			switch(element.getSimpleName().toString()) {
-				case "foo1": 
+				case "foo1":
 					foo1 = (ExecutableElement) element;
-				case "foo2": 
+				case "foo2":
 					foo2 = (ExecutableElement) element;
-				case "foo3": 
+				case "foo3":
 					foo3 = (ExecutableElement) element;
-				case "foo4": 
+				case "foo4":
 					foo4 = (ExecutableElement) element;
 				default: break;
 			}
 		}
 		String docComment = _elementUtils.getDocComment(foo1);
-		assertEquals("Incorrect doc comment", 
+		assertEquals("Incorrect doc comment",
 				"Doc comment with 3 lines\n"
 				+ "\n"
 				+ "with an empty line in the middle", docComment);
 		docComment = _elementUtils.getDocComment(foo2);
-		assertEquals("Incorrect doc comment", 
+		assertEquals("Incorrect doc comment",
 				"This is the actual doc commment.", docComment);
 		docComment = _elementUtils.getDocComment(foo3);
-		assertEquals("Incorrect doc comment", 
+		assertEquals("Incorrect doc comment",
 				  "| Code  | Color |\n"
 				+ "|-------|-------|\n"
 				+ "| R     | Red   |\n"
 				+ "| G     | Green |\n"
 				+ "| B     | Blue  |", docComment);
 		docComment = _elementUtils.getDocComment(foo4);
-		assertEquals("Incorrect doc comment", 
+		assertEquals("Incorrect doc comment",
 				  "{@inheritDoc}\n"
 				+ "Get the inherited function.\n"
 				+ "\n"

@@ -29,6 +29,7 @@ public abstract class BaseProcessor extends AbstractProcessor
 
 	/**
 	 * Report an error to the test case code
+	 * @param value
 	 */
 	public void reportError(String value) {
 		// Debugging - don't report error
@@ -40,8 +41,7 @@ public abstract class BaseProcessor extends AbstractProcessor
 	 * Report success to the test case code
 	 */
 	public void reportSuccess() {
-		if (System.getProperty(this.getClass().getName()) == null)
-			System.setProperty(this.getClass().getName(), "succeeded");
+		System.setProperty(this.getClass().getName(), "succeeded");
 	}
 
 	public void reportFailure() {

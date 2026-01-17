@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2023 IBM Corporation and others.
+ * Copyright (c) 2011, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -160,9 +160,7 @@ public class ArgsConstructorProcessor extends BaseProcessor {
 		}
 		return false;
 	}
-	/**
-	 * @deprecated
-	 */
+
 	private final TypeVisitor<Boolean, List<TypeMirror>> argsVisitor = new SimpleTypeVisitor6<>() {
 		@Override
 		public Boolean visitExecutable(ExecutableType t,

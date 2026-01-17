@@ -22,7 +22,7 @@ package org.eclipse.jdt.compiler.apt.tests.annotations;
  * If {@code warn == true}, the processor produces source code that will cause a
  * warning about an unused variable when compiled (if the warning is enabled).
  * </p>
- * 
+ *
  * @see org.eclipse.jdt.compiler.apt.tests.processors.genclass.GenClassProc
  */
 public @interface GenClass {
