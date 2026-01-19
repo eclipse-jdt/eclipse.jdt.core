@@ -2234,4 +2234,84 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			assertEquals("incorrect Fifth tagElement", ASTNode.TAG_ELEMENT, tags.get(4).getNodeType());
 		}
 	}
+
+	public void testIncorrectLinkTagParsing4743_01() throws JavaModelException {
+		String source ="""
+				/// {@link java.lang.String}
+				public class Markdown{}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> tags = javadoc.tags();
+			TagElement firstTag = tags.get(0);
+			List<?> frags = firstTag.fragments();
+			assertEquals("Incorrect Frags", 1, frags.size());
+			TagElement innerTag = (TagElement) frags.get(0);
+			assertEquals("invalid tag name","@link" ,innerTag.getTagName());
+		}
+	}
+
+	public void testIncorrectLinkTagParsing4743_02() throws JavaModelException {
+		String source ="""
+				/// {@linkplain java.lang.String}
+				public class Markdown{}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> tags = javadoc.tags();
+			TagElement firstTag = tags.get(0);
+			List<?> frags = firstTag.fragments();
+			assertEquals("Incorrect Frags", 1, frags.size());
+			TagElement innerTag = (TagElement) frags.get(0);
+			assertEquals("invalid tag name","@linkplain" ,innerTag.getTagName());
+		}
+	}
+
+	public void testIncorrectLinkTagParsing4743_03() throws JavaModelException {
+		String source ="""
+				/// {@code List<String>}
+				public class Markdown{}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> tags = javadoc.tags();
+			TagElement firstTag = tags.get(0);
+			List<?> frags = firstTag.fragments();
+			assertEquals("Incorrect Frags", 1, frags.size());
+			TagElement innerTag = (TagElement) frags.get(0);
+			assertEquals("invalid tag name","@code" ,innerTag.getTagName());
+		}
+	}
+
+	public void testIncorrectLinkTagParsing4743_04() throws JavaModelException {
+		String source ="""
+				/// {@literal List<String>}
+				public class Markdown{}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> tags = javadoc.tags();
+			TagElement firstTag = tags.get(0);
+			List<?> frags = firstTag.fragments();
+			assertEquals("Incorrect Frags", 1, frags.size());
+			TagElement innerTag = (TagElement) frags.get(0);
+			assertEquals("invalid tag name","@literal" ,innerTag.getTagName());
+		}
+	}
 }
