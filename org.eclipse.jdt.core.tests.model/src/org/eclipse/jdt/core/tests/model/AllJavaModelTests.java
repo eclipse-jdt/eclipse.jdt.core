@@ -204,6 +204,7 @@ private static Class[] getAllTestClasses() {
 
 		// Get source tests
 		GetSourceTests.class,
+		GetDerivedSourceTests.class,
 
 		// Create packages tests
 		CreatePackageTests.class,
