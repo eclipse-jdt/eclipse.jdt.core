@@ -16,6 +16,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -61,6 +62,7 @@ static {
 //	org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //	TESTS_PREFIX =  "testPackageDeclaration";
 //	TESTS_NAMES = new String[] { "testMethodReference17" };
+//	TESTS_NAMES = new String[] { "testSourceType" };
 //	TESTS_NUMBERS = new int[] { 113671 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
@@ -1533,6 +1535,39 @@ public void testMethodDeclaration11() throws CoreException {
 	assertSearchResults(
 		"otherSrc()/X92210.java void X92210.foo() [foo]",
 		this.resultCollector);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4757
+public void testSourceType() throws Exception {
+	String projectName = "JavadocProducer21";
+	try {
+		IJavaProject javaProject = setUpJavaProject(projectName, "21");
+		IType type = javaProject.findType("java.util.function.Consumer");
+		IMethod method = List.of(type.getMethods()).stream().filter(m -> m.getElementName().equals("accept")).findFirst().get();
+		IJavaSearchScope scope = SearchEngine.createHierarchyScope(method.getDeclaringType());
+		List <IMethod> results = new ArrayList<>();
+		SearchRequestor requestor = new SearchRequestor() {
+			@Override
+			public void acceptSearchMatch(SearchMatch match) throws CoreException {
+				if (match.getAccuracy() == SearchMatch.A_ACCURATE) {
+					Object element = match.getElement();
+					if (element instanceof IMethod methodFound) {
+						int flags= methodFound.getFlags();
+						if (!Flags.isPrivate(flags) && !Flags.isStatic(flags) && !Flags.isDefaultMethod(flags)) {
+							results.add(methodFound);
+						}
+					}
+				}
+			}
+		};
+		int limitTo = IJavaSearchConstants.DECLARATIONS | IJavaSearchConstants.IGNORE_DECLARING_TYPE | IJavaSearchConstants.IGNORE_RETURN_TYPE;
+		SearchPattern pattern = SearchPattern.createPattern(method, limitTo);
+		SearchParticipant[] participants = new SearchParticipant[] { SearchEngine.getDefaultSearchParticipant() };
+		SearchEngine engine = new SearchEngine();
+		engine.search(pattern, participants, scope, requestor, null);
+		assertTrue(results.size() > 0);
+	} finally {
+		deleteProject(projectName);
+	}
 }
 /**
  * Method reference test.
