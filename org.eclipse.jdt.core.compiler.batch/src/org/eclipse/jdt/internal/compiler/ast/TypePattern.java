@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -186,13 +190,16 @@ public class TypePattern extends Pattern implements IGenerateTypeCheck {
 	}
 
 	@Override
-	public boolean dominates(Pattern p) {
+	public boolean dominates(Pattern p, Scope scope) {
 		if (!isUnguarded())
 			return false;
 		if (p.resolvedType == null || this.resolvedType == null)
 			return false;
 
 		if (p.resolvedType.isSubtypeOf(this.resolvedType, false))
+			return true;
+
+		if (this.getEnclosingPattern() == null && isUnconditional(this.outerExpressionType, scope))
 			return true;
 
 		return p.resolvedType.erasure().findSuperTypeOriginatingFrom(this.resolvedType.erasure()) != null;

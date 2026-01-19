@@ -2920,4 +2920,566 @@ public class PrimitiveInPatternsTestSH extends AbstractRegressionTest9 {
 			"This expression yields no value\n" +
 			"----------\n");
 	}
+	public void testJEP530Example1() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				@SuppressWarnings("preview")
+				public class X {
+					void foo() {
+						int j = 1;
+						switch(j) {
+							case int i ->
+								System.out.println("An int");
+							case 42 ->					// Error - dominated!
+								System.out.println("42!");
+						}
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 8)
+				case 42 ->					// Error - dominated!
+				     ^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			""");
+	}
+	public void testJEP530Example2() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				@SuppressWarnings("preview")
+				public class X {
+					void foo() {
+						int j = 1;
+						switch(j) {
+							case byte b ->
+								System.out.println("A byte");
+							case 127 ->							// Error - dominated!
+								System.out.println("An int that can be represented as a byte exactly");
+							case short b ->
+								System.out.println("A short");
+							case 32767 ->						// Error - dominated!
+								System.out.println("An int that can be represented as a short exactly");
+							case char c ->
+								System.out.println("A char");
+							case 65535 ->						// Error - dominated!
+								System.out.println("An int that can be represented as a char exactly");
+							case float f ->
+								System.out.println("A float");
+							case 16_777_216 ->					// Error - dominated!
+								System.out.println("An integer that can be represented as a float exactly");
+							default ->
+								System.out.println("Integer that cannot be represented as a float exactly");
+						}
+						switch(j) {
+							case byte b ->
+								System.out.println("A byte");
+							case 260 ->						// not dominated
+								System.out.println("An int that can be represented as a byte exactly");
+							case short b ->
+								System.out.println("A short");
+							case 40000 ->					// not dominated
+								System.out.println("An int that can be represented as a short exactly");
+							case char c ->
+								System.out.println("A char");
+							case 70000 ->					// not dominated
+								System.out.println("An int that can be represented as a char exactly");
+							case float f ->
+								System.out.println("A float");
+							case 16_777_216 + 1 ->			// not dominated
+								System.out.println("An integer that can be represented as a float exactly");
+							default ->
+								System.out.println("Integer that cannot be represented as a float exactly");
+						}
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 8)
+				case 127 ->							// Error - dominated!
+				     ^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			2. ERROR in X.java (at line 12)
+				case 32767 ->						// Error - dominated!
+				     ^^^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			3. ERROR in X.java (at line 16)
+				case 65535 ->						// Error - dominated!
+				     ^^^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			4. ERROR in X.java (at line 20)
+				case 16_777_216 ->					// Error - dominated!
+				     ^^^^^^^^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			""");
+	}
+	public void testJEP530Example2_short() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				@SuppressWarnings("preview")
+				public class X {
+					static final short one_twentyseven = 127;
+					void foo() {
+						short j = 1;
+						switch(j) {
+							case byte b ->
+								System.out.println("A byte");
+							case one_twentyseven ->			// Error - dominated!
+								System.out.println("A short that can be represented as a byte exactly");
+							case short b ->
+								System.out.println("A short");
+							case Short.MAX_VALUE ->			// Error - dominated!
+								System.out.println("A short that can be represented as a short exactly");
+						}
+						switch(j) {
+							case byte b ->
+								System.out.println("A byte");
+							case 260 ->						// not dominated
+								System.out.println("An int that can be represented as a byte exactly");
+							default ->
+								System.out.println("Integer that cannot be represented as a float exactly");
+						}
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 9)
+				case one_twentyseven ->			// Error - dominated!
+				     ^^^^^^^^^^^^^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			2. ERROR in X.java (at line 13)
+				case Short.MAX_VALUE ->			// Error - dominated!
+				     ^^^^^^^^^^^^^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			""");
+	}
+	public void testJEP530Example2_long_integral() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				@SuppressWarnings("preview")
+				public class X {
+					void foo() {
+						long j = 1;
+						switch(j) {
+							case byte b ->
+								System.out.println("A byte");
+							case 127l ->					// Error - dominated!
+								System.out.println("A long that can be represented as a byte exactly");
+							case short b ->
+								System.out.println("A short");
+							case 32767l ->					// Error - dominated!
+								System.out.println("A long that can be represented as a short exactly");
+							case char c ->
+								System.out.println("A char");
+							case 65535l ->					// Error - dominated!
+								System.out.println("A long that can be represented as a char exactly");
+							case int i ->
+								System.out.println("An int");
+							case 16_777_216l -> 			// Error - dominated!
+								System.out.println("A long that can be represented as an int exactly");
+							default ->
+								System.out.println("Long that cannot be represented as a double exactly");
+						}
+						switch(j) {
+							case byte b ->
+								System.out.println("A byte");
+							case 260l ->					// not dominated
+								System.out.println("A long that can be represented as a byte exactly");
+							case short b ->
+								System.out.println("A short");
+							case 40000l ->					// not dominated
+								System.out.println("A long that can be represented as a short exactly");
+							case char c ->
+								System.out.println("A char");
+							case 70000l ->					// not dominated
+								System.out.println("A long that can be represented as a char exactly");
+							case int i ->
+								System.out.println("An int");
+							case 1_000_000_000_000l -> 		// not dominated
+								System.out.println("A long that can be represented as an int exactly");
+							default ->
+								System.out.println("Long that cannot be represented as a double exactly");
+						}
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 8)
+				case 127l ->					// Error - dominated!
+				     ^^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			2. ERROR in X.java (at line 12)
+				case 32767l ->					// Error - dominated!
+				     ^^^^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			3. ERROR in X.java (at line 16)
+				case 65535l ->					// Error - dominated!
+				     ^^^^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			4. ERROR in X.java (at line 20)
+				case 16_777_216l -> 			// Error - dominated!
+				     ^^^^^^^^^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			""");
+	}
+	public void testJEP530Example2_long_fp() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				@SuppressWarnings("preview")
+				public class X {
+					void foo() {
+						long j = 1;
+						switch(j) {
+							case float f ->
+								System.out.println("A float");
+							case 16_777_216l ->					// Error - dominated!
+								System.out.println("An integer that can be represented as a float exactly");
+							case double d ->
+								System.out.println("A double");
+							case 100_000_000_000_000_000l ->	// Error - dominated!
+								System.out.println("A long that can be represented as a double exactly");
+							default ->
+								System.out.println("Long that cannot be represented as a double exactly");
+						}
+						switch(j) {
+							case float f ->
+								System.out.println("A float");
+							case 16_777_216l + 1 ->					// not dominated
+								System.out.println("An integer that can be represented as a float exactly");
+							case double d ->
+								System.out.println("A float");
+							case 100_000_000_000_000_000l + 1 ->	// not dominated
+								System.out.println("A long that can be represented as a double exactly");
+							default ->
+								System.out.println("Long that cannot be represented as a double exactly");
+						}
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 8)
+				case 16_777_216l ->					// Error - dominated!
+				     ^^^^^^^^^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			2. ERROR in X.java (at line 12)
+				case 100_000_000_000_000_000l ->	// Error - dominated!
+				     ^^^^^^^^^^^^^^^^^^^^^^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			""");
+	}
+	public void testJEP530Example2_float() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				@SuppressWarnings("preview")
+				public class X {
+					void foo() {
+						float j = 1;
+						switch(j) {
+							case byte b ->
+								System.out.println("A byte");
+							case 127f ->					// Error - dominated!
+								System.out.println("A float that can be represented as a byte exactly");
+							case short b ->
+								System.out.println("A short");
+							case 32767f ->					// Error - dominated!
+								System.out.println("A float that can be represented as a short exactly");
+							case char c ->
+								System.out.println("A char");
+							case 65535f ->					// Error - dominated!
+								System.out.println("A float that can be represented as a char exactly");
+							case int i ->
+								System.out.println("An int");
+							case 16_777_216f -> 				// Error - dominated!
+								System.out.println("A float that can be represented as an int exactly");
+							case long l ->
+								System.out.println("A long");
+							case 100_000_000_000_000_000f ->	// Error - dominated!
+								System.out.println("A float that can be represented as a long exactly");
+							default ->
+								System.out.println("Float that cannot be represented as a long exactly");
+						}
+						switch(j) {
+							case byte b ->
+								System.out.println("A byte");
+							case 260f ->					// not dominated
+								System.out.println("A float that can be represented as a byte exactly");
+							case short b ->
+								System.out.println("A short");
+							case 40000f ->					// not dominated
+								System.out.println("A float that can be represented as a short exactly");
+							case char c ->
+								System.out.println("A char");
+							case 70000f ->					// not dominated
+								System.out.println("A float that can be represented as a char exactly");
+							case int i ->
+								System.out.println("An int");
+							case 1e12f -> 				// not dominated
+								System.out.println("A float that can be represented as an int exactly");
+							case long l ->
+								System.out.println("A long");
+							case 1e22f +1 ->	// not dominated
+								System.out.println("A float that can be represented as a long exactly");
+							default ->
+								System.out.println("Long that cannot be represented as a double exactly");
+						}
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 8)
+				case 127f ->					// Error - dominated!
+				     ^^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			2. ERROR in X.java (at line 12)
+				case 32767f ->					// Error - dominated!
+				     ^^^^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			3. ERROR in X.java (at line 16)
+				case 65535f ->					// Error - dominated!
+				     ^^^^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			4. ERROR in X.java (at line 20)
+				case 16_777_216f -> 				// Error - dominated!
+				     ^^^^^^^^^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			5. ERROR in X.java (at line 24)
+				case 100_000_000_000_000_000f ->	// Error - dominated!
+				     ^^^^^^^^^^^^^^^^^^^^^^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			""");
+	}
+	public void testJEP530Example2_double() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				@SuppressWarnings("preview")
+				public class X {
+					void foo() {
+						double j = 1;
+						switch(j) {
+							case byte b ->
+								System.out.println("A byte");
+							case 127d ->						// Error - dominated!
+								System.out.println("A double that can be represented as a byte exactly");
+							case short b ->
+								System.out.println("A short");
+							case 32767d ->						// Error - dominated!
+								System.out.println("A double that can be represented as a short exactly");
+							case char c ->
+								System.out.println("A char");
+							case 65535d ->						// Error - dominated!
+								System.out.println("A double that can be represented as a char exactly");
+							case int i ->
+								System.out.println("An int");
+							case 16_777_216d -> 				// Error - dominated!
+								System.out.println("A double that can be represented as an int exactly");
+							case long l ->
+								System.out.println("A long");
+							case 100_000_000_000_000_000d ->	// Error - dominated!
+								System.out.println("A double that can be represented as a long exactly");
+							default ->
+								System.out.println("double that cannot be represented as a long exactly");
+						}
+						switch(j) {
+							case byte b ->
+								System.out.println("A byte");
+							case 260d ->					// not dominated
+								System.out.println("A double that can be represented as a byte exactly");
+							case short b ->
+								System.out.println("A short");
+							case 40000d ->					// not dominated
+								System.out.println("A double that can be represented as a short exactly");
+							case char c ->
+								System.out.println("A char");
+							case 70000d ->					// not dominated
+								System.out.println("A double that can be represented as a char exactly");
+							case int i ->
+								System.out.println("An int");
+							case 1e12d -> 					// not dominated
+								System.out.println("A double that can be represented as an int exactly");
+							case long l ->
+								System.out.println("A long");
+							case 1e22d +1 ->				// not dominated
+								System.out.println("A double that can be represented as a long exactly");
+							default ->
+								System.out.println("double that cannot be represented as a double exactly");
+						}
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in X.java (at line 8)
+				case 127d ->						// Error - dominated!
+				     ^^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			2. ERROR in X.java (at line 12)
+				case 32767d ->						// Error - dominated!
+				     ^^^^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			3. ERROR in X.java (at line 16)
+				case 65535d ->						// Error - dominated!
+				     ^^^^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			4. ERROR in X.java (at line 20)
+				case 16_777_216d -> 				// Error - dominated!
+				     ^^^^^^^^^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			5. ERROR in X.java (at line 24)
+				case 100_000_000_000_000_000d ->	// Error - dominated!
+				     ^^^^^^^^^^^^^^^^^^^^^^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			""");
+	}
+	public void testJEP530Example3() {
+		// no primitives, but new dominance rule from JEP 530
+		runNegativeTest(new String[] {
+				"Dominance.java",
+				"""
+				interface A {}
+				interface B {}
+				class Dominance {
+					void m1(A objA) {
+						switch (objA) {
+						case A a ->
+								System.out.println("A");
+						case B b ->         // Error - dominated!
+								System.out.println("B");
+						}
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. ERROR in Dominance.java (at line 8)
+				case B b ->         // Error - dominated!
+				     ^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			""");
+	}
+	public void testJEP530Example5() {
+		runNegativeTest(new String[] {
+				"Dominance.java",
+				"""
+				@SuppressWarnings("preview")
+				class Dominance {
+					void m2(int j) {
+						switch(j) {
+							case int i   ->
+								System.out.println("An int");
+							case float f ->     // Error - dominated!
+								System.out.println("A float");
+						}
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			2. ERROR in Dominance.java (at line 7)
+				case float f ->     // Error - dominated!
+				     ^^^^^^^
+			This case label is dominated by one of the preceding case labels
+			----------
+			""");
+	}
+	public void testJEP530Example6() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				@SuppressWarnings("preview")
+				class X {
+					static int doubleExhaustive(Integer i) {
+						return switch (i) {
+							case double p -> 0;
+						};
+					}
+					void main() {
+						System.out.println(doubleExhaustive(13));
+					}
+				}
+				"""
+			},
+			"0");
+	}
+	public void testJEP530Example7() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				@SuppressWarnings("preview")
+				class X {
+					int examineFloat(float f) {
+						final float PInf = Float.POSITIVE_INFINITY;
+						final float NInf = Float.NEGATIVE_INFINITY;
+						final float NaN = Float.NaN;
+						return switch (f) {
+							case NInf  -> -100;
+							case -0.0f -> -1;
+							case  0.0f -> +1;
+							case PInf  -> +100;
+							case NaN   -> 0;
+							default    -> 42;
+						};
+					}
+					void printExamineFlow(float f) {
+						System.out.print(examineFloat(f));
+						System.out.print(" ");
+					}
+					void main() {
+						printExamineFlow(-1.0f / 0.0f); // -100
+						printExamineFlow(1.0f / 0.0f);  //  100
+						printExamineFlow(0.0f * -1.0f); //   -1
+						printExamineFlow(0.0f *  1.0f); //    1
+						printExamineFlow(Float.intBitsToFloat(0x7fc00000)); // 0
+						printExamineFlow(Float.intBitsToFloat(0x7fc00001)); // 0
+						System.out.println();
+					}
+				}
+				"""
+			},
+			"-100 100 -1 1 0 0");
+	}
 }

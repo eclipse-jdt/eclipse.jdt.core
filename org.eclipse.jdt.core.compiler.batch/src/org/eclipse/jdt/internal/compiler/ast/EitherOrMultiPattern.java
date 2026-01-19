@@ -8,6 +8,10 @@
 *
 * SPDX-License-Identifier: EPL-2.0
 *
+* This is an implementation of an early-draft specification developed under the Java
+* Community Process (JCP) and is made available for testing and evaluation purposes
+* only. The code is not compatible with any specification of the JCP.
+*
 * Contributors:
 *     Srikanth Sankaran - initial implementation
 *******************************************************************************/
@@ -69,7 +73,7 @@ public class EitherOrMultiPattern extends Pattern {
 			if (t == null || !t.isValidBinding())
 				hasError = true;
 			for (int j = 0; j < i; j++) {
-				if (this.patterns[j].dominates(this.patterns[i])) {
+				if (this.patterns[j].dominates(this.patterns[i], scope)) {
 					scope.problemReporter().patternDominatedByAnother(this.patterns[i]);
 					break;
 				}
@@ -101,11 +105,11 @@ public class EitherOrMultiPattern extends Pattern {
 	}
 
 	@Override
-	public boolean dominates(Pattern p) {
+	public boolean dominates(Pattern p, Scope scope) {
 		if (!isUnguarded())
 			return false;
 		for (Pattern thiz : this.patterns) {
-			if (thiz.dominates(p))
+			if (thiz.dominates(p, scope))
 				return true;
 		}
 		return false;
