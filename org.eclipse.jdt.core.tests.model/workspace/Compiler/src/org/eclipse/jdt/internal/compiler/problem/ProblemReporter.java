@@ -1617,7 +1617,7 @@ public void inheritedMethodReducesVisibility(SourceTypeBinding type, MethodBindi
 		.append('.')
 		.append(concreteMethod.shortReadableName());
 	this.handle(
-		// The inherited method %1 cannot hide the public abstract method in %2
+		// The inherited method %1 cannot reduce the visibility of the public abstract method in %2
 		IProblem.InheritedMethodReducesVisibility,
 		new String[] {
 			concreteSignature.toString(),
