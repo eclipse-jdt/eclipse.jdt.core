@@ -2015,8 +2015,8 @@ public class ScannerTest extends AbstractRegressionTest {
 						}
 						try {
 							Class<?> clazz = Class.forName("X");
-							java.lang.reflect.Field method = clazz.getDeclaredField("fieldWithUnicode\u0001Char");
-							System.out.println("Field found: " + method.getName());
+							java.lang.reflect.Field field = clazz.getDeclaredField("fieldWithUnicode\u0001Char");
+							System.out.println("Field found: " + field.getName());
 						} catch (ClassNotFoundException e) {
 							System.out.println("Class not found.");
 						} catch (NoSuchFieldException e) {
@@ -2031,6 +2031,46 @@ public class ScannerTest extends AbstractRegressionTest {
 			"Field not found.");
 	}
 	public void testIssue4001_2() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+					String fieldWithUnicode\u0001Char = "";
+					public static void main(String[] args) {
+						try {
+							Class<?> clazz = Class.forName("X");
+							java.lang.reflect.Method method = clazz.getDeclaredMethod("methodWithUnicodeChar");
+							System.out.println("Method found: " + method.getName());
+							method.invoke(null);
+						} catch (ClassNotFoundException e) {
+							System.out.println("Class not found.");
+						} catch (NoSuchMethodException e) {
+							System.out.println("Method not found.");
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						try {
+							Class<?> clazz = Class.forName("X");
+							java.lang.reflect.Field field = clazz.getDeclaredField("fieldWithUnicodeChar");
+							System.out.println("Field found: " + field.getName());
+						} catch (ClassNotFoundException e) {
+							System.out.println("Class not found.");
+						} catch (NoSuchFieldException e) {
+							System.out.println("Field not found.");
+						}
+					}
+					public static void methodWithUnicode\u0001Char() {
+						String fieldWithUnicode\u0001Char = "Hello";
+						System.out.println(fieldWithUnicodeChar);
+					}
+				}""",
+			},
+			"Method found: methodWithUnicodeChar\n" +
+			"Hello\n" +
+			"Field found: fieldWithUnicodeChar");
+	}
+	public void testIssue4001_3() {
 		this.runConformTest(
 			new String[] {
 				"X.java",
