@@ -1181,9 +1181,7 @@ public StringBuilder printHeader(int indent, StringBuilder output) {
 		output.append('(');
 		for (int i = 0, length = this.recordComponents.length; i < length; i++) {
 			if (i > 0) output.append(", "); //$NON-NLS-1$
-			output.append(this.recordComponents[i].type.getTypeName()[0]);
-			output.append(' ');
-			output.append(this.recordComponents[i].name);
+			this.recordComponents[i].print(indent, output);
 		}
 		output.append(')');
 	}
