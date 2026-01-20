@@ -2473,7 +2473,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 6)\n" +
 			"	I x = new I(){};\n" +
 			"	          ^^^\n" +
-			"The inherited method Object.clone() cannot hide the public abstract method in I\n" +
+			"The inherited method Object.clone() cannot reduce the visibility of the public abstract method in I\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 6)\n" +
 			"	I x = new I(){};\n" +
