@@ -601,4 +601,88 @@ public void test577351() throws Exception {
 		deleteProject(p);
 	}
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4767
+// Unnecessary error marker for **nested** record's constructor that uses varargs
+public void testIssue624767_nonest() throws Exception {
+	if (!isJRE16)
+		return;
+	IJavaProject p = createJava21Project("p");
+	try {
+		createFile("p/src/NestedRecord.java",
+				    """
+					// public class Outer {
+					  public record NestedRecord(String key, Object... args) {}
+					// }
+					""");
+		createFile("p/src/Two.java",
+			    """
+				public class Two {
+				  public static void main(String[] args) {
+				    new /*Outer.*/NestedRecord("bla");   // <---- error here in editor, but no marker in problem view
+				  }
+				}
+				""");
+
+
+		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("markers in p",
+				"",
+				markers);
+
+		this.workingCopy = getCompilationUnit("p/src/Two.java").getWorkingCopy(this.wcOwner, null);
+		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
+		this.workingCopy.reconcile(JLS_LATEST, true, this.wcOwner, null);
+		assertProblems("Expecting no problems",
+				"----------\n" +
+				"----------\n",
+				this.problemRequestor);
+		this.workingCopy.discardWorkingCopy();
+	} finally {
+		deleteProject(p);
+	}
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4767
+// Unnecessary error marker for **nested** record's constructor that uses varargs
+public void testIssue624767() throws Exception {
+	if (!isJRE16)
+		return;
+	IJavaProject p = createJava21Project("p");
+	try {
+		createFile("p/src/Outer.java",
+				    """
+					public class Outer {
+					  void blah (Object ... args) {}
+					  public record NestedRecord(String key, Object... args) {}
+					}
+					""");
+		createFile("p/src/Two.java",
+			    """
+				public class Two {
+				  public static void main(String[] args) {
+				    new Outer.NestedRecord("bla");   // <---- error here in editor, but no marker in problem view
+				  }
+				}
+				""");
+
+
+		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("markers in p",
+				"",
+				markers);
+
+		this.workingCopy = getCompilationUnit("p/src/Two.java").getWorkingCopy(this.wcOwner, null);
+		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
+		this.workingCopy.reconcile(JLS_LATEST, true, this.wcOwner, null);
+		assertProblems("Expecting no problems",
+				"----------\n" +
+				"----------\n",
+				this.problemRequestor);
+		this.workingCopy.discardWorkingCopy();
+	} finally {
+		deleteProject(p);
+	}
+}
 }
