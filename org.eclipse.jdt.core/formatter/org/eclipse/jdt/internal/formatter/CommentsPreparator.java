@@ -96,8 +96,8 @@ public class CommentsPreparator extends ASTVisitor {
 	private final static Pattern MARKDOWN_HEADINGS_PATTERN_1 = Pattern.compile("(?:(?<=^)|(?<=///[ \\t]*))(#{1,6})([ \\t]+)([^\\r\\n]*)"); //$NON-NLS-1$
 	private final static Pattern MARKDOWN_HEADINGS_PATTERN_2 = Pattern.compile("(?:^|(?<=///[ \\t]+))[ \\t]*([=-])\\1*[ \\t]*(?=\\r?\\n|$)"); //$NON-NLS-1$
 	private final static Pattern MARKDOWN_FENCE_PATTERN = Pattern.compile("(`{3,}|~{3,})(.*)"); //$NON-NLS-1$
-	private final static Pattern MARKDOWN_TABLE_START = Pattern.compile("(?m)(?<=^[ \\t]*)\\|"); //$NON-NLS-1$
-	private final static Pattern MARKDOWN_TABLE_END = Pattern.compile("(?m)\\|(?!.*\\|)"); //$NON-NLS-1$
+	private final static Pattern MARKDOWN_TABLE_COLUMN_SEP = Pattern.compile("\\||(?<=\\|)\\s*-+\\s*(?=\\|)"); //$NON-NLS-1$
+	private final static Pattern MARKDOWN_TABLE_COLUMN_VALIDATOR = Pattern.compile("^[ :\\-|]+$"); //$NON-NLS-1$
 
 	// Param tags list copied from IJavaDocTagConstants in legacy formatter for compatibility.
 	// There were the following comments:
@@ -134,6 +134,7 @@ public class CommentsPreparator extends ASTVisitor {
 	private final ArrayList<Integer> commonAttributeAnnotations = new ArrayList<>();
 	private DefaultCodeFormatter preTagCodeFormatter;
 	private DefaultCodeFormatter snippetCodeFormatter;
+	private String markdownTablePipe = "|"; //$NON-NLS-1$
 
 	public CommentsPreparator(TokenManager tm, DefaultCodeFormatterOptions options, String sourceLevel) {
 		this.tm = tm;
@@ -998,39 +999,162 @@ public class CommentsPreparator extends ASTVisitor {
 	}
 
 	private void handleMarkdownTable(List<ASTNode> fragments) {
-		int tableStartIndex = -1;
-		int tableLastIndex = -1;
-		boolean columnUnderlineFound = false;
 		Matcher matcher;
-		for (Object fragment : fragments) {
-			if (fragment instanceof TextElement textElement) {
+		ASTNode columnHeader = null;
+		boolean hasFormattedColumnHeader = false;
+		int maxRowDataLen = 0;
+		List<Token> columnHeaderTokens = new ArrayList<>();
+		List<Token> columnSeperatorTokens = new ArrayList<>();
+		for (int i = 0; i < fragments.size(); i++) {
+			if (fragments.get(i) instanceof TextElement textElement) {
 				String textContent = textElement.getText();
-				matcher = MARKDOWN_TABLE_START.matcher(textContent);
-				if (matcher.find()) {
-					if (tableStartIndex == -1) {
-						int startPos = matcher.start() + textElement.getStartPosition();
-						tableStartIndex = tokenStartingAt(startPos);
-					} else if (tableStartIndex != -1 && !columnUnderlineFound) {
-						boolean foundStart = textContent.contains("|-"); //$NON-NLS-1$
-						boolean foundEnd = textContent.contains("-|"); //$NON-NLS-1$
-						if (foundStart && foundEnd) {
-							columnUnderlineFound = true;
+				if (columnSeperatorTokens.isEmpty()) {
+					matcher = MARKDOWN_TABLE_COLUMN_VALIDATOR.matcher(textContent);
+					if (matcher.find()) {
+						columnHeader = fragments.get(i - 1);
+						// find the most lengthy cell data
+						for (int rowIndex = i; rowIndex < fragments.size(); rowIndex++) {
+							TextElement element = (TextElement) fragments.get(rowIndex);
+							String rowData = element.getText();
+							int maxRow = Arrays.stream(rowData.split("\\|")).map(e -> e.trim()) //$NON-NLS-1$
+									.filter(s -> !s.isEmpty()).mapToInt(String::length).max().orElse(0);
+							maxRowDataLen = Math.max(maxRow, maxRowDataLen);
 						}
-					} else if (columnUnderlineFound) {
-						matcher = MARKDOWN_TABLE_END.matcher(textContent);
-						matcher.find(); // find the last one
-						int startPos = matcher.start() + textElement.getStartPosition();
-						tableLastIndex = tokenStartingAt(startPos);
+						String headData = ((TextElement) columnHeader).getText();
+						int maxHead = Arrays.stream(headData.split("\\|")).map(e -> e.trim()) //$NON-NLS-1$
+								.filter(s -> !s.isEmpty()).mapToInt(String::length).max().orElse(0);
+						maxRowDataLen = maxHead == maxRowDataLen ? maxRowDataLen + 2
+								: Math.max(maxHead, maxRowDataLen + 2);
+						matcher = MARKDOWN_TABLE_COLUMN_SEP.matcher(textContent);
+						while (matcher.find()) {
+							int startPos = matcher.start() + fragments.get(i).getStartPosition();
+							int tokenIndex = this.ctm.findIndex(startPos, ANY, true);
+							Token columnSeperatorToken = this.ctm.get(tokenIndex);
+							columnSeperatorToken.setWrapPolicy(WrapPolicy.DISABLE_WRAP);
+							columnSeperatorToken.setColumnSeparator(true);
+							columnSeperatorTokens.add(columnSeperatorToken);
+						}
+						if (!columnSeperatorTokens.isEmpty()) {
+							columnSeperatorTokens.get(columnSeperatorTokens.size() - 1).breakAfter();
+						}
 					}
-				} else {
-					tableStartIndex = -1;
-					tableLastIndex = -1;
-					columnUnderlineFound = false;
+				} else if (!columnSeperatorTokens.isEmpty() && !hasFormattedColumnHeader) {
+					String columnString = ((TextElement) columnHeader).getText();
+					Pattern p = Pattern.compile("\\||(?<=\\||\\s)[^|\\s]+(?=\\s|\\||$)"); //$NON-NLS-1$
+					matcher = p.matcher(columnString);
+					while (matcher.find()) {
+						int startPos = matcher.start() + columnHeader.getStartPosition();
+						int tokenIndex = this.ctm.findIndex(startPos, ANY, true);
+						Token columnToken = this.ctm.get(tokenIndex);
+						columnToken.setWrapPolicy(WrapPolicy.DISABLE_WRAP);
+						String content = this.ctm.toString(columnToken);
+						if (!content.equals(this.markdownTablePipe)) {
+							columnToken.setMarkdownColumnHeader(true);
+						}
+						columnHeaderTokens.add(columnToken);
+					}
+					columnHeaderTokens.get(columnSeperatorTokens.size() - 1).breakAfter();
+					formatMarkdownTableHeader(columnHeaderTokens, columnSeperatorTokens, maxRowDataLen);
+					hasFormattedColumnHeader = true;
+				}
+				if (hasFormattedColumnHeader) {
+					List<Token> rowTokens = new ArrayList<>();
+					String rowSet = textContent;
+					Pattern p = Pattern.compile("\\||(?<=\\||^)[^|]+(?=\\||$)"); //$NON-NLS-1$
+					matcher = p.matcher(rowSet);
+					while (matcher.find()) {
+						int startPos = matcher.start() + textElement.getStartPosition();
+						int tokenIndex = this.ctm.findIndex(startPos, ANY, true);
+						if (tokenIndex >= this.ctm.size()) {
+							continue;
+						}
+						Token rowToken = this.ctm.get(tokenIndex);
+						rowToken.setWrapPolicy(WrapPolicy.DISABLE_WRAP);
+						rowTokens.add(rowToken);
+					}
+					rowTokens.get(rowTokens.size() - 1).breakAfter();
+					formatMarkdownTableRow(rowTokens, maxRowDataLen);
 				}
 			}
-			if (tableStartIndex != -1 && tableLastIndex != -1) {
-				// TODO fix column alignment and format cells
-				disableFormattingExclusively(tableStartIndex, tableLastIndex);
+		}
+	}
+
+	private void formatMarkdownTableHeader(List<Token> columnHeaderTokens, List<Token> columnSeperatorTokens,
+			int maxRowDataLen) {
+		Token cellStart = null;
+		Token cellEnd = null;
+		List<Token> cellContent = new ArrayList<>();
+		int cel = 0;
+		for (int j = 0; j < columnHeaderTokens.size(); j++) {
+			Token columnToken = columnHeaderTokens.get(j);
+			;
+			if (!columnToken.isMarkdownColumnHeader() && cellStart == null) {
+				cellStart = columnToken;
+			} else if (!columnToken.isMarkdownColumnHeader() && cellEnd == null) {
+				cellEnd = columnToken;
+			} else {
+				cellContent.add(columnToken);
+			}
+			if (cellStart != null && cellEnd != null) {
+				cellStart.spaceAfter();
+				cellContent.get(cellContent.size() - 1).clearSpaceAfter();
+				cellContent.get(0).clearSpaceBefore();
+				int contentLength = cellContent.stream().mapToInt(t -> this.tm.toString(t).length()).sum();
+				contentLength = cellContent.size() > 1 ? contentLength + cellContent.size() - 1 : contentLength;
+				int newLen = (maxRowDataLen - contentLength);
+				int prev = cellStart.getAlign() == 0 ? 4 : cellStart.getAlign();
+				Token previous = cellContent.get(0);
+				if (cellContent.size() == 1) {
+					cellContent.get(0).setAlign(prev + (newLen / 2) + 1);
+				} else {
+					cellContent.get(0).setAlign(prev + (newLen / 2) + 1);
+					if (cellContent.size() > 1) {
+						for (int i = 1; i < cellContent.size(); i++) {
+							Token tmp = cellContent.get(i);
+							tmp.setAlign(previous.getAlign());
+							previous = tmp;
+							cel++;
+							contentLength = this.tm.toString(previous).length();
+						}
+					}
+				}
+				cellEnd.setAlign(previous.getAlign() + contentLength + ((newLen / 2)));
+				cellStart = cellEnd;
+				cellEnd = null;
+				int toBeAdded = this.tm.toString(columnSeperatorTokens.get(j - 1 - cel)).length();
+				int padding = contentLength % 2 == 0 ? 0 : -1;
+				columnSeperatorTokens.get(j - 1 - cel).setMarkdownColumnLength(maxRowDataLen - toBeAdded + padding);
+				cellContent.clear();
+			}
+		}
+	}
+
+	private void formatMarkdownTableRow(List<Token> rowTokens, int maxRowDataLen) {
+		Token cellStart = null;
+		Token cellEnd = null;
+		Token cellContent = null;
+		for (int j = 0; j < rowTokens.size(); j++) {
+			Token columnToken = rowTokens.get(j);
+			String colVal = this.tm.toString(columnToken);
+			if (colVal.equals(this.markdownTablePipe) && cellStart == null) {
+				cellStart = columnToken;
+			} else if (colVal.equals(this.markdownTablePipe) && cellEnd == null) {
+				cellEnd = columnToken;
+			} else {
+				cellContent = columnToken;
+			}
+			if (cellStart != null && cellEnd != null) {
+				cellContent.clearSpaceAfter();
+				cellContent.clearSpaceBefore();
+				int contentLength = this.tm.toString(cellContent).length();
+				int newLen = (maxRowDataLen - contentLength);
+				cellStart.spaceAfter();
+				int prev = cellStart.getAlign() == 0 ? 0 : cellStart.getAlign();
+				int padding = contentLength == maxRowDataLen ? 0 : 1;
+				cellContent.setAlign(prev + (newLen / 2) + padding);
+				cellEnd.setAlign(cellContent.getAlign() + contentLength + ((newLen / 2)));
+				cellStart = cellEnd;
+				cellEnd = null;
 			}
 		}
 	}

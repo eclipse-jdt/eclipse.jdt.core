@@ -304,14 +304,29 @@ public class TextEditsBuilder extends TokenTraverser {
 	}
 
 	private boolean bufferAlign(Token token, int index) {
+		boolean mdColNo = false;
+		if(token.tokenType==TokenNameCOMMENT_MARKDOWN) {
+			mdColNo = token.isColumnSeparator();
+			int mdColLen = token.getMarkdownColumnLength();
+
+			if(mdColLen>0) {
+				String col = this.tm.toString(token);
+				if (col.contains("-")) {
+					for (int i = 0; i < mdColLen; i++) {
+						this.buffer.append("-");
+					}
+				}
+			}
+		}
 		int align = token.getAlign();
+
 		int alignmentChar = this.alignChar;
 		if (align == 0 && getLineBreaksBefore() == 0 && this.parent != null) {
 			align = token.getIndent();
 			token.setAlign(align);
 			alignmentChar = DefaultCodeFormatterOptions.SPACE;
 		}
-		if (align == 0)
+		if (align == 0 && !mdColNo)
 			return false;
 
 		int currentPositionInLine = 0;
@@ -322,7 +337,7 @@ public class TextEditsBuilder extends TokenTraverser {
 			currentPositionInLine = this.tm.getPositionInLine(index - 1);
 			currentPositionInLine += this.tm.getLength(this.tm.get(index - 1), currentPositionInLine);
 		}
-		if (currentPositionInLine >= align)
+		if (currentPositionInLine >= align && !mdColNo)
 			return false;
 
 		final int tabSize = this.options.tab_size;
