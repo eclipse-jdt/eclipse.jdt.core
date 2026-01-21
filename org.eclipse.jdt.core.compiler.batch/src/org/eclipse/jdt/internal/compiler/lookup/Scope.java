@@ -4681,10 +4681,10 @@ public abstract class Scope {
 			receiverType = receiverType instanceof CaptureBinding ? receiverType : (ReferenceBinding) receiverType.erasure();
 
 		// within the boundaries of "chosen arbitrarily among the subset of the maximally specific methods that are preferred"
-		// put concrete methods first, default methods second:
+		// put implemented methods first:
 		Arrays.sort(moreSpecific, (m1, m2) -> {
-			int rank1 = m1 == null ? 3 : m1.isAbstract() ? 2 : m1.isDefaultMethod() ? 1 : 0;
-			int rank2 = m2 == null ? 3 : m2.isAbstract() ? 2 : m2.isDefaultMethod() ? 1 : 0;
+			int rank1 = m1 == null ? 3 : m1.isAbstract() ? 2 : 0;
+			int rank2 = m2 == null ? 3 : m2.isAbstract() ? 2 : 0;
 			return rank1 - rank2;
 		});
 		boolean hasConsideredNullContract = false;
@@ -4703,7 +4703,7 @@ public abstract class Scope {
 						if (TypeBinding.equalsEquals(original.declaringClass, original2.declaringClass))
 							break nextSpecific; // duplicates thru substitution
 
-						if (!original.isAbstract()) {
+						if (!original.isAbstract() && !original.isDefaultMethod()) {
 							if (original2.isAbstract() || original2.isDefaultMethod())
 								continue; // only compare current against other concrete methods
 
