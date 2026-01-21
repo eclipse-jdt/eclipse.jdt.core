@@ -13440,4 +13440,47 @@ public void testIssue4750_nowarn() {
 		"1 problem (1 error)\n",
 		true);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4768
+// Internal Compiler Error when a static field with custom annotation references a generic type parameter T
+public void testIssue4768(){
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+			import java.lang.annotation.*;
+			@interface CompileTimeConstant {}
+
+			class FunctionPointerContainer<T> {
+			    @CompileTimeConstant
+			    public static final T VALUE = null;
+			}
+
+			public class X {
+			    public static void main(String[] args) {
+			        FunctionPointerContainer<Integer> nestedContainer = new FunctionPointerContainer<>();
+			        Integer value = nestedContainer.VALUE;
+			    }
+			}
+			""",
+		},
+
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -nowarn -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"----------\n" +
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" +
+		"	public static final T VALUE = null;\n" +
+		"	                    ^\n" +
+		"Cannot make a static reference to the non-static type T\n" +
+		"----------\n" +
+		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 12)\n" +
+		"	Integer value = nestedContainer.VALUE;\n" +
+		"	                                ^^^^^\n" +
+		"VALUE cannot be resolved or is not a field\n" +
+		"----------\n" +
+		"2 problems (2 errors)\n",
+
+		true);
+}
 }
