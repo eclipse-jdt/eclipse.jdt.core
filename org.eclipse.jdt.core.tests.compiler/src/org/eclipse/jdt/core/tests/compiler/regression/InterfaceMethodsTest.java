@@ -3285,7 +3285,8 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 		runner.javacTestOptions = JavacHasABug.JavacBug8337980;
 		runner.runNegativeTest();
 	}
-	public void testGH1600() {
+	// disabled because https://github.com/eclipse-jdt/eclipse.jdt.core/pull/4727 had to be reverted
+	public void _testGH1600() {
 		runConformTest(new String[] {"TestField.java",
 			"""
 			public class TestField extends CustomField {
@@ -3311,5 +3312,40 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				}
 			}
 			"""});
+	}
+	public void testGH1600_2() {
+		runConformTest(new String[] {"Test.java",
+			"""
+			interface I0 {
+				default void m() throws Exception {}
+				default Number n() throws Exception { return 0l; }
+			}
+			interface I2 extends I0 {
+				@Override abstract void m() throws Exception;
+				@Override abstract Integer n() throws Exception;
+			}
+			class C2 implements I2 {
+				@Override public Integer n() throws Exception { return 13; }
+				@Override public void m() {}
+			}
+			public class Test {
+				void test1(I0 i) throws Exception {
+					if (i instanceof I2)
+						((I2) i).m();
+					else
+						System.out.print("no");
+				}
+				void test2(I0 i0) throws Exception {
+					Integer i = ((I2) i0).n();
+					System.out.print(i);
+				}
+				public static void main(String... args) throws Exception {
+					Test t = new Test();
+					t.test1(new I0() {});
+					t.test2(new C2());
+				}
+			}
+			"""},
+			"no13");
 	}
 }
