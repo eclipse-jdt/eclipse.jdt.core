@@ -2023,6 +2023,7 @@ public abstract class Scope {
 			FieldBinding problemField = null;
 			if ((mask & Binding.VARIABLE) != 0) {
 				boolean insideStaticContext = false;
+				boolean insideLocalRecordContext = false;
 				boolean insideConstructorCall = false;
 				boolean insideTypeAnnotation = false;
 
@@ -2052,6 +2053,11 @@ public abstract class Scope {
 							LocalVariableBinding variableBinding = scope.findVariable(name);
 							// looks in this scope only
 							if (variableBinding != null) {
+								if (insideLocalRecordContext) {
+									return new ProblemLocalVariableBinding(
+											variableBinding,
+											ProblemReasons.NonStaticReferenceInStaticContext);
+								}
 								if (foundField != null && foundField.isValidBinding())
 									return new ProblemFieldBinding(
 										foundField, // closest match
@@ -2156,6 +2162,7 @@ public abstract class Scope {
 							depth++;
 							shouldTrackOuterLocals = true;
 							insideStaticContext |= receiverType.isStatic();
+							insideLocalRecordContext |= receiverType.isRecord() && receiverType.isLocalType();
 							// 1EX5I8Z - accessing outer fields within a constructor call is permitted
 							// in order to do so, we change the flag as we exit from the type, not the method
 							// itself, because the class scope is used to retrieve the fields.
@@ -4673,13 +4680,6 @@ public abstract class Scope {
 		if (receiverType != null)
 			receiverType = receiverType instanceof CaptureBinding ? receiverType : (ReferenceBinding) receiverType.erasure();
 
-		// within the boundaries of "chosen arbitrarily among the subset of the maximally specific methods that are preferred"
-		// put concrete methods first, default methods second:
-		Arrays.sort(moreSpecific, (m1, m2) -> {
-			int rank1 = m1 == null ? 3 : m1.isAbstract() ? 2 : m1.isDefaultMethod() ? 1 : 0;
-			int rank2 = m2 == null ? 3 : m2.isAbstract() ? 2 : m2.isDefaultMethod() ? 1 : 0;
-			return rank1 - rank2;
-		});
 		boolean hasConsideredNullContract = false;
 		// perform 1 or 2 attempts, the second being the safety net, in case considering null contracts may have prevented finding a solution.
 		for (int attempt = 0; attempt < 2; attempt++) {

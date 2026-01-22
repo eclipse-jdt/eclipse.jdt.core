@@ -899,12 +899,17 @@ protected int checkOutputFolders(IJavaProject project, int buildKind) {
 		return buildKind;
 	}
 	try {
+		boolean checkDefault = true;
 		IWorkspaceRoot root = project.getProject().getWorkspace().getRoot();
 		for (IClasspathEntry entry : project.getRawClasspath()) {
 			if (entry.getEntryKind() != IClasspathEntry.CPE_SOURCE) {
 				continue;
 			}
 			IPath outputLocation = entry.getOutputLocation();
+			if (outputLocation == null && checkDefault) {
+				outputLocation = project.getOutputLocation();
+				checkDefault = false;
+			}
 			if (outputLocation != null) {
 				IContainer outputContainer;
 				if(outputLocation.segmentCount() == 1) {
