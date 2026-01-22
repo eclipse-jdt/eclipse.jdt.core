@@ -1579,23 +1579,26 @@ public void setOptions(Map<String, String> newOptions) {
 @Override
 public Map<String, String> getCustomOptions() {
 	if (this.owner != null) {
-		try {
-			Map<String, String> customOptions = this.getCompilationUnitElementInfo().getCustomOptions();
-			IJavaProject parentProject = getJavaProject();
-			Map<String, String> parentOptions = parentProject == null ? JavaCore.getOptions() : parentProject.getOptions(true);
-			if (JavaCore.ENABLED.equals(parentOptions.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)) &&
-				CompilerOptions.versionToJdkLevel(parentOptions.getOrDefault(JavaCore.COMPILER_SOURCE, JavaCore.latestSupportedJavaVersion())) < ClassFileConstants.getLatestJDKLevel()) {
-				// Disable preview features for older Java releases as it causes the compiler to fail later
-				if (customOptions != null) {
-					customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
-				} else {
-					customOptions = Map.of(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
-				}
+		Map<String, String> customOptions = null;
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
+		IElementInfo info = manager.getInfo(this);
+		// If the info has not been loaded, then nobody has called setOptions() yet.
+		// So no need to load the IElementInfo, which may also parse the cu.
+		if (info != null)
+			customOptions = ((CompilationUnitElementInfo)info).getCustomOptions();
+
+		IJavaProject parentProject = getJavaProject();
+		Map<String, String> parentOptions = parentProject == null ? JavaCore.getOptions() : parentProject.getOptions(true);
+		if (JavaCore.ENABLED.equals(parentOptions.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)) &&
+			CompilerOptions.versionToJdkLevel(parentOptions.getOrDefault(JavaCore.COMPILER_SOURCE, JavaCore.latestSupportedJavaVersion())) < ClassFileConstants.getLatestJDKLevel()) {
+			// Disable preview features for older Java releases as it causes the compiler to fail later
+			if (customOptions != null) {
+				customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
+			} else {
+				customOptions = Map.of(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			}
-			return customOptions == null ? Collections.emptyMap() : customOptions;
-		} catch (JavaModelException e) {
-			// do nothing
 		}
+		return customOptions == null ? Collections.emptyMap() : customOptions;
 	}
 
 	return Collections.emptyMap();
