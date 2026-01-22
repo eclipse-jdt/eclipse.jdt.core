@@ -1040,7 +1040,7 @@ private VariableBinding resolveTypeFor(VariableBinding variable) {
 			ExternalAnnotationSuperimposer.annotateComponentBinding(component, this.externalAnnotationProvider, this.environment);
 	}
 	return variable;
-}
+} // here
 
 public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
 	return (RecordComponentBinding) resolveTypeFor((VariableBinding) component);
