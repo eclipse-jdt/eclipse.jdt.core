@@ -526,13 +526,19 @@ public class JavaProject
 			// Get cached preferences if exist
 			JavaModelManager.PerProjectInfo perProjectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfo(this.project, false);
 			if (perProjectInfo != null && perProjectInfo.preferences != null) {
-				IEclipsePreferences eclipseParentPreferences = (IEclipsePreferences) perProjectInfo.preferences.parent();
-				if (this.preferencesNodeListener != null) {
-					eclipseParentPreferences.removeNodeChangeListener(this.preferencesNodeListener);
+				try {
+					IEclipsePreferences eclipseParentPreferences = (IEclipsePreferences) perProjectInfo.preferences.parent();
+					if (this.preferencesNodeListener != null) {
+						eclipseParentPreferences.removeNodeChangeListener(this.preferencesNodeListener);
+						this.preferencesNodeListener = null;
+					}
+					if (this.preferencesChangeListener != null) {
+						perProjectInfo.preferences.removePreferenceChangeListener(this.preferencesChangeListener);
+						this.preferencesChangeListener = null;
+					}
+				} catch (IllegalStateException e) {
+					// Ignore, the preferences have already been removed
 					this.preferencesNodeListener = null;
-				}
-				if (this.preferencesChangeListener != null) {
-					perProjectInfo.preferences.removePreferenceChangeListener(this.preferencesChangeListener);
 					this.preferencesChangeListener = null;
 				}
 			}
