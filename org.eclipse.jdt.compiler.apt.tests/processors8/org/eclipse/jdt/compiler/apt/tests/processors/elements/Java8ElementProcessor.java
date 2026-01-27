@@ -1082,6 +1082,23 @@ public class Java8ElementProcessor extends BaseProcessor {
 		}
 		assertEquals("Incorrect order received", "gamma,alpha,beta,", builder.toString());
 	}
+	public void testGH1752() {
+		TypeElement type = _elementUtils.getTypeElement("targets.GH1752.GH1752SubClass");
+		List<? extends Element> allMembers = _elementUtils.getAllMembers(type);
+		ExecutableElement m1 = null;
+		ExecutableElement m3 = null;
+		for (Element element : allMembers) {
+			if (element.getSimpleName().toString().equals("m1")) {
+				m1 = (ExecutableElement) element;
+			}
+			if (element.getSimpleName().toString().equals("m3")) {
+				m3 = (ExecutableElement) element;
+				break;
+			}
+		}
+		assertNotNull("Method m1 should not be null", m1);
+		assertNull("Method m3 should be null", m3);
+	}
 	private void createPackageBinary() throws IOException {
 		String path = packageName.replace('.', '/');
 		ClassLoader loader = getClass().getClassLoader();

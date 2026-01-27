@@ -49,6 +49,7 @@ public class VisitorProc extends BaseProcessor
 	 * This visitor is invoked on the top-level types in resources/targets/model.
 	 * We expect to see each of the visitX() methods get hit as a result.
 	 */
+	@SuppressWarnings("deprecation")
 	private static class ElementVisitorTester extends ElementScanner6<Void, Void> {
 
 		public enum Visited { TYPE, EXECUTABLE, VARIABLE, TYPEPARAM, PACKAGE, UNKNOWN }
@@ -131,6 +132,7 @@ public class VisitorProc extends BaseProcessor
 	/*
 	 * The specific values checked by this visitor correspond to values in targets.model.pc.TypedAnnos.java
 	 */
+	@SuppressWarnings("deprecation")
 	private static class AnnotationVisitorTester extends AbstractAnnotationValueVisitor6<Void, Void> {
 
 		public enum Visited { ANNOTATION, ARRAY, BOOLEAN, BYTE, CHAR, DOUBLE, ENUMCONSTANT, FLOAT, INT, LONG, SHORT, STRING, TYPE }

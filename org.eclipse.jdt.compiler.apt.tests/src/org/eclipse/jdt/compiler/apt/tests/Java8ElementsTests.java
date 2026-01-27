@@ -419,6 +419,18 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTestWithBinary(compiler, JAVA8_ANNOTATION_PROC, "testGH4617", null, "GH4617", "9");
 	}
+	public void testGH1752() throws Exception {
+		if (!canRunJava9())
+			return;
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWithBinary(compiler, JAVA8_ANNOTATION_PROC, "testGH1752", null, "GH1752", "9");
+	}
+	public void testGH1752Javac() throws Exception {
+		if (!canRunJava9())
+			return;
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTestWithBinary(compiler, JAVA8_ANNOTATION_PROC, "testGH1752", null, "GH1752", "9");
+	}
 	private void internalTest(JavaCompiler compiler, String processor, String testMethod) throws IOException {
 		internalTest(compiler, processor, testMethod, null);
 	}
