@@ -2363,7 +2363,6 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			assertEquals("Invalid element", ASTNode.TAG_ELEMENT, frags.get(1).getNodeType());
 			assertEquals("Invalid Text element content", "The general contract of `hashCode` is:", frags.get(2).toString());
 		}
-
 	}
 
 	public void testInconsistencyInCodeAndLiteralTagsMarkdown4609_02() throws JavaModelException {
@@ -2392,7 +2391,7 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 				///   - If two objects are equal according to the
 				///     [equals][#equals(Object)] method, then calling the
 				///     `hashCode` method on each of the two objects must produce the
-				///     same integer result.
+				///     same integer result .
 				///   - It is _not_ required that if two objects are unequal
 				///     according to the [equals][#equals(Object)] method, then
 				///     calling the `hashCode` method on each of the two objects
@@ -2413,6 +2412,24 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			assertEquals("Incorrect Frags", 22, frags.size());
 			assertEquals("Invalid element", ASTNode.TAG_ELEMENT, frags.get(1).getNodeType());
 			assertEquals("Invalid Text element content", "The general contract of `hashCode` is:", frags.get(2).toString());
+		}
+	}
+
+	public void testIncorrectTagWhenMarkdownEndsWithMarkdownTag4786() throws JavaModelException {
+		String source = """
+				/// **Bold**
+				public class Markdown {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> tags = javadoc.tags();
+			List<ASTNode> frags = tags.get(0).fragments();
+			assertTrue(frags.get(0) instanceof TextElement);
+			assertEquals("Invalid content", "**Bold**", ((TextElement)frags.get(0)).getText());
 		}
 	}
 }
