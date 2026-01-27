@@ -44,8 +44,8 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 	/**
 	 * The minimal required Java runtime version (we need to run compiler on)
 	 */
-	public static final SourceVersion MINIMAL_REQUIRED_RUNTIME_VERSION = SourceVersion.RELEASE_17;
-	private static final long VERSION_FOR_MINIMAL_RUNTIME = ClassFileConstants.JDK17;
+	public static final SourceVersion MINIMAL_REQUIRED_RUNTIME_VERSION = SourceVersion.RELEASE_11;
+	private static final long VERSION_FOR_MINIMAL_RUNTIME = ClassFileConstants.JDK11;
 
 	// Initialized in subclasses:
 	protected Filer _filer;
@@ -144,18 +144,6 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 			return SourceVersion.RELEASE_10;
 		} else if (sourceLevel == ClassFileConstants.JDK11) {
 			return SourceVersion.RELEASE_11;
-		} else if (sourceLevel == ClassFileConstants.JDK12) {
-			return SourceVersion.RELEASE_12;
-		} else if (sourceLevel == ClassFileConstants.JDK13) {
-			return SourceVersion.RELEASE_13;
-		} else if (sourceLevel == ClassFileConstants.JDK14) {
-			return SourceVersion.RELEASE_14;
-		} else if (sourceLevel == ClassFileConstants.JDK15) {
-			return SourceVersion.RELEASE_15;
-		} else if (sourceLevel == ClassFileConstants.JDK16) {
-			return SourceVersion.RELEASE_16;
-		} else if (sourceLevel == ClassFileConstants.JDK17) {
-			return SourceVersion.RELEASE_17;
 		}
 		// From here on we can't use constants that may not be yet defined in
 		// minimal required runtime Java version we have to avoid
