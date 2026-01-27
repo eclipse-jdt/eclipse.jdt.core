@@ -4581,7 +4581,7 @@ public final class JavaCore extends Plugin {
 	 * @since 3.45
 	 */
 	public static String[] getJavaDerivedExtensions() {
-		return CharOperation.toStrings(Util.getJavaLikeExtensions());
+		return CharOperation.toStrings(Util.getJavaDerivedExtensions());
 	}
 
 	/**

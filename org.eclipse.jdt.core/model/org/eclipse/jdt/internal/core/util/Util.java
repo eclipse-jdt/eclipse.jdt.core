@@ -886,14 +886,16 @@ public class Util {
 					String[] fileExtension = contentType.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
 					if (fileExtension != null) {
 						for (String extension : fileExtension) {
-							fileExtensions.add(extension);
+							if (!SuffixConstants.EXTENSION_java.equals(extension)) {
+								fileExtensions.add(extension);
+							}
 						}
 					}
 				}
 			}
 			int length = fileExtensions.size();
 			char[][] extensions = new char[length][];
-			int index = 1;
+			int index = 0;
 			Iterator iterator = fileExtensions.iterator();
 			while (iterator.hasNext()) {
 				String fileExtension = (String) iterator.next();

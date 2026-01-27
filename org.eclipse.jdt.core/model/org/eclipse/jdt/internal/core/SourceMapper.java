@@ -617,7 +617,7 @@ public class SourceMapper
 								}
 							} else if (Util.isClassFileName(resourceName)) {
 								containsADefaultPackage = true;
-							} else if (!containsJavaSource) {
+							} else if (!containsJavaSource && !containsJavaDerivedSource) {
 								if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(resourceName)) {
 									containsJavaSource = true;
 								} else if (org.eclipse.jdt.internal.core.util.Util.isJavaDerivedFileName(resourceName)) {
