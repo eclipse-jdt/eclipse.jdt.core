@@ -164,6 +164,7 @@ public void testJavaCoreAPI() throws CoreException, IllegalArgumentException, Il
 	realOptionIDs.remove("PLUGIN_ID");
 	realOptionIDs.remove("BUILDER_ID");
 	realOptionIDs.remove("JAVA_SOURCE_CONTENT_TYPE");
+	realOptionIDs.remove("JAVA_DERIVED_SOURCE_CONTENT_TYPE");
 	realOptionIDs.remove("MODEL_ID");
 	realOptionIDs.remove("NATURE_ID");
 	realOptionIDs.remove("DEFAULT_JAVA_FORMATTER");
