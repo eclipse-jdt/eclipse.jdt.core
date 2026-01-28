@@ -178,4 +178,49 @@ public class ResolveTests10 extends AbstractJavaModelTests {
 				selected
 			);
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4217
+	// NPE: Cannot invoke org.eclipse.jdt.internal.compiler.lookup.BlockScope.getBinding(char[], int, org.eclipse.jdt.internal.compiler.lookup.InvocationSite, boolean) because scope is null" on hyperlink request 
+	public void testIssue4217() throws CoreException {
+		this.wc = getWorkingCopy("/Resolve/src/X.java",
+		"""
+		import java.util.concurrent.Callable;
+
+		public class Test {
+
+			public static <T> void createObjectBinding(final Callable<T> func) {
+				return;
+			}
+
+			sealed interface Index {
+				enum SS implements Index {}
+				enum TS implements Index {}
+			}
+
+			public abstract sealed class Entity<S extends Index> permits Struct, Time {}
+
+			final class Struct extends Entity<Index.SS> {}
+
+			final class Time extends Entity<Index.TS> {
+				Struct getStruct() {
+					return null;
+				}
+			}
+
+			private void setMaterials(Time entity) {
+				ObjectBinding<Entity<?>> selfIllumImage = Bindings.<Entity<?>>createObjectBinding(() -> {
+					var entity2/*here*/ = entity.getStruct() == null ? entity : entity.getStruct();
+					return createSlefIlluminationMap(entity.getSpells());
+				});
+			}
+		}
+		""");
+		String str = this.wc.getSource();
+		String selection = "entity2/*here*/";
+		int start = str.lastIndexOf(selection);
+		int length = selection.length();
+
+		IJavaElement[] selected = this.wc.codeSelect(start, length);
+		assertEquals(0, selected.length);
+	}
 }
