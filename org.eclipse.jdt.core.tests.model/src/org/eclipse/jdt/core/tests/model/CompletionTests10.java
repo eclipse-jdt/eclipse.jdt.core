@@ -14,14 +14,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import junit.framework.Test;
+import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 
 public class CompletionTests10 extends AbstractJavaModelCompletionTests {
 	static {
-//		TESTS_NAMES = new String[]{"test0001_block_scope"};
+//		TESTS_NAMES = new String[]{"testIssue4649"};
 	}
 public CompletionTests10(String name) {
 	super(name);
@@ -37,6 +39,42 @@ public void setUpSuite() throws Exception {
 }
 public static Test suite() {
 	return buildModelTestSuite(CompletionTests10.class);
+}
+protected CompletionTestsRequestor2 newCompletionRequestor(Predicate<CompletionProposal> filter) {
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false);
+	requestor.setProposalFilter(filter);
+	return requestor;
+}
+protected CompletionResult complete(String path, String source, String completeBehind, Predicate<CompletionProposal> filter) throws JavaModelException {
+	return this.complete(path, source, false, completeBehind, filter);
+}
+protected CompletionResult complete(String path, String source, boolean showPositions, String completeBehind, Predicate<CompletionProposal> filter) throws JavaModelException {
+	return this.complete(path,source,showPositions, completeBehind, null, null, filter);
+}
+protected CompletionResult complete(String path, String source, boolean showPositions, String completeBehind,
+		String tokenStartBehind, String token, Predicate<CompletionProposal> filter) throws JavaModelException {
+
+	this.wc = getWorkingCopy(path, source);
+
+	CompletionTestsRequestor2 requestor = newCompletionRequestor(filter);
+	String str = this.wc.getSource();
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	int tokenStart = -1;
+	int tokenEnd = -1;
+	if (tokenStartBehind != null && token != null) {
+		tokenStart = str.lastIndexOf(tokenStartBehind) + tokenStartBehind.length();
+		tokenEnd = tokenStart + token.length() - 1;
+	}
+	this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	CompletionResult result = new CompletionResult();
+	result.proposals = requestor.getResults();
+	result.proposalDisplays = requestor.getDisplayResults();
+	result.context = requestor.getContext();
+	result.cursorLocation = cursorLocation;
+	result.tokenStart = tokenStart;
+	result.tokenEnd = tokenEnd;
+	return result;
 }
 public void test0001_block_scope() throws JavaModelException {
 	CompletionResult result = complete(
@@ -404,6 +442,96 @@ public void testIssue4172() throws JavaModelException {
 	    	"n.");
 
 	assertTrue(result.proposals.contains("length[METHOD_REF]{length(), Ljava.lang.String;, ()I, length, null, 60}"));
+}
+public void testIssue4649_1() throws JavaModelException {
+	Predicate<CompletionProposal> javaTypeRef = (p) -> {
+		char[] sig = p.getCompletion();
+		if (sig == null) {
+			return false;
+		}
+		String signature = new String(sig);
+		return (p.getKind() == CompletionProposal.FIELD_REF) &&
+				(signature.equals("foo") || signature.equals("bar") || signature.equals("foobar"));
+	};
+	CompletionResult result = complete(
+			"/Completion/src/X.java",
+			"""
+			class Test {
+				static String foo = "foo";
+				static String bar = "bar";
+				static Object foobar = null;
+
+				void testvarargs(String... args) {
+				}
+				void test2() {
+					testvarargs(foo,);
+				}
+			}
+			""",
+			"testvarargs(foo,", javaTypeRef);
+	assertResults("bar[FIELD_REF]{bar, LTest;, Ljava.lang.String;, bar, null, 52}\n"
+			+ "foo[FIELD_REF]{foo, LTest;, Ljava.lang.String;, foo, null, 52}",
+			result.proposals);
+}
+public void testIssue4649_2() throws JavaModelException {
+	Predicate<CompletionProposal> javaTypeRef = (p) -> {
+		char[] sig = p.getCompletion();
+		if (sig == null) {
+			return false;
+		}
+		String signature = new String(sig);
+		return (p.getKind() == CompletionProposal.FIELD_REF) &&
+				(signature.equals("foo") || signature.equals("bar") || signature.equals("foobar"));
+	};
+	CompletionResult result = complete(
+			"/Completion/src/X.java",
+			"""
+			class Test {
+				static String foo = "foo";
+				static String bar = "bar";
+				static Object foobar = null;
+
+				void testvarargs(String... args) {
+				}
+				void test2() {
+					testvarargs(foo, );
+				}
+			}
+			""",
+			"testvarargs(foo, ", javaTypeRef);
+	assertResults("foobar[FIELD_REF]{foobar, LTest;, Ljava.lang.Object;, foobar, null, 52}\n"
+			+ "bar[FIELD_REF]{bar, LTest;, Ljava.lang.String;, bar, null, 82}\n"
+			+ "foo[FIELD_REF]{foo, LTest;, Ljava.lang.String;, foo, null, 82}",
+			result.proposals);
+}
+public void testIssue4649_3() throws JavaModelException {
+	Predicate<CompletionProposal> javaTypeRef = (p) -> {
+		char[] sig = p.getCompletion();
+		if (sig == null) {
+			return false;
+		}
+		String signature = new String(sig);
+		return (p.getKind() == CompletionProposal.FIELD_REF) &&
+				(signature.equals("foo") || signature.equals("bar") || signature.equals("foobar"));
+	};
+	CompletionResult result = complete(
+			"/Completion/src/X.java",
+			"""
+			class Test {
+				static String foo = "foo";
+				static String bar = "bar";
+				static Object foobar = null;
+				void testvarargs(String... args) {
+				}
+				void test2() {
+					testvarargs(foo, , bar);
+				}
+			}
+			""",
+			"testvarargs(foo,", javaTypeRef);
+	assertResults("bar[FIELD_REF]{bar, LTest;, Ljava.lang.String;, bar, null, 52}\n"
+			+ "foo[FIELD_REF]{foo, LTest;, Ljava.lang.String;, foo, null, 52}",
+			result.proposals);
 }
 private void assertProposalCount(String proposal, int expectedCount, int expectedOtherCount, CompletionResult result) {
 	String[] proposals = result.proposals.split("\n");

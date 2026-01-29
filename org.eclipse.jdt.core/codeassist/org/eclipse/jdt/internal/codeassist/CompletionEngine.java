@@ -1644,7 +1644,7 @@ public final class CompletionEngine
 				TypeBinding lastArgument = arguments[lastIndex];
 				if (TypeBinding.notEquals(varArgType, lastArgument) && !lastArgument.isCompatibleWith(varArgType))
 					return false;
-			} else if (paramLength < argLength) { // all remainig argument types must be compatible with the elementsType of varArgType
+			} else if (paramLength < argLength) { // all remaining argument types must be compatible with the elementsType of varArgType
 				TypeBinding varArgType = ((ArrayBinding) parameters[lastIndex]).elementsType();
 				for (int i = lastIndex; i < argLength; i++)
 					if (TypeBinding.notEquals(varArgType, arguments[i]) && !arguments[i].isCompatibleWith(varArgType))
@@ -9425,8 +9425,15 @@ public final class CompletionEngine
 
 			for (int a = minArgLength; --a >= 0;){
 				if (argTypes[a] != null) { // can be null if it could not be resolved properly
-					if (!argTypes[a].isCompatibleWith(method.parameters[a])) {
-						continue next;
+					TypeBinding argType = argTypes[a];
+					if (!argType.isCompatibleWith(method.parameters[a])) {
+						// Skip method if
+						//   * not varargs or
+						//   * varargs but not compatible
+						if (!method.isVarargs() || (method.parameters[a] instanceof ArrayBinding ab &&
+								!argType.isCompatibleWith(ab.leafComponentType()))) {
+							continue next;
+						}
 					}
 				}
 			}
