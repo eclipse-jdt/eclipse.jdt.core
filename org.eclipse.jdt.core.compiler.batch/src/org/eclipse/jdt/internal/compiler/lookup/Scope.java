@@ -3738,7 +3738,7 @@ public abstract class Scope {
 				Object value = invocations.get(mec);
 				if (value instanceof TypeBinding[]) {
 					TypeBinding[] invalidInvocations = (TypeBinding[]) value;
-					if (areSignificantlyDifferent(invalidInvocations[0], invalidInvocations[1])) {
+					if (TypeDeclaration.TESTING_GH_2158 || areSignificantlyDifferent(invalidInvocations[0], invalidInvocations[1])) {
 						problemReporter().superinterfacesCollide(invalidInvocations[0].erasure(), typeRef, invalidInvocations[0], invalidInvocations[1]);
 						type.tagBits |= TagBits.HierarchyHasProblems;
 						return true;
