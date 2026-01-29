@@ -1906,15 +1906,6 @@ public void updateSupertypesWithAnnotations(Map<ReferenceBinding,ReferenceBindin
 protected ReferenceBinding updateWithAnnotations(TypeReference typeRef, ReferenceBinding previousType,
 		Map<ReferenceBinding, ReferenceBinding> outerUpdates, Map<ReferenceBinding, ReferenceBinding> updates)
 {
-	if (!TESTING_GH_2158
-			&& previousType instanceof ParameterizedTypeBinding previousPTB
-			&& previousPTB.original() instanceof SourceTypeBinding previousOriginal
-			&& previousOriginal.supertypeAnnotationsUpdated) {
-		// re-initialized parameterized type with updated annotations from the original:
-		typeRef.resolvedType = this.scope.environment().createParameterizedType(previousOriginal,		// <- has been updated
-				previousPTB.arguments, previousType.enclosingType(), previousType.getAnnotations());	// <- no changes here
-	}
-
 	typeRef.updateWithAnnotations(this.scope, 0);
 	ReferenceBinding updatedType = (ReferenceBinding) typeRef.resolvedType;
 	if (updatedType instanceof ParameterizedTypeBinding) {
