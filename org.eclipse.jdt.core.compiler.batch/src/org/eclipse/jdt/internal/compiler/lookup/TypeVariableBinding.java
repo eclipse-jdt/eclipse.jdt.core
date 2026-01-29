@@ -866,7 +866,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 
 	@Override
 	public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNullAnnotations) {
-		if (getClass() == TypeVariableBinding.class && this.environment.globalOptions.storeAnnotations) {
+		if (getClass() == TypeVariableBinding.class) {
 			// TVB only: if the declaration itself carries type annotations,
 			// make sure TypeSystem will still have an unannotated variant at position 0, to answer getUnannotated()
 			// (in this case the unannotated type is never explicit in source code, that's why we need this charade).
