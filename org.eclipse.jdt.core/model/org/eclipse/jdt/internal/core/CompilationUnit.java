@@ -179,7 +179,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 			}
 		} catch (AbortCompilationUnit e) {
 			var problem = e.problem;
-			if (problem == null && e.exception instanceof IOException ioEx) {
+			if (problem == null && e.getCause() instanceof IOException ioEx) {
 				String path = source.getPath().toString();
 				String exceptionTrace = ioEx.getClass().getName() + ':' + ioEx.getMessage();
 				problem = new DefaultProblemFactory().createProblem(

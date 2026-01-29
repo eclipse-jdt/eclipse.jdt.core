@@ -46,6 +46,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.CancellationException;
 import java.util.stream.Stream;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -11603,7 +11604,9 @@ try {
 	ProcessTerminals : for (;;) {
 		if (Thread.currentThread().isInterrupted()) {
             Thread.currentThread().interrupt();
-            throw new AbortCompilation(true, null); // fail silently
+            // CancellationException is needed for non-compiler code to
+            // recognize interruption as the root cause for this RuntimeException
+            throw new AbortCompilation(true, new CancellationException()); // fail silently
         }
 
 		int stackLength = this.stack.length;

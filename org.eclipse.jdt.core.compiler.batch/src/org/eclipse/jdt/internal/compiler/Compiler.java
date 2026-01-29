@@ -626,11 +626,16 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		CompilationUnitDeclaration unit) {
 
 		/* special treatment for SilentAbort: silently cancelling the compilation process */
+		Throwable cause = abortException.getCause();
 		if (abortException.isSilent) {
-			if (abortException.silentException == null) {
+			if (cause == null) {
 				return;
 			}
-			throw abortException.silentException;
+			if(cause instanceof RuntimeException) {
+				throw (RuntimeException) cause;
+			} else {
+				throw new RuntimeException(cause);
+			}
 		}
 
 		/* uncomment following line to see where the abort came from */
@@ -670,8 +675,8 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 				}
 			} else {
 				/* distant internal exception which could not be reported back there */
-				if (abortException.exception != null) {
-					this.handleInternalException(abortException.exception, null, result);
+				if (cause != null) {
+					this.handleInternalException(cause, null, result);
 					return;
 				}
 			}

@@ -1399,7 +1399,7 @@ public void cannotInvokeSuperConstructorInEnum(ExplicitConstructorCall construct
 }
 public void cannotReadSource(CompilationUnitDeclaration unit, AbortCompilationUnit abortException, boolean verbose) {
 	String fileName = new String(unit.compilationResult.fileName);
-	if (abortException.exception instanceof CharConversionException) {
+	if (abortException.getCause() instanceof CharConversionException) {
 		// specific encoding issue
 		String encoding = abortException.encoding;
 		if (encoding == null) {
@@ -1415,9 +1415,9 @@ public void cannotReadSource(CompilationUnitDeclaration unit, AbortCompilationUn
 		return;
 	}
 	if (verbose) {
-		System.err.println(Util.getStackTrace(abortException.exception));
+		System.err.println(Util.getStackTrace(abortException.getCause()));
 	}
-	String exceptionTrace = abortException.exception.getClass().getName() + ':' + abortException.exception.getMessage();
+	String exceptionTrace = abortException.getCause().getClass().getName() + ':' + abortException.getCause().getMessage();
 	String[] arguments = new String[]{ fileName, exceptionTrace };
 	this.handle(
 			IProblem.CannotReadSource,

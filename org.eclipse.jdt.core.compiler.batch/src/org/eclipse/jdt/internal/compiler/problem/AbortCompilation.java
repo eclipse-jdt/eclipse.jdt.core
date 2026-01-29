@@ -28,12 +28,10 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 public class AbortCompilation extends RuntimeException {
 
 	public CompilationResult compilationResult;
-	public Throwable exception;
 	public CategorizedProblem problem;
 
 	/* special fields used to abort silently (e.g. when canceling build process) */
 	public boolean isSilent;
-	public RuntimeException silentException;
 
 	private static final long serialVersionUID = -2047226595083244852L; // backward compatible
 
@@ -48,15 +46,13 @@ public class AbortCompilation extends RuntimeException {
 	}
 
 	public AbortCompilation(CompilationResult compilationResult, Throwable exception) {
-		this();
+		super(exception);
 		this.compilationResult = compilationResult;
-		this.exception = exception;
 	}
 
 	public AbortCompilation(boolean isSilent, RuntimeException silentException) {
-		this();
+		super(silentException);
 		this.isSilent = isSilent;
-		this.silentException = silentException;
 	}
 	@Override
 	public String getMessage() {
@@ -64,11 +60,8 @@ public class AbortCompilation extends RuntimeException {
 		StringBuilder buffer = new StringBuilder(message == null ? Util.EMPTY_STRING : message);
 		if (this.problem != null) {
 			buffer.append(this.problem);
-		} else if (this.exception != null) {
-			message = this.exception.getMessage();
-			buffer.append(message == null ? Util.EMPTY_STRING : message);
-		} else if (this.silentException != null) {
-			message = this.silentException.getMessage();
+		} else if (this.getCause() != null) {
+			message = this.getCause().getMessage();
 			buffer.append(message == null ? Util.EMPTY_STRING : message);
 		}
 		return String.valueOf(buffer);

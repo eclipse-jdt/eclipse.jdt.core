@@ -224,7 +224,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 						}
 					} catch (AbortCompilationUnit ex) {
 						var problem = ex.problem;
-						if (problem == null && ex.exception instanceof IOException ioEx) {
+						if (problem == null && ex.getCause() instanceof IOException ioEx) {
 							String path = source.getPath().toString();
 							String exceptionTrace = ioEx.getClass().getName() + ':' + ioEx.getMessage();
 							problem = new DefaultProblemFactory().createProblem(
