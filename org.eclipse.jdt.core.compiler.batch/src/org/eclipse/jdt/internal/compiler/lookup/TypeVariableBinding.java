@@ -860,10 +860,12 @@ public class TypeVariableBinding extends ReferenceBinding {
 	@Override
 	public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNullAnnotations) {
 		if (getClass() == TypeVariableBinding.class) {
-			// TVB only: if the declaration itself carries type annotations,
-			// make sure TypeSystem will still have an unannotated variant at position 0, to answer getUnannotated()
-			// (in this case the unannotated type is never explicit in source code, that's why we need this charade).
-			this.environment.typeSystem.forceRegisterAsDerived(this);
+			// TVB only: if the declaration already carries type annotations,
+			// clone the unannotated binding first to ensure TypeSystem.getUnnanotatedType() will see it at position 0:
+			TypeBinding unannotated = clone(null);
+			this.environment.getUnannotatedType(unannotated); // register unannotated
+			this.id = unannotated.id; // transfer fresh id
+			this.environment.typeSystem.cacheDerivedType(this, unannotated, this); // register this
 		} else {
 			this.environment.getUnannotatedType(this); // exposes original TVB/capture to type system for id stamping purposes.
 		}
