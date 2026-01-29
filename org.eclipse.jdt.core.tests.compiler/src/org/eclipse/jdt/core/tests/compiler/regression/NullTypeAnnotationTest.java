@@ -19815,4 +19815,28 @@ public void testGH4717_nullExit() {
 			""";
 	runner.runNegativeTest();
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4494
+// Trouble annotating explicit receiver with ECJ (works fine with javac)
+public void testGH4494() throws Exception {
+	runConformTest(new String[] {
+			"AnnotatedExplicitReceiverError.java",
+			"""
+			import java.lang.annotation.ElementType;
+			import java.lang.annotation.Target;
+
+			public class AnnotatedExplicitReceiverError {
+			    @Target({ ElementType.TYPE_USE})
+			    private static @interface A { }
+
+			    @Target({ ElementType.TYPE_USE, ElementType.TYPE_PARAMETER })
+			    private static @interface F { }
+
+			    static class P<@A T> {
+			        public void explicitReceiver(@F P<T> this) { // error here
+			        }
+			    }
+			}
+			"""
+	});
+}
 }
