@@ -476,6 +476,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 									}
 								}
 							}
+						} else {
+							if (this.index == this.javadocEnd) {
+								pushText(this.textStart, this.javadocEnd);
+							}
 						}
 						break;
 						//$FALL-THROUGH$

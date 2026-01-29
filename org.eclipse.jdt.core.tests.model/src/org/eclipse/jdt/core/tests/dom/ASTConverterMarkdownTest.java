@@ -2415,4 +2415,22 @@ public class ASTConverterMarkdownTest extends ConverterTestSetup {
 			assertEquals("Invalid Text element content", "The general contract of `hashCode` is:", frags.get(2).toString());
 		}
 	}
+
+	public void testIncorrectTagWhenMarkdownEndsWithMarkdownTag4786() throws JavaModelException {
+		String source = """
+				/// **Bold**
+				public class Markdown {}
+				""";
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_25/src/markdown/Markdown.java", source, null);
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+			TypeDeclaration typedeclaration =  (TypeDeclaration) compilUnit.types().get(0);
+			Javadoc javadoc = typedeclaration.getJavadoc();
+			List<TagElement> tags = javadoc.tags();
+			List<ASTNode> frags = tags.get(0).fragments();
+			assertTrue(frags.get(0) instanceof TextElement);
+			assertEquals("Invalid content", "**Bold**", ((TextElement)frags.get(0)).getText());
+		}
+	}
 }
