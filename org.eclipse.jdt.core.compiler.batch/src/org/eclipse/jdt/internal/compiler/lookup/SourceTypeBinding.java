@@ -107,7 +107,6 @@ public class SourceTypeBinding extends ReferenceBinding {
 	private Set<SourceTypeBinding> nestMembers;
 
 	public boolean isImplicit = false;
-	public boolean supertypeAnnotationsUpdated = false; // have any supertype annotations been updated during CompleteTypeBindingsSteps.INTEGRATE_ANNOTATIONS_IN_HIERARCHY?
 
 public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassScope scope) {
 	this.compoundName = compoundName;
