@@ -108,6 +108,9 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 	// 17 Sealed Type support
 	public TypeReference[] permittedTypes;
 
+	// TEST ONLY: disable one fix here to challenge another related fix (in TypeSystem):
+	public static boolean TESTING_GH_2158 = false;
+
 	static {
 		disallowedComponentNames = new HashSet<>(9);
 		disallowedComponentNames.add("clone"); //$NON-NLS-1$
