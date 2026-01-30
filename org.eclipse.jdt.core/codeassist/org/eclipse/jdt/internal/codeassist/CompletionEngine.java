@@ -9427,11 +9427,9 @@ public final class CompletionEngine
 				if (argTypes[a] != null) { // can be null if it could not be resolved properly
 					TypeBinding argType = argTypes[a];
 					if (!argType.isCompatibleWith(method.parameters[a])) {
-						// Skip method if
-						//   * not varargs or
-						//   * varargs but not compatible
+						// Skip method unless it is varargs and the argument is compatible with the element type.
 						if (!method.isVarargs() || (method.parameters[a] instanceof ArrayBinding ab &&
-								!argType.isCompatibleWith(ab.leafComponentType()))) {
+								!argType.isCompatibleWith(ab.elementsType()))) {
 							continue next;
 						}
 					}
