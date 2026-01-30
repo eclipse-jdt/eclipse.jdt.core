@@ -454,7 +454,7 @@ public void testIssue4649_1() throws JavaModelException {
 				(signature.equals("foo") || signature.equals("bar") || signature.equals("foobar"));
 	};
 	CompletionResult result = complete(
-			"/Completion/src/X.java",
+			"/Completion/src/Test.java",
 			"""
 			class Test {
 				static String foo = "foo";
@@ -484,7 +484,7 @@ public void testIssue4649_2() throws JavaModelException {
 				(signature.equals("foo") || signature.equals("bar") || signature.equals("foobar"));
 	};
 	CompletionResult result = complete(
-			"/Completion/src/X.java",
+			"/Completion/src/Test.java",
 			"""
 			class Test {
 				static String foo = "foo";
@@ -515,7 +515,7 @@ public void testIssue4649_3() throws JavaModelException {
 				(signature.equals("foo") || signature.equals("bar") || signature.equals("foobar"));
 	};
 	CompletionResult result = complete(
-			"/Completion/src/X.java",
+			"/Completion/src/Test.java",
 			"""
 			class Test {
 				static String foo = "foo";
@@ -541,14 +541,15 @@ public void testIssue4649_4() throws JavaModelException {
 		}
 		String signature = new String(sig);
 		return (p.getKind() == CompletionProposal.FIELD_REF) &&
-				(signature.equals("foo") || signature.equals("bar"));
+				(signature.equals("foo") || signature.equals("bar") || signature.equals("foobar"));
 	};
 	CompletionResult result = complete(
-			"/Completion/src/X.java",
+			"/Completion/src/Test.java",
 			"""
 			class Test {
 				static String[] foo = null;
 				static String[] bar = null;
+				static Object foobar = null;
 				void testvarargs(String[]... args) {
 				}
 				void test2() {
@@ -559,6 +560,36 @@ public void testIssue4649_4() throws JavaModelException {
 			"testvarargs(foo,", javaTypeRef);
 	assertResults("bar[FIELD_REF]{bar, LTest;, [Ljava.lang.String;, bar, null, 52}\n"
 			+ "foo[FIELD_REF]{foo, LTest;, [Ljava.lang.String;, foo, null, 52}",
+			result.proposals);
+}
+public void testIssue4649_5() throws JavaModelException {
+	Predicate<CompletionProposal> javaTypeRef = (p) -> {
+		char[] sig = p.getCompletion();
+		if (sig == null) {
+			return false;
+		}
+		String signature = new String(sig);
+		return (p.getKind() == CompletionProposal.FIELD_REF) &&
+				(signature.equals("foo") || signature.equals("bar") || signature.equals("foobar"));
+	};
+	CompletionResult result = complete(
+			"/Completion/src/Test.java",
+			"""
+			class Test {
+				static String foo = null;
+				static String bar = null;
+				static Object foobar = null;
+				void test2() {
+					Name name = new Name(foo,);
+				}
+			}
+			class Name {
+				public Name(String... names) {}
+			}
+			""",
+			"new Name(foo,", javaTypeRef);
+	assertResults("bar[FIELD_REF]{bar, LTest;, Ljava.lang.String;, bar, null, 52}\n"
+			+ "foo[FIELD_REF]{foo, LTest;, Ljava.lang.String;, foo, null, 52}",
 			result.proposals);
 }
 private void assertProposalCount(String proposal, int expectedCount, int expectedOtherCount, CompletionResult result) {
