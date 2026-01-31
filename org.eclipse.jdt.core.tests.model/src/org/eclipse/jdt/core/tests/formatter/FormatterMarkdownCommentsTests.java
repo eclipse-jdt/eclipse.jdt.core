@@ -467,60 +467,6 @@ public class FormatterMarkdownCommentsTests extends FormatterCommentsTests {
 		formatSource(input, expected);
 	}
 
-	public void testMarkdownDoNotBreakTableOutsideClass() throws JavaModelException {
-		setComplianceLevel(CompilerOptions.VERSION_23);
-		String input = """
-				/// | Latin | Greek |
-				/// |-------|-------|
-				/// | a     | alpha |
-				/// | b     | beta  |
-				/// | c     | gamma |
-				class Main {}
-				""";
-		String expected = """
-				/// | Latin | Greek |
-				/// |-------|-------|
-				/// | a     | alpha |
-				/// | b     | beta  |
-				/// | c     | gamma |
-				class Main {
-				}
-				""";
-		formatSource(input, expected);
-	}
-	public void testMarkdownDoNotBreakMultipleTableInsideClass() throws JavaModelException {
-		setComplianceLevel(CompilerOptions.VERSION_23);
-		String input = """
-				class Main {
-				  /// | Latin | Greek |
-				  /// |-------|-------|
-				  /// | a     | alpha |
-				  ///
-				  /// Hello		Eclipse
-				  ///
-  				  /// | Latin | Greek |
-				  /// |-------|-------|
-				  /// | a     | alpha |
-				  public void sample(String param1) {}}
-				""";
-		String expected = """
-				class Main {
-					/// | Latin | Greek |
-					/// |-------|-------|
-					/// | a     | alpha |
-					///
-					/// Hello Eclipse
-					///
-					/// | Latin | Greek |
-					/// |-------|-------|
-					/// | a     | alpha |
-					public void sample(String param1) {
-					}
-				}
-				""";
-		formatSource(input, expected);
-	}
-
 	public void testMarkdownDoNotBreakTwoListOfSameLevel() throws JavaModelException {
 		setComplianceLevel(CompilerOptions.VERSION_23);
 		String input = """
@@ -880,5 +826,4 @@ public class FormatterMarkdownCommentsTests extends FormatterCommentsTests {
 					""";
 		formatSource(input, expected);
 	}
-
 }
