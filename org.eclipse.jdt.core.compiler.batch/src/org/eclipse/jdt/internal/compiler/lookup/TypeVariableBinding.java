@@ -46,7 +46,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
@@ -78,12 +77,6 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public ReferenceBinding[] superInterfaces; // MUST NOT be modified directly, use setter !
 	public char[] genericTypeSignature;
 	LookupEnvironment environment;
-
-	/*
-	 * In one particular situation a TVB will be cloned and the clone will be used as the 'naked' type
-	 * within TypeSystem. This may require some updating inside TypeSystem's hash structure.
-	 */
-	Consumer<TypeVariableBinding> updateWhenSettingTypeAnnotations;
 
 	public TypeVariableBinding(char[] sourceName, Binding declaringElement, int rank, LookupEnvironment environment) {
 		this.sourceName = sourceName;
@@ -866,14 +859,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 
 	@Override
 	public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNullAnnotations) {
-		if (getClass() == TypeVariableBinding.class && this.environment.globalOptions.storeAnnotations) {
-			// TVB only: if the declaration itself carries type annotations,
-			// make sure TypeSystem will still have an unannotated variant at position 0, to answer getUnannotated()
-			// (in this case the unannotated type is never explicit in source code, that's why we need this charade).
-			this.environment.typeSystem.forceRegisterAsDerived(this);
-		} else {
-			this.environment.getUnannotatedType(this); // exposes original TVB/capture to type system for id stamping purposes.
-		}
+		this.environment.getUnannotatedType(this); // exposes original TVB/capture to type system for id stamping purposes.
 		super.setTypeAnnotations(annotations, evalNullAnnotations);
 	}
 	/**
