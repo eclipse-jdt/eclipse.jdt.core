@@ -1927,6 +1927,26 @@ public void testGH4635() {
 
 	});
 }
+public void testGH4604() {
+	runConformTest(new String[] {
+			"X.java",
+			"""
+			import java.util.concurrent.*;
+			import java.util.stream.*;
+			public class X {
+				public static void main(String[] args) {
+					CompletableFuture.allOf(Stream.of(1)
+						.map(value -> future(value))
+						.toArray(CompletableFuture[]::new));
+				}
+
+				public static <T> CompletableFuture<?> future(T t) {
+					return CompletableFuture.completedFuture(t);
+				}
+			}
+			"""
+		});
+}
 
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
