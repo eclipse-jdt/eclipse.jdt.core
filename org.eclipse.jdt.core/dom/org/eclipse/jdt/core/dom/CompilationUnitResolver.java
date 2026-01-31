@@ -19,9 +19,14 @@ package org.eclipse.jdt.core.dom;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -75,7 +80,7 @@ import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 class CompilationUnitResolver extends Compiler {
 
-	private static final class ECJCompilationUnitResolver implements ICompilationUnitResolver {
+	public static final class ECJCompilationUnitResolver implements ICompilationUnitResolver {
 
 		@Override
 		public void resolve(String[] sourceFilePaths, String[] encodings, String[] bindingKeys,
@@ -109,16 +114,22 @@ class CompilationUnitResolver extends Compiler {
 			return CompilationUnitResolver.toCompilationUnit(sourceUnit, initialNeedsToResolveBinding, project,
 					classpaths, focalPosition == -1 ? null : new NodeSearcher(focalPosition), apiLevel, compilerOptions, parsedUnitWorkingCopyOwner, typeRootWorkingCopyOwner, flags, monitor);
 		}
-	}
 
-	private static ECJCompilationUnitResolver FACADE;
-	public static synchronized ICompilationUnitResolver getInstance() {
-		if (FACADE == null) {
-			FACADE = new ECJCompilationUnitResolver();
+		@Override
+		public Collection<String> getSupportedJavaVersions() {
+			Comparator<String> byVersion = Comparator.comparingDouble((String v) -> {
+				try {
+					return Double.parseDouble(v);
+				} catch (RuntimeException e) {
+					return 0;
+				}
+			}).thenComparing(Comparator.naturalOrder());
+			SortedSet<String> temp = new TreeSet<>(byVersion);
+			temp.addAll(JavaCore.getAllVersions());
+			temp.removeAll(CompilerOptions.UNSUPPORTED_VERSIONS);
+			return Collections.unmodifiableSortedSet(temp);
 		}
-		return FACADE;
 	}
-
 
 	public static final int RESOLVE_BINDING = 0x1;
 	public static final int PARTIAL = 0x2;
@@ -892,7 +903,7 @@ class CompilationUnitResolver extends Compiler {
 		int flags,
 		IProgressMonitor monitor) {
 		// Should not be called anymore? Candidate for deprecation
-		return ASTParser.resolve(elements, apiLevel, compilerOptions, javaProject, owner, flags, getInstance(), monitor);
+		return ASTParser.resolve(elements, apiLevel, compilerOptions, javaProject, owner, flags, new ECJCompilationUnitResolver(), monitor);
 	}
 
 
