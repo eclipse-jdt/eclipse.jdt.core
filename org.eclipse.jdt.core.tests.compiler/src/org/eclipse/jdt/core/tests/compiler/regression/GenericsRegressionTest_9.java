@@ -1947,6 +1947,61 @@ public void testGH4604() {
 			"""
 		});
 }
+public void testGH4699_1() {
+	if (this.complianceLevel < ClassFileConstants.JDK10) return; // uses 'var'
+	runConformTest(new String[] {
+			"EclipseBug.java",
+			"""
+			public class EclipseBug {
+				void error1() {
+					var someObject = getObject(); // <<--- Compiler complains here
+				}
+				private SomeObject<? extends SomeType<?, ? extends SpecialLocation>, ? extends SpecialLocation, ?> getObject() {
+					return null;
+				}
+				static interface SomeLocation { }
+				static interface SpecialLocation extends SomeLocation { }
+
+				static interface SomeType<O extends SomeObject<? extends SomeType<?, L>, L, ? extends SomeObject<?, ?, ?>>, L extends SomeLocation> { }
+
+				public interface SomeObject<T extends SomeType<?, L>, L extends SomeLocation, P extends SomeObject<?, ?, ?>> { }
+			}
+			"""
+		});
+}
+public void testGH4699_full() {
+	if (this.complianceLevel < ClassFileConstants.JDK10) return; // uses 'var'
+	runConformTest(new String[] {
+			"EclipseBug.java",
+			"""
+			public class EclipseBug {
+
+				void error1() {
+					var someObject = getObject();
+				}
+
+				void error2(SomeObject<? extends SomeType<?, ? extends SpecialLocation>, ? extends SpecialLocation, ?> theObject) {
+					method(theObject);
+				}
+
+				void error3(SomeObject<? extends SomeType<?, ? extends SpecialLocation>, ? extends SpecialLocation, ?> theObject) {
+					SomeObject<? extends SomeType<?, ? extends SpecialLocation>, ? extends SpecialLocation, ?> theObject2 = theObject;
+				}
+
+				void method(SomeObject<? extends SomeType<?, ? extends SpecialLocation>, ? extends SpecialLocation, ?> theObject) { }
+
+				private SomeObject<? extends SomeType<?, ? extends SpecialLocation>, ? extends SpecialLocation, ?> getObject() {
+					return null;
+				}
+
+				static interface SomeLocation { }
+				static interface SpecialLocation extends SomeLocation { }
+				static interface SomeType<O extends SomeObject<? extends SomeType<?, L>, L, ? extends SomeObject<?, ?, ?>>, L extends SomeLocation> { }
+				public interface SomeObject<T extends SomeType<?, L>, L extends SomeLocation, P extends SomeObject<?, ?, ?>> { }
+			}
+			"""
+		});
+}
 
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;

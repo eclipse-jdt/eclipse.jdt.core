@@ -91,7 +91,7 @@ abstract public class ReferenceBinding extends TypeBinding {
 	char[] constantPoolName;
 	char[] signature;
 
-	private Map<TypeBinding, Boolean> compatibleCache;
+	protected Map<TypeBinding, Boolean> compatibleCache;
 
 	int typeBits; // additional bits characterizing this type
 	protected MethodBinding [] singleAbstractMethod;
