@@ -190,7 +190,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 												// non-object real superclass should have produced a valid 'match' above
 												return BoundCheckStatus.MISMATCH;
 											}
-											// not fully spec-ed in JLS, but based on email communication (2017-09-13):
+											// NON-JLS, but based on email communication (2017-09-13):
 											// (a) bound check should apply capture
 											// (b) capture applies glb
 											// (c) and then the glb should be checked for well-formedness (see Scope.isMalformedPair() - this part missing in JLS).
