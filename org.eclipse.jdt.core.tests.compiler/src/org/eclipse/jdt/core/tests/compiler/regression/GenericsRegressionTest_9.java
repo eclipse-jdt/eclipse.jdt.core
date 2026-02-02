@@ -2003,6 +2003,37 @@ public void testGH4699_full() {
 		});
 }
 
+public void testGH4810() {
+	runConformTest(new String[] {
+			"Repro.java",
+			"""
+			import java.util.concurrent.Callable;
+			public class Repro {
+				Object test() {
+					try {
+						return myMethod(new MyCallable<>() {
+							@Override
+							public Object call() {
+								return new Object();
+							}
+						});
+					} catch (Exception e) {
+						e.printStackTrace();
+						return null;
+					}
+				}
+				<T, E extends Exception> T myMethod(MyCallable<T, E> callable) throws E {
+					return callable.call();
+				}
+			}
+			interface MyCallable<U, F extends Exception> extends Callable<U> {
+				@Override
+				U call() throws F;
+			}
+			"""
+	});
+}
+
 public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
