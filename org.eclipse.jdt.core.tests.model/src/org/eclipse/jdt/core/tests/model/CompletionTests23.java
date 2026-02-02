@@ -14,13 +14,15 @@
 
 package org.eclipse.jdt.core.tests.model;
 
+import java.util.function.Predicate;
 import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 
-public class CompletionTests23 extends AbstractJavaModelCompletionTests {
+public class CompletionTests23 extends CompletionTests10 {
 
 static {
 //		TESTS_NAMES = new String[] {"test012"};
@@ -738,5 +740,33 @@ public void testIssue3862_3() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	range = (cursorLocation - 3) + ", " + (cursorLocation);
 	assertResults("toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, [" + range +"], 60}", requestor.getResults());
+}
+public void testIssue4649_5() throws JavaModelException {
+	Predicate<CompletionProposal> javaTypeRef = (p) -> {
+		char[] sig = p.getCompletion();
+		if (sig == null) {
+			return false;
+		}
+		String signature = new String(sig);
+		return (p.getKind() == CompletionProposal.FIELD_REF) &&
+				(signature.equals("foo") || signature.equals("bar") || signature.equals("foobar"));
+	};
+	CompletionResult result = complete(
+			"/Completion23/src/Test.java",
+			"""
+			import java.util.Map;
+			class Test {
+				static Map<String, String> foo = null;
+				static Map<String, String>  bar = null;
+				void test2() {
+					Name name = new Name(foo,);
+				}
+				record Name(Map<String, Object>... names) {}
+			}
+			""",
+			"new Name(foo,", javaTypeRef);
+	assertResults("bar[FIELD_REF]{bar, LTest;, Ljava.util.Map<Ljava.lang.String;Ljava.lang.String;>;, bar, null, 52}\n"
+			+ "foo[FIELD_REF]{foo, LTest;, Ljava.util.Map<Ljava.lang.String;Ljava.lang.String;>;, foo, null, 52}",
+			result.proposals);
 }
 }
