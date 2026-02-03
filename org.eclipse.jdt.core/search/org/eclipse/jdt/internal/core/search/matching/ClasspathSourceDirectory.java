@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -40,18 +41,27 @@ public class ClasspathSourceDirectory extends ClasspathLocation implements IModu
 	private static final Map<String, IResource> missingPackageHolder = new HashMap<>();
 	final char[][] fullExclusionPatternChars;
 	final char[][] fulInclusionPatternChars;
+	private boolean isOnModulePath = false;
 
-ClasspathSourceDirectory(IContainer sourceFolder, char[][] fullExclusionPatternChars, char[][] fulInclusionPatternChars) {
+ClasspathSourceDirectory(IContainer sourceFolder,
+		char[][] fullExclusionPatternChars,
+		char[][] fulInclusionPatternChars,
+		boolean isOnModulePath) {
 	this.sourceFolder = sourceFolder;
 	this.fullExclusionPatternChars = fullExclusionPatternChars;
 	this.fulInclusionPatternChars = fulInclusionPatternChars;
+	this.isOnModulePath = isOnModulePath;
 }
 
 @Override
 public void cleanup() {
 	this.directoryCache.clear();
 }
-
+@Override
+public void setModule (IModule mod) {
+	if (this.isOnModulePath)
+		this.module = mod;
+}
 Map<String, IResource> directoryTable(String qualifiedPackageName) {
 	Map<String, IResource> dirTable = this.directoryCache.get(qualifiedPackageName);
 	if (dirTable == missingPackageHolder) return null; // package exists in another classpath directory or jar

@@ -15678,7 +15678,83 @@ public void testIssue3308b() throws CoreException {
 		"src/issue3308b/Test.java void issue3308b.Test$OriginalClass$NestedOriginalClass.setup():<anonymous>#1.j [j] EXACT_MATCH"
 	);
 }
+public void testGH4677() throws Exception {
+	String reproducer = "reproducer";
+	String reproducer2 = "reproducer2";
+	try {
+		IJavaProject reproducerPrj = createJavaProject("reproducer", new String[] {"src"}, new String[] {"JCL11_LIB"}, "bin", "11");
+		IJavaProject reproducer2Prj = createJavaProject("reproducer2", new String[] {"src"}, new String[] {"JCL11_LIB"}, "bin", "11");
 
+		createFolder("/" + reproducer2 + "/src/reproducer2/");
+		createFile("/" + reproducer2 + "/src/reproducer2/I18NKEY.java",
+				"""
+				package reproducer2;
+				public interface I18NKEY {}
+				""");
+		createFile("/" + reproducer2 + "/src/module-info.java",
+				"""
+				module reproducer2 {}
+				""");
+
+		createFolder("/" + reproducer + "/src/reproducer/");
+		createFile("/" + reproducer + "/src/reproducer/ERROR.java",
+				"""
+				package reproducer;
+				import reproducer2.I18NKEY;
+				public enum ERROR implements I18NKEY {
+				    A,
+				    B;
+				}
+				""");
+		createFile("/" + reproducer + "/src/reproducer/Foo.java",
+				"""
+				package reproducer;
+				import reproducer2.I18NKEY;
+				public class Foo {
+				    public void addSuccessNotification(I18NKEY code,
+				        String defaultMessage,
+				        Object... params) {
+				    }
+				}
+				""");
+		createFolder("/" + reproducer + "/src/otherpackage/");
+		createFile("/" + reproducer + "/src/otherpackage/Bar.java",
+				"""
+				package otherpackage;
+				import reproducer.ERROR;
+				import reproducer.Foo;
+				public class Bar {
+					public void bar() {
+						Foo foo = new Foo();
+						call(foo);
+					}
+					public void call(Foo foo) {
+						foo.addSuccessNotification(ERROR.A, "some message", "");
+					}
+					public void call2(Foo foo) {
+						foo.addSuccessNotification(ERROR.B, "some message");
+					}
+					public void call3(Foo foo) {
+						foo.addSuccessNotification(ERROR.B, "some message", "", "");
+					}
+				}
+				""");
+
+		addClasspathEntry(reproducerPrj, JavaCore.newProjectEntry(reproducer2Prj.getPath()));
+		buildAndExpectNoProblems(reproducer2Prj, reproducerPrj);
+
+		IType type = reproducerPrj.findType("reproducer.Foo");
+		IMethod method = type.getMethod("addSuccessNotification", new String [] {"QI18NKEY;", "QString;", "[QObject;"});
+		search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+		assertSearchResults(
+				"src/otherpackage/Bar.java void otherpackage.Bar.call(Foo) [addSuccessNotification(ERROR.A, \"some message\", \"\")] EXACT_MATCH\n" +
+				"src/otherpackage/Bar.java void otherpackage.Bar.call2(Foo) [addSuccessNotification(ERROR.B, \"some message\")] EXACT_MATCH\n" +
+				"src/otherpackage/Bar.java void otherpackage.Bar.call3(Foo) [addSuccessNotification(ERROR.B, \"some message\", \"\", \"\")] EXACT_MATCH");
+	} finally {
+		deleteProject(reproducer);
+		deleteProject(reproducer2);
+	}
+}
 private static String toString(char[][] modules) {
 	StringBuilder sb = new StringBuilder();
 	for (char[] m : modules) {
