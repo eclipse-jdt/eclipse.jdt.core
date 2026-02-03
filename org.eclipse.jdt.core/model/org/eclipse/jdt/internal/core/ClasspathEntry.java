@@ -986,6 +986,14 @@ public class ClasspathEntry implements IClasspathEntry {
 						}
 						continue;
 					}
+					if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE && calledJar.isPrefixOf(jarPath)) {
+						// Adding parent folders is a hack that some JARs use to spare some effort,
+						// but it may cause issues like having invalid duplicated classes in the classpath.
+						// See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4797
+						trace("WARN: Classpath entry " + calledFileName + " in manifest of jar file: " //$NON-NLS-1$ //$NON-NLS-2$
+								+ jarPath.toOSString()
+								+ " references a parent folder. This may cause issues like: https://github.com/eclipse-jdt/eclipse.jdt.core/issues/4797"); //$NON-NLS-1$
+					}
 					resolvedChainedLibraries(calledJar, visited, result);
 					result.add(calledJar);
 				}
