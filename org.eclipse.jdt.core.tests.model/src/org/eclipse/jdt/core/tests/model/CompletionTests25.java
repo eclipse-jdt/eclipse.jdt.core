@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 
@@ -261,5 +262,47 @@ public void test006() throws CoreException {
 		removeClasspathEntry(this.completion25Project, jarOnePath);
 		removeClasspathEntry(this.completion25Project, jarTwoPath);
 	}
+}
+public void testGH4796_1() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion25/src/X.java",
+			"""
+				static final String CODE = "001";
+				void main() {
+					System.out.println("This is a simple code snippet with code: " + CODE);
+					Str
+				}
+			""");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Str";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"String[TYPE_REF]{java.lang.String, java.lang, Ljava.lang.String;, null, null, 51}\n"
+			+ "StringConcatFactory[TYPE_REF]{java.lang.invoke.StringConcatFactory, java.lang.invoke, Ljava.lang.invoke.StringConcatFactory;, null, null, 51}\n"
+			+ "StringTemplate[TYPE_REF]{java.lang.StringTemplate, java.lang, Ljava.lang.StringTemplate;, null, null, 51}",
+			requestor.getResults());
+}
+public void testGH4796_2() throws JavaModelException {
+	String str =
+			"""
+			static final String CODE = "001";
+			void main() {
+				System.out.println("This is a simple code snippet with code: " + CODE);
+			}
+		""";
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Completion25/src/X.java", str);
+	String selectionStr = "println";
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(str.indexOf(selectionStr), selectionStr.length());
+	assertNotNull(elements);
+	assertEquals("Incorrect no of selection elements", 1, elements.length);
+	assertEquals("Incorect type of selection element", IJavaElement.METHOD, elements[0].getElementType());
+	assertEquals("Incorect type of selection element", "println", elements[0].getElementName());
 }
 }
