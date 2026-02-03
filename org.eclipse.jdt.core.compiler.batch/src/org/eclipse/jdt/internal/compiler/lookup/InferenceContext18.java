@@ -1174,12 +1174,24 @@ public class InferenceContext18 {
 				final int numVars = variableSet.size();
 				if (numVars > 0) {
 					final InferenceVariable[] variables = variableSet.toArray(new InferenceVariable[numVars]);
+					// NON-JLS: prioritize ivars in 'inThrows' as those may pull in new information by extra rule below (=RuntimeException)
+					BoundSet tSet = tmpBoundSet;
+					Arrays.sort(variables, (v1, v2) -> {
+						int r1 = tSet.inThrows.contains(v1) ? -1 : 0;
+						int r2 = tSet.inThrows.contains(v2) ? -1 : 0;
+						return r1 - r2;
+					});
+					//
 					variables: if (!isRecordPatternTypeInference && !tmpBoundSet.hasCaptureBound(variableSet)) {
 						// try to instantiate this set of variables in a fresh copy of the bound set:
 						BoundSet prevBoundSet = tmpBoundSet;
 						tmpBoundSet = tmpBoundSet.copy();
 						for (int j = 0; j < variables.length; j++) {
 							InferenceVariable variable = variables[j];
+							if (tmpBoundSet.isInstantiated(variable)) { // NON-JLS: may happen when exception bound has been incorporated
+								toResolveSet.remove(variable);
+								continue;
+							}
 							// try lower bounds:
 							TypeBinding[] lowerBounds = tmpBoundSet.lowerBounds(variable, true/*onlyProper*/);
 							if (lowerBounds != Binding.NO_TYPES) {
@@ -1193,6 +1205,11 @@ public class InferenceContext18 {
 								if (tmpBoundSet.inThrows.contains(variable.prototype()) && tmpBoundSet.hasOnlyTrivialExceptionBounds(variable, upperBounds)) {
 									TypeBinding runtimeException = this.scope.getType(TypeConstants.JAVA_LANG_RUNTIMEEXCEPTION, 3);
 									tmpBoundSet.addBound(new TypeBound(variable, runtimeException, ReductionResult.SAME), this.environment);
+									// NON-JLS: propagate RuntimeException to equivalent ivars:
+									if (!tmpBoundSet.incorporate(this)) {
+										tmpBoundSet = prevBoundSet;// clean-up for second attempt
+										break variables;
+									}
 								} else {
 									// try upper bounds:
 									TypeBinding glb = this.object;
