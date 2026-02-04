@@ -286,7 +286,7 @@ private ClasspathLocation mapToClassPathLocation(JavaModelManager manager, Packa
 			ClasspathEntry rawClasspathEntry = (ClasspathEntry) root.getRawClasspathEntry();
 			if (target != null) {
 				if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
-					cp = new ClasspathSourceDirectory((IContainer)target, root.fullExclusionPatternChars(), root.fullInclusionPatternChars(), rawClasspathEntry.isModular());
+					cp = new ClasspathSourceDirectory((IContainer)target, root.fullExclusionPatternChars(), root.fullInclusionPatternChars(), defaultModule != null);
 				} else {
 					cp = ClasspathLocation.forBinaryFolder((IContainer) target, false, rawClasspathEntry.getAccessRuleSet(),
 														null, rawClasspathEntry.isModular());
