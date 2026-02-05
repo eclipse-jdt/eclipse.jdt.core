@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2025 IBM Corporation and others.
+ * Copyright (c) 2000, 2026 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -55,7 +55,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "test1083" };
+//		TESTS_NAMES = new String[] { "test4736_001" };
 //		TESTS_NUMBERS = new int[] { 470, 627 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
@@ -50289,6 +50289,49 @@ public void testBugBug571785_001() {
 			"	}\n" +
 			"}\n"
 		});
+}
+
+public void test4736_001() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"""
+			import java.util.*;
+
+			interface TypeInfo<T> {
+				default Optional<TypeInfo<?>> findTypeArgument(final int index) { return null;}
+				default <S> Optional<TypeInfo<S>> findSuperTypeInfo(final Class<S> supertype) {return null;}
+			}
+
+			public class X {
+				protected <S, T> Optional<T> tryConvert(final TypeInfo<S> sourceType) {
+			//		@SuppressWarnings("rawtypes") // findSuperTypeInfo(Collection.class) returns raw TypeInfo<Collection>
+					final TypeInfo<?> sourceElementType = sourceType.findSuperTypeInfo(Collection.class) // resolve `Collection<E>` binding from declared type
+							.flatMap((collectionInfo) -> collectionInfo.findTypeArgument(0)) // extract element type `E`
+							.orElseThrow(() -> new IllegalStateException("Error"));
+
+					if (sourceElementType == null) // to suppress warning unused.
+						return null;
+					return null;
+				}
+
+				public static void main(String[] args) {
+					foo();
+				}
+			}
+			""",
+		},
+		"----------\n" +
+		"1. WARNING in X.java (at line 12)\n" +
+		"	.flatMap((collectionInfo) -> collectionInfo.findTypeArgument(0)) // extract element type `E`\n" +
+		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"TypeInfo is a raw type. References to generic type TypeInfo<T> should be parameterized\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 21)\n" +
+		"	foo();\n" +
+		"	^^^\n" +
+		"The method foo() is undefined for the type X\n" +
+		"----------\n");
 }
 
 protected void assertCompileTimes(final List<Duration> shortTimes, final double factor, final List<Duration> longTimes) {
