@@ -76,6 +76,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public ReferenceBinding superclass;        // MUST NOT be modified directly, use setter !
 	public ReferenceBinding[] superInterfaces; // MUST NOT be modified directly, use setter !
 	public char[] genericTypeSignature;
+
+	protected TypeVariableBinding prototype;
 	LookupEnvironment environment;
 
 	public TypeVariableBinding(char[] sourceName, Binding declaringElement, int rank, LookupEnvironment environment) {
@@ -86,6 +88,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 		this.tagBits |= TagBits.HasTypeVariable;
 		this.environment = environment;
 		this.typeBits = TypeIds.BitUninitialized;
+		this.prototype = this;
 		computeId(environment);
 	}
 
@@ -96,11 +99,15 @@ public class TypeVariableBinding extends ReferenceBinding {
 		this.tagBits |= TagBits.HasTypeVariable;
 		this.environment = environment;
 		this.typeBits = TypeIds.BitUninitialized;
+		this.prototype = this;
 		// don't yet compute the ID!
 	}
 
 	public TypeVariableBinding(TypeVariableBinding prototype) {
 		super(prototype);
+		this.prototype = prototype.prototype;
+		this.prototype.tagBits |= TagBits.HasAnnotatedVariants;
+		this.tagBits &= ~TagBits.HasAnnotatedVariants;
 		this.declaringElement = prototype.declaringElement;
 		this.rank = prototype.rank;
 		this.firstBound = prototype.firstBound;
@@ -114,8 +121,6 @@ public class TypeVariableBinding extends ReferenceBinding {
 		}
 		this.genericTypeSignature = prototype.genericTypeSignature;
 		this.environment = prototype.environment;
-		prototype.tagBits |= TagBits.HasAnnotatedVariants;
-		this.tagBits &= ~TagBits.HasAnnotatedVariants;
 	}
 
 	/**
@@ -606,6 +611,15 @@ public class TypeVariableBinding extends ReferenceBinding {
 		this.inRecursiveProjectionFunction = false;
 	}
 
+	public boolean isPrototype() {
+		return this == this.prototype;  //$IDENTITY-COMPARISON$
+	}
+
+	@Override
+	public TypeVariableBinding prototype() {
+		return this.prototype;
+	}
+
 	@Override
 	public boolean isProperType(boolean admitCapture18) {
 		// handle recursive calls:
@@ -885,7 +899,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	@Override
 	public String toString() {
 		if (this.hasTypeAnnotations())
-			return annotatedDebugName();
+			return '<'+ annotatedDebugName() + '>';
 		StringBuilder buffer = new StringBuilder(10);
 		buffer.append('<').append(this.sourceName);//.append('[').append(this.rank).append(']');
 		if (this.superclass != null && TypeBinding.equalsEquals(this.firstBound, this.superclass)) {
@@ -952,9 +966,9 @@ public class TypeVariableBinding extends ReferenceBinding {
 					typeVariables = ((MethodBinding) this.declaringElement).typeVariables();
 				}
 				if (typeVariables != null && typeVariables.length > this.rank) {
-					TypeVariableBinding prototype = typeVariables[this.rank];
-					if (prototype != this)//$IDENTITY-COMPARISON$
-						prototype.appendNullAnnotation(nameBuffer, options);
+					TypeVariableBinding typeVariable = typeVariables[this.rank];
+					if (typeVariable != this)//$IDENTITY-COMPARISON$
+						typeVariable.appendNullAnnotation(nameBuffer, options);
 				}
 			}
 		}
@@ -1063,6 +1077,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 	   Propagate writes to all annotated variants so the clones evolve along.
 	*/
 	public TypeBinding setFirstBound(TypeBinding firstBound) {
+		if (!isPrototype())
+			return this.prototype.setFirstBound(firstBound);
 		this.firstBound = firstBound;
 		if ((this.tagBits & TagBits.HasAnnotatedVariants) != 0) {
 			TypeBinding [] annotatedTypes = getDerivedTypesForDeferredInitialization();
@@ -1079,6 +1095,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 	   Propagate writes to all annotated variants so the clones evolve along.
 	*/
 	public ReferenceBinding setSuperClass(ReferenceBinding superclass) {
+		if (!isPrototype())
+			return this.prototype.setSuperClass(superclass);
 		this.superclass = superclass;
 		if ((this.tagBits & TagBits.HasAnnotatedVariants) != 0) {
 			TypeBinding [] annotatedTypes = getDerivedTypesForDeferredInitialization();
@@ -1093,6 +1111,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 	   Propagate writes to all annotated variants so the clones evolve along.
 	*/
 	public ReferenceBinding [] setSuperInterfaces(ReferenceBinding[] superInterfaces) {
+		if (!isPrototype())
+			return this.prototype.setSuperInterfaces(superInterfaces);
 		this.superInterfaces = superInterfaces;
 		if ((this.tagBits & TagBits.HasAnnotatedVariants) != 0) {
 			TypeBinding [] annotatedTypes = getDerivedTypesForDeferredInitialization();
