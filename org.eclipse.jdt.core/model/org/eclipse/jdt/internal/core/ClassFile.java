@@ -286,7 +286,7 @@ private IBinaryType setupExternalAnnotationProvider(IProject project, final IPat
 	if (resource.exists()) {
 		if (resource.isVirtual()) {
 			Util.log(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID,
-					"Virtual resource "+externalAnnotationPath+" cannot be used as annotationpath for project "+project.getName())); //$NON-NLS-1$ //$NON-NLS-2$
+					"Virtual resource "+externalAnnotationPath+" cannot be used as annotationpath for project "+project.getName()));  //$NON-NLS-1$//$NON-NLS-2$
 			return reader;
 		}
 		resolvedPath = resource.getLocation().toString(); // workspace lookup succeeded -> resolve it
@@ -409,7 +409,8 @@ public IType getType() {
 	return this.binaryType;
 }
 public String getTypeName() {
-	return this.typeName;
+	int lastDollar = this.name.lastIndexOf('$');
+	return lastDollar > 0 ? Util.localTypeName(this.name, lastDollar, this.name.length()) : this.name;
 }
 /*
  * @see IClassFile
