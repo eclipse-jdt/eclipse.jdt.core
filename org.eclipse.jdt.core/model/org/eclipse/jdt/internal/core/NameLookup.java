@@ -845,7 +845,7 @@ public class NameLookup implements SuffixConstants {
 					}
 				}
 				Answer answer = new Answer(type, accessRestriction, entry,
-										getModuleDescription(this.rootProject, root, this.rootToModule, this.rootToResolvedEntries::get));
+										getModuleDescription(this.rootProject, root, this.rootToModule, this.rootToResolvedEntries::get, release));
 				if (!answer.ignoreIfBetter()) {
 					if (answer.isBetter(suggestedAnswer))
 						return answer;
@@ -938,7 +938,7 @@ public class NameLookup implements SuffixConstants {
 	}
 
 	/** Internal utility, which is able to answer explicit and automatic modules. */
-	static IModuleDescription getModuleDescription(JavaProject project, IPackageFragmentRoot root, Map<IPackageFragmentRoot,IModuleDescription> cache, Function<IPackageFragmentRoot,IClasspathEntry> rootToEntry) {
+	static IModuleDescription getModuleDescription(JavaProject project, IPackageFragmentRoot root, Map<IPackageFragmentRoot,IModuleDescription> cache, Function<IPackageFragmentRoot,IClasspathEntry> rootToEntry, int release) {
 		IModuleDescription module = cache.get(root);
 		if (module != null)
 			return module != NO_MODULE ? module : null;
@@ -954,7 +954,7 @@ public class NameLookup implements SuffixConstants {
 		}
 		try {
 			if (root.getKind() == IPackageFragmentRoot.K_SOURCE)
-				module = root.getJavaProject().getModuleDescription(); // from any root in this project
+				module = root.getJavaProject().getModuleDescription(release); // from any root in this project
 		} catch (JavaModelException e) {
 			cache.put(root, NO_MODULE);
 			return null;
@@ -979,7 +979,7 @@ public class NameLookup implements SuffixConstants {
 	}
 
 	public IModule getModuleDescriptionInfo(PackageFragmentRoot root) {
-		IModuleDescription desc = getModuleDescription(this.rootProject, root, this.rootToModule, this.rootToResolvedEntries::get);
+		IModuleDescription desc = getModuleDescription(this.rootProject, root, this.rootToModule, this.rootToResolvedEntries::get, JavaProject.NO_RELEASE);
 		if (desc != null) {
 			return getModuleDescriptionInfo(desc);
 		}
@@ -1103,9 +1103,10 @@ public class NameLookup implements SuffixConstants {
 		}
 		return findType(className, packageName, partialMatch, acceptFlags, considerSecondaryTypes, waitForIndexes, checkRestrictions, monitor);
 	}
-	public Answer findModule(char[] moduleName) {
+
+	public Answer findModule(char[] moduleName, int release) {
 		JavaElementRequestor requestor = new JavaElementRequestor();
-		seekModule(moduleName, false, requestor);
+		seekModule(moduleName, false, requestor, release);
 		IModuleDescription[] modules = requestor.getModules();
 		if (modules.length == 0) {
 			try {
@@ -1387,9 +1388,9 @@ public class NameLookup implements SuffixConstants {
 	}
 
 	public void seekModuleReferences(String name, IJavaElementRequestor requestor, IJavaProject javaProject) {
-		seekModule(name.toCharArray(), true /* prefix */, requestor);
+		seekModule(name.toCharArray(), true /* prefix */, requestor, JavaProject.NO_RELEASE);
 	}
-	public void seekModule(char[] name, boolean prefixMatch, IJavaElementRequestor requestor) {
+	public void seekModule(char[] name, boolean prefixMatch, IJavaElementRequestor requestor, int release) {
 		long start = -1;
 		if (VERBOSE)
 			start = System.currentTimeMillis();
@@ -1412,7 +1413,7 @@ public class NameLookup implements SuffixConstants {
 						continue;
 					}
 				}
-				module = getModuleDescription(this.rootProject, root, this.rootToModule, this.rootToResolvedEntries::get);
+				module = getModuleDescription(this.rootProject, root, this.rootToModule, this.rootToResolvedEntries::get, release);
 				if (module != null && prefixMatcher.matches(name, module.getElementName().toCharArray(), false)) {
 					requestor.acceptModule(module);
 				}
