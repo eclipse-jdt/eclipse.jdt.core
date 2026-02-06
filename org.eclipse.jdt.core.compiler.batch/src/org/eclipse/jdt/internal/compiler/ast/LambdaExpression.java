@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2026 IBM Corporation and others.
+ * Copyright (c) 2012, 2025 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -331,15 +331,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				}
 				if ((argumentType.tagBits & TagBits.HasMissingType) != 0) {
 					this.binding.tagBits |= TagBits.HasMissingType;
-				} else if (argumentsTypeElided) { // argument with type was already checked before.
-					argumentType = this.scope.environment().convertToRawType(argumentType, false /*do not force conversion of enclosing types*/);
-					if (argumentType.leafComponentType().isRawType()
-							&& (this.bits & ASTNode.IgnoreRawTypeCheck) == 0
-							&& this.scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {
-						this.scope.problemReporter().rawTypeReference(this, argumentType);
-					}
 				}
-
 			}
 		}
 		if (!argumentsTypeElided && !argumentsHaveErrors) {
